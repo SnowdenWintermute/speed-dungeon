@@ -1,7 +1,7 @@
 import { AssetId, AssetService, invariant, NodeFileSystemAssetStore } from "@speed-dungeon/common";
 import { AssetCache } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
-import { Router, Request, Response, NextFunction } from "express";
+import { Express, Router, Request, Response, NextFunction } from "express";
 
 export class GameServerNodeAssetService implements AssetService {
   constructor(private localFileSystemStore: AssetCache) {}
@@ -14,13 +14,13 @@ export class GameServerNodeAssetService implements AssetService {
 export class AssetServer {
   constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}
 
-  createRouter(): Router {
+  attachRouter(expressApp: Express) {
     const router = Router();
 
     router.get("/asset-manifest", this.serveManifest.bind(this));
     router.get("/assets/*", this.serveAsset.bind(this));
 
-    return router;
+    expressApp.use(router);
   }
 
   async createManifest() {
@@ -37,22 +37,19 @@ export class AssetServer {
   }
 
   private async serveManifest(req: Request, res: Response, next: NextFunction) {
-    console.log("serving manifest");
     const manifest = await this.createManifest();
     res.json(manifest);
   }
 
   private async serveAsset(req: Request, res: Response, next: NextFunction) {
-    console.log("attempting to serve asset");
     try {
       // const assetId = req.params.assetId;
       const assetId = req.params[0];
-      console.log("looking for assetid:", assetId);
       invariant(assetId !== undefined, "No assetId provided");
       const asset = await this.localFileSystemStore.getAsset(assetId as AssetId);
 
       const buffer = Buffer.from(asset.bytes);
-      console.log("serving asset id:", assetId, "bytes:", buffer);
+
       res
         .status(200)
         .setHeader("Content-Type", "application/octet-stream")

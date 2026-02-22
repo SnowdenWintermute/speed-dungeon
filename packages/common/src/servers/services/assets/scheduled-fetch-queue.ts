@@ -21,6 +21,7 @@ export class ScheduledFetchQueue {
       this.prioritiesById.delete(assetId);
       this.getIdsAtPriority(option).delete(assetId);
     }
+    return option;
   }
 
   private getIdsAtPriority(priority: AssetFetchPriority) {
@@ -34,7 +35,7 @@ export class ScheduledFetchQueue {
     this.prioritiesById.set(assetId, priority);
   }
 
-  popNextHighestPriority(): AssetId | undefined {
+  popNextHighestPriority(): { id: AssetId; priority: AssetFetchPriority } | undefined {
     const sortedPriorities = iterateNumericEnumKeyedRecord(this.idsByPriority)
       .map(([priority, assetIdSet]) => priority)
       .sort((a, b) => a - b);
@@ -45,7 +46,7 @@ export class ScheduledFetchQueue {
         const next = set.values().next().value;
         invariant(next !== undefined);
         this.remove(next);
-        return next;
+        return { id: next, priority };
       }
     }
 

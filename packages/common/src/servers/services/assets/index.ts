@@ -17,6 +17,9 @@ export class ClientAppAssetService implements AssetService {
   private prefetchQueue = new ScheduledFetchQueue();
   private activeFetches = new Map<AssetId, ManagedAssetFetch>();
   private assetManifest: null | AssetManifest = null;
+  // track completion of full update
+  private updateCompletionResolver?: () => void;
+  private updateCompletionPromise?: Promise<void>;
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
@@ -51,33 +54,46 @@ export class ClientAppAssetService implements AssetService {
 
     const scheduledFetchOption = this.prefetchQueue.remove(assetId);
     if (scheduledFetchOption !== undefined) {
-      return this.startManagedFetch(assetId);
+      const bytesOptionIfNotAborted = await this.startManagedFetch(
+        assetId,
+        AssetFetchPriority.Urgent
+      );
+      if (bytesOptionIfNotAborted) {
+        return bytesOptionIfNotAborted;
+      } else {
+        throw new Error("Did not expect to abort an urgent priority fetch");
+      }
     }
 
     const assetInCacheOption = await this.cache.getAssetOption(assetId);
     invariant(assetInCacheOption !== undefined, "Asset was neither cached nor scheduled for fetch");
+    console.log("returning from cache", assetId);
 
     return assetInCacheOption.bytes;
   }
 
-  private async startManagedFetch(assetId: AssetId) {
+  private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
+    const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
+    if (tooManyConcurrentFetches) {
+      console.log("too many concurrent fetches", this.activeFetches.size);
+      this.rescheduleLowPriorityFetches();
+    }
+
     const { promise, abort } = this.remoteStore.getAssetBytesAbortable(assetId);
 
     const versionData = this.requireAssetManifestEntry(assetId);
 
-    console.log("starting managed fetch for", assetId);
-    const newFetch = new ManagedAssetFetch(promise, versionData, AssetFetchPriority.Urgent, abort);
+    const newFetch = new ManagedAssetFetch(promise, versionData, priority, abort);
 
-    promise
+    const managedFetchPromise = promise
       .then(async (bytes) => {
-        console.log("managed fetch then clause");
         const versionedAsset = new VersionedAsset(bytes, versionData);
-        console.log("fetched asset", assetId, bytes);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
+        return bytes;
       })
       .catch((error) => {
-        console.log("managed fetch catch clause");
+        console.log("is abort error:", isAbortError(error));
         if (isAbortError(error)) {
           return;
         }
@@ -85,12 +101,12 @@ export class ClientAppAssetService implements AssetService {
         throw error;
       })
       .finally(() => {
-        console.log("managed fetch finally clause");
         this.activeFetches.delete(assetId);
         const updatesCompleted = this.activeFetches.size === 0 && this.prefetchQueue.isEmpty();
 
         if (updatesCompleted) {
           this.clearUnusedFromCache();
+          this.markUpdateAsCompleted();
         }
 
         if (this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT) {
@@ -100,19 +116,30 @@ export class ClientAppAssetService implements AssetService {
 
     this.activeFetches.set(assetId, newFetch);
 
-    const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
-    if (tooManyConcurrentFetches) {
-      this.rescheduleLowPriorityFetches();
-    }
-
-    console.log("about to await promise");
-    const result = await promise;
-    console.log("after await promise");
+    const result = await managedFetchPromise;
     return result;
+  }
+
+  private markUpdateAsInProgress() {
+    if (!this.updateCompletionPromise) {
+      this.updateCompletionPromise = new Promise<void>((resolve) => {
+        this.updateCompletionResolver = resolve;
+      });
+    }
+  }
+
+  private markUpdateAsCompleted() {
+    if (this.updateCompletionResolver !== undefined) {
+      this.updateCompletionResolver();
+      this.updateCompletionResolver = undefined;
+      this.updateCompletionPromise = undefined;
+    }
+    console.log("full asset update completed");
   }
 
   /** abort any non-urgent fetches and add them back into pre-fetch list to get later */
   private rescheduleLowPriorityFetches() {
+    console.log("started to reschedule");
     const nonUrgentFetchIds = Array.from(this.activeFetches.entries())
       .filter(([assetId, managedFetch]) => managedFetch.isPreemptable())
       .map(([assetId, managedFetch]) => assetId);
@@ -121,6 +148,7 @@ export class ClientAppAssetService implements AssetService {
       const managedFetch = this.activeFetches.get(managedFetchId);
       invariant(managedFetch !== undefined);
       managedFetch.abort();
+      this.activeFetches.delete(managedFetchId);
 
       this.prefetchQueue.add(managedFetchId, managedFetch.priority);
     }
@@ -132,11 +160,12 @@ export class ClientAppAssetService implements AssetService {
       return;
     }
 
-    this.startManagedFetch(nextHighestPriorityFetch);
+    const { id, priority } = nextHighestPriorityFetch;
+
+    this.startManagedFetch(id, priority);
   }
 
-  async startPrefetch() {
-    console.log("starting prefetch");
+  async scheduleAssetUpdates() {
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
     console.log(needsUpdate.size, "assets need updates");
 
@@ -148,14 +177,19 @@ export class ClientAppAssetService implements AssetService {
 
       this.prefetchQueue.add(assetId, defaultPriority);
     }
+  }
+
+  async startAssetUpdatesPrefetch() {
+    this.markUpdateAsInProgress();
 
     while (
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
-      console.log("starting next prefetch");
       this.startNextPrefetch();
     }
+
+    return this.updateCompletionPromise;
   }
 
   private async getAssetIdsNeedingUpdate() {

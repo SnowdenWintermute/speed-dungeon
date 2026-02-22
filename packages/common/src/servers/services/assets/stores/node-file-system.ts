@@ -41,10 +41,11 @@ export class NodeFileSystemAssetStore extends AssetCache {
         continue;
       }
 
-      // Convert to logical id
+      // logical ids are relative paths (monsters/wolf.glb),
+      // not full paths (packages/server/assets/monsters/wolf.glb)
       const relativePath = path.relative(this.baseDir, fullPath);
 
-      // Normalize to forward slashes for cross-platform consistency
+      // if running on windows it would use backslashes instead so make them into forward slashes
       const logicalId = relativePath.split(path.sep).join("/");
 
       results.add(logicalId as AssetId);

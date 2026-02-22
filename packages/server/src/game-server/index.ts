@@ -72,8 +72,7 @@ export class GameServerNode implements ActionCommandReceiver {
     const fsAssetStore = new NodeFileSystemAssetStore("/packages/server/assets");
     const assetService = new GameServerNodeAssetService(fsAssetStore);
     this.assetServer = new AssetServer(fsAssetStore);
-    const assetRouter = this.assetServer.createRouter();
-    expressApp.use(assetRouter);
+    this.assetServer.attachRouter(expressApp);
 
     // const usersIncomingConnectionGateway = new LobbyRemoteIncomingConnectionGateway(this.io);
     // const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();

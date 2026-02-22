@@ -28,21 +28,51 @@ describe("asset management", () => {
 
     const baseAssetDirectory = "packages/server/assets/";
     const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
-    localFileSystemStore.getAssetIdsCached();
+    const cachedBeforeFetch = await cache.getAssetIdsCached();
+    console.log("cached assets count before fetch:", cachedBeforeFetch.size);
 
     const gameServerNodeAssetService = new GameServerNodeAssetService(localFileSystemStore);
 
     const expressApp = createExpressApp();
     const assetServer = new AssetServer(localFileSystemStore);
-    const assetRouter = assetServer.createRouter();
-    expressApp.use(assetRouter);
+    assetServer.attachRouter(expressApp);
 
     expressApp.listen(ASSET_CACHE_TEST_PORT, () => {
       console.log("started listening for asset requests");
     });
 
     await clientAppAssetService.initialize();
-    await clientAppAssetService.startPrefetch();
+    await clientAppAssetService.scheduleAssetUpdates();
+    const fullUpdatePromise = clientAppAssetService.startAssetUpdatesPrefetch();
+
+    const firstUrgentAssetId = "monsters/wolf-full.glb";
+
+    clientAppAssetService.getAsset(firstUrgentAssetId as AssetId);
+
+    const urgentAssetIds = [
+      "monsters/old/velociraptor-full.glb",
+      "monsters/old/velociraptor-main-skeleton (copy 1).glb",
+      "monsters/old/velociraptor-main-skeleton.glb",
+      "monsters/old/wolf-full.glb",
+      "monsters/old/wolf-main-skeleton.glb",
+      "monsters/spider-full.glb",
+      "monsters/spider-main-skeleton.glb",
+      "monsters/wolf-main-skeleton-pre-on-summoned.glb",
+      "monsters/wolf-main-skeleton.glb",
+    ].map((item) => item as AssetId);
+
+    for (const assetId of urgentAssetIds) {
+      clientAppAssetService.getAsset(assetId);
+    }
+
+    await fullUpdatePromise;
+
+    const cachedAfterFetch = await cache.getAssetIdsCached();
+    console.log("cached assets count after fetch:", cachedAfterFetch.size);
+
+    const abortedAssetId = "consumables/autoinjector.glb" as AssetId;
+    const rescheduledAsset = await clientAppAssetService.getAsset(abortedAssetId);
+    console.log("asset that was rescheduled:", rescheduledAsset);
   });
 });
 
