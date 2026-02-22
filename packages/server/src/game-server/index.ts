@@ -6,6 +6,7 @@ import {
   ConnectionIdentityResolutionContext,
   GameMode,
   GameName,
+  GameServerNodeAssetService,
   IdentityProviderService,
   ItemGenerator,
   NodeFileSystemAssetStore,
@@ -46,7 +47,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
-import { AssetServer, GameServerNodeAssetService } from "../asset-server/index.js";
+import { AssetServer } from "../asset-server/index.js";
 
 export type SocketId = string;
 

@@ -45,13 +45,16 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       }
     }
 
-    if (stepConfig.shouldIdleOnComplete) update.idleOnComplete = true;
+    if (stepConfig.shouldIdleOnComplete) {
+      update.idleOnComplete = true;
+    }
 
-    if (stepConfig.getEquipmentAnimations)
+    if (stepConfig.getEquipmentAnimations) {
       update.equipmentAnimations = stepConfig.getEquipmentAnimations(
         actionUser,
         context.manager.sequentialActionManagerRegistry.animationLengths
       );
+    }
 
     /**Here we create and set the internal reference to the associated game update command, as well as
      * apply updates to game state for instantly processed steps*/

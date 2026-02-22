@@ -1,15 +1,6 @@
-import { AssetId, AssetService, invariant, NodeFileSystemAssetStore } from "@speed-dungeon/common";
-import { AssetCache } from "@speed-dungeon/common";
+import { AssetId, invariant, NodeFileSystemAssetStore } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
-
-export class GameServerNodeAssetService implements AssetService {
-  constructor(private localFileSystemStore: AssetCache) {}
-  async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
-    const versionedAsset = await this.localFileSystemStore.getAsset(assetId);
-    return versionedAsset.bytes;
-  }
-}
 
 export class AssetServer {
   constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}

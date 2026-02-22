@@ -2,7 +2,8 @@ import { AssetId, ClientAppAssetService } from "@speed-dungeon/common";
 import { IndexedDbAssetStore } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/common";
 import { RemoteServerAssetStore } from "@speed-dungeon/common";
-import { AssetServer, GameServerNodeAssetService } from "@speed-dungeon/server";
+import { GameServerNodeAssetService } from "@speed-dungeon/common";
+import { AssetServer } from "@speed-dungeon/server";
 import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { createExpressApp } from "./create-test-express-app.js";
 
@@ -28,8 +29,6 @@ describe("asset management", () => {
 
     const baseAssetDirectory = "packages/server/assets/";
     const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
-    const cachedBeforeFetch = await cache.getAssetIdsCached();
-    console.log("cached assets count before fetch:", cachedBeforeFetch.size);
 
     const gameServerNodeAssetService = new GameServerNodeAssetService(localFileSystemStore);
 
@@ -67,12 +66,11 @@ describe("asset management", () => {
 
     await fullUpdatePromise;
 
-    const cachedAfterFetch = await cache.getAssetIdsCached();
-    console.log("cached assets count after fetch:", cachedAfterFetch.size);
-
-    const abortedAssetId = "consumables/autoinjector.glb" as AssetId;
-    const rescheduledAsset = await clientAppAssetService.getAsset(abortedAssetId);
-    console.log("asset that was rescheduled:", rescheduledAsset);
+    // to test:
+    // - after full update, able to find an asset that was preempted/aborted in the cache (aborted fetches properly rescheduled)
+    // - able to preempt low priority fetches
+    // - urgent fetches not preempted/aborted
+    // - after full update, cached asset count equal to total asset count
   });
 });
 

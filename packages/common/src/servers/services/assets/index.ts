@@ -67,7 +67,6 @@ export class ClientAppAssetService implements AssetService {
 
     const assetInCacheOption = await this.cache.getAssetOption(assetId);
     invariant(assetInCacheOption !== undefined, "Asset was neither cached nor scheduled for fetch");
-    console.log("returning from cache", assetId);
 
     return assetInCacheOption.bytes;
   }
@@ -75,7 +74,6 @@ export class ClientAppAssetService implements AssetService {
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
     const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
-      console.log("too many concurrent fetches", this.activeFetches.size);
       this.rescheduleLowPriorityFetches();
     }
 
@@ -93,11 +91,9 @@ export class ClientAppAssetService implements AssetService {
         return bytes;
       })
       .catch((error) => {
-        console.log("is abort error:", isAbortError(error));
         if (isAbortError(error)) {
           return;
         }
-        console.log("error fetching asset:", error);
         throw error;
       })
       .finally(() => {
@@ -134,12 +130,10 @@ export class ClientAppAssetService implements AssetService {
       this.updateCompletionResolver = undefined;
       this.updateCompletionPromise = undefined;
     }
-    console.log("full asset update completed");
   }
 
   /** abort any non-urgent fetches and add them back into pre-fetch list to get later */
   private rescheduleLowPriorityFetches() {
-    console.log("started to reschedule");
     const nonUrgentFetchIds = Array.from(this.activeFetches.entries())
       .filter(([assetId, managedFetch]) => managedFetch.isPreemptable())
       .map(([assetId, managedFetch]) => assetId);
@@ -167,7 +161,6 @@ export class ClientAppAssetService implements AssetService {
 
   async scheduleAssetUpdates() {
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
-    console.log(needsUpdate.size, "assets need updates");
 
     for (const [assetId, versionData] of needsUpdate) {
       let defaultPriority = this.assetIdsByDefaultPrefetchPriority.get(assetId);

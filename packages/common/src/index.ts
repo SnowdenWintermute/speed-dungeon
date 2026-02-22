@@ -68,6 +68,7 @@ export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/services/profiles.js";
+export * from "./servers/services/assets/game-server-node-asset-service.js";
 export * from "./servers/services/saved-characters.js";
 export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";

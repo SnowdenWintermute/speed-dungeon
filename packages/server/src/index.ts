@@ -1,1 +1,1 @@
-export { AssetServer, GameServerNodeAssetService } from "./asset-server/index.js";
+export { AssetServer } from "./asset-server/index.js";

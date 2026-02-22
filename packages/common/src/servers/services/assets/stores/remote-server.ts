@@ -47,7 +47,6 @@ export class RemoteServerAssetStore implements RemoteAssetStore {
         })
         .catch((err) => {
           if (abortController.signal.aborted) {
-            console.log("fetch aborted:", assetId);
             reject(new FetchAbortedError());
           }
           reject(err);

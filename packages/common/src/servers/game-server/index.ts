@@ -28,6 +28,7 @@ import { AffixGenerator } from "../../items/item-creation/builders/affix-generat
 import { GameServerGameEventCommandReceiver } from "./controllers/game-event-command-receiver.js";
 import { PLACEHOLDER_ANIMATION_LENGTHS } from "../../types.js";
 import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
+import { AssetId, AssetService } from "../services/assets/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -35,6 +36,7 @@ export interface GameServerExternalServices {
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
+  assetService: AssetService;
 }
 
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;

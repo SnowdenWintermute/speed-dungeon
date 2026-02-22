@@ -9,6 +9,7 @@ import { ConnectionId, GameServerName, Username } from "../../../aliases.js";
 import { RaceGameRecordsService } from "../../services/race-game-records.js";
 import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { AssetService } from "../../services/assets/index.js";
 
 export const TEST_GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
 export const TEST_LOBBY_SERVER_PORT = 8090;
@@ -65,7 +66,8 @@ export function createGameServerTestServices(
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
-  raceGameRecordsService: RaceGameRecordsService
+  raceGameRecordsService: RaceGameRecordsService,
+  assetService: AssetService
 ): GameServerExternalServices {
   const externalServices = {
     gameSessionStoreService,
@@ -73,6 +75,7 @@ export function createGameServerTestServices(
     savedCharactersService,
     rankedLadderService,
     raceGameRecordsService,
+    assetService,
   };
   return externalServices;
 }

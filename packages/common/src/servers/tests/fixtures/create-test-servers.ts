@@ -25,6 +25,8 @@ import {
 import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
 import { InMemoryReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/in-memory-reconnection-forwarding-store.js";
 import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
+import { NodeFileSystemAssetStore } from "../../services/assets/stores/node-file-system.js";
+import { GameServerNodeAssetService } from "../../services/assets/game-server-node-asset-service.js";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -44,6 +46,10 @@ export async function createTestServers(
   );
 
   const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
+
+  const baseAssetDirectory = "packages/server/assets/";
+  const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
+  const gameServerNodeAssetService = new GameServerNodeAssetService(localFileSystemStore);
 
   const testSecret = await SodiumHelpers.createSecret();
   const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
@@ -74,7 +80,8 @@ export async function createTestServers(
       reconnectionForwardingStoreService,
       savedCharactersService,
       rankedLadderService,
-      raceGameRecordsService
+      raceGameRecordsService,
+      gameServerNodeAssetService
     ),
     codec
   );
