@@ -5,11 +5,11 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { GAME_CONFIG, NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
 import { Battle } from "../../../battle/index.js";
 import { Combatant } from "../../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ItemGenerator } from "../../../items/item-creation/index.js";
 import { generateMonster } from "../../../monsters/generate-monster.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
+import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
@@ -21,6 +21,7 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { AssetAnalyzer } from "../asset-analyzer/index.js";
 import { PartyDelayedGameMessageFactory } from "../party-delayed-game-message-factory.js";
 import { BattleProcessor } from "./battle-processor/index.js";
+import { GameModeContext } from "./game-lifecycle/game-mode-context.js";
 
 export class DungeonExplorationController {
   constructor(
@@ -31,7 +32,8 @@ export class DungeonExplorationController {
     private readonly itemGenerator: ItemGenerator,
     private readonly randomNumberGenerator: RandomNumberGenerator,
     private readonly gameEventCommandReceiver: ActionCommandReceiver,
-    private readonly assetAnalyzer: AssetAnalyzer
+    private readonly assetAnalyzer: AssetAnalyzer,
+    private readonly gameModeContexts: Record<GameMode, GameModeContext>
   ) {}
 
   async toggleReadyToExploreHandler(
@@ -74,7 +76,10 @@ export class DungeonExplorationController {
   async toggleReadyToDescendHandler(session: UserSession) {
     const { game, party, player } = session.requirePlayerContext();
 
-    this.requireDescentPermitted(party);
+    game.requireTimeStarted();
+    game.requireInputUnlocked();
+    party.requireInputUnlocked();
+    party.requireDescentPermitted();
 
     const { dungeonExplorationManager } = party;
     dungeonExplorationManager.updatePlayerExplorationActionChoice(
@@ -82,25 +87,28 @@ export class DungeonExplorationController {
       ExplorationAction.Descend
     );
 
-    getGameServer()
-      .io.in(getPartyChannelName(game.name, party.name))
-      .emit(
-        ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
-        player.username,
-        ExplorationAction.Descend
-      );
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.PlayerToggledReadyToDescendOrExplore,
+      data: { username: session.username, explorationAction: ExplorationAction.Descend },
+    });
 
     const allPlayersReadyToDescend = dungeonExplorationManager.allPlayersReadyToTakeAction(
       ExplorationAction.Descend,
       party
     );
-    if (!allPlayersReadyToDescend) return;
 
-    return this.descendParty(game, party);
+    if (allPlayersReadyToDescend) {
+      const descentOutbox = await this.descendParty(game, party);
+      outbox.pushFromOther(descentOutbox);
+    }
+
+    return outbox;
   }
 
   async descendParty(game: SpeedDungeonGame, party: AdventuringParty) {
-    const gameModeContext = gameServer.gameModeContexts[game.mode];
+    const gameModeContext = this.gameModeContexts[game.mode];
 
     const { dungeonExplorationManager } = party;
     dungeonExplorationManager.incrementCurrentFloor();
@@ -110,16 +118,22 @@ export class DungeonExplorationController {
     dungeonExplorationManager.clearUnexploredRooms();
     dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
-    gameServer.io
-      .in(getPartyChannelName(game.name, party.name))
-      .emit(ServerToClientEvent.DungeonFloorNumber, floorNumber);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.DungeonFloorNumber,
+      data: { floorNumber },
+    });
 
     // tell other parties so they feel the pressure of other parties descending
-    emitMessageInGameWithOptionalDelayForParty(
-      game.name,
-      GameMessageType.PartyDescent,
-      `Party "${party.name}" descended to floor ${floorNumber}`
-    );
+    const descentMessageOutbox =
+      this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+        game.getChannelName(),
+        GameMessageType.PartyDescent,
+        `Party "${party.name}" descended to floor ${floorNumber}`
+      );
+
+    outbox.pushFromOther(descentMessageOutbox);
 
     const partyEscapedTheDungeon = floorNumber === GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE;
 
@@ -136,31 +150,25 @@ export class DungeonExplorationController {
       party.timeOfEscape = timeOfEscape;
 
       let hasBeenMarkedAsWinnerMessageOption = "";
-      if (!anotherPartyAlreadyEscaped)
+      if (!anotherPartyAlreadyEscaped) {
         hasBeenMarkedAsWinnerMessageOption = " and has been marked as the winner";
+      }
 
-      emitMessageInGameWithOptionalDelayForParty(
-        game.name,
-        GameMessageType.PartyEscape,
-        `Party "${party.name}" escaped the dungeon at ${new Date(timeOfEscape).toLocaleString()}${hasBeenMarkedAsWinnerMessageOption}!`
-      );
+      const escapeMessageOutbox =
+        this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+          game.getChannelName(),
+          GameMessageType.PartyEscape,
+          `Party "${party.name}" escaped the dungeon at ${new Date(timeOfEscape).toLocaleString()}${hasBeenMarkedAsWinnerMessageOption}!`
+        );
 
-      const maybeError = await gameModeContext.onPartyEscape(game, party);
-      if (maybeError instanceof Error) return maybeError;
+      outbox.pushFromOther(escapeMessageOutbox);
+
+      await gameModeContext.strategy.onPartyEscape(game, party);
     }
 
-    // generate next floor etc
-    return gameServer.exploreNextRoom(game, party);
-  }
-
-  requireDescentPermitted(party: AdventuringParty) {
-    if (party.combatantManager.monstersArePresent()) {
-      throw new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
-    }
-
-    if (party.currentRoom.roomType !== DungeonRoomType.Staircase) {
-      throw new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
-    }
+    const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
+    outbox.pushFromOther(exploreNextRoomOutbox);
+    return outbox;
   }
 
   private async exploreNextRoom(
@@ -236,7 +244,6 @@ export class DungeonExplorationController {
     );
     const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
     outbox.pushFromOther(battleProcessingOutbox);
-    // if (maybeError instanceof Error) return maybeError;
     return outbox;
   }
 

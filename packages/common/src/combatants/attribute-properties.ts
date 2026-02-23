@@ -1,6 +1,6 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { plainToInstance } from "class-transformer";
-import { CombatAttribute } from "./attributes/index.js";
+import { ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES, CombatAttribute } from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
 import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
@@ -8,6 +8,7 @@ import { Item } from "../items/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { initializeCombatAttributeRecord } from "./attributes/initialize-combat-attribute-record.js";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class CombatantAttributeProperties extends CombatantSubsystem {
   private inherentAttributes: CombatantAttributeRecord = {};
@@ -60,7 +61,7 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
   getUnmetItemRequirements(item: Item) {
     const totalAttributes = this.getTotalAttributes();
 
-    const unmetAttributeRequirements: Set<CombatAttribute> = new Set();
+    const unmetAttributeRequirements = new Set<CombatAttribute>();
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(item.requirements)) {
       const characterAttribute = totalAttributes[attribute] || 0;
       if (characterAttribute >= value) continue;
@@ -74,5 +75,17 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
     const requirementsMet = Item.requirementsMet(item, this.getTotalAttributes());
     if (!requirementsMet) return false;
     return true;
+  }
+
+  requireUnspentAttributes() {
+    if (this.getUnspentPoints() <= 0) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NO_UNSPENT_ATTRIBUTE_POINTS);
+    }
+  }
+
+  requireAttributeAllocatable(attribute: CombatAttribute) {
+    if (!ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(attribute)) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.ATTRIBUTE_IS_NOT_ASSIGNABLE);
+    }
   }
 }

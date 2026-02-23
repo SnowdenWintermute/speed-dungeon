@@ -33,26 +33,27 @@ export function createGameServerClientIntentHandlers(
       gameServer.combatActionController.cycleTargetingSchemesHandler(user, data),
     [ClientIntentType.UseSelectedCombatAction]: (data, user) =>
       gameServer.combatActionController.useSelectedCombatActionHandler(user, data),
-    //
     // // DUNGEON EXPLORATION
     [ClientIntentType.ToggleReadyToExplore]: (_, user) =>
       gameServer.dungeonExplorationController.toggleReadyToExploreHandler(user),
-    // ToggleReadyToDescend,
-    //
+    [ClientIntentType.ToggleReadyToDescend]: (_, user) =>
+      gameServer.dungeonExplorationController.toggleReadyToDescendHandler(user),
     // // CHARACTER PROGRESSION
-    // IncrementAttribute,
-    // AllocateAbilityPoint,
+    [ClientIntentType.IncrementAttribute]: (data, user) =>
+      gameServer.characterProgressionController.characterSpentAttributePointHandler(user, data),
+    [ClientIntentType.AllocateAbilityPoint]: (data, user) =>
+      gameServer.characterProgressionController.characterAllocatedAbilityPointHandler(user, data),
+    // // ITEM MANAGEMENT
+    // DropEquippedItem,
+    // DropItem,
+    // AcknowledgeReceiptOfItemOnGroundUpdate,
+    // PickUpItems,
     //
     // // EQUIPMENT
     // UnequipSlot,
     // SelectHoldableHotswapSlot,
     // EquipInventoryItem,
     //
-    // // ITEM MANAGEMENT
-    // DropEquippedItem,
-    // DropItem,
-    // AcknowledgeReceiptOfItemOnGroundUpdate,
-    // PickUpItems,
     //
     // // crafting and trading
     // ConvertItemsToShards,

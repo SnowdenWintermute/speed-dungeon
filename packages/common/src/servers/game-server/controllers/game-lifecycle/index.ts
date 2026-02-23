@@ -12,9 +12,6 @@ import { MessageDispatchFactory } from "../../../update-delivery/message-dispatc
 import { getPartyChannelName } from "../../../../packets/channels.js";
 import { GameMode } from "../../../../types.js";
 import { GameModeContext } from "./game-mode-context.js";
-import { RaceGameRecordsService } from "../../../services/race-game-records.js";
-import { SavedCharactersService } from "../../../services/saved-characters.js";
-import { RankedLadderService } from "../../../services/ranked-ladder.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
 import {
@@ -25,33 +22,15 @@ import {
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
-  gameModeContexts: Record<GameMode, GameModeContext>;
 
   constructor(
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    raceGameRecordsService: RaceGameRecordsService,
-    savedCharactersService: SavedCharactersService,
-    rankedLadderService: RankedLadderService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory
-  ) {
-    this.gameModeContexts = {
-      [GameMode.Race]: new GameModeContext(
-        GameMode.Race,
-        raceGameRecordsService,
-        savedCharactersService,
-        rankedLadderService
-      ),
-      [GameMode.Progression]: new GameModeContext(
-        GameMode.Progression,
-        raceGameRecordsService,
-        savedCharactersService,
-        rankedLadderService
-      ),
-    };
-  }
+    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
+    private readonly gameModeContexts: Record<GameMode, GameModeContext>
+  ) {}
 
   async getOrInitializeGame(gameName: GameName) {
     const existingGame = this.gameRegistry.getGameOption(gameName);

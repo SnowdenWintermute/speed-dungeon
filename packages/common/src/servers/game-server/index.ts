@@ -30,6 +30,9 @@ import { ReconnectionForwardingStoreService } from "../services/reconnection-for
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
+import { GameMode } from "../../types.js";
+import { GameModeContext } from "./controllers/game-lifecycle/game-mode-context.js";
+import { CharacterProgressionController } from "./controllers/character-progression.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -61,8 +64,10 @@ export class GameServer extends SpeedDungeonServer {
   public readonly dungeonExplorationController: DungeonExplorationController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
   public readonly combatActionController: CombatActionController;
+  public readonly characterProgressionController: CharacterProgressionController;
   // public readonly savedCharactersController: SavedCharactersController;
   private readonly gameEventCommandReceiver: GameServerGameEventCommandReceiver;
+  private readonly gameModeContexts: Record<GameMode, GameModeContext>;
 
   constructor(
     readonly name: GameServerName,
@@ -88,15 +93,28 @@ export class GameServer extends SpeedDungeonServer {
     this.heartbeatScheduler.start();
     this.startActiveGamesRecordHeartbeatTask();
 
+    this.gameModeContexts = {
+      [GameMode.Race]: new GameModeContext(
+        GameMode.Race,
+        externalServices.raceGameRecordsService,
+        externalServices.savedCharactersService,
+        externalServices.rankedLadderService
+      ),
+      [GameMode.Progression]: new GameModeContext(
+        GameMode.Progression,
+        externalServices.raceGameRecordsService,
+        externalServices.savedCharactersService,
+        externalServices.rankedLadderService
+      ),
+    };
+
     this.gameLifecycleController = new GameServerGameLifecycleController(
       this.gameRegistry,
       this.userSessionRegistry,
       this.externalServices.gameSessionStoreService,
-      this.externalServices.raceGameRecordsService,
-      this.externalServices.savedCharactersService,
-      this.externalServices.rankedLadderService,
       this.updateDispatchFactory,
-      this.partyDelayedGameMessageFactory
+      this.partyDelayedGameMessageFactory,
+      this.gameModeContexts
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
@@ -110,7 +128,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.gameEventCommandReceiver = new GameServerGameEventCommandReceiver(
       this.gameRegistry,
-      this.gameLifecycleController.gameModeContexts
+      this.gameModeContexts
     );
 
     this.dungeonExplorationController = new DungeonExplorationController(
@@ -121,7 +139,8 @@ export class GameServer extends SpeedDungeonServer {
       this.itemGenerator,
       this.randomNumberGenerator,
       this.gameEventCommandReceiver,
-      this.assetAnalyzer
+      this.assetAnalyzer,
+      this.gameModeContexts
     );
 
     this.combatActionController = new CombatActionController(
@@ -131,6 +150,10 @@ export class GameServer extends SpeedDungeonServer {
       this.randomNumberGenerator,
       this.gameEventCommandReceiver,
       this.assetAnalyzer
+    );
+
+    this.characterProgressionController = new CharacterProgressionController(
+      this.updateDispatchFactory
     );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(

@@ -144,4 +144,12 @@ export class AdventuringParty {
       throw new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
     }
   }
+
+  requireDescentPermitted() {
+    this.requireNotInCombat();
+
+    if (this.currentRoom.roomType !== DungeonRoomType.Staircase) {
+      throw new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
+    }
+  }
 }
