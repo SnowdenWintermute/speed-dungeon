@@ -199,11 +199,9 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterCycledTargets]: {
     characterId: string;
     direction: NextOrPrevious;
-    playerUsername: Username;
   };
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: {
     characterId: string;
-    playerUsername: Username;
   };
   [GameStateUpdateType.DungeonFloorNumber]: {
     floorNumber: number;

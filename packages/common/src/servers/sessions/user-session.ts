@@ -1,4 +1,5 @@
 import {
+  CombatantId,
   ConnectionId,
   GameName,
   GuestSessionReconnectionToken,
@@ -8,6 +9,7 @@ import {
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ActionValidity } from "../../primatives/index.js";
+import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
@@ -176,5 +178,31 @@ export class UserSession extends ConnectionSession {
     const key = this.getReconnectionKeyOption();
     invariant(key !== null);
     return key;
+  }
+
+  requirePlayerContext() {
+    const game = this.getExpectedCurrentGame();
+    const player = game.getExpectedPlayer(this.username);
+    const party = this.getExpectedCurrentParty(game);
+
+    return { game, party, player };
+  }
+
+  requireCharacterContext(
+    characterId: CombatantId,
+    options?: { requireOwned?: boolean; requireAlive?: boolean }
+  ): CharacterAssociatedData {
+    const { game, party, player } = this.requirePlayerContext();
+    const character = party.combatantManager.getExpectedCombatant(characterId);
+
+    if (options?.requireOwned) {
+      character.combatantProperties.controlledBy.requireOwnedBy(this.username);
+    }
+
+    if (options?.requireAlive) {
+      character.combatantProperties.requireAlive();
+    }
+
+    return { game, party, player, character };
   }
 }

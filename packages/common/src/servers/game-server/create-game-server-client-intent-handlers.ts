@@ -23,26 +23,25 @@ export function createGameServerClientIntentHandlers(
     // LeaveGame,
     //
     // // ACTION SELECTION
-    // SelectCombatAction,
     [ClientIntentType.SelectCombatAction]: (data, user) =>
       gameServer.combatActionController.selectCombatActionHandler(user, data),
-    // SelectCombatActionLevel,
     [ClientIntentType.SelectCombatActionRank]: (data, user) =>
       gameServer.combatActionController.selectCombatActionRankHandler(user, data),
-    // CycleCombatActionTargets,
-    // CycleTargetingSchemes,
-    // UseSelectedCombatAction,
+    [ClientIntentType.CycleCombatActionTargets]: (data, user) =>
+      gameServer.combatActionController.cycleTargetsHandler(user, data),
+    [ClientIntentType.CycleTargetingSchemes]: (data, user) =>
+      gameServer.combatActionController.cycleTargetingSchemesHandler(user, data),
+    [ClientIntentType.UseSelectedCombatAction]: (data, user) =>
+      gameServer.combatActionController.useSelectedCombatActionHandler(user, data),
+    //
+    // // DUNGEON EXPLORATION
+    [ClientIntentType.ToggleReadyToExplore]: (_, user) =>
+      gameServer.dungeonExplorationController.toggleReadyToExploreHandler(user),
+    // ToggleReadyToDescend,
     //
     // // CHARACTER PROGRESSION
     // IncrementAttribute,
     // AllocateAbilityPoint,
-    //
-    // // DUNGEON EXPLORATION
-    // ToggleReadyToExplore,
-
-    [ClientIntentType.ToggleReadyToExplore]: (_, user) =>
-      gameServer.dungeonExplorationController.toggleReadyToExploreHandler(user),
-    // ToggleReadyToDescend,
     //
     // // EQUIPMENT
     // UnequipSlot,

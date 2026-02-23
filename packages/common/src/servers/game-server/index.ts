@@ -114,8 +114,8 @@ export class GameServer extends SpeedDungeonServer {
     );
 
     this.dungeonExplorationController = new DungeonExplorationController(
-      this.gameRegistry,
       this.updateDispatchFactory,
+      this.partyDelayedGameMessageFactory,
       this.externalServices.savedCharactersService,
       this.idGenerator,
       this.itemGenerator,
@@ -124,7 +124,14 @@ export class GameServer extends SpeedDungeonServer {
       this.assetAnalyzer
     );
 
-    this.combatActionController = new CombatActionController(this.updateDispatchFactory);
+    this.combatActionController = new CombatActionController(
+      this.updateDispatchFactory,
+      this.idGenerator,
+      this.itemGenerator,
+      this.randomNumberGenerator,
+      this.gameEventCommandReceiver,
+      this.assetAnalyzer
+    );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(
       this.updateDispatchFactory,

@@ -10,25 +10,47 @@ import { MessageDispatchFactory } from "../../../update-delivery/message-dispatc
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
+import { NextOrPrevious } from "../../../../primatives/index.js";
+import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
+import { CharacterAssociatedData } from "../../../../types.js";
+import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
+import {
+  ActionCommandPayload,
+  ActionCommandType,
+  CombatActionReplayTreePayload,
+} from "../../../../action-processing/index.js";
+import { BattleProcessor } from "../battle-processor/index.js";
+import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
+import { IdGenerator } from "../../../../utility-classes/index.js";
+import { ItemGenerator } from "../../../../items/item-creation/index.js";
+import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
+import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 
 export class CombatActionController {
-  constructor(private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>) {}
+  constructor(
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private idGenerator: IdGenerator,
+    private itemGenerator: ItemGenerator,
+    private rng: RandomNumberGenerator,
+    private gameEventCommandReceiver: ActionCommandReceiver,
+    private assetAnalyzer: AssetAnalyzer
+  ) {}
 
   selectCombatActionHandler(
     session: UserSession,
     data: {
-      characterId: string;
+      characterId: CombatantId;
       actionAndRankOption: ActionAndRank | null;
       itemIdOption?: string;
     }
   ) {
     const { characterId, actionAndRankOption, itemIdOption } = data;
 
-    const game = session.getExpectedCurrentGame();
-    const party = session.getExpectedCurrentParty(game);
-    const character = party.combatantManager.getExpectedCombatant(characterId);
-    character.combatantProperties.controlledBy.requireOwnedBy(session.username);
-    character.combatantProperties.requireAlive();
+    const { game, party, player, character } = session.requireCharacterContext(characterId, {
+      requireAlive: true,
+      requireOwned: true,
+    });
 
     const { abilityProperties } = character.combatantProperties;
 
@@ -57,7 +79,6 @@ export class CombatActionController {
 
     targetingProperties.setSelectedItemId(itemIdOption || null);
 
-    const player = game.getExpectedPlayer(session.username);
     const targetingCalculator = new TargetingCalculator(
       new ActionUserContext(game, party, character),
       player
@@ -94,11 +115,10 @@ export class CombatActionController {
   ) {
     const { actionRank, characterId } = data;
 
-    const game = session.getExpectedCurrentGame();
-    const party = session.getExpectedCurrentParty(game);
-    const character = party.combatantManager.getExpectedCombatant(characterId);
-    character.combatantProperties.controlledBy.requireOwnedBy(session.username);
-    character.combatantProperties.requireAlive();
+    const { game, party, player, character } = session.requireCharacterContext(characterId, {
+      requireAlive: true,
+      requireOwned: true,
+    });
     const targetingProperties = character.getTargetingProperties();
     const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
@@ -138,7 +158,6 @@ export class CombatActionController {
 
     // check if current targets are still valid at this rank
     const actionUserContext = new ActionUserContext(game, party, character);
-    const player = game.getExpectedPlayer(session.username);
     const targetingCalculator = new TargetingCalculator(actionUserContext, player);
     targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel();
 
@@ -151,6 +170,187 @@ export class CombatActionController {
         actionRank,
       },
     });
+
+    return outbox;
+  }
+
+  cycleTargetsHandler(
+    session: UserSession,
+    data: { characterId: CombatantId; direction: NextOrPrevious }
+  ) {
+    const { characterId, direction } = data;
+    const { game, party, player, character } = session.requireCharacterContext(characterId, {
+      requireAlive: true,
+      requireOwned: true,
+    });
+
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, party, character),
+      player
+    );
+
+    const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
+    const targetingProperties = character.getTargetingProperties();
+    targetingProperties.cycleTargets(direction, player, validTargetsByDisposition);
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.CharacterCycledTargets,
+      data: { characterId, direction },
+    });
+
+    return outbox;
+  }
+
+  cycleTargetingSchemesHandler(session: UserSession, data: { characterId: CombatantId }) {
+    const { characterId } = data;
+    const { game, party, player, character } = session.requireCharacterContext(characterId, {
+      requireAlive: true,
+      requireOwned: true,
+    });
+
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, party, character),
+      player
+    );
+
+    const targetingProperties = character.getTargetingProperties();
+
+    targetingProperties.cycleTargetingSchemes(targetingCalculator);
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.CharacterCycledTargetingSchemes,
+      data: { characterId },
+    });
+
+    return outbox;
+  }
+
+  async useSelectedCombatActionHandler(session: UserSession, data: { characterId: CombatantId }) {
+    const { characterId } = data;
+    const characterContext = session.requireCharacterContext(characterId, {
+      requireAlive: true,
+      requireOwned: true,
+    });
+
+    const validTargetsAndActionNameResult = this.validateClientActionUseRequest(characterContext);
+
+    const { actionAndRank, targets } = validTargetsAndActionNameResult;
+    const { actionName, rank } = actionAndRank;
+
+    const actionExecutionIntent = new CombatActionExecutionIntent(actionName, rank, targets);
+
+    this.updateCharacterTargetingPreferencesOnActionExecution(characterContext, targets);
+
+    const outbox = await this.executeAction(characterContext, actionExecutionIntent, true);
+    return outbox;
+  }
+
+  private validateClientActionUseRequest(characterContext: CharacterAssociatedData) {
+    const { game, party, character } = characterContext;
+
+    party.requireInputUnlocked();
+
+    const targetingProperties = character.getTargetingProperties();
+
+    const targets = targetingProperties.getSelectedTarget();
+    if (targets === null) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
+    }
+
+    const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
+    if (selectedActionAndRankOption === null) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+    }
+
+    const maybeError = character.canUseAction(selectedActionAndRankOption, game, party);
+    if (maybeError instanceof Error) {
+      throw maybeError;
+    }
+
+    return { actionAndRank: selectedActionAndRankOption, targets };
+  }
+
+  private updateCharacterTargetingPreferencesOnActionExecution(
+    characterContext: CharacterAssociatedData,
+    targets: CombatActionTarget
+  ) {
+    const { character, game, party } = characterContext;
+    // we only want to update a character's target preferences on execution, unlike how a player's
+    // preferences are updated on cycle or action selection, because this is currently only used for
+    // their pet to attack the last hostile they targeted. If we update on cycle, the character could cycle
+    // past a hostile target while trying to target something else, then whatever the last hostile they targeted
+    // would be the pet's target, instead of what the character last attacked.
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, party, character),
+      null
+    );
+    const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
+    const { targetingProperties } = character.combatantProperties;
+    targetingProperties.updatePreferences(targets, validTargetsByDisposition);
+  }
+
+  private async executeAction(
+    characterContext: CharacterAssociatedData,
+    actionExecutionIntent: CombatActionExecutionIntent,
+    lockInuptWhileReplaying: boolean
+  ) {
+    const { game, party, character } = characterContext;
+    const actionUserContext = new ActionUserContext(game, party, character);
+
+    const replayTreeResult = processCombatAction(
+      actionExecutionIntent,
+      actionUserContext,
+      this.idGenerator,
+      this.assetAnalyzer.animationLengths,
+      this.assetAnalyzer.boundingBoxes
+    );
+
+    if (replayTreeResult instanceof Error) {
+      throw replayTreeResult;
+    }
+
+    const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+
+    const replayTreePayload: CombatActionReplayTreePayload = {
+      type: ActionCommandType.CombatActionReplayTree,
+      actionUserId: character.entityProperties.id,
+      root: replayTreeResult.rootReplayNode,
+    };
+
+    if (!lockInuptWhileReplaying) {
+      replayTreePayload.doNotLockInput = true;
+    }
+
+    const payloads: ActionCommandPayload[] = [replayTreePayload];
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.ActionCommandPayloads,
+      data: { payloads },
+    });
+
+    if (battleOption) {
+      const battleProcessor = new BattleProcessor(
+        this.updateDispatchFactory,
+        game,
+        party,
+        battleOption,
+        this.idGenerator,
+        this.itemGenerator,
+        this.rng,
+        this.gameEventCommandReceiver,
+        this.assetAnalyzer
+      );
+
+      const battleProcessingOutbox =
+        await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+      outbox.pushFromOther(battleProcessingOutbox);
+    }
 
     return outbox;
   }

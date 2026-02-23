@@ -2,9 +2,10 @@ import { ActionCommandReceiver } from "../../../action-processing/action-command
 import { ExplorationAction } from "../../../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
+import { GAME_CONFIG, NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
 import { Battle } from "../../../battle/index.js";
 import { Combatant } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ItemGenerator } from "../../../items/item-creation/index.js";
 import { generateMonster } from "../../../monsters/generate-monster.js";
@@ -13,18 +14,18 @@ import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-stat
 import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
-import { GameRegistry } from "../../game-registry.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { AssetAnalyzer } from "../asset-analyzer/index.js";
+import { PartyDelayedGameMessageFactory } from "../party-delayed-game-message-factory.js";
 import { BattleProcessor } from "./battle-processor/index.js";
 
 export class DungeonExplorationController {
   constructor(
-    private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
     private readonly itemGenerator: ItemGenerator,
@@ -36,9 +37,7 @@ export class DungeonExplorationController {
   async toggleReadyToExploreHandler(
     session: UserSession
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    const game = session.getExpectedCurrentGame();
-    const player = game.getExpectedPlayer(session.username);
-    const party = game.getExpectedParty(player.getExpectedPartyName());
+    const { game, party, player } = session.requirePlayerContext();
 
     game.requireTimeStarted();
     game.requireInputUnlocked();
@@ -70,6 +69,98 @@ export class DungeonExplorationController {
     }
 
     return outbox;
+  }
+
+  async toggleReadyToDescendHandler(session: UserSession) {
+    const { game, party, player } = session.requirePlayerContext();
+
+    this.requireDescentPermitted(party);
+
+    const { dungeonExplorationManager } = party;
+    dungeonExplorationManager.updatePlayerExplorationActionChoice(
+      player.username,
+      ExplorationAction.Descend
+    );
+
+    getGameServer()
+      .io.in(getPartyChannelName(game.name, party.name))
+      .emit(
+        ServerToClientEvent.PlayerToggledReadyToDescendOrExplore,
+        player.username,
+        ExplorationAction.Descend
+      );
+
+    const allPlayersReadyToDescend = dungeonExplorationManager.allPlayersReadyToTakeAction(
+      ExplorationAction.Descend,
+      party
+    );
+    if (!allPlayersReadyToDescend) return;
+
+    return this.descendParty(game, party);
+  }
+
+  async descendParty(game: SpeedDungeonGame, party: AdventuringParty) {
+    const gameModeContext = gameServer.gameModeContexts[game.mode];
+
+    const { dungeonExplorationManager } = party;
+    dungeonExplorationManager.incrementCurrentFloor();
+
+    const floorNumber = dungeonExplorationManager.getCurrentFloor();
+
+    dungeonExplorationManager.clearUnexploredRooms();
+    dungeonExplorationManager.clearPlayerExplorationActionChoices();
+
+    gameServer.io
+      .in(getPartyChannelName(game.name, party.name))
+      .emit(ServerToClientEvent.DungeonFloorNumber, floorNumber);
+
+    // tell other parties so they feel the pressure of other parties descending
+    emitMessageInGameWithOptionalDelayForParty(
+      game.name,
+      GameMessageType.PartyDescent,
+      `Party "${party.name}" descended to floor ${floorNumber}`
+    );
+
+    const partyEscapedTheDungeon = floorNumber === GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE;
+
+    if (partyEscapedTheDungeon) {
+      let anotherPartyAlreadyEscaped = false;
+      for (const party of Object.values(game.adventuringParties)) {
+        if (party.timeOfEscape) {
+          anotherPartyAlreadyEscaped = true;
+          break;
+        }
+      }
+
+      const timeOfEscape = Date.now();
+      party.timeOfEscape = timeOfEscape;
+
+      let hasBeenMarkedAsWinnerMessageOption = "";
+      if (!anotherPartyAlreadyEscaped)
+        hasBeenMarkedAsWinnerMessageOption = " and has been marked as the winner";
+
+      emitMessageInGameWithOptionalDelayForParty(
+        game.name,
+        GameMessageType.PartyEscape,
+        `Party "${party.name}" escaped the dungeon at ${new Date(timeOfEscape).toLocaleString()}${hasBeenMarkedAsWinnerMessageOption}!`
+      );
+
+      const maybeError = await gameModeContext.onPartyEscape(game, party);
+      if (maybeError instanceof Error) return maybeError;
+    }
+
+    // generate next floor etc
+    return gameServer.exploreNextRoom(game, party);
+  }
+
+  requireDescentPermitted(party: AdventuringParty) {
+    if (party.combatantManager.monstersArePresent()) {
+      throw new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
+    }
+
+    if (party.currentRoom.roomType !== DungeonRoomType.Staircase) {
+      throw new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
+    }
   }
 
   private async exploreNextRoom(

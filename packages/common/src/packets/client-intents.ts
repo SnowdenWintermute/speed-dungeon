@@ -120,8 +120,8 @@ export interface ClientIntentMap {
     characterId: CombatantId;
     direction: NextOrPrevious;
   };
-  [ClientIntentType.CycleTargetingSchemes]: { characterId: string };
-  [ClientIntentType.UseSelectedCombatAction]: { characterId: string };
+  [ClientIntentType.CycleTargetingSchemes]: { characterId: CombatantId };
+  [ClientIntentType.UseSelectedCombatAction]: { characterId: CombatantId };
   [ClientIntentType.DropEquippedItem]: {
     characterId: CombatantId;
     slot: TaggedEquipmentSlot;
