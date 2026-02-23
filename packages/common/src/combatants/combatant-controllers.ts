@@ -5,6 +5,7 @@ import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export enum CombatantControllerType {
   Player,
@@ -32,6 +33,12 @@ export class CombatantControlledBy extends CombatantSubsystem {
 
   static getDeserialized(controlledBy: CombatantControlledBy) {
     return plainToInstance(CombatantControlledBy, controlledBy);
+  }
+
+  requireOwnedBy(username: Username) {
+    if (username !== this.controllerPlayerName) {
+      throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+    }
   }
 
   setAiTypes(aiTypes: AiType[]) {

@@ -19,7 +19,7 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { CombatantClass, EntityId, Inventory } from "../index.js";
+import { CombatantClass, EntityId, ERROR_MESSAGES, Inventory } from "../index.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;
@@ -117,5 +117,11 @@ export class CombatantProperties {
 
   isDead() {
     return this.resources.getHitPoints() <= 0;
+  }
+
+  requireAlive() {
+    if (this.isDead()) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
+    }
   }
 }

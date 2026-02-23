@@ -27,6 +27,8 @@ export class CombatActionController {
     const game = session.getExpectedCurrentGame();
     const party = session.getExpectedCurrentParty(game);
     const character = party.combatantManager.getExpectedCombatant(characterId);
+    character.combatantProperties.controlledBy.requireOwnedBy(session.username);
+    character.combatantProperties.requireAlive();
 
     const { abilityProperties } = character.combatantProperties;
 
@@ -95,6 +97,8 @@ export class CombatActionController {
     const game = session.getExpectedCurrentGame();
     const party = session.getExpectedCurrentParty(game);
     const character = party.combatantManager.getExpectedCombatant(characterId);
+    character.combatantProperties.controlledBy.requireOwnedBy(session.username);
+    character.combatantProperties.requireAlive();
     const targetingProperties = character.getTargetingProperties();
     const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
