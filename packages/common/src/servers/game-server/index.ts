@@ -28,7 +28,8 @@ import { AffixGenerator } from "../../items/item-creation/builders/affix-generat
 import { GameServerGameEventCommandReceiver } from "./controllers/game-event-command-receiver.js";
 import { PLACEHOLDER_ANIMATION_LENGTHS } from "../../types.js";
 import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
-import { AssetId, AssetService } from "../services/assets/index.js";
+import { AssetService } from "../services/assets/index.js";
+import { AssetAnalyzer } from "./asset-analyzer/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -53,6 +54,8 @@ export class GameServer extends SpeedDungeonServer {
     this.updateDispatchFactory
   );
 
+  private readonly assetAnalyzer: AssetAnalyzer;
+
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
   public readonly dungeonExplorationController: DungeonExplorationController;
@@ -67,6 +70,8 @@ export class GameServer extends SpeedDungeonServer {
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     super(name, incomingConnectionGateway);
+
+    this.assetAnalyzer = new AssetAnalyzer(this.externalServices.assetService);
 
     this.itemGenerator = new ItemGenerator(
       this.idGenerator,
