@@ -26,10 +26,10 @@ import { DungeonExplorationController } from "./controllers/dungeon-exploration.
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
 import { GameServerGameEventCommandReceiver } from "./controllers/game-event-command-receiver.js";
-import { PLACEHOLDER_ANIMATION_LENGTHS } from "../../types.js";
 import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
+import { CombatActionController } from "./controllers/combat-action/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -60,6 +60,7 @@ export class GameServer extends SpeedDungeonServer {
   public readonly gameLifecycleController: GameServerGameLifecycleController;
   public readonly dungeonExplorationController: DungeonExplorationController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
+  public readonly combatActionController: CombatActionController;
   // public readonly savedCharactersController: SavedCharactersController;
   private readonly gameEventCommandReceiver: GameServerGameEventCommandReceiver;
 
@@ -120,9 +121,10 @@ export class GameServer extends SpeedDungeonServer {
       this.itemGenerator,
       this.randomNumberGenerator,
       this.gameEventCommandReceiver,
-      PLACEHOLDER_ANIMATION_LENGTHS,
-      {}
+      this.assetAnalyzer
     );
+
+    this.combatActionController = new CombatActionController(this.updateDispatchFactory);
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(
       this.updateDispatchFactory,

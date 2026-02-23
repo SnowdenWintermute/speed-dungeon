@@ -10,7 +10,7 @@ import { ItemGenerator } from "../../../items/item-creation/index.js";
 import { generateMonster } from "../../../monsters/generate-monster.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { AnimationLengths, BoundingBoxSizes, GameMode } from "../../../types.js";
+import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { GameRegistry } from "../../game-registry.js";
@@ -18,6 +18,7 @@ import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
+import { AssetAnalyzer } from "../asset-analyzer/index.js";
 import { BattleProcessor } from "./battle-processor/index.js";
 
 export class DungeonExplorationController {
@@ -29,8 +30,7 @@ export class DungeonExplorationController {
     private readonly itemGenerator: ItemGenerator,
     private readonly randomNumberGenerator: RandomNumberGenerator,
     private readonly gameEventCommandReceiver: ActionCommandReceiver,
-    private readonly animationLengths: AnimationLengths,
-    private readonly boundingBoxSizes: BoundingBoxSizes
+    private readonly assetAnalyzer: AssetAnalyzer
   ) {}
 
   async toggleReadyToExploreHandler(
@@ -141,8 +141,7 @@ export class DungeonExplorationController {
       this.itemGenerator,
       this.randomNumberGenerator,
       this.gameEventCommandReceiver,
-      this.animationLengths,
-      this.boundingBoxSizes
+      this.assetAnalyzer
     );
     const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
     outbox.pushFromOther(battleProcessingOutbox);

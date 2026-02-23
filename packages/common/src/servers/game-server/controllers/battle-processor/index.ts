@@ -13,7 +13,7 @@ import { Battle } from "../../../../battle/index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { AnimationLengths, BoundingBoxSizes, PartyWipes } from "../../../../types.js";
+import { PartyWipes } from "../../../../types.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
@@ -22,6 +22,7 @@ import { getBattleConclusionCommandAndPayload } from "./get-battle-conclusion-co
 import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
+import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 
 export class BattleProcessor {
   constructor(
@@ -33,8 +34,7 @@ export class BattleProcessor {
     private itemGenerator: ItemGenerator,
     private rng: RandomNumberGenerator,
     private gameEventCommandReceiver: ActionCommandReceiver,
-    private animationLengths: AnimationLengths,
-    private boundingBoxSizes: BoundingBoxSizes
+    private assetAnalyzer: AssetAnalyzer
   ) {}
 
   async processBattleUntilPlayerTurnOrConclusion() {
@@ -93,8 +93,8 @@ export class BattleProcessor {
           actionExecutionIntent,
           new ActionUserContext(game, party, user),
           this.idGenerator,
-          this.animationLengths,
-          this.boundingBoxSizes
+          this.assetAnalyzer.animationLengths,
+          this.assetAnalyzer.boundingBoxes
         );
 
         if (replayTreeResult instanceof Error) {

@@ -78,7 +78,7 @@ export enum GameStateUpdateType {
   CharacterPerformedCraftingAction,
   PlayerPostedItemLink,
   // ActionResultReplayTree ,
-  CharacterSelectedCombatActionLevel,
+  CharacterSelectedCombatActionRank,
   CharacterAllocatedAbilityPoint,
   CharacterTradedItemForBook,
   CharacterRenamedPet,
@@ -254,9 +254,9 @@ export interface GameStateUpdateMap {
     username: string;
     itemId: EntityId;
   };
-  [GameStateUpdateType.CharacterSelectedCombatActionLevel]: {
+  [GameStateUpdateType.CharacterSelectedCombatActionRank]: {
     characterId: EntityId;
-    actionLevel: number;
+    actionRank: number;
   };
   [GameStateUpdateType.CharacterAllocatedAbilityPoint]: {
     characterId: EntityId;
@@ -378,7 +378,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.CharacterPerformedCraftingAction]: "CharacterPerformedCraftingAction",
   [GameStateUpdateType.PlayerPostedItemLink]: "PlayerPostedItemLink",
   // ActionResultReplayTree ,
-  [GameStateUpdateType.CharacterSelectedCombatActionLevel]: "CharacterSelectedCombatActionLevel",
+  [GameStateUpdateType.CharacterSelectedCombatActionRank]: "CharacterSelectedCombatActionRank",
   [GameStateUpdateType.CharacterAllocatedAbilityPoint]: "CharacterAllocatedAbilityPoint",
   [GameStateUpdateType.CharacterTradedItemForBook]: "CharacterTradedItemForBook",
   [GameStateUpdateType.CharacterRenamedPet]: "CharacterRenamedPet",

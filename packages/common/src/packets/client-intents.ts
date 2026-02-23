@@ -42,7 +42,7 @@ export enum ClientIntentType {
 
   // action selection
   SelectCombatAction,
-  SelectCombatActionLevel,
+  SelectCombatActionRank,
   CycleCombatActionTargets,
   CycleTargetingSchemes,
   UseSelectedCombatAction,
@@ -155,7 +155,7 @@ export interface ClientIntentMap {
     craftingAction: CraftingAction;
   };
   [ClientIntentType.PostItemLink]: { itemId: EntityId };
-  [ClientIntentType.SelectCombatActionLevel]: {
+  [ClientIntentType.SelectCombatActionRank]: {
     characterId: CombatantId;
     actionRank: ActionRank;
   };

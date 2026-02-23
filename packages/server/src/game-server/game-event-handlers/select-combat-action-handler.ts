@@ -1,6 +1,5 @@
 import {
   CharacterAssociatedData,
-  Inventory,
   Option,
   ServerToClientEvent,
   getPartyChannelName,
