@@ -158,7 +158,6 @@ export * from "./items/item-creation/equipment-templates/index.js";
 export * from "./items/trading/index.js";
 export * from "./items/trading/combatant-is-allowed-to-trade-for-books.js";
 
-export * from "./items/crafting/convert-items-to-shards.js";
 export * from "./items/crafting/craft-action-prices.js";
 export * from "./items/crafting/shard-sell-prices.js";
 export * from "./items/crafting/crafting-actions.js";

@@ -20,6 +20,7 @@ import {
   EntityId,
   GameName,
   GuestSessionReconnectionToken,
+  ItemId,
   PartyName,
   Username,
 } from "../aliases.js";
@@ -179,9 +180,9 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterDroppedEquippedItem]: CharacterAndSlot;
   [GameStateUpdateType.CharacterUnequippedItem]: CharacterAndSlot;
   [GameStateUpdateType.CharacterEquippedItem]: {
-    itemId: string;
+    itemId: ItemId;
     equipToAlternateSlot: boolean;
-    characterId: string;
+    characterId: CombatantId;
   };
   [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
@@ -224,9 +225,7 @@ export interface GameStateUpdateMap {
     characterId: string;
     slotIndex: number;
   };
-  [GameStateUpdateType.CharacterConvertedItemsToShards]: {
-    characterAndItems: CharacterAndItems;
-  };
+  [GameStateUpdateType.CharacterConvertedItemsToShards]: CharacterAndItems;
   [GameStateUpdateType.CharacterDroppedShards]: {
     characterId: string;
     shardStack: Consumable;

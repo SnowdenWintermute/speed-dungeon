@@ -2,7 +2,6 @@ import {
   CharacterAndItems,
   CharacterAssociatedData,
   TaggedEquipmentSlot,
-  convertItemsToShards,
 } from "@speed-dungeon/common";
 import { characterAssociatedDataProvider } from "../combatant-associated-details-providers";
 import { setAlert } from "../../components/alerts";
@@ -32,8 +31,13 @@ export function characterConvertedItemsToShardsHandler(characterAndItems: Charac
           }
         }
       }
-      const maybeError = convertItemsToShards(characterAndItems.itemIds, character);
-      if (maybeError instanceof Error) setAlert(maybeError);
+      try {
+        character.convertOwnedItemsToShards(characterAndItems.itemIds);
+      } catch (error) {
+        if (error instanceof Error) {
+          setAlert(error);
+        }
+      }
     }
   );
 

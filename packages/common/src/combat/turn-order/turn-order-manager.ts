@@ -12,6 +12,7 @@ import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
 import { runIfInBrowser } from "../../utils/index.js";
 import { makeAutoObservable } from "mobx";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
 export class TurnOrderManager {
   private minTrackersCount: number = 12;
@@ -83,6 +84,17 @@ export class TurnOrderManager {
       taggedIdOfTrackedEntity.type === TurnTrackerEntityType.Combatant &&
       taggedIdOfTrackedEntity.combatantId === combatantId
     );
+  }
+
+  requireActionUserFirstInTurnOrder(id: EntityId) {
+    const isCombatantTurn = this.combatantIsFirstInTurnOrder(id);
+    if (!isCombatantTurn) {
+      console.info(`
+      actual first action user: ${this.getFastestActorTurnOrderTracker().getEntityId()},
+      you attempted to move as ${id}`);
+
+      throw new Error(`${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE}`);
+    }
   }
 
   updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {

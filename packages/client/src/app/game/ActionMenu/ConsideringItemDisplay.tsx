@@ -1,10 +1,6 @@
 import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
 import React from "react";
-import {
-  Consumable,
-  combatantIsAllowedToConvertItemsToShards,
-  getItemSellPrice,
-} from "@speed-dungeon/common";
+import { Consumable, getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
@@ -42,8 +38,7 @@ export const ConsideringItemDisplay = observer(() => {
         ) : (
           <div>Equipping this item will swap it with any currently equipped item</div>
         )}
-        {combatantIsAllowedToConvertItemsToShards(
-          focusedCharacter.combatantProperties,
+        {focusedCharacter.combatantProperties.abilityProperties.shardConversionPermitted(
           party.currentRoom.roomType
         ) && (
           <div className="mt-4">

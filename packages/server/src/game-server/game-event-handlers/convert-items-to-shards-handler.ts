@@ -3,12 +3,9 @@ import {
   CharacterAndItems,
   CharacterAssociatedData,
   ClientToServerEventTypes,
-  ERROR_MESSAGES,
   GameMode,
   ServerToClientEvent,
   ServerToClientEventTypes,
-  combatantIsAllowedToConvertItemsToShards,
-  convertItemsToShards,
   getPartyChannelName,
 } from "@speed-dungeon/common";
 import { getGameServer } from "../../singletons/index.js";
@@ -24,18 +21,13 @@ export async function convertItemsToShardsHandler(
   const gameServer = getGameServer();
   const { itemIds } = characterAndItems;
 
-  if (
-    !combatantIsAllowedToConvertItemsToShards(
-      character.combatantProperties,
-      party.currentRoom.roomType
-    )
-  )
-    return new Error(ERROR_MESSAGES.NOT_PERMITTED);
+  character.combatantProperties.abilityProperties.requireShardConversionPermitted(
+    party.currentRoom.roomType
+  );
 
   // find and convert it if owned (common code)
   // clone the itemIds so we can keep the unmodified original to send to the clients
-  const maybeError = convertItemsToShards(cloneDeep(itemIds), character);
-  if (maybeError instanceof Error) return maybeError;
+  character.convertOwnedItemsToShards(cloneDeep(itemIds));
 
   // SERVER
   // save the character if in progression game

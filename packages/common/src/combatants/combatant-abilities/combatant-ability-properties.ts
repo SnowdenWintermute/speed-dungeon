@@ -26,6 +26,7 @@ import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
+import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions = new Map<CombatActionName, CombatantActionState>();
@@ -295,5 +296,18 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
       CombatantConditionName.Ensnared
     );
     return !isEnsnared;
+  }
+
+  shardConversionPermitted(currentRoomType: DungeonRoomType) {
+    return (
+      currentRoomType === DungeonRoomType.VendingMachine ||
+      this.getTraitProperties().hasTraitType(CombatantTraitType.CanConvertToShardsManually)
+    );
+  }
+
+  requireShardConversionPermitted(currentRoomType: DungeonRoomType) {
+    if (!this.shardConversionPermitted(currentRoomType)) {
+      throw new Error(ERROR_MESSAGES.NOT_PERMITTED);
+    }
   }
 }

@@ -5,6 +5,7 @@ import { plainToInstance } from "class-transformer";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { ActionPayableResource } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
 import { CombatAttribute } from "./attributes/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class CombatantResources extends CombatantSubsystem {
   private hitPoints: number = 1;
@@ -24,6 +25,11 @@ export class CombatantResources extends CombatantSubsystem {
   getHitPoints = () => this.hitPoints;
   getMana = () => this.mana;
   getActionPoints = () => this.actionPoints;
+  requireActionPointCount(count: number) {
+    if (this.actionPoints < count) {
+      new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+    }
+  }
 
   refillActionPoints() {
     this.actionPoints = COMBATANT_MAX_ACTION_POINTS;

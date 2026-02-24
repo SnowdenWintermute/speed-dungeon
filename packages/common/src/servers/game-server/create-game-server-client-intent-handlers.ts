@@ -52,15 +52,16 @@ export function createGameServerClientIntentHandlers(
       gameServer.itemManagementController.acknowledgeReceiptOfItemOnGroundHandler(user, data),
     [ClientIntentType.PickUpItems]: (data, user) =>
       gameServer.itemManagementController.pickUpItemsHandler(user, data),
-    //
     // // EQUIPMENT
-    // UnequipSlot,
-    // SelectHoldableHotswapSlot,
-    // EquipInventoryItem,
-    //
-    //
-    // // crafting and trading
-    // ConvertItemsToShards,
+    [ClientIntentType.UnequipSlot]: (data, user) =>
+      gameServer.itemManagementController.unequipSlotHandler(user, data),
+    [ClientIntentType.SelectHoldableHotswapSlot]: (data, user) =>
+      gameServer.itemManagementController.selectHoldableHotswapSlotHandler(user, data),
+    [ClientIntentType.EquipInventoryItem]: (data, user) =>
+      gameServer.itemManagementController.equipItemHandler(user, data),
+    // // CRAFTING AND TRADING
+    [ClientIntentType.ConvertItemsToShards]: (data, user) =>
+      gameServer.craftingController.convertItemsToShardsHandler(user, data),
     // DropShards,
     // PurchaseItem,
     // PerformCraftingAction,

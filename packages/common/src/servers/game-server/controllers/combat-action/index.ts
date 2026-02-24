@@ -293,7 +293,7 @@ export class CombatActionController {
     targetingProperties.updatePreferences(targets, validTargetsByDisposition);
   }
 
-  private async executeAction(
+  async executeAction(
     characterContext: CharacterAssociatedData,
     actionExecutionIntent: CombatActionExecutionIntent,
     lockInuptWhileReplaying: boolean

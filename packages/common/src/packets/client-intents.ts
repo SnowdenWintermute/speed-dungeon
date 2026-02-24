@@ -7,6 +7,7 @@ import {
   EntityId,
   EntityName,
   GameName,
+  ItemId,
   PartyName,
 } from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
@@ -113,8 +114,8 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.EquipInventoryItem]: {
     characterId: CombatantId;
-    itemId: string;
-    equipToAltSlot: boolean;
+    itemId: ItemId;
+    equipToAlternateSlot: boolean;
   };
   [ClientIntentType.CycleCombatActionTargets]: {
     characterId: CombatantId;
@@ -140,10 +141,10 @@ export interface ClientIntentMap {
   [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     slotIndex: CharacterSlotIndex;
   };
-  [ClientIntentType.ConvertItemsToShards]: { characterAndItems: CharacterAndItems };
+  [ClientIntentType.ConvertItemsToShards]: CharacterAndItems;
   [ClientIntentType.DropShards]: { characterId: CombatantId; shardsCount: number };
   [ClientIntentType.PurchaseItem]: {
     characterId: CombatantId;

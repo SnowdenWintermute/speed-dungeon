@@ -1,15 +1,6 @@
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Inventory } from "./inventory/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import {
-  CombatActionName,
-  CombatantConditionName,
-  CombatantId,
-  EntityId,
-  EntityProperties,
-  FriendOrFoe,
-  MaxAndCurrent,
-} from "../index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
@@ -27,6 +18,14 @@ import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatantId, EntityId } from "../aliases.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { CombatantConditionName } from "../conditions/condition-names.js";
+import { ArrayUtils } from "../utils/array-utils.js";
+import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
 
 export class Combatant implements IActionUser {
   constructor(
@@ -324,5 +323,29 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.conditionManager.hasConditionName(
       CombatantConditionName.Ensnared
     );
+  }
+
+  convertOwnedItemsToShards(itemIds: EntityId[]) {
+    const { combatantProperties } = this;
+    const itemsInInventory = combatantProperties.inventory.getItems();
+    const equippedItems = combatantProperties.equipment.getAllEquippedItems({
+      includeUnselectedHotswapSlots: true,
+    });
+
+    if (itemIds.length === 0) return;
+    for (const item of itemsInInventory.concat(equippedItems)) {
+      if (!itemIds.includes(item.entityProperties.id)) continue;
+      const shardsCount = this.convertItemToShards(item, combatantProperties);
+      combatantProperties.inventory.changeShards(shardsCount);
+      ArrayUtils.removeElement(itemIds, item.entityProperties.id);
+      if (itemIds.length === 0) break;
+    }
+  }
+
+  private convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
+    const itemId = item.entityProperties.id;
+    const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemId);
+    if (removedItemResult instanceof Error) throw removedItemResult;
+    return getItemSellPrice(removedItemResult);
   }
 }
