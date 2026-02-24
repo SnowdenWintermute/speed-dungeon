@@ -246,4 +246,10 @@ export class Inventory extends CombatantSubsystem {
   canAffordShardPrice(price: number) {
     return price <= this.shards;
   }
+
+  requireShardCount(count: number) {
+    if (!this.canAffordShardPrice(count)) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_ENOUGH_SHARDS);
+    }
+  }
 }

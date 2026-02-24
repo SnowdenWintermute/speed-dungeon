@@ -147,9 +147,6 @@ export class AdventuringParty {
 
   requireDescentPermitted() {
     this.requireNotInCombat();
-
-    if (this.currentRoom.roomType !== DungeonRoomType.Staircase) {
-      throw new Error(ERROR_MESSAGES.PARTY.INCORRECT_ROOM_TYPE);
-    }
+    this.currentRoom.requireType(DungeonRoomType.Staircase);
   }
 }

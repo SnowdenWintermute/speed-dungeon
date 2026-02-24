@@ -34,7 +34,7 @@ import { GameMode } from "../../types.js";
 import { GameModeContext } from "./controllers/game-lifecycle/game-mode-context.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
-import { CraftingController } from "./controllers/crafting.js";
+import { CraftingController } from "./controllers/crafting/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -168,7 +168,9 @@ export class GameServer extends SpeedDungeonServer {
 
     this.craftingController = new CraftingController(
       this.updateDispatchFactory,
-      this.externalServices.savedCharactersService
+      this.externalServices.savedCharactersService,
+      this.idGenerator,
+      this.itemGenerator
     );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(

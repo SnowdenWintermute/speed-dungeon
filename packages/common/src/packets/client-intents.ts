@@ -145,14 +145,14 @@ export interface ClientIntentMap {
     slotIndex: CharacterSlotIndex;
   };
   [ClientIntentType.ConvertItemsToShards]: CharacterAndItems;
-  [ClientIntentType.DropShards]: { characterId: CombatantId; shardsCount: number };
+  [ClientIntentType.DropShards]: { characterId: CombatantId; shardCount: number };
   [ClientIntentType.PurchaseItem]: {
     characterId: CombatantId;
     consumableType: ConsumableType;
   };
   [ClientIntentType.PerformCraftingAction]: {
     characterId: CombatantId;
-    itemId: EntityId;
+    itemId: ItemId;
     craftingAction: CraftingAction;
   };
   [ClientIntentType.PostItemLink]: { itemId: EntityId };

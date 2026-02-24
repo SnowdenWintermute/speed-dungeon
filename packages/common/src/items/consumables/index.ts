@@ -5,6 +5,7 @@ import { ConsumableType } from "./consumable-types.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { EntityName } from "../../aliases.js";
+import { IdGenerator } from "../../utility-classes/index.js";
 
 export class Consumable extends Item {
   constructor(
@@ -23,6 +24,21 @@ export class Consumable extends Item {
 
   static isSkillBook(consumableType: ConsumableType) {
     return (SKILL_BOOK_CONSUMABLE_TYPES as readonly ConsumableType[]).includes(consumableType);
+  }
+
+  static createShardStack(numShards: number, idGenerator: IdGenerator) {
+    const name =
+      `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})` as EntityName;
+    return new Consumable(
+      {
+        name,
+        id: idGenerator.generate(),
+      },
+      0,
+      {},
+      ConsumableType.StackOfShards,
+      numShards
+    );
   }
 }
 

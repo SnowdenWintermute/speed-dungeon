@@ -62,9 +62,12 @@ export function createGameServerClientIntentHandlers(
     // // CRAFTING AND TRADING
     [ClientIntentType.ConvertItemsToShards]: (data, user) =>
       gameServer.craftingController.convertItemsToShardsHandler(user, data),
-    // DropShards,
-    // PurchaseItem,
-    // PerformCraftingAction,
+    [ClientIntentType.DropShards]: (data, user) =>
+      gameServer.craftingController.dropShardsHandler(user, data),
+    [ClientIntentType.PurchaseItem]: (data, user) =>
+      gameServer.craftingController.purchaseItemHandler(user, data),
+    [ClientIntentType.PerformCraftingAction]: (data, user) =>
+      gameServer.craftingController.craftItemHandler(user, data),
     // TradeItemForBook,
     //
     // // MISC UTILITY
