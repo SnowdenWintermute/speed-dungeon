@@ -19,7 +19,7 @@ export function pickUpItemsHandler(
   let reachedMaxCapacity = false;
 
   const gameServer = getGameServer();
-  let idsPickedUp: string[] = [];
+  const idsPickedUp: string[] = [];
 
   for (const itemId of eventData.itemIds) {
     // make sure all players know about the item or else desync will occur
@@ -62,7 +62,7 @@ export function pickUpItemsHandler(
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
   gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterPickedUpItems, {
-    characterId: character.entityProperties.id,
+    characterId: character.getEntityId(),
     itemIds: idsPickedUp,
   });
 

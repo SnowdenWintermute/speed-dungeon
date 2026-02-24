@@ -33,6 +33,7 @@ import { CombatActionController } from "./controllers/combat-action/index.js";
 import { GameMode } from "../../types.js";
 import { GameModeContext } from "./controllers/game-lifecycle/game-mode-context.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
+import { ItemManagementController } from "./controllers/item-management.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -65,6 +66,7 @@ export class GameServer extends SpeedDungeonServer {
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
   public readonly combatActionController: CombatActionController;
   public readonly characterProgressionController: CharacterProgressionController;
+  public readonly itemManagementController: ItemManagementController;
   // public readonly savedCharactersController: SavedCharactersController;
   private readonly gameEventCommandReceiver: GameServerGameEventCommandReceiver;
   private readonly gameModeContexts: Record<GameMode, GameModeContext>;
@@ -154,6 +156,11 @@ export class GameServer extends SpeedDungeonServer {
 
     this.characterProgressionController = new CharacterProgressionController(
       this.updateDispatchFactory
+    );
+
+    this.itemManagementController = new ItemManagementController(
+      this.updateDispatchFactory,
+      this.externalServices.savedCharactersService
     );
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(

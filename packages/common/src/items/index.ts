@@ -4,6 +4,7 @@ import { Consumable } from "./consumables/index.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { ConsumableType } from "./consumables/consumable-types.js";
 
 export enum ItemType {
   Consumable,
@@ -53,5 +54,13 @@ export abstract class Item {
 
   static isConsumable(item: Item) {
     return item instanceof Consumable;
+  }
+
+  getType() {
+    return this instanceof Consumable ? ItemType.Consumable : ItemType.Equipment;
+  }
+
+  isShardStack() {
+    return this instanceof Consumable && this.consumableType === ConsumableType.StackOfShards;
   }
 }

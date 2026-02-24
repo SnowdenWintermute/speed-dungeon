@@ -7,7 +7,7 @@ import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
 import { EntityId } from "../../aliases.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
-import { runIfInBrowser } from "../../utils/index.js";
+import { invariant, runIfInBrowser } from "../../utils/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringParty } from "../../adventuring-party/index.js";
@@ -128,7 +128,7 @@ export class Inventory extends CombatantSubsystem {
   pickUpShardStack(stackId: EntityId, inventoryFrom: Inventory) {
     const shardStackResult = inventoryFrom.removeItem(stackId);
     if (shardStackResult instanceof Error) return shardStackResult;
-    if (!(shardStackResult instanceof Consumable)) return new Error("checked expectation failed");
+    invariant(shardStackResult instanceof Consumable);
     this.changeShards(shardStackResult.usesRemaining);
   }
 
@@ -208,6 +208,14 @@ export class Inventory extends CombatantSubsystem {
     let itemOption: Consumable | Equipment | Error = this.getConsumableById(itemId);
     if (itemOption instanceof Error) itemOption = this.getEquipmentById(itemId);
     return itemOption;
+  }
+
+  requireItem(itemId: string) {
+    const itemResult = this.getItemById(itemId);
+    if (itemResult instanceof Error) {
+      throw itemResult;
+    }
+    return itemResult;
   }
 
   getItems(): Item[] {

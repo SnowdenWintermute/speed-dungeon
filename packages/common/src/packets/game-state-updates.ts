@@ -16,6 +16,7 @@ import { ActionAndRank } from "../action-user-context/action-user-targeting-prop
 import {
   ChannelName,
   CharacterSlotIndex,
+  CombatantId,
   EntityId,
   GameName,
   GuestSessionReconnectionToken,
@@ -174,23 +175,15 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.GameMessage]: {
     message: GameMessage;
   };
-  [GameStateUpdateType.CharacterDroppedItem]: {
-    characterAndItem: CharacterAndItem;
-  };
-  [GameStateUpdateType.CharacterDroppedEquippedItem]: {
-    characterAndItem: CharacterAndSlot;
-  };
-  [GameStateUpdateType.CharacterUnequippedItem]: {
-    characterAndItem: CharacterAndSlot;
-  };
+  [GameStateUpdateType.CharacterDroppedItem]: CharacterAndItem;
+  [GameStateUpdateType.CharacterDroppedEquippedItem]: CharacterAndSlot;
+  [GameStateUpdateType.CharacterUnequippedItem]: CharacterAndSlot;
   [GameStateUpdateType.CharacterEquippedItem]: {
     itemId: string;
     equipToAlternateSlot: boolean;
     characterId: string;
   };
-  [GameStateUpdateType.CharacterPickedUpItems]: {
-    characterAndItems: CharacterAndItems;
-  };
+  [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
     characterId: string;
     actionAndRankOption: ActionAndRank | null;
@@ -287,17 +280,17 @@ export type GameStateUpdateHandlers = {
 };
 
 export interface CharacterAndItem {
-  characterId: string;
+  characterId: CombatantId;
   itemId: string;
 }
 
 export interface CharacterAndItems {
-  characterId: string;
+  characterId: CombatantId;
   itemIds: string[];
 }
 
 export interface CharacterAndSlot {
-  characterId: string;
+  characterId: CombatantId;
   slot: TaggedEquipmentSlot;
 }
 

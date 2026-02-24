@@ -1,4 +1,4 @@
-import { EntityId } from "../../aliases.js";
+import { CombatantId, EntityId } from "../../aliases.js";
 
 export enum TurnTrackerEntityType {
   Combatant,
@@ -8,7 +8,7 @@ export enum TurnTrackerEntityType {
 
 export interface TaggedCombatantTurnTrackerCombatantId {
   type: TurnTrackerEntityType.Combatant;
-  combatantId: EntityId;
+  combatantId: CombatantId;
 }
 
 export interface TaggedConditionTurnTrackerConditionAndCombatantId {

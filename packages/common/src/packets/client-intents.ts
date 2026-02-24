@@ -17,7 +17,7 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
-import { CharacterAndItems } from "./game-state-updates.js";
+import { CharacterAndItem, CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientIntentType {
   // lobby
@@ -126,10 +126,10 @@ export interface ClientIntentMap {
     characterId: CombatantId;
     slot: TaggedEquipmentSlot;
   };
-  [ClientIntentType.DropItem]: { characterId: string; itemId: string };
+  [ClientIntentType.DropItem]: CharacterAndItem;
   [ClientIntentType.ToggleReadyToDescend]: undefined;
   [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: { itemId: string };
-  [ClientIntentType.PickUpItems]: { characterAndItem: CharacterAndItems };
+  [ClientIntentType.PickUpItems]: CharacterAndItems;
   [ClientIntentType.GetSavedCharactersList]: undefined;
   [ClientIntentType.CreateSavedCharacter]: {
     name: EntityName;

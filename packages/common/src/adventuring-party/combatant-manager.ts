@@ -1,7 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { EntityId } from "../aliases.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
@@ -46,12 +46,12 @@ export class CombatantManager extends AdventuringPartySubsystem {
    * the group members' home positions facing the world origin. Useful for rendering combatant
    * plaques in order and for cycling through targets in a group in order.*/
   sortCombatantIdsLeftToRight(
-    entityIds: EntityId[],
+    entityIds: CombatantId[],
     options?: {
       summonedCombatantsOnly?: boolean;
       excludeSummonedCombatants?: boolean;
     }
-  ): EntityId[] {
+  ): CombatantId[] {
     const combatants = this.getExpectedCombatants(entityIds);
 
     const filtered = combatants.filter((combatant) => {
@@ -288,7 +288,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
           type: TurnTrackerEntityType.Combatant,
-          combatantId: combatant.entityProperties.id,
+          combatantId: combatant.getEntityId(),
         },
         delayOfNewCombatantSheduler
       );

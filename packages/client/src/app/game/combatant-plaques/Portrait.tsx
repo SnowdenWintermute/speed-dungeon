@@ -1,13 +1,12 @@
 "use client";
-import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { EntityId } from "@speed-dungeon/common";
+import { CombatantId } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
 interface Props {
   portraitHeight: number;
   combatantLevel: number;
-  combatantId: EntityId;
+  combatantId: CombatantId;
   portrait?: string;
   focusable: boolean;
 }

@@ -16,7 +16,7 @@ export const CharacterSheet = observer(
       party.combatantManager.getPartyMemberCombatants().map((combatant) => combatant.getEntityId())
     );
 
-    let conditionalStyles = showCharacterSheet
+    const conditionalStyles = showCharacterSheet
       ? "pointer-events-auto w-fit "
       : "opacity-0 overflow-hidden pointer-events-none";
 

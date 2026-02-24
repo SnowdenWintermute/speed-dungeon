@@ -3,6 +3,7 @@ import {
   ClientToServerEventTypes,
   Combatant,
   CombatantContext,
+  CombatantId,
   ERROR_MESSAGES,
   EntityId,
   ServerToClientEventTypes,
@@ -17,7 +18,7 @@ import { Socket } from "socket.io-client";
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
   private username: null | Username = null;
-  private focusedCharacterId: EntityId | null = null;
+  private focusedCharacterId: CombatantId | null = null;
   private websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes> | null =
     null;
 
@@ -121,7 +122,7 @@ export class GameStore {
     return partyOption;
   }
 
-  setFocusedCharacter(entityId: EntityId) {
+  setFocusedCharacter(entityId: CombatantId) {
     if (this.username === null) {
       throw new Error("expected to have initialized a username");
     }

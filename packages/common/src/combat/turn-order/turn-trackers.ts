@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../aliases.js";
+import { CombatantId, EntityId } from "../../aliases.js";
 import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
@@ -50,7 +50,7 @@ export abstract class TurnTracker {
 
 export class CombatantTurnTracker extends TurnTracker {
   constructor(
-    private combatantId: string,
+    private combatantId: CombatantId,
     timeOfNextMove: number
   ) {
     super(timeOfNextMove);

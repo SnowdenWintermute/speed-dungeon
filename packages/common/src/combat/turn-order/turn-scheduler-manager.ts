@@ -30,7 +30,7 @@ export class TurnSchedulerManager {
       party.combatantManager.getAllTickableConditionsAndCombatants();
 
     this.schedulers = [
-      ...combatants.map((combatant) => new CombatantTurnScheduler(combatant.entityProperties.id)),
+      ...combatants.map((combatant) => new CombatantTurnScheduler(combatant.getEntityId())),
       ...tickableConditions.map(
         ({ appliedTo, condition }) => new ConditionTurnScheduler(appliedTo, condition.id)
       ),

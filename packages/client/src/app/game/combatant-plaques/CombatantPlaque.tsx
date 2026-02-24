@@ -35,7 +35,7 @@ export const CombatantPlaque = observer(
     const showDebug = dialogStore.isOpen(DialogElementName.Debug);
 
     const portraitOption = imageStore.getCombatantPortraitOption(combatant.getEntityId());
-    const entityId = combatant.entityProperties.id;
+    const entityId = combatant.getEntityId();
     const babylonDebugInfo = gameWorldStore.getCombatantDebugDisplay(entityId);
 
     const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();

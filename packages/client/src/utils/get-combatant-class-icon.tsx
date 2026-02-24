@@ -33,7 +33,7 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
     .map((combatant) => combatant.getEntityId());
   const characterPositions = combatantManager.sortCombatantIdsLeftToRight(characterIds);
 
-  const playerPosition = characterPositions.indexOf(combatant.entityProperties.id);
+  const playerPosition = characterPositions.indexOf(combatant.getEntityId());
   if (playerPosition !== -1)
     return { type: CombatantUiIdentifierType.PlayerCharacter, position: playerPosition };
 
@@ -59,7 +59,7 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
 
   const monsterPositions = combatantManager.sortCombatantIdsLeftToRight(monsterIds);
 
-  const monsterPosition = monsterPositions.indexOf(combatant.entityProperties.id);
+  const monsterPosition = monsterPositions.indexOf(combatant.getEntityId());
   if (monsterPosition !== -1)
     return { type: CombatantUiIdentifierType.Monster, position: monsterPosition };
 

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
-import { INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
+import { CombatantId, INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { InventoryItemsMenuState } from "../ActionMenu/menu-state/inventory-items";
 
 export const InventoryIconButton = observer(
-  ({ entityId, numItemsInInventory }: { entityId: string; numItemsInInventory: number }) => {
+  ({ entityId, numItemsInInventory }: { entityId: CombatantId; numItemsInInventory: number }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (

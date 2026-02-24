@@ -37,7 +37,7 @@ export async function dropItemHandler(
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
   gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterDroppedItem, {
-    characterId: character.entityProperties.id,
+    characterId: character.getEntityId(),
     itemId: eventData.itemId,
   });
 }

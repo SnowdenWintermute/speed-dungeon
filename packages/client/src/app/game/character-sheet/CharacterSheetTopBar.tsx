@@ -2,11 +2,11 @@ import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
 import React from "react";
 import { CharacterSheetCharacterSelectionButton } from "./CharacterSheetCharacterSelectionButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { EntityId } from "@speed-dungeon/common";
+import { CombatantId } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 
 interface Props {
-  partyCharacterIds: EntityId[];
+  partyCharacterIds: CombatantId[];
 }
 
 export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {

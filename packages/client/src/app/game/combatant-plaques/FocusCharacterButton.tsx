@@ -2,9 +2,10 @@ import React from "react";
 import EyeIcon from "../../../../public/img/game-ui-icons/eye-open.svg";
 import ClosedEyeIcon from "../../../../public/img/game-ui-icons/eye-closed.svg";
 import { AppStore } from "@/mobx-stores/app-store";
+import { CombatantId } from "@speed-dungeon/common";
 
 interface Props {
-  combatantId: string;
+  combatantId: CombatantId;
   isFocused: boolean;
 }
 

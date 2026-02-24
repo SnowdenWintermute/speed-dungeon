@@ -3,8 +3,6 @@ import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type"
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class CharacterAutoFocusManager {
-  constructor() {}
-
   handleBattleStart(firstActiveTracker: TurnTracker) {
     if (firstActiveTracker instanceof CombatantTurnTracker) {
       const party = AppStore.get().gameStore.getExpectedParty();

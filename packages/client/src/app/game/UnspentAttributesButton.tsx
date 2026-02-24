@@ -1,4 +1,4 @@
-import { ClientToServerEvent, CombatantProperties, EntityId } from "@speed-dungeon/common";
+import { ClientToServerEvent, CombatantId, CombatantProperties } from "@speed-dungeon/common";
 import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import { websocketConnection } from "@/singletons/websocket-connection";
@@ -13,7 +13,7 @@ export const UnspentAttributesButton = observer(
     entityId,
     combatantProperties,
   }: {
-    entityId: EntityId;
+    entityId: CombatantId;
     combatantProperties: CombatantProperties;
   }) => {
     if (combatantProperties.attributeProperties.getUnspentPoints() < 1) return <></>;

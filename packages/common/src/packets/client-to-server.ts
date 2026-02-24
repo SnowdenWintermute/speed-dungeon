@@ -18,7 +18,7 @@ import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { GameMode } from "../types.js";
 import { ClientIntent } from "./client-intents.js";
-import { CharacterAndItems } from "./game-state-updates.js";
+import { CharacterAndItem, CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientToServerEvent {
   RequestToJoinGame = "0",
@@ -109,10 +109,10 @@ export interface ClientToServerEventTypes {
   [ClientToServerEvent.CycleTargetingSchemes]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.UseSelectedCombatAction]: (eventData: { characterId: string }) => void;
   [ClientToServerEvent.DropEquippedItem]: (eventData: {
-    characterId: string;
+    characterId: CombatantId;
     slot: TaggedEquipmentSlot;
   }) => void;
-  [ClientToServerEvent.DropItem]: (eventData: { characterId: string; itemId: string }) => void;
+  [ClientToServerEvent.DropItem]: (eventData: CharacterAndItem) => void;
   [ClientToServerEvent.ToggleReadyToDescend]: (eventData?: undefined) => void;
   [ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate]: (itemId: string) => void;
   [ClientToServerEvent.PickUpItems]: (characterAndItem: CharacterAndItems) => void;

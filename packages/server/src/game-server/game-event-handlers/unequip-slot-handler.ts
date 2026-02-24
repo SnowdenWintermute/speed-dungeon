@@ -21,7 +21,7 @@ export function unequipSlotHandler(
 
   const partyChannelName = getPartyChannelName(game.name, party.name);
   gameServer.io.to(partyChannelName).emit(ServerToClientEvent.CharacterUnequippedItem, {
-    characterId: character.entityProperties.id,
+    characterId: character.getEntityId(),
     slot,
   });
 }

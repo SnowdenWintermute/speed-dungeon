@@ -44,10 +44,14 @@ export function createGameServerClientIntentHandlers(
     [ClientIntentType.AllocateAbilityPoint]: (data, user) =>
       gameServer.characterProgressionController.characterAllocatedAbilityPointHandler(user, data),
     // // ITEM MANAGEMENT
-    // DropEquippedItem,
-    // DropItem,
-    // AcknowledgeReceiptOfItemOnGroundUpdate,
-    // PickUpItems,
+    [ClientIntentType.DropItem]: (data, user) =>
+      gameServer.itemManagementController.dropItemHandler(user, data),
+    [ClientIntentType.DropEquippedItem]: (data, user) =>
+      gameServer.itemManagementController.dropEquippedItemHandler(user, data),
+    [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: (data, user) =>
+      gameServer.itemManagementController.acknowledgeReceiptOfItemOnGroundHandler(user, data),
+    [ClientIntentType.PickUpItems]: (data, user) =>
+      gameServer.itemManagementController.pickUpItemsHandler(user, data),
     //
     // // EQUIPMENT
     // UnequipSlot,
