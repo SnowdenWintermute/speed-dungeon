@@ -155,7 +155,7 @@ export interface ClientIntentMap {
     itemId: ItemId;
     craftingAction: CraftingAction;
   };
-  [ClientIntentType.PostItemLink]: { itemId: EntityId };
+  [ClientIntentType.PostItemLink]: { itemId: ItemId };
   [ClientIntentType.SelectCombatActionRank]: {
     characterId: CombatantId;
     actionRank: ActionRank;
@@ -166,7 +166,7 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.TradeItemForBook]: {
     characterId: CombatantId;
-    itemId: EntityId;
+    itemId: ItemId;
     bookType: BookConsumableType;
   };
   [ClientIntentType.RenamePet]: { petId: CombatantId; newName: EntityName };

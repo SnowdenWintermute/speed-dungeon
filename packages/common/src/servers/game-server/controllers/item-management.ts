@@ -12,9 +12,7 @@ import {
   GameStateUpdate,
   GameStateUpdateType,
 } from "../../../packets/game-state-updates.js";
-import { GameMode } from "../../../types.js";
 import { invariant } from "../../../utils/index.js";
-import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
@@ -23,11 +21,10 @@ import { CombatActionController } from "./combat-action/index.js";
 export class ItemManagementController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersService: SavedCharactersService,
     private readonly combatActionController: CombatActionController
   ) {}
 
-  async dropItemHandler(session: UserSession, data: CharacterAndItem) {
+  dropItemHandler(session: UserSession, data: CharacterAndItem) {
     const { characterId, itemId } = data;
     const { game, party, character } = session.requireCharacterContext(characterId, {
       requireOwned: true,
@@ -38,11 +35,6 @@ export class ItemManagementController {
 
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
-    }
-
-    if (game.mode === GameMode.Progression) {
-      const pets = party.petManager.getAllPetsByOwnerId(character.getEntityId());
-      await this.savedCharactersService.updateCharacter(character, pets);
     }
 
     party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];
@@ -56,7 +48,7 @@ export class ItemManagementController {
     return outbox;
   }
 
-  async dropEquippedItemHandler(session: UserSession, data: CharacterAndSlot) {
+  dropEquippedItemHandler(session: UserSession, data: CharacterAndSlot) {
     const { characterId, slot } = data;
     const { game, party, character } = session.requireCharacterContext(characterId, {
       requireOwned: true,
@@ -67,10 +59,6 @@ export class ItemManagementController {
     const itemDroppedIdResult = inventory.dropEquippedItem(party, slot);
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
-    }
-
-    if (game.mode === GameMode.Progression) {
-      await this.savedCharactersService.updateAllInParty(game, party);
     }
 
     party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];

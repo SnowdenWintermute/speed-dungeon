@@ -4,6 +4,7 @@ import {
   CharacterAssociatedData,
   ClientToServerEventTypes,
   CombatantProperties,
+  DungeonRoomType,
   ERROR_MESSAGES,
   EntityId,
   GameMode,
@@ -26,8 +27,7 @@ export async function tradeItemForBookHandler(
   const { characterId, itemId, bookType } = eventData;
 
   const { combatantProperties } = character;
-  if (!combatantIsAllowedToTradeForBooks(party.currentRoom.roomType))
-    return new Error(ERROR_MESSAGES.NOT_PERMITTED);
+  party.currentRoom.requireType(DungeonRoomType.VendingMachine);
 
   const inventoryFull = combatantProperties.inventory.isAtCapacity();
   if (inventoryFull) return new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);

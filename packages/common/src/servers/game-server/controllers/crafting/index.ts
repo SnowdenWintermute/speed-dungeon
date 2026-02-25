@@ -4,13 +4,11 @@ import {
   GameStateUpdate,
   GameStateUpdateType,
 } from "../../../../packets/game-state-updates.js";
-import { GameMode } from "../../../../types.js";
-import { SavedCharactersService } from "../../../services/saved-characters.js";
 import { UserSession } from "../../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { Consumable } from "../../../../items/consumables/index.js";
+import { BookConsumableType, Consumable } from "../../../../items/consumables/index.js";
 import { ConsumableType } from "../../../../items/consumables/consumable-types.js";
 import { CombatantId, ItemId } from "../../../../aliases.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
@@ -25,19 +23,20 @@ import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { CraftingAction } from "../../../../items/crafting/crafting-actions.js";
 import { Equipment } from "../../../../items/equipment/index.js";
 import { ItemCrafter } from "./craft-actions.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
+import { getBookLevelForTrade } from "../../../../items/trading/index.js";
 
 export class CraftingController {
   itemCrafter: ItemCrafter;
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
     private readonly itemGenerator: ItemGenerator
   ) {
     this.itemCrafter = new ItemCrafter(this.itemGenerator);
   }
 
-  async convertItemsToShardsHandler(session: UserSession, data: CharacterAndItems) {
+  convertItemsToShardsHandler(session: UserSession, data: CharacterAndItems) {
     const { characterId, itemIds } = data;
     const { game, party, character } = session.requireCharacterContext(characterId, {
       requireOwned: true,
@@ -51,11 +50,6 @@ export class CraftingController {
     // clone the itemIds so we can send unmodified original to clients
     character.convertOwnedItemsToShards(cloneDeep(itemIds));
 
-    if (game.mode === GameMode.Progression) {
-      const pets = party.petManager.getAllPetsByOwnerId(character.getEntityId());
-      await this.savedCharactersService.updateCharacter(character, pets);
-    }
-
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.CharacterConvertedItemsToShards,
@@ -65,10 +59,7 @@ export class CraftingController {
     return outbox;
   }
 
-  async dropShardsHandler(
-    session: UserSession,
-    data: { characterId: CombatantId; shardCount: number }
-  ) {
+  dropShardsHandler(session: UserSession, data: { characterId: CombatantId; shardCount: number }) {
     const { characterId, shardCount } = data;
     const { game, party, character } = session.requireCharacterContext(characterId, {
       requireOwned: true,
@@ -81,11 +72,6 @@ export class CraftingController {
     const shardStack = Consumable.createShardStack(shardCount, this.idGenerator);
     party.currentRoom.inventory.insertItem(shardStack);
     party.itemsOnGroundNotYetReceivedByAllClients[shardStack.entityProperties.id] = [];
-
-    if (game.mode === GameMode.Progression) {
-      const pets = party.petManager.getAllPetsByOwnerId(character.getEntityId());
-      await this.savedCharactersService.updateCharacter(character, pets);
-    }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -202,5 +188,65 @@ export class CraftingController {
     });
 
     return outbox;
+  }
+
+  tradeItemForBookHandler(
+    session: UserSession,
+    data: { characterId: CombatantId; itemId: ItemId; bookType: BookConsumableType }
+  ) {
+    const { characterId, itemId, bookType } = data;
+    const { game, party, character } = session.requireCharacterContext(characterId, {
+      requireOwned: true,
+      requireAlive: true,
+    });
+
+    const { combatantProperties } = character;
+    party.currentRoom.requireType(DungeonRoomType.VendingMachine);
+
+    const inventoryFull = combatantProperties.inventory.isAtCapacity();
+    if (inventoryFull) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
+    }
+
+    const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+
+    const book = this.tradeItemForBook(
+      itemId,
+      character.combatantProperties,
+      bookType,
+      floorNumber
+    );
+
+    combatantProperties.inventory.insertItem(book);
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.CharacterTradedItemForBook,
+      data: {
+        characterId,
+        itemIdTraded: itemId,
+        book,
+      },
+    });
+
+    return outbox;
+  }
+
+  private tradeItemForBook(
+    itemToTradeId: ItemId,
+    combatantProperties: CombatantProperties,
+    bookType: BookConsumableType,
+    vendingMachineLevel: number
+  ) {
+    const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemToTradeId);
+    if (removedItemResult instanceof Error) {
+      throw removedItemResult;
+    }
+
+    const bookToReturn = this.itemGenerator.createConsumableByType(bookType);
+
+    bookToReturn.itemLevel = getBookLevelForTrade(removedItemResult.itemLevel, vendingMachineLevel);
+
+    return bookToReturn;
   }
 }

@@ -18,10 +18,8 @@ export function createGameServerClientIntentHandlers(
 ): Partial<GameServerClientIntentHandlers> {
   return {
     // // CONNECTIONS
-    // Connection
-    // Disconnection,
-    // LeaveGame,
-    //
+    [ClientIntentType.LeaveGame]: (_, user) =>
+      gameServer.gameLifecycleController.leaveGameHandler(user),
     // // ACTION SELECTION
     [ClientIntentType.SelectCombatAction]: (data, user) =>
       gameServer.combatActionController.selectCombatActionHandler(user, data),
@@ -68,10 +66,12 @@ export function createGameServerClientIntentHandlers(
       gameServer.craftingController.purchaseItemHandler(user, data),
     [ClientIntentType.PerformCraftingAction]: (data, user) =>
       gameServer.craftingController.craftItemHandler(user, data),
-    // TradeItemForBook,
-    //
+    [ClientIntentType.TradeItemForBook]: (data, user) =>
+      gameServer.craftingController.tradeItemForBookHandler(user, data),
     // // MISC UTILITY
-    // PostItemLink,
-    // RenamePet,
+    [ClientIntentType.PostItemLink]: (data, user) =>
+      gameServer.miscUtilityController.postItemLinkHandler(user, data),
+    [ClientIntentType.RenamePet]: (data, user) =>
+      gameServer.miscUtilityController.renamePetHandler(user, data),
   };
 }
