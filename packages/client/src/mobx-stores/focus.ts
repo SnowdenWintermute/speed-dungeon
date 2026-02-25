@@ -1,7 +1,5 @@
 import {
   AbilityTreeAbility,
-  AbilityType,
-  CombatActionName,
   CombatAttribute,
   Combatant,
   CombatantEquipment,
@@ -16,7 +14,9 @@ import { AppStore } from "./app-store";
 export type DetailableEntity = Combatant | Item;
 
 export class FocusStore {
-  readonly combatantAbilities = new Detailable<AbilityTreeAbility>(() => {});
+  readonly combatantAbilities = new Detailable<AbilityTreeAbility>(() => {
+    //
+  });
   readonly detailables = new Detailable<DetailableEntity>(() =>
     this.consideredItemUnmetRequirements.clear()
   );
@@ -24,7 +24,7 @@ export class FocusStore {
   private comparedItem: null | Item = null;
   private comparedSlot: null | TaggedEquipmentSlot = null;
 
-  private consideredItemUnmetRequirements: Set<CombatAttribute> = new Set();
+  private consideredItemUnmetRequirements = new Set<CombatAttribute>();
 
   constructor() {
     makeAutoObservable(this);

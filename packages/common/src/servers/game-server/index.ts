@@ -71,7 +71,7 @@ export class GameServer extends SpeedDungeonServer {
   public readonly itemManagementController: ItemManagementController;
   public readonly craftingController: CraftingController;
   public readonly miscUtilityController: MiscUtilityController;
-  // public readonly savedCharactersController: SavedCharactersController;
+
   private readonly gameEventCommandReceiver: GameServerGameEventCommandReceiver;
   private readonly gameModeContexts: Record<GameMode, GameModeContext>;
 
