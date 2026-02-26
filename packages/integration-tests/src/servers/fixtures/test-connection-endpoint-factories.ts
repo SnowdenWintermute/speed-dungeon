@@ -1,14 +1,11 @@
 import {
+  CLIENT_CONNECTION_ENDPOINT_NIL_ID,
   ConnectionEndpoint,
   IncomingConnectionGateway,
   InMemoryConnectionEndpointServerRegistry,
   urlWithQueryParams,
 } from "@speed-dungeon/common";
-import {
-  CLIENT_CONNECTION_ENDPOINT_NIL_ID,
-  TEST_AUTH_SESSION_ID_PLAYER_1,
-  TEST_AUTH_SESSION_ID_PLAYER_2,
-} from "./index.js";
+import { TEST_AUTH_SESSION_ID_PLAYER_1, TEST_AUTH_SESSION_ID_PLAYER_2 } from "./index.js";
 import { createTestWebSocketIncomingConnectionGateways } from "./create-test-websocket-incoming-connection-gateways.js";
 import { createTestInMemoryIncomingConnectionGateways } from "./create-test-in-memory-incoming-connection-gateways.js";
 import { NodeWebSocketConnectionEndpoint } from "@speed-dungeon/server";

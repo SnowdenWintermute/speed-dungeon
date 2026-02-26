@@ -1,5 +1,6 @@
 import { IncomingConnectionGateway } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
+import { NodeWebSocketConnectionEndpoint } from "../transport/node-websocket-connection-endpoint.js";
 
 export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGateway {
   constructor(private wss: WebSocketServer) {

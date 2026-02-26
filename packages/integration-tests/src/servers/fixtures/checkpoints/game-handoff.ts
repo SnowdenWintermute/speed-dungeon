@@ -1,5 +1,4 @@
-import { ClientIntentType } from "../../../../packets/client-intents.js";
-import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
+import { ClientIntentType, GameStateUpdateType } from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,

@@ -1,16 +1,17 @@
-import { it, expect } from "vitest";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
-import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../game-server/reconnection/index.js";
-import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
-import { invariant } from "../../utils/index.js";
-import { QUERY_PARAMS } from "../query-params.js";
-import { TEST_LOBBY_URL } from "./fixtures/index.js";
-import { TimeMachine } from "../../test-utils/time-machine.js";
+import {
+  GameStateUpdateType,
+  invariant,
+  QUERY_PARAMS,
+  RECONNECTION_OPPORTUNITY_TIMEOUT_MS,
+} from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "./fixtures/test-connection-endpoint-factories.js";
+import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
+import { TEST_LOBBY_URL } from "./fixtures/index.js";
+import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
+import { TimeMachine } from "../test-utils/time-machine.js";
 
 export function reconnectionTests(
   clientEndpointFactory: ClientEndpointFactory,

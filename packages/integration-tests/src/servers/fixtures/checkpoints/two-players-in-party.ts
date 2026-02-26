@@ -1,6 +1,4 @@
-import { PartyName } from "../../../../aliases.js";
-import { ClientIntentType } from "../../../../packets/client-intents.js";
-import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
+import { ClientIntentType, GameStateUpdateType, PartyName } from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,

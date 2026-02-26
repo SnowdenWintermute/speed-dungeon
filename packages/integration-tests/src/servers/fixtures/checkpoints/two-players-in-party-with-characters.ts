@@ -1,7 +1,9 @@
-import { EntityName } from "../../../../aliases.js";
-import { CombatantClass } from "../../../../combatants/combatant-class/classes.js";
-import { ClientIntentType } from "../../../../packets/client-intents.js";
-import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
+import {
+  ClientIntentType,
+  CombatantClass,
+  EntityName,
+  GameStateUpdateType,
+} from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,

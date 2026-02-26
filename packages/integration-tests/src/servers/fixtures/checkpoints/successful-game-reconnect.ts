@@ -1,11 +1,10 @@
-import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { QUERY_PARAMS } from "../../../query-params.js";
-import { TEST_LOBBY_URL } from "../index.js";
+import { GameStateUpdateType, QUERY_PARAMS } from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "../test-connection-endpoint-factories.js";
 import { testGameSetupToGameHandoff } from "./game-handoff.js";
+import { TEST_LOBBY_URL } from "../index.js";
 
 export async function testGameSetupToSuccessfulGameReconnect(
   clientEndpointFactory: ClientEndpointFactory,

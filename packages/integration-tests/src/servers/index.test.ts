@@ -1,13 +1,11 @@
-import { describe } from "vitest";
-import { LobbyServer } from "../lobby-server/index.js";
-import { GameServer } from "../game-server/index.js";
-import { createTestServers } from "./fixtures/create-test-servers.js";
+import { GameServer, LobbyServer } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "./fixtures/test-connection-endpoint-factories.js";
-import { TimeMachine } from "../../test-utils/time-machine.js";
+import { createTestServers } from "./fixtures/create-test-servers.js";
 import { lobbyGameSetupTests } from "./lobby-game-setup-tests.js";
 import { sessionClaimTokenTests } from "./session-claim-token-tests.js";
 import { awaitReconnectionGameInputLockTests } from "./await-reconnection-game-input-lock-tests.js";
 import { reconnectionTests } from "./reconnection-tests.js";
+import { TimeMachine } from "../test-utils/time-machine.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "$name reconnection flow",

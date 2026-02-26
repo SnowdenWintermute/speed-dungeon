@@ -1,12 +1,10 @@
-import { it } from "vitest";
-import { ClientIntentType } from "../../packets/client-intents.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { ClientIntentType, GameStateUpdateType } from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "./fixtures/test-connection-endpoint-factories.js";
-import { testGameSetupToTwoPlayersInParty } from "./fixtures/checkpoints/two-players-in-party.js";
 import { testGameSetupToTwoPlayersJoinedLobbyGame } from "./fixtures/checkpoints/two-players-joined-lobby-game.js";
+import { testGameSetupToTwoPlayersInParty } from "./fixtures/checkpoints/two-players-in-party.js";
 
 export function lobbyGameSetupTests(
   clientEndpointFactory: ClientEndpointFactory,

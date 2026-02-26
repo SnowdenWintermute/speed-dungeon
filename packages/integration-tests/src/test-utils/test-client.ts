@@ -1,16 +1,17 @@
-import isMatch from "lodash.ismatch";
 import {
+  ClientIntent,
+  ConnectionEndpoint,
   GAME_STATE_UPDATE_TYPE_STRINGS,
+  GameServerConnectionInstructions,
   GameStateUpdate,
   GameStateUpdateType,
-} from "../packets/game-state-updates.js";
-import { GuestSessionReconnectionToken, Milliseconds, Username } from "../aliases.js";
-import { ClientIntent } from "../packets/client-intents.js";
-import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
-import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
-import { ClientEndpointFactory } from "../servers/tests/fixtures/test-connection-endpoint-factories.js";
-import { QUERY_PARAMS } from "../servers/query-params.js";
-import { SpeedDungeonGame } from "../game/index.js";
+  GuestSessionReconnectionToken,
+  Milliseconds,
+  QUERY_PARAMS,
+  SpeedDungeonGame,
+  Username,
+} from "@speed-dungeon/common";
+import isMatch from "lodash.ismatch";
 
 type GameStateUpdateOfType<T extends GameStateUpdateType> = Extract<GameStateUpdate, { type: T }>;
 

@@ -1,15 +1,17 @@
-import { GameName } from "../../../../aliases.js";
-import { SpeedDungeonGame } from "../../../../game/index.js";
-import { ClientIntentType } from "../../../../packets/client-intents.js";
-import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { TestClient } from "../../../../test-utils/test-client.js";
-import { GameMode } from "../../../../types.js";
-import { invariant } from "../../../../utils/index.js";
-import { TEST_LOBBY_URL } from "../index.js";
+import {
+  ClientIntentType,
+  GameMode,
+  GameName,
+  GameStateUpdateType,
+  invariant,
+  SpeedDungeonGame,
+  TestClient,
+} from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "../test-connection-endpoint-factories.js";
+import { TEST_LOBBY_URL } from "../index.js";
 
 export async function testGameSetupToTwoPlayersJoinedLobbyGame(
   clientEndpointFactory: ClientEndpointFactory,

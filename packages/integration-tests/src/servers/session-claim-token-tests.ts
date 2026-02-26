@@ -1,12 +1,11 @@
-import { it, expect } from "vitest";
-import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
-import { QUERY_PARAMS } from "../query-params.js";
-import { TEST_GAME_SERVER_URL } from "./fixtures/index.js";
+import { QUERY_PARAMS } from "@speed-dungeon/common";
 import { testGameSetupToGameHandoff } from "./fixtures/checkpoints/game-handoff.js";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "./fixtures/test-connection-endpoint-factories.js";
+import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
+import { TEST_GAME_SERVER_URL } from "./fixtures/index.js";
 
 export function sessionClaimTokenTests(
   clientEndpointFactory: ClientEndpointFactory,

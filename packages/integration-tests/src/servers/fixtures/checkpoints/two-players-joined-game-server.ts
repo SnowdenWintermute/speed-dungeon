@@ -1,5 +1,4 @@
-import { GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { QUERY_PARAMS } from "../../../query-params.js";
+import { GameStateUpdateType, QUERY_PARAMS } from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,

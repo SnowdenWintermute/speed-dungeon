@@ -1,15 +1,16 @@
-import { it, expect } from "vitest";
-import { ClientIntentType } from "../../packets/client-intents.js";
-import { GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
-import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../game-server/reconnection/index.js";
-import { testGameSetupToHostJoinedGameServer } from "./fixtures/checkpoints/host-joined-game-server.js";
-import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
+import {
+  ClientIntentType,
+  GameStateUpdateType,
+  RECONNECTION_OPPORTUNITY_TIMEOUT_MS,
+} from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "./fixtures/test-connection-endpoint-factories.js";
-import { TimeMachine } from "../../test-utils/time-machine.js";
+import { testGameSetupToHostJoinedGameServer } from "./fixtures/checkpoints/host-joined-game-server.js";
+import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
+import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
+import { TimeMachine } from "../test-utils/time-machine.js";
 
 export function awaitReconnectionGameInputLockTests(
   clientEndpointFactory: ClientEndpointFactory,

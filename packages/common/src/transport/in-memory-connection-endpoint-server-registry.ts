@@ -1,9 +1,12 @@
-import { CLIENT_CONNECTION_ENDPOINT_NIL_ID } from "../servers/tests/fixtures/index.js";
+import { ConnectionId } from "../aliases.js";
 import {
   InMemoryConnectionEndpointServer,
   InMemoryConnectionRequest,
 } from "./in-memory-connection-endpoint-server.js";
 import { InMemoryConnectionEndpoint } from "./in-memory-connection-endpoint.js";
+
+/** Clients don't need to know their connection id */
+export const CLIENT_CONNECTION_ENDPOINT_NIL_ID = "" as ConnectionId;
 
 export class InMemoryConnectionEndpointServerRegistry {
   private static _singleton = new InMemoryConnectionEndpointServerRegistry();

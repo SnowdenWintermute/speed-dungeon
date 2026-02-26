@@ -20,8 +20,6 @@ export const TEST_LOBBY_SERVER_PORT = 8090;
 export const TEST_GAME_SERVER_PORT = 8091;
 export const TEST_LOBBY_URL = localServerUrl(TEST_LOBBY_SERVER_PORT);
 export const TEST_GAME_SERVER_URL = localServerUrl(TEST_GAME_SERVER_PORT);
-/** Clients don't need to know their connection id */
-export const CLIENT_CONNECTION_ENDPOINT_NIL_ID = "" as ConnectionId;
 
 export const TEST_AUTH_SESSION_ID_PLAYER_1 = "0000";
 export const TEST_AUTH_SESSION_ID_PLAYER_2 = "0001";

@@ -210,8 +210,6 @@ export * from "./servers/services/race-game-records.js";
 export * from "./servers/game-server/controllers/game-lifecycle/record-types.js";
 export * from "./servers/query-params.js";
 
-export * from "./test-utils/test-client.js";
-
 export * from "./cryptography/index.js";
 
 export * from "./servers/services/assets/index.js";
@@ -228,6 +226,7 @@ export * from "./servers/services/in-memory-saved-characters-service.js";
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";
+export * from "./servers/game-server/reconnection/index.js";
 
 export * from "./servers/game-server/index.js";
 export * from "./servers/in-memory-incoming-connection-gateway.js";
