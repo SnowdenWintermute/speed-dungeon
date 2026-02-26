@@ -138,7 +138,13 @@ export class LobbySessionLifecycleController
 
     // they would not be in the lobby if disconnecting after getting their reconnection
     // referral to the game server
-    this.lobbyState.removeUserIfInLobbyChannel(session.username);
+    const wasInLobbyChannel = this.lobbyState.removeUserIfInLobbyChannel(session.username);
+    if (wasInLobbyChannel) {
+      outbox.pushToChannel(LOBBY_CHANNEL, {
+        type: GameStateUpdateType.UserLeftChannel,
+        data: { username: session.username },
+      });
+    }
 
     this.userSessionRegistry.unregister(session.connectionId);
 

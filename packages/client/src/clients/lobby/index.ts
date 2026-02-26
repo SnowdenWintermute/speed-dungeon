@@ -42,6 +42,7 @@ export class LobbyClient {
   }
 
   private handleMessage(message: GameStateUpdate) {
+    console.log("handling mesage:", message, JSON.stringify(message));
     const handlerOption = this.updateHandlers[message.type];
     invariant(handlerOption !== undefined, `Unhandled update type: ${JSON.stringify(message)}`);
     handlerOption(message.data as never);

@@ -1,6 +1,6 @@
 // @refresh reset
 "use client";
-import { BASE_SCREEN_SIZE, ConnectionId, GOLDEN_RATIO } from "@speed-dungeon/common";
+import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import {
   HTTP_REQUEST_NAMES,
   SPACING_REM,
@@ -25,10 +25,6 @@ import { HOTKEYS } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
-import { BrowserWebSocketConnectionEndpoint } from "@speed-dungeon/common/src/transport/browser-websocket-connection-endpoint";
-import { LobbyClient } from "@/clients/lobby";
-import { gameWorldView } from "../game-world-view-canvas/SceneManager";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
@@ -40,21 +36,6 @@ export const Lobby = observer(() => {
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
   const websocketConnected = lobbyStore.websocketIsConnected();
-
-  useEffect(() => {
-    const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
-
-    const ws = new WebSocket(socketAddress || "");
-    console.log("attempting websocketConnection");
-    const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
-    if (!lobbyClientSingleton.isInitialized) {
-      lobbyClientSingleton.setClient(
-        new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
-      );
-    } else {
-      lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
-    }
-  }, []);
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {

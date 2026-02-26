@@ -1,6 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
+import { ClientIntentType, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { SPACING_REM_LARGE } from "@/client_consts";
@@ -8,6 +7,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   children: ReactNode;
@@ -34,10 +34,16 @@ export const GameLobby = observer(({ children }: Props) => {
   }, []);
 
   function leaveGame() {
-    websocketConnection.emit(ClientToServerEvent.LeaveGame);
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.LeaveGame,
+      data: undefined,
+    });
   }
   function toggleReady() {
-    websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.ToggleReadyToStartGame,
+      data: undefined,
+    });
   }
 
   const username = gameStore.getExpectedUsername();

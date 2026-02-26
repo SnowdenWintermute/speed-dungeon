@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 export * from "./action-processing/index.js";
 export * from "./app-consts.js";
 export * from "./users/index.js";
@@ -233,3 +235,4 @@ export * from "./servers/in-memory-incoming-connection-gateway.js";
 
 export * from "./transport/in-memory-connection-endpoint-server-registry.js";
 export * from "./transport/in-memory-connection-endpoint-server.js";
+export * from "./transport/browser-websocket-connection-endpoint.js";

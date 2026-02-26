@@ -19,7 +19,9 @@ import {
   Combatant,
   deserializeMap,
   ERROR_MESSAGES,
+  GameId,
   GameMode,
+  GameName,
   GameStateUpdateMap,
   GameStateUpdateType,
   getProgressionGamePartyName,
@@ -43,6 +45,10 @@ export function createLobbyUpdateHandlers(
 ): Partial<LobbyUpdateHandlers> {
   const { lobbyStore, gameStore, actionMenuStore, gameEventNotificationStore } = appStore;
   return {
+    [GameStateUpdateType.ErrorMessage]: (data) => {
+      setAlert(data.message);
+      console.log("alert:", data.message);
+    },
     [GameStateUpdateType.OnConnection]: (data) => {
       console.log("got on connection");
       gameStore.setUsername(data.username);
@@ -61,7 +67,11 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       let { game } = data;
       if (game) {
-        game = SpeedDungeonGame.getDeserialized(game);
+        console.log("about to deserialize game", game);
+        const deserialized = SpeedDungeonGame.getDeserialized(game);
+        console.log("deserialized game:", deserialized);
+        deserialized.makeObservable();
+        game = deserialized;
       } else {
         gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.ClearAllModels,

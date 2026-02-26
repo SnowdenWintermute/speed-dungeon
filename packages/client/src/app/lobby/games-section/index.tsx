@@ -3,7 +3,7 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
 import {
-  ClientToServerEvent,
+  ClientIntentType,
   GameListEntry,
   GameMode,
   MAX_PARTY_SIZE,
@@ -14,7 +14,6 @@ import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
 import Divider from "@/app/components/atoms/Divider";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import HostGameForm from "./HostGameForm";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
@@ -37,7 +36,9 @@ export const GamesSection = observer(() => {
   }, []);
 
   function refreshGameList() {
-    websocketConnection.emit(ClientToServerEvent.RequestsGameList);
+    lobbyClientSingleton
+      .get()
+      .dispatchIntent({ type: ClientIntentType.RequestsGameList, data: undefined });
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
   }
 
@@ -161,7 +162,9 @@ interface GameListItemProps {
 
 function GameListItem({ game }: GameListItemProps) {
   function joinGame() {
-    websocketConnection.emit(ClientToServerEvent.JoinGame, game.gameName);
+    lobbyClientSingleton
+      .get()
+      .dispatchIntent({ type: ClientIntentType.JoinGame, data: { gameName: game.gameName } });
   }
 
   return (

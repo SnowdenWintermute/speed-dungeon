@@ -1,9 +1,9 @@
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   BASE_SCREEN_SIZE,
   COMBATANT_CLASS_NAME_STRINGS,
-  ClientToServerEvent,
+  ClientIntentType,
   Combatant,
+  CombatantId,
   GOLDEN_RATIO,
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
@@ -18,6 +18,7 @@ import { GameLobby } from "./GameLobby";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const ProgressionGameLobby = observer(() => {
   const { gameStore } = AppStore.get();
@@ -26,7 +27,9 @@ export const ProgressionGameLobby = observer(() => {
   if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
-    websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
+    lobbyClientSingleton
+      .get()
+      .dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
   }, []);
 
   const numPlayersInGame = useMemo(() => game.players.size, [game.players]);
@@ -68,7 +71,10 @@ export const ProgressionGameLobby = observer(() => {
           title={"starting-floor-select"}
           value={game.selectedStartingFloor}
           setValue={(value: number) => {
-            websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
+            lobbyClientSingleton.get().dispatchIntent({
+              type: ClientIntentType.SelectProgressionGameStartingFloor,
+              data: { floorNumber: value },
+            });
           }}
           options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
             title: `Floor ${index + 1}`,
@@ -110,8 +116,11 @@ const PlayerDisplay = observer(
 
     const selectedCharacterId = playerOption?.characterIds[0];
 
-    function changeSelectedCharacterId(entityId: string) {
-      websocketConnection.emit(ClientToServerEvent.SelectSavedCharacterForProgressGame, entityId);
+    function changeSelectedCharacterId(entityId: CombatantId) {
+      lobbyClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.SelectSavedCharacterForProgressGame,
+        data: { entityId },
+      });
     }
 
     const readyText = playerOption
@@ -149,16 +158,19 @@ const PlayerDisplay = observer(
           <SelectDropdown
             title={"character-select"}
             value={selectedCharacterId}
-            setValue={(value: string) => {
+            setValue={(value: CombatantId) => {
               changeSelectedCharacterId(value);
             }}
             options={Object.values(savedCharacters)
               .filter((character) => !!character)
               .map((character) => {
+                if (character === null) {
+                  throw new Error("unexpected null character");
+                }
                 return {
-                  title: formatCharacterTag(character!.combatant),
-                  value: character!.combatant.entityProperties.id,
-                  disabled: character!.combatant.combatantProperties.isDead(),
+                  title: formatCharacterTag(character.combatant),
+                  value: character.combatant.entityProperties.id,
+                  disabled: character.combatant.combatantProperties.isDead(),
                 };
               })}
             disabled={game.playersReadied.includes(username)}

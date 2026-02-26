@@ -4,9 +4,8 @@ import { SpeedDungeonPlayer } from "./player.js";
 import { GameMode } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
-import { instanceToPlain, plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance, Type } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -22,8 +21,10 @@ import {
 } from "../aliases.js";
 import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
 import { UserId } from "../servers/sessions/user-ids.js";
+import { toJS } from "mobx";
 
 export class SpeedDungeonGame {
+  @Type(() => SpeedDungeonPlayer)
   players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
@@ -42,22 +43,27 @@ export class SpeedDungeonGame {
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   getSerialized() {
-    const serialized = instanceToPlain(this) as SpeedDungeonGame;
+    const plain = toJS(this);
+    const serialized = instanceToPlain(plain) as SpeedDungeonGame;
     return serialized;
   }
 
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
   static getDeserialized(game: SpeedDungeonGame) {
+    const deserialized = plainToInstance(SpeedDungeonGame, game);
+    console.log("after plainToInstance:", deserialized.players);
     const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
     for (const [username, player] of Object.entries(game.players)) {
       SpeedDungeonPlayer.deserialize(player);
       deserializedPlayers.set(username as Username, player);
     }
 
-    const deserialized = plainToInstance(SpeedDungeonGame, game);
     deserialized.players = deserializedPlayers;
 
     deserialized.inputLock = new ReferenceCountedLock<UserId>();

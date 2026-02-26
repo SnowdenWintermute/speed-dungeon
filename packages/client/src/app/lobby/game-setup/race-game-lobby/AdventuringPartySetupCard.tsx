@@ -1,5 +1,6 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import {
+  ClientIntentType,
   COMBATANT_CLASS_NAME_STRINGS,
   EntityName,
   iterateNumericEnum,
@@ -7,11 +8,9 @@ import {
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import TextInput from "@/app/components/atoms/TextInput";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   AdventuringParty,
   BASE_SCREEN_SIZE,
-  ClientToServerEvent,
   CombatantClass,
   ERROR_MESSAGES,
   GOLDEN_RATIO,
@@ -22,6 +21,7 @@ import { FormEvent, ReactNode, useState } from "react";
 import { CharacterCard } from "./CharacterCard";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const PartySetupCard = observer(
   ({
@@ -39,7 +39,10 @@ export const PartySetupCard = observer(
     const userIsInThisParty = party.playerUsernames.includes(username);
 
     function leaveParty() {
-      websocketConnection.emit(ClientToServerEvent.LeaveParty);
+      lobbyClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.LeaveParty,
+        data: undefined,
+      });
     }
 
     const characterCards = characters.map((character) => {
@@ -126,7 +129,10 @@ const EmptyCharacterSlot = observer(
         <HotkeyButton
           className="h-full w-full"
           onClick={() => {
-            websocketConnection.emit(ClientToServerEvent.JoinParty, party.name);
+            lobbyClientSingleton.get().dispatchIntent({
+              type: ClientIntentType.JoinParty,
+              data: { partyName: party.name },
+            });
           }}
         >
           JOIN PARTY
@@ -150,11 +156,14 @@ const CreateCharacterForm = observer(({ i }: { i: number }) => {
 
   function handleCreateCharacter(e: FormEvent<HTMLElement>) {
     e.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateCharacter, {
-      name: characterName as EntityName,
-      combatantClass: combatantClassSelection,
+
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.CreateCharacter,
+      data: {
+        name: characterName as EntityName,
+        combatantClass: combatantClassSelection,
+      },
     });
-    setCharacterName("");
   }
 
   return (
