@@ -28,6 +28,7 @@ import { DialogElementName } from "@/mobx-stores/dialogs";
 import { BrowserWebSocketConnectionEndpoint } from "@speed-dungeon/common/src/transport/browser-websocket-connection-endpoint";
 import { LobbyClient } from "@/clients/lobby";
 import { gameWorldView } from "../game-world-view-canvas/SceneManager";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
@@ -41,16 +42,18 @@ export const Lobby = observer(() => {
   const websocketConnected = lobbyStore.websocketIsConnected();
 
   useEffect(() => {
-    //
     const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
     const ws = new WebSocket(socketAddress || "");
     console.log("attempting websocketConnection");
     const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
-    const lobbyClient = new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView);
-    return () => {
-      connectionEndpoint.close();
-    };
+    if (!lobbyClientSingleton.isInitialized) {
+      lobbyClientSingleton.setClient(
+        new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
+      );
+    } else {
+      lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
+    }
   }, []);
 
   useEffect(() => {

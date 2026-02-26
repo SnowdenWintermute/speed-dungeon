@@ -18,6 +18,7 @@ module.exports = {
   ],
   rules: {
     "no-unused-expressions": "off",
+    "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "error",
     "@typescript-eslint/no-unused-expressions": "error",
     "@typescript-eslint/no-dynamic-delete":"off",

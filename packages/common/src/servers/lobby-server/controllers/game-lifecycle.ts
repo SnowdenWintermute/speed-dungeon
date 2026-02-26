@@ -70,6 +70,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     data: { gameName: GameName; mode: GameMode; isRanked?: boolean },
     session: UserSession
   ) {
+    console.log("create game handler");
     const { mode, isRanked } = data;
     let { gameName } = data;
 

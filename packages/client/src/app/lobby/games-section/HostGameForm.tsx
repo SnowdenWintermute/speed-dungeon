@@ -1,33 +1,32 @@
-import { ClientToServerEvent, GameMode, GameName, formatGameMode } from "@speed-dungeon/common";
+import { ClientIntentType, GameMode, GameName, formatGameMode } from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export default function HostGameForm() {
   const currentSessionHttpResponseTracker =
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
-  // const [selectedGameMode, setSelectedGameMode] = useState(
-  //   isLoggedIn ? GameMode.Progression : GameMode.Race
-  // );
   const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState<GameName>("" as GameName);
-  const [gamePassword, setGamePassword] = useState("");
 
   function createGame(
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     event.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateGame, {
-      gameName,
-      mode: selectedGameMode,
-      isRanked,
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.CreateGame,
+      data: {
+        gameName,
+        mode: selectedGameMode,
+        isRanked,
+      },
     });
   }
 

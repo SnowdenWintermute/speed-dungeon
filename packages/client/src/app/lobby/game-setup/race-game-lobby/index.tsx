@@ -1,16 +1,11 @@
-import {
-  BASE_SCREEN_SIZE,
-  ClientToServerEvent,
-  GOLDEN_RATIO,
-  PartyName,
-} from "@speed-dungeon/common";
+import { BASE_SCREEN_SIZE, ClientIntentType, GOLDEN_RATIO, PartyName } from "@speed-dungeon/common";
 import React from "react";
 import { GameLobby } from "../GameLobby";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { PartySetupCard } from "./AdventuringPartySetupCard";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const RaceGameLobby = observer(() => {
   const { gameStore } = AppStore.get();
@@ -45,7 +40,13 @@ function CreatePartyCard() {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
   function createParty() {
-    websocketConnection.emit(ClientToServerEvent.CreateParty, "" as PartyName);
+    console.log("sent create party");
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.CreateParty,
+      data: {
+        partyName: "" as PartyName,
+      },
+    });
   }
 
   return (

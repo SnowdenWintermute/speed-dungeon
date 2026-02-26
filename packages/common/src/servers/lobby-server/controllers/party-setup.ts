@@ -35,6 +35,7 @@ export class PartySetupController {
   }
 
   createPartyHandler(session: UserSession, partyName: PartyName) {
+    console.log("create party handler:", partyName);
     if (session.currentPartyName) {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }
@@ -84,11 +85,6 @@ export class PartySetupController {
     session.currentPartyName = partyName;
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-
-    outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.PartyNameUpdate,
-      data: { partyName },
-    });
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerChangedAdventuringParty,
@@ -158,10 +154,6 @@ export class PartySetupController {
     session.currentPartyName = null;
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.PartyNameUpdate,
-      data: { partyName: null },
-    });
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerChangedAdventuringParty,

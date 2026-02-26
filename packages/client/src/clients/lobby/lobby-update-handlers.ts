@@ -98,6 +98,7 @@ export function createLobbyUpdateHandlers(
         gameOption.addPlayer(player);
       }
     },
+
     [GameStateUpdateType.PlayerLeftGame]: (data) => {
       const { username } = data;
       gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({

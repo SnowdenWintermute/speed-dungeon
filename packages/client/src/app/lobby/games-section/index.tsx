@@ -21,6 +21,7 @@ import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const GamesSection = observer(() => {
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
@@ -126,7 +127,8 @@ export const GamesSection = observer(() => {
         >
           <HotkeyButton
             hotkeys={["KeyA"]}
-            className="w-full h-full"
+            className="w-full h-full disabled:opacity-10"
+            disabled={!lobbyClientSingleton.isInitialized}
             onClick={() => {
               dialogStore.toggle(DialogElementName.GameCreation);
               dialogStore.close(DialogElementName.Credentials);

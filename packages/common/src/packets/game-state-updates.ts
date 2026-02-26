@@ -37,7 +37,6 @@ export enum GameStateUpdateType {
   UserLeftChannel,
   ErrorMessage,
   GameFullUpdate,
-  PartyNameUpdate,
   PlayerChangedAdventuringParty,
   PlayerLeftGame,
   PlayerJoinedGame,
@@ -113,9 +112,6 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SpeedDungeonGame | null;
-  };
-  [GameStateUpdateType.PartyNameUpdate]: {
-    partyName: PartyName | null;
   };
   [GameStateUpdateType.PlayerChangedAdventuringParty]: {
     playerName: Username;
@@ -320,7 +316,6 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.UserLeftChannel]: "UserLeftChannel",
   [GameStateUpdateType.ErrorMessage]: "ErrorMessage",
   [GameStateUpdateType.GameFullUpdate]: "GameFullUpdate",
-  [GameStateUpdateType.PartyNameUpdate]: "PartyNameUpdate",
   [GameStateUpdateType.PlayerChangedAdventuringParty]: "PlayerChangedAdventuringParty",
   [GameStateUpdateType.PlayerLeftGame]: "PlayerLeftGame",
   [GameStateUpdateType.PlayerJoinedGame]: "PlayerJoinedGame",
