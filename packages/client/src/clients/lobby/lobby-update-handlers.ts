@@ -17,6 +17,7 @@ import {
   ActionCommandType,
   AdventuringParty,
   Combatant,
+  deserializeMap,
   ERROR_MESSAGES,
   GameMode,
   GameStateUpdateMap,
@@ -36,7 +37,9 @@ export type LobbyUpdateHandlers = {
 
 export function createLobbyUpdateHandlers(
   appStore: AppStore,
-  gameWorldViewOption: GameWorldView | undefined
+  gameWorldView: {
+    current: null | GameWorldView;
+  }
 ): Partial<LobbyUpdateHandlers> {
   const { lobbyStore, gameStore, actionMenuStore, gameEventNotificationStore } = appStore;
   return {
@@ -45,7 +48,10 @@ export function createLobbyUpdateHandlers(
       gameStore.setUsername(data.username);
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
-      lobbyStore.updateChannel(data.channelName, data.users);
+      console.log("plain:", JSON.stringify(data));
+      const deserialized = deserializeMap(data.users);
+      console.log("deserialized:", deserialized);
+      lobbyStore.updateChannel(data.channelName, deserialized);
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
       lobbyStore.handleUserJoinedChannel(data.username, data.userChannelDisplayData),
@@ -57,16 +63,16 @@ export function createLobbyUpdateHandlers(
       if (game) {
         game = SpeedDungeonGame.getDeserialized(game);
       } else {
-        gameWorldViewOption?.modelManager.modelActionQueue.enqueueMessage({
+        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.ClearAllModels,
         });
       }
 
-      gameWorldViewOption?.modelManager.modelActionQueue.enqueueMessage({
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantModels,
         placeInHomePositions: true,
       });
-      gameWorldViewOption?.imageManager.enqueueMessage({
+      gameWorldView.current?.imageManager.enqueueMessage({
         type: ImageManagerRequestType.ClearState,
       });
 
@@ -77,7 +83,7 @@ export function createLobbyUpdateHandlers(
       if (game === null) {
         gameStore.clearGame();
         if (isLoggedIn) {
-          gameWorldViewOption?.drawCharacterSlots();
+          gameWorldView.current?.drawCharacterSlots();
         }
       } else {
         gameStore.setGame(game);
@@ -94,7 +100,7 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.PlayerLeftGame]: (data) => {
       const { username } = data;
-      gameWorldViewOption?.modelManager.modelActionQueue.enqueueMessage({
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.ProcessActionCommands,
         actionCommandPayloads: [{ type: ActionCommandType.RemovePlayerFromGame, username }],
       });
@@ -157,7 +163,7 @@ export function createLobbyUpdateHandlers(
       }
 
       if (game.mode === GameMode.Progression) {
-        gameWorldViewOption?.modelManager.modelActionQueue.enqueueMessage({
+        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.SynchronizeCombatantModels,
           placeInHomePositions: true,
         });
@@ -210,7 +216,7 @@ export function createLobbyUpdateHandlers(
 
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
 
-      gameWorldViewOption?.modelManager.modelActionQueue.enqueueMessage({
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantModels,
         placeInHomePositions: true,
       });
@@ -237,7 +243,7 @@ export function createLobbyUpdateHandlers(
 
       game.setAsStarted();
 
-      const camera = gameWorldViewOption?.camera;
+      const camera = gameWorldView.current?.camera;
       if (!camera) {
         console.error("no camera found");
         return;
@@ -249,7 +255,7 @@ export function createLobbyUpdateHandlers(
 
       party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
-      gameWorldViewOption?.clearFloorTexture();
+      gameWorldView.current?.clearFloorTexture();
 
       enqueueConsumableGenericThumbnailCreation();
 
@@ -262,7 +268,7 @@ export function createLobbyUpdateHandlers(
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();
 
-      gameWorldViewOption?.modelManager.modelActionQueue.enqueueMessage({
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantModels,
         placeInHomePositions: true,
       });

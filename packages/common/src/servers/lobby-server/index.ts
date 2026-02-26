@@ -113,7 +113,7 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
-    // this.logUserConnected(session);
+    this.logUserConnected(session);
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(
@@ -156,7 +156,7 @@ export class LobbyServer extends SpeedDungeonServer {
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    // console.info(`-- ${session.username} (${session.connectionId})  disconnected.`);
+    console.info(`-- ${session.username} (${session.connectionId})  disconnected.`);
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);

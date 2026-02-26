@@ -114,6 +114,8 @@ export class LobbySessionLifecycleController
       data: { channelName: LOBBY_CHANNEL, users: this.lobbyState.getUsersList() },
     });
 
+    console.log("sent channel users:", this.lobbyState.getUsersList());
+
     // tell other clients in the lobby that this user joined
     outbox.pushToChannel(
       LOBBY_CHANNEL,

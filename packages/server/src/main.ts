@@ -13,6 +13,7 @@ import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 import { runMigrations } from "./database/run-migrations.js";
+import { LobbyServerNode } from "./lobby-server/LobbyServerNode.js";
 
 const PORT = 8080;
 
@@ -23,15 +24,16 @@ await valkeyManager.context.connect();
 await loadLadderIntoKvStore();
 
 const expressApp = createExpressApp();
-const listening = expressApp.listen(PORT, async () => {
-  const io = new Server<ClientToServerEventTypes, ServerToClientEventTypes>(listening, {
-    cors: { origin: env.FRONT_END_URL, credentials: true },
-  });
+const httpServer = expressApp.listen(PORT, async () => {
+  // const io = new Server<ClientToServerEventTypes, ServerToClientEventTypes>(httpServer, {
+  //   cors: { origin: env.FRONT_END_URL, credentials: true },
+  // });
 
   console.info(`speed dungeon server on port ${PORT}`);
 
   try {
-    gameServer.current = new GameServerNode(io, expressApp);
+    // gameServer.current = new GameServerNode(io, expressApp, PORT);
+    LobbyServerNode.createLobbyServer(httpServer);
   } catch (error) {
     if (error instanceof EntityNotFoundError) {
       const note = idGenerator.getHistoryNote(error.entityId);

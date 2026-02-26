@@ -5,13 +5,13 @@ import {
   GameStateUpdateType,
   invariant,
   SpeedDungeonGame,
-  TestClient,
 } from "@speed-dungeon/common";
 import {
   ClientEndpointFactory,
   TestAuthSessionIds,
 } from "../test-connection-endpoint-factories.js";
 import { TEST_LOBBY_URL } from "../index.js";
+import { TestClient } from "../../../test-utils/test-client.js";
 
 export async function testGameSetupToTwoPlayersJoinedLobbyGame(
   clientEndpointFactory: ClientEndpointFactory,

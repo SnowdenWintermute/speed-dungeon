@@ -3,13 +3,10 @@ import {
   ChannelName,
   CharacterCreator,
   ClientToServerEventTypes,
-  ConnectionIdentityResolutionContext,
   GameMode,
   GameName,
   GameServerNodeAssetService,
-  IdentityProviderService,
   ItemGenerator,
-  SavedCharactersService,
   ServerToClientEvent,
   ServerToClientEventTypes,
   SpeedDungeonGame,
@@ -34,17 +31,6 @@ import initiateSavedCharacterListeners from "./saved-character-event-handlers/in
 import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
 import { idGenerator, rngSingleton } from "../singletons/index.js";
 import { AffixGenerator } from "@speed-dungeon/common";
-import { DatabaseProfileService } from "./services/profiles.js";
-import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import {
-  DatabaseSavedCharacterPersistenceStrategy,
-  DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "./services/saved-characters.js";
-import { playerCharactersRepo } from "../database/repos/player-characters.js";
-import { characterSlotsRepo } from "../database/repos/character-slots.js";
-import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
-import { valkeyManager } from "../kv-store/index.js";
-import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
 import { AssetServer } from "../asset-server/index.js";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
@@ -63,9 +49,11 @@ export class GameServerNode implements ActionCommandReceiver {
   );
   characterCreator: CharacterCreator;
   assetServer: AssetServer;
+
   constructor(
     public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>,
-    private expressApp: Express
+    private expressApp: Express,
+    private port: number
   ) {
     this.connectionHandler();
     this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
@@ -74,16 +62,8 @@ export class GameServerNode implements ActionCommandReceiver {
     const assetService = new GameServerNodeAssetService(fsAssetStore);
     this.assetServer = new AssetServer(fsAssetStore);
     this.assetServer.attachRouter(expressApp);
-
-    // const usersIncomingConnectionGateway = new LobbyRemoteIncomingConnectionGateway(this.io);
-    // const gameSimulatorHandoffStrategy = new RemoteGameSimuatorHandoffStrategy();
-    // const externalServices = this.createLobbyExternalServices();
-    // const lobbyServer = new LobbyServer(
-    //   usersIncomingConnectionGateway,
-    //   gameSimulatorHandoffStrategy,
-    //   externalServices
-    // );
   }
+
   // game manager
   games = new Map<GameName, SpeedDungeonGame>();
   initiateLobbyEventListeners = initiateLobbyEventListeners;
@@ -124,38 +104,4 @@ export class GameServerNode implements ActionCommandReceiver {
     [GameMode.Race]: new GameModeContext(GameMode.Race),
     [GameMode.Progression]: new GameModeContext(GameMode.Progression),
   };
-
-  createLobbyExternalServices() {
-    const identityProviderService = new IdentityProviderService({
-      execute: async (context: ConnectionIdentityResolutionContext) => {
-        // @TODO - this is wrong because this old fn expects cookies, not authSessionId
-        return await getLoggedInUserOrCreateGuest(context.authSessionId);
-      },
-    });
-
-    const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
-
-    const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
-      playerCharactersRepo
-    );
-
-    const savedCharacterSlotsPersistenceStrategy =
-      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
-    const savedCharactersService = new SavedCharactersService(
-      savedCharacterSlotsPersistenceStrategy,
-      savedCharactersPersistenceStrategy
-    );
-
-    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
-
-    const externalServices = {
-      identityProviderService,
-      profileService,
-      savedCharactersService,
-      rankedLadderService,
-      idGenerator,
-    };
-
-    return externalServices;
-  }
 }

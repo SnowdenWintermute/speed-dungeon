@@ -1,9 +1,8 @@
 import { AssetId, ClientAppAssetService } from "@speed-dungeon/common";
 import { IndexedDbAssetStore } from "@speed-dungeon/common";
-import { NodeFileSystemAssetStore } from "@speed-dungeon/common";
 import { RemoteServerAssetStore } from "@speed-dungeon/common";
 import { GameServerNodeAssetService } from "@speed-dungeon/common";
-import { AssetServer } from "@speed-dungeon/server";
+import { AssetServer, NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { createExpressApp } from "./create-test-express-app.js";
 

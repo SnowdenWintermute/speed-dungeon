@@ -26,7 +26,12 @@ export class OutgoingMessageGateway<Sendable> {
       // );
     }
 
-    const serializedMessage = JSON.stringify(message);
+    const serializedMessage = JSON.stringify(message, (_key, v) => {
+      if (v instanceof Map) {
+        return Object.fromEntries(v);
+      }
+      return v;
+    });
     endpoint.send(serializedMessage);
   }
 

@@ -4,12 +4,14 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { GameWorldView } from "@/game-world-view";
 
 export class LobbyClient {
-  private updateHandlers = createLobbyUpdateHandlers(this.appStore, this.gameWorldViewOption);
+  private updateHandlers = createLobbyUpdateHandlers(this.appStore, this.gameWorldView);
 
   constructor(
     private connectionEndpoint: ConnectionEndpoint,
     private appStore: AppStore,
-    private gameWorldViewOption: GameWorldView | undefined
+    private gameWorldView: {
+      current: null | GameWorldView;
+    }
   ) {
     this.registerListeners();
   }

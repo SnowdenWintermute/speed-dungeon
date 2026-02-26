@@ -26,6 +26,8 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { BrowserWebSocketConnectionEndpoint } from "@speed-dungeon/common/src/transport/browser-websocket-connection-endpoint";
+import { LobbyClient } from "@/clients/lobby";
+import { gameWorldView } from "../game-world-view-canvas/SceneManager";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
@@ -43,7 +45,12 @@ export const Lobby = observer(() => {
     const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
     const ws = new WebSocket(socketAddress || "");
-    const websocketConnection = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+    console.log("attempting websocketConnection");
+    const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+    const lobbyClient = new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView);
+    return () => {
+      connectionEndpoint.close();
+    };
   }, []);
 
   useEffect(() => {

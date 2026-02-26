@@ -222,3 +222,11 @@ export function calculateBalancedAttributeSynergy(attributeA: number, attributeB
 
   return Math.max(1, Math.round(total));
 }
+
+export function deserializeMap<T, U>(raw: Map<T, U>) {
+  const deserialized = new Map<T, U>();
+  for (const [key, value] of Object.entries(raw)) {
+    deserialized.set(key as T, value);
+  }
+  return deserialized;
+}
