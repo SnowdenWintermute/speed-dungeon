@@ -1,4 +1,10 @@
-import { Combatant, EntityId, GameListEntry, UserChannelDisplayData } from "@speed-dungeon/common";
+import {
+  Combatant,
+  EntityId,
+  GameListEntry,
+  UserChannelDisplayData,
+  Username,
+} from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class LobbyStore {
@@ -32,14 +38,12 @@ export class LobbyStore {
     return this.gameList;
   }
 
-  updateChannel(
-    channelName: string,
-    users: { username: string; userChannelDisplayData: UserChannelDisplayData }[]
-  ) {
+  updateChannel(channelName: string, users: Map<Username, UserChannelDisplayData>) {
     this.mainChannelName = channelName;
     this.usersInChannel.clear();
-    users.forEach(({ username, userChannelDisplayData }) => {
-      this.usersInChannel.set(username, userChannelDisplayData);
+
+    Array.from(users.entries()).forEach(([username, displayData]) => {
+      this.usersInChannel.set(username, displayData);
     });
   }
 

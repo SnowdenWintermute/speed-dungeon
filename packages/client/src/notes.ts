@@ -24,7 +24,9 @@
 //   - Dispatches messages to LobbyClient and GameClient
 //
 // startup (online)
-// - create a LobbyClient
+// - try open websocket connection to lobby server
+// - if fails, create local lobby server and in memory connection endpoint
+// - create a LobbyClient with whatever endpoint we created
 // - open websocket connection to lobby server
 // - start updating AssetCache in the background
 //

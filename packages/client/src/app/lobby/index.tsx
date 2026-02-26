@@ -1,6 +1,6 @@
 // @refresh reset
 "use client";
-import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
+import { BASE_SCREEN_SIZE, ConnectionId, GOLDEN_RATIO } from "@speed-dungeon/common";
 import {
   HTTP_REQUEST_NAMES,
   SPACING_REM,
@@ -25,6 +25,7 @@ import { HOTKEYS } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { BrowserWebSocketConnectionEndpoint } from "@speed-dungeon/common/src/transport/browser-websocket-connection-endpoint";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
@@ -36,6 +37,14 @@ export const Lobby = observer(() => {
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
   const websocketConnected = lobbyStore.websocketIsConnected();
+
+  useEffect(() => {
+    //
+    const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+
+    const ws = new WebSocket(socketAddress || "");
+    const websocketConnection = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+  }, []);
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {

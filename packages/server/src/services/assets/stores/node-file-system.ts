@@ -1,9 +1,7 @@
-import { AssetId } from "../index.js";
-import { AssetCache } from "./index.js";
 import path from "path";
 import fs from "fs";
-import { VersionedAsset } from "../versioned-asset.js";
 import { createHash } from "crypto";
+import { AssetCache, AssetId, VersionedAsset } from "@speed-dungeon/common";
 
 function hashArrayBuffer(bytes: ArrayBuffer): string {
   const hash = createHash("sha256");

@@ -47,7 +47,9 @@ export default function joinSocketToChannel(
     });
   }
 
-  socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usersInRoom);
+  // temporary until we delete this code and replace with new system
+  // socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, usersInRoom);
+  socket.emit(ServerToClientEvent.ChannelFullUpdate, newChannelName, new Map());
 
   if (Object.keys(browserTabSessionsInChannel).length === 1) {
     // if they already had a browser tab in this channel, don't send a notification

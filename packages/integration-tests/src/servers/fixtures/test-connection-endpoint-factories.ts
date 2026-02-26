@@ -1,16 +1,18 @@
-import { ConnectionEndpoint } from "../../../transport/connection-endpoint.js";
-import WebSocket from "ws";
-import { NodeWebSocketConnectionEndpoint } from "../../../transport/node-websocket-connection-endpoint.js";
+import {
+  ConnectionEndpoint,
+  IncomingConnectionGateway,
+  InMemoryConnectionEndpointServerRegistry,
+  urlWithQueryParams,
+} from "@speed-dungeon/common";
 import {
   CLIENT_CONNECTION_ENDPOINT_NIL_ID,
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
 } from "./index.js";
-import { InMemoryConnectionEndpointServerRegistry } from "../../../transport/in-memory-connection-endpoint-server-registry.js";
-import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
-import { createTestInMemoryIncomingConnectionGateways } from "./create-test-in-memory-incoming-connection-gateways.js";
 import { createTestWebSocketIncomingConnectionGateways } from "./create-test-websocket-incoming-connection-gateways.js";
-import { urlWithQueryParams } from "../../../utils/url-with-query-params.js";
+import { createTestInMemoryIncomingConnectionGateways } from "./create-test-in-memory-incoming-connection-gateways.js";
+import { NodeWebSocketConnectionEndpoint } from "@speed-dungeon/server";
+import { WebSocket } from "ws";
 
 export interface ClientEndpointFactory {
   createClientEndpoint(

@@ -215,7 +215,7 @@ export interface GameStateUpdateMap {
     entityId: string;
   };
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]: {
-    username: string;
+    username: Username;
     character: { combatant: Combatant; pets: Combatant[] };
   };
   [GameStateUpdateType.ProgressionGameStartingFloorSelected]: {

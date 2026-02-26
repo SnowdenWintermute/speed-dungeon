@@ -1,6 +1,7 @@
-import { AssetId, invariant, NodeFileSystemAssetStore } from "@speed-dungeon/common";
+import { AssetId, invariant } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
+import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
 
 export class AssetServer {
   constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}

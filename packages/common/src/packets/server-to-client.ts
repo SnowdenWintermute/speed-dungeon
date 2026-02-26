@@ -86,7 +86,7 @@ export interface ServerToClientEventTypes {
   [ServerToClientEvent.GameList]: (gameList: GameListEntry[]) => void;
   [ServerToClientEvent.ChannelFullUpdate]: (
     channelName: ChannelName,
-    userNames: { username: string; userChannelDisplayData: UserChannelDisplayData }[]
+    userNames: Map<Username, UserChannelDisplayData>
   ) => void;
   [ServerToClientEvent.ClientUsername]: (username: Username) => void;
   [ServerToClientEvent.UserJoinedChannel]: (

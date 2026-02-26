@@ -1,6 +1,5 @@
+import { ConnectionEndpoint, ConnectionId } from "@speed-dungeon/common";
 import WebSocket from "ws";
-import { ConnectionEndpoint } from "./connection-endpoint.js";
-import { ConnectionId } from "../aliases.js";
 
 export class NodeWebSocketConnectionEndpoint implements ConnectionEndpoint {
   constructor(

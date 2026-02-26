@@ -1,19 +1,21 @@
-import { SavedCharactersService } from "../../../servers/services/saved-characters.js";
-import { InMemoryGameSessionStoreService } from "../../services/game-session-store/in-memory-game-session-store-service.js";
-import { SodiumHelpers } from "../../../cryptography/index.js";
-import { GameServer } from "../../game-server/index.js";
-import { GameServerName } from "../../../aliases.js";
 import {
+  GameServer,
+  GameServerName,
+  GameServerNodeAssetService,
+  IncomingConnectionGateway,
+  InMemoryGameSessionStoreService,
   InMemoryRaceGameRecordsPersistenceStrategy,
-  RaceGameRecordsService,
-} from "../../services/race-game-records.js";
-import {
+  InMemoryRankedLadderService,
+  InMemoryReconnectionForwardingStoreService,
   InMemorySavedCharacterPersistenceStrategy,
   InMemorySavedCharacterSlotsPersistenceStrategy,
-} from "../../services/in-memory-saved-characters-service.js";
-import { InMemoryRankedLadderService } from "../../services/in-memory-ranked-ladder-service.js";
-import { OpaqueEncryptionSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
-import { LobbyServer } from "../../lobby-server/index.js";
+  InMemorySpeedDungeonProfileService,
+  LobbyServer,
+  OpaqueEncryptionSessionClaimTokenCodec,
+  RaceGameRecordsService,
+  SavedCharactersService,
+  SodiumHelpers,
+} from "@speed-dungeon/common";
 import {
   createGameServerTestServices,
   createLobbyTestServices,
@@ -22,11 +24,7 @@ import {
   TEST_GAME_SERVER_PORT,
   TEST_GAME_SERVER_URL,
 } from "./index.js";
-import { IncomingConnectionGateway } from "../../incoming-connection-gateway.js";
-import { InMemoryReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/in-memory-reconnection-forwarding-store.js";
-import { InMemorySpeedDungeonProfileService } from "../../services/in-memory-profiles-service.js";
-import { NodeFileSystemAssetStore } from "../../services/assets/stores/node-file-system.js";
-import { GameServerNodeAssetService } from "../../services/assets/game-server-node-asset-service.js";
+import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,

@@ -1,15 +1,19 @@
-import { IdGenerator } from "../../../utility-classes/index.js";
-import { SavedCharactersService } from "../../../servers/services/saved-characters.js";
-import { IdentityProviderService } from "../../../servers/services/identity-provider.js";
-import { GameServerExternalServices } from "../../game-server/index.js";
-import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { ReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/index.js";
-import { RankedLadderService } from "../../services/ranked-ladder.js";
-import { ConnectionId, GameServerName, Username } from "../../../aliases.js";
-import { RaceGameRecordsService } from "../../services/race-game-records.js";
-import { InMemoryIdentityProviderQueryStrategy } from "../../services/in-memory-identity-provider-service.js";
-import { SpeedDungeonProfileService } from "../../services/profiles.js";
-import { AssetService } from "../../services/assets/index.js";
+import {
+  AssetService,
+  ConnectionId,
+  GameServerExternalServices,
+  GameServerName,
+  GameSessionStoreService,
+  IdentityProviderService,
+  IdGenerator,
+  InMemoryIdentityProviderQueryStrategy,
+  RaceGameRecordsService,
+  RankedLadderService,
+  ReconnectionForwardingStoreService,
+  SavedCharactersService,
+  SpeedDungeonProfileService,
+  Username,
+} from "@speed-dungeon/common";
 
 export const TEST_GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
 export const TEST_LOBBY_SERVER_PORT = 8090;

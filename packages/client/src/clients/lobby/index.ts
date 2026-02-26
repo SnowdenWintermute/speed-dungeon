@@ -1,9 +1,16 @@
 import { ConnectionEndpoint, GameStateUpdate, invariant } from "@speed-dungeon/common";
 import { createLobbyUpdateHandlers } from "./lobby-update-handlers";
+import { AppStore } from "@/mobx-stores/app-store";
+import { GameWorldView } from "@/game-world-view";
 
 export class LobbyClient {
-  private updateHandlers = createLobbyUpdateHandlers();
-  constructor(private connectionEndpoint: ConnectionEndpoint) {
+  private updateHandlers = createLobbyUpdateHandlers(this.appStore, this.gameWorldViewOption);
+
+  constructor(
+    private connectionEndpoint: ConnectionEndpoint,
+    private appStore: AppStore,
+    private gameWorldViewOption: GameWorldView | undefined
+  ) {
     this.registerListeners();
   }
 

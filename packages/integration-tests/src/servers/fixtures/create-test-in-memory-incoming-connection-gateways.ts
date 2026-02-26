@@ -1,7 +1,9 @@
+import {
+  InMemoryConnectionEndpointServer,
+  InMemoryConnectionEndpointServerRegistry,
+  InMemoryIncomingConnectionGateway,
+} from "@speed-dungeon/common";
 import { TEST_GAME_SERVER_URL, TEST_LOBBY_URL } from "./index.js";
-import { InMemoryConnectionEndpointServer } from "../../../transport/in-memory-connection-endpoint-server.js";
-import { InMemoryConnectionEndpointServerRegistry } from "../../../transport/in-memory-connection-endpoint-server-registry.js";
-import { InMemoryIncomingConnectionGateway } from "../../in-memory-incoming-connection-gateway.js";
 
 export function createTestInMemoryIncomingConnectionGateways() {
   const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();

@@ -9,7 +9,6 @@ import {
   GameServerNodeAssetService,
   IdentityProviderService,
   ItemGenerator,
-  NodeFileSystemAssetStore,
   SavedCharactersService,
   ServerToClientEvent,
   ServerToClientEventTypes,
@@ -48,6 +47,7 @@ import { valkeyManager } from "../kv-store/index.js";
 import { getLoggedInUserOrCreateGuest } from "./get-logged-in-user-or-create-guest.js";
 import { GameMessagesPayload } from "@speed-dungeon/common";
 import { AssetServer } from "../asset-server/index.js";
+import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
 
 export type SocketId = string;
 
