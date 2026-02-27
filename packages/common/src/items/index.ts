@@ -60,7 +60,7 @@ export abstract class Item {
     return this instanceof Consumable ? ItemType.Consumable : ItemType.Equipment;
   }
 
-  isShardStack() {
+  isShardStack(): this is Consumable & { consumableType: ConsumableType.StackOfShards } {
     return this instanceof Consumable && this.consumableType === ConsumableType.StackOfShards;
   }
 }

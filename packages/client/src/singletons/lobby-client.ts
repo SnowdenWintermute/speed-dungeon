@@ -1,27 +1,28 @@
-import { LobbyClient } from "@/clients/lobby";
+import { BaseClient } from "@/clients/base-client";
 import { makeAutoObservable } from "mobx";
 
-class LobbyClientSingleton {
-  private _lobbyClient: null | LobbyClient = null;
+class ClientSingleton {
+  private _client: null | BaseClient = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
   get() {
-    if (this._lobbyClient === null) {
+    if (this._client === null) {
       throw new Error("Lobby client not yet initialized");
     }
-    return this._lobbyClient;
+    return this._client;
   }
 
-  setClient(client: LobbyClient) {
-    this._lobbyClient = client;
+  setClient(client: BaseClient) {
+    this._client = client;
   }
 
   get isInitialized() {
-    return this._lobbyClient !== null;
+    return this._client !== null;
   }
 }
 
-export const lobbyClientSingleton = new LobbyClientSingleton();
+export const lobbyClientSingleton = new ClientSingleton();
+export const gameClientSingleton = new ClientSingleton();

@@ -1,5 +1,4 @@
 import { setAlert } from "@/app/components/alerts";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { GameWorldView } from "@/game-world-view";
@@ -7,7 +6,7 @@ import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
-import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import {
   enqueueCharacterItemsForThumbnails,
@@ -40,7 +39,8 @@ export function createLobbyUpdateHandlers(
   appStore: AppStore,
   gameWorldView: {
     current: null | GameWorldView;
-  }
+  },
+  characterAutoFocusManager: CharacterAutoFocusManager
 ): Partial<LobbyUpdateHandlers> {
   const { lobbyStore, gameStore, actionMenuStore, gameEventNotificationStore } = appStore;
   return {
@@ -299,9 +299,9 @@ export function createLobbyUpdateHandlers(
 
         lobbyStore.setSavedCharacterSlots(deserialized);
 
-        getGameWorldView().drawCharacterSlots();
+        gameWorldView.current?.drawCharacterSlots();
 
-        getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
+        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
           type: ModelActionType.SynchronizeCombatantModels,
           placeInHomePositions: true,
         });
@@ -309,7 +309,7 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.SavedCharacterDeleted]: (data) => {
       lobbyStore.deleteSavedCharacter(data.entityId);
-      getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantModels,
         placeInHomePositions: true,
       });
@@ -325,10 +325,15 @@ export function createLobbyUpdateHandlers(
         slotIndex
       );
 
-      getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantModels,
         placeInHomePositions: true,
       });
+    },
+    [GameStateUpdateType.GameServerConnectionInstructions]: (data) => {
+      const { connectionInstructions } = data;
+      const { url, encryptedSessionClaimToken } = connectionInstructions;
+      console.log("got connectionInstructions, url:", url, "token:", encryptedSessionClaimToken);
     },
   };
 }

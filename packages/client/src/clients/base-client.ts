@@ -1,5 +1,6 @@
 import { GameWorldView } from "@/game-world-view";
 import { AppStore } from "@/mobx-stores/app-store";
+import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeon/common";
 
 export abstract class BaseClient {
@@ -8,7 +9,8 @@ export abstract class BaseClient {
     protected appStore: AppStore,
     protected gameWorldView: {
       current: null | GameWorldView;
-    }
+    },
+    protected characterAutoFocusManager: CharacterAutoFocusManager
   ) {
     this.registerListeners();
   }

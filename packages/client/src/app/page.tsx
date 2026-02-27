@@ -17,6 +17,7 @@ import { BrowserWebSocketConnectionEndpoint, ConnectionId } from "@speed-dungeon
 import { LobbyClient } from "@/clients/lobby";
 import { lobbyClientSingleton } from "@/singletons/lobby-client";
 import { useEffect } from "react";
+import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 
 // for immer to be able to use map and set
 enableMapSet();
@@ -55,7 +56,12 @@ export default observer(() => {
     const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
     if (!lobbyClientSingleton.isInitialized) {
       lobbyClientSingleton.setClient(
-        new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
+        new LobbyClient(
+          connectionEndpoint,
+          AppStore.get(),
+          gameWorldView,
+          characterAutoFocusManager
+        )
       );
     } else {
       lobbyClientSingleton.get().setEndpoint(connectionEndpoint);

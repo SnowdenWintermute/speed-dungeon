@@ -14,10 +14,12 @@ import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import {
+  ActionRank,
   ChannelName,
   CharacterSlotIndex,
   CombatantId,
   EntityId,
+  EntityName,
   GameName,
   GuestSessionReconnectionToken,
   ItemId,
@@ -237,12 +239,12 @@ export interface GameStateUpdateMap {
     craftingAction: CraftingAction;
   };
   [GameStateUpdateType.PlayerPostedItemLink]: {
-    username: string;
+    username: Username;
     itemId: EntityId;
   };
   [GameStateUpdateType.CharacterSelectedCombatActionRank]: {
     characterId: EntityId;
-    actionRank: number;
+    actionRank: ActionRank;
   };
   [GameStateUpdateType.CharacterAllocatedAbilityPoint]: {
     characterId: EntityId;
@@ -255,7 +257,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.CharacterRenamedPet]: {
     petId: EntityId;
-    newName: string;
+    newName: EntityName;
   };
 }
 

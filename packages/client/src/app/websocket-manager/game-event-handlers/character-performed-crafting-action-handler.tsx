@@ -48,9 +48,11 @@ export function characterPerformedCraftingActionHandler(eventData: {
     const itemBeforeModification = cloneDeep(toJS(itemResult));
     // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
     // combat log
-    itemBeforeModification.craftingIteration !== undefined
-      ? (itemBeforeModification.craftingIteration += 1)
-      : (itemBeforeModification.craftingIteration = 0);
+    if (itemBeforeModification.craftingIteration !== undefined) {
+      itemBeforeModification.craftingIteration += 1;
+    } else {
+      itemBeforeModification.craftingIteration = 0;
+    }
 
     const asInstance = plainToInstance(Equipment, item);
 

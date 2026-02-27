@@ -3,7 +3,11 @@ import { createLobbyUpdateHandlers } from "./lobby-update-handlers";
 import { BaseClient } from "../base-client";
 
 export class LobbyClient extends BaseClient {
-  private updateHandlers = createLobbyUpdateHandlers(this.appStore, this.gameWorldView);
+  private updateHandlers = createLobbyUpdateHandlers(
+    this.appStore,
+    this.gameWorldView,
+    this.characterAutoFocusManager
+  );
 
   protected handleMessage(message: GameStateUpdate) {
     console.log("handling mesage:", message, JSON.stringify(message));
