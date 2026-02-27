@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-extraneous-class */
 import {
   LobbyServer,
   SodiumHelpers,
@@ -27,39 +26,30 @@ import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocke
 import { Server, IncomingMessage, ServerResponse } from "http";
 
 export class LobbyServerNode {
-  static _lobbyServer: LobbyServer | null = null;
+  private _lobbyServer: LobbyServer | null = null;
 
-  static getServer() {
-    if (this._lobbyServer === null) {
-      throw new Error("Lobby server not yet created");
-    }
-    return this._lobbyServer;
-  }
-
-  static async createLobbyServer(
-    httpServer: Server<typeof IncomingMessage, typeof ServerResponse>
-  ) {
+  async createLobbyServer(httpServer: Server<typeof IncomingMessage, typeof ServerResponse>) {
     const wss = new WebSocketServer({ server: httpServer });
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const externalServices = this.createExternalServices();
     const testSecret = await SodiumHelpers.createSecret();
     const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
-    LobbyServerNode._lobbyServer = new LobbyServer(
+    const leastBusyGameServerUrlGetter = async () => "";
+    this._lobbyServer = new LobbyServer(
       usersIncomingConnectionGateway,
       externalServices,
       codec,
       {},
-      async () => ""
+      leastBusyGameServerUrlGetter
     );
 
     console.log("lobby server node created");
   }
 
-  private static createExternalServices(): LobbyExternalServices {
+  private createExternalServices(): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
         const user = await getLoggedInUserOrCreateGuest(context.authSessionId);
-        console.log("user:", user);
         return user;
       },
     });
