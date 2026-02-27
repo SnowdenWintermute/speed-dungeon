@@ -20,6 +20,7 @@ export class IdentityProviderService {
   constructor(private readonly sessionQueryStrategy: IdentityProviderUserSessionQueryStrategy) {}
 
   async resolve(context: ConnectionIdentityResolutionContext) {
+    console.log("trying resolve");
     return await this.sessionQueryStrategy.execute(context);
   }
 }

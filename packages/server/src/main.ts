@@ -1,19 +1,12 @@
 import { createExpressApp } from "./create-express-app.js";
-import { Server } from "socket.io";
-import {
-  ClientToServerEventTypes,
-  EntityNotFoundError,
-  ServerToClientEventTypes,
-} from "@speed-dungeon/common";
-import { GameServerNode } from "./game-server/index.js";
-import { env } from "./validate-env.js";
-import { gameServer, idGenerator } from "./singletons/index.js";
+import { EntityNotFoundError } from "@speed-dungeon/common";
+import { idGenerator } from "./singletons/index.js";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 import { runMigrations } from "./database/run-migrations.js";
-import { LobbyServerNode } from "./lobby-server/LobbyServerNode.js";
+import { LobbyServerNode } from "./lobby-server/index.js";
 
 const PORT = 8080;
 

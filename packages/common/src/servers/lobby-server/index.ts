@@ -108,6 +108,8 @@ export class LobbyServer extends SpeedDungeonServer {
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
+    console.log("context:", identityResolutionContext);
+
     const session = await this.userSessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
@@ -126,6 +128,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
     if (connectionContext.type === ConnectionContextType.Reconnection) {
+      console.log("is reconnection");
       const outbox = await this.userSessionLifecycleController.activateSession(session, {
         sessionWillBeForwardedToGameServer: true,
       });
@@ -133,6 +136,7 @@ export class LobbyServer extends SpeedDungeonServer {
       outbox.pushFromOther(reconnectionCredentialsOutbox);
       this.dispatchOutboxMessages(outbox);
     } else {
+      console.log("is first time connection");
       this.attachIntentHandlersToSessionConnection(
         session,
         connectionEndpoint,
@@ -140,6 +144,8 @@ export class LobbyServer extends SpeedDungeonServer {
       );
 
       const hadExpiredReconnectionToken = session.getGuestReconnectionTokenOption() !== null;
+
+      console.log("hadExpiredReconnectionToken", hadExpiredReconnectionToken);
       const outbox = await this.userSessionLifecycleController.activateSession(session, {
         hadExpiredReconnectionToken,
       });

@@ -26,6 +26,7 @@ export class LobbyClient {
   }
 
   setEndpoint(connectionEndpoint: ConnectionEndpoint) {
+    console.log("closing endpoint and setting new");
     this.connectionEndpoint.close();
     this.connectionEndpoint = connectionEndpoint;
   }
@@ -36,6 +37,7 @@ export class LobbyClient {
     });
 
     this.connectionEndpoint.on("message", (untyped) => {
+      console.log("untyped:", untyped);
       const typedMessage = this.getTypedMessage(untyped);
       this.handleMessage(typedMessage);
     });
@@ -44,8 +46,10 @@ export class LobbyClient {
   private handleMessage(message: GameStateUpdate) {
     console.log("handling mesage:", message, JSON.stringify(message));
     const handlerOption = this.updateHandlers[message.type];
+    console.log("handlerOption:", handlerOption);
     invariant(handlerOption !== undefined, `Unhandled update type: ${JSON.stringify(message)}`);
     handlerOption(message.data as never);
+    console.log("handled");
   }
 
   private getTypedMessage(rawData: string | ArrayBuffer) {

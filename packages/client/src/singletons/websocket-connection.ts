@@ -1,8 +1,10 @@
 "use client";
 import { setAlert } from "@/app/components/alerts";
 import {
+  BrowserWebSocketConnectionEndpoint,
   ClientToServerEvent,
   ClientToServerEventTypes,
+  ConnectionId,
   ServerToClientEvent,
   ServerToClientEventTypes,
 } from "@speed-dungeon/common";
@@ -14,6 +16,7 @@ import { setUpSavedCharacterEventListeners } from "@/app/websocket-manager/saved
 import { AppStore } from "@/mobx-stores/app-store";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { lobbyClientSingleton } from "./lobby-client";
 
 const socketAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
 
@@ -32,9 +35,19 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
 AppStore.get().gameStore.initialize(websocketConnection);
 
 export function resetWebsocketConnection() {
+  console.info("reconnecting");
   websocketConnection.disconnect();
   websocketConnection.connect();
-  console.info("reconnecting");
+  const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+
+  // online
+  const ws = new WebSocket(remoteLobbyServerAddress || "");
+  const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+  try {
+    lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
+  } catch {
+    return;
+  }
 }
 
 websocketConnection.on("connect", () => {

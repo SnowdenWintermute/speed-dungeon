@@ -101,6 +101,7 @@ export abstract class SpeedDungeonServer {
 
   protected dispatchOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
     for (const dispatch of outbox.toDispatches()) {
+      console.log("dispatching:", dispatch);
       switch (dispatch.type) {
         case MessageDispatchType.Single:
           this.outgoingMessagesGateway.submitToConnection(dispatch.connectionId, dispatch.message);

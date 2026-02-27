@@ -1,30 +1,31 @@
-import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
-import { WebSocketServer } from "ws";
-import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { playerCharactersRepo } from "../database/repos/player-characters.js";
-import { characterSlotsRepo } from "../database/repos/character-slots.js";
-import { valkeyManager } from "../kv-store/index.js";
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import {
-  ConnectionIdentityResolutionContext,
-  IdentityProviderService,
-  IdGenerator,
-  InMemoryGameSessionStoreService,
-  InMemoryReconnectionForwardingStoreService,
-  LobbyExternalServices,
   LobbyServer,
-  OpaqueEncryptionSessionClaimTokenCodec,
-  SavedCharactersService,
   SodiumHelpers,
+  OpaqueEncryptionSessionClaimTokenCodec,
+  LobbyExternalServices,
+  IdentityProviderService,
+  ConnectionIdentityResolutionContext,
+  SavedCharactersService,
+  InMemoryReconnectionForwardingStoreService,
+  InMemoryGameSessionStoreService,
+  IdGenerator,
 } from "@speed-dungeon/common";
+import { WebSocketServer } from "ws";
+import { characterSlotsRepo } from "../database/repos/character-slots.js";
+import { playerCharactersRepo } from "../database/repos/player-characters.js";
+import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
 import { getLoggedInUserOrCreateGuest } from "../game-server/get-logged-in-user-or-create-guest.js";
 import { DatabaseProfileService } from "../game-server/services/profiles.js";
+import { DatabaseRankedLadderService } from "../game-server/services/ranked-ladder.js";
 import {
   DatabaseSavedCharacterPersistenceStrategy,
   DatabaseSavedCharacterSlotsPersistenceStrategy,
 } from "../game-server/services/saved-characters.js";
-import { DatabaseRankedLadderService } from "../game-server/services/ranked-ladder.js";
+import { valkeyManager } from "../kv-store/index.js";
+import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
+import { Server, IncomingMessage, ServerResponse } from "http";
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class LobbyServerNode {
   static _lobbyServer: LobbyServer | null = null;
 
@@ -35,8 +36,10 @@ export class LobbyServerNode {
     return this._lobbyServer;
   }
 
-  static async createLobbyServer(port: number) {
-    const wss = new WebSocketServer({ port });
+  static async createLobbyServer(
+    httpServer: Server<typeof IncomingMessage, typeof ServerResponse>
+  ) {
+    const wss = new WebSocketServer({ server: httpServer });
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const externalServices = this.createExternalServices();
     const testSecret = await SodiumHelpers.createSecret();
@@ -48,13 +51,16 @@ export class LobbyServerNode {
       {},
       async () => ""
     );
+
+    console.log("lobby server node created");
   }
 
-  static createExternalServices(): LobbyExternalServices {
+  private static createExternalServices(): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
-        // @TODO - this is wrong because this old fn expects cookies, not authSessionId
-        return await getLoggedInUserOrCreateGuest(context.authSessionId);
+        const user = await getLoggedInUserOrCreateGuest(context.authSessionId);
+        console.log("user:", user);
+        return user;
       },
     });
 

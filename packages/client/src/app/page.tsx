@@ -13,27 +13,15 @@ import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import SceneManager, { gameWorldView } from "./game-world-view-canvas/SceneManager";
-import {
-  BrowserWebSocketConnectionEndpoint,
-  ConnectionId,
-  InMemoryConnectionEndpointServer,
-  InMemoryConnectionEndpointServerRegistry,
-  InMemoryIncomingConnectionGateway,
-  LobbyServer,
-  urlWithQueryParams,
-} from "@speed-dungeon/common";
+import { BrowserWebSocketConnectionEndpoint, ConnectionId } from "@speed-dungeon/common";
 import { LobbyClient } from "@/clients/lobby";
 import { lobbyClientSingleton } from "@/singletons/lobby-client";
 import { useEffect } from "react";
-import {
-  createOfflineLocalServers,
-  LOCAL_OFFLINE_LOBBY_SERVER_URL,
-} from "@/servers/create-offline-local-servers";
 
 // for immer to be able to use map and set
 enableMapSet();
 
-const offlineServers: { lobbyServer: undefined | LobbyServer } = { lobbyServer: undefined };
+// const offlineServers: { lobbyServer: undefined | LobbyServer } = { lobbyServer: undefined };
 
 export default observer(() => {
   const game = AppStore.get().gameStore.getGameOption();
@@ -43,55 +31,35 @@ export default observer(() => {
 
   useEffect(() => {
     // offline
-    const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();
-    InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
-      LOCAL_OFFLINE_LOBBY_SERVER_URL,
-      lobbyConnectionEndpointServer
-    );
-    const lobbyIncomingConnectionGateway = new InMemoryIncomingConnectionGateway(
-      lobbyConnectionEndpointServer
-    );
+    // createOfflineLocalServers().then(({ lobbyServer }) => {
+    //   console.log("lobby server created");
+    //   offlineServers.lobbyServer = lobbyServer;
 
-    createOfflineLocalServers(lobbyIncomingConnectionGateway).then(({ lobbyServer }) => {
-      console.log("lobby server created");
-      offlineServers.lobbyServer = lobbyServer;
-
-      const connectionEndpoint = InMemoryConnectionEndpointServerRegistry.singleton.connect(
-        urlWithQueryParams(LOCAL_OFFLINE_LOBBY_SERVER_URL, /*options?.queryParams ||*/ []),
-        {}
-      );
-      if (!lobbyClientSingleton.isInitialized) {
-        lobbyClientSingleton.setClient(
-          new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
-        );
-      } else {
-        lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
-      }
-    });
+    //   const connectionEndpoint = InMemoryConnectionEndpointServerRegistry.singleton.connect(
+    //     urlWithQueryParams(LOCAL_OFFLINE_LOBBY_SERVER_URL, /*options?.queryParams ||*/ []),
+    //     {}
+    //   );
+    //   if (!lobbyClientSingleton.isInitialized) {
+    //     lobbyClientSingleton.setClient(
+    //       new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
+    //     );
+    //   } else {
+    //     lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
+    //   }
+    // });
 
     // online
-    // const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
-    // const ws = new WebSocket(remoteLobbyServerAddress || "");
-    // console.log("attempting connection to lobby server");
-    // const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
-    // if (!lobbyClientSingleton.isInitialized) {
-    //   lobbyClientSingleton.setClient(
-    //     new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
-    //   );
-    // } else {
-    //   lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
-    // }
-
-    // const ws = new WebSocket(socketAddress || "");
-    // console.log("attempting connection to lobby server");
-    // const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
-    // if (!lobbyClientSingleton.isInitialized) {
-    //   lobbyClientSingleton.setClient(
-    //     new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
-    //   );
-    // } else {
-    //   lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
-    // }
+    const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+    const ws = new WebSocket(remoteLobbyServerAddress || "");
+    console.log("attempting connection to lobby server");
+    const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+    if (!lobbyClientSingleton.isInitialized) {
+      lobbyClientSingleton.setClient(
+        new LobbyClient(connectionEndpoint, AppStore.get(), gameWorldView)
+      );
+    } else {
+      lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
+    }
   }, []);
 
   const componentToRender = shouldShowGame ? (

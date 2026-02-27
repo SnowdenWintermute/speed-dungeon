@@ -1,18 +1,22 @@
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import getAuthSession from "./utils/get-auth-session.js";
+import { getAuthSession } from "./utils/get-auth-session.js";
 import { createGuestUser } from "./utils/create-guest-user.js";
 import { TaggedUserId, Username } from "@speed-dungeon/common";
 import { idGenerator } from "../singletons/index.js";
 import { UserIdType } from "@speed-dungeon/common";
 
 export async function getLoggedInUserOrCreateGuest(
-  cookies: undefined | string
+  authSessionId: undefined | string
 ): Promise<{ username: Username; taggedUserId: TaggedUserId }> {
-  if (!cookies) return createGuestUser(idGenerator.generate());
+  if (!authSessionId) {
+    return createGuestUser(idGenerator.generate());
+  }
 
   try {
-    const authenticatedUserOption = await getAuthSession(cookies);
-    if (authenticatedUserOption === null) return createGuestUser(idGenerator.generate());
+    const authenticatedUserOption = await getAuthSession(authSessionId);
+    if (authenticatedUserOption === null) {
+      return createGuestUser(idGenerator.generate());
+    }
 
     const { username, userId } = authenticatedUserOption;
 
@@ -21,7 +25,9 @@ export async function getLoggedInUserOrCreateGuest(
     if (speedDungeonProfileOption === undefined) {
       console.info("creating speed dungeon profile for user");
       await speedDungeonProfilesRepo.insert(userId);
-    } else console.info("user has an existing profile");
+    } else {
+      console.info("user has an existing profile");
+    }
 
     return { username, taggedUserId: { type: UserIdType.Auth, id: userId } };
   } catch (error) {

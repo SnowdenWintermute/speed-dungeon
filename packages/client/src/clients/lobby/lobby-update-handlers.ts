@@ -1,4 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
 import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { GameWorldView } from "@/game-world-view";
@@ -67,9 +68,7 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       let { game } = data;
       if (game) {
-        console.log("about to deserialize game", game);
         const deserialized = SpeedDungeonGame.getDeserialized(game);
-        console.log("deserialized game:", deserialized);
         deserialized.makeObservable();
         game = deserialized;
       } else {
@@ -280,6 +279,55 @@ export function createLobbyUpdateHandlers(
       combatantManager.setAllCombatantsToHomePositions();
 
       gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.SynchronizeCombatantModels,
+        placeInHomePositions: true,
+      });
+    },
+    [GameStateUpdateType.SavedCharacterList]: (data) => {
+      const { characterSlots } = data;
+      {
+        const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
+        for (const [slotNumberStringKey, characterOption] of Object.entries(characterSlots)) {
+          const slotNumber = parseInt(slotNumberStringKey);
+          if (characterOption === null) {
+            deserialized[slotNumber] = null;
+          } else {
+            deserialized[slotNumber] = {
+              combatant: Combatant.getDeserialized(characterOption.combatant),
+              pets: characterOption.pets.map((pet) => Combatant.getDeserialized(pet)),
+            };
+          }
+        }
+
+        lobbyStore.setSavedCharacterSlots(deserialized);
+
+        getGameWorldView().drawCharacterSlots();
+
+        getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
+          type: ModelActionType.SynchronizeCombatantModels,
+          placeInHomePositions: true,
+        });
+      }
+    },
+    [GameStateUpdateType.SavedCharacterDeleted]: (data) => {
+      lobbyStore.deleteSavedCharacter(data.entityId);
+      getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.SynchronizeCombatantModels,
+        placeInHomePositions: true,
+      });
+    },
+    [GameStateUpdateType.SavedCharacter]: (data) => {
+      const { character, slotIndex } = data;
+      const { combatant, pets } = character;
+      const deserializedCombatant = Combatant.getDeserialized(combatant);
+      const deserializedPets = pets.map((pet) => Combatant.getDeserialized(pet));
+
+      lobbyStore.setSavedCharacterSlot(
+        { combatant: deserializedCombatant, pets: deserializedPets },
+        slotIndex
+      );
+
+      getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantModels,
         placeInHomePositions: true,
       });

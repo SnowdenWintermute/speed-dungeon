@@ -4,8 +4,11 @@ import {
   IdentityProviderService,
   IdGenerator,
   IncomingConnectionGateway,
+  InMemoryConnectionEndpointServer,
+  InMemoryConnectionEndpointServerRegistry,
   InMemoryGameSessionStoreService,
   InMemoryIdentityProviderQueryStrategy,
+  InMemoryIncomingConnectionGateway,
   InMemoryRankedLadderService,
   InMemoryReconnectionForwardingStoreService,
   InMemorySavedCharacterPersistenceStrategy,
@@ -31,9 +34,16 @@ export const LOCAL_OFFLINE_GAME_SERVER_PORT = 8080;
 export const LOCAL_OFFLINE_GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
 export const LOCAL_OFFLINE_GAME_SERVER_URL = localServerUrl(LOCAL_OFFLINE_GAME_SERVER_PORT);
 
-export async function createOfflineLocalServers(
-  lobbyIncomingConnectionGateway: IncomingConnectionGateway
-) {
+export async function createOfflineLocalServers() {
+  const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();
+  InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
+    LOCAL_OFFLINE_LOBBY_SERVER_URL,
+    lobbyConnectionEndpointServer
+  );
+  const lobbyIncomingConnectionGateway = new InMemoryIncomingConnectionGateway(
+    lobbyConnectionEndpointServer
+  );
+
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 

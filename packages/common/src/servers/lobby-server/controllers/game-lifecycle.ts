@@ -71,11 +71,9 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     session: UserSession
   ) {
     const { mode, isRanked } = data;
-    console.log("got data");
     let { gameName } = data;
 
     const userCanJoinNewGame = session.canJoinNewGame(isRanked);
-    console.log("userCanJoinNewGame", userCanJoinNewGame);
     if (!userCanJoinNewGame.isValid) {
       throw new Error(userCanJoinNewGame.reason);
     }
@@ -90,7 +88,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
 
-    console.log("about to check game name empty");
     if (gameName === "") {
       // get a random game name and make it check if this exists
       // and try again a safe number of times before failing
@@ -116,7 +113,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     if (mode === GameMode.Progression) {
       game = await this.createProgressionGameHandler(gameName, session);
     } else {
-      console.log("about to create game");
       game = new SpeedDungeonGame(
         this.idGenerator.generate() as GameId,
         gameName,
@@ -156,7 +152,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   async joinGameHandler(gameName: GameName, session: UserSession) {
-    console.log("join game handler");
     const game = this.lobbyState.gameRegistry.requireGame(gameName);
 
     const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
@@ -189,9 +184,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       data: { username: session.username },
     });
 
-    console.log("about to serializedGame");
     const serializedGame = game.getSerialized();
-    console.log("serializedGame:", serializedGame);
 
     // give the client the game information of the game they joined
     outbox.pushToConnection(session.connectionId, {
