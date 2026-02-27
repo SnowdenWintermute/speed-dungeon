@@ -17,6 +17,21 @@ import {
 import { OutgoingMessageGateway } from "./update-delivery/message-gateway.js";
 import { MessageDispatchOutbox } from "./update-delivery/outbox.js";
 
+/** used to ensure all client intent messages are handled in order of receipt */
+class GlobalIntentExecutor {
+  private chain: Promise<void> = Promise.resolve();
+
+  enqueue(work: () => Promise<void>) {
+    this.chain = this.chain.then(async () => {
+      try {
+        await work();
+      } catch (error) {
+        console.error("unhandled error", error);
+      }
+    });
+  }
+}
+
 export abstract class SpeedDungeonServer {
   protected readonly outgoingMessagesGateway = new OutgoingMessageGateway<GameStateUpdate>();
   readonly userSessionRegistry = new UserSessionRegistry();
@@ -25,6 +40,8 @@ export abstract class SpeedDungeonServer {
   );
 
   protected readonly randomNumberGenerator = new BasicRandomNumberGenerator();
+
+  protected readonly executor = new GlobalIntentExecutor();
 
   constructor(
     readonly name: string,
@@ -58,40 +75,42 @@ export abstract class SpeedDungeonServer {
     intentHandlers: Partial<GameServerClientIntentHandlers> | Partial<LobbyClientIntentHandlers>
   ) {
     // attach the connection to message handlers and disconnectionHandler
-    userConnectionEndpoint.on("message", async (rawData) => {
-      const parsed = this.parseMessage(rawData);
+    userConnectionEndpoint.on("message", (rawData) => {
+      this.executor.enqueue(async () => {
+        const parsed = this.parseMessage(rawData);
 
-      const handlerOption = intentHandlers[parsed.type];
+        const handlerOption = intentHandlers[parsed.type];
 
-      invariant(
-        handlerOption !== undefined,
-        "Server is not configured to handle this type of message"
-      );
+        invariant(
+          handlerOption !== undefined,
+          "Server is not configured to handle this type of message"
+        );
 
-      const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
+        const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
 
-      // TS asks: what argument would be valid for *any* possible handler?
-      // Because this is a union of handlers, the parameter type becomes the
-      // intersection of all payload types, which collapses to `never`.
-      // Since we look up handler in a typed record and check it is not undefined
-      // we can say the data is the correct type for the handler
-      try {
-        const outbox = await handlerOption(parsed.data as never, session);
-        this.dispatchOutboxMessages(outbox);
-      } catch (error) {
-        if (error instanceof Error) {
-          const errorOutbox = new MessageDispatchOutbox<GameStateUpdate>(
-            this.updateDispatchFactory
-          );
-          errorOutbox.pushToConnection(session.connectionId, {
-            type: GameStateUpdateType.ErrorMessage,
-            data: { message: error.message },
-          });
-          this.dispatchOutboxMessages(errorOutbox);
-        } else {
-          console.trace(error);
+        // TS asks: what argument would be valid for *any* possible handler?
+        // Because this is a union of handlers, the parameter type becomes the
+        // intersection of all payload types, which collapses to `never`.
+        // Since we look up handler in a typed record and check it is not undefined
+        // we can say the data is the correct type for the handler
+        try {
+          const outbox = await handlerOption(parsed.data as never, session);
+          this.dispatchOutboxMessages(outbox);
+        } catch (error) {
+          if (error instanceof Error) {
+            const errorOutbox = new MessageDispatchOutbox<GameStateUpdate>(
+              this.updateDispatchFactory
+            );
+            errorOutbox.pushToConnection(session.connectionId, {
+              type: GameStateUpdateType.ErrorMessage,
+              data: { message: error.message },
+            });
+            this.dispatchOutboxMessages(errorOutbox);
+          } else {
+            console.trace(error);
+          }
         }
-      }
+      });
     });
 
     userConnectionEndpoint.on("close", async (reason) => {

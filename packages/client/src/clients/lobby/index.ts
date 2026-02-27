@@ -6,7 +6,8 @@ export class LobbyClient extends BaseClient {
   private updateHandlers = createLobbyUpdateHandlers(
     this.appStore,
     this.gameWorldView,
-    this.characterAutoFocusManager
+    this.characterAutoFocusManager,
+    this.connectionEndpoint
   );
 
   protected handleMessage(message: GameStateUpdate) {

@@ -5,6 +5,7 @@ import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeo
 
 export abstract class BaseClient {
   constructor(
+    protected name: string,
     protected connectionEndpoint: ConnectionEndpoint,
     protected appStore: AppStore,
     protected gameWorldView: {
@@ -19,19 +20,21 @@ export abstract class BaseClient {
     this.connectionEndpoint.send(JSON.stringify(message));
   }
 
+  close() {
+    this.connectionEndpoint.close();
+  }
+
   setEndpoint(connectionEndpoint: ConnectionEndpoint) {
-    console.log("closing endpoint and setting new");
     this.connectionEndpoint.close();
     this.connectionEndpoint = connectionEndpoint;
   }
 
   protected registerListeners() {
     this.connectionEndpoint.on("open", () => {
-      console.log("connected to lobby server");
+      console.log(`connected to ${this.name}`);
     });
 
     this.connectionEndpoint.on("message", (untyped) => {
-      console.log("untyped:", untyped);
       const typedMessage = this.getTypedMessage(untyped);
       this.handleMessage(typedMessage);
     });

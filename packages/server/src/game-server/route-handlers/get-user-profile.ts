@@ -4,7 +4,7 @@ import { speedDungeonProfilesRepo } from "../../database/repos/speed-dungeon-pro
 import { ERROR_MESSAGES, ProfileCharacterRanks, SanitizedProfile } from "@speed-dungeon/common";
 import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
-import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
+import { fetchSavedCharacters } from "./fetch-saved-characters.js";
 
 export async function getUserProfileHandler(_req: Request, res: Response, next: NextFunction) {
   try {

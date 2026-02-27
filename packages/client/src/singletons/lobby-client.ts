@@ -10,7 +10,7 @@ class ClientSingleton {
 
   get() {
     if (this._client === null) {
-      throw new Error("Lobby client not yet initialized");
+      throw new Error("client not yet initialized");
     }
     return this._client;
   }

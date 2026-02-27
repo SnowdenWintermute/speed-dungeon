@@ -60,14 +60,7 @@ export function createGameUpdateHandlers(
   },
   characterAutoFocusManager: CharacterAutoFocusManager
 ): Partial<GameUpdateHandlers> {
-  const {
-    lobbyStore,
-    targetIndicatorStore,
-    gameStore,
-    focusStore,
-    actionMenuStore,
-    gameEventNotificationStore,
-  } = appStore;
+  const { targetIndicatorStore, gameStore, focusStore, actionMenuStore } = appStore;
 
   return {
     [GameStateUpdateType.ErrorMessage]: (data) => {

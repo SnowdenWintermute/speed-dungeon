@@ -6,15 +6,14 @@ import {
   IdentityProviderService,
   ConnectionIdentityResolutionContext,
   SavedCharactersService,
-  InMemoryReconnectionForwardingStoreService,
-  InMemoryGameSessionStoreService,
   IdGenerator,
+  ReconnectionForwardingStoreService,
+  GameSessionStoreService,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { getLoggedInUserOrCreateGuest } from "../game-server/get-logged-in-user-or-create-guest.js";
 import { DatabaseProfileService } from "../game-server/services/profiles.js";
 import { DatabaseRankedLadderService } from "../game-server/services/ranked-ladder.js";
 import {
@@ -24,17 +23,25 @@ import {
 import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
+import { getLoggedInUserOption } from "../game-server/get-logged-in-user-option.js";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
 
-  async createLobbyServer(httpServer: Server<typeof IncomingMessage, typeof ServerResponse>) {
+  async createServer(
+    httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
+    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+    gameSessionStoreService: GameSessionStoreService
+  ) {
     const wss = new WebSocketServer({ server: httpServer });
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
-    const externalServices = this.createExternalServices();
+    const externalServices = this.createExternalServices(
+      reconnectionForwardingStoreService,
+      gameSessionStoreService
+    );
     const testSecret = await SodiumHelpers.createSecret();
     const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
-    const leastBusyGameServerUrlGetter = async () => "";
+    const leastBusyGameServerUrlGetter = async () => "http://localhost:8090";
     this._lobbyServer = new LobbyServer(
       usersIncomingConnectionGateway,
       externalServices,
@@ -46,11 +53,13 @@ export class LobbyServerNode {
     console.log("lobby server node created");
   }
 
-  private createExternalServices(): LobbyExternalServices {
+  private createExternalServices(
+    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+    gameSessionStoreService: GameSessionStoreService
+  ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
-        const user = await getLoggedInUserOrCreateGuest(context.authSessionId);
-        return user;
+        return await getLoggedInUserOption(context.authSessionId);
       },
     });
 
@@ -67,11 +76,6 @@ export class LobbyServerNode {
       savedCharactersPersistenceStrategy
     );
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
-
-    // @TODO - make valkey version
-    const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
-    // @TODO - make valkey version
-    const gameSessionStoreService = new InMemoryGameSessionStoreService();
 
     const externalServices: LobbyExternalServices = {
       identityProviderService,

@@ -55,8 +55,10 @@ export default observer(() => {
     console.log("attempting connection to lobby server");
     const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
     if (!lobbyClientSingleton.isInitialized) {
+      console.log("initialized client");
       lobbyClientSingleton.setClient(
         new LobbyClient(
+          "Lobby server",
           connectionEndpoint,
           AppStore.get(),
           gameWorldView,

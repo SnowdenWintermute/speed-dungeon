@@ -7,6 +7,7 @@ import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import {
   enqueueCharacterItemsForThumbnails,
@@ -16,16 +17,22 @@ import { Vector3 } from "@babylonjs/core";
 import {
   ActionCommandType,
   AdventuringParty,
+  BrowserWebSocketConnectionEndpoint,
   Combatant,
+  ConnectionEndpoint,
+  ConnectionId,
   deserializeMap,
   ERROR_MESSAGES,
   GameMode,
   GameStateUpdateMap,
   GameStateUpdateType,
   getProgressionGamePartyName,
+  QUERY_PARAMS,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
+  urlWithQueryParams,
 } from "@speed-dungeon/common";
+import { GameClient } from "../game";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -40,7 +47,8 @@ export function createLobbyUpdateHandlers(
   gameWorldView: {
     current: null | GameWorldView;
   },
-  characterAutoFocusManager: CharacterAutoFocusManager
+  characterAutoFocusManager: CharacterAutoFocusManager,
+  connectionEndpoint: ConnectionEndpoint
 ): Partial<LobbyUpdateHandlers> {
   const { lobbyStore, gameStore, actionMenuStore, gameEventNotificationStore } = appStore;
   return {
@@ -334,6 +342,29 @@ export function createLobbyUpdateHandlers(
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
       console.log("got connectionInstructions, url:", url, "token:", encryptedSessionClaimToken);
+
+      connectionEndpoint.close();
+
+      const queryParams = {
+        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+        value: encryptedSessionClaimToken,
+      };
+
+      // online
+      const ws = new WebSocket(urlWithQueryParams(url, [queryParams]));
+      const gameServerConnectionEndpoint = new BrowserWebSocketConnectionEndpoint(
+        ws,
+        "" as ConnectionId
+      );
+      gameClientSingleton.setClient(
+        new GameClient(
+          "Game server",
+          gameServerConnectionEndpoint,
+          appStore,
+          gameWorldView,
+          characterAutoFocusManager
+        )
+      );
     },
   };
 }

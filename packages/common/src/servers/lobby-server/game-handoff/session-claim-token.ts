@@ -41,6 +41,12 @@ export class OpaqueEncryptionSessionClaimTokenCodec implements GameServerSession
   }
 
   async decode(encoded: string): Promise<GameServerSessionClaimToken> {
+    console.log("try to decode:", encoded);
+    try {
+      SodiumHelpers.decrypt(encoded, this.secret);
+    } catch (error) {
+      console.log("decrypt error:", error);
+    }
     return SodiumHelpers.decrypt(encoded, this.secret);
   }
 }

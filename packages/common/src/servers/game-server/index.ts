@@ -190,11 +190,12 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
+    console.log("connection to game server started");
     const session = await this.sessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
     );
-    // this.logUserConnected(session);
+    this.logUserConnected(session);
 
     this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -237,9 +238,9 @@ export class GameServer extends SpeedDungeonServer {
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    // console.info(
-    //   `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
-    // );
+    console.info(
+      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server.`
+    );
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);

@@ -1,107 +1,93 @@
 import {
-  ActionCommandReceiver,
-  ChannelName,
-  CharacterCreator,
-  ClientToServerEventTypes,
-  GameMode,
-  GameName,
+  AssetCache,
+  GameServer,
+  GameServerExternalServices,
+  GameServerName,
   GameServerNodeAssetService,
-  ItemGenerator,
-  ServerToClientEvent,
-  ServerToClientEventTypes,
-  SpeedDungeonGame,
-  Username,
+  GameSessionStoreService,
+  InMemoryGameSessionStoreService,
+  InMemoryRaceGameRecordsPersistenceStrategy,
+  InMemoryReconnectionForwardingStoreService,
+  OpaqueEncryptionSessionClaimTokenCodec,
+  RaceGameRecordsService,
+  ReconnectionForwardingStoreService,
+  SavedCharactersService,
+  SodiumHelpers,
 } from "@speed-dungeon/common";
-import SocketIO from "socket.io";
-import { Express } from "express";
-import { initiateLobbyEventListeners } from "./lobby-event-handlers/index.js";
-import { BrowserTabSession } from "./socket-connection-metadata.js";
-import joinSocketToChannel from "./join-socket-to-channel.js";
-import { connectionHandler } from "./connection-handler.js";
-import removeSocketFromChannel from "./remove-socket-from-channel.js";
-import getConnection from "./get-connection.js";
-import getSocketCurrentGame from "./utils/get-socket-current-game.js";
-import getSocketIdOfPlayer from "./get-player-socket-id.js";
-import { exploreNextRoom } from "./game-event-handlers/toggle-ready-to-explore-handler.js";
-import initiateGameEventListeners from "./game-event-handlers/index.js";
-import { battleResultActionCommandHandler } from "./game-event-handlers/action-command-handlers/battle-results.js";
-import { generateLoot } from "./game-event-handlers/action-command-handlers/generate-loot.js";
-import { generateExperiencePoints } from "./game-event-handlers/action-command-handlers/generate-experience-points.js";
-import initiateSavedCharacterListeners from "./saved-character-event-handlers/index.js";
-import GameModeContext from "./game-event-handlers/game-mode-strategies/game-mode-context.js";
-import { idGenerator, rngSingleton } from "../singletons/index.js";
-import { AffixGenerator } from "@speed-dungeon/common";
-import { GameMessagesPayload } from "@speed-dungeon/common";
+import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
+import { Express } from "express";
+import { WebSocketServer } from "ws";
+import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
+import {
+  DatabaseSavedCharacterPersistenceStrategy,
+  DatabaseSavedCharacterSlotsPersistenceStrategy,
+} from "./services/saved-characters.js";
+import { characterSlotsRepo } from "../database/repos/character-slots.js";
+import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
+import { valkeyManager } from "../kv-store/index.js";
+import { playerCharactersRepo } from "../database/repos/player-characters.js";
 
-export type SocketId = string;
+export class GameServerNode {
+  private _server: GameServer | null = null;
+  private _assetServer: AssetServer | null = null;
 
-export class Channel {
-  users: Partial<Record<Username, Record<SocketId, BrowserTabSession>>> = {};
-}
-
-export class GameServerNode implements ActionCommandReceiver {
-  itemGenerator: ItemGenerator = new ItemGenerator(
-    idGenerator,
-    rngSingleton,
-    new AffixGenerator(rngSingleton)
-  );
-  characterCreator: CharacterCreator;
-  assetServer: AssetServer;
-
-  constructor(
-    public io: SocketIO.Server<ClientToServerEventTypes, ServerToClientEventTypes>,
-    private expressApp: Express,
-    private port: number
+  async createServer(
+    name: GameServerName,
+    httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
+    expressApp: Express,
+    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+    gameSessionStoreService: GameSessionStoreService
   ) {
-    this.connectionHandler();
-    this.characterCreator = new CharacterCreator(idGenerator, this.itemGenerator);
-
     const fsAssetStore = new NodeFileSystemAssetStore("/packages/server/assets");
-    const assetService = new GameServerNodeAssetService(fsAssetStore);
-    this.assetServer = new AssetServer(fsAssetStore);
-    this.assetServer.attachRouter(expressApp);
+    this._assetServer = new AssetServer(fsAssetStore);
+    this._assetServer.attachRouter(expressApp);
+
+    const wss = new WebSocketServer({ server: httpServer });
+    const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
+    const externalServices = this.createExternalServices(
+      fsAssetStore,
+      reconnectionForwardingStoreService,
+      gameSessionStoreService
+    );
+
+    const secret = await SodiumHelpers.createSecret();
+    const codec = new OpaqueEncryptionSessionClaimTokenCodec(secret);
+    this._server = new GameServer(name, incomingConnectionGateway, externalServices, codec);
   }
 
-  // game manager
-  games = new Map<GameName, SpeedDungeonGame>();
-  initiateLobbyEventListeners = initiateLobbyEventListeners;
-  initiateGameEventListeners = initiateGameEventListeners;
-  initiateSavedCharacterListeners = initiateSavedCharacterListeners;
-  exploreNextRoom = exploreNextRoom;
-  generateExperiencePoints = generateExperiencePoints;
-  // action command handlers
-  combatActionReplayTreeHandler = async () => {
-    return undefined;
-  };
-  battleResultActionCommandHandler = battleResultActionCommandHandler;
-  removePlayerFromGameCommandHandler: (username: string) => Promise<void> = async () => undefined; // we only use it on the client
-  async gameMessageCommandHandler(payload: GameMessagesPayload) {
-    for (const message of payload.messages) {
-      this.io
-        .except(payload.partyChannelToExclude || "")
-        .emit(ServerToClientEvent.GameMessage, message);
-    }
+  private createExternalServices(
+    assetStore: AssetCache,
+    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+    gameSessionStoreService: GameSessionStoreService
+  ): GameServerExternalServices {
+    const assetService = new GameServerNodeAssetService(assetStore);
+
+    const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
+      playerCharactersRepo
+    );
+    const savedCharacterSlotsPersistenceStrategy =
+      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
+    const savedCharactersService = new SavedCharactersService(
+      savedCharacterSlotsPersistenceStrategy,
+      savedCharactersPersistenceStrategy
+    );
+
+    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+
+    // @TODO - make postgres version
+    const raceGameRecordsPersistenceStrategy = new InMemoryRaceGameRecordsPersistenceStrategy();
+    const raceGameRecordsService = new RaceGameRecordsService(raceGameRecordsPersistenceStrategy);
+
+    const result: GameServerExternalServices = {
+      gameSessionStoreService,
+      reconnectionForwardingStoreService,
+      savedCharactersService,
+      rankedLadderService,
+      raceGameRecordsService,
+      assetService,
+    };
+    return result;
   }
-
-  // socket connection manager
-  socketIdsByUsername = new Map<Username, SocketId[]>();
-  connections = new Map<SocketId, BrowserTabSession>();
-  channels: Partial<Record<ChannelName, Channel>> = {};
-  getConnection = getConnection;
-  connectionHandler = connectionHandler;
-  joinSocketToChannel = joinSocketToChannel;
-  removeSocketFromChannel = removeSocketFromChannel;
-  getSocketCurrentGame = getSocketCurrentGame;
-  getSocketIdOfPlayer = getSocketIdOfPlayer;
-
-  // item creation
-  generateLoot = generateLoot;
-
-  // strategy pattern for handling certain events
-  gameModeContexts: Record<GameMode, GameModeContext> = {
-    [GameMode.Race]: new GameModeContext(GameMode.Race),
-    [GameMode.Progression]: new GameModeContext(GameMode.Progression),
-  };
 }
