@@ -1,10 +1,9 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   ABILITY_TREES,
   AbilityTreeAbility,
   AbilityUtils,
-  ClientToServerEvent,
+  ClientIntentType,
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
 import React, { ReactNode, useState } from "react";
@@ -12,6 +11,7 @@ import { ConsideringCombatantAbilityMenuState } from "../../ActionMenu/menu-stat
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   ability: AbilityTreeAbility;
@@ -93,10 +93,16 @@ export const AbilityTreeButton = observer((props: Props) => {
               }
             }
           } else {
-            if (!isAllocatable) return;
-            websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-              characterId: focusedCharacter.getEntityId(),
-              ability,
+            if (!isAllocatable) {
+              return;
+            }
+
+            gameClientSingleton.get().dispatchIntent({
+              type: ClientIntentType.AllocateAbilityPoint,
+              data: {
+                characterId: focusedCharacter.getEntityId(),
+                ability,
+              },
             });
           }
         }}

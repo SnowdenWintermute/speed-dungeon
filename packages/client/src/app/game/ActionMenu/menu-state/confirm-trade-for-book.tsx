@@ -2,13 +2,13 @@ import { ActionMenuState } from ".";
 import {
   BookConsumableType,
   CONSUMABLE_TYPE_STRINGS,
-  ClientToServerEvent,
-  EntityId,
+  ClientIntentType,
+  CombatantId,
   INFO_UNICODE_SYMBOL,
   Item,
+  ItemId,
   getBookLevelForTrade,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -17,12 +17,20 @@ import { MenuStateType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
-function handleConfirmTrade(characterId: EntityId, itemId: EntityId, bookType: BookConsumableType) {
-  websocketConnection.emit(ClientToServerEvent.TradeItemForBook, {
-    characterId,
-    itemId,
-    bookType,
+function handleConfirmTrade(
+  characterId: CombatantId,
+  itemId: ItemId,
+  bookType: BookConsumableType
+) {
+  gameClientSingleton.get().dispatchIntent({
+    type: ClientIntentType.TradeItemForBook,
+    data: {
+      characterId,
+      itemId,
+      bookType,
+    },
   });
   // need to pop twice so we're not showing the item consideration screen of this item that may no longer exist
   AppStore.get().actionMenuStore.popStack();
@@ -43,7 +51,7 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
     const { gameStore, hotkeysStore } = AppStore.get();
     const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
     const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
-    const itemId = this.item.entityProperties.id;
+    const itemId = this.item.getEntityId();
 
     const shouldBeDisabled = !userControlsThisCharacter;
     const buttonType = HotkeyButtonTypes.Confirm;
@@ -92,7 +100,7 @@ export class ConfirmTradeForBookMenuState extends ActionMenuState {
           onClick={() =>
             handleConfirmTrade(
               focusedCharacter.getEntityId(),
-              this.item.entityProperties.id,
+              this.item.getEntityId(),
               this.bookType
             )
           }

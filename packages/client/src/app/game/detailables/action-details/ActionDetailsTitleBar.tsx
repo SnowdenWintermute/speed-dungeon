@@ -1,10 +1,10 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 import {
   ActionRank,
   ArrayUtils,
-  ClientToServerEvent,
+  ClientIntentType,
   COMBAT_ACTION_NAME_STRINGS,
   COMBAT_ACTIONS,
   CombatActionName,
@@ -21,6 +21,16 @@ interface Props {
   };
 }
 
+export function handleSelectActionLevel(actionRank: ActionRank) {
+  gameClientSingleton.get().dispatchIntent({
+    type: ClientIntentType.SelectCombatActionRank,
+    data: {
+      characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
+      actionRank,
+    },
+  });
+}
+
 export const ActionDetailsTitleBar = observer((props: Props) => {
   const { actionName, actionStateAndSelectedLevel } = props;
   const actionStateOption = actionStateAndSelectedLevel?.actionStateOption;
@@ -31,13 +41,6 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
   const focusedCharacter = gameStore.getExpectedFocusedCharacter();
 
   const inBattle = gameStore.getExpectedParty().combatantManager.monstersArePresent();
-
-  function handleSelectActionLevel(level: ActionRank) {
-    websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
-      characterId: focusedCharacter.getEntityId(),
-      actionLevel: level,
-    });
-  }
 
   const maxRankToShow = action.selectableRankLimit || actionStateOption?.level;
 

@@ -1,7 +1,6 @@
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   AdventuringParty,
-  ClientToServerEvent,
+  ClientIntentType,
   DungeonRoomType,
   ExplorationAction,
 } from "@speed-dungeon/common";
@@ -12,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   party: AdventuringParty;
@@ -23,11 +23,17 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
 
   function handleExploreClick() {
-    websocketConnection.emit(ClientToServerEvent.ToggleReadyToExplore);
+    gameClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.ToggleReadyToExplore,
+      data: undefined,
+    });
     actionMenuStore.clearStack();
   }
   function handleDescendClick() {
-    websocketConnection.emit(ClientToServerEvent.ToggleReadyToDescend);
+    gameClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.ToggleReadyToDescend,
+      data: undefined,
+    });
     actionMenuStore.clearStack();
   }
 

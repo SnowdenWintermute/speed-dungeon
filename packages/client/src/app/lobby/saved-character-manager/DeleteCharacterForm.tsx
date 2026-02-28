@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { HotkeyButton } from "../../components/atoms/HotkeyButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, Combatant } from "@speed-dungeon/common";
+import { ClientIntentType, Combatant } from "@speed-dungeon/common";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export default function DeleteCharacterForm({ character }: { character: Combatant }) {
   const [confirmDeletion, setConfirmDeletion] = useState(false);
 
   function deleteCharacter() {
-    websocketConnection.emit(
-      ClientToServerEvent.DeleteSavedCharacter,
-      character.entityProperties.id
-    );
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.DeleteSavedCharacter,
+      data: {
+        entityId: character.getEntityId(),
+      },
+    });
   }
 
   return (

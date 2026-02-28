@@ -1,7 +1,6 @@
 import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
-  ClientToServerEvent,
+  ClientIntentType,
   CraftingAction,
   Equipment,
   getCraftingActionPrice,
@@ -11,6 +10,7 @@ import React from "react";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   equipment: Equipment;
@@ -23,13 +23,18 @@ export const RepairEquipmentButton = observer((props: Props) => {
 
   const price = getCraftingActionPrice(CraftingAction.Repair, equipment);
   const durability = equipment.getDurability();
-  if (durability === null) return <div>Indestructable item not shown</div>;
+  if (durability === null) {
+    return <div>Indestructable item not shown</div>;
+  }
 
   function clickHandler() {
-    websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
-      characterId: focusedCharacter.getEntityId(),
-      itemId: equipment.entityProperties.id,
-      craftingAction: CraftingAction.Repair,
+    gameClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.PerformCraftingAction,
+      data: {
+        characterId: focusedCharacter.getEntityId(),
+        itemId: equipment.getEntityId(),
+        craftingAction: CraftingAction.Repair,
+      },
     });
   }
 

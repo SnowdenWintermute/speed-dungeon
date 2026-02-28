@@ -1,12 +1,12 @@
-import { ClientToServerEvent, CombatantId, CombatantProperties } from "@speed-dungeon/common";
+import { ClientIntentType, CombatantId, CombatantProperties } from "@speed-dungeon/common";
 import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export const UnspentAttributesButton = observer(
   ({
@@ -24,9 +24,12 @@ export const UnspentAttributesButton = observer(
       const previouslyFocusedCharacterId = gameStore.getExpectedFocusedCharacterId();
 
       if (gameStore.clientUserControlsFocusedCombatant()) {
-        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-          characterId: previouslyFocusedCharacterId,
-          actionAndRankOption: null,
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.SelectCombatAction,
+          data: {
+            characterId: previouslyFocusedCharacterId,
+            actionAndRankOption: null,
+          },
         });
       }
 

@@ -4,13 +4,13 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
-import { ClientToServerEvent, stringIsValidNumber } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientIntentType, stringIsValidNumber } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {
@@ -31,7 +31,7 @@ export const DropShardsModal = observer(
       if (!stringIsValidNumber(e.target.value) && e.target.value !== "") {
         console.error("tried to type a non number in a number input");
       } else {
-        let newValue = parseInt(e.target.value);
+        const newValue = parseInt(e.target.value);
         if (newValue > max || newValue < min)
           return setAlert("Enter a number between zero and your total shards");
         setValue(Number(newValue));
@@ -40,11 +40,18 @@ export const DropShardsModal = observer(
 
     function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
       e?.preventDefault();
-      if (value <= 0) return;
-      websocketConnection.emit(ClientToServerEvent.DropShards, {
-        characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
-        numShards: Number(value),
+      if (value <= 0) {
+        return;
+      }
+
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.DropShards,
+        data: {
+          characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
+          shardCount: value,
+        },
       });
+
       dialogStore.close(DialogElementName.DropShards);
     }
 

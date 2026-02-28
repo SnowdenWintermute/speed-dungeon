@@ -2,9 +2,9 @@ import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { AbilityTreeAbility, ClientToServerEvent } from "@speed-dungeon/common";
+import { AbilityTreeAbility, ClientIntentType } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   ability: AbilityTreeAbility;
@@ -28,9 +28,12 @@ export const AllocateAbilityPointButton = observer((props: Props) => {
       disabled={!canAllocate}
       hotkeys={hotkeyList}
       handleClick={() => {
-        websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-          characterId: focusedCharacter.getEntityId(),
-          ability,
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.AllocateAbilityPoint,
+          data: {
+            characterId: focusedCharacter.getEntityId(),
+            ability,
+          },
         });
       }}
     >

@@ -6,7 +6,6 @@ import {
   ActionUserContext,
   ArrayUtils,
   COMBAT_ACTIONS,
-  ClientToServerEvent,
   CombatActionExecutionIntent,
   CombatActionName,
   ERROR_MESSAGES,
@@ -15,13 +14,12 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
-import { ActionDetailsTitleBar } from "./ActionDetailsTitleBar";
+import { ActionDetailsTitleBar, handleSelectActionLevel } from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
 import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
@@ -36,7 +34,7 @@ interface Props {
 
 export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props) => {
   const { game, party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
-  const { combatantProperties, entityProperties } = combatant;
+  const { combatantProperties } = combatant;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
   if (actionStateOption === undefined) return <div>Somehow detailing an unowned action</div>;
@@ -130,13 +128,6 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
 
           const shortDescriptionOption =
             rankDescription[ActionDescriptionComponent.ByRankDescriptionsShort];
-
-          function handleSelectActionLevel(actionLevel: ActionRank) {
-            websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
-              characterId: combatant.getEntityId(),
-              actionLevel,
-            });
-          }
 
           return (
             <button
