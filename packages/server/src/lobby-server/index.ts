@@ -9,6 +9,7 @@ import {
   IdGenerator,
   ReconnectionForwardingStoreService,
   GameSessionStoreService,
+  GameServerSessionClaimTokenCodec,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -31,7 +32,8 @@ export class LobbyServerNode {
   async createServer(
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
-    gameSessionStoreService: GameSessionStoreService
+    gameSessionStoreService: GameSessionStoreService,
+    gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     const wss = new WebSocketServer({ server: httpServer });
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
@@ -39,13 +41,11 @@ export class LobbyServerNode {
       reconnectionForwardingStoreService,
       gameSessionStoreService
     );
-    const testSecret = await SodiumHelpers.createSecret();
-    const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
     const leastBusyGameServerUrlGetter = async () => "http://localhost:8090";
     this._lobbyServer = new LobbyServer(
       usersIncomingConnectionGateway,
       externalServices,
-      codec,
+      gameServerSessionClaimTokenCodec,
       {},
       leastBusyGameServerUrlGetter
     );

@@ -3,6 +3,8 @@ import {
   GameServerName,
   InMemoryGameSessionStoreService,
   InMemoryReconnectionForwardingStoreService,
+  OpaqueEncryptionSessionClaimTokenCodec,
+  SodiumHelpers,
 } from "@speed-dungeon/common";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
@@ -30,6 +32,9 @@ const gameServerNode = new GameServerNode();
 const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 const gameSessionStoreService = new InMemoryGameSessionStoreService();
 
+const testSecret = await SodiumHelpers.createSecret();
+const gameServerSessionClaimTokenCodec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
+
 const gameHttpServer = createServer();
 gameHttpServer.listen(GAME_SERVER_PORT, () => {
   console.info(`game server on port ${GAME_SERVER_PORT}`);
@@ -38,7 +43,8 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     gameHttpServer,
     expressApp,
     reconnectionForwardingStoreService,
-    gameSessionStoreService
+    gameSessionStoreService,
+    gameServerSessionClaimTokenCodec
   );
 });
 
@@ -49,6 +55,7 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
   lobbyServerNode.createServer(
     httpServer,
     reconnectionForwardingStoreService,
-    gameSessionStoreService
+    gameSessionStoreService,
+    gameServerSessionClaimTokenCodec
   );
 });

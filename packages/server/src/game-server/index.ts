@@ -4,6 +4,7 @@ import {
   GameServerExternalServices,
   GameServerName,
   GameServerNodeAssetService,
+  GameServerSessionClaimTokenCodec,
   GameSessionStoreService,
   InMemoryGameSessionStoreService,
   InMemoryRaceGameRecordsPersistenceStrategy,
@@ -33,12 +34,13 @@ export class GameServerNode {
   private _server: GameServer | null = null;
   private _assetServer: AssetServer | null = null;
 
-  async createServer(
+  createServer(
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     expressApp: Express,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
-    gameSessionStoreService: GameSessionStoreService
+    gameSessionStoreService: GameSessionStoreService,
+    gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     const fsAssetStore = new NodeFileSystemAssetStore("/packages/server/assets");
     this._assetServer = new AssetServer(fsAssetStore);
@@ -52,9 +54,12 @@ export class GameServerNode {
       gameSessionStoreService
     );
 
-    const secret = await SodiumHelpers.createSecret();
-    const codec = new OpaqueEncryptionSessionClaimTokenCodec(secret);
-    this._server = new GameServer(name, incomingConnectionGateway, externalServices, codec);
+    this._server = new GameServer(
+      name,
+      incomingConnectionGateway,
+      externalServices,
+      gameServerSessionClaimTokenCodec
+    );
   }
 
   private createExternalServices(

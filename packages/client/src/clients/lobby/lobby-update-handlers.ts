@@ -247,48 +247,6 @@ export function createLobbyUpdateHandlers(
         gameOption.selectedStartingFloor = data.floorNumber;
       }
     },
-    [GameStateUpdateType.GameStarted]: (_) => {
-      gameEventNotificationStore.clearGameLog();
-      GameLogMessageService.postGameStarted();
-
-      AppStore.get().actionMenuStore.initialize(new BaseMenuState());
-
-      characterAutoFocusManager.focusFirstOwnedCharacter();
-
-      const { game, party } = gameStore.getFocusedCharacterContext();
-
-      game.setAsStarted();
-
-      const camera = gameWorldView.current?.camera;
-      if (!camera) {
-        console.error("no camera found");
-        return;
-      }
-      camera.target.copyFrom(new Vector3(-1, 0.85, 0.51));
-      camera.alpha = 4.7;
-      camera.beta = 1.06;
-      camera.radius = 10.94;
-
-      party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
-
-      gameWorldView.current?.clearFloorTexture();
-
-      enqueueConsumableGenericThumbnailCreation();
-
-      const { combatantManager } = party;
-
-      for (const character of combatantManager.getAllCombatants()) {
-        enqueueCharacterItemsForThumbnails(character);
-      }
-
-      combatantManager.updateHomePositions();
-      combatantManager.setAllCombatantsToHomePositions();
-
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantModels,
-        placeInHomePositions: true,
-      });
-    },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
       const { characterSlots } = data;
       {
