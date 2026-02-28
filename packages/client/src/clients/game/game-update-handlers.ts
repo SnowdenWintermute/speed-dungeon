@@ -49,6 +49,7 @@ import {
 import { plainToInstance } from "class-transformer";
 import cloneDeep from "lodash.clonedeep";
 import { toJS } from "mobx";
+import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
 
 export type GameUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -79,13 +80,13 @@ export function createGameUpdateHandlers(
       console.log("alert:", data.message);
     },
     [GameStateUpdateType.OnConnection]: (data) => {
-      console.log("OnConnection", data);
+      gameStore.setUsername(data.username);
     },
     [GameStateUpdateType.CacheGuestSessionReconnectionToken]: (data) => {
       console.log("CacheGuestSessionReconnectionToken", data);
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
-      console.log("GameFullUpdate", data);
+      gameFullUpdateHandler(data.game, gameStore, actionMenuStore, gameWorldView);
     },
     [GameStateUpdateType.GameStarted]: (_) => {
       gameEventNotificationStore.clearGameLog();

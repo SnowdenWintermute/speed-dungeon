@@ -1,19 +1,9 @@
 import { setAlert } from "@/app/components/alerts";
-import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { GameWorldView } from "@/game-world-view";
-import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
-import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { gameClientSingleton } from "@/singletons/lobby-client";
-import { useHttpRequestStore } from "@/stores/http-request-store";
-import {
-  enqueueCharacterItemsForThumbnails,
-  enqueueConsumableGenericThumbnailCreation,
-} from "@/utils/enqueue-character-items-for-thumbnails";
-import { Vector3 } from "@babylonjs/core";
 import {
   ActionCommandType,
   AdventuringParty,
@@ -28,11 +18,11 @@ import {
   GameStateUpdateType,
   getProgressionGamePartyName,
   QUERY_PARAMS,
-  SpeedDungeonGame,
   SpeedDungeonPlayer,
   urlWithQueryParams,
 } from "@speed-dungeon/common";
 import { GameClient } from "../game";
+import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -50,20 +40,17 @@ export function createLobbyUpdateHandlers(
   characterAutoFocusManager: CharacterAutoFocusManager,
   connectionEndpoint: ConnectionEndpoint
 ): Partial<LobbyUpdateHandlers> {
-  const { lobbyStore, gameStore, actionMenuStore, gameEventNotificationStore } = appStore;
+  const { lobbyStore, gameStore, actionMenuStore } = appStore;
   return {
     [GameStateUpdateType.ErrorMessage]: (data) => {
       setAlert(data.message);
       console.log("alert:", data.message);
     },
     [GameStateUpdateType.OnConnection]: (data) => {
-      console.log("got on connection");
       gameStore.setUsername(data.username);
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
-      console.log("plain:", JSON.stringify(data));
       const deserialized = deserializeMap(data.users);
-      console.log("deserialized:", deserialized);
       lobbyStore.updateChannel(data.channelName, deserialized);
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
@@ -72,39 +59,7 @@ export function createLobbyUpdateHandlers(
       lobbyStore.handleUserLeftChannel(data.username),
     [GameStateUpdateType.GameList]: (data) => lobbyStore.setGameList(data.gameList),
     [GameStateUpdateType.GameFullUpdate]: (data) => {
-      let { game } = data;
-      if (game) {
-        const deserialized = SpeedDungeonGame.getDeserialized(game);
-        deserialized.makeObservable();
-        game = deserialized;
-      } else {
-        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-          type: ModelActionType.ClearAllModels,
-        });
-      }
-
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantModels,
-        placeInHomePositions: true,
-      });
-      gameWorldView.current?.imageManager.enqueueMessage({
-        type: ImageManagerRequestType.ClearState,
-      });
-
-      const currentSessionHttpResponseTracker =
-        useHttpRequestStore.getState().requests[HTTP_REQUEST_NAMES.GET_SESSION];
-      const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
-
-      if (game === null) {
-        gameStore.clearGame();
-        if (isLoggedIn) {
-          gameWorldView.current?.drawCharacterSlots();
-        }
-      } else {
-        gameStore.setGame(game);
-      }
-
-      actionMenuStore.clearStack();
+      gameFullUpdateHandler(data.game, gameStore, actionMenuStore, gameWorldView);
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const gameOption = gameStore.getGameOption();
