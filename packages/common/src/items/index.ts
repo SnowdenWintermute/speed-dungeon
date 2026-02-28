@@ -5,6 +5,7 @@ import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ConsumableType } from "./consumables/consumable-types.js";
+import { ItemId } from "../aliases.js";
 
 export enum ItemType {
   Consumable,
@@ -28,6 +29,10 @@ export abstract class Item {
 
   copyFrom<T extends this>(source: T): void {
     Object.assign(this, cloneDeep(source));
+  }
+
+  getEntityId() {
+    return this.entityProperties.id as ItemId;
   }
 
   static removeFromArray(array: Item[], itemId: string) {

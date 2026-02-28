@@ -1,8 +1,7 @@
 import React from "react";
 import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { RoomExplorationTracker } from "./RoomExplorationTracker";
-import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { CleanupMode, ClientIntentType, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
@@ -16,6 +15,7 @@ import { observer } from "mobx-react-lite";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export const TopInfoBar = observer(() => {
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
@@ -48,7 +48,10 @@ export const TopInfoBar = observer(() => {
     const { gameStore } = AppStore.get();
     gameStore.clearGame();
 
-    websocketConnection.emit(ClientToServerEvent.LeaveGame);
+    gameClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.LeaveGame,
+      data: undefined,
+    });
 
     getGameWorldView().replayTreeManager.clear();
     getGameWorldView().modelManager.modelActionQueue.clear();

@@ -1,10 +1,10 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
+import { ClientIntentType, Item } from "@speed-dungeon/common";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   item: Item;
@@ -28,12 +28,18 @@ export const DropItemButton = observer((props: Props) => {
       focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
     if (slotEquipped !== null) {
-      websocketConnection.emit(ClientToServerEvent.DropEquippedItem, {
-        characterId,
-        slot: slotEquipped,
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.DropEquippedItem,
+        data: {
+          characterId,
+          slot: slotEquipped,
+        },
       });
     } else {
-      websocketConnection.emit(ClientToServerEvent.DropItem, { characterId, itemId });
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.DropItem,
+        data: { characterId, itemId },
+      });
     }
 
     AppStore.get().actionMenuStore.popStack();

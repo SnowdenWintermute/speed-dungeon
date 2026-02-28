@@ -32,7 +32,7 @@ export const websocketConnection: Socket<ServerToClientEventTypes, ClientToServe
   }
 );
 
-AppStore.get().gameStore.initialize(websocketConnection);
+// AppStore.get().gameStore.initialize(websocketConnection);
 
 export function resetWebsocketConnection() {
   console.info("reconnecting");

@@ -1,26 +1,24 @@
 import {
-  ClientToServerEvent,
-  ClientToServerEventTypes,
+  ClientIntentType,
   Combatant,
   CombatantContext,
   CombatantId,
   ERROR_MESSAGES,
   EntityId,
-  ServerToClientEventTypes,
   SpeedDungeonGame,
   Username,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { Socket } from "socket.io-client";
+import { gameClientSingleton } from "@/singletons/lobby-client";
+import { GameClient } from "@/clients/game";
 
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
   private username: null | Username = null;
   private focusedCharacterId: CombatantId | null = null;
-  private websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes> | null =
-    null;
+  // private gameClient: GameClient|null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -28,9 +26,9 @@ export class GameStore {
 
   /** Without this we will get a circular reference because we use the websocketConnection in methods
    of this store, and websocketConnection also calls AppStore methods and AppStore composes this store */
-  initialize(websocketConnection: Socket<ServerToClientEventTypes, ClientToServerEventTypes>) {
-    this.websocketConnection = websocketConnection;
-  }
+  // initialize(gameClient:GameClient) {
+  //   this.gameClient = gameClient;
+  // }
 
   getUsernameOption() {
     return this.username;
@@ -166,7 +164,7 @@ export class GameStore {
     }
   }
 
-  private handleCharacterUnfocused(id: EntityId) {
+  private handleCharacterUnfocused(id: CombatantId) {
     if (this.username === null) throw new Error("expected to have initialized a username");
 
     const partyOption = this.getPartyOption();
@@ -183,14 +181,13 @@ export class GameStore {
     const hadSelectedAction = targetingProperties.getSelectedActionAndRank();
     const shouldDeselectAction = playerOwnsCombatant && hadSelectedAction;
 
-    if (this.websocketConnection === null) {
-      return console.error("couldn't send deselect action packet - no websocket connection");
-    }
-
     if (shouldDeselectAction) {
-      this.websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-        characterId: id,
-        actionAndRankOption: null,
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.SelectCombatAction,
+        data: {
+          characterId: id,
+          actionAndRankOption: null,
+        },
       });
     }
   }

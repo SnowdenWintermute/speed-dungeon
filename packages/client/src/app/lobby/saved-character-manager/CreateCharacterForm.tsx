@@ -1,10 +1,10 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
   CharacterSlotIndex,
-  ClientToServerEvent,
+  ClientIntentType,
   CombatantClass,
   EntityName,
   iterateNumericEnum,
@@ -16,10 +16,13 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
   const [newCharacterName, setNewCharacterName] = useState("");
 
   function createCharacter() {
-    websocketConnection.emit(ClientToServerEvent.CreateSavedCharacter, {
-      name: newCharacterName as EntityName,
-      combatantClass: selectedNewCharacterClass,
-      slotNumber: currentSlot,
+    lobbyClientSingleton.get().dispatchIntent({
+      type: ClientIntentType.CreateSavedCharacter,
+      data: {
+        name: newCharacterName as EntityName,
+        combatantClass: selectedNewCharacterClass,
+        slotIndex: currentSlot,
+      },
     });
   }
 

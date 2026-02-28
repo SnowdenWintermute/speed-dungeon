@@ -1,9 +1,9 @@
 import React from "react";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientIntentType, Item } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   item: Item;
@@ -15,9 +15,12 @@ export function takeItem(item: Item) {
 
   focusStore.detailables.clear();
 
-  websocketConnection.emit(ClientToServerEvent.PickUpItems, {
-    characterId: gameStore.getExpectedFocusedCharacterId(),
-    itemIds: [item.entityProperties.id],
+  gameClientSingleton.get().dispatchIntent({
+    type: ClientIntentType.PickUpItems,
+    data: {
+      characterId: gameStore.getExpectedFocusedCharacterId(),
+      itemIds: [item.entityProperties.id],
+    },
   });
 }
 
