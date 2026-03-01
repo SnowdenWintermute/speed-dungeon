@@ -2,6 +2,7 @@ import { AssetId, invariant } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
+import appRoute from "../create-express-app.js";
 
 export class AssetServer {
   constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}
@@ -9,8 +10,8 @@ export class AssetServer {
   attachRouter(expressApp: Express) {
     const router = Router();
 
-    router.get("/asset-manifest", this.serveManifest.bind(this));
-    router.get("/assets/*", this.serveAsset.bind(this));
+    router.get(appRoute("/asset-manifest"), this.serveManifest.bind(this));
+    router.get(appRoute("/assets/*"), this.serveAsset.bind(this));
 
     expressApp.use(router);
   }

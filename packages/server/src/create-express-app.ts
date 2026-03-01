@@ -29,7 +29,7 @@ export function createExpressApp() {
   );
 
   app.get(appRoute("/"), (_: Request, res: Response) => res.send("this is the api server"));
-  app.get(appRoute("/assets/*"), getAssetHandler);
+  // app.get(appRoute("/assets/*"), getAssetHandler);
   app.get(appRoute("/profiles/:username"), getUserIdFromUsernameInPath, getUserProfileHandler);
   app.get(appRoute("/ladders/level/:page"), getCharacterLevelLadderPageHandler);
   app.get(
@@ -48,11 +48,11 @@ export function createExpressApp() {
     getUserWinsAndLossesHandler
   );
 
-  app.all(appRoute("*"), (req: Request, _: Response, next: NextFunction) => {
-    const err = new Error(`Route ${req.originalUrl} not found`) as any;
-    err.status = 404;
-    next(err);
-  });
+  // app.all(appRoute("*"), (req: Request, _: Response, next: NextFunction) => {
+  //   const err = new Error(`Route ${req.originalUrl} not found`) as any;
+  //   err.status = 404;
+  //   next(err);
+  // });
 
   app.use(expressErrorHandler);
   return app;

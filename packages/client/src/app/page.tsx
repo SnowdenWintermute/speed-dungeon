@@ -17,6 +17,7 @@ import { LobbyClient } from "@/clients/lobby";
 import { lobbyClientSingleton } from "@/singletons/lobby-client";
 import { useEffect } from "react";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
+import AssetManager from "./asset-manager";
 
 // for immer to be able to use map and set
 enableMapSet();
@@ -48,6 +49,7 @@ export default observer(() => {
     // });
 
     // online
+
     const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
     const ws = new WebSocket(remoteLobbyServerAddress || "");
     const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
@@ -76,6 +78,7 @@ export default observer(() => {
 
   return (
     <>
+      <AssetManager />
       <TailwindClassLoader />
       <AlertManager />
       <GlobalKeyboardEventManager />

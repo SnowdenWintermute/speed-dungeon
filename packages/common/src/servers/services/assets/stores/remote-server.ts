@@ -6,7 +6,9 @@ import { AbortableAssetFetch, RemoteAssetStore } from "./index.js";
 export class RemoteServerAssetStore implements RemoteAssetStore {
   constructor(private readonly baseUrl: string) {}
   async getAssetManifest(): Promise<AssetManifest> {
-    const res = await fetch(`${this.baseUrl}/asset-manifest`);
+    const url = `${this.baseUrl}/asset-manifest`;
+    console.log("try get asset manifest from:", url);
+    const res = await fetch(url);
     const manifest = await res.json();
     return manifest;
   }

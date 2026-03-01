@@ -36,8 +36,13 @@ export class ClientAppAssetService implements AssetService {
       // check if manifest version matches game version
     }
 
-    const upToDateVersionData = await this.getFreshAssetIdVersions();
-    this.assetManifest = upToDateVersionData;
+    try {
+      const upToDateVersionData = await this.getFreshAssetIdVersions();
+      this.assetManifest = upToDateVersionData;
+      console.log("got new asset manifest");
+    } catch (error) {
+      console.error("error fetching asset manifest:", error);
+    }
   }
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
@@ -167,6 +172,7 @@ export class ClientAppAssetService implements AssetService {
 
       this.prefetchQueue.add(assetId, defaultPriority);
     }
+    console.log("prefetch queue populated:", this.prefetchQueue);
   }
 
   async startAssetUpdatesPrefetch() {

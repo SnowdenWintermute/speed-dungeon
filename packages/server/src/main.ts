@@ -35,6 +35,18 @@ const gameSessionStoreService = new InMemoryGameSessionStoreService();
 const testSecret = await SodiumHelpers.createSecret();
 const gameServerSessionClaimTokenCodec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
 
+const expressApp = createExpressApp();
+const httpServer = expressApp.listen(LOBBY_PORT, async () => {
+  console.info(`lobby server on port ${LOBBY_PORT}`);
+
+  lobbyServerNode.createServer(
+    httpServer,
+    reconnectionForwardingStoreService,
+    gameSessionStoreService,
+    gameServerSessionClaimTokenCodec
+  );
+});
+
 const gameHttpServer = createServer();
 gameHttpServer.listen(GAME_SERVER_PORT, () => {
   console.info(`game server on port ${GAME_SERVER_PORT}`);
@@ -42,18 +54,6 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     GAME_SERVER_NAME,
     gameHttpServer,
     expressApp,
-    reconnectionForwardingStoreService,
-    gameSessionStoreService,
-    gameServerSessionClaimTokenCodec
-  );
-});
-
-const expressApp = createExpressApp();
-const httpServer = expressApp.listen(LOBBY_PORT, async () => {
-  console.info(`lobby server on port ${LOBBY_PORT}`);
-
-  lobbyServerNode.createServer(
-    httpServer,
     reconnectionForwardingStoreService,
     gameSessionStoreService,
     gameServerSessionClaimTokenCodec
