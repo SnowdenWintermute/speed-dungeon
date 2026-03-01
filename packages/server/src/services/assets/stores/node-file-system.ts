@@ -18,6 +18,10 @@ export class NodeFileSystemAssetStore extends AssetCache {
     throw new Error("Method not implemented.");
   }
 
+  async clear() {
+    throw new Error("Don't try to clear the file system cache in node");
+  }
+
   async getAssetIdsCached(): Promise<Set<AssetId>> {
     const results = new Set<AssetId>();
     this.walkDirectory(this.baseDir, results);

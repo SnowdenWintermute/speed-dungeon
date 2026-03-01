@@ -33,4 +33,8 @@ export class IndexedDbAssetStore extends AssetCache {
   async cacheAsset(assetId: AssetId, versionedAsset: VersionedAsset): Promise<void> {
     await this.indexedDbAssetsRepo.insert(assetId, versionedAsset);
   }
+
+  async clear(): Promise<void> {
+    return this.indexedDbAssetsRepo.clear();
+  }
 }

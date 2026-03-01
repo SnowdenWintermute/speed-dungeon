@@ -5,14 +5,27 @@ import React, { useEffect } from "react";
 export default function AssetManager() {
   useEffect(() => {
     const initAssetService = async () => {
-      await getClientAppAssetService().initialize();
       try {
-        getClientAppAssetService().scheduleAssetUpdates();
+        await getClientAppAssetService().initialize({ clearCache: true });
+        await getClientAppAssetService().scheduleAssetUpdates();
+        await getClientAppAssetService().startAssetUpdatesPrefetch();
       } catch (err) {
         console.error(err);
       }
     };
     initAssetService();
   }, []);
-  return <div id="asset-manager"></div>;
+
+  // const assetService = getClientAppAssetService();
+
+  return (
+    <div id="asset-manager">
+      <div>fetches</div>
+      {
+        // Array.from(assetService.activeFetchList.entries()).map(([assetId, managedFetch]) => (
+        // <div key={assetId}>{assetId}</div>
+        // ))
+      }
+    </div>
+  );
 }

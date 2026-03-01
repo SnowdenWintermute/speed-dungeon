@@ -19,6 +19,17 @@ export class IndexedDbVersionedAssetRepo {
     this.dbPromise = this.open();
   }
 
+  async clear() {
+    const databases = await this.indexedDB.databases();
+
+    for (const db of databases) {
+      if (db.name) {
+        indexedDB.deleteDatabase(db.name);
+        console.info(`Deleted database: ${db.name}`);
+      }
+    }
+  }
+
   private open(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       const request = this.indexedDB.open(DB_NAME, DB_VERSION);

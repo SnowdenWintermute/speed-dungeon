@@ -1,9 +1,11 @@
+import { makeAutoObservable } from "mobx";
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
-import { invariant } from "../../../utils/index.js";
+import { invariant, runIfInBrowser } from "../../../utils/index.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
 import { AssetManifest, AssetVersionData, VersionedAsset } from "./versioned-asset.js";
+import cloneDeep from "lodash.clonedeep";
 
 export type AssetId = string & { __brand: "AssetId" }; // models/monsters/manta-ray.glb
 
@@ -26,9 +28,21 @@ export class ClientAppAssetService implements AssetService {
     private readonly cache: AssetCache,
     private readonly assetIdsByDefaultPrefetchPriority: Map<AssetId, AssetFetchPriority>,
     private readonly isOnline: () => boolean
-  ) {}
+  ) {
+    runIfInBrowser(() => {
+      makeAutoObservable(this);
+    });
+  }
 
-  async initialize() {
+  get activeFetchList() {
+    return this.activeFetches;
+  }
+
+  async initialize(options?: { clearCache?: boolean }) {
+    if (options?.clearCache) {
+      await this.cache.clear();
+    }
+
     const offline = !this.isOnline();
     if (offline) {
       // check if have a lastCachedManifest
@@ -74,6 +88,7 @@ export class ClientAppAssetService implements AssetService {
   }
 
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
+    console.log("starting managedFetch:", assetId);
     const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
       this.rescheduleLowPriorityFetches();
@@ -100,6 +115,7 @@ export class ClientAppAssetService implements AssetService {
       })
       .finally(() => {
         this.activeFetches.delete(assetId);
+        console.log("fetched", assetId);
         const updatesCompleted = this.activeFetches.size === 0 && this.prefetchQueue.isEmpty();
 
         if (updatesCompleted) {
@@ -152,6 +168,7 @@ export class ClientAppAssetService implements AssetService {
 
   private async startNextPrefetch() {
     const nextHighestPriorityFetch = this.prefetchQueue.popNextHighestPriority();
+    console.log("nextHighestPriorityFetch:", nextHighestPriorityFetch);
     if (nextHighestPriorityFetch === undefined) {
       return;
     }
@@ -176,8 +193,15 @@ export class ClientAppAssetService implements AssetService {
   }
 
   async startAssetUpdatesPrefetch() {
+    console.log("starting prefetch");
     this.markUpdateAsInProgress();
 
+    console.log(
+      "this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT",
+      this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT,
+      "this.prefetchQueue.hasEntries()",
+      this.prefetchQueue.hasEntries()
+    );
     while (
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()

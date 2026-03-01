@@ -22,6 +22,8 @@ export abstract class AssetCache {
   abstract removeAsset(assetId: AssetId): Promise<void>;
   abstract getAssetIdsCached(): Promise<Set<AssetId>>;
 
+  abstract clear(): Promise<void>;
+
   async removeAssetsNotIncluded(toKeep: Set<AssetId>) {
     const allCachedAssetIds = await this.getAssetIdsCached();
 
