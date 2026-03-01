@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const PaperDoll = observer(({ combatant }: Props) => {
-  const { combatantProperties, entityProperties } = combatant;
+  const { combatantProperties } = combatant;
   const equippedHoldables = combatantProperties.equipment.getActiveHoldableSlot();
   const viewingDropShardsModal = AppStore.get().dialogStore.isOpen(DialogElementName.DropShards);
 
@@ -39,7 +39,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
       <HotswapSlotButtons
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}
-        entityId={entityProperties.id}
+        entityId={combatant.getEntityId()}
         selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
         slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
       />

@@ -3,7 +3,8 @@ import ActionMenuTopButton from "./ActionMenuTopButton";
 import {
   ActionAndRank,
   ActionRank,
-  ClientToServerEvent,
+  ClientIntentType,
+  CombatantId,
   Consumable,
   Equipment,
   Item,
@@ -12,10 +13,10 @@ import {
 } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ModifierKey } from "@/mobx-stores/input";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { setAlert } from "@/app/components/alerts";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 const { hotkeysStore } = AppStore.get();
 const buttonType = HotkeyButtonTypes.Confirm;
@@ -80,18 +81,24 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
 
   if (isEquipment && isEquipped) {
     return () => {
-      websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
-        characterId,
-        slot: slotItemIsEquippedTo,
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.UnequipSlot,
+        data: {
+          characterId,
+          slot: slotItemIsEquippedTo,
+        },
       });
     };
   } else if (isEquipment) {
     return () => {
       const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
-      websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-        characterId,
-        itemId: item.entityProperties.id,
-        equipToAltSlot: modKeyHeld,
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.EquipInventoryItem,
+        data: {
+          characterId,
+          itemId: item.getEntityId(),
+          equipToAlternateSlot: modKeyHeld,
+        },
       });
     };
   } else if (isConsumable) {
@@ -102,7 +109,7 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
     }
 
     const eventData: {
-      characterId: string;
+      characterId: CombatantId;
       actionAndRankOption: Option<ActionAndRank>;
       itemIdOption?: string;
     } = {
@@ -115,7 +122,9 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
     }
 
     return () => {
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, eventData);
+      gameClientSingleton
+        .get()
+        .dispatchIntent({ type: ClientIntentType.SelectCombatAction, data: eventData });
     };
   } else {
     setAlert(new Error("unknown item type"));

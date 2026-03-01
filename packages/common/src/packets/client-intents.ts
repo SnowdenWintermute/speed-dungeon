@@ -142,7 +142,7 @@ export interface ClientIntentMap {
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {
     characterId: CombatantId;
-    slotIndex: CharacterSlotIndex;
+    slotIndex: number;
   };
   [ClientIntentType.ConvertItemsToShards]: CharacterAndItems;
   [ClientIntentType.DropShards]: { characterId: CombatantId; shardCount: number };

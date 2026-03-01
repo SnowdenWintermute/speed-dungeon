@@ -2,7 +2,7 @@ import {
   CRAFTING_ACTION_DESCRIPTIONS,
   CRAFTING_ACTION_DISABLED_CONDITIONS,
   CRAFTING_ACTION_STRINGS,
-  ClientToServerEvent,
+  ClientIntentType,
   CraftingAction,
   Equipment,
   INFO_UNICODE_SYMBOL,
@@ -11,11 +11,11 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   equipment: Equipment;
@@ -61,10 +61,13 @@ export const CraftActionButton = observer((props: Props) => {
       hotkeyLabel={buttonNumber.toString()}
       clickHandler={() => {
         actionMenuStore.setCharacterIsCrafting(focusedCharacterResult.getEntityId());
-        websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
-          characterId: focusedCharacterResult.entityProperties.id,
-          itemId: equipment.entityProperties.id,
-          craftingAction,
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.PerformCraftingAction,
+          data: {
+            characterId: focusedCharacterResult.getEntityId(),
+            itemId: equipment.getEntityId(),
+            craftingAction,
+          },
         });
       }}
     >

@@ -1,16 +1,16 @@
 import { AppStore } from "@/mobx-stores/app-store";
 import {
   CONSUMABLE_TYPE_STRINGS,
-  ClientToServerEvent,
+  ClientIntentType,
   Consumable,
   Item,
   getConsumableShardPrice,
 } from "@speed-dungeon/common";
 import React from "react";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   item: Item;
@@ -46,9 +46,12 @@ export const PurchaseItemButton = observer((props: Props) => {
       hotkeyLabel={(listIndex + 1).toString()}
       hotkeys={[`Digit${listIndex + 1}`]}
       clickHandler={() => {
-        websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
-          characterId: focusedCharacter.getEntityId(),
-          consumableType,
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.PurchaseItem,
+          data: {
+            characterId: focusedCharacter.getEntityId(),
+            consumableType,
+          },
         });
       }}
       disabled={shouldBeDisabled}

@@ -1,12 +1,12 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientIntentType } from "@speed-dungeon/common";
 import React from "react";
 import { MenuStateType } from "../menu-state-type";
 import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
   const { hotkeysStore } = AppStore.get();
@@ -16,9 +16,12 @@ export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
     const entityId = gameStore.getExpectedFocusedCharacterId();
 
     if (gameStore.clientUserControlsFocusedCombatant()) {
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-        characterId: entityId,
-        actionAndRankOption: null,
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.SelectCombatAction,
+        data: {
+          characterId: entityId,
+          actionAndRankOption: null,
+        },
       });
     }
 

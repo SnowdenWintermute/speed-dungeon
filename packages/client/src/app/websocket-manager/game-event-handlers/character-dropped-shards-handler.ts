@@ -13,6 +13,7 @@ export function characterDroppedShardsHandler(eventData: {
   shardStack: Consumable;
 }) {
   const { characterId, shardStack } = eventData;
+
   websocketConnection.emit(
     ClientToServerEvent.AcknowledgeReceiptOfItemOnGroundUpdate,
     shardStack.entityProperties.id

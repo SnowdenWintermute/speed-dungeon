@@ -2,15 +2,15 @@ import { ActionMenuState } from ".";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   COMBAT_ATTRIBUTE_STRINGS,
-  ClientToServerEvent,
+  ClientIntentType,
 } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { MenuStateType } from "./menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
 import makeAutoObservable from "mobx-store-inheritance";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export class AssigningAttributePointsMenuState extends ActionMenuState {
   constructor() {
@@ -52,9 +52,12 @@ export class AssigningAttributePointsMenuState extends ActionMenuState {
           hotkeyLabel={buttonNumber.toString()}
           disabled={shouldBeDisabled}
           clickHandler={() => {
-            websocketConnection.emit(ClientToServerEvent.IncrementAttribute, {
-              characterId: focusedCharacter.getEntityId(),
-              attribute,
+            gameClientSingleton.get().dispatchIntent({
+              type: ClientIntentType.IncrementAttribute,
+              data: {
+                characterId: focusedCharacter.getEntityId(),
+                attribute,
+              },
             });
           }}
         >

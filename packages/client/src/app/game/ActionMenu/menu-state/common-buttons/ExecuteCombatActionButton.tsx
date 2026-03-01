@@ -3,14 +3,17 @@ import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientIntentType } from "@speed-dungeon/common";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 function clickHandler() {
   const { gameStore, focusStore, actionMenuStore } = AppStore.get();
   const characterId = gameStore.getExpectedFocusedCharacterId();
-  websocketConnection.emit(ClientToServerEvent.UseSelectedCombatAction, {
-    characterId,
+  gameClientSingleton.get().dispatchIntent({
+    type: ClientIntentType.UseSelectedCombatAction,
+    data: {
+      characterId,
+    },
   });
 
   actionMenuStore.clearStack(); // don't just pop because could have used item from inventory

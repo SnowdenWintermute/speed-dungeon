@@ -1,10 +1,10 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientIntentType, Item } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 const { hotkeysStore } = AppStore.get();
 const equipAltSlotHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.EquipAltSlot);
@@ -25,10 +25,13 @@ export const EquipToAltSlotButton = observer((props: Props) => {
       handleClick={() => {
         const { gameStore } = AppStore.get();
         const characterId = gameStore.getExpectedFocusedCharacterId();
-        websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-          characterId,
-          itemId: props.item.entityProperties.id,
-          equipToAltSlot: true,
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.EquipInventoryItem,
+          data: {
+            characterId,
+            itemId: props.item.getEntityId(),
+            equipToAlternateSlot: true,
+          },
         });
       }}
     >{`Equip Alt. (${equipAltSlotHotkeysString})`}</ActionMenuTopButton>

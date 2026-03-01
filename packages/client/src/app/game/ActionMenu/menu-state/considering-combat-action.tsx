@@ -1,6 +1,5 @@
 import { ActionMenuState } from ".";
-import { ClientToServerEvent, CombatActionName } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientIntentType, CombatActionName } from "@speed-dungeon/common";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
@@ -11,6 +10,7 @@ import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
 import { CycleCombatActionTargetsButtons } from "./common-buttons/CycleCombatActionTargetsButtons";
 import { ExecuteCombatActionButton } from "./common-buttons/ExecuteCombatActionButton";
 import { CycleTargetingSchemesButtons } from "./common-buttons/CycleTargetingSchemesButtons";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export const executeHotkey = HOTKEYS.MAIN_1;
 export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
@@ -26,9 +26,12 @@ export class ConsideringCombatActionMenuState extends ActionMenuState {
         <GoBackButton
           extraFn={() => {
             const { gameStore } = AppStore.get();
-            websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-              characterId: gameStore.getExpectedFocusedCharacterId(),
-              actionAndRankOption: null,
+            gameClientSingleton.get().dispatchIntent({
+              type: ClientIntentType.SelectCombatAction,
+              data: {
+                characterId: gameStore.getExpectedFocusedCharacterId(),
+                actionAndRankOption: null,
+              },
             });
           }}
         />

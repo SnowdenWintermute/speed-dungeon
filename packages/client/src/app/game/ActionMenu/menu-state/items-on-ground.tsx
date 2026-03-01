@@ -1,5 +1,4 @@
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientIntentType } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { MenuStateType } from "./menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -9,6 +8,7 @@ import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import makeAutoObservable from "mobx-store-inheritance";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export class ItemsOnGroundMenuState extends ActionMenuState {
   constructor() {
@@ -46,9 +46,12 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
               .getItems()
               .map((item) => item.entityProperties.id);
 
-            websocketConnection.emit(ClientToServerEvent.PickUpItems, {
-              characterId: focusedCharacterId,
-              itemIds,
+            gameClientSingleton.get().dispatchIntent({
+              type: ClientIntentType.PickUpItems,
+              data: {
+                characterId: focusedCharacterId,
+                itemIds,
+              },
             });
 
             actionMenuStore.popStack();

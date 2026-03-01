@@ -1,11 +1,11 @@
 import { setAlert } from "@/app/components/alerts";
 import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientIntentType } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export const CycleTargetingSchemesButtons = observer(() => {
   const { gameStore, hotkeysStore } = AppStore.get();
@@ -39,7 +39,9 @@ export const CycleTargetingSchemesButtons = observer(() => {
   const buttonType = HotkeyButtonTypes.CycleTargetingSchemes;
 
   function clickHandler() {
-    websocketConnection.emit(ClientToServerEvent.CycleTargetingSchemes, { characterId });
+    gameClientSingleton
+      .get()
+      .dispatchIntent({ type: ClientIntentType.CycleTargetingSchemes, data: { characterId } });
   }
 
   return (

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
-  CharacterSlotIndex,
-  ClientToServerEvent,
+  ClientIntentType,
+  CombatantId,
   NextOrPrevious,
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
@@ -12,9 +11,10 @@ import { disableButtonBecauseNotThisCombatantTurn } from "../ActionMenu/menu-sta
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
-  entityId: string;
+  entityId: CombatantId;
   selectedSlotIndex: number;
   slotsCount: number;
   className: string;
@@ -40,9 +40,12 @@ export const HotswapSlotButtons = observer(
         minNumber: 0,
       });
 
-      websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
-        characterId: focusedCharacterId,
-        slotIndex: newIndex,
+      gameClientSingleton.get().dispatchIntent({
+        type: ClientIntentType.SelectHoldableHotswapSlot,
+        data: {
+          characterId: focusedCharacterId,
+          slotIndex: newIndex,
+        },
       });
 
       if (newIndex !== selectedSlotIndex) {
@@ -114,7 +117,7 @@ function HotswapSlotButton({
   index,
   disabled,
 }: {
-  entityId: string;
+  entityId: CombatantId;
   index: number;
   isSelected: boolean;
   disabled: boolean;
@@ -131,9 +134,12 @@ function HotswapSlotButton({
         style={{ lineHeight: "14px" }}
         disabled={disabled}
         onClick={() => {
-          websocketConnection.emit(ClientToServerEvent.SelectHoldableHotswapSlot, {
-            characterId: entityId,
-            slotIndex: index,
+          gameClientSingleton.get().dispatchIntent({
+            type: ClientIntentType.SelectHoldableHotswapSlot,
+            data: {
+              characterId: entityId,
+              slotIndex: index,
+            },
           });
         }}
       >

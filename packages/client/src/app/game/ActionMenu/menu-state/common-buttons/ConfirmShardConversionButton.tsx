@@ -1,11 +1,11 @@
 import { AppStore } from "@/mobx-stores/app-store";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent } from "@speed-dungeon/common";
+import { ClientIntentType } from "@speed-dungeon/common";
 import { MenuStateType } from "../menu-state-type";
 import { ConfirmConvertToShardsMenuState } from "../confirm-convert-to-shards";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   menuState: ConfirmConvertToShardsMenuState;
@@ -26,9 +26,12 @@ export function ConfirmShardConversionButton(props: Props) {
       disabled={shouldBeDisabled}
       hotkeys={hotkeysStore.getKeybind(buttonType)}
       handleClick={() => {
-        websocketConnection.emit(ClientToServerEvent.ConvertItemsToShards, {
-          characterId: focusedCharacter.getEntityId(),
-          itemIds: [itemId],
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.ConvertItemsToShards,
+          data: {
+            characterId: focusedCharacter.getEntityId(),
+            itemIds: [itemId],
+          },
         });
         AppStore.get().actionMenuStore.popStack();
         if (menuState.type === MenuStateType.ItemSelected) {

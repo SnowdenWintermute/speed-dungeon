@@ -1,12 +1,11 @@
 import { getAttackActionIcons } from "@/app/game/character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   AbilityType,
   ActionAndRank,
   ActionRank,
-  ClientToServerEvent,
+  ClientIntentType,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   Combatant,
@@ -14,6 +13,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   actionName: CombatActionName;
@@ -31,7 +31,7 @@ export const CombatActionButton = observer((props: Props) => {
   const game = gameStore.getExpectedGame();
   const party = gameStore.getExpectedParty();
 
-  let isAttack = actionName === CombatActionName.Attack;
+  const isAttack = actionName === CombatActionName.Attack;
 
   function focusHandler() {
     AppStore.get().focusStore.combatantAbilities.setHovered({
@@ -60,9 +60,12 @@ export const CombatActionButton = observer((props: Props) => {
       hotkeys={props.hotkeys}
       hotkeyLabel={props.hotkeyLabel}
       clickHandler={() => {
-        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-          characterId: user.getEntityId(),
-          actionAndRankOption: new ActionAndRank(actionName, 1 as ActionRank),
+        gameClientSingleton.get().dispatchIntent({
+          type: ClientIntentType.SelectCombatAction,
+          data: {
+            characterId: user.getEntityId(),
+            actionAndRankOption: new ActionAndRank(actionName, 1 as ActionRank),
+          },
         });
 
         focusStore.combatantAbilities.clear();
