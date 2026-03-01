@@ -114,24 +114,6 @@ export class GameServer extends SpeedDungeonServer {
       ),
     };
 
-    this.gameLifecycleController = new GameServerGameLifecycleController(
-      this.gameRegistry,
-      this.userSessionRegistry,
-      this.externalServices.gameSessionStoreService,
-      this.updateDispatchFactory,
-      this.partyDelayedGameMessageFactory,
-      this.gameModeContexts
-    );
-
-    this.sessionLifecycleController = new GameServerSessionLifecycleController(
-      this.userSessionRegistry,
-      this.gameRegistry,
-      this.updateDispatchFactory,
-      this.gameLifecycleController,
-      this.idGenerator,
-      this.gameServerSessionClaimTokenCodec
-    );
-
     this.gameEventCommandReceiver = new GameServerGameEventCommandReceiver(
       this.gameRegistry,
       this.gameModeContexts
@@ -147,6 +129,25 @@ export class GameServer extends SpeedDungeonServer {
       this.gameEventCommandReceiver,
       this.assetAnalyzer,
       this.gameModeContexts
+    );
+
+    this.gameLifecycleController = new GameServerGameLifecycleController(
+      this.gameRegistry,
+      this.userSessionRegistry,
+      this.externalServices.gameSessionStoreService,
+      this.updateDispatchFactory,
+      this.partyDelayedGameMessageFactory,
+      this.gameModeContexts,
+      this.dungeonExplorationController
+    );
+
+    this.sessionLifecycleController = new GameServerSessionLifecycleController(
+      this.userSessionRegistry,
+      this.gameRegistry,
+      this.updateDispatchFactory,
+      this.gameLifecycleController,
+      this.idGenerator,
+      this.gameServerSessionClaimTokenCodec
     );
 
     this.combatActionController = new CombatActionController(
@@ -182,6 +183,11 @@ export class GameServer extends SpeedDungeonServer {
       this.gameLifecycleController,
       (outbox) => this.dispatchOutboxMessages(outbox)
     );
+  }
+
+  async analyzeAssetsForGameplayRelevantData() {
+    await this.assetAnalyzer.collectAnimationLengths();
+    await this.assetAnalyzer.collectBoundingBoxSizes();
   }
 
   private intentHandlers = createGameServerClientIntentHandlers(this);

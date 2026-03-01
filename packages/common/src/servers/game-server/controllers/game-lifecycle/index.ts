@@ -19,6 +19,7 @@ import {
   createPartyWipeMessage,
   GameMessageType,
 } from "../../../../packets/game-message.js";
+import { DungeonExplorationController } from "../dungeon-exploration.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
@@ -29,7 +30,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
-    private readonly gameModeContexts: Record<GameMode, GameModeContext>
+    private readonly gameModeContexts: Record<GameMode, GameModeContext>,
+    private readonly dungeonExplorationController: DungeonExplorationController
   ) {}
 
   async getOrInitializeGame(gameName: GameName) {
@@ -115,9 +117,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       data: { timeStarted: game.requireTimeStarted() },
     });
 
+    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
+    for (const session of sessionsInGame) {
+      const toggleExploreOutbox =
+        await this.dungeonExplorationController.toggleReadyToExploreHandler(session);
+      outbox.pushFromOther(toggleExploreOutbox);
+    }
+
     return outbox;
-    // - we used to run the "explore next room" handler or otherwise put the parties in their first room
-    //   but hopefully we don't need to do this anymore since adventuring party starts in empty room by default
   }
 
   private allPlayersAreConnectedToGame(game: SpeedDungeonGame) {

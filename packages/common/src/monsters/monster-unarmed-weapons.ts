@@ -17,7 +17,6 @@ export const MONSTER_UNARMED_WEAPONS: Record<
   MonsterType,
   null | Partial<Record<HoldableSlotType, Equipment>>
 > = {
-  [MonsterType.MetallicGolem]: null,
   [MonsterType.Wolf]: {
     [HoldableSlotType.MainHand]: new Equipment(
       {
@@ -67,13 +66,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     ),
   },
 
-  [MonsterType.Zombie]: null,
-  [MonsterType.SkeletonArcher]: null,
-  [MonsterType.Scavenger]: null,
-  [MonsterType.Vulture]: null,
   [MonsterType.FireMage]: null,
-  [MonsterType.FireElemental]: null,
-  [MonsterType.IceElemental]: null,
   [MonsterType.Cultist]: null,
   [MonsterType.Spider]: {
     [HoldableSlotType.MainHand]: new Equipment(

@@ -701,6 +701,9 @@ export function createGameUpdateHandlers(
 
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIds || []);
     },
+    [GameStateUpdateType.CharacterCycledTargets]: (data) => {},
+    [GameStateUpdateType.CharacterCycledTargetingSchemes]: (data) => {},
+    [GameStateUpdateType.DungeonFloorNumber]: (data) => {},
     [GameStateUpdateType.CharacterAllocatedAbilityPoint]: (data) => {
       const { characterId, ability } = data;
       const { combatant } = gameStore.getExpectedCombatantContext(characterId);

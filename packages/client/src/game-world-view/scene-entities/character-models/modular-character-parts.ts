@@ -7,10 +7,10 @@ export enum CharacterModelPartCategory {
   Full,
 }
 
-export type CharacterModelPart = {
+export interface CharacterModelPart {
   category: CharacterModelPartCategory;
   assetPath: string;
-};
+}
 
 export const BASE_FILE_PATH = process.env.NEXT_PUBLIC_ASSET_BASE_PATH_3D;
 
@@ -42,16 +42,9 @@ export const CHARACTER_PARTS: Record<
 };
 
 export const MONSTER_FULL_SKINS: Record<MonsterType, string | null> = {
-  [MonsterType.MetallicGolem]: "monsters/wolf-full.glb",
   [MonsterType.Wolf]: "monsters/wolf-full.glb",
-  [MonsterType.Zombie]: "monsters/skeleton-full.glb",
-  [MonsterType.SkeletonArcher]: "monsters/skeleton-full.glb",
-  [MonsterType.Scavenger]: "monsters/velociraptor-full.glb",
-  [MonsterType.Vulture]: "monsters/dragon-full.glb",
   // [MonsterType.FireMage]: "monsters/",
   // [MonsterType.Cultist]: "monsters/",
-  [MonsterType.FireElemental]: "monsters/cube-full.glb",
-  [MonsterType.IceElemental]: "monsters/cube-full.glb",
   [MonsterType.MantaRay]: "monsters/manta-ray-full.glb",
   [MonsterType.Net]: "effects/net-full.glb",
   [MonsterType.FireMage]: null,

@@ -383,9 +383,26 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   refillAllCombatantActionPoints() {
     const combatants = this.getAllCombatants();
+    console.log(
+      "refilling AP for ",
+      combatants.map(
+        (combatant) =>
+          `name:${combatant.getName()}, ap: ${combatant.combatantProperties.resources.getActionPoints()}`
+      )
+    );
     for (const combatant of combatants) {
+      console.log("before refill raw", combatant.combatantProperties.resources.getActionPoints());
+      console.log("refilling", combatant.getName());
       combatant.combatantProperties.resources.refillActionPoints();
+      console.log("after refill raw", combatant.combatantProperties.resources.getActionPoints());
     }
+    console.log(
+      "after refill ",
+      combatants.map(
+        (combatant) =>
+          `name:${combatant.getName()}, ap: ${combatant.combatantProperties.resources.getActionPoints()}`
+      )
+    );
   }
 
   static setCombatantHomePosition(

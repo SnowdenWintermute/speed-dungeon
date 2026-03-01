@@ -85,7 +85,7 @@ export abstract class SpeedDungeonServer {
 
         invariant(
           handlerOption !== undefined,
-          "Server is not configured to handle this type of message"
+          `Server is not configured to handle this type of message: ${JSON.stringify(parsed)}`
         );
 
         const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
@@ -122,7 +122,6 @@ export abstract class SpeedDungeonServer {
 
   protected dispatchOutboxMessages(outbox: MessageDispatchOutbox<GameStateUpdate>) {
     for (const dispatch of outbox.toDispatches()) {
-      console.log("dispatching:", dispatch);
       switch (dispatch.type) {
         case MessageDispatchType.Single:
           this.outgoingMessagesGateway.submitToConnection(dispatch.connectionId, dispatch.message);

@@ -51,7 +51,7 @@ export abstract class BaseClient {
         .getAll()
         .forEach((entity) => entity.cleanup({ softCleanup: false }));
 
-      this.dispatchIntent({ type: ClientIntentType.RequestsGameList, data: undefined });
+      // this.dispatchIntent({ type: ClientIntentType.RequestsGameList, data: undefined });
       // this.dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
     });
 

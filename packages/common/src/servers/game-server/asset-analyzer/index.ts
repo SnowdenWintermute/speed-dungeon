@@ -11,11 +11,6 @@ export type SpeciesAnimationLengths = Record<CombatantSpecies, Record<string, Mi
 export class AssetAnalyzer {
   private _animationLengths: SpeciesAnimationLengths = {
     [CombatantSpecies.Humanoid]: {},
-    [CombatantSpecies.Dragon]: {},
-    [CombatantSpecies.Skeleton]: {},
-    [CombatantSpecies.Velociraptor]: {},
-    [CombatantSpecies.Elemental]: {},
-    [CombatantSpecies.Golem]: {},
     [CombatantSpecies.Canine]: {},
     [CombatantSpecies.Ray]: {},
     [CombatantSpecies.Net]: {},
@@ -123,7 +118,7 @@ export class AssetAnalyzer {
 
       return { min: globalMin, max: globalMax, volume: diagonal };
     } catch (error) {
-      console.info("couldnt't comput bounding box size for", assetId, error);
+      console.info("couldn't compute bounding box size for", assetId, error);
     }
   }
 }

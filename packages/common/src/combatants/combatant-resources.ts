@@ -22,9 +22,15 @@ export class CombatantResources extends CombatantSubsystem {
     return deserialized;
   }
 
-  getHitPoints = () => this.hitPoints;
-  getMana = () => this.mana;
-  getActionPoints = () => this.actionPoints;
+  getHitPoints() {
+    return this.hitPoints;
+  }
+  getMana() {
+    return this.mana;
+  }
+  getActionPoints() {
+    return this.actionPoints;
+  }
   requireActionPointCount(count: number) {
     console.log("require action point count:", count, "current:", this.actionPoints);
     if (this.actionPoints < count) {
@@ -34,6 +40,7 @@ export class CombatantResources extends CombatantSubsystem {
 
   refillActionPoints() {
     this.actionPoints = COMBATANT_MAX_ACTION_POINTS;
+    console.log("set AP to", this.actionPoints);
   }
 
   setToMax() {
@@ -111,28 +118,27 @@ export class CombatantResources extends CombatantSubsystem {
   }
 
   getUnmetCostResourceTypes(costs: Partial<Record<ActionPayableResource, number>> | null) {
-    if (costs === null) return [];
-
-    const combatantProperties = this.getCombatantProperties();
+    if (costs === null) {
+      return [];
+    }
 
     const unmet: ActionPayableResource[] = [];
 
     for (const [resourceType, cost] of iterateNumericEnumKeyedRecord(costs)) {
       const absoluteCost = Math.abs(cost); // costs are in negative values
 
-      switch (resourceType) {
-        case ActionPayableResource.HitPoints:
-          if (absoluteCost > this.getHitPoints()) unmet.push(resourceType);
-          break;
-        case ActionPayableResource.Mana:
-          if (absoluteCost > this.getMana()) unmet.push(resourceType);
-          break;
-        case ActionPayableResource.Shards:
-          if (absoluteCost > combatantProperties.inventory.shards) unmet.push(resourceType);
-          break;
-        case ActionPayableResource.ActionPoints:
-          if (absoluteCost > this.getActionPoints()) unmet.push(resourceType);
-          break;
+      const resourceGetters: Record<ActionPayableResource, () => number> = {
+        [ActionPayableResource.HitPoints]: () => this.getHitPoints(),
+        [ActionPayableResource.Mana]: () => this.getMana(),
+        [ActionPayableResource.Shards]: () => this.getCombatantProperties().inventory.shards,
+        [ActionPayableResource.ActionPoints]: () => this.getActionPoints(),
+      };
+
+      const resourceGetter = resourceGetters[resourceType];
+      const resourceValue = resourceGetter();
+      console.log("absolute cost:", absoluteCost, "total resource:", resourceValue);
+      if (absoluteCost > resourceValue) {
+        unmet.push(resourceType);
       }
     }
 

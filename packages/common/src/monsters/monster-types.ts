@@ -1,15 +1,8 @@
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 
 export enum MonsterType {
-  MetallicGolem, // High AC
   Wolf,
-  Zombie, // 1.25 blunt, .75 slashing, .5 piercing, high HP and vit
-  SkeletonArcher, // 1.25 blunt, .75 slashing, .5 piercing, high dex, uses ranged attack
-  Scavenger, // medium hp, .5 blunt, 1.25 slashing, 1 piercing
-  Vulture, // medium hp, .5 blunt, 1.0 slashing, 1.25 piercing
   FireMage, // low AC and HP, casts fire
-  FireElemental, // .25 damage from physical, casts fire, weak to ice
-  IceElemental, // .25 damage from physical, casts ice, weak to fire
   Cultist, // Low AC and HP, casts cure
   MantaRay,
   Net,
@@ -17,16 +10,9 @@ export enum MonsterType {
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
-  [MonsterType.MetallicGolem]: "Metallic Golem",
   [MonsterType.Wolf]: "Wolf",
-  [MonsterType.Zombie]: "Zombie",
-  [MonsterType.SkeletonArcher]: "Skeleton Archer",
-  [MonsterType.Scavenger]: "Scavenger",
-  [MonsterType.Vulture]: "Vulture",
   [MonsterType.FireMage]: "Fire Mage",
   [MonsterType.Cultist]: "Cultist",
-  [MonsterType.FireElemental]: "Fire Elemental",
-  [MonsterType.IceElemental]: "Ice Elemental",
   [MonsterType.MantaRay]: "Manta Ray",
   [MonsterType.Net]: "Net",
   [MonsterType.Spider]: "Spider",
@@ -48,19 +34,12 @@ export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
 export function getMonsterCombatantClass(monsterType: MonsterType): CombatantClass {
   switch (monsterType) {
     case MonsterType.Net:
-    case MonsterType.MetallicGolem:
-    case MonsterType.Zombie:
-    case MonsterType.Vulture:
     case MonsterType.Wolf:
       return CombatantClass.Warrior;
-    case MonsterType.SkeletonArcher:
-    case MonsterType.Scavenger:
     case MonsterType.Spider:
       return CombatantClass.Rogue;
     case MonsterType.FireMage:
     case MonsterType.Cultist:
-    case MonsterType.FireElemental:
-    case MonsterType.IceElemental:
     case MonsterType.MantaRay:
       return CombatantClass.Mage;
   }

@@ -57,8 +57,6 @@ export * from "./adventuring-party/dungeon-room.js";
 export * from "./adventuring-party/dungeon-exploration-manager.js";
 export * from "./primatives/timed-lock.js";
 
-export * from "./packets/server-to-client.js";
-export * from "./packets/client-to-server.js";
 export * from "./packets/channels.js";
 export * from "./packets/game-message.js";
 export * from "./packets/client-intents.js";

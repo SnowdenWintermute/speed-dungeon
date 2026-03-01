@@ -27,56 +27,6 @@ export function getMonsterEquipment(
   const mainHoldableHotswapSlot = new HoldableHotswapSlot();
 
   switch (monsterType) {
-    case MonsterType.SkeletonArcher:
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.SkeletonArcherShortBow,
-        idGenerator.generate()
-      );
-      break;
-    case MonsterType.Scavenger:
-      // equipment[EquipmentSlot.MainHand] = generatePreDeterminedItem(
-      //   PreDeterminedItemType.SkeletonArcherShortBow,
-      //   idGenerator
-      // );
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.AnimalClaw,
-        idGenerator.generate()
-      );
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.AnimalClaw,
-        idGenerator.generate()
-      );
-      break;
-    case MonsterType.Zombie:
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.Fist,
-        idGenerator.generate()
-      );
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.Fist,
-        idGenerator.generate()
-      );
-      break;
-    case MonsterType.MetallicGolem:
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.Spike,
-        idGenerator.generate()
-      );
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.Fist,
-        idGenerator.generate()
-      );
-      break;
-    case MonsterType.Vulture:
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.MainHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.AnimalClaw,
-        idGenerator.generate()
-      );
-      mainHoldableHotswapSlot.holdables[HoldableSlotType.OffHand] = generatePreDeterminedItem(
-        PreDeterminedItemType.AnimalClaw,
-        idGenerator.generate()
-      );
-      break;
     case MonsterType.FireMage: {
       const staffOptions = [
         TwoHandedMeleeWeapon.MahoganyStaff,
@@ -160,8 +110,6 @@ export function getMonsterEquipment(
       break;
     }
 
-    case MonsterType.FireElemental:
-    case MonsterType.IceElemental:
     case MonsterType.Wolf:
     case MonsterType.MantaRay:
     case MonsterType.Net:

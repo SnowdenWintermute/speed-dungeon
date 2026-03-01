@@ -34,7 +34,7 @@ export class GameServerNode {
   private _server: GameServer | null = null;
   private _assetServer: AssetServer | null = null;
 
-  createServer(
+  async createServer(
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     expressApp: Express,
@@ -42,7 +42,7 @@ export class GameServerNode {
     gameSessionStoreService: GameSessionStoreService,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
-    const fsAssetStore = new NodeFileSystemAssetStore("/packages/server/assets");
+    const fsAssetStore = new NodeFileSystemAssetStore("./assets");
     this._assetServer = new AssetServer(fsAssetStore);
     this._assetServer.attachRouter(expressApp);
 
@@ -60,6 +60,8 @@ export class GameServerNode {
       externalServices,
       gameServerSessionClaimTokenCodec
     );
+
+    await this._server.analyzeAssetsForGameplayRelevantData();
   }
 
   private createExternalServices(

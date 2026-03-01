@@ -29,7 +29,7 @@ export async function createCombatantPortrait(combatantId: string) {
   const distance = width / (2 * Math.tan(fov / 2)); // Vertical frustum size
 
   const inFrontOf = combatantModelOption.rootTransformNode.forward.scale(distance);
-  let cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
+  const cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
   const alphaOffset = -0.2;
 
   world.portraitCamera.position.copyFrom(cameraPosition);
@@ -81,30 +81,12 @@ class ArcRotateParams {
   ) {}
 }
 
-const elementals = {
-  arcRotate: new ArcRotateParams(-0.3, -0.45, 0.8),
-  position: new Vector3(0, 1, 0),
-};
-
 const modelPortraitCameraPositionModifiers: Record<
   MonsterType,
   { arcRotate: ArcRotateParams; position: Vector3 }
 > = {
-  [MonsterType.MetallicGolem]: {
-    arcRotate: new ArcRotateParams(0, -0.2, 0.2),
-    position: new Vector3(0, -0.1, 0),
-  },
-  [MonsterType.Zombie]: { arcRotate: new ArcRotateParams(), position: new Vector3() },
-  [MonsterType.SkeletonArcher]: { arcRotate: new ArcRotateParams(), position: new Vector3() },
-  [MonsterType.Scavenger]: {
-    arcRotate: new ArcRotateParams(0, 0.3, 0.2),
-    position: new Vector3(0, -0.05, 0),
-  },
-  [MonsterType.Vulture]: { arcRotate: new ArcRotateParams(-0.2, 0, -0.2), position: new Vector3() },
   [MonsterType.FireMage]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
   [MonsterType.Cultist]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
-  [MonsterType.FireElemental]: elementals,
-  [MonsterType.IceElemental]: elementals,
   [MonsterType.Wolf]: {
     arcRotate: new ArcRotateParams(0, -0.2, 0.2),
     position: new Vector3(0, -0.1, 0),

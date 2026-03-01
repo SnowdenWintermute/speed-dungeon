@@ -1,5 +1,6 @@
 import { ConnectionId, GameName, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 import { invariant } from "../../utils/index.js";
 import { SessionRegistry } from "./session-registry.js";
 import { UserId } from "./user-ids.js";
@@ -90,6 +91,15 @@ export class UserSessionRegistry extends SessionRegistry<UserSession> {
     if (connectionIdsForThisUser.size === 0) {
       this.connectionIdsByUserId.delete(session.taggedUserId.id);
     }
+  }
+
+  public getAllSessionsInGame(game: SpeedDungeonGame) {
+    const result: UserSession[] = [];
+    for (const [username, _player] of game.players) {
+      const session = this.getExpectedSessionInGameByUsername(username, game.name);
+      result.push(session);
+    }
+    return result;
   }
 
   public getExpectedSessionInGameByUsername(username: Username, gameName: GameName) {

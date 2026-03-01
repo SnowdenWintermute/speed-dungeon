@@ -1,6 +1,5 @@
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { Color3, AssetContainer, StandardMaterial } from "@babylonjs/core";
-import { CombatantProperties, MagicalElement, MonsterType } from "@speed-dungeon/common";
+import { CombatantProperties, MonsterType } from "@speed-dungeon/common";
 
 export function setCharacterModelPartDefaultMaterials(
   partResult: AssetContainer,
@@ -16,25 +15,6 @@ export function setCharacterModelPartDefaultMaterials(
       }
     }
   }
-  if (combatantProperties.monsterType === MonsterType.Scavenger)
-    for (const mesh of partResult.meshes) {
-      if (mesh.material?.name === "Brown") {
-        mesh.material.dispose();
-        const newMaterial = getGameWorldView().defaultMaterials.elements[MagicalElement.Dark];
-        if (!newMaterial) return;
-        mesh.material = newMaterial.clone("material");
-      }
-    }
-
-  if (combatantProperties.monsterType === MonsterType.FireElemental)
-    for (const mesh of partResult.meshes) {
-      if (mesh.material?.name === "cube-material") {
-        mesh.material.dispose();
-        const material = getGameWorldView().defaultMaterials.elements[MagicalElement.Fire];
-        if (!material) return;
-        mesh.material = material.clone("material");
-      }
-    }
 
   if (combatantProperties.monsterType === MonsterType.FireMage) {
     for (const mesh of partResult.meshes) {
