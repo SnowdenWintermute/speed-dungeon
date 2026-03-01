@@ -145,8 +145,10 @@ export class CombatActionController {
 
     const action = COMBAT_ACTIONS[actionName];
     const costs = action.costProperties.getResourceCosts(character, !!party.battleId, actionRank);
-    const hasRequiredResources =
-      !character.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
+    const unmetResourceTypes =
+      character.combatantProperties.resources.getUnmetCostResourceTypes(costs);
+    console.log("unmet types:", unmetResourceTypes);
+    const hasRequiredResources = !unmetResourceTypes.length;
 
     if (!hasRequiredResources) {
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);

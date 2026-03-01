@@ -26,6 +26,7 @@ export class CombatantResources extends CombatantSubsystem {
   getMana = () => this.mana;
   getActionPoints = () => this.actionPoints;
   requireActionPointCount(count: number) {
+    console.log("require action point count:", count, "current:", this.actionPoints);
     if (this.actionPoints < count) {
       new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
     }

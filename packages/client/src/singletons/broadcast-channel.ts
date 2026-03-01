@@ -1,4 +1,4 @@
-import { resetWebsocketConnection } from "./websocket-connection";
+import { lobbyClientSingleton } from "./lobby-client";
 
 const channelName = "speed dungeon broadcast channel";
 export const broadcastChannel = new BroadcastChannel(channelName);
@@ -17,7 +17,7 @@ export interface TabMessage {
 
 broadcastChannel.onmessage = (message: any) => {
   if (message.data.type === TabMessageType.ReconnectSocket) {
-    resetWebsocketConnection();
+    lobbyClientSingleton.get().resetConnection();
   }
   if (message.data.type === TabMessageType.RefetchAuthSession) {
     if (sessionFetcher.fromZustand) sessionFetcher.fromZustand();

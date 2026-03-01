@@ -1,18 +1,18 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,
-  ClientToServerEvent,
   COMBAT_ATTRIBUTE_DESCRIPTIONS,
   COMBAT_ATTRIBUTE_STRINGS,
   CORE_ATTRIBUTES,
   INFO_UNICODE_SYMBOL,
+  ClientIntentType,
 } from "@speed-dungeon/common";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   attribute: CombatAttribute;
@@ -28,7 +28,7 @@ export const AttributeListItem = observer((props: Props) => {
 
   const isUnmetRequirement = consideredItemUnmetRequirements.has(props.attribute);
 
-  let highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
+  const highlightClass = isUnmetRequirement ? UNMET_REQUIREMENT_TEXT_COLOR : "";
 
   const shouldShowIncreaseAttributeButton =
     props.combatantHasUnspentAttributePoints &&
@@ -71,13 +71,15 @@ export const AttributeListItem = observer((props: Props) => {
 });
 
 const IncreaseAttributeButton = observer(({ attribute }: { attribute: CombatAttribute }) => {
-  const socketOption = websocketConnection;
   const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
 
   function handleClick() {
-    socketOption?.emit(ClientToServerEvent.IncrementAttribute, {
-      characterId: focusedCharacterId,
-      attribute,
+    gameClientSingleton.get()?.dispatchIntent({
+      type: ClientIntentType.IncrementAttribute,
+      data: {
+        characterId: focusedCharacterId,
+        attribute,
+      },
     });
   }
 

@@ -78,6 +78,20 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.ErrorMessage]: (data) => {
       setAlert(data.message);
       console.log("alert:", data.message);
+
+      // this is a quick and dirty fix until we have a way to associate errors
+      // with certain actions, which would also be good to associate responses with
+      // certain actions so we can show the buttons in a loading state
+      const partyOption = gameStore.getPartyOption();
+      if (partyOption) {
+        partyOption.inputLock.unlockInput();
+        const focusedCharacterOption = gameStore.getFocusedCharacterOption();
+        if (focusedCharacterOption !== undefined) {
+          focusedCharacterOption.combatantProperties.targetingProperties.clear();
+
+          targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
+        }
+      }
     },
     [GameStateUpdateType.OnConnection]: (data) => {
       gameStore.setUsername(data.username);

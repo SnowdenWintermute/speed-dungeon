@@ -15,4 +15,8 @@ export class GameClient extends BaseClient {
     invariant(handlerOption !== undefined, `Unhandled update type: ${JSON.stringify(message)}`);
     handlerOption(message.data as never);
   }
+
+  resetConnection(): void {
+    //
+  }
 }

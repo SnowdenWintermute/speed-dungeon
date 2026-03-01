@@ -8,7 +8,6 @@ import { Game } from "./game";
 import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import { TooltipManager } from "./TooltipManager";
-import WebsocketManager from "./websocket-manager";
 import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
@@ -81,7 +80,6 @@ export default observer(() => {
   return (
     <>
       <TailwindClassLoader />
-      <WebsocketManager />
       <AlertManager />
       <GlobalKeyboardEventManager />
       <TooltipManager />

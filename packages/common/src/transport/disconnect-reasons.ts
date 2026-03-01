@@ -1,5 +1,3 @@
-import SocketIO from "socket.io";
-
 export enum TransportDisconnectReasonType {
   TransportError,
   TransportClose,
@@ -31,18 +29,3 @@ export class TransportDisconnectReason {
     return TRANSPORT_DISCONNECT_REASON_TYPE_STRINGS[this.type];
   }
 }
-
-export const SOCKET_IO_DISCONNECT_REASONS: Record<
-  SocketIO.DisconnectReason,
-  TransportDisconnectReasonType
-> = {
-  "transport error": TransportDisconnectReasonType.TransportError,
-  "transport close": TransportDisconnectReasonType.TransportClose,
-  "forced close": TransportDisconnectReasonType.ForcedClose,
-  "ping timeout": TransportDisconnectReasonType.PingTimeout,
-  "parse error": TransportDisconnectReasonType.ParseError,
-  "server shutting down": TransportDisconnectReasonType.ServerShuttingDown,
-  "forced server close": TransportDisconnectReasonType.ForcedServerClose,
-  "client namespace disconnect": TransportDisconnectReasonType.ClientNamespaceDisconnect,
-  "server namespace disconnect": TransportDisconnectReasonType.ServerNamespaceDisconnect,
-};

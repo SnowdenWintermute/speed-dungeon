@@ -12,7 +12,6 @@ import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { gameClientSingleton } from "@/singletons/lobby-client";
-import { GameClient } from "@/clients/game";
 
 export class GameStore {
   private game: null | SpeedDungeonGame = null;
@@ -23,12 +22,6 @@ export class GameStore {
   constructor() {
     makeAutoObservable(this);
   }
-
-  /** Without this we will get a circular reference because we use the websocketConnection in methods
-   of this store, and websocketConnection also calls AppStore methods and AppStore composes this store */
-  // initialize(gameClient:GameClient) {
-  //   this.gameClient = gameClient;
-  // }
 
   getUsernameOption() {
     return this.username;

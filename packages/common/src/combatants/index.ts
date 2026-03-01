@@ -225,8 +225,10 @@ export class Combatant implements IActionUser {
     }
 
     const costs = action.costProperties.getResourceCosts(this, party.isInCombat(), rank);
-    const hasRequiredResources =
-      !this.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
+
+    const unmetResourceTypes = this.combatantProperties.resources.getUnmetCostResourceTypes(costs);
+    console.log("unmet types:", unmetResourceTypes);
+    const hasRequiredResources = !unmetResourceTypes.length;
 
     if (!hasRequiredResources) {
       return {

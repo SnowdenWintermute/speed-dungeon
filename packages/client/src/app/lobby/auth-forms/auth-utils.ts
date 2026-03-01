@@ -1,10 +1,10 @@
 import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
-import { resetWebsocketConnection } from "@/singletons/websocket-connection";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export function reconnectWebsocketInAllTabs() {
   // message to have their other tabs reconnect with new cookie
   // to keep socket connections consistent with current authorization
-  resetWebsocketConnection(); // this should assign their username in the connection handler
+  lobbyClientSingleton.get().resetConnection(); // this should assign their username in the connection handler
   broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
 }
 

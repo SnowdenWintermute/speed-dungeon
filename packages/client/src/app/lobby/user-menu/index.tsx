@@ -7,11 +7,11 @@ import { HTTP_REQUEST_NAMES } from "@/client_consts";
 import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
 import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { resetWebsocketConnection } from "@/singletons/websocket-connection";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const UserMenuContainer = observer(() => {
   const mutateHttpState = useHttpRequestStore().mutateState;
@@ -114,7 +114,8 @@ function UserMenu({ username }: { username: null | string }) {
 
     AppStore.get().gameStore.clearUsername();
 
-    resetWebsocketConnection();
+    lobbyClientSingleton.get().resetConnection();
+
     // message to have their other tabs reconnect with new cookie
     // to keep socket connections consistent with current authorization
     broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
