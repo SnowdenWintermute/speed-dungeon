@@ -40,7 +40,6 @@ function CreatePartyCard() {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
   function createParty() {
-    console.log("sent create party");
     lobbyClientSingleton.get().dispatchIntent({
       type: ClientIntentType.CreateParty,
       data: {

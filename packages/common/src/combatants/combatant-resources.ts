@@ -32,7 +32,6 @@ export class CombatantResources extends CombatantSubsystem {
     return this.actionPoints;
   }
   requireActionPointCount(count: number) {
-    console.log("require action point count:", count, "current:", this.actionPoints);
     if (this.actionPoints < count) {
       new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
     }
@@ -40,7 +39,6 @@ export class CombatantResources extends CombatantSubsystem {
 
   refillActionPoints() {
     this.actionPoints = COMBATANT_MAX_ACTION_POINTS;
-    console.log("set AP to", this.actionPoints);
   }
 
   setToMax() {
@@ -136,7 +134,6 @@ export class CombatantResources extends CombatantSubsystem {
 
       const resourceGetter = resourceGetters[resourceType];
       const resourceValue = resourceGetter();
-      console.log("absolute cost:", absoluteCost, "total resource:", resourceValue);
       if (absoluteCost > resourceValue) {
         unmet.push(resourceType);
       }

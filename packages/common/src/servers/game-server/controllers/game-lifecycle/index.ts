@@ -1,4 +1,4 @@
-import { GameName } from "../../../../aliases.js";
+import { GameId, GameName } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -20,6 +20,7 @@ import {
   GameMessageType,
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
+import { SpeedDungeonPlayer } from "../../../../game/player.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
@@ -39,7 +40,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     if (existingGame) {
       return existingGame;
     }
-    return await this.initializeExpectedPendingGame(gameName);
+    const newGame = await this.initializeExpectedPendingGame(gameName);
+    return newGame;
   }
 
   private async initializeExpectedPendingGame(gameName: GameName) {
@@ -50,7 +52,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       );
     }
 
-    const newGame = pendingGameSetupOption.game;
+    const deserializedGame = SpeedDungeonGame.getDeserialized(pendingGameSetupOption.game);
+    const newGame = deserializedGame;
+
     this.gameRegistry.registerGame(newGame);
     this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
 
@@ -63,15 +67,19 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async joinGameHandler(gameName: GameName, session: UserSession) {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const game = this.gameRegistry.requireGame(gameName);
+
     session.joinGame(game);
+
     session.subscribeToChannel(game.getChannelName());
 
     const player = game.getExpectedPlayer(session.username);
-    const party = game.getExpectedParty(player.getExpectedPartyName());
-    session.subscribeToChannel(getPartyChannelName(game.name, party.name));
 
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const partyName = player.getExpectedPartyName();
+
+    const party = game.getExpectedParty(partyName);
+    session.subscribeToChannel(getPartyChannelName(game.name, party.name));
 
     // if they are reconnecting their client would have lost the game information
     // could avoid sending it if this is a connection from the lobby though
@@ -93,6 +101,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     );
 
     const allPlayersAreConnectedToGame = this.allPlayersAreConnectedToGame(game);
+
     const gameHasNotYetStarted = game.getTimeStarted() === null;
 
     if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {

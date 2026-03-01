@@ -19,10 +19,13 @@ export class SpeedDungeonPlayer {
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
   constructor(public username: Username) {}
 
-  static deserialize(player: SpeedDungeonPlayer) {
-    player.targetPreferences = CombatActionTargetPreferences.getDeserialized(
-      player.targetPreferences
+  static deserialize(raw: SpeedDungeonPlayer) {
+    const deserialized = plainToInstance(SpeedDungeonPlayer, raw);
+
+    deserialized.targetPreferences = CombatActionTargetPreferences.getDeserialized(
+      deserialized.targetPreferences
     );
+    return deserialized;
   }
 
   getExpectedPartyName() {

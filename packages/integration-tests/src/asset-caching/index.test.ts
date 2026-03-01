@@ -36,7 +36,7 @@ describe("asset management", () => {
     assetServer.attachRouter(expressApp);
 
     expressApp.listen(ASSET_CACHE_TEST_PORT, () => {
-      console.log("started listening for asset requests");
+      console.info("started listening for asset requests");
     });
 
     await clientAppAssetService.initialize();

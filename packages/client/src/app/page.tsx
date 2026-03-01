@@ -32,7 +32,6 @@ export default observer(() => {
   useEffect(() => {
     // offline
     // createOfflineLocalServers().then(({ lobbyServer }) => {
-    //   console.log("lobby server created");
     //   offlineServers.lobbyServer = lobbyServer;
 
     //   const connectionEndpoint = InMemoryConnectionEndpointServerRegistry.singleton.connect(
@@ -51,10 +50,8 @@ export default observer(() => {
     // online
     const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
     const ws = new WebSocket(remoteLobbyServerAddress || "");
-    console.log("attempting connection to lobby server");
     const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
     if (!lobbyClientSingleton.isInitialized) {
-      console.log("initialized client");
       lobbyClientSingleton.setClient(
         new LobbyClient(
           "Lobby server",

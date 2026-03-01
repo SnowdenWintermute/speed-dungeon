@@ -109,7 +109,7 @@ export class CombatantProperties {
     );
 
     deserialized.conditionManager = CombatantConditionManager.getDeserialized(
-      deserialized.conditionManager
+      combatantProperties.conditionManager
     );
 
     return deserialized;

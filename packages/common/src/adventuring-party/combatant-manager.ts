@@ -1,4 +1,4 @@
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { CombatantId, EntityId } from "../aliases.js";
@@ -24,6 +24,27 @@ export class CombatantManager extends AdventuringPartySubsystem {
   constructor() {
     super();
     runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  getSerialized() {
+    const plain = instanceToPlain(this);
+    plain["combatants"] = {};
+    for (const [id, combatant] of this.combatants) {
+      plain["combatants"][id] = combatant.getSerialized();
+    }
+    return plain as CombatantManager;
+  }
+
+  static getDeserialized(serialized: CombatantManager): CombatantManager {
+    const deserialized = plainToInstance(CombatantManager, serialized);
+    deserialized.combatants = new Map();
+
+    for (const [entityId, combatantJson] of Object.entries(serialized.combatants)) {
+      const combatant = Combatant.getDeserialized(combatantJson);
+      deserialized.combatants.set(entityId as EntityId, combatant);
+    }
+
+    return deserialized;
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {
@@ -383,26 +404,9 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   refillAllCombatantActionPoints() {
     const combatants = this.getAllCombatants();
-    console.log(
-      "refilling AP for ",
-      combatants.map(
-        (combatant) =>
-          `name:${combatant.getName()}, ap: ${combatant.combatantProperties.resources.getActionPoints()}`
-      )
-    );
     for (const combatant of combatants) {
-      console.log("before refill raw", combatant.combatantProperties.resources.getActionPoints());
-      console.log("refilling", combatant.getName());
       combatant.combatantProperties.resources.refillActionPoints();
-      console.log("after refill raw", combatant.combatantProperties.resources.getActionPoints());
     }
-    console.log(
-      "after refill ",
-      combatants.map(
-        (combatant) =>
-          `name:${combatant.getName()}, ap: ${combatant.combatantProperties.resources.getActionPoints()}`
-      )
-    );
   }
 
   static setCombatantHomePosition(
@@ -427,18 +431,6 @@ export class CombatantManager extends AdventuringPartySubsystem {
     const homeRotation = new Quaternion();
     Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
     transformProperties.homeRotation = homeRotation;
-  }
-
-  static getDeserialized(serialized: CombatantManager): CombatantManager {
-    const deserialized = plainToInstance(CombatantManager, serialized);
-    deserialized.combatants = new Map();
-
-    for (const [entityId, combatantJson] of Object.entries(serialized.combatants)) {
-      const combatant = Combatant.getDeserialized(combatantJson);
-      deserialized.combatants.set(entityId as EntityId, combatant);
-    }
-
-    return deserialized;
   }
 
   checkForWipes(inBattle: boolean): PartyWipes {

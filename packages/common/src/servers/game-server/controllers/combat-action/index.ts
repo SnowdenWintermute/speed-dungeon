@@ -126,7 +126,7 @@ export class CombatActionController {
       throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
     }
 
-    const { abilityProperties } = character.combatantProperties;
+    const { abilityProperties, resources } = character.combatantProperties;
 
     const combatActionPropertiesResult = abilityProperties.getCombatActionPropertiesIfOwned(
       selectedActionAndRankOption
@@ -145,9 +145,7 @@ export class CombatActionController {
 
     const action = COMBAT_ACTIONS[actionName];
     const costs = action.costProperties.getResourceCosts(character, !!party.battleId, actionRank);
-    const unmetResourceTypes =
-      character.combatantProperties.resources.getUnmetCostResourceTypes(costs);
-    console.log("unmet types:", unmetResourceTypes);
+    const unmetResourceTypes = resources.getUnmetCostResourceTypes(costs);
     const hasRequiredResources = !unmetResourceTypes.length;
 
     if (!hasRequiredResources) {

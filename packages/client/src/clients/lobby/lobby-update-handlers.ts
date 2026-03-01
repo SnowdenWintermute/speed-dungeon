@@ -44,7 +44,6 @@ export function createLobbyUpdateHandlers(
   return {
     [GameStateUpdateType.ErrorMessage]: (data) => {
       setAlert(data.message);
-      console.log("alert:", data.message);
     },
     [GameStateUpdateType.OnConnection]: (data) => {
       gameStore.setUsername(data.username);
@@ -254,7 +253,6 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.GameServerConnectionInstructions]: (data) => {
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
-      console.log("got connectionInstructions, url:", url, "token:", encryptedSessionClaimToken);
 
       connectionEndpoint.close();
 

@@ -50,7 +50,7 @@ export class LobbyServerNode {
       leastBusyGameServerUrlGetter
     );
 
-    console.log("lobby server node created");
+    console.info("lobby server node created");
   }
 
   private createExternalServices(

@@ -12,7 +12,7 @@ import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
@@ -54,6 +54,12 @@ export class AdventuringParty {
     const party = new AdventuringParty(id, name as PartyName);
     party.initialize();
     return party;
+  }
+
+  getSerialized() {
+    const plain = instanceToPlain(this) as AdventuringParty;
+    plain.combatantManager = this.combatantManager.getSerialized();
+    return plain;
   }
 
   static getDeserialized(plain: AdventuringParty) {

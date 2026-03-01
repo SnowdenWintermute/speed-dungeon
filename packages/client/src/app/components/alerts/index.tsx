@@ -17,6 +17,7 @@ export class Alert {
 }
 
 export function setAlert(message: Error | string, isSuccess?: boolean) {
+  console.info("alert:", message);
   useAlertStore.getState().mutateState((alertState) => {
     if (message instanceof Error) console.trace(message);
     const text = message instanceof Error ? message.message : message;
@@ -25,7 +26,7 @@ export function setAlert(message: Error | string, isSuccess?: boolean) {
     else if (isSuccess) alertType = AlertType.Success;
     else alertType = AlertType.Info;
 
-    let newAlert = new Alert(text, alertType, alertState.lastAlertId.toString());
+    const newAlert = new Alert(text, alertType, alertState.lastAlertId.toString());
 
     alertState.alerts.push(newAlert);
     alertState.lastAlertId += 1;

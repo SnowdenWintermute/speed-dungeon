@@ -37,7 +37,7 @@ export abstract class BaseClient {
 
   protected registerListeners() {
     this.connectionEndpoint.on("open", () => {
-      console.log(`connected to ${this.name}`);
+      console.info(`connected to ${this.name}`);
       this.appStore.gameStore.clearGame();
       this.appStore.lobbyStore.setWebsocketConnectedStatus(true);
 

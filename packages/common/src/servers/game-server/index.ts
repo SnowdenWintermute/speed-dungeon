@@ -145,8 +145,6 @@ export class GameServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.gameRegistry,
       this.updateDispatchFactory,
-      this.gameLifecycleController,
-      this.idGenerator,
       this.gameServerSessionClaimTokenCodec
     );
 
@@ -196,7 +194,6 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    console.log("connection to game server started");
     const session = await this.sessionLifecycleController.createSession(
       connectionEndpoint.id,
       identityResolutionContext
@@ -219,6 +216,7 @@ export class GameServer extends SpeedDungeonServer {
       session,
       gameIsInProgress
     );
+
     if (connectionContext.type === ConnectionContextType.Reconnection) {
       await connectionContext.attemptReconnectionClaim();
     }

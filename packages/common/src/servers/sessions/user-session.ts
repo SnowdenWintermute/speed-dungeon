@@ -176,7 +176,7 @@ export class UserSession extends ConnectionSession {
 
   requireReconnectionKey() {
     const key = this.getReconnectionKeyOption();
-    invariant(key !== null);
+    invariant(key !== null, "expected reconnection key not found");
     return key;
   }
 

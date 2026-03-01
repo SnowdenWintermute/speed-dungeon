@@ -29,7 +29,6 @@ export class ClientAppAssetService implements AssetService {
   ) {}
 
   async initialize() {
-    console.log("initializing ClientAppAssetService");
     const offline = !this.isOnline();
     if (offline) {
       // check if have a lastCachedManifest
@@ -39,8 +38,6 @@ export class ClientAppAssetService implements AssetService {
 
     const upToDateVersionData = await this.getFreshAssetIdVersions();
     this.assetManifest = upToDateVersionData;
-
-    console.log("initialized ClientAppAssetService");
   }
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {

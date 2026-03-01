@@ -48,6 +48,9 @@ export class SpeedDungeonGame {
   getSerialized() {
     const plain = toJS(this);
     const serialized = instanceToPlain(plain) as SpeedDungeonGame;
+    for (const [partyName, party] of Object.entries(this.adventuringParties)) {
+      serialized.adventuringParties[partyName as PartyName] = party.getSerialized();
+    }
     return serialized;
   }
 
@@ -57,11 +60,10 @@ export class SpeedDungeonGame {
 
   static getDeserialized(game: SpeedDungeonGame) {
     const deserialized = plainToInstance(SpeedDungeonGame, game);
-    console.log("after plainToInstance:", deserialized.players);
     const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
     for (const [username, player] of Object.entries(game.players)) {
-      SpeedDungeonPlayer.deserialize(player);
-      deserializedPlayers.set(username as Username, player);
+      const deserialized = SpeedDungeonPlayer.deserialize(player);
+      deserializedPlayers.set(username as Username, deserialized);
     }
 
     deserialized.players = deserializedPlayers;

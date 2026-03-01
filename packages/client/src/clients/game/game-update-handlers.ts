@@ -77,7 +77,7 @@ export function createGameUpdateHandlers(
   return {
     [GameStateUpdateType.ErrorMessage]: (data) => {
       setAlert(data.message);
-      console.log("alert:", data.message);
+      console.info("alert:", data.message);
 
       // this is a quick and dirty fix until we have a way to associate errors
       // with certain actions, which would also be good to associate responses with
@@ -701,9 +701,79 @@ export function createGameUpdateHandlers(
 
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIds || []);
     },
-    [GameStateUpdateType.CharacterCycledTargets]: (data) => {},
-    [GameStateUpdateType.CharacterCycledTargetingSchemes]: (data) => {},
-    [GameStateUpdateType.DungeonFloorNumber]: (data) => {},
+    [GameStateUpdateType.CharacterCycledTargets]: (data) => {
+      const { characterId, direction } = data;
+      const { game, party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const username = combatant.getCombatantProperties().controlledBy.controllerPlayerName;
+      const player = game.getExpectedPlayer(username);
+
+      // @REFACTOR - just pass the targeting calculator for this pattern
+      const targetingCalculator = new TargetingCalculator(
+        new ActionUserContext(game, party, combatant),
+        player
+      );
+
+      const validTargetsByDisposition = targetingCalculator.getValidTargetsByDisposition();
+      const targetingProperties = combatant.getTargetingProperties();
+      targetingProperties.cycleTargets(direction, player, validTargetsByDisposition);
+
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      const combatActionTarget = targetingProperties.getSelectedTarget();
+
+      if (selectedActionAndRank === null) {
+        throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+      }
+      if (combatActionTarget === null) {
+        throw new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
+      }
+
+      const { actionName } = selectedActionAndRank;
+
+      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+        COMBAT_ACTIONS[actionName],
+        combatActionTarget
+      );
+      if (targetIdsResult instanceof Error) {
+        throw targetIdsResult;
+      }
+
+      targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIdsResult || []);
+    },
+    [GameStateUpdateType.CharacterCycledTargetingSchemes]: (data) => {
+      const { characterId } = data;
+      const { game, party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const username = combatant.getCombatantProperties().controlledBy.controllerPlayerName;
+      const player = game.getExpectedPlayer(username);
+      const combatantContext = new ActionUserContext(game, party, combatant);
+      const targetingCalculator = new TargetingCalculator(combatantContext, player);
+      const targetingProperties = combatant.getTargetingProperties();
+      targetingProperties.cycleTargetingSchemes(targetingCalculator);
+
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      const combatActionTarget = targetingProperties.getSelectedTarget();
+
+      if (selectedActionAndRank === null) {
+        throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+      }
+      if (combatActionTarget === null) {
+        throw new Error(ERROR_MESSAGES.COMBATANT.NO_TARGET_SELECTED);
+      }
+
+      const actionNameOption = selectedActionAndRank.actionName;
+      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+        COMBAT_ACTIONS[actionNameOption],
+        combatActionTarget
+      );
+      if (targetIdsResult instanceof Error) {
+        throw targetIdsResult;
+      }
+
+      targetIndicatorStore.synchronize(actionNameOption, combatant.getEntityId(), targetIdsResult);
+    },
+    [GameStateUpdateType.DungeonFloorNumber]: (data) => {
+      const party = gameStore.getExpectedParty();
+      party.dungeonExplorationManager.setCurrentFloor(data.floorNumber);
+    },
     [GameStateUpdateType.CharacterAllocatedAbilityPoint]: (data) => {
       const { characterId, ability } = data;
       const { combatant } = gameStore.getExpectedCombatantContext(characterId);

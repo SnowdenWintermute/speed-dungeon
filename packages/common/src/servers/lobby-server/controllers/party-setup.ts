@@ -35,7 +35,6 @@ export class PartySetupController {
   }
 
   createPartyHandler(session: UserSession, partyName: PartyName) {
-    console.log("create party handler:", partyName);
     if (session.currentPartyName) {
       throw new Error(ERROR_MESSAGES.LOBBY.ALREADY_IN_PARTY);
     }

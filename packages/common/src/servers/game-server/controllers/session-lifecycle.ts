@@ -3,12 +3,10 @@ import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { ConnectionIdentityResolutionContext } from "../../services/identity-provider.js";
 import { ConnectionId, Milliseconds } from "../../../aliases.js";
-import { IdGenerator } from "../../../utility-classes/index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { GameServerGameLifecycleController } from "./game-lifecycle/index.js";
 import { GameServerSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
 
 export class GameServerSessionLifecycleController
@@ -21,8 +19,6 @@ export class GameServerSessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly gameLifecycleController: GameServerGameLifecycleController,
-    private readonly idGenerator: IdGenerator,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {}
 
@@ -31,20 +27,15 @@ export class GameServerSessionLifecycleController
     context: ConnectionIdentityResolutionContext
   ): Promise<UserSession> {
     const sessionClaimTokenOption = context.encodedGameServerSessionClaimToken;
-    console.log("sessionClaimTokenOption:", sessionClaimTokenOption);
     if (sessionClaimTokenOption === undefined) {
-      console.log("no token provided");
       throw new Error("No token was provided when attempting to join the game server");
     }
 
-    console.log("about to decryptedToken");
     const decryptedToken =
       await this.gameServerSessionClaimTokenCodec.decode(sessionClaimTokenOption);
-    console.log("decryptedToken:", decryptedToken);
 
     const tokenIsExpired = Date.now() > decryptedToken.expirationTimestamp;
     if (tokenIsExpired) {
-      console.log("expired token");
       throw new Error("User presented an expired token when attempting to join the game server");
     }
 
@@ -58,7 +49,6 @@ export class GameServerSessionLifecycleController
 
     const { nonce } = decryptedToken;
     if (this.recentlyUsedNonces.has(nonce)) {
-      console.log("reused token");
       throw new Error("Token replay attack suspected");
     }
     this.recentlyUsedNonces.set(nonce, decryptedToken.expirationTimestamp);
@@ -67,7 +57,6 @@ export class GameServerSessionLifecycleController
     // while the disconnection record is live in the central store, and there would be
     // undefined behavior if a user tried to claim a session while already in a game
     if (this.userSessionRegistry.userIsAlreadyConnected(decryptedToken.taggedUserId.id)) {
-      console.log("user already connected");
       throw new Error("Only one connection per user is permitted on a single game server");
     }
 
@@ -77,8 +66,6 @@ export class GameServerSessionLifecycleController
       decryptedToken.taggedUserId,
       this.gameRegistry
     );
-
-    console.log("session created");
 
     if (decryptedToken.reconnectionTokenOption) {
       newSession.setGuestReconnectionToken(decryptedToken.reconnectionTokenOption);

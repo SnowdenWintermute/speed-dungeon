@@ -134,24 +134,28 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
     };
 
-    this.reconnectionOpportunityManager.add(
-      session.requireReconnectionKey(),
-      new ReconnectionOpportunity(
-        RECONNECTION_OPPORTUNITY_TIMEOUT_MS,
-        session.username,
-        onReconnectionTimeout
-      )
-    );
+    try {
+      this.reconnectionOpportunityManager.add(
+        session.requireReconnectionKey(),
+        new ReconnectionOpportunity(
+          RECONNECTION_OPPORTUNITY_TIMEOUT_MS,
+          session.username,
+          onReconnectionTimeout
+        )
+      );
 
-    const reconnectionForwardingRecord = GameServerReconnectionForwardingRecord.fromUserSession(
-      session,
-      gameServerName
-    );
+      const reconnectionForwardingRecord = GameServerReconnectionForwardingRecord.fromUserSession(
+        session,
+        gameServerName
+      );
 
-    await this.reconnectionForwardingStoreService.writeGameServerReconnectionForwardingRecord(
-      session.requireReconnectionKey(),
-      reconnectionForwardingRecord
-    );
+      await this.reconnectionForwardingStoreService.writeGameServerReconnectionForwardingRecord(
+        session.requireReconnectionKey(),
+        reconnectionForwardingRecord
+      );
+    } catch (error) {
+      console.error("error creating reconnection opportunity", error);
+    }
 
     return outbox;
   }
