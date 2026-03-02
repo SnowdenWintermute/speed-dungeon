@@ -14,20 +14,40 @@ interface IndexedDbAssetRecord {
 
 export class IndexedDbVersionedAssetRepo {
   private dbPromise: Promise<IDBDatabase>;
+  private db?: IDBDatabase;
 
   constructor(private readonly indexedDB: IDBFactory) {
     this.dbPromise = this.open();
   }
 
   async clear() {
+    const db = await this.dbPromise;
+    db.close();
+    this.db = undefined;
+
     const databases = await this.indexedDB.databases();
 
-    for (const db of databases) {
-      if (db.name) {
-        indexedDB.deleteDatabase(db.name);
-        console.info(`Deleted database: ${db.name}`);
-      }
-    }
+    await Promise.all(
+      databases
+        .filter((db) => db.name)
+        .map(async (db) => {
+          if (db.name !== undefined) {
+            return this.deleteDatabaseAsync(db.name);
+          }
+        })
+    );
+
+    this.dbPromise = this.open();
+  }
+
+  private deleteDatabaseAsync(name: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = this.indexedDB.deleteDatabase(name);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+      request.onblocked = () => reject(new Error(`Deletion blocked for database: ${name}`));
+    });
   }
 
   private open(): Promise<IDBDatabase> {
@@ -41,7 +61,16 @@ export class IndexedDbVersionedAssetRepo {
         }
       };
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        this.db = request.result;
+
+        this.db.onversionchange = () => {
+          this.db?.close();
+        };
+
+        resolve(this.db);
+      };
+
       request.onerror = () => reject(request.error);
     });
   }

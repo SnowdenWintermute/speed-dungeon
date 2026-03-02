@@ -1,6 +1,5 @@
-import { makeAutoObservable } from "mobx";
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
-import { invariant, runIfInBrowser } from "../../../utils/index.js";
+import { invariant } from "../../../utils/index.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
@@ -15,6 +14,8 @@ export interface AssetService {
   getAsset(assetId: AssetId): Promise<ArrayBuffer>;
 }
 
+export type FetchCompletionCallback = (assetId: AssetId) => void;
+
 export class ClientAppAssetService implements AssetService {
   private prefetchQueue = new ScheduledFetchQueue();
   private activeFetches = new Map<AssetId, ManagedAssetFetch>();
@@ -22,25 +23,26 @@ export class ClientAppAssetService implements AssetService {
   // track completion of full update
   private updateCompletionResolver?: () => void;
   private updateCompletionPromise?: Promise<void>;
+  private onEachFetchComplete?: FetchCompletionCallback | undefined = undefined;
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
     private readonly cache: AssetCache,
     private readonly assetIdsByDefaultPrefetchPriority: Map<AssetId, AssetFetchPriority>,
     private readonly isOnline: () => boolean
-  ) {
-    runIfInBrowser(() => {
-      makeAutoObservable(this);
-    });
-  }
+  ) {}
 
-  get activeFetchList() {
-    return this.activeFetches;
-  }
-
-  async initialize(options?: { clearCache?: boolean }) {
+  async initialize(options?: {
+    clearCache?: boolean;
+    onEachFetchComplete?: FetchCompletionCallback;
+  }) {
     if (options?.clearCache) {
+      console.log("trying to clear cache");
       await this.cache.clear();
+    }
+
+    if (options?.onEachFetchComplete) {
+      this.onEachFetchComplete = options.onEachFetchComplete;
     }
 
     const offline = !this.isOnline();
@@ -54,6 +56,7 @@ export class ClientAppAssetService implements AssetService {
       const upToDateVersionData = await this.getFreshAssetIdVersions();
       this.assetManifest = upToDateVersionData;
       console.log("got new asset manifest");
+      return cloneDeep(upToDateVersionData);
     } catch (error) {
       console.error("error fetching asset manifest:", error);
     }
@@ -88,7 +91,6 @@ export class ClientAppAssetService implements AssetService {
   }
 
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
-    console.log("starting managedFetch:", assetId);
     const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
       this.rescheduleLowPriorityFetches();
@@ -105,6 +107,7 @@ export class ClientAppAssetService implements AssetService {
         const versionedAsset = new VersionedAsset(bytes, versionData);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
+        this.onEachFetchComplete?.(assetId);
         return bytes;
       })
       .catch((error) => {
@@ -115,7 +118,6 @@ export class ClientAppAssetService implements AssetService {
       })
       .finally(() => {
         this.activeFetches.delete(assetId);
-        console.log("fetched", assetId);
         const updatesCompleted = this.activeFetches.size === 0 && this.prefetchQueue.isEmpty();
 
         if (updatesCompleted) {
@@ -168,7 +170,6 @@ export class ClientAppAssetService implements AssetService {
 
   private async startNextPrefetch() {
     const nextHighestPriorityFetch = this.prefetchQueue.popNextHighestPriority();
-    console.log("nextHighestPriorityFetch:", nextHighestPriorityFetch);
     if (nextHighestPriorityFetch === undefined) {
       return;
     }
@@ -189,19 +190,14 @@ export class ClientAppAssetService implements AssetService {
 
       this.prefetchQueue.add(assetId, defaultPriority);
     }
-    console.log("prefetch queue populated:", this.prefetchQueue);
+
+    return needsUpdate;
   }
 
   async startAssetUpdatesPrefetch() {
     console.log("starting prefetch");
     this.markUpdateAsInProgress();
 
-    console.log(
-      "this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT",
-      this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT,
-      "this.prefetchQueue.hasEntries()",
-      this.prefetchQueue.hasEntries()
-    );
     while (
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()

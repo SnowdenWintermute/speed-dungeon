@@ -36,9 +36,7 @@ export class AssetServer {
 
   private async serveAsset(req: Request, res: Response, next: NextFunction) {
     try {
-      // const assetId = req.params.assetId;
       const assetId = req.params[0];
-      console.log("serving asset:", assetId);
       invariant(assetId !== undefined, "No assetId provided");
       const asset = await this.localFileSystemStore.getAsset(assetId as AssetId);
 
