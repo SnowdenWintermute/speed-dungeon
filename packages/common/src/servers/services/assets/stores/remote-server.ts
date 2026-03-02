@@ -34,26 +34,24 @@ export class RemoteServerAssetStore implements RemoteAssetStore {
 
   getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch {
     const abortController = new AbortController();
-    const promise = new Promise<ArrayBuffer>((resolve, reject) => {
-      const url = `${this.baseUrl}/assets/${assetId}`;
+    const url = `${this.baseUrl}/assets/${assetId}`;
 
-      fetch(url, { signal: abortController.signal })
-        .then((res) => {
-          if (!res.ok) {
-            reject(new Error(`Failed to fetch asset ${assetId}`));
-          }
+    const promise = fetch(url, { signal: abortController.signal })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch asset ${assetId}`);
+        }
 
-          res.arrayBuffer().then((bytes) => {
-            resolve(bytes);
-          });
-        })
-        .catch((err) => {
-          if (abortController.signal.aborted) {
-            reject(new FetchAbortedError());
-          }
-          reject(err);
-        });
-    });
+        return res.arrayBuffer();
+      })
+      .catch((err) => {
+        if (err.name === "AbortError") {
+          throw new FetchAbortedError();
+        }
+
+        throw err;
+      });
+
     return { promise, abort: () => abortController.abort() };
   }
 }

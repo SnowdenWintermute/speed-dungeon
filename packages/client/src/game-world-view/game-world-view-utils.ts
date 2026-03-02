@@ -15,25 +15,25 @@ import { getClientAppAssetService } from "@/singletons";
 import { AssetId } from "@speed-dungeon/common";
 
 export async function importMesh(path: string, scene: Scene) {
-  try {
-    if (path === "") throw new Error("Empty file path");
+  // try {
+  if (path === "") throw new Error("Empty file path");
 
-    const buffer = await getClientAppAssetService().getAsset(path as AssetId);
-    // a babylon method for fetching assets
-    // const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
-    const assetContainer = await LoadAssetContainerAsync(
-      new Uint8Array(buffer), // ArrayBufferView
-      scene,
-      { pluginExtension: ".glb" }
-    );
-    assetContainer.addToScene();
+  const buffer = await getClientAppAssetService().getAsset(path as AssetId);
+  // a babylon method for fetching assets
+  // const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
+  const assetContainer = await LoadAssetContainerAsync(
+    new Uint8Array(buffer), // ArrayBufferView
+    scene,
+    { pluginExtension: ".glb" }
+  );
+  assetContainer.addToScene();
 
-    return assetContainer;
-  } catch (error) {
-    console.error("assetID:", path, error);
-  }
-  const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
   return assetContainer;
+  // } catch (error) {
+  //   console.error("assetID:", path, error);
+  // }
+  // const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
+  // return assetContainer;
 }
 
 export function getTransformNodeByName(sceneResult: AssetContainer, name: string) {

@@ -7,7 +7,7 @@ export class AssetFetchProgressStore {
   totalBytesFetched: number = 0;
   fetchCompletions = new Map<
     AssetId,
-    { sizeBytes: number; isFetching: boolean; isComplete: boolean }
+    { sizeBytes: number; started: boolean; aborted: boolean; isComplete: boolean }
   >();
 
   constructor() {
@@ -20,7 +20,12 @@ export class AssetFetchProgressStore {
     let totalBytesFetching = 0;
     Array.from(newQueue).forEach(([assetId, versionData]) => {
       const { sizeBytes } = versionData;
-      this.fetchCompletions.set(assetId, { sizeBytes, isFetching: false, isComplete: false });
+      this.fetchCompletions.set(assetId, {
+        sizeBytes,
+        started: false,
+        aborted: false,
+        isComplete: false,
+      });
       totalBytesFetching += sizeBytes;
     });
 
@@ -28,11 +33,16 @@ export class AssetFetchProgressStore {
   }
 
   onFetchStart(assetId: AssetId) {
-    //
+    const entry = this.fetchCompletions.get(assetId);
+    invariant(entry !== undefined, "got fetch completion for an asset not on our list");
+    entry.aborted = false;
+    entry.started = true;
   }
 
   onFetchAbort(assetId: AssetId) {
-    //
+    const entry = this.fetchCompletions.get(assetId);
+    invariant(entry !== undefined, "got fetch completion for an asset not on our list");
+    entry.aborted = true;
   }
 
   onFetchComplete(assetId: AssetId) {

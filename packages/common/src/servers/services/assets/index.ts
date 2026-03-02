@@ -23,7 +23,9 @@ export class ClientAppAssetService implements AssetService {
   // track completion of full update
   private updateCompletionResolver?: () => void;
   private updateCompletionPromise?: Promise<void>;
-  private onEachFetchComplete?: FetchCompletionCallback | undefined = undefined;
+  private onFetchCompleteCallback?: FetchCompletionCallback | undefined = undefined;
+  private onFetchAbortCallback?: FetchCompletionCallback | undefined = undefined;
+  private onFetchStartedCallback?: FetchCompletionCallback | undefined = undefined;
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
@@ -34,15 +36,23 @@ export class ClientAppAssetService implements AssetService {
 
   async initialize(options?: {
     clearCache?: boolean;
-    onEachFetchComplete?: FetchCompletionCallback;
+    onFetchCompleteCallback?: FetchCompletionCallback;
+    onFetchAbortCallback?: FetchCompletionCallback;
+    onFetchStartedCallback?: FetchCompletionCallback;
   }) {
     if (options?.clearCache) {
       console.log("trying to clear cache");
       await this.cache.clear();
     }
 
-    if (options?.onEachFetchComplete) {
-      this.onEachFetchComplete = options.onEachFetchComplete;
+    if (options?.onFetchCompleteCallback) {
+      this.onFetchCompleteCallback = options.onFetchCompleteCallback;
+    }
+    if (options?.onFetchStartedCallback) {
+      this.onFetchStartedCallback = options.onFetchStartedCallback;
+    }
+    if (options?.onFetchAbortCallback) {
+      this.onFetchAbortCallback = options.onFetchAbortCallback;
     }
 
     const offline = !this.isOnline();
@@ -98,6 +108,7 @@ export class ClientAppAssetService implements AssetService {
       this.rescheduleLowPriorityFetches();
     }
 
+    this.onFetchStartedCallback?.(assetId);
     const { promise, abort } = this.remoteStore.getAssetBytesAbortable(assetId);
 
     const versionData = this.requireAssetManifestEntry(assetId);
@@ -109,7 +120,7 @@ export class ClientAppAssetService implements AssetService {
         const versionedAsset = new VersionedAsset(bytes, versionData);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
-        this.onEachFetchComplete?.(assetId);
+        this.onFetchCompleteCallback?.(assetId);
         return bytes;
       })
       .catch((error) => {
@@ -165,6 +176,7 @@ export class ClientAppAssetService implements AssetService {
       const managedFetch = this.activeFetches.get(managedFetchId);
       invariant(managedFetch !== undefined);
       managedFetch.abort();
+      this.onFetchAbortCallback?.(managedFetchId);
       this.activeFetches.delete(managedFetchId);
 
       this.prefetchQueue.add(managedFetchId, managedFetch.priority);
