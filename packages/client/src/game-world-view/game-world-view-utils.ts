@@ -11,16 +11,28 @@ import {
 } from "@babylonjs/core";
 import { createBillboard } from "@/utils";
 import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts-model-manager/modular-character-parts";
+import { getClientAppAssetService } from "@/singletons";
+import { AssetId } from "@speed-dungeon/common";
 
 export async function importMesh(path: string, scene: Scene) {
-  if (path === "") throw new Error("Empty file path");
+  try {
+    if (path === "") throw new Error("Empty file path");
 
-  // a babylon method for fetching assets
-  //*@param* `source` — a string that defines the name of the scene file, or starts with "data:"
-  //following by the stringified version of the scene, or a File object, or an ArrayBufferView
+    const buffer = await getClientAppAssetService().getAsset(path as AssetId);
+    // a babylon method for fetching assets
+    // const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
+    const assetContainer = await LoadAssetContainerAsync(
+      new Uint8Array(buffer), // ArrayBufferView
+      scene,
+      { pluginExtension: ".glb" }
+    );
+    assetContainer.addToScene();
+
+    return assetContainer;
+  } catch (error) {
+    console.error("assetID:", path, error);
+  }
   const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
-  assetContainer.addToScene();
-
   return assetContainer;
 }
 

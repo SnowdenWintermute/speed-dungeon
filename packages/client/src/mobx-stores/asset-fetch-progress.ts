@@ -5,7 +5,10 @@ export class AssetFetchProgressStore {
   initialized: boolean = false;
   totalBytesFetching: number = 0;
   totalBytesFetched: number = 0;
-  fetchCompletions = new Map<AssetId, { sizeBytes: number; isComplete: boolean }>();
+  fetchCompletions = new Map<
+    AssetId,
+    { sizeBytes: number; isFetching: boolean; isComplete: boolean }
+  >();
 
   constructor() {
     makeAutoObservable(this);
@@ -17,11 +20,19 @@ export class AssetFetchProgressStore {
     let totalBytesFetching = 0;
     Array.from(newQueue).forEach(([assetId, versionData]) => {
       const { sizeBytes } = versionData;
-      this.fetchCompletions.set(assetId, { sizeBytes, isComplete: false });
+      this.fetchCompletions.set(assetId, { sizeBytes, isFetching: false, isComplete: false });
       totalBytesFetching += sizeBytes;
     });
 
     this.totalBytesFetching = totalBytesFetching;
+  }
+
+  onFetchStart(assetId: AssetId) {
+    //
+  }
+
+  onFetchAbort(assetId: AssetId) {
+    //
   }
 
   onFetchComplete(assetId: AssetId) {

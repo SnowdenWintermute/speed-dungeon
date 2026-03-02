@@ -67,6 +67,8 @@ export class ClientAppAssetService implements AssetService {
     const isBeingFetched = currentFetchOption !== undefined;
 
     if (isBeingFetched) {
+      console.log("already fetching:", assetId);
+      currentFetchOption.priority = AssetFetchPriority.Urgent; // otherwise we might abort this by accident
       const assetBytes = await currentFetchOption.promise;
       return assetBytes;
     }
@@ -111,6 +113,7 @@ export class ClientAppAssetService implements AssetService {
         return bytes;
       })
       .catch((error) => {
+        console.log("aborted", assetId);
         if (isAbortError(error)) {
           return;
         }
