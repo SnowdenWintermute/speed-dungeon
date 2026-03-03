@@ -5,14 +5,13 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const ConnectionSelector = observer(() => {
-  const { canEnterOffline, enterOnline, enterOffline, isOnline, isOffline } =
-    getApplicationRuntimeManager();
+  const { canEnterOffline, isOnline, isOffline } = getApplicationRuntimeManager();
 
   function handleClick() {
     if (isOnline && canEnterOffline) {
-      enterOffline();
+      getApplicationRuntimeManager().enterOffline();
     } else if (isOffline) {
-      enterOnline();
+      getApplicationRuntimeManager().enterOnline();
     }
   }
 

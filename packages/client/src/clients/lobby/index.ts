@@ -7,6 +7,7 @@ import {
 import { createLobbyUpdateHandlers } from "./lobby-update-handlers";
 import { BaseClient } from "../base-client";
 import { ConnectionStatus } from "@/mobx-stores/connection-status";
+import { getApplicationRuntimeManager } from "@/singletons";
 
 export class LobbyClient extends BaseClient {
   private updateHandlers = createLobbyUpdateHandlers(
@@ -24,17 +25,6 @@ export class LobbyClient extends BaseClient {
 
   resetConnection() {
     console.info("reconnecting to lobby");
-    this.connectionEndpoint.close();
-    this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
-
-    const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
-    // TODO - polymorphic runtime mode based reconnection
-    const ws = new WebSocket(remoteLobbyServerAddress || "");
-    const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
-    try {
-      this.setEndpoint(connectionEndpoint);
-    } catch {
-      return;
-    }
+    getApplicationRuntimeManager().resetLobbyConnection();
   }
 }

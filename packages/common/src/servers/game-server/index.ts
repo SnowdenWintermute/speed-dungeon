@@ -194,43 +194,51 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    const session = await this.sessionLifecycleController.createSession(
-      connectionEndpoint.id,
-      identityResolutionContext
-    );
-    this.logUserConnected(session);
+    try {
+      const session = await this.sessionLifecycleController.createSession(
+        connectionEndpoint.id,
+        identityResolutionContext
+      );
+      this.logUserConnected(session);
 
-    this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
+      this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
-    const gameName = session.currentGameName;
-    if (gameName === null) {
-      throw new Error("should have been set from their token in createSession");
+      const gameName = session.currentGameName;
+      if (gameName === null) {
+        throw new Error("should have been set from their token in createSession");
+      }
+
+      const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
+
+      this.attachIntentHandlersToSessionConnection(
+        session,
+        connectionEndpoint,
+        this.intentHandlers
+      );
+
+      const gameIsInProgress = existingGame.getTimeStarted() !== null;
+      const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
+        session,
+        gameIsInProgress
+      );
+
+      if (connectionContext.type === ConnectionContextType.Reconnection) {
+        await connectionContext.attemptReconnectionClaim();
+      }
+
+      const outbox = await this.sessionLifecycleController.activateSession(session);
+
+      const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
+      outbox.pushFromOther(joinGameOutbox);
+
+      const refreshedReconnectionTokenOutbox =
+        await this.reconnectionProtocol.issueReconnectionCredential(session);
+      outbox.pushFromOther(refreshedReconnectionTokenOutbox);
+
+      this.dispatchOutboxMessages(outbox);
+    } catch (error) {
+      console.error("error creating user session", error);
     }
-
-    const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
-
-    this.attachIntentHandlersToSessionConnection(session, connectionEndpoint, this.intentHandlers);
-
-    const gameIsInProgress = existingGame.getTimeStarted() !== null;
-    const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
-      session,
-      gameIsInProgress
-    );
-
-    if (connectionContext.type === ConnectionContextType.Reconnection) {
-      await connectionContext.attemptReconnectionClaim();
-    }
-
-    const outbox = await this.sessionLifecycleController.activateSession(session);
-
-    const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
-    outbox.pushFromOther(joinGameOutbox);
-
-    const refreshedReconnectionTokenOutbox =
-      await this.reconnectionProtocol.issueReconnectionCredential(session);
-    outbox.pushFromOther(refreshedReconnectionTokenOutbox);
-
-    this.dispatchOutboxMessages(outbox);
   }
 
   private logUserConnected(session: UserSession) {

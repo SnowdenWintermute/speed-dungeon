@@ -1,9 +1,9 @@
-import { makeAutoObservable } from "mobx";
 import {
   BrowserWebSocketConnectionEndpoint,
   ConnectionId,
   InMemoryConnectionEndpointServerRegistry,
   LobbyServer,
+  runIfInBrowser,
   urlWithQueryParams,
 } from "@speed-dungeon/common";
 import { ClientSingleton, lobbyClientSingleton } from "@/singletons/lobby-client";
@@ -17,6 +17,7 @@ import { LobbyClient } from "@/clients/lobby";
 import { GameWorldView } from "@/game-world-view";
 import { GameClient } from "@/clients/game";
 import { ConnectionStatus } from "@/mobx-stores/connection-status";
+import { makeAutoObservable } from "mobx";
 
 export enum RuntimeMode {
   Initializing,
@@ -26,6 +27,7 @@ export enum RuntimeMode {
 
 export class ApplicationRuntimeEnvironmentManager {
   private _mode = RuntimeMode.Initializing;
+  gameWorldView: { current: GameWorldView | null };
 
   private offlineServers: { lobbyServer: undefined | LobbyServer } = { lobbyServer: undefined };
 
@@ -33,10 +35,20 @@ export class ApplicationRuntimeEnvironmentManager {
     private appStore: AppStore,
     private lobbyClientSingleton: ClientSingleton,
     private gameClientSingleton: ClientSingleton,
-    private gameWorldView: { current: GameWorldView | null },
+    gameWorldView: { current: GameWorldView | null },
     private characterAutoFocusManager: CharacterAutoFocusManager
   ) {
-    makeAutoObservable(this, {}, { autoBind: true });
+    this.gameWorldView = gameWorldView;
+    runIfInBrowser(() => {
+      makeAutoObservable(this, { gameWorldView: false }, { autoBind: true });
+    });
+    // makeObservable({
+    //   isOnline: computed,
+    //   isOffline: computed,
+    //   canEnterOffline: computed,
+    //   enterOffline: action,
+    //   enterOnline: action,
+    // });
   }
 
   private createRemoteEndpoint(
@@ -54,7 +66,25 @@ export class ApplicationRuntimeEnvironmentManager {
     return this.runtimeMode !== RuntimeMode.Initializing;
   }
 
+  resetLobbyConnection() {
+    console.log("not yet implemented");
+    // this.connectionEndpoint.close();
+    // this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
+
+    // const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+    // // TODO - polymorphic runtime mode based reconnection
+    // getApplicationRuntimeManager().
+    // const ws = new WebSocket(remoteLobbyServerAddress || "");
+    // const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+    // try {
+    //   this.setEndpoint(connectionEndpoint);
+    // } catch {
+    //   return;
+    // }
+  }
+
   enterOnline() {
+    console.log("trying to enter online");
     this._mode = RuntimeMode.Initializing;
     this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
     const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL || "";
@@ -118,8 +148,10 @@ export class ApplicationRuntimeEnvironmentManager {
       value: string;
     }[]
   ) {
+    console.log("creating game client with url:", url);
     // online
     const connectionEndpoint = this.createRemoteEndpoint(url, queryParams);
+    console.log("setting game client with game world:", this.gameWorldView.current);
     this.gameClientSingleton.setClient(
       new GameClient(
         "Game server",
