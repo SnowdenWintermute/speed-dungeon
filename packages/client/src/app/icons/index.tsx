@@ -40,6 +40,8 @@ import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
 import Feather from "../../../public/img/game-ui-icons/feather.svg";
 import SpiderWeb from "../../../public/img/game-ui-icons/spider-web.svg";
 import Dove from "../../../public/img/game-ui-icons/dove.svg";
+import WifiOnline from "../../../public/img/menu-icons/wifi-online.svg";
+import WifiOffline from "../../../public/img/menu-icons/wifi-offline.svg";
 
 import { ReactNode } from "react";
 import {
@@ -94,6 +96,8 @@ export enum IconName {
   Feather,
   SpiderWeb,
   Dove,
+  WifiOnline,
+  WifiOffline,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -137,6 +141,8 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Feather]: (className: string) => <Feather className={className} />,
   [IconName.SpiderWeb]: (className: string) => <SpiderWeb className={className} />,
   [IconName.Dove]: (className: string) => <Dove className={className} />,
+  [IconName.WifiOnline]: (className: string) => <WifiOnline className={className} />,
+  [IconName.WifiOffline]: (className: string) => <WifiOffline className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

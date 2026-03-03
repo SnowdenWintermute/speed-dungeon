@@ -4,7 +4,6 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { getClientAppAssetService } from "@/singletons";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import LoadingSpinner from "../components/atoms/LoadingSpinner";
 import Divider from "../components/atoms/Divider";
 import ClickOutsideHandlerWrapper from "../components/atoms/ClickOutsideHandlerWrapper";
 
@@ -15,7 +14,7 @@ export const AssetManager = observer(() => {
         const { assetFetchProgressStore } = AppStore.get();
 
         const manifest = await getClientAppAssetService().initialize({
-          clearCache: true,
+          // clearCache: true,
           onFetchStartedCallback: (assetId) => {
             assetFetchProgressStore.onFetchStart(assetId);
           },
@@ -33,7 +32,7 @@ export const AssetManager = observer(() => {
         }
 
         const prefetchQueue = await getClientAppAssetService().scheduleAssetUpdates();
-        assetFetchProgressStore.initialize(prefetchQueue);
+        assetFetchProgressStore.initialize(manifest, prefetchQueue);
         await getClientAppAssetService().startAssetUpdatesPrefetch();
       } catch (err) {
         console.error(err);
@@ -44,15 +43,9 @@ export const AssetManager = observer(() => {
   }, []);
 
   const { assetFetchProgressStore } = AppStore.get();
-  const { initialized } = assetFetchProgressStore;
+  const { initialized, displayPercent, isComplete } = assetFetchProgressStore;
 
   const [hovered, setHovered] = useState(false);
-  function handleFocus() {
-    setHovered(true);
-  }
-  function handleBlur() {
-    setHovered(false);
-  }
   function handleClick() {
     setHovered(!hovered);
   }
@@ -66,26 +59,27 @@ export const AssetManager = observer(() => {
       <ClickOutsideHandlerWrapper onClickOutside={() => setHovered(false)} isActive={hovered}>
         <button
           className="bg-slate-700 border-slate-400 border m-6 p-2 max-h-full max-w-full overflow-hidden"
-          // onMouseEnter={handleFocus}
-          // onMouseLeave={handleBlur}
-          // onFocus={handleFocus}
-          // onBlur={handleBlur}
           onClick={handleClick}
         >
-          {initialized ? (
-            <div className="w-fit">
-              prefetching assets {Math.round(assetFetchProgressStore.percentComplete)}%
+          {initialized && isComplete ? (
+            <div className="flex align-middle">
+              <span>up to date</span>{" "}
             </div>
+          ) : initialized ? (
+            <div className="w-fit">prefetching assets {displayPercent}%</div>
           ) : (
-            <div>loading application code</div>
+            <div>loading application code...</div>
           )}
           {hovered && initialized && (
             <div className="overflow-auto">
               <Divider />
               <ul className="flex flex-wrap justify-between">
                 {Array.from(assetFetchProgressStore.fetchCompletions).map(([assetId, data]) => {
-                  const { isComplete, started, aborted } = data;
+                  const { wasCached, isComplete, started, aborted } = data;
                   const textColor = (() => {
+                    if (wasCached) {
+                      return "text-blue-400";
+                    }
                     if (isComplete) {
                       return "text-green-600";
                     }

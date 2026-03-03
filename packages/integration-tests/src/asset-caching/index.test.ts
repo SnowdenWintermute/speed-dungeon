@@ -70,6 +70,7 @@ describe("asset management", () => {
     // - able to preempt low priority fetches
     // - urgent fetches not preempted/aborted
     // - after full update, cached asset count equal to total asset count
+    // - updated asset in manifest triggers a refetch when old asset version existed
   });
 });
 

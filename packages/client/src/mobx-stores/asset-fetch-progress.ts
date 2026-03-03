@@ -1,5 +1,6 @@
-import { AssetId, AssetVersionData, invariant } from "@speed-dungeon/common";
+import { AssetId, AssetManifest, AssetVersionData, invariant } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { AppStore } from "./app-store";
 
 export class AssetFetchProgressStore {
   initialized: boolean = false;
@@ -7,24 +8,51 @@ export class AssetFetchProgressStore {
   totalBytesFetched: number = 0;
   fetchCompletions = new Map<
     AssetId,
-    { sizeBytes: number; started: boolean; aborted: boolean; isComplete: boolean }
+    {
+      sizeBytes: number;
+      started: boolean;
+      aborted: boolean;
+      isComplete: boolean;
+      wasCached: boolean;
+    }
   >();
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  initialize(newQueue: Map<AssetId, AssetVersionData>) {
+  get displayPercent() {
+    const percent = Math.round(this.percentComplete);
+    if (isNaN(percent)) {
+      return 100;
+    }
+    return percent;
+  }
+
+  get isComplete() {
+    return this.displayPercent === 100;
+  }
+
+  initialize(manifest: AssetManifest, newQueue: Map<AssetId, AssetVersionData>) {
     this.initialized = true;
 
     let totalBytesFetching = 0;
-    Array.from(newQueue).forEach(([assetId, versionData]) => {
+    Object.entries(manifest).forEach(([untypedAssetId, versionData]) => {
+      const assetId = untypedAssetId as AssetId;
       const { sizeBytes } = versionData;
+      const needsUpdate = newQueue.has(assetId);
+
+      const wasCached = !needsUpdate;
+      if (wasCached) {
+        this.totalBytesFetched += sizeBytes;
+      }
+
       this.fetchCompletions.set(assetId, {
         sizeBytes,
         started: false,
         aborted: false,
-        isComplete: false,
+        isComplete: wasCached,
+        wasCached,
       });
       totalBytesFetching += sizeBytes;
     });
