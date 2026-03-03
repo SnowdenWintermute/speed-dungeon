@@ -1,6 +1,7 @@
 import { GameWorldView } from "@/game-world-view";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ConnectionStatus } from "@/mobx-stores/connection-status";
 import { getApplicationRuntimeManager } from "@/singletons";
 import { RuntimeMode } from "@/singletons/application-runtime-environment-manager";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
@@ -15,9 +16,13 @@ export abstract class BaseClient {
       current: null | GameWorldView;
     },
     protected characterAutoFocusManager: CharacterAutoFocusManager,
-    protected targetRuntimeMode: RuntimeMode
+    protected _targetRuntimeMode: RuntimeMode
   ) {
     this.registerListeners();
+  }
+
+  set targetRuntimeMode(newMode: RuntimeMode) {
+    this._targetRuntimeMode = newMode;
   }
 
   dispatchIntent(message: ClientIntent) {
@@ -39,7 +44,8 @@ export abstract class BaseClient {
     this.connectionEndpoint.on("open", () => {
       console.info(`connected to ${this.name}`);
       this.appStore.gameStore.clearGame();
-      getApplicationRuntimeManager().runtimeMode = this.targetRuntimeMode;
+      getApplicationRuntimeManager().runtimeMode = this._targetRuntimeMode;
+      this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Connected;
 
       this.gameWorldView.current?.modelManager.modelActionQueue.clear();
       this.gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({

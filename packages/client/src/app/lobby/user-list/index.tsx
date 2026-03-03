@@ -3,13 +3,11 @@ import { UserPlaque } from "./UserPlaque";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
-// import { getApplicationRuntimeManager } from "@/singletons";
 
 export const UserList = observer(() => {
-  const { lobbyStore } = AppStore.get();
+  const { lobbyStore, connectionStatusStore } = AppStore.get();
   const usersInChannel = lobbyStore.getUsersList();
-  // const clientConnected = getApplicationRuntimeManager().isInitialized;
-  const clientConnected = true;
+  const clientConnected = connectionStatusStore.isConnected;
 
   return (
     <section

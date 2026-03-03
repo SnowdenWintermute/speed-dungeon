@@ -16,6 +16,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { LobbyClient } from "@/clients/lobby";
 import { GameWorldView } from "@/game-world-view";
 import { GameClient } from "@/clients/game";
+import { ConnectionStatus } from "@/mobx-stores/connection-status";
 
 export enum RuntimeMode {
   Initializing,
@@ -55,6 +56,7 @@ export class ApplicationRuntimeEnvironmentManager {
 
   enterOnline() {
     this._mode = RuntimeMode.Initializing;
+    this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
     const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL || "";
     const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, []);
     if (!this.lobbyClientSingleton.isInitialized) {
@@ -69,12 +71,14 @@ export class ApplicationRuntimeEnvironmentManager {
         )
       );
     } else {
+      lobbyClientSingleton.get().targetRuntimeMode = RuntimeMode.Online;
       lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
     }
   }
 
   enterOffline() {
     this._mode = RuntimeMode.Initializing;
+    this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
 
     createOfflineLocalServers().then(({ lobbyServer }) => {
       this.offlineServers.lobbyServer = lobbyServer;
@@ -95,6 +99,7 @@ export class ApplicationRuntimeEnvironmentManager {
           )
         );
       } else {
+        lobbyClientSingleton.get().targetRuntimeMode = RuntimeMode.Offline;
         lobbyClientSingleton.get().setEndpoint(connectionEndpoint);
       }
     });

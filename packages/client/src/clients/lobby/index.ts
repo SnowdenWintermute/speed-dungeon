@@ -6,6 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import { createLobbyUpdateHandlers } from "./lobby-update-handlers";
 import { BaseClient } from "../base-client";
+import { ConnectionStatus } from "@/mobx-stores/connection-status";
 
 export class LobbyClient extends BaseClient {
   private updateHandlers = createLobbyUpdateHandlers(
@@ -24,9 +25,10 @@ export class LobbyClient extends BaseClient {
   resetConnection() {
     console.info("reconnecting to lobby");
     this.connectionEndpoint.close();
-    const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+    this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
 
-    // online
+    const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+    // TODO - polymorphic runtime mode based reconnection
     const ws = new WebSocket(remoteLobbyServerAddress || "");
     const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
     try {

@@ -32,13 +32,12 @@ export const Lobby = observer(() => {
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const currentSessionHttpResponseTracker =
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const { dialogStore } = AppStore.get();
+  const { dialogStore, connectionStatusStore } = AppStore.get();
   const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
 
-  // const clientConnected = getApplicationRuntimeManager().isInitialized;
-  const clientConnected = true;
+  const clientConnected = connectionStatusStore.isConnected;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {
