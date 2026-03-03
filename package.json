@@ -11,6 +11,7 @@
     "@types/ws": "^8.18.1",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^8",
     "eslint-plugin-jsx-a11y": "6.8.0",
     "eslint-plugin-react": "7.34.2",

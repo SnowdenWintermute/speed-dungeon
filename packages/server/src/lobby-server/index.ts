@@ -1,7 +1,5 @@
 import {
   LobbyServer,
-  SodiumHelpers,
-  OpaqueEncryptionSessionClaimTokenCodec,
   LobbyExternalServices,
   IdentityProviderService,
   ConnectionIdentityResolutionContext,

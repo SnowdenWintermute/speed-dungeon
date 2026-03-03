@@ -19,6 +19,7 @@ export class CombatantResources extends CombatantSubsystem {
 
   static getDeserialized(self: CombatantResources) {
     const deserialized = plainToInstance(CombatantResources, self);
+
     return deserialized;
   }
 

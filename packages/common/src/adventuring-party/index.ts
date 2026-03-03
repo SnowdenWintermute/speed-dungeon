@@ -16,7 +16,6 @@ import { instanceToPlain, plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
-import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
 
 export class AdventuringParty {
   // subsystems
@@ -46,7 +45,9 @@ export class AdventuringParty {
   constructor(
     public id: string,
     public name: PartyName
-  ) {
+  ) {}
+
+  makeObservable() {
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
@@ -78,6 +79,7 @@ export class AdventuringParty {
     toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
 
     toReturn.initialize();
+    toReturn.makeObservable();
 
     return toReturn;
   }

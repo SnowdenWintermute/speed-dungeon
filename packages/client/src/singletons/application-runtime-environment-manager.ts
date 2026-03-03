@@ -1,6 +1,7 @@
 import {
   BrowserWebSocketConnectionEndpoint,
   ConnectionId,
+  GameServer,
   InMemoryConnectionEndpointServerRegistry,
   LobbyServer,
   runIfInBrowser,
@@ -29,7 +30,13 @@ export class ApplicationRuntimeEnvironmentManager {
   private _mode = RuntimeMode.Initializing;
   gameWorldView: { current: GameWorldView | null };
 
-  private offlineServers: { lobbyServer: undefined | LobbyServer } = { lobbyServer: undefined };
+  private offlineServers: {
+    lobbyServer: undefined | LobbyServer;
+    gameServer: GameServer | undefined;
+  } = {
+    lobbyServer: undefined,
+    gameServer: undefined,
+  };
 
   constructor(
     private appStore: AppStore,
@@ -60,6 +67,38 @@ export class ApplicationRuntimeEnvironmentManager {
   ) {
     const ws = new WebSocket(urlWithQueryParams(url, queryParams));
     return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+  }
+
+  private createLocalConnectionEndpoint(
+    url: string,
+    queryParams: {
+      name: string;
+      value: string;
+    }[]
+  ) {
+    console.log("url:", url, "query", queryParams);
+    return InMemoryConnectionEndpointServerRegistry.singleton.connect(
+      urlWithQueryParams(url, queryParams),
+      {}
+    );
+  }
+
+  private createModeConnectionEndpoint(
+    url: string,
+    queryParams: {
+      name: string;
+      value: string;
+    }[]
+  ) {
+    if (this.isOnline) {
+      return this.createRemoteEndpoint(url, queryParams);
+    } else if (this.isOffline) {
+      return this.createLocalConnectionEndpoint(url, queryParams);
+    } else {
+      throw new Error(
+        "Expected to only try creating a connection endpoint when runtime mode is initialized"
+      );
+    }
   }
 
   get isInitialized() {
@@ -110,12 +149,13 @@ export class ApplicationRuntimeEnvironmentManager {
     this._mode = RuntimeMode.Initializing;
     this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
 
-    createOfflineLocalServers().then(({ lobbyServer }) => {
+    createOfflineLocalServers().then(({ lobbyServer, gameServer }) => {
       this.offlineServers.lobbyServer = lobbyServer;
+      this.offlineServers.gameServer = gameServer;
 
-      const connectionEndpoint = InMemoryConnectionEndpointServerRegistry.singleton.connect(
-        urlWithQueryParams(LOCAL_OFFLINE_LOBBY_SERVER_URL, /*options?.queryParams ||*/ []),
-        {}
+      const connectionEndpoint = this.createLocalConnectionEndpoint(
+        LOCAL_OFFLINE_LOBBY_SERVER_URL,
+        []
       );
       if (!lobbyClientSingleton.isInitialized) {
         lobbyClientSingleton.setClient(
@@ -149,8 +189,7 @@ export class ApplicationRuntimeEnvironmentManager {
     }[]
   ) {
     console.log("creating game client with url:", url);
-    // online
-    const connectionEndpoint = this.createRemoteEndpoint(url, queryParams);
+    const connectionEndpoint = this.createModeConnectionEndpoint(url, queryParams);
     console.log("setting game client with game world:", this.gameWorldView.current);
     this.gameClientSingleton.setClient(
       new GameClient(
@@ -159,7 +198,7 @@ export class ApplicationRuntimeEnvironmentManager {
         this.appStore,
         this.gameWorldView,
         this.characterAutoFocusManager,
-        RuntimeMode.Online
+        this.runtimeMode
       )
     );
   }

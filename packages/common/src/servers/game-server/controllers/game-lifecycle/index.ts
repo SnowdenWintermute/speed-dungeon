@@ -1,4 +1,4 @@
-import { GameId, GameName } from "../../../../aliases.js";
+import { GameName } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -20,7 +20,6 @@ import {
   GameMessageType,
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
-import { SpeedDungeonPlayer } from "../../../../game/player.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events

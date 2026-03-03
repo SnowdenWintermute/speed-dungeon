@@ -1,4 +1,8 @@
+import { getClientAppAssetService } from "@/singletons";
 import {
+  AssetService,
+  GameServer,
+  GameServerExternalServices,
   GameServerName,
   GameSessionStoreService,
   IdentityProviderService,
@@ -8,6 +12,7 @@ import {
   InMemoryGameSessionStoreService,
   InMemoryIdentityProviderQueryStrategy,
   InMemoryIncomingConnectionGateway,
+  InMemoryRaceGameRecordsPersistenceStrategy,
   InMemoryRankedLadderService,
   InMemoryReconnectionForwardingStoreService,
   InMemorySavedCharacterPersistenceStrategy,
@@ -15,6 +20,7 @@ import {
   InMemorySpeedDungeonProfileService,
   LobbyServer,
   OpaqueEncryptionSessionClaimTokenCodec,
+  RaceGameRecordsService,
   RankedLadderService,
   ReconnectionForwardingStoreService,
   SavedCharactersService,
@@ -77,7 +83,33 @@ export async function createOfflineLocalServers() {
     () => testLeastBusyServerUrlGetter()
   );
 
-  return { lobbyServer };
+  const gameServerConnectionEndpointServer = new InMemoryConnectionEndpointServer();
+  InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
+    LOCAL_OFFLINE_GAME_SERVER_URL,
+    gameServerConnectionEndpointServer
+  );
+  const gameIncomingConnectionGateway = new InMemoryIncomingConnectionGateway(
+    gameServerConnectionEndpointServer
+  );
+
+  const raceGameRecordsPersistenceStrategy = new InMemoryRaceGameRecordsPersistenceStrategy();
+  const raceGameRecordsService = new RaceGameRecordsService(raceGameRecordsPersistenceStrategy);
+
+  const gameServer = new GameServer(
+    LOCAL_OFFLINE_GAME_SERVER_NAME,
+    gameIncomingConnectionGateway,
+    createOfflineGameServerServices(
+      gameSessionStoreService,
+      reconnectionForwardingStoreService,
+      savedCharactersService,
+      rankedLadderService,
+      raceGameRecordsService,
+      getClientAppAssetService()
+    ),
+    codec
+  );
+
+  return { lobbyServer, gameServer };
 }
 
 function createOfflineLobbyServerServices(
@@ -106,6 +138,25 @@ function createOfflineLobbyServerServices(
     idGenerator: new IdGenerator({ saveHistory: false }),
     gameSessionStoreService,
     reconnectionForwardingStoreService,
+  };
+  return externalServices;
+}
+
+function createOfflineGameServerServices(
+  gameSessionStoreService: GameSessionStoreService,
+  reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+  savedCharactersService: SavedCharactersService,
+  rankedLadderService: RankedLadderService,
+  raceGameRecordsService: RaceGameRecordsService,
+  assetService: AssetService
+) {
+  const externalServices: GameServerExternalServices = {
+    gameSessionStoreService,
+    reconnectionForwardingStoreService,
+    savedCharactersService,
+    rankedLadderService,
+    raceGameRecordsService,
+    assetService,
   };
   return externalServices;
 }

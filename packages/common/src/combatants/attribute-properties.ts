@@ -22,6 +22,7 @@ export class CombatantAttributeProperties extends CombatantSubsystem {
 
   static getDeserialized(serialized: CombatantAttributeProperties) {
     const deserialized = plainToInstance(CombatantAttributeProperties, serialized);
+
     return deserialized;
   }
 

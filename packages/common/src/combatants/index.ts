@@ -26,6 +26,7 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { CombatantConditionName } from "../conditions/condition-names.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
+import { toJS } from "mobx";
 
 export class Combatant implements IActionUser {
   constructor(
@@ -187,6 +188,8 @@ export class Combatant implements IActionUser {
     const { combatantProperties } = this;
     const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
+
+    console.log("action name:", actionName, action);
 
     const isInUsableContext = action.isUsableInThisContext(battleOption);
     if (!isInUsableContext) {

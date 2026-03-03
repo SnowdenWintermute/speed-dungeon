@@ -1,12 +1,6 @@
-import {
-  BrowserWebSocketConnectionEndpoint,
-  ConnectionId,
-  GameStateUpdate,
-  invariant,
-} from "@speed-dungeon/common";
+import { GameStateUpdate, invariant } from "@speed-dungeon/common";
 import { createLobbyUpdateHandlers } from "./lobby-update-handlers";
 import { BaseClient } from "../base-client";
-import { ConnectionStatus } from "@/mobx-stores/connection-status";
 import { getApplicationRuntimeManager } from "@/singletons";
 
 export class LobbyClient extends BaseClient {

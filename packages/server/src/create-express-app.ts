@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import expressErrorHandler from "./express-error-handler/index.js";
@@ -9,9 +9,11 @@ import getUserIdFromUsernameInPath from "./game-server/route-handlers/middleware
 import getUserWinsAndLossesHandler from "./game-server/route-handlers/get-user-wins-and-losses.js";
 import { getUserProfileHandler } from "./game-server/route-handlers/get-user-profile.js";
 import { env } from "./validate-env.js";
-import { getAssetHandler } from "./asset-handlers/get-asset-handler.js";
 
 export default function appRoute(...args: string[]) {
+  if (env === undefined) {
+    return "".concat(...args);
+  }
   const baseRoute = env.NODE_ENV === "production" ? "/api" : "";
   return baseRoute.concat(...args);
 }

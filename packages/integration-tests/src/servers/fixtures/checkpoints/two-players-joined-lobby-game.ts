@@ -69,7 +69,7 @@ export async function testGameSetupToTwoPlayersJoinedLobbyGame(
   expect(joinerGame).toBeDefined();
   invariant(joinerGame !== null);
 
-  const deserializedJoinerGame = SpeedDungeonGame.getDeserialized(joinerGame);
+  const deserializedJoinerGame = SpeedDungeonGame.getDeserialized(joinerGame, false);
   expect(deserializedJoinerGame.getPlayers().size).toBe(2);
 
   await hostSeesPlayerJoinedListener;

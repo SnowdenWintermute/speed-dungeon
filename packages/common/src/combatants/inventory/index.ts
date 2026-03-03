@@ -27,6 +27,7 @@ export class Inventory extends CombatantSubsystem {
   static getDeserialized(inventory: Inventory) {
     const deserialized = plainToInstance(Inventory, inventory);
     deserialized.instantiateItemClasses();
+
     return deserialized;
   }
 

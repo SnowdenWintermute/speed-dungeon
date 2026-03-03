@@ -80,10 +80,17 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     return outbox;
   }
 
-  private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
-    // base64url creates a string that is able to be sent in query params
-    return randomBytes(32).toString("base64url") as GuestSessionReconnectionToken;
+  encodeBase64Url(buffer: Buffer): string {
+    return buffer.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
+
+  private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
+    return this.encodeBase64Url(randomBytes(32)) as GuestSessionReconnectionToken;
+  }
+  // private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
+  //   // base64url creates a string that is able to be sent in query params
+  //   return randomBytes(32).toString("base64url") as GuestSessionReconnectionToken;
+  // }
 
   async onPlayerDisconnected(
     session: UserSession,
