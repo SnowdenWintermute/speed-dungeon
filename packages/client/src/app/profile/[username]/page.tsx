@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import TopBar from "../../lobby/TopBar";
 import GameHistory from "../game-history";
 import Divider from "@/app/components/atoms/Divider";
-import { TOP_BAR_HEIGHT_REM } from "@/client_consts";
+import { TOP_BAR_HEIGHT_REM } from "@/client-consts";
 import WinLossRecord from "../win-loss-record";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import ProfileGeneralData from "../profile-general-data";

@@ -20,7 +20,7 @@ import { plainToInstance } from "class-transformer";
 import { SkeletalAnimationManager } from "./model-animation-managers/skeletal-animation-manager";
 import { DynamicAnimationManager } from "./model-animation-managers/dynamic-animation-manager";
 import { getChildMeshByName } from "../game-world-view-utils";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { GameWorldView } from "..";
 
 /** The base class for ActionEntityModel and CharacterModel */
 export abstract class SceneEntity {
@@ -87,28 +87,34 @@ export abstract class SceneEntity {
     return newTransformNode;
   }
 
-  static getFromIdentifier(identifier: SceneEntityIdentifier) {
+  static getFromIdentifier(identifier: SceneEntityIdentifier, gameWorldView: GameWorldView) {
     const { type } = identifier;
     let toReturn;
 
     switch (type) {
       case SceneEntityType.ActionEntityModel:
-        const actionEntity = getGameWorldView().actionEntityManager.findOne(identifier.entityId);
-        toReturn = actionEntity;
+        {
+          const actionEntity = gameWorldView.actionEntityManager.findOne(identifier.entityId);
+          toReturn = actionEntity;
+        }
         break;
       case SceneEntityType.CharacterModel:
-        const combatantEntity = getGameWorldView().modelManager.findOne(identifier.entityId);
-        toReturn = combatantEntity;
+        {
+          const combatantEntity = gameWorldView.modelManager.findOne(identifier.entityId);
+          toReturn = combatantEntity;
+        }
         break;
       case SceneEntityType.CharacterEquipmentModel:
-        const combatantEntityWithHoldable = getGameWorldView().modelManager.findOne(
-          identifier.characterModelId
-        );
-        const { slot } = identifier;
-        const holdableModelOption =
-          combatantEntityWithHoldable.equipmentModelManager.getHoldableModelInSlot(slot);
-        if (!holdableModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
-        toReturn = holdableModelOption;
+        {
+          const combatantEntityWithHoldable = gameWorldView.modelManager.findOne(
+            identifier.characterModelId
+          );
+          const { slot } = identifier;
+          const holdableModelOption =
+            combatantEntityWithHoldable.equipmentModelManager.getHoldableModelInSlot(slot);
+          if (!holdableModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
+          toReturn = holdableModelOption;
+        }
         break;
     }
 
@@ -117,14 +123,14 @@ export abstract class SceneEntity {
   }
 
   static getChildTransformNodeFromIdentifier(
-    identifier: SceneEntityChildTransformNodeIdentifier
+    identifier: SceneEntityChildTransformNodeIdentifier,
+    gameWorldView: GameWorldView
   ): TransformNode {
     const { sceneEntityIdentifier, transformNodeName } = identifier;
 
-    const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier);
+    const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier, gameWorldView);
 
-    // it can't seem to figure out that our nested tagged type guarantees the correct transformNodeName type
-    // @ts-ignore
+    // @ts-expect-error it can't seem to figure out that our nested tagged type guarantees the correct transformNodeName type
     return sceneEntity.childTransformNodes[transformNodeName];
   }
 

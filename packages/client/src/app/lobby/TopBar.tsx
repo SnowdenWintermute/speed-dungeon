@@ -1,5 +1,5 @@
 "use client";
-import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client_consts";
+import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client-consts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings } from "@/app/settings";

@@ -2,7 +2,7 @@ import { ClientIntentType, GameMode, GameName, formatGameMode } from "@speed-dun
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { useHttpRequestStore } from "@/stores/http-request-store";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";

@@ -6,7 +6,7 @@ import {
   SPACING_REM,
   SPACING_REM_LARGE,
   TOP_BAR_HEIGHT_REM,
-} from "@/client_consts";
+} from "@/client-consts";
 import { GamesSection } from "./games-section";
 import { UserList } from "./user-list/";
 import { quickStartGame, quickStartGameProgression } from "./games-section/quick-start-game";

@@ -1,5 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import {
   NextOrPrevious,

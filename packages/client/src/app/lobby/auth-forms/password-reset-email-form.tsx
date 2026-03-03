@@ -1,5 +1,5 @@
 import React, { SetStateAction } from "react";
-import { HTTP_REQUEST_NAMES, WEBSITE_NAME } from "@/client_consts";
+import { HTTP_REQUEST_NAMES, WEBSITE_NAME } from "@/client-consts";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";

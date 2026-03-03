@@ -4,7 +4,7 @@ import Divider from "@/app/components/atoms/Divider";
 import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
 
 export function ConfirmShardConversionDisplay() {
   const { actionMenuStore } = AppStore.get();

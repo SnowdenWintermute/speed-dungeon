@@ -1,5 +1,5 @@
 "use client";
-import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client_consts";
+import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client-consts";
 import React, { useEffect } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";

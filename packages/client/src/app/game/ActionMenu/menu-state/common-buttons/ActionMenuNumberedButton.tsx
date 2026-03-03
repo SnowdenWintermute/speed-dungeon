@@ -1,5 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { BUTTON_HEIGHT } from "@/client_consts";
+import { BUTTON_HEIGHT } from "@/client-consts";
 import { observer } from "mobx-react-lite";
 import React, { ReactNode } from "react";
 import NumberedButtonHotkeyLabel from "./NumberedButtonHotkeyLabel";

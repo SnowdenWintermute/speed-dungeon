@@ -4,7 +4,7 @@ import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
 import FocusCharacterButton from "./FocusCharacterButton";
 import { observer } from "mobx-react-lite";
-import { COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT } from "@/client_consts";
+import { COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT } from "@/client-consts";
 
 interface Props {
   combatantProperties: CombatantProperties;

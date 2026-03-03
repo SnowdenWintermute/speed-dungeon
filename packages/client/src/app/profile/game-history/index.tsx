@@ -1,6 +1,6 @@
 "use client";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";

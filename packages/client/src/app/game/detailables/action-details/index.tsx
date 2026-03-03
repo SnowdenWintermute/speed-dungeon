@@ -9,7 +9,7 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { ActionDetailsTitleBar } from "./ActionDetailsTitleBar";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";

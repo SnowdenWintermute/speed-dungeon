@@ -2,7 +2,7 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ClientIntentType, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { SPACING_REM_LARGE } from "@/client_consts";
+import { SPACING_REM_LARGE } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";

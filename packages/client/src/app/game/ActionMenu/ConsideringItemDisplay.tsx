@@ -1,4 +1,4 @@
-import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
 import React from "react";
 import { Consumable, getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";

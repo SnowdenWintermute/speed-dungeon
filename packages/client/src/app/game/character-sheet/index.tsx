@@ -1,4 +1,4 @@
-import { SPACING_REM } from "@/client_consts";
+import { SPACING_REM } from "@/client-consts";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import { PaperDollAndAttributes } from "./PaperDollAndAttributes";

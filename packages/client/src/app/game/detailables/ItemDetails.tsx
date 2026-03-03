@@ -1,4 +1,4 @@
-import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM, SPACING_REM_SMALL } from "@/client-consts";
 import {
   CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE,
   CONSUMABLE_DESCRIPTIONS,

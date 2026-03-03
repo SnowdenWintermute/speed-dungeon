@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AuthForm from "./AuthForm";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import { useHttpRequestStore } from "@/stores/http-request-store";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";

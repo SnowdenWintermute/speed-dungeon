@@ -4,7 +4,7 @@ import { AdventuringParty } from "@speed-dungeon/common";
 import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
 import { ItemsOnGround } from "./ItemsOnGround";
 import { CharacterSheet } from "./character-sheet";
-import { SPACING_REM } from "@/client_consts";
+import { SPACING_REM } from "@/client-consts";
 import { ZIndexLayers } from "../z-index-layers";
 import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";

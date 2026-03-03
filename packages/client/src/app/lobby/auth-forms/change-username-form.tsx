@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";

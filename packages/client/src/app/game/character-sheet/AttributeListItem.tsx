@@ -1,5 +1,5 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,

@@ -74,8 +74,10 @@ async function handleNewSpawnableCombatant(
   }
 
   if (parentTransformNodeOption) {
-    const targetTransformNode =
-      SceneEntity.getChildTransformNodeFromIdentifier(parentTransformNodeOption);
+    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+      parentTransformNodeOption,
+      getGameWorldView()
+    );
 
     model.movementManager.transformNode.setParent(targetTransformNode);
     model.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
@@ -122,7 +124,8 @@ async function handleNewSpawnableActionEntity(
 
   if (actionEntityProperties.parentOption) {
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      actionEntityProperties.parentOption
+      actionEntityProperties.parentOption,
+      getGameWorldView()
     );
 
     model.movementManager.transformNode.setParent(targetTransformNode);
@@ -132,7 +135,8 @@ async function handleNewSpawnableActionEntity(
 
   if (actionEntityProperties.initialCosmeticYPosition) {
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      actionEntityProperties.initialCosmeticYPosition
+      actionEntityProperties.initialCosmeticYPosition,
+      getGameWorldView()
     );
 
     model.rootTransformNode.position.y = targetTransformNode.position.y;

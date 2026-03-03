@@ -14,7 +14,7 @@ import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
 import React from "react";
 import { ItemButton } from "./common-buttons/ItemButton";
 import EmptyItemsList from "./common-buttons/EmptyItemsList";
-import { ACTION_MENU_PAGE_SIZE } from "@/client_consts";
+import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
 
 export abstract class ActionMenuState {
   pageIndexInternal: number = 0;

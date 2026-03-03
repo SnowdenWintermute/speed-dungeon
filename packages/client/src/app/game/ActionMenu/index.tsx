@@ -6,7 +6,7 @@ import {
   BUTTON_HEIGHT,
   BUTTON_HEIGHT_SMALL,
   SPACING_REM_SMALL,
-} from "@/client_consts";
+} from "@/client-consts";
 import { AbilityType, NextOrPrevious } from "@speed-dungeon/common";
 import { CycleFocusedCharacterButtons } from "./CycleFocusedCharacterButtons";
 import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";

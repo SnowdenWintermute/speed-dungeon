@@ -9,7 +9,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import ViewAbilityTreeButton from "./common-buttons/ViewAbilityTreeButton";
 import { ViewItemsOnGroundButton } from "./common-buttons/ViewItemsOnGroundButton";
 import { ToggleAttributeAllocationMenuHiddenButton } from "./common-buttons/ToggleAttributeAllocationMenuHiddenButton";
-import { ACTION_MENU_PAGE_SIZE } from "@/client_consts";
+import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
 
 export class BaseMenuState extends ActionMenuState {
   constructor() {

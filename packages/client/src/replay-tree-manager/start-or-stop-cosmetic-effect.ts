@@ -12,7 +12,10 @@ export function startOrStopCosmeticEffects(
 ) {
   for (const cosmeticEffectOnEntity of cosmeticEffectsToStop || []) {
     const { name, parent } = cosmeticEffectOnEntity;
-    const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier);
+    const sceneEntity = SceneEntity.getFromIdentifier(
+      parent.sceneEntityIdentifier,
+      getGameWorldView()
+    );
     const { cosmeticEffectManager } = sceneEntity;
     cosmeticEffectManager.stopEffect(name, () => {
       // no-op
@@ -33,7 +36,8 @@ export function startOrStopCosmeticEffects(
       unattached,
     } of cosmeticEffectsToStart) {
       const cosmeticEffectManager = SceneEntity.getFromIdentifier(
-        parent.sceneEntityIdentifier
+        parent.sceneEntityIdentifier,
+        getGameWorldView()
       ).cosmeticEffectManager;
 
       const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
@@ -50,7 +54,10 @@ export function startOrStopCosmeticEffects(
         }
 
         cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
-        const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent);
+        const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+          parent,
+          getGameWorldView()
+        );
 
         if (!unattached) {
           effect.transformNode.setParent(targetTransformNode);

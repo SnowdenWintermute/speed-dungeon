@@ -8,7 +8,7 @@ import {
   MAIN_ACCENT_COLOR,
   MAIN_BG_COLOR,
   MAIN_TEXT_AND_BORDERS_COLOR,
-} from "@/client_consts";
+} from "@/client-consts";
 import { EnvironmentModelTypes } from "@/game-world-view/scene-entities/environment-models/environment-model-paths";
 import { importMesh } from "@/game-world-view/game-world-view-utils";
 

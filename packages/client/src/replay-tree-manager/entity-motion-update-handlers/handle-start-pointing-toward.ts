@@ -1,3 +1,4 @@
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { SceneEntity } from "@/game-world-view/scene-entities";
 import { ModelMovementManager } from "@/game-world-view/scene-entities/model-movement-manager";
 import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
@@ -13,7 +14,10 @@ export function handleStartPointingTowardEntity(
   }
   const { identifier, duration } = identifierWithDuration;
 
-  const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(identifier);
+  const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+    identifier,
+    getGameWorldView()
+  );
   const targetPosition = targetTransformNode.getAbsolutePosition();
 
   const newRotation = ModelMovementManager.getRotationToPointTowardToward(

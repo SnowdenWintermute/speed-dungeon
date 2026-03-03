@@ -1,15 +1,15 @@
-import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import { UserPlaque } from "./UserPlaque";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
-import { getApplicationRuntimeManager } from "@/singletons";
+// import { getApplicationRuntimeManager } from "@/singletons";
 
 export const UserList = observer(() => {
   const { lobbyStore } = AppStore.get();
   const usersInChannel = lobbyStore.getUsersList();
-  const clientConnected = getApplicationRuntimeManager().isInitialized;
-  // const clientConnected = true;
+  // const clientConnected = getApplicationRuntimeManager().isInitialized;
+  const clientConnected = true;
 
   return (
     <section

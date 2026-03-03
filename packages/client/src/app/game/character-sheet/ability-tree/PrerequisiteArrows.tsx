@@ -1,4 +1,4 @@
-import { MAIN_TEXT_AND_BORDERS_COLOR } from "@/client_consts";
+import { MAIN_TEXT_AND_BORDERS_COLOR } from "@/client-consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { AbilityTreeAbility, AbilityUtils } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";

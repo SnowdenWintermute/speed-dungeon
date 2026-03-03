@@ -20,7 +20,7 @@ import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/a
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
 import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
 import { AppStore } from "@/mobx-stores/app-store";

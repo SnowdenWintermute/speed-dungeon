@@ -9,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {

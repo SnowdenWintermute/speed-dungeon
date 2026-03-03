@@ -1,4 +1,4 @@
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import { GameWorldView } from "@/game-world-view";
 import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";

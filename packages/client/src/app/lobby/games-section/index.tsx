@@ -10,7 +10,7 @@ import {
   formatGameMode,
 } from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
-import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import Divider from "@/app/components/atoms/Divider";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";

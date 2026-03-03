@@ -1,4 +1,4 @@
-import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client-consts";
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";

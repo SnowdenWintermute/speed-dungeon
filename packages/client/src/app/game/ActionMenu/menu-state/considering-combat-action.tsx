@@ -6,7 +6,7 @@ import { MenuStateType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ReactNode } from "react";
 import { ActionSelectedDetails } from "../../detailables/action-details/ActionSelectedDetails";
-import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
 import { CycleCombatActionTargetsButtons } from "./common-buttons/CycleCombatActionTargetsButtons";
 import { ExecuteCombatActionButton } from "./common-buttons/ExecuteCombatActionButton";
 import { CycleTargetingSchemesButtons } from "./common-buttons/CycleTargetingSchemesButtons";

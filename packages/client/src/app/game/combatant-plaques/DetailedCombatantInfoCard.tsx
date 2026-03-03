@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM_SMALL } from "@/client-consts";
 import { Combatant } from "@speed-dungeon/common";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";

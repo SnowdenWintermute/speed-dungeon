@@ -1,5 +1,5 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import { SPACING_REM_LARGE } from "@/client_consts";
+import { SPACING_REM_LARGE } from "@/client-consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import React, { useState } from "react";
 import { SignUpWithCredentialsForm } from "./sign-up-with-credentials-form";

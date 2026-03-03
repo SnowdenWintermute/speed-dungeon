@@ -7,7 +7,6 @@ import {
   urlWithQueryParams,
 } from "@speed-dungeon/common";
 import { ClientSingleton, lobbyClientSingleton } from "@/singletons/lobby-client";
-// import { GameWorldView } from "@/game-world-view";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import {
   LOCAL_OFFLINE_LOBBY_SERVER_URL,
@@ -15,9 +14,8 @@ import {
 } from "@/servers/create-offline-local-servers";
 import { AppStore } from "@/mobx-stores/app-store";
 import { LobbyClient } from "@/clients/lobby";
-// import { GameClient } from "@/clients/game";
-import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-// import { GameClient } from "@/clients/game";
+import { GameWorldView } from "@/game-world-view";
+import { GameClient } from "@/clients/game";
 
 export enum RuntimeMode {
   Initializing,
@@ -33,8 +31,8 @@ export class ApplicationRuntimeEnvironmentManager {
   constructor(
     private appStore: AppStore,
     private lobbyClientSingleton: ClientSingleton,
-    // private gameClientSingleton: ClientSingleton,
-    // private gameWorldView: { current: GameWorldView | null },
+    private gameClientSingleton: ClientSingleton,
+    private gameWorldView: { current: GameWorldView | null },
     private characterAutoFocusManager: CharacterAutoFocusManager
   ) {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -65,7 +63,7 @@ export class ApplicationRuntimeEnvironmentManager {
           "Lobby server",
           connectionEndpoint,
           this.appStore,
-          gameWorldView,
+          this.gameWorldView,
           this.characterAutoFocusManager,
           RuntimeMode.Online
         )
@@ -91,7 +89,7 @@ export class ApplicationRuntimeEnvironmentManager {
             "Lobby Server",
             connectionEndpoint,
             this.appStore,
-            gameWorldView,
+            this.gameWorldView,
             this.characterAutoFocusManager,
             RuntimeMode.Offline
           )
@@ -117,16 +115,16 @@ export class ApplicationRuntimeEnvironmentManager {
   ) {
     // online
     const connectionEndpoint = this.createRemoteEndpoint(url, queryParams);
-    // this.gameClientSingleton.setClient(
-    //   new GameClient(
-    //     "Game server",
-    //     connectionEndpoint,
-    //     this.appStore,
-    //     gameWorldView,
-    //     this.characterAutoFocusManager,
-    //     RuntimeMode.Online
-    //   )
-    // );
+    this.gameClientSingleton.setClient(
+      new GameClient(
+        "Game server",
+        connectionEndpoint,
+        this.appStore,
+        this.gameWorldView,
+        this.characterAutoFocusManager,
+        RuntimeMode.Online
+      )
+    );
   }
 
   get canEnterOffline() {

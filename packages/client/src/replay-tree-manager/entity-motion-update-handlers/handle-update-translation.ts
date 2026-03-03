@@ -12,6 +12,7 @@ import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
 import { GameUpdateTracker } from "../game-update-tracker";
 import { CharacterModel } from "@/game-world-view/scene-entities/character-models";
 import { SceneEntity } from "@/game-world-view/scene-entities";
+import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export function handleUpdateTranslation(
   motionUpdate: EntityMotionUpdate,
@@ -30,7 +31,8 @@ export function handleUpdateTranslation(
   // don't consider the y from the server since the server only calculates 2d positions
   if (cosmeticDestinationYOption) {
     const transformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      cosmeticDestinationYOption
+      cosmeticDestinationYOption,
+      getGameWorldView()
     );
     destination.y = transformNode.getAbsolutePosition().y;
   }

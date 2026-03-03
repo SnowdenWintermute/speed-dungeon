@@ -14,7 +14,7 @@ import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {

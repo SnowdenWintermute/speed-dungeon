@@ -1,4 +1,4 @@
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import {
   COMBAT_ATTRIBUTE_STRINGS,

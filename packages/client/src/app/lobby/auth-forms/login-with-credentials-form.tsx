@@ -5,7 +5,7 @@ import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { useState } from "react";
 import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import AuthForm from "./AuthForm";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";

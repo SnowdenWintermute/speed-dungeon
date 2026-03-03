@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
 import { CombatantId, INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { InventoryItemsMenuState } from "../ActionMenu/menu-state/inventory-items";

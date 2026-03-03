@@ -1,7 +1,7 @@
 import Divider from "@/app/components/atoms/Divider";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HOTKEYS } from "@/hotkeys";
 import { ClientIntentType, stringIsValidNumber } from "@speed-dungeon/common";
