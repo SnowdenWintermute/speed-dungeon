@@ -26,7 +26,6 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { CombatantConditionName } from "../conditions/condition-names.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
-import { toJS } from "mobx";
 
 export class Combatant implements IActionUser {
   constructor(
@@ -46,10 +45,11 @@ export class Combatant implements IActionUser {
   }
 
   getSerialized() {
-    const serializedConditionManager = this.combatantProperties.conditionManager.getSerialized();
+    console.log("about to serializedCombatantProperties");
+    const serializedCombatantProperties = this.combatantProperties.getSerialized();
     const serialized = instanceToPlain(this) as Combatant;
 
-    serialized.combatantProperties.conditionManager = serializedConditionManager;
+    serialized.combatantProperties = serializedCombatantProperties;
 
     return serialized;
   }

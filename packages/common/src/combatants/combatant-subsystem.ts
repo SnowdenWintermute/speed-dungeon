@@ -19,4 +19,8 @@ export class CombatantSubsystem {
     }
     return this.combatantProperties;
   }
+
+  clearCombatantProperties() {
+    this.combatantProperties = undefined;
+  }
 }

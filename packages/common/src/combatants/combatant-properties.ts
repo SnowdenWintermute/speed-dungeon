@@ -7,7 +7,7 @@ import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { Exclude, plainToInstance } from "class-transformer";
+import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
 import {
   ClassProgressionProperties,
   CombatantClassProperties,
@@ -76,6 +76,15 @@ export class CombatantProperties {
       if (!isSubsystem) continue;
       value.initialize(this);
     }
+  }
+
+  getSerialized() {
+    const serializedConditionManager = this.conditionManager.getSerialized();
+    const serialized = instanceToPlain(this) as CombatantProperties;
+
+    serialized.conditionManager = serializedConditionManager;
+    serialized.abilityProperties = this.abilityProperties.getSerialized();
+    return serialized;
   }
 
   static getDeserialized(combatantProperties: CombatantProperties) {
