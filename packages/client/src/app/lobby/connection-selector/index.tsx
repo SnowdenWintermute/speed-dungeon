@@ -1,13 +1,12 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { getApplicationRuntimeManager } from "@/singletons";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const ConnectionSelector = observer(() => {
-  const { applicationRuntimeEnvironmentStore } = AppStore.get();
   const { canEnterOffline, enterOnline, enterOffline, isOnline, isOffline } =
-    applicationRuntimeEnvironmentStore;
+    getApplicationRuntimeManager();
 
   function handleClick() {
     if (isOnline && canEnterOffline) {

@@ -35,6 +35,7 @@ export class AssetFetchProgressStore {
 
   initialize(manifest: AssetManifest, newQueue: Map<AssetId, AssetVersionData>) {
     this.initialized = true;
+    this.totalBytesFetched = 0;
 
     let totalBytesFetching = 0;
     Object.entries(manifest).forEach(([untypedAssetId, versionData]) => {

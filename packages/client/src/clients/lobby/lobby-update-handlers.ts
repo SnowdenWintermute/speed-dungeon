@@ -3,14 +3,11 @@ import { GameWorldView } from "@/game-world-view";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 import {
   ActionCommandType,
   AdventuringParty,
-  BrowserWebSocketConnectionEndpoint,
   Combatant,
   ConnectionEndpoint,
-  ConnectionId,
   deserializeMap,
   ERROR_MESSAGES,
   GameMode,
@@ -19,10 +16,9 @@ import {
   getProgressionGamePartyName,
   QUERY_PARAMS,
   SpeedDungeonPlayer,
-  urlWithQueryParams,
 } from "@speed-dungeon/common";
-import { GameClient } from "../game";
 import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
+import { getApplicationRuntimeManager } from "@/singletons";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -256,26 +252,14 @@ export function createLobbyUpdateHandlers(
 
       connectionEndpoint.close();
 
-      const queryParams = {
-        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
-        value: encryptedSessionClaimToken,
-      };
+      const queryParams = [
+        {
+          name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+          value: encryptedSessionClaimToken,
+        },
+      ];
 
-      // online
-      const ws = new WebSocket(urlWithQueryParams(url, [queryParams]));
-      const gameServerConnectionEndpoint = new BrowserWebSocketConnectionEndpoint(
-        ws,
-        "" as ConnectionId
-      );
-      gameClientSingleton.setClient(
-        new GameClient(
-          "Game server",
-          gameServerConnectionEndpoint,
-          appStore,
-          gameWorldView,
-          characterAutoFocusManager
-        )
-      );
+      getApplicationRuntimeManager().createGameClient(url, queryParams);
     },
   };
 }

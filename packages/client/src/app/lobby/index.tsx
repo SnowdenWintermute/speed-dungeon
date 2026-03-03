@@ -25,17 +25,20 @@ import { HOTKEYS } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
+// import { getApplicationRuntimeManager } from "@/singletons";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const currentSessionHttpResponseTracker =
     useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const { dialogStore, lobbyStore } = AppStore.get();
+  const { dialogStore } = AppStore.get();
   const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
   const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
   const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
-  const websocketConnected = lobbyStore.websocketIsConnected();
+
+  // const clientConnected = getApplicationRuntimeManager().isInitialized;
+  const clientConnected = true;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {
@@ -91,7 +94,7 @@ export const Lobby = observer(() => {
         className={`absolute h-full w-full top-0 right-0 flex items-center justify-center`}
         style={{ zIndex: -0 }}
       >
-        {currentSessionHttpResponseTracker?.statusCode === 200 && websocketConnected && (
+        {currentSessionHttpResponseTracker?.statusCode === 200 && clientConnected && (
           <SavedCharacterManager />
         )}
       </section>
@@ -99,7 +102,7 @@ export const Lobby = observer(() => {
         className={`absolute bottom-0 w-full p-7 flex items-center justify-center`}
         style={{ zIndex: ZIndexLayers.PlayNowButton }}
       >
-        {!showGameCreationForm && !showSavedCharacterManager && websocketConnected && (
+        {!showGameCreationForm && !showSavedCharacterManager && clientConnected && (
           <HoverableTooltipWrapper
             offsetTop={8}
             tooltipText="Start a single player game where you control one of each character type (G)"

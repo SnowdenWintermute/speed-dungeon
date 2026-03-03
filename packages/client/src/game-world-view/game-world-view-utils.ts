@@ -10,12 +10,10 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { createBillboard } from "@/utils";
-import { BASE_FILE_PATH } from "./scene-entities/character-models/modular-character-parts-model-manager/modular-character-parts";
 import { getClientAppAssetService } from "@/singletons";
 import { AssetId } from "@speed-dungeon/common";
 
 export async function importMesh(path: string, scene: Scene) {
-  // try {
   if (path === "") throw new Error("Empty file path");
 
   const buffer = await getClientAppAssetService().getAsset(path as AssetId);
@@ -29,11 +27,6 @@ export async function importMesh(path: string, scene: Scene) {
   assetContainer.addToScene();
 
   return assetContainer;
-  // } catch (error) {
-  //   console.error("assetID:", path, error);
-  // }
-  // const assetContainer = await LoadAssetContainerAsync((BASE_FILE_PATH || "") + path, scene);
-  // return assetContainer;
 }
 
 export function getTransformNodeByName(sceneResult: AssetContainer, name: string) {
@@ -51,7 +44,7 @@ export function getChildMeshByName(mesh: Mesh | AbstractMesh, name: string) {
 }
 
 export function getChildrenByName(rootNode: Node) {
-  const childrenByName: { [name: string]: Node } = {};
+  const childrenByName: Record<string, Node> = {};
   for (const node of rootNode.getDescendants(false)) {
     childrenByName[node.name] = node;
   }
@@ -68,7 +61,6 @@ export function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color
         depth: cubeSize,
         faceColors: new Array(6).fill(color),
       },
-      // @ts-ignore
       scene
     );
 

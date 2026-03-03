@@ -1,7 +1,7 @@
 import { BaseClient } from "@/clients/base-client";
 import { makeAutoObservable } from "mobx";
 
-class ClientSingleton {
+export class ClientSingleton {
   private _client: null | BaseClient = null;
 
   constructor() {

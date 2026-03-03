@@ -5,6 +5,11 @@ import {
   invariant,
   RemoteServerAssetStore,
 } from "@speed-dungeon/common";
+import { ApplicationRuntimeEnvironmentManager } from "./application-runtime-environment-manager";
+import { AppStore } from "@/mobx-stores/app-store";
+import { lobbyClientSingleton } from "./lobby-client";
+// import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { characterAutoFocusManager } from "./character-autofocus-manager";
 
 const assetServerUrl = process.env.NEXT_PUBLIC_ASSET_SERVER_URL;
 let clientAppAssetService: ClientAppAssetService | null = null;
@@ -28,4 +33,19 @@ export function getClientAppAssetService() {
   }
 
   return clientAppAssetService;
+}
+
+let applicationRuntimeEnvironmentManager: ApplicationRuntimeEnvironmentManager | null = null;
+export function getApplicationRuntimeManager() {
+  if (!applicationRuntimeEnvironmentManager) {
+    applicationRuntimeEnvironmentManager = new ApplicationRuntimeEnvironmentManager(
+      AppStore.get(),
+      lobbyClientSingleton,
+      // gameClientSingleton,
+      // gameWorldView,
+      characterAutoFocusManager
+    );
+  }
+
+  return applicationRuntimeEnvironmentManager;
 }

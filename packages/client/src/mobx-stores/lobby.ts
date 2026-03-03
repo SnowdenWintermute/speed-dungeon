@@ -8,9 +8,7 @@ import {
 import { makeAutoObservable } from "mobx";
 
 export class LobbyStore {
-  private websocketConnected: boolean = true;
   private gameList: GameListEntry[] = [];
-  private mainChannelName: string = "";
   private usersInChannel = new Map<string, UserChannelDisplayData>();
   private savedCharacterSlots: Record<number, { combatant: Combatant; pets: Combatant[] } | null> =
     {};
@@ -22,14 +20,6 @@ export class LobbyStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  setWebsocketConnectedStatus(isConnected: boolean) {
-    this.websocketConnected = isConnected;
-  }
-
-  websocketIsConnected() {
-    return this.websocketConnected;
-  }
-
   setGameList(newList: GameListEntry[]) {
     this.gameList = newList;
   }
@@ -39,7 +29,6 @@ export class LobbyStore {
   }
 
   updateChannel(channelName: string, users: Map<Username, UserChannelDisplayData>) {
-    this.mainChannelName = channelName;
     this.usersInChannel.clear();
 
     Array.from(users.entries()).forEach(([username, displayData]) => {

@@ -5,6 +5,7 @@ import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { GameWorldView } from "@/game-world-view";
 
 export const gameWorldView: { current: null | GameWorldView } = { current: null };
+
 export function getGameWorldView() {
   if (!gameWorldView.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
   return gameWorldView.current;
@@ -13,9 +14,7 @@ export function getGameWorldView() {
 export default function SceneManager() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const debugRef = useRef<HTMLUListElement>(null);
-  const resizeHandlerRef = useRef<(e: UIEvent) => void | null>(null);
-
-  useEffect(() => {}, []);
+  const resizeHandlerRef = useRef<(e: UIEvent) => void>(null);
 
   useEffect(() => {
     if (canvasRef.current && debugRef.current !== null) {

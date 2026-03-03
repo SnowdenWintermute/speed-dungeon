@@ -3,7 +3,6 @@ import {
   GameSessionStoreService,
   IdentityProviderService,
   IdGenerator,
-  IncomingConnectionGateway,
   InMemoryConnectionEndpointServer,
   InMemoryConnectionEndpointServerRegistry,
   InMemoryGameSessionStoreService,

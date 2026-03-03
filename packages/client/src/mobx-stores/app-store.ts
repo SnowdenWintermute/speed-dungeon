@@ -13,7 +13,6 @@ import { FormsStore } from "./forms";
 import { GameStore } from "./game";
 import { HotkeysStore } from "./hotkeys";
 import { AssetFetchProgressStore } from "./asset-fetch-progress";
-import { ApplicationRuntimeEnvironmentStore } from "./application-runtime-environment-store";
 
 export class AppStore {
   dialogStore = new DialogStore();
@@ -31,7 +30,6 @@ export class AppStore {
   gameStore = new GameStore();
   hotkeysStore = new HotkeysStore();
   assetFetchProgressStore = new AssetFetchProgressStore();
-  applicationRuntimeEnvironmentStore = new ApplicationRuntimeEnvironmentStore();
 
   private static _instance: AppStore | null = null;
 

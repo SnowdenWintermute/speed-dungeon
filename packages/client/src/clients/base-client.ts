@@ -1,13 +1,10 @@
 import { GameWorldView } from "@/game-world-view";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { AppStore } from "@/mobx-stores/app-store";
+import { getApplicationRuntimeManager } from "@/singletons";
+import { RuntimeMode } from "@/singletons/application-runtime-environment-manager";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import {
-  ClientIntent,
-  ClientIntentType,
-  ConnectionEndpoint,
-  GameStateUpdate,
-} from "@speed-dungeon/common";
+import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeon/common";
 
 export abstract class BaseClient {
   constructor(
@@ -17,7 +14,8 @@ export abstract class BaseClient {
     protected gameWorldView: {
       current: null | GameWorldView;
     },
-    protected characterAutoFocusManager: CharacterAutoFocusManager
+    protected characterAutoFocusManager: CharacterAutoFocusManager,
+    protected targetRuntimeMode: RuntimeMode
   ) {
     this.registerListeners();
   }
@@ -31,15 +29,17 @@ export abstract class BaseClient {
   }
 
   setEndpoint(connectionEndpoint: ConnectionEndpoint) {
-    this.connectionEndpoint.close();
+    const oldEndpoint = this.connectionEndpoint;
     this.connectionEndpoint = connectionEndpoint;
+    this.registerListeners();
+    oldEndpoint.close();
   }
 
   protected registerListeners() {
     this.connectionEndpoint.on("open", () => {
       console.info(`connected to ${this.name}`);
       this.appStore.gameStore.clearGame();
-      this.appStore.lobbyStore.setWebsocketConnectedStatus(true);
+      getApplicationRuntimeManager().runtimeMode = this.targetRuntimeMode;
 
       this.gameWorldView.current?.modelManager.modelActionQueue.clear();
       this.gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
@@ -60,8 +60,8 @@ export abstract class BaseClient {
       this.handleMessage(typedMessage);
     });
 
-    this.connectionEndpoint.on("close", () => {
-      this.appStore.lobbyStore.setWebsocketConnectedStatus(false);
+    this.connectionEndpoint.on("close", (reason) => {
+      console.info(`closed connection endpoint with code ${reason}`);
     });
   }
 
