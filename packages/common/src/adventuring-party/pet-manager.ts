@@ -10,7 +10,7 @@ import { plainToInstance } from "class-transformer";
 import { CombatantConditionName } from "../conditions/condition-names.js";
 
 export class PetManager extends AdventuringPartySubsystem {
-  private unsummonedPetsByOwnerId: Record<EntityId, (Combatant | undefined)[]> = {};
+  private unsummonedPetsByOwnerId = new Map<EntityId, (Combatant | undefined)[]>();
 
   static getDeserialized(plain: PetManager) {
     const toReturn = plainToInstance(PetManager, plain);
@@ -25,7 +25,7 @@ export class PetManager extends AdventuringPartySubsystem {
           deserializedSlots.push(deserializedPet);
         }
       }
-      toReturn.unsummonedPetsByOwnerId[entityId] = deserializedSlots;
+      toReturn.unsummonedPetsByOwnerId.set(entityId, deserializedSlots);
     }
     return toReturn;
   }
@@ -46,15 +46,15 @@ export class PetManager extends AdventuringPartySubsystem {
   }
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
-    this.unsummonedPetsByOwnerId[ownerId] = pets;
+    this.unsummonedPetsByOwnerId.set(ownerId, pets);
   }
 
   clearCombatantPets(ownerId: EntityId) {
-    delete this.unsummonedPetsByOwnerId[ownerId];
+    this.unsummonedPetsByOwnerId.delete(ownerId);
   }
 
   getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
-    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[petSlot];
+    const petOption = this.unsummonedPetsByOwnerId.get(ownerId)?.[petSlot];
     return petOption;
   }
 
@@ -84,16 +84,17 @@ export class PetManager extends AdventuringPartySubsystem {
   }
 
   private removePetFromUnsummonedSlot(ownerId: EntityId, slotIndex: number) {
-    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
-    delete this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
+    const petOption = this.unsummonedPetsByOwnerId.get(ownerId)?.[slotIndex];
+    delete this.unsummonedPetsByOwnerId.get(ownerId)?.[slotIndex];
     return petOption;
   }
 
   putPetInFirstEmptyUnsummonedSlot(ownerId: EntityId, pet: Combatant) {
-    let ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId];
+    let ownerPetSlots = this.unsummonedPetsByOwnerId.get(ownerId);
     if (ownerPetSlots === undefined) {
       // possible if taming a pet before summoning one
-      ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId] = [];
+      this.unsummonedPetsByOwnerId.set(ownerId, []);
+      ownerPetSlots = [];
     }
     const emptyIndex = ownerPetSlots.findIndex((slot) => slot === undefined);
     if (emptyIndex === -1) {

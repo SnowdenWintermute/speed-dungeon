@@ -44,7 +44,7 @@ export class GameServerGameEventCommandReceiver implements ActionCommandReceiver
     switch (conclusion) {
       case BattleConclusion.Defeat: {
         if (party.battleId !== null) {
-          delete game.battles[party.battleId];
+          game.battles.delete(party.battleId);
         }
         party.battleId = null;
 

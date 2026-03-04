@@ -1,4 +1,3 @@
-import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import React, { useEffect, useRef, useState } from "react";
 import { TargetingIndicators } from "./TargetingIndicators";
 import { UnspentAttributesButton } from "../UnspentAttributesButton";
@@ -41,9 +40,7 @@ export const CombatantPlaque = observer(
     const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
     const { entityProperties, combatantProperties } = combatant;
-    const battleOptionResult = getCurrentBattleOption(game, party.name);
-    if (battleOptionResult instanceof Error) return <div>{battleOptionResult.message}</div>;
-    const battleOption = battleOptionResult;
+    const battleOption = party.getBattleOption(game);
 
     // for measuring the element so we can get the correct portrait height
     // and getting the position so we can position the details window without going off the screen

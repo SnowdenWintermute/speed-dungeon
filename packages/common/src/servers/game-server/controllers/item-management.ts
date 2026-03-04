@@ -37,7 +37,7 @@ export class ItemManagementController {
       throw itemDroppedIdResult;
     }
 
-    party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];
+    party.itemsOnGroundNotYetReceivedByAllClients.set(itemDroppedIdResult, []);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -61,7 +61,7 @@ export class ItemManagementController {
       throw itemDroppedIdResult;
     }
 
-    party.itemsOnGroundNotYetReceivedByAllClients[itemDroppedIdResult] = [];
+    party.itemsOnGroundNotYetReceivedByAllClients.set(itemDroppedIdResult, []);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -76,7 +76,7 @@ export class ItemManagementController {
     const { itemId } = data;
     const { party, player } = session.requirePlayerContext();
 
-    const usersThatHaveReceivedThisItem = party.itemsOnGroundNotYetReceivedByAllClients[itemId];
+    const usersThatHaveReceivedThisItem = party.itemsOnGroundNotYetReceivedByAllClients.get(itemId);
 
     invariant(
       usersThatHaveReceivedThisItem !== undefined,
@@ -95,7 +95,7 @@ export class ItemManagementController {
     }
 
     if (allUsersInPartyHaveReceivedItemUpdate) {
-      delete party.itemsOnGroundNotYetReceivedByAllClients[itemId];
+      party.itemsOnGroundNotYetReceivedByAllClients.delete(itemId);
     }
 
     // no messages should be sent, but this is a rare case of an event handler sending no messsage
@@ -117,7 +117,7 @@ export class ItemManagementController {
 
     for (const itemId of itemIds) {
       // make sure all players know about the item or else desync will occur
-      if (party.itemsOnGroundNotYetReceivedByAllClients[itemId] !== undefined) {
+      if (party.itemsOnGroundNotYetReceivedByAllClients.get(itemId) !== undefined) {
         throw new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
       }
 

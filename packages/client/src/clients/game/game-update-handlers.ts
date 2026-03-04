@@ -252,14 +252,14 @@ export function createGameUpdateHandlers(
         const { game, party } = gameStore.getFocusedCharacterContext();
 
         if (battleOption === null) {
-          game.battles = {};
+          game.battles.clear();
           return;
         }
 
         const battle = battleOption;
         party.battleId = battle.id;
         const deserializedBattle = Battle.getDeserialized(battle, game, party);
-        game.battles[battle.id] = deserializedBattle;
+        game.battles.set(battle.id, deserializedBattle);
 
         const currentActorIsPlayerControlled =
           deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);

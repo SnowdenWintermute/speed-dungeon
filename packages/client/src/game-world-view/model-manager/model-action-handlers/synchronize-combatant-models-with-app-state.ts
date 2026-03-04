@@ -4,6 +4,7 @@ import {
   ERROR_MESSAGES,
   EntityId,
   GameMode,
+  MapUtils,
   SpeedDungeonGame,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -30,7 +31,7 @@ export async function synchronizeCombatantModelsWithAppState(options: {
 
   // delete models which don't appear on the list
   for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
-    if (!modelsAndPositions[entityId]) {
+    if (!modelsAndPositions.get(entityId)) {
       model.cleanup({ softCleanup: !!options.softCleanup });
       delete modelManager.combatantModels[entityId];
       gameWorldStore.clearModelLoadingState(entityId);
@@ -93,18 +94,19 @@ export async function synchronizeCombatantModelsWithAppState(options: {
   }
 }
 
-interface ModelsAndPositions {
-  [entityId: EntityId]: {
+type ModelsAndPositions = Map<
+  EntityId,
+  {
     combatant: Combatant;
     homeLocation: Vector3;
     homeRotation: Quaternion;
-  };
-}
+  }
+>;
 
 function getModelsAndPositions() {
   const { gameStore } = AppStore.get();
   const gameOption = gameStore.getGameOption();
-  let modelsAndPositions: ModelsAndPositions = {};
+  let modelsAndPositions: ModelsAndPositions = new Map();
 
   const inLobby = gameOption && gameOption.getTimeStarted() !== null;
   const inGame = gameOption && gameOption.getTimeStarted() !== null;
@@ -114,11 +116,11 @@ function getModelsAndPositions() {
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     for (const combatant of combatantManager.getAllCombatants()) {
-      modelsAndPositions[combatant.entityProperties.id] = {
+      modelsAndPositions.set(combatant.entityProperties.id, {
         combatant,
         homeRotation: combatant.combatantProperties.transformProperties.homeRotation,
         homeLocation: combatant.combatantProperties.transformProperties.getHomePosition(),
-      };
+      });
     }
   } else {
     const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
@@ -127,11 +129,11 @@ function getModelsAndPositions() {
       ([_slot, characterOption]) => characterOption !== null
     )) {
       if (!character) return new Error("Failed to meet checked expectation");
-      modelsAndPositions[character.combatant.entityProperties.id] = {
+      modelsAndPositions.set(character.combatant.entityProperties.id, {
         combatant: character.combatant,
         homeRotation: Quaternion.Identity(),
         homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + slot * CHARACTER_SLOT_SPACING, 0, 0),
-      };
+      });
     }
   }
 
@@ -140,18 +142,20 @@ function getModelsAndPositions() {
 
 function getProgressionGameLobbyCombatantModelPositions(game: SpeedDungeonGame) {
   // in progression game lobby
-  const partyOption = Object.values(game.adventuringParties)[0];
-  if (!partyOption) throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+  const partyOption = MapUtils.getFirstValue(game.adventuringParties);
 
-  const modelsAndPositions: ModelsAndPositions = {};
+  if (!partyOption) {
+    throw new Error(ERROR_MESSAGES.CLIENT.NO_CURRENT_PARTY);
+  }
 
-  partyOption.combatantManager.getPartyMemberCharacters().forEach(
-    (combatant, i) =>
-      (modelsAndPositions[combatant.getEntityId()] = {
-        combatant,
-        homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
-        homeRotation: Quaternion.Identity(),
-      })
+  const modelsAndPositions: ModelsAndPositions = new Map();
+
+  partyOption.combatantManager.getPartyMemberCharacters().forEach((combatant, i) =>
+    modelsAndPositions.set(combatant.getEntityId(), {
+      combatant,
+      homeLocation: new Vector3(-CHARACTER_SLOT_SPACING + i * CHARACTER_SLOT_SPACING, 0, 0),
+      homeRotation: Quaternion.Identity(),
+    })
   );
 
   return modelsAndPositions;

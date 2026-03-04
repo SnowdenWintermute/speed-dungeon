@@ -143,9 +143,9 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     // adventuring party
     const defaultPartyName = PartySetupController.getProgressionGamePartyName(game.name);
 
-    game.adventuringParties[defaultPartyName] = AdventuringParty.createInitialized(
-      this.idGenerator.generate(),
-      defaultPartyName
+    game.adventuringParties.set(
+      defaultPartyName,
+      AdventuringParty.createInitialized(this.idGenerator.generate(), defaultPartyName)
     );
 
     return game;

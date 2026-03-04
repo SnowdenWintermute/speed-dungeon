@@ -21,7 +21,7 @@ export async function removeClientPlayerFromGame(username: Username) {
   }
 
   for (const character of removedPlayerResult.charactersRemoved) {
-    delete gameOption.lowestStartingFloorOptionsBySavedCharacter[character.entityProperties.id];
+    gameOption.lowestStartingFloorOptionsBySavedCharacter.delete(character.entityProperties.id);
 
     itemsToRemoveThumbnails.push(
       ...character.combatantProperties.inventory.equipment.map((item) => item.entityProperties.id)

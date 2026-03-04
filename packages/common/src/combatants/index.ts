@@ -79,7 +79,9 @@ export class Combatant implements IActionUser {
   wasRemovedBeforeHitOutcomes(): boolean {
     return false;
   }
-  setWasRemovedBeforeHitOutcomes(): void {}
+  setWasRemovedBeforeHitOutcomes(): void {
+    //
+  }
   getConditionTickPropertiesOption(): null {
     throw new Error("getCombatantPropertiesOption() is invalid on Combatants.");
   }
@@ -259,7 +261,7 @@ export class Combatant implements IActionUser {
     // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
     let battleOption: null | Battle = null;
     if (party.battleId !== null) {
-      const battle = game.battles[party.battleId];
+      const battle = game.battles.get(party.battleId);
       if (battle !== undefined) battleOption = battle;
       else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     }

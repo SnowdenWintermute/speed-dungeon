@@ -71,7 +71,7 @@ export class CraftingController {
     inventory.changeShards(shardCount * -1);
     const shardStack = Consumable.createShardStack(shardCount, this.idGenerator);
     party.currentRoom.inventory.insertItem(shardStack);
-    party.itemsOnGroundNotYetReceivedByAllClients[shardStack.entityProperties.id] = [];
+    party.itemsOnGroundNotYetReceivedByAllClients.set(shardStack.entityProperties.id, []);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {

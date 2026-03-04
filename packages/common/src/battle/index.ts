@@ -26,7 +26,7 @@ export class Battle {
     idGenerator: IdGenerator
   ) {
     const battle = new Battle(idGenerator.generate(), game, party);
-    game.battles[battle.id] = battle;
+    game.battles.set(battle.id, battle);
     battle.turnOrderManager.updateTrackers(game, party);
     return battle.id;
   }
@@ -77,7 +77,9 @@ export class Battle {
 
     const battleIdToRemoveOption = party.battleId;
     party.battleId = null;
-    if (battleIdToRemoveOption !== null) delete game.battles[battleIdToRemoveOption];
+    if (battleIdToRemoveOption !== null) {
+      game.battles.delete(battleIdToRemoveOption);
+    }
 
     return levelUps;
   }

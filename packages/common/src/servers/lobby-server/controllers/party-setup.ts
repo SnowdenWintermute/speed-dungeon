@@ -49,7 +49,7 @@ export class PartySetupController {
 
     const game = session.getExpectedCurrentGame();
 
-    if (game.adventuringParties[partyName]) {
+    if (game.adventuringParties.get(partyName)) {
       throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
     }
 
@@ -104,8 +104,10 @@ export class PartySetupController {
 
     const { combatant } = defaultSavedCharacter;
 
-    game.lowestStartingFloorOptionsBySavedCharacter[combatant.entityProperties.id] =
-      combatant.combatantProperties.deepestFloorReached;
+    game.lowestStartingFloorOptionsBySavedCharacter.set(
+      combatant.getEntityId(),
+      combatant.combatantProperties.deepestFloorReached
+    );
 
     const partyName = PartySetupController.getProgressionGamePartyName(game.name);
 

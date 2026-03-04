@@ -8,7 +8,7 @@ import { plainToInstance } from "class-transformer";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export class ActionEntityManager {
-  private actionEntities: Record<EntityId, ActionEntity> = {};
+  private actionEntities = new Map<EntityId, ActionEntity>();
 
   constructor() {
     runIfInBrowser(() => makeAutoObservable(this));
@@ -24,7 +24,7 @@ export class ActionEntityManager {
 
   registerActionEntity(entity: ActionEntity, battleOption: null | Battle) {
     const { entityProperties } = entity;
-    this.actionEntities[entityProperties.id] = entity;
+    this.actionEntities.set(entityProperties.id, entity);
 
     const turnOrderSpeedOption = entity.actionEntityProperties.actionOriginData?.turnOrderSpeed;
     if (battleOption && turnOrderSpeedOption !== undefined) {
@@ -42,17 +42,19 @@ export class ActionEntityManager {
   }
 
   unregisterActionEntity(entityId: EntityId) {
-    delete this.actionEntities[entityId];
+    this.actionEntities.delete(entityId);
   }
 
   getActionEntityOption(entityId: EntityId) {
-    const entityOption = this.actionEntities[entityId];
+    const entityOption = this.actionEntities.get(entityId);
     return entityOption;
   }
 
   getExpectedActionEntity(entityId: EntityId) {
-    const entityOption = this.actionEntities[entityId];
-    if (entityOption === undefined) throw new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);
+    const entityOption = this.getActionEntityOption(entityId);
+    if (entityOption === undefined) {
+      throw new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);
+    }
     return entityOption;
   }
 

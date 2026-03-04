@@ -36,7 +36,7 @@ export class AdventuringParty {
   timeOfEscape: null | number = null;
 
   // player input management
-  itemsOnGroundNotYetReceivedByAllClients: Record<EntityId, EntityId[]> = {};
+  itemsOnGroundNotYetReceivedByAllClients = new Map<EntityId, EntityId[]>();
   inputLock = new TimedLock();
 
   // event management
@@ -110,10 +110,10 @@ export class AdventuringParty {
 
   getBattleOption(game: SpeedDungeonGame) {
     const battleIdOption = this.battleId;
-    if (battleIdOption === null) return null;
-    const battleOption = game.battles[battleIdOption];
-    if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    return battleOption;
+    if (battleIdOption === null) {
+      return null;
+    }
+    return game.getExpectedBattle(battleIdOption);
   }
 
   isInCombat() {

@@ -101,10 +101,14 @@ export class GameStore {
   }
 
   getPartyOption() {
-    if (this.username === null || this.game === null) return undefined;
+    if (this.username === null || this.game === null) {
+      return undefined;
+    }
     const player = this.game.getPlayer(this.username);
-    if (!player?.partyName) return undefined;
-    return this.game.adventuringParties[player.partyName];
+    if (!player) {
+      return undefined;
+    }
+    return this.game.getPlayerPartyOption(player.username);
   }
 
   getExpectedParty() {

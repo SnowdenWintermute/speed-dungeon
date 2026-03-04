@@ -123,7 +123,7 @@ export class CharacterLifecycleController {
     const party = session.getExpectedCurrentParty(game);
     const removedChacter = party.removeCharacter(characterIdToRemoveOption, player, game);
 
-    delete game.lowestStartingFloorOptionsBySavedCharacter[removedChacter.getEntityId()];
+    game.lowestStartingFloorOptionsBySavedCharacter.delete(removedChacter.getEntityId());
 
     game.addCharacterToParty(party, player, savedCharacter.combatant, savedCharacter.pets);
 

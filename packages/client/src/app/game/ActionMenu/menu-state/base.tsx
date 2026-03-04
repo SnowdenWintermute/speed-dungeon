@@ -1,6 +1,5 @@
 import { ActionMenuState } from ".";
 import { ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
-import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { AppStore } from "@/mobx-stores/app-store";
 import { MenuStateType } from "./menu-state-type";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
@@ -64,12 +63,12 @@ export class BaseMenuState extends ActionMenuState {
 export function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
 
-  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  const battleOption = party.getBattleOption(game);
   let disableButtonBecauseNotThisCombatantTurn = false;
 
-  if (battleOptionResult && !(battleOptionResult instanceof Error)) {
+  if (battleOption) {
     disableButtonBecauseNotThisCombatantTurn =
-      !battleOptionResult.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
+      !battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
   }
 
   return disableButtonBecauseNotThisCombatantTurn;

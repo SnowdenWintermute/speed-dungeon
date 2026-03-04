@@ -102,7 +102,7 @@ const PlayerDisplay = observer(
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);
-    const partyOption = game.adventuringParties[partyName];
+    const partyOption = game.adventuringParties.get(partyName);
     if (!partyOption) return <div>Progression default party not found</div>;
 
     let selectedCharacterOption: null | Combatant = null;

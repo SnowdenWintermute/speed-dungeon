@@ -38,7 +38,7 @@ export class ThreatTableEntry {
 }
 
 export class ThreatManager {
-  private threatScoresByCombatantId: Record<EntityId, ThreatTableEntry> = {};
+  private threatScoresByCombatantId = new Map<EntityId, ThreatTableEntry>();
   private previouslyHighestThreatId: null | EntityId = null;
   constructor() {
     runIfInBrowser(() => makeAutoObservable(this));
@@ -49,11 +49,13 @@ export class ThreatManager {
   }
 
   changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
-    let existingEntry = this.threatScoresByCombatantId[combatantId];
+    let existingEntry = this.threatScoresByCombatantId.get(combatantId);
     // don't create a new entry if not generating threat
     if (existingEntry === undefined && value < 1) return;
     if (existingEntry === undefined) {
-      this.threatScoresByCombatantId[combatantId] = existingEntry = new ThreatTableEntry();
+      const newEntry = new ThreatTableEntry();
+      this.threatScoresByCombatantId.set(combatantId, newEntry);
+      existingEntry = newEntry;
     }
     existingEntry.threatScoresByType[threatType].addValue(value);
   }
@@ -76,7 +78,7 @@ export class ThreatManager {
   }
 
   removeEntry(entityId: EntityId) {
-    delete this.threatScoresByCombatantId[entityId];
+    this.threatScoresByCombatantId.delete(entityId);
   }
 
   /** Returns true if updated top target */

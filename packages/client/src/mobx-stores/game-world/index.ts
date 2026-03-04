@@ -3,33 +3,33 @@ import { makeAutoObservable } from "mobx";
 import { BabylonControlledCombatantData } from "./babylon-controlled-ui";
 
 export class GameWorldStore {
-  private modelLoadingStates: Record<EntityId, boolean> = {};
-  private babylonControlledCombatantDOMData: Record<EntityId, BabylonControlledCombatantData> = {};
+  private modelLoadingStates = new Map<EntityId, boolean>();
+  private babylonControlledCombatantDOMData = new Map<EntityId, BabylonControlledCombatantData>();
 
   constructor() {
     makeAutoObservable(this);
   }
 
   setModelLoading(entityId: EntityId) {
-    this.modelLoadingStates[entityId] = true;
+    this.modelLoadingStates.set(entityId, true);
   }
 
   setModelIsLoaded(entityId: EntityId) {
-    this.modelLoadingStates[entityId] = false;
+    this.modelLoadingStates.set(entityId, false);
   }
 
   clearModelLoadingState(entityId: EntityId) {
-    delete this.modelLoadingStates[entityId];
+    this.modelLoadingStates.delete(entityId);
   }
 
   modelIsLoading(entityId: EntityId) {
-    const modelIsLoading = this.modelLoadingStates[entityId];
+    const modelIsLoading = this.modelLoadingStates.get(entityId);
     if (modelIsLoading === undefined) return true;
-    return this.modelLoadingStates[entityId];
+    return this.modelLoadingStates.get(entityId);
   }
 
   getCombatantDebugDisplay(entityId: EntityId) {
-    const combatantDataOption = this.babylonControlledCombatantDOMData[entityId];
+    const combatantDataOption = this.babylonControlledCombatantDOMData.get(entityId);
     if (combatantDataOption === undefined) return "";
     return combatantDataOption.debugHtml;
   }

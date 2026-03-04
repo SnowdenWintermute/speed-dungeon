@@ -140,7 +140,7 @@ export class ThreatCalculator {
         continue;
       }
 
-      const currentThreatForTargetOption = threatManager.getEntries()[entityId];
+      const currentThreatForTargetOption = threatManager.getEntries().get(entityId);
       if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) {
         continue;
       }
@@ -168,7 +168,7 @@ export class ThreatCalculator {
       const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
       if (targetIsAIControlled) continue;
 
-      const currentThreatForTargetOption = threatManager.getEntries()[entityId];
+      const currentThreatForTargetOption = threatManager.getEntries().get(entityId);
       if (!currentThreatForTargetOption || currentThreatForTargetOption.getTotal() === 0) continue;
 
       const targetMaxHp = combatantProperties.attributeProperties.getAttributeValue(

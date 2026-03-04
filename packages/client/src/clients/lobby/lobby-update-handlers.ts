@@ -8,12 +8,12 @@ import {
   AdventuringParty,
   Combatant,
   ConnectionEndpoint,
-  deserializeMap,
   ERROR_MESSAGES,
   GameMode,
   GameStateUpdateMap,
   GameStateUpdateType,
   getProgressionGamePartyName,
+  MapUtils,
   QUERY_PARAMS,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
@@ -45,7 +45,7 @@ export function createLobbyUpdateHandlers(
       gameStore.setUsername(data.username);
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
-      const deserialized = deserializeMap(data.users);
+      const deserialized = MapUtils.deserialize(data.users);
       lobbyStore.updateChannel(data.channelName, deserialized);
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
@@ -150,11 +150,13 @@ export function createLobbyUpdateHandlers(
         pets: character.pets.map((pet) => Combatant.getDeserialized(pet)),
       };
 
-      game.lowestStartingFloorOptionsBySavedCharacter[character.combatant.entityProperties.id] =
-        character.combatant.combatantProperties.deepestFloorReached;
+      game.lowestStartingFloorOptionsBySavedCharacter.set(
+        character.combatant.entityProperties.id,
+        character.combatant.combatantProperties.deepestFloorReached
+      );
 
       const partyName = getProgressionGamePartyName(game.name);
-      const party = game.adventuringParties[partyName];
+      const party = game.adventuringParties.get(partyName);
       if (!party) {
         return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
       }
@@ -171,9 +173,9 @@ export function createLobbyUpdateHandlers(
             player,
             game
           );
-          delete game.lowestStartingFloorOptionsBySavedCharacter[
+          game.lowestStartingFloorOptionsBySavedCharacter.delete(
             removedCharacterResult.entityProperties.id
-          ];
+          );
           party.combatantManager.updateHomePositions();
         } catch (err) {
           return setAlert(err as Error);

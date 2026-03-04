@@ -21,18 +21,19 @@ import {
 } from "../aliases.js";
 import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
 import { UserId } from "../servers/sessions/user-ids.js";
-import { toJS } from "mobx";
 
 export class SpeedDungeonGame {
   @Type(() => SpeedDungeonPlayer)
   players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
-  adventuringParties: Record<PartyName, AdventuringParty> = {};
-  battles: Record<EntityId, Battle> = {};
+  @Type(() => AdventuringParty)
+  adventuringParties = new Map<PartyName, AdventuringParty>();
+  @Type(() => Battle)
+  battles = new Map<EntityId, Battle>();
   private timeStarted: null | number = null;
   timeHandedOff: null | number = null;
-  lowestStartingFloorOptionsBySavedCharacter: Record<EntityId, number> = {};
+  lowestStartingFloorOptionsBySavedCharacter = new Map<EntityId, number>();
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
   constructor(
@@ -46,11 +47,7 @@ export class SpeedDungeonGame {
   }
 
   getSerialized() {
-    const plain = toJS(this);
-    const serialized = instanceToPlain(plain) as SpeedDungeonGame;
-    for (const [partyName, party] of Object.entries(this.adventuringParties)) {
-      serialized.adventuringParties[partyName as PartyName] = party.getSerialized();
-    }
+    const serialized = instanceToPlain(this) as SpeedDungeonGame;
     return serialized;
   }
 
@@ -69,11 +66,6 @@ export class SpeedDungeonGame {
     deserialized.players = deserializedPlayers;
 
     deserialized.inputLock = new ReferenceCountedLock<UserId>();
-
-    for (const [partyName, party] of Object.entries(deserialized.adventuringParties)) {
-      const deserializedParty = AdventuringParty.getDeserialized(party);
-      deserialized.adventuringParties[partyName as PartyName] = deserializedParty;
-    }
 
     return deserialized;
   }
@@ -189,8 +181,10 @@ export class SpeedDungeonGame {
     /// Could move this out of here
     character.combatantProperties.controlledBy.controllerPlayerName = player.username;
     player.characterIds.push(characterId);
-    this.lowestStartingFloorOptionsBySavedCharacter[characterId] =
-      character.combatantProperties.deepestFloorReached;
+    this.lowestStartingFloorOptionsBySavedCharacter.set(
+      characterId,
+      character.combatantProperties.deepestFloorReached
+    );
     ///
 
     combatantManager.updateHomePositions();
@@ -219,7 +213,7 @@ export class SpeedDungeonGame {
     Object.values(characterIds).forEach((characterId) => {
       const removedCharacter = partyLeaving.removeCharacter(characterId, player, this);
       charactersRemoved.push(removedCharacter);
-      delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];
+      this.lowestStartingFloorOptionsBySavedCharacter.delete(characterId);
     });
 
     battleOption?.turnOrderManager.updateTrackers(this, partyLeaving);
@@ -229,10 +223,10 @@ export class SpeedDungeonGame {
     ArrayUtils.removeElement(partyLeaving.playerUsernames, username);
 
     if (partyLeaving.playerUsernames.length < 1) {
-      delete this.adventuringParties[partyLeaving.name];
+      this.adventuringParties.delete(partyLeaving.name);
       // if we one day allow two parties to be in one battle this will need to change
       if (battleOption) {
-        delete this.battles[battleOption.id];
+        this.battles.delete(battleOption.id);
       }
       return { partyNameLeft: partyLeaving.name, partyWasRemoved: true, charactersRemoved };
     }
@@ -249,12 +243,8 @@ export class SpeedDungeonGame {
   }
 
   putPlayerInParty(partyName: PartyName, username: Username) {
-    const party = this.adventuringParties[partyName];
-    if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
-    const player = this.players.get(username);
-    if (!player) {
-      throw new Error("Tried to put a player in a party but couldn't find the player in game");
-    }
+    const party = this.getExpectedParty(partyName);
+    const player = this.getExpectedPlayer(username);
 
     party.playerUsernames.push(username);
     player.partyName = partyName;
@@ -289,7 +279,7 @@ export class SpeedDungeonGame {
   }
 
   addParty(party: AdventuringParty) {
-    this.adventuringParties[party.name] = party;
+    this.adventuringParties.set(party.name, party);
   }
 
   // deprecated - use getExpectedCombatant
@@ -328,19 +318,20 @@ export class SpeedDungeonGame {
     return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
   }
 
-  getPlayerPartyOption(username: Username): Error | AdventuringParty | undefined {
-    const playerOption = this.players.get(username);
-    if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-    const partyNameOption = playerOption.partyName;
-    if (!partyNameOption) return undefined;
-    const partyOption = this.adventuringParties[partyNameOption];
-    if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-    return partyOption;
+  getPlayerPartyOption(username: Username): AdventuringParty | undefined {
+    const player = this.getExpectedPlayer(username);
+    const partyNameOption = player.partyName;
+    if (!partyNameOption) {
+      return undefined;
+    }
+    return this.getExpectedParty(partyNameOption);
   }
 
   getBattleOption(battleIdOption: null | string) {
-    if (!battleIdOption) return undefined;
-    return this.battles[battleIdOption];
+    if (!battleIdOption) {
+      return undefined;
+    }
+    return this.battles.get(battleIdOption);
   }
 
   getMaxStartingFloor() {
@@ -362,7 +353,7 @@ export class SpeedDungeonGame {
   }
 
   getExpectedParty(partyName: PartyName) {
-    const result = this.adventuringParties[partyName];
+    const result = this.adventuringParties.get(partyName);
     if (!result) {
       throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
     }
@@ -376,6 +367,14 @@ export class SpeedDungeonGame {
       }
     }
     return true;
+  }
+
+  getExpectedBattle(battleId: string) {
+    const expectedBattle = this.battles.get(battleId);
+    if (!expectedBattle) {
+      throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    }
+    return expectedBattle;
   }
 }
 

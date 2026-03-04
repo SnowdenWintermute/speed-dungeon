@@ -26,7 +26,7 @@ export const ThreatPriorityList = observer(({ threatManager }: Props) => {
 
   const topThreatId = threatManager.getHighestThreatCombatantId();
   const highestThreat =
-    topThreatId !== null ? threatManager.getEntries()[topThreatId]?.getTotal() : 0;
+    topThreatId !== null ? threatManager.getEntries().get(topThreatId)?.getTotal() : 0;
 
   return (
     <div className={`min-h-full pointer-events-auto pr-1`}>

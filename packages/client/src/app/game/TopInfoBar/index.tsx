@@ -1,5 +1,4 @@
 import React from "react";
-import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { RoomExplorationTracker } from "./RoomExplorationTracker";
 import { CleanupMode, ClientIntentType, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -22,7 +21,7 @@ export const TopInfoBar = observer(() => {
 
   const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
 
-  const battleOptionResult = getCurrentBattleOption(game, party.name);
+  const battleOption = party.getBattleOption(game);
 
   function leaveGame() {
     AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
@@ -86,8 +85,8 @@ export const TopInfoBar = observer(() => {
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
-      {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
-        <TurnOrderPredictionBar trackers={battleOptionResult.turnOrderManager.getTrackers()} />
+      {battleOption !== null ? (
+        <TurnOrderPredictionBar trackers={battleOption.turnOrderManager.getTrackers()} />
       ) : (
         <RoomExplorationTracker />
       )}

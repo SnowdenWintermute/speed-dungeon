@@ -15,6 +15,7 @@ export * from "./http-headers.js";
 export * from "./utility-classes/index.js";
 export * from "./utils/index.js";
 export * from "./utils/array-utils.js";
+export * from "./utils/map-utils.js";
 export * from "./utils/url-with-query-params.js";
 
 export * from "./utility-classes/randomizers.js";

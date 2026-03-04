@@ -313,7 +313,7 @@ export class CombatActionController {
       throw replayTreeResult;
     }
 
-    const battleOption = party.battleId ? game.battles[party.battleId] || null : null;
+    const battleOption = party.battleId ? game.battles.get(party.battleId) || null : null;
 
     const replayTreePayload: CombatActionReplayTreePayload = {
       type: ActionCommandType.CombatActionReplayTree,
