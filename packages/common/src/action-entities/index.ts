@@ -80,6 +80,7 @@ export class ActionEntity implements IActionUser {
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+
   getType = () => ActionUserType.ActionEntity;
   getMovementSpeedOption(): null | number {
     return ARROW_TIME_TO_MOVE_ONE_METER;

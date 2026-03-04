@@ -1,27 +1,41 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { plainToInstance } from "class-transformer";
+import { plainToInstance, serialize } from "class-transformer";
 import { ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES, CombatAttribute } from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
 import { Item } from "../items/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { initializeCombatAttributeRecord } from "./attributes/initialize-combat-attribute-record.js";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { ReactiveNode, Serializable } from "../serialization/index.js";
 
-export class CombatantAttributeProperties extends CombatantSubsystem {
+export class CombatantAttributeProperties
+  extends CombatantSubsystem
+  implements ReactiveNode, Serializable
+{
   private inherentAttributes: CombatantAttributeRecord = {};
   private speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  getSerialized() {
+    return {
+      inherentAttributes: this.inherentAttributes,
+      speccedAttributes: this.speccedAttributes,
+      unspentAttributePoints: this.unspentAttributePoints,
+    };
   }
 
-  static getDeserialized(serialized: CombatantAttributeProperties) {
-    const deserialized = plainToInstance(CombatantAttributeProperties, serialized);
+  makeObservable(): void {
+    makeAutoObservable(this);
+  }
+
+  static getDeserialized(serialized: ReturnType<CombatantAttributeProperties["getSerialized"]>) {
+    const deserialized = new CombatantAttributeProperties();
+    deserialized.inherentAttributes = serialized.inherentAttributes;
+    deserialized.speccedAttributes = serialized.speccedAttributes;
+    deserialized.unspentAttributePoints = serialized.unspentAttributePoints;
 
     return deserialized;
   }

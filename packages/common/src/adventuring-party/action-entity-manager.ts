@@ -4,18 +4,30 @@ import { Battle } from "../battle/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { plainToInstance } from "class-transformer";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+import { DeserializableConstructor, ReactiveNode, Serializable } from "../serialization/index.js";
 
-export class ActionEntityManager {
+export class ActionEntityManager implements Serializable, ReactiveNode {
   private actionEntities = new Map<EntityId, ActionEntity>();
 
   constructor() {
     runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  static getDeserialized(plain: ActionEntityManager) {
-    return plainToInstance(ActionEntityManager, plain);
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  getSerialized() {
+    return {
+      actionEntities: Object.fromEntries(this.actionEntities),
+    };
+  }
+
+  static getDeserialized(plain: ReturnType<ActionEntityManager["getSerialized"]>) {
+    const deserialized = new ActionEntityManager();
+    deserialized.actionEntities = new Map(Object.entries(plain.actionEntities));
+    return deserialized;
   }
 
   getActionEntities() {
@@ -75,3 +87,5 @@ export class ActionEntityManager {
     return removed;
   }
 }
+
+ActionEntityManager satisfies DeserializableConstructor<ActionEntityManager>;
