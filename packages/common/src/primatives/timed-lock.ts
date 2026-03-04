@@ -1,7 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { runIfInBrowser } from "../utils/index.js";
 import { plainToInstance } from "class-transformer";
-import { ERROR_MESSAGES } from "../errors/index.js";
 
 export class TimedLock {
   timeLocked: null | number = null;
@@ -35,8 +34,12 @@ export class TimedLock {
 
   isLocked() {
     const { timeLocked, lockDuration } = this;
-    if (timeLocked === null) return false;
-    if (lockDuration === null) return true;
+    if (timeLocked === null) {
+      return false;
+    }
+    if (lockDuration === null) {
+      return true;
+    }
     return Date.now() < timeLocked + lockDuration;
   }
 }

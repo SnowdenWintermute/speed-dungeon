@@ -48,7 +48,7 @@ export class AdventuringParty {
   ) {}
 
   makeObservable() {
-    runIfInBrowser(() => makeAutoObservable(this));
+    makeAutoObservable(this);
   }
 
   static createInitialized(id: EntityId, name: string) {

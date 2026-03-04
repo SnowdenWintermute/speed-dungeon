@@ -194,7 +194,6 @@ export class GameServer extends SpeedDungeonServer {
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
-    console.log("try handle connection:", connectionEndpoint, identityResolutionContext);
     try {
       const session = await this.sessionLifecycleController.createSession(
         connectionEndpoint.id,
@@ -211,7 +210,6 @@ export class GameServer extends SpeedDungeonServer {
 
       const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
 
-      console.log("about to attach handlers");
       this.attachIntentHandlersToSessionConnection(
         session,
         connectionEndpoint,
@@ -219,30 +217,24 @@ export class GameServer extends SpeedDungeonServer {
       );
 
       const gameIsInProgress = existingGame.getTimeStarted() !== null;
-      console.log("about to evaluateConnectionContext");
       const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
         session,
         gameIsInProgress
       );
 
       if (connectionContext.type === ConnectionContextType.Reconnection) {
-        console.log("attempting reconnecttion claim");
         await connectionContext.attemptReconnectionClaim();
       }
 
       const outbox = await this.sessionLifecycleController.activateSession(session);
 
-      console.log("aobout to joinGameHandler");
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
       outbox.pushFromOther(joinGameOutbox);
 
-      console.log("about to issueReconnectionCredential");
       const refreshedReconnectionTokenOutbox =
         await this.reconnectionProtocol.issueReconnectionCredential(session);
-      console.log("about to push from other refreshedReconnectionTokenOutbox");
       outbox.pushFromOther(refreshedReconnectionTokenOutbox);
 
-      console.log("about to dispatchOutboxMessages");
       this.dispatchOutboxMessages(outbox);
     } catch (error) {
       console.error("error creating user session", error);

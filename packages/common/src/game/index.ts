@@ -4,7 +4,7 @@ import { SpeedDungeonPlayer } from "./player.js";
 import { GameMode } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
-import { instanceToPlain, plainToInstance, Type } from "class-transformer";
+import { instanceToPlain, plainToInstance, serialize, Transform, Type } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
@@ -21,18 +21,20 @@ import {
 } from "../aliases.js";
 import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
 import { UserId } from "../servers/sessions/user-ids.js";
+import { MapTransform } from "../utils/map-utils.js";
 
 export class SpeedDungeonGame {
-  @Type(() => SpeedDungeonPlayer)
+  @MapTransform(SpeedDungeonPlayer)
   players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
-  @Type(() => AdventuringParty)
+  @MapTransform(AdventuringParty)
   adventuringParties = new Map<PartyName, AdventuringParty>();
-  @Type(() => Battle)
+  @MapTransform(Battle)
   battles = new Map<EntityId, Battle>();
   private timeStarted: null | number = null;
   timeHandedOff: null | number = null;
+  @MapTransform(Number)
   lowestStartingFloorOptionsBySavedCharacter = new Map<EntityId, number>();
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
@@ -121,7 +123,7 @@ export class SpeedDungeonGame {
       minimumNumberOfParties = GAME_CONFIG.MIN_RACE_GAME_PARTIES;
     }
 
-    if (Object.keys(this.adventuringParties).length < minimumNumberOfParties) {
+    if (this.adventuringParties.size < minimumNumberOfParties) {
       throw new Error(
         `Game does not have the minimum number of parties (${minimumNumberOfParties})`
       );

@@ -45,7 +45,6 @@ export class Combatant implements IActionUser {
   }
 
   getSerialized() {
-    console.log("about to serializedCombatantProperties");
     const serializedCombatantProperties = this.combatantProperties.getSerialized();
     const serialized = instanceToPlain(this) as Combatant;
 
@@ -190,8 +189,6 @@ export class Combatant implements IActionUser {
     const { combatantProperties } = this;
     const { actionName, rank } = actionAndRank;
     const action = COMBAT_ACTIONS[actionName];
-
-    console.log("action name:", actionName, action);
 
     const isInUsableContext = action.isUsableInThisContext(battleOption);
     if (!isInUsableContext) {

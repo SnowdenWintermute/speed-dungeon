@@ -27,7 +27,6 @@ import { CombatantConditionFactory } from "../../conditions/condition-factory.js
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
-import { toJS } from "mobx";
 
 export class CombatantAbilityProperties extends CombatantSubsystem {
   private ownedActions = new Map<CombatActionName, CombatantActionState>();
@@ -41,16 +40,13 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
 
   getSerialized() {
     const traitPropertiesSerialized = instanceToPlain(
-      toJS(this.traitProperties) as CombatantTraitProperties
+      this.traitProperties as CombatantTraitProperties
     ) as CombatantTraitProperties;
 
-    const cloned = cloneDeep(this);
-    cloned.clearCombatantProperties();
-    const asJS = toJS(cloned) as CombatantAbilityProperties;
-    asJS.traitProperties = traitPropertiesSerialized;
+    const serialized = instanceToPlain(this) as CombatantAbilityProperties;
+    serialized.traitProperties = traitPropertiesSerialized;
 
-    console.log("as js:", asJS);
-    return asJS;
+    return serialized;
   }
 
   static getDeserialized(serialized: CombatantAbilityProperties) {

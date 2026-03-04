@@ -20,7 +20,7 @@ export const RaceGameLobby = observer(() => {
           <h3 className="text-xl mb-2">Adventuring Parties</h3>
         </div>
         <ul>
-          {Object.values(game.adventuringParties).map((party) => (
+          {[...game.adventuringParties].map(([partyName, party]) => (
             <li key={party.name}>
               <PartySetupCard party={party} playerOption={playerOption} />
             </li>

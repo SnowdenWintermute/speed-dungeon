@@ -76,7 +76,6 @@ export class ApplicationRuntimeEnvironmentManager {
       value: string;
     }[]
   ) {
-    console.log("url:", url, "query", queryParams);
     return InMemoryConnectionEndpointServerRegistry.singleton.connect(
       urlWithQueryParams(url, queryParams),
       {}
@@ -123,7 +122,6 @@ export class ApplicationRuntimeEnvironmentManager {
   }
 
   enterOnline() {
-    console.log("trying to enter online");
     this._mode = RuntimeMode.Initializing;
     this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
     const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL || "";
@@ -188,9 +186,7 @@ export class ApplicationRuntimeEnvironmentManager {
       value: string;
     }[]
   ) {
-    console.log("creating game client with url:", url);
     const connectionEndpoint = this.createModeConnectionEndpoint(url, queryParams);
-    console.log("setting game client with game world:", this.gameWorldView.current);
     this.gameClientSingleton.setClient(
       new GameClient(
         "Game server",

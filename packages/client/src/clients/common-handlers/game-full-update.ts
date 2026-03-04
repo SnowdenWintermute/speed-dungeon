@@ -14,7 +14,6 @@ export function gameFullUpdateHandler(
   gameWorldView: { current: GameWorldView | null }
 ) {
   if (game) {
-    console.log("got game full update:", game);
     const deserialized = SpeedDungeonGame.getDeserialized(game);
     deserialized.makeObservable();
     game = deserialized;

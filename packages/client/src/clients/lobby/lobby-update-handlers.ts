@@ -88,7 +88,10 @@ export function createLobbyUpdateHandlers(
         return;
       }
       const { partyId, partyName } = data;
-      gameOption.addParty(AdventuringParty.createInitialized(partyId, partyName));
+      const party = AdventuringParty.createInitialized(partyId, partyName);
+      party.makeObservable();
+
+      gameOption.addParty(party);
     },
     [GameStateUpdateType.PlayerChangedAdventuringParty]: (data) => {
       const gameOption = gameStore.getGameOption();

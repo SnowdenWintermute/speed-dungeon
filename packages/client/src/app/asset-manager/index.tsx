@@ -27,7 +27,7 @@ export const AssetManager = observer(() => {
         });
 
         if (manifest === undefined) {
-          console.log("unable to obtain manifest");
+          console.error("unable to obtain manifest");
           return;
         }
 
