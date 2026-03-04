@@ -1,4 +1,10 @@
-import { ClassConstructor, Transform, TransformFnParams, plainToInstance } from "class-transformer";
+import {
+  ClassConstructor,
+  Transform,
+  TransformFnParams,
+  instanceToPlain,
+  plainToInstance,
+} from "class-transformer";
 
 export class MapUtils {
   static deserialize<T, U>(raw: Map<T, U>) {
@@ -20,19 +26,32 @@ export class MapUtils {
   }
 }
 
+function applyDecorators(...decorators: PropertyDecorator[]): PropertyDecorator {
+  return (target, key) => decorators.forEach((d) => d(target, key));
+}
+
 // Source - https://stackoverflow.com/a/78901448
 // Posted by pcba-dev
 // Retrieved 2026-03-04, License - CC BY-SA 4.0
 export function MapTransform<V>(cls: ClassConstructor<V>): PropertyDecorator {
-  return Transform(
-    ({ value }: TransformFnParams) => {
-      const map = new Map<string, V>();
-      for (const [key, val] of Object.entries(value)) {
-        map.set(key, plainToInstance(cls, val));
-      }
-      return map;
-    },
-    { toClassOnly: true }
+  return applyDecorators(
+    Transform(
+      ({ value }) => {
+        const map = new Map<string, V>();
+        for (const [key, val] of Object.entries(value)) {
+          map.set(key, plainToInstance(cls, val));
+        }
+        return map;
+      },
+      { toClassOnly: true }
+    ),
+    Transform(
+      ({ value }) => {
+        if (!(value instanceof Map)) return value;
+        return Object.fromEntries([...value.entries()].map(([k, v]) => [k, instanceToPlain(v)]));
+      },
+      { toPlainOnly: true }
+    )
   );
 }
 

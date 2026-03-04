@@ -9,7 +9,6 @@ import { CombatantManager } from "./combatant-manager.js";
 import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
-import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
@@ -79,7 +78,6 @@ export class AdventuringParty {
     toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
 
     toReturn.initialize();
-    toReturn.makeObservable();
 
     return toReturn;
   }

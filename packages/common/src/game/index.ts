@@ -59,13 +59,13 @@ export class SpeedDungeonGame {
 
   static getDeserialized(game: SpeedDungeonGame) {
     const deserialized = plainToInstance(SpeedDungeonGame, game);
-    const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
-    for (const [username, player] of Object.entries(game.players)) {
-      const deserialized = SpeedDungeonPlayer.deserialize(player);
-      deserializedPlayers.set(username as Username, deserialized);
-    }
+    // const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
+    // for (const [username, player] of Object.entries(game.players)) {
+    //   const deserialized = SpeedDungeonPlayer.deserialize(player);
+    //   deserializedPlayers.set(username as Username, deserialized);
+    // }
 
-    deserialized.players = deserializedPlayers;
+    // deserialized.players = deserializedPlayers;
 
     deserialized.inputLock = new ReferenceCountedLock<UserId>();
 
