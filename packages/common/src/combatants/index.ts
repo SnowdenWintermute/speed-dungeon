@@ -26,14 +26,13 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { CombatantConditionName } from "../conditions/condition-names.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
+import { ReactiveNode, Serializable } from "../serialization/index.js";
 
-export class Combatant implements IActionUser {
+export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
-  ) {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
+  ) {}
 
   static createInitialized(
     entityProperties: EntityProperties,
@@ -44,7 +43,12 @@ export class Combatant implements IActionUser {
     return combatant;
   }
 
-  getSerialized() {
+  makeObservable(): void {
+    makeAutoObservable(this);
+    this.combatantProperties.makeObservable();
+  }
+
+  toSerialized() {
     const serializedCombatantProperties = this.combatantProperties.getSerialized();
     const serialized = instanceToPlain(this) as Combatant;
 

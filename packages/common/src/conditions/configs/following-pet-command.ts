@@ -1,4 +1,3 @@
-import makeAutoObservable from "mobx-store-inheritance";
 import { AiType } from "../../combat/ai-behavior/index.js";
 import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
@@ -28,12 +27,6 @@ const PET_COMMAND_AI_TYPE_EXPLANATIONS_BY_RANK: Record<number, string> = {
 };
 
 export class FollowingPetCommandCondition extends CombatantCondition {
-  constructor(init: CombatantConditionInit) {
-    super(init);
-
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
   intent = CombatActionIntent.Benevolent;
 
   getDescription = () => {

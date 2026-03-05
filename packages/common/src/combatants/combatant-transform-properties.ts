@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
-import { CombatantProperties, EntityId, NormalizedPercentage } from "../index.js";
+import { EntityId, NormalizedPercentage } from "../index.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
 import { SetUtils } from "../utils/set-utils.js";
 
@@ -28,10 +28,7 @@ export class CombatantTransformProperties extends CombatantSubsystem implements 
     return result;
   }
 
-  static fromSerialized(
-    serialized: SerializedOf<CombatantTransformProperties>,
-    combatantProperties: CombatantProperties
-  ) {
+  static fromSerialized(serialized: SerializedOf<CombatantTransformProperties>) {
     const result = new CombatantTransformProperties();
     result.homeRotation = Quaternion.FromArray(serialized.homeRotation);
     result.rotation = Quaternion.FromArray(serialized.rotation);
@@ -39,8 +36,6 @@ export class CombatantTransformProperties extends CombatantSubsystem implements 
     result.position = Vector3.FromArray(serialized.position);
     result.attachedCombatants = SetUtils.deserializeShallow(serialized.attachedCombatants);
     result.scaleModifier = serialized.scaleModifier;
-
-    result.initialize(combatantProperties);
 
     return result;
   }

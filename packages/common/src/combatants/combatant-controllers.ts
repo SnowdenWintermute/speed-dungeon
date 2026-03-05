@@ -42,12 +42,8 @@ export class CombatantControlledBy
     return instanceToPlain(this);
   }
 
-  static fromSerialized(
-    serialized: SerializedOf<CombatantControlledBy>,
-    combatantProperties: CombatantProperties
-  ) {
+  static fromSerialized(serialized: SerializedOf<CombatantControlledBy>) {
     const result = plainToInstance(CombatantControlledBy, serialized);
-    result.initialize(combatantProperties);
     return result;
   }
 

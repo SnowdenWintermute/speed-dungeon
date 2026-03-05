@@ -1,11 +1,11 @@
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Combatant } from "../index.js";
-import { plainToInstance } from "class-transformer";
 import { makeAutoObservable } from "mobx";
-import { runIfInBrowser } from "../../utils/index.js";
 import { EntityId } from "../../aliases.js";
-import { MaxAndCurrent } from "../../primatives/max-and-current.js";
+import { ThreatTableEntry } from "./threat-table-entry.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { MapUtils } from "../../utils/map-utils.js";
 
 export const STABLE_THREAT_CAP = 10000;
 export const VOLATILE_THREAT_CAP = 10000;
@@ -20,32 +20,29 @@ export const THREAT_TYPE_STRINGS: Record<ThreatType, string> = {
   [ThreatType.Volatile]: "Volatile",
 };
 
-export class ThreatTableEntry {
-  public threatScoresByType: Record<ThreatType, MaxAndCurrent> = {
-    [ThreatType.Stable]: new MaxAndCurrent(STABLE_THREAT_CAP, 0),
-    [ThreatType.Volatile]: new MaxAndCurrent(VOLATILE_THREAT_CAP, 0),
-  };
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
-  getTotal() {
-    return (
-      this.threatScoresByType[ThreatType.Stable].current +
-      this.threatScoresByType[ThreatType.Volatile].current
-    );
-  }
-}
-
-export class ThreatManager {
+export class ThreatManager implements Serializable, ReactiveNode {
   private threatScoresByCombatantId = new Map<EntityId, ThreatTableEntry>();
   private previouslyHighestThreatId: null | EntityId = null;
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
+
+  makeObservable() {
+    makeAutoObservable(this);
+    this.threatScoresByCombatantId.forEach((entry) => entry.makeObservable());
   }
 
-  static getDeserialized(serialized: ThreatManager) {
-    return plainToInstance(ThreatManager, serialized);
+  toSerialized() {
+    return {
+      threatScoresByCombatantId: MapUtils.serialize(this.threatScoresByCombatantId, (value) =>
+        value.toSerialized()
+      ),
+      previouslyHighestThreatId: this.previouslyHighestThreatId,
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<ThreatManager>) {
+    const result = new ThreatManager();
+    result.threatScoresByCombatantId = MapUtils.deserialize(serialized.threatScoresByCombatantId);
+    result.previouslyHighestThreatId = serialized.previouslyHighestThreatId;
+    return result;
   }
 
   changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {

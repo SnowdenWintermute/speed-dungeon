@@ -7,7 +7,6 @@ import { ActionPayableResource } from "../combat/combat-actions/action-calculati
 import { CombatAttribute } from "./attributes/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
-import { CombatantProperties } from "./combatant-properties.js";
 
 export class CombatantResources extends CombatantSubsystem implements ReactiveNode, Serializable {
   private hitPoints: number = 1;
@@ -22,12 +21,8 @@ export class CombatantResources extends CombatantSubsystem implements ReactiveNo
     return instanceToPlain(this);
   }
 
-  static fromSerialized(
-    serialized: SerializedOf<CombatantResources>,
-    combatantProperties: CombatantProperties
-  ) {
+  static fromSerialized(serialized: SerializedOf<CombatantResources>) {
     const result = plainToInstance(CombatantResources, serialized);
-    result.initialize(combatantProperties);
     return result;
   }
 

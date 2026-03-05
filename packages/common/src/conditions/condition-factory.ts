@@ -1,4 +1,3 @@
-import { IdGenerator } from "../utility-classes/index.js";
 import { CombatantConditionInit } from "./condition-config.js";
 import { CombatantConditionName } from "./condition-names.js";
 import { BlindedCondition } from "./configs/blinded.js";
@@ -13,7 +12,6 @@ import { CombatantCondition } from "./index.js";
 type CombatantConditionConstructor = new (init: CombatantConditionInit) => CombatantCondition;
 
 export class CombatantConditionFactory {
-  constructor(private idGenerator: IdGenerator) {}
   static create(init: CombatantConditionInit): CombatantCondition {
     return new CONDITION_CONSTRUCTORS[init.name](init);
   }

@@ -24,6 +24,9 @@ import { Battle } from "../battle/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
 import { ConditionTickProperties } from "./condition-tick-properties.js";
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
+import { CombatantConditionFactory } from "./condition-factory.js";
+import { ReactiveNode, SerializedOf } from "../serialization/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -32,7 +35,7 @@ export interface ConditionWithCombatantIdAppliedTo {
   appliedTo: EntityId;
 }
 
-export abstract class CombatantCondition implements IActionUser {
+export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   public name: CombatantConditionName;
   public rank: number;
   public id: EntityId;
@@ -58,19 +61,25 @@ export abstract class CombatantCondition implements IActionUser {
     this.appliedTo = init.appliedTo;
   }
 
-  static getInit(condition: CombatantCondition): CombatantConditionInit {
+  toSerialized() {
     return {
-      name: condition.name,
-      rank: condition.rank,
-      id: condition.id,
-      appliedBy: condition.appliedBy,
-      appliedTo: condition.appliedTo,
-      stacks: condition.stacksOption?.current || null,
+      name: this.name,
+      rank: this.rank,
+      id: this.id,
+      appliedBy: this.appliedBy,
+      appliedTo: this.appliedTo,
+      stacks: this.stacksOption?.current || null,
     };
   }
 
-  getSerialized() {
-    return CombatantCondition.getInit(this);
+  static fromSerialized(serialized: SerializedOf<CombatantCondition>) {
+    return CombatantConditionFactory.create(serialized);
+  }
+
+  makeObservable() {
+    makeAutoObservable(this);
+    this.stacksOption?.makeObservable();
+    this.targetingProperties?.makeObservable();
   }
 
   getDescription = () => `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.rank})`;

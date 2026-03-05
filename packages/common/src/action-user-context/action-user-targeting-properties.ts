@@ -15,17 +15,19 @@ import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { ReactiveNode } from "../serialization/index.js";
 
-export class ActionAndRank {
+export class ActionAndRank implements ReactiveNode {
   constructor(
     public actionName: CombatActionName,
     public rank: ActionRank
-  ) {
-    runIfInBrowser(() => makeAutoObservable(this));
+  ) {}
+  makeObservable() {
+    makeAutoObservable(this);
   }
 }
 
-export class ActionUserTargetingProperties {
+export class ActionUserTargetingProperties implements ReactiveNode {
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
   /** Used for when a pet needs to know which target their owner most recently targeted .
@@ -35,8 +37,9 @@ export class ActionUserTargetingProperties {
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
 
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
+    this.selectedActionAndRank?.makeObservable();
   }
 
   static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {

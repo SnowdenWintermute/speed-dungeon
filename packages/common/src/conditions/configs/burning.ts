@@ -1,4 +1,3 @@
-import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import {
@@ -15,7 +14,6 @@ import {
   EntityId,
   MAX_CONDITION_STACKS,
   MaxAndCurrent,
-  runIfInBrowser,
 } from "../../index.js";
 import {
   CharacterModelIdentifier,
@@ -33,8 +31,6 @@ export class BurningCondition extends CombatantCondition {
     if (init.stacks) {
       this.stacksOption = new MaxAndCurrent(MAX_CONDITION_STACKS, init.stacks || 1);
     }
-
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   intent = CombatActionIntent.Malicious;

@@ -7,24 +7,31 @@ import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
 import { EntityId } from "../../aliases.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
-import { invariant, runIfInBrowser } from "../../utils/index.js";
+import { invariant } from "../../utils/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ConsumableType } from "../../items/consumables/consumable-types.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
+import { ReactiveNode, Serializable } from "../../serialization/index.js";
 
-export class Inventory extends CombatantSubsystem {
+export class Inventory extends CombatantSubsystem implements Serializable, ReactiveNode {
   consumables: Consumable[] = [];
   equipment: Equipment[] = [];
   capacity: number = INVENTORY_DEFAULT_CAPACITY;
   shards: number = 0;
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this, {}));
+
+  makeObservable() {
+    makeAutoObservable(this);
   }
 
-  static getDeserialized(inventory: Inventory) {
+  toSerialized() {
+    return {
+      consumables: this.consumables.map((consumable) => consumable.toSerialized()),
+    };
+  }
+
+  static fromSerialized(inventory: Inventory) {
     const deserialized = plainToInstance(Inventory, inventory);
     deserialized.instantiateItemClasses();
 

@@ -1,4 +1,3 @@
-import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import {
@@ -14,7 +13,6 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
@@ -34,8 +32,6 @@ export class BlindedCondition extends CombatantCondition {
     if (init.stacks) {
       this.stacksOption = new MaxAndCurrent(10, init.stacks);
     }
-
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   intent = CombatActionIntent.Malicious;

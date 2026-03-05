@@ -7,7 +7,6 @@ import { CombatantTraitType } from "./combatant-traits/trait-types.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
-import { CombatantProperties } from "./combatant-properties.js";
 
 export class MitigationProperties extends CombatantSubsystem implements Serializable {
   toSerialized() {
@@ -15,12 +14,8 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
     return result;
   }
 
-  static fromSerialized(
-    serialized: SerializedOf<MitigationProperties>,
-    combatantProperties: CombatantProperties
-  ) {
+  static fromSerialized(serialized: SerializedOf<MitigationProperties>) {
     const result = plainToInstance(MitigationProperties, serialized);
-    result.initialize(combatantProperties);
     return result;
   }
 
