@@ -1,4 +1,4 @@
-import { iterateNumericEnumKeyedRecord } from ".";
+import { iterateNumericEnumKeyedRecord } from "./index.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
 
 export class NumericEnumUtils {

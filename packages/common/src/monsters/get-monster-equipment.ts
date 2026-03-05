@@ -1,15 +1,9 @@
-import {
-  CombatantEquipment,
-  HoldableHotswapSlot,
-} from "../combatants/combatant-equipment/index.js";
+import { HoldableHotswapSlot } from "../combatants/combatant-equipment/holdable-hotswap-slot.js";
+import { CombatantEquipment } from "../combatants/combatant-equipment/index.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
 import { Shield } from "../items/equipment/equipment-types/shield.js";
 import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
-import {
-  generatePreDeterminedItem,
-  PreDeterminedItemType,
-} from "../items/equipment/pre-determined-items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { ItemGenerator } from "../items/item-creation/index.js";
 import { IdGenerator } from "../utility-classes/index.js";

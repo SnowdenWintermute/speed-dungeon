@@ -10,19 +10,21 @@ import {
 import { TurnTrackerEntityType } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
-import { runIfInBrowser } from "../../utils/index.js";
 import { makeAutoObservable } from "mobx";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { ReactiveNode } from "../../serialization/index.js";
 
-export class TurnOrderManager {
+export class TurnOrderManager implements ReactiveNode {
   private minTrackersCount: number = 12;
   turnSchedulerManager: TurnSchedulerManager;
   private turnTrackers: TurnTracker[] = [];
   constructor(game: SpeedDungeonGame, party: AdventuringParty) {
     this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, party);
     this.updateTrackers(game, party);
+  }
 
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable(): void {
+    makeAutoObservable(this);
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {

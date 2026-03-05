@@ -184,12 +184,10 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       data: { username: session.username },
     });
 
-    const serializedGame = game.getSerialized();
-
     // give the client the game information of the game they joined
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
-      data: { game: serializedGame },
+      data: { game: game.toSerialized() },
     });
 
     // tell clients already in the game that someone joined

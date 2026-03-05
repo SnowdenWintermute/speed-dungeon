@@ -1,15 +1,20 @@
 import { makeAutoObservable } from "mobx";
-import { runIfInBrowser } from "../utils/index.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class ReferenceCountedLock<T> {
+export class ReferenceCountedLock<T> implements Serializable, ReactiveNode {
   private references = new Set<T>();
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
+
+  makeObservable() {
+    makeAutoObservable(this);
   }
 
-  static getDeserialized<T>(plain: ReferenceCountedLock<T>) {
-    const toReturn = plainToInstance(ReferenceCountedLock<T>, plain);
+  toSerialized() {
+    return { ...instanceToPlain(this), references: [...this.references] };
+  }
+
+  static fromSerialized<T>(serialized: SerializedOf<ReferenceCountedLock<T>>) {
+    const toReturn = plainToInstance(ReferenceCountedLock<T>, serialized);
     toReturn.references = new Set(toReturn.references);
     return toReturn;
   }

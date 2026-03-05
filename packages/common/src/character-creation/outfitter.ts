@@ -8,10 +8,10 @@ import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { STARTING_COMBATANT_TRAITS } from "../combatants/combatant-class/starting-traits.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
-import { HoldableHotswapSlot } from "../combatants/combatant-equipment/index.js";
 import { ItemGenerator } from "../items/item-creation/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
+import { HoldableHotswapSlot } from "../combatants/combatant-equipment/holdable-hotswap-slot.js";
 
 export class CharacterOutfitter {
   constructor(private itemGenerator: ItemGenerator) {}

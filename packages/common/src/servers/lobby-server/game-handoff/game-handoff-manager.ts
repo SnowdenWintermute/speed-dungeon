@@ -68,7 +68,7 @@ export class GameHandoffManager {
       game.name,
       // if we don't clone, player list will be mutated when players disconnect causing
       // error of "no players in game" when they try to join as their player on the game server
-      new PendingGameSetup(game.getSerialized())
+      new PendingGameSetup(game.toSerialized())
     );
 
     const sessionsInGame = this.getPlayerSessionsInGame(game);

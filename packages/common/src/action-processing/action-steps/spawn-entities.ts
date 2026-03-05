@@ -5,7 +5,11 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
-import { SpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
+import {
+  SerializedSpawnableEntity,
+  SpawnableEntity,
+  SpawnableEntityType,
+} from "../../spawnables/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
@@ -45,11 +49,11 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
         context.tracker.spawnedEntities.push(spawnableEntity);
       }
 
-      const serializedSpawnedEntities: SpawnableEntity[] = taggedSpawnableEntities.map(
+      const serializedSpawnedEntities: SerializedSpawnableEntity[] = taggedSpawnableEntities.map(
         (taggedSpawnable) => {
           switch (taggedSpawnable.type) {
             case SpawnableEntityType.Combatant:
-              return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.getSerialized() };
+              return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.toSerialized() };
             case SpawnableEntityType.ActionEntity:
               return taggedSpawnable;
           }

@@ -75,7 +75,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     };
   }
 
-  static getDeserialized(serialized: SerializedOf<AdventuringParty>) {
+  static fromSerialized(serialized: SerializedOf<AdventuringParty>) {
     const result = new AdventuringParty(serialized.id, serialized.name);
 
     result.actionEntityManager = ActionEntityManager.fromSerialized(serialized.actionEntityManager);

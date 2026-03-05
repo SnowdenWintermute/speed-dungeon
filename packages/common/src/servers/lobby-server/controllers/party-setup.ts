@@ -131,8 +131,8 @@ export class PartySetupController {
       type: GameStateUpdateType.CharacterAddedToParty,
       data: {
         username: session.username,
-        character: defaultSavedCharacter.combatant.getSerialized(),
-        pets: defaultSavedCharacter.pets.map((pet) => pet.getSerialized()),
+        character: defaultSavedCharacter.combatant.toSerialized(),
+        pets: defaultSavedCharacter.pets.map((pet) => pet.toSerialized()),
       },
     });
 

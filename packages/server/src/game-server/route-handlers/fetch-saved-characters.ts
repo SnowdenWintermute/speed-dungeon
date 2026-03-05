@@ -17,7 +17,7 @@ export async function fetchSavedCharacters(profileId: number) {
           return console.error("Character slot was holding an id that didn't match any character");
         }
 
-        const deserializedCombatantProperties = CombatantProperties.getDeserialized(
+        const deserializedCombatantProperties = CombatantProperties.fromSerialized(
           character.combatantProperties
         );
 
@@ -28,7 +28,7 @@ export async function fetchSavedCharacters(profileId: number) {
 
         const deserializedPets: Combatant[] = [];
         for (const pet of character.pets) {
-          const deserializedPet = Combatant.getDeserialized(pet);
+          const deserializedPet = Combatant.fromSerialized(pet);
           deserializedPets.push(deserializedPet);
         }
 

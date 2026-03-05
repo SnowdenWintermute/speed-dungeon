@@ -12,21 +12,32 @@ import {
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { SpeedDungeonGame } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { Serializable, SerializedOf } from "../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { makeAutoObservable } from "mobx";
 
-export class SpeedDungeonPlayer {
+export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
   partyName: null | PartyName = null;
   characterIds: CombatantId[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
   constructor(public username: Username) {}
 
-  static deserialize(raw: SpeedDungeonPlayer) {
-    const deserialized = plainToInstance(SpeedDungeonPlayer, raw);
+  makeObservable(): void {
+    makeAutoObservable(this);
+  }
 
-    deserialized.targetPreferences = CombatActionTargetPreferences.getDeserialized(
-      deserialized.targetPreferences
+  toSerialized() {
+    return {
+      ...instanceToPlain(this),
+      targetPreferences: this.targetPreferences.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<SpeedDungeonPlayer>) {
+    const result = plainToInstance(SpeedDungeonPlayer, serialized);
+    result.targetPreferences = CombatActionTargetPreferences.fromSerialized(
+      serialized.targetPreferences
     );
-    return deserialized;
+    return result;
   }
 
   getExpectedPartyName() {

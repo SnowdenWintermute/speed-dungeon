@@ -4,7 +4,6 @@ import { SpeedDungeonPlayer } from "./player.js";
 import { GameMode } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
-import { instanceToPlain, plainToInstance, serialize, Transform, Type } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
@@ -21,20 +20,22 @@ import {
 } from "../aliases.js";
 import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
 import { UserId } from "../servers/sessions/user-ids.js";
-import { MapTransform } from "../utils/map-utils.js";
+import {
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+  makePropertiesObservable,
+} from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class SpeedDungeonGame {
-  @MapTransform(SpeedDungeonPlayer)
+export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
-  @MapTransform(AdventuringParty)
   adventuringParties = new Map<PartyName, AdventuringParty>();
-  @MapTransform(Battle)
   battles = new Map<EntityId, Battle>();
   private timeStarted: null | number = null;
   timeHandedOff: null | number = null;
-  @MapTransform(Number)
   lowestStartingFloorOptionsBySavedCharacter = new Map<EntityId, number>();
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
@@ -48,28 +49,54 @@ export class SpeedDungeonGame {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
   }
 
-  getSerialized() {
-    const serialized = instanceToPlain(this) as SpeedDungeonGame;
-    return serialized;
-  }
-
   makeObservable() {
     makeAutoObservable(this);
+    makePropertiesObservable(this);
   }
 
-  static getDeserialized(game: SpeedDungeonGame) {
-    const deserialized = plainToInstance(SpeedDungeonGame, game);
-    // const deserializedPlayers = new Map<Username, SpeedDungeonPlayer>();
-    // for (const [username, player] of Object.entries(game.players)) {
-    //   const deserialized = SpeedDungeonPlayer.deserialize(player);
-    //   deserializedPlayers.set(username as Username, deserialized);
-    // }
+  toSerialized() {
+    return {
+      id: this.id,
+      name: this.name,
+      mode: this.mode,
+      gameCreator: this.gameCreator,
+      isRanked: this.isRanked,
+      players: MapUtils.serialize(this.players, (v) => v.toSerialized()),
+      playerCapacity: this.playerCapacity,
+      playersReadied: this.playersReadied,
+      adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
+      battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
+      timeStarted: this.timeStarted,
+      timeHandedOff: this.timeHandedOff,
+      lowestStartingFloorOptionsBySavedCharacter: MapUtils.serialize(
+        this.lowestStartingFloorOptionsBySavedCharacter
+      ),
+      selectedStartingFloor: this.selectedStartingFloor,
+      inputLock: this.inputLock.toSerialized(),
+    };
+  }
 
-    // deserialized.players = deserializedPlayers;
+  static fromSerialized(serialized: SerializedOf<SpeedDungeonGame>) {
+    const { id, name, mode, gameCreator, isRanked } = serialized;
+    const result = new SpeedDungeonGame(id, name, mode, gameCreator, isRanked);
+    result.players = MapUtils.deserialize(serialized.players, (v) =>
+      SpeedDungeonPlayer.fromSerialized(v)
+    );
+    result.playerCapacity = serialized.playerCapacity;
+    result.playersReadied = serialized.playersReadied;
+    result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) =>
+      AdventuringParty.fromSerialized(v)
+    );
+    result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
+    result.timeStarted = serialized.timeStarted;
+    result.timeHandedOff = serialized.timeHandedOff;
+    result.lowestStartingFloorOptionsBySavedCharacter = MapUtils.deserialize(
+      serialized.lowestStartingFloorOptionsBySavedCharacter
+    );
+    result.selectedStartingFloor = serialized.selectedStartingFloor;
+    result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
 
-    deserialized.inputLock = new ReferenceCountedLock<UserId>();
-
-    return deserialized;
+    return result;
   }
 
   getPlayers() {

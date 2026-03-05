@@ -3,12 +3,14 @@ import { BattleResultActionCommandPayload } from "../action-processing/index.js"
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { FriendOrFoe, runIfInBrowser } from "../index.js";
+import { FriendOrFoe } from "../index.js";
 import { EntityId } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 
-export class Battle {
+export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
   constructor(
     public id: EntityId,
@@ -17,7 +19,18 @@ export class Battle {
   ) {
     this.turnOrderManager = new TurnOrderManager(game, party);
     party.combatantManager.refillAllCombatantActionPoints();
-    runIfInBrowser(() => makeAutoObservable(this));
+  }
+
+  makeObservable(): void {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<Battle>) {
+    return plainToInstance(Battle, serialized);
   }
 
   static createInitialized(
@@ -29,10 +42,6 @@ export class Battle {
     game.battles.set(battle.id, battle);
     battle.turnOrderManager.updateTrackers(game, party);
     return battle.id;
-  }
-
-  static getDeserialized(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
-    return new Battle(battle.id, game, party);
   }
 
   static invertAllyAndOpponentIds(

@@ -115,22 +115,13 @@ export class SavedCharactersService {
       throw new Error("Character slot was holding an id that didn't match any character");
     }
 
-    const deserializedCombatantProperties = CombatantProperties.fromSerialized(
-      character.combatantProperties
-    );
-
-    const combatant = Combatant.createInitialized(
-      { id: character.id, name: character.name },
-      deserializedCombatantProperties
-    );
-
-    const deserializedPets: Combatant[] = [];
-    for (const pet of character.pets) {
-      const deserializedPet = Combatant.fromSerialized(pet);
-      deserializedPets.push(deserializedPet);
-    }
-
-    return { combatant, pets: deserializedPets };
+    return {
+      combatant: {
+        entityProperties: { id: character.id, name: character.name },
+        combatantProperties: character.combatantProperties,
+      },
+      pets: character.pets,
+    };
   }
 
   async requireEmptySlot(profileId: ProfileId, slotIndex: SlotIndex) {
@@ -224,7 +215,8 @@ export class SavedCharactersService {
     let savedCharacterOption: undefined | CharacterInSlot;
     for (const character of Object.values(slots)) {
       if (character.combatant.entityProperties.id === entityId) {
-        if (character.combatant.combatantProperties.isDead()) {
+        // @PERF - we deserialize entire combatant just to check if dead -> seems expensive?
+        if (Combatant.fromSerialized(character.combatant).combatantProperties.isDead()) {
           throw new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
         }
 

@@ -47,8 +47,8 @@ export class CharacterLifecycleController {
     const player = game.getExpectedPlayer(session.username);
     game.addCharacterToParty(party, player, newCharacter, pets);
 
-    const serialized = newCharacter.getSerialized();
-    const serializedPets = pets.map((pet) => pet.getSerialized());
+    const serialized = newCharacter.toSerialized();
+    const serializedPets = pets.map((pet) => pet.toSerialized());
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
@@ -125,7 +125,12 @@ export class CharacterLifecycleController {
 
     game.lowestStartingFloorOptionsBySavedCharacter.delete(removedChacter.getEntityId());
 
-    game.addCharacterToParty(party, player, savedCharacter.combatant, savedCharacter.pets);
+    game.addCharacterToParty(
+      party,
+      player,
+      Combatant.fromSerialized(savedCharacter.combatant),
+      savedCharacter.pets.map((pet) => Combatant.fromSerialized(pet))
+    );
 
     game.setMaxStartingFloor();
 
@@ -136,8 +141,8 @@ export class CharacterLifecycleController {
       data: {
         username: session.username,
         character: {
-          combatant: savedCharacter.combatant.toSerialized(),
-          pets: savedCharacter.pets.map((pet) => pet.toSerialized()),
+          combatant: savedCharacter.combatant,
+          pets: savedCharacter.pets,
         },
       },
     });

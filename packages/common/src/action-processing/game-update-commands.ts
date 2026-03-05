@@ -3,7 +3,11 @@ import { CombatantId, ConditionId, EntityId, Milliseconds } from "../aliases.js"
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant } from "../combatants/index.js";
-import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
+import {
+  SerializedSpawnableEntity,
+  SpawnableEntity,
+  SpawnableEntityType,
+} from "../spawnables/index.js";
 import { DurabilityChangesByEntityId } from "../durability/index.js";
 import { HitOutcome } from "../hit-outcome.js";
 import { ActionEntity, ActionEntityActionOriginData } from "../action-entities/index.js";
@@ -95,7 +99,7 @@ export interface EntityAnimation {
 
 export interface SpawnEntitiesGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntities;
-  entities: SpawnableEntity[];
+  entities: SerializedSpawnableEntity[];
 }
 
 export interface IEntityMotionUpdate {

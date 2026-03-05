@@ -53,8 +53,10 @@ export class SavedCharactersController {
     let defaultSavedCharacter: { combatant: Combatant; pets: Combatant[] } | undefined = undefined;
 
     for (const character of Object.values(charactersResult)) {
-      if (!character.combatant.combatantProperties.isDead()) {
-        defaultSavedCharacter = character;
+      const deserialized = Combatant.fromSerialized(character.combatant);
+      const deserializedPets = character.pets.map((pet) => Combatant.fromSerialized(pet));
+      if (!deserialized.combatantProperties.isDead()) {
+        defaultSavedCharacter = { combatant: deserialized, pets: deserializedPets };
         break;
       }
     }
@@ -84,7 +86,7 @@ export class SavedCharactersController {
     );
 
     const pets: Combatant[] = [];
-    const serializedPets = pets.map((pet) => pet.getSerialized());
+    const serializedPets = pets.map((pet) => pet.toSerialized());
 
     // check if the slot is valid to put a new character in
     const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
@@ -99,7 +101,7 @@ export class SavedCharactersController {
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacter,
       data: {
-        character: { combatant: newCharacter.getSerialized(), pets: serializedPets },
+        character: { combatant: newCharacter.toSerialized(), pets: serializedPets },
         slotIndex,
       },
     });

@@ -17,9 +17,15 @@ import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-tar
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
+import { Serializable } from "../../serialization/index.js";
+import { instanceToPlain } from "class-transformer";
 
-export abstract class TurnTracker {
+export abstract class TurnTracker implements Serializable {
   constructor(public readonly timeOfNextMove: number) {}
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
 
   abstract getTaggedIdOfTrackedEntity(): TaggedTurnTrackerTrackedEntityId;
   abstract getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler;
@@ -84,6 +90,10 @@ export class ConditionTurnTracker extends TurnTracker {
     public readonly timeOfNextMove: number
   ) {
     super(timeOfNextMove);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
   }
 
   getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {

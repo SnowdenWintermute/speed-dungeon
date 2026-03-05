@@ -14,16 +14,13 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
-import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import {
-  ActionRank,
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-  ConditionTickProperties,
-  EntityId,
-} from "../../index.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { ConditionTickProperties } from "../condition-tick-properties.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { ActionRank, EntityId } from "../../aliases.js";
+import { CombatantCondition } from "../index.js";
 
 export class BlindedCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {

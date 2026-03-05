@@ -51,9 +51,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       );
     }
 
-    const deserializedGame = SpeedDungeonGame.getDeserialized(pendingGameSetupOption.game);
+    const deserializedGame = SpeedDungeonGame.fromSerialized(pendingGameSetupOption.game);
     const newGame = deserializedGame;
-    console.log("new game:", newGame.adventuringParties);
 
     this.gameRegistry.registerGame(newGame);
     this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
@@ -86,7 +85,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     // for simplicity we'll eat the performance cost until it is measured
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
-      data: { game: game.getSerialized() },
+      data: { game: game.toSerialized() },
     });
 
     // clients should handle this differently than in the lobby
