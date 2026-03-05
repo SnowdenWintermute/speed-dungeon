@@ -11,9 +11,9 @@ const tableName = RESOURCE_NAMES.PLAYER_CHARACTERS;
 export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerCharacter> {
   async insert(combatant: Combatant, pets: Combatant[], ownerId: number) {
     const { id, name } = combatant.entityProperties;
-    const { combatantProperties } = combatant.getSerialized();
+    const { combatantProperties } = combatant.toSerialized();
 
-    const petsAsJSON = JSON.stringify(pets.map((pet) => pet.getSerialized()));
+    const petsAsJSON = JSON.stringify(pets.map((pet) => pet.toSerialized()));
 
     const { rows } = await this.pgPool.query(
       format(
@@ -42,7 +42,7 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
   async update(playerCharacter: SerializedPlayerCharacter, pets: Combatant[]) {
     const { id, ownerId, name, combatantProperties } = playerCharacter;
 
-    const petsAsJSON = JSON.stringify(pets.map((pet) => pet.getSerialized()));
+    const petsAsJSON = JSON.stringify(pets.map((pet) => pet.toSerialized()));
     const { rows } = await this.pgPool.query(
       format(
         `UPDATE ${tableName} 

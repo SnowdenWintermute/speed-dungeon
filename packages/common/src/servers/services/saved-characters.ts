@@ -13,10 +13,11 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
 import { getProgressionGamePartyName } from "../../utils/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { SerializedOf } from "../../serialization/index.js";
 
 export interface CharacterInSlot {
-  combatant: Combatant;
-  pets: Combatant[];
+  combatant: SerializedOf<Combatant>;
+  pets: SerializedOf<Combatant>[];
 }
 
 type SlotIndex = number;
@@ -39,15 +40,15 @@ export class SerializedPlayerCharacter {
   name: EntityName;
   ownerId: IdentityProviderId;
   gameVersion: string = APP_VERSION_NUMBER;
-  combatantProperties: CombatantProperties;
-  pets: Combatant[];
+  combatantProperties: SerializedOf<CombatantProperties>;
+  pets: SerializedOf<Combatant>[];
   createdAt: number | Date = Date.now();
   updatedAt: number | Date = Date.now();
 
   constructor(combatant: Combatant, pets: Combatant[], ownerId: IdentityProviderId) {
     const { id, name } = combatant.entityProperties;
-    const { combatantProperties } = combatant.getSerialized();
-    const serializedPets = pets.map((pet) => pet.getSerialized());
+    const { combatantProperties } = combatant.toSerialized();
+    const serializedPets = pets.map((pet) => pet.toSerialized());
     this.id = id;
     this.name = name;
     this.ownerId = ownerId;
@@ -114,7 +115,7 @@ export class SavedCharactersService {
       throw new Error("Character slot was holding an id that didn't match any character");
     }
 
-    const deserializedCombatantProperties = CombatantProperties.getDeserialized(
+    const deserializedCombatantProperties = CombatantProperties.fromSerialized(
       character.combatantProperties
     );
 
@@ -125,7 +126,7 @@ export class SavedCharactersService {
 
     const deserializedPets: Combatant[] = [];
     for (const pet of character.pets) {
-      const deserializedPet = Combatant.getDeserialized(pet);
+      const deserializedPet = Combatant.fromSerialized(pet);
       deserializedPets.push(deserializedPet);
     }
 

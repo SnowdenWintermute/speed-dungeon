@@ -2,12 +2,13 @@ import { makeAutoObservable } from "mobx";
 import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class DungeonExplorationManager {
+export class DungeonExplorationManager implements Serializable, ReactiveNode {
   private currentFloor: number = 1;
   private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
   private unexploredRooms: DungeonRoomType[] = [];
@@ -17,12 +18,16 @@ export class DungeonExplorationManager {
     [ExplorationAction.Explore]: [],
   };
 
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable(): void {
+    makeAutoObservable(this);
   }
 
-  static getDeserialized(plain: DungeonExplorationManager) {
-    return plainToInstance(DungeonExplorationManager, plain);
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<DungeonExplorationManager>) {
+    return plainToInstance(DungeonExplorationManager, serialized);
   }
 
   unexploredRoomsExistOnCurrentFloor() {

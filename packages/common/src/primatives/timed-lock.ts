@@ -1,20 +1,26 @@
 import { makeAutoObservable } from "mobx";
-import { runIfInBrowser } from "../utils/index.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class TimedLock {
+export class TimedLock implements Serializable, ReactiveNode {
   timeLocked: null | number = null;
   lockDuration: null | number = null;
   constructor(options?: { startAsLocked: boolean }) {
-    runIfInBrowser(() => makeAutoObservable(this));
     if (options?.startAsLocked) {
       this.lockInput();
     }
   }
 
-  static getDeserialized(plain: TimedLock) {
-    const toReturn = plainToInstance(TimedLock, plain);
-    return toReturn;
+  makeObservable(): void {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<TimedLock>) {
+    return plainToInstance(TimedLock, serialized);
   }
 
   lockInput() {

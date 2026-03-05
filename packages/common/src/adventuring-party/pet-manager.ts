@@ -6,28 +6,29 @@ import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
-import { plainToInstance } from "class-transformer";
 import { CombatantConditionName } from "../conditions/condition-names.js";
+import { Serializable, SerializedOf } from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class PetManager extends AdventuringPartySubsystem {
+export class PetManager extends AdventuringPartySubsystem implements Serializable {
   private unsummonedPetsByOwnerId = new Map<EntityId, (Combatant | undefined)[]>();
 
-  static getDeserialized(plain: PetManager) {
-    const toReturn = plainToInstance(PetManager, plain);
+  toSerialized() {
+    return {
+      unsummonedPetsByOwnerId: MapUtils.serialize(this.unsummonedPetsByOwnerId, (v) =>
+        v.map((pet) => pet?.toSerialized())
+      ),
+    };
+  }
 
-    for (const [entityId, petSlots] of Object.entries(plain.unsummonedPetsByOwnerId)) {
-      const deserializedSlots: (Combatant | undefined)[] = [];
-      for (const slotContent of petSlots) {
-        if (slotContent === undefined) {
-          deserializedSlots.push(slotContent);
-        } else {
-          const deserializedPet = Combatant.getDeserialized(slotContent);
-          deserializedSlots.push(deserializedPet);
-        }
-      }
-      toReturn.unsummonedPetsByOwnerId.set(entityId, deserializedSlots);
-    }
-    return toReturn;
+  static fromSerialized(serialized: SerializedOf<PetManager>) {
+    const result = new PetManager();
+    result.unsummonedPetsByOwnerId = MapUtils.deserialize(serialized.unsummonedPetsByOwnerId, (v) =>
+      v.map((serializedPet) =>
+        serializedPet ? Combatant.fromSerialized(serializedPet) : undefined
+      )
+    );
+    return result;
   }
 
   getAllPetsByOwnerId(ownerId: EntityId) {

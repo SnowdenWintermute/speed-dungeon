@@ -3,29 +3,28 @@ import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
-import { runIfInBrowser } from "../utils/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class ActionEntityManager {
+export class ActionEntityManager implements Serializable, ReactiveNode {
   private actionEntities = new Map<EntityId, ActionEntity>();
-
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
 
   makeObservable() {
     makeAutoObservable(this);
   }
 
-  getSerialized() {
+  toSerialized() {
     return {
-      actionEntities: Object.fromEntries(this.actionEntities),
+      actionEntities: MapUtils.serialize(this.actionEntities, (v) => v.toSerialized()),
     };
   }
 
-  static getDeserialized(plain: ReturnType<ActionEntityManager["getSerialized"]>) {
+  static fromSerialized(serialized: SerializedOf<ActionEntityManager>) {
     const deserialized = new ActionEntityManager();
-    deserialized.actionEntities = new Map(Object.entries(plain.actionEntities));
+    deserialized.actionEntities = MapUtils.deserialize(serialized.actionEntities, (v) =>
+      ActionEntity.fromSerialized(v)
+    );
     return deserialized;
   }
 

@@ -94,7 +94,7 @@ export async function getCharacterLevelLadderPageHandler(
       }
 
       const { classProgressionProperties } = character.combatantProperties;
-      const level = classProgressionProperties.getMainClass().level;
+      const level = classProgressionProperties.mainClass.level;
       const currentExperience = classProgressionProperties.experiencePoints.getCurrent();
 
       toReturn.push({

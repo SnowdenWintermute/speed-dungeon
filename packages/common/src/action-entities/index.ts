@@ -11,7 +11,7 @@ import {
   ActionAndRank,
   ActionUserTargetingProperties,
 } from "../action-user-context/action-user-targeting-properties.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
@@ -29,6 +29,7 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -75,11 +76,19 @@ export interface ActionEntityProperties {
   actionOriginData?: ActionEntityActionOriginData;
 }
 
-export class ActionEntity implements IActionUser {
+export class ActionEntity implements IActionUser, Serializable {
   constructor(
     public entityProperties: EntityProperties,
     public actionEntityProperties: ActionEntityProperties
   ) {}
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionEntity>) {
+    return plainToInstance(ActionEntity, serialized);
+  }
 
   getType = () => ActionUserType.ActionEntity;
   getMovementSpeedOption(): null | number {

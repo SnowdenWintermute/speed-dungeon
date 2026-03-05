@@ -164,7 +164,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.DungeonRoomUpdate]: {
     dungeonRoom: DungeonRoom;
-    monsters: Combatant[];
+    monsters: SerializedOf<Combatant>[];
     actionEntitiesToRemove: EntityId[];
   };
   [GameStateUpdateType.BattleFullUpdate]: {

@@ -1,20 +1,26 @@
-import { plainToInstance } from "class-transformer";
-import { runIfInBrowser } from "../utils/index.js";
 import { makeAutoObservable } from "mobx";
 import { Inventory } from "../combatants/inventory/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class DungeonRoom {
+export class DungeonRoom implements Serializable, ReactiveNode {
   inventory: Inventory = new Inventory();
 
-  constructor(public roomType: DungeonRoomType) {
-    runIfInBrowser(() => makeAutoObservable(this));
+  constructor(public roomType: DungeonRoomType) {}
+
+  makeObservable() {
+    makeAutoObservable(this);
+    this.inventory.makeObservable();
   }
 
-  static getDeserialized(dungeonRoom: DungeonRoom) {
-    const toReturn = plainToInstance(DungeonRoom, dungeonRoom);
-    toReturn.inventory = Inventory.getDeserialized(dungeonRoom.inventory);
-    return toReturn;
+  toSerialized() {
+    return { roomType: this.roomType, inventory: this.inventory.toSerialized() };
+  }
+
+  static fromSerialized(serialized: SerializedOf<DungeonRoom>) {
+    const result = new DungeonRoom(serialized.roomType);
+    result.inventory = Inventory.fromSerialized(serialized.inventory);
+    return result;
   }
 
   requireType(roomType: DungeonRoomType) {

@@ -206,7 +206,7 @@ export class DungeonExplorationController {
       actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
     const newMonsters = this.putPartyInNextRoom(game, party, roomTypeToGenerate);
-    const serializedMonsters = newMonsters.map((combatant) => combatant.getSerialized());
+    const serializedMonsters = newMonsters.map((combatant) => combatant.toSerialized());
 
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.DungeonRoomUpdate,

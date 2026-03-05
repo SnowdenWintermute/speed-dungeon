@@ -11,34 +11,31 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
+import {
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+  makePropertiesObservable,
+} from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class AdventuringParty {
+export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
   actionEntityManager = new ActionEntityManager();
   dungeonExplorationManager = new DungeonExplorationManager();
   petManager = new PetManager();
   combatantManager = new CombatantManager();
-
-  // players
+  // other
   playerUsernames: Username[] = [];
-
-  // current room
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
-
-  // party status
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
-
-  // player input management
   itemsOnGroundNotYetReceivedByAllClients = new Map<EntityId, EntityId[]>();
   inputLock = new TimedLock();
-
-  // event management
   actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
 
   constructor(
@@ -48,6 +45,7 @@ export class AdventuringParty {
 
   makeObservable() {
     makeAutoObservable(this);
+    makePropertiesObservable(this);
   }
 
   static createInitialized(id: EntityId, name: string) {
@@ -56,30 +54,49 @@ export class AdventuringParty {
     return party;
   }
 
-  getSerialized() {
-    const plain = instanceToPlain(this) as AdventuringParty;
-    plain.combatantManager = this.combatantManager.getSerialized();
-    return plain;
+  toSerialized() {
+    return {
+      id: this.id,
+      name: this.name,
+      actionEntityManager: this.actionEntityManager.toSerialized(),
+      dungeonExplorationManager: this.dungeonExplorationManager.toSerialized(),
+      petManager: this.petManager.toSerialized(),
+      combatantManager: this.combatantManager.toSerialized(),
+      playerUsernames: this.playerUsernames,
+      currentRoom: this.currentRoom.toSerialized(),
+      battleId: this.battleId,
+      timeOfWipe: this.timeOfWipe,
+      timeOfEscape: this.timeOfEscape,
+      itemsOnGroundNotYetReceivedByAllClients: MapUtils.serialize(
+        this.itemsOnGroundNotYetReceivedByAllClients
+      ),
+      inputLock: this.inputLock.toSerialized(),
+      actionCommandQueue: this.actionCommandQueue.toSerialized(),
+    };
   }
 
-  static getDeserialized(plain: AdventuringParty) {
-    const toReturn = plainToInstance(AdventuringParty, plain);
-    toReturn.combatantManager = CombatantManager.getDeserialized(toReturn.combatantManager);
-    toReturn.currentRoom = DungeonRoom.getDeserialized(toReturn.currentRoom);
-    toReturn.inputLock = TimedLock.getDeserialized(toReturn.inputLock);
-    toReturn.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
-      toReturn.dungeonExplorationManager
+  static getDeserialized(serialized: SerializedOf<AdventuringParty>) {
+    const result = new AdventuringParty(serialized.id, serialized.name);
+
+    result.actionEntityManager = ActionEntityManager.fromSerialized(serialized.actionEntityManager);
+    result.dungeonExplorationManager = DungeonExplorationManager.fromSerialized(
+      serialized.dungeonExplorationManager
     );
-    toReturn.petManager = PetManager.getDeserialized(toReturn.petManager);
-    // toReturn.actionEntityManager = ActionEntityManager.getDeserialized(
-    //   toReturn.actionEntityManager
-    // );
+    result.petManager = PetManager.fromSerialized(serialized.petManager);
+    result.combatantManager = CombatantManager.fromSerialized(serialized.combatantManager);
+    result.playerUsernames = serialized.playerUsernames;
+    result.currentRoom = DungeonRoom.fromSerialized(serialized.currentRoom);
+    result.battleId = serialized.battleId;
+    result.timeOfWipe = serialized.timeOfWipe;
+    result.timeOfEscape = serialized.timeOfEscape;
+    result.itemsOnGroundNotYetReceivedByAllClients = MapUtils.deserialize(
+      serialized.itemsOnGroundNotYetReceivedByAllClients
+    );
+    result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
+    result.actionCommandQueue = ActionCommandQueue.fromSerialized(serialized.actionCommandQueue);
+    result.initialize();
 
-    toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
-
-    toReturn.initialize();
-
-    return toReturn;
+    return result;
   }
 
   initialize() {

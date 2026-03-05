@@ -17,34 +17,31 @@ import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.j
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { PartyWipes } from "../types.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class CombatantManager extends AdventuringPartySubsystem {
+export class CombatantManager
+  extends AdventuringPartySubsystem
+  implements Serializable, ReactiveNode
+{
   private combatants = new Map<EntityId, Combatant>();
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable(): void {
+    makeAutoObservable(this);
   }
 
-  getSerialized() {
-    const plain = instanceToPlain(this);
-    plain["combatants"] = {};
-    for (const [id, combatant] of this.combatants) {
-      plain["combatants"][id] = combatant.getSerialized();
-    }
-    return plain as CombatantManager;
+  toSerialized() {
+    return {
+      combatants: MapUtils.serialize(this.combatants, (v) => v.toSerialized()),
+    };
   }
 
-  static getDeserialized(serialized: CombatantManager): CombatantManager {
-    const deserialized = plainToInstance(CombatantManager, serialized);
-    deserialized.combatants = new Map();
-
-    for (const [entityId, combatantJson] of Object.entries(serialized.combatants)) {
-      const combatant = Combatant.getDeserialized(combatantJson);
-      deserialized.combatants.set(entityId as EntityId, combatant);
-    }
-
-    return deserialized;
+  static fromSerialized(serialized: SerializedOf<CombatantManager>): CombatantManager {
+    const result = new CombatantManager();
+    result.combatants = MapUtils.deserialize(serialized.combatants, (v) =>
+      Combatant.fromSerialized(v)
+    );
+    return result;
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {
