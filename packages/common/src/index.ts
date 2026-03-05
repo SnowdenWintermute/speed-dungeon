@@ -93,7 +93,9 @@ export * from "./combatants/combatant-species.js";
 export * from "./combatants/combatant-traits/index.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combatants/combatant-equipment/index.js";
+export * from "./combatants/combatant-equipment/holdable-hotswap-slot.js";
 export * from "./combatants/threat-manager/index.js";
+export * from "./combatants/threat-manager/threat-table-entry.js";
 export * from "./combatants/combatant-traits/index.js";
 export * from "./combatants/combatant-abilities/combatant-ability-properties.js";
 
@@ -235,3 +237,4 @@ export * from "./servers/in-memory-incoming-connection-gateway.js";
 export * from "./transport/in-memory-connection-endpoint-server-registry.js";
 export * from "./transport/in-memory-connection-endpoint-server.js";
 export * from "./transport/browser-websocket-connection-endpoint.js";
+export * from "./serialization/index.js";

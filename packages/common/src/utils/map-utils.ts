@@ -1,3 +1,10 @@
+export type SerializedMap<M> =
+  M extends Map<infer K, infer V>
+    ? V extends { toSerialized(): infer S }
+      ? [K, S][]
+      : [K, V][]
+    : never;
+
 export class MapUtils {
   static getFirstEntry<K, V>(map: Map<K, V>): [K, V] | undefined {
     const result = map.entries().next();

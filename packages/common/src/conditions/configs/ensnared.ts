@@ -1,4 +1,3 @@
-import { CombatantConditionInit } from "../condition-config.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";

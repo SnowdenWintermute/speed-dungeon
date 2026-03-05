@@ -16,6 +16,7 @@ import { TaggedUserId, UserIdType } from "../../sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
+import { MapUtils } from "../../../utils/map-utils.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -111,7 +112,10 @@ export class LobbySessionLifecycleController
     // tell the client about the channel they are in and other users in the lobby channel
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.ChannelFullUpdate,
-      data: { channelName: LOBBY_CHANNEL, users: this.lobbyState.getUsersList() },
+      data: {
+        channelName: LOBBY_CHANNEL,
+        users: MapUtils.serialize(this.lobbyState.getUsersList()),
+      },
     });
 
     // tell other clients in the lobby that this user joined

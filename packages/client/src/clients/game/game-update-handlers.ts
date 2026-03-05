@@ -46,7 +46,6 @@ import {
   TargetingCalculator,
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
-import { plainToInstance } from "class-transformer";
 import cloneDeep from "lodash.clonedeep";
 import { toJS } from "mobx";
 import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
@@ -158,7 +157,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.DungeonRoomUpdate]: (data) => {
       const { dungeonRoom, actionEntitiesToRemove, monsters } = data;
-      const deserializedRoom = DungeonRoom.getDeserialized(dungeonRoom);
+      const deserializedRoom = DungeonRoom.fromSerialized(dungeonRoom);
       const itemIdsOnGroundInPreviousRoom: string[] = [];
       const newItemsOnGround: Item[] = [];
 
@@ -191,7 +190,7 @@ export function createGameUpdateHandlers(
 
       const game = gameStore.getExpectedGame();
       for (const combatant of monsters) {
-        const deserialized = Combatant.getDeserialized(combatant);
+        const deserialized = Combatant.fromSerialized(combatant);
         combatantManager.addCombatant(deserialized, game);
       }
 
@@ -258,7 +257,7 @@ export function createGameUpdateHandlers(
 
         const battle = battleOption;
         party.battleId = battle.id;
-        const deserializedBattle = Battle.getDeserialized(battle, game, party);
+        const deserializedBattle = Battle.fromSerialized(battle);
         game.battles.set(battle.id, deserializedBattle);
 
         const currentActorIsPlayerControlled =
@@ -394,13 +393,18 @@ export function createGameUpdateHandlers(
       const { game, party, combatant } = gameStore.getExpectedCombatantContext(data.characterId);
       const targetingProperties = combatant.getTargetingProperties();
       const { itemIdOption, actionAndRankOption, characterId } = data;
-      targetingProperties.setSelectedActionAndRank(actionAndRankOption);
+      const deserializedActionAndRankOption = actionAndRankOption
+        ? ActionAndRank.fromSerialized(actionAndRankOption)
+        : null;
+      targetingProperties.setSelectedActionAndRank(deserializedActionAndRankOption);
 
       const itemId = itemIdOption === undefined ? null : itemIdOption;
       targetingProperties.setSelectedItemId(itemId);
 
       const combatActionOption =
-        actionAndRankOption !== null ? COMBAT_ACTIONS[actionAndRankOption.actionName] : null;
+        deserializedActionAndRankOption !== null
+          ? COMBAT_ACTIONS[deserializedActionAndRankOption.actionName]
+          : null;
 
       const playerOption = game.getExpectedPlayer(
         combatant.combatantProperties.controlledBy.controllerPlayerName
@@ -549,7 +553,7 @@ export function createGameUpdateHandlers(
         type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
         data: { itemId: shardStack.entityProperties.id },
       });
-      const asClassInstance = plainToInstance(Consumable, shardStack);
+      const asClassInstance = Consumable.fromSerialized(shardStack);
       const { party, combatant } = gameStore.getExpectedCombatantContext(characterId);
       combatant.combatantProperties.inventory.changeShards(asClassInstance.usesRemaining * -1);
       party.currentRoom.inventory.insertItem(asClassInstance);
@@ -557,7 +561,7 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.CharacterPurchasedItem]: (data) => {
       const { item, characterId, price } = data;
       const { combatant } = gameStore.getExpectedCombatantContext(characterId);
-      const asClassInstance = plainToInstance(Consumable, item);
+      const asClassInstance = Consumable.fromSerialized(item);
       const { inventory } = combatant.combatantProperties;
       inventory.changeShards(price * -1);
       inventory.insertItem(asClassInstance);
@@ -597,7 +601,7 @@ export function createGameUpdateHandlers(
         itemBeforeModification.craftingIteration = 0;
       }
 
-      const asInstance = plainToInstance(Equipment, item);
+      const asInstance = Equipment.fromSerialized(item);
 
       const wasBrokenBefore = itemResult.isBroken();
 
@@ -630,7 +634,7 @@ export function createGameUpdateHandlers(
 
       GameLogMessageService.postCraftActionResult(
         combatant.getName(),
-        plainToInstance(Equipment, itemBeforeModification),
+        Equipment.fromSerialized(itemBeforeModification),
         craftingAction,
         itemResult
       );
@@ -805,7 +809,7 @@ export function createGameUpdateHandlers(
       const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemIdTraded);
       if (removedItemResult instanceof Error) setAlert(removedItemResult);
       else {
-        const asClassInstance = plainToInstance(Consumable, book);
+        const asClassInstance = Consumable.fromSerialized(book);
         const { inventory } = combatantProperties;
         inventory.insertItem(asClassInstance);
         setAlert(`Obtained ${getSkillBookName(book.consumableType, book.itemLevel)}`, true);

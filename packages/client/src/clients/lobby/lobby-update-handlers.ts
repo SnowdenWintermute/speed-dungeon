@@ -45,7 +45,7 @@ export function createLobbyUpdateHandlers(
       gameStore.setUsername(data.username);
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
-      const deserialized = MapUtils.deserialize(data.users);
+      const deserialized = MapUtils.deserialize(data.users, (v) => v);
       lobbyStore.updateChannel(data.channelName, deserialized);
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
@@ -115,11 +115,10 @@ export function createLobbyUpdateHandlers(
       const { game, party, player } = gameStore.getExpectedPlayerContext(username);
 
       try {
-        const deserialized = Combatant.getDeserialized(character);
-
+        const deserialized = Combatant.fromSerialized(character);
         const deserializedPets: Combatant[] = [];
         for (const pet of pets) {
-          const deserializedPet = Combatant.getDeserialized(pet);
+          const deserializedPet = Combatant.fromSerialized(pet);
           deserializedPets.push(deserializedPet);
         }
 
@@ -149,8 +148,8 @@ export function createLobbyUpdateHandlers(
 
       const { username, character } = data;
       const deserialized = {
-        combatant: Combatant.getDeserialized(character.combatant),
-        pets: character.pets.map((pet) => Combatant.getDeserialized(pet)),
+        combatant: Combatant.fromSerialized(character.combatant),
+        pets: character.pets.map((pet) => Combatant.fromSerialized(pet)),
       };
 
       game.lowestStartingFloorOptionsBySavedCharacter.set(
@@ -212,8 +211,8 @@ export function createLobbyUpdateHandlers(
             deserialized[slotNumber] = null;
           } else {
             deserialized[slotNumber] = {
-              combatant: Combatant.getDeserialized(characterOption.combatant),
-              pets: characterOption.pets.map((pet) => Combatant.getDeserialized(pet)),
+              combatant: Combatant.fromSerialized(characterOption.combatant),
+              pets: characterOption.pets.map((pet) => Combatant.fromSerialized(pet)),
             };
           }
         }
@@ -238,8 +237,8 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.SavedCharacter]: (data) => {
       const { character, slotIndex } = data;
       const { combatant, pets } = character;
-      const deserializedCombatant = Combatant.getDeserialized(combatant);
-      const deserializedPets = pets.map((pet) => Combatant.getDeserialized(pet));
+      const deserializedCombatant = Combatant.fromSerialized(combatant);
+      const deserializedPets = pets.map((pet) => Combatant.fromSerialized(pet));
 
       lobbyStore.setSavedCharacterSlot(
         { combatant: deserializedCombatant, pets: deserializedPets },

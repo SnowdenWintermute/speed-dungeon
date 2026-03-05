@@ -46,7 +46,7 @@ export const CombatActionButton = observer((props: Props) => {
   const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
 
   const useWouldBeError =
-    user.canUseAction({ actionName, rank: 1 as ActionRank }, game, party) instanceof Error;
+    user.canUseAction(new ActionAndRank(actionName, 1 as ActionRank), game, party) instanceof Error;
 
   const shouldBeDisabled = useWouldBeError || !userControlsThisCharacter;
 

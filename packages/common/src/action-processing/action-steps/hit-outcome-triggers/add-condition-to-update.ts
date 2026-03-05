@@ -18,7 +18,7 @@ export function addConditionToUpdate(
   let thisCombatantConditions = conditionsTriggeredByOutcome[targetCombatantId];
 
   if (!thisCombatantConditions) thisCombatantConditions = [];
-  thisCombatantConditions.push(condition);
+  thisCombatantConditions.push(condition.toSerialized());
 
   conditionsTriggeredByOutcome[targetCombatantId] = thisCombatantConditions;
 

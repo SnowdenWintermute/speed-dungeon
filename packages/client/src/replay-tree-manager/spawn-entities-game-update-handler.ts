@@ -2,8 +2,8 @@ import {
   ActionEntity,
   AdventuringParty,
   Combatant,
+  SerializedSpawnedCombatant,
   SpawnableEntityType,
-  SpawnedCombatant,
   SpawnEntitiesGameUpdateCommand,
   SpeedDungeonGame,
 } from "@speed-dungeon/common";
@@ -46,12 +46,12 @@ export async function spawnEntitiesGameUpdateHandler(
 }
 
 async function handleNewSpawnableCombatant(
-  spawnableCombatant: SpawnedCombatant,
+  spawnableCombatant: SerializedSpawnedCombatant,
   party: AdventuringParty,
   game: SpeedDungeonGame
 ) {
   const { combatant, parentTransformNodeOption } = spawnableCombatant;
-  const deserialized = Combatant.getDeserialized(combatant);
+  const deserialized = Combatant.fromSerialized(combatant);
   const { homeRotation } = deserialized.combatantProperties.transformProperties;
   party.combatantManager.addCombatant(deserialized, game);
   const model = await spawnCharacterModel(

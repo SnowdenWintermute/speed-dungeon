@@ -4,6 +4,7 @@ import { CombatantCondition } from "../conditions/index.js";
 import { EntityId } from "../aliases.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { deserializeCondition } from "../conditions/deserialize-condition.js";
 
 export class CombatantConditionManager
   extends CombatantSubsystem
@@ -29,7 +30,7 @@ export class CombatantConditionManager
      * and execute it can't */
     const result = new CombatantConditionManager();
     result.conditions = serialized.conditions.map((conditionInit) =>
-      CombatantCondition.fromSerialized(conditionInit)
+      deserializeCondition(conditionInit)
     );
 
     return result;

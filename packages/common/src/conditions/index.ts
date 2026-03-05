@@ -72,10 +72,6 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
     };
   }
 
-  static fromSerialized(serialized: SerializedOf<CombatantCondition>) {
-    return CombatantConditionFactory.create(serialized);
-  }
-
   makeObservable() {
     makeAutoObservable(this);
     this.stacksOption?.makeObservable();

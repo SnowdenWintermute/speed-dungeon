@@ -7,9 +7,12 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { startOrStopCosmeticEffects } from "../start-or-stop-cosmetic-effect";
+import { SerializedOf } from "@speed-dungeon/common";
 
 export function handleAppliedConditions(
-  appliedConditions: Partial<Record<HitOutcome, Record<string, CombatantCondition[]>>>,
+  appliedConditions: Partial<
+    Record<HitOutcome, Record<string, SerializedOf<CombatantCondition>[]>>
+  >,
   party: AdventuringParty,
   battleOption: Battle | null
 ) {
@@ -18,8 +21,8 @@ export function handleAppliedConditions(
   )) {
     for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
       const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
-      for (let condition of conditions) {
-        const deserializedCondition = deserializeCondition(CombatantCondition.getInit(condition));
+      for (const condition of conditions) {
+        const deserializedCondition = deserializeCondition(condition);
 
         combatantResult.combatantProperties.conditionManager.applyCondition(deserializedCondition);
 

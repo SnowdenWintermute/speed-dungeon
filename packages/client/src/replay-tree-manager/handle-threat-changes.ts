@@ -22,9 +22,10 @@ export function handleThreatChangesUpdate(
   if (command.threatChanges) {
     const party = AppStore.get().gameStore.getExpectedParty();
 
-    const threatChangesDeserialized = ThreatChanges.getDeserialized(command.threatChanges);
+    const threatChangesDeserialized = ThreatChanges.fromSerialized(command.threatChanges);
     threatChangesDeserialized.applyToGame(party);
 
+    // @REFACTOR
     // debouncing this is an easy but perhaps not optimal way to avoid showing many
     // threat target change events in a row when threat changes rapidly such as several
     // burning conditions going off in a row

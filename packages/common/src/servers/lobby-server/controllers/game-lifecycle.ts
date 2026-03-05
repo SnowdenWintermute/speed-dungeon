@@ -18,6 +18,7 @@ import { GameMode } from "../../../types.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { MapUtils } from "../../../utils/map-utils.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
@@ -238,7 +239,10 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.ChannelFullUpdate,
-      data: { channelName: LOBBY_CHANNEL, users: this.lobbyState.getUsersList() },
+      data: {
+        channelName: LOBBY_CHANNEL,
+        users: MapUtils.serialize(this.lobbyState.getUsersList()),
+      },
     });
 
     const noPlayersRemain = game.players.size === 0;

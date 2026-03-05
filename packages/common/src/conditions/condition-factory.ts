@@ -1,7 +1,7 @@
 import { CombatantConditionInit } from "./condition-config.js";
 import { CombatantConditionName } from "./condition-names.js";
-import { BlindedCondition } from "./configs/blinded.js";
 import { BurningCondition } from "./configs/burning.js";
+import { BlindedCondition } from "./configs/blinded.js";
 import { EnsnaredCondition } from "./configs/ensnared.js";
 import { FlyingCondition } from "./configs/flying.js";
 import { FollowingPetCommandCondition } from "./configs/following-pet-command.js";

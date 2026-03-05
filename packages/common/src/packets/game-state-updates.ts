@@ -31,6 +31,7 @@ import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.
 import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
 import { SerializedOf } from "../serialization/index.js";
 import { Equipment } from "../items/equipment/index.js";
+import { SerializedMap } from "../utils/map-utils.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -102,7 +103,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.ChannelFullUpdate]: {
     channelName: ChannelName;
-    users: Map<Username, UserChannelDisplayData>;
+    users: SerializedMap<Map<Username, UserChannelDisplayData>>;
   };
   [GameStateUpdateType.UserJoinedChannel]: {
     username: Username;

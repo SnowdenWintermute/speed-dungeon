@@ -32,6 +32,7 @@ import {
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { CombatActionHitOutcomes } from "../combat/action-results/action-hit-outcome-calculation/index.js";
 import { ActionUseMessageData } from "../combat/combat-actions/combat-action-combat-log-properties.js";
+import { SerializedOf } from "../serialization/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -172,7 +173,9 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActivatedTriggers;
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
-  appliedConditions?: Partial<Record<HitOutcome, Record<EntityId, CombatantCondition[]>>>;
+  appliedConditions?: Partial<
+    Record<HitOutcome, Record<EntityId, SerializedOf<CombatantCondition>[]>>
+  >;
   removedConditionStacks?: Record<CombatantId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<CombatantId, EntityId[]>;
   threatChanges?: ThreatChanges;
@@ -191,14 +194,14 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
   actionUserName: string;
   actionUserId: string;
   outcomes: CombatActionHitOutcomes;
-  threatChanges?: ThreatChanges;
+  threatChanges?: SerializedOf<ThreatChanges>;
 }
 
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
   unlockInput?: boolean;
   endActiveCombatantTurn?: boolean;
-  threatChanges?: ThreatChanges;
+  threatChanges?: SerializedOf<ThreatChanges>;
 }
 
 export interface ActionUseGameLogMessageUpdateCommand extends IGameUpdateCommand {

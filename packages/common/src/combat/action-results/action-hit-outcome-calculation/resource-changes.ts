@@ -1,9 +1,10 @@
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 import { ThreatType } from "../../../combatants/threat-manager/index.js";
+import { Serializable, SerializedOf } from "../../../serialization/index.js";
 
 export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};
@@ -73,7 +74,7 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
   }
 }
 
-export class ThreatChanges {
+export class ThreatChanges implements Serializable {
   // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entries: {
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
@@ -86,7 +87,11 @@ export class ThreatChanges {
     [entityIdOfThreatTableToUpdate: EntityId]: EntityId[];
   } = {};
 
-  static getDeserialized(plain: ThreatChanges) {
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(plain: SerializedOf<ThreatChanges>) {
     return plainToInstance(ThreatChanges, plain);
   }
 

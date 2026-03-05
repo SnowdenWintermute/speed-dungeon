@@ -13,14 +13,6 @@ import { MitigationProperties } from "./combatant-mitigation-properties.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
-import {
-  CombatantAttributeProperties,
-  CombatantClass,
-  EntityId,
-  ERROR_MESSAGES,
-  Inventory,
-  removeUndefinedFields,
-} from "../index.js";
 import { CombatantClassProperties } from "./combatant-class-properties.js";
 import {
   makePropertiesObservable,
@@ -28,6 +20,12 @@ import {
   Serializable,
   SerializedOf,
 } from "../serialization/index.js";
+import { Inventory } from "./inventory/index.js";
+import { CombatantAttributeProperties } from "./attribute-properties.js";
+import { CombatantClass } from "./combatant-class/classes.js";
+import { EntityId } from "../aliases.js";
+import { removeUndefinedFields } from "../utils/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;
