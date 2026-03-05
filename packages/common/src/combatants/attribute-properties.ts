@@ -1,5 +1,4 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { plainToInstance, serialize } from "class-transformer";
 import { ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES, CombatAttribute } from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
@@ -9,7 +8,7 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { initializeCombatAttributeRecord } from "./attributes/initialize-combat-attribute-record.js";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { ReactiveNode, Serializable } from "../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
 export class CombatantAttributeProperties
   extends CombatantSubsystem
@@ -19,7 +18,11 @@ export class CombatantAttributeProperties
   private speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
 
-  getSerialized() {
+  makeObservable(): void {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
     return {
       inherentAttributes: this.inherentAttributes,
       speccedAttributes: this.speccedAttributes,
@@ -27,11 +30,7 @@ export class CombatantAttributeProperties
     };
   }
 
-  makeObservable(): void {
-    makeAutoObservable(this);
-  }
-
-  static getDeserialized(serialized: ReturnType<CombatantAttributeProperties["getSerialized"]>) {
+  static fromSerialized(serialized: SerializedOf<CombatantAttributeProperties>) {
     const deserialized = new CombatantAttributeProperties();
     deserialized.inherentAttributes = serialized.inherentAttributes;
     deserialized.speccedAttributes = serialized.speccedAttributes;
