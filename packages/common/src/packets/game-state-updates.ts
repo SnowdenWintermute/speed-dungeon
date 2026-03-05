@@ -29,6 +29,8 @@ import {
 import { ExplorationAction } from "../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 import { GameServerConnectionInstructions } from "../servers/lobby-server/game-handoff/connection-instructions.js";
+import { SerializedOf } from "../serialization/index.js";
+import { Equipment } from "../items/equipment/index.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -137,8 +139,8 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.CharacterAddedToParty]: {
     username: Username;
-    character: Combatant;
-    pets: Combatant[];
+    character: SerializedOf<Combatant>;
+    pets: SerializedOf<Combatant>[];
   };
   [GameStateUpdateType.CharacterDeleted]: {
     username: Username;
@@ -185,7 +187,7 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
     characterId: string;
-    actionAndRankOption: ActionAndRank | null;
+    actionAndRankOption: SerializedOf<ActionAndRank> | null;
     itemIdOption?: string | null;
   };
   [GameStateUpdateType.CharacterCycledTargets]: {
@@ -203,10 +205,13 @@ export interface GameStateUpdateMap {
     attribute: CombatAttribute;
   };
   [GameStateUpdateType.SavedCharacterList]: {
-    characterSlots: Record<CharacterSlotIndex, null | { combatant: Combatant; pets: Combatant[] }>;
+    characterSlots: Record<
+      CharacterSlotIndex,
+      null | { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] }
+    >;
   };
   [GameStateUpdateType.SavedCharacter]: {
-    character: { combatant: Combatant; pets: Combatant[] };
+    character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
     slotIndex: number;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
@@ -214,7 +219,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]: {
     username: Username;
-    character: { combatant: Combatant; pets: Combatant[] };
+    character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
   };
   [GameStateUpdateType.ProgressionGameStartingFloorSelected]: {
     floorNumber: number;
@@ -226,16 +231,16 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterConvertedItemsToShards]: CharacterAndItems;
   [GameStateUpdateType.CharacterDroppedShards]: {
     characterId: string;
-    shardStack: Consumable;
+    shardStack: SerializedOf<Consumable>;
   };
   [GameStateUpdateType.CharacterPurchasedItem]: {
     characterId: EntityId;
-    item: Consumable;
+    item: SerializedOf<Consumable>;
     price: number;
   };
   [GameStateUpdateType.CharacterPerformedCraftingAction]: {
     characterId: EntityId;
-    item: Item;
+    item: SerializedOf<Equipment>;
     craftingAction: CraftingAction;
   };
   [GameStateUpdateType.PlayerPostedItemLink]: {
@@ -253,7 +258,7 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterTradedItemForBook]: {
     characterId: EntityId;
     itemIdTraded: EntityId;
-    book: Consumable;
+    book: SerializedOf<Consumable>;
   };
   [GameStateUpdateType.CharacterRenamedPet]: {
     petId: EntityId;

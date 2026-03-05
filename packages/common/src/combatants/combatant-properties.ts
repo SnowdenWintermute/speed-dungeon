@@ -6,31 +6,34 @@ import { MonsterType } from "../monsters/monster-types.js";
 import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
-import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
-import {
-  ClassProgressionProperties,
-  CombatantClassProperties,
-} from "./class-progression-properties.js";
+import { ClassProgressionProperties } from "./class-progression-properties.js";
 import { makeAutoObservable } from "mobx";
 import { CombatantResources } from "./combatant-resources.js";
 import { MitigationProperties } from "./combatant-mitigation-properties.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
-import { runIfInBrowser } from "../utils/index.js";
 import {
   CombatantAttributeProperties,
   CombatantClass,
   EntityId,
   ERROR_MESSAGES,
   Inventory,
+  removeUndefinedFields,
 } from "../index.js";
+import { CombatantClassProperties } from "./combatant-class-properties.js";
+import {
+  makePropertiesObservable,
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+} from "../serialization/index.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;
 }
 
-export class CombatantProperties {
+export class CombatantProperties implements Serializable, ReactiveNode {
   // subsystems
   attributeProperties = new CombatantAttributeProperties();
   equipment: CombatantEquipment = new CombatantEquipment();
@@ -43,9 +46,6 @@ export class CombatantProperties {
     new CombatantClassProperties(1, CombatantClass.Warrior)
   );
   mitigationProperties = new MitigationProperties();
-  // need to specially serialize conditions,
-  // see note on conditionManager.serializedConditions
-  @Exclude()
   conditionManager = new CombatantConditionManager();
   transformProperties = new CombatantTransformProperties();
 
@@ -71,8 +71,11 @@ export class CombatantProperties {
       this.transformProperties.setHomePosition(homePosition.clone());
     }
     this.classProgressionProperties.setMainClass(mainClassType);
+  }
 
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
+    makePropertiesObservable(this);
   }
 
   initialize() {
@@ -83,50 +86,78 @@ export class CombatantProperties {
     }
   }
 
-  getSerialized() {
-    const serializedConditionManager = this.conditionManager.getSerialized();
-    const serialized = instanceToPlain(this) as CombatantProperties;
+  toSerialized() {
+    const result = {
+      attributeProperties: this.attributeProperties.toSerialized(),
+      equipment: this.equipment.toSerialized(),
+      inventory: this.inventory.toSerialized(),
+      resources: this.resources.toSerialized(),
+      abilityProperties: this.abilityProperties.toSerialized(),
+      targetingProperties: this.targetingProperties.toSerialized(),
+      threatManager: this.threatManager?.toSerialized(),
+      classProgressionProperties: this.classProgressionProperties.toSerialized(),
+      mitigationProperties: this.mitigationProperties.toSerialized(),
+      conditionManager: this.conditionManager.toSerialized(),
+      transformProperties: this.transformProperties.toSerialized(),
+      deepestFloorReached: this.deepestFloorReached,
+      onDeathProperties: this.onDeathProperties,
+      removeFromPartyOnDeath: this.removeFromPartyOnDeath,
+      giveThreatGeneratedToId: this.giveThreatGeneratedToId,
+      shouldDieWhenCombatantAttachedToDies: this.shouldDieWhenCombatantAttachedToDies,
+      combatantSpecies: this.combatantSpecies,
+      monsterType: this.monsterType,
+      controlledBy: this.controlledBy.toSerialized(),
+      mainClassType: this.classProgressionProperties.getMainClass(),
+    };
 
-    serialized.conditionManager = serializedConditionManager;
-    serialized.abilityProperties = this.abilityProperties.getSerialized();
-    return serialized;
+    return removeUndefinedFields(result);
   }
 
-  static getDeserialized(combatantProperties: CombatantProperties) {
-    const deserialized = plainToInstance(CombatantProperties, combatantProperties);
+  static fromSerialized(serialized: SerializedOf<CombatantProperties>) {
+    const controlledBy = CombatantControlledBy.fromSerialized(serialized.controlledBy);
+    const transformProperties = CombatantTransformProperties.fromSerialized(
+      serialized.transformProperties
+    );
+    const result = new CombatantProperties(
+      serialized.mainClassType.combatantClass,
+      serialized.combatantSpecies,
+      serialized.monsterType,
+      controlledBy,
+      transformProperties.getHomePosition()
+    );
 
-    deserialized.transformProperties = CombatantTransformProperties.getDeserialized(
-      deserialized.transformProperties
+    result.attributeProperties = CombatantAttributeProperties.fromSerialized(
+      serialized.attributeProperties
     );
-    deserialized.inventory = Inventory.getDeserialized(deserialized.inventory);
-    deserialized.equipment = CombatantEquipment.getDeserialized(deserialized.equipment);
-    deserialized.targetingProperties = ActionUserTargetingProperties.getDeserialized(
-      deserialized.targetingProperties
+    result.equipment = CombatantEquipment.fromSerialized(serialized.equipment);
+    result.inventory = Inventory.fromSerialized(serialized.inventory);
+    result.resources = CombatantResources.fromSerialized(serialized.resources);
+    result.abilityProperties = CombatantAbilityProperties.fromSerialized(
+      serialized.abilityProperties
     );
-    // deserialized.classProgressionProperties = ClassProgressionProperties.getDeserialized(
-    //   deserialized.classProgressionProperties
-    // );
-    deserialized.abilityProperties = CombatantAbilityProperties.getDeserialized(
-      deserialized.abilityProperties
+    result.targetingProperties = ActionUserTargetingProperties.fromSerialized(
+      serialized.targetingProperties
     );
-    // deserialized.attributeProperties = CombatantAttributeProperties.fromSerialized(
-    //   deserialized.attributeProperties
-    // );
-    deserialized.resources = CombatantResources.getDeserialized(deserialized.resources);
-
-    if (deserialized.threatManager !== undefined) {
-      deserialized.threatManager = ThreatManager.getDeserialized(deserialized.threatManager);
+    if (serialized.threatManager) {
+      result.threatManager = ThreatManager.fromSerialized(serialized.threatManager);
     }
-    deserialized.controlledBy = CombatantControlledBy.getDeserialized(deserialized.controlledBy);
-    deserialized.mitigationProperties = MitigationProperties.getDeserialized(
-      deserialized.mitigationProperties
+    result.classProgressionProperties = ClassProgressionProperties.fromSerialized(
+      serialized.classProgressionProperties
     );
-
-    deserialized.conditionManager = CombatantConditionManager.getDeserialized(
-      combatantProperties.conditionManager
+    result.mitigationProperties = MitigationProperties.fromSerialized(
+      serialized.mitigationProperties
     );
+    result.conditionManager = CombatantConditionManager.fromSerialized(serialized.conditionManager);
+    result.transformProperties = transformProperties;
+    result.deepestFloorReached = serialized.deepestFloorReached;
+    result.onDeathProperties = serialized.onDeathProperties;
+    result.removeFromPartyOnDeath = serialized.removeFromPartyOnDeath;
+    result.giveThreatGeneratedToId = serialized.giveThreatGeneratedToId;
+    result.shouldDieWhenCombatantAttachedToDies = serialized.shouldDieWhenCombatantAttachedToDies;
 
-    return deserialized;
+    result.initialize();
+
+    return result;
   }
 
   isDead() {

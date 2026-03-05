@@ -3,7 +3,7 @@ import {
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
 import {
   CombatActionTarget,
@@ -12,6 +12,7 @@ import {
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { SpeedDungeonGame } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { Serializable, SerializedOf } from "../serialization/index.js";
 
 export class SpeedDungeonPlayer {
   partyName: null | PartyName = null;
@@ -61,14 +62,18 @@ export class SpeedDungeonPlayer {
   }
 }
 
-export class CombatActionTargetPreferences {
+export class CombatActionTargetPreferences implements Serializable {
   friendlySingle: null | EntityId = null;
   hostileSingle: null | EntityId = null;
   category: null | FriendOrFoe = null;
   targetingSchemePreference: TargetingScheme = TargetingScheme.Single;
 
-  static getDeserialized(targetPreferences: CombatActionTargetPreferences) {
-    return plainToInstance(CombatActionTargetPreferences, targetPreferences);
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<CombatActionTargetPreferences>) {
+    return plainToInstance(CombatActionTargetPreferences, serialized);
   }
 
   clear() {

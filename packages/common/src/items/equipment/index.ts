@@ -15,12 +15,13 @@ import { EquipmentBaseItemProperties } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { ResourceChangeSource } from "../../combat/hp-change-source-types.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
 import { WeaponProperties } from "./equipment-properties/weapon-properties.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -28,7 +29,7 @@ const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.TwoHandedRangedWeapon,
 ];
 
-export class Equipment extends Item {
+export class Equipment extends Item implements Serializable, ReactiveNode {
   attributes: CombatantAttributeRecord = {};
   affixes: EquipmentAffixes = {};
   constructor(
@@ -39,16 +40,24 @@ export class Equipment extends Item {
     public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  static getDeserialized(plain: Equipment) {
-    return plainToInstance(Equipment, plain);
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<Equipment>) {
+    return plainToInstance(Equipment, serialized);
   }
 
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
 
   getBaseArmorClass() {
+    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
     switch (this.equipmentBaseItemProperties.equipmentType) {
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:

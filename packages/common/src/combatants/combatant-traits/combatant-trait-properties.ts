@@ -3,21 +3,26 @@ import { MagicalElement } from "../../combat/magical-elements.js";
 import { Percentage } from "../../aliases.js";
 import { makeAutoObservable } from "mobx";
 import { CombatantTraitType } from "./trait-types.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
-import { plainToInstance } from "class-transformer";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 
-export class CombatantTraitProperties {
+export class CombatantTraitProperties implements Serializable, ReactiveNode {
   inherentElementalAffinities: Partial<Record<MagicalElement, Percentage>> = {};
   inherentKineticDamageTypeAffinities: Partial<Record<KineticDamageType, Percentage>> = {};
   inherentTraitLevels: Partial<Record<CombatantTraitType, number>> = {};
   speccedTraitLevels: Partial<Record<CombatantTraitType, number>> = {};
 
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
   }
 
-  static getDeserialized(plain: CombatantTraitProperties) {
-    return plainToInstance(CombatantTraitProperties, plain);
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<CombatantTraitProperties>) {
+    return plainToInstance(CombatantTraitProperties, serialized);
   }
 
   hasTraitType(traitType: CombatantTraitType) {

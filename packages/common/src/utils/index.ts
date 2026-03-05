@@ -222,3 +222,7 @@ export function calculateBalancedAttributeSynergy(attributeA: number, attributeB
 
   return Math.max(1, Math.round(total));
 }
+
+export function removeUndefinedFields<T extends object>(obj: T): T {
+  return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined)) as T;
+}

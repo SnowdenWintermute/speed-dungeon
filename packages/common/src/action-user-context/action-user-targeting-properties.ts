@@ -7,17 +7,16 @@ import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
 import { makeAutoObservable } from "mobx";
-import { plainToInstance } from "class-transformer";
-import { runIfInBrowser } from "../utils/index.js";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ActionRank, EntityId } from "../aliases.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { ReactiveNode } from "../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class ActionAndRank implements ReactiveNode {
+export class ActionAndRank implements Serializable, ReactiveNode {
   constructor(
     public actionName: CombatActionName,
     public rank: ActionRank
@@ -25,9 +24,17 @@ export class ActionAndRank implements ReactiveNode {
   makeObservable() {
     makeAutoObservable(this);
   }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionAndRank>) {
+    return plainToInstance(ActionAndRank, serialized);
+  }
 }
 
-export class ActionUserTargetingProperties implements ReactiveNode {
+export class ActionUserTargetingProperties implements Serializable, ReactiveNode {
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
   /** Used for when a pet needs to know which target their owner most recently targeted .
@@ -42,11 +49,23 @@ export class ActionUserTargetingProperties implements ReactiveNode {
     this.selectedActionAndRank?.makeObservable();
   }
 
-  static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {
-    actionUserTargetingProperties.targetPreferences = CombatActionTargetPreferences.getDeserialized(
-      actionUserTargetingProperties.targetPreferences
+  toSerialized() {
+    return {
+      ...instanceToPlain(this),
+      targetPreferences: this.targetPreferences.toSerialized(),
+      selectedActionAndRank: this.selectedActionAndRank?.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionUserTargetingProperties>) {
+    const result = plainToInstance(ActionUserTargetingProperties, serialized);
+    if (serialized.selectedActionAndRank) {
+      result.selectedActionAndRank = ActionAndRank.fromSerialized(serialized.selectedActionAndRank);
+    }
+    result.targetPreferences = CombatActionTargetPreferences.fromSerialized(
+      serialized.targetPreferences
     );
-    return plainToInstance(ActionUserTargetingProperties, actionUserTargetingProperties);
+    return result;
   }
 
   clear(options?: { clearTargetingPreferences?: boolean }) {

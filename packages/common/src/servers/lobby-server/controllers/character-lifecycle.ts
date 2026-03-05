@@ -136,8 +136,8 @@ export class CharacterLifecycleController {
       data: {
         username: session.username,
         character: {
-          combatant: savedCharacter.combatant.getSerialized(),
-          pets: savedCharacter.pets.map((pet) => pet.getSerialized()),
+          combatant: savedCharacter.combatant.toSerialized(),
+          pets: savedCharacter.pets.map((pet) => pet.toSerialized()),
         },
       },
     });

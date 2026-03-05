@@ -1,7 +1,6 @@
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { Inventory } from "./inventory/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { ActionEntityProperties } from "../action-entities/index.js";
@@ -14,7 +13,6 @@ import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
-import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
@@ -26,7 +24,7 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { CombatantConditionName } from "../conditions/condition-names.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
-import { ReactiveNode, Serializable } from "../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -49,27 +47,17 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   }
 
   toSerialized() {
-    const serializedCombatantProperties = this.combatantProperties.getSerialized();
-    const serialized = instanceToPlain(this) as Combatant;
-
-    serialized.combatantProperties = serializedCombatantProperties;
-
-    return serialized;
+    return {
+      entityProperties: this.entityProperties,
+      combatantProperties: this.combatantProperties.toSerialized(),
+    };
   }
 
-  static getDeserialized(combatant: Combatant) {
-    const toReturn = plainToInstance(Combatant, combatant);
-
-    const { combatantProperties } = combatant;
-
-    const deserializedCombatantProperties =
-      CombatantProperties.getDeserialized(combatantProperties);
-
-    deserializedCombatantProperties.initialize();
-
-    toReturn.combatantProperties = deserializedCombatantProperties;
-
-    return toReturn;
+  static fromSerialized(serialized: SerializedOf<Combatant>) {
+    return new Combatant(
+      serialized.entityProperties,
+      CombatantProperties.fromSerialized(serialized.combatantProperties)
+    );
   }
 
   getType = () => ActionUserType.Combatant;

@@ -1,4 +1,3 @@
-import { plainToInstance } from "class-transformer";
 import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
@@ -7,7 +6,7 @@ import {
   WearableSlotType,
 } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EntityId } from "../../aliases.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -15,30 +14,14 @@ import { ActionAndRank } from "../../action-user-context/action-user-targeting-p
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { MONSTER_UNARMED_WEAPONS } from "../../monsters/monster-unarmed-weapons.js";
-import { EquipmentBaseItem, EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { WeaponProperties } from "../../items/equipment/equipment-properties/weapon-properties.js";
+import { HoldableHotswapSlot } from "./holdable-hotswap-slot.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { NumericEnumUtils } from "../../utils/numeric-enum-utils.js";
 
-const DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES = [
-  EquipmentType.OneHandedMeleeWeapon,
-  EquipmentType.TwoHandedMeleeWeapon,
-  EquipmentType.TwoHandedRangedWeapon,
-  EquipmentType.Shield,
-];
-
-export class HoldableHotswapSlot {
-  holdables: Partial<Record<HoldableSlotType, Equipment>> = {};
-  forbiddenBaseItems: EquipmentBaseItem[] = [];
-  constructor(public allowedTypes: EquipmentType[] = [...DEFAULT_HOTSWAP_SLOT_ALLOWED_TYPES]) {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
-  static getDeserialized(holdableSlot: HoldableHotswapSlot) {
-    return plainToInstance(HoldableHotswapSlot, holdableSlot);
-  }
-}
-
-export class CombatantEquipment extends CombatantSubsystem {
+export class CombatantEquipment extends CombatantSubsystem implements Serializable, ReactiveNode {
   private wearables: Partial<Record<WearableSlotType, Equipment>> = {};
   private equippedHoldableHotswapSlotIndex: number = 0;
   private inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [
@@ -46,30 +29,35 @@ export class CombatantEquipment extends CombatantSubsystem {
     new HoldableHotswapSlot(),
   ];
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
+    iterateNumericEnumKeyedRecord(this.wearables).forEach(([_, equipment]) =>
+      equipment.makeObservable()
+    );
+    this.inherentHoldableHotswapSlots.forEach((slot) => slot.makeObservable());
   }
 
-  static getDeserialized(equipment: CombatantEquipment) {
-    const deserialized = plainToInstance(CombatantEquipment, equipment);
+  toSerialized() {
+    return {
+      wearables: NumericEnumUtils.serializeNumericEnumRecord(this.wearables),
+      equippedHoldableHotswapSlotIndex: this.equippedHoldableHotswapSlotIndex,
+      inherentHoldableHotswapSlots: this.inherentHoldableHotswapSlots.map((slot) =>
+        slot.toSerialized()
+      ),
+    };
+  }
 
-    for (const [slot, item] of iterateNumericEnumKeyedRecord(deserialized.wearables)) {
-      deserialized.wearables[slot] = Equipment.getDeserialized(item);
-    }
-
-    const deserializedHotswapSlots = deserialized
-      .getHoldableHotswapSlots()
-      .map((slot) => HoldableHotswapSlot.getDeserialized(slot));
-    deserialized.replaceHoldableSlots(deserializedHotswapSlots);
-
-    for (const hotswapSlot of Object.values(deserialized.getHoldableHotswapSlots())) {
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        hotswapSlot.holdables[slot] = Equipment.getDeserialized(item);
-      }
-    }
-
-    return deserialized;
+  static fromSerialized(serialized: SerializedOf<CombatantEquipment>) {
+    const result = new CombatantEquipment();
+    result.wearables = NumericEnumUtils.deserializeNumericEnumRecord(
+      serialized.wearables,
+      Equipment.fromSerialized
+    );
+    result.equippedHoldableHotswapSlotIndex = serialized.equippedHoldableHotswapSlotIndex;
+    result.inherentHoldableHotswapSlots = serialized.inherentHoldableHotswapSlots.map((slot) =>
+      HoldableHotswapSlot.fromSerialized(slot)
+    );
+    return result;
   }
 
   getHoldableHotswapSlots(): HoldableHotswapSlot[] {

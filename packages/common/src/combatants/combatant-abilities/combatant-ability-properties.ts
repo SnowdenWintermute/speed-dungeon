@@ -1,4 +1,3 @@
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import {
   ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED,
   AbilityTreeAbility,
@@ -10,7 +9,6 @@ import { ActionAndRank } from "../../action-user-context/action-user-targeting-p
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
@@ -27,41 +25,42 @@ import { CombatantConditionFactory } from "../../conditions/condition-factory.js
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { MapUtils } from "../../utils/map-utils.js";
 
-export class CombatantAbilityProperties extends CombatantSubsystem {
+export class CombatantAbilityProperties
+  extends CombatantSubsystem
+  implements Serializable, ReactiveNode
+{
   private ownedActions = new Map<CombatActionName, CombatantActionState>();
   private unspentAbilityPoints: number = 0;
   private traitProperties = new CombatantTraitProperties();
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
-  getSerialized() {
-    const traitPropertiesSerialized = instanceToPlain(
-      this.traitProperties as CombatantTraitProperties
-    ) as CombatantTraitProperties;
-
-    const serialized = instanceToPlain(this) as CombatantAbilityProperties;
-    serialized.traitProperties = traitPropertiesSerialized;
-
-    return serialized;
-  }
-
-  static getDeserialized(serialized: CombatantAbilityProperties) {
-    const deserialized = plainToInstance(CombatantAbilityProperties, serialized);
-
-    deserialized.traitProperties = CombatantTraitProperties.getDeserialized(
-      deserialized.traitProperties
-    );
-
-    deserialized.ownedActions = new Map<CombatActionName, CombatantActionState>();
-    for (const [key, value] of Object.entries(serialized.ownedActions)) {
-      deserialized.ownedActions.set(parseInt(key), value);
+  makeObservable() {
+    makeAutoObservable(this);
+    for (const [_, action] of this.ownedActions) {
+      action.makeObservable();
     }
+    this.traitProperties.makeObservable();
+  }
 
-    return deserialized;
+  toSerialized() {
+    return {
+      ownedActions: MapUtils.serialize(this.ownedActions, (v) => v.toSerialized()),
+      unspentAbilityPoints: this.unspentAbilityPoints,
+      traitProperties: this.traitProperties.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<CombatantAbilityProperties>) {
+    const result = new CombatantAbilityProperties();
+    result.ownedActions = MapUtils.deserialize(
+      serialized.ownedActions,
+      CombatantActionState.fromSerialized
+    );
+    result.unspentAbilityPoints = serialized.unspentAbilityPoints;
+    result.traitProperties = CombatantTraitProperties.fromSerialized(serialized.traitProperties);
+    return result;
   }
 
   getUnspentPointsCount() {

@@ -3,7 +3,6 @@ import { ERROR_MESSAGES } from "../../errors/index.js";
 import { Item, ItemType } from "../../items/index.js";
 import { Consumable } from "../../items/consumables/index.js";
 import { Equipment } from "../../items/equipment/index.js";
-import { plainToInstance } from "class-transformer";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
 import { EntityId } from "../../aliases.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
@@ -13,7 +12,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ConsumableType } from "../../items/consumables/consumable-types.js";
 import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
-import { ReactiveNode, Serializable } from "../../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 
 export class Inventory extends CombatantSubsystem implements Serializable, ReactiveNode {
   consumables: Consumable[] = [];
@@ -23,32 +22,26 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
 
   makeObservable() {
     makeAutoObservable(this);
+    this.consumables.forEach((item) => item.makeObservable());
+    this.equipment.forEach((item) => item.makeObservable());
   }
 
   toSerialized() {
     return {
-      consumables: this.consumables.map((consumable) => consumable.toSerialized()),
+      consumables: this.consumables.map((item) => item.toSerialized()),
+      equipment: this.equipment.map((item) => item.toSerialized()),
+      capacity: this.capacity,
+      shards: this.shards,
     };
   }
 
-  static fromSerialized(inventory: Inventory) {
-    const deserialized = plainToInstance(Inventory, inventory);
-    deserialized.instantiateItemClasses();
-
-    return deserialized;
-  }
-
-  private instantiateItemClasses() {
-    const consumables: Consumable[] = [];
-    const equipments: Equipment[] = [];
-    for (const consumable of this.consumables) {
-      consumables.push(plainToInstance(Consumable, consumable));
-    }
-    for (const equipment of this.equipment) {
-      equipments.push(Equipment.getDeserialized(equipment));
-    }
-    this.consumables = consumables;
-    this.equipment = equipments;
+  static fromSerialized(serialized: SerializedOf<Inventory>) {
+    const result = new Inventory();
+    result.consumables = serialized.consumables.map((item) => Consumable.fromSerialized(item));
+    result.equipment = serialized.equipment.map((item) => Equipment.fromSerialized(item));
+    result.capacity = serialized.capacity;
+    result.shards = serialized.shards;
+    return result;
   }
 
   getItemsCount() {
