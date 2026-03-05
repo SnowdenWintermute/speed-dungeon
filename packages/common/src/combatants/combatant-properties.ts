@@ -5,7 +5,6 @@ import { CombatantSpecies } from "./combatant-species.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { CombatantEquipment } from "./combatant-equipment/index.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
-import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
 import {
@@ -19,7 +18,13 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { CombatantConditionManager } from "./condition-manager.js";
 import { CombatantTransformProperties } from "./combatant-transform-properties.js";
 import { runIfInBrowser } from "../utils/index.js";
-import { CombatantClass, EntityId, ERROR_MESSAGES, Inventory } from "../index.js";
+import {
+  CombatantAttributeProperties,
+  CombatantClass,
+  EntityId,
+  ERROR_MESSAGES,
+  Inventory,
+} from "../index.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;
@@ -98,15 +103,15 @@ export class CombatantProperties {
     deserialized.targetingProperties = ActionUserTargetingProperties.getDeserialized(
       deserialized.targetingProperties
     );
-    deserialized.classProgressionProperties = ClassProgressionProperties.getDeserialized(
-      deserialized.classProgressionProperties
-    );
+    // deserialized.classProgressionProperties = ClassProgressionProperties.getDeserialized(
+    //   deserialized.classProgressionProperties
+    // );
     deserialized.abilityProperties = CombatantAbilityProperties.getDeserialized(
       deserialized.abilityProperties
     );
-    deserialized.attributeProperties = CombatantAttributeProperties.getDeserialized(
-      deserialized.attributeProperties
-    );
+    // deserialized.attributeProperties = CombatantAttributeProperties.fromSerialized(
+    //   deserialized.attributeProperties
+    // );
     deserialized.resources = CombatantResources.getDeserialized(deserialized.resources);
 
     if (deserialized.threatManager !== undefined) {

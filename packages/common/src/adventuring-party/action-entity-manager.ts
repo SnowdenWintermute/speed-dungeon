@@ -5,9 +5,8 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
 import { runIfInBrowser } from "../utils/index.js";
 import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
-import { DeserializableConstructor, ReactiveNode, Serializable } from "../serialization/index.js";
 
-export class ActionEntityManager implements Serializable, ReactiveNode {
+export class ActionEntityManager {
   private actionEntities = new Map<EntityId, ActionEntity>();
 
   constructor() {
@@ -87,5 +86,3 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
     return removed;
   }
 }
-
-ActionEntityManager satisfies DeserializableConstructor<ActionEntityManager>;

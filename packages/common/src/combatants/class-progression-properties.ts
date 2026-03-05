@@ -1,5 +1,4 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { plainToInstance } from "class-transformer";
 import { AbilityUtils } from "../abilities/ability-utils.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
@@ -7,74 +6,48 @@ import {
   ABILITY_POINTS_AWARDED_PER_LEVEL,
   ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
   COMBATANT_MAX_LEVEL,
-  XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT,
-  XP_REQUIRED_TO_REACH_LEVEL_2,
 } from "../app-consts.js";
-import { runIfInBrowser } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "./combatant-class/classes.js";
+import { CombatantClass } from "./combatant-class/classes.js";
 import { calculateTotalExperience } from "./experience-points/calculate-total-experience.js";
+import { ExperiencePoints } from "./experience-points/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { CombatantClassProperties } from "./combatant-class-properties.js";
 
-export class ExperiencePoints {
-  private current: number = 0;
-  private requiredForNextLevel: null | number = XP_REQUIRED_TO_REACH_LEVEL_2;
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
-  static getDeserialized(experiencePoints: ExperiencePoints) {
-    return plainToInstance(ExperiencePoints, experiencePoints);
-  }
-
-  changeExperience(value: number) {
-    this.current += value;
-  }
-
-  getCurrent() {
-    return this.current;
-  }
-
-  getRequiredForNextLevel() {
-    return this.requiredForNextLevel;
-  }
-
-  incrementNextLevelRequirement() {
-    if (this.requiredForNextLevel === null) return;
-    this.requiredForNextLevel += XP_REQUIRED_TO_LEVEL_INCREASE_INCREMENT;
-  }
-}
-
-export class CombatantClassProperties {
-  constructor(
-    public level: number,
-    public combatantClass: CombatantClass
-  ) {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
-  getStringName() {
-    return COMBATANT_CLASS_NAME_STRINGS[this.combatantClass];
-  }
-}
-
-export class ClassProgressionProperties extends CombatantSubsystem {
+export class ClassProgressionProperties
+  extends CombatantSubsystem
+  implements ReactiveNode, Serializable
+{
   private supportClass: null | CombatantClassProperties = null;
   public experiencePoints = new ExperiencePoints();
 
   constructor(private mainClass: CombatantClassProperties) {
     super();
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  static getDeserialized(self: ClassProgressionProperties) {
-    const deserialized = plainToInstance(ClassProgressionProperties, self);
-    deserialized.experiencePoints = ExperiencePoints.getDeserialized(deserialized.experiencePoints);
-    deserialized.mainClass = plainToInstance(CombatantClassProperties, self.mainClass);
-    if (self.supportClass !== null) {
-      deserialized.supportClass = plainToInstance(CombatantClassProperties, self.supportClass);
-    }
-    return deserialized;
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return {
+      mainClass: this.mainClass.toSerialized(),
+      supportClass: this.supportClass ? this.supportClass.toSerialized() : null,
+      experiencePoints: this.experiencePoints.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<ClassProgressionProperties>) {
+    const { mainClass, supportClass, experiencePoints } = serialized;
+    const result = new ClassProgressionProperties(
+      CombatantClassProperties.fromSerialized(mainClass)
+    );
+    result.experiencePoints = ExperiencePoints.fromSerialized(experiencePoints);
+    result.supportClass = supportClass
+      ? CombatantClassProperties.fromSerialized(supportClass)
+      : null;
+    return result;
   }
 
   getSupportClassOption() {

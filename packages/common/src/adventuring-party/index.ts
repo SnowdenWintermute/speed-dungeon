@@ -71,9 +71,9 @@ export class AdventuringParty {
       toReturn.dungeonExplorationManager
     );
     toReturn.petManager = PetManager.getDeserialized(toReturn.petManager);
-    toReturn.actionEntityManager = ActionEntityManager.getDeserialized(
-      toReturn.actionEntityManager
-    );
+    // toReturn.actionEntityManager = ActionEntityManager.getDeserialized(
+    //   toReturn.actionEntityManager
+    // );
 
     toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
 

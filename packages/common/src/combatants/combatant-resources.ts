@@ -1,26 +1,34 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
 import { ActionPayableResource } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
 import { CombatAttribute } from "./attributes/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
-export class CombatantResources extends CombatantSubsystem {
+export class CombatantResources extends CombatantSubsystem implements ReactiveNode, Serializable {
   private hitPoints: number = 1;
   private mana: number = 0;
   private actionPoints: number = 0;
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, {}));
+  makeObservable() {
+    makeAutoObservable(this);
   }
 
-  static getDeserialized(self: CombatantResources) {
-    const deserialized = plainToInstance(CombatantResources, self);
+  toSerialized() {
+    return instanceToPlain(this);
+  }
 
-    return deserialized;
+  static fromSerialized(
+    serialized: SerializedOf<CombatantResources>,
+    combatantProperties: CombatantProperties
+  ) {
+    const result = plainToInstance(CombatantResources, serialized);
+    result.initialize(combatantProperties);
+    return result;
   }
 
   getHitPoints() {

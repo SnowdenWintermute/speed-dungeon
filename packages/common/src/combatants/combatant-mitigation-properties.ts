@@ -1,4 +1,4 @@
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { MagicalElement } from "../combat/magical-elements.js";
@@ -6,10 +6,22 @@ import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { CombatantTraitType } from "./combatant-traits/trait-types.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { EquipmentType } from "../items/equipment/equipment-types/index.js";
+import { Serializable, SerializedOf } from "../serialization/index.js";
+import { CombatantProperties } from "./combatant-properties.js";
 
-export class MitigationProperties extends CombatantSubsystem {
-  static getDeserialized(self: MitigationProperties) {
-    return plainToInstance(MitigationProperties, self);
+export class MitigationProperties extends CombatantSubsystem implements Serializable {
+  toSerialized() {
+    const result = instanceToPlain(this);
+    return result;
+  }
+
+  static fromSerialized(
+    serialized: SerializedOf<MitigationProperties>,
+    combatantProperties: CombatantProperties
+  ) {
+    const result = plainToInstance(MitigationProperties, serialized);
+    result.initialize(combatantProperties);
+    return result;
   }
 
   private isPassive() {

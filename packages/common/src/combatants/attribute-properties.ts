@@ -31,12 +31,12 @@ export class CombatantAttributeProperties
   }
 
   static fromSerialized(serialized: SerializedOf<CombatantAttributeProperties>) {
-    const deserialized = new CombatantAttributeProperties();
-    deserialized.inherentAttributes = serialized.inherentAttributes;
-    deserialized.speccedAttributes = serialized.speccedAttributes;
-    deserialized.unspentAttributePoints = serialized.unspentAttributePoints;
+    const result = new CombatantAttributeProperties();
+    result.inherentAttributes = serialized.inherentAttributes;
+    result.speccedAttributes = serialized.speccedAttributes;
+    result.unspentAttributePoints = serialized.unspentAttributePoints;
 
-    return deserialized;
+    return result;
   }
 
   allocatePoint(attribute: CombatAttribute) {
