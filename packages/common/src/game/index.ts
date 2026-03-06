@@ -313,7 +313,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
   // deprecated - use getExpectedCombatant
   getCombatantById(entityId: string) {
-    for (const party of Object.values(this.adventuringParties)) {
+    for (const [_, party] of this.adventuringParties) {
       const combatantOption = party.combatantManager.getCombatantOption(entityId);
       const combatantWasFound = combatantOption !== undefined;
       if (combatantWasFound) {
@@ -325,7 +325,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   getExpectedCombatant(entityId: CombatantId) {
-    for (const party of Object.values(this.adventuringParties)) {
+    for (const [_, party] of this.adventuringParties) {
       const combatantOption = party.combatantManager.getCombatantOption(entityId);
       const combatantWasFound = combatantOption !== undefined;
       if (combatantWasFound) {

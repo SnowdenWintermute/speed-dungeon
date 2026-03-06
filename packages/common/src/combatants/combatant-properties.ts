@@ -79,7 +79,9 @@ export class CombatantProperties implements Serializable, ReactiveNode {
   initialize() {
     for (const value of Object.values(this)) {
       const isSubsystem = value instanceof CombatantSubsystem;
-      if (!isSubsystem) continue;
+      if (!isSubsystem) {
+        continue;
+      }
       value.initialize(this);
     }
   }
@@ -121,8 +123,10 @@ export class CombatantProperties implements Serializable, ReactiveNode {
       serialized.combatantSpecies,
       serialized.monsterType,
       controlledBy,
-      transformProperties.getHomePosition()
+      Vector3.Zero()
     );
+
+    result.transformProperties = transformProperties;
 
     result.attributeProperties = CombatantAttributeProperties.fromSerialized(
       serialized.attributeProperties
@@ -146,13 +150,13 @@ export class CombatantProperties implements Serializable, ReactiveNode {
       serialized.mitigationProperties
     );
     result.conditionManager = CombatantConditionManager.fromSerialized(serialized.conditionManager);
-    result.transformProperties = transformProperties;
     result.deepestFloorReached = serialized.deepestFloorReached;
     result.onDeathProperties = serialized.onDeathProperties;
     result.removeFromPartyOnDeath = serialized.removeFromPartyOnDeath;
     result.giveThreatGeneratedToId = serialized.giveThreatGeneratedToId;
     result.shouldDieWhenCombatantAttachedToDies = serialized.shouldDieWhenCombatantAttachedToDies;
 
+    console.log("about to initialize combatant properties");
     result.initialize();
 
     return result;

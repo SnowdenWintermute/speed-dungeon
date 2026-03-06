@@ -15,7 +15,7 @@ export class CombatantSubsystem {
 
   protected getCombatantProperties() {
     if (this.combatantProperties === undefined) {
-      throw new Error(ERROR_MESSAGES.CLASS_INSTANCE_NOT_INITIALIZED);
+      throw new Error(`${ERROR_MESSAGES.CLASS_INSTANCE_NOT_INITIALIZED}: ${JSON.stringify(this)}`);
     }
     return this.combatantProperties;
   }

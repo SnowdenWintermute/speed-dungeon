@@ -69,7 +69,7 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
   }
 
   getExistingActionEntityOfType(actionEntityType: ActionEntityName) {
-    for (const actionEntity of Object.values(this.actionEntities)) {
+    for (const [_, actionEntity] of this.actionEntities) {
       if (actionEntity.actionEntityProperties.name === actionEntityType) return actionEntity;
     }
     return null;

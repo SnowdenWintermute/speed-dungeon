@@ -64,6 +64,7 @@ export class GameStore {
   }
 
   setGame(game: SpeedDungeonGame) {
+    console.log("set game in store:", game.adventuringParties);
     this.game = game;
   }
 
@@ -215,7 +216,7 @@ export class GameStore {
   getFocusedCharacterOption: () => undefined | Combatant = () => {
     const focusedCharacterId = this.getFocusedCharacterIdOption();
     if (this.game === null || focusedCharacterId === null) return undefined;
-    const result = this.game.getCombatantById(focusedCharacterId);
+    const result = this.game.getExpectedCombatant(focusedCharacterId);
     if (result instanceof Error) {
       console.error(result);
       return undefined;

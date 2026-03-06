@@ -139,7 +139,7 @@ export class DungeonExplorationController {
 
     if (partyEscapedTheDungeon) {
       let anotherPartyAlreadyEscaped = false;
-      for (const party of Object.values(game.adventuringParties)) {
+      for (const [_, party] of game.adventuringParties) {
         if (party.timeOfEscape) {
           anotherPartyAlreadyEscaped = true;
           break;

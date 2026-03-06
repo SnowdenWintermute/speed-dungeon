@@ -20,11 +20,14 @@ export async function synchronizeCombatantModelsWithAppState(options: {
   softCleanup?: boolean;
   onComplete?: () => void;
 }) {
-  if (!gameWorldView.current) return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
+  if (!gameWorldView.current) {
+    return new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
+  }
   const { modelManager } = gameWorldView.current;
 
   // determine which models should exist and their positions based on game state
   const modelsAndPositions = getModelsAndPositions();
+  console.log("models modelsAndPositions:", modelsAndPositions);
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
 
   const { gameWorldStore } = AppStore.get();
@@ -40,14 +43,13 @@ export async function synchronizeCombatantModelsWithAppState(options: {
 
   const modelSpawnPromises: Promise<Error | CharacterModel>[] = [];
 
-  for (const [entityId, { combatant, homeLocation, homeRotation }] of Object.entries(
-    modelsAndPositions
-  )) {
+  for (const [entityId, { combatant, homeLocation, homeRotation }] of modelsAndPositions) {
     const modelOption = modelManager.combatantModels[entityId];
 
     if (!modelOption) {
       // start spawning model which we need to
 
+      console.log("spawning");
       gameWorldStore.setModelLoading(entityId);
       modelSpawnPromises.push(
         spawnCharacterModel(
@@ -62,6 +64,7 @@ export async function synchronizeCombatantModelsWithAppState(options: {
         )
       );
     } else {
+      console.log("model exists, moving", homeLocation);
       // move models to correct positions
       modelOption.setHomeRotation(cloneDeep(homeRotation));
       modelOption.setHomeLocation(cloneDeep(homeLocation));
@@ -115,7 +118,8 @@ function getModelsAndPositions() {
   } else if (inGame) {
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
-    for (const combatant of combatantManager.getAllCombatants()) {
+    const allCombatants = combatantManager.getAllCombatants();
+    for (const combatant of allCombatants) {
       modelsAndPositions.set(combatant.entityProperties.id, {
         combatant,
         homeRotation: combatant.combatantProperties.transformProperties.homeRotation,

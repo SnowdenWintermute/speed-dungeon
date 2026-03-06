@@ -54,10 +54,10 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   }
 
   static fromSerialized(serialized: SerializedOf<Combatant>) {
-    return new Combatant(
-      serialized.entityProperties,
-      CombatantProperties.fromSerialized(serialized.combatantProperties)
+    const deserializedCombatantProperties = CombatantProperties.fromSerialized(
+      serialized.combatantProperties
     );
+    return new Combatant(serialized.entityProperties, deserializedCombatantProperties);
   }
 
   getType = () => ActionUserType.Combatant;

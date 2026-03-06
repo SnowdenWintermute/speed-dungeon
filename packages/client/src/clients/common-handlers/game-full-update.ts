@@ -16,6 +16,7 @@ export function gameFullUpdateHandler(
   let deserializedGame: null | SpeedDungeonGame = null;
   if (game) {
     deserializedGame = SpeedDungeonGame.fromSerialized(game);
+    console.log("got deserializedGame", deserializedGame);
     deserializedGame.makeObservable();
   } else {
     gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
