@@ -25,6 +25,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
   private previouslyHighestThreatId: null | EntityId = null;
 
   makeObservable() {
+    console.log("making threat manager observable");
     makeAutoObservable(this);
     this.threatScoresByCombatantId.forEach((entry) => entry.makeObservable());
   }
@@ -40,7 +41,10 @@ export class ThreatManager implements Serializable, ReactiveNode {
 
   static fromSerialized(serialized: SerializedOf<ThreatManager>) {
     const result = new ThreatManager();
-    result.threatScoresByCombatantId = MapUtils.deserialize(serialized.threatScoresByCombatantId);
+    result.threatScoresByCombatantId = MapUtils.deserialize(
+      serialized.threatScoresByCombatantId,
+      (v) => ThreatTableEntry.fromSerialized(v)
+    );
     result.previouslyHighestThreatId = serialized.previouslyHighestThreatId;
     return result;
   }
@@ -65,9 +69,10 @@ export class ThreatManager implements Serializable, ReactiveNode {
   }
 
   getHighestThreatCombatantId(): EntityId | null {
-    const entries = Object.entries(this.threatScoresByCombatantId);
-    if (entries.length === 0) return null;
-    return entries.reduce((a, b) => (a[1].getTotal() > b[1].getTotal() ? a : b))[0];
+    if (this.threatScoresByCombatantId.size === 0) return null;
+    return [...this.threatScoresByCombatantId].reduce((a, b) =>
+      a[1].getTotal() > b[1].getTotal() ? a : b
+    )[0];
   }
 
   getEntries() {

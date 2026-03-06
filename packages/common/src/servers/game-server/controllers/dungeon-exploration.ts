@@ -274,7 +274,7 @@ export class DungeonExplorationController {
     dungeonExplorationManager.incrementExploredRoomsTrackers();
 
     if (party.combatantManager.monstersArePresent()) {
-      const battleIdResult = Battle.createInitialized(game, party, this.idGenerator);
+      const battleIdResult = Battle.createInitialized(game, party, this.idGenerator.generate());
       party.battleId = battleIdResult;
     }
 

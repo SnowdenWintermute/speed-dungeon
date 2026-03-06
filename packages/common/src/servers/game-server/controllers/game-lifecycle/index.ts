@@ -52,6 +52,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     const deserializedGame = SpeedDungeonGame.fromSerialized(pendingGameSetupOption.game);
+    deserializedGame.initializeBattles();
     const newGame = deserializedGame;
 
     this.gameRegistry.registerGame(newGame);

@@ -49,6 +49,7 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { toJS } from "mobx";
 import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
+import { deserialize } from "v8";
 
 export type GameUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -99,7 +100,6 @@ export function createGameUpdateHandlers(
       //
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
-      console.log("game client game full update");
       gameFullUpdateHandler(data.game, gameStore, actionMenuStore, gameWorldView);
     },
     [GameStateUpdateType.GameStarted]: (_) => {
@@ -159,6 +159,7 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.DungeonRoomUpdate]: (data) => {
       const { dungeonRoom, actionEntitiesToRemove, monsters } = data;
       const deserializedRoom = DungeonRoom.fromSerialized(dungeonRoom);
+      deserializedRoom.makeObservable();
       const itemIdsOnGroundInPreviousRoom: string[] = [];
       const newItemsOnGround: Item[] = [];
 
@@ -192,6 +193,7 @@ export function createGameUpdateHandlers(
       const game = gameStore.getExpectedGame();
       for (const combatant of monsters) {
         const deserialized = Combatant.fromSerialized(combatant);
+        deserialized.makeObservable();
         combatantManager.addCombatant(deserialized, game);
       }
 
@@ -259,6 +261,7 @@ export function createGameUpdateHandlers(
         const battle = battleOption;
         party.battleId = battle.id;
         const deserializedBattle = Battle.fromSerialized(battle);
+        deserializedBattle.initialize(game, party);
         game.battles.set(battle.id, deserializedBattle);
 
         const currentActorIsPlayerControlled =
@@ -535,13 +538,8 @@ export function createGameUpdateHandlers(
           }
         }
       }
-      try {
-        combatant.convertOwnedItemsToShards(itemIds);
-      } catch (error) {
-        if (error instanceof Error) {
-          setAlert(error);
-        }
-      }
+
+      combatant.convertOwnedItemsToShards(itemIds);
 
       gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
         type: ModelActionType.SynchronizeCombatantEquipmentModels,

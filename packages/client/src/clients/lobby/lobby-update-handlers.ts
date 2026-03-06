@@ -114,21 +114,14 @@ export function createLobbyUpdateHandlers(
       const { username, character, pets } = data;
       const { game, party, player } = gameStore.getExpectedPlayerContext(username);
 
-      try {
-        const deserialized = Combatant.fromSerialized(character);
-        const deserializedPets: Combatant[] = [];
-        for (const pet of pets) {
-          const deserializedPet = Combatant.fromSerialized(pet);
-          deserializedPets.push(deserializedPet);
-        }
-
-        game.addCharacterToParty(party, player, deserialized, deserializedPets);
-      } catch (error) {
-        if (error instanceof Error) {
-          setAlert(error.message);
-          console.trace(error);
-        } else console.error(error);
+      const deserialized = Combatant.fromSerialized(character);
+      const deserializedPets: Combatant[] = [];
+      for (const pet of pets) {
+        const deserializedPet = Combatant.fromSerialized(pet);
+        deserializedPets.push(deserializedPet);
       }
+
+      game.addCharacterToParty(party, player, deserialized, deserializedPets);
 
       if (game.mode === GameMode.Progression) {
         gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
@@ -169,19 +162,15 @@ export function createLobbyUpdateHandlers(
 
       const previouslySelectedCharacterId = player.characterIds[0];
       if (previouslySelectedCharacterId) {
-        try {
-          const removedCharacterResult = party.removeCharacter(
-            previouslySelectedCharacterId,
-            player,
-            game
-          );
-          game.lowestStartingFloorOptionsBySavedCharacter.delete(
-            removedCharacterResult.entityProperties.id
-          );
-          party.combatantManager.updateHomePositions();
-        } catch (err) {
-          return setAlert(err as Error);
-        }
+        const removedCharacterResult = party.removeCharacter(
+          previouslySelectedCharacterId,
+          player,
+          game
+        );
+        game.lowestStartingFloorOptionsBySavedCharacter.delete(
+          removedCharacterResult.entityProperties.id
+        );
+        party.combatantManager.updateHomePositions();
       }
 
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);

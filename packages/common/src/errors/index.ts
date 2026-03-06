@@ -88,7 +88,7 @@ export const ERROR_MESSAGES = {
     GUEST_ALREADY_EXISTS: "Guest by that id already is connected",
   },
   COMBATANT: {
-    NOT_FOUND: "No combatant was found with the provided ID",
+    NOT_FOUND: (id: string) => `No combatant was found with the provided ID ${id}`,
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
     NO_ACTION_LEVEL_SELECTED: "That combatant has no selected action level",

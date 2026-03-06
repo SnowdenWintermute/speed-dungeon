@@ -22,10 +22,9 @@ export enum TurnTrackerSortableProperty {
 export class TurnSchedulerManager {
   private schedulers: ITurnScheduler[] = [];
 
-  constructor(
-    private minTurnTrackersCount: number,
-    party: AdventuringParty
-  ) {
+  constructor(private minTurnTrackersCount: number) {}
+
+  createSchedulers(party: AdventuringParty) {
     const { combatants, tickableConditions } =
       party.combatantManager.getAllTickableConditionsAndCombatants();
 

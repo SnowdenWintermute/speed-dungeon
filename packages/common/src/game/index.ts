@@ -50,7 +50,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   makeObservable() {
-    console.log("making game observable", this);
     makeAutoObservable(this);
     for (const [_, player] of this.players) {
       player.makeObservable();
@@ -107,6 +106,16 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
 
     return result;
+  }
+
+  initializeBattles() {
+    for (const [_, party] of this.adventuringParties) {
+      const battleOption = party.getBattleOption(this);
+      if (battleOption) {
+        battleOption.initialize(this, party);
+        console.info("initialized battle", battleOption.id);
+      }
+    }
   }
 
   getPlayers() {
@@ -331,7 +340,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       }
     }
 
-    return new Error(`${ERROR_MESSAGES.COMBATANT.NOT_FOUND}: Entity Id: ${entityId}`);
+    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(entityId));
   }
 
   getExpectedCombatant(entityId: CombatantId) {
@@ -343,18 +352,18 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       }
     }
 
-    throw new Error(`${ERROR_MESSAGES.COMBATANT.NOT_FOUND}: Entity Id: ${entityId}`);
+    throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(entityId));
   }
 
   getPartyOfCombatant(combatantId: string): Error | AdventuringParty {
-    for (const party of Object.values(this.adventuringParties)) {
+    for (const [_, party] of this.adventuringParties) {
       const { combatantManager } = party;
       const combatantOption = combatantManager.getCombatantOption(combatantId);
       const combatantExistsInThisParty = combatantOption !== undefined;
       if (combatantExistsInThisParty) return party;
     }
 
-    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
   }
 
   getPlayerPartyOption(username: Username): AdventuringParty | undefined {
@@ -376,7 +385,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   getMaxStartingFloor() {
     let maxFloor;
 
-    for (const floor of Object.values(this.lowestStartingFloorOptionsBySavedCharacter)) {
+    for (const [_, floor] of this.lowestStartingFloorOptionsBySavedCharacter) {
       if (!maxFloor) maxFloor = floor;
       else if (maxFloor > floor) maxFloor = floor;
     }
@@ -400,7 +409,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   allPartiesWiped() {
-    for (const party of Object.values(this.adventuringParties)) {
+    for (const [_, party] of this.adventuringParties) {
       if (party.timeOfWipe === null) {
         return false;
       }

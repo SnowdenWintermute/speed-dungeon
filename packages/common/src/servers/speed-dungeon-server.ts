@@ -108,6 +108,8 @@ export abstract class SpeedDungeonServer {
               data: { message: error.message },
             });
             this.dispatchOutboxMessages(errorOutbox);
+
+            console.trace(error);
           } else {
             console.trace(error);
           }

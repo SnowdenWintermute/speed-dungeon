@@ -6,10 +6,14 @@ import { getChildMeshByName } from "../game-world-view-utils";
 import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
 export async function createCombatantPortrait(combatantId: string) {
-  if (!gameWorldView.current) return;
+  if (!gameWorldView.current) {
+    return;
+  }
   const world = gameWorldView.current;
   const combatantModelOption = gameWorldView.current.modelManager.combatantModels[combatantId];
-  if (!combatantModelOption) return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+  if (!combatantModelOption) {
+    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
+  }
 
   let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "DEF-head");
   if (!headBoneOption) headBoneOption = combatantModelOption.rootMesh;
@@ -54,7 +58,9 @@ export async function createCombatantPortrait(combatantId: string) {
 
   for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) mesh.layerMask = LAYER_MASK_1;
 
-  world.imageManager.portraitEngine.runRenderLoop(() => {});
+  world.imageManager.portraitEngine.runRenderLoop(() => {
+    //
+  });
   const image = await CreateScreenshotUsingRenderTargetAsync(
     // using this engine instead of the main engine somehow works
     // and avoids the flash of low resolution rendering to the main canvas

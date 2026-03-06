@@ -5,20 +5,13 @@ import { applyExperiencePointChanges } from "../combatants/experience-points/app
 import { SpeedDungeonGame } from "../game/index.js";
 import { FriendOrFoe } from "../index.js";
 import { EntityId } from "../aliases.js";
-import { IdGenerator } from "../utility-classes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 
 export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
-  constructor(
-    public id: EntityId,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ) {
-    this.turnOrderManager = new TurnOrderManager(game, party);
-    party.combatantManager.refillAllCombatantActionPoints();
+  constructor(public id: EntityId) {
+    this.turnOrderManager = new TurnOrderManager();
   }
 
   makeObservable(): void {
@@ -26,21 +19,25 @@ export class Battle implements Serializable, ReactiveNode {
   }
 
   toSerialized() {
-    return instanceToPlain(this);
+    return {
+      id: this.id,
+    };
   }
 
   static fromSerialized(serialized: SerializedOf<Battle>) {
-    return plainToInstance(Battle, serialized);
+    return new Battle(serialized.id);
   }
 
-  static createInitialized(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    idGenerator: IdGenerator
-  ) {
-    const battle = new Battle(idGenerator.generate(), game, party);
-    game.battles.set(battle.id, battle);
-    battle.turnOrderManager.updateTrackers(game, party);
+  initialize(game: SpeedDungeonGame, party: AdventuringParty) {
+    party.combatantManager.refillAllCombatantActionPoints();
+    game.battles.set(this.id, this);
+    this.turnOrderManager.turnSchedulerManager.createSchedulers(party);
+    this.turnOrderManager.updateTrackers(game, party);
+  }
+
+  static createInitialized(game: SpeedDungeonGame, party: AdventuringParty, id: EntityId) {
+    const battle = new Battle(id);
+    battle.initialize(game, party);
     return battle.id;
   }
 

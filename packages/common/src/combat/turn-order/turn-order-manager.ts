@@ -16,12 +16,8 @@ import { ReactiveNode } from "../../serialization/index.js";
 
 export class TurnOrderManager implements ReactiveNode {
   private minTrackersCount: number = 12;
-  turnSchedulerManager: TurnSchedulerManager;
   private turnTrackers: TurnTracker[] = [];
-  constructor(game: SpeedDungeonGame, party: AdventuringParty) {
-    this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, party);
-    this.updateTrackers(game, party);
-  }
+  turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount);
 
   makeObservable(): void {
     makeAutoObservable(this);

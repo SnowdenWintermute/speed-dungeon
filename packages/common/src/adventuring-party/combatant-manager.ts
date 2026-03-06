@@ -26,7 +26,6 @@ export class CombatantManager
   private combatants = new Map<EntityId, Combatant>();
 
   makeObservable(): void {
-    console.log("making combatant manager observable", this.combatants);
     makeAutoObservable(this);
     for (const [_, combatant] of this.combatants) {
       combatant.makeObservable();
@@ -44,7 +43,6 @@ export class CombatantManager
     result.combatants = MapUtils.deserialize(serialized.combatants, (v) =>
       Combatant.fromSerialized(v)
     );
-    console.log("deserialized combatant manager:", result);
     return result;
   }
 
@@ -55,7 +53,7 @@ export class CombatantManager
   getExpectedCombatant(combatantId: EntityId) {
     const combatantOption = this.getCombatantOption(combatantId);
     if (combatantOption === undefined) {
-      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND + combatantId);
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
     }
     return combatantOption;
   }
@@ -181,7 +179,9 @@ export class CombatantManager
     conditionId: EntityId
   ): CombatantCondition {
     const conditionOption = this.getConditionOptionOnCombatant(combatantId, conditionId);
-    if (conditionOption === undefined) throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    if (conditionOption === undefined) {
+      throw new Error(`combatant ${combatantId} or condition ${conditionId} not found`);
+    }
     return conditionOption;
   }
 

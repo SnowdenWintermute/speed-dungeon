@@ -315,7 +315,8 @@ export class ThreatCalculator {
       if (monster.combatantProperties.isDead()) continue;
       const { threatManager } = monster.combatantProperties;
       if (threatManager === undefined) continue;
-      for (const [combatantId, threatEntry] of Object.entries(threatManager.getEntries())) {
+      for (const [combatantId, threatEntry] of threatManager.getEntries()) {
+        console.log("addVolatileThreatDecay");
         this.threatChanges.addOrUpdateEntry(
           monster.getEntityId(),
           combatantId,

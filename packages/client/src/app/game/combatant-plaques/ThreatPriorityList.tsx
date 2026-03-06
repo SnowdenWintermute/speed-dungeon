@@ -31,7 +31,7 @@ export const ThreatPriorityList = observer(({ threatManager }: Props) => {
   return (
     <div className={`min-h-full pointer-events-auto pr-1`}>
       <ul>
-        {Object.entries(entries)
+        {[...entries]
           .sort((a, b) => b[1].getTotal() - a[1].getTotal())
           .map(([entityId, threatTableEntry], i) => (
             <li key={entityId} className="mb-1 last:mb-0">

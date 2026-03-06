@@ -61,10 +61,6 @@ export class ManaChange {
 }
 
 export class ManaChanges extends ResourceChanges<ManaChange> {
-  constructor() {
-    super();
-  }
-
   applyToGame(party: AdventuringParty) {
     for (const [targetId, change] of Object.entries(this.changes)) {
       const target = party.combatantManager.getExpectedCombatant(targetId);

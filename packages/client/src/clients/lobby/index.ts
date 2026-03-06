@@ -2,6 +2,7 @@ import { GameStateUpdate, invariant } from "@speed-dungeon/common";
 import { createLobbyUpdateHandlers } from "./lobby-update-handlers";
 import { BaseClient } from "../base-client";
 import { getApplicationRuntimeManager } from "@/singletons";
+import { setAlert } from "@/app/components/alerts";
 
 export class LobbyClient extends BaseClient {
   private updateHandlers = createLobbyUpdateHandlers(
@@ -14,7 +15,12 @@ export class LobbyClient extends BaseClient {
   protected handleMessage(message: GameStateUpdate) {
     const handlerOption = this.updateHandlers[message.type];
     invariant(handlerOption !== undefined, `Unhandled update type: ${JSON.stringify(message)}`);
-    handlerOption(message.data as never);
+    try {
+      handlerOption(message.data as never);
+    } catch (error) {
+      setAlert(error as Error);
+      console.trace(error);
+    }
   }
 
   resetConnection() {
