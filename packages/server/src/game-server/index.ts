@@ -25,6 +25,7 @@ import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
+import { env } from "../validate-env.js";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -40,7 +41,7 @@ export class GameServerNode {
   ) {
     const fsAssetStore = new NodeFileSystemAssetStore("./assets");
     this._assetServer = new AssetServer(fsAssetStore);
-    this._assetServer.attachRouter(expressApp);
+    this._assetServer.attachRouter(expressApp, { isProduction: env.isProduction });
 
     const wss = new WebSocketServer({ server: httpServer });
     const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);

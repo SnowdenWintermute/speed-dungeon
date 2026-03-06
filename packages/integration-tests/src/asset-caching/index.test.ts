@@ -33,7 +33,7 @@ describe("asset management", () => {
 
     const expressApp = createExpressApp();
     const assetServer = new AssetServer(localFileSystemStore);
-    assetServer.attachRouter(expressApp);
+    assetServer.attachRouter(expressApp, { isProduction: false });
 
     expressApp.listen(ASSET_CACHE_TEST_PORT, () => {
       console.info("started listening for asset requests");

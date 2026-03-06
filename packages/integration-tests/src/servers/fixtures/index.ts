@@ -1,6 +1,5 @@
 import {
   AssetService,
-  ConnectionId,
   GameServerExternalServices,
   GameServerName,
   GameSessionStoreService,
@@ -16,8 +15,8 @@ import {
 } from "@speed-dungeon/common";
 
 export const TEST_GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
-export const TEST_LOBBY_SERVER_PORT = 8090;
-export const TEST_GAME_SERVER_PORT = 8091;
+export const TEST_LOBBY_SERVER_PORT = 8190;
+export const TEST_GAME_SERVER_PORT = 8191;
 export const TEST_LOBBY_URL = localServerUrl(TEST_LOBBY_SERVER_PORT);
 export const TEST_GAME_SERVER_URL = localServerUrl(TEST_GAME_SERVER_PORT);
 

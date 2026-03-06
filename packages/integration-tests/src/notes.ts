@@ -5,3 +5,4 @@
 // - threat added when monster hit
 // - threat added to all monsters when ally healed
 // - firewall ticks down
+// - tickable condition stacks removed visually on tick

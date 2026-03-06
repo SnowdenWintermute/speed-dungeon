@@ -53,6 +53,7 @@ async function handleNewSpawnableCombatant(
 ) {
   const { combatant, parentTransformNodeOption } = spawnableCombatant;
   const deserialized = Combatant.fromSerialized(combatant);
+  deserialized.makeObservable();
   const { homeRotation } = deserialized.combatantProperties.transformProperties;
   party.combatantManager.addCombatant(deserialized, game);
   const model = await spawnCharacterModel(
@@ -118,7 +119,7 @@ async function handleNewSpawnableActionEntity(
 
   getGameWorldView().actionEntityManager.register(model);
 
-  const deserialized = ActionEntity.getDeserialized(actionEntity);
+  const deserialized = ActionEntity.fromSerialized(actionEntity);
   deserialized.makeObservable();
 
   const { actionEntityManager } = party;

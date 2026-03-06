@@ -33,6 +33,8 @@ export enum RuntimeMode {
 // - fallback to offline if connection fails to online
 // - fallback to online if offline has incomplete assets cached
 // - fallback to error state if neither offline nor online modes are valid
+// - cache last asset manifest
+// - on start in offline mode, check cached asset manifest
 
 export class ApplicationRuntimeEnvironmentManager {
   private _mode = RuntimeMode.Initializing;

@@ -23,6 +23,7 @@ export function handleAppliedConditions(
       const combatantResult = party.combatantManager.getExpectedCombatant(entityId);
       for (const condition of conditions) {
         const deserializedCondition = deserializeCondition(condition);
+        deserializedCondition.makeObservable();
 
         combatantResult.combatantProperties.conditionManager.applyCondition(deserializedCondition);
 

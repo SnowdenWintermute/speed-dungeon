@@ -89,6 +89,10 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
     if (stacks) {
       stacks.makeObservable();
     }
+    const level = this.actionEntityProperties.actionOriginData?.actionLevel;
+    if (level) {
+      level.makeObservable();
+    }
   }
 
   toSerialized() {
@@ -96,7 +100,23 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   }
 
   static fromSerialized(serialized: SerializedOf<ActionEntity>) {
-    return plainToInstance(ActionEntity, serialized);
+    const result = plainToInstance(ActionEntity, serialized);
+
+    if (result.actionEntityProperties.actionOriginData) {
+      if (result.actionEntityProperties.actionOriginData.stacks) {
+        result.actionEntityProperties.actionOriginData.stacks = MaxAndCurrent.fromSerialized(
+          result.actionEntityProperties.actionOriginData.stacks
+        );
+      }
+    }
+    if (result.actionEntityProperties.actionOriginData) {
+      if (result.actionEntityProperties.actionOriginData.actionLevel) {
+        result.actionEntityProperties.actionOriginData.actionLevel = MaxAndCurrent.fromSerialized(
+          result.actionEntityProperties.actionOriginData.actionLevel
+        );
+      }
+    }
+    return result;
   }
 
   getType = () => ActionUserType.ActionEntity;
@@ -228,19 +248,6 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
     battleOption: Battle | null
   ): { canUse: boolean; reasonCanNot?: string } {
     throw new Error("not implemented on action entities");
-  }
-
-  static getDeserialized(actionEntity: ActionEntity) {
-    const deserialized = plainToInstance(ActionEntity, actionEntity);
-    const { actionOriginData } = deserialized.actionEntityProperties;
-    if (actionOriginData) {
-      const { actionLevel, stacks } = actionOriginData;
-      if (actionLevel)
-        actionOriginData.actionLevel = new MaxAndCurrent(actionLevel.max, actionLevel.current);
-      if (stacks) actionOriginData.stacks = new MaxAndCurrent(stacks.max, stacks.current);
-    }
-
-    return deserialized;
   }
 
   static setStacks(actionEnity: ActionEntity, value: number) {

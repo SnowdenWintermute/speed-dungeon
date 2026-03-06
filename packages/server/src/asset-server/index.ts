@@ -2,16 +2,17 @@ import { AssetId, invariant } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
-import appRoute from "../create-express-app.js";
+import { appRoute } from "../app-route.js";
 
 export class AssetServer {
   constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}
 
-  attachRouter(expressApp: Express) {
+  attachRouter(expressApp: Express, options: { isProduction: boolean }) {
     const router = Router();
 
-    router.get(appRoute("/asset-manifest"), this.serveManifest.bind(this));
-    router.get(appRoute("/assets/*"), this.serveAsset.bind(this));
+    const { isProduction } = options;
+    router.get(appRoute({ isProduction }, "/asset-manifest"), this.serveManifest.bind(this));
+    router.get(appRoute({ isProduction }, "/assets/*"), this.serveAsset.bind(this));
 
     expressApp.use(router);
   }

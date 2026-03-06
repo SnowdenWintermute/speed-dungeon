@@ -22,6 +22,7 @@ export class AssetAnalyzer {
   constructor(private assetService: AssetService) {}
 
   async collectAnimationLengths() {
+    console.log("collecting animation lengths");
     for (const [species, skeletonPath] of iterateNumericEnumKeyedRecord(SKELETON_FILE_PATHS)) {
       const animationLengths = await this.getAnimationLengths(skeletonPath as AssetId);
       this._animationLengths[species] = animationLengths;

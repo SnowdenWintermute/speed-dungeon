@@ -109,6 +109,8 @@ export async function createOfflineLocalServers() {
     codec
   );
 
+  await gameServer.analyzeAssetsForGameplayRelevantData();
+
   return { lobbyServer, gameServer };
 }
 

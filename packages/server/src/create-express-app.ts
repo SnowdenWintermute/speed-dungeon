@@ -9,14 +9,7 @@ import getUserIdFromUsernameInPath from "./game-server/route-handlers/middleware
 import getUserWinsAndLossesHandler from "./game-server/route-handlers/get-user-wins-and-losses.js";
 import { getUserProfileHandler } from "./game-server/route-handlers/get-user-profile.js";
 import { env } from "./validate-env.js";
-
-export default function appRoute(...args: string[]) {
-  if (env === undefined) {
-    return "".concat(...args);
-  }
-  const baseRoute = env.NODE_ENV === "production" ? "/api" : "";
-  return baseRoute.concat(...args);
-}
+import { appRoute } from "./app-route.js";
 
 export function createExpressApp() {
   const app = express();
@@ -30,22 +23,30 @@ export function createExpressApp() {
     })
   );
 
-  app.get(appRoute("/"), (_: Request, res: Response) => res.send("this is the api server"));
+  const isProduction = env.NODE_ENV === "production";
+
+  app.get(appRoute({ isProduction }, "/"), (_: Request, res: Response) =>
+    res.send("this is the api server")
+  );
   // app.get(appRoute("/assets/*"), getAssetHandler);
-  app.get(appRoute("/profiles/:username"), getUserIdFromUsernameInPath, getUserProfileHandler);
-  app.get(appRoute("/ladders/level/:page"), getCharacterLevelLadderPageHandler);
   app.get(
-    appRoute("/game-records/count/:username"),
+    appRoute({ isProduction }, "/profiles/:username"),
+    getUserIdFromUsernameInPath,
+    getUserProfileHandler
+  );
+  app.get(appRoute({ isProduction }, "/ladders/level/:page"), getCharacterLevelLadderPageHandler);
+  app.get(
+    appRoute({ isProduction }, "/game-records/count/:username"),
     getUserIdFromUsernameInPath,
     getUserRankedRaceGameCountHandler
   );
   app.get(
-    appRoute("/game-records/:username"),
+    appRoute({ isProduction }, "/game-records/:username"),
     getUserIdFromUsernameInPath,
     getUserRankedRaceHistoryHandler
   );
   app.get(
-    appRoute("/game-records/win-loss-records/:username"),
+    appRoute({ isProduction }, "/game-records/win-loss-records/:username"),
     getUserIdFromUsernameInPath,
     getUserWinsAndLossesHandler
   );
