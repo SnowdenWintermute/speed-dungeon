@@ -42,6 +42,7 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   }
 
   makeObservable(): void {
+    console.log("making combatant observable");
     makeAutoObservable(this);
     this.combatantProperties.makeObservable();
   }

@@ -27,7 +27,6 @@ export async function synchronizeCombatantModelsWithAppState(options: {
 
   // determine which models should exist and their positions based on game state
   const modelsAndPositions = getModelsAndPositions();
-  console.log("models modelsAndPositions:", modelsAndPositions);
   if (modelsAndPositions instanceof Error) return modelsAndPositions;
 
   const { gameWorldStore } = AppStore.get();
@@ -49,7 +48,6 @@ export async function synchronizeCombatantModelsWithAppState(options: {
     if (!modelOption) {
       // start spawning model which we need to
 
-      console.log("spawning");
       gameWorldStore.setModelLoading(entityId);
       modelSpawnPromises.push(
         spawnCharacterModel(
@@ -64,7 +62,6 @@ export async function synchronizeCombatantModelsWithAppState(options: {
         )
       );
     } else {
-      console.log("model exists, moving", homeLocation);
       // move models to correct positions
       modelOption.setHomeRotation(cloneDeep(homeRotation));
       modelOption.setHomeLocation(cloneDeep(homeLocation));

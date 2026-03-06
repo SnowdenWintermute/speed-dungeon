@@ -44,6 +44,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   ) {}
 
   makeObservable() {
+    console.log("making party observable");
     makeAutoObservable(this);
     makePropertiesObservable(this);
   }

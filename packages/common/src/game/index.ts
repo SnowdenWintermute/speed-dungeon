@@ -50,7 +50,17 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   makeObservable() {
+    console.log("making game observable", this);
     makeAutoObservable(this);
+    for (const [_, player] of this.players) {
+      player.makeObservable();
+    }
+    for (const [_, party] of this.adventuringParties) {
+      party.makeObservable();
+    }
+    for (const [_, battle] of this.battles) {
+      battle.makeObservable();
+    }
     makePropertiesObservable(this);
   }
 

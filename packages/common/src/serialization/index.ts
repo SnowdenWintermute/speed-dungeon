@@ -17,6 +17,7 @@ function isReactiveNode(value: unknown): value is ReactiveNode {
 export function makePropertiesObservable(node: object) {
   for (const value of Object.values(node)) {
     if (isReactiveNode(value)) {
+      console.log("making observable:", value);
       value.makeObservable();
     }
   }

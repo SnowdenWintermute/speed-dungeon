@@ -64,7 +64,6 @@ export class GameStore {
   }
 
   setGame(game: SpeedDungeonGame) {
-    console.log("set game in store:", game.adventuringParties);
     this.game = game;
   }
 

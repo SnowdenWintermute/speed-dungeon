@@ -9,7 +9,6 @@ import {
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import makeAutoObservable from "mobx-store-inheritance";
-import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
@@ -27,7 +26,11 @@ export class CombatantManager
   private combatants = new Map<EntityId, Combatant>();
 
   makeObservable(): void {
+    console.log("making combatant manager observable", this.combatants);
     makeAutoObservable(this);
+    for (const [_, combatant] of this.combatants) {
+      combatant.makeObservable();
+    }
   }
 
   toSerialized() {
@@ -41,6 +44,7 @@ export class CombatantManager
     result.combatants = MapUtils.deserialize(serialized.combatants, (v) =>
       Combatant.fromSerialized(v)
     );
+    console.log("deserialized combatant manager:", result);
     return result;
   }
 

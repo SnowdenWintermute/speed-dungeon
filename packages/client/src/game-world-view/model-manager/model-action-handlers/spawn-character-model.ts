@@ -17,7 +17,6 @@ export async function spawnCharacterModel(
 
   const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
   const skeleton = await importMesh(skeletonPath, world.scene);
-  console.log("skeleton:", skeleton);
 
   const modularCharacter = new CharacterModel(
     entityProperties.id,

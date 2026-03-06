@@ -96,9 +96,10 @@ export function createGameUpdateHandlers(
       gameStore.setUsername(data.username);
     },
     [GameStateUpdateType.CacheGuestSessionReconnectionToken]: (data) => {
-      console.log("CacheGuestSessionReconnectionToken", data);
+      //
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
+      console.log("game client game full update");
       gameFullUpdateHandler(data.game, gameStore, actionMenuStore, gameWorldView);
     },
     [GameStateUpdateType.GameStarted]: (_) => {
@@ -782,6 +783,11 @@ export function createGameUpdateHandlers(
       const { characterId, ability } = data;
       const { combatant } = gameStore.getExpectedCombatantContext(characterId);
       combatant.combatantProperties.abilityProperties.allocateAbilityPoint(ability);
+    },
+    [GameStateUpdateType.CharacterSpentAttributePoint]: (data) => {
+      const { characterId, attribute } = data;
+      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      combatant.combatantProperties.attributeProperties.allocatePoint(attribute);
     },
     [GameStateUpdateType.CharacterTradedItemForBook]: (data) => {
       const slotsUnequipped: TaggedEquipmentSlot[] = [];

@@ -156,7 +156,6 @@ export class CombatantProperties implements Serializable, ReactiveNode {
     result.giveThreatGeneratedToId = serialized.giveThreatGeneratedToId;
     result.shouldDieWhenCombatantAttachedToDies = serialized.shouldDieWhenCombatantAttachedToDies;
 
-    console.log("about to initialize combatant properties");
     result.initialize();
 
     return result;
