@@ -16,6 +16,7 @@ export class Battle implements Serializable, ReactiveNode {
 
   makeObservable(): void {
     makeAutoObservable(this);
+    this.turnOrderManager.makeObservable();
   }
 
   toSerialized() {

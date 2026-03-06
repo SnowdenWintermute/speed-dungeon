@@ -19,6 +19,7 @@ import {
   ActionEntityModel,
   spawnActionEntityModel,
 } from "@/game-world-view/scene-entities/action-entity-models";
+import { deserialize } from "v8";
 
 export async function spawnEntitiesGameUpdateHandler(
   update: GameUpdateTracker<SpawnEntitiesGameUpdateCommand>
@@ -118,6 +119,7 @@ async function handleNewSpawnableActionEntity(
   getGameWorldView().actionEntityManager.register(model);
 
   const deserialized = ActionEntity.getDeserialized(actionEntity);
+  deserialized.makeObservable();
 
   const { actionEntityManager } = party;
   actionEntityManager.registerActionEntity(deserialized, battleOption);

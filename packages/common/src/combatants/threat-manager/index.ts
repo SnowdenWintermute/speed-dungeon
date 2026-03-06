@@ -23,11 +23,13 @@ export const THREAT_TYPE_STRINGS: Record<ThreatType, string> = {
 export class ThreatManager implements Serializable, ReactiveNode {
   private threatScoresByCombatantId = new Map<EntityId, ThreatTableEntry>();
   private previouslyHighestThreatId: null | EntityId = null;
+  private observable = false;
 
   makeObservable() {
     console.log("making threat manager observable");
     makeAutoObservable(this);
     this.threatScoresByCombatantId.forEach((entry) => entry.makeObservable());
+    this.observable = true;
   }
 
   toSerialized() {
@@ -55,6 +57,9 @@ export class ThreatManager implements Serializable, ReactiveNode {
     if (existingEntry === undefined && value < 1) return;
     if (existingEntry === undefined) {
       const newEntry = new ThreatTableEntry();
+      if (this.observable) {
+        newEntry.makeObservable();
+      }
       this.threatScoresByCombatantId.set(combatantId, newEntry);
       existingEntry = newEntry;
     }

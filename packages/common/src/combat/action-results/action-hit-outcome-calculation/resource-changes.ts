@@ -137,6 +137,7 @@ export class ThreatChanges implements Serializable {
 
       for (const [entityId, changesByThreatType] of Object.entries(changes)) {
         for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType)) {
+          console.log("applying threat:", entityId, value);
           threatManager.changeThreat(entityId, threatType, value);
         }
       }

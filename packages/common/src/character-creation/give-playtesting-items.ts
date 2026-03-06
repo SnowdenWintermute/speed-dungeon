@@ -96,11 +96,14 @@ function giveHotswapSlotEquipment(
     { noAffixes: true }
   );
 
-  mh.durability!.inherentMax = 15;
+  if (mh.durability) {
+    mh.durability.inherentMax = 15;
+  }
   mh.changeDurability(100);
   combatantProperties.inventory.insertItem(mh);
   combatantProperties.equipment.changeSelectedHotswapSlot(1);
   combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
+  console.log("tried equip bow");
 }
 
 function givePlaytestingSkillbooks(inventory: Inventory, itemGenerator: ItemGenerator) {

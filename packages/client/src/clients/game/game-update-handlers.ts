@@ -93,6 +93,25 @@ export function createGameUpdateHandlers(
         }
       }
     },
+    [GameStateUpdateType.PlayerLeftGame]: (data) => {
+      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
+        type: ModelActionType.ProcessActionCommands,
+        actionCommandPayloads: [
+          { type: ActionCommandType.RemovePlayerFromGame, username: data.username },
+        ],
+      });
+
+      const gameOption = AppStore.get().gameStore.getGameOption();
+      if (!gameOption) {
+        return;
+      }
+
+      const maxStartingFloor = gameOption.getMaxStartingFloor();
+
+      if (gameOption.selectedStartingFloor > maxStartingFloor) {
+        gameOption.selectedStartingFloor = maxStartingFloor;
+      }
+    },
     [GameStateUpdateType.OnConnection]: (data) => {
       gameStore.setUsername(data.username);
     },
@@ -262,6 +281,7 @@ export function createGameUpdateHandlers(
         party.battleId = battle.id;
         const deserializedBattle = Battle.fromSerialized(battle);
         deserializedBattle.initialize(game, party);
+        deserializedBattle.makeObservable();
         game.battles.set(battle.id, deserializedBattle);
 
         const currentActorIsPlayerControlled =

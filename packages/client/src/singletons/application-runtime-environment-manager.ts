@@ -26,8 +26,17 @@ export enum RuntimeMode {
   Offline,
 }
 
+// @TODO
+// - save preferredMode in abstract persistent device storage
+// - default to preferredMode on app startup
+// - default to preferredMode new lobby connection on leaving game
+// - fallback to offline if connection fails to online
+// - fallback to online if offline has incomplete assets cached
+// - fallback to error state if neither offline nor online modes are valid
+
 export class ApplicationRuntimeEnvironmentManager {
   private _mode = RuntimeMode.Initializing;
+  private preferredMode = RuntimeMode.Online;
   gameWorldView: { current: GameWorldView | null };
 
   private offlineServers: {
@@ -49,13 +58,6 @@ export class ApplicationRuntimeEnvironmentManager {
     runIfInBrowser(() => {
       makeAutoObservable(this, { gameWorldView: false }, { autoBind: true });
     });
-    // makeObservable({
-    //   isOnline: computed,
-    //   isOffline: computed,
-    //   canEnterOffline: computed,
-    //   enterOffline: action,
-    //   enterOnline: action,
-    // });
   }
 
   private createRemoteEndpoint(

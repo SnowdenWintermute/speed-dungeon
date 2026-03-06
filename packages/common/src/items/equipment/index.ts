@@ -233,8 +233,14 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   }
 
   changeDurability(value: number) {
-    if (this.isIndestructable() || this.durability === null) return;
-    this.durability.current = Math.max(0, this.durability.current + value);
+    const durability = this.getDurability();
+    if (durability === null || this.isIndestructable() || this.durability === null) {
+      return;
+    }
+    this.durability.current = Math.min(
+      durability.max,
+      Math.max(0, this.durability.current + value)
+    );
   }
 
   isFullyRepaired() {

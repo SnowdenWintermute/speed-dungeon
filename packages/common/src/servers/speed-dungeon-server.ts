@@ -118,7 +118,12 @@ export abstract class SpeedDungeonServer {
     });
 
     userConnectionEndpoint.on("close", async (reason) => {
-      await this.disconnectionHandler(session, reason);
+      try {
+        await this.disconnectionHandler(session, reason);
+      } catch (error) {
+        console.log("error in disconnectionHandler", this.name);
+        console.trace(error);
+      }
     });
   }
 

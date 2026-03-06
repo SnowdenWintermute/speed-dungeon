@@ -14,7 +14,8 @@ import { observer } from "mobx-react-lite";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { gameClientSingleton, lobbyClientSingleton } from "@/singletons/lobby-client";
+import { ConnectionStatus } from "@/mobx-stores/connection-status";
 
 export const TopInfoBar = observer(() => {
   const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
@@ -30,7 +31,7 @@ export const TopInfoBar = observer(() => {
     actionCommandQueue.clear();
 
     const { actionEntityManager } = party;
-    for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
+    for (const [entityId, entity] of actionEntityManager.getActionEntities()) {
       actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
       getGameWorldView().actionEntityManager.unregister(
         entity.entityProperties.id,
@@ -44,13 +45,15 @@ export const TopInfoBar = observer(() => {
 
     AppStore.get().targetIndicatorStore.clear();
 
-    const { gameStore } = AppStore.get();
+    const { gameStore, connectionStatusStore } = AppStore.get();
     gameStore.clearGame();
 
     gameClientSingleton.get().dispatchIntent({
       type: ClientIntentType.LeaveGame,
       data: undefined,
     });
+    gameClientSingleton.get().close();
+    connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
 
     getGameWorldView().replayTreeManager.clear();
     getGameWorldView().modelManager.modelActionQueue.clear();

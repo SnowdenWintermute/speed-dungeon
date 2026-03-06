@@ -46,7 +46,10 @@ export function createModelActionHandlers(
       action: ProcessActionCommandsModelAction
     ): Promise<void | Error> {
       const gameName = AppStore.get().gameStore.getGameOption()?.name;
-      if (gameName === undefined) return console.error("no game name");
+      if (gameName === undefined) {
+        console.info("action commands tried to process but no game name");
+        return;
+      }
       const actionCommands = action.actionCommandPayloads.map(
         (item) => new ActionCommand(gameName, item, actionCommandReceiver)
       );

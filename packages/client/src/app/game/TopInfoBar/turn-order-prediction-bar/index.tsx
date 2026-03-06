@@ -37,7 +37,7 @@ export const TurnOrderPredictionBar = observer(({ trackers }: Props) => {
     } else if (currentTracker instanceof ConditionTurnTracker) {
       trackerIndex += 1;
       let nextTracker = trackers[trackerIndex];
-      let sequentialConditionTurnTrackers: ConditionTurnTracker[] = [currentTracker];
+      const sequentialConditionTurnTrackers: ConditionTurnTracker[] = [currentTracker];
       while (nextTracker && nextTracker instanceof ConditionTurnTracker) {
         sequentialConditionTurnTrackers.push(nextTracker);
         trackerIndex += 1;
