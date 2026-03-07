@@ -13,7 +13,6 @@ export class ThreatTableEntry implements Serializable, ReactiveNode {
     makeAutoObservable(this);
     this.threatScoresByType[ThreatType.Stable].makeObservable();
     this.threatScoresByType[ThreatType.Volatile].makeObservable();
-    console.log("made threat scores makeObservable");
   }
 
   toSerialized() {

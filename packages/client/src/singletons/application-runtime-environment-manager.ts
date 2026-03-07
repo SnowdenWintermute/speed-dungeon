@@ -109,10 +109,8 @@ export class ApplicationRuntimeEnvironmentManager {
   }
 
   resetLobbyConnection() {
-    console.log("not yet implemented");
     // this.connectionEndpoint.close();
     // this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
-
     // const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
     // // TODO - polymorphic runtime mode based reconnection
     // getApplicationRuntimeManager().

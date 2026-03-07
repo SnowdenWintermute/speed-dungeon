@@ -62,11 +62,19 @@ export class UserSession extends ConnectionSession {
     this._connectionState = newState;
   }
 
-  getExpectedCurrentGame() {
+  getCurrentGameOption() {
     if (this.currentGameName === null) {
+      return null;
+    }
+    return this.gameRegistry.getGameOption(this.currentGameName) || null;
+  }
+
+  getExpectedCurrentGame() {
+    const currentGameOption = this.getCurrentGameOption();
+    if (currentGameOption === null) {
       throw new Error(ERROR_MESSAGES.USER.NO_CURRENT_GAME);
     }
-    return this.gameRegistry.requireGame(this.currentGameName);
+    return currentGameOption;
   }
 
   isInGame() {

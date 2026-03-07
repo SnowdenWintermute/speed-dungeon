@@ -12,6 +12,7 @@ import {
   Username,
 } from "@speed-dungeon/common";
 import isMatch from "lodash.ismatch";
+import { ClientEndpointFactory } from "../servers/fixtures/test-connection-endpoint-factories";
 
 type GameStateUpdateOfType<T extends GameStateUpdateType> = Extract<GameStateUpdate, { type: T }>;
 
@@ -222,7 +223,11 @@ export class TestClient {
     const reconnectionTokenMessage = await reconnectTokenMessageListener;
     const joinedGameServerMessage = await clientJoinedGameServerMessageListener;
 
-    this.game = joinedGameServerMessage.data.game;
+    let newGame: null | SpeedDungeonGame = null;
+    if (joinedGameServerMessage.data.game) {
+      newGame = SpeedDungeonGame.fromSerialized(joinedGameServerMessage.data.game);
+    }
+    this.game = newGame;
     const guestReconnectionTokenOption = reconnectionTokenMessage?.data.token || null;
     this.guestReconnectionToken = guestReconnectionTokenOption;
 

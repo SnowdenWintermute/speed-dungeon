@@ -103,7 +103,6 @@ function giveHotswapSlotEquipment(
   combatantProperties.inventory.insertItem(mh);
   combatantProperties.equipment.changeSelectedHotswapSlot(1);
   combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
-  console.log("tried equip bow");
 }
 
 function givePlaytestingSkillbooks(inventory: Inventory, itemGenerator: ItemGenerator) {

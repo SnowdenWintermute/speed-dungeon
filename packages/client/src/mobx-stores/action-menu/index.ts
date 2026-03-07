@@ -3,14 +3,14 @@ import {
   MENU_STATE_TYPE_STRINGS,
   MenuStateType,
 } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { EntityId } from "@speed-dungeon/common";
+import { CombatantId, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {
   private baseMenuState: ActionMenuState | null = null;
   private stackedMenuStates: ActionMenuState[] = [];
   private showItemsOnGround: boolean = true;
-  private combatantsWithPendingCraftActions: Set<EntityId> = new Set();
+  private combatantsWithPendingCraftActions = new Set<CombatantId>();
 
   constructor() {
     makeAutoObservable(this);
@@ -122,15 +122,15 @@ export class ActionMenuStore {
     return false;
   }
 
-  setCharacterIsCrafting(entityId: EntityId) {
+  setCharacterIsCrafting(entityId: CombatantId) {
     this.combatantsWithPendingCraftActions.add(entityId);
   }
 
-  setCharacterCompletedCrafting(entityId: EntityId) {
+  setCharacterCompletedCrafting(entityId: CombatantId) {
     this.combatantsWithPendingCraftActions.delete(entityId);
   }
 
-  characterIsCrafting(entityId: EntityId) {
+  characterIsCrafting(entityId: CombatantId) {
     return this.combatantsWithPendingCraftActions.has(entityId);
   }
 }

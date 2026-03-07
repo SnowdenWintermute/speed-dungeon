@@ -97,7 +97,13 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     gameServerName: GameServerName
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-    const game = session.getExpectedCurrentGame();
+    const game = session.getCurrentGameOption();
+    if (game === null) {
+      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+      outbox.pushFromOther(leaveGameHandlerOutbox);
+      return outbox;
+    }
+
     const party = session.getExpectedCurrentParty(game);
     const partyIsStillAlive = party.timeOfWipe === null;
 

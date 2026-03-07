@@ -121,7 +121,7 @@ export abstract class SpeedDungeonServer {
       try {
         await this.disconnectionHandler(session, reason);
       } catch (error) {
-        console.log("error in disconnectionHandler", this.name);
+        console.info("error in disconnectionHandler", this.name);
         console.trace(error);
       }
     });

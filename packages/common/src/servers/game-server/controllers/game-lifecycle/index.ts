@@ -150,8 +150,12 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async leaveGameHandler(session: UserSession) {
-    const game = session.getExpectedCurrentGame();
+    const game = session.getCurrentGameOption();
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    if (game === null) {
+      return outbox;
+    }
+
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerLeftGame,
       data: { username: session.username },

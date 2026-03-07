@@ -26,7 +26,6 @@ export class ThreatManager implements Serializable, ReactiveNode {
   private observable = false;
 
   makeObservable() {
-    console.log("making threat manager observable");
     makeAutoObservable(this);
     this.threatScoresByCombatantId.forEach((entry) => entry.makeObservable());
     this.observable = true;
