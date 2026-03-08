@@ -24,6 +24,7 @@
     "lodash.clonedeep": "4.5.0",
     "lodash.debounce": "4.0.8",
     "lodash.isequal": "4.5.0",
+    "lodash.ismatch": "^4.4.0",
     "mobx": "6.15.0",
     "mobx-react-lite": "4.1.1",
     "mobx-store-inheritance": "1.0.6",
@@ -52,7 +53,9 @@
     "tailwindcss": "3.4.1",
     "typescript": "5.4.5"
   },
-  "trustedDependencies": ["babylonjs"],
+  "trustedDependencies": [
+    "babylonjs"
+  ],
   "resolutions": {
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7"
