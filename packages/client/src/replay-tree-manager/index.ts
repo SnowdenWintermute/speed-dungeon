@@ -6,6 +6,13 @@ export class ReplayTreeProcessorManager {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
   private current: null | ReplayTreeProcessor = null;
 
+  tick() {
+    if (this.currentTreeCompleted()) {
+      this.startNext();
+    }
+    this.process();
+  }
+
   getCurrent() {
     return this.current;
   }

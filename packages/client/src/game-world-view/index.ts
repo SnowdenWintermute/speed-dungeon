@@ -39,7 +39,6 @@ export class GameWorldView {
   sun: Mesh;
   ground: GroundMesh;
   // shadowGenerator: null | ShadowGenerator = null;
-  mouse: Vector3 = new Vector3(0, 1, 0);
   debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
   useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
@@ -125,13 +124,15 @@ export class GameWorldView {
     // this.startLimitedFramerateRenderLoop(5, 3000);
   }
 
+  dispose() {
+    this.scene.dispose();
+    this.engine.dispose();
+  }
+
   updateGameWorld() {
     this.tickCounter += 1;
     this.updateDebugText();
-    if (this.replayTreeManager.currentTreeCompleted()) {
-      this.replayTreeManager.startNext();
-    }
-    this.replayTreeManager.process();
+    this.replayTreeManager.tick();
 
     if (
       !this.modelManager.modelActionQueue.isProcessing &&
@@ -173,7 +174,7 @@ export class GameWorldView {
       window.setInterval(() => {
         this.updateGameWorld();
         this.scene.render();
-        let curTime = new Date().getTime();
+        const curTime = new Date().getTime();
         // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
         lastTime = curTime;
       }, 1000 / fps);

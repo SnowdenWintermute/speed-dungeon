@@ -2,21 +2,35 @@ import { GameWorldView } from "@/game-world-view";
 import {
   AssetCache,
   ClientAppAssetService,
-  invariant,
+  GameStateUpdate,
   RemoteServerAssetStore,
 } from "@speed-dungeon/common";
+import { ProcessedUpdateAwaiter } from "./event-latch";
+import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
+import { TickScheduler } from "./replay-tree-manager/replay-tree-tick-schedulers";
 
 export class ClientApplication {
+  public processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   private assetService: ClientAppAssetService;
+  private unregisterReplayManagerTick: () => void;
 
   constructor(
     private gameWorldView: null | GameWorldView,
-    assetCache: AssetCache
+    private replayProcessorManager: ReplayTreeProcessorManager,
+    assetCache: AssetCache,
+    assetServerUrl: string,
+    replayManagerTickScheduler: TickScheduler
   ) {
-    const assetServerUrl = process.env.NEXT_PUBLIC_ASSET_SERVER_URL;
-    invariant(assetServerUrl !== undefined, "no asset server url provided");
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
+    this.unregisterReplayManagerTick = replayManagerTickScheduler(() =>
+      this.replayProcessorManager.tick()
+    );
+  }
+
+  dispose() {
+    this.unregisterReplayManagerTick();
+    this.gameWorldView?.dispose();
   }
 
   // - GameEventLog
