@@ -24,7 +24,7 @@ export const BASE_STARTING_ATTRIBUTES: Record<
   [CombatantClass.Rogue]: {
     [CombatAttribute.Strength]: 2,
     [CombatAttribute.Dexterity]: 3,
-    [CombatAttribute.Hp]: 17,
+    [CombatAttribute.Hp]: 1,
     [CombatAttribute.Mp]: 3,
     [CombatAttribute.Accuracy]: 85,
     [CombatAttribute.Speed]: 2,

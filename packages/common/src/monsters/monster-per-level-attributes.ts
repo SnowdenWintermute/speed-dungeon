@@ -45,7 +45,7 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
   [MonsterType.MantaRay]: {
     [CombatAttribute.Spirit]: 6.0,
     [CombatAttribute.Vitality]: 1.0,
-    [CombatAttribute.Hp]: 4.0,
+    [CombatAttribute.Hp]: 1.0,
     [CombatAttribute.Agility]: 1.5,
   },
 };

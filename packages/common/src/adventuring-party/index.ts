@@ -1,5 +1,4 @@
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
-import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
@@ -36,7 +35,6 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   timeOfEscape: null | number = null;
   itemsOnGroundNotYetReceivedByAllClients = new Map<EntityId, EntityId[]>();
   inputLock = new TimedLock();
-  actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
 
   constructor(
     public id: string,
@@ -71,7 +69,6 @@ export class AdventuringParty implements Serializable, ReactiveNode {
         this.itemsOnGroundNotYetReceivedByAllClients
       ),
       inputLock: this.inputLock.toSerialized(),
-      actionCommandQueue: this.actionCommandQueue.toSerialized(),
     };
   }
 
@@ -93,7 +90,6 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       serialized.itemsOnGroundNotYetReceivedByAllClients
     );
     result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
-    result.actionCommandQueue = ActionCommandQueue.fromSerialized(serialized.actionCommandQueue);
     result.initialize();
 
     return result;

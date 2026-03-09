@@ -43,7 +43,7 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.MantaRay]: {
     [CombatAttribute.Spirit]: 8.0,
     [CombatAttribute.Vitality]: 1.0,
-    [CombatAttribute.Hp]: 10.0,
+    [CombatAttribute.Hp]: 1.0,
     [CombatAttribute.Accuracy]: 100.0,
     [CombatAttribute.Speed]: 1.0,
   },

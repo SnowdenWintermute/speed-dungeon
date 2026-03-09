@@ -31,7 +31,6 @@ export class DungeonExplorationController {
     private readonly idGenerator: IdGenerator,
     private readonly itemGenerator: ItemGenerator,
     private readonly randomNumberGenerator: RandomNumberGenerator,
-    private readonly gameEventCommandReceiver: ActionCommandReceiver,
     private readonly assetAnalyzer: AssetAnalyzer,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>
   ) {}
@@ -240,7 +239,6 @@ export class DungeonExplorationController {
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,
-      this.gameEventCommandReceiver,
       this.assetAnalyzer
     );
     const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();

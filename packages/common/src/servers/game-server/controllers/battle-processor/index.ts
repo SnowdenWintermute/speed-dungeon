@@ -19,11 +19,8 @@ import { IdGenerator } from "../../../../utility-classes/index.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { getBattleConclusionCommandAndPayload } from "./get-battle-conclusion-command-and-payload.js";
-
 import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
-import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { Equipment } from "../../../../items/equipment/index.js";
 import { Consumable } from "../../../../items/consumables/index.js";
@@ -47,7 +44,6 @@ export class BattleProcessor {
     private idGenerator: IdGenerator,
     private itemGenerator: ItemGenerator,
     private rng: RandomNumberGenerator,
-    private gameEventCommandReceiver: ActionCommandReceiver,
     private assetAnalyzer: AssetAnalyzer
   ) {}
 
@@ -150,19 +146,13 @@ export class BattleProcessor {
     const { game, party } = this;
     const actionCommandPayloads: ActionCommandPayload[] = [];
 
-    const conclusion = await this.getBattleConclusionCommandAndPayload(partyWipes);
-    actionCommandPayloads.push(conclusion.payload);
+    const conclusionPayload = await this.getBattleConclusionPayload(partyWipes);
+    actionCommandPayloads.push(conclusionPayload);
 
     const gameModeContext = this.gameModeContexts[game.mode];
     await gameModeContext.strategy.onBattleResult(game, party);
 
-    const { type: payloadType } = conclusion.payload;
-    invariant(
-      payloadType === ActionCommandType.BattleResult,
-      "expected battle result payload type"
-    );
-
-    switch (conclusion.payload.conclusion) {
+    switch (conclusionPayload.conclusion) {
       case BattleConclusion.Defeat: {
         if (party.battleId !== null) {
           game.battles.delete(party.battleId);
@@ -195,7 +185,7 @@ export class BattleProcessor {
         break;
       }
       case BattleConclusion.Victory: {
-        const levelups = Battle.handleVictory(game, party, conclusion.payload);
+        const levelups = Battle.handleVictory(game, party, conclusionPayload);
         const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
           game,
           party,
@@ -208,23 +198,13 @@ export class BattleProcessor {
       }
     }
 
-    //
-    // party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
-    // const payloads = await party.actionCommandQueue.processCommands();
-
-    // actionCommandPayloads.push(...payloads);
-    // const payloadsCommands = payloads.map(
-    //   (item) => new ActionCommand(game.name, item, this.gameEventCommandReceiver)
-    // );
-
-    // party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
-    // await party.actionCommandQueue.processCommands();
-
     return actionCommandPayloads;
   }
 
-  private async getBattleConclusionCommandAndPayload(partyWipes: PartyWipes) {
-    const { game, party } = this;
+  private async getBattleConclusionPayload(
+    partyWipes: PartyWipes
+  ): Promise<BattleResultActionCommandPayload> {
+    const { party } = this;
     let conclusion: BattleConclusion;
     let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
       equipment: [],
@@ -261,12 +241,6 @@ export class BattleProcessor {
       timestamp: Date.now(),
     };
 
-    const battleConclusionActionCommand = new ActionCommand(
-      game.name,
-      payload,
-      this.gameEventCommandReceiver
-    );
-
-    return { payload, command: battleConclusionActionCommand };
+    return payload;
   }
 }

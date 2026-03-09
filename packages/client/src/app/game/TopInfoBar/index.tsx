@@ -4,7 +4,6 @@ import { CleanupMode, ClientIntentType, DUNGEON_ROOM_TYPE_STRINGS } from "@speed
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
-
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
@@ -14,7 +13,7 @@ import { observer } from "mobx-react-lite";
 import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
-import { gameClientSingleton, lobbyClientSingleton } from "@/singletons/lobby-client";
+import { gameClientSingleton } from "@/singletons/lobby-client";
 import { ConnectionStatus } from "@/mobx-stores/connection-status";
 
 export const TopInfoBar = observer(() => {
@@ -27,7 +26,6 @@ export const TopInfoBar = observer(() => {
   function leaveGame() {
     AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
 
-    party.actionCommandQueue.clear();
     actionCommandQueue.clear();
 
     const { actionEntityManager } = party;

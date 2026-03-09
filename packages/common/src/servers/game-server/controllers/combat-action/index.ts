@@ -24,7 +24,6 @@ import { processCombatAction } from "../../../../action-processing/process-comba
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
-import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 
@@ -35,7 +34,6 @@ export class CombatActionController {
     private idGenerator: IdGenerator,
     private itemGenerator: ItemGenerator,
     private rng: RandomNumberGenerator,
-    private gameEventCommandReceiver: ActionCommandReceiver,
     private assetAnalyzer: AssetAnalyzer
   ) {}
 
@@ -346,7 +344,6 @@ export class CombatActionController {
         this.idGenerator,
         this.itemGenerator,
         this.rng,
-        this.gameEventCommandReceiver,
         this.assetAnalyzer
       );
 

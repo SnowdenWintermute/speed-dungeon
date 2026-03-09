@@ -25,7 +25,6 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
-import { GameServerGameEventCommandReceiver } from "./controllers/game-event-command-receiver.js";
 import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
@@ -72,7 +71,6 @@ export class GameServer extends SpeedDungeonServer {
   public readonly craftingController: CraftingController;
   public readonly miscUtilityController: MiscUtilityController;
 
-  private readonly gameEventCommandReceiver: GameServerGameEventCommandReceiver;
   private readonly gameModeContexts: Record<GameMode, GameModeContext>;
 
   constructor(
@@ -114,11 +112,6 @@ export class GameServer extends SpeedDungeonServer {
       ),
     };
 
-    this.gameEventCommandReceiver = new GameServerGameEventCommandReceiver(
-      this.gameRegistry,
-      this.gameModeContexts
-    );
-
     this.dungeonExplorationController = new DungeonExplorationController(
       this.updateDispatchFactory,
       this.partyDelayedGameMessageFactory,
@@ -126,7 +119,6 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,
-      this.gameEventCommandReceiver,
       this.assetAnalyzer,
       this.gameModeContexts
     );
@@ -154,7 +146,6 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,
-      this.gameEventCommandReceiver,
       this.assetAnalyzer
     );
 
