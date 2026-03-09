@@ -1,31 +1,15 @@
 import { makeAutoObservable } from "mobx";
 import { ActionCommand } from "./action-command.js";
 import { ActionCommandPayload } from "./index.js";
-import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { ReactiveNode } from "../serialization/index.js";
 
-export class ActionCommandQueue implements Serializable, ReactiveNode {
+export class ActionCommandQueue implements ReactiveNode {
   commands: ActionCommand[] = [];
   isProcessing: boolean = false;
   timeLastCommandStarted: number = Date.now();
 
   makeObservable(): void {
     makeAutoObservable(this);
-  }
-
-  toSerialized() {
-    return {
-      commands: this.commands.map((command) => command.toSerialized()),
-      isProcessing: this.isProcessing,
-      timeLastCommandStarted: this.timeLastCommandStarted,
-    };
-  }
-
-  static fromSerialized(serialized: SerializedOf<ActionCommandQueue>) {
-    const result = new ActionCommandQueue();
-    result.commands = serialized.commands.map((v) => ActionCommand.fromSerialized(v));
-    result.isProcessing = serialized.isProcessing;
-    result.timeLastCommandStarted = serialized.timeLastCommandStarted;
-    return result;
   }
 
   clear() {
