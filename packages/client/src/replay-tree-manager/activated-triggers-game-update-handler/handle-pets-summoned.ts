@@ -25,7 +25,7 @@ export function handlePetSlotsSummoned(
 
     synchronizeCombatantModelsWithAppState({
       onComplete: () => {
-        const modelOption = getGameWorldView().modelManager.combatantModels[pet.getEntityId()];
+        const modelOption = getGameWorldView().modelManager.findOneOptional(pet.getEntityId());
 
         if (!pet.combatantProperties.isDead()) {
           modelOption?.skeletalAnimationManager.startAnimationWithTransition(

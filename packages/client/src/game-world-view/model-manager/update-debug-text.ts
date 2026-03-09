@@ -39,7 +39,7 @@ export function updateDebugText(this: GameWorldView) {
     }
 
     let activeMovementTrackers = "";
-    for (const model of Object.values(this.modelManager.combatantModels)) {
+    for (const [_, model] of this.modelManager.combatantModels) {
       const { position } = model.rootTransformNode;
       if (model.debugElement && position)
         model.debugElement.innerHTML = `<div>x:${position.x?.toFixed(2)} z${position.z?.toFixed(2)}</div>`;

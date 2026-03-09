@@ -236,6 +236,7 @@ export class DungeonExplorationController {
       game,
       party,
       battleOption,
+      this.gameModeContexts,
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,

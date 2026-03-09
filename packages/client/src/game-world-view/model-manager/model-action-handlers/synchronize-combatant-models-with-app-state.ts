@@ -32,18 +32,14 @@ export async function synchronizeCombatantModelsWithAppState(options: {
   const { gameWorldStore } = AppStore.get();
 
   // delete models which don't appear on the list
-  for (const [entityId, model] of Object.entries(modelManager.combatantModels)) {
-    if (!modelsAndPositions.get(entityId)) {
-      model.cleanup({ softCleanup: !!options.softCleanup });
-      delete modelManager.combatantModels[entityId];
-      gameWorldStore.clearModelLoadingState(entityId);
-    }
-  }
+  modelManager.clearExclusive(new Set(modelsAndPositions.keys()), {
+    softCleanup: !!options.softCleanup,
+  });
 
   const modelSpawnPromises: Promise<Error | CharacterModel>[] = [];
 
   for (const [entityId, { combatant, homeLocation, homeRotation }] of modelsAndPositions) {
-    const modelOption = modelManager.combatantModels[entityId];
+    const modelOption = modelManager.findOneOptional(entityId);
 
     if (!modelOption) {
       // start spawning model which we need to
@@ -94,7 +90,7 @@ export async function synchronizeCombatantModelsWithAppState(options: {
   }
 }
 
-type ModelsAndPositions = Map<
+export type ModelsAndPositions = Map<
   EntityId,
   {
     combatant: Combatant;

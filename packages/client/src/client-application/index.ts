@@ -33,6 +33,14 @@ export class ClientApplication {
     this.gameWorldView?.dispose();
   }
 
+  // SequentialAppEventManager
+  // - make sure things get handled in order when receiving multiple game updates like:
+  //   - ReplayTree
+  //   - BattleResult
+  //   - GameMessage (PartyDescent, PartyEscape, PartyWipe, LadderProgress, LadderDeath, PartyDissolved, CraftingAction)
+  //   - RemovePlayerFromGame
+  //   - ModelAction (ClearAllModels, SynchronizeCombatantEquipmentModels, SynchronizeCombatantModels, SpawnEnvironmentModel, DespawnEnvironmentModel)
+  //
   // - GameEventLog
   //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
   //   - exposes a waitForMessageOfTypeProcessed() for tests

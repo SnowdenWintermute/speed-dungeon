@@ -20,38 +20,38 @@ export const MODEL_ACTION_TYPE_STRINGS: Record<ModelActionType, string> = {
   [ModelActionType.ClearAllModels]: "Clear All Models",
 };
 
-export type ChangeEquipmentModelAction = {
+export interface ChangeEquipmentModelAction {
   type: ModelActionType.SynchronizeCombatantEquipmentModels;
   entityId: string;
-};
+}
 
-export type ProcessActionCommandsModelAction = {
+export interface ProcessActionCommandsModelAction {
   type: ModelActionType.ProcessActionCommands;
   actionCommandPayloads: ActionCommandPayload[];
-};
+}
 
-export type SynchronizeCombatantModelsModelAction = {
+export interface SynchronizeCombatantModelsModelAction {
   type: ModelActionType.SynchronizeCombatantModels;
   placeInHomePositions: boolean;
-};
+}
 
-export type SpawnEnvironmentalModelModelAction = {
+export interface SpawnEnvironmentalModelModelAction {
   type: ModelActionType.SpawnEnvironmentModel;
   id: string;
   path: string;
   position: Vector3;
   modelType: EnvironmentModelTypes;
   rotationQuat?: Quaternion;
-};
+}
 
-export type DespawnEnvironmentModelModelAction = {
+export interface DespawnEnvironmentModelModelAction {
   type: ModelActionType.DespawnEnvironmentModel;
   id: string;
-};
+}
 
-export type ClearAllModelsModelAction = {
+export interface ClearAllModelsModelAction {
   type: ModelActionType.ClearAllModels;
-};
+}
 
 export type ModelAction =
   | ChangeEquipmentModelAction

@@ -10,7 +10,7 @@ export async function createCombatantPortrait(combatantId: string) {
     return;
   }
   const world = gameWorldView.current;
-  const combatantModelOption = gameWorldView.current.modelManager.combatantModels[combatantId];
+  const combatantModelOption = gameWorldView.current.modelManager.findOneOptional(combatantId);
   if (!combatantModelOption) {
     return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
   }

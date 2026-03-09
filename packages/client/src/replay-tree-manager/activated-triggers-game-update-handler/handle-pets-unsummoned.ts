@@ -14,7 +14,7 @@ export function handlePetSlotsUnsummoned(
 ) {
   const { petManager } = party;
   for (const petId of petsUnsummoned) {
-    const modelOption = getGameWorldView().modelManager.combatantModels[petId];
+    const modelOption = getGameWorldView().modelManager.findOneOptional(petId);
 
     if (modelOption?.getCombatant().combatantProperties.isDead()) {
       petManager.unsummonPet(petId, game);

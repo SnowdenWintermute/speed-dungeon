@@ -14,7 +14,7 @@ export function handlePetsTamed(
 ) {
   for (const { petId, tamerId } of petsTamed) {
     party.petManager.handlePetTamed(petId, tamerId, game);
-    const modelOption = getGameWorldView().modelManager.combatantModels[petId];
+    const modelOption = getGameWorldView().modelManager.findOneOptional(petId);
     modelOption?.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.OnSummoned,
       500,

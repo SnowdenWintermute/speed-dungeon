@@ -1,4 +1,5 @@
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
+import { MAX_ACTION_POINTS_COST } from "../../../../../app-consts.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
 import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
 import { CombatActionComponent } from "../../../index.js";
@@ -33,6 +34,9 @@ export function getStandardActionCost(
     }
 
     cost = Math.floor(cost);
+    if (payableResourceType === ActionPayableResource.ActionPoints) {
+      cost = Math.min(cost, MAX_ACTION_POINTS_COST);
+    }
     cost *= -1;
 
     toReturn[payableResourceType] = cost;

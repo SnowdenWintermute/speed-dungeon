@@ -12,7 +12,7 @@ import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
 import { NextOrPrevious } from "../../../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
-import { CharacterAssociatedData } from "../../../../types.js";
+import { CharacterAssociatedData, GameMode } from "../../../../types.js";
 import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
 import {
   ActionCommandPayload,
@@ -26,10 +26,12 @@ import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
+import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 
 export class CombatActionController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
     private itemGenerator: ItemGenerator,
     private rng: RandomNumberGenerator,
@@ -340,6 +342,7 @@ export class CombatActionController {
         game,
         party,
         battleOption,
+        this.gameModeContexts,
         this.idGenerator,
         this.itemGenerator,
         this.rng,

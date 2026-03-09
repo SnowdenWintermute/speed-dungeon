@@ -25,10 +25,10 @@ export function createModelActionHandlers(
     [ModelActionType.SpawnEnvironmentModel]: (action: SpawnEnvironmentalModelModelAction) =>
       spawnEnvironmentModel(action, modelManager),
     [ModelActionType.DespawnEnvironmentModel]: (action: DespawnEnvironmentModelModelAction) => {
-      const modelOption = modelManager.environmentModels[action.id];
+      const modelOption = modelManager.environmentModels.get(action.id);
       if (modelOption) {
         modelOption.model.dispose();
-        delete modelManager.environmentModels[action.id];
+        modelManager.environmentModels.delete(action.id);
       }
     },
     [ModelActionType.SynchronizeCombatantModels]: (action: SynchronizeCombatantModelsModelAction) =>

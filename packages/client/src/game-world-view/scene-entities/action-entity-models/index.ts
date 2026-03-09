@@ -19,20 +19,21 @@ import { SceneEntity } from "../index";
 import { ACTION_ENTITY_MODEL_FACTORIES } from "./action-entity-model-factories";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 
+// @TODO - combine common functionality with CombatantModelManager
 export class ActionEntityModelManager {
-  models: { [id: EntityId]: ActionEntityModel } = {};
-  constructor() {}
+  models = new Map<EntityId, ActionEntityModel>();
+
   register(model: ActionEntityModel) {
-    if (model instanceof ActionEntityModel) this.models[model.id] = model;
+    if (model instanceof ActionEntityModel) this.models.set(model.id, model);
   }
 
   unregister(id: EntityId, cleanupMode: CleanupMode) {
-    this.models[id]?.cleanup({ softCleanup: cleanupMode === CleanupMode.Soft });
-    delete this.models[id];
+    this.models.get(id)?.cleanup({ softCleanup: cleanupMode === CleanupMode.Soft });
+    this.models.delete(id);
   }
 
   findOne(entityId: EntityId, updateOption?: EntityMotionUpdate): ActionEntityModel {
-    const modelOption = this.models[entityId];
+    const modelOption = this.models.get(entityId);
     if (!modelOption)
       throw new Error(
         ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL +
@@ -44,7 +45,7 @@ export class ActionEntityModelManager {
   }
 
   getAll() {
-    return Object.values(this.models);
+    return [...this.models.values()];
   }
 }
 

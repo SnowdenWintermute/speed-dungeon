@@ -43,7 +43,7 @@ export class TargetIndicatorStore {
     if (this._gameWorld === null) {
       return;
     }
-    for (const combatantModel of Object.values(this._gameWorld.modelManager.combatantModels)) {
+    for (const [_, combatantModel] of this._gameWorld.modelManager.combatantModels) {
       combatantModel.targetingIndicatorBillboardManager.synchronizeIndicators([]);
     }
   }
@@ -82,7 +82,7 @@ export class TargetIndicatorStore {
       );
     }
 
-    for (const combatantModel of Object.values(this._gameWorld.modelManager.combatantModels)) {
+    for (const [_, combatantModel] of this._gameWorld.modelManager.combatantModels) {
       const targetingThisModel = newIndicators.filter(
         (item) => item.targetId === combatantModel.entityId
       );

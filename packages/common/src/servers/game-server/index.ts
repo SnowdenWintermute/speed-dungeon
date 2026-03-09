@@ -150,6 +150,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.combatActionController = new CombatActionController(
       this.updateDispatchFactory,
+      this.gameModeContexts,
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,

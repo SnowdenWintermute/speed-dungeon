@@ -14,8 +14,8 @@ import { startOrStopCosmeticEffects } from "@/replay-tree-manager/start-or-stop-
 // models is async, so we'll use a queue to handle things in order
 
 export class ModelManager {
-  combatantModels: { [entityId: string]: CharacterModel } = {};
-  environmentModels: { [modelId: string]: EnvironmentModel } = {};
+  combatantModels = new Map<EntityId, CharacterModel>();
+  environmentModels = new Map<string, EnvironmentModel>();
   modelActionQueue = new ModelActionQueue(this);
   modelActionHandlers: Record<ModelActionType, ModelActionHandler>;
   constructor(public world: GameWorldView) {
@@ -23,7 +23,7 @@ export class ModelManager {
   }
 
   async register(model: CharacterModel) {
-    this.combatantModels[model.entityId] = model;
+    this.combatantModels.set(model.entityId, model);
 
     const character = model.getCombatant();
     const { combatantProperties, entityProperties } = character;
@@ -48,7 +48,7 @@ export class ModelManager {
   }
 
   findOne(entityId: EntityId) {
-    const modelOption = this.combatantModels[entityId];
+    const modelOption = this.findOneOptional(entityId);
     if (!modelOption) {
       throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL + " " + entityId);
     }
@@ -56,17 +56,30 @@ export class ModelManager {
   }
 
   findOneOptional(entityId: EntityId) {
-    const modelOption = this.combatantModels[entityId];
+    const modelOption = this.combatantModels.get(entityId);
     return modelOption;
   }
 
   clearAllModels() {
-    for (const model of Object.values(this.combatantModels)) model.cleanup({ softCleanup: false });
+    for (const [_, model] of this.combatantModels) model.cleanup({ softCleanup: false });
 
-    for (const model of Object.values(this.environmentModels)) {
+    for (const [_, model] of this.environmentModels) {
       model.model.dispose();
     }
-    this.environmentModels = {};
-    this.combatantModels = {};
+
+    this.environmentModels.clear();
+    this.combatantModels.clear();
+  }
+
+  clearExclusive(toKeep: Set<EntityId>, options: { softCleanup: boolean }) {
+    for (const [entityId, model] of this.combatantModels) {
+      if (toKeep.has(entityId)) {
+        continue;
+      }
+
+      model.cleanup({ softCleanup: !!options.softCleanup });
+      this.combatantModels.delete(entityId);
+      AppStore.get().gameWorldStore.clearModelLoadingState(entityId);
+    }
   }
 }

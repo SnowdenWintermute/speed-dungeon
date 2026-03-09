@@ -137,8 +137,9 @@ export class GameWorldView {
     if (
       !this.modelManager.modelActionQueue.isProcessing &&
       this.modelManager.modelActionQueue.messages.length
-    )
+    ) {
       this.modelManager.modelActionQueue.processMessages();
+    }
 
     for (const actionEntityModel of this.actionEntityManager.getAll()) {
       actionEntityModel.movementManager.processActiveActions();
@@ -149,7 +150,7 @@ export class GameWorldView {
       actionEntityModel.dynamicAnimationManager.stepAnimationTransitionWeights();
     }
 
-    for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
+    for (const [_, combatantModel] of this.modelManager.combatantModels) {
       combatantModel.highlightManager.updateHighlight();
 
       combatantModel.movementManager.processActiveActions();

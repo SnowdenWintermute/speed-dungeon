@@ -23,11 +23,11 @@ export async function spawnEnvironmentModel(
   const { path, id } = action;
   try {
     const model = await importMesh(path, modelManager.world.scene);
-    modelManager.environmentModels[id] = new EnvironmentModel(model);
+    modelManager.environmentModels.set(id, new EnvironmentModel(model));
     // if (model.transformNodes[0]) model.transformNodes[0].position = action.position;
     if (model.meshes[0]) model.meshes[0].position = action.position;
 
-    let oldMaterials: Material[] = [];
+    const oldMaterials: Material[] = [];
 
     if (action.modelType === EnvironmentModelTypes.VendingMachine) {
       for (const mesh of model.meshes) {

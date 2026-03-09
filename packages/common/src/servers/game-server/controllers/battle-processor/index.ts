@@ -3,26 +3,39 @@ import { ActionIntentOptionAndUser } from "../../../../action-processing/action-
 import {
   ActionCommandPayload,
   ActionCommandType,
+  BattleResultActionCommandPayload,
   CombatActionReplayTreePayload,
 } from "../../../../action-processing/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
-import { LOOP_SAFETY_ITERATION_LIMIT } from "../../../../app-consts.js";
-import { Battle } from "../../../../battle/index.js";
+import { LOOP_SAFETY_ITERATION_LIMIT, NUM_MONSTERS_PER_ROOM } from "../../../../app-consts.js";
+import { Battle, BattleConclusion } from "../../../../battle/index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { PartyWipes } from "../../../../types.js";
+import { GameMode, PartyWipes } from "../../../../types.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
 import { getBattleConclusionCommandAndPayload } from "./get-battle-conclusion-command-and-payload.js";
+
 import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { ActionCommandReceiver } from "../../../../action-processing/action-command-receiver.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
+import { Equipment } from "../../../../items/equipment/index.js";
+import { Consumable } from "../../../../items/consumables/index.js";
+import { CombatantId } from "../../../../aliases.js";
+import { generateExperiencePoints } from "./generate-experience-points.js";
+import {
+  createPartyWipeMessage,
+  GameMessage,
+  GameMessageType,
+} from "../../../../packets/game-message.js";
+import { invariant } from "../../../../utils/index.js";
+import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 
 export class BattleProcessor {
   constructor(
@@ -30,6 +43,7 @@ export class BattleProcessor {
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
     private battle: Battle,
+    private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
     private itemGenerator: ItemGenerator,
     private rng: RandomNumberGenerator,
@@ -67,7 +81,6 @@ export class BattleProcessor {
       // battle ended, stop processing
       if (battleConcluded) {
         const battleConclusionPayloads = await this.handleBattleConclusion(partyWipes);
-        if (battleConclusionPayloads instanceof Error) throw battleConclusionPayloads;
         payloads.push(...battleConclusionPayloads);
         shouldBreak = true;
       }
@@ -137,25 +150,123 @@ export class BattleProcessor {
     const { game, party } = this;
     const actionCommandPayloads: ActionCommandPayload[] = [];
 
-    const conclusion = await getBattleConclusionCommandAndPayload(
-      game,
-      party,
-      partyWipes,
-      this.itemGenerator,
-      this.rng,
-      this.gameEventCommandReceiver
-    );
+    const conclusion = await this.getBattleConclusionCommandAndPayload(partyWipes);
     actionCommandPayloads.push(conclusion.payload);
-    party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
-    const payloadsResult = await party.actionCommandQueue.processCommands();
-    if (payloadsResult instanceof Error) return payloadsResult;
-    actionCommandPayloads.push(...payloadsResult);
-    const payloadsCommands = payloadsResult.map(
-      (item) => new ActionCommand(game.name, item, this.gameEventCommandReceiver)
+
+    const gameModeContext = this.gameModeContexts[game.mode];
+    await gameModeContext.strategy.onBattleResult(game, party);
+
+    const { type: payloadType } = conclusion.payload;
+    invariant(
+      payloadType === ActionCommandType.BattleResult,
+      "expected battle result payload type"
     );
-    party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
-    await party.actionCommandQueue.processCommands();
+
+    switch (conclusion.payload.conclusion) {
+      case BattleConclusion.Defeat: {
+        if (party.battleId !== null) {
+          game.battles.delete(party.battleId);
+        }
+        party.battleId = null;
+
+        party.timeOfWipe = Date.now();
+
+        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+
+        actionCommandPayloads.push({
+          type: ActionCommandType.GameMessages,
+          messages: [
+            new GameMessage(
+              GameMessageType.PartyWipe,
+              true,
+              createPartyWipeMessage(party.name, floorNumber, new Date())
+            ),
+          ],
+          partyChannelToExclude: getPartyChannelName(game.name, party.name),
+        });
+
+        const defeatMessagePayloadResults = await gameModeContext.strategy.onPartyWipe(game, party);
+        if (defeatMessagePayloadResults instanceof Error) {
+          throw defeatMessagePayloadResults;
+        }
+        if (defeatMessagePayloadResults) {
+          actionCommandPayloads.push(...defeatMessagePayloadResults);
+        }
+        break;
+      }
+      case BattleConclusion.Victory: {
+        const levelups = Battle.handleVictory(game, party, conclusion.payload);
+        const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
+          game,
+          party,
+          levelups
+        );
+        if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
+        if (victoryMessagePayloadResults)
+          actionCommandPayloads.push(...victoryMessagePayloadResults);
+        break;
+      }
+    }
+
+    //
+    // party.actionCommandQueue.enqueueNewCommands([conclusion.command]);
+    // const payloads = await party.actionCommandQueue.processCommands();
+
+    // actionCommandPayloads.push(...payloads);
+    // const payloadsCommands = payloads.map(
+    //   (item) => new ActionCommand(game.name, item, this.gameEventCommandReceiver)
+    // );
+
+    // party.actionCommandQueue.enqueueNewCommands(payloadsCommands);
+    // await party.actionCommandQueue.processCommands();
 
     return actionCommandPayloads;
+  }
+
+  private async getBattleConclusionCommandAndPayload(partyWipes: PartyWipes) {
+    const { game, party } = this;
+    let conclusion: BattleConclusion;
+    let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
+      equipment: [],
+      consumables: [],
+    };
+
+    let experiencePointChanges: Record<CombatantId, number> = {};
+
+    if (partyWipes.alliesDefeated) {
+      conclusion = BattleConclusion.Defeat;
+    } else {
+      conclusion = BattleConclusion.Victory;
+      loot = this.itemGenerator.generateLoot(
+        NUM_MONSTERS_PER_ROOM,
+        party.dungeonExplorationManager.getCurrentFloor(),
+        this.rng
+      );
+      experiencePointChanges = generateExperiencePoints(party);
+
+      party.inputLock.unlockInput();
+    }
+
+    const { actionEntityManager } = party;
+    const actionEntitiesRemoved =
+      actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
+
+    const payload: BattleResultActionCommandPayload = {
+      type: ActionCommandType.BattleResult,
+      conclusion,
+      loot: loot,
+      partyName: party.name,
+      experiencePointChanges,
+      actionEntitiesRemoved,
+      timestamp: Date.now(),
+    };
+
+    const battleConclusionActionCommand = new ActionCommand(
+      game.name,
+      payload,
+      this.gameEventCommandReceiver
+    );
+
+    return { payload, command: battleConclusionActionCommand };
   }
 }
