@@ -6,14 +6,16 @@ import { GameStore } from "@/mobx-stores/game";
 import { LobbyStore } from "@/mobx-stores/lobby";
 import { ActionMenuStore } from "@/mobx-stores/action-menu";
 import { TargetIndicatorStore } from "@/mobx-stores/target-indicators";
-import { EventLogGameMessageService } from "../event-log/event-log-service";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { ActionMenuStatePool } from "../action-menu/action-menu-state-pool";
 import { ReactiveNode } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { EventLogGameMessageService } from "../event-log/event-log-service";
+import { ActionMenu } from "../action-menu";
 
 export class SequentialClientEventProcessor implements ReactiveNode {
   private eventHandlers: ClientEventHandlers;
+  // pendingEvents and currentEventProcessing for observing in debug screen
   pendingEvents = new Set<ClientEvent>();
   currentEventProcessing: null | ClientEvent = null;
   private chain: Promise<void> = Promise.resolve();
@@ -22,26 +24,25 @@ export class SequentialClientEventProcessor implements ReactiveNode {
   private generation: number = 0;
 
   constructor(
-    replayTreeProcessor: ReplayTreeProcessorManager,
     gameWorldView: GameWorldView | null,
+    actionMenu: ActionMenu,
+    //
     gameStore: GameStore,
     lobbyStore: LobbyStore,
-    actionMenuStore: ActionMenuStore,
     targetIndicatorStore: TargetIndicatorStore,
     eventLogMessageService: EventLogGameMessageService,
     characterAutoFocusManager: CharacterAutoFocusManager,
-    actionMenuStatePool: ActionMenuStatePool
+    replayTreeProcessor: ReplayTreeProcessorManager
   ) {
     this.eventHandlers = createClientEventHandlers(
       replayTreeProcessor,
       gameWorldView,
+      actionMenu,
       gameStore,
       lobbyStore,
-      actionMenuStore,
       targetIndicatorStore,
       eventLogMessageService,
-      characterAutoFocusManager,
-      actionMenuStatePool
+      characterAutoFocusManager
     );
   }
 
@@ -81,8 +82,12 @@ export class SequentialClientEventProcessor implements ReactiveNode {
     });
   }
 
-  clear() {
+  /** sets queued events to be skipped but does not cancel the currently processing event */
+  cancelQueued() {
     this.generation += 1;
     this.pendingEvents.clear();
+    // we don't set currentEventProcessing to null because there's no way
+    // to cancel it. A "clean up after stale events" event could be created
+    // to reset app to a clean state after an in-flight stale event finishes
   }
 }

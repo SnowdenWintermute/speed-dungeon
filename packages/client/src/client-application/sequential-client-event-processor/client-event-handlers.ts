@@ -13,22 +13,20 @@ import {
   Consumable,
   Equipment,
 } from "@speed-dungeon/common";
-import { ActionMenuStore } from "@/mobx-stores/action-menu";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { ActionMenuStatePool } from "../action-menu/action-menu-state-pool";
 import { TargetIndicatorStore } from "@/mobx-stores/target-indicators";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
+import { ActionMenu } from "../action-menu";
 
 export function createClientEventHandlers(
   replayTreeProcessor: ReplayTreeProcessorManager,
   gameWorldView: GameWorldView | null,
+  actionMenu: ActionMenu,
   gameStore: GameStore,
   lobbyStore: LobbyStore,
-  actionMenuStore: ActionMenuStore,
   targetIndicatorStore: TargetIndicatorStore,
   eventLogMessageService: EventLogGameMessageService,
-  characterAutoFocusManager: CharacterAutoFocusManager,
-  actionMenuStatePool: ActionMenuStatePool
+  characterAutoFocusManager: CharacterAutoFocusManager
 ): ClientEventHandlers {
   return {
     [ClientEventType.ClearAllModels]: () => {
@@ -59,17 +57,15 @@ export function createClientEventHandlers(
 
         const player = gameStore.getExpectedClientPlayer();
         if (player.characterIds.includes(actionUserId as CombatantId)) {
-          const inventoryIsOpen = actionMenuStore.stackedMenusIncludeType(
-            MenuStateType.InventoryItems
-          );
+          const inventoryIsOpen = actionMenu.stackedMenusIncludeType(MenuStateType.InventoryItems);
           if (inventoryIsOpen) {
-            let currentMenu = actionMenuStore.getCurrentMenu();
+            let currentMenu = actionMenu.getCurrentMenu();
             while (
               currentMenu.type !== MenuStateType.InventoryItems &&
               currentMenu.type !== MenuStateType.Base
             ) {
-              actionMenuStore.popStack();
-              currentMenu = actionMenuStore.getCurrentMenu();
+              actionMenu.popStack();
+              currentMenu = actionMenu.getCurrentMenu();
             }
           }
         }
@@ -93,8 +89,8 @@ export function createClientEventHandlers(
           });
         }
 
-        if (actionMenuStore.currentMenuIsType(MenuStateType.Base)) {
-          actionMenuStore.pushStack(actionMenuStatePool.get(MenuStateType.ItemsOnGround));
+        if (actionMenu.currentMenuIsType(MenuStateType.Base)) {
+          actionMenu.pushFromPool(MenuStateType.ItemsOnGround);
         }
       }
 

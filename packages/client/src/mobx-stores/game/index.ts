@@ -40,7 +40,7 @@ export class GameStore {
     this.username = null;
   }
 
-  getExpectedPlayer(username: Username) {
+  private getExpectedPlayer(username: Username) {
     const playerOption = this.getExpectedGame().getPlayer(username);
     if (playerOption === undefined) {
       throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);

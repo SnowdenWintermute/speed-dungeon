@@ -226,3 +226,7 @@ export function calculateBalancedAttributeSynergy(attributeA: number, attributeB
 export function removeUndefinedFields<T extends object>(obj: T): T {
   return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined)) as T;
 }
+
+export function isDefined<T>(value: T | null | undefined): value is T {
+  return value != null;
+}

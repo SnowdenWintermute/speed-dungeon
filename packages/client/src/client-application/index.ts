@@ -8,11 +8,13 @@ import {
 import { ProcessedUpdateAwaiter } from "./event-latch";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { TickScheduler } from "./replay-tree-manager/replay-tree-tick-schedulers";
+import { ActionMenu } from "./action-menu";
 
 export class ClientApplication {
   public processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   private assetService: ClientAppAssetService;
   private unregisterReplayManagerTick: () => void;
+  private actionMenu = new ActionMenu();
 
   constructor(
     private gameWorldView: null | GameWorldView,
@@ -33,20 +35,48 @@ export class ClientApplication {
     this.gameWorldView?.dispose();
   }
 
-  // SequentialAppEventManager
-  // - make sure things get handled in order when receiving multiple game updates like:
-  //   - ReplayTree
-  //   - BattleResult
-  //   - GameMessage (PartyDescent, PartyEscape, PartyWipe, LadderProgress, LadderDeath, PartyDissolved, CraftingAction)
-  //   - RemovePlayerFromGame
-  //   - ModelAction (ClearAllModels, SynchronizeCombatantEquipmentModels, SynchronizeCombatantModels, SpawnEnvironmentModel, DespawnEnvironmentModel)
+  // export class GameStore {
+  //   private game: null | SpeedDungeonGame = null;
+
+  // CLIENT APP GENERAL
+  //   private username: null | Username = null;
+  //   private focusedCharacterId: CombatantId | null = null;
+  //   getUsernameOption() {}
+  //   getExpectedUsername() {}
+  //   setUsername(username: Username) {}
+  //   clearUsername() {}
+  // GAME CLIENT
+  //   setGame(game: SpeedDungeonGame) {}
+  //   clearGame() {}
+  //   getExpectedClientPlayer() {}
+  //   getGameOption() {}
+  //   getExpectedGame() {}
+  //   getExpectedCombatantContext(combatantId: EntityId): CombatantContext {}
+  //   getExpectedPlayerContext(username: Username) {}
+  //   getPartyOption() {}
+  //   getExpectedParty() {} // getExpectedClientParty()
+  //   private getExpectedPlayer(username: Username) {} // getExpectedClientPlayer()
+  //   getCombatantOption(combatantId: EntityId) {}
+  //   getExpectedCombatant(combatantId: EntityId) {}
+  //   private clientUserControlsCombatant(combatantId: string) {}
   //
-  // - GameEventLog
+  // FOCUSED CHARACTER
+  //   getFocusedCharacterContext() {}
+  //   setFocusedCharacter(entityId: CombatantId) {}
+  //   private handleCharacterUnfocused(id: CombatantId) {}
+  //   characterIsFocused(entityId: EntityId) {}
+  //   getFocusedCharacterIdOption() {}
+  //   getExpectedFocusedCharacterId() {}
+  //   getExpectedFocusedCharacter() {}
+  //   getFocusedCharacterOption: () => undefined | Combatant = () => {};
+  //   clientUserControlsFocusedCombatant(options?: { includePets: boolean }) {}
+  //
+  // }
+
+  // - GameUpdateProcessedLog
   //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
   //   - exposes a waitForMessageOfTypeProcessed() for tests
-  //   - observable getUserReadable() to show a WoW style "combat log"
 
-  // - MenuState (what menu is open, what page, what is hovered, what character is focused)
   // - MiscState (stuff the frontend jsx will observe)
   //   - Alerts (error/success toast notifications)
   //   - Input state (is alternate mode key held)

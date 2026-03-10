@@ -49,7 +49,6 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { toJS } from "mobx";
 import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
-import { deserialize } from "v8";
 
 export type GameUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]

@@ -5,12 +5,14 @@ import {
 } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { CombatantId, isDefined } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { ActionMenuStatePool } from "./action-menu-state-pool";
 
-export class ActionMenuStore {
+export class ActionMenu {
   private baseMenuState: ActionMenuState | null = null;
   private stackedMenuStates: ActionMenuState[] = [];
   private showItemsOnGround: boolean = true;
   private combatantsWithPendingCraftActions = new Set<CombatantId>();
+  private _menuStatePool = new ActionMenuStatePool();
 
   constructor() {
     makeAutoObservable(this);
@@ -21,6 +23,11 @@ export class ActionMenuStore {
    * and AppStore holds ActionMenuStore */
   initialize(baseMenuState: ActionMenuState) {
     this.baseMenuState = baseMenuState;
+  }
+
+  pushFromPool(type: MenuStateType) {
+    const menuState = this._menuStatePool.get(type);
+    this.pushStack(menuState);
   }
 
   pushStack(menuState: ActionMenuState) {
