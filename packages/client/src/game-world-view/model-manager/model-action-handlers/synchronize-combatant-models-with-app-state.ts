@@ -90,15 +90,6 @@ export async function synchronizeCombatantModelsWithAppState(options: {
   }
 }
 
-export type ModelsAndPositions = Map<
-  EntityId,
-  {
-    combatant: Combatant;
-    homeLocation: Vector3;
-    homeRotation: Quaternion;
-  }
->;
-
 function getModelsAndPositions() {
   const { gameStore } = AppStore.get();
   const gameOption = gameStore.getGameOption();

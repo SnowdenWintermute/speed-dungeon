@@ -36,14 +36,13 @@ export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientEventType, string> = {
   [ClientEventType.RemovePlayerFromGame]: "Remove Player From Game",
 };
 
-export type LadderDeathsUpdate = Record<
-  EntityName,
-  { owner: Username; rank: number; level: number }
->;
-
 export interface ClientEventMap {
   [ClientEventType.SynchronizeCombatantEquipmentModels]: { entityId: string };
-  [ClientEventType.SynchronizeCombatantModels]: { placeInHomePositions: boolean };
+  [ClientEventType.SynchronizeCombatantModels]: {
+    placeInHomePositions?: boolean;
+    softCleanup: boolean;
+    onComplete?: () => void;
+  };
   [ClientEventType.SpawnEnvironmentModel]: {
     id: string;
     path: string;
@@ -81,3 +80,11 @@ export type ClientEvent = {
     data: ClientEventMap[K];
   };
 }[keyof ClientEventMap];
+
+export type ClientEventHandler<K extends keyof ClientEventMap> = (
+  data: ClientEventMap[K]
+) => void | Promise<void>;
+
+export type ClientEventHandlers = {
+  [K in keyof ClientEventMap]: ClientEventHandler<K>;
+};

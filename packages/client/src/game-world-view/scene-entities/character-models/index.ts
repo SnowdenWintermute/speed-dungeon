@@ -181,6 +181,14 @@ export class CharacterModel extends SceneEntity {
     this.homeLocation.rotation.copyFrom(plainToInstance(Quaternion, rotation));
   }
 
+  setRotation(rotation: Quaternion) {
+    if (this.rootTransformNode.rotationQuaternion) {
+      this.rootTransformNode.rotationQuaternion.copyFrom(rotation);
+    } else {
+      this.rootTransformNode.rotationQuaternion = rotation.clone();
+    }
+  }
+
   setHomeLocation(position: Vector3) {
     // this.rootTransformNode.position.copyFrom(position);
     this.homeLocation.position = cloneDeep(position);
