@@ -77,7 +77,7 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
 
   unregisterActionEntitiesOnBattleEndOrNewRoom() {
     const removed = [];
-    for (const [key, entity] of Object.entries(this.actionEntities)) {
+    for (const [key, entity] of this.actionEntities) {
       removed.push(entity.entityProperties.id);
       this.unregisterActionEntity(key);
     }

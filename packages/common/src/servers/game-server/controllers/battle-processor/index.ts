@@ -185,7 +185,12 @@ export class BattleProcessor {
         break;
       }
       case BattleConclusion.Victory: {
-        const levelups = Battle.handleVictory(game, party, conclusionPayload);
+        const levelups = Battle.handleVictory(
+          game,
+          party,
+          conclusionPayload.experiencePointChanges,
+          conclusionPayload.loot
+        );
         const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
           game,
           party,

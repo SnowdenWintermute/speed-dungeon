@@ -49,12 +49,17 @@ export async function battleResultActionCommandHandler(
       party.timeOfWipe = timestamp;
       GameLogMessageService.postWipeMessage();
       break;
-    case BattleConclusion.Victory:
+    case BattleConclusion.Victory: {
       characterAutoFocusManager.focusFirstOwnedCharacter();
 
       party.inputLock.unlockInput();
 
-      const levelups = Battle.handleVictory(game, party, payload);
+      const levelups = Battle.handleVictory(
+        game,
+        party,
+        payload.experiencePointChanges,
+        payload.loot
+      );
 
       for (const [characterId, expChange] of Object.entries(payload.experiencePointChanges)) {
         const characterResult = game.getCombatantById(characterId);
@@ -67,6 +72,7 @@ export async function battleResultActionCommandHandler(
         GameLogMessageService.postLevelup(characterResult.getName(), levelup);
       }
       break;
+    }
   }
 
   const { actionEntityManager } = party;

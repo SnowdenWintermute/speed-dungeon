@@ -169,6 +169,41 @@ export class ModelManager {
     }
   }
 
+  async synchronizeCombatantModels(
+    gameStore: GameStore,
+    lobbyStore: LobbyStore,
+    options: {
+      softCleanup?: boolean;
+      placeInHomePositions?: boolean;
+      onComplete?: () => void;
+    }
+  ) {
+    const modelsAndPositions = this.getCombatantsInGameWorld(gameStore, lobbyStore);
+    this.despawnCombatantModelsExclusive(new Set(modelsAndPositions.keys()), {
+      softCleanup: !!options.softCleanup,
+    });
+
+    const modelSpawnPromises: Promise<CharacterModel>[] = [];
+
+    for (const [_entityId, combatant] of modelsAndPositions) {
+      modelSpawnPromises.push(
+        this.spawnOrSyncCombatantModel(combatant, {
+          placeInHomePosition: options.placeInHomePositions,
+        })
+      );
+    }
+
+    const spawnResults = await Promise.all(modelSpawnPromises);
+
+    for (const result of spawnResults) {
+      this.register(result);
+    }
+
+    if (options.onComplete !== undefined) {
+      options.onComplete();
+    }
+  }
+
   private getAllCombatantsInParty(gameStore: GameStore) {
     const result = new Map<CombatantId, Combatant>();
     const party = gameStore.getExpectedParty();
@@ -310,6 +345,14 @@ export class ModelManager {
     modularCharacter.setVisibility(1);
 
     return modularCharacter;
+  }
+
+  async synchronizeCombatantEquipmentModels(combatantId: CombatantId) {
+    const modularCharacter = this.findOne(combatantId);
+    await modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
+    if (modularCharacter.isIdling()) {
+      modularCharacter.startIdleAnimation(500);
+    }
   }
 
   async spawnEnvironmentModel(

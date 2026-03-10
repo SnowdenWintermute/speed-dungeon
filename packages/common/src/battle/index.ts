@@ -1,10 +1,9 @@
 import { makeAutoObservable } from "mobx";
-import { BattleResultActionCommandPayload } from "../action-processing/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { FriendOrFoe } from "../index.js";
-import { EntityId } from "../aliases.js";
+import { Consumable, Equipment, FriendOrFoe } from "../index.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
@@ -56,10 +55,9 @@ export class Battle implements Serializable, ReactiveNode {
   static handleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    payload: BattleResultActionCommandPayload
+    experiencePointChanges: Record<CombatantId, number>,
+    loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] }
   ) {
-    const { experiencePointChanges, loot } = payload;
-
     if (loot) {
       party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
     }

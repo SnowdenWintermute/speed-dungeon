@@ -37,10 +37,10 @@ export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientEventType, string> = {
 };
 
 export interface ClientEventMap {
-  [ClientEventType.SynchronizeCombatantEquipmentModels]: { entityId: string };
+  [ClientEventType.SynchronizeCombatantEquipmentModels]: { entityId: CombatantId };
   [ClientEventType.SynchronizeCombatantModels]: {
-    placeInHomePositions?: boolean;
     softCleanup: boolean;
+    placeInHomePositions?: boolean;
     onComplete?: () => void;
   };
   [ClientEventType.SpawnEnvironmentModel]: {

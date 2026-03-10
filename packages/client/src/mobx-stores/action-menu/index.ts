@@ -3,7 +3,7 @@ import {
   MENU_STATE_TYPE_STRINGS,
   MenuStateType,
 } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { CombatantId, EntityId } from "@speed-dungeon/common";
+import { CombatantId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class ActionMenuStore {

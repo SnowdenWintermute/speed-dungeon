@@ -35,7 +35,11 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
           }
         }
 
-        getGameWorldView().replayTreeManager.enqueueTree(payload, () => resolve(true));
+        getGameWorldView().replayTreeManager.enqueueTree(
+          payload.root,
+          !!payload.doNotLockInput,
+          () => resolve(true)
+        );
       });
 
       await promise;

@@ -284,7 +284,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
   removePlayer(username: Username) {
     const removedPlayerResult = this.removePlayerFromParty(username);
-    if (removedPlayerResult instanceof Error) return removedPlayerResult;
     this.players.delete(username);
     ArrayUtils.removeElement(this.playersReadied, username);
     return removedPlayerResult;

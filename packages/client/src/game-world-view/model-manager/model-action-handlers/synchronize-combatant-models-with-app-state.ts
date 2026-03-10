@@ -32,7 +32,7 @@ export async function synchronizeCombatantModelsWithAppState(options: {
   const { gameWorldStore } = AppStore.get();
 
   // delete models which don't appear on the list
-  modelManager.clearExclusive(new Set(modelsAndPositions.keys()), {
+  modelManager.despawnCombatantModelsExclusive(new Set(modelsAndPositions.keys()), {
     softCleanup: !!options.softCleanup,
   });
 
@@ -89,6 +89,15 @@ export async function synchronizeCombatantModelsWithAppState(options: {
     options.onComplete();
   }
 }
+
+export type ModelsAndPositions = Map<
+  EntityId,
+  {
+    combatant: Combatant;
+    homeLocation: Vector3;
+    homeRotation: Quaternion;
+  }
+>;
 
 function getModelsAndPositions() {
   const { gameStore } = AppStore.get();

@@ -27,11 +27,11 @@ export class ReplayTreeProcessorManager {
     this.queue = [];
   }
 
-  enqueueTree(payload: CombatActionReplayTreePayload, onComplete: () => void) {
-    this.queue.push({ root: payload.root, onComplete });
+  enqueueTree(root: NestedNodeReplayEvent, doNotLockInput: boolean, onComplete: () => void) {
+    this.queue.push({ root, onComplete });
 
     const partyOption = AppStore.get().gameStore.getPartyOption();
-    if (partyOption && !payload.doNotLockInput) partyOption.inputLock.lockInput();
+    if (partyOption && !doNotLockInput) partyOption.inputLock.lockInput();
     AppStore.get().actionMenuStore.clearStack();
   }
 
