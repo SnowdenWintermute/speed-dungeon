@@ -8,7 +8,7 @@ export class ActionCommandQueue implements ReactiveNode {
   isProcessing: boolean = false;
   timeLastCommandStarted: number = Date.now();
 
-  makeObservable(): void {
+  makeObservable() {
     makeAutoObservable(this);
   }
 

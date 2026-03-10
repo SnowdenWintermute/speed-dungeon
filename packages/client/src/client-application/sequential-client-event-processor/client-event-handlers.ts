@@ -21,14 +21,14 @@ import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 
 export function createClientEventHandlers(
   replayTreeProcessor: ReplayTreeProcessorManager,
+  gameWorldView: GameWorldView | null,
   gameStore: GameStore,
   lobbyStore: LobbyStore,
   actionMenuStore: ActionMenuStore,
   targetIndicatorStore: TargetIndicatorStore,
   eventLogMessageService: EventLogGameMessageService,
   characterAutoFocusManager: CharacterAutoFocusManager,
-  actionMenuStatePool: ActionMenuStatePool,
-  gameWorldView: GameWorldView | null
+  actionMenuStatePool: ActionMenuStatePool
 ): ClientEventHandlers {
   return {
     [ClientEventType.ClearAllModels]: () => {
@@ -158,18 +158,13 @@ export function createClientEventHandlers(
             (item) => item.entityProperties.id
           )
         );
-        const hotswapSets = character.combatantProperties.equipment.getHoldableHotswapSlots();
-        if (hotswapSets) {
-          for (const hotswapSet of hotswapSets)
-            itemsToRemoveThumbnails.push(
-              ...Object.values(hotswapSet.holdables).map((item) => item.entityProperties.id)
-            );
-        }
 
         itemsToRemoveThumbnails.push(
-          ...Object.values(character.combatantProperties.equipment.getWearables()).map(
-            (item) => item.entityProperties.id
-          )
+          ...Object.values(
+            character.combatantProperties.equipment.getAllEquippedItems({
+              includeUnselectedHotswapSlots: true,
+            })
+          ).map((item) => item.entityProperties.id)
         );
       }
 

@@ -90,11 +90,7 @@ export abstract class SpeedDungeonServer {
 
         const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
 
-        // TS asks: what argument would be valid for *any* possible handler?
-        // Because this is a union of handlers, the parameter type becomes the
-        // intersection of all payload types, which collapses to `never`.
-        // Since we look up handler in a typed record and check it is not undefined
-        // we can say the data is the correct type for the handler
+        // why cast as never: see README.md -> Typed Event Handler Records
         try {
           const outbox = await handlerOption(parsed.data as never, session);
           this.dispatchOutboxMessages(outbox);

@@ -32,6 +32,18 @@ Join the Discord: [Discord](https://discord.gg/NxzPFUBVVm)
   methods to gain the benefits of traditional OOP techniques. To allow for circular references in subsystems that need access
   to their parent classes, we will take on the complexity of initialization functions.
 
+### Typed Event Handler Records
+
+TS asks: what argument would be valid for _any_ possible handler?
+Because this is a union of handlers, the parameter type becomes the
+intersection of all payload types, which collapses to `never`.
+Since we look up handler in a typed record and check it is not undefined
+we can say the data is the correct type for the handler
+
+```
+const outbox = await handlerOption(parsed.data as never, session);
+```
+
 ### Common errors and their solutions
 
 - Error description: All of a sudden Typescript complains of missing modules, things are of type unknown, or
