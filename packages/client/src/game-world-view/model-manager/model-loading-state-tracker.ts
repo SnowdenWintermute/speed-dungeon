@@ -1,20 +1,6 @@
 import { EntityId } from "@speed-dungeon/common";
-import { makeAutoObservable } from "mobx";
-import { BabylonControlledCombatantData } from "./babylon-controlled-ui";
 
-export class GameWorldStore {
-  private babylonControlledCombatantDOMData = new Map<EntityId, BabylonControlledCombatantData>();
-
-  constructor() {
-    makeAutoObservable(this);
-  }
-  getCombatantDebugDisplay(entityId: EntityId) {
-    const combatantDataOption = this.babylonControlledCombatantDOMData.get(entityId);
-    if (combatantDataOption === undefined) return "";
-    return combatantDataOption.debugHtml;
-  }
-
-  // deprecated - moving to model manager
+export class ModelLoadingStateTracker {
   private modelLoadingStates = new Map<EntityId, boolean>();
 
   setModelLoading(entityId: EntityId) {

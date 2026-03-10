@@ -11,11 +11,7 @@ export function createClientEventHandlers(
 ): ClientEventHandlers {
   return {
     [ClientEventType.ClearAllModels]: () => {
-      if (gameWorldView === null) {
-        return;
-      }
-      const { modelManager } = gameWorldView;
-      modelManager.clearAllModels();
+      return gameWorldView?.modelManager.clearAllModels();
     },
     [ClientEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
       if (gameWorldView === null) {
@@ -33,68 +29,43 @@ export function createClientEventHandlers(
       }
       const { modelManager } = gameWorldView;
 
-      // determine which models should exist and their positions based on game state
       const modelsAndPositions = modelManager.getCombatantsInGameWorld(gameStore, lobbyStore);
-      // delete models which don't appear on the list
-      modelManager.clearExclusive(new Set(modelsAndPositions.keys()), {
+      modelManager.despawnCombatantModelsExclusive(new Set(modelsAndPositions.keys()), {
         softCleanup: event.softCleanup,
       });
 
       const modelSpawnPromises: Promise<CharacterModel>[] = [];
 
-      for (const [entityId, combatant] of modelsAndPositions) {
-        const modelOption = modelManager.findOneOptional(entityId);
-        const { transformProperties } = combatant.combatantProperties;
-        const homeLocation = transformProperties.getHomePosition();
-        const homeRotation = transformProperties.homeRotation;
-
-        if (!modelOption) {
-          // start spawning model which we need to
-
-          gameWorldStore.setModelLoading(entityId);
-          modelSpawnPromises.push(
-            spawnCharacterModel(
-              gameWorldView,
-              {
-                combatant,
-                homeRotation,
-                homePosition: homeLocation,
-              },
-              { spawnInDeadPose: combatant.combatantProperties.isDead() }
-            )
-          );
-        } else {
-          modelOption.setHomeRotation(homeRotation.clone());
-          modelOption.setHomeLocation(homeLocation.clone());
-          if (event.placeInHomePositions) {
-            modelOption.rootTransformNode.position.copyFrom(homeLocation);
-            modelOption.setRotation(homeRotation);
-          }
-        }
+      for (const [_entityId, combatant] of modelsAndPositions) {
+        modelSpawnPromises.push(
+          modelManager.spawnOrSyncCombatantModel(combatant, {
+            placeInHomePosition: event.placeInHomePositions,
+          })
+        );
       }
 
       const spawnResults = await Promise.all(modelSpawnPromises);
-      let resultsIncludedError = false;
 
       for (const result of spawnResults) {
-        if (result instanceof Error) {
-          console.error(result);
-          resultsIncludedError = true;
-        } else {
-          modelManager.register(result);
-        }
-      }
-
-      if (resultsIncludedError) {
-        console.error("Error with spawning combatant models");
+        modelManager.register(result);
       }
 
       if (event.onComplete !== undefined) {
         event.onComplete();
       }
     },
-    [ClientEventType.SpawnEnvironmentModel]: undefined,
-    [ClientEventType.DespawnEnvironmentModel]: undefined,
+    [ClientEventType.SpawnEnvironmentModel]: (event) => {
+      return gameWorldView?.modelManager.spawnEnvironmentModel(
+        event.id,
+        event.path,
+        event.position,
+        event.modelType,
+        event.rotationQuat
+      );
+    },
+    [ClientEventType.DespawnEnvironmentModel]: (event) => {
+      gameWorldView?.modelManager.despawnEnvironmentModel(event.id);
+    },
     [ClientEventType.ProcessReplayTree]: undefined,
     [ClientEventType.ProcessBattleResult]: undefined,
     [ClientEventType.PostGameMessages]: undefined,

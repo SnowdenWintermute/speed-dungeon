@@ -6,10 +6,12 @@ import { EnvironmentModel } from "./model-action-handlers/spawn-environmental-mo
 import {
   Combatant,
   CombatantId,
+  CombatantSpecies,
   ERROR_MESSAGES,
   EntityId,
   GameMode,
   MapUtils,
+  SKELETON_FILE_PATHS,
   SpeedDungeonGame,
   invariant,
   iterateNumericEnumKeyedRecord,
@@ -20,9 +22,30 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { CharacterModel } from "../scene-entities/character-models";
 import { startOrStopCosmeticEffects } from "@/replay-tree-manager/start-or-stop-cosmetic-effect";
 import { GameStore } from "@/mobx-stores/game";
-import { Quaternion, Vector3 } from "@babylonjs/core";
+import {
+  AssetContainer,
+  Color3,
+  Material,
+  Quaternion,
+  StandardMaterial,
+  Vector3,
+} from "@babylonjs/core";
 import { LobbyStore } from "@/mobx-stores/lobby";
 import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
+import { ModelLoadingStateTracker } from "./model-loading-state-tracker";
+import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
+import { importMesh } from "../game-world-view-utils";
+import { getCharacterModelPartCategoriesAndAssetPaths } from "../scene-entities/character-models/modular-character-parts-model-manager/get-modular-character-parts";
+import { setCharacterModelPartDefaultMaterials } from "./model-action-handlers/set-modular-character-part-default-materials";
+import { MONSTER_SCALING_SIZES } from "../scene-entities/character-models/monster-scaling-sizes";
+import { EnvironmentModelTypes } from "../scene-entities/environment-models/environment-model-paths";
+import { LightestToDarkest, MATERIAL_NAMES, PlasticColor } from "../materials/material-colors";
+import {
+  HP_COLOR,
+  MAIN_ACCENT_COLOR,
+  MAIN_BG_COLOR,
+  MAIN_TEXT_AND_BORDERS_COLOR,
+} from "@/client-consts";
 
 // things involving moving models around must be handled synchronously, even though spawning
 // models is async, so we'll use a queue to handle things in order
@@ -32,6 +55,8 @@ export class ModelManager {
   environmentModels = new Map<string, EnvironmentModel>();
   modelActionQueue = new ModelActionQueue(this);
   modelActionHandlers: Record<ModelActionType, ModelActionHandler>;
+  loadingStateTracker = new ModelLoadingStateTracker();
+
   constructor(public world: GameWorldView) {
     this.modelActionHandlers = createModelActionHandlers(this);
   }
@@ -85,7 +110,8 @@ export class ModelManager {
     this.combatantModels.clear();
   }
 
-  clearExclusive(toKeep: Set<EntityId>, options: { softCleanup: boolean }) {
+  /** Accepts a list of model ids to keep and despawns all others */
+  despawnCombatantModelsExclusive(toKeep: Set<EntityId>, options: { softCleanup: boolean }) {
     for (const [entityId, model] of this.combatantModels) {
       if (toKeep.has(entityId)) {
         continue;
@@ -108,6 +134,38 @@ export class ModelManager {
       return this.getAllCombatantsInParty(gameStore);
     } else {
       return this.getSavedCharacterSlotsCombatants(lobbyStore);
+    }
+  }
+
+  spawnOrSyncCombatantModel(combatant: Combatant, options?: { placeInHomePosition?: boolean }) {
+    const entityId = combatant.getEntityId();
+    const modelOption = this.findOneOptional(entityId);
+    const { transformProperties } = combatant.combatantProperties;
+    const homeLocation = transformProperties.getHomePosition();
+    const homeRotation = transformProperties.homeRotation;
+
+    if (!modelOption) {
+      this.loadingStateTracker.setModelLoading(entityId);
+      return this.spawnCharacterModel(
+        this.world,
+        {
+          combatant,
+          homeRotation,
+          homePosition: homeLocation,
+          modelDomPositionElement: null,
+        },
+        { spawnInDeadPose: combatant.combatantProperties.isDead() }
+      );
+    } else {
+      return new Promise<CharacterModel>((resolve) => {
+        modelOption.setHomeRotation(homeRotation.clone());
+        modelOption.setHomeLocation(homeLocation.clone());
+        if (options?.placeInHomePosition) {
+          modelOption.rootTransformNode.position.copyFrom(homeLocation);
+          modelOption.setRotation(homeRotation);
+        }
+        resolve(modelOption);
+      });
     }
   }
 
@@ -163,5 +221,159 @@ export class ModelManager {
     });
 
     return result;
+  }
+
+  async spawnCharacterModel(
+    world: GameWorldView,
+    blueprint: CombatantModelBlueprint,
+    options?: { spawnInDeadPose?: boolean; doNotIdle?: boolean }
+  ): Promise<CharacterModel> {
+    const { combatantProperties, entityProperties } = blueprint.combatant;
+
+    const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies];
+    const skeleton = await importMesh(skeletonPath, world.scene);
+
+    const modularCharacter = new CharacterModel(
+      entityProperties.id,
+      world,
+      combatantProperties.monsterType,
+      combatantProperties.controlledBy.isPlayerControlled(),
+      combatantProperties.classProgressionProperties.getMainClass().combatantClass,
+      skeleton,
+      blueprint.modelDomPositionElement,
+      null,
+      blueprint.homePosition,
+      blueprint.homeRotation
+    );
+
+    const parts = getCharacterModelPartCategoriesAndAssetPaths(combatantProperties);
+    const partPromises: Promise<AssetContainer | Error>[] = [];
+
+    for (const part of parts) {
+      const { assetPath } = part;
+      if (!assetPath || assetPath === "") {
+        console.error("no part asset path provided for part", part);
+        continue;
+      }
+
+      partPromises.push(
+        new Promise(async (resolve, _reject) => {
+          const partResult = await modularCharacter.modularCharacterPartsManager.attachPart(
+            part.category,
+            assetPath
+          );
+          if (partResult instanceof Error) {
+            console.error(partResult);
+            return resolve(partResult);
+          }
+
+          setCharacterModelPartDefaultMaterials(partResult, combatantProperties);
+          resolve(partResult);
+        })
+      );
+    }
+
+    const results = await Promise.all(partPromises);
+    for (const result of results) {
+      if (result instanceof Error) console.error(result);
+    }
+
+    if (combatantProperties.combatantSpecies === CombatantSpecies.Humanoid) {
+      modularCharacter.equipmentModelManager.synchronizeCombatantEquipmentModels();
+    }
+
+    const { scaleModifier } = combatantProperties.transformProperties;
+    if (combatantProperties.transformProperties.scaleModifier) {
+      modularCharacter.rootTransformNode.scaling = new Vector3(
+        scaleModifier,
+        scaleModifier,
+        scaleModifier
+      );
+    }
+
+    if (modularCharacter.monsterType !== null) {
+      const defaultScalingModifier = MONSTER_SCALING_SIZES[modularCharacter.monsterType];
+      modularCharacter.rootTransformNode.scaling =
+        modularCharacter.rootTransformNode.scaling.scale(defaultScalingModifier);
+    }
+
+    modularCharacter.updateBoundingBox();
+
+    modularCharacter.initChildTransformNodes();
+
+    if (options?.spawnInDeadPose) {
+      modularCharacter.setToDeadPose();
+    } else if (!options?.doNotIdle) {
+      modularCharacter.startIdleAnimation(0, {});
+    }
+
+    modularCharacter.setVisibility(1);
+
+    return modularCharacter;
+  }
+
+  async spawnEnvironmentModel(
+    id: string,
+    path: string,
+    position: Vector3,
+    modelType: EnvironmentModelTypes,
+    rotationQuat?: Quaternion
+  ) {
+    try {
+      const model = await importMesh(path, this.world.scene);
+      this.environmentModels.set(id, new EnvironmentModel(model));
+      // if (model.transformNodes[0]) model.transformNodes[0].position = action.position;
+      if (model.meshes[0]) model.meshes[0].position = position;
+
+      const oldMaterials: Material[] = [];
+
+      if (modelType === EnvironmentModelTypes.VendingMachine) {
+        for (const mesh of model.meshes) {
+          const materialName = mesh.material?.name;
+          if (mesh.material) oldMaterials.push(mesh.material);
+
+          if (materialName === MATERIAL_NAMES.ACCENT_1) {
+            const material = new StandardMaterial("VendingMachineAccent1");
+            material.diffuseColor = Color3.FromHexString(MAIN_BG_COLOR);
+            mesh.material = material;
+          }
+          if (materialName === MATERIAL_NAMES.ACCENT_2) {
+            const material = new StandardMaterial("VendingMachineAccent2");
+            material.diffuseColor = Color3.FromHexString(MAIN_TEXT_AND_BORDERS_COLOR);
+            mesh.material = material;
+          }
+          if (materialName === MATERIAL_NAMES.ACCENT_3) {
+            const material = new StandardMaterial("VendingMachineAccent3");
+            material.diffuseColor = Color3.FromHexString(HP_COLOR);
+            mesh.material = material;
+          }
+          if (materialName === MATERIAL_NAMES.ALTERNATE) {
+            mesh.material = this.world.defaultMaterials.plastic[PlasticColor.Blue].clone("");
+          }
+          if (materialName === MATERIAL_NAMES.MAIN) {
+            mesh.material = this.world.defaultMaterials.metal[LightestToDarkest.Darker].clone("");
+          }
+          if (materialName === "Dark") {
+            const material = new StandardMaterial("VendingMachineDark");
+            material.diffuseColor = Color3.FromHexString(MAIN_ACCENT_COLOR);
+            mesh.material = material;
+          }
+        }
+        for (const material of oldMaterials) {
+          material.dispose(true, true, false);
+        }
+      }
+    } catch (err) {
+      console.trace(err);
+      setAlert("Couldn't spawn environment model - check the console for error trace");
+    }
+  }
+
+  despawnEnvironmentModel(id: EntityId) {
+    const modelOption = this.environmentModels.get(id);
+    if (modelOption) {
+      modelOption.model.dispose();
+      this.environmentModels.delete(id);
+    }
   }
 }
