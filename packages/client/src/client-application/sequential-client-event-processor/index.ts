@@ -4,14 +4,14 @@ import { ClientEvent, ClientEventHandlers } from "./client-events";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { GameStore } from "@/mobx-stores/game";
 import { LobbyStore } from "@/mobx-stores/lobby";
-import { ActionMenuStore } from "@/mobx-stores/action-menu";
 import { TargetIndicatorStore } from "@/mobx-stores/target-indicators";
 import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { ActionMenuStatePool } from "../action-menu/action-menu-state-pool";
 import { ReactiveNode } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { EventLogGameMessageService } from "../event-log/event-log-service";
 import { ActionMenu } from "../action-menu";
+import { ClientApplicationGameContext } from "../client-application-game-context";
+import { CombatantFocus } from "../combatant-focus";
 
 export class SequentialClientEventProcessor implements ReactiveNode {
   private eventHandlers: ClientEventHandlers;
@@ -26,23 +26,23 @@ export class SequentialClientEventProcessor implements ReactiveNode {
   constructor(
     gameWorldView: GameWorldView | null,
     actionMenu: ActionMenu,
+    gameContext: ClientApplicationGameContext,
+    combatantFocus: CombatantFocus,
     //
-    gameStore: GameStore,
     lobbyStore: LobbyStore,
     targetIndicatorStore: TargetIndicatorStore,
     eventLogMessageService: EventLogGameMessageService,
-    characterAutoFocusManager: CharacterAutoFocusManager,
     replayTreeProcessor: ReplayTreeProcessorManager
   ) {
     this.eventHandlers = createClientEventHandlers(
       replayTreeProcessor,
       gameWorldView,
       actionMenu,
-      gameStore,
+      gameContext,
+      combatantFocus,
       lobbyStore,
       targetIndicatorStore,
-      eventLogMessageService,
-      characterAutoFocusManager
+      eventLogMessageService
     );
   }
 

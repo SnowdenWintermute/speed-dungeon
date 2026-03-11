@@ -17,16 +17,19 @@ import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type"
 import { TargetIndicatorStore } from "@/mobx-stores/target-indicators";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { ActionMenu } from "../action-menu";
+import { ClientApplicationGameContext } from "../client-application-game-context";
+import { CombatantFocus } from "../combatant-focus";
 
 export function createClientEventHandlers(
   replayTreeProcessor: ReplayTreeProcessorManager,
   gameWorldView: GameWorldView | null,
   actionMenu: ActionMenu,
-  gameStore: GameStore,
+  gameContext: ClientApplicationGameContext,
+  combatantFocus: CombatantFocus,
+  //
   lobbyStore: LobbyStore,
   targetIndicatorStore: TargetIndicatorStore,
-  eventLogMessageService: EventLogGameMessageService,
-  characterAutoFocusManager: CharacterAutoFocusManager
+  eventLogMessageService: EventLogGameMessageService
 ): ClientEventHandlers {
   return {
     [ClientEventType.ClearAllModels]: () => {
@@ -36,7 +39,7 @@ export function createClientEventHandlers(
       return gameWorldView?.modelManager.synchronizeCombatantEquipmentModels(event.entityId);
     },
     [ClientEventType.SynchronizeCombatantModels]: async (event) => {
-      return gameWorldView?.modelManager.synchronizeCombatantModels(gameStore, lobbyStore, event);
+      return gameWorldView?.modelManager.synchronizeCombatantModels(gameContext, lobbyStore, event);
     },
     [ClientEventType.SpawnEnvironmentModel]: (event) => {
       return gameWorldView?.modelManager.spawnEnvironmentModel(
@@ -55,7 +58,7 @@ export function createClientEventHandlers(
         const { actionUserId } = event;
         targetIndicatorStore.clearUserTargets(event.actionUserId);
 
-        const player = gameStore.getExpectedClientPlayer();
+        const player = gameContext.requireClientPlayer();
         if (player.characterIds.includes(actionUserId as CombatantId)) {
           const inventoryIsOpen = actionMenu.stackedMenusIncludeType(MenuStateType.InventoryItems);
           if (inventoryIsOpen) {
@@ -94,7 +97,7 @@ export function createClientEventHandlers(
         }
       }
 
-      const { game, party } = gameStore.getFocusedCharacterContext();
+      const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
       switch (conclusion) {
         case BattleConclusion.Defeat:
@@ -102,7 +105,7 @@ export function createClientEventHandlers(
           eventLogMessageService.postWipeMessage();
           break;
         case BattleConclusion.Victory: {
-          characterAutoFocusManager.focusFirstOwnedCharacter();
+          combatantFocus.focusFirstOwnedCharacter();
 
           party.inputLock.unlockInput();
 
@@ -136,7 +139,7 @@ export function createClientEventHandlers(
     [ClientEventType.RemovePlayerFromGame]: async (event) => {
       const itemsToRemoveThumbnails: string[] = [];
 
-      const gameOption = gameStore.getGameOption();
+      const { gameOption } = gameContext;
       if (gameOption === null) {
         // maybe could happen if ally quits game, then user quits before they receive the message
         console.info("tried to process RemovePlayerFromGame but client has no game");
@@ -165,9 +168,9 @@ export function createClientEventHandlers(
       }
 
       eventLogMessageService.postUserLeftGame(username);
-      characterAutoFocusManager.focusFirstOwnedCharacter();
+      combatantFocus.focusFirstOwnedCharacter();
 
-      await gameWorldView?.modelManager.synchronizeCombatantModels(gameStore, lobbyStore, {
+      await gameWorldView?.modelManager.synchronizeCombatantModels(gameContext, lobbyStore, {
         placeInHomePositions: true,
       });
 

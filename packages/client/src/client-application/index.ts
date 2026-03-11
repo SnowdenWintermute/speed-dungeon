@@ -9,12 +9,23 @@ import { ProcessedUpdateAwaiter } from "./event-latch";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { TickScheduler } from "./replay-tree-manager/replay-tree-tick-schedulers";
 import { ActionMenu } from "./action-menu";
+import { ClientApplicationSession } from "./client-application-session";
+import { ClientApplicationGameContext } from "./client-application-game-context";
+import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
+import { ClientSingleton } from "@/singletons/lobby-client";
+import { CombatantFocus } from "./combatant-focus";
 
 export class ClientApplication {
-  public processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
+  readonly gameClientSingleton = new ClientSingleton();
+  readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   private assetService: ClientAppAssetService;
   private unregisterReplayManagerTick: () => void;
   private actionMenu = new ActionMenu();
+  readonly session = new ClientApplicationSession();
+  readonly gameContext: ClientApplicationGameContext;
+  readonly detailableEntityFocus = new DetailableEntityFocus();
+  readonly combatantFocus: CombatantFocus;
+  // readonly sequentialEventProcessor: SequentialClientEventProcessor;
 
   constructor(
     private gameWorldView: null | GameWorldView,
@@ -28,6 +39,25 @@ export class ClientApplication {
     this.unregisterReplayManagerTick = replayManagerTickScheduler(() =>
       this.replayProcessorManager.tick()
     );
+    this.gameContext = new ClientApplicationGameContext(this.session);
+    this.combatantFocus = new CombatantFocus(
+      this.gameClientSingleton,
+      this.session,
+      this.gameContext,
+      this.actionMenu,
+      this.detailableEntityFocus
+    );
+    this.detailableEntityFocus.initialize(this.combatantFocus);
+    // this.sequentialEventProcessor = new SequentialClientEventProcessor(
+    //   this.gameWorldView,
+    //   this.actionMenu,
+    //   this.gameContext,
+    //   this.combatantFocus,
+    //   lobbyStore,
+    //   targetIndicatorStore,
+    //   eventLogMessageService,
+    //   replayTreeProcessor
+    // );
   }
 
   dispose() {
@@ -35,56 +65,33 @@ export class ClientApplication {
     this.gameWorldView?.dispose();
   }
 
-  // export class GameStore {
-  //   private game: null | SpeedDungeonGame = null;
-
-  // CLIENT APP GENERAL
-  //   private username: null | Username = null;
-  //   private focusedCharacterId: CombatantId | null = null;
-  //   getUsernameOption() {}
-  //   getExpectedUsername() {}
-  //   setUsername(username: Username) {}
-  //   clearUsername() {}
-  // GAME CLIENT
-  //   setGame(game: SpeedDungeonGame) {}
-  //   clearGame() {}
-  //   getExpectedClientPlayer() {}
-  //   getGameOption() {}
-  //   getExpectedGame() {}
-  //   getExpectedCombatantContext(combatantId: EntityId): CombatantContext {}
-  //   getExpectedPlayerContext(username: Username) {}
-  //   getPartyOption() {}
-  //   getExpectedParty() {} // getExpectedClientParty()
-  //   private getExpectedPlayer(username: Username) {} // getExpectedClientPlayer()
-  //   getCombatantOption(combatantId: EntityId) {}
-  //   getExpectedCombatant(combatantId: EntityId) {}
-  //   private clientUserControlsCombatant(combatantId: string) {}
-  //
-  // FOCUSED CHARACTER
-  //   getFocusedCharacterContext() {}
-  //   setFocusedCharacter(entityId: CombatantId) {}
-  //   private handleCharacterUnfocused(id: CombatantId) {}
-  //   characterIsFocused(entityId: EntityId) {}
-  //   getFocusedCharacterIdOption() {}
-  //   getExpectedFocusedCharacterId() {}
-  //   getExpectedFocusedCharacter() {}
-  //   getFocusedCharacterOption: () => undefined | Combatant = () => {};
-  //   clientUserControlsFocusedCombatant(options?: { includePets: boolean }) {}
-  //
-  // }
-
   // - GameUpdateProcessedLog
   //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
   //   - exposes a waitForMessageOfTypeProcessed() for tests
 
   // - MiscState (stuff the frontend jsx will observe)
+  //
+  //   - lobbyStore = new LobbyStore();
+  //   - actionMenuStore = new ActionMenuStore();
+  //   - gameWorldStore = new GameWorldStore();
+  //   - configStore = new ConfigStore(); // misc settings
+  //   - gameEventNotificationStore = new GameEventNotificationStore();
+  //
+  //   - targetIndicatorStore = new TargetIndicatorStore();
+  //   - dialogStore = new DialogStore();
+  //   - inputStore = new InputStore(); // is alternate mode key held
+  //   - imageStore = new ImagesStore(); // Images dynamically created from loaded models (combatant portraits, item thumbnails)
+  //   - tooltipStore = new TooltipStore();
+  //   - formsStore = new FormsStore();
+  //   - hotkeysStore = new HotkeysStore();
+  //
+  //   - assetFetchProgressStore = new AssetFetchProgressStore();
+  //   - connectionStatusStore = new ConnectionStatusStore();
+  //   - http request store
   //   - Alerts (error/success toast notifications)
-  //   - Input state (is alternate mode key held)
   //   - Asset fetch progress observer
-  //   - Misc UI Config
   //   - Keybinds config
   //   - Connection status indicator
-  //   - Images dynamically created from loaded models (combatant portraits, item thumbnails)
   //
   // - RuntimeEnvironmentManager (change between online/offline mode and manage persistence of choice/error states)
   //   - ConnectionEndpointFactory
