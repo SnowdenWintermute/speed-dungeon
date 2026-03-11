@@ -15,6 +15,12 @@ import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { ClientSingleton } from "@/singletons/lobby-client";
 import { CombatantFocus } from "./combatant-focus";
 import { ClientApplicationLobbyContext } from "./client-application-lobby-context";
+import { TargetIndicatorStore } from "./target-indicator-store";
+import { EventLogStore } from "./event-log/event-log-store";
+import { FloatingMessagesStore } from "./event-log/floating-messages-store";
+import { EventLogGameMessageService } from "./event-log/event-log-service";
+import { FloatingMessageService } from "./event-log/floating-messages-service";
+import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 
 export class ClientApplication {
   readonly gameClientSingleton = new ClientSingleton();
@@ -27,6 +33,12 @@ export class ClientApplication {
   readonly lobbyContext = new ClientApplicationLobbyContext();
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly combatantFocus: CombatantFocus;
+  readonly targetIndicatorStore: TargetIndicatorStore;
+
+  readonly eventLogStore = new EventLogStore();
+  readonly eventLogMessageService = new EventLogGameMessageService(this.eventLogStore);
+  readonly floatingMessagesStore = new FloatingMessagesStore();
+  readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   // readonly sequentialEventProcessor: SequentialClientEventProcessor;
 
   constructor(
@@ -50,15 +62,16 @@ export class ClientApplication {
       this.detailableEntityFocus
     );
     this.detailableEntityFocus.initialize(this.combatantFocus);
+    this.targetIndicatorStore = new TargetIndicatorStore(this.gameWorldView);
     // this.sequentialEventProcessor = new SequentialClientEventProcessor(
+    //   this.replayTreeProcessor,
     //   this.gameWorldView,
     //   this.actionMenu,
     //   this.gameContext,
     //   this.combatantFocus,
     //   this.lobbyContext,
-    //   targetIndicatorStore,
-    //   eventLogMessageService,
-    //   replayTreeProcessor
+    //   this.targetIndicatorStore,
+    //   this.eventLogMessageService
     // );
   }
 
@@ -72,12 +85,9 @@ export class ClientApplication {
   //   - exposes a waitForMessageOfTypeProcessed() for tests
 
   // - MiscState (stuff the frontend jsx will observe)
-  //
   //   - gameWorldStore = new GameWorldStore();
   //   - configStore = new ConfigStore(); // misc settings
-  //   - gameEventNotificationStore = new GameEventNotificationStore();
   //
-  //   - targetIndicatorStore = new TargetIndicatorStore();
   //   - dialogStore = new DialogStore();
   //   - inputStore = new InputStore(); // is alternate mode key held
   //   - imageStore = new ImagesStore(); // Images dynamically created from loaded models (combatant portraits, item thumbnails)

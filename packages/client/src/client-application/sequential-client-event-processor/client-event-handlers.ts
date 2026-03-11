@@ -11,12 +11,12 @@ import {
   Equipment,
 } from "@speed-dungeon/common";
 import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
-import { TargetIndicatorStore } from "@/mobx-stores/target-indicators";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { ActionMenu } from "../action-menu";
 import { ClientApplicationGameContext } from "../client-application-game-context";
 import { CombatantFocus } from "../combatant-focus";
 import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
+import { TargetIndicatorStore } from "../target-indicator-store";
 
 export function createClientEventHandlers(
   replayTreeProcessor: ReplayTreeProcessorManager,
@@ -25,7 +25,6 @@ export function createClientEventHandlers(
   gameContext: ClientApplicationGameContext,
   combatantFocus: CombatantFocus,
   lobbyContext: ClientApplicationLobbyContext,
-  //
   targetIndicatorStore: TargetIndicatorStore,
   eventLogMessageService: EventLogGameMessageService
 ): ClientEventHandlers {

@@ -1,4 +1,3 @@
-import { GameEventNotificationStore } from "@/mobx-stores/game-event-notifications";
 import {
   COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE,
   GameLogMessage,
@@ -26,11 +25,13 @@ import {
   ResourceChange,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
+import { EventLogStore } from "./event-log-store";
 
 export class EventLogGameMessageService {
-  constructor(private gameEventNotificationStore: GameEventNotificationStore) {}
+  constructor(private store: EventLogStore) {}
+
   private dispatch(message: GameLogMessage) {
-    this.gameEventNotificationStore.postGameLogMessage(message);
+    this.store.postGameLogMessage(message);
   }
 
   postGameStarted() {
