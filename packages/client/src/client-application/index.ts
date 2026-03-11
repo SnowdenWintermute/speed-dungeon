@@ -14,6 +14,7 @@ import { ClientApplicationGameContext } from "./client-application-game-context"
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { ClientSingleton } from "@/singletons/lobby-client";
 import { CombatantFocus } from "./combatant-focus";
+import { ClientApplicationLobbyContext } from "./client-application-lobby-context";
 
 export class ClientApplication {
   readonly gameClientSingleton = new ClientSingleton();
@@ -23,6 +24,7 @@ export class ClientApplication {
   private actionMenu = new ActionMenu();
   readonly session = new ClientApplicationSession();
   readonly gameContext: ClientApplicationGameContext;
+  readonly lobbyContext = new ClientApplicationLobbyContext();
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly combatantFocus: CombatantFocus;
   // readonly sequentialEventProcessor: SequentialClientEventProcessor;
@@ -53,7 +55,7 @@ export class ClientApplication {
     //   this.actionMenu,
     //   this.gameContext,
     //   this.combatantFocus,
-    //   lobbyStore,
+    //   this.lobbyContext,
     //   targetIndicatorStore,
     //   eventLogMessageService,
     //   replayTreeProcessor
@@ -71,8 +73,6 @@ export class ClientApplication {
 
   // - MiscState (stuff the frontend jsx will observe)
   //
-  //   - lobbyStore = new LobbyStore();
-  //   - actionMenuStore = new ActionMenuStore();
   //   - gameWorldStore = new GameWorldStore();
   //   - configStore = new ConfigStore(); // misc settings
   //   - gameEventNotificationStore = new GameEventNotificationStore();

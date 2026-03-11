@@ -73,3 +73,16 @@ Next.js (Turbopack) reads the .js imports in the source and cannot find the corr
   import.
   Solution: Try using direct path imports in the complaining file instead of importing from a mass
   export file like common/index.ts
+
+### Old problems and comments about their solutions
+
+In the old LobbyStore class
+
+```
+constructor() {
+// we autoBind because that allows us to pass methods of this class
+// to callbacks like socket.on(ServerToClientEvent.UserLeftChannel, lobbyStore.handleUserLeftChannel);
+// see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
+makeAutoObservable(this, {}, { autoBind: true });
+}
+```

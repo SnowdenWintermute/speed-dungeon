@@ -2,16 +2,15 @@ import { GameWorldView } from "@/game-world-view";
 import { createClientEventHandlers } from "./client-event-handlers";
 import { ClientEvent, ClientEventHandlers } from "./client-events";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
-import { GameStore } from "@/mobx-stores/game";
 import { LobbyStore } from "@/mobx-stores/lobby";
 import { TargetIndicatorStore } from "@/mobx-stores/target-indicators";
-import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { ReactiveNode } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { EventLogGameMessageService } from "../event-log/event-log-service";
 import { ActionMenu } from "../action-menu";
 import { ClientApplicationGameContext } from "../client-application-game-context";
 import { CombatantFocus } from "../combatant-focus";
+import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
 
 export class SequentialClientEventProcessor implements ReactiveNode {
   private eventHandlers: ClientEventHandlers;
@@ -28,8 +27,8 @@ export class SequentialClientEventProcessor implements ReactiveNode {
     actionMenu: ActionMenu,
     gameContext: ClientApplicationGameContext,
     combatantFocus: CombatantFocus,
+    lobbyContext: ClientApplicationLobbyContext,
     //
-    lobbyStore: LobbyStore,
     targetIndicatorStore: TargetIndicatorStore,
     eventLogMessageService: EventLogGameMessageService,
     replayTreeProcessor: ReplayTreeProcessorManager
@@ -40,7 +39,8 @@ export class SequentialClientEventProcessor implements ReactiveNode {
       actionMenu,
       gameContext,
       combatantFocus,
-      lobbyStore,
+      //
+      lobbyContext,
       targetIndicatorStore,
       eventLogMessageService
     );

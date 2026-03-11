@@ -1,9 +1,6 @@
 import { GameWorldView } from "@/game-world-view";
 import { ClientEventHandlers, ClientEventType } from "./client-events";
-import { GameStore } from "@/mobx-stores/game";
-import { LobbyStore } from "@/mobx-stores/lobby";
 import { EventLogGameMessageService } from "../event-log/event-log-service";
-import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import {
   Battle,
@@ -19,6 +16,7 @@ import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { ActionMenu } from "../action-menu";
 import { ClientApplicationGameContext } from "../client-application-game-context";
 import { CombatantFocus } from "../combatant-focus";
+import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
 
 export function createClientEventHandlers(
   replayTreeProcessor: ReplayTreeProcessorManager,
@@ -26,8 +24,8 @@ export function createClientEventHandlers(
   actionMenu: ActionMenu,
   gameContext: ClientApplicationGameContext,
   combatantFocus: CombatantFocus,
+  lobbyContext: ClientApplicationLobbyContext,
   //
-  lobbyStore: LobbyStore,
   targetIndicatorStore: TargetIndicatorStore,
   eventLogMessageService: EventLogGameMessageService
 ): ClientEventHandlers {
@@ -39,7 +37,11 @@ export function createClientEventHandlers(
       return gameWorldView?.modelManager.synchronizeCombatantEquipmentModels(event.entityId);
     },
     [ClientEventType.SynchronizeCombatantModels]: async (event) => {
-      return gameWorldView?.modelManager.synchronizeCombatantModels(gameContext, lobbyStore, event);
+      return gameWorldView?.modelManager.synchronizeCombatantModels(
+        gameContext,
+        lobbyContext,
+        event
+      );
     },
     [ClientEventType.SpawnEnvironmentModel]: (event) => {
       return gameWorldView?.modelManager.spawnEnvironmentModel(
@@ -170,7 +172,7 @@ export function createClientEventHandlers(
       eventLogMessageService.postUserLeftGame(username);
       combatantFocus.focusFirstOwnedCharacter();
 
-      await gameWorldView?.modelManager.synchronizeCombatantModels(gameContext, lobbyStore, {
+      await gameWorldView?.modelManager.synchronizeCombatantModels(gameContext, lobbyContext, {
         placeInHomePositions: true,
       });
 
