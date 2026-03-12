@@ -1,38 +1,53 @@
 import {
   ActionEntity,
-  AdventuringParty,
   Combatant,
   SerializedSpawnedCombatant,
   SpawnableEntityType,
   SpawnEntitiesGameUpdateCommand,
-  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { handleStartPointingTowardEntity } from "./entity-motion-update-handlers/handle-start-pointing-toward";
-import { handleLockRotationToFace } from "./entity-motion-update-handlers/handle-lock-rotation-to-face";
-import { GameUpdateTracker } from "./game-update-tracker";
-import { AppStore } from "@/mobx-stores/app-store";
-import { spawnCharacterModel } from "@/game-world-view/model-manager/model-action-handlers/spawn-character-model";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
+import { ClientApplication } from "@/client-application";
+import { GameWorldView } from "@/game-world-view";
 import { SceneEntity } from "@/game-world-view/scene-entities";
-import {
-  ActionEntityModel,
-  spawnActionEntityModel,
-} from "@/game-world-view/scene-entities/action-entity-models";
+import { ActionEntityModel } from "@/game-world-view/scene-entities/action-entity-models";
 
 export async function spawnEntitiesGameUpdateHandler(
-  update: GameUpdateTracker<SpawnEntitiesGameUpdateCommand>
+  clientApplication: ClientApplication,
+  update: ReplayGameUpdateTracker<SpawnEntitiesGameUpdateCommand>
 ) {
   const { command } = update;
-  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
+  const { game, party } = clientApplication.combatantFocus.requireFocusedCharacterContext();
 
   const promises: Promise<void>[] = [];
 
+  const deserialized: (Combatant | ActionEntity)[] = [];
   for (const entity of command.entities) {
     if (entity.type === SpawnableEntityType.Combatant) {
-      promises.push(handleNewSpawnableCombatant(entity, party, game));
+      const { combatant } = entity;
+      const deserialized = Combatant.fromSerialized(combatant);
+      deserialized.makeObservable();
+      party.combatantManager.addCombatant(deserialized, game);
+      if (clientApplication.gameWorldView) {
+        promises.push(
+          handleNewSpawnableCombatant(clientApplication.gameWorldView, entity, deserialized)
+        );
+      }
     } else {
-      promises.push(handleNewSpawnableActionEntity(entity.actionEntity, party, game));
+      deserialized.push(ActionEntity.fromSerialized(entity));
+      if (clientApplication.gameWorldView) {
+        const deserialized = ActionEntity.fromSerialized(entity);
+        deserialized.makeObservable();
+        const { actionEntityManager } = party;
+        const battleOption = party.getBattleOption(game);
+        actionEntityManager.registerActionEntity(deserialized, battleOption);
+
+        if (clientApplication.gameWorldView) {
+          promises.push(
+            handleNewSpawnableActionEntity(clientApplication.gameWorldView, entity.actionEntity)
+          );
+        }
+      }
     }
   }
 
@@ -46,21 +61,17 @@ export async function spawnEntitiesGameUpdateHandler(
 }
 
 async function handleNewSpawnableCombatant(
+  gameWorldView: GameWorldView,
   spawnableCombatant: SerializedSpawnedCombatant,
-  party: AdventuringParty,
-  game: SpeedDungeonGame
+  deserialized: Combatant
 ) {
-  const { combatant, parentTransformNodeOption } = spawnableCombatant;
-  const deserialized = Combatant.fromSerialized(combatant);
-  deserialized.makeObservable();
-  const { homeRotation } = deserialized.combatantProperties.transformProperties;
-  party.combatantManager.addCombatant(deserialized, game);
+  const { transformProperties } = deserialized.combatantProperties;
   const model = await spawnCharacterModel(
-    getGameWorldView(),
+    gameWorldView,
     {
       combatant: deserialized,
-      homeRotation,
-      homePosition: deserialized.combatantProperties.transformProperties.getHomePosition(),
+      homeRotation: transformProperties.homeRotation,
+      homePosition: transformProperties.getHomePosition(),
       modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
     },
     {
@@ -74,10 +85,10 @@ async function handleNewSpawnableCombatant(
     throw model;
   }
 
-  if (parentTransformNodeOption) {
+  if (spawnableCombatant.parentTransformNodeOption) {
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      parentTransformNodeOption,
-      getGameWorldView()
+      spawnableCombatant.parentTransformNodeOption,
+      gameWorldView
     );
 
     model.movementManager.transformNode.setParent(targetTransformNode);
@@ -85,17 +96,15 @@ async function handleNewSpawnableCombatant(
     model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
   }
 
-  await getGameWorldView().modelManager.register(model);
+  await gameWorldView.modelManager.register(model);
 }
 
 async function handleNewSpawnableActionEntity(
-  actionEntity: ActionEntity,
-  party: AdventuringParty,
-  game: SpeedDungeonGame
+  gameWorldView: GameWorldView,
+  actionEntity: ActionEntity
 ) {
   const { actionEntityProperties } = actionEntity;
   const { initialRotation } = actionEntityProperties;
-  const battleOption = party.getBattleOption(game);
 
   const position = new Vector3(
     actionEntityProperties.position._x,
@@ -116,18 +125,12 @@ async function handleNewSpawnableActionEntity(
     actionEntityProperties.name
   );
 
-  getGameWorldView().actionEntityManager.register(model);
-
-  const deserialized = ActionEntity.fromSerialized(actionEntity);
-  deserialized.makeObservable();
-
-  const { actionEntityManager } = party;
-  actionEntityManager.registerActionEntity(deserialized, battleOption);
+  gameWorldView.actionEntityManager.register(model);
 
   if (actionEntityProperties.parentOption) {
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
       actionEntityProperties.parentOption,
-      getGameWorldView()
+      gameWorldView
     );
 
     model.movementManager.transformNode.setParent(targetTransformNode);
@@ -138,7 +141,7 @@ async function handleNewSpawnableActionEntity(
   if (actionEntityProperties.initialCosmeticYPosition) {
     const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
       actionEntityProperties.initialCosmeticYPosition,
-      getGameWorldView()
+      gameWorldView
     );
 
     model.rootTransformNode.position.y = targetTransformNode.position.y;
