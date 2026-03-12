@@ -10,7 +10,7 @@ import {
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { AppStore } from "../app-store";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
 export class GameStore {
@@ -143,16 +143,16 @@ export class GameStore {
       actionMenuStore.clearStack();
     }
 
-    if (actionMenuStore.currentMenuIsType(MenuStateType.ItemSelected)) {
+    if (actionMenuStore.currentMenuIsType(ActionMenuScreenType.ItemSelected)) {
       actionMenuStore.popStack();
     }
 
     // otherwise you'll end up looking at crafting action selection on an unowned item
     if (
       actionMenuStore.shouldShowCharacterSheet() &&
-      actionMenuStore.stackedMenusIncludeType(MenuStateType.CraftingActionSelection)
+      actionMenuStore.stackedMenusIncludeType(ActionMenuScreenType.CraftingActionSelection)
     ) {
-      actionMenuStore.removeMenuFromStack(MenuStateType.CraftingActionSelection);
+      actionMenuStore.removeMenuFromStack(ActionMenuScreenType.CraftingActionSelection);
     }
 
     if (actionMenuStore.isInitialized()) {

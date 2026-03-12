@@ -1,8 +1,8 @@
-import { ActionMenuState } from ".";
-import { ConsideringAbilityTreeColumnMenuState } from "./considering-tree-ability-column";
+import { ActionMenuScreen } from ".";
+import { ConsideringAbilityTreeColumnActionMenuScreen } from "./considering-tree-ability-column";
 import { ABILITY_TREE_DIMENSIONS, ArrayUtils } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
@@ -13,9 +13,9 @@ export const toggleAbilityTreeHotkeys = AppStore.get().hotkeysStore.getKeybind(
   HotkeyButtonTypes.ToggleViewingAbilityTree
 );
 
-export class AbilityTreeMenuState extends ActionMenuState {
+export class AbilityTreeActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.ViewingAbilityTree);
+    super(ActionMenuScreenType.ViewingAbilityTree);
   }
 
   getTopSection(): ReactNode {
@@ -43,11 +43,9 @@ export class AbilityTreeMenuState extends ActionMenuState {
             hotkeys={[`Digit${number}`]}
             hotkeyLabel={number.toString()}
             extraStyles={""}
-            focusHandler={() => {}}
-            blurHandler={() => {}}
             clickHandler={() => {
               const { actionMenuStore } = AppStore.get();
-              actionMenuStore.pushStack(new ConsideringAbilityTreeColumnMenuState(number));
+              actionMenuStore.pushStack(new ConsideringAbilityTreeColumnActionMenuScreen(number));
               actionMenuStore.getCurrentMenu().setPageIndex(number - 1);
             }}
           >

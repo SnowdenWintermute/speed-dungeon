@@ -1,5 +1,5 @@
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
 import {
   ActionCommandReceiver,
@@ -21,13 +21,13 @@ export class ClientActionCommandReceiver implements ActionCommandReceiver {
         const player = AppStore.get().gameStore.getExpectedClientPlayer();
         if (player.characterIds.includes(payload.actionUserId as CombatantId)) {
           const inventoryIsOpen = actionMenuStore.stackedMenusIncludeType(
-            MenuStateType.InventoryItems
+            ActionMenuScreenType.InventoryItems
           );
           if (inventoryIsOpen) {
             let currentMenu = actionMenuStore.getCurrentMenu();
             while (
-              currentMenu.type !== MenuStateType.InventoryItems &&
-              currentMenu.type !== MenuStateType.Base
+              currentMenu.type !== ActionMenuScreenType.InventoryItems &&
+              currentMenu.type !== ActionMenuScreenType.Base
             ) {
               actionMenuStore.popStack();
               currentMenu = actionMenuStore.getCurrentMenu();

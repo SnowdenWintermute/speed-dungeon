@@ -10,7 +10,7 @@ import { CharacterAttributes } from "./CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
-import { MenuStateType } from "../ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "../ActionMenu/menu-state/menu-state-type";
 
 export const PaperDollAndAttributes = observer(() => {
   const { dialogStore, actionMenuStore } = AppStore.get();
@@ -30,7 +30,7 @@ export const PaperDollAndAttributes = observer(() => {
               <HotkeyButton
                 className="disabled:opacity-50"
                 hotkeys={[HOTKEYS.MAIN_2]}
-                disabled={currentMenu.type !== MenuStateType.InventoryItems}
+                disabled={currentMenu.type !== ActionMenuScreenType.InventoryItems}
                 onClick={() => {
                   dialogStore.toggle(DialogElementName.DropShards);
                 }}

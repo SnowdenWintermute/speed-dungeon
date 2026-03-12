@@ -1,8 +1,8 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "../menu-state-type";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 const buttonType = HotkeyButtonTypes.ToggleViewingAbilityTree;
@@ -24,7 +24,7 @@ export default function ViewAbilityTreeButton() {
         const { actionMenuStore, focusStore } = AppStore.get();
         focusStore.combatantAbilities.clear();
         focusStore.detailables.clearHovered();
-        actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
+        actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.ViewingAbilityTree)]);
       }}
     >
       Abilities ({toggleViewingAbilityTreeHotkeysString})

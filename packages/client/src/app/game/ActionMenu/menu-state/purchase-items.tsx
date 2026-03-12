@@ -1,7 +1,7 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import { ConsumableType, createDummyConsumable } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { PurchaseItemButton } from "./common-buttons/PurchaseItemButton";
@@ -12,9 +12,9 @@ export const SHOP_CONSUMABLES = purchaseableConsumableTypes.map((consumableType)
   createDummyConsumable(consumableType)
 );
 
-export class PurchaseItemsMenuState extends ActionMenuState {
+export class PurchaseItemsActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.PurchasingItems);
+    super(ActionMenuScreenType.PurchasingItems);
   }
 
   getTopSection() {

@@ -3,8 +3,8 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ClientIntentType } from "@speed-dungeon/common";
 import React from "react";
-import { MenuStateType } from "../menu-state-type";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "../menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
@@ -25,11 +25,11 @@ export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
       });
     }
 
-    if (actionMenuStore.currentMenuIsType(MenuStateType.AssignAttributePoints)) {
+    if (actionMenuStore.currentMenuIsType(ActionMenuScreenType.AssignAttributePoints)) {
       actionMenuStore.popStack();
     } else {
       gameStore.setFocusedCharacter(entityId);
-      actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.AssignAttributePoints)]);
+      actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.AssignAttributePoints)]);
     }
   }
 

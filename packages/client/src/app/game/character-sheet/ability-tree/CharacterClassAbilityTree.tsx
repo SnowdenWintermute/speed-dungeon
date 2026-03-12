@@ -10,7 +10,7 @@ import { useRef } from "react";
 import { PrerequisiteArrows } from "./PrerequisiteArrows";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "../../ActionMenu/menu-state/menu-state-type";
 
 export const CharacterClassAbilityTree = observer(
   ({ abilityTree, isSupportClass }: { abilityTree: AbilityTree; isSupportClass: boolean }) => {
@@ -36,7 +36,7 @@ export const CharacterClassAbilityTree = observer(
         >
           {abilityTree.columns.map((column, columnIndex) => {
             const shouldHighlight =
-              currentMenu.type === MenuStateType.ConsideringAbilityTreeColumn &&
+              currentMenu.type === ActionMenuScreenType.ConsideringAbilityTreeColumn &&
               currentMenu.pageIndex === columnIndex;
             return (
               <div

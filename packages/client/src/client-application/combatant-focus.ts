@@ -8,14 +8,14 @@ import {
 import { ClientApplicationGameContext } from "./client-application-game-context";
 import { ClientApplicationSession } from "./client-application-session";
 import { ActionMenu } from "./action-menu";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { ClientSingleton } from "@/singletons/lobby-client";
 
 export class CombatantFocus {
   private focusedCharacterId: CombatantId | null = null;
   constructor(
-    private gameClientSingleton: ClientSingleton,
+    private gameClientRef: ClientSingleton,
     private clientSession: ClientApplicationSession,
     private gameContext: ClientApplicationGameContext,
     private actionMenu: ActionMenu,
@@ -50,17 +50,17 @@ export class CombatantFocus {
       this.actionMenu.clearStack();
     }
 
-    if (this.actionMenu.currentMenuIsType(MenuStateType.ItemSelected)) {
+    if (this.actionMenu.currentMenuIsType(ActionMenuScreenType.ItemSelected)) {
       this.actionMenu.popStack();
     }
 
     const staleItemCraftingMenuInStack =
       this.actionMenu.shouldShowCharacterSheet() &&
-      this.actionMenu.stackedMenusIncludeType(MenuStateType.CraftingActionSelection);
+      this.actionMenu.stackedMenusIncludeType(ActionMenuScreenType.CraftingActionSelection);
 
     // otherwise you'll end up looking at crafting action selection on an unowned item
     if (staleItemCraftingMenuInStack) {
-      this.actionMenu.removeMenuFromStack(MenuStateType.CraftingActionSelection);
+      this.actionMenu.removeMenuFromStack(ActionMenuScreenType.CraftingActionSelection);
     }
 
     if (this.actionMenu.isInitialized()) {
@@ -122,7 +122,7 @@ export class CombatantFocus {
       return;
     }
 
-    this.gameClientSingleton.get().dispatchIntent({
+    this.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.SelectCombatAction,
       data: {
         characterId: id,

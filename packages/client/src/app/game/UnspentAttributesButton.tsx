@@ -2,8 +2,8 @@ import { ClientIntentType, CombatantId, CombatantProperties } from "@speed-dunge
 import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "./ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { gameClientSingleton } from "@/singletons/lobby-client";
@@ -36,13 +36,13 @@ export const UnspentAttributesButton = observer(
       gameStore.setFocusedCharacter(entityId);
 
       if (
-        actionMenuStore.currentMenuIsType(MenuStateType.AssignAttributePoints) &&
+        actionMenuStore.currentMenuIsType(ActionMenuScreenType.AssignAttributePoints) &&
         entityId === previouslyFocusedCharacterId
       ) {
         actionMenuStore.popStack();
       } else {
         gameStore.setFocusedCharacter(entityId);
-        actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.AssignAttributePoints)]);
+        actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.AssignAttributePoints)]);
       }
     }
 

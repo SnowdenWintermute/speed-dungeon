@@ -5,17 +5,17 @@ import {
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
-import { ActionMenuState } from ".";
+import { ActionMenuScreenType } from "./menu-state-type";
+import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ItemButton } from "./common-buttons/ItemButton";
-import { ConfirmTradeForBookMenuState } from "./confirm-trade-for-book";
+import { ConfirmTradeForBookActionMenuScreen } from "./confirm-trade-for-book";
 
-export class SelectItemToTradeForBookMenuState extends ActionMenuState {
+export class SelectItemToTradeForBookActionMenuScreen extends ActionMenuScreen {
   constructor(public bookType: BookConsumableType) {
-    super(MenuStateType.SelectItemToTradeForBook);
+    super(ActionMenuScreenType.SelectItemToTradeForBook);
     makeAutoObservable(this);
   }
 
@@ -44,7 +44,7 @@ export class SelectItemToTradeForBookMenuState extends ActionMenuState {
           clickHandler={() => {
             AppStore.get().focusStore.selectItem(item);
             AppStore.get().actionMenuStore.pushStack(
-              new ConfirmTradeForBookMenuState(item, this.bookType)
+              new ConfirmTradeForBookActionMenuScreen(item, this.bookType)
             );
           }}
           disabled={false}

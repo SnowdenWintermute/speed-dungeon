@@ -1,7 +1,7 @@
 // ClientApplication (served from remote or from cached in a service worker)
 //
 // - GameWorldView (babylonjs world)
-// - MenuState (what menu is open, what page, what is hovered, what character is focused)
+// - ActionMenuScreen (what menu is open, what page, what is hovered, what character is focused)
 // - MiscState (stuff the frontend jsx will observe)
 //   - Alerts (error/success toast notifications)
 //   - Input state (is alternate mode key held)

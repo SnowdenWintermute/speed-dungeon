@@ -1,5 +1,5 @@
 import { CombatantTurnTracker, TurnTracker } from "@speed-dungeon/common";
-import { MenuStateType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
 
 export class CharacterAutoFocusManager {
@@ -46,7 +46,7 @@ export class CharacterAutoFocusManager {
     const { actionMenuStore } = AppStore.get();
     const clientIsViewingMenus = actionMenuStore.hasStackedMenus();
     const currentMenu = actionMenuStore.getCurrentMenu();
-    if (clientIsViewingMenus && currentMenu.type !== MenuStateType.ItemsOnGround) return;
+    if (clientIsViewingMenus && currentMenu.type !== ActionMenuScreenType.ItemsOnGround) return;
 
     if (newlyActiveTracker instanceof CombatantTurnTracker) {
       const { combatantManager } = party;

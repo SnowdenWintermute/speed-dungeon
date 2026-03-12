@@ -3,23 +3,23 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 
-export const StackedMenuStateDisplay = observer(() => {
+export const StackedActionMenuScreenDisplay = observer(() => {
   const { actionMenuStore } = AppStore.get();
-  const stackedMenuStateStringNames = actionMenuStore.getStackedMenuStringNames();
+  const stackedActionMenuScreenStringNames = actionMenuStore.getStackedMenuStringNames();
 
   return (
     <div
       className={`relative min-w-[25rem] max-w-[25rem] z-0`}
       style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >
-      {stackedMenuStateStringNames.map((stringName, i) => {
+      {stackedActionMenuScreenStringNames.map((stringName, i) => {
         return (
-          <MenuStateDisplay
+          <ActionMenuScreenDisplay
             key={i + stringName}
             menuStringName={stringName}
             index={i}
-            isTop={stackedMenuStateStringNames.length === i + 1}
-            stackSize={stackedMenuStateStringNames.length}
+            isTop={stackedActionMenuScreenStringNames.length === i + 1}
+            stackSize={stackedActionMenuScreenStringNames.length}
           />
         );
       })}
@@ -27,7 +27,7 @@ export const StackedMenuStateDisplay = observer(() => {
   );
 });
 
-const MenuStateDisplay = observer(
+const ActionMenuScreenDisplay = observer(
   ({
     menuStringName,
     index,

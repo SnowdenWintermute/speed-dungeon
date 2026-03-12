@@ -1,10 +1,10 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   COMBAT_ATTRIBUTE_STRINGS,
   ClientIntentType,
 } from "@speed-dungeon/common";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
@@ -12,9 +12,9 @@ import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedBut
 import makeAutoObservable from "mobx-store-inheritance";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
-export class AssigningAttributePointsMenuState extends ActionMenuState {
+export class AssigningAttributePointsActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.AssignAttributePoints);
+    super(ActionMenuScreenType.AssignAttributePoints);
     makeAutoObservable(this);
   }
 

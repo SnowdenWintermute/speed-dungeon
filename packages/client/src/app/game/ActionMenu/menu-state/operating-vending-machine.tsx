@@ -1,19 +1,19 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import { HOTKEYS } from "@/hotkeys";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import makeAutoObservable from "mobx-store-inheritance";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { AppStore } from "@/mobx-stores/app-store";
 import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
-export class OperatingVendingMachineMenuState extends ActionMenuState {
+export class OperatingVendingMachineActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.OperatingVendingMachine);
+    super(ActionMenuScreenType.OperatingVendingMachine);
     makeAutoObservable(this);
   }
 
@@ -39,31 +39,31 @@ export class OperatingVendingMachineMenuState extends ActionMenuState {
       {
         title: "Purchase Items",
         clickHandler: () => {
-          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.PurchasingItems));
+          actionMenuStore.pushStack(ActionMenuScreenPool.get(ActionMenuScreenType.PurchasingItems));
         },
       },
       {
         title: "Craft",
         clickHandler: () => {
-          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.CraftingItemSelection));
+          actionMenuStore.pushStack(ActionMenuScreenPool.get(ActionMenuScreenType.CraftingItemSelection));
         },
       },
       {
         title: "Repair",
         clickHandler: () => {
-          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.RepairItemSelection));
+          actionMenuStore.pushStack(ActionMenuScreenPool.get(ActionMenuScreenType.RepairItemSelection));
         },
       },
       {
         title: "Convert to Shards",
         clickHandler: () => {
-          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ShardItemSelection));
+          actionMenuStore.pushStack(ActionMenuScreenPool.get(ActionMenuScreenType.ShardItemSelection));
         },
       },
       {
         title: "Trade for Books",
         clickHandler: () => {
-          actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.SelectingBookType));
+          actionMenuStore.pushStack(ActionMenuScreenPool.get(ActionMenuScreenType.SelectingBookType));
         },
 
         disabledCondition: () => {

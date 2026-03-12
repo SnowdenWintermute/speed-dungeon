@@ -3,10 +3,17 @@ import ToggleInventoryButton from "@/app/game/ActionMenu/menu-state/common-butto
 import ViewAbilityTreeButton from "@/app/game/ActionMenu/menu-state/common-buttons/ViewAbilityTreeButton";
 import { ViewItemsOnGroundButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ViewItemsOnGroundButton";
 import React from "react";
+import { ActionMenuScreenType } from "../screen-types";
+import { ActionMenuScreen } from ".";
+import { ClientApplication } from "@/client-application";
+import makeAutoObservable from "mobx-store-inheritance";
+import { ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
+import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
+import { CombatActionButton } from "@/app/game/ActionMenu/menu-state/common-buttons/CombatActionButton";
 
-export class BaseMenuState extends ActionMenuState {
-  constructor() {
-    super(MenuStateType.Base);
+export class RootActionMenuScreen extends ActionMenuScreen {
+  constructor(clientApplication: ClientApplication) {
+    super(clientApplication, ActionMenuScreenType.Root);
     makeAutoObservable(this);
   }
 
@@ -22,9 +29,8 @@ export class BaseMenuState extends ActionMenuState {
   }
 
   getNumberedButtons() {
-    const { gameStore } = AppStore.get();
-
-    const focusedCharacterOption = gameStore.getFocusedCharacterOption();
+    const { combatantFocus } = this.clientApplication;
+    const { focusedCharacterOption } = combatantFocus;
 
     // this happens because there is a circular dependency between initializing
     // action menu store and focusing a character
@@ -52,18 +58,4 @@ export class BaseMenuState extends ActionMenuState {
         );
       });
   }
-}
-
-export function disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
-  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
-
-  const battleOption = party.getBattleOption(game);
-  let disableButtonBecauseNotThisCombatantTurn = false;
-
-  if (battleOption) {
-    disableButtonBecauseNotThisCombatantTurn =
-      !battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
-  }
-
-  return disableButtonBecauseNotThisCombatantTurn;
 }

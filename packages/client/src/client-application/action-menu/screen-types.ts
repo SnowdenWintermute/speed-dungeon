@@ -1,5 +1,5 @@
 export enum ActionMenuScreenType {
-  Base,
+  Root,
   CombatActionSelected,
   AssignAttributePoints,
   InventoryItems,
@@ -22,7 +22,7 @@ export enum ActionMenuScreenType {
 }
 
 export const MENU_STATE_TYPE_STRINGS: Record<ActionMenuScreenType, string> = {
-  [ActionMenuScreenType.Base]: "Action Menu",
+  [ActionMenuScreenType.Root]: "Action Menu",
   [ActionMenuScreenType.CombatActionSelected]: "Combat action selected",
   [ActionMenuScreenType.AssignAttributePoints]: "Assigning attribute points",
   [ActionMenuScreenType.InventoryItems]: "Inventory",

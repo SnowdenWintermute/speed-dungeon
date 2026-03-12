@@ -1,14 +1,14 @@
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { RepairEquipmentButton } from "./common-buttons/RepairEquipmentButton";
 import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
-export class RepairItemSelectionMenuState extends ActionMenuState {
+export class RepairItemSelectionActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.RepairItemSelection);
+    super(ActionMenuScreenType.RepairItemSelection);
   }
 
   getTopSection() {

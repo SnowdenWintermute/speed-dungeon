@@ -21,16 +21,19 @@ import { FloatingMessagesStore } from "./event-log/floating-messages-store";
 import { EventLogGameMessageService } from "./event-log/event-log-service";
 import { FloatingMessageService } from "./event-log/floating-messages-service";
 import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
+import { KeybindConfig } from "./inputs/keybind-config";
+import { InputStore } from "./inputs/input-store";
+import { AlertsService } from "./alerts";
 
 export class ClientApplication {
   // rename to client holder or client reference or just get rid of this
   // and change clients to have directly configurable connection endpoints
   // instead of replacing them entirely, thus avoiding need to wrap them at all
-  readonly gameClientSingleton = new ClientSingleton();
+  readonly gameClientRef = new ClientSingleton();
   readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   private assetService: ClientAppAssetService;
   private unregisterReplayManagerTick: () => void;
-  private actionMenu = new ActionMenu();
+  readonly actionMenu = new ActionMenu();
   readonly session = new ClientApplicationSession();
   readonly gameContext: ClientApplicationGameContext;
   readonly lobbyContext = new ClientApplicationLobbyContext();
@@ -44,6 +47,9 @@ export class ClientApplication {
   readonly floatingMessagesStore = new FloatingMessagesStore();
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   // readonly sequentialEventProcessor: SequentialClientEventProcessor;
+  readonly keybindConfig = new KeybindConfig();
+  readonly inputStore = new InputStore();
+  readonly alertsService = new AlertsService();
 
   constructor(
     private gameWorldView: null | GameWorldView,
@@ -59,7 +65,7 @@ export class ClientApplication {
     );
     this.gameContext = new ClientApplicationGameContext(this.session);
     this.combatantFocus = new CombatantFocus(
-      this.gameClientSingleton,
+      this.gameClientRef,
       this.session,
       this.gameContext,
       this.actionMenu,
@@ -86,7 +92,6 @@ export class ClientApplication {
 
   // TODO
   // - move game world view
-  // - move action menu
   // - define action menu such that state and view are separated
   // - action menu methods take in clientApplication instead of AppStore.get()
   // - change how character model divs are positioned to use transform: translate instead of absolute + top/left

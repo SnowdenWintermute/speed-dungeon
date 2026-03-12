@@ -1,8 +1,7 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import { ClientIntentType, CombatActionName } from "@speed-dungeon/common";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ReactNode } from "react";
 import { ActionSelectedDetails } from "../../detailables/action-details/ActionSelectedDetails";
@@ -12,12 +11,9 @@ import { ExecuteCombatActionButton } from "./common-buttons/ExecuteCombatActionB
 import { CycleTargetingSchemesButtons } from "./common-buttons/CycleTargetingSchemesButtons";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
-export const executeHotkey = HOTKEYS.MAIN_1;
-export const EXECUTE_BUTTON_TEXT = `Execute (${letterFromKeyCode(executeHotkey)})`;
-
-export class ConsideringCombatActionMenuState extends ActionMenuState {
+export class ConsideringCombatActionMenuScreen extends ActionMenuScreen {
   constructor(public combatActionName: CombatActionName) {
-    super(MenuStateType.CombatActionSelected);
+    super(ActionMenuScreenType.CombatActionSelected);
   }
 
   getTopSection() {

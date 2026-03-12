@@ -10,18 +10,18 @@ import {
 } from "@speed-dungeon/common";
 import { PageTurningButtons } from "./common-buttons/PageTurningButtons";
 import { ReactNode } from "react";
-import { MENU_STATE_TYPE_STRINGS, MenuStateType } from "./menu-state-type";
+import { MENU_STATE_TYPE_STRINGS, ActionMenuScreenType } from "./menu-state-type";
 import React from "react";
 import { ItemButton } from "./common-buttons/ItemButton";
 import EmptyItemsList from "./common-buttons/EmptyItemsList";
 import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
 
-export abstract class ActionMenuState {
+export abstract class ActionMenuScreen {
   pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
   private pageCount: number = 1;
   protected minPageCount: number = 1;
-  constructor(public type: MenuStateType) {}
+  constructor(public type: ActionMenuScreenType) {}
 
   // getInvisibleButtons(): ReactNode {}
   abstract getTopSection(): ReactNode;

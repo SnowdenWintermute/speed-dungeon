@@ -1,4 +1,5 @@
 import {
+  CombatantContext,
   Consumable,
   EntityName,
   Item,
@@ -9,19 +10,23 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { ActionMenuScreenType } from "./screen-types";
+import { ActionMenuScreenType } from "../screen-types";
 import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
 import EmptyItemsList from "@/app/game/ActionMenu/menu-state/common-buttons/EmptyItemsList";
 import { PageTurningButtons } from "@/app/game/ActionMenu/menu-state/common-buttons/PageTurningButtons";
 import { MENU_STATE_TYPE_STRINGS } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { ItemButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ItemButton";
+import { ClientApplication } from "@/client-application";
 
 export abstract class ActionMenuScreen {
   pageIndexInternal: number = 0;
   alwaysShowPageOne: boolean = false;
   private pageCount: number = 1;
   protected minPageCount: number = 1;
-  constructor(public type: ActionMenuScreenType) {}
+  constructor(
+    protected clientApplication: ClientApplication,
+    public type: ActionMenuScreenType
+  ) {}
 
   // getInvisibleButtons(): ReactNode {}
   abstract getTopSection(): ReactNode;
@@ -139,5 +144,21 @@ export abstract class ActionMenuScreen {
         </ItemButton>
       );
     });
+  }
+
+  static disableButtonBecauseNotThisCombatantTurn(
+    combatantId: string,
+    characterContext: CombatantContext
+  ) {
+    const { party, game } = characterContext;
+    const battleOption = party.getBattleOption(game);
+    let disableButtonBecauseNotThisCombatantTurn = false;
+
+    if (battleOption) {
+      disableButtonBecauseNotThisCombatantTurn =
+        !battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
+    }
+
+    return disableButtonBecauseNotThisCombatantTurn;
   }
 }

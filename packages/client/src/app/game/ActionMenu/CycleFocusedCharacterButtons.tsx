@@ -1,8 +1,8 @@
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state/menu-state-type";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "./menu-state/menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
@@ -37,7 +37,7 @@ export const CycleFocusedCharacterButtons = observer(() => {
     // switch to focusing a character that doesn't own it, it doesn't make sense you
     // could still be looking at the allocation menu for that ability
     if (actionMenuStore.viewingAbilityTree()) {
-      actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
+      actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.ViewingAbilityTree)]);
     }
 
     gameStore.setFocusedCharacter(newCharacterId);

@@ -1,8 +1,8 @@
 import { ClientIntentType } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
@@ -10,9 +10,9 @@ import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import makeAutoObservable from "mobx-store-inheritance";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
-export class ItemsOnGroundMenuState extends ActionMenuState {
+export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.ItemsOnGround);
+    super(ActionMenuScreenType.ItemsOnGround);
     makeAutoObservable(this);
   }
 
@@ -71,7 +71,7 @@ export class ItemsOnGroundMenuState extends ActionMenuState {
       includePets: true,
     });
 
-    const newNumberedButtons = ActionMenuState.getItemButtonsFromList(
+    const newNumberedButtons = ActionMenuScreen.getItemButtonsFromList(
       itemsOnGround,
       takeItem,
       () => !ownsFocusedCharacter

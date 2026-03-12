@@ -1,4 +1,4 @@
-import { ActionMenuState } from "./index";
+import { ActionMenuScreen } from "./index";
 import {
   AbilityTreeAbility,
   AbilityType,
@@ -17,19 +17,19 @@ import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/a
 import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { AllocateAbilityPointButton } from "./common-buttons/AllocateAbilityPointButton";
 import { CycleConsideredAbilityInTreeColumnButtons } from "./common-buttons/CycleConsideredAbilityInTreeColumnButtons";
 import makeAutoObservable from "mobx-store-inheritance";
 
-export class ConsideringCombatantAbilityMenuState extends ActionMenuState {
+export class ConsideringCombatantAbilityActionMenuScreen extends ActionMenuScreen {
   constructor(
     public column: AbilityTreeAbility[],
     public ability: AbilityTreeAbility
   ) {
-    super(MenuStateType.ConsideringAbilityTreeAbility);
+    super(ActionMenuScreenType.ConsideringAbilityTreeAbility);
     this.minPageCount = column.length;
     makeAutoObservable(this);
   }

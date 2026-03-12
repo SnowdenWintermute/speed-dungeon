@@ -3,8 +3,8 @@ import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "../menu-state-type";
 
 export const VIEW_LOOT_BUTTON_TEXT = ``;
 
@@ -25,7 +25,7 @@ export const ViewItemsOnGroundButton = observer(() => {
       hotkeys={hotkeys}
       handleClick={() => {
         focusStore.combatantAbilities.clear();
-        AppStore.get().actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
+        AppStore.get().actionMenuStore.pushStack(ActionMenuScreenPool.get(ActionMenuScreenType.ItemsOnGround));
       }}
     >
       Loot ({hotkeyString})

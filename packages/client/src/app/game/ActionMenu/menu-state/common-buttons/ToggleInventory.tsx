@@ -1,7 +1,7 @@
 import React from "react";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "../menu-state-type";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
@@ -17,10 +17,10 @@ export default function ToggleInventoryButton() {
         focusStore.combatantAbilities.clear();
         focusStore.detailables.clearHovered();
 
-        if (actionMenuStore.getCurrentMenu().type === MenuStateType.InventoryItems) {
+        if (actionMenuStore.getCurrentMenu().type === ActionMenuScreenType.InventoryItems) {
           actionMenuStore.popStack();
         } else {
-          const inventoryItemsMenu = MenuStatePool.get(MenuStateType.InventoryItems);
+          const inventoryItemsMenu = ActionMenuScreenPool.get(ActionMenuScreenType.InventoryItems);
           actionMenuStore.pushStack(inventoryItemsMenu);
         }
       }}

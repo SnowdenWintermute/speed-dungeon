@@ -1,17 +1,17 @@
 import { ERROR_MESSAGES, Equipment, Item } from "@speed-dungeon/common";
-import { CraftingItemMenuState } from "./crafting-item";
+import { CraftingItemActionMenuScreen } from "./crafting-item";
 import { setAlert } from "@/app/components/alerts";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
-import { ActionMenuState } from ".";
+import { ActionMenuScreenType } from "./menu-state-type";
+import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import makeAutoObservable from "mobx-store-inheritance";
 import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
-export class CraftingItemSelectionMenuState extends ActionMenuState {
+export class CraftingItemSelectionActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.CraftingItemSelection);
+    super(ActionMenuScreenType.CraftingItemSelection);
     makeAutoObservable(this);
   }
 
@@ -32,9 +32,9 @@ export class CraftingItemSelectionMenuState extends ActionMenuState {
     function clickHandler(item: Item) {
       AppStore.get().focusStore.selectItem(item);
       if (!(item instanceof Equipment)) return setAlert(ERROR_MESSAGES.ITEM.INVALID_TYPE);
-      AppStore.get().actionMenuStore.pushStack(new CraftingItemMenuState(item));
+      AppStore.get().actionMenuStore.pushStack(new CraftingItemActionMenuScreen(item));
     }
 
-    return ActionMenuState.getItemButtonsFromList(ownedEquipment, clickHandler, () => false);
+    return ActionMenuScreen.getItemButtonsFromList(ownedEquipment, clickHandler, () => false);
   }
 }

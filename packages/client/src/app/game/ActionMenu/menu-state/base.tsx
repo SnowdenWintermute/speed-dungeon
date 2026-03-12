@@ -1,7 +1,7 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import { ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -10,9 +10,9 @@ import { ViewItemsOnGroundButton } from "./common-buttons/ViewItemsOnGroundButto
 import { ToggleAttributeAllocationMenuHiddenButton } from "./common-buttons/ToggleAttributeAllocationMenuHiddenButton";
 import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
 
-export class BaseMenuState extends ActionMenuState {
+export class BaseActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.Base);
+    super(ActionMenuScreenType.Base);
     makeAutoObservable(this);
   }
 

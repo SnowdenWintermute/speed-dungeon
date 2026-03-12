@@ -2,13 +2,13 @@ import { AppStore } from "@/mobx-stores/app-store";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { ClientIntentType } from "@speed-dungeon/common";
-import { MenuStateType } from "../menu-state-type";
-import { ConfirmConvertToShardsMenuState } from "../confirm-convert-to-shards";
+import { ActionMenuScreenType } from "../menu-state-type";
+import { ConfirmConvertToShardsActionMenuScreen } from "../confirm-convert-to-shards";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
-  menuState: ConfirmConvertToShardsMenuState;
+  menuState: ConfirmConvertToShardsActionMenuScreen;
 }
 
 export function ConfirmShardConversionButton(props: Props) {
@@ -34,7 +34,7 @@ export function ConfirmShardConversionButton(props: Props) {
           },
         });
         AppStore.get().actionMenuStore.popStack();
-        if (menuState.type === MenuStateType.ItemSelected) {
+        if (menuState.type === ActionMenuScreenType.ItemSelected) {
           // converting to shards from the inventory nessecitates going back two
           // stacked menus since we go itemSelected -> confirmShard and now that the item is
           // shards it doesn't make sense we would have it selected

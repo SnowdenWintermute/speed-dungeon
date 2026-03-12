@@ -3,7 +3,7 @@ import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import { AbilityTreeAbility, getAbilityTreeAbilityNameString } from "@speed-dungeon/common";
 import { getAbilityIcon } from "@/app/game/character-sheet/ability-tree/ability-icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { ConsideringCombatantAbilityMenuState } from "../considering-tree-ability";
+import { ConsideringCombatantAbilityActionMenuScreen } from "../considering-tree-ability";
 
 interface Props {
   abilityOption: undefined | AbilityTreeAbility;
@@ -33,7 +33,7 @@ export default function AbilityTreeAbilityButton(props: Props) {
       );
 
       AppStore.get().actionMenuStore.pushStack(
-        new ConsideringCombatantAbilityMenuState(filteredColumn, abilityOption)
+        new ConsideringCombatantAbilityActionMenuScreen(filteredColumn, abilityOption)
       );
     }
   }

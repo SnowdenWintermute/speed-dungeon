@@ -1,4 +1,4 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import {
   BookConsumableType,
   CONSUMABLE_TYPE_STRINGS,
@@ -13,7 +13,7 @@ import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
@@ -39,12 +39,12 @@ function handleConfirmTrade(
   AppStore.get().focusStore.clearItemComparison();
 }
 
-export class ConfirmTradeForBookMenuState extends ActionMenuState {
+export class ConfirmTradeForBookActionMenuScreen extends ActionMenuScreen {
   constructor(
     public item: Item,
     public bookType: BookConsumableType
   ) {
-    super(MenuStateType.ConfirmTradeForBook);
+    super(ActionMenuScreenType.ConfirmTradeForBook);
   }
 
   getTopSection() {

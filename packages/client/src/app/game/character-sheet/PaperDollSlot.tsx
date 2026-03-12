@@ -6,7 +6,7 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
-import { ConsideringItemMenuState } from "../ActionMenu/menu-state/considering-item";
+import { ConsideringItemActionMenuScreen } from "../ActionMenu/menu-state/considering-item";
 import isEqual from "lodash.isequal";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
@@ -100,14 +100,14 @@ export const PaperDollSlot = observer(
 
       const { actionMenuStore } = AppStore.get();
       const currentMenu = actionMenuStore.getCurrentMenu();
-      if (currentMenu instanceof ConsideringItemMenuState && detailedItemIsNowNull) {
+      if (currentMenu instanceof ConsideringItemActionMenuScreen && detailedItemIsNowNull) {
         return actionMenuStore.popStack();
       }
 
-      if (currentMenu instanceof ConsideringItemMenuState) {
+      if (currentMenu instanceof ConsideringItemActionMenuScreen) {
         currentMenu.item = itemOption;
       } else {
-        actionMenuStore.pushStack(new ConsideringItemMenuState(itemOption));
+        actionMenuStore.pushStack(new ConsideringItemActionMenuScreen(itemOption));
       }
     }
 

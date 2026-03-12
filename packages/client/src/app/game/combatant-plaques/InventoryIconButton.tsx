@@ -4,7 +4,7 @@ import { CombatantId, INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
-import { InventoryItemsMenuState } from "../ActionMenu/menu-state/inventory-items";
+import { InventoryItemsActionMenuScreen } from "../ActionMenu/menu-state/inventory-items";
 
 export const InventoryIconButton = observer(
   ({ entityId, numItemsInInventory }: { entityId: CombatantId; numItemsInInventory: number }) => {
@@ -29,7 +29,7 @@ export const InventoryIconButton = observer(
             // focused and was already in inventory
             actionMenuStore.clearStack();
           } else {
-            actionMenuStore.pushStack(new InventoryItemsMenuState());
+            actionMenuStore.pushStack(new InventoryItemsActionMenuScreen());
           }
         }}
       >

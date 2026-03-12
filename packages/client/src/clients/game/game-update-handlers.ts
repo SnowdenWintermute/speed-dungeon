@@ -1,7 +1,7 @@
 import { setAlert } from "@/app/components/alerts";
-import { BaseMenuState } from "@/app/game/ActionMenu/menu-state/base";
-import { ConsideringCombatActionMenuState } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
-import { ConsideringItemMenuState } from "@/app/game/ActionMenu/menu-state/considering-item";
+import { BaseActionMenuScreen } from "@/app/game/ActionMenu/menu-state/base";
+import { ConsideringCombatActionMenuScreen } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
+import { ConsideringItemActionMenuScreen } from "@/app/game/ActionMenu/menu-state/considering-item";
 import { GameWorldView } from "@/game-world-view";
 import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
@@ -124,7 +124,7 @@ export function createGameUpdateHandlers(
       gameEventNotificationStore.clearGameLog();
       GameLogMessageService.postGameStarted();
 
-      AppStore.get().actionMenuStore.initialize(new BaseMenuState());
+      AppStore.get().actionMenuStore.initialize(new BaseActionMenuScreen());
 
       characterAutoFocusManager.focusFirstOwnedCharacter();
 
@@ -385,7 +385,7 @@ export function createGameUpdateHandlers(
       }
 
       const currentMenu = actionMenuStore.getCurrentMenu();
-      if (currentMenu instanceof ConsideringItemMenuState) {
+      if (currentMenu instanceof ConsideringItemActionMenuScreen) {
         currentMenu.setItem(itemToSelectOption);
         focusStore.detailables.setDetailed(itemToSelectOption);
       }
@@ -470,7 +470,7 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      actionMenuStore.pushStack(new ConsideringCombatActionMenuState(actionName));
+      actionMenuStore.pushStack(new ConsideringCombatActionMenuScreen(actionName));
     },
     [GameStateUpdateType.GameMessage]: (data) => {
       const { message } = data;

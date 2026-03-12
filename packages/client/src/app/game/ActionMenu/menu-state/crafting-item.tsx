@@ -1,8 +1,8 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import { CraftingAction, Equipment, iterateNumericEnum } from "@speed-dungeon/common";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -14,9 +14,9 @@ const useItemLetter = letterFromKeyCode(useItemHotkey);
 export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemLetter})`;
 export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemLetter})`;
 
-export class CraftingItemMenuState extends ActionMenuState {
+export class CraftingItemActionMenuScreen extends ActionMenuScreen {
   constructor(public item: Equipment) {
-    super(MenuStateType.CraftingActionSelection);
+    super(ActionMenuScreenType.CraftingActionSelection);
     makeAutoObservable(this);
   }
 

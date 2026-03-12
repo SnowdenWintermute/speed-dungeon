@@ -1,13 +1,13 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import {
   BookConsumableType,
   Consumable,
   SKILL_BOOK_CONSUMABLE_TYPES,
   createDummyConsumable,
 } from "@speed-dungeon/common";
-import { SelectItemToTradeForBookMenuState } from "./select-item-to-trade-for-book";
+import { SelectItemToTradeForBookActionMenuScreen } from "./select-item-to-trade-for-book";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { ItemButton } from "./common-buttons/ItemButton";
@@ -21,9 +21,9 @@ function isBookConsumable(c: Consumable): c is Consumable & { consumableType: Bo
   return SKILL_BOOK_CONSUMABLE_TYPES.includes(c.consumableType as BookConsumableType);
 }
 
-export class SelectBookToTradeForMenuState extends ActionMenuState {
+export class SelectBookToTradeForActionMenuScreen extends ActionMenuScreen {
   constructor() {
-    super(MenuStateType.SelectingBookType);
+    super(ActionMenuScreenType.SelectingBookType);
     makeAutoObservable(this);
   }
 
@@ -59,7 +59,7 @@ export class SelectBookToTradeForMenuState extends ActionMenuState {
           hotkeys={[`Digit${buttonNumber}`]}
           clickHandler={() => {
             AppStore.get().actionMenuStore.pushStack(
-              new SelectItemToTradeForBookMenuState(book.consumableType)
+              new SelectItemToTradeForBookActionMenuScreen(book.consumableType)
             );
           }}
           disabled={shouldBeDisabled}

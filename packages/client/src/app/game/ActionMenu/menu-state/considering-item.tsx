@@ -1,8 +1,8 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import { Equipment, EquipmentType, Item } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
 import { ModifierKey } from "@/mobx-stores/input";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";
 import GoBackButton from "./common-buttons/GoBackButton";
 import makeAutoObservable from "mobx-store-inheritance";
@@ -13,9 +13,9 @@ import { DropItemButton } from "./common-buttons/DropItemButton";
 
 const ALT_SLOTTABLE_ITEMS = [EquipmentType.Ring, EquipmentType.OneHandedMeleeWeapon];
 
-export class ConsideringItemMenuState extends ActionMenuState {
+export class ConsideringItemActionMenuScreen extends ActionMenuScreen {
   constructor(public item: Item) {
-    super(MenuStateType.ItemSelected);
+    super(ActionMenuScreenType.ItemSelected);
 
     makeAutoObservable(this);
   }

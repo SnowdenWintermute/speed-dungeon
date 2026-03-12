@@ -3,9 +3,9 @@ import React from "react";
 import { Consumable, getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
-import { MenuStateType } from "./menu-state/menu-state-type";
-import { ConsideringItemMenuState } from "./menu-state/considering-item";
+import { ConfirmConvertToShardsActionMenuScreen } from "./menu-state/confirm-convert-to-shards";
+import { ActionMenuScreenType } from "./menu-state/menu-state-type";
+import { ConsideringItemActionMenuScreen } from "./menu-state/considering-item";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
@@ -15,7 +15,7 @@ export const ConsideringItemDisplay = observer(() => {
   const { actionMenuStore, gameStore, hotkeysStore } = AppStore.get();
   const currentMenu = actionMenuStore.getCurrentMenu();
 
-  if (!(currentMenu instanceof ConsideringItemMenuState)) return <div>Unexpected menu state</div>;
+  if (!(currentMenu instanceof ConsideringItemActionMenuScreen)) return <div>Unexpected menu state</div>;
   const shardReward = getItemSellPrice(currentMenu.item);
 
   const party = gameStore.getExpectedParty();
@@ -47,7 +47,7 @@ export const ConsideringItemDisplay = observer(() => {
               hotkeys={hotkeysStore.getKeybind(shardMenuButtonType)}
               onClick={() => {
                 actionMenuStore.pushStack(
-                  new ConfirmConvertToShardsMenuState(currentMenu.item, MenuStateType.ItemSelected)
+                  new ConfirmConvertToShardsActionMenuScreen(currentMenu.item, ActionMenuScreenType.ItemSelected)
                 );
               }}
             >

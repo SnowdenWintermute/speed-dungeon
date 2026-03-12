@@ -8,10 +8,10 @@ import {
 } from "@/client-consts";
 import { AbilityType, NextOrPrevious } from "@speed-dungeon/common";
 import { CycleFocusedCharacterButtons } from "./CycleFocusedCharacterButtons";
-import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";
+import { StackedActionMenuScreenDisplay } from "./StackedActionMenuScreenDisplay";
 import HoveredItemDisplay from "./HoveredItemDisplay";
 import { CraftingItemDisplay } from "./CraftingItemDisplay";
-import { CraftingItemMenuState } from "./menu-state/crafting-item";
+import { CraftingItemActionMenuScreen } from "./menu-state/crafting-item";
 import HoveredActionDisplay from "./HoveredActionDisplay";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
@@ -24,7 +24,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   const bottomSection = currentMenu.getBottomSection();
 
   const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-  const craftingItem = currentMenu instanceof CraftingItemMenuState;
+  const craftingItem = currentMenu instanceof CraftingItemActionMenuScreen;
   const shouldShowHoveredItem = !viewingCharacterSheet && !craftingItem;
   const shouldShowCraftingItemDisplay = craftingItem;
 
@@ -43,7 +43,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   return (
     <section className={`flex flex-col justify-between`}>
       <CycleFocusedCharacterButtons />
-      <StackedMenuStateDisplay />
+      <StackedActionMenuScreenDisplay />
       <div className="flex">
         <div className="flex flex-col">
           <div

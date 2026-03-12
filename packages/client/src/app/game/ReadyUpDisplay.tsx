@@ -9,8 +9,8 @@ import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./ActionMenu/menu-state/menu-state-type";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
+import { ActionMenuScreenType } from "./ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
@@ -76,7 +76,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
     detailedEntity ||
     hoveredEntity ||
     actionMenuStore.shouldShowCharacterSheet() ||
-    currentMenu.type !== MenuStateType.Base;
+    currentMenu.type !== ActionMenuScreenType.Base;
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
@@ -110,17 +110,17 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                 hotkeys={["KeyT"]}
                 disabled={
                   !party.combatantManager.playerOwnsCharacter(username, focusedCharacterId) ||
-                  (currentMenu.type !== MenuStateType.Base &&
-                    currentMenu.type !== MenuStateType.OperatingVendingMachine)
+                  (currentMenu.type !== ActionMenuScreenType.Base &&
+                    currentMenu.type !== ActionMenuScreenType.OperatingVendingMachine)
                 }
                 onClick={() => {
                   const { actionMenuStore } = AppStore.get();
                   const currentMenu = actionMenuStore.getCurrentMenu();
-                  if (currentMenu.type === MenuStateType.OperatingVendingMachine) {
+                  if (currentMenu.type === ActionMenuScreenType.OperatingVendingMachine) {
                     actionMenuStore.popStack();
                   } else {
                     actionMenuStore.pushStack(
-                      MenuStatePool.get(MenuStateType.OperatingVendingMachine)
+                      ActionMenuScreenPool.get(ActionMenuScreenType.OperatingVendingMachine)
                     );
                     focusStore.detailables.clear();
                   }

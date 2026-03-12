@@ -17,6 +17,7 @@ module.exports = {
     "plugin:@typescript-eslint/stylistic",
   ],
   rules: {
+    "react/no-unescaped-entities": "off",
     "no-unused-expressions": "off",
     "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "error",

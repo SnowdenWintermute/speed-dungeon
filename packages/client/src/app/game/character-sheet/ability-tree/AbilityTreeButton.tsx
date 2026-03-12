@@ -7,9 +7,9 @@ import {
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
 import React, { ReactNode, useState } from "react";
-import { ConsideringCombatantAbilityMenuState } from "../../ActionMenu/menu-state/considering-tree-ability";
+import { ConsideringCombatantAbilityActionMenuScreen } from "../../ActionMenu/menu-state/considering-tree-ability";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "../../ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "../../ActionMenu/menu-state/menu-state-type";
 import { observer } from "mobx-react-lite";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
@@ -74,18 +74,18 @@ export const AbilityTreeButton = observer((props: Props) => {
                   const filteredColumn = withSubjobAbilities.filter(
                     (item): item is AbilityTreeAbility => item !== undefined
                   );
-                  const newMenuState = new ConsideringCombatantAbilityMenuState(
+                  const newActionMenuScreen = new ConsideringCombatantAbilityActionMenuScreen(
                     filteredColumn,
                     ability
                   );
 
                   if (
-                    actionMenuStore.currentMenuIsType(MenuStateType.ConsideringAbilityTreeAbility)
+                    actionMenuStore.currentMenuIsType(ActionMenuScreenType.ConsideringAbilityTreeAbility)
                   ) {
                     actionMenuStore.popStack();
                   }
 
-                  actionMenuStore.pushStack(newMenuState);
+                  actionMenuStore.pushStack(newActionMenuScreen);
 
                   break;
                 }

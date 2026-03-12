@@ -1,4 +1,4 @@
-import { ActionMenuState } from ".";
+import { ActionMenuScreen } from ".";
 import {
   ABILITY_TREES,
   ABILITY_TREE_DIMENSIONS,
@@ -8,14 +8,14 @@ import {
 import { ReactNode } from "react";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
 import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStateType } from "./menu-state-type";
+import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import AbilityTreeAbilityButton from "./common-buttons/AbilityTreeAbilityButton";
 import makeAutoObservable from "mobx-store-inheritance";
 
-export class ConsideringAbilityTreeColumnMenuState extends ActionMenuState {
+export class ConsideringAbilityTreeColumnActionMenuScreen extends ActionMenuScreen {
   constructor(public readonly columnIndex: number) {
-    super(MenuStateType.ConsideringAbilityTreeColumn);
+    super(ActionMenuScreenType.ConsideringAbilityTreeColumn);
     this.minPageCount = ABILITY_TREE_DIMENSIONS.x;
     this.pageIndexInternal = columnIndex;
     makeAutoObservable(this);
