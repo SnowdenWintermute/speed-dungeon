@@ -1,5 +1,4 @@
 import { Item, getItemSellPrice } from "@speed-dungeon/common";
-import { ConfirmConvertToShardsActionMenuScreen } from "./confirm-convert-to-shards";
 import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "@/client-application";
@@ -8,6 +7,7 @@ import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBack
 import ToggleInventoryButton from "@/app/game/ActionMenu/menu-state/common-buttons/ToggleInventory";
 import { VendingMachineShardDisplay } from "@/app/game/ActionMenu/VendingMachineShardDisplay";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
+import { ConfirmConvertToShardsActionMenuScreen } from "./convert-to-shards-confirm";
 
 export class ConvertToShardItemSelectionActionMenuScreen extends ActionMenuScreen {
   constructor(clientApplication: ClientApplication) {

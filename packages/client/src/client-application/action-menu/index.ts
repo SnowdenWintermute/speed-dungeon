@@ -3,15 +3,17 @@ import { makeAutoObservable } from "mobx";
 import { ActionMenuScreenPool } from "./action-menu-screen-pool";
 import { ActionMenuScreen } from "./screens";
 import { ActionMenuScreenType, MENU_STATE_TYPE_STRINGS } from "./screen-types";
+import { ClientApplication } from "..";
 
 export class ActionMenu {
   private baseActionMenuScreen: ActionMenuScreen | null = null;
   private stackedActionMenuScreens: ActionMenuScreen[] = [];
   private showItemsOnGround: boolean = true;
   private combatantsWithPendingCraftActions = new Set<CombatantId>();
-  private _menuStatePool = new ActionMenuScreenPool();
+  private _menuStatePool: ActionMenuScreenPool;
 
-  constructor() {
+  constructor(clientApplication: ClientApplication) {
+    this._menuStatePool = new ActionMenuScreenPool(clientApplication);
     makeAutoObservable(this);
   }
 

@@ -10,13 +10,13 @@ import {
   Consumable,
   Equipment,
 } from "@speed-dungeon/common";
-import { ActionMenuScreenType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { ActionMenu } from "../action-menu";
 import { ClientApplicationGameContext } from "../client-application-game-context";
 import { CombatantFocus } from "../combatant-focus";
 import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
 import { TargetIndicatorStore } from "../target-indicator-store";
+import { ActionMenuScreenType } from "../action-menu/screen-types";
 
 export function createClientEventHandlers(
   replayTreeProcessor: ReplayTreeProcessorManager,
@@ -61,12 +61,14 @@ export function createClientEventHandlers(
 
         const player = gameContext.requireClientPlayer();
         if (player.characterIds.includes(actionUserId as CombatantId)) {
-          const inventoryIsOpen = actionMenu.stackedMenusIncludeType(ActionMenuScreenType.InventoryItems);
+          const inventoryIsOpen = actionMenu.stackedMenusIncludeType(
+            ActionMenuScreenType.InventoryItems
+          );
           if (inventoryIsOpen) {
             let currentMenu = actionMenu.getCurrentMenu();
             while (
               currentMenu.type !== ActionMenuScreenType.InventoryItems &&
-              currentMenu.type !== ActionMenuScreenType.Base
+              currentMenu.type !== ActionMenuScreenType.Root
             ) {
               actionMenu.popStack();
               currentMenu = actionMenu.getCurrentMenu();
@@ -93,7 +95,7 @@ export function createClientEventHandlers(
           });
         }
 
-        if (actionMenu.currentMenuIsType(ActionMenuScreenType.Base)) {
+        if (actionMenu.currentMenuIsType(ActionMenuScreenType.Root)) {
           actionMenu.pushFromPool(ActionMenuScreenType.ItemsOnGround);
         }
       }

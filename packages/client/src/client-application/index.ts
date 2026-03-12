@@ -26,30 +26,37 @@ import { InputStore } from "./inputs/input-store";
 import { AlertsService } from "./alerts";
 
 export class ClientApplication {
-  // rename to client holder or client reference or just get rid of this
-  // and change clients to have directly configurable connection endpoints
-  // instead of replacing them entirely, thus avoiding need to wrap them at all
+  // clients
   readonly gameClientRef = new ClientSingleton();
+
+  // event processing
   readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
-  private assetService: ClientAppAssetService;
+  // readonly sequentialEventProcessor: SequentialClientEventProcessor;
   private unregisterReplayManagerTick: () => void;
-  readonly actionMenu = new ActionMenu();
+
+  private assetService: ClientAppAssetService;
+
+  // core state
   readonly session = new ClientApplicationSession();
   readonly gameContext: ClientApplicationGameContext;
   readonly lobbyContext = new ClientApplicationLobbyContext();
 
-  readonly detailableEntityFocus = new DetailableEntityFocus();
+  // ui state
+  readonly actionMenu = new ActionMenu(this);
   readonly combatantFocus: CombatantFocus;
+  readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;
+  readonly inputStore = new InputStore();
 
+  // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
   readonly eventLogMessageService = new EventLogGameMessageService(this.eventLogStore);
   readonly floatingMessagesStore = new FloatingMessagesStore();
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
-  // readonly sequentialEventProcessor: SequentialClientEventProcessor;
-  readonly keybindConfig = new KeybindConfig();
-  readonly inputStore = new InputStore();
   readonly alertsService = new AlertsService();
+
+  // user config
+  readonly keybindConfig = new KeybindConfig();
 
   constructor(
     private gameWorldView: null | GameWorldView,
@@ -92,32 +99,26 @@ export class ClientApplication {
 
   // TODO
   // - move game world view
-  // - define action menu such that state and view are separated
-  // - action menu methods take in clientApplication instead of AppStore.get()
   // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
-
-  // - GameUpdateProcessedLog
-  //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
-  //   - exposes a waitForMessageOfTypeProcessed() for tests
 
   // - MiscState (stuff the frontend jsx will observe)
   //   - gameWorldStore = new GameWorldStore();
   //   - configStore = new ConfigStore(); // misc settings
   //
   //   - dialogStore = new DialogStore();
-  //   - inputStore = new InputStore(); // is alternate mode key held
   //   - imageStore = new ImagesStore(); // Images dynamically created from loaded models (combatant portraits, item thumbnails)
   //   - tooltipStore = new TooltipStore();
   //   - formsStore = new FormsStore();
-  //   - hotkeysStore = new HotkeysStore();
   //
   //   - assetFetchProgressStore = new AssetFetchProgressStore();
   //   - connectionStatusStore = new ConnectionStatusStore();
   //   - http request store
-  //   - Alerts (error/success toast notifications)
   //   - Asset fetch progress observer
-  //   - Keybinds config
   //   - Connection status indicator
+  //
+  // - GameUpdateProcessedLog
+  //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
+  //   - exposes a waitForMessageOfTypeProcessed() for tests
   //
   // - RuntimeEnvironmentManager (change between online/offline mode and manage persistence of choice/error states)
   //   - ConnectionEndpointFactory

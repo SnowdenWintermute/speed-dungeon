@@ -8,9 +8,9 @@ import {
 import { ClientApplicationGameContext } from "./client-application-game-context";
 import { ClientApplicationSession } from "./client-application-session";
 import { ActionMenu } from "./action-menu";
-import { ActionMenuScreenType } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { ClientSingleton } from "@/singletons/lobby-client";
+import { ActionMenuScreenType } from "./action-menu/screen-types";
 
 export class CombatantFocus {
   private focusedCharacterId: CombatantId | null = null;
