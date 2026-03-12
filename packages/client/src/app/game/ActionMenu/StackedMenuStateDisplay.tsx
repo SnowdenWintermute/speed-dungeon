@@ -39,11 +39,10 @@ const MenuStateDisplay = observer(
     isTop: boolean;
     stackSize: number;
   }) => {
-    let offsetPx = index * 3;
+    const offsetPx = index * 3;
     const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
 
     const filterStrengthNormalized = 1 - 0.2 * (stackSize - index);
-    const filterStrength = filterStrengthNormalized * 100;
 
     return (
       <div

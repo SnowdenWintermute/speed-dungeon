@@ -4,7 +4,6 @@ import { AppStore } from "@/mobx-stores/app-store";
 import {
   ACTION_MENU_CENTRAL_SECTION_HEIGHT,
   BUTTON_HEIGHT,
-  BUTTON_HEIGHT_SMALL,
   SPACING_REM_SMALL,
 } from "@/client-consts";
 import { AbilityType, NextOrPrevious } from "@speed-dungeon/common";

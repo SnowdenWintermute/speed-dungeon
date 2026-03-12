@@ -23,6 +23,9 @@ import { FloatingMessageService } from "./event-log/floating-messages-service";
 import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 
 export class ClientApplication {
+  // rename to client holder or client reference or just get rid of this
+  // and change clients to have directly configurable connection endpoints
+  // instead of replacing them entirely, thus avoiding need to wrap them at all
   readonly gameClientSingleton = new ClientSingleton();
   readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   private assetService: ClientAppAssetService;
@@ -31,6 +34,7 @@ export class ClientApplication {
   readonly session = new ClientApplicationSession();
   readonly gameContext: ClientApplicationGameContext;
   readonly lobbyContext = new ClientApplicationLobbyContext();
+
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly combatantFocus: CombatantFocus;
   readonly targetIndicatorStore: TargetIndicatorStore;
@@ -79,6 +83,13 @@ export class ClientApplication {
     this.unregisterReplayManagerTick();
     this.gameWorldView?.dispose();
   }
+
+  // TODO
+  // - move game world view
+  // - move action menu
+  // - define action menu such that state and view are separated
+  // - action menu methods take in clientApplication instead of AppStore.get()
+  // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
 
   // - GameUpdateProcessedLog
   //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
