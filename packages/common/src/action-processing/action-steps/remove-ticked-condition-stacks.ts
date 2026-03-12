@@ -19,17 +19,19 @@ import { CombatantId } from "../../aliases.js";
 const stepType = ActionResolutionStepType.RemoveTickedConditionStacks;
 export class RemoveTickedConditionStacksActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
+    const { actionUserContext } = context;
+    const { party, actionUser } = actionUserContext;
+
     const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      actionUserName: actionUser.getName(),
+      actionUserId: actionUser.getEntityId(),
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
     };
 
     super(stepType, context, gameUpdateCommand);
-
-    const { actionUserContext } = context;
-    const { party, actionUser } = actionUserContext;
 
     // action was used by a condition, remove stacks and send removed stacks update
     const condition = actionUser;

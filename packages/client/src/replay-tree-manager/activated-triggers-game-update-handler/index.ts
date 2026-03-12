@@ -105,7 +105,9 @@ export async function activatedTriggersGameUpdateHandler(
 
       // @REFACTOR - this looks like duct tape
       if (actionEntity.name === ActionEntityName.IceBolt)
-        actionEntity.cosmeticEffectManager.softCleanup(() => {});
+        actionEntity.cosmeticEffectManager.softCleanup(() => {
+          //
+        });
     }
   }
 

@@ -16,8 +16,8 @@ export function handleHitPointChanges(command: ActivatedTriggersGameUpdateComman
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
       const combatant = AppStore.get().gameStore.getExpectedCombatant(entityId);
       induceHitRecovery(
-        combatant.entityProperties.name,
-        entityId,
+        command.actionUserName,
+        command.actionUserId,
         command.actionName,
         command.step,
         hpChange,

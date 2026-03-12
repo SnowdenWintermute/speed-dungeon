@@ -4,20 +4,26 @@ import {
   CombatActionName,
   COMBAT_ACTIONS,
   Combatant,
+  ActivatedTriggersGameUpdateCommand,
+  HitOutcomesGameUpdateCommand,
+  CombatActionComponent,
 } from "@speed-dungeon/common";
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { ClientApplication } from "@/client-application";
 import { CharacterModel } from "@/game-world-view/scene-entities/character-models";
 
+type GameUpdateCommandWithResourceChanges =
+  | ActivatedTriggersGameUpdateCommand
+  | HitOutcomesGameUpdateCommand;
+
 export class CombatantResourceChangeUpdateHandlerCommand {
   targetCombatant: Combatant;
   targetModel?: CharacterModel;
+  action: CombatActionComponent;
   constructor(
     private clientApplication: ClientApplication,
-    private actionUserName: string,
-    private actionUserId: string,
-    private actionName: CombatActionName,
+    private gameUpdateCommand: GameUpdateCommandWithResourceChanges,
     private resourceChange: ResourceChange,
     private resourceType: ActionPayableResource,
     private targetId: string,
@@ -26,6 +32,7 @@ export class CombatantResourceChangeUpdateHandlerCommand {
   ) {
     this.targetCombatant = this.clientApplication.gameContext.requireCombatant(targetId);
     this.targetModel = this.clientApplication.gameWorldView?.modelManager.findOneOptional(targetId);
+    this.action = COMBAT_ACTIONS[gameUpdateCommand.actionName];
   }
 
   execute() {
@@ -60,20 +67,21 @@ export class CombatantResourceChangeUpdateHandlerCommand {
   }
 
   private dispatchEventLogMessage() {
-    const action = COMBAT_ACTIONS[this.actionName];
-    const shouldPostResourceChange = !action.gameLogMessageProperties.doNotPostResourceChange;
+    const shouldPostResourceChange = !this.action.gameLogMessageProperties.doNotPostResourceChange;
 
-    if (shouldPostResourceChange) {
-      this.clientApplication.eventLogMessageService.postResourceChange(
-        this.resourceChange,
-        this.resourceType,
-        action,
-        this.wasBlocked,
-        this.targetCombatant,
-        this.actionUserName,
-        this.actionUserId === this.targetCombatant.getEntityId()
-      );
+    if (!shouldPostResourceChange) {
+      return;
     }
+
+    this.clientApplication.eventLogMessageService.postResourceChange(
+      this.resourceChange,
+      this.resourceType,
+      this.action,
+      this.wasBlocked,
+      this.targetCombatant,
+      this.gameUpdateCommand.actionUserName,
+      this.gameUpdateCommand.actionUserId === this.targetCombatant.getEntityId()
+    );
   }
 
   private handleDeath() {
@@ -114,8 +122,7 @@ export class CombatantResourceChangeUpdateHandlerCommand {
   }
 
   private postDeathMessage() {
-    const action = COMBAT_ACTIONS[this.actionName];
-    const shouldPostResourceChange = !action.gameLogMessageProperties.doNotPostResourceChange;
+    const shouldPostResourceChange = !this.action.gameLogMessageProperties.doNotPostResourceChange;
     if (shouldPostResourceChange) {
       GameLogMessageService.postCombatantDeath(this.targetCombatant.getName());
     }

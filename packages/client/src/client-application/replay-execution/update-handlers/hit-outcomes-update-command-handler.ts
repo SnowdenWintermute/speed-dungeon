@@ -11,14 +11,14 @@ import {
 import { plainToInstance } from "class-transformer";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { ClientApplication } from "@/client-application";
-import { CombatantResourceChangeUpdateHandlerCommand } from "./xxTEMP-induce-hit-recovery";
+import { CombatantResourceChangeUpdateHandlerCommand } from "./resource-change-update-handler-command";
 
 export async function hitOutcomesGameUpdateHandler(
   clientApplication: ClientApplication,
   update: ReplayGameUpdateTracker<HitOutcomesGameUpdateCommand>
 ) {
   const { command } = update;
-  const { outcomes, actionUserName, actionUserId } = command;
+  const { outcomes, actionUserName } = command;
   const { outcomeFlags } = outcomes;
   let hitPointChanges: HitPointChanges | null = null;
   if (outcomes.resourceChanges && outcomes.resourceChanges[CombatActionResource.HitPoints]) {
@@ -43,9 +43,7 @@ export async function hitOutcomesGameUpdateHandler(
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       new CombatantResourceChangeUpdateHandlerCommand(
         clientApplication,
-        actionUserName,
-        actionUserId,
-        command.actionName,
+        command,
         hpChange,
         ActionPayableResource.HitPoints,
         entityId,
@@ -62,9 +60,7 @@ export async function hitOutcomesGameUpdateHandler(
       const wasBlocked = !!outcomeFlags[HitOutcome.ShieldBlock]?.includes(entityId);
       new CombatantResourceChangeUpdateHandlerCommand(
         clientApplication,
-        actionUserName,
-        actionUserId,
-        command.actionName,
+        command,
         change,
         ActionPayableResource.Mana,
         entityId,

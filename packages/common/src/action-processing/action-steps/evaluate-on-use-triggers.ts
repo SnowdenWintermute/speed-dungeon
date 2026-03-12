@@ -19,8 +19,11 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
   branchingActions: ActionIntentAndUser[] = [];
 
   constructor(context: ActionResolutionStepContext) {
+    const { actionUser } = context.actionUserContext;
     const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      actionUserName: actionUser.getName(),
+      actionUserId: actionUser.getEntityId(),
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
@@ -29,7 +32,7 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     super(stepType, context, gameUpdateCommand);
 
     const { tracker, actionUserContext } = context;
-    const { game, party, actionUser } = actionUserContext;
+    const { game, party } = actionUserContext;
 
     const { actionName } = tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];

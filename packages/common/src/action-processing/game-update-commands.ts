@@ -167,14 +167,18 @@ export interface ResourcesPaidGameUpdateCommand extends IGameUpdateCommand {
 
 export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActivatedTriggers;
+  actionUserName: string;
+  actionUserId: string;
+
   durabilityChanges?: DurabilityChangesByEntityId;
   hitPointChanges?: HitPointChanges;
+  threatChanges?: ThreatChanges;
+
   appliedConditions?: Partial<
     Record<HitOutcome, Record<EntityId, SerializedOf<CombatantCondition>[]>>
   >;
   removedConditionStacks?: Record<CombatantId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<CombatantId, EntityId[]>;
-  threatChanges?: ThreatChanges;
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];

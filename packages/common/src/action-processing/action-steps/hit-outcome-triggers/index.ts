@@ -33,8 +33,11 @@ const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext) {
+    const { actionUser } = context.actionUserContext;
     const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      actionUserName: actionUser.getName(),
+      actionUserId: actionUser.getEntityId(),
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
@@ -43,7 +46,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { tracker, actionUserContext } = this.context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const { game, party, actionUser } = actionUserContext;
+    const { game, party } = actionUserContext;
     const battleOption = party.getBattleOption(game);
     const { outcomeFlags } = tracker.hitOutcomes;
 
