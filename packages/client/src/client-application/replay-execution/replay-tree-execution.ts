@@ -5,13 +5,13 @@ import {
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
-import { ReplayBranchProcessor } from "./replay-branch-processor";
+import { ReplayBranchExecution } from "./replay-branch-execution";
 
-export class ReplayTreeProcessor {
+export class ReplayTreeExecution {
   static sequentialIdGenerator = new SequentialIdGenerator();
   sequenceId: number;
 
-  activeBranches: ReplayBranchProcessor[] = [];
+  activeBranches: ReplayBranchExecution[] = [];
   private nextExpectedCompletionOrderIdListIndex: number = 0;
   private expectedCompletionOrderIds: number[];
 
@@ -19,9 +19,9 @@ export class ReplayTreeProcessor {
     root: NestedNodeReplayEvent,
     public onComplete: () => void
   ) {
-    this.sequenceId = ReplayTreeProcessor.sequentialIdGenerator.getNextIdNumeric();
+    this.sequenceId = ReplayTreeExecution.sequentialIdGenerator.getNextIdNumeric();
     this.expectedCompletionOrderIds = this.collectCompletionOrderIds(root);
-    this.activeBranches.push(new ReplayBranchProcessor(this, root, this.activeBranches));
+    this.activeBranches.push(new ReplayBranchExecution(this, root, this.activeBranches));
   }
 
   getActiveBranches() {

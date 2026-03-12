@@ -1,8 +1,3 @@
-import {
-  COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE,
-  GameLogMessage,
-  GameLogMessageStyle,
-} from "@/mobx-stores/game-event-notifications/game-log-messages";
 import { ItemLink } from "@/mobx-stores/game-event-notifications/item-link";
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
@@ -25,13 +20,19 @@ import {
   ResourceChange,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { EventLogStore } from "./event-log-store";
+import { ClientApplication } from "..";
+import { DialogElementName } from "../dialog-store";
+import {
+  COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE,
+  GameLogMessage,
+  GameLogMessageStyle,
+} from "./game-log-messages";
 
 export class EventLogGameMessageService {
-  constructor(private store: EventLogStore) {}
+  constructor(private clientApplication: ClientApplication) {}
 
   private dispatch(message: GameLogMessage) {
-    this.store.postGameLogMessage(message);
+    this.clientApplication.eventLogStore.postGameLogMessage(message);
   }
 
   postGameStarted() {
@@ -197,18 +198,19 @@ export class EventLogGameMessageService {
     wasBlocked: boolean,
     target: IActionUser,
     actionUserName: string,
-    actionUserTargetingSelf: boolean,
-    showDebug: boolean
+    actionUserTargetingSelf: boolean
   ) {
     const { elementOption, kineticDamageTypeOption } = resourceChange.source;
-
+    const showDebug = this.clientApplication.dialogStore.isOpen(DialogElementName.Debug);
     let elementOptionString: string = "";
-    if (elementOption !== undefined)
+    if (elementOption !== undefined) {
       elementOptionString = ` ${MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase()}`;
+    }
 
     let kineticOptionString = "";
-    if (kineticDamageTypeOption !== undefined)
+    if (kineticDamageTypeOption !== undefined) {
       kineticOptionString = ` ${KINETIC_DAMAGE_TYPE_STRINGS[kineticDamageTypeOption].toLowerCase()}`;
+    }
 
     const resourceChangeSourceCategoryText =
       HP_CHANGE_SOURCE_CATEGORY_STRINGS[resourceChange.source.category].toLowerCase();

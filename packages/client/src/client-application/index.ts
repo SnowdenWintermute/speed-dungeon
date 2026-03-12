@@ -7,7 +7,6 @@ import {
 } from "@speed-dungeon/common";
 import { ProcessedUpdateAwaiter } from "./event-latch";
 import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
-import { TickScheduler } from "./replay-tree-manager/replay-tree-tick-schedulers";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
 import { ClientApplicationGameContext } from "./client-application-game-context";
@@ -24,6 +23,8 @@ import { SequentialClientEventProcessor } from "./sequential-client-event-proces
 import { KeybindConfig } from "./inputs/keybind-config";
 import { InputStore } from "./inputs/input-store";
 import { AlertsService } from "./alerts";
+import { DialogStore } from "./dialog-store";
+import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 
 export class ClientApplication {
   // clients
@@ -47,10 +48,11 @@ export class ClientApplication {
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly inputStore = new InputStore();
+  readonly dialogStore = new DialogStore();
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
-  readonly eventLogMessageService = new EventLogGameMessageService(this.eventLogStore);
+  readonly eventLogMessageService: EventLogGameMessageService;
   readonly floatingMessagesStore = new FloatingMessagesStore();
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   readonly alertsService = new AlertsService();
@@ -59,7 +61,7 @@ export class ClientApplication {
   readonly keybindConfig = new KeybindConfig();
 
   constructor(
-    private gameWorldView: null | GameWorldView,
+    readonly gameWorldView: null | GameWorldView,
     private replayProcessorManager: ReplayTreeProcessorManager,
     assetCache: AssetCache,
     assetServerUrl: string,
@@ -80,6 +82,7 @@ export class ClientApplication {
     );
     this.detailableEntityFocus.initialize(this.combatantFocus);
     this.targetIndicatorStore = new TargetIndicatorStore(this.gameWorldView);
+    this.eventLogMessageService = new EventLogGameMessageService(this);
     // this.sequentialEventProcessor = new SequentialClientEventProcessor(
     //   this.replayTreeProcessor,
     //   this.gameWorldView,
@@ -98,7 +101,8 @@ export class ClientApplication {
   }
 
   // TODO
-  // - move game world view
+  // - move replay tree
+  // - remove AppStore.get() calls inside gameWorldView, replace with initialized ClientApplication
   // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
 
   // - MiscState (stuff the frontend jsx will observe)

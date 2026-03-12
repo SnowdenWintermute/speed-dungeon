@@ -363,4 +363,95 @@ export class CharacterModel extends SceneEntity {
     if (skeletonRootBone !== undefined)
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.world.scene);
   }
+
+  handleDeath() {
+    this.cosmeticEffectManager.softCleanup(() => {
+      //
+    });
+
+    // end any motion trackers they might have had
+    // this is hacky because we would rather have not given them any but
+    // it was the easiest way to implement dying on combatant's own turn
+    for (const [movementType, tracker] of this.movementManager.getTrackers()) {
+      tracker.onComplete();
+    }
+
+    this.movementManager.activeTrackers = {};
+
+    if (this.skeletalAnimationManager.playing) {
+      if (this.skeletalAnimationManager.playing.options.onComplete) {
+        this.skeletalAnimationManager.playing.runOnComplete();
+      }
+    }
+
+    // this is purely cosmetic and may be an issue if we revive a flying combatant because their server side
+    // home position will be different than where we just put them, but then again maybe we just reset home position
+    // to ground when revived
+    const wasFlying = this.getCombatant()
+      .getCombatantProperties()
+      .conditionManager.hasConditionName(CombatantConditionName.Flying);
+
+    if (wasFlying) {
+      const groundUnderHomePosition = this.getCombatant().getHomePosition().clone();
+      groundUnderHomePosition.y = 0;
+      this.movementManager.startTranslating(groundUnderHomePosition, 1700, {}, () => {
+        //
+      });
+    }
+
+    this.skeletalAnimationManager.startAnimationWithTransition(SkeletalAnimationName.DeathBack, 0, {
+      onComplete: () => {
+        this.skeletalAnimationManager.locked = true;
+        try {
+          // @TODO
+          // // in case it was removed on death like a web/net would be
+          // const wasRemoved = // check if still exists in game state
+          // this.world.modelManager.synchronizeCombatantModels();
+        } catch {
+          console.info(
+            "couldn't do death animation onComplete, maybe the combatant was already removed"
+          );
+        }
+      },
+    });
+  }
+
+  startHitRecoveryAnimation(wasBlocked: boolean, isCrit?: boolean) {
+    const hasCritRecoveryAnimation = this.skeletalAnimationManager.getAnimationGroupByName(
+      SkeletalAnimationName.CritRecovery
+    );
+
+    let animationName = SkeletalAnimationName.HitRecovery;
+    if (isCrit && hasCritRecoveryAnimation) {
+      animationName = SkeletalAnimationName.CritRecovery;
+    }
+    if (wasBlocked) {
+      animationName = SkeletalAnimationName.Block;
+    }
+
+    // checking for isIdling is a simple way to avoid interrupting their return home when
+    // they are hit midway through an action, which would cause their turn to never end
+    // on the client
+    const isIdling = this.isIdling();
+
+    if (!isIdling) {
+      return;
+    }
+
+    this.skeletalAnimationManager.startAnimationWithTransition(animationName, 0, {
+      onComplete: () => {
+        const wasRevived = false;
+
+        if (wasRevived) {
+          // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle
+        } else {
+          try {
+            this.startIdleAnimation(500);
+          } catch (_error) {
+            console.info("couldn't idle, maybe combatant was removed already");
+          }
+        }
+      },
+    });
+  }
 }

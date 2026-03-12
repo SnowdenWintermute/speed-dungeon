@@ -1,10 +1,12 @@
 import { NestedNodeReplayEvent } from "@speed-dungeon/common";
-import { ReplayTreeProcessor } from "./replay-tree-processor";
-import { AppStore } from "@/mobx-stores/app-store";
+import { ReplayTreeExecution } from "./replay-tree-execution";
+import { ClientApplication } from "..";
 
-export class ReplayTreeProcessorManager {
+export class ReplayTreeScheduler {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
-  private current: null | ReplayTreeProcessor = null;
+  private current: null | ReplayTreeExecution = null;
+
+  constructor(private clientApplication: ClientApplication) {}
 
   tick() {
     if (this.currentTreeCompleted()) {
@@ -30,9 +32,11 @@ export class ReplayTreeProcessorManager {
   enqueueTree(root: NestedNodeReplayEvent, doNotLockInput: boolean, onComplete: () => void) {
     this.queue.push({ root, onComplete });
 
-    const partyOption = AppStore.get().gameStore.getPartyOption();
-    if (partyOption && !doNotLockInput) partyOption.inputLock.lockInput();
-    AppStore.get().actionMenuStore.clearStack();
+    const { partyOption } = this.clientApplication.gameContext;
+    if (partyOption && !doNotLockInput) {
+      partyOption.inputLock.lockInput();
+    }
+    this.clientApplication.actionMenu.clearStack();
   }
 
   currentTreeCompleted() {
@@ -42,7 +46,7 @@ export class ReplayTreeProcessorManager {
   startNext() {
     const nextOption = this.queue.shift();
     this.current = nextOption
-      ? new ReplayTreeProcessor(nextOption.root, nextOption.onComplete)
+      ? new ReplayTreeExecution(nextOption.root, nextOption.onComplete)
       : null;
   }
 
