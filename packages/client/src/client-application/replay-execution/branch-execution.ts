@@ -1,6 +1,7 @@
 import { GameUpdateCommand, NestedNodeReplayEvent, ReplayEventType } from "@speed-dungeon/common";
-import { ReplayTreeExecution } from "./replay-tree-execution";
+import { ReplayTreeExecution } from "./tree-execution";
 import { ReplayGameUpdateTracker } from "./replay-game-update-completion-tracker";
+import { GAME_UPDATE_HANDLERS } from "./update-handlers";
 
 export class ReplayBranchExecution {
   private currentIndex = -1;
@@ -58,6 +59,9 @@ export class ReplayBranchExecution {
       console.error("error with cosmetic effects", this.currentGameUpdateOption.command, err);
     }
 
-    GAME_UPDATE_COMMAND_HANDLERS[node.gameUpdate.type](this.currentGameUpdateOption);
+    GAME_UPDATE_HANDLERS[node.gameUpdate.type](
+      this.parentReplayTreeProcessor.clientApplication,
+      this.currentGameUpdateOption
+    );
   }
 }

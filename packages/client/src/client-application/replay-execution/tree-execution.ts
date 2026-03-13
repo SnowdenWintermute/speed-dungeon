@@ -5,7 +5,8 @@ import {
   ReplayEventType,
   SequentialIdGenerator,
 } from "@speed-dungeon/common";
-import { ReplayBranchExecution } from "./replay-branch-execution";
+import { ReplayBranchExecution } from "./branch-execution";
+import { ClientApplication } from "..";
 
 export class ReplayTreeExecution {
   static sequentialIdGenerator = new SequentialIdGenerator();
@@ -16,6 +17,7 @@ export class ReplayTreeExecution {
   private expectedCompletionOrderIds: number[];
 
   constructor(
+    readonly clientApplication: ClientApplication,
     root: NestedNodeReplayEvent,
     public onComplete: () => void
   ) {

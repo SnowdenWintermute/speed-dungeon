@@ -32,8 +32,14 @@ export function handleActionEntityChanges(
     // the action entity's action origin properties
     // @REFACTOR create a merging factory to combine the changes with existing
 
-    if (actionLevel !== undefined) ActionEntity.setLevel(actionEntity, actionLevel.current);
-    if (stacks !== undefined) ActionEntity.setStacks(actionEntity, stacks.current);
-    if (userCombatantAttributes) actionOriginData.userCombatantAttributes = userCombatantAttributes;
+    if (actionLevel !== undefined) {
+      ActionEntity.setLevel(actionEntity, actionLevel.current);
+    }
+    if (stacks !== undefined) {
+      ActionEntity.setStacks(actionEntity, stacks.current);
+    }
+    if (userCombatantAttributes) {
+      actionOriginData.userCombatantAttributes = userCombatantAttributes;
+    }
   }
 }

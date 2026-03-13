@@ -4,17 +4,19 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes-update-command-handler";
-import { entityMotionGameUpdateHandler } from "./entity-motion-update-handlers";
-import { activatedTriggersGameUpdateHandler } from "./activated-triggers-game-update-handler";
-import { spawnEntitiesGameUpdateHandler } from "./spawn-entities-game-update-handler";
+import { spawnEntitiesGameUpdateHandler } from "./spawn-entities-update-handler";
 import { ClientApplication } from "@/client-application";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { actionCompletionGameUpdateHandler } from "./action-completion-update-handler";
 import { resourcesPaidGameUpdateHandler } from "./resources-paid-update-handler";
+import { entityMotionGameUpdateHandler } from "./entity-motion-update-handler";
+
+// @TODO - roll "resources paid", "hit outcomes" and "Activated Triggers"
+// into "action effects"
 
 export const GAME_UPDATE_HANDLERS: Record<
   GameUpdateCommandType,
-  (clientApplication: ClientApplication, arg: any) => Promise<void>
+  (clientApplication: ClientApplication, ...args: any[]) => Promise<void>
 > = {
   [GameUpdateCommandType.CombatantMotion]: entityMotionGameUpdateHandler,
   [GameUpdateCommandType.ActionEntityMotion]: entityMotionGameUpdateHandler,

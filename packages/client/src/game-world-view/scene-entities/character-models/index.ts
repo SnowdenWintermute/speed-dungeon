@@ -19,6 +19,9 @@ import {
   CombatantBaseChildTransformNodeName,
   NormalizedPercentage,
   CombatantConditionName,
+  EquipmentAnimation,
+  AnimationType,
+  AnimationTimingType,
 } from "@speed-dungeon/common";
 import { MonsterType } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -453,5 +456,26 @@ export class CharacterModel extends SceneEntity {
         }
       },
     });
+  }
+
+  startEquipmentAnimations(equipmentAnimations: EquipmentAnimation[]) {
+    for (const equipmentAnimation of equipmentAnimations) {
+      const { slot, animation } = equipmentAnimation;
+
+      const equipmentModel = this.equipmentModelManager.getEquipmentModelInSlot(slot);
+
+      if (!equipmentModel) {
+        return console.error("couldn't find equipment");
+      }
+      if (animation.name.type !== AnimationType.Skeletal) {
+        return console.error("not skeletal");
+      }
+
+      equipmentModel.skeletalAnimationManager.startAnimationWithTransition(
+        animation.name.name,
+        animation.timing.type === AnimationTimingType.Timed ? animation.timing.duration : 0,
+        {}
+      );
+    }
   }
 }

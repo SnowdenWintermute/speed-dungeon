@@ -13,8 +13,10 @@ import {
   EntityId,
   NormalizedPercentage,
   SceneEntityChildTransformNodeIdentifier,
+  SceneEntityChildTransformNodeIdentifierWithDuration,
   SceneEntityIdentifier,
   SceneEntityType,
+  getQuaternionAngleDifference,
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
 import { SkeletalAnimationManager } from "./model-animation-managers/skeletal-animation-manager";
@@ -132,6 +134,77 @@ export abstract class SceneEntity {
 
     // @ts-expect-error it can't seem to figure out that our nested tagged type guarantees the correct transformNodeName type
     return sceneEntity.childTransformNodes[transformNodeName];
+  }
+
+  lockRotationToFaceToward(
+    gameWorldView: GameWorldView,
+    identifierWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration | null
+  ) {
+    if (identifierWithDuration === null) {
+      this.movementManager.lookingAt = null;
+      return;
+    }
+
+    const { identifier, duration } = identifierWithDuration;
+
+    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+      identifier,
+      gameWorldView
+    );
+
+    const targetRotation = ModelMovementManager.getRotationToPointTowardToward(
+      this.rootTransformNode,
+      targetTransformNode.getAbsolutePosition()
+    );
+
+    const currentRotation =
+      this.rootTransformNode.rotationQuaternion ||
+      Quaternion.FromEulerAngles(
+        this.rootTransformNode.rotation.x,
+        this.rootTransformNode.rotation.y,
+        this.rootTransformNode.rotation.z
+      );
+
+    const angleDifference = getQuaternionAngleDifference(currentRotation, targetRotation);
+
+    const alignmentSpeed = duration ? angleDifference / duration : 0;
+
+    this.movementManager.lookingAt = {
+      target: targetTransformNode,
+      alignmentSpeed,
+      isLocked: false,
+    };
+  }
+
+  startPointingTowardEntity(
+    gameWorldView: GameWorldView,
+    identifierWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration | null
+  ) {
+    if (identifierWithDuration === null) {
+      // @TODO, change how movement managers deal with their trackers so they can only be rotating and translating
+      // toward one thing respectively, that way we can cancel it here
+      return;
+    }
+    const { identifier, duration } = identifierWithDuration;
+
+    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
+      identifier,
+      gameWorldView
+    );
+    const targetPosition = targetTransformNode.getAbsolutePosition();
+
+    const newRotation = ModelMovementManager.getRotationToPointTowardToward(
+      this.rootTransformNode,
+      targetPosition
+    );
+
+    if (duration === 0) {
+      this.movementManager.transformNode.rotationQuaternion = newRotation;
+    } else {
+      this.movementManager.startRotatingTowards(newRotation, duration, () => {
+        /**/
+      });
+    }
   }
 
   cleanup(options: { softCleanup: boolean }) {

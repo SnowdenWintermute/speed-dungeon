@@ -52,6 +52,7 @@ export async function spawnEntitiesGameUpdateHandler(
   }
 
   try {
+    // @TODO - waiting for spawn completion will cause stutter
     await Promise.all(promises);
 
     update.setAsQueuedToComplete();
@@ -66,7 +67,7 @@ async function handleNewSpawnableCombatant(
   deserialized: Combatant
 ) {
   const { transformProperties } = deserialized.combatantProperties;
-  const model = await spawnCharacterModel(
+  const model = await gameWorldView.modelManager.spawnCharacterModel(
     gameWorldView,
     {
       combatant: deserialized,
@@ -112,7 +113,7 @@ async function handleNewSpawnableActionEntity(
     actionEntityProperties.position._z
   );
 
-  const assetContainer = await spawnActionEntityModel(
+  const assetContainer = await gameWorldView.actionEntityManager.spawnActionEntityModel(
     actionEntityProperties.name,
     position,
     actionEntityProperties.dimensions

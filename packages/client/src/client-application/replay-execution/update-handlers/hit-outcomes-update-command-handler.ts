@@ -12,6 +12,7 @@ import { plainToInstance } from "class-transformer";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { ClientApplication } from "@/client-application";
 import { CombatantResourceChangeUpdateHandlerCommand } from "./resource-change-update-handler-command";
+import { handleThreatChangesUpdate } from "./activated-triggers-update-handler/threat-changes";
 
 export async function hitOutcomesGameUpdateHandler(
   clientApplication: ClientApplication,
@@ -71,7 +72,7 @@ export async function hitOutcomesGameUpdateHandler(
     }
   }
 
-  handleThreatChangesUpdate(command);
+  handleThreatChangesUpdate(clientApplication, command);
 
   outcomeFlags[HitOutcome.Miss]?.forEach((entityId) => {
     clientApplication.floatingMessagesService.startHitOutcomeMissMessage(entityId);

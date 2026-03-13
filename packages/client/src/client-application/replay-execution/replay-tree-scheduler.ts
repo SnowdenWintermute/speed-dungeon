@@ -1,5 +1,5 @@
 import { NestedNodeReplayEvent } from "@speed-dungeon/common";
-import { ReplayTreeExecution } from "./replay-tree-execution";
+import { ReplayTreeExecution } from "./tree-execution";
 import { ClientApplication } from "..";
 
 export class ReplayTreeScheduler {
@@ -46,7 +46,7 @@ export class ReplayTreeScheduler {
   startNext() {
     const nextOption = this.queue.shift();
     this.current = nextOption
-      ? new ReplayTreeExecution(nextOption.root, nextOption.onComplete)
+      ? new ReplayTreeExecution(this.clientApplication, nextOption.root, nextOption.onComplete)
       : null;
   }
 

@@ -47,6 +47,26 @@ export class ActionEntityModelManager {
   getAll() {
     return [...this.models.values()];
   }
+
+  async spawnActionEntityModel(
+    actionEntityName: ActionEntityName,
+    position: Vector3,
+    taggedDimensionsOption?: TaggedShape3DDimensions
+  ) {
+    const assetContainer = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](
+      position,
+      taggedDimensionsOption
+    );
+
+    const parentMesh = assetContainer.meshes[0];
+    if (!parentMesh) throw new Error("expected mesh was missing in imported scene");
+
+    const transformNode = new TransformNode("");
+    transformNode.position.copyFrom(parentMesh.position);
+    parentMesh.setParent(transformNode);
+    assetContainer.transformNodes.push(transformNode);
+    return assetContainer;
+  }
 }
 
 export class ActionEntityModel extends SceneEntity {
