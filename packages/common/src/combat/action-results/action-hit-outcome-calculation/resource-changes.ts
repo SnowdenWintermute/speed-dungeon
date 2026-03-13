@@ -22,7 +22,15 @@ export abstract class ResourceChanges<T> {
   abstract applyToGame(party: AdventuringParty): void;
 }
 
-export class HitPointChanges extends ResourceChanges<ResourceChange> {
+export class HitPointChanges extends ResourceChanges<ResourceChange> implements Serializable {
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<HitPointChanges>) {
+    return plainToInstance(HitPointChanges, serialized);
+  }
+
   applyToGame(party: AdventuringParty) {
     const combatantsKilled: EntityId[] = [];
 

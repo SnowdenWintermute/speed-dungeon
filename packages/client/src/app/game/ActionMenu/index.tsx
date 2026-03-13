@@ -8,11 +8,11 @@ import {
 } from "@/client-consts";
 import { AbilityType, NextOrPrevious } from "@speed-dungeon/common";
 import { CycleFocusedCharacterButtons } from "./CycleFocusedCharacterButtons";
-import { StackedActionMenuScreenDisplay } from "./StackedActionMenuScreenDisplay";
 import HoveredItemDisplay from "./HoveredItemDisplay";
 import { CraftingItemDisplay } from "./CraftingItemDisplay";
 import { CraftingItemActionMenuScreen } from "./menu-state/crafting-item";
 import HoveredActionDisplay from "./HoveredActionDisplay";
+import { StackedActionMenuScreenDisplay } from "./StackedMenuStateDisplay";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const { actionMenuStore, focusStore } = AppStore.get();

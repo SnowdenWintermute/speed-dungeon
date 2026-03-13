@@ -1,148 +1,73 @@
 import {
+  ActionEntity,
+  ActionEntityActionOriginData,
   ActionEntityName,
+  ActionPayableResource,
   ActivatedTriggersGameUpdateCommand,
   AdventuringParty,
+  Battle,
+  COMBAT_ACTIONS,
+  CleanupMode,
   CombatantClass,
+  CombatantCondition,
+  DurabilityChangesByEntityId,
   EntityId,
-  Equipment,
+  EntityName,
+  EquipmentSlotType,
+  HitOutcome,
+  HitPointChanges,
+  PetSlot,
+  SerializedOf,
+  SkeletalAnimationName,
+  SpeedDungeonGame,
+  deserializeCondition,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { handleActionEntityChanges } from "./handle-action-entity-changes";
-import { handleSupportClassLevelsChanged } from "./handle-support-class-levels-changed";
-import { handleDurabilityChanges } from "./handle-durability-changes";
-import { handleAppliedConditions } from "./handle-applied-conditions";
-import { handleRemovedConditionStacks } from "./handle-removed-condition-stacks";
-import { handleRemovedConditionIds } from "./handle-removed-condition-ids";
-import { handleHitPointChanges } from "./handle-hit-point-changes";
-import { GameUpdateTracker } from "../game-update-tracker";
-import { handlePetSlotsSummoned } from "./handle-pets-summoned";
-import { handlePetSlotsUnsummoned } from "./handle-pets-unsummoned";
-import { handlePetsTamed } from "./handle-pets-tamed";
-import { handlePetSlotsReleased } from "./handle-pets-released";
-import { FloatingMessageService } from "@/mobx-stores/game-event-notifications/floating-message-service";
-import { AppStore } from "@/mobx-stores/app-store";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { handleThreatChangesUpdate } from "./threat-changes";
 import { ClientApplication } from "@/client-application";
+import { ModelManager } from "@/game-world-view/model-manager";
+import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
+import { CombatantResourceChangeUpdateHandlerCommand } from "../resource-change-update-handler-command";
 
-export async function activatedTriggersGameUpdateHandler(
-  clientApplication: ClientApplication,
-  update: GameUpdateTracker<ActivatedTriggersGameUpdateCommand>
-) {
-  const { command } = update;
-
-  // keep track outside of the mutateState so we can post messages after mutating state
-  // because posting messages also needs to mutate state and looks cleaner if it separately handles that
-  const brokenHoldablesAndTheirOwnerIds: { ownerId: EntityId; equipment: Equipment }[] = [];
-
-  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
-  const battleOption = party.getBattleOption(game);
-
-  const {
-    actionEntityChanges,
-    supportClassLevelsGained,
-    durabilityChanges,
-    appliedConditions,
-    removedConditionStacks,
-    removedConditionIds,
-    petSlotsSummoned,
-    petSlotsReleased,
-    petsUnsummoned,
-    petsTamed,
-  } = command;
-
-  if (actionEntityChanges) {
-    handleActionEntityChanges(actionEntityChanges, party);
-  }
-
-  if (petSlotsSummoned) {
-    handlePetSlotsSummoned(petSlotsSummoned, party, game);
-  }
-
-  if (petSlotsReleased) {
-    handlePetSlotsReleased(petSlotsReleased, party);
-  }
-
-  if (petsUnsummoned) {
-    handlePetSlotsUnsummoned(petsUnsummoned, party, game);
-  }
-
-  if (petsTamed) {
-    handlePetsTamed(petsTamed, party, game);
-  }
-
-  if (supportClassLevelsGained !== undefined) {
-    handleSupportClassLevelsChanged(supportClassLevelsGained, party);
-  }
-
-  if (durabilityChanges) {
-    handleDurabilityChanges(durabilityChanges, party, brokenHoldablesAndTheirOwnerIds);
-  }
-
-  if (removedConditionStacks) {
-    handleRemovedConditionStacks(removedConditionStacks, party);
-  }
-
-  if (removedConditionIds) {
-    handleRemovedConditionIds(removedConditionIds, party);
-  }
-
-  if (appliedConditions) {
-    handleAppliedConditions(appliedConditions, party, battleOption);
-  }
-
-  handleThreatChangesUpdate(clientApplication, update.command);
-
-  // must despawn AFTER startOrStopCosmeticEffects so we can do a little puff of smoke
-  // on an entity right before we despawn it
-  const { actionEntityManager } = party;
-  if (command.actionEntityIdsDespawned) {
-    for (const { id, cleanupMode } of command.actionEntityIdsDespawned) {
-      actionEntityManager.unregisterActionEntity(id);
-      getGameWorldView().actionEntityManager.unregister(id, cleanupMode);
-    }
-  }
-
-  if (command.actionEntityIdsToHide) {
-    for (const id of command.actionEntityIdsToHide) {
-      const actionEntity = getGameWorldView().actionEntityManager.findOne(id);
-      actionEntity.setVisibility(0);
-
-      // @REFACTOR - this looks like duct tape
-      if (actionEntity.name === ActionEntityName.IceBolt) {
-        actionEntity.cosmeticEffectManager.softCleanup(() => {
-          //
-        });
-      }
-    }
-  }
-
-  for (const { ownerId, equipment } of brokenHoldablesAndTheirOwnerIds) {
-    FloatingMessageService.startBrokenHoldablesMessage(ownerId, equipment);
-  }
-
-  handleHitPointChanges(command);
-
-  update.setAsQueuedToComplete();
-}
-
-class ActionEffectsApplyerCommand {
+export class ActionEffectsApplyerCommand {
+  game: SpeedDungeonGame;
   party: AdventuringParty;
+  battleOption: Battle | null;
+  modelManager: ModelManager | undefined;
   constructor(
     private clientApplication: ClientApplication,
-    private update: ActivatedTriggersGameUpdateCommand
+    private update: ReplayGameUpdateTracker<ActivatedTriggersGameUpdateCommand>
   ) {
     const context = clientApplication.combatantFocus.requireFocusedCharacterContext();
+    this.game = context.game;
     this.party = context.party;
+    this.battleOption = this.party.getBattleOption(this.game);
+    this.modelManager = this.clientApplication.gameWorldView?.modelManager;
   }
   execute() {
-    this.applySupportClassLevelsGained(this.update.supportClassLevelsGained);
-    this.applyConditionStacksRemoved(this.update.removedConditionStacks);
-    this.applyConditionsRemoved(this.update.removedConditionIds);
+    const { command } = this.update;
+    this.applySupportClassLevelsGained(command.supportClassLevelsGained);
+    this.applyConditionStacksRemoved(command.removedConditionStacks);
+    this.applyConditionsRemoved(command.removedConditionIds);
+    this.applyPetSlotsUnsummoned(command.petsUnsummoned);
+    this.applyPetsTamed(command.petsTamed);
+    this.applyPetSlotsSummoned(command.petSlotsSummoned);
+    this.applyPetSlotsReleased(command.petSlotsReleased);
+    this.applyHitPointChanges(command);
+    this.applyDurabilityChanges(command.durabilityChanges);
+    this.applyConditions(command.appliedConditions);
+    this.applyActionEntityChanges(command.actionEntityChanges);
+    handleThreatChangesUpdate(this.clientApplication, command);
+
+    // must despawn AFTER startOrStopCosmeticEffects so we can do a little puff of smoke
+    // on an entity right before we despawn it
+    this.applyDespawnedActionEntities(command.actionEntityIdsDespawned);
+    this.applyActionEntitiesHidden(command.actionEntityIdsToHide);
+
+    this.update.setAsQueuedToComplete();
   }
 
-  private applySupportClassLevelsGained(
-    supportClassLevelsGained: Record<string, CombatantClass> | undefined
-  ) {
+  private applySupportClassLevelsGained(supportClassLevelsGained?: Record<string, CombatantClass>) {
     if (!supportClassLevelsGained) return;
 
     for (const [entityId, combatantClass] of Object.entries(supportClassLevelsGained)) {
@@ -190,7 +115,7 @@ class ActionEffectsApplyerCommand {
     }
   }
 
-  private applyConditionsRemoved(removedConditionIds: undefined | Record<string, string[]>) {
+  private applyConditionsRemoved(removedConditionIds?: Record<string, string[]>) {
     if (!removedConditionIds) return;
 
     const { gameWorldView } = this.clientApplication;
@@ -212,6 +137,260 @@ class ActionEffectsApplyerCommand {
             conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
           );
         }
+      }
+    }
+  }
+
+  private applyPetSlotsUnsummoned(petsUnsummoned?: EntityId[]) {
+    if (!petsUnsummoned) return;
+
+    const { petManager, combatantManager } = this.party;
+
+    for (const petId of petsUnsummoned) {
+      const pet = combatantManager.getExpectedCombatant(petId);
+      petManager.unsummonPet(petId, this.game);
+
+      if (pet.combatantProperties.isDead()) {
+        this.modelManager?.synchronizeCombatantModels({
+          softCleanup: true,
+        });
+      } else {
+        const modelOption = this.modelManager?.findOneOptional(petId);
+        modelOption?.skeletalAnimationManager.startAnimationWithTransition(
+          SkeletalAnimationName.OnSummoned,
+          500,
+          {
+            onComplete: () => {
+              this.modelManager?.synchronizeCombatantModels({
+                softCleanup: true,
+              });
+            },
+          }
+        );
+      }
+    }
+  }
+
+  private applyPetsTamed(petsTamed?: { petId: EntityId; tamerId: EntityId }[]) {
+    if (!petsTamed) return;
+
+    for (const { petId, tamerId } of petsTamed) {
+      this.party.petManager.handlePetTamed(petId, tamerId, this.game);
+      const modelOption = this.modelManager?.findOneOptional(petId);
+      modelOption?.skeletalAnimationManager.startAnimationWithTransition(
+        SkeletalAnimationName.OnSummoned,
+        500,
+        {
+          onComplete: () => {
+            this.modelManager?.synchronizeCombatantModels({ softCleanup: true });
+          },
+        }
+      );
+    }
+  }
+
+  private applyPetSlotsSummoned(petSlotsSummoned?: PetSlot[]) {
+    if (!petSlotsSummoned) return;
+
+    for (const { ownerId, slotIndex } of petSlotsSummoned) {
+      const pet = this.party.petManager.summonPetFromSlot(
+        this.game,
+        this.party,
+        ownerId,
+        slotIndex,
+        battleOption
+      );
+
+      if (pet === undefined) {
+        this.clientApplication.alertsService.setAlert(
+          "No pet was found even though server thought there should have been one"
+        );
+        return;
+      }
+
+      this.modelManager?.synchronizeCombatantModels({
+        onComplete: () => {
+          const modelOption = this.modelManager?.findOneOptional(pet.getEntityId());
+          if (pet.combatantProperties.isDead()) {
+            return;
+          }
+          modelOption?.skeletalAnimationManager.startAnimationWithTransition(
+            SkeletalAnimationName.OnSummoned,
+            500,
+            {
+              onComplete: () => {
+                modelOption.startIdleAnimation(500);
+              },
+            }
+          );
+        },
+      });
+    }
+  }
+
+  private applyPetSlotsReleased(petSlotsSummoned?: PetSlot[]) {
+    if (!petSlotsSummoned) return;
+
+    for (const { ownerId, slotIndex } of petSlotsSummoned) {
+      this.party.petManager.releasePetInSlot(ownerId, slotIndex);
+    }
+  }
+
+  private applyHitPointChanges(command: ActivatedTriggersGameUpdateCommand) {
+    if (!command.hitPointChanges) {
+      return;
+    }
+
+    const hitPointChanges = HitPointChanges.fromSerialized(command.hitPointChanges);
+    const action = COMBAT_ACTIONS[command.actionName];
+
+    for (const [entityId, hpChange] of hitPointChanges.getRecords()) {
+      new CombatantResourceChangeUpdateHandlerCommand(
+        this.clientApplication,
+        command,
+        hpChange,
+        ActionPayableResource.HitPoints,
+        entityId,
+        false,
+        action.hitOutcomeProperties.getShouldAnimateTargetHitRecovery()
+      ).execute();
+    }
+  }
+
+  private applyDurabilityChanges(durabilityChanges?: DurabilityChangesByEntityId) {
+    if (!durabilityChanges) return;
+
+    DurabilityChangesByEntityId.ApplyToGame(
+      this.party,
+      durabilityChanges,
+      (combatant, equipment) => {
+        const slot = combatant.combatantProperties.equipment.getSlotItemIsEquippedTo(
+          equipment.entityProperties.id
+        );
+
+        const justBrokeHoldable = equipment.isBroken() && slot?.type === EquipmentSlotType.Holdable;
+        if (!justBrokeHoldable) {
+          return;
+        }
+
+        this.clientApplication.floatingMessagesService.startBrokenHoldablesMessage(
+          combatant.entityProperties.id,
+          equipment
+        );
+
+        const characterModelOption = this.modelManager?.findOneOptional(
+          combatant.entityProperties.id
+        );
+
+        // remove the model if it broke
+        // if this causes bugs because it is jumping the queue, look into it
+        // if we use the queue though, it will wait to break their model and not look like it broke instantly
+        // maybe we can set visibilty instead and despawn it later
+        characterModelOption?.equipmentModelManager.synchronizeCombatantEquipmentModels();
+      }
+    );
+  }
+
+  private applyConditions(
+    appliedConditions?: Partial<
+      Record<HitOutcome, Record<string, SerializedOf<CombatantCondition>[]>>
+    >
+  ) {
+    if (!appliedConditions) return;
+
+    for (const [_hitOutcome, entityAppliedConditions] of iterateNumericEnumKeyedRecord(
+      appliedConditions
+    )) {
+      for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
+        const combatantResult = this.party.combatantManager.getExpectedCombatant(entityId);
+        for (const condition of conditions) {
+          const deserializedCondition = deserializeCondition(condition);
+          deserializedCondition.makeObservable();
+
+          combatantResult.combatantProperties.conditionManager.applyCondition(
+            deserializedCondition
+          );
+
+          this.clientApplication.gameWorldView?.startOrStopCosmeticEffects(
+            deserializedCondition.getCosmeticEffectWhileActive?.(
+              combatantResult.entityProperties.id
+            ),
+            []
+          );
+
+          this.battleOption?.turnOrderManager.turnSchedulerManager.addConditionToTurnOrder(
+            this.party,
+            deserializedCondition
+          );
+        }
+      }
+    }
+  }
+
+  private applyActionEntityChanges(
+    actionEntityChanges?: Record<string, Partial<ActionEntityActionOriginData>>
+  ) {
+    if (!actionEntityChanges) return;
+
+    for (const [id, changes] of Object.entries(actionEntityChanges)) {
+      const { actionLevel, stacks, userCombatantAttributes } = changes;
+
+      const { actionEntityManager } = this.party;
+
+      const actionEntity = actionEntityManager.getExpectedActionEntity(id);
+      let { actionOriginData } = actionEntity.actionEntityProperties;
+      if (!actionOriginData) {
+        actionOriginData = actionEntity.actionEntityProperties.actionOriginData = {
+          spawnedBy: { id: "", name: "not found" as EntityName },
+        };
+      }
+
+      // @PERF - probably don't need to send the whole MaxAndCurrent for level and stacks unless
+      // we one day want to change the max, but it is simpler this way since we get to use a Partial of
+      // the action entity's action origin properties
+      // @REFACTOR create a merging factory to combine the changes with existing
+
+      if (actionLevel !== undefined) {
+        ActionEntity.setLevel(actionEntity, actionLevel.current);
+      }
+      if (stacks !== undefined) {
+        ActionEntity.setStacks(actionEntity, stacks.current);
+      }
+      if (userCombatantAttributes) {
+        actionOriginData.userCombatantAttributes = userCombatantAttributes;
+      }
+    }
+  }
+
+  private applyDespawnedActionEntities(
+    actionEntityIdsDespawned?: {
+      id: string;
+      cleanupMode: CleanupMode;
+    }[]
+  ) {
+    if (!actionEntityIdsDespawned) return;
+
+    const { actionEntityManager } = this.party;
+    for (const { id, cleanupMode } of actionEntityIdsDespawned) {
+      actionEntityManager.unregisterActionEntity(id);
+      this.clientApplication.gameWorldView?.actionEntityManager.unregister(id, cleanupMode);
+    }
+  }
+
+  private applyActionEntitiesHidden(actionEntityIdsToHide?: string[]) {
+    if (!actionEntityIdsToHide) return;
+    const gameWorldView = this.clientApplication.gameWorldView;
+    if (!gameWorldView) return;
+
+    for (const id of actionEntityIdsToHide) {
+      const actionEntity = gameWorldView.actionEntityManager.findOne(id);
+      actionEntity?.setVisibility(0);
+
+      // @REFACTOR - this looks like duct tape
+      if (actionEntity.name === ActionEntityName.IceBolt) {
+        actionEntity.cosmeticEffectManager.softCleanup(() => {
+          //
+        });
       }
     }
   }

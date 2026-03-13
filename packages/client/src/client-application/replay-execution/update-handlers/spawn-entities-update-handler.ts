@@ -149,14 +149,14 @@ async function handleNewSpawnableActionEntity(
   }
 
   if (actionEntityProperties.initialPointToward) {
-    handleStartPointingTowardEntity(model, {
+    model.startPointingTowardEntity(gameWorldView, {
       identifier: actionEntityProperties.initialPointToward,
       duration: 0,
     });
   }
 
   if (actionEntityProperties.initialLockRotationToFace) {
-    handleLockRotationToFace(model, actionEntityProperties.initialLockRotationToFace);
+    model.lockRotationToFaceToward(gameWorldView, actionEntityProperties.initialLockRotationToFace);
   }
 
   if (initialRotation) {

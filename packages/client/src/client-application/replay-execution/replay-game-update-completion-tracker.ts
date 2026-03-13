@@ -3,7 +3,7 @@ import {
   COMBAT_ACTION_NAME_STRINGS,
   GameUpdateCommand,
 } from "@speed-dungeon/common";
-import { ReplayTreeExecution } from "./replay-tree-execution";
+import { ReplayTreeExecution } from "./tree-execution";
 
 export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
   private isComplete: boolean = false;

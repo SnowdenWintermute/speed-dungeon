@@ -6,6 +6,7 @@ import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ClientApplication } from "../..";
 import { ActionMenuScreen } from ".";
 import { ActionMenuScreenType } from "../screen-types";
+import { ConsideringAbilityTreeColumnActionMenuScreen } from "./ability-tree-column";
 
 export class AbilityTreeActionMenuScreen extends ActionMenuScreen {
   constructor(clientApplication: ClientApplication) {
@@ -43,7 +44,9 @@ export class AbilityTreeActionMenuScreen extends ActionMenuScreen {
             extraStyles={""}
             clickHandler={() => {
               const { actionMenu } = this.clientApplication;
-              actionMenu.pushStack(new ConsideringAbilityTreeColumnActionMenuScreen(number));
+              actionMenu.pushStack(
+                new ConsideringAbilityTreeColumnActionMenuScreen(this.clientApplication, number)
+              );
               actionMenu.getCurrentMenu().setPageIndex(number - 1);
             }}
           >

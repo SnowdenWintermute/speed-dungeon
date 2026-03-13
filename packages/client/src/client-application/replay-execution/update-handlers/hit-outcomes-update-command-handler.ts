@@ -23,8 +23,7 @@ export async function hitOutcomesGameUpdateHandler(
   const { outcomeFlags } = outcomes;
   let hitPointChanges: HitPointChanges | null = null;
   if (outcomes.resourceChanges && outcomes.resourceChanges[CombatActionResource.HitPoints]) {
-    hitPointChanges = plainToInstance(
-      HitPointChanges,
+    hitPointChanges = HitPointChanges.fromSerialized(
       outcomes.resourceChanges[CombatActionResource.HitPoints]
     );
   }
