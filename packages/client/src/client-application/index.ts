@@ -19,23 +19,24 @@ import { EventLogStore } from "./event-log/event-log-store";
 import { FloatingMessagesStore } from "./event-log/floating-messages-store";
 import { EventLogGameMessageService } from "./event-log/event-log-service";
 import { FloatingMessageService } from "./event-log/floating-messages-service";
-import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 import { KeybindConfig } from "./inputs/keybind-config";
 import { InputStore } from "./inputs/input-store";
 import { AlertsService } from "./alerts";
 import { DialogStore } from "./dialog-store";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
+import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
+import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 
 export class ClientApplication {
   // clients
   readonly gameClientRef = new ClientSingleton();
+  private assetService: ClientAppAssetService;
 
   // event processing
   readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
-  // readonly sequentialEventProcessor: SequentialClientEventProcessor;
+  readonly replayTreeScheduler: ReplayTreeScheduler;
+  readonly sequentialEventProcessor: SequentialClientEventProcessor;
   private unregisterReplayManagerTick: () => void;
-
-  private assetService: ClientAppAssetService;
 
   // core state
   readonly session = new ClientApplicationSession();
@@ -83,16 +84,17 @@ export class ClientApplication {
     this.detailableEntityFocus.initialize(this.combatantFocus);
     this.targetIndicatorStore = new TargetIndicatorStore(this.gameWorldView);
     this.eventLogMessageService = new EventLogGameMessageService(this);
-    // this.sequentialEventProcessor = new SequentialClientEventProcessor(
-    //   this.replayTreeProcessor,
-    //   this.gameWorldView,
-    //   this.actionMenu,
-    //   this.gameContext,
-    //   this.combatantFocus,
-    //   this.lobbyContext,
-    //   this.targetIndicatorStore,
-    //   this.eventLogMessageService
-    // );
+    this.replayTreeScheduler = new ReplayTreeScheduler(this);
+    this.sequentialEventProcessor = new SequentialClientEventProcessor(
+      this.replayTreeScheduler,
+      this.gameWorldView,
+      this.actionMenu,
+      this.gameContext,
+      this.combatantFocus,
+      this.lobbyContext,
+      this.targetIndicatorStore,
+      this.eventLogMessageService
+    );
   }
 
   dispose() {
@@ -101,7 +103,6 @@ export class ClientApplication {
   }
 
   // TODO
-  // - move replay tree
   // - remove AppStore.get() calls inside gameWorldView, replace with initialized ClientApplication
   // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
 

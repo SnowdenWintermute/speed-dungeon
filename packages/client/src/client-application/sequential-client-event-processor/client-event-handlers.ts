@@ -10,16 +10,16 @@ import {
   Consumable,
   Equipment,
 } from "@speed-dungeon/common";
-import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { ActionMenu } from "../action-menu";
 import { ClientApplicationGameContext } from "../client-application-game-context";
 import { CombatantFocus } from "../combatant-focus";
 import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
 import { TargetIndicatorStore } from "../target-indicator-store";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
+import { ReplayTreeScheduler } from "../replay-execution/replay-tree-scheduler";
 
 export function createClientEventHandlers(
-  replayTreeProcessor: ReplayTreeProcessorManager,
+  replayScheduler: ReplayTreeScheduler,
   gameWorldView: GameWorldView | null,
   actionMenu: ActionMenu,
   gameContext: ClientApplicationGameContext,
@@ -76,7 +76,7 @@ export function createClientEventHandlers(
           }
         }
 
-        replayTreeProcessor.enqueueTree(event.root, !!event.doNotLockInput, () => resolve(true));
+        replayScheduler.enqueueTree(event.root, !!event.doNotLockInput, () => resolve(true));
       });
 
       await promise;
