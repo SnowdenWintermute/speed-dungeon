@@ -22,6 +22,7 @@ export function iterateNumericEnum<T extends Record<string, string | number>>(
   return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
 }
 
+// old version - creates 3 intermediate arrays
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>
 ): [T, U][] {
@@ -30,6 +31,16 @@ export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
     .map(([key, value]) => [parseInt(key) as T, value as U]);
 }
 
+// new - lazily generates next value
+// export function* iterateNumericEnumKeyedRecord<K extends number, V>(
+//   record: Partial<Record<K, V>>
+// ): Iterable<[K, V]> {
+//   for (const [key, value] of Object.entries(record)) {
+//     if (value !== undefined) {
+//       yield [Number(key) as K, value as V];
+//     }
+//   }
+// }
 export function randomNormal() {
   let u = 0,
     v = 0;

@@ -1,14 +1,57 @@
 import { Color3 } from "@babylonjs/core";
 import { MagicalElement } from "@speed-dungeon/common";
 
-export const DEFAULT_MATERIAL_COLORS: { [name: string]: Color3 } = {
-  Main: new Color3(0.792, 0.761, 0.694),
-  Alternate: new Color3(0.259, 0.208, 0.18),
-  Accent1: new Color3(0.482, 0.486, 0.467),
-  Accent2: new Color3(0.278, 0.518, 0.447),
-  Handle: new Color3(0.169, 0.145, 0.11),
-  Hilt: new Color3(0.2, 0.204, 0.204),
-  Blade: new Color3(0.6, 0.6, 0.55),
+export enum MaterialCategory {
+  Default,
+  Wood,
+  Metal,
+  Plastic,
+  Accent,
+  Element,
+  Custom,
+}
+
+export const MATERIAL_CATEGORY_STRINGS: Record<MaterialCategory, string> = {
+  [MaterialCategory.Default]: "Default",
+  [MaterialCategory.Wood]: "Wood",
+  [MaterialCategory.Metal]: "Metal",
+  [MaterialCategory.Plastic]: "Plastic",
+  [MaterialCategory.Accent]: "Accent",
+  [MaterialCategory.Element]: "Element",
+  [MaterialCategory.Custom]: "Custom",
+};
+
+export enum MaterialLabel {
+  Main,
+  Alternate,
+  Accent1,
+  Accent2,
+  Accent3,
+  Handle,
+  Hilt,
+  Blade,
+}
+
+export const MATERIAL_LABEL_STRINGS: Record<MaterialLabel, string> = {
+  [MaterialLabel.Main]: "Main",
+  [MaterialLabel.Alternate]: "Alternate",
+  [MaterialLabel.Accent1]: "Accent1",
+  [MaterialLabel.Accent2]: "Accent2",
+  [MaterialLabel.Accent3]: "Accent3",
+  [MaterialLabel.Handle]: "Handle",
+  [MaterialLabel.Hilt]: "Hilt",
+  [MaterialLabel.Blade]: "Blade",
+};
+
+export const DEFAULT_MATERIAL_COLORS: Record<MaterialLabel, Color3> = {
+  [MaterialLabel.Main]: new Color3(0.792, 0.761, 0.694),
+  [MaterialLabel.Alternate]: new Color3(0.259, 0.208, 0.18),
+  [MaterialLabel.Accent1]: new Color3(0.482, 0.486, 0.467),
+  [MaterialLabel.Accent2]: new Color3(0.278, 0.518, 0.447),
+  [MaterialLabel.Accent3]: new Color3(0.169, 0.145, 0.11),
+  [MaterialLabel.Handle]: new Color3(0.2, 0.204, 0.204),
+  [MaterialLabel.Hilt]: new Color3(0.6, 0.6, 0.55),
+  [MaterialLabel.Blade]: new Color3(0.71, 0.694, 0.682),
 };
 
 export enum MaterialShade {
@@ -50,6 +93,13 @@ export enum PlasticColor {
   Blue,
 }
 
+export const PLASTIC_COLOR_STRINGS: Record<PlasticColor, string> = {
+  [PlasticColor.Orange]: "Orange",
+  [PlasticColor.Yellow]: "Yellow",
+  [PlasticColor.White]: "White",
+  [PlasticColor.Blue]: "Blue",
+};
+
 export const PLASTIC_COLORS: Record<PlasticColor, Color3> = {
   [PlasticColor.Orange]: new Color3(0.973, 0.608, 0.204),
   [PlasticColor.Yellow]: new Color3(0.969, 0.773, 0.196),
@@ -68,6 +118,18 @@ export enum AccentColor {
   HPGreen,
   MPBlue,
 }
+
+export const ACCENT_COLOR_STRINGS: Record<AccentColor, string> = {
+  [AccentColor.Rose]: "Rose",
+  [AccentColor.Brass]: "Brass",
+  [AccentColor.Cherry]: "Cherry",
+  [AccentColor.BurntOrange]: "BurntOrange",
+  [AccentColor.KellyGreen]: "KellyGreen",
+  [AccentColor.CobaltBlue]: "CobaltBlue",
+  [AccentColor.DarkBlue]: "DarkBlue",
+  [AccentColor.HPGreen]: "HPGreen",
+  [AccentColor.MPBlue]: "MPBlue",
+};
 
 export const ACCENT_COLORS: Record<AccentColor, Color3> = {
   [AccentColor.Rose]: new Color3(0.557, 0.365, 0.318),
@@ -90,17 +152,6 @@ export const ELEMENT_COLORS: Record<MagicalElement, Color3> = {
   [MagicalElement.Wind]: new Color3(0.184, 0.667, 0.212),
   [MagicalElement.Dark]: new Color3(0.18, 0.145, 0.078),
   [MagicalElement.Light]: new Color3(0.655, 0.627, 0.553),
-};
-
-export const MATERIAL_NAMES = {
-  MAIN: "Main",
-  ALTERNATE: "Alternate",
-  ACCENT_1: "Accent1",
-  ACCENT_2: "Accent2",
-  ACCENT_3: "Accent3",
-  HANDLE: "Handle",
-  HILT: "Hilt",
-  BLADE: "Blade",
 };
 
 export enum CustomMaterial {

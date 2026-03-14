@@ -16,7 +16,7 @@ import { MagicalElement, iterateNumericEnum } from "@speed-dungeon/common";
 
 export const DYNAMIC_MATERIAL_TAG = "-dynamic-material";
 
-export type SavedMaterials = {
+export interface SavedMaterials {
   default: { [materialName: string]: StandardMaterial };
   wood: Record<LightestToDarkest, StandardMaterial>;
   metal: Record<LightestToDarkest, StandardMaterial>;
@@ -24,7 +24,7 @@ export type SavedMaterials = {
   elements: Record<MagicalElement, StandardMaterial>;
   custom: Record<CustomMaterial, StandardMaterial>;
   plastic: Record<PlasticColor, StandardMaterial>;
-};
+}
 
 export function createDefaultMaterials(scene: Scene): SavedMaterials {
   const toReturn: {
