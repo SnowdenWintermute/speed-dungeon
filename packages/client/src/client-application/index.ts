@@ -26,6 +26,7 @@ import { DialogStore } from "./dialog-store";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
+import { ImageStore } from "./image-store";
 
 export class ClientApplication {
   // clients
@@ -50,6 +51,7 @@ export class ClientApplication {
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly inputStore = new InputStore();
   readonly dialogStore = new DialogStore();
+  readonly imageStore = new ImageStore();
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();

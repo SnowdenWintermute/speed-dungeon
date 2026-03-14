@@ -5,43 +5,37 @@ import {
   ArcRotateCamera,
   Mesh,
   DynamicTexture,
-  NodeMaterial,
-  Constants,
-  InputBlock,
-  Camera,
   RenderTargetTexture,
 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import {
   COSMETIC_EFFECT_CONSTRUCTORS,
   CosmeticEffectOnTargetTransformNode,
-  IdGenerator,
 } from "@speed-dungeon/common";
 import { GameWorldGroundPlane } from "./environment/ground-plane";
 
-export const LAYER_MASK_1 = 0x10000000;
-export const LAYER_MASK_ALL = 0xffffffff;
-
 export class GameWorldView {
+  // core
   engine: Engine;
   scene: Scene;
-  camera: ArcRotateCamera | null = null;
-  portraitCamera: ArcRotateCamera;
-  sun: Mesh;
-  ground: GameWorldGroundPlane;
-  debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
-  useShadows: boolean = false;
+  // entities
   modelManager: ModelManager = new ModelManager(this);
   actionEntityManager = new ActionEntityModelManager();
-  defaultMaterials: SavedMaterials;
-  // imageCreationDefaultMaterials: SavedMaterials;
-  numImagesBeingCreated: number = 0;
+  // environment
+  ground: GameWorldGroundPlane;
+  sun: Mesh;
+  // cameras
+  camera: ArcRotateCamera | null = null;
+  // images
   imageManager: ImageManager = new ImageManager();
+  portraitCamera: ArcRotateCamera;
   portraitRenderTarget: RenderTargetTexture;
-  replayTreeManager = new ReplayTreeProcessorManager();
-  idGenerator = new IdGenerator({ saveHistory: false });
-  tickCounter: number = 0;
+  // target indicators
   targetIndicatorTexture: DynamicTexture;
+
+  debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
+
+  defaultMaterials: SavedMaterials;
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -121,7 +115,6 @@ export class GameWorldView {
   }
 
   updateGameWorld() {
-    this.tickCounter += 1;
     this.updateDebugText();
     this.replayTreeManager.tick();
 
@@ -153,9 +146,6 @@ export class GameWorldView {
   }
 
   handleError = handleGameWorldViewError;
-  initScene = initScene;
-  clearFloorTexture = clearFloorTexture;
-  drawCharacterSlots = drawCharacterSlots;
   updateDebugText = updateDebugText;
 
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {
@@ -243,19 +233,4 @@ export class GameWorldView {
       }
     }
   }
-}
-
-export function pixelate(camera: Camera, scene: Scene, value: number = 3.8) {
-  const nodeMaterial = NodeMaterial.Parse(pixelationShader, scene);
-  nodeMaterial.build();
-  const postProcess = nodeMaterial.createPostProcess(camera, 1.0, Constants.TEXTURE_LINEAR_LINEAR);
-
-  if (!postProcess) return;
-
-  postProcess.samples = 4;
-
-  const pixelateX = nodeMaterial.getBlockByName("pixelateSizeX") as InputBlock;
-  const pixelateY = nodeMaterial.getBlockByName("pixelateSizeY") as InputBlock;
-  if (pixelateX) pixelateX.value = value;
-  if (pixelateY) pixelateY.value = value;
 }

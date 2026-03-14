@@ -1,3 +1,5 @@
+export const LAYER_MASK_1 = 0x10000000;
+export const LAYER_MASK_ALL = 0xffffffff;
 export const GROUND_COLOR = "#344b35";
 export const GROUND_WIDTH = 50;
 export const GROUND_HEIGHT = 50;

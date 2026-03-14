@@ -121,23 +121,25 @@ export function assignEquipmentMaterials(
           materials[MATERIAL_NAMES.ACCENT_2] = savedMaterials.accent[AccentColor.Rose];
           break;
         case OneHandedMeleeWeapon.RuneSword:
-          let i = 1;
-          for (const classification of equipmentBaseItemProperties.damageClassification) {
-            if (classification.elementOption !== undefined) {
-              const material = new StandardMaterial(
-                DYNAMIC_MATERIAL_TAG + MAGICAL_ELEMENT_STRINGS[classification.elementOption],
-                scene
-              );
+          {
+            let i = 1;
+            for (const classification of equipmentBaseItemProperties.damageClassification) {
+              if (classification.elementOption !== undefined) {
+                const material = new StandardMaterial(
+                  DYNAMIC_MATERIAL_TAG + MAGICAL_ELEMENT_STRINGS[classification.elementOption],
+                  scene
+                );
 
-              const color = desaturate(ELEMENT_COLORS[classification.elementOption], 0.25);
-              material.diffuseColor = color;
-              material.roughness = 0;
-              materials["Accent" + i] = material;
+                const color = desaturate(ELEMENT_COLORS[classification.elementOption], 0.25);
+                material.diffuseColor = color;
+                material.roughness = 0;
+                materials["Accent" + i] = material;
+              }
+              i += 1;
             }
-            i += 1;
+            materials[MATERIAL_NAMES.HANDLE] = savedMaterials.metal[LightestToDarkest.Medium];
+            materials[MATERIAL_NAMES.HILT] = savedMaterials.metal[LightestToDarkest.Darker];
           }
-          materials[MATERIAL_NAMES.HANDLE] = savedMaterials.metal[LightestToDarkest.Medium];
-          materials[MATERIAL_NAMES.HILT] = savedMaterials.metal[LightestToDarkest.Darker];
           break;
         case OneHandedMeleeWeapon.EtherBlade:
           materials[MATERIAL_NAMES.HANDLE] = savedMaterials.metal[LightestToDarkest.Medium];
