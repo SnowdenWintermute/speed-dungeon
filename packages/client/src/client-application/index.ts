@@ -31,7 +31,7 @@ import { ImageStore } from "./image-store";
 export class ClientApplication {
   // clients
   readonly gameClientRef = new ClientSingleton();
-  private assetService: ClientAppAssetService;
+  readonly assetService: ClientAppAssetService;
 
   // event processing
   readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();

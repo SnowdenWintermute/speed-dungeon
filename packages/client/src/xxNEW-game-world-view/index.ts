@@ -11,8 +11,10 @@ import "@babylonjs/loaders";
 import {
   COSMETIC_EFFECT_CONSTRUCTORS,
   CosmeticEffectOnTargetTransformNode,
+  invariant,
 } from "@speed-dungeon/common";
 import { GameWorldGroundPlane } from "./environment/ground-plane";
+import { ClientApplication } from "@/client-application";
 
 export class GameWorldView {
   // core
@@ -36,6 +38,8 @@ export class GameWorldView {
   debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
 
   defaultMaterials: SavedMaterials;
+
+  private _clientApplication: ClientApplication | null = null;
 
   constructor(
     public canvas: HTMLCanvasElement,
@@ -107,6 +111,18 @@ export class GameWorldView {
     // particleSystems.forEach((system) => system.start());
 
     // this.startLimitedFramerateRenderLoop(5, 3000);
+  }
+
+  initialize(clientApplication: ClientApplication) {
+    this._clientApplication = clientApplication;
+  }
+
+  get clientApplication() {
+    invariant(
+      this._clientApplication !== null,
+      "GameWorldView not initialized with ClientApplication"
+    );
+    return this._clientApplication;
   }
 
   dispose() {

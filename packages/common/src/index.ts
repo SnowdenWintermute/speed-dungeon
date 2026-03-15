@@ -42,6 +42,7 @@ export * from "./utils/interpolation-curves.js";
 
 export * from "./battle/index.js";
 export * from "./combatants/index.js";
+export * from "./combatants/combatant-transform-properties.js";
 
 export * from "./combatants/combatant-class/starting-traits.js";
 export * from "./combatants/combatant-class/level-zero-attributes.js";
