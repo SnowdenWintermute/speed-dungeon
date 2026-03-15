@@ -7,7 +7,6 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "./cosmetic-effect-manager";
-import { ModelMovementManager } from "./model-movement-manager";
 import {
   ERROR_MESSAGES,
   EntityId,
@@ -19,15 +18,16 @@ import {
   getQuaternionAngleDifference,
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
-import { SkeletalAnimationManager } from "./model-animation-managers/skeletal-animation-manager";
-import { DynamicAnimationManager } from "./model-animation-managers/dynamic-animation-manager";
-import { GameWorldView } from "..";
+import { GameWorldView } from "../..";
+import { SceneEntityMovementManager } from "./scene-entity-movement-manager";
+import { SkeletalAnimationManager } from "./scene-entity-animation-manager/skeletal-animation-manager";
+import { DynamicAnimationManager } from "./scene-entity-animation-manager/dynamic-animation-manager";
 
 /** The base class for most "3d models" */
 export abstract class SceneEntity {
   public skeletalAnimationManager: SkeletalAnimationManager;
   public dynamicAnimationManager: DynamicAnimationManager;
-  public movementManager: ModelMovementManager;
+  public movementManager: SceneEntityMovementManager;
   public cosmeticEffectManager = new CosmeticEffectManager(this);
   public rootMesh: AbstractMesh;
   public rootTransformNode: TransformNode;
@@ -42,7 +42,7 @@ export abstract class SceneEntity {
   ) {
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
     this.rootTransformNode.position = plainToInstance(Vector3, startPosition);
-    this.movementManager = new ModelMovementManager(this.rootTransformNode);
+    this.movementManager = new SceneEntityMovementManager(this.rootTransformNode);
 
     const rootMesh = this.initRootMesh(assetContainer);
     this.rootMesh = rootMesh;
@@ -151,7 +151,7 @@ export abstract class SceneEntity {
       gameWorldView
     );
 
-    const targetRotation = ModelMovementManager.getRotationToPointTowardToward(
+    const targetRotation = SceneEntityMovementManager.getRotationToPointTowardToward(
       this.rootTransformNode,
       targetTransformNode.getAbsolutePosition()
     );
@@ -192,7 +192,7 @@ export abstract class SceneEntity {
     );
     const targetPosition = targetTransformNode.getAbsolutePosition();
 
-    const newRotation = ModelMovementManager.getRotationToPointTowardToward(
+    const newRotation = SceneEntityMovementManager.getRotationToPointTowardToward(
       this.rootTransformNode,
       targetPosition
     );

@@ -7,6 +7,8 @@ import {
   MAGICAL_ELEMENT_STRINGS,
   ResourceChange,
   ResourceChangeSourceCategory,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import {
   FLOATING_TEXT_COLORS,

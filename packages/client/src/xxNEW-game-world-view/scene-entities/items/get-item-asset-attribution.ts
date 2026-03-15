@@ -4,7 +4,7 @@ import {
   SHIELD_MODELS,
   TWO_HANDED_MELEE_WEAPON_MODELS,
   TWO_HANDED_RANGED_WEAPON_MODELS,
-} from "./equipment-base-item-to-model-path";
+} from "./equipment-base-item-to-asset-path";
 import { CONSUMABLE_MODELS } from "./consumable-models";
 import { ARTISTS } from "./artists";
 

@@ -7,6 +7,8 @@ import {
   MAGICAL_ELEMENT_STRINGS,
   ResourceChange,
   ResourceChangeSourceCategory,
+  SKELETAL_ANIMATION_NAME_STRINGS,
+  SkeletalAnimationName,
 } from "@speed-dungeon/common";
 import {
   FLOATING_TEXT_COLORS,
@@ -150,6 +152,17 @@ export class FloatingMessageService {
           mainText: FLOATING_TEXT_COLORS[FloatingMessageTextColor.Parried],
           shadowText: "text-black",
         },
+      },
+    ];
+
+    this.dispatch(entityId, elements);
+  }
+
+  startMissingAnimationMessage(entityId: EntityId, animationName: SkeletalAnimationName) {
+    const elements: FloatingMessageElement[] = [
+      {
+        type: FloatingMessageElementType.Text,
+        text: `Missing animation: ${SKELETAL_ANIMATION_NAME_STRINGS[animationName]}`,
       },
     ];
 
