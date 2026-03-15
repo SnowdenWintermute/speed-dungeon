@@ -1,4 +1,5 @@
 import {
+  AssetId,
   EquipmentBaseItem,
   EquipmentType,
   OneHandedMeleeWeapon,
@@ -8,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { Artist } from "./artists";
 
-export function equipmentBaseItemToAssetPath(baseItem: EquipmentBaseItem): string | null {
+export function equipmentBaseItemToAssetId(baseItem: EquipmentBaseItem) {
   let filePath;
 
   const folderPath = MODEL_FOLDER_PATHS[baseItem.equipmentType];
@@ -33,7 +34,7 @@ export function equipmentBaseItemToAssetPath(baseItem: EquipmentBaseItem): strin
   }
 
   if (!folderPath || !filePath) return null;
-  return folderPath + filePath;
+  return (folderPath + filePath) as AssetId;
 }
 
 export const MODEL_FOLDER_PATHS: Record<EquipmentType, null | string> = {
