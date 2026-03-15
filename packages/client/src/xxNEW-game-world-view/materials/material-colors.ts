@@ -1,6 +1,8 @@
 import { Color3 } from "@babylonjs/core";
 import { MagicalElement } from "@speed-dungeon/common";
 
+export const DYNAMIC_MATERIAL_TAG = "-dynamic-material";
+
 export enum MaterialCategory {
   Default,
   Wood,

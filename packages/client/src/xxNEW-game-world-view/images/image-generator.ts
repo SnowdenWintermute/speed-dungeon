@@ -20,6 +20,7 @@ import { MODEL_PORTRAIT_CAMERA_POSITIONS } from "./portrait-camera-positions";
 import { GameWorldView } from "..";
 import { ClientApplication } from "@/client-application";
 import { LAYER_MASK_1, LAYER_MASK_ALL } from "../game-world-view-consts";
+import { MaterialManager } from "../materials/material-manager";
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 export class ImageGenerator {
@@ -30,6 +31,7 @@ export class ImageGenerator {
   isProcessing: boolean = false;
   camera: UniversalCamera;
   requestHandlers: ImageGenerationRequestHandlers;
+  materialManager: MaterialManager;
   constructor(
     private clientApplication: ClientApplication,
     private gameWorldView: GameWorldView
@@ -46,9 +48,7 @@ export class ImageGenerator {
     this.scene = this.createScene(this.engine);
     this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
     this.camera.minZ = 0;
-
-    this.materials = createDefaultMaterials(this.scene);
-
+    this.materialManager = new MaterialManager(this.scene);
     this.requestHandlers = this.createRequestHandlers();
   }
 
@@ -153,11 +153,8 @@ export class ImageGenerator {
       { width: canvasWidth, height: canvasHeight },
       (image) => {
         this.engine.stopRenderLoop();
-
         this.clientApplication.imageStore.setItemThumbnail(item.entityProperties.id, image);
-
         equipmentModelResult.cleanup({ softCleanup: false });
-
         this.processNextMessage();
       },
       "image/png"
