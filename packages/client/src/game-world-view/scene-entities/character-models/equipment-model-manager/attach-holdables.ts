@@ -70,7 +70,7 @@ export function attachHoldableModelToHolsteredPosition(
   slot: HoldableSlotType
 ) {
   const equipmentTransformNode = equipmentModel.rootTransformNode;
-  const skeletonRoot = combatantModel.getSkeletonRoot();
+  const skeletonRoot = combatantModel.rootMesh;
 
   const backHolsterBoneName = slot === HoldableSlotType.OffHand ? "BackHolster.L" : "BackHolster.R";
   const hipHolsterBoneName = slot === HoldableSlotType.OffHand ? "HipHolster.L" : "HipHolster.R";

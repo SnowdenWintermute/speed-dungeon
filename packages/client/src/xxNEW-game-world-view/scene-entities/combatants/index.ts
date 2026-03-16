@@ -16,6 +16,8 @@ import { CombatantSceneEntityBounding } from "./bounding";
 import { CombatantSceneEntityModularPartsManager } from "./modular-parts-manager/modular-parts-manager";
 import { GameWorldView } from "@/xxNEW-game-world-view";
 import { getClientRectFromMesh } from "@/xxNEW-game-world-view/utils";
+import { ClientApplication } from "@/client-application";
+import { HighlightManager } from "./highlight-manager/index";
 
 export class CombatantSceneEntity extends SceneEntity {
   readonly childTransformNodes: Partial<
@@ -28,12 +30,13 @@ export class CombatantSceneEntity extends SceneEntity {
   readonly modularPartsManager: CombatantSceneEntityModularPartsManager;
 
   private equipmentModelManager = new EquipmentModelManager(this);
-  highlightManager: HighlightManager = new HighlightManager(this);
+  readonly highlightManager: HighlightManager;
   targetingIndicatorBillboardManager: TargetIndicatorBillboardManager;
   private _skeletonRoot: AbstractMesh;
 
   constructor(
     private world: GameWorldView,
+    private clientApplication: ClientApplication,
     private readonly _combatant: Combatant,
     skeletonAssetContainer: AssetContainer,
     public modelDomPositionElement: HTMLDivElement | null,
@@ -43,11 +46,6 @@ export class CombatantSceneEntity extends SceneEntity {
     const homePosition = transformProperties.getHomePosition();
     const homeRotation = transformProperties.homeRotation;
     super(_combatant.getEntityId(), skeletonAssetContainer, homePosition, homeRotation);
-
-    if (!this.assetContainer.meshes[0]) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
-    }
-    this._skeletonRoot = this.assetContainer.meshes[0];
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     if (!rotation) {
@@ -75,16 +73,6 @@ export class CombatantSceneEntity extends SceneEntity {
     this.bounding = new CombatantSceneEntityBounding(this.modularPartsManager, this.rootMesh);
 
     // this.initChildTransformNodes();
-
-    // for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
-    //   this.childTransformNodes
-    // )) {
-    //   const markerMesh = MeshBuilder.CreateBox("", { size: 0.1 });
-    //   markerMesh.setParent(transformNode);
-    //   markerMesh.setPositionWithLocalVector(Vector3.Zero());
-    // }
-    // this.setUpDebugMeshes();
-    // this.setShowBones();
   }
 
   initRootMesh(assetContainer: AssetContainer) {
@@ -163,10 +151,6 @@ export class CombatantSceneEntity extends SceneEntity {
 
   get combatant() {
     return this._combatant;
-  }
-
-  get skeletonRoot() {
-    return this._skeletonRoot;
   }
 
   customCleanup(): void {

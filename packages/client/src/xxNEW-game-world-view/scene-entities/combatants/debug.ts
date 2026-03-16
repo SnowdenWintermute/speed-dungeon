@@ -42,7 +42,7 @@ export class CombatantSceneEntityDebug {
 
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
-    const skeletonRootBone = getChildMeshByName(this.parent.skeletonRoot, ARMATURE_ROOT_BONE_NAME);
+    const skeletonRootBone = getChildMeshByName(this.parent.rootMesh, ARMATURE_ROOT_BONE_NAME);
 
     if (skeletonRootBone !== undefined) {
       paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
