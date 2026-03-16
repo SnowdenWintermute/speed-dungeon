@@ -1,15 +1,16 @@
-import { AbstractMesh, Camera, Mesh, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
-import { COMBAT_ACTIONS, CombatActionIntent } from "@speed-dungeon/common";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { GLOW_LAYER_NAME } from "@/game-world-view/init-scene";
+import { AbstractMesh } from "@babylonjs/core";
 import { TargetIndicator } from "@/mobx-stores/target-indicators";
+import { TargetIndicatorBillboard } from "./target-indicator-billboard";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 
 export class TargetIndicatorBillboardManager {
-  indicators: TargetIndicatorBillboard[] = [];
+  private indicators: TargetIndicatorBillboard[] = [];
+
   constructor(
-    public cameraOption: null | Camera,
-    public targetMesh: AbstractMesh
+    private gameWorldView: GameWorldView,
+    private targetMesh: AbstractMesh
   ) {}
+
   synchronizeIndicators(newIndicators: TargetIndicator[]) {
     const existingKeys = new Set(this.indicators.map((i) => i.targetIndicator.getKey()));
     const newKeys = new Set(newIndicators.map((i) => i.getKey()));
@@ -27,7 +28,11 @@ export class TargetIndicatorBillboardManager {
     // Add new ones
     for (const newIndicator of newIndicators) {
       if (!existingKeys.has(newIndicator.getKey())) {
-        const billboard = new TargetIndicatorBillboard(newIndicator, getGameWorldView().scene);
+        const billboard = new TargetIndicatorBillboard(
+          this.gameWorldView.scene,
+          this.gameWorldView.targetIndicatorTexture,
+          newIndicator
+        );
         this.indicators.push(billboard);
       }
     }
@@ -35,13 +40,9 @@ export class TargetIndicatorBillboardManager {
 
   updateBillboardPositions() {
     for (const billboard of this.indicators) {
-      const camPos = this.cameraOption?.globalPosition;
-      if (!camPos) return;
-      const boundingInfo = this.targetMesh.getBoundingInfo();
-      const dir = camPos.subtract(boundingInfo.boundingBox.centerWorld).normalize();
-      billboard.plane.position
-        .copyFrom(boundingInfo.boundingBox.centerWorld)
-        .addInPlace(dir.scale(boundingInfo.diagonalLength / 2));
+      const cameraPosition = this.gameWorldView.camera?.globalPosition;
+      if (!cameraPosition) return;
+      billboard.updatePosition(this.targetMesh, cameraPosition);
     }
   }
 }

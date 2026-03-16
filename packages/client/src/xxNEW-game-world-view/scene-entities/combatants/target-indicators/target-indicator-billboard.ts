@@ -1,21 +1,31 @@
 import { TargetIndicator } from "@/client-application/target-indicator-store";
 import { GLOW_LAYER_NAME } from "@/xxNEW-game-world-view/scene-setup";
-import { Mesh, MeshBuilder, Scene, StandardMaterial } from "@babylonjs/core";
+import {
+  AbstractMesh,
+  BoundingInfo,
+  DynamicTexture,
+  Mesh,
+  MeshBuilder,
+  Scene,
+  StandardMaterial,
+  Vector3,
+} from "@babylonjs/core";
 import { COMBAT_ACTIONS, CombatActionIntent } from "@speed-dungeon/common";
 
 export class TargetIndicatorBillboard {
   private plane: Mesh;
   private material: StandardMaterial;
   constructor(
-    public readonly targetIndicator: TargetIndicator,
-    scene: Scene
+    scene: Scene,
+    texture: DynamicTexture,
+    public readonly targetIndicator: TargetIndicator
   ) {
     const name = `target-indicator-[${targetIndicator.targetId}]`;
     this.plane = MeshBuilder.CreatePlane(name, { size: 0.25 }, scene);
     this.plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
     // Optional: ensure it's not affected by scene lighting
     this.material = new StandardMaterial(`${name}-material`, scene);
-    this.material.diffuseTexture = getGameWorldView().targetIndicatorTexture;
+    this.material.diffuseTexture = texture;
     const mat = this.material;
 
     const action = COMBAT_ACTIONS[this.targetIndicator.actionName];
@@ -37,6 +47,14 @@ export class TargetIndicatorBillboard {
     this.plane.material = mat;
 
     scene.getGlowLayerByName(GLOW_LAYER_NAME)?.addExcludedMesh(this.plane);
+  }
+
+  updatePosition(targetMesh: AbstractMesh, cameraPosition: Vector3) {
+    const boundingInfo = targetMesh.getBoundingInfo();
+    const dir = cameraPosition.subtract(boundingInfo.boundingBox.centerWorld).normalize();
+    this.plane.position
+      .copyFrom(boundingInfo.boundingBox.centerWorld)
+      .addInPlace(dir.scale(boundingInfo.diagonalLength / 2));
   }
 
   cleanup() {

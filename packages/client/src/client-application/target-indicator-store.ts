@@ -1,4 +1,4 @@
-import { GameWorldView } from "@/game-world-view";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 import { CombatActionName, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
@@ -16,11 +16,13 @@ export class TargetIndicator {
 
 export class TargetIndicatorStore {
   private indicators: TargetIndicator[] = [];
-  _gameWorld: GameWorldView | null = null; // we'd like it to be private but then we can't mark it as "not observable"
-  constructor(private gameWorldView: GameWorldView | null) {
-    makeAutoObservable(this, { _gameWorld: false });
-    // @TODO - we'll need to set this in the game world view so character models can access it
-    // gameWorldView?.setTargetIndicatorStore(this)
+  _gameWorldView: GameWorldView | null = null; // we'd like it to be private but then we can't mark it as "not observable"
+  constructor() {
+    makeAutoObservable(this, { _gameWorldView: false });
+  }
+
+  initialize(gameWorldView: GameWorldView) {
+    this._gameWorldView = gameWorldView;
   }
 
   getIndicatorsTargetingCombatant(entityId: EntityId) {
@@ -35,11 +37,11 @@ export class TargetIndicatorStore {
   clear() {
     this.indicators = [];
 
-    if (this._gameWorld === null) {
+    if (this._gameWorldView === null) {
       return;
     }
 
-    for (const [_, combatantModel] of this._gameWorld.modelManager.combatantModels) {
+    for (const [_, combatantModel] of this._gameWorldView.modelManager.combatantModels) {
       combatantModel.targetingIndicatorBillboardManager.synchronizeIndicators([]);
     }
   }
@@ -72,13 +74,13 @@ export class TargetIndicatorStore {
       this.indicators.push(...newIndicators);
     }
 
-    if (this._gameWorld === null) {
+    if (this._gameWorldView === null) {
       return console.error(
         "Expected targetIndicatorStore to be initialized with gameWorld reference"
       );
     }
 
-    for (const [_, combatantModel] of this._gameWorld.modelManager.combatantModels) {
+    for (const [_, combatantModel] of this._gameWorldView.modelManager.combatantModels) {
       const targetingThisModel = newIndicators.filter(
         (item) => item.targetId === combatantModel.entityId
       );

@@ -1,4 +1,4 @@
-import { AssetContainer, TransformNode, AbstractMesh } from "@babylonjs/core";
+import { AssetContainer, TransformNode } from "@babylonjs/core";
 import {
   SkeletalAnimationName,
   ERROR_MESSAGES,
@@ -19,6 +19,7 @@ import { getClientRectFromMesh } from "@/xxNEW-game-world-view/utils";
 import { ClientApplication } from "@/client-application";
 import { HighlightManager } from "./highlight-manager/index";
 import { CombatantSceneEntityEquipmentManager } from "./equipment-manager";
+import { TargetIndicatorBillboardManager } from "./target-indicators";
 
 export class CombatantSceneEntity extends SceneEntity {
   readonly childTransformNodes: Partial<
@@ -32,11 +33,11 @@ export class CombatantSceneEntity extends SceneEntity {
 
   readonly equipmentManager: CombatantSceneEntityEquipmentManager;
   readonly highlightManager: HighlightManager;
-  targetingIndicatorBillboardManager: TargetIndicatorBillboardManager;
+  readonly targetingIndicatorManager: TargetIndicatorBillboardManager;
 
   constructor(
     private world: GameWorldView,
-    private clientApplication: ClientApplication,
+    clientApplication: ClientApplication,
     private readonly _combatant: Combatant,
     skeletonAssetContainer: AssetContainer,
     public modelDomPositionElement: HTMLDivElement | null,
@@ -48,14 +49,9 @@ export class CombatantSceneEntity extends SceneEntity {
     super(_combatant.getEntityId(), skeletonAssetContainer, homePosition, homeRotation);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
-    if (!rotation) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
-    }
+    invariant(rotation !== null, ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
 
-    this.targetingIndicatorBillboardManager = new TargetIndicatorBillboardManager(
-      world.camera,
-      this.rootMesh
-    );
+    this.targetingIndicatorManager = new TargetIndicatorBillboardManager(this.world, this.rootMesh);
     this.animationControls = new CombatantSceneEntityAnimationControls(
       _combatant,
       this.skeletalAnimationManager
@@ -69,16 +65,14 @@ export class CombatantSceneEntity extends SceneEntity {
       world.clientApplication.assetService,
       this
     );
-
     this.bounding = new CombatantSceneEntityBounding(this.modularPartsManager, this.rootMesh);
     this.equipmentManager = new CombatantSceneEntityEquipmentManager(
       this,
       world.itemSceneEntityFactory
     );
-
     this.highlightManager = new HighlightManager(world.scene, clientApplication, this);
 
-    // this.initChildTransformNodes();
+    this.initChildTransformNodes();
   }
 
   initRootMesh(assetContainer: AssetContainer) {

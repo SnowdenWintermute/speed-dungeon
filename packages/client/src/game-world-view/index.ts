@@ -45,6 +45,7 @@ export class GameWorldView {
   ground: GroundMesh;
   // shadowGenerator: null | ShadowGenerator = null;
   debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
+  useShadows: boolean = false;
   modelManager: ModelManager = new ModelManager(this);
   actionEntityManager = new ActionEntityModelManager();
   groundTexture: DynamicTexture;

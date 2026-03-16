@@ -84,7 +84,7 @@ export class ClientApplication {
       this.detailableEntityFocus
     );
     this.detailableEntityFocus.initialize(this.combatantFocus);
-    this.targetIndicatorStore = new TargetIndicatorStore(this.gameWorldView);
+    this.targetIndicatorStore = new TargetIndicatorStore();
     this.eventLogMessageService = new EventLogGameMessageService(this);
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.sequentialEventProcessor = new SequentialClientEventProcessor(

@@ -18,6 +18,7 @@ import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
 import { MaterialManager } from "./materials/material-manager";
 import { ImageGenerator } from "./images/image-generator";
+import { TextureManager } from "./textures/texture-manager";
 
 const notInitialized = "GameWorldView not initialized with ClientApplication";
 
@@ -26,7 +27,7 @@ export class GameWorldView {
   engine: Engine;
   scene: Scene;
   // entities
-  modelManager: ModelManager = new ModelManager(this);
+  modelManager = new ModelManager(this);
   actionEntityManager = new ActionEntityModelManager();
   // environment
   ground: GameWorldGroundPlane;
@@ -44,7 +45,8 @@ export class GameWorldView {
 
   debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
 
-  materialManager: MaterialManager;
+  readonly materialManager: MaterialManager;
+  readonly textureManager: TextureManager;
 
   private _clientApplication: ClientApplication | null = null;
 
@@ -52,14 +54,13 @@ export class GameWorldView {
     public canvas: HTMLCanvasElement,
     debugRef: React.RefObject<HTMLUListElement | null>
   ) {
-    AppStore.get().targetIndicatorStore.initialize(this);
-
     // this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
     // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
 
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.materialManager = new MaterialManager(this.scene);
+    this.textureManager = new TextureManager(this.scene);
 
     this.ground = new GameWorldGroundPlane(this.scene);
 
@@ -129,6 +130,7 @@ export class GameWorldView {
       this.materialManager
     );
     this._imageGenerator = new ImageGenerator(clientApplication, this);
+    clientApplication.targetIndicatorStore.initialize(this);
   }
 
   get clientApplication() {
