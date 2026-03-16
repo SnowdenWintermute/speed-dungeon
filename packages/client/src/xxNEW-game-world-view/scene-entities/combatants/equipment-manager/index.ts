@@ -6,6 +6,7 @@ import {
   NormalizedPercentage,
   TaggedEquipmentSlot,
   WearableSlotType,
+  invariant,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import {
@@ -14,7 +15,7 @@ import {
 } from "./attach-holdables";
 import { EquipmentSceneEntity } from "../../items/equipment-scene-entity";
 import { CombatantSceneEntity } from "..";
-import { ConsumableModel } from "@/game-world-view/scene-entities/item-models";
+import { ItemSceneEntityFactory } from "../../items/item-scene-entity-factory";
 
 type HoldableHotswapSlotsModels = Partial<Record<HoldableSlotType, null | EquipmentSceneEntity>>[];
 
@@ -29,7 +30,10 @@ export class CombatantSceneEntityEquipmentManager {
   holdableHotswapSlots: HoldableHotswapSlotsModels = [];
   private visibilityForShownHotswapSlots = 0;
 
-  constructor(public combatantSceneEntity: CombatantSceneEntity) {}
+  constructor(
+    public combatantSceneEntity: CombatantSceneEntity,
+    private itemSceneEntityFactory: ItemSceneEntityFactory
+  ) {}
 
   getAllModels() {
     const toReturn = [];
@@ -89,8 +93,8 @@ export class CombatantSceneEntityEquipmentManager {
     newState: HoldableHotswapSlotsModels,
     combatantProperties: CombatantProperties
   ) {
-    this.holdableHotswapSlots.forEach((hotswapSlot, i) => {
-      for (const [holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
+    this.holdableHotswapSlots.forEach((hotswapSlot) => {
+      for (const [_holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
         hotswapSlot
       )) {
         if (!equipmentModelOption) continue;
@@ -142,22 +146,12 @@ export class CombatantSceneEntityEquipmentManager {
       )) {
         const existingModelOption = existingSlotOption[holdableSlotType];
 
-        if (existingModelOption) continue;
-
-        const gameWorld = getGameWorldView();
-        const equipmentModel = await spawnItemModel(
-          holdable,
-          gameWorld.scene,
-          gameWorld.defaultMaterials,
-          true
-        );
-        if (equipmentModel instanceof Error) {
-          return console.info(equipmentModel);
+        if (existingModelOption) {
+          continue;
         }
 
-        if (equipmentModel instanceof ConsumableModel) {
-          throw new Error("unexpected item type");
-        }
+        const equipmentModel = await this.itemSceneEntityFactory.create(holdable, true);
+        invariant(equipmentModel instanceof EquipmentSceneEntity, "unexpected item type");
 
         if (equipmentModel.equipment.isBroken()) {
           equipmentModel.setVisibility(0);

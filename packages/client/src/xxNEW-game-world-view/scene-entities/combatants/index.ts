@@ -18,6 +18,7 @@ import { GameWorldView } from "@/xxNEW-game-world-view";
 import { getClientRectFromMesh } from "@/xxNEW-game-world-view/utils";
 import { ClientApplication } from "@/client-application";
 import { HighlightManager } from "./highlight-manager/index";
+import { CombatantSceneEntityEquipmentManager } from "./equipment-manager";
 
 export class CombatantSceneEntity extends SceneEntity {
   readonly childTransformNodes: Partial<
@@ -29,10 +30,9 @@ export class CombatantSceneEntity extends SceneEntity {
   readonly bounding: CombatantSceneEntityBounding;
   readonly modularPartsManager: CombatantSceneEntityModularPartsManager;
 
-  private equipmentModelManager = new EquipmentModelManager(this);
+  readonly equipmentManager: CombatantSceneEntityEquipmentManager;
   readonly highlightManager: HighlightManager;
   targetingIndicatorBillboardManager: TargetIndicatorBillboardManager;
-  private _skeletonRoot: AbstractMesh;
 
   constructor(
     private world: GameWorldView,
@@ -66,11 +66,17 @@ export class CombatantSceneEntity extends SceneEntity {
     );
     this.debugView = new CombatantSceneEntityDebug(world.scene, this);
     this.modularPartsManager = new CombatantSceneEntityModularPartsManager(
-      this.world.clientApplication.assetService,
+      world.clientApplication.assetService,
       this
     );
 
     this.bounding = new CombatantSceneEntityBounding(this.modularPartsManager, this.rootMesh);
+    this.equipmentManager = new CombatantSceneEntityEquipmentManager(
+      this,
+      world.itemSceneEntityFactory
+    );
+
+    this.highlightManager = new HighlightManager(world.scene, clientApplication, this);
 
     // this.initChildTransformNodes();
   }
@@ -157,14 +163,14 @@ export class CombatantSceneEntity extends SceneEntity {
     if (this.debugView) {
       this.debugView.despawnDebugMeshes();
     }
-    this.equipmentModelManager.cleanup();
+    this.equipmentManager.cleanup();
     this.modularPartsManager.cleanup();
   }
 
   setVisibility(value: NormalizedPercentage) {
     this.visibility = value;
 
-    this.equipmentModelManager.setVisibilityForShownHotswapSlots(this.visibility);
+    this.equipmentManager.setVisibilityForShownHotswapSlots(this.visibility);
     this.modularPartsManager.setVisibility(this.visibility);
   }
 

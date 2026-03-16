@@ -15,6 +15,11 @@ import {
 } from "@speed-dungeon/common";
 import { GameWorldGroundPlane } from "./environment/ground-plane";
 import { ClientApplication } from "@/client-application";
+import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
+import { MaterialManager } from "./materials/material-manager";
+import { ImageGenerator } from "./images/image-generator";
+
+const notInitialized = "GameWorldView not initialized with ClientApplication";
 
 export class GameWorldView {
   // core
@@ -29,15 +34,17 @@ export class GameWorldView {
   // cameras
   camera: ArcRotateCamera | null = null;
   // images
-  imageManager: ImageManager = new ImageManager();
+  private _imageGenerator: ImageGenerator | null = null;
   portraitCamera: ArcRotateCamera;
   portraitRenderTarget: RenderTargetTexture;
   // target indicators
   targetIndicatorTexture: DynamicTexture;
 
+  private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
+
   debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
 
-  defaultMaterials: SavedMaterials;
+  materialManager: MaterialManager;
 
   private _clientApplication: ClientApplication | null = null;
 
@@ -52,6 +59,7 @@ export class GameWorldView {
 
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
+    this.materialManager = new MaterialManager(this.scene);
 
     this.ground = new GameWorldGroundPlane(this.scene);
 
@@ -115,14 +123,27 @@ export class GameWorldView {
 
   initialize(clientApplication: ClientApplication) {
     this._clientApplication = clientApplication;
+    this._itemSceneEntityFactory = new ItemSceneEntityFactory(
+      clientApplication.assetService,
+      this.scene,
+      this.materialManager
+    );
+    this._imageGenerator = new ImageGenerator(clientApplication, this);
   }
 
   get clientApplication() {
-    invariant(
-      this._clientApplication !== null,
-      "GameWorldView not initialized with ClientApplication"
-    );
+    invariant(this._clientApplication !== null, notInitialized);
     return this._clientApplication;
+  }
+
+  get itemSceneEntityFactory() {
+    invariant(this._itemSceneEntityFactory !== null, notInitialized);
+    return this._itemSceneEntityFactory;
+  }
+
+  get imageGenerator() {
+    invariant(this._imageGenerator !== null, notInitialized);
+    return this._imageGenerator;
   }
 
   dispose() {

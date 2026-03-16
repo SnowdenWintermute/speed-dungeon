@@ -1,6 +1,5 @@
-import { Color3, PBRMaterial, Scene, StandardMaterial } from "@babylonjs/core";
+import { AbstractMesh, Color3, PBRMaterial, Scene, StandardMaterial } from "@babylonjs/core";
 import { NormalizedPercentage, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import cloneDeep from "lodash.clonedeep";
 import { makeAutoObservable } from "mobx";
 import { CharacterModelPartCategory } from "../modular-parts-manager/modular-parts";
 import { CombatantSceneEntity } from "..";
@@ -45,14 +44,14 @@ export class HighlightManager {
         if (!this.materialHiglightable(material)) {
           continue;
         }
-        const originalColor = cloneDeep(material.emissiveColor);
+        const originalColor = material.emissiveColor.clone();
         originalColors[mesh.name] = originalColor;
       }
 
       this.originalPartMaterialColors[partCategory] = originalColors;
     }
 
-    for (const equipmentModel of this.sceneEntity.equipmentModelManager.getAllModels()) {
+    for (const equipmentModel of this.sceneEntity.equipmentManager.getAllModels()) {
       const originalColors: { [meshName: string]: Color3 } = {};
 
       for (const mesh of equipmentModel.assetContainer.meshes) {
@@ -60,7 +59,7 @@ export class HighlightManager {
         if (!(material instanceof StandardMaterial) && !(material instanceof PBRMaterial)) {
           continue;
         }
-        const originalColor = cloneDeep(material.emissiveColor);
+        const originalColor = material.emissiveColor.clone();
         originalColors[mesh.name] = originalColor;
       }
 
@@ -81,7 +80,6 @@ export class HighlightManager {
 
       const originalColors = this.originalPartMaterialColors[partCategory];
       if (!originalColors) {
-        // console.info("original colors not found when removing highlight");
         continue;
       }
 
@@ -96,7 +94,7 @@ export class HighlightManager {
       delete this.originalPartMaterialColors[partCategory];
     }
 
-    for (const equipmentModel of this.sceneEntity.equipmentModelManager.getAllModels()) {
+    for (const equipmentModel of this.sceneEntity.equipmentManager.getAllModels()) {
       const originalColors = this.originalEquipmentMaterialColors[equipmentModel.entityId];
       if (!originalColors) {
         // console.info("original colors not found when removing highlight");
@@ -161,8 +159,8 @@ export class HighlightManager {
 
         const inputIsLocked = partyOption ? partyOption.inputLock.isLocked() : false;
 
-        const isSelectingActionTargets =
-          AppStore.get().targetIndicatorStore.userHasTargets(entityId);
+        const { targetIndicatorStore } = this.clientApplication;
+        const isSelectingActionTargets = targetIndicatorStore.userHasTargets(entityId);
 
         // if (indicators.length && !this.isHighlighted) {
         if (isTurn && !this.isHighlighted && !inputIsLocked && !isSelectingActionTargets) {
@@ -172,7 +170,7 @@ export class HighlightManager {
           this.removeHighlight();
         }
       } catch (error) {
-        console.info("highlighter error");
+        console.info("highlighter error", error);
         this.isDirty = true;
         this.removeHighlight();
       }
@@ -188,7 +186,6 @@ export class HighlightManager {
     this.turnIndicator?.update(pulseEffectParameters, isFocused);
 
     // glow the character and their equipment
-
     const { scale } = pulseEffectParameters;
     for (const [_partCategory, part] of iterateNumericEnumKeyedRecord(
       this.sceneEntity.modularPartsManager.parts
@@ -196,31 +193,24 @@ export class HighlightManager {
       if (!part) continue;
 
       for (const mesh of part.meshes) {
-        const { material } = mesh;
-
-        if (material instanceof StandardMaterial || material instanceof PBRMaterial) {
-          const baseColor =
-            material instanceof PBRMaterial ? material.albedoColor : material.diffuseColor;
-          material.emissiveColor.r = baseColor.r * scale;
-          material.emissiveColor.g = baseColor.g * scale;
-          material.emissiveColor.b = baseColor.b * scale;
-        }
+        this.scaleMaterialBaseColor(mesh, scale);
       }
     }
 
-    for (const equipmentModel of this.sceneEntity.equipmentModelManager.getAllModels()) {
+    for (const equipmentModel of this.sceneEntity.equipmentManager.getAllModels()) {
       for (const mesh of equipmentModel.assetContainer.meshes) {
-        const { material } = mesh;
-
-        if (this.materialHiglightable(material)) {
-          const baseColor =
-            material instanceof PBRMaterial ? material.albedoColor : material.diffuseColor;
-          material.emissiveColor.r = baseColor.r * scale * 0.5;
-          material.emissiveColor.g = baseColor.g * scale * 0.5;
-          material.emissiveColor.b = baseColor.b * scale * 0.5;
-        }
+        this.scaleMaterialBaseColor(mesh, 0.5 * scale);
       }
     }
+  }
+
+  private scaleMaterialBaseColor(mesh: AbstractMesh, scale: NormalizedPercentage) {
+    const { material } = mesh;
+    if (!this.materialHiglightable(material)) return;
+    const baseColor =
+      material instanceof PBRMaterial ? material.albedoColor : material.diffuseColor;
+    const scaled = baseColor.scale(scale);
+    material.emissiveColor.copyFrom(scaled);
   }
 
   private getRotationParameters(): PulseEffectParameters {
