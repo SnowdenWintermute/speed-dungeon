@@ -37,7 +37,7 @@ export const TopInfoBar = observer(() => {
       );
     }
 
-    party.combatantManager.getAllCombatants().forEach((combatant) => {
+    party.combatantManager.iterateAllCombatants().forEach((combatant) => {
       combatant.combatantProperties.targetingProperties.clear();
     });
 

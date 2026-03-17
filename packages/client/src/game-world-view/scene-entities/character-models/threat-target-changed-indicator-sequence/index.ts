@@ -30,7 +30,7 @@ export function threatTargetChangedIndicatorSequence() {
     return;
   }
 
-  for (const combatant of party.combatantManager.getAllCombatants()) {
+  for (const combatant of party.combatantManager.iterateAllCombatants()) {
     const { threatManager } = combatant.combatantProperties;
     if (!threatManager) continue;
     if (combatant.combatantProperties.isDead()) continue;

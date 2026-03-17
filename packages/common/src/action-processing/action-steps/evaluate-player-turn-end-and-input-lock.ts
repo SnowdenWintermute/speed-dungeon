@@ -21,7 +21,7 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;
 
-      for (const combatant of party.combatantManager.getAllCombatants()) {
+      for (const combatant of party.combatantManager.iterateAllCombatants()) {
         if (!combatant.combatantProperties.threatManager) continue;
         combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
           party,

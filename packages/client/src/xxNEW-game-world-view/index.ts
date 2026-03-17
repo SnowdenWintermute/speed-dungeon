@@ -19,6 +19,7 @@ import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity
 import { MaterialManager } from "./materials/material-manager";
 import { ImageGenerator } from "./images/image-generator";
 import { TextureManager } from "./textures/texture-manager";
+import { CombatantSceneEntityRegistry } from "./scene-entity-registries/combatant-registry";
 
 const notInitialized = "GameWorldView not initialized with ClientApplication";
 
@@ -27,7 +28,7 @@ export class GameWorldView {
   engine: Engine;
   scene: Scene;
   // entities
-  modelManager = new ModelManager(this);
+  private _combatantSceneEntityRegistry: CombatantSceneEntityRegistry | null = null;
   actionEntityManager = new ActionEntityModelManager();
   // environment
   ground: GameWorldGroundPlane;
@@ -130,6 +131,9 @@ export class GameWorldView {
       this.materialManager
     );
     this._imageGenerator = new ImageGenerator(clientApplication, this);
+
+    this._combatantSceneEntityRegistry = new CombatantSceneEntityRegistry(clientApplication, this);
+
     clientApplication.targetIndicatorStore.initialize(this);
   }
 
@@ -146,6 +150,11 @@ export class GameWorldView {
   get imageGenerator() {
     invariant(this._imageGenerator !== null, notInitialized);
     return this._imageGenerator;
+  }
+
+  get combatantSceneEntityRegistry() {
+    invariant(this._combatantSceneEntityRegistry !== null, notInitialized);
+    return this._combatantSceneEntityRegistry;
   }
 
   dispose() {

@@ -150,7 +150,7 @@ export function createGameUpdateHandlers(
 
       const { combatantManager } = party;
 
-      for (const character of combatantManager.getAllCombatants()) {
+      for (const character of combatantManager.iterateAllCombatants()) {
         enqueueCharacterItemsForThumbnails(character);
       }
 

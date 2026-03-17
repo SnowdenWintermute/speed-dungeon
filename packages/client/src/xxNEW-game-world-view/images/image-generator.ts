@@ -21,8 +21,9 @@ import { GameWorldView } from "..";
 import { ClientApplication } from "@/client-application";
 import { LAYER_MASK_1, LAYER_MASK_ALL } from "../game-world-view-consts";
 import { MaterialManager } from "../materials/material-manager";
+import { calculateCompositeBoundingBox, getChildMeshByName } from "../utils";
+import { ItemSceneEntityFactory } from "../scene-entities/items/item-scene-entity-factory";
 
-/* eslint-disable @typescript-eslint/no-empty-function */
 export class ImageGenerator {
   canvas = new OffscreenCanvas(100, 100);
   engine: Engine;
@@ -32,6 +33,8 @@ export class ImageGenerator {
   camera: UniversalCamera;
   requestHandlers: ImageGenerationRequestHandlers;
   materialManager: MaterialManager;
+  itemSceneEntityFactory: ItemSceneEntityFactory;
+
   constructor(
     private clientApplication: ClientApplication,
     private gameWorldView: GameWorldView
@@ -46,9 +49,14 @@ export class ImageGenerator {
       stencil: true,
     });
     this.scene = this.createScene(this.engine);
+    this.materialManager = new MaterialManager(this.scene);
+    this.itemSceneEntityFactory = new ItemSceneEntityFactory(
+      clientApplication.assetService,
+      this.scene,
+      this.materialManager
+    );
     this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
     this.camera.minZ = 0;
-    this.materialManager = new MaterialManager(this.scene);
     this.requestHandlers = this.createRequestHandlers();
   }
 
@@ -75,7 +83,9 @@ export class ImageGenerator {
       [ImageGenerationRequestType.ItemCreation]: ({ item }) => {
         try {
           this.createItemImage(item);
-          this.engine.runRenderLoop(() => {});
+          this.engine.runRenderLoop(() => {
+            //
+          });
         } catch (err) {
           console.error(err);
         }
@@ -116,7 +126,7 @@ export class ImageGenerator {
   }
 
   async createItemImage(item: Item) {
-    const equipmentModelResult = await spawnItemModel(item, this.scene, this.materials, false);
+    const equipmentModelResult = await this.itemSceneEntityFactory.create(item, false);
 
     if (equipmentModelResult instanceof Error) {
       this.processNextMessage();
@@ -163,7 +173,7 @@ export class ImageGenerator {
 
   async createCombatantPortrait(combatantId: string) {
     const world = this.gameWorldView;
-    const combatantModelOption = world.modelManager.findOneOptional(combatantId);
+    const combatantModelOption = world.combatantSceneEntityRegistry.findOneOptional(combatantId);
     if (!combatantModelOption) {
       // might be processing image request after left game?
       return;
@@ -199,9 +209,9 @@ export class ImageGenerator {
     world.portraitCamera.alpha += alphaOffset;
     world.portraitCamera.beta -= 0.2;
 
-    if (combatantModelOption.monsterType !== null) {
-      const { arcRotate, position } =
-        MODEL_PORTRAIT_CAMERA_POSITIONS[combatantModelOption.monsterType];
+    const { monsterType } = combatantModelOption.combatant.combatantProperties;
+    if (monsterType !== null) {
+      const { arcRotate, position } = MODEL_PORTRAIT_CAMERA_POSITIONS[monsterType];
       const { alpha, beta, radius } = arcRotate;
       world.portraitCamera.alpha += alpha;
       world.portraitCamera.beta += beta;
@@ -218,25 +228,25 @@ export class ImageGenerator {
       mesh.layerMask = LAYER_MASK_1;
     }
 
-    world.imageManager.portraitEngine.runRenderLoop(() => {
+    this.engine.runRenderLoop(() => {
       //
     });
     const image = await CreateScreenshotUsingRenderTargetAsync(
       // using this engine instead of the main engine somehow works
       // and avoids the flash of low resolution rendering to the main canvas
-      world.imageManager.portraitEngine,
+      this.engine,
       world.portraitCamera,
       { width: 100, height: 100 },
       "image/png"
     );
 
     // @TODO - stopping this affects item screenshot creation, fix it
-    world.imageManager.portraitEngine.stopRenderLoop();
+    this.engine.stopRenderLoop();
 
     for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
       mesh.layerMask = LAYER_MASK_ALL;
     }
 
-    this.clientApplication.imageStore.setCombatantPortrait(combatantId, image);
+    return image;
   }
 }

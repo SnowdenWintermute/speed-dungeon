@@ -205,14 +205,9 @@ export class ModelManager {
   }
 
   private getAllCombatantsInParty(gameStore: GameStore) {
-    const result = new Map<CombatantId, Combatant>();
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
-    const allCombatants = combatantManager.getAllCombatants();
-    for (const combatant of allCombatants) {
-      result.set(combatant.getEntityId(), combatant);
-    }
-    return result;
+    return combatantManager.getAllCombatants();
   }
 
   private getSavedCharacterSlotsCombatants(lobbyStore: LobbyStore) {

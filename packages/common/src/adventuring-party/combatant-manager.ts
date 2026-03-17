@@ -1,4 +1,3 @@
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { CombatantId, EntityId } from "../aliases.js";
@@ -91,13 +90,17 @@ export class CombatantManager
   }
 
   getAllCombatants() {
-    return Array.from(this.combatants.values());
+    return this.combatants;
+  }
+
+  iterateAllCombatants() {
+    return [...this.combatants.values()];
   }
 
   getAllTickableConditionsAndCombatants() {
     const combatants = this.getAllCombatants();
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
-    for (const combatant of combatants) {
+    for (const [_, combatant] of combatants) {
       const { conditionManager } = combatant.combatantProperties;
       for (const condition of conditionManager.getConditions()) {
         const tickPropertiesOption = condition.getTickProperties();
@@ -273,7 +276,7 @@ export class CombatantManager
     const party = this.getParty();
     party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
 
-    for (const combatant of party.combatantManager.getAllCombatants()) {
+    for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
       const { threatManager } = combatant.combatantProperties;
       if (threatManager === undefined) {
         continue;
@@ -405,7 +408,7 @@ export class CombatantManager
 
   refillAllCombatantActionPoints() {
     const combatants = this.getAllCombatants();
-    for (const combatant of combatants) {
+    for (const [_, combatant] of combatants) {
       combatant.combatantProperties.resources.refillActionPoints();
     }
   }

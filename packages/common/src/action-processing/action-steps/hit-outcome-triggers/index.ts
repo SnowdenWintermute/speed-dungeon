@@ -108,7 +108,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           }
 
           // if was attached to anyone, remove their id from that list
-          for (const combatant of party.combatantManager.getAllCombatants()) {
+          for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
             if (
               combatant.combatantProperties.transformProperties.attachedCombatants.has(
                 targetCombatant.getEntityId()
@@ -133,7 +133,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             targetCombatant.combatantProperties.onDeathProperties?.removeConditionsApplied;
 
           if (shouldRemoveAllConditionsAppliedByDyingCombatant) {
-            for (const combatant of party.combatantManager.getAllCombatants()) {
+            for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
               for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
                 const wasAppliedByDyingCombatant =
                   condition.appliedBy.entityProperties.id === targetCombatant.getEntityId();

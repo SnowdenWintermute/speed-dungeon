@@ -106,7 +106,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   getItem(itemId: string) {
     let toReturn: undefined | Item;
 
-    for (const combatant of this.combatantManager.getAllCombatants()) {
+    for (const combatant of this.combatantManager.iterateAllCombatants()) {
       const itemResult = combatant.combatantProperties.inventory.getStoredOrEquipped(itemId);
       if (itemResult instanceof Error) continue;
       toReturn = itemResult;

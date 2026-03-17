@@ -256,7 +256,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 }
 
 function updateAttachedCombatants(party: AdventuringParty) {
-  for (const combatant of party.combatantManager.getAllCombatants()) {
+  for (const combatant of party.combatantManager.iterateAllCombatants()) {
     const attachedCombatants =
       combatant.getCombatantProperties().transformProperties.attachedCombatants;
 

@@ -22,6 +22,7 @@ import { GameWorldView } from "../..";
 import { SceneEntityMovementManager } from "./scene-entity-movement-manager";
 import { SkeletalAnimationManager } from "./scene-entity-animation-manager/skeletal-animation-manager";
 import { DynamicAnimationManager } from "./scene-entity-animation-manager/dynamic-animation-manager";
+import { getChildMeshByName } from "@/xxNEW-game-world-view/utils";
 
 /** The base class for most "3d models" */
 export abstract class SceneEntity {

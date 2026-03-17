@@ -35,13 +35,14 @@ export class CombatantSceneEntity extends SceneEntity {
   readonly highlightManager: HighlightManager;
   readonly targetingIndicatorManager: TargetIndicatorBillboardManager;
 
+  readonly debugElement: HTMLDivElement | null = null;
+  readonly modelDomPositionElement: HTMLDivElement | null = null;
+
   constructor(
-    private world: GameWorldView,
+    private gameWorldView: GameWorldView,
     clientApplication: ClientApplication,
     private readonly _combatant: Combatant,
-    skeletonAssetContainer: AssetContainer,
-    public modelDomPositionElement: HTMLDivElement | null,
-    public debugElement: HTMLDivElement | null
+    skeletonAssetContainer: AssetContainer
   ) {
     const { transformProperties } = _combatant.combatantProperties;
     const homePosition = transformProperties.getHomePosition();
@@ -51,7 +52,10 @@ export class CombatantSceneEntity extends SceneEntity {
     const rotation = this.rootTransformNode.rotationQuaternion;
     invariant(rotation !== null, ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
 
-    this.targetingIndicatorManager = new TargetIndicatorBillboardManager(this.world, this.rootMesh);
+    this.targetingIndicatorManager = new TargetIndicatorBillboardManager(
+      this.gameWorldView,
+      this.rootMesh
+    );
     this.animationControls = new CombatantSceneEntityAnimationControls(
       _combatant,
       this.skeletalAnimationManager
@@ -60,17 +64,17 @@ export class CombatantSceneEntity extends SceneEntity {
       _combatant,
       this.rootTransformNode
     );
-    this.debugView = new CombatantSceneEntityDebug(world.scene, this);
+    this.debugView = new CombatantSceneEntityDebug(gameWorldView.scene, this);
     this.modularPartsManager = new CombatantSceneEntityModularPartsManager(
-      world.clientApplication.assetService,
+      gameWorldView.clientApplication.assetService,
       this
     );
     this.bounding = new CombatantSceneEntityBounding(this.modularPartsManager, this.rootMesh);
     this.equipmentManager = new CombatantSceneEntityEquipmentManager(
       this,
-      world.itemSceneEntityFactory
+      gameWorldView.itemSceneEntityFactory
     );
-    this.highlightManager = new HighlightManager(world.scene, clientApplication, this);
+    this.highlightManager = new HighlightManager(gameWorldView.scene, clientApplication, this);
 
     this.initChildTransformNodes();
   }
@@ -175,7 +179,11 @@ export class CombatantSceneEntity extends SceneEntity {
   }
 
   updateDomRefPosition() {
-    const boundingBox = getClientRectFromMesh(this.world.scene, this.world.canvas, this.rootMesh);
+    const boundingBox = getClientRectFromMesh(
+      this.gameWorldView.scene,
+      this.gameWorldView.canvas,
+      this.rootMesh
+    );
     if (!this.modelDomPositionElement) return;
     this.modelDomPositionElement.setAttribute(
       "style",

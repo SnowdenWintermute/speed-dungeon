@@ -2,6 +2,8 @@ export const ACTION_MENU_PAGE_SIZE = 6;
 
 export const BASE_FILE_PATH = process.env.NEXT_PUBLIC_ASSET_BASE_PATH_3D;
 
+export const CHARACTER_SLOT_SPACING = 1;
+
 export const WEBSITE_NAME = "Speed Dungeon";
 export const BUTTON_HEIGHT_SMALL = 1.875;
 export const BUTTON_HEIGHT = 2.5;

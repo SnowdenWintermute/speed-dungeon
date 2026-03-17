@@ -112,7 +112,7 @@ function getModelsAndPositions() {
     const party = gameStore.getExpectedParty();
     const { combatantManager } = party;
     const allCombatants = combatantManager.getAllCombatants();
-    for (const combatant of allCombatants) {
+    for (const [_, combatant] of allCombatants) {
       modelsAndPositions.set(combatant.entityProperties.id, {
         combatant,
         homeRotation: combatant.combatantProperties.transformProperties.homeRotation,

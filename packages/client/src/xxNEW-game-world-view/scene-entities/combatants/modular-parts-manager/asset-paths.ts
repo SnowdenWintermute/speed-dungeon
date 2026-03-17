@@ -1,7 +1,7 @@
 import { CombatantClass, CombatantProperties, MonsterType } from "@speed-dungeon/common";
 import { CHARACTER_PARTS, CharacterModelPartCategory, MONSTER_FULL_SKINS } from "./modular-parts";
 
-export function getCharacterModelPartCategoriesAndAssetPaths(
+export function getCombatantSceneEntityPartCategoriesAndAssetPaths(
   combatantProperties: CombatantProperties
 ) {
   const parts: { category: CharacterModelPartCategory; assetPath: string | undefined }[] = [];

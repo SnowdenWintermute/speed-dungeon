@@ -26,7 +26,7 @@ export class AiActionSelector {
     filteringFunctions: ((combatant: Combatant) => boolean)[]
   ): Combatant[] {
     const { party } = this.actionUserContext;
-    const allCombatants = party.combatantManager.getAllCombatants();
+    const allCombatants = party.combatantManager.iterateAllCombatants();
     return allCombatants.filter((combatant) =>
       filteringFunctions.every((filteringFunction) => filteringFunction(combatant))
     );
