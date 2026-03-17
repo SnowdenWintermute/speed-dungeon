@@ -29,6 +29,18 @@ export class CombatantSceneEntityRegistry {
     this.factory = new CombatantSceneEntityFactory(gameWorldView, clientApplication);
   }
 
+  updateEntities(deltaTime: number) {
+    for (const [_, combatantModel] of this.sceneEntities) {
+      combatantModel.highlightManager.updateHighlight();
+
+      combatantModel.movementManager.processActiveActions(deltaTime);
+      combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
+      combatantModel.skeletalAnimationManager.handleCompletedAnimations();
+      combatantModel.updateDomRefPosition();
+      combatantModel.targetingIndicatorManager.updateBillboardPositions();
+    }
+  }
+
   async register(sceneEntity: CombatantSceneEntity) {
     const { entityId } = sceneEntity;
     this.sceneEntities.set(entityId, sceneEntity);

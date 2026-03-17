@@ -1,4 +1,5 @@
 import {
+  ArcRotateCamera,
   Color4,
   CreateScreenshotUsingRenderTarget,
   CreateScreenshotUsingRenderTargetAsync,
@@ -6,6 +7,7 @@ import {
   GlowLayer,
   HemisphericLight,
   PointLight,
+  RenderTargetTexture,
   Scene,
   UniversalCamera,
   Vector3,
@@ -34,6 +36,8 @@ export class ImageGenerator {
   requestHandlers: ImageGenerationRequestHandlers;
   materialManager: MaterialManager;
   itemSceneEntityFactory: ItemSceneEntityFactory;
+  // portraits
+  portraitCamera: ArcRotateCamera;
 
   constructor(
     private clientApplication: ClientApplication,
@@ -58,6 +62,24 @@ export class ImageGenerator {
     this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
     this.camera.minZ = 0;
     this.requestHandlers = this.createRequestHandlers();
+
+    this.portraitCamera = new ArcRotateCamera(
+      "portrait camera",
+      0,
+      0,
+      0,
+      Vector3.Zero(),
+      this.scene
+    );
+
+    this.portraitCamera.minZ = 0;
+    this.portraitCamera.layerMask = LAYER_MASK_1;
+    const portraitRenderTarget = new RenderTargetTexture(
+      "portraitTexture",
+      { width: 100, height: 100 },
+      this.scene
+    );
+    this.portraitCamera.outputRenderTarget = portraitRenderTarget;
   }
 
   private createScene(engine: Engine): Scene {
@@ -192,36 +214,30 @@ export class ImageGenerator {
 
     const width = max.x - min.x;
 
+    const { portraitCamera } = this;
     // Camera parameters
-    const fov = world.portraitCamera.fov;
-
+    const fov = portraitCamera.fov;
     // Calculate the distance needed to align the top of the viewport with the top of the bounding box
     const distance = width / (2 * Math.tan(fov / 2)); // Vertical frustum size
-
     const inFrontOf = combatantModelOption.rootTransformNode.forward.scale(distance);
     const cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
     const alphaOffset = -0.2;
-
-    world.portraitCamera.position.copyFrom(cameraPosition);
-
-    world.portraitCamera.setTarget(headPosition);
-
-    world.portraitCamera.alpha += alphaOffset;
-    world.portraitCamera.beta -= 0.2;
+    portraitCamera.position.copyFrom(cameraPosition);
+    portraitCamera.setTarget(headPosition);
+    portraitCamera.alpha += alphaOffset;
+    portraitCamera.beta -= 0.2;
 
     const { monsterType } = combatantModelOption.combatant.combatantProperties;
     if (monsterType !== null) {
       const { arcRotate, position } = MODEL_PORTRAIT_CAMERA_POSITIONS[monsterType];
       const { alpha, beta, radius } = arcRotate;
-      world.portraitCamera.alpha += alpha;
-      world.portraitCamera.beta += beta;
-      world.portraitCamera.radius += radius;
-      world.portraitCamera.target.copyFrom(world.portraitCamera.target.add(position));
+      portraitCamera.alpha += alpha;
+      portraitCamera.beta += beta;
+      portraitCamera.radius += radius;
+      portraitCamera.target.copyFrom(world.portraitCamera.target.add(position));
     } else {
       // humanoid
-      world.portraitCamera.target.copyFrom(
-        world.portraitCamera.target.add(new Vector3(0, 0.05, 0))
-      );
+      portraitCamera.target.copyFrom(portraitCamera.target.add(new Vector3(0, 0.05, 0)));
     }
 
     for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
@@ -235,7 +251,7 @@ export class ImageGenerator {
       // using this engine instead of the main engine somehow works
       // and avoids the flash of low resolution rendering to the main canvas
       this.engine,
-      world.portraitCamera,
+      portraitCamera,
       { width: 100, height: 100 },
       "image/png"
     );
