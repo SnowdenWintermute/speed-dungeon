@@ -1,5 +1,6 @@
 import {
   CombatantProperties,
+  ERROR_MESSAGES,
   EquipmentSlotType,
   HoldableHotswapSlot,
   HoldableSlotType,
@@ -75,6 +76,14 @@ export class CombatantSceneEntityEquipmentManager {
     const holdableModelsHotswapSlotOption = this.holdableHotswapSlots[selectedHotswapSlotIndex];
     if (!holdableModelsHotswapSlotOption) return undefined;
     return holdableModelsHotswapSlotOption[slot];
+  }
+
+  requireHoldableModelInSlot(slot: HoldableSlotType) {
+    const option = this.getHoldableModelInSlot(slot);
+    if (!option) {
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
+    }
+    return option;
   }
 
   async synchronizeCombatantEquipmentModels() {

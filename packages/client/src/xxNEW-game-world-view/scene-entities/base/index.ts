@@ -23,6 +23,7 @@ import { SceneEntityMovementManager } from "./scene-entity-movement-manager";
 import { SkeletalAnimationManager } from "./scene-entity-animation-manager/skeletal-animation-manager";
 import { DynamicAnimationManager } from "./scene-entity-animation-manager/dynamic-animation-manager";
 import { getChildMeshByName } from "@/xxNEW-game-world-view/utils";
+import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 
 /** The base class for most "3d models" */
 export abstract class SceneEntity {
@@ -38,6 +39,7 @@ export abstract class SceneEntity {
   constructor(
     public entityId: EntityId,
     public assetContainer: AssetContainer,
+    public floatingMessagesService: FloatingMessageService,
     startPosition: Vector3,
     startRotation: Quaternion
   ) {
@@ -54,7 +56,11 @@ export abstract class SceneEntity {
 
     this.rootTransformNode.rotationQuaternion = plainToInstance(Quaternion, startRotation);
 
-    this.skeletalAnimationManager = new SkeletalAnimationManager(entityId, this.assetContainer);
+    this.skeletalAnimationManager = new SkeletalAnimationManager(
+      entityId,
+      this.assetContainer,
+      this.floatingMessagesService
+    );
     this.dynamicAnimationManager = new DynamicAnimationManager(this.assetContainer);
   }
 
@@ -91,37 +97,22 @@ export abstract class SceneEntity {
 
   static getFromIdentifier(identifier: SceneEntityIdentifier, gameWorldView: GameWorldView) {
     const { type } = identifier;
-    let toReturn;
 
     switch (type) {
-      case SceneEntityType.ActionEntityModel:
-        {
-          const actionEntity = gameWorldView.actionEntityManager.findOne(identifier.entityId);
-          toReturn = actionEntity;
-        }
-        break;
-      case SceneEntityType.CharacterModel:
-        {
-          const combatantEntity = gameWorldView.modelManager.findOne(identifier.entityId);
-          toReturn = combatantEntity;
-        }
-        break;
-      case SceneEntityType.CharacterEquipmentModel:
-        {
-          const combatantEntityWithHoldable = gameWorldView.modelManager.findOne(
-            identifier.characterModelId
-          );
-          const { slot } = identifier;
-          const holdableModelOption =
-            combatantEntityWithHoldable.equipmentModelManager.getHoldableModelInSlot(slot);
-          if (!holdableModelOption) throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
-          toReturn = holdableModelOption;
-        }
-        break;
+      case SceneEntityType.ActionEntityModel: {
+        return gameWorldView.actionEntityManager.findOne(identifier.entityId);
+      }
+      case SceneEntityType.CharacterModel: {
+        return gameWorldView.combatantSceneEntityRegistry.requireById(identifier.entityId);
+      }
+      case SceneEntityType.CharacterEquipmentModel: {
+        const combatantEntityWithHoldable = gameWorldView.combatantSceneEntityRegistry.requireById(
+          identifier.characterModelId
+        );
+        const { slot } = identifier;
+        return combatantEntityWithHoldable.equipmentManager.requireHoldableModelInSlot(slot);
+      }
     }
-
-    if (!toReturn) throw new Error("No scene entity found");
-    return toReturn;
   }
 
   static getChildTransformNodeFromIdentifier(

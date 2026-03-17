@@ -15,33 +15,32 @@ import { SceneEntity } from "./scene-entities/base";
 import { GameWorldViewDebug } from "./debug";
 import { LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
+import { ActionEntitySceneEntityRegistry } from "./scene-entity-registries/action-entity-registry";
 
 export class GameWorldView {
-  engine: Engine;
-  scene: Scene;
-  private _combatantSceneEntityRegistry: CombatantSceneEntityRegistry | null = null;
-  // private _actionEntityRegistry = new
-  actionEntityManager = new ActionEntityModelManager();
-  environment: EnvironmentView;
-  camera: ArcRotateCamera | null = null;
-  private _imageGenerator: ImageGenerator | null = null;
-
-  private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
-
+  readonly engine: Engine;
+  readonly scene: Scene;
+  readonly environment: EnvironmentView;
+  readonly camera: ArcRotateCamera;
   readonly materialManager: MaterialManager;
   readonly textureManager: TextureManager;
 
   private _clientApplication: ClientApplication | null = null;
+  private _combatantSceneEntityRegistry: CombatantSceneEntityRegistry | null = null;
+  private _actionEntityRegistry: ActionEntitySceneEntityRegistry | null = null;
+  private _imageGenerator: ImageGenerator | null = null;
+  private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
   private _debug: GameWorldViewDebug | null = null;
 
   constructor(
-    public canvas: HTMLCanvasElement,
+    readonly canvas: HTMLCanvasElement,
     uiDebugDisplayRef: React.RefObject<HTMLUListElement | null>
   ) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.materialManager = new MaterialManager(this.scene);
     this.textureManager = new TextureManager(this.scene);
+    this.camera = this.createMainCamera();
 
     this.debug.uiDebugDisplayRef = uiDebugDisplayRef;
     this.environment = new EnvironmentView(this.scene);
@@ -61,6 +60,7 @@ export class GameWorldView {
     );
     this._imageGenerator = new ImageGenerator(clientApplication, this);
     this._combatantSceneEntityRegistry = new CombatantSceneEntityRegistry(clientApplication, this);
+    this._actionEntityRegistry = new ActionEntitySceneEntityRegistry(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
   }
@@ -84,22 +84,22 @@ export class GameWorldView {
     invariant(this._clientApplication !== null, GameWorldView.NOT_INITIALIZED);
     return this._clientApplication;
   }
-
   get itemSceneEntityFactory() {
     invariant(this._itemSceneEntityFactory !== null, GameWorldView.NOT_INITIALIZED);
     return this._itemSceneEntityFactory;
   }
-
   get imageGenerator() {
     invariant(this._imageGenerator !== null, GameWorldView.NOT_INITIALIZED);
     return this._imageGenerator;
   }
-
   get combatantSceneEntityRegistry() {
     invariant(this._combatantSceneEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
     return this._combatantSceneEntityRegistry;
   }
-
+  get getActionEntitySceneEntityRegistry() {
+    invariant(this._actionEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
+    return this._actionEntityRegistry;
+  }
   get debug() {
     invariant(this._debug !== null, GameWorldView.NOT_INITIALIZED);
     return this._debug;
@@ -112,17 +112,10 @@ export class GameWorldView {
 
   updateGameWorld(deltaTime: number) {
     this.debug.updateDebugText();
-    this.replayTreeManager.tick();
+    // @TODO - tick injected scheduler
+    // this.replayTreeManager.tick();
 
-    for (const actionEntityModel of this.actionEntityManager.getAll()) {
-      actionEntityModel.movementManager.processActiveActions();
-      actionEntityModel.dynamicAnimationManager.playing?.animationGroup?.animateScene(
-        actionEntityModel.dynamicAnimationManager.assetContainer
-      );
-      actionEntityModel.dynamicAnimationManager.handleCompletedAnimations();
-      actionEntityModel.dynamicAnimationManager.stepAnimationTransitionWeights();
-    }
-
+    this._actionEntityRegistry?.updateEntities(deltaTime);
     this._combatantSceneEntityRegistry?.updateEntities(deltaTime);
   }
 

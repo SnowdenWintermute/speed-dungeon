@@ -11,7 +11,6 @@ import {
   ActionEntity,
   ActionEntityName,
   AssetId,
-  ClientAppAssetService,
   ShapeType3D,
   TaggedShape3DDimensions,
   invariant,
@@ -19,11 +18,12 @@ import {
 import { ACTION_ENTITY_NAME_TO_ASSET_ID } from "./action-entity-asset-ids";
 import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
 import { ActionEntitySceneEntity } from ".";
+import { ClientApplication } from "@/client-application";
 
 export class ActionEntitySceneEntityFactory {
   constructor(
     private scene: Scene,
-    private assetService: ClientAppAssetService
+    private clientApplication: ClientApplication
   ) {}
 
   async create(actionEntity: ActionEntity) {
@@ -34,6 +34,7 @@ export class ActionEntitySceneEntityFactory {
       actionEntity.getEntityId(),
       this.scene,
       assetContainer,
+      this.clientApplication.floatingMessagesService,
       position,
       name
     );
@@ -61,7 +62,11 @@ export class ActionEntitySceneEntityFactory {
 
   async createActionEntityModelFromAssetPath(actionEntityName: ActionEntityName) {
     const assetId = ACTION_ENTITY_NAME_TO_ASSET_ID[actionEntityName] as AssetId;
-    return await loadAssetContainerIntoScene(this.assetService, this.scene, assetId);
+    return await loadAssetContainerIntoScene(
+      this.clientApplication.assetService,
+      this.scene,
+      assetId
+    );
   }
 
   ACTION_ENTITY_SCENE_ENTITY_CREATORS: Record<

@@ -1,7 +1,6 @@
 import {
   Combatant,
   CombatantId,
-  ERROR_MESSAGES,
   EntityId,
   GameMode,
   MapUtils,
@@ -16,8 +15,9 @@ import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
 import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { CHARACTER_SLOT_SPACING } from "@/client-consts";
+import { SceneEntityRegistry } from "./base";
 
-export class CombatantSceneEntityRegistry {
+export class CombatantSceneEntityRegistry extends SceneEntityRegistry<CombatantSceneEntity> {
   sceneEntities = new Map<EntityId, CombatantSceneEntity>();
   factory: CombatantSceneEntityFactory;
   readonly loadingStates = new SceneEntityLoadingStateTracker();
@@ -26,6 +26,7 @@ export class CombatantSceneEntityRegistry {
     private clientApplication: ClientApplication,
     private gameWorldView: GameWorldView
   ) {
+    super();
     this.factory = new CombatantSceneEntityFactory(gameWorldView, clientApplication);
   }
 
@@ -41,10 +42,7 @@ export class CombatantSceneEntityRegistry {
     }
   }
 
-  async register(sceneEntity: CombatantSceneEntity) {
-    const { entityId } = sceneEntity;
-    this.sceneEntities.set(entityId, sceneEntity);
-
+  protected async onRegister(sceneEntity: CombatantSceneEntity) {
     const { combatant } = sceneEntity;
     const { combatantProperties, entityProperties } = combatant;
     const { conditionManager } = combatantProperties;
@@ -53,6 +51,7 @@ export class CombatantSceneEntityRegistry {
       startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive?.(entityProperties.id), []);
     });
 
+    const { entityId } = sceneEntity;
     try {
       const portraitOption =
         await this.gameWorldView.imageGenerator.createCombatantPortrait(entityId);
@@ -65,24 +64,6 @@ export class CombatantSceneEntityRegistry {
     } catch (error) {
       console.info("some error taking portrait: ", error);
     }
-  }
-
-  findOne(entityId: EntityId) {
-    const modelOption = this.findOneOptional(entityId);
-    if (!modelOption) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_COMBATANT_MODEL + " " + entityId);
-    }
-    return modelOption;
-  }
-
-  findOneOptional(entityId: EntityId) {
-    const modelOption = this.sceneEntities.get(entityId);
-    return modelOption;
-  }
-
-  clearAllModels() {
-    for (const [_, model] of this.sceneEntities) model.cleanup({ softCleanup: false });
-    this.sceneEntities.clear();
   }
 
   /** Accepts a list of model ids to keep and despawns all others */
@@ -121,7 +102,7 @@ export class CombatantSceneEntityRegistry {
 
   spawnOrSyncCombatantModel(combatant: Combatant, options?: { placeInHomePosition?: boolean }) {
     const entityId = combatant.getEntityId();
-    const sceneEntityOption = this.findOneOptional(entityId);
+    const sceneEntityOption = this.getOptional(entityId);
     const { transformProperties } = combatant.combatantProperties;
     const homeLocation = transformProperties.getHomePosition();
     const homeRotation = transformProperties.homeRotation;
@@ -220,7 +201,7 @@ export class CombatantSceneEntityRegistry {
   }
 
   async synchronizeCombatantEquipmentModels(combatantId: CombatantId) {
-    const sceneEntity = this.findOne(combatantId);
+    const sceneEntity = this.requireById(combatantId);
     await sceneEntity.equipmentManager.synchronizeCombatantEquipmentModels();
 
     if (sceneEntity.animationControls.isIdling()) {

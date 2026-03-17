@@ -1,49 +1,32 @@
-// @TODO - combine common functionality with CombatantModelManager
-export class ActionEntityModelManager {
-  models = new Map<EntityId, ActionEntityModel>();
+import { ClientApplication } from "@/client-application";
+import { ActionEntitySceneEntity } from "../scene-entities/action-entities";
+import { SceneEntityRegistry } from "./base";
+import { GameWorldView } from "..";
+import { ActionEntitySceneEntityFactory } from "../scene-entities/action-entities/factory";
+import { ActionEntity } from "@speed-dungeon/common";
 
-  register(model: ActionEntityModel) {
-    if (model instanceof ActionEntityModel) this.models.set(model.id, model);
+export class ActionEntitySceneEntityRegistry extends SceneEntityRegistry<ActionEntitySceneEntity> {
+  private factory: ActionEntitySceneEntityFactory;
+  constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
+    super();
+    this.factory = new ActionEntitySceneEntityFactory(gameWorldView.scene, clientApplication);
+  }
+  protected async onRegister(_sceneEntity: ActionEntitySceneEntity) {
+    /*no-op*/
   }
 
-  unregister(id: EntityId, cleanupMode: CleanupMode) {
-    this.models.get(id)?.cleanup({ softCleanup: cleanupMode === CleanupMode.Soft });
-    this.models.delete(id);
+  async spawnActionEntityModel(actionEntity: ActionEntity) {
+    this.factory.create(actionEntity);
   }
 
-  findOne(entityId: EntityId, updateOption?: EntityMotionUpdate): ActionEntityModel {
-    const modelOption = this.models.get(entityId);
-    if (!modelOption)
-      throw new Error(
-        ERROR_MESSAGES.GAME_WORLD.NO_ACTION_ENTITY_MODEL +
-          ": " +
-          entityId +
-          JSON.stringify(updateOption)
+  updateEntities(deltaTime: number) {
+    for (const actionEntityModel of this.getAll()) {
+      actionEntityModel.movementManager.processActiveActions(deltaTime);
+      actionEntityModel.dynamicAnimationManager.playing?.animationGroup?.animateScene(
+        actionEntityModel.dynamicAnimationManager.assetContainer
       );
-    return modelOption;
-  }
-
-  getAll() {
-    return [...this.models.values()];
-  }
-
-  async spawnActionEntityModel(
-    actionEntityName: ActionEntityName,
-    position: Vector3,
-    taggedDimensionsOption?: TaggedShape3DDimensions
-  ) {
-    const assetContainer = await ACTION_ENTITY_MODEL_FACTORIES[actionEntityName](
-      position,
-      taggedDimensionsOption
-    );
-
-    const parentMesh = assetContainer.meshes[0];
-    if (!parentMesh) throw new Error("expected mesh was missing in imported scene");
-
-    const transformNode = new TransformNode("");
-    transformNode.position.copyFrom(parentMesh.position);
-    parentMesh.setParent(transformNode);
-    assetContainer.transformNodes.push(transformNode);
-    return assetContainer;
+      actionEntityModel.dynamicAnimationManager.handleCompletedAnimations();
+      actionEntityModel.dynamicAnimationManager.stepAnimationTransitionWeights();
+    }
   }
 }

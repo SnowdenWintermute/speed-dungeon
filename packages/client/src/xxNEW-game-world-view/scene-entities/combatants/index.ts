@@ -47,7 +47,13 @@ export class CombatantSceneEntity extends SceneEntity {
     const { transformProperties } = _combatant.combatantProperties;
     const homePosition = transformProperties.getHomePosition();
     const homeRotation = transformProperties.homeRotation;
-    super(_combatant.getEntityId(), skeletonAssetContainer, homePosition, homeRotation);
+    super(
+      _combatant.getEntityId(),
+      skeletonAssetContainer,
+      clientApplication.floatingMessagesService,
+      homePosition,
+      homeRotation
+    );
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     invariant(rotation !== null, ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
