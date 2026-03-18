@@ -6,10 +6,12 @@ import { equipmentBaseItemToAssetId } from "./equipment-base-item-to-asset-id";
 import { consumableItemToAssetId } from "./consumable-models";
 import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
 import { MaterialManager } from "@/xxNEW-game-world-view/materials/material-manager";
+import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 
 export class ItemSceneEntityFactory {
   constructor(
     private assetService: ClientAppAssetService,
+    private floatingMessageService: FloatingMessageService,
     private scene: Scene,
     private materialManager: MaterialManager
   ) {}
@@ -40,10 +42,22 @@ export class ItemSceneEntityFactory {
         itemAssetContainer,
         createUniqueMaterialInstances
       );
-      return new EquipmentSceneEntity(item, itemAssetContainer, createUniqueMaterialInstances);
+      return new EquipmentSceneEntity(
+        item,
+        this.scene,
+        itemAssetContainer,
+        this.floatingMessageService,
+        createUniqueMaterialInstances
+      );
     } else if (item instanceof Consumable) {
       this.materialManager.assignConsumableMaterials(item, itemAssetContainer);
-      return new ConsumableItemSceneEntity(item, itemAssetContainer, createUniqueMaterialInstances);
+      return new ConsumableItemSceneEntity(
+        item,
+        this.scene,
+        itemAssetContainer,
+        this.floatingMessageService,
+        createUniqueMaterialInstances
+      );
     }
 
     throw new Error("Item was not a known item instance type");

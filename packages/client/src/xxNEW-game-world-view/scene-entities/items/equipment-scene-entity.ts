@@ -1,3 +1,4 @@
+import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 import { SceneEntity } from "../base/index";
 import {
   AbstractMesh,
@@ -17,15 +18,26 @@ import {
   EquipmentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
+import { getChildMeshByName } from "@/xxNEW-game-world-view/utils";
+import { paintCubesOnNodes } from "@/game-world-view/game-world-view-utils";
 
 export class EquipmentSceneEntity extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantHoldableChildTransformNodeName, TransformNode>> = {};
   constructor(
     public readonly equipment: Equipment,
+    scene: Scene,
     assetContainer: AssetContainer,
+    floatingMessagesService: FloatingMessageService,
     public readonly isUsingUniqueMaterialInstances: boolean
   ) {
-    super(equipment.entityProperties.id, assetContainer, Vector3.Zero(), new Quaternion());
+    super(
+      equipment.entityProperties.id,
+      scene,
+      assetContainer,
+      floatingMessagesService,
+      Vector3.Zero(),
+      new Quaternion()
+    );
 
     this.initChildTransformNodes();
     this.setVisibility(0);
@@ -46,14 +58,6 @@ export class EquipmentSceneEntity extends SceneEntity {
     if (!this.assetContainer.meshes[0]) {
       throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
     }
-  }
-
-  initRootMesh(assetContainer: AssetContainer): AbstractMesh {
-    if (!assetContainer.meshes[0]) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_ITEM_FILE);
-    }
-
-    return assetContainer.meshes[0];
   }
 
   initChildTransformNodes(): void {

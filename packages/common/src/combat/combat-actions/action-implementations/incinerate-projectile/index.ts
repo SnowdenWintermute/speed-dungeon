@@ -1,7 +1,7 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import {
@@ -63,7 +63,7 @@ const config: CombatActionComponentConfig = {
                 type: SceneEntityType.ActionEntityModel,
                 entityId: actionUser.getEntityId(),
               },
-              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+              transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
             },
             unattached: true,
             lifetime: 500,

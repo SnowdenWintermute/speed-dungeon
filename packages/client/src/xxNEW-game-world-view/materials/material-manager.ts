@@ -15,7 +15,7 @@ import { MATERIAL_NAMES } from "@/game-world-view/materials/material-colors";
 import { AccentColor, MaterialCategory, MaterialShade, PlasticColor } from "./material-colors";
 
 export class MaterialManager {
-  private materialPool: MaterialPool;
+  readonly materialPool: MaterialPool;
   private equipmentMaterialsMap: EquipmentMaterialsMap;
 
   constructor(private scene: Scene) {

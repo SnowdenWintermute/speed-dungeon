@@ -239,3 +239,5 @@ export * from "./transport/in-memory-connection-endpoint-server-registry.js";
 export * from "./transport/in-memory-connection-endpoint-server.js";
 export * from "./transport/browser-websocket-connection-endpoint.js";
 export * from "./serialization/index.js";
+
+export * from "./environment-entities/index.js";

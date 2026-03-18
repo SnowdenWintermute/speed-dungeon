@@ -3,7 +3,7 @@ import {
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   CombatantBaseChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityType,
@@ -70,7 +70,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
             type: SceneEntityType.ActionEntityModel,
             entityId: iceBoltProjectile.getEntityId(),
           },
-          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
         },
       },
     ];

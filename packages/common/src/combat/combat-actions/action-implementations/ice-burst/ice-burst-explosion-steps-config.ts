@@ -3,7 +3,7 @@ import { ActionResolutionStepType } from "../../../../action-processing/action-s
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
 import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { CleanupMode } from "../../../../types.js";
@@ -34,7 +34,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
             type: SceneEntityType.ActionEntityModel,
             entityId: iceBurstEntity.getEntityId(),
           },
-          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
         },
         lifetime: 300,
       },

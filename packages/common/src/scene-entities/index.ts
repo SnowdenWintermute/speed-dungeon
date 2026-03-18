@@ -38,7 +38,7 @@ export interface CombatantBaseChildTransformNodeIdentifier {
 
 export interface ActionEntityBaseChildTransformNodeIdentifier {
   sceneEntityIdentifier: ActionEntityModelIdentifier;
-  transformNodeName: ActionEntityBaseChildTransformNodeName;
+  transformNodeName: GenericBaseChildTransformNodeName;
   ignoreAxes?: Axis[];
 }
 
@@ -79,7 +79,7 @@ export const COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS: Record<
   [CombatantBaseChildTransformNodeName.HitboxCenterTop]: "HitboxCenterTop",
 };
 
-export enum ActionEntityBaseChildTransformNodeName {
+export enum GenericBaseChildTransformNodeName {
   EntityRoot,
 }
 

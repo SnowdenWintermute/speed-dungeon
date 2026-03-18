@@ -49,6 +49,7 @@ export class CombatantSceneEntity extends SceneEntity {
     const homeRotation = transformProperties.homeRotation;
     super(
       _combatant.getEntityId(),
+      gameWorldView.scene,
       skeletonAssetContainer,
       clientApplication.floatingMessagesService,
       homePosition,

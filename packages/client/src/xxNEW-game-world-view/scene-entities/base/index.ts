@@ -2,13 +2,14 @@ import {
   AbstractMesh,
   AssetContainer,
   Mesh,
+  MeshBuilder,
   Quaternion,
+  Scene,
   TransformNode,
   Vector3,
 } from "@babylonjs/core";
 import { CosmeticEffectManager } from "./cosmetic-effect-manager";
 import {
-  ERROR_MESSAGES,
   EntityId,
   NormalizedPercentage,
   SceneEntityChildTransformNodeIdentifier,
@@ -38,6 +39,7 @@ export abstract class SceneEntity {
 
   constructor(
     public entityId: EntityId,
+    private scene: Scene,
     public assetContainer: AssetContainer,
     public floatingMessagesService: FloatingMessageService,
     startPosition: Vector3,
@@ -64,9 +66,16 @@ export abstract class SceneEntity {
     this.dynamicAnimationManager = new DynamicAnimationManager(this.assetContainer);
   }
 
-  abstract initRootMesh(assetContainer: AssetContainer): AbstractMesh;
   abstract customCleanup(): void;
   abstract initChildTransformNodes(): void;
+
+  initRootMesh(assetContainer: AssetContainer): AbstractMesh {
+    const rootMesh = assetContainer.meshes[0];
+    if (!rootMesh) {
+      throw new Error("no meshes found");
+    }
+    return rootMesh;
+  }
 
   setVisibility(visibility: NormalizedPercentage) {
     this.visibility = visibility;
@@ -100,7 +109,7 @@ export abstract class SceneEntity {
 
     switch (type) {
       case SceneEntityType.ActionEntityModel: {
-        return gameWorldView.actionEntityManager.findOne(identifier.entityId);
+        return gameWorldView.actionEntitySceneEntityRegistry.requireById(identifier.entityId);
       }
       case SceneEntityType.CharacterModel: {
         return gameWorldView.combatantSceneEntityRegistry.requireById(identifier.entityId);
@@ -218,5 +227,36 @@ export abstract class SceneEntity {
     this.customCleanup();
     this.assetContainer.dispose();
     this.rootTransformNode.dispose(false);
+  }
+
+  createDebugLines(startPosition: Vector3) {
+    const sceneOption = this.scene;
+    const start = startPosition;
+    const positiveZ = startPosition.add(new Vector3(0, 0, 1));
+
+    const positiveZline = MeshBuilder.CreateLines(
+      "line",
+      {
+        points: [start, positiveZ],
+      },
+      sceneOption
+    );
+    const negativeZ = startPosition.add(new Vector3(0, 0, -1));
+    const negativeZline = MeshBuilder.CreateLines(
+      "line",
+      {
+        points: [start, negativeZ],
+      },
+      sceneOption
+    );
+
+    positiveZline.setPositionWithLocalVector(Vector3.Zero());
+    positiveZline.setParent(this.rootTransformNode);
+    negativeZline.setPositionWithLocalVector(Vector3.Zero());
+    negativeZline.setParent(this.rootTransformNode);
+
+    const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    testMesh.setParent(this.rootTransformNode);
+    testMesh.setPositionWithLocalVector(Vector3.Zero());
   }
 }

@@ -2,7 +2,7 @@ import cloneDeep from "lodash.clonedeep";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { FIRE_STEPS_CONFIG } from "../fire/fire-steps-config.js";
 import { createStepsConfig } from "../generic-action-templates/step-config-templates/index.js";
-import { AdvancedTimer, Vector3 } from "@babylonjs/core";
+import { Vector3 } from "@babylonjs/core";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import {
   ActionEntity,
@@ -11,7 +11,7 @@ import {
 } from "../../../../action-entities/index.js";
 import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
@@ -112,7 +112,7 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
             type: SceneEntityType.ActionEntityModel,
             entityId: expectedFirewallEntity.actionEntity.entityProperties.id,
           },
-          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
         },
       },
     ];
@@ -134,7 +134,7 @@ stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
             type: SceneEntityType.ActionEntityModel,
             entityId: expectedFirewallEntity.actionEntity.entityProperties.id,
           },
-          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
         },
       },
     ];

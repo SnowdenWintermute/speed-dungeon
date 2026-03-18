@@ -16,6 +16,7 @@ import { GameWorldViewDebug } from "./debug";
 import { LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
 import { ActionEntitySceneEntityRegistry } from "./scene-entity-registries/action-entity-registry";
+import { EnvironmentSceneEntityRegistry } from "./scene-entity-registries/environment-registry";
 
 export class GameWorldView {
   readonly engine: Engine;
@@ -28,6 +29,7 @@ export class GameWorldView {
   private _clientApplication: ClientApplication | null = null;
   private _combatantSceneEntityRegistry: CombatantSceneEntityRegistry | null = null;
   private _actionEntityRegistry: ActionEntitySceneEntityRegistry | null = null;
+  private _environmentEntityRegistry: EnvironmentSceneEntityRegistry | null = null;
   private _imageGenerator: ImageGenerator | null = null;
   private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
   private _debug: GameWorldViewDebug | null = null;
@@ -55,12 +57,14 @@ export class GameWorldView {
     this._clientApplication = clientApplication;
     this._itemSceneEntityFactory = new ItemSceneEntityFactory(
       clientApplication.assetService,
+      clientApplication.floatingMessagesService,
       this.scene,
       this.materialManager
     );
     this._imageGenerator = new ImageGenerator(clientApplication, this);
     this._combatantSceneEntityRegistry = new CombatantSceneEntityRegistry(clientApplication, this);
     this._actionEntityRegistry = new ActionEntitySceneEntityRegistry(clientApplication, this);
+    this._environmentEntityRegistry = new EnvironmentSceneEntityRegistry(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
   }
@@ -96,9 +100,13 @@ export class GameWorldView {
     invariant(this._combatantSceneEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
     return this._combatantSceneEntityRegistry;
   }
-  get getActionEntitySceneEntityRegistry() {
+  get actionEntitySceneEntityRegistry() {
     invariant(this._actionEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
     return this._actionEntityRegistry;
+  }
+  get environmentSceneEntityRegistry() {
+    invariant(this._environmentEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
+    return this._environmentEntityRegistry;
   }
   get debug() {
     invariant(this._debug !== null, GameWorldView.NOT_INITIALIZED);

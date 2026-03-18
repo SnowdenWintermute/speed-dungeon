@@ -2,7 +2,7 @@ import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import { EntityName } from "../../../../aliases.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { MagicalElement } from "../../../magical-elements.js";
@@ -81,7 +81,7 @@ const config: CombatActionComponentConfig = {
                 type: SceneEntityType.ActionEntityModel,
                 entityId: actionUser.getEntityId(),
               },
-              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+              transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
             },
           },
           {
@@ -91,7 +91,7 @@ const config: CombatActionComponentConfig = {
                 type: SceneEntityType.ActionEntityModel,
                 entityId: actionUser.getEntityId(),
               },
-              transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+              transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
             },
             unattached: true,
             lifetime: 500,
