@@ -25,15 +25,15 @@ import {
 } from "@speed-dungeon/common";
 import { handleThreatChangesUpdate } from "./threat-changes";
 import { ClientApplication } from "@/client-application";
-import { ModelManager } from "@/game-world-view/model-manager";
 import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
 import { CombatantResourceChangeUpdateHandlerCommand } from "../resource-change-update-handler-command";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 
 export class ActionEffectsApplyerCommand {
   game: SpeedDungeonGame;
   party: AdventuringParty;
   battleOption: Battle | null;
-  modelManager: ModelManager | undefined;
+  gameWorldView: GameWorldView | null;
   constructor(
     private clientApplication: ClientApplication,
     private update: ReplayGameUpdateTracker<ActivatedTriggersGameUpdateCommand>
@@ -42,7 +42,7 @@ export class ActionEffectsApplyerCommand {
     this.game = context.game;
     this.party = context.party;
     this.battleOption = this.party.getBattleOption(this.game);
-    this.modelManager = this.clientApplication.gameWorldView?.modelManager;
+    this.gameWorldView = this.clientApplication.gameWorldView;
   }
   execute() {
     const { command } = this.update;
@@ -104,9 +104,10 @@ export class ActionEffectsApplyerCommand {
         }
 
         if (conditionRemovedOption) {
-          const targetModelOption = gameWorldView.modelManager.findOne(entityId);
+          const targetModelOption =
+            gameWorldView.sceneEntityService.combatantSceneEntityManager.requireById(entityId);
 
-          gameWorldView.startOrStopCosmeticEffects(
+          gameWorldView.sceneEntityService.startOrStopCosmeticEffects(
             [],
             conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
           );
@@ -131,8 +132,9 @@ export class ActionEffectsApplyerCommand {
         }
 
         if (conditionRemovedOption) {
-          const targetModelOption = gameWorldView.modelManager.findOne(entityId);
-          gameWorldView.startOrStopCosmeticEffects(
+          const targetModelOption =
+            gameWorldView.sceneEntityService.combatantSceneEntityManager.requireById(entityId);
+          gameWorldView.sceneEntityService.startOrStopCosmeticEffects(
             [],
             conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
           );
@@ -150,18 +152,22 @@ export class ActionEffectsApplyerCommand {
       const pet = combatantManager.getExpectedCombatant(petId);
       petManager.unsummonPet(petId, this.game);
 
+      const combatantSceneEntityManager =
+        this.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
+      if (!combatantSceneEntityManager) continue;
+
       if (pet.combatantProperties.isDead()) {
-        this.modelManager?.synchronizeCombatantModels({
+        combatantSceneEntityManager.synchronizeCombatantModels({
           softCleanup: true,
         });
       } else {
-        const modelOption = this.modelManager?.findOneOptional(petId);
+        const modelOption = combatantSceneEntityManager.requireById(petId);
         modelOption?.skeletalAnimationManager.startAnimationWithTransition(
           SkeletalAnimationName.OnSummoned,
           500,
           {
             onComplete: () => {
-              this.modelManager?.synchronizeCombatantModels({
+              combatantSceneEntityManager.synchronizeCombatantModels({
                 softCleanup: true,
               });
             },
@@ -176,13 +182,18 @@ export class ActionEffectsApplyerCommand {
 
     for (const { petId, tamerId } of petsTamed) {
       this.party.petManager.handlePetTamed(petId, tamerId, this.game);
-      const modelOption = this.modelManager?.findOneOptional(petId);
+
+      const combatantSceneEntityManager =
+        this.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
+      if (!combatantSceneEntityManager) continue;
+
+      const modelOption = combatantSceneEntityManager.getOptional(petId);
       modelOption?.skeletalAnimationManager.startAnimationWithTransition(
         SkeletalAnimationName.OnSummoned,
         500,
         {
           onComplete: () => {
-            this.modelManager?.synchronizeCombatantModels({ softCleanup: true });
+            combatantSceneEntityManager.synchronizeCombatantModels({ softCleanup: true });
           },
         }
       );
@@ -198,7 +209,7 @@ export class ActionEffectsApplyerCommand {
         this.party,
         ownerId,
         slotIndex,
-        battleOption
+        this.battleOption
       );
 
       if (pet === undefined) {
@@ -208,9 +219,13 @@ export class ActionEffectsApplyerCommand {
         return;
       }
 
-      this.modelManager?.synchronizeCombatantModels({
+      const combatantSceneEntityManager =
+        this.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
+      if (!combatantSceneEntityManager) continue;
+
+      combatantSceneEntityManager.synchronizeCombatantModels({
         onComplete: () => {
-          const modelOption = this.modelManager?.findOneOptional(pet.getEntityId());
+          const modelOption = combatantSceneEntityManager.requireById(pet.getEntityId());
           if (pet.combatantProperties.isDead()) {
             return;
           }
@@ -219,7 +234,7 @@ export class ActionEffectsApplyerCommand {
             500,
             {
               onComplete: () => {
-                modelOption.startIdleAnimation(500);
+                modelOption.animationControls.startIdleAnimation(500);
               },
             }
           );
@@ -278,7 +293,11 @@ export class ActionEffectsApplyerCommand {
           equipment
         );
 
-        const characterModelOption = this.modelManager?.findOneOptional(
+        const combatantSceneEntityManager =
+          this.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
+        if (!combatantSceneEntityManager) return;
+
+        const characterModelOption = combatantSceneEntityManager?.getOptional(
           combatant.entityProperties.id
         );
 
@@ -286,7 +305,7 @@ export class ActionEffectsApplyerCommand {
         // if this causes bugs because it is jumping the queue, look into it
         // if we use the queue though, it will wait to break their model and not look like it broke instantly
         // maybe we can set visibilty instead and despawn it later
-        characterModelOption?.equipmentModelManager.synchronizeCombatantEquipmentModels();
+        characterModelOption?.equipmentManager.synchronizeCombatantEquipmentModels();
       }
     );
   }
@@ -311,7 +330,7 @@ export class ActionEffectsApplyerCommand {
             deserializedCondition
           );
 
-          this.clientApplication.gameWorldView?.startOrStopCosmeticEffects(
+          this.clientApplication.gameWorldView?.sceneEntityService.startOrStopCosmeticEffects(
             deserializedCondition.getCosmeticEffectWhileActive?.(
               combatantResult.entityProperties.id
             ),
@@ -373,7 +392,10 @@ export class ActionEffectsApplyerCommand {
     const { actionEntityManager } = this.party;
     for (const { id, cleanupMode } of actionEntityIdsDespawned) {
       actionEntityManager.unregisterActionEntity(id);
-      this.clientApplication.gameWorldView?.actionEntityManager.unregister(id, cleanupMode);
+      this.clientApplication.gameWorldView?.sceneEntityService.actionEntityManager.unregister(
+        id,
+        cleanupMode
+      );
     }
   }
 
@@ -383,7 +405,7 @@ export class ActionEffectsApplyerCommand {
     if (!gameWorldView) return;
 
     for (const id of actionEntityIdsToHide) {
-      const actionEntity = gameWorldView.actionEntityManager.findOne(id);
+      const actionEntity = gameWorldView.sceneEntityService.actionEntityManager.requireById(id);
       actionEntity?.setVisibility(0);
 
       // @REFACTOR - this looks like duct tape
