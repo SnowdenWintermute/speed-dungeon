@@ -2,7 +2,7 @@ import { CleanupMode, EntityId } from "@speed-dungeon/common";
 import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { SceneEntity } from "../scene-entities/base";
 
-export abstract class SceneEntityRegistry<T extends SceneEntity> {
+export abstract class SceneEntityManager<T extends SceneEntity> {
   sceneEntities = new Map<EntityId, T>();
   readonly loadingStates = new SceneEntityLoadingStateTracker();
 

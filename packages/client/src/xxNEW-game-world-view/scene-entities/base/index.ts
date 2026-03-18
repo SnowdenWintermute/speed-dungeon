@@ -12,10 +12,7 @@ import { CosmeticEffectManager } from "./cosmetic-effect-manager";
 import {
   EntityId,
   NormalizedPercentage,
-  SceneEntityChildTransformNodeIdentifier,
   SceneEntityChildTransformNodeIdentifierWithDuration,
-  SceneEntityIdentifier,
-  SceneEntityType,
   getQuaternionAngleDifference,
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
@@ -104,38 +101,6 @@ export abstract class SceneEntity {
     return newTransformNode;
   }
 
-  static getFromIdentifier(identifier: SceneEntityIdentifier, gameWorldView: GameWorldView) {
-    const { type } = identifier;
-
-    switch (type) {
-      case SceneEntityType.ActionEntityModel: {
-        return gameWorldView.actionEntitySceneEntityRegistry.requireById(identifier.entityId);
-      }
-      case SceneEntityType.CharacterModel: {
-        return gameWorldView.combatantSceneEntityRegistry.requireById(identifier.entityId);
-      }
-      case SceneEntityType.CharacterEquipmentModel: {
-        const combatantEntityWithHoldable = gameWorldView.combatantSceneEntityRegistry.requireById(
-          identifier.characterModelId
-        );
-        const { slot } = identifier;
-        return combatantEntityWithHoldable.equipmentManager.requireHoldableModelInSlot(slot);
-      }
-    }
-  }
-
-  static getChildTransformNodeFromIdentifier(
-    identifier: SceneEntityChildTransformNodeIdentifier,
-    gameWorldView: GameWorldView
-  ): TransformNode {
-    const { sceneEntityIdentifier, transformNodeName } = identifier;
-
-    const sceneEntity = SceneEntity.getFromIdentifier(sceneEntityIdentifier, gameWorldView);
-
-    // @ts-expect-error it can't seem to figure out that our nested tagged type guarantees the correct transformNodeName type
-    return sceneEntity.childTransformNodes[transformNodeName];
-  }
-
   lockRotationToFaceToward(
     gameWorldView: GameWorldView,
     identifierWithDuration: SceneEntityChildTransformNodeIdentifierWithDuration | null
@@ -147,10 +112,8 @@ export abstract class SceneEntity {
 
     const { identifier, duration } = identifierWithDuration;
 
-    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      identifier,
-      gameWorldView
-    );
+    const targetTransformNode =
+      gameWorldView.sceneEntityService.getChildTransformNodeFromIdentifier(identifier);
 
     const targetRotation = SceneEntityMovementManager.getRotationToPointTowardToward(
       this.rootTransformNode,
@@ -187,10 +150,8 @@ export abstract class SceneEntity {
     }
     const { identifier, duration } = identifierWithDuration;
 
-    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      identifier,
-      gameWorldView
-    );
+    const targetTransformNode =
+      gameWorldView.sceneEntityService.getChildTransformNodeFromIdentifier(identifier);
     const targetPosition = targetTransformNode.getAbsolutePosition();
 
     const newRotation = SceneEntityMovementManager.getRotationToPointTowardToward(

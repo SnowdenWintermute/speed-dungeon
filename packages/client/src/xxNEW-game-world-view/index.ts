@@ -1,22 +1,15 @@
 import { Scene, Engine, Vector3, ArcRotateCamera } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import {
-  COSMETIC_EFFECT_CONSTRUCTORS,
-  CosmeticEffectOnTargetTransformNode,
-  invariant,
-} from "@speed-dungeon/common";
+import { invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
 import { MaterialManager } from "./materials/material-manager";
 import { ImageGenerator } from "./images/image-generator";
 import { TextureManager } from "./textures/texture-manager";
-import { CombatantSceneEntityRegistry } from "./scene-entity-registries/combatant-registry";
-import { SceneEntity } from "./scene-entities/base";
 import { GameWorldViewDebug } from "./debug";
 import { LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
-import { ActionEntitySceneEntityRegistry } from "./scene-entity-registries/action-entity-registry";
-import { EnvironmentSceneEntityRegistry } from "./scene-entity-registries/environment-registry";
+import { SceneEntityService } from "./scene-entity-service/index";
 
 export class GameWorldView {
   readonly engine: Engine;
@@ -27,9 +20,7 @@ export class GameWorldView {
   readonly textureManager: TextureManager;
 
   private _clientApplication: ClientApplication | null = null;
-  private _combatantSceneEntityRegistry: CombatantSceneEntityRegistry | null = null;
-  private _actionEntityRegistry: ActionEntitySceneEntityRegistry | null = null;
-  private _environmentEntityRegistry: EnvironmentSceneEntityRegistry | null = null;
+  private _sceneEntityService: SceneEntityService | null = null;
   private _imageGenerator: ImageGenerator | null = null;
   private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
   private _debug: GameWorldViewDebug | null = null;
@@ -61,10 +52,8 @@ export class GameWorldView {
       this.scene,
       this.materialManager
     );
+    this._sceneEntityService = new SceneEntityService(clientApplication, this);
     this._imageGenerator = new ImageGenerator(clientApplication, this);
-    this._combatantSceneEntityRegistry = new CombatantSceneEntityRegistry(clientApplication, this);
-    this._actionEntityRegistry = new ActionEntitySceneEntityRegistry(clientApplication, this);
-    this._environmentEntityRegistry = new EnvironmentSceneEntityRegistry(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
   }
@@ -88,6 +77,10 @@ export class GameWorldView {
     invariant(this._clientApplication !== null, GameWorldView.NOT_INITIALIZED);
     return this._clientApplication;
   }
+  get sceneEntityService() {
+    invariant(this._sceneEntityService !== null, GameWorldView.NOT_INITIALIZED);
+    return this._sceneEntityService;
+  }
   get itemSceneEntityFactory() {
     invariant(this._itemSceneEntityFactory !== null, GameWorldView.NOT_INITIALIZED);
     return this._itemSceneEntityFactory;
@@ -95,18 +88,6 @@ export class GameWorldView {
   get imageGenerator() {
     invariant(this._imageGenerator !== null, GameWorldView.NOT_INITIALIZED);
     return this._imageGenerator;
-  }
-  get combatantSceneEntityRegistry() {
-    invariant(this._combatantSceneEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
-    return this._combatantSceneEntityRegistry;
-  }
-  get actionEntitySceneEntityRegistry() {
-    invariant(this._actionEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
-    return this._actionEntityRegistry;
-  }
-  get environmentSceneEntityRegistry() {
-    invariant(this._environmentEntityRegistry !== null, GameWorldView.NOT_INITIALIZED);
-    return this._environmentEntityRegistry;
   }
   get debug() {
     invariant(this._debug !== null, GameWorldView.NOT_INITIALIZED);
@@ -122,84 +103,11 @@ export class GameWorldView {
     this.debug.updateDebugText();
     // @TODO - tick injected scheduler
     // this.replayTreeManager.tick();
-
-    this._actionEntityRegistry?.updateEntities(deltaTime);
-    this._combatantSceneEntityRegistry?.updateEntities(deltaTime);
+    this._sceneEntityService?.updateEntities(deltaTime);
   }
 
   handleError(error: Error) {
     console.error("critical error in GameWorldView, stopping render loop:", error);
     this.engine.stopRenderLoop();
-  }
-
-  startOrStopCosmeticEffects(
-    cosmeticEffectsToStart?: CosmeticEffectOnTargetTransformNode[],
-    cosmeticEffectsToStop?: CosmeticEffectOnTargetTransformNode[]
-  ) {
-    for (const cosmeticEffectOnEntity of cosmeticEffectsToStop || []) {
-      const { name, parent } = cosmeticEffectOnEntity;
-      const sceneEntity = SceneEntity.getFromIdentifier(parent.sceneEntityIdentifier, this);
-      const { cosmeticEffectManager } = sceneEntity;
-      cosmeticEffectManager.stopEffect(name, () => {
-        // no-op
-      });
-    }
-
-    if (cosmeticEffectsToStart?.length) {
-      const sceneOption = this.scene;
-
-      let effectToStartLifetimeTimeout;
-
-      for (const {
-        name,
-        parent,
-        lifetime,
-        rankOption,
-        offsetOption,
-        unattached,
-      } of cosmeticEffectsToStart) {
-        const cosmeticEffectManager = SceneEntity.getFromIdentifier(
-          parent.sceneEntityIdentifier,
-          this
-        ).cosmeticEffectManager;
-
-        const existingEffectOption = cosmeticEffectManager.cosmeticEffects[name];
-
-        if (existingEffectOption) {
-          existingEffectOption.referenceCount += 1;
-          effectToStartLifetimeTimeout = existingEffectOption.effect;
-        } else {
-          const effect = new COSMETIC_EFFECT_CONSTRUCTORS[name](sceneOption, rankOption || 1);
-
-          if (effect.setsMaterial) {
-            const material = effect.setsMaterial(sceneOption);
-            cosmeticEffectManager.setMaterial(material);
-          }
-
-          cosmeticEffectManager.cosmeticEffects[name] = { effect, referenceCount: 1 };
-          const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(parent, this);
-
-          if (!unattached) {
-            effect.transformNode.setParent(targetTransformNode);
-            const offset = offsetOption || Vector3.Zero();
-            effect.transformNode.setPositionWithLocalVector(offset);
-          } else {
-            effect.transformNode.setAbsolutePosition(targetTransformNode.position);
-          }
-
-          effectToStartLifetimeTimeout = effect;
-        }
-
-        if (lifetime !== undefined) {
-          effectToStartLifetimeTimeout.addLifetimeTimeout(
-            setTimeout(() => {
-              cosmeticEffectManager.stopEffect(name, () => {
-                // no-op
-              });
-            }, lifetime)
-          );
-        }
-      }
-    }
   }
 }

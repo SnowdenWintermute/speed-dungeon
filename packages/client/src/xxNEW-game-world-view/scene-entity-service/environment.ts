@@ -1,12 +1,12 @@
 import { ClientApplication } from "@/client-application";
 import { EnvironmentSceneEntity } from "../scene-entities/environment-entities";
 import { EnvironmentSceneEntityFactory } from "../scene-entities/environment-entities/factory";
-import { SceneEntityRegistry } from "./base";
+import { SceneEntityManager } from "./base";
 import { GameWorldView } from "..";
 import { EnvironmentEntityName } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 
-export class EnvironmentSceneEntityRegistry extends SceneEntityRegistry<EnvironmentSceneEntity> {
+export class EnvironmentSceneEntityManager extends SceneEntityManager<EnvironmentSceneEntity> {
   private factory: EnvironmentSceneEntityFactory;
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
     super();

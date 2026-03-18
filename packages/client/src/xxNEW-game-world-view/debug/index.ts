@@ -48,8 +48,8 @@ export class GameWorldViewDebug {
   }
 
   private getCombatantSceneEntityPositions() {
-    const { combatantSceneEntityRegistry } = this.gameWorldView;
-    const { sceneEntities } = combatantSceneEntityRegistry;
+    const { combatantSceneEntityManager } = this.gameWorldView;
+    const { sceneEntities } = combatantSceneEntityManager;
     const result = [];
     for (const [_, e] of sceneEntities) {
       result.push(
@@ -117,8 +117,8 @@ export class GameWorldViewDebug {
 
   private getActiveMovementTrackersText() {
     let activeMovementTrackers = "";
-    const { combatantSceneEntityRegistry } = this.gameWorldView;
-    for (const [_, model] of combatantSceneEntityRegistry.sceneEntities) {
+    const { combatantSceneEntityManager } = this.gameWorldView;
+    for (const [_, model] of combatantSceneEntityManager.sceneEntities) {
       const { movementManager } = model;
       for (const [type, activeTracker] of movementManager.getTrackers()) {
         activeMovementTrackers += model.entityId + " " + activeTracker.percentComplete().toFixed(2);
@@ -128,8 +128,8 @@ export class GameWorldViewDebug {
   }
 
   private updateCombatantSceneEntityPositionDebug() {
-    const { combatantSceneEntityRegistry } = this.gameWorldView;
-    for (const [_, model] of combatantSceneEntityRegistry.sceneEntities) {
+    const { combatantSceneEntityManager } = this.gameWorldView;
+    for (const [_, model] of combatantSceneEntityManager.sceneEntities) {
       const { position } = model.rootTransformNode;
       if (model.debugElement && position) {
         model.debugElement.innerHTML = `x:${position.x?.toFixed(2)} z${position.z?.toFixed(2)}`;

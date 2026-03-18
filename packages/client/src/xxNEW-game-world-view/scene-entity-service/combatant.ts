@@ -15,9 +15,9 @@ import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
 import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { CHARACTER_SLOT_SPACING } from "@/client-consts";
-import { SceneEntityRegistry } from "./base";
+import { SceneEntityManager } from "./base";
 
-export class CombatantSceneEntityRegistry extends SceneEntityRegistry<CombatantSceneEntity> {
+export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSceneEntity> {
   sceneEntities = new Map<EntityId, CombatantSceneEntity>();
   factory: CombatantSceneEntityFactory;
   readonly loadingStates = new SceneEntityLoadingStateTracker();
@@ -48,7 +48,10 @@ export class CombatantSceneEntityRegistry extends SceneEntityRegistry<CombatantS
     const { conditionManager } = combatantProperties;
 
     conditionManager.getConditions().forEach((condition) => {
-      startOrStopCosmeticEffects(condition.getCosmeticEffectWhileActive?.(entityProperties.id), []);
+      this.gameWorldView.sceneEntityService.startOrStopCosmeticEffects(
+        condition.getCosmeticEffectWhileActive?.(entityProperties.id),
+        []
+      );
     });
 
     const { entityId } = sceneEntity;

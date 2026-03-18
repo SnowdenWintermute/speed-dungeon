@@ -46,7 +46,7 @@ export class TargetIndicatorBillboardManager {
       if (!existingKeys.has(newIndicator.getKey())) {
         const billboard = new TargetIndicatorBillboard(
           this.gameWorldView.scene,
-          this.gameWorldView.targetIndicatorTexture,
+          this.texture,
           newIndicator
         );
         this.indicators.push(billboard);

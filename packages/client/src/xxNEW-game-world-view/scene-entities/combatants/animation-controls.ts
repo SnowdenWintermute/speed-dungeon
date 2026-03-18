@@ -12,9 +12,11 @@ import {
 } from "@speed-dungeon/common";
 import { SkeletalAnimationManager } from "../base/scene-entity-animation-manager/skeletal-animation-manager";
 import { ManagedAnimationOptions } from "../base/scene-entity-animation-manager";
+import { CombatantSceneEntity } from ".";
 
 export class CombatantSceneEntityAnimationControls {
   constructor(
+    private sceneEntity: CombatantSceneEntity,
     private combatant: Combatant,
     private skeletalAnimationManager: SkeletalAnimationManager
   ) {}
@@ -141,7 +143,7 @@ export class CombatantSceneEntityAnimationControls {
     for (const equipmentAnimation of equipmentAnimations) {
       const { slot, animation } = equipmentAnimation;
 
-      const equipmentModel = this.equipmentModelManager.getEquipmentModelInSlot(slot);
+      const equipmentModel = this.sceneEntity.equipmentManager.getEquipmentModelInSlot(slot);
 
       if (!equipmentModel) {
         return console.error("couldn't find equipment");

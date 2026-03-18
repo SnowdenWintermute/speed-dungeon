@@ -1,11 +1,11 @@
 import { ClientApplication } from "@/client-application";
 import { ActionEntitySceneEntity } from "../scene-entities/action-entities";
-import { SceneEntityRegistry } from "./base";
+import { SceneEntityManager } from "./base";
 import { GameWorldView } from "..";
 import { ActionEntitySceneEntityFactory } from "../scene-entities/action-entities/factory";
 import { ActionEntity } from "@speed-dungeon/common";
 
-export class ActionEntitySceneEntityRegistry extends SceneEntityRegistry<ActionEntitySceneEntity> {
+export class ActionEntitySceneEntityManager extends SceneEntityManager<ActionEntitySceneEntity> {
   private factory: ActionEntitySceneEntityFactory;
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
     super();

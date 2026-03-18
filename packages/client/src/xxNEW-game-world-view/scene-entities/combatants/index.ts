@@ -64,6 +64,7 @@ export class CombatantSceneEntity extends SceneEntity {
       this.rootMesh
     );
     this.animationControls = new CombatantSceneEntityAnimationControls(
+      this,
       _combatant,
       this.skeletalAnimationManager
     );

@@ -195,7 +195,7 @@ export class ImageGenerator {
 
   async createCombatantPortrait(combatantId: string) {
     const world = this.gameWorldView;
-    const combatantModelOption = world.combatantSceneEntityRegistry.findOneOptional(combatantId);
+    const combatantModelOption = world.combatantSceneEntityManager.findOneOptional(combatantId);
     if (!combatantModelOption) {
       // might be processing image request after left game?
       return;
