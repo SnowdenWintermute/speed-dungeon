@@ -15,8 +15,8 @@ export class ActionEntitySceneEntityManager extends SceneEntityManager<ActionEnt
     /*no-op*/
   }
 
-  async spawnActionEntityModel(actionEntity: ActionEntity) {
-    this.factory.create(actionEntity);
+  async spawnActionEntitySceneEntity(actionEntity: ActionEntity) {
+    return this.factory.create(actionEntity);
   }
 
   updateEntities(deltaTime: number) {

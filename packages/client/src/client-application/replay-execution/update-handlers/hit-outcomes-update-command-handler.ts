@@ -91,13 +91,16 @@ export async function hitOutcomesGameUpdateHandler(
       targetCombatantResult.getName()
     );
 
-    const targetModel = clientApplication.gameWorldView?.modelManager.findOne(entityId);
+    const targetModel =
+      clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.requireById(
+        entityId
+      );
 
     targetModel?.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Evade,
       0,
       {
-        onComplete: () => targetModel.startIdleAnimation(100),
+        onComplete: () => targetModel.animationControls.startIdleAnimation(100),
       }
     );
   });
@@ -105,14 +108,18 @@ export async function hitOutcomesGameUpdateHandler(
   outcomeFlags[HitOutcome.Parry]?.forEach((entityId) => {
     clientApplication.floatingMessagesService.startHitOutcomeParryMessage(entityId);
 
-    const targetModel = clientApplication.gameWorldView?.modelManager.findOne(entityId);
+    const targetModel =
+      clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.requireById(
+        entityId
+      );
+
     targetModel?.skeletalAnimationManager.startAnimationWithTransition(
       SkeletalAnimationName.Parry,
       0,
       {
         animationDurationOverrideOption: 500,
         onComplete: () => {
-          targetModel.startIdleAnimation(500);
+          targetModel.animationControls.startIdleAnimation(500);
         },
       }
     );

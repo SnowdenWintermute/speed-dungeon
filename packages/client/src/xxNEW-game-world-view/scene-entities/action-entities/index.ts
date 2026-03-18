@@ -1,14 +1,14 @@
 import { AssetContainer, TransformNode, Vector3, Quaternion, Scene } from "@babylonjs/core";
 import {
-  ActionEntityBaseChildTransformNodeName,
   ActionEntityName,
   EntityId,
+  GenericBaseChildTransformNodeName,
 } from "@speed-dungeon/common";
 import { SceneEntity } from "../base";
 import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 
 export class ActionEntitySceneEntity extends SceneEntity {
-  childTransformNodes: Partial<Record<ActionEntityBaseChildTransformNodeName, TransformNode>> = {};
+  childTransformNodes: Partial<Record<GenericBaseChildTransformNodeName, TransformNode>> = {};
   constructor(
     public id: EntityId,
     scene: Scene,
@@ -23,8 +23,7 @@ export class ActionEntitySceneEntity extends SceneEntity {
   }
 
   initChildTransformNodes() {
-    this.childTransformNodes[ActionEntityBaseChildTransformNodeName.EntityRoot] =
-      this.rootTransformNode;
+    this.childTransformNodes[GenericBaseChildTransformNodeName.EntityRoot] = this.rootTransformNode;
   }
 
   customCleanup() {

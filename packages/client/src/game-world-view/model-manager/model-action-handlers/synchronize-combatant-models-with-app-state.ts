@@ -1,4 +1,3 @@
-import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   ERROR_MESSAGES,
@@ -14,6 +13,7 @@ import { AppStore } from "@/mobx-stores/app-store";
 import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { CharacterModel } from "@/game-world-view/scene-entities/character-models";
 import { spawnCharacterModel } from "./spawn-character-model";
+import { CHARACTER_SLOT_SPACING } from "@/client-consts";
 
 export async function synchronizeCombatantModelsWithAppState(options: {
   placeInHomePositions?: boolean;

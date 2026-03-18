@@ -41,8 +41,9 @@ export class TargetIndicatorStore {
       return;
     }
 
-    for (const [_, combatantModel] of this._gameWorldView.modelManager.combatantModels) {
-      combatantModel.targetingIndicatorBillboardManager.synchronizeIndicators([]);
+    const { combatantSceneEntityManager } = this._gameWorldView.sceneEntityService;
+    for (const [_, combatantModel] of combatantSceneEntityManager.sceneEntities) {
+      combatantModel.targetingIndicatorManager.synchronizeIndicators([]);
     }
   }
 
@@ -80,11 +81,12 @@ export class TargetIndicatorStore {
       );
     }
 
-    for (const [_, combatantModel] of this._gameWorldView.modelManager.combatantModels) {
+    const { combatantSceneEntityManager } = this._gameWorldView.sceneEntityService;
+    for (const [_, combatantModel] of combatantSceneEntityManager.sceneEntities) {
       const targetingThisModel = newIndicators.filter(
         (item) => item.targetId === combatantModel.entityId
       );
-      combatantModel.targetingIndicatorBillboardManager.synchronizeIndicators(targetingThisModel);
+      combatantModel.targetingIndicatorManager.synchronizeIndicators(targetingThisModel);
     }
   }
 }

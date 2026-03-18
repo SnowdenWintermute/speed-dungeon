@@ -8,9 +8,7 @@ import {
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { ClientApplication } from "@/client-application";
-import { GameWorldView } from "@/game-world-view";
-import { SceneEntity } from "@/game-world-view/scene-entities";
-import { ActionEntityModel } from "@/game-world-view/scene-entities/action-entity-models";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 
 export async function spawnEntitiesGameUpdateHandler(
   clientApplication: ClientApplication,
@@ -66,30 +64,17 @@ async function handleNewSpawnableCombatant(
   spawnableCombatant: SerializedSpawnedCombatant,
   deserialized: Combatant
 ) {
-  const { transformProperties } = deserialized.combatantProperties;
-  const model = await gameWorldView.modelManager.spawnCharacterModel(
-    gameWorldView,
-    {
-      combatant: deserialized,
-      homeRotation: transformProperties.homeRotation,
-      homePosition: transformProperties.getHomePosition(),
-      modelDomPositionElement: null, // vestigial from when we used to spawn directly from next.js
-    },
-    {
-      spawnInDeadPose: deserialized.combatantProperties.isDead(),
-      doNotIdle: !!spawnableCombatant.doNotIdle,
-    }
-  );
+  const { sceneEntityService } = gameWorldView;
+  const { combatantSceneEntityManager } = sceneEntityService;
 
-  if (model instanceof Error) {
-    console.info("model was error");
-    throw model;
-  }
+  const model = await combatantSceneEntityManager.factory.create(deserialized, {
+    spawnInDeadPose: deserialized.combatantProperties.isDead(),
+    doNotIdle: !!spawnableCombatant.doNotIdle,
+  });
 
   if (spawnableCombatant.parentTransformNodeOption) {
-    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      spawnableCombatant.parentTransformNodeOption,
-      gameWorldView
+    const targetTransformNode = sceneEntityService.getChildTransformNodeFromIdentifier(
+      spawnableCombatant.parentTransformNodeOption
     );
 
     model.movementManager.transformNode.setParent(targetTransformNode);
@@ -97,7 +82,7 @@ async function handleNewSpawnableCombatant(
     model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
   }
 
-  await gameWorldView.modelManager.register(model);
+  await combatantSceneEntityManager.register(model);
 }
 
 async function handleNewSpawnableActionEntity(
@@ -107,60 +92,52 @@ async function handleNewSpawnableActionEntity(
   const { actionEntityProperties } = actionEntity;
   const { initialRotation } = actionEntityProperties;
 
-  const position = new Vector3(
-    actionEntityProperties.position._x,
-    actionEntityProperties.position._y,
-    actionEntityProperties.position._z
-  );
+  const { sceneEntityService } = gameWorldView;
+  const { actionEntityManager } = sceneEntityService;
 
-  const assetContainer = await gameWorldView.actionEntityManager.spawnActionEntityModel(
-    actionEntityProperties.name,
-    position,
-    actionEntityProperties.dimensions
-  );
+  const sceneEntity = await actionEntityManager.spawnActionEntitySceneEntity(actionEntity);
 
-  const model = new ActionEntityModel(
-    actionEntity.entityProperties.id,
-    assetContainer,
-    position,
-    actionEntityProperties.name
-  );
-
-  gameWorldView.actionEntityManager.register(model);
+  actionEntityManager.register(sceneEntity);
 
   if (actionEntityProperties.parentOption) {
-    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      actionEntityProperties.parentOption,
-      gameWorldView
+    const targetTransformNode = sceneEntityService.getChildTransformNodeFromIdentifier(
+      actionEntityProperties.parentOption
     );
 
-    model.movementManager.transformNode.setParent(targetTransformNode);
-    model.movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
-    model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
+    const { movementManager } = sceneEntity;
+    movementManager.transformNode.setParent(targetTransformNode);
+    movementManager.transformNode.setPositionWithLocalVector(Vector3.Zero());
+    movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
   }
 
   if (actionEntityProperties.initialCosmeticYPosition) {
-    const targetTransformNode = SceneEntity.getChildTransformNodeFromIdentifier(
-      actionEntityProperties.initialCosmeticYPosition,
-      gameWorldView
+    const targetTransformNode = sceneEntityService.getChildTransformNodeFromIdentifier(
+      actionEntityProperties.initialCosmeticYPosition
     );
 
-    model.rootTransformNode.position.y = targetTransformNode.position.y;
+    sceneEntity.rootTransformNode.position.y = targetTransformNode.position.y;
   }
 
   if (actionEntityProperties.initialPointToward) {
-    model.startPointingTowardEntity(gameWorldView, {
+    sceneEntity.startPointingTowardEntity(gameWorldView, {
       identifier: actionEntityProperties.initialPointToward,
       duration: 0,
     });
   }
 
   if (actionEntityProperties.initialLockRotationToFace) {
-    model.lockRotationToFaceToward(gameWorldView, actionEntityProperties.initialLockRotationToFace);
+    sceneEntity.lockRotationToFaceToward(
+      gameWorldView,
+      actionEntityProperties.initialLockRotationToFace
+    );
   }
 
   if (initialRotation) {
     const { _x, _y, _z } = initialRotation;
-    model.movementManager.transformNode.rotationQuaternion = Quaternion.FromEulerAngles(_x, _y, _z);
+    sceneEntity.movementManager.transformNode.rotationQuaternion = Quaternion.FromEulerAngles(
+      _x,
+      _y,
+      _z
+    );
   }
 }

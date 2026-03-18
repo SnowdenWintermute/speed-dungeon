@@ -16,11 +16,11 @@ import { Quaternion } from "@babylonjs/core";
 import { DynamicAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/dynamic-animation-manager";
 import { SkeletalAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/skeletal-animation-manager";
 import { EntityMotionUpdateCompletionTracker } from "./entity-motion-completion-tracker";
-import { GameWorldView } from "@/game-world-view";
 import { handleEntityMotionSetNewParentUpdate } from "./handle-set-new-parent";
 import { handleMotionUpdateTranslation } from "./handle-motion-update-translation";
 import { handleMotionUpdateAnimation } from "./handle-motion-update-animation";
 import { ClientApplication } from "@/client-application";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 
 export async function entityMotionGameUpdateHandler(
   clientApplication: ClientApplication,
@@ -44,7 +44,7 @@ export function handleEntityMotionUpdate(
   >,
   motionUpdate: EntityMotionUpdate,
   isMainUpdate: boolean,
-  gameWorldView?: GameWorldView
+  gameWorldView: GameWorldView | null
 ) {
   const { translationOption, rotationOption, animationOption, delayOption } = motionUpdate;
 

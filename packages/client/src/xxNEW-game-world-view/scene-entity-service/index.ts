@@ -32,6 +32,12 @@ export class SceneEntityService {
     );
   }
 
+  clearAll() {
+    this.combatantSceneEntityManager.clearAll();
+    this.environmentEntityManager.clearAll();
+    this.actionEntityManager.clearAll();
+  }
+
   updateEntities(deltaTime: number) {
     this.actionEntityManager.updateEntities(deltaTime);
     this.combatantSceneEntityManager.updateEntities(deltaTime);

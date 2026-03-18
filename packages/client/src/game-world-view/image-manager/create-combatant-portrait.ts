@@ -58,20 +58,20 @@ export async function createCombatantPortrait(combatantId: string) {
 
   for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) mesh.layerMask = LAYER_MASK_1;
 
-  world.imageManager.portraitEngine.runRenderLoop(() => {
+  world.imageManager.engine.runRenderLoop(() => {
     //
   });
   const image = await CreateScreenshotUsingRenderTargetAsync(
     // using this engine instead of the main engine somehow works
     // and avoids the flash of low resolution rendering to the main canvas
-    world.imageManager.portraitEngine,
+    world.imageManager.engine,
     world.portraitCamera,
     { width: 100, height: 100 },
     "image/png"
   );
 
   // @TODO - stopping this affects item screenshot creation, fix it
-  world.imageManager.portraitEngine.stopRenderLoop();
+  world.imageManager.engine.stopRenderLoop();
 
   for (const mesh of combatantModelOption.rootMesh.getChildMeshes())
     mesh.layerMask = LAYER_MASK_ALL;

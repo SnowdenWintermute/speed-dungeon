@@ -1,4 +1,3 @@
-import { GameWorldView } from "@/game-world-view";
 import { createClientEventHandlers } from "./client-event-handlers";
 import { ClientEvent, ClientEventHandlers } from "./client-events";
 import { ReactiveNode } from "@speed-dungeon/common";
@@ -10,6 +9,7 @@ import { CombatantFocus } from "../combatant-focus";
 import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
 import { TargetIndicatorStore } from "../target-indicator-store";
 import { ReplayTreeScheduler } from "../replay-execution/replay-tree-scheduler";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 
 export class SequentialClientEventProcessor implements ReactiveNode {
   private eventHandlers: ClientEventHandlers;

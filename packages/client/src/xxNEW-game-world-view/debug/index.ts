@@ -18,8 +18,8 @@ export class GameWorldViewDebug {
   ) {}
 
   draw() {
-    this.gameWorldView.ground.drawGrid();
-    this.gameWorldView.ground.compassDrawer.draw();
+    this.gameWorldView.environment.groundPlane.drawGrid();
+    this.gameWorldView.environment.groundPlane.compassDrawer.draw();
   }
 
   updateDebugText() {
@@ -48,8 +48,8 @@ export class GameWorldViewDebug {
   }
 
   private getCombatantSceneEntityPositions() {
-    const { combatantSceneEntityManager } = this.gameWorldView;
-    const { sceneEntities } = combatantSceneEntityManager;
+    const { sceneEntityService } = this.gameWorldView;
+    const { sceneEntities } = sceneEntityService.combatantSceneEntityManager;
     const result = [];
     for (const [_, e] of sceneEntities) {
       result.push(
@@ -117,7 +117,7 @@ export class GameWorldViewDebug {
 
   private getActiveMovementTrackersText() {
     let activeMovementTrackers = "";
-    const { combatantSceneEntityManager } = this.gameWorldView;
+    const { combatantSceneEntityManager } = this.gameWorldView.sceneEntityService;
     for (const [_, model] of combatantSceneEntityManager.sceneEntities) {
       const { movementManager } = model;
       for (const [type, activeTracker] of movementManager.getTrackers()) {
@@ -128,7 +128,7 @@ export class GameWorldViewDebug {
   }
 
   private updateCombatantSceneEntityPositionDebug() {
-    const { combatantSceneEntityManager } = this.gameWorldView;
+    const { combatantSceneEntityManager } = this.gameWorldView.sceneEntityService;
     for (const [_, model] of combatantSceneEntityManager.sceneEntities) {
       const { position } = model.rootTransformNode;
       if (model.debugElement && position) {
@@ -140,14 +140,15 @@ export class GameWorldViewDebug {
   startLimitedFramerateRenderLoop(fps: number, timeout: number) {
     window.setTimeout(() => {
       this.gameWorldView.engine.stopRenderLoop();
-      // let lastTime = new Date().getTime();
+      let lastTime = new Date().getTime();
       // const fpsLabel = document.getElementsByClassName("fps")[0];
       window.setInterval(() => {
-        this.gameWorldView.updateGameWorld();
+        const currTime = new Date().getTime();
+        const deltaTime = currTime - lastTime;
+        this.gameWorldView.updateGameWorld(deltaTime);
         this.gameWorldView.scene.render();
-        const curTime = new Date().getTime();
         // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
-        // lastTime = curTime;
+        lastTime = currTime;
       }, 1000 / fps);
     }, timeout);
   }

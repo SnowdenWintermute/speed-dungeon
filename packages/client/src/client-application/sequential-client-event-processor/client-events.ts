@@ -1,10 +1,10 @@
-import { EnvironmentModelTypes } from "@/game-world-view/scene-entities/environment-models/environment-model-paths";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import {
   BattleConclusion,
   CombatantId,
   Consumable,
   EntityId,
+  EnvironmentEntityName,
   Equipment,
   GameMessage,
   NestedNodeReplayEvent,
@@ -47,7 +47,7 @@ export interface ClientEventMap {
     id: string;
     path: string;
     position: Vector3;
-    modelType: EnvironmentModelTypes;
+    modelType: EnvironmentEntityName;
     rotationQuat?: Quaternion;
   };
   [ClientEventType.DespawnEnvironmentModel]: { id: string };

@@ -1,7 +1,6 @@
 import {
   ResourceChange,
   ActionPayableResource,
-  CombatActionName,
   COMBAT_ACTIONS,
   Combatant,
   ActivatedTriggersGameUpdateCommand,
@@ -11,7 +10,7 @@ import {
 import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
 import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { ClientApplication } from "@/client-application";
-import { CharacterModel } from "@/game-world-view/scene-entities/character-models";
+import { CombatantSceneEntity } from "@/xxNEW-game-world-view/scene-entities/combatants";
 
 type GameUpdateCommandWithResourceChanges =
   | ActivatedTriggersGameUpdateCommand
@@ -19,7 +18,7 @@ type GameUpdateCommandWithResourceChanges =
 
 export class CombatantResourceChangeUpdateHandlerCommand {
   targetCombatant: Combatant;
-  targetModel?: CharacterModel;
+  targetSceneEntity?: CombatantSceneEntity;
   action: CombatActionComponent;
   constructor(
     private clientApplication: ClientApplication,
@@ -31,7 +30,10 @@ export class CombatantResourceChangeUpdateHandlerCommand {
     private shouldAnimate: boolean
   ) {
     this.targetCombatant = this.clientApplication.gameContext.requireCombatant(targetId);
-    this.targetModel = this.clientApplication.gameWorldView?.modelManager.findOneOptional(targetId);
+    this.targetSceneEntity =
+      this.clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.getOptional(
+        targetId
+      );
     this.action = COMBAT_ACTIONS[gameUpdateCommand.actionName];
   }
 
@@ -43,7 +45,10 @@ export class CombatantResourceChangeUpdateHandlerCommand {
     if (combatantProperties.isDead()) {
       this.handleDeath();
     } else if (this.resourceChange.value < 0 && this.shouldAnimate) {
-      this.targetModel?.startHitRecoveryAnimation(this.wasBlocked, this.resourceChange.isCrit);
+      this.targetSceneEntity?.animationControls.startHitRecoveryAnimation(
+        this.wasBlocked,
+        this.resourceChange.isCrit
+      );
     }
   }
 
@@ -105,7 +110,7 @@ export class CombatantResourceChangeUpdateHandlerCommand {
     }
 
     this.postDeathMessage();
-    this.targetModel?.handleDeath();
+    this.targetSceneEntity?.handleDeath();
   }
 
   private combatantDiedOnOwnTurn() {

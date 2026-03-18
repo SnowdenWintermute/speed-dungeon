@@ -1,4 +1,3 @@
-import { GameWorldView } from "@/game-world-view";
 import {
   AssetCache,
   ClientAppAssetService,
@@ -27,6 +26,7 @@ import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
+import { GameWorldView } from "@/xxNEW-game-world-view";
 
 export class ClientApplication {
   // clients

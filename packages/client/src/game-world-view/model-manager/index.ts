@@ -31,7 +31,6 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import { LobbyStore } from "@/mobx-stores/lobby";
-import { CHARACTER_SLOT_SPACING } from "@/app/lobby/saved-character-manager";
 import { ModelLoadingStateTracker } from "./model-loading-state-tracker";
 import { CombatantModelBlueprint } from "@/singletons/next-to-babylon-message-queue";
 import { importMesh } from "../game-world-view-utils";
@@ -41,6 +40,7 @@ import { MONSTER_SCALING_SIZES } from "../scene-entities/character-models/monste
 import { EnvironmentModelTypes } from "../scene-entities/environment-models/environment-model-paths";
 import { LightestToDarkest, MATERIAL_NAMES, PlasticColor } from "../materials/material-colors";
 import {
+  CHARACTER_SLOT_SPACING,
   HP_COLOR,
   MAIN_ACCENT_COLOR,
   MAIN_BG_COLOR,

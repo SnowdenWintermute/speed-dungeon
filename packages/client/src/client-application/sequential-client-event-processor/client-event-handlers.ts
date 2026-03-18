@@ -1,7 +1,5 @@
-import { GameWorldView } from "@/game-world-view";
 import { ClientEventHandlers, ClientEventType } from "./client-events";
 import { EventLogGameMessageService } from "../event-log/event-log-service";
-import { ImageManagerRequestType } from "@/game-world-view/image-manager";
 import {
   Battle,
   BattleConclusion,
@@ -17,6 +15,8 @@ import { ClientApplicationLobbyContext } from "../client-application-lobby-conte
 import { TargetIndicatorStore } from "../target-indicator-store";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
 import { ReplayTreeScheduler } from "../replay-execution/replay-tree-scheduler";
+import { GameWorldView } from "@/xxNEW-game-world-view";
+import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
 
 export function createClientEventHandlers(
   replayScheduler: ReplayTreeScheduler,
@@ -30,29 +30,31 @@ export function createClientEventHandlers(
 ): ClientEventHandlers {
   return {
     [ClientEventType.ClearAllModels]: () => {
-      return gameWorldView?.modelManager.clearAllModels();
+      return gameWorldView?.sceneEntityService.clearAll();
     },
     [ClientEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
-      return gameWorldView?.modelManager.synchronizeCombatantEquipmentModels(event.entityId);
+      return gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantEquipmentModels(
+        event.entityId
+      );
     },
     [ClientEventType.SynchronizeCombatantModels]: async (event) => {
-      return gameWorldView?.modelManager.synchronizeCombatantModels(
-        gameContext,
-        lobbyContext,
+      return gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         event
       );
     },
     [ClientEventType.SpawnEnvironmentModel]: (event) => {
-      return gameWorldView?.modelManager.spawnEnvironmentModel(
+      return gameWorldView?.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
         event.id,
-        event.path,
-        event.position,
         event.modelType,
+        event.position,
         event.rotationQuat
       );
     },
     [ClientEventType.DespawnEnvironmentModel]: (event) => {
-      gameWorldView?.modelManager.despawnEnvironmentModel(event.id);
+      gameWorldView?.sceneEntityService.environmentEntityManager.unregister(
+        event.id,
+        CleanupMode.Immediate
+      );
     },
     [ClientEventType.ProcessReplayTree]: async (event) => {
       const promise = new Promise((resolve, reject) => {
@@ -89,9 +91,9 @@ export function createClientEventHandlers(
         loot.consumables = loot.consumables.map((item) => Consumable.fromSerialized(item));
 
         for (const item of loot.equipment) {
-          gameWorldView?.imageManager.enqueueMessage({
-            type: ImageManagerRequestType.ItemCreation,
-            item,
+          gameWorldView?.imageGenerator.enqueueMessage({
+            type: ImageGenerationRequestType.ItemCreation,
+            data: { item },
           });
         }
 
@@ -131,7 +133,10 @@ export function createClientEventHandlers(
       const { actionEntityManager } = party;
       for (const entityId of actionEntitiesRemoved) {
         actionEntityManager.unregisterActionEntity(entityId);
-        gameWorldView?.actionEntityManager.unregister(entityId, CleanupMode.Soft);
+        gameWorldView?.sceneEntityService.actionEntityManager.unregister(
+          entityId,
+          CleanupMode.Soft
+        );
       }
     },
     [ClientEventType.PostGameMessages]: (event) => {
@@ -173,13 +178,15 @@ export function createClientEventHandlers(
       eventLogMessageService.postUserLeftGame(username);
       combatantFocus.focusFirstOwnedCharacter();
 
-      await gameWorldView?.modelManager.synchronizeCombatantModels(gameContext, lobbyContext, {
-        placeInHomePositions: true,
-      });
+      await gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
+        {
+          placeInHomePositions: true,
+        }
+      );
 
-      gameWorldView?.imageManager.enqueueMessage({
-        type: ImageManagerRequestType.ItemDeletion,
-        itemIds: itemsToRemoveThumbnails,
+      gameWorldView?.imageGenerator.enqueueMessage({
+        type: ImageGenerationRequestType.ItemDeletion,
+        data: { itemIds: itemsToRemoveThumbnails },
       });
     },
   };

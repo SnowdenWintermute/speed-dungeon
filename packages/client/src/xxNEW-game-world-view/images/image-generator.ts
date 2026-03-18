@@ -56,6 +56,7 @@ export class ImageGenerator {
     this.materialManager = new MaterialManager(this.scene);
     this.itemSceneEntityFactory = new ItemSceneEntityFactory(
       clientApplication.assetService,
+      clientApplication.floatingMessagesService,
       this.scene,
       this.materialManager
     );
@@ -69,7 +70,7 @@ export class ImageGenerator {
       0,
       0,
       Vector3.Zero(),
-      this.scene
+      this.gameWorldView.scene
     );
 
     this.portraitCamera.minZ = 0;
@@ -77,7 +78,7 @@ export class ImageGenerator {
     const portraitRenderTarget = new RenderTargetTexture(
       "portraitTexture",
       { width: 100, height: 100 },
-      this.scene
+      this.gameWorldView.scene
     );
     this.portraitCamera.outputRenderTarget = portraitRenderTarget;
   }
@@ -195,7 +196,8 @@ export class ImageGenerator {
 
   async createCombatantPortrait(combatantId: string) {
     const world = this.gameWorldView;
-    const combatantModelOption = world.combatantSceneEntityManager.findOneOptional(combatantId);
+    const combatantModelOption =
+      world.sceneEntityService.combatantSceneEntityManager.getOptional(combatantId);
     if (!combatantModelOption) {
       // might be processing image request after left game?
       return;
@@ -234,7 +236,7 @@ export class ImageGenerator {
       portraitCamera.alpha += alpha;
       portraitCamera.beta += beta;
       portraitCamera.radius += radius;
-      portraitCamera.target.copyFrom(world.portraitCamera.target.add(position));
+      portraitCamera.target.copyFrom(this.portraitCamera.target.add(position));
     } else {
       // humanoid
       portraitCamera.target.copyFrom(portraitCamera.target.add(new Vector3(0, 0.05, 0)));

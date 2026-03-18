@@ -7,12 +7,12 @@ import {
   AbstractMesh,
 } from "@babylonjs/core";
 import {
-  ActionEntityBaseChildTransformNodeName,
   ActionEntityName,
   CleanupMode,
   ERROR_MESSAGES,
   EntityId,
   EntityMotionUpdate,
+  GenericBaseChildTransformNodeName,
   TaggedShape3DDimensions,
 } from "@speed-dungeon/common";
 import { SceneEntity } from "../index";
@@ -70,7 +70,7 @@ export class ActionEntityModelManager {
 }
 
 export class ActionEntityModel extends SceneEntity {
-  childTransformNodes: Partial<Record<ActionEntityBaseChildTransformNodeName, TransformNode>> = {};
+  childTransformNodes: Partial<Record<GenericBaseChildTransformNodeName, TransformNode>> = {};
   constructor(
     public id: EntityId,
     assetContainer: AssetContainer,
@@ -83,8 +83,7 @@ export class ActionEntityModel extends SceneEntity {
   }
 
   initChildTransformNodes(): void {
-    this.childTransformNodes[ActionEntityBaseChildTransformNodeName.EntityRoot] =
-      this.rootTransformNode;
+    this.childTransformNodes[GenericBaseChildTransformNodeName.EntityRoot] = this.rootTransformNode;
   }
 
   createDebugLines(startPosition: Vector3) {
@@ -124,7 +123,9 @@ export class ActionEntityModel extends SceneEntity {
     return rootMesh;
   }
 
-  customCleanup(): void {}
+  customCleanup(): void {
+    //
+  }
 }
 
 export async function spawnActionEntityModel(
