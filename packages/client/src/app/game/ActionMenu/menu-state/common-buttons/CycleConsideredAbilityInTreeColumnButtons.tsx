@@ -1,12 +1,15 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { ListCyclingButtons } from "./ListCyclingButtons";
-import { ConsideringCombatantAbilityActionMenuScreen } from "../considering-tree-ability";
 import { AbilityUtils, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import { AppStore } from "@/mobx-stores/app-store";
+import { ConsideringCombatantAbilityActionMenuScreen as ConsideringCombatantAbilityActionMenuScreenOld } from "../considering-tree-ability";
+import { ConsideringCombatantAbilityActionMenuScreen } from "@/client-application/action-menu/screens/ability-tree-ability";
 
 interface Props {
-  menuState: ConsideringCombatantAbilityActionMenuScreen;
+  menuState:
+    | ConsideringCombatantAbilityActionMenuScreen
+    | ConsideringCombatantAbilityActionMenuScreenOld;
 }
 
 export const CycleConsideredAbilityInTreeColumnButtons = observer((props: Props) => {

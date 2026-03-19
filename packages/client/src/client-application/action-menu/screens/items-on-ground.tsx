@@ -3,11 +3,11 @@ import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 import { ClientApplication } from "@/client-application";
-import { HotkeyButtonTypes } from "@/client-application/inputs/keybind-config";
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
 import { ActionMenuScreenType } from "../screen-types";
 import ToggleInventoryButton from "@/app/game/ActionMenu/menu-state/common-buttons/ToggleInventory";
 import ActionMenuTopButton from "@/app/game/ActionMenu/menu-state/common-buttons/ActionMenuTopButton";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
   constructor(clientApplication: ClientApplication) {
@@ -17,9 +17,10 @@ export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
 
   getTopSection() {
     const buttonType = HotkeyButtonTypes.TakeAllItems;
-    const { keybindConfig, combatantFocus } = this.clientApplication;
-    const takeAllKeys = keybindConfig.getKeybind(buttonType);
-    const takeAllKeyString = keybindConfig.getKeybindString(buttonType);
+    const { combatantFocus } = this.clientApplication;
+    const { keybinds } = this.clientApplication.uiStore;
+    const takeAllKeys = keybinds.getKeybind(buttonType);
+    const takeAllKeyString = keybinds.getKeybindString(buttonType);
 
     const ownsFocusedCharacter = combatantFocus.clientUserControlsFocusedCombatant({
       includePets: true,

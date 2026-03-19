@@ -3,12 +3,13 @@ import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { ClientIntentType } from "@speed-dungeon/common";
 import { ActionMenuScreenType } from "../menu-state-type";
-import { ConfirmConvertToShardsActionMenuScreen } from "../confirm-convert-to-shards";
+import { ConfirmConvertToShardsActionMenuScreen as ConfirmConvertToShardsActionMenuScreenOld } from "../confirm-convert-to-shards";
+import { ConfirmConvertToShardsActionMenuScreen } from "@/client-application/action-menu/screens/convert-to-shards-confirm";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
-  menuState: ConfirmConvertToShardsActionMenuScreen;
+  menuState: ConfirmConvertToShardsActionMenuScreenOld | ConfirmConvertToShardsActionMenuScreen;
 }
 
 export function ConfirmShardConversionButton(props: Props) {

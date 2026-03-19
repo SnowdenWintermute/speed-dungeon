@@ -4,8 +4,8 @@ import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "../..";
 import { ActionMenuScreenType } from "../screen-types";
-import { HotkeyButtonTypes } from "@/client-application/inputs/keybind-config";
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export class EquippedItemsActionMenuScreen extends ActionMenuScreen {
   constructor(clientApplication: ClientApplication) {
@@ -14,7 +14,7 @@ export class EquippedItemsActionMenuScreen extends ActionMenuScreen {
   }
 
   getTopSection() {
-    const viewEquipmentHotkeys = this.clientApplication.keybindConfig.getKeybind(
+    const viewEquipmentHotkeys = this.clientApplication.uiStore.keybinds.getKeybind(
       HotkeyButtonTypes.ToggleViewEquipment
     );
     return (

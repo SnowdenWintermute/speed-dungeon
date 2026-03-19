@@ -18,15 +18,13 @@ import { EventLogStore } from "./event-log/event-log-store";
 import { FloatingMessagesStore } from "./event-log/floating-messages-store";
 import { EventLogGameMessageService } from "./event-log/event-log-service";
 import { FloatingMessageService } from "./event-log/floating-messages-service";
-import { KeybindConfig } from "./inputs/keybind-config";
-import { InputStore } from "./inputs/input-store";
 import { AlertsService } from "./alerts";
-import { DialogStore } from "./dialog-store";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
 import { GameWorldView } from "@/xxNEW-game-world-view";
+import { UiStore } from "./ui";
 
 export class ClientApplication {
   // clients
@@ -49,9 +47,8 @@ export class ClientApplication {
   readonly combatantFocus: CombatantFocus;
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;
-  readonly inputStore = new InputStore();
-  readonly dialogStore = new DialogStore();
   readonly imageStore = new ImageStore();
+  readonly uiStore = new UiStore();
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
@@ -60,12 +57,8 @@ export class ClientApplication {
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   readonly alertsService = new AlertsService();
 
-  // user config
-  readonly keybindConfig = new KeybindConfig();
-
   constructor(
     readonly gameWorldView: null | GameWorldView,
-    private replayProcessorManager: ReplayTreeProcessorManager,
     assetCache: AssetCache,
     assetServerUrl: string,
     replayManagerTickScheduler: TickScheduler
@@ -73,7 +66,7 @@ export class ClientApplication {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
     this.unregisterReplayManagerTick = replayManagerTickScheduler(() =>
-      this.replayProcessorManager.tick()
+      this.replayTreeScheduler.tick()
     );
     this.gameContext = new ClientApplicationGameContext(this.session);
     this.combatantFocus = new CombatantFocus(
@@ -105,27 +98,8 @@ export class ClientApplication {
   }
 
   // TODO
-  // - remove AppStore.get() calls inside gameWorldView, replace with initialized ClientApplication
   // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
 
-  // - MiscState (stuff the frontend jsx will observe)
-  //   - gameWorldStore = new GameWorldStore();
-  //   - configStore = new ConfigStore(); // misc settings
-  //
-  //   - dialogStore = new DialogStore();
-  //   - imageStore = new ImagesStore(); // Images dynamically created from loaded models (combatant portraits, item thumbnails)
-  //   - tooltipStore = new TooltipStore();
-  //   - formsStore = new FormsStore();
-  //
-  //   - assetFetchProgressStore = new AssetFetchProgressStore();
-  //   - connectionStatusStore = new ConnectionStatusStore();
-  //   - http request store
-  //   - Asset fetch progress observer
-  //   - Connection status indicator
-  //
-  // - GameUpdateProcessedLog
-  //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
-  //   - exposes a waitForMessageOfTypeProcessed() for tests
   //
   // - RuntimeEnvironmentManager (change between online/offline mode and manage persistence of choice/error states)
   //   - ConnectionEndpointFactory
@@ -146,4 +120,8 @@ export class ClientApplication {
   //     - Message dispatcher
   //     - GameState
   //     - ReplayTreeProcessorManager
+  //
+  // - GameUpdateProcessedLog
+  //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
+  //   - exposes a waitForMessageOfTypeProcessed() for tests
 }

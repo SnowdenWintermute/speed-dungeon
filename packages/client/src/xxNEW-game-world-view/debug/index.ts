@@ -1,6 +1,5 @@
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
-import { DialogElementName } from "@/client-application/dialog-store";
 import { ReplayBranchExecution } from "@/client-application/replay-execution/branch-execution";
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
@@ -9,6 +8,7 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { CLIENT_EVENT_TYPE_STRINGS } from "@/client-application/sequential-client-event-processor/client-events";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export class GameWorldViewDebug {
   public uiDebugDisplayRef: React.RefObject<HTMLUListElement | null> | null = null;
@@ -23,7 +23,7 @@ export class GameWorldViewDebug {
   }
 
   updateDebugText() {
-    const debugIsHidden = !this.clientApplication.dialogStore.isOpen(DialogElementName.Debug);
+    const debugIsHidden = !this.clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
 
     if (debugIsHidden || !this.uiDebugDisplayRef?.current) return;
 

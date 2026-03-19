@@ -21,7 +21,7 @@ export class AssigningAttributePointsActionMenuScreen extends ActionMenuScreen {
     return (
       <ul className="flex">
         <GoBackButton
-          extraHotkeys={this.clientApplication.keybindConfig.getKeybind(
+          extraHotkeys={this.clientApplication.uiStore.keybinds.getKeybind(
             HotkeyButtonTypes.ToggleAssignAttributesMenu
           )}
         />

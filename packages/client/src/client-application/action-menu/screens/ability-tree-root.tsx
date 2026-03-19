@@ -14,7 +14,7 @@ export class AbilityTreeActionMenuScreen extends ActionMenuScreen {
   }
 
   getTopSection() {
-    const hotkeys = this.clientApplication.keybindConfig.getKeybind(
+    const hotkeys = this.clientApplication.uiStore.keybinds.getKeybind(
       HotkeyButtonTypes.ToggleViewingAbilityTree
     );
 

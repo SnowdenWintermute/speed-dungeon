@@ -21,12 +21,12 @@ import {
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { ClientApplication } from "..";
-import { DialogElementName } from "../dialog-store";
 import {
   COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE,
   GameLogMessage,
   GameLogMessageStyle,
 } from "./game-log-messages";
+import { DialogElementName } from "../ui/dialogs";
 
 export class EventLogGameMessageService {
   constructor(private clientApplication: ClientApplication) {}
@@ -201,7 +201,7 @@ export class EventLogGameMessageService {
     actionUserTargetingSelf: boolean
   ) {
     const { elementOption, kineticDamageTypeOption } = resourceChange.source;
-    const showDebug = this.clientApplication.dialogStore.isOpen(DialogElementName.Debug);
+    const showDebug = this.clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
     let elementOptionString: string = "";
     if (elementOption !== undefined) {
       elementOptionString = ` ${MAGICAL_ELEMENT_STRINGS[elementOption].toLowerCase()}`;

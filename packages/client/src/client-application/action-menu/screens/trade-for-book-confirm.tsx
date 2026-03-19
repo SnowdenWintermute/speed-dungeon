@@ -66,13 +66,13 @@ export class ConfirmTradeForBookActionMenuScreen extends ActionMenuScreen {
           }}
         />
         <ActionMenuTopButton
-          hotkeys={this.clientApplication.keybindConfig.getKeybind(buttonType)}
+          hotkeys={this.clientApplication.uiStore.keybinds.getKeybind(buttonType)}
           handleClick={() =>
             handleConfirmTrade(this.clientApplication, focusedCharacterId, itemId, this.bookType)
           }
           disabled={shouldBeDisabled}
         >
-          Confirm trade ({this.clientApplication.keybindConfig.getKeybindString(buttonType)})
+          Confirm trade ({this.clientApplication.uiStore.keybinds.getKeybindString(buttonType)})
         </ActionMenuTopButton>
       </ul>
     );

@@ -24,8 +24,8 @@ export class ConsideringItemActionMenuScreen extends ActionMenuScreen {
   }
 
   private shouldShowEquipAltSlotButton() {
-    const { inputStore } = this.clientApplication;
-    const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
+    const { uiStore } = this.clientApplication;
+    const modKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.Mod);
 
     if (modKeyHeld) {
       return false;
