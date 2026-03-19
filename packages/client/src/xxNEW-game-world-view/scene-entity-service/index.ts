@@ -2,9 +2,11 @@ import { ClientApplication } from "@/client-application";
 import {
   COSMETIC_EFFECT_CONSTRUCTORS,
   CosmeticEffectOnTargetTransformNode,
+  EntityMotionUpdate,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityIdentifier,
   SceneEntityType,
+  SpawnableEntityType,
 } from "@speed-dungeon/common";
 import { CombatantSceneEntityManager } from "./combatant";
 import { ActionEntitySceneEntityManager } from "./action-entity";
@@ -110,6 +112,15 @@ export class SceneEntityService {
           );
         }
       }
+    }
+  }
+
+  getFromMotionUpdate(entityMotionUpdate: EntityMotionUpdate) {
+    const { entityId } = entityMotionUpdate;
+    if (entityMotionUpdate.entityType === SpawnableEntityType.Combatant) {
+      return this.combatantSceneEntityManager.requireById(entityId);
+    } else {
+      return this.actionEntityManager.requireById(entityId);
     }
   }
 

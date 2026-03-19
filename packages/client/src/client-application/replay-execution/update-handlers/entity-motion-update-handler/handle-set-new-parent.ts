@@ -1,5 +1,6 @@
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { SceneEntity } from "@/game-world-view/scene-entities";
+import { SceneEntity } from "@/xxNEW-game-world-view/scene-entities/base";
+import { SceneEntityService } from "@/xxNEW-game-world-view/scene-entity-service/index";
 import { Vector3 } from "@babylonjs/core";
 import { SceneEntityChildTransformNodeIdentifierWithDuration } from "@speed-dungeon/common";
 
