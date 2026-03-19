@@ -1,7 +1,7 @@
 import { ActionCompletionUpdateCommand, CombatantTurnTracker } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
-import { handleThreatChangesUpdate } from "./threat-changes";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
+import { handleThreatChangesUpdate } from "./activated-triggers-update-handler/threat-changes";
 
 export async function actionCompletionGameUpdateHandler(
   clientApplication: ClientApplication,

@@ -10,8 +10,8 @@ import { ClientApplication } from "@/client-application";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { actionCompletionGameUpdateHandler } from "./action-completion-update-handler";
 import { resourcesPaidGameUpdateHandler } from "./resources-paid-update-handler";
-import { entityMotionGameUpdateHandler } from "./entity-motion-update-handler";
 import { ActionEffectsApplyerCommand } from "./activated-triggers-update-handler";
+import { EntityMotionGameUpdateHandlerCommand } from "./entity-motion-update-handler";
 
 // @TODO - roll "resources paid", "hit outcomes" and "Activated Triggers"
 // into "action effects"
@@ -20,8 +20,10 @@ export const GAME_UPDATE_HANDLERS: Record<
   GameUpdateCommandType,
   (clientApplication: ClientApplication, ...args: any[]) => Promise<void>
 > = {
-  [GameUpdateCommandType.CombatantMotion]: entityMotionGameUpdateHandler,
-  [GameUpdateCommandType.ActionEntityMotion]: entityMotionGameUpdateHandler,
+  [GameUpdateCommandType.CombatantMotion]: (clientApplication, update) =>
+    new EntityMotionGameUpdateHandlerCommand(clientApplication, update).execute(),
+  [GameUpdateCommandType.ActionEntityMotion]: (clientApplication, update) =>
+    new EntityMotionGameUpdateHandlerCommand(clientApplication, update).execute(),
   [GameUpdateCommandType.ResourcesPaid]: resourcesPaidGameUpdateHandler,
   [GameUpdateCommandType.ActionUseGameLogMessage]: async (
     clientApplication: ClientApplication,

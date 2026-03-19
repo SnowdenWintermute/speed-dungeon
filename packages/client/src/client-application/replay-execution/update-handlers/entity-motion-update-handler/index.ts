@@ -1,30 +1,37 @@
 import {
   ActionEntityMotionUpdate,
+  AnimationTimingType,
   CombatantMotionUpdate,
+  DynamicAnimationName,
+  EntityAnimation,
   EntityMotionUpdateCommand,
   EntityTranslation,
   SceneEntityChildTransformNodeIdentifierWithDuration,
-} from "@speed-dungeon/common";
-import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
-import {
+  SkeletalAnimationName,
   AnimationType,
   CleanupMode,
   EntityId,
   EntityMotionUpdate,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
-import { getSceneEntityToUpdate } from "./get-scene-entity-to-update";
+import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
 import { plainToInstance } from "class-transformer";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { DynamicAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/dynamic-animation-manager";
-import { SkeletalAnimationManager } from "@/game-world-view/scene-entities/model-animation-managers/skeletal-animation-manager";
-import { handleMotionUpdateTranslation } from "./handle-motion-update-translation";
-import { handleMotionUpdateAnimation } from "./handle-motion-update-animation";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "@/xxNEW-game-world-view";
 import { SceneEntity } from "@/xxNEW-game-world-view/scene-entities/base";
 import { SceneEntityService } from "@/xxNEW-game-world-view/scene-entity-service/index";
 import { CombatantSceneEntity } from "@/xxNEW-game-world-view/scene-entities/combatants";
+import { DynamicAnimationManager } from "@/xxNEW-game-world-view/scene-entities/base/scene-entity-animation-manager/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "@/xxNEW-game-world-view/scene-entities/base/scene-entity-animation-manager/skeletal-animation-manager";
+import { ManagedAnimationOptions } from "@/xxNEW-game-world-view/scene-entities/base/scene-entity-animation-manager";
+
+// removed completion code need to put back in after duration elapsed:
+//
+// onComplete(){
+//   const partyResult = this.clientApplication.gameContext.requireParty();
+//   partyResult.actionEntityManager.unregisterActionEntity(motionUpdate.entityId);
+// }
 
 export class EntityMotionGameUpdateHandlerCommand {
   private gameWorldView: GameWorldView | null;
@@ -36,27 +43,27 @@ export class EntityMotionGameUpdateHandlerCommand {
     this.gameWorldView = clientApplication.gameWorldView;
   }
 
-  execute() {
+  async execute() {
     const { mainEntityUpdate, auxiliaryUpdates } = this.updateTracker.command;
 
-    this.processChild(this.updateTracker, mainEntityUpdate);
+    this.processChild(mainEntityUpdate);
 
     if (!auxiliaryUpdates) return;
     for (const auxiliaryUpdate of auxiliaryUpdates) {
-      this.processChild(this.updateTracker, auxiliaryUpdate);
+      this.processChild(auxiliaryUpdate);
     }
   }
 
   handleTranslation(
     motionUpdate: EntityMotionUpdate,
     translation: EntityTranslation,
+    sceneEntity: SceneEntity,
+    sceneEntityService: SceneEntityService,
     onComplete?: () => void
   ) {
     const { gameWorldView } = this;
     if (!gameWorldView) return;
 
-    const { sceneEntityService } = gameWorldView;
-    const sceneEntity = sceneEntityService.getFromMotionUpdate(motionUpdate);
     const { movementManager } = sceneEntity;
     const destination = plainToInstance(Vector3, translation.destination);
     const cosmeticDestinationYOption =
@@ -93,10 +100,60 @@ export class EntityMotionGameUpdateHandlerCommand {
     );
   }
 
-  processChild(
-    update: ReplayGameUpdateTracker<EntityMotionUpdateCommand>,
-    motionUpdate: EntityMotionUpdate
+  handleAnimation(
+    animationManager: SkeletalAnimationManager | DynamicAnimationManager,
+    animation: EntityAnimation,
+    onComplete?: () => void
   ) {
+    const shouldLoop = animation.timing.type === AnimationTimingType.Looping;
+    let animationDurationOverrideOption = undefined;
+    if (animation.timing.type === AnimationTimingType.Timed) {
+      animationDurationOverrideOption = animation.timing.duration;
+    }
+
+    const options: ManagedAnimationOptions = {
+      shouldLoop,
+      animationDurationOverrideOption,
+      onComplete: () => {
+        // @REFACTOR - probably just don't tell looping animations to onComplete and throw errors if they do
+        const neverCompletes = animation.timing.type === AnimationTimingType.Looping;
+        if (neverCompletes) {
+          return;
+        }
+        onComplete?.();
+      },
+    };
+
+    if (animationManager instanceof SkeletalAnimationManager) {
+      if (animationManager.playing?.options.onComplete && !animationManager.playing.onCompleteRan) {
+        // @REFACTOR - old system note below, could probably remove in new "complete after duration"
+        // system of marking replay steps as completed
+        // @REFACTOR - We're sidestepping a bug here I don't really understand fully:
+        // if we don't run the oncomplete for animations that are interrupted
+        // it will never unlock the input since we're often relying on those animations'
+        // onComplete functions to know when to unlock input
+        // if I tried to put this in the animation manager's cleanup we got a heavy recursion
+        // lag but not a crash until the next room was explored
+        animationManager.playing.runOnComplete();
+      }
+
+      animationManager.startAnimationWithTransition(
+        animation.name.name as SkeletalAnimationName,
+        animation.smoothTransition ? 500 : 200,
+        options
+      );
+    } else {
+      animationManager.startAnimationWithTransition(
+        animation.name.name as DynamicAnimationName,
+        animation.smoothTransition ? 500 : 0,
+        {
+          ...options,
+        }
+      );
+    }
+  }
+
+  processChild(motionUpdate: EntityMotionUpdate) {
     const { gameWorldView } = this;
     if (!gameWorldView) {
       return;
@@ -106,40 +163,39 @@ export class EntityMotionGameUpdateHandlerCommand {
     const entityTypeHandler = this.getEntityTypeMotionUpdateHandler(gameWorldView, motionUpdate);
     const completionHandlers = entityTypeHandler();
 
+    const { sceneEntityService } = gameWorldView;
+    const sceneEntity = sceneEntityService.getFromMotionUpdate(motionUpdate);
+
     if (translationOption) {
       this.handleTranslation(
         motionUpdate,
         translationOption,
+        sceneEntity,
+        sceneEntityService,
         completionHandlers?.onTranslationComplete
       );
     }
 
     if (rotationOption) {
-      const toUpdate = gameWorldView.sceneEntityService.getFromMotionUpdate(motionUpdate);
-      toUpdate.movementManager.startRotatingTowards(
+      sceneEntity.movementManager.startRotatingTowards(
         plainToInstance(Quaternion, rotationOption.rotation),
         rotationOption.duration,
-        () => {
-          /*no-op*/
-        }
+        () => {}
       );
     }
 
     if (animationOption) {
-      const toUpdate = getSceneEntityToUpdate(gameWorldView, motionUpdate);
       let animationManager: DynamicAnimationManager | SkeletalAnimationManager =
-        toUpdate.skeletalAnimationManager;
+        sceneEntity.skeletalAnimationManager;
 
       if (animationOption.name.type === AnimationType.Dynamic) {
-        animationManager = toUpdate.dynamicAnimationManager;
+        animationManager = sceneEntity.dynamicAnimationManager;
       }
 
-      handleMotionUpdateAnimation(
+      this.handleAnimation(
         animationManager,
         animationOption,
-        updateCompletionTracker,
-        update,
-        onAnimationComplete
+        completionHandlers?.onAnimationComplete
       );
     }
   }
@@ -248,10 +304,3 @@ export class EntityMotionGameUpdateHandlerCommand {
     actionEntityManager.unregister(entityId, cleanupMode);
   }
 }
-
-// removed completion code need to put back in after duration elapsed:
-//
-// onComplete(){
-//   const partyResult = this.clientApplication.gameContext.requireParty();
-//   partyResult.actionEntityManager.unregisterActionEntity(motionUpdate.entityId);
-// }
