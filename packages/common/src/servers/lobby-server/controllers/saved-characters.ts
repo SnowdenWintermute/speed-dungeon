@@ -7,7 +7,7 @@ import { SavedCharactersService } from "../../services/saved-characters.js";
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
-import { EntityName } from "../../../aliases.js";
+import { CombatantId, EntityName } from "../../../aliases.js";
 import { LobbyExternalServices } from "../index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
@@ -109,7 +109,7 @@ export class SavedCharactersController {
     return outbox;
   }
 
-  async deleteSavedCharacterHandler(session: UserSession, data: { entityId: string }) {
+  async deleteSavedCharacterHandler(session: UserSession, data: { entityId: CombatantId }) {
     const { entityId } = data;
 
     session.requireAuthorized();

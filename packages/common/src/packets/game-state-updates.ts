@@ -145,7 +145,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.CharacterDeleted]: {
     username: Username;
-    characterId: string;
+    characterId: CombatantId;
   };
   [GameStateUpdateType.PlayerToggledReadyToStartGame]: {
     username: Username;
@@ -187,22 +187,22 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
-    characterId: string;
+    characterId: CombatantId;
     actionAndRankOption: SerializedOf<ActionAndRank> | null;
     itemIdOption?: string | null;
   };
   [GameStateUpdateType.CharacterCycledTargets]: {
-    characterId: string;
+    characterId: CombatantId;
     direction: NextOrPrevious;
   };
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: {
-    characterId: string;
+    characterId: CombatantId;
   };
   [GameStateUpdateType.DungeonFloorNumber]: {
     floorNumber: number;
   };
   [GameStateUpdateType.CharacterSpentAttributePoint]: {
-    characterId: string;
+    characterId: CombatantId;
     attribute: CombatAttribute;
   };
   [GameStateUpdateType.SavedCharacterList]: {
@@ -216,7 +216,7 @@ export interface GameStateUpdateMap {
     slotIndex: number;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
-    entityId: string;
+    entityId: CombatantId;
   };
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]: {
     username: Username;
@@ -226,21 +226,21 @@ export interface GameStateUpdateMap {
     floorNumber: number;
   };
   [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]: {
-    characterId: string;
+    characterId: CombatantId;
     slotIndex: number;
   };
   [GameStateUpdateType.CharacterConvertedItemsToShards]: CharacterAndItems;
   [GameStateUpdateType.CharacterDroppedShards]: {
-    characterId: string;
+    characterId: CombatantId;
     shardStack: SerializedOf<Consumable>;
   };
   [GameStateUpdateType.CharacterPurchasedItem]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     item: SerializedOf<Consumable>;
     price: number;
   };
   [GameStateUpdateType.CharacterPerformedCraftingAction]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     item: SerializedOf<Equipment>;
     craftingAction: CraftingAction;
   };
@@ -249,20 +249,20 @@ export interface GameStateUpdateMap {
     itemId: EntityId;
   };
   [GameStateUpdateType.CharacterSelectedCombatActionRank]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     actionRank: ActionRank;
   };
   [GameStateUpdateType.CharacterAllocatedAbilityPoint]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     ability: AbilityTreeAbility;
   };
   [GameStateUpdateType.CharacterTradedItemForBook]: {
-    characterId: EntityId;
+    characterId: CombatantId;
     itemIdTraded: EntityId;
     book: SerializedOf<Consumable>;
   };
   [GameStateUpdateType.CharacterRenamedPet]: {
-    petId: EntityId;
+    petId: CombatantId;
     newName: EntityName;
   };
 }

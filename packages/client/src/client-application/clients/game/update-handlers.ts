@@ -1,27 +1,6 @@
-import { setAlert } from "@/app/components/alerts";
-import { BaseActionMenuScreen } from "@/app/game/ActionMenu/menu-state/base";
-import { ConsideringCombatActionMenuScreen } from "@/app/game/ActionMenu/menu-state/considering-combat-action";
-import { ConsideringItemActionMenuScreen } from "@/app/game/ActionMenu/menu-state/considering-item";
-import { GameWorldView } from "@/game-world-view";
-import { ImageManagerRequestType } from "@/game-world-view/image-manager";
-import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
-import {
-  ENVIRONMENT_MODEL_PATHS,
-  ENVIRONMENT_MODELS_FOLDER,
-  EnvironmentModelTypes,
-} from "@/game-world-view/scene-entities/environment-models/environment-model-paths";
-import { AppStore } from "@/mobx-stores/app-store";
-import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
-import { CharacterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { gameClientSingleton } from "@/singletons/lobby-client";
-import {
-  enqueueCharacterItemsForThumbnails,
-  enqueueConsumableGenericThumbnailCreation,
-} from "@/utils/enqueue-character-items-for-thumbnails";
 import { Vector3 } from "@babylonjs/core";
 import {
   ActionAndRank,
-  ActionCommandType,
   ActionUserContext,
   Battle,
   CleanupMode,
@@ -32,6 +11,7 @@ import {
   DungeonRoom,
   DungeonRoomType,
   EntityId,
+  EnvironmentEntityName,
   Equipment,
   EquipmentType,
   ERROR_MESSAGES,
@@ -47,8 +27,14 @@ import {
   TwoHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
+import { gameFullUpdateHandler } from "../common/game-full-update-handler";
+import { ClientApplication } from "@/client-application";
+import { ClientEventType } from "@/client-application/sequential-client-event-processor/client-events";
+import { RootActionMenuScreen } from "@/client-application/action-menu/screens/root";
+import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
+import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
+import { ConsideringCombatActionMenuScreen } from "@/client-application/action-menu/screens/considering-combat-action";
 import { toJS } from "mobx";
-import { gameFullUpdateHandler } from "../common-handlers/game-full-update";
 
 export type GameUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -59,48 +45,51 @@ export type GameUpdateHandlers = {
 };
 
 export function createGameUpdateHandlers(
-  appStore: AppStore,
-  gameWorldView: {
-    current: null | GameWorldView;
-  },
-  characterAutoFocusManager: CharacterAutoFocusManager
+  clientApplication: ClientApplication
 ): Partial<GameUpdateHandlers> {
   const {
     targetIndicatorStore,
-    gameStore,
-    focusStore,
-    actionMenuStore,
-    gameEventNotificationStore,
-  } = appStore;
+    gameContext,
+    combatantFocus,
+    actionMenu,
+    eventLogStore,
+    eventLogMessageService,
+    sequentialEventProcessor,
+    alertsService,
+    detailableEntityFocus,
+    gameWorldView,
+    gameClientRef,
+  } = clientApplication;
+  const sceneEntityService = gameWorldView?.sceneEntityService;
 
   return {
     [GameStateUpdateType.ErrorMessage]: (data) => {
-      setAlert(data.message);
-      console.info("alert:", data.message);
+      alertsService.setAlert(data.message);
 
       // this is a quick and dirty fix until we have a way to associate errors
       // with certain actions, which would also be good to associate responses with
       // certain actions so we can show the buttons in a loading state
-      const partyOption = gameStore.getPartyOption();
-      if (partyOption) {
-        partyOption.inputLock.unlockInput();
-        const focusedCharacterOption = gameStore.getFocusedCharacterOption();
-        if (focusedCharacterOption !== undefined) {
-          focusedCharacterOption.combatantProperties.targetingProperties.clear();
-
-          targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
-        }
+      const { partyOption } = gameContext;
+      if (!partyOption) {
+        return;
       }
+
+      partyOption.inputLock.unlockInput();
+      const { focusedCharacterOption } = combatantFocus;
+      if (!focusedCharacterOption) {
+        return;
+      }
+
+      focusedCharacterOption.combatantProperties.targetingProperties.clear();
+      targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
     },
     [GameStateUpdateType.PlayerLeftGame]: (data) => {
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.ProcessActionCommands,
-        actionCommandPayloads: [
-          { type: ActionCommandType.RemovePlayerFromGame, username: data.username },
-        ],
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.RemovePlayerFromGame,
+        data: { username: data.username },
       });
 
-      const gameOption = AppStore.get().gameStore.getGameOption();
+      const { gameOption } = gameContext;
       if (!gameOption) {
         return;
       }
@@ -112,64 +101,52 @@ export function createGameUpdateHandlers(
       }
     },
     [GameStateUpdateType.OnConnection]: (data) => {
-      gameStore.setUsername(data.username);
+      clientApplication.session.setUsername(data.username);
     },
     [GameStateUpdateType.CacheGuestSessionReconnectionToken]: (data) => {
       //
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
-      gameFullUpdateHandler(data.game, gameStore, actionMenuStore, gameWorldView);
+      gameFullUpdateHandler(clientApplication, data.game);
     },
     [GameStateUpdateType.GameStarted]: (_) => {
-      gameEventNotificationStore.clearGameLog();
-      GameLogMessageService.postGameStarted();
+      eventLogStore.clear();
+      eventLogMessageService.postGameStarted();
 
-      AppStore.get().actionMenuStore.initialize(new BaseActionMenuScreen());
+      actionMenu.initialize(new RootActionMenuScreen(clientApplication));
 
-      characterAutoFocusManager.focusFirstOwnedCharacter();
+      combatantFocus.focusFirstOwnedCharacter();
 
-      const { game, party } = gameStore.getFocusedCharacterContext();
+      const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
       game.setAsStarted();
-
-      const camera = gameWorldView.current?.camera;
-      if (!camera) {
-        console.error("no camera found");
-        return;
-      }
-      camera.target.copyFrom(new Vector3(-1, 0.85, 0.51));
-      camera.alpha = 4.7;
-      camera.beta = 1.06;
-      camera.radius = 10.94;
-
+      gameWorldView?.setDefaultCameraPositionForGame();
       party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
+      gameWorldView?.environment.groundPlane.clear();
 
-      gameWorldView.current?.clearFloorTexture();
-
-      enqueueConsumableGenericThumbnailCreation();
+      gameWorldView?.imageGenerator.enqueueConsumableGenericThumbnailCreation();
 
       const { combatantManager } = party;
 
       for (const character of combatantManager.iterateAllCombatants()) {
-        enqueueCharacterItemsForThumbnails(character);
+        gameWorldView?.imageGenerator.enqueueCharacterItemsForThumbnails(character);
       }
 
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();
-
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantModels,
-        placeInHomePositions: true,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantModels,
+        data: { softCleanup: true, placeInHomePositions: true },
       });
     },
     [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: (data) => {
       const { username, explorationAction } = data;
-      const party = gameStore.getExpectedParty();
+      const party = gameContext.requireParty();
       const { dungeonExplorationManager } = party;
       dungeonExplorationManager.updatePlayerExplorationActionChoice(username, explorationAction);
     },
     [GameStateUpdateType.DungeonRoomTypesOnCurrentFloor]: (data) => {
-      const party = gameStore.getExpectedParty();
+      const party = gameContext.requireParty();
       const { dungeonExplorationManager } = party;
       dungeonExplorationManager.setClientVisibleRoomExplorationList(data.roomTypes);
       dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
@@ -181,12 +158,12 @@ export function createGameUpdateHandlers(
       const itemIdsOnGroundInPreviousRoom: string[] = [];
       const newItemsOnGround: Item[] = [];
 
-      const party = gameStore.getExpectedParty();
+      const party = gameContext.requireParty();
 
       const { actionEntityManager } = party;
       for (const actionEntityId of actionEntitiesToRemove) {
         actionEntityManager.unregisterActionEntity(actionEntityId);
-        gameWorldView.current?.actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
+        sceneEntityService?.actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
       }
 
       itemIdsOnGroundInPreviousRoom.push(
@@ -204,11 +181,11 @@ export function createGameUpdateHandlers(
         newItemsOnGround.push(item);
       }
 
-      focusStore.detailables.clearHovered();
+      detailableEntityFocus.detailables.clearHovered();
 
       const { combatantManager } = party;
 
-      const game = gameStore.getExpectedGame();
+      const game = gameContext.requireGame();
       for (const combatant of monsters) {
         const deserialized = Combatant.fromSerialized(combatant);
         deserialized.makeObservable();
@@ -230,46 +207,45 @@ export function createGameUpdateHandlers(
       const roomHasVendingMachine = dungeonRoom.roomType === DungeonRoomType.VendingMachine;
 
       if (roomHasVendingMachine && noPreviouslySpawnedVendingMachine) {
-        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-          type: ModelActionType.SpawnEnvironmentModel,
-          modelType: EnvironmentModelTypes.VendingMachine,
-          path:
-            ENVIRONMENT_MODELS_FOLDER +
-            ENVIRONMENT_MODEL_PATHS[EnvironmentModelTypes.VendingMachine],
-          id: "vending-machine",
-          position: Vector3.Forward(),
+        sequentialEventProcessor.scheduleEvent({
+          type: ClientEventType.SpawnEnvironmentModel,
+          data: {
+            id: "vending-machine",
+            modelType: EnvironmentEntityName.VendingMachine,
+            position: Vector3.Forward(),
+          },
         });
       } else if (!roomHasVendingMachine) {
-        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-          type: ModelActionType.DespawnEnvironmentModel,
-          id: "vending-machine",
+        sequentialEventProcessor.scheduleEvent({
+          type: ClientEventType.DespawnEnvironmentModel,
+          data: { id: "vending-machine" },
         });
       }
 
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantModels,
-        placeInHomePositions: true,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantModels,
+        data: { softCleanup: true, placeInHomePositions: true },
       });
 
       // clean up unused screenshots for items left behind
-      gameWorldView.current?.imageManager.enqueueMessage({
-        type: ImageManagerRequestType.ItemDeletion,
-        itemIds: itemIdsOnGroundInPreviousRoom,
+      gameWorldView?.imageGenerator.enqueueMessage({
+        type: ImageGenerationRequestType.ItemDeletion,
+        data: { itemIds: itemIdsOnGroundInPreviousRoom },
       });
 
       for (const item of newItemsOnGround) {
         if (item instanceof Consumable) continue;
 
-        gameWorldView.current?.imageManager.enqueueMessage({
-          type: ImageManagerRequestType.ItemCreation,
-          item,
+        gameWorldView?.imageGenerator.enqueueMessage({
+          type: ImageGenerationRequestType.ItemCreation,
+          data: { item },
         });
       }
     },
     [GameStateUpdateType.BattleFullUpdate]: (data) => {
       {
         const { battle: battleOption } = data;
-        const { game, party } = gameStore.getFocusedCharacterContext();
+        const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
         if (battleOption === null) {
           game.battles.clear();
@@ -287,7 +263,7 @@ export function createGameUpdateHandlers(
           deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
 
         const turnTracker = deserializedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
-        characterAutoFocusManager.handleBattleStart(turnTracker);
+        combatantFocus.handleBattleStart(turnTracker);
 
         if (!currentActorIsPlayerControlled) {
           // it is ai controlled so lock input
@@ -298,18 +274,18 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.CharacterDroppedItem]: (data) => {
       const { characterId, itemId } = data;
 
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
         data: { itemId },
       });
 
-      const { party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
 
       combatant.combatantProperties.inventory.dropItem(party, itemId);
     },
     [GameStateUpdateType.CharacterDroppedEquippedItem]: (data) => {
       const { characterId, slot } = data;
-      const { party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
       const itemDroppedIdResult = combatant.combatantProperties.inventory.dropEquippedItem(
         party,
         slot
@@ -318,54 +294,54 @@ export function createGameUpdateHandlers(
         throw itemDroppedIdResult;
       }
 
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
         data: { itemId: itemDroppedIdResult },
       });
 
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantEquipmentModels,
-        entityId: characterId,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
       });
     },
     [GameStateUpdateType.CharacterUnequippedItem]: (data) => {
       const { characterId, slot } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.equipment.unequipSlots([slot]);
 
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantEquipmentModels,
-        entityId: characterId,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
       });
     },
     [GameStateUpdateType.CharacterEquippedItem]: (data) => {
       const { itemId, equipToAlternateSlot, characterId } = data;
-      const { combatant, party } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant, party } = gameContext.requireCombatantContext(characterId);
       const { equipment } = combatant.combatantProperties;
 
       const unequippedResult = equipment.equipItem(itemId, equipToAlternateSlot);
       if (unequippedResult instanceof Error) {
         throw unequippedResult;
       }
-      const { idsOfUnequippedItems } = unequippedResult;
 
       const slot = equipment.getSlotItemIsEquippedTo(itemId);
       if (slot !== null) {
         const item = equipment.getEquipmentInSlot(slot);
         if (item !== undefined) {
-          gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-            type: ModelActionType.SynchronizeCombatantEquipmentModels,
-            entityId: combatant.getEntityId(),
+          sequentialEventProcessor.scheduleEvent({
+            type: ClientEventType.SynchronizeCombatantEquipmentModels,
+            data: { entityId: characterId },
           });
         }
       }
 
+      const { idsOfUnequippedItems } = unequippedResult;
       if (idsOfUnequippedItems[0] === undefined) {
         return;
       }
 
       const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
-        gameStore.getExpectedUsername(),
+        clientApplication.session.requireUsername(),
         characterId
       );
 
@@ -373,7 +349,7 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      focusStore.detailables.clearHovered();
+      detailableEntityFocus.detailables.clearHovered();
 
       // we want the user to be now selecting the item they just unequipped
       const equipmentInInventory = combatant.combatantProperties.inventory.equipment;
@@ -384,17 +360,19 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      const currentMenu = actionMenuStore.getCurrentMenu();
+      const currentMenu = actionMenu.getCurrentMenu();
       if (currentMenu instanceof ConsideringItemActionMenuScreen) {
         currentMenu.setItem(itemToSelectOption);
-        focusStore.detailables.setDetailed(itemToSelectOption);
+        detailableEntityFocus.detailables.setDetailed(itemToSelectOption);
       }
     },
     [GameStateUpdateType.CharacterPickedUpItems]: (data) => {
-      const { combatant, party } = gameStore.getExpectedCombatantContext(data.characterId);
+      const { combatant, party } = gameContext.requireCombatantContext(data.characterId);
       for (const itemId of data.itemIds) {
         const itemResult = party.currentRoom.inventory.removeItem(itemId);
-        if (itemResult instanceof Error) return itemResult;
+        if (itemResult instanceof Error) {
+          throw itemResult;
+        }
 
         // handle shard stacks uniquely
         if (itemResult.isShardStack()) {
@@ -404,16 +382,15 @@ export function createGameUpdateHandlers(
 
         combatant.combatantProperties.inventory.insertItem(itemResult);
 
-        const { focusStore } = AppStore.get();
         // otherwise it is possible that one player is hovering this item, then it "disappears"
         // from under their mouse cursor and they can never trigger a mouseleave event to unhover it
-        if (focusStore.entityIsHovered(itemResult.entityProperties.id)) {
-          focusStore.detailables.clearHovered();
+        if (detailableEntityFocus.entityIsHovered(itemResult.entityProperties.id)) {
+          detailableEntityFocus.detailables.clearHovered();
         }
       }
     },
     [GameStateUpdateType.CharacterSelectedCombatAction]: (data) => {
-      const { game, party, combatant } = gameStore.getExpectedCombatantContext(data.characterId);
+      const { game, party, combatant } = gameContext.requireCombatantContext(data.characterId);
       const targetingProperties = combatant.getTargetingProperties();
       const { itemIdOption, actionAndRankOption, characterId } = data;
       const deserializedActionAndRankOption = actionAndRankOption
@@ -462,7 +439,7 @@ export function createGameUpdateHandlers(
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIds || []);
 
       const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
-        gameStore.getExpectedUsername(),
+        clientApplication.session.requireUsername(),
         characterId
       );
 
@@ -470,30 +447,22 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      actionMenuStore.pushStack(new ConsideringCombatActionMenuScreen(actionName));
+      actionMenu.pushStack(new ConsideringCombatActionMenuScreen(clientApplication, actionName));
     },
     [GameStateUpdateType.GameMessage]: (data) => {
       const { message } = data;
       if (message.showAfterSequentialQueueResolution) {
-        if (!gameWorldView.current) {
-          throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-        }
-        gameWorldView.current.modelManager.modelActionQueue.enqueueMessage({
-          type: ModelActionType.ProcessActionCommands,
-          actionCommandPayloads: [
-            {
-              type: ActionCommandType.GameMessages,
-              messages: [message],
-            },
-          ],
+        sequentialEventProcessor.scheduleEvent({
+          type: ClientEventType.PostGameMessages,
+          data: { messages: [message] },
         });
       } else {
-        GameLogMessageService.postGameMessage(message);
+        eventLogMessageService.postGameMessage(message);
       }
     },
     [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]: (data) => {
       const { characterId, slotIndex } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
       const { equipment } = combatant.combatantProperties;
 
       if (slotIndex >= equipment.getHoldableHotswapSlots().length) {
@@ -511,34 +480,34 @@ export function createGameUpdateHandlers(
       for (const [slotType, equipment] of iterateNumericEnumKeyedRecord(
         slotSwitchingAwayFrom.holdables
       )) {
-        if (focusStore.entityIsHovered(equipment.entityProperties.id))
+        if (detailableEntityFocus.entityIsHovered(equipment.entityProperties.id))
           previouslyHoveredSlotTypeOption = slotType;
       }
 
       combatant.combatantProperties.equipment.changeSelectedHotswapSlot(slotIndex);
 
       if (previouslyHoveredSlotTypeOption !== null) {
-        focusStore.detailables.clearHovered();
+        detailableEntityFocus.detailables.clearHovered();
         const newlyEquippedSlotOption = equipment.getActiveHoldableSlot();
         if (newlyEquippedSlotOption) {
           for (const [slotType, holdable] of iterateNumericEnumKeyedRecord(
             newlyEquippedSlotOption.holdables
           )) {
             if (slotType === previouslyHoveredSlotTypeOption)
-              focusStore.detailables.setHovered(holdable);
+              detailableEntityFocus.detailables.setHovered(holdable);
           }
         }
       }
 
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantEquipmentModels,
-        entityId: combatant.entityProperties.id,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
       });
     },
     [GameStateUpdateType.CharacterConvertedItemsToShards]: (data) => {
       const slotsUnequipped: TaggedEquipmentSlot[] = [];
       const { characterId, itemIds } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
 
       const { combatantProperties } = combatant;
       // unequip it if is equipped
@@ -560,38 +529,38 @@ export function createGameUpdateHandlers(
 
       combatant.convertOwnedItemsToShards(itemIds);
 
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantEquipmentModels,
-        entityId: characterId,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
       });
     },
     [GameStateUpdateType.CharacterDroppedShards]: (data) => {
       const { characterId, shardStack } = data;
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
         data: { itemId: shardStack.entityProperties.id },
       });
       const asClassInstance = Consumable.fromSerialized(shardStack);
-      const { party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.inventory.changeShards(asClassInstance.usesRemaining * -1);
       party.currentRoom.inventory.insertItem(asClassInstance);
     },
     [GameStateUpdateType.CharacterPurchasedItem]: (data) => {
       const { item, characterId, price } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
       const asClassInstance = Consumable.fromSerialized(item);
       const { inventory } = combatant.combatantProperties;
       inventory.changeShards(price * -1);
       inventory.insertItem(asClassInstance);
-      setAlert(`Purchased ${item.entityProperties.name}`, true);
+      alertsService.setAlert(`Purchased ${item.entityProperties.name}`, true);
     },
     [GameStateUpdateType.CharacterPerformedCraftingAction]: (data) => {
       const { characterId, item, craftingAction } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
 
       // used to show loading state so players don't get confused when
       // their craft action produces exact same item as already was
-      actionMenuStore.setCharacterCompletedCrafting(combatant.getEntityId());
+      actionMenu.setCharacterCompletedCrafting(combatant.getEntityId());
 
       const { combatantProperties } = combatant;
 
@@ -605,7 +574,7 @@ export function createGameUpdateHandlers(
 
       const isEquipment = itemResult instanceof Equipment;
       if (!isEquipment) {
-        setAlert("Server sent crafting results of a consumable?");
+        alertsService.setAlert("Server sent crafting results of a consumable?");
         return;
       }
 
@@ -634,23 +603,23 @@ export function createGameUpdateHandlers(
       const isEquipped = slotEquippedToOption !== null;
 
       if (isEquipped && wasRepaired) {
-        gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-          type: ModelActionType.SynchronizeCombatantEquipmentModels,
-          entityId: combatant.getEntityId(),
+        sequentialEventProcessor.scheduleEvent({
+          type: ClientEventType.SynchronizeCombatantEquipmentModels,
+          data: { entityId: characterId },
         });
       }
 
       if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        gameWorldView.current?.imageManager.enqueueMessage({
-          type: ImageManagerRequestType.ItemCreation,
-          item: itemResult,
+        gameWorldView?.imageGenerator.enqueueMessage({
+          type: ImageGenerationRequestType.ItemCreation,
+          data: { item: itemResult },
         });
       }
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
       combatantProperties.inventory.changeShards(actionPrice * -1);
 
-      GameLogMessageService.postCraftActionResult(
+      eventLogMessageService.postCraftActionResult(
         combatant.getName(),
         Equipment.fromSerialized(itemBeforeModification),
         craftingAction,
@@ -659,25 +628,21 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.PlayerPostedItemLink]: (data) => {
       const { username, itemId } = data;
-      const { party } = gameStore.getExpectedPlayerContext(username);
+      const { party } = gameContext.requirePlayerContext(username);
       const itemResult = party.getItem(itemId);
       if (itemResult instanceof Error) {
-        return setAlert(itemResult);
+        return alertsService.setAlert(itemResult);
       }
-      GameLogMessageService.postItemLink(username, itemResult);
+      eventLogMessageService.postItemLink(username, itemResult);
     },
     [GameStateUpdateType.ActionCommandPayloads]: (data) => {
-      if (!gameWorldView.current) {
-        return console.error("Got action command payloads but no game world was found");
+      for (const payload of data.payloads) {
+        sequentialEventProcessor.scheduleEvent(payload);
       }
-      gameWorldView.current.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.ProcessActionCommands,
-        actionCommandPayloads: data.payloads,
-      });
     },
     [GameStateUpdateType.CharacterSelectedCombatActionRank]: (data) => {
       const { characterId, actionRank } = data;
-      const { game, party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { game, party, combatant } = gameContext.requireCombatantContext(characterId);
 
       const { targetingProperties } = combatant.combatantProperties;
 
@@ -725,7 +690,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.CharacterCycledTargets]: (data) => {
       const { characterId, direction } = data;
-      const { game, party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { game, party, combatant } = gameContext.requireCombatantContext(characterId);
       const username = combatant.getCombatantProperties().controlledBy.controllerPlayerName;
       const player = game.getExpectedPlayer(username);
 
@@ -763,7 +728,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.CharacterCycledTargetingSchemes]: (data) => {
       const { characterId } = data;
-      const { game, party, combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { game, party, combatant } = gameContext.requireCombatantContext(characterId);
       const username = combatant.getCombatantProperties().controlledBy.controllerPlayerName;
       const player = game.getExpectedPlayer(username);
       const combatantContext = new ActionUserContext(game, party, combatant);
@@ -793,24 +758,24 @@ export function createGameUpdateHandlers(
       targetIndicatorStore.synchronize(actionNameOption, combatant.getEntityId(), targetIdsResult);
     },
     [GameStateUpdateType.DungeonFloorNumber]: (data) => {
-      const party = gameStore.getExpectedParty();
+      const party = gameContext.requireParty();
       party.dungeonExplorationManager.setCurrentFloor(data.floorNumber);
     },
     [GameStateUpdateType.CharacterAllocatedAbilityPoint]: (data) => {
       const { characterId, ability } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.abilityProperties.allocateAbilityPoint(ability);
     },
     [GameStateUpdateType.CharacterSpentAttributePoint]: (data) => {
       const { characterId, attribute } = data;
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.attributeProperties.allocatePoint(attribute);
     },
     [GameStateUpdateType.CharacterTradedItemForBook]: (data) => {
       const slotsUnequipped: TaggedEquipmentSlot[] = [];
       const { characterId, itemIdTraded, book } = data;
 
-      const { combatant } = gameStore.getExpectedCombatantContext(characterId);
+      const { combatant } = gameContext.requireCombatantContext(characterId);
       const { combatantProperties } = combatant;
       // unequip it if is equipped
       const equippedItems = combatantProperties.equipment.getAllEquippedItems({
@@ -830,23 +795,27 @@ export function createGameUpdateHandlers(
       }
 
       const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemIdTraded);
-      if (removedItemResult instanceof Error) setAlert(removedItemResult);
-      else {
+      if (removedItemResult instanceof Error) {
+        alertsService.setAlert(removedItemResult);
+      } else {
         const asClassInstance = Consumable.fromSerialized(book);
         const { inventory } = combatantProperties;
         inventory.insertItem(asClassInstance);
-        setAlert(`Obtained ${getSkillBookName(book.consumableType, book.itemLevel)}`, true);
+        alertsService.setAlert(
+          `Obtained ${getSkillBookName(book.consumableType, book.itemLevel)}`,
+          true
+        );
       }
 
-      gameWorldView.current?.modelManager.modelActionQueue.enqueueMessage({
-        type: ModelActionType.SynchronizeCombatantEquipmentModels,
-        entityId: characterId,
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
       });
     },
     [GameStateUpdateType.CharacterRenamedPet]: (data) => {
       const { petId, newName } = data;
-      const pet = gameStore.getExpectedCombatant(petId);
-      setAlert(`Pet name changed from ${pet.entityProperties.name} to ${newName}`);
+      const pet = gameContext.requireCombatant(petId);
+      alertsService.setAlert(`Pet name changed from ${pet.entityProperties.name} to ${newName}`);
       pet.entityProperties.name = newName;
     },
   };

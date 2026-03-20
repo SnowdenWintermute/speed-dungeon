@@ -9,8 +9,8 @@ import { ClientApplicationGameContext } from "./client-application-game-context"
 import { ClientApplicationSession } from "./client-application-session";
 import { ActionMenu } from "./action-menu";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
-import { ClientSingleton } from "@/singletons/lobby-client";
 import { ActionMenuScreenType } from "./action-menu/screen-types";
+import { ClientSingleton } from "./clients/singleton";
 
 export class CombatantFocus {
   private focusedCharacterId: CombatantId | null = null;

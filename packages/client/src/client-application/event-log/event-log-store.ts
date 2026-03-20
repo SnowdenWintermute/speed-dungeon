@@ -8,15 +8,15 @@ export class EventLogStore {
     makeAutoObservable(this);
   }
 
-  clearGameLog() {
+  clear() {
     this.messages = [];
   }
 
-  postGameLogMessage(message: GameLogMessage) {
+  postMessage(message: GameLogMessage) {
     this.messages.push(message);
   }
 
-  getGameLogMessages() {
+  getMessages() {
     return this.messages;
   }
 }

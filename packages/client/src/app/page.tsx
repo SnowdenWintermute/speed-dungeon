@@ -12,16 +12,22 @@ import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
 import { AppStore } from "@/mobx-stores/app-store";
 import SceneManager from "./game-world-view-canvas/SceneManager";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AssetManager } from "./asset-manager";
 import { getApplicationRuntimeManager } from "@/singletons";
 import { ClientApplication } from "@/client-application";
-import { ReplayTreeScheduler } from "@/client-application/replay-execution/replay-tree-scheduler";
+import { IndexedDbAssetStore } from "@speed-dungeon/common";
+import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
+import { ClientApplicationContext } from "@/hooks/create-client-application-context";
 
 // for immer to be able to use map and set
 enableMapSet();
-// const replayProcessorManager = new ReplayTreeScheduler();
-// const clientApplication = new ClientApplication(null);
+
+function createClientApplication() {
+  const assetCache = new IndexedDbAssetStore(indexedDB);
+  const tickScheduler = new ManualTickScheduler();
+  return new ClientApplication(null, assetCache, "", tickScheduler.scheduler);
+}
 
 export default observer(() => {
   const game = AppStore.get().gameStore.getGameOption();
@@ -32,6 +38,24 @@ export default observer(() => {
   useEffect(() => {
     getApplicationRuntimeManager().enterOnline();
   }, []);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    clientApplicationRef.current = createClientApplication();
+    setIsReady(true);
+  }, []);
+
+  const clientApplicationRef = useRef<ClientApplication | null>(null);
+
+  if (!clientApplicationRef.current && typeof window !== "undefined") {
+    clientApplicationRef.current = createClientApplication();
+  }
+
+  if (!isReady || !clientApplicationRef.current) {
+    return null;
+  }
+
+  console.log("client application:", clientApplicationRef.current);
 
   const componentToRender = shouldShowGame ? (
     <Game />
@@ -42,7 +66,7 @@ export default observer(() => {
   );
 
   return (
-    <>
+    <ClientApplicationContext.Provider value={clientApplicationRef.current}>
       <AssetManager />
       <TailwindClassLoader />
       <AlertManager />
@@ -50,6 +74,6 @@ export default observer(() => {
       <TooltipManager />
       <SceneManager />
       <SkyColorProvider>{componentToRender}</SkyColorProvider>
-    </>
+    </ClientApplicationContext.Provider>
   );
 });

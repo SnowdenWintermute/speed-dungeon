@@ -11,7 +11,7 @@ export enum GameMessageType {
 export class GameMessage {
   constructor(
     public type: GameMessageType,
-    public showAfterActionQueueResolution: boolean,
+    public showAfterSequentialQueueResolution: boolean,
     public message: string
   ) {}
 }

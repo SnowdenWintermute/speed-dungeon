@@ -45,9 +45,8 @@ export interface ClientEventMap {
   };
   [ClientEventType.SpawnEnvironmentModel]: {
     id: string;
-    path: string;
-    position: Vector3;
     modelType: EnvironmentEntityName;
+    position: Vector3;
     rotationQuat?: Quaternion;
   };
   [ClientEventType.DespawnEnvironmentModel]: { id: string };

@@ -1,5 +1,4 @@
 import { ClientEventHandlers, ClientEventType } from "./client-events";
-import { EventLogGameMessageService } from "../event-log/event-log-service";
 import {
   Battle,
   BattleConclusion,
@@ -8,42 +7,29 @@ import {
   Consumable,
   Equipment,
 } from "@speed-dungeon/common";
-import { ActionMenu } from "../action-menu";
-import { ClientApplicationGameContext } from "../client-application-game-context";
-import { CombatantFocus } from "../combatant-focus";
-import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
-import { TargetIndicatorStore } from "../target-indicator-store";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
-import { ReplayTreeScheduler } from "../replay-execution/replay-tree-scheduler";
-import { GameWorldView } from "@/xxNEW-game-world-view";
 import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
+import { ClientApplication } from "..";
 
 export function createClientEventHandlers(
-  replayScheduler: ReplayTreeScheduler,
-  gameWorldView: GameWorldView | null,
-  actionMenu: ActionMenu,
-  gameContext: ClientApplicationGameContext,
-  combatantFocus: CombatantFocus,
-  lobbyContext: ClientApplicationLobbyContext,
-  targetIndicatorStore: TargetIndicatorStore,
-  eventLogMessageService: EventLogGameMessageService
+  clientApplication: ClientApplication
 ): ClientEventHandlers {
   return {
     [ClientEventType.ClearAllModels]: () => {
-      return gameWorldView?.sceneEntityService.clearAll();
+      return clientApplication.gameWorldView?.sceneEntityService.clearAll();
     },
     [ClientEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
-      return gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantEquipmentModels(
+      return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantEquipmentModels(
         event.entityId
       );
     },
     [ClientEventType.SynchronizeCombatantModels]: async (event) => {
-      return gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
+      return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         event
       );
     },
     [ClientEventType.SpawnEnvironmentModel]: (event) => {
-      return gameWorldView?.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
+      return clientApplication.gameWorldView?.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
         event.id,
         event.modelType,
         event.position,
@@ -51,7 +37,7 @@ export function createClientEventHandlers(
       );
     },
     [ClientEventType.DespawnEnvironmentModel]: (event) => {
-      gameWorldView?.sceneEntityService.environmentEntityManager.unregister(
+      clientApplication.gameWorldView?.sceneEntityService.environmentEntityManager.unregister(
         event.id,
         CleanupMode.Immediate
       );
@@ -59,6 +45,8 @@ export function createClientEventHandlers(
     [ClientEventType.ProcessReplayTree]: async (event) => {
       const promise = new Promise((resolve, reject) => {
         const { actionUserId } = event;
+        const { targetIndicatorStore, gameContext, actionMenu, replayTreeScheduler } =
+          clientApplication;
         targetIndicatorStore.clearUserTargets(event.actionUserId);
 
         const player = gameContext.requireClientPlayer();
@@ -78,13 +66,15 @@ export function createClientEventHandlers(
           }
         }
 
-        replayScheduler.enqueueTree(event.root, !!event.doNotLockInput, () => resolve(true));
+        replayTreeScheduler.enqueueTree(event.root, !!event.doNotLockInput, () => resolve(true));
       });
 
       await promise;
     },
     [ClientEventType.ProcessBattleResult]: (event) => {
       const { conclusion, timestamp, actionEntitiesRemoved, experiencePointChanges, loot } = event;
+      const { gameWorldView, actionMenu, eventLogMessageService, combatantFocus } =
+        clientApplication;
 
       if (loot) {
         loot.equipment = loot.equipment.map((item) => Equipment.fromSerialized(item));
@@ -141,13 +131,13 @@ export function createClientEventHandlers(
     },
     [ClientEventType.PostGameMessages]: (event) => {
       event.messages.forEach((message) => {
-        eventLogMessageService.postGameMessage(message);
+        clientApplication.eventLogMessageService.postGameMessage(message);
       });
     },
     [ClientEventType.RemovePlayerFromGame]: async (event) => {
       const itemsToRemoveThumbnails: string[] = [];
 
-      const { gameOption } = gameContext;
+      const { gameOption } = clientApplication.gameContext;
       if (gameOption === null) {
         // maybe could happen if ally quits game, then user quits before they receive the message
         console.info("tried to process RemovePlayerFromGame but client has no game");
@@ -175,6 +165,7 @@ export function createClientEventHandlers(
         );
       }
 
+      const { gameWorldView, eventLogMessageService, combatantFocus } = clientApplication;
       eventLogMessageService.postUserLeftGame(username);
       combatantFocus.focusFirstOwnedCharacter();
 

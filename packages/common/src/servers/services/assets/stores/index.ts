@@ -12,7 +12,7 @@ export abstract class RemoteAssetStore {
   abstract getAssetManifest(): Promise<AssetManifest>;
 }
 
-/** A store we can cache to
+/** A store we can cache to. Base class to be extended based on the runtime.
  * ArrayBuffer format was chosen because it works in all runtimes, node, browser etc.*/
 export abstract class AssetCache {
   abstract getAsset(assetId: AssetId): Promise<VersionedAsset>;

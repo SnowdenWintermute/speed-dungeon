@@ -12,7 +12,16 @@ import {
   UniversalCamera,
   Vector3,
 } from "@babylonjs/core";
-import { Equipment, Item } from "@speed-dungeon/common";
+import {
+  CONSUMABLE_TYPE_STRINGS,
+  Combatant,
+  Consumable,
+  ConsumableType,
+  EntityName,
+  Equipment,
+  Item,
+  iterateNumericEnum,
+} from "@speed-dungeon/common";
 import {
   ImageGenerationRequest,
   ImageGenerationRequestHandlers,
@@ -266,5 +275,42 @@ export class ImageGenerator {
     }
 
     return image;
+  }
+
+  enqueueCharacterItemsForThumbnails(character: Combatant) {
+    const itemsToCreateThumbnailsFor = [];
+    itemsToCreateThumbnailsFor.push(...character.combatantProperties.inventory.equipment);
+    const equipment = character.getEquipmentOption();
+    const hotswapSets = equipment.getHoldableHotswapSlots();
+    if (hotswapSets) {
+      for (const hotswapSet of hotswapSets) {
+        itemsToCreateThumbnailsFor.push(...Object.values(hotswapSet.holdables));
+        itemsToCreateThumbnailsFor.push(...Object.values(equipment.getWearables()));
+      }
+    }
+
+    for (const item of itemsToCreateThumbnailsFor) {
+      this.enqueueMessage({
+        type: ImageGenerationRequestType.ItemCreation,
+        data: { item },
+      });
+    }
+  }
+
+  enqueueConsumableGenericThumbnailCreation() {
+    for (const consumableType of iterateNumericEnum(ConsumableType)) {
+      const item = new Consumable(
+        { id: CONSUMABLE_TYPE_STRINGS[consumableType], name: "" as EntityName },
+        0,
+        {},
+        consumableType,
+        1
+      );
+
+      this.enqueueMessage({
+        type: ImageGenerationRequestType.ItemCreation,
+        data: { item },
+      });
+    }
   }
 }

@@ -9,7 +9,7 @@ export function createBabylonScheduler(scene: Scene): TickScheduler {
   };
 }
 
-export class ManualScheduler {
+export class ManualTickScheduler {
   private tick: (() => void) | null = null;
 
   readonly scheduler: TickScheduler = (tick) => {

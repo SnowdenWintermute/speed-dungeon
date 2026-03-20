@@ -2,14 +2,7 @@ import { createClientEventHandlers } from "./client-event-handlers";
 import { ClientEvent, ClientEventHandlers } from "./client-events";
 import { ReactiveNode } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
-import { EventLogGameMessageService } from "../event-log/event-log-service";
-import { ActionMenu } from "../action-menu";
-import { ClientApplicationGameContext } from "../client-application-game-context";
-import { CombatantFocus } from "../combatant-focus";
-import { ClientApplicationLobbyContext } from "../client-application-lobby-context";
-import { TargetIndicatorStore } from "../target-indicator-store";
-import { ReplayTreeScheduler } from "../replay-execution/replay-tree-scheduler";
-import { GameWorldView } from "@/xxNEW-game-world-view";
+import { ClientApplication } from "..";
 
 export class SequentialClientEventProcessor implements ReactiveNode {
   private eventHandlers: ClientEventHandlers;
@@ -21,26 +14,8 @@ export class SequentialClientEventProcessor implements ReactiveNode {
   // generation before executing.
   private generation: number = 0;
 
-  constructor(
-    replayScheduler: ReplayTreeScheduler,
-    gameWorldView: GameWorldView | null,
-    actionMenu: ActionMenu,
-    gameContext: ClientApplicationGameContext,
-    combatantFocus: CombatantFocus,
-    lobbyContext: ClientApplicationLobbyContext,
-    targetIndicatorStore: TargetIndicatorStore,
-    eventLogMessageService: EventLogGameMessageService
-  ) {
-    this.eventHandlers = createClientEventHandlers(
-      replayScheduler,
-      gameWorldView,
-      actionMenu,
-      gameContext,
-      combatantFocus,
-      lobbyContext,
-      targetIndicatorStore,
-      eventLogMessageService
-    );
+  constructor(clientApplication: ClientApplication) {
+    this.eventHandlers = createClientEventHandlers(clientApplication);
   }
 
   makeObservable() {

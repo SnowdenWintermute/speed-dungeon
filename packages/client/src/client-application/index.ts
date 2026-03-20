@@ -5,12 +5,10 @@ import {
   RemoteServerAssetStore,
 } from "@speed-dungeon/common";
 import { ProcessedUpdateAwaiter } from "./event-latch";
-import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
 import { ClientApplicationGameContext } from "./client-application-game-context";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
-import { ClientSingleton } from "@/singletons/lobby-client";
 import { CombatantFocus } from "./combatant-focus";
 import { ClientApplicationLobbyContext } from "./client-application-lobby-context";
 import { TargetIndicatorStore } from "./target-indicator-store";
@@ -25,10 +23,12 @@ import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
 import { GameWorldView } from "@/xxNEW-game-world-view";
 import { UiStore } from "./ui";
+import { ClientSingleton } from "./clients/singleton";
 
 export class ClientApplication {
   // clients
   readonly gameClientRef = new ClientSingleton();
+  readonly lobbyClientRef = new ClientSingleton();
   readonly assetService: ClientAppAssetService;
 
   // event processing
@@ -59,7 +59,7 @@ export class ClientApplication {
 
   constructor(
     readonly gameWorldView: null | GameWorldView,
-    assetCache: AssetCache,
+    assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
     assetServerUrl: string,
     replayManagerTickScheduler: TickScheduler
   ) {
@@ -80,16 +80,7 @@ export class ClientApplication {
     this.targetIndicatorStore = new TargetIndicatorStore();
     this.eventLogMessageService = new EventLogGameMessageService(this);
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
-    this.sequentialEventProcessor = new SequentialClientEventProcessor(
-      this.replayTreeScheduler,
-      this.gameWorldView,
-      this.actionMenu,
-      this.gameContext,
-      this.combatantFocus,
-      this.lobbyContext,
-      this.targetIndicatorStore,
-      this.eventLogMessageService
-    );
+    this.sequentialEventProcessor = new SequentialClientEventProcessor(this);
   }
 
   dispose() {
@@ -101,25 +92,21 @@ export class ClientApplication {
   // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
 
   //
-  // - RuntimeEnvironmentManager (change between online/offline mode and manage persistence of choice/error states)
+  // - ConnectionTopologyManager (change between online/offline mode and manage persistence of choice/error states)
   //   - ConnectionEndpointFactory
   //     - Configured to open runtime dependent Websocket (node or browser version) or InMemoryTransport connections (in offline)
   //   - OfflineGameServer
   //   - OfflineLobbyServer
   //   - LobbyClient
-  //     - GameWorldView (optional)
+  //     - client application
   //     - ConnectionEndpoint
   //     - Event handlers
   //     - Message dispatcher
-  //     - LobbyState
-  //     - SavedCharactersManager
   //   - GameClient
-  //     - GameWorldView (optional)
+  //     - client application
   //     - ConnectionEndpoint
   //     - Event handlers
   //     - Message dispatcher
-  //     - GameState
-  //     - ReplayTreeProcessorManager
   //
   // - GameUpdateProcessedLog
   //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log

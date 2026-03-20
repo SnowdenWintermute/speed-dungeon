@@ -32,7 +32,7 @@ export class EventLogGameMessageService {
   constructor(private clientApplication: ClientApplication) {}
 
   private dispatch(message: GameLogMessage) {
-    this.clientApplication.eventLogStore.postGameLogMessage(message);
+    this.clientApplication.eventLogStore.postMessage(message);
   }
 
   postGameStarted() {

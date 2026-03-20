@@ -71,6 +71,14 @@ export class GameWorldView {
     return camera;
   }
 
+  setDefaultCameraPositionForGame() {
+    const { camera } = this;
+    camera.target.copyFrom(new Vector3(-1, 0.85, 0.51));
+    camera.alpha = 4.7;
+    camera.beta = 1.06;
+    camera.radius = 10.94;
+  }
+
   static NOT_INITIALIZED = "GameWorldView not initialized with ClientApplication";
 
   get clientApplication() {
