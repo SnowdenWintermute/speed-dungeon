@@ -1,7 +1,27 @@
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { makeAutoObservable } from "mobx";
+
+export const HOTKEYS = {
+  CANCEL: "Escape",
+  MAIN_1: "KeyF",
+  MAIN_2: "KeyA",
+  ALT_1: "KeyR",
+  ALT_2: "KeyQ",
+  SIDE_1: "KeyG",
+  SIDE_2: "KeyT",
+  RIGHT_MAIN: "KeyD",
+  LEFT_MAIN: "KeyS",
+  RIGHT_ALT: "KeyE",
+  LEFT_ALT: "KeyW",
+  BOTTOM_LEFT: "KeyX",
+  BOTTOM_RIGHT: "KeyC",
+  BOTTOM_ALT: "KeyV",
+};
+
+export function letterFromKeyCode(keycode: string) {
+  return keycode.slice(3);
+}
 
 export const VIEW_EQUIPMENT_HOTKEY = HOTKEYS.ALT_1;
 
