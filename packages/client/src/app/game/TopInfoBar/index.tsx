@@ -10,7 +10,6 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { AppStore } from "@/mobx-stores/app-store";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
-import { actionCommandQueue } from "@/singletons/action-command-manager";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { gameClientSingleton } from "@/singletons/lobby-client";
@@ -26,7 +25,8 @@ export const TopInfoBar = observer(() => {
   function leaveGame() {
     AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
 
-    actionCommandQueue.clear();
+    // @TODO - replace with clientApplication sequential queue clear
+    // actionCommandQueue.clear();
 
     const { actionEntityManager } = party;
     for (const [entityId, entity] of actionEntityManager.getActionEntities()) {

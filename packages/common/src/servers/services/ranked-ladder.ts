@@ -1,10 +1,10 @@
-import {
-  ActionCommandPayload,
-  ActionCommandType,
-  LadderDeathsUpdate,
-} from "../../action-processing/index.js";
+import { LadderDeathsUpdate } from "../../action-processing/index.js";
 import { EntityId, Username } from "../../aliases.js";
 import { Combatant } from "../../combatants/index.js";
+import {
+  ClientSequentialEvent,
+  ClientSequentialEventType,
+} from "../../packets/client-sequential-events.js";
 import {
   GameMessage,
   GameMessageType,
@@ -53,7 +53,7 @@ export abstract class RankedLadderService {
   getTopRankedDeathMessagesActionCommandPayload(
     partyChannelToExclude: string,
     deathsAndRanks: LadderDeathsUpdate
-  ): ActionCommandPayload {
+  ): ClientSequentialEvent {
     const messages = Object.entries(deathsAndRanks).map(([characterName, deathAndRank]) => {
       return new GameMessage(
         GameMessageType.LadderDeath,
@@ -67,6 +67,9 @@ export abstract class RankedLadderService {
       );
     });
 
-    return { type: ActionCommandType.GameMessages, messages, partyChannelToExclude };
+    return {
+      type: ClientSequentialEventType.PostGameMessages,
+      data: { messages, partyChannelToExclude },
+    };
   }
 }

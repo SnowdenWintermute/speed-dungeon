@@ -1,8 +1,8 @@
-import { ActionCommandPayload } from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { EntityId } from "../../../../aliases.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
+import { ClientSequentialEvent } from "../../../../packets/client-sequential-events.js";
 
 export interface GameModeStrategy {
   onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
@@ -11,13 +11,13 @@ export interface GameModeStrategy {
     game: SpeedDungeonGame,
     partyOption: undefined | AdventuringParty,
     player: SpeedDungeonPlayer
-  ): Promise<ActionCommandPayload[]>;
+  ): Promise<ClientSequentialEvent[]>;
   onLastPlayerLeftGame(game: SpeedDungeonGame): Promise<void>;
   onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
-  onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<ActionCommandPayload[]>;
+  onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<ClientSequentialEvent[]>;
   onPartyVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     characterLevelsBeforeChanges: Record<EntityId, number>
-  ): Promise<ActionCommandPayload[]>;
+  ): Promise<ClientSequentialEvent[]>;
 }

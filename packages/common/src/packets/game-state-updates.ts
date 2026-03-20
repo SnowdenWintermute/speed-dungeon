@@ -1,5 +1,4 @@
 import { Battle, BattleConclusion } from "../battle/index.js";
-import { ActionCommandPayload } from "../action-processing/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
@@ -32,6 +31,7 @@ import { GameServerConnectionInstructions } from "../servers/lobby-server/game-h
 import { SerializedOf } from "../serialization/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { SerializedMap } from "../utils/map-utils.js";
+import { ClientSequentialEvent } from "./client-sequential-events.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -58,7 +58,7 @@ export enum GameStateUpdateType {
   DungeonRoomTypesOnCurrentFloor,
   DungeonRoomUpdate,
   BattleFullUpdate,
-  ActionCommandPayloads,
+  ClientSequentialEvents,
   GameMessage,
   // BattleReport ,
   CharacterDroppedItem,
@@ -171,8 +171,8 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.BattleFullUpdate]: {
     battle: Battle | null;
   };
-  [GameStateUpdateType.ActionCommandPayloads]: {
-    payloads: ActionCommandPayload[];
+  [GameStateUpdateType.ClientSequentialEvents]: {
+    sequentialEvents: ClientSequentialEvent[];
   };
   [GameStateUpdateType.GameMessage]: {
     message: GameMessage;
@@ -342,7 +342,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.DungeonRoomTypesOnCurrentFloor]: "DungeonRoomTypesOnCurrentFloor",
   [GameStateUpdateType.DungeonRoomUpdate]: "DungeonRoomUpdate",
   [GameStateUpdateType.BattleFullUpdate]: "BattleFullUpdate",
-  [GameStateUpdateType.ActionCommandPayloads]: "ActionCommandPayloads",
+  [GameStateUpdateType.ClientSequentialEvents]: "ClientSequentialEvents",
   [GameStateUpdateType.GameMessage]: "GameMessage",
   // BattleReport ,
   [GameStateUpdateType.CharacterDroppedItem]: "CharacterDroppedItem",

@@ -3,11 +3,11 @@ import { GameWorldView } from "..";
 import { ReplayBranchExecution } from "@/client-application/replay-execution/branch-execution";
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  CLIENT_EVENT_TYPE_STRINGS,
   COMBAT_ACTION_NAME_STRINGS,
   GAME_UPDATE_COMMAND_TYPE_STRINGS,
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
-import { CLIENT_EVENT_TYPE_STRINGS } from "@/client-application/sequential-client-event-processor/client-events";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export class GameWorldViewDebug {

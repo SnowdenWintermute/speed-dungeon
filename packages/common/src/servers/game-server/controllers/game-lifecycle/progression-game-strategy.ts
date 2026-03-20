@@ -1,10 +1,13 @@
-import { ActionCommandPayload, ActionCommandType } from "../../../../action-processing/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { EntityId } from "../../../../aliases.js";
 import { Combatant } from "../../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
+import {
+  ClientSequentialEvent,
+  ClientSequentialEventType,
+} from "../../../../packets/client-sequential-events.js";
 import {
   GameMessage,
   GameMessageType,
@@ -73,7 +76,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
-  ): Promise<ActionCommandPayload[]> {
+  ): Promise<ClientSequentialEvent[]> {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
 
     const messages: GameMessage[] = [];
@@ -118,9 +121,11 @@ export class ProgressionGameStrategy implements GameModeStrategy {
 
     return [
       {
-        type: ActionCommandType.GameMessages,
-        messages,
-        partyChannelToExclude: getPartyChannelName(game.name, party.name),
+        type: ClientSequentialEventType.PostGameMessages,
+        data: {
+          messages,
+          partyChannelToExclude: getPartyChannelName(game.name, party.name),
+        },
       },
     ];
   }

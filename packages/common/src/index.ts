@@ -62,6 +62,7 @@ export * from "./primatives/timed-lock.js";
 export * from "./packets/channels.js";
 export * from "./packets/game-message.js";
 export * from "./packets/client-intents.js";
+export * from "./packets/client-sequential-events.js";
 export * from "./packets/game-state-updates.js";
 
 // @TODO - can remove exports after this becomes default lobby code
@@ -142,11 +143,8 @@ export * from "./action-entities/cosmetic-effect.js";
 export * from "./action-entities/cosmetic-effect-constructors.js";
 export * from "./spawnables/index.js";
 
-export * from "./action-processing/action-command.js";
 export * from "./action-processing/action-steps/index.js";
 export * from "./action-processing/game-update-commands.js";
-export * from "./action-processing/action-command-receiver.js";
-export * from "./action-processing/action-command-queue.js";
 export * from "./action-processing/replay-events.js";
 export * from "./action-processing/action-tracker.js";
 export * from "./action-processing/action-sequence-manager.js";

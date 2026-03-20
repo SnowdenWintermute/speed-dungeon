@@ -1,5 +1,5 @@
 import {
-  ActionCommandPayload,
+  ClientSequentialEvent,
   Combatant,
   EntityId,
   LadderDeathsUpdate,
@@ -24,7 +24,7 @@ export class DatabaseRankedLadderService implements RankedLadderService {
   getTopRankedDeathMessagesActionCommandPayload(
     partyChannelToExclude: string,
     deathsAndRanks: LadderDeathsUpdate
-  ): ActionCommandPayload {
+  ): ClientSequentialEvent {
     throw new Error("Method not implemented.");
   }
   async removeEntry(ladderName: string, entryId: EntityId): Promise<number> {

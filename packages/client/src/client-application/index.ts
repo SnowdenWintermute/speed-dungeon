@@ -18,12 +18,12 @@ import { EventLogGameMessageService } from "./event-log/event-log-service";
 import { FloatingMessageService } from "./event-log/floating-messages-service";
 import { AlertsService } from "./alerts";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
-import { SequentialClientEventProcessor } from "./sequential-client-event-processor";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
 import { GameWorldView } from "@/xxNEW-game-world-view";
 import { UiStore } from "./ui";
 import { ClientSingleton } from "./clients/singleton";
+import { ClientSequentialEventProcessor } from "./sequential-event-processor";
 
 export class ClientApplication {
   // clients
@@ -34,7 +34,7 @@ export class ClientApplication {
   // event processing
   readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   readonly replayTreeScheduler: ReplayTreeScheduler;
-  readonly sequentialEventProcessor: SequentialClientEventProcessor;
+  readonly sequentialEventProcessor: ClientSequentialEventProcessor;
   private unregisterReplayManagerTick: () => void;
 
   // core state
@@ -80,7 +80,7 @@ export class ClientApplication {
     this.targetIndicatorStore = new TargetIndicatorStore();
     this.eventLogMessageService = new EventLogGameMessageService(this);
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
-    this.sequentialEventProcessor = new SequentialClientEventProcessor(this);
+    this.sequentialEventProcessor = new ClientSequentialEventProcessor(this);
   }
 
   dispose() {

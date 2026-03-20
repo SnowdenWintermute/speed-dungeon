@@ -94,7 +94,9 @@ export class TurnSchedulerManager {
 
   getMatchingSchedulerFromTurnOrderTracker(turnOrderTracker: TurnTracker) {
     const schedulerOption = turnOrderTracker.getMatchingScheduler(this.schedulers);
-    if (schedulerOption === undefined) throw new Error("expected turnSchedulerTracker was missing");
+    if (schedulerOption === undefined) {
+      throw new Error("expected turnSchedulerTracker was missing");
+    }
     return schedulerOption;
   }
 

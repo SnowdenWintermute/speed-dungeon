@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ActionCommandPayload } from "@speed-dungeon/common";
 import { EnvironmentModelTypes } from "../scene-entities/environment-models/environment-model-paths";
+import { ClientSequentialEvent } from "@speed-dungeon/common";
 
 export enum ModelActionType {
   ClearAllModels,
@@ -27,7 +27,7 @@ export interface ChangeEquipmentModelAction {
 
 export interface ProcessActionCommandsModelAction {
   type: ModelActionType.ProcessActionCommands;
-  actionCommandPayloads: ActionCommandPayload[];
+  actionCommandPayloads: ClientSequentialEvent[];
 }
 
 export interface SynchronizeCombatantModelsModelAction {

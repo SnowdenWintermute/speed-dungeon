@@ -1,11 +1,4 @@
-import { ActionCommand } from "../../../../action-processing/action-command.js";
 import { ActionIntentOptionAndUser } from "../../../../action-processing/action-steps/index.js";
-import {
-  ActionCommandPayload,
-  ActionCommandType,
-  BattleResultActionCommandPayload,
-  CombatActionReplayTreePayload,
-} from "../../../../action-processing/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
@@ -31,8 +24,12 @@ import {
   GameMessage,
   GameMessageType,
 } from "../../../../packets/game-message.js";
-import { invariant } from "../../../../utils/index.js";
 import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
+import {
+  ClientSequentialEvent,
+  ClientSequentialEventType,
+} from "../../../../packets/client-sequential-events.js";
+import { invariant } from "../../../../utils/index.js";
 
 export class BattleProcessor {
   constructor(
@@ -52,7 +49,7 @@ export class BattleProcessor {
     battle.turnOrderManager.updateTrackers(game, party);
     let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-    const payloads: ActionCommandPayload[] = [];
+    const sequentialEvents: ClientSequentialEvent[] = [];
 
     let safetyCounter = -1;
     while (currentActorTurnTracker) {
@@ -77,7 +74,7 @@ export class BattleProcessor {
       // battle ended, stop processing
       if (battleConcluded) {
         const battleConclusionPayloads = await this.handleBattleConclusion(partyWipes);
-        payloads.push(...battleConclusionPayloads);
+        sequentialEvents.push(...battleConclusionPayloads);
         shouldBreak = true;
       }
       // it is player's turn, stop processing
@@ -112,13 +109,15 @@ export class BattleProcessor {
         const { rootReplayNode } = replayTreeResult;
 
         const actionUserId = user.getEntityId();
-        const payload: CombatActionReplayTreePayload = {
-          type: ActionCommandType.CombatActionReplayTree,
-          actionUserId,
-          root: rootReplayNode,
+        const payload: ClientSequentialEvent = {
+          type: ClientSequentialEventType.ProcessReplayTree,
+          data: {
+            actionUserId,
+            root: rootReplayNode,
+          },
         };
 
-        payloads.push(payload);
+        sequentialEvents.push(payload);
       }
 
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
@@ -126,8 +125,8 @@ export class BattleProcessor {
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
-      type: GameStateUpdateType.ActionCommandPayloads,
-      data: { payloads },
+      type: GameStateUpdateType.ClientSequentialEvents,
+      data: { sequentialEvents },
     });
 
     return outbox;
@@ -144,71 +143,77 @@ export class BattleProcessor {
 
   async handleBattleConclusion(partyWipes: PartyWipes) {
     const { game, party } = this;
-    const actionCommandPayloads: ActionCommandPayload[] = [];
+    const sequentialEvents: ClientSequentialEvent[] = [];
 
     const conclusionPayload = await this.getBattleConclusionPayload(partyWipes);
-    actionCommandPayloads.push(conclusionPayload);
+    sequentialEvents.push(conclusionPayload);
 
     const gameModeContext = this.gameModeContexts[game.mode];
     await gameModeContext.strategy.onBattleResult(game, party);
 
-    switch (conclusionPayload.conclusion) {
-      case BattleConclusion.Defeat: {
-        if (party.battleId !== null) {
-          game.battles.delete(party.battleId);
-        }
-        party.battleId = null;
+    invariant(conclusionPayload.type === ClientSequentialEventType.ProcessBattleResult);
 
-        party.timeOfWipe = Date.now();
+    switch (conclusionPayload.data.conclusion) {
+      case BattleConclusion.Defeat:
+        {
+          if (party.battleId !== null) {
+            game.battles.delete(party.battleId);
+          }
+          party.battleId = null;
 
-        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+          party.timeOfWipe = Date.now();
 
-        actionCommandPayloads.push({
-          type: ActionCommandType.GameMessages,
-          messages: [
-            new GameMessage(
-              GameMessageType.PartyWipe,
-              true,
-              createPartyWipeMessage(party.name, floorNumber, new Date())
-            ),
-          ],
-          partyChannelToExclude: getPartyChannelName(game.name, party.name),
-        });
+          const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
 
-        const defeatMessagePayloadResults = await gameModeContext.strategy.onPartyWipe(game, party);
-        if (defeatMessagePayloadResults instanceof Error) {
-          throw defeatMessagePayloadResults;
-        }
-        if (defeatMessagePayloadResults) {
-          actionCommandPayloads.push(...defeatMessagePayloadResults);
+          sequentialEvents.push({
+            type: ClientSequentialEventType.PostGameMessages,
+            data: {
+              messages: [
+                new GameMessage(
+                  GameMessageType.PartyWipe,
+                  true,
+                  createPartyWipeMessage(party.name, floorNumber, new Date())
+                ),
+              ],
+              partyChannelToExclude: getPartyChannelName(game.name, party.name),
+            },
+          });
+
+          const defeatMessagePayloadResults = await gameModeContext.strategy.onPartyWipe(
+            game,
+            party
+          );
+          if (defeatMessagePayloadResults instanceof Error) {
+            throw defeatMessagePayloadResults;
+          }
+          if (defeatMessagePayloadResults) {
+            sequentialEvents.push(...defeatMessagePayloadResults);
+          }
         }
         break;
-      }
-      case BattleConclusion.Victory: {
-        const levelups = Battle.handleVictory(
-          game,
-          party,
-          conclusionPayload.experiencePointChanges,
-          conclusionPayload.loot
-        );
-        const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
-          game,
-          party,
-          levelups
-        );
-        if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
-        if (victoryMessagePayloadResults)
-          actionCommandPayloads.push(...victoryMessagePayloadResults);
+      case BattleConclusion.Victory:
+        {
+          const levelups = Battle.handleVictory(
+            game,
+            party,
+            conclusionPayload.data.experiencePointChanges,
+            conclusionPayload.data.loot
+          );
+          const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
+            game,
+            party,
+            levelups
+          );
+          if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
+          if (victoryMessagePayloadResults) sequentialEvents.push(...victoryMessagePayloadResults);
+        }
         break;
-      }
     }
 
-    return actionCommandPayloads;
+    return sequentialEvents;
   }
 
-  private async getBattleConclusionPayload(
-    partyWipes: PartyWipes
-  ): Promise<BattleResultActionCommandPayload> {
+  private async getBattleConclusionPayload(partyWipes: PartyWipes): Promise<ClientSequentialEvent> {
     const { party } = this;
     let conclusion: BattleConclusion;
     let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
@@ -236,14 +241,16 @@ export class BattleProcessor {
     const actionEntitiesRemoved =
       actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
-    const payload: BattleResultActionCommandPayload = {
-      type: ActionCommandType.BattleResult,
-      conclusion,
-      loot: loot,
-      partyName: party.name,
-      experiencePointChanges,
-      actionEntitiesRemoved,
-      timestamp: Date.now(),
+    const payload: ClientSequentialEvent = {
+      type: ClientSequentialEventType.ProcessBattleResult,
+      data: {
+        conclusion,
+        loot: loot,
+        partyName: party.name,
+        experiencePointChanges,
+        actionEntitiesRemoved,
+        timestamp: Date.now(),
+      },
     };
 
     return payload;

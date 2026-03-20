@@ -17,7 +17,7 @@ import {
 } from "./create-offline-servers";
 import { GameClient } from "../clients/game";
 
-export enum RuntimeMode {
+export enum ConnectionMode {
   Initializing,
   Online,
   Offline,
@@ -34,8 +34,8 @@ export enum RuntimeMode {
 // - on start in offline mode, check cached asset manifest
 
 export class ConnectionTopology {
-  private _mode = RuntimeMode.Initializing;
-  private preferredMode = RuntimeMode.Online;
+  private _mode = ConnectionMode.Initializing;
+  private preferredMode = ConnectionMode.Online;
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -94,7 +94,24 @@ export class ConnectionTopology {
   }
 
   get isInitialized() {
-    return this.runtimeMode !== RuntimeMode.Initializing;
+    return this.runtimeMode !== ConnectionMode.Initializing;
+  }
+  get canEnterOffline() {
+    const { assetFetchProgress } = this.clientApplication.uiStore;
+    const { initialized, isComplete } = assetFetchProgress;
+    return initialized && isComplete;
+  }
+  set runtimeMode(mode: ConnectionMode) {
+    this._mode = mode;
+  }
+  get runtimeMode() {
+    return this._mode;
+  }
+  get isOnline() {
+    return this._mode === ConnectionMode.Online;
+  }
+  get isOffline() {
+    return this._mode === ConnectionMode.Offline;
   }
 
   resetLobbyConnection() {
@@ -113,7 +130,7 @@ export class ConnectionTopology {
   }
 
   enterOnline() {
-    this._mode = RuntimeMode.Initializing;
+    this._mode = ConnectionMode.Initializing;
     const { connectionStatus } = this.clientApplication.uiStore;
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
@@ -126,17 +143,17 @@ export class ConnectionTopology {
           connectionEndpoint,
           this.clientApplication,
           this,
-          RuntimeMode.Online
+          ConnectionMode.Online
         )
       );
     } else {
-      lobbyClientRef.get().targetRuntimeMode = RuntimeMode.Online;
+      lobbyClientRef.get().targetConnectionMode = ConnectionMode.Online;
       lobbyClientRef.get().setEndpoint(connectionEndpoint);
     }
   }
 
   enterOffline() {
-    this._mode = RuntimeMode.Initializing;
+    this._mode = ConnectionMode.Initializing;
     const { connectionStatus } = this.clientApplication.uiStore;
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
@@ -156,11 +173,11 @@ export class ConnectionTopology {
             connectionEndpoint,
             this.clientApplication,
             this,
-            RuntimeMode.Offline
+            ConnectionMode.Offline
           )
         );
       } else {
-        lobbyClientRef.get().targetRuntimeMode = RuntimeMode.Offline;
+        lobbyClientRef.get().targetConnectionMode = ConnectionMode.Offline;
         lobbyClientRef.get().setEndpoint(connectionEndpoint);
       }
     });
@@ -189,27 +206,5 @@ export class ConnectionTopology {
         this.runtimeMode
       )
     );
-  }
-
-  get canEnterOffline() {
-    const { assetFetchProgress } = this.clientApplication.uiStore;
-    const { initialized, isComplete } = assetFetchProgress;
-    return initialized && isComplete;
-  }
-
-  set runtimeMode(mode: RuntimeMode) {
-    this._mode = mode;
-  }
-
-  get runtimeMode() {
-    return this._mode;
-  }
-
-  get isOnline() {
-    return this._mode === RuntimeMode.Online;
-  }
-
-  get isOffline() {
-    return this._mode === RuntimeMode.Offline;
   }
 }

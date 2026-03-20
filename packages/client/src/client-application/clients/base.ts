@@ -1,6 +1,6 @@
 import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeon/common";
 import { ClientApplication } from "..";
-import { ConnectionTopology, RuntimeMode } from "../connection-topology";
+import { ConnectionMode, ConnectionTopology } from "../connection-topology";
 import { ConnectionStatus } from "../ui/connection-status";
 import { ClientEventType } from "../sequential-client-event-processor/client-events";
 
@@ -10,13 +10,13 @@ export abstract class BaseClient {
     protected connectionEndpoint: ConnectionEndpoint,
     protected clientApplication: ClientApplication,
     protected connectionTopology: ConnectionTopology,
-    protected _targetRuntimeMode: RuntimeMode
+    protected _targetConnectionMode: ConnectionMode
   ) {
     this.registerListeners();
   }
 
-  set targetRuntimeMode(newMode: RuntimeMode) {
-    this._targetRuntimeMode = newMode;
+  set targetConnectionMode(newMode: ConnectionMode) {
+    this._targetConnectionMode = newMode;
   }
 
   dispatchIntent(message: ClientIntent) {
@@ -39,7 +39,7 @@ export abstract class BaseClient {
       console.info(`connected to ${this.name}`);
       const { gameContext, uiStore, gameWorldView } = this.clientApplication;
       gameContext.clearGame();
-      this.connectionTopology.runtimeMode = this._targetRuntimeMode;
+      this.connectionTopology.runtimeMode = this._targetConnectionMode;
       uiStore.connectionStatus.connectionStatus = ConnectionStatus.Connected;
 
       this.clientApplication.sequentialEventProcessor.cancelQueued();

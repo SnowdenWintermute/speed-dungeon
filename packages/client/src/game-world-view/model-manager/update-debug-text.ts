@@ -1,4 +1,3 @@
-import { actionCommandQueue } from "@/singletons/action-command-manager";
 import {
   ACTION_COMMAND_TYPE_STRINGS,
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
@@ -74,15 +73,6 @@ export function updateDebugText(this: GameWorldView) {
     const numTransformNodes = `<div>num transform nodes: ${this.scene.transformNodes.length}</div>`;
     const numParticleSystems = `<div>num particleSystems: ${this.scene.particleSystems.length}</div>`;
 
-    const actionCommandQueueMessages = [];
-    if (actionCommandQueue.commands[0])
-      actionCommandQueueMessages.push(
-        ACTION_COMMAND_TYPE_STRINGS[actionCommandQueue.commands[0].payload.type]
-      );
-    actionCommandQueueMessages.push(
-      ...actionCommandQueue.commands.map((item) => ACTION_COMMAND_TYPE_STRINGS[item.payload.type])
-    );
-
     const modelManagerMessages = [];
     if (gameWorldView.current) {
       modelManagerMessages.push(
@@ -94,8 +84,6 @@ export function updateDebugText(this: GameWorldView) {
       `movementTrackers: ${activeMovementTrackers}`,
       `branches: ${processingUpdateBranches}`,
       `fps: ${fps}`,
-      `action command queue: ${actionCommandQueueMessages}`,
-      `isProcessing: ${actionCommandQueue.isProcessing}`,
       `modelManagerMessages: ${modelManagerMessages}`,
       `isProcessing: ${this.modelManager.modelActionQueue.isProcessing}`,
       // `combatants processing actions: ${actionCommandQueue.entitiesPerformingActions}`,

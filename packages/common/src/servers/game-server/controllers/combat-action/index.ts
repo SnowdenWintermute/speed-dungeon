@@ -14,11 +14,6 @@ import { NextOrPrevious } from "../../../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { CharacterAssociatedData, GameMode } from "../../../../types.js";
 import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
-import {
-  ActionCommandPayload,
-  ActionCommandType,
-  CombatActionReplayTreePayload,
-} from "../../../../action-processing/index.js";
 import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
@@ -26,6 +21,10 @@ import { ItemGenerator } from "../../../../items/item-creation/index.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
+import {
+  ClientSequentialEvent,
+  ClientSequentialEventType,
+} from "../../../../packets/client-sequential-events.js";
 
 export class CombatActionController {
   constructor(
@@ -315,23 +314,25 @@ export class CombatActionController {
 
     const battleOption = party.battleId ? game.battles.get(party.battleId) || null : null;
 
-    const replayTreePayload: CombatActionReplayTreePayload = {
-      type: ActionCommandType.CombatActionReplayTree,
-      actionUserId: character.entityProperties.id,
-      root: replayTreeResult.rootReplayNode,
+    const replayTreePayload: ClientSequentialEvent = {
+      type: ClientSequentialEventType.ProcessReplayTree,
+      data: {
+        actionUserId: character.entityProperties.id,
+        root: replayTreeResult.rootReplayNode,
+      },
     };
 
     if (!lockInuptWhileReplaying) {
-      replayTreePayload.doNotLockInput = true;
+      replayTreePayload.data.doNotLockInput = true;
     }
 
-    const payloads: ActionCommandPayload[] = [replayTreePayload];
+    const sequentialEvents: ClientSequentialEvent[] = [replayTreePayload];
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
-      type: GameStateUpdateType.ActionCommandPayloads,
-      data: { payloads },
+      type: GameStateUpdateType.ClientSequentialEvents,
+      data: { sequentialEvents },
     });
 
     if (battleOption) {

@@ -54,7 +54,7 @@ export abstract class SpeedDungeonServer {
     this.incomingConnectionGateway.close();
   }
 
-  private parseMessage(rawData: string | ArrayBuffer | Buffer<ArrayBufferLike>) {
+  private parseMessage(rawData: string | ArrayBuffer | Buffer) {
     // Convert to string
     let messageStr: string;
     if (typeof rawData === "string") {

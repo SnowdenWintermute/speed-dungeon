@@ -1,6 +1,7 @@
-import { LadderDeathsUpdate, ActionCommandPayload } from "../../action-processing/index.js";
+import { LadderDeathsUpdate } from "../../action-processing/index.js";
 import { EntityId } from "../../aliases.js";
 import { Combatant } from "../../combatants/index.js";
+import { ClientSequentialEvent } from "../../packets/client-sequential-events.js";
 import { RankedLadderService } from "./ranked-ladder.js";
 
 export class InMemoryRankedLadderService implements RankedLadderService {
@@ -19,7 +20,7 @@ export class InMemoryRankedLadderService implements RankedLadderService {
   getTopRankedDeathMessagesActionCommandPayload(
     partyChannelToExclude: string,
     deathsAndRanks: LadderDeathsUpdate
-  ): ActionCommandPayload {
+  ): ClientSequentialEvent {
     throw new Error("Method not implemented.");
   }
   async removeEntry(ladderName: string, entryId: EntityId): Promise<number> {

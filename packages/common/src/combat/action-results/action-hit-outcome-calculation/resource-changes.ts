@@ -1,7 +1,7 @@
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../aliases.js";
-import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
+import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 import { ThreatType } from "../../../combatants/threat-manager/index.js";
 import { Serializable, SerializedOf } from "../../../serialization/index.js";
@@ -124,10 +124,15 @@ export class ThreatChanges implements Serializable {
       };
 
     let existingEntityThreat = existingEntry[entityIdOfEntryInTable];
-    if (existingEntityThreat === undefined)
+    if (existingEntityThreat === undefined) {
       existingEntityThreat = existingEntry[entityIdOfEntryInTable] = {};
-    if (existingEntityThreat[threatType] === undefined) existingEntityThreat[threatType] = value;
-    else existingEntityThreat[threatType] += value;
+    }
+    const existing = existingEntityThreat[threatType];
+    if (existing === undefined) {
+      existingEntityThreat[threatType] = value;
+    } else {
+      existingEntityThreat[threatType] = existing + value;
+    }
 
     return existingEntityThreat[threatType];
   }

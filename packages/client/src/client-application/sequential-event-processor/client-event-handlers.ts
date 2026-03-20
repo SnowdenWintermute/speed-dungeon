@@ -1,8 +1,9 @@
-import { ClientEventHandlers, ClientEventType } from "./client-events";
 import {
   Battle,
   BattleConclusion,
   CleanupMode,
+  ClientSequentialEventHandlers,
+  ClientSequentialEventType,
   CombatantId,
   Consumable,
   Equipment,
@@ -11,24 +12,24 @@ import { ActionMenuScreenType } from "../action-menu/screen-types";
 import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
 import { ClientApplication } from "..";
 
-export function createClientEventHandlers(
+export function createClientSequentialEventHandlers(
   clientApplication: ClientApplication
-): ClientEventHandlers {
+): ClientSequentialEventHandlers {
   return {
-    [ClientEventType.ClearAllModels]: () => {
+    [ClientSequentialEventType.ClearAllModels]: () => {
       return clientApplication.gameWorldView?.sceneEntityService.clearAll();
     },
-    [ClientEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
+    [ClientSequentialEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantEquipmentModels(
         event.entityId
       );
     },
-    [ClientEventType.SynchronizeCombatantModels]: async (event) => {
+    [ClientSequentialEventType.SynchronizeCombatantModels]: async (event) => {
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         event
       );
     },
-    [ClientEventType.SpawnEnvironmentModel]: (event) => {
+    [ClientSequentialEventType.SpawnEnvironmentModel]: (event) => {
       return clientApplication.gameWorldView?.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
         event.id,
         event.modelType,
@@ -36,13 +37,13 @@ export function createClientEventHandlers(
         event.rotationQuat
       );
     },
-    [ClientEventType.DespawnEnvironmentModel]: (event) => {
+    [ClientSequentialEventType.DespawnEnvironmentModel]: (event) => {
       clientApplication.gameWorldView?.sceneEntityService.environmentEntityManager.unregister(
         event.id,
         CleanupMode.Immediate
       );
     },
-    [ClientEventType.ProcessReplayTree]: async (event) => {
+    [ClientSequentialEventType.ProcessReplayTree]: async (event) => {
       const promise = new Promise((resolve, reject) => {
         const { actionUserId } = event;
         const { targetIndicatorStore, gameContext, actionMenu, replayTreeScheduler } =
@@ -71,7 +72,7 @@ export function createClientEventHandlers(
 
       await promise;
     },
-    [ClientEventType.ProcessBattleResult]: (event) => {
+    [ClientSequentialEventType.ProcessBattleResult]: (event) => {
       const { conclusion, timestamp, actionEntitiesRemoved, experiencePointChanges, loot } = event;
       const { gameWorldView, actionMenu, eventLogMessageService, combatantFocus } =
         clientApplication;
@@ -129,12 +130,12 @@ export function createClientEventHandlers(
         );
       }
     },
-    [ClientEventType.PostGameMessages]: (event) => {
+    [ClientSequentialEventType.PostGameMessages]: (event) => {
       event.messages.forEach((message) => {
         clientApplication.eventLogMessageService.postGameMessage(message);
       });
     },
-    [ClientEventType.RemovePlayerFromGame]: async (event) => {
+    [ClientSequentialEventType.RemovePlayerFromGame]: async (event) => {
       const itemsToRemoveThumbnails: string[] = [];
 
       const { gameOption } = clientApplication.gameContext;

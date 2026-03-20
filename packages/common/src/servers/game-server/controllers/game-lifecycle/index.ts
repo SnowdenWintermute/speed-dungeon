@@ -203,8 +203,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       }
 
       outbox.pushToChannel(game.getChannelName(), {
-        type: GameStateUpdateType.ActionCommandPayloads,
-        data: { payloads: partyWipePayloads },
+        type: GameStateUpdateType.ClientSequentialEvents,
+        data: { sequentialEvents: partyWipePayloads },
       });
     }
 

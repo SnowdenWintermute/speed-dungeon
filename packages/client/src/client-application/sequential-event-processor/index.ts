@@ -1,21 +1,24 @@
-import { createClientEventHandlers } from "./client-event-handlers";
-import { ClientEvent, ClientEventHandlers } from "./client-events";
-import { ReactiveNode } from "@speed-dungeon/common";
+import { createClientSequentialEventHandlers } from "./client-event-handlers";
+import {
+  ClientSequentialEvent,
+  ClientSequentialEventHandlers,
+  ReactiveNode,
+} from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
 
-export class SequentialClientEventProcessor implements ReactiveNode {
-  private eventHandlers: ClientEventHandlers;
+export class ClientSequentialEventProcessor implements ReactiveNode {
+  private eventHandlers: ClientSequentialEventHandlers;
   // pendingEvents and currentEventProcessing for observing in debug screen
-  pendingEvents = new Set<ClientEvent>();
-  currentEventProcessing: null | ClientEvent = null;
+  pendingEvents = new Set<ClientSequentialEvent>();
+  currentEventProcessing: null | ClientSequentialEvent = null;
   private chain: Promise<void> = Promise.resolve();
   // incremented when clearing the queue. any event in the chain will check if it is part of a stale
   // generation before executing.
   private generation: number = 0;
 
   constructor(clientApplication: ClientApplication) {
-    this.eventHandlers = createClientEventHandlers(clientApplication);
+    this.eventHandlers = createClientSequentialEventHandlers(clientApplication);
   }
 
   makeObservable() {
@@ -26,7 +29,7 @@ export class SequentialClientEventProcessor implements ReactiveNode {
     return this.currentEventProcessing !== null || this.pendingEvents.size > 0;
   }
 
-  scheduleEvent(event: ClientEvent) {
+  scheduleEvent(event: ClientSequentialEvent) {
     this.pendingEvents.add(event);
     const scheduledGeneration = this.generation;
     this.chain = this.chain.then(async () => {
@@ -46,7 +49,7 @@ export class SequentialClientEventProcessor implements ReactiveNode {
           console.info("a stale event finished processing", event);
         }
       } catch (error) {
-        console.error("error in SequentialClientEventProcessor", error);
+        console.error("error in SequentialClientSequentialEventProcessor", error);
       } finally {
         this.pendingEvents.delete(event);
         this.currentEventProcessing = null;
