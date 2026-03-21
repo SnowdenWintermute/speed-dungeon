@@ -1,6 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import {
   NextOrPrevious,
   RACE_GAME_RECORDS_PAGE_SIZE,
@@ -9,6 +8,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export default function PageSelector({ username }: { username: string }) {
   const searchParams = useSearchParams();
@@ -17,8 +17,10 @@ export default function PageSelector({ username }: { username: string }) {
   const pathname = usePathname();
   const { replace } = useRouter();
   const numRecordsHttpRequestTrackerName = HTTP_REQUEST_NAMES.GET_USER_NUM_GAMES_PLAYED;
-  const numGamesResponseTracker = useHttpRequestStore().requests[numRecordsHttpRequestTrackerName];
-  const fetchData = useHttpRequestStore().fetchData;
+  const clientApplication = useClientApplication();
+  const { httpRequests } = clientApplication.uiStore;
+  const numGamesResponseTracker = httpRequests.requests[numRecordsHttpRequestTrackerName];
+  const fetchData = httpRequests.fetchData;
 
   useEffect(() => {
     fetchData(

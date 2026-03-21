@@ -1,7 +1,6 @@
 "use client";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
 import PageSelector from "./page-selector";
@@ -12,14 +11,18 @@ import {
   SanitizedRacePartyAggregatedRecord,
 } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export default function GameHistory({ username }: { username: string }) {
   const searchParams = useSearchParams();
   const pageParam = searchParams.get("page") || "1";
   const page = parseInt(pageParam);
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.GET_USER_GAME_HISTORY;
-  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
-  const fetchData = useHttpRequestStore().fetchData;
+
+  const clientApplication = useClientApplication();
+  const { httpRequests } = clientApplication.uiStore;
+  const responseTracker = httpRequests.requests[httpRequestTrackerName];
+  const fetchData = httpRequests.fetchData;
 
   useEffect(() => {
     fetchData(

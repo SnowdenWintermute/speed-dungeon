@@ -2,11 +2,11 @@ import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBack
 import OpenInventoryAsFreshStackButton from "@/app/game/ActionMenu/menu-state/common-buttons/OpenInventoryAsFreshStackButton";
 import { ABILITY_TREE_DIMENSIONS, ArrayUtils } from "@speed-dungeon/common";
 import { ActionMenuNumberedButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ActionMenuNumberedButton";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ClientApplication } from "../..";
 import { ActionMenuScreen } from ".";
 import { ActionMenuScreenType } from "../screen-types";
 import { ConsideringAbilityTreeColumnActionMenuScreen } from "./ability-tree-column";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export class AbilityTreeActionMenuScreen extends ActionMenuScreen {
   constructor(clientApplication: ClientApplication) {

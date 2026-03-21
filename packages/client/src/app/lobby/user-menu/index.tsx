@@ -4,14 +4,9 @@ import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
-import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
-import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
 
 export const UserMenuContainer = observer(() => {
   const mutateHttpState = useHttpRequestStore().mutateState;

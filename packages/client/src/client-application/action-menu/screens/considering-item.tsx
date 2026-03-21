@@ -1,6 +1,5 @@
 import { ActionMenuScreen } from ".";
 import { Equipment, EquipmentType, Item } from "@speed-dungeon/common";
-import { ModifierKey } from "@/mobx-stores/input";
 import { ReactNode } from "react";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "@/client-application";
@@ -10,6 +9,7 @@ import { UseItemButton } from "@/app/game/ActionMenu/menu-state/common-buttons/U
 import { DropItemButton } from "@/app/game/ActionMenu/menu-state/common-buttons/DropItemButton";
 import { EquipToAltSlotButton } from "@/app/game/ActionMenu/menu-state/common-buttons/EquipToAltSlotButton";
 import { ConsideringItemDisplay } from "@/app/game/ActionMenu/ConsideringItemDisplay";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 const ALT_SLOTTABLE_ITEMS = [EquipmentType.Ring, EquipmentType.OneHandedMeleeWeapon];
 

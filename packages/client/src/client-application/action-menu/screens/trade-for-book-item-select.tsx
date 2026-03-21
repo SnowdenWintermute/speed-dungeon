@@ -57,7 +57,7 @@ export class SelectItemToTradeForBookActionMenuScreen extends ActionMenuScreen {
   }
 
   getCentralSection() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = this.clientApplication.combatantFocus.requireFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
 
     const acceptedItems = getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType);

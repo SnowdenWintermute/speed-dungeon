@@ -1,7 +1,6 @@
 import { ClientIntentType } from "@speed-dungeon/common";
 import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 import { ClientApplication } from "@/client-application";
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
 import { ActionMenuScreenType } from "../screen-types";
@@ -45,7 +44,7 @@ export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
               .getItems()
               .map((item) => item.entityProperties.id);
 
-            gameClientSingleton.get().dispatchIntent({
+            this.clientApplication.gameClientRef.get().dispatchIntent({
               type: ClientIntentType.PickUpItems,
               data: {
                 characterId: focusedCharacterId,

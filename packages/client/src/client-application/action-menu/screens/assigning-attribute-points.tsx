@@ -3,13 +3,13 @@ import { ActionMenuScreen } from ".";
 import { ActionMenuScreenType } from "../screen-types";
 import { ClientApplication } from "@/client-application";
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ActionMenuNumberedButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ActionMenuNumberedButton";
 import {
   COMBAT_ATTRIBUTE_STRINGS,
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   ClientIntentType,
 } from "@speed-dungeon/common";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export class AssigningAttributePointsActionMenuScreen extends ActionMenuScreen {
   constructor(clientApplication: ClientApplication) {

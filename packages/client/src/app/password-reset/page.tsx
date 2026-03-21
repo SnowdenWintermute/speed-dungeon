@@ -1,7 +1,6 @@
 "use client";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
-import { useHttpRequestStore } from "@/stores/http-request-store";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import LabeledTextInputWithErrorDisplay from "../components/molocules/LabeledInputWithErrorDisplay";
 import ButtonBasic from "../components/atoms/ButtonBasic";
@@ -9,6 +8,7 @@ import { HTTP_REQUEST_NAMES, SPACING_REM_LARGE } from "@/client-consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import WithTopBar from "../components/layouts/with-top-bar";
 import AuthForm from "../lobby/auth-forms/AuthForm";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export default function PasswordResetPage() {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.CHANGE_PASSWORD;
@@ -17,7 +17,9 @@ export default function PasswordResetPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
+  const clientApplication = useClientApplication();
+  const { httpRequests } = clientApplication.uiStore;
+  const responseTracker = httpRequests.requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
 
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));

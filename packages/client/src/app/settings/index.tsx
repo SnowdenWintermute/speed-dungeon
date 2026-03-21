@@ -4,27 +4,25 @@ import React, { useEffect } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import { PasswordResetEmailForm } from "../lobby/auth-forms/password-reset-email-form";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import Divider from "../components/atoms/Divider";
 import DeleteAccountForm from "../lobby/auth-forms/delete-account-form";
 import ChangeUsernameForm from "../lobby/auth-forms/change-username-form";
 import { ZIndexLayers } from "../z-index-layers";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const Settings = observer(() => {
-  const mutateHttpRequestState = useHttpRequestStore().mutateState;
-  const { dialogStore, gameStore } = AppStore.get();
-  const settingsIsOpen = dialogStore.isOpen(DialogElementName.AppSettings);
-  const username = gameStore.getUsernameOption();
+  const clientApplication = useClientApplication();
+  const { session } = clientApplication;
+  const { dialogs, httpRequests } = clientApplication.uiStore;
+  const settingsIsOpen = dialogs.isOpen(DialogElementName.AppSettings);
+  const { usernameOption } = session;
 
   useEffect(() => {
-    mutateHttpRequestState((state) => {
-      delete state.requests[HTTP_REQUEST_NAMES.DELETE_ACCOUNT];
-      delete state.requests[HTTP_REQUEST_NAMES.CHANGE_USERNAME];
-      delete state.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
-    });
+    delete httpRequests.requests[HTTP_REQUEST_NAMES.DELETE_ACCOUNT];
+    delete httpRequests.requests[HTTP_REQUEST_NAMES.CHANGE_USERNAME];
+    delete httpRequests.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
   }, [settingsIsOpen]);
 
   if (!settingsIsOpen) return <></>;
@@ -45,11 +43,8 @@ export const Settings = observer(() => {
           hotkeys={["Escape"]}
           ariaLabel="close settings window"
           onClick={() => {
-            dialogStore.setIsOpen(DialogElementName.AppSettings, false);
-
-            mutateHttpRequestState((state) => {
-              delete state.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
-            });
+            dialogs.setIsOpen(DialogElementName.AppSettings, false);
+            delete httpRequests.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
           }}
         >
           <XShape className="h-full w-full fill-slate-400" />
@@ -57,7 +52,7 @@ export const Settings = observer(() => {
       </div>
       <div className="flex flex-col" style={{ padding: `${SPACING_REM_SMALL}rem` }}>
         <h3 className="self-end">
-          Logged in as <span className="italic">{username}</span>
+          Logged in as <span className="italic">{usernameOption}</span>
         </h3>
         <Divider />
         <div style={{ width: `450px` }}>
