@@ -9,9 +9,9 @@ import {
 import { AssetContainer, Scene, TransformNode } from "@babylonjs/core";
 import { CharacterModelPartCategory } from "./modular-parts";
 import { CombatantSceneEntity } from "..";
-import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
-import { requireTransformNodeByName } from "@/xxNEW-game-world-view/utils";
-import { ARMATURE_ROOT_BONE_NAME } from "@/xxNEW-game-world-view/game-world-view-consts";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
+import { requireTransformNodeByName } from "@/game-world-view/utils";
+import { ARMATURE_ROOT_BONE_NAME } from "@/game-world-view/game-world-view-consts";
 
 export class CombatantSceneEntityModularPartsManager {
   parts: Record<CharacterModelPartCategory, null | AssetContainer> = {

@@ -12,7 +12,6 @@ import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
-import { getTargetOption } from "@/utils/get-target-option";
 import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
@@ -131,7 +130,9 @@ function getAttackActionDamageAndAccuracy(
 
   const gameOption = AppStore.get().gameStore.getGameOption();
 
-  const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
+  const currentlyTargetedCombatantResult = combatant
+    .getTargetingProperties()
+    .getPrimaryTargetOption(gameOption, combatant, actionName);
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
   const usingDummy = currentlyTargetedCombatantResult === undefined;
 

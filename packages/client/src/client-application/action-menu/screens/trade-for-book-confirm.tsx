@@ -12,12 +12,11 @@ import {
 import Divider from "@/app/components/atoms/Divider";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 import { ClientApplication } from "@/client-application";
 import { ActionMenuScreenType } from "../screen-types";
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
 import ActionMenuTopButton from "@/app/game/ActionMenu/menu-state/common-buttons/ActionMenuTopButton";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 function handleConfirmTrade(
   clientApplication: ClientApplication,
@@ -25,7 +24,7 @@ function handleConfirmTrade(
   itemId: ItemId,
   bookType: BookConsumableType
 ) {
-  gameClientSingleton.get().dispatchIntent({
+  clientApplication.gameClientRef.get().dispatchIntent({
     type: ClientIntentType.TradeItemForBook,
     data: {
       characterId,

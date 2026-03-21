@@ -7,10 +7,8 @@ import {
   HitOutcomesGameUpdateCommand,
   CombatActionComponent,
 } from "@speed-dungeon/common";
-import { characterAutoFocusManager } from "@/singletons/character-autofocus-manager";
-import { GameLogMessageService } from "@/mobx-stores/game-event-notifications/game-log-message-service";
 import { ClientApplication } from "@/client-application";
-import { CombatantSceneEntity } from "@/xxNEW-game-world-view/scene-entities/combatants";
+import { CombatantSceneEntity } from "@/game-world-view/scene-entities/combatants";
 
 type GameUpdateCommandWithResourceChanges =
   | ActivatedTriggersGameUpdateCommand
@@ -101,7 +99,9 @@ export class CombatantResourceChangeUpdateHandlerCommand {
 
     const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();
     if (newlyActiveTracker !== undefined) {
-      characterAutoFocusManager.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
+      this.clientApplication.combatantFocus.updateFocusedCharacterOnNewTurnOrder(
+        newlyActiveTracker
+      );
     }
 
     const shouldRemove = this.targetCombatant.getCombatantProperties().removeFromPartyOnDeath;
@@ -129,7 +129,9 @@ export class CombatantResourceChangeUpdateHandlerCommand {
   private postDeathMessage() {
     const shouldPostResourceChange = !this.action.gameLogMessageProperties.doNotPostResourceChange;
     if (shouldPostResourceChange) {
-      GameLogMessageService.postCombatantDeath(this.targetCombatant.getName());
+      this.clientApplication.eventLogMessageService.postCombatantDeath(
+        this.targetCombatant.getName()
+      );
     }
   }
 }

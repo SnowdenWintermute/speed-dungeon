@@ -1,9 +1,7 @@
 import { ClientApplication } from "@/client-application";
-import { ClientEventType } from "@/client-application/sequential-client-event-processor/client-events";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
-import { useHttpRequestStore } from "@/stores/http-request-store";
-import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
-import { SerializedOf, SpeedDungeonGame } from "@speed-dungeon/common";
+import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
+import { ClientSequentialEventType, SerializedOf, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export function gameFullUpdateHandler(
   clientApplication: ClientApplication,
@@ -15,13 +13,13 @@ export function gameFullUpdateHandler(
     deserializedGame.makeObservable();
   } else {
     clientApplication.sequentialEventProcessor.scheduleEvent({
-      type: ClientEventType.ClearAllModels,
+      type: ClientSequentialEventType.ClearAllModels,
       data: undefined,
     });
   }
 
   clientApplication.sequentialEventProcessor.scheduleEvent({
-    type: ClientEventType.SynchronizeCombatantModels,
+    type: ClientSequentialEventType.SynchronizeCombatantModels,
     data: { softCleanup: true, placeInHomePositions: true },
   });
 
@@ -31,7 +29,7 @@ export function gameFullUpdateHandler(
   });
 
   const currentSessionHttpResponseTracker =
-    useHttpRequestStore.getState().requests[HTTP_REQUEST_NAMES.GET_SESSION];
+    clientApplication.uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
 
   if (deserializedGame === null) {

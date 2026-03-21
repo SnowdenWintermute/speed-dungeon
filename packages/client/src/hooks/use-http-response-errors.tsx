@@ -1,4 +1,4 @@
-import { HttpRequestTracker } from "@/stores/http-request-store";
+import { HttpRequestTracker } from "@/client-application/ui/http-requests";
 import { useState, useEffect } from "react";
 
 export default function useHttpResponseErrors(

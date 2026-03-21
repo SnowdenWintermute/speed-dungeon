@@ -7,6 +7,7 @@ import { ActionUserContext } from "../../action-user-context/index.js";
 import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import { CombatActionTargetType } from "../targeting/combat-action-targets.js";
 import { ActionRank } from "../../aliases.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
@@ -14,8 +15,10 @@ export function AISelectActionAndTarget(
 ): Error | null | CombatActionExecutionIntent {
   const { combatantProperties: userCombatantProperties } = user;
 
-  const partyResult = game.getPartyOfCombatant(user.entityProperties.id);
-  if (partyResult instanceof Error) return partyResult;
+  const partyResult = game.getPartyOptionOfCombatant(user.entityProperties.id);
+  if (partyResult === undefined) {
+    throw new Error(ERROR_MESSAGES.PARTY.CHARACTER_NOT_FOUND);
+  }
   const battleOption = game.getBattleOption(partyResult.battleId) || null;
 
   const behaviorContext = new AIBehaviorContext(

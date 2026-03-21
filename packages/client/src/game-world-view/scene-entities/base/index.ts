@@ -20,7 +20,7 @@ import { GameWorldView } from "../..";
 import { SceneEntityMovementManager } from "./scene-entity-movement-manager";
 import { SkeletalAnimationManager } from "./scene-entity-animation-manager/skeletal-animation-manager";
 import { DynamicAnimationManager } from "./scene-entity-animation-manager/dynamic-animation-manager";
-import { getChildMeshByName } from "@/xxNEW-game-world-view/utils";
+import { getChildMeshByName } from "@/game-world-view/utils";
 import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 
 /** The base class for most "3d models" */

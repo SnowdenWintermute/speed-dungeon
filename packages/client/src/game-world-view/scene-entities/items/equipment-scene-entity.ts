@@ -1,7 +1,6 @@
 import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 import { SceneEntity } from "../base/index";
 import {
-  AbstractMesh,
   AssetContainer,
   Color4,
   MeshBuilder,
@@ -18,8 +17,7 @@ import {
   EquipmentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { getChildMeshByName } from "@/xxNEW-game-world-view/utils";
-import { paintCubesOnNodes } from "@/game-world-view/game-world-view-utils";
+import { getChildMeshByName, paintCubesOnNodes } from "@/game-world-view/utils";
 
 export class EquipmentSceneEntity extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantHoldableChildTransformNodeName, TransformNode>> = {};

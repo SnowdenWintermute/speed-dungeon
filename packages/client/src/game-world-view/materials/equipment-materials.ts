@@ -16,14 +16,22 @@ import {
   CustomMaterial,
   DYNAMIC_MATERIAL_TAG,
   ELEMENT_COLORS,
+  MATERIAL_LABEL_STRINGS,
   MaterialCategory,
+  MaterialLabel,
   MaterialShade,
 } from "./material-colors";
-import { MATERIAL_NAMES } from "@/game-world-view/materials/material-colors";
 import { SavedMaterials } from "./material-pool";
 import { MaterialManager } from "./material-manager";
 
-const { MAIN, ALTERNATE, ACCENT_1, ACCENT_2, ACCENT_3, HILT, HANDLE, BLADE } = MATERIAL_NAMES;
+const MAIN = MATERIAL_LABEL_STRINGS[MaterialLabel.Main];
+const ALTERNATE = MATERIAL_LABEL_STRINGS[MaterialLabel.Alternate];
+const ACCENT_1 = MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1];
+const ACCENT_2 = MATERIAL_LABEL_STRINGS[MaterialLabel.Accent2];
+const ACCENT_3 = MATERIAL_LABEL_STRINGS[MaterialLabel.Accent3];
+const HILT = MATERIAL_LABEL_STRINGS[MaterialLabel.Hilt];
+const HANDLE = MATERIAL_LABEL_STRINGS[MaterialLabel.Handle];
+const BLADE = MATERIAL_LABEL_STRINGS[MaterialLabel.Blade];
 
 export interface EquipmentMaterialsMap
   extends Record<

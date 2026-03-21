@@ -1,4 +1,4 @@
-import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { Color3, Material, Quaternion, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { EnvironmentSceneEntity } from ".";
 import { ClientAppAssetService, EnvironmentEntityName } from "@speed-dungeon/common";
@@ -9,13 +9,13 @@ import {
   MAIN_BG_COLOR,
   MAIN_TEXT_AND_BORDERS_COLOR,
 } from "@/client-consts";
-import { MATERIAL_NAMES } from "@/game-world-view/materials/material-colors";
+import { MATERIAL_LABEL_STRINGS, MaterialLabel } from "@/game-world-view/materials/material-colors";
 import {
   MaterialCategory,
   MaterialShade,
   PlasticColor,
-} from "@/xxNEW-game-world-view/materials/material-colors";
-import { GameWorldView } from "@/xxNEW-game-world-view";
+} from "@/game-world-view/materials/material-colors";
+import { GameWorldView } from "@/game-world-view";
 import { getEnvironmentModelAssetId } from "./environment-entity-asset-ids";
 
 export class EnvironmentSceneEntityFactory {
@@ -63,28 +63,28 @@ export class EnvironmentSceneEntityFactory {
           const materialName = mesh.material?.name;
           if (mesh.material) oldMaterials.push(mesh.material);
 
-          if (materialName === MATERIAL_NAMES.ACCENT_1) {
+          if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1]) {
             const material = new StandardMaterial("VendingMachineAccent1");
             material.diffuseColor = Color3.FromHexString(MAIN_BG_COLOR);
             mesh.material = material;
           }
-          if (materialName === MATERIAL_NAMES.ACCENT_2) {
+          if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Accent2]) {
             const material = new StandardMaterial("VendingMachineAccent2");
             material.diffuseColor = Color3.FromHexString(MAIN_TEXT_AND_BORDERS_COLOR);
             mesh.material = material;
           }
-          if (materialName === MATERIAL_NAMES.ACCENT_3) {
+          if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Accent3]) {
             const material = new StandardMaterial("VendingMachineAccent3");
             material.diffuseColor = Color3.FromHexString(HP_COLOR);
             mesh.material = material;
           }
-          if (materialName === MATERIAL_NAMES.ALTERNATE) {
+          if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Alternate]) {
             mesh.material =
               this.gameWorldView.materialManager.materialPool.savedMaterials[
                 MaterialCategory.Plastic
               ][PlasticColor.Blue].clone("");
           }
-          if (materialName === MATERIAL_NAMES.MAIN) {
+          if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Main]) {
             mesh.material =
               this.gameWorldView.materialManager.materialPool.savedMaterials[
                 MaterialCategory.Metal

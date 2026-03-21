@@ -1,8 +1,12 @@
-import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeon/common";
+import {
+  ClientIntent,
+  ClientSequentialEventType,
+  ConnectionEndpoint,
+  GameStateUpdate,
+} from "@speed-dungeon/common";
 import { ClientApplication } from "..";
 import { ConnectionMode, ConnectionTopology } from "../connection-topology";
 import { ConnectionStatus } from "../ui/connection-status";
-import { ClientEventType } from "../sequential-client-event-processor/client-events";
 
 export abstract class BaseClient {
   constructor(
@@ -37,14 +41,14 @@ export abstract class BaseClient {
   protected registerListeners() {
     this.connectionEndpoint.on("open", () => {
       console.info(`connected to ${this.name}`);
-      const { gameContext, uiStore, gameWorldView } = this.clientApplication;
+      const { gameContext, uiStore } = this.clientApplication;
       gameContext.clearGame();
       this.connectionTopology.runtimeMode = this._targetConnectionMode;
       uiStore.connectionStatus.connectionStatus = ConnectionStatus.Connected;
 
       this.clientApplication.sequentialEventProcessor.cancelQueued();
       this.clientApplication.sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.ClearAllModels,
+        type: ClientSequentialEventType.ClearAllModels,
         data: undefined,
       });
       this.clientApplication.replayTreeScheduler.clear();

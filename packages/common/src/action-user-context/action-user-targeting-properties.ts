@@ -8,13 +8,16 @@ import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-ta
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
-import { ActionRank, EntityId } from "../aliases.js";
+import { ActionRank, CombatantId, EntityId } from "../aliases.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { Combatant } from "../combatants/index.js";
+import { ActionUserContext } from "./index.js";
 
 export class ActionAndRank implements Serializable, ReactiveNode {
   constructor(
@@ -262,5 +265,40 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
 
     this.setSelectedTarget(newTargetsResult);
     return newTargetsResult;
+  }
+
+  getPrimaryTargetOption(
+    gameOption: null | SpeedDungeonGame,
+    combatant: Combatant,
+    actionName: CombatActionName
+  ) {
+    const combatActionTarget = this.getSelectedTarget();
+    const actionRank = this.getSelectedActionAndRank()?.rank;
+
+    if (!gameOption || combatActionTarget === null || actionRank === undefined) return undefined;
+    const game = gameOption;
+    const partyOption = game.getPartyOptionOfCombatant(combatant.getEntityId());
+    if (partyOption === undefined) return undefined;
+
+    const actionPropertiesResult = COMBAT_ACTIONS[actionName];
+    if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
+    const combatActionProperties = actionPropertiesResult;
+
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, partyOption, combatant),
+      null
+    );
+
+    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+      combatActionProperties,
+      combatActionTarget
+    );
+    if (targetIdsResult instanceof Error) return undefined;
+    const targetIds = targetIdsResult;
+    const firstTargetIdOption = targetIds[0];
+    if (firstTargetIdOption === undefined) return undefined;
+    const firstTargetCombatant = game.getCombatantById(firstTargetIdOption);
+    if (firstTargetCombatant instanceof Error) return undefined;
+    return firstTargetCombatant.combatantProperties;
   }
 }

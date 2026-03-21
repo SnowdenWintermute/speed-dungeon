@@ -1,5 +1,6 @@
 import {
   AssetCache,
+  BasicRandomNumberGenerator,
   ClientAppAssetService,
   GameStateUpdate,
   RemoteServerAssetStore,
@@ -20,11 +21,14 @@ import { AlertsService } from "./alerts";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
-import { GameWorldView } from "@/xxNEW-game-world-view";
 import { UiStore } from "./ui";
 import { ClientSingleton } from "./clients/singleton";
 import { ClientSequentialEventProcessor } from "./sequential-event-processor";
+import { GameWorldView } from "@/game-world-view";
+import { BroadcastChannelMananger } from "./broadcast-channel";
+import { ConnectionTopology } from "./connection-topology";
 
+/* composition root for frontend subsystems */
 export class ClientApplication {
   // clients
   readonly gameClientRef = new ClientSingleton();
@@ -57,6 +61,15 @@ export class ClientApplication {
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   readonly alertsService = new AlertsService();
 
+  // browser tab sync
+  readonly broadcastCHannel: BroadcastChannelMananger;
+
+  // rng
+  readonly randomNumberGenerator = new BasicRandomNumberGenerator();
+
+  // topology
+  readonly topologyManager = new ConnectionTopology(this);
+
   constructor(
     readonly gameWorldView: null | GameWorldView,
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
@@ -69,46 +82,25 @@ export class ClientApplication {
       this.replayTreeScheduler.tick()
     );
     this.gameContext = new ClientApplicationGameContext(this.session);
-    this.combatantFocus = new CombatantFocus(
-      this.gameClientRef,
-      this.session,
-      this.gameContext,
-      this.actionMenu,
-      this.detailableEntityFocus
-    );
+    this.combatantFocus = new CombatantFocus(this);
     this.detailableEntityFocus.initialize(this.combatantFocus);
     this.targetIndicatorStore = new TargetIndicatorStore();
     this.eventLogMessageService = new EventLogGameMessageService(this);
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.sequentialEventProcessor = new ClientSequentialEventProcessor(this);
+    this.broadcastCHannel = new BroadcastChannelMananger(this.lobbyClientRef);
   }
 
   dispose() {
     this.unregisterReplayManagerTick();
     this.gameWorldView?.dispose();
   }
-
-  // TODO
-  // - change how character model divs are positioned to use transform: translate instead of absolute + top/left
-
-  //
-  // - ConnectionTopologyManager (change between online/offline mode and manage persistence of choice/error states)
-  //   - ConnectionEndpointFactory
-  //     - Configured to open runtime dependent Websocket (node or browser version) or InMemoryTransport connections (in offline)
-  //   - OfflineGameServer
-  //   - OfflineLobbyServer
-  //   - LobbyClient
-  //     - client application
-  //     - ConnectionEndpoint
-  //     - Event handlers
-  //     - Message dispatcher
-  //   - GameClient
-  //     - client application
-  //     - ConnectionEndpoint
-  //     - Event handlers
-  //     - Message dispatcher
-  //
-  // - GameUpdateProcessedLog
-  //   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
-  //   - exposes a waitForMessageOfTypeProcessed() for tests
 }
+
+// TODO
+// - change how character model divs are positioned to use transform: translate instead of absolute + top/left
+
+// MAYBE?
+// - GameUpdateProcessedLog
+//   - passed to the GameClient->ReplayProcessor so processed replays can post to the log
+//   - exposes a waitForMessageOfTypeProcessed() for tests

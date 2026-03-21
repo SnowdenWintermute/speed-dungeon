@@ -1,8 +1,7 @@
 import { AbstractMesh, DynamicTexture } from "@babylonjs/core";
-import { TargetIndicator } from "@/mobx-stores/target-indicators";
 import { TargetIndicatorBillboard } from "./target-indicator-billboard";
-import { GameWorldView } from "@/xxNEW-game-world-view";
-import { fillDynamicTextureWithSvg } from "@/utils";
+import { GameWorldView } from "@/game-world-view";
+import { TargetIndicator } from "@/client-application/target-indicator-store";
 
 export class TargetIndicatorBillboardManager {
   private indicators: TargetIndicatorBillboard[] = [];
@@ -21,7 +20,7 @@ export class TargetIndicatorBillboardManager {
     this.texture.hasAlpha = true;
 
     const targetImageUrl = "/img/game-ui-icons/target-icon.svg";
-    fillDynamicTextureWithSvg(targetImageUrl, this.texture, {
+    gameWorldView.textureManager.fillDynamicTextureWithSvg(targetImageUrl, this.texture, {
       strokeColor: "white",
       fillColor: "white",
     });

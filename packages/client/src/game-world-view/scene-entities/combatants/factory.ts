@@ -9,7 +9,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameWorldView } from "../..";
 import { CombatantSceneEntity } from ".";
-import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ClientApplication } from "@/client-application";
 import { MONSTER_SCALING_SIZES } from "./species-scaling-sizes";
 import { AssetContainer, Color3, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";

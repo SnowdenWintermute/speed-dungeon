@@ -27,7 +27,7 @@ import { handleThreatChangesUpdate } from "./threat-changes";
 import { ClientApplication } from "@/client-application";
 import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
 import { CombatantResourceChangeUpdateHandlerCommand } from "../resource-change-update-handler-command";
-import { GameWorldView } from "@/xxNEW-game-world-view";
+import { GameWorldView } from "@/game-world-view";
 
 export class ActionEffectsApplyerCommand {
   game: SpeedDungeonGame;

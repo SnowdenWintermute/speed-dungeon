@@ -8,7 +8,7 @@ import {
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { ClientApplication } from "@/client-application";
-import { GameWorldView } from "@/xxNEW-game-world-view";
+import { GameWorldView } from "@/game-world-view";
 
 export async function spawnEntitiesGameUpdateHandler(
   clientApplication: ClientApplication,

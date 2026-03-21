@@ -354,7 +354,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(entityId));
   }
 
-  getPartyOfCombatant(combatantId: string): Error | AdventuringParty {
+  getPartyOptionOfCombatant(combatantId: string) {
     for (const [_, party] of this.adventuringParties) {
       const { combatantManager } = party;
       const combatantOption = combatantManager.getCombatantOption(combatantId);
@@ -362,7 +362,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       if (combatantExistsInThisParty) return party;
     }
 
-    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
+    return undefined;
   }
 
   getPlayerPartyOption(username: Username): AdventuringParty | undefined {

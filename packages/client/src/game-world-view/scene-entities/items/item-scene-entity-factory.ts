@@ -4,8 +4,8 @@ import { EquipmentSceneEntity } from "./equipment-scene-entity";
 import { ClientAppAssetService, Consumable, Equipment, Item } from "@speed-dungeon/common";
 import { equipmentBaseItemToAssetId } from "./equipment-base-item-to-asset-id";
 import { consumableItemToAssetId } from "./consumable-models";
-import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
-import { MaterialManager } from "@/xxNEW-game-world-view/materials/material-manager";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
+import { MaterialManager } from "@/game-world-view/materials/material-manager";
 import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 
 export class ItemSceneEntityFactory {

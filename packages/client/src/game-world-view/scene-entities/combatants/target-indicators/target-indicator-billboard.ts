@@ -1,5 +1,5 @@
 import { TargetIndicator } from "@/client-application/target-indicator-store";
-import { GLOW_LAYER_NAME } from "@/xxNEW-game-world-view/game-world-view-consts";
+import { GLOW_LAYER_NAME } from "@/game-world-view/game-world-view-consts";
 import {
   AbstractMesh,
   DynamicTexture,

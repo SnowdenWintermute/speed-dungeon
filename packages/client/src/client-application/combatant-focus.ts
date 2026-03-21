@@ -11,16 +11,24 @@ import { ActionMenu } from "./action-menu";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { ActionMenuScreenType } from "./action-menu/screen-types";
 import { ClientSingleton } from "./clients/singleton";
+import { ClientApplication } from ".";
 
 export class CombatantFocus {
   private focusedCharacterId: CombatantId | null = null;
-  constructor(
-    private gameClientRef: ClientSingleton,
-    private clientSession: ClientApplicationSession,
-    private gameContext: ClientApplicationGameContext,
-    private actionMenu: ActionMenu,
-    private detailableEntityFocus: DetailableEntityFocus
-  ) {}
+
+  private gameClientRef: ClientSingleton;
+  private clientSession: ClientApplicationSession;
+  private gameContext: ClientApplicationGameContext;
+  private actionMenu: ActionMenu;
+  private detailableEntityFocus: DetailableEntityFocus;
+
+  constructor(clientApplication: ClientApplication) {
+    this.gameClientRef = clientApplication.gameClientRef;
+    this.clientSession = clientApplication.session;
+    this.gameContext = clientApplication.gameContext;
+    this.actionMenu = clientApplication.actionMenu;
+    this.detailableEntityFocus = clientApplication.detailableEntityFocus;
+  }
 
   get focusedCharacterIdOption() {
     return this.focusedCharacterId;

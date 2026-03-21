@@ -16,7 +16,7 @@ import {
   invariant,
 } from "@speed-dungeon/common";
 import { ACTION_ENTITY_NAME_TO_ASSET_ID } from "./action-entity-asset-ids";
-import { loadAssetContainerIntoScene } from "@/xxNEW-game-world-view/utils/load-asset-container-into-scene";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ActionEntitySceneEntity } from ".";
 import { ClientApplication } from "@/client-application";
 

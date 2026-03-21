@@ -1,6 +1,7 @@
 import { setAlert } from "@/app/components/alerts";
 import {
   AdventuringParty,
+  ClientSequentialEventType,
   Combatant,
   ConnectionEndpoint,
   ERROR_MESSAGES,
@@ -12,10 +13,8 @@ import {
   QUERY_PARAMS,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { getApplicationRuntimeManager } from "@/singletons";
 import { ClientApplication } from "@/client-application";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
-import { ClientEventType } from "@/client-application/sequential-client-event-processor/client-events";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -60,7 +59,7 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.PlayerLeftGame]: (data) => {
       const { username } = data;
       clientApplication.sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.RemovePlayerFromGame,
+        type: ClientSequentialEventType.RemovePlayerFromGame,
         data: { username },
       });
 
@@ -118,7 +117,7 @@ export function createLobbyUpdateHandlers(
 
       if (game.mode === GameMode.Progression) {
         clientApplication.sequentialEventProcessor.scheduleEvent({
-          type: ClientEventType.SynchronizeCombatantModels,
+          type: ClientSequentialEventType.SynchronizeCombatantModels,
           data: { softCleanup: true, placeInHomePositions: true },
         });
       }
@@ -169,7 +168,7 @@ export function createLobbyUpdateHandlers(
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantModels,
+        type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
     },
@@ -204,7 +203,7 @@ export function createLobbyUpdateHandlers(
         gameWorldView?.environment.groundPlane.drawCharacterSlots();
 
         clientApplication.sequentialEventProcessor.scheduleEvent({
-          type: ClientEventType.SynchronizeCombatantModels,
+          type: ClientSequentialEventType.SynchronizeCombatantModels,
           data: { softCleanup: true, placeInHomePositions: true },
         });
       }
@@ -213,7 +212,7 @@ export function createLobbyUpdateHandlers(
       lobbyContext.savedCharacters.deleteSavedCharacter(data.entityId);
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantModels,
+        type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
     },
@@ -229,7 +228,7 @@ export function createLobbyUpdateHandlers(
       );
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantModels,
+        type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
     },
@@ -246,7 +245,7 @@ export function createLobbyUpdateHandlers(
         },
       ];
 
-      getApplicationRuntimeManager().createGameClient(url, queryParams);
+      clientApplication.topologyManager.createGameClient(url, queryParams);
     },
   };
 }

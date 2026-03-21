@@ -4,7 +4,6 @@ import {
   getOwnedAcceptedItemsForBookTrade,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { AppStore } from "@/mobx-stores/app-store";
 import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "@/client-application";
@@ -33,7 +32,7 @@ export class SelectItemToTradeForBookActionMenuScreen extends ActionMenuScreen {
   }
 
   getNumberedButtons() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = this.clientApplication.combatantFocus.requireFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
 
     return getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType).map((item, i) => {

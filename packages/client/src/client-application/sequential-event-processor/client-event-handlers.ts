@@ -9,7 +9,7 @@ import {
   Equipment,
 } from "@speed-dungeon/common";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
-import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
+import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 import { ClientApplication } from "..";
 
 export function createClientSequentialEventHandlers(

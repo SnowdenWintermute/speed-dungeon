@@ -1,4 +1,3 @@
-import { getClientAppAssetService } from "@/singletons";
 import {
   AssetService,
   GameServer,
@@ -40,7 +39,7 @@ export const LOCAL_OFFLINE_GAME_SERVER_NAME =
   "Lindblum Test Server (local offline)" as GameServerName;
 export const LOCAL_OFFLINE_GAME_SERVER_URL = localServerUrl(LOCAL_OFFLINE_GAME_SERVER_PORT);
 
-export async function createOfflineLocalServers() {
+export async function createOfflineLocalServers(assetService: AssetService) {
   const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();
   InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
     LOCAL_OFFLINE_LOBBY_SERVER_URL,
@@ -104,7 +103,7 @@ export async function createOfflineLocalServers() {
       savedCharactersService,
       rankedLadderService,
       raceGameRecordsService,
-      getClientAppAssetService()
+      assetService
     ),
     codec
   );

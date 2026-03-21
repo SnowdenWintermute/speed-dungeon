@@ -11,8 +11,14 @@ import {
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
-import { MATERIAL_NAMES } from "@/game-world-view/materials/material-colors";
-import { AccentColor, MaterialCategory, MaterialShade, PlasticColor } from "./material-colors";
+import {
+  AccentColor,
+  MATERIAL_LABEL_STRINGS,
+  MaterialCategory,
+  MaterialLabel,
+  MaterialShade,
+  PlasticColor,
+} from "./material-colors";
 
 export class MaterialManager {
   readonly materialPool: MaterialPool;
@@ -112,12 +118,12 @@ export class MaterialManager {
     if (materials === undefined) {
       return;
     }
-    if (!materials[MATERIAL_NAMES.BLADE]) {
-      materials[MATERIAL_NAMES.BLADE] =
+    if (!materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Blade]]) {
+      materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Blade]] =
         this.materialPool.savedMaterials[MaterialCategory.Metal][MaterialShade.Lighter];
     }
-    if (!materials[MATERIAL_NAMES.ACCENT_1]) {
-      materials[MATERIAL_NAMES.ACCENT_1] =
+    if (!materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1]]) {
+      materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1]] =
         this.materialPool.savedMaterials[MaterialCategory.Metal][MaterialShade.Lightest];
     }
     this.applyMaterialsToModelMeshes(itemModel, materials, createUniqueInstances);
@@ -129,18 +135,28 @@ export class MaterialManager {
 
     switch (item.consumableType) {
       case ConsumableType.HpAutoinjector:
-        materials[MATERIAL_NAMES.ACCENT_1] = saved[MaterialCategory.Accent][AccentColor.HPGreen];
-        materials[MATERIAL_NAMES.ACCENT_2] = saved[MaterialCategory.Plastic][PlasticColor.Blue];
-        materials[MATERIAL_NAMES.ACCENT_3] = saved[MaterialCategory.Plastic][PlasticColor.Yellow];
-        materials[MATERIAL_NAMES.MAIN] = saved[MaterialCategory.Plastic][PlasticColor.White];
-        materials[MATERIAL_NAMES.ALTERNATE] = saved[MaterialCategory.Plastic][PlasticColor.Orange];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1]] =
+          saved[MaterialCategory.Accent][AccentColor.HPGreen];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent2]] =
+          saved[MaterialCategory.Plastic][PlasticColor.Blue];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent3]] =
+          saved[MaterialCategory.Plastic][PlasticColor.Yellow];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Main]] =
+          saved[MaterialCategory.Plastic][PlasticColor.White];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Alternate]] =
+          saved[MaterialCategory.Plastic][PlasticColor.Orange];
         break;
       case ConsumableType.MpAutoinjector:
-        materials[MATERIAL_NAMES.ACCENT_1] = saved[MaterialCategory.Accent][AccentColor.MPBlue];
-        materials[MATERIAL_NAMES.ACCENT_2] = saved[MaterialCategory.Plastic][PlasticColor.Blue];
-        materials[MATERIAL_NAMES.ACCENT_3] = saved[MaterialCategory.Plastic][PlasticColor.Yellow];
-        materials[MATERIAL_NAMES.MAIN] = saved[MaterialCategory.Plastic][PlasticColor.White];
-        materials[MATERIAL_NAMES.ALTERNATE] = saved[MaterialCategory.Plastic][PlasticColor.Orange];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1]] =
+          saved[MaterialCategory.Accent][AccentColor.MPBlue];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent2]] =
+          saved[MaterialCategory.Plastic][PlasticColor.Blue];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Accent3]] =
+          saved[MaterialCategory.Plastic][PlasticColor.Yellow];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Main]] =
+          saved[MaterialCategory.Plastic][PlasticColor.White];
+        materials[MATERIAL_LABEL_STRINGS[MaterialLabel.Alternate]] =
+          saved[MaterialCategory.Plastic][PlasticColor.Orange];
         break;
       case ConsumableType.StackOfShards:
       case ConsumableType.WarriorSkillbook:

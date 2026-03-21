@@ -158,29 +158,31 @@ export class ConnectionTopology {
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
 
-    createOfflineLocalServers().then(({ lobbyServer, gameServer }) => {
-      this.offlineServers.lobbyServer = lobbyServer;
-      this.offlineServers.gameServer = gameServer;
+    createOfflineLocalServers(this.clientApplication.assetService).then(
+      ({ lobbyServer, gameServer }) => {
+        this.offlineServers.lobbyServer = lobbyServer;
+        this.offlineServers.gameServer = gameServer;
 
-      const connectionEndpoint = this.createLocalConnectionEndpoint(
-        LOCAL_OFFLINE_LOBBY_SERVER_URL,
-        []
-      );
-      if (!lobbyClientRef.isInitialized) {
-        lobbyClientRef.setClient(
-          new LobbyClient(
-            "Lobby Server",
-            connectionEndpoint,
-            this.clientApplication,
-            this,
-            ConnectionMode.Offline
-          )
+        const connectionEndpoint = this.createLocalConnectionEndpoint(
+          LOCAL_OFFLINE_LOBBY_SERVER_URL,
+          []
         );
-      } else {
-        lobbyClientRef.get().targetConnectionMode = ConnectionMode.Offline;
-        lobbyClientRef.get().setEndpoint(connectionEndpoint);
+        if (!lobbyClientRef.isInitialized) {
+          lobbyClientRef.setClient(
+            new LobbyClient(
+              "Lobby Server",
+              connectionEndpoint,
+              this.clientApplication,
+              this,
+              ConnectionMode.Offline
+            )
+          );
+        } else {
+          lobbyClientRef.get().targetConnectionMode = ConnectionMode.Offline;
+          lobbyClientRef.get().setEndpoint(connectionEndpoint);
+        }
       }
-    });
+    );
 
     // create local lobby server
     // create local game server

@@ -12,8 +12,8 @@ import { FFIX_COLORS, CombatantTransformProperties } from "@speed-dungeon/common
 import cloneDeep from "lodash.clonedeep";
 import { SceneEntityMovementType } from "../base/scene-entity-movement-manager/movement-tracker";
 import { CombatantSceneEntity } from ".";
-import { getChildMeshByName, paintCubesOnNodes } from "@/xxNEW-game-world-view/utils";
-import { ARMATURE_ROOT_BONE_NAME } from "@/xxNEW-game-world-view/game-world-view-consts";
+import { getChildMeshByName, paintCubesOnNodes } from "@/game-world-view/utils";
+import { ARMATURE_ROOT_BONE_NAME } from "@/game-world-view/game-world-view-consts";
 
 export class CombatantSceneEntityDebug {
   debugMeshes: Mesh[] | null = null;

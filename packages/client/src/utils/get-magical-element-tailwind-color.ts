@@ -1,24 +1,18 @@
 import { MagicalElement } from "@speed-dungeon/common";
 
+const magicalElementTailwindColor: Record<MagicalElement, string> = {
+  [MagicalElement.Fire]: "bg-firered",
+  [MagicalElement.Ice]: "bg-iceblue",
+  [MagicalElement.Lightning]: "bg-lightningpurple",
+  [MagicalElement.Water]: "bg-waterblue",
+  [MagicalElement.Earth]: "bg-earthyellow text-slate-700",
+  [MagicalElement.Wind]: "bg-windgreen text-slate-700",
+  [MagicalElement.Dark]: "bg-darknessblack",
+  [MagicalElement.Light]: "bg-lightwhite text-slate-700",
+};
+
 export default function getMagicalElementTailwindColor(element: MagicalElement) {
-  switch (element) {
-    case MagicalElement.Fire:
-      return "bg-firered";
-    case MagicalElement.Ice:
-      return "bg-iceblue";
-    case MagicalElement.Lightning:
-      return "bg-lightningpurple";
-    case MagicalElement.Water:
-      return "bg-waterblue";
-    case MagicalElement.Earth:
-      return "bg-earthyellow text-slate-700";
-    case MagicalElement.Wind:
-      return "bg-windgreen text-slate-700";
-    case MagicalElement.Dark:
-      return "bg-darknessblack";
-    case MagicalElement.Light:
-      return "bg-lightwhite text-slate-700";
-  }
+  return magicalElementTailwindColor[element];
 }
 
 export const MAGICAL_ELEMENT_ICON_TAILWIND_STYLES: Record<MagicalElement, string> = {

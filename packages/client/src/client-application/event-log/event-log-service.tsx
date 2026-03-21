@@ -1,4 +1,3 @@
-import { ItemLink } from "@/mobx-stores/game-event-notifications/item-link";
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   ActionPayableResource,
@@ -27,6 +26,7 @@ import {
   GameLogMessageStyle,
 } from "./game-log-messages";
 import { DialogElementName } from "../ui/dialogs";
+import { ItemLink } from "./item-link";
 
 export class EventLogGameMessageService {
   constructor(private clientApplication: ClientApplication) {}
@@ -114,7 +114,8 @@ export class EventLogGameMessageService {
       new GameLogMessage(
         (
           <div>
-            {posterName} calls attention to <ItemLink item={item} />
+            {posterName} calls attention to{" "}
+            <ItemLink item={item} detailablesFocus={this.clientApplication.detailableEntityFocus} />
           </div>
         ),
         COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE[GameMessageType.CraftingAction]
@@ -134,7 +135,9 @@ export class EventLogGameMessageService {
 
     const item = Equipment.fromSerialized(itemResult);
 
-    const craftedItemLink = <ItemLink item={item} />;
+    const craftedItemLink = (
+      <ItemLink item={item} detailablesFocus={this.clientApplication.detailableEntityFocus} />
+    );
 
     switch (craftingAction) {
       case CraftingAction.Repair:
@@ -154,7 +157,10 @@ export class EventLogGameMessageService {
         (
           <div>
             {crafterName} {CRAFTING_ACTION_PAST_TENSE_STRINGS[craftingAction]}{" "}
-            <ItemLink item={itemBeforeModification} />
+            <ItemLink
+              item={itemBeforeModification}
+              detailablesFocus={this.clientApplication.detailableEntityFocus}
+            />
             {craftingResultMessage}
           </div>
         ),

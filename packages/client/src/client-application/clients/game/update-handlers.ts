@@ -5,6 +5,7 @@ import {
   Battle,
   CleanupMode,
   ClientIntentType,
+  ClientSequentialEventType,
   COMBAT_ACTIONS,
   Combatant,
   Consumable,
@@ -29,12 +30,11 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
 import { ClientApplication } from "@/client-application";
-import { ClientEventType } from "@/client-application/sequential-client-event-processor/client-events";
 import { RootActionMenuScreen } from "@/client-application/action-menu/screens/root";
-import { ImageGenerationRequestType } from "@/xxNEW-game-world-view/images/image-generator-requests";
 import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
 import { ConsideringCombatActionMenuScreen } from "@/client-application/action-menu/screens/considering-combat-action";
 import { toJS } from "mobx";
+import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 
 export type GameUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -85,7 +85,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.PlayerLeftGame]: (data) => {
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.RemovePlayerFromGame,
+        type: ClientSequentialEventType.RemovePlayerFromGame,
         data: { username: data.username },
       });
 
@@ -135,7 +135,7 @@ export function createGameUpdateHandlers(
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantModels,
+        type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
     },
@@ -208,7 +208,7 @@ export function createGameUpdateHandlers(
 
       if (roomHasVendingMachine && noPreviouslySpawnedVendingMachine) {
         sequentialEventProcessor.scheduleEvent({
-          type: ClientEventType.SpawnEnvironmentModel,
+          type: ClientSequentialEventType.SpawnEnvironmentModel,
           data: {
             id: "vending-machine",
             modelType: EnvironmentEntityName.VendingMachine,
@@ -217,13 +217,13 @@ export function createGameUpdateHandlers(
         });
       } else if (!roomHasVendingMachine) {
         sequentialEventProcessor.scheduleEvent({
-          type: ClientEventType.DespawnEnvironmentModel,
+          type: ClientSequentialEventType.DespawnEnvironmentModel,
           data: { id: "vending-machine" },
         });
       }
 
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantModels,
+        type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
 
@@ -300,7 +300,7 @@ export function createGameUpdateHandlers(
       });
 
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },
       });
     },
@@ -310,7 +310,7 @@ export function createGameUpdateHandlers(
       combatant.combatantProperties.equipment.unequipSlots([slot]);
 
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },
       });
     },
@@ -329,7 +329,7 @@ export function createGameUpdateHandlers(
         const item = equipment.getEquipmentInSlot(slot);
         if (item !== undefined) {
           sequentialEventProcessor.scheduleEvent({
-            type: ClientEventType.SynchronizeCombatantEquipmentModels,
+            type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
             data: { entityId: characterId },
           });
         }
@@ -453,7 +453,7 @@ export function createGameUpdateHandlers(
       const { message } = data;
       if (message.showAfterSequentialQueueResolution) {
         sequentialEventProcessor.scheduleEvent({
-          type: ClientEventType.PostGameMessages,
+          type: ClientSequentialEventType.PostGameMessages,
           data: { messages: [message] },
         });
       } else {
@@ -500,7 +500,7 @@ export function createGameUpdateHandlers(
       }
 
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },
       });
     },
@@ -530,7 +530,7 @@ export function createGameUpdateHandlers(
       combatant.convertOwnedItemsToShards(itemIds);
 
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },
       });
     },
@@ -604,7 +604,7 @@ export function createGameUpdateHandlers(
 
       if (isEquipped && wasRepaired) {
         sequentialEventProcessor.scheduleEvent({
-          type: ClientEventType.SynchronizeCombatantEquipmentModels,
+          type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
           data: { entityId: characterId },
         });
       }
@@ -635,8 +635,8 @@ export function createGameUpdateHandlers(
       }
       eventLogMessageService.postItemLink(username, itemResult);
     },
-    [GameStateUpdateType.ActionCommandPayloads]: (data) => {
-      for (const payload of data.payloads) {
+    [GameStateUpdateType.ClientSequentialEvents]: (data) => {
+      for (const payload of data.sequentialEvents) {
         sequentialEventProcessor.scheduleEvent(payload);
       }
     },
@@ -808,7 +808,7 @@ export function createGameUpdateHandlers(
       }
 
       sequentialEventProcessor.scheduleEvent({
-        type: ClientEventType.SynchronizeCombatantEquipmentModels,
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },
       });
     },

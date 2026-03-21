@@ -1,7 +1,6 @@
 import { GameStateUpdate, invariant } from "@speed-dungeon/common";
 import { createLobbyUpdateHandlers } from "./update-handlers";
 import { BaseClient } from "../base";
-import { getApplicationRuntimeManager } from "@/singletons";
 import { setAlert } from "@/app/components/alerts";
 
 export class LobbyClient extends BaseClient {
@@ -23,6 +22,6 @@ export class LobbyClient extends BaseClient {
 
   resetConnection() {
     console.info("reconnecting to lobby");
-    getApplicationRuntimeManager().resetLobbyConnection();
+    this.connectionTopology.resetLobbyConnection();
   }
 }

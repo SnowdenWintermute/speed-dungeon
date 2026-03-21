@@ -18,13 +18,13 @@ import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tra
 import { plainToInstance } from "class-transformer";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ClientApplication } from "@/client-application";
-import { GameWorldView } from "@/xxNEW-game-world-view";
-import { SceneEntity } from "@/xxNEW-game-world-view/scene-entities/base";
-import { SceneEntityService } from "@/xxNEW-game-world-view/scene-entity-service/index";
-import { CombatantSceneEntity } from "@/xxNEW-game-world-view/scene-entities/combatants";
-import { DynamicAnimationManager } from "@/xxNEW-game-world-view/scene-entities/base/scene-entity-animation-manager/dynamic-animation-manager";
-import { SkeletalAnimationManager } from "@/xxNEW-game-world-view/scene-entities/base/scene-entity-animation-manager/skeletal-animation-manager";
-import { ManagedAnimationOptions } from "@/xxNEW-game-world-view/scene-entities/base/scene-entity-animation-manager";
+import { GameWorldView } from "@/game-world-view";
+import { SceneEntity } from "@/game-world-view/scene-entities/base";
+import { SceneEntityService } from "@/game-world-view/scene-entity-service/index";
+import { CombatantSceneEntity } from "@/game-world-view/scene-entities/combatants";
+import { DynamicAnimationManager } from "@/game-world-view/scene-entities/base/scene-entity-animation-manager/dynamic-animation-manager";
+import { SkeletalAnimationManager } from "@/game-world-view/scene-entities/base/scene-entity-animation-manager/skeletal-animation-manager";
+import { ManagedAnimationOptions } from "@/game-world-view/scene-entities/base/scene-entity-animation-manager";
 
 // removed completion code need to put back in after duration elapsed:
 //

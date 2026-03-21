@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { CombatantSceneEntity } from "..";
 import { EquipmentSceneEntity } from "../../items/equipment-scene-entity";
-import { getChildMeshByName } from "@/xxNEW-game-world-view/utils";
+import { getChildMeshByName } from "@/game-world-view/utils";
 
 function setTransformNodePositionAndRotationToZero(transformNode: TransformNode) {
   setTransformNodeRotationToZero(transformNode);

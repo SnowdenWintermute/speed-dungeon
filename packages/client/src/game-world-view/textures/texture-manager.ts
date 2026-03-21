@@ -27,7 +27,7 @@ export class TextureManager {
     this.targetIndicatorTexture = targetIndicatorTexture;
   }
 
-  private fillDynamicTextureWithSvg(
+  fillDynamicTextureWithSvg(
     svgUrl: string,
     texture: DynamicTexture,
     options: {

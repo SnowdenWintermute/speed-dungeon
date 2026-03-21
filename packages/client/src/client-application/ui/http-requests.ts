@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 
-class HttpRequestTracker {
+export class HttpRequestTracker {
   constructor() {
     makeAutoObservable(this);
   }

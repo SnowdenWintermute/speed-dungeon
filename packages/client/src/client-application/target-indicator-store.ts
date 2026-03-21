@@ -1,4 +1,4 @@
-import { GameWorldView } from "@/xxNEW-game-world-view";
+import { GameWorldView } from "@/game-world-view";
 import { CombatActionName, EntityId } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
