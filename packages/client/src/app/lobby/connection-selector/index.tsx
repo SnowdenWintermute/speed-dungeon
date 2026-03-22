@@ -1,17 +1,19 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { getApplicationRuntimeManager } from "@/singletons";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const ConnectionSelector = observer(() => {
-  const { canEnterOffline, isOnline, isOffline } = getApplicationRuntimeManager();
+  const clientApplication = useClientApplication();
+  const { topologyManager } = clientApplication;
+  const { canEnterOffline, isOnline, isOffline } = topologyManager;
 
   function handleClick() {
     if (isOnline && canEnterOffline) {
-      getApplicationRuntimeManager().enterOffline();
+      topologyManager.enterOffline();
     } else if (isOffline) {
-      getApplicationRuntimeManager().enterOnline();
+      topologyManager.enterOnline();
     }
   }
 

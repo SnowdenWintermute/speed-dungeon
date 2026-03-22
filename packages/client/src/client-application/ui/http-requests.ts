@@ -1,3 +1,4 @@
+import { invariant } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class HttpRequestTracker {
@@ -18,6 +19,10 @@ export class HttpRequestStore {
     makeAutoObservable(this);
   }
   requests: { [url: string]: HttpRequestTracker } = {};
+
+  clearRequestTracker(url: string) {
+    delete this.requests[url];
+  }
 
   async fetchData(key: string, url: string, options: RequestInit) {
     const tracker = new HttpRequestTracker();
@@ -42,5 +47,23 @@ export class HttpRequestStore {
       // no json in response
       console.error("No response from game server");
     }
+  }
+
+  async fetchAuthSession() {
+    const getSessionRequestTrackerName = "get session";
+    const responseTracker = this.requests[getSessionRequestTrackerName];
+    this.fetchData(
+      getSessionRequestTrackerName,
+      `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+    invariant(
+      responseTracker !== undefined,
+      "should have started a response tracker when fetching auth"
+    );
+    return responseTracker;
   }
 }

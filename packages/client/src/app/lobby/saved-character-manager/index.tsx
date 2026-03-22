@@ -1,6 +1,10 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
-import { CharacterSlotIndex, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "@speed-dungeon/common";
+import {
+  CharacterSlotIndex,
+  ClientSequentialEventType,
+  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+} from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -9,21 +13,22 @@ import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
 import { CHARACTER_SLOT_SPACING } from "@/client-consts";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const CHARACTER_MANAGER_HOTKEY = "S";
 
 export const SavedCharacterManager = observer(() => {
   const [currentSlot, setCurrentSlot] = useState(1);
-  const { dialogStore, lobbyStore } = AppStore.get();
-  const savedCharacters = lobbyStore.getSavedCharacterSlots();
+  const clientApplication = useClientApplication();
+  const { lobbyContext, uiStore, sequentialEventProcessor } = clientApplication;
+  const savedCharacters = lobbyContext.savedCharacters.slots;
   const selectedCharacterOption = savedCharacters[currentSlot];
-  const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
-  const showCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
+  const { dialogs } = uiStore;
+  const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
+  const showCharacterManager = dialogs.isOpen(DialogElementName.SavedCharacterManager);
 
   useEffect(() => {
     const camera = getGameWorldView().camera;
@@ -37,9 +42,9 @@ export const SavedCharacterManager = observer(() => {
   }, [currentSlot]);
 
   useEffect(() => {
-    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
-      type: ModelActionType.SynchronizeCombatantModels,
-      placeInHomePositions: true,
+    sequentialEventProcessor.scheduleEvent({
+      type: ClientSequentialEventType.SynchronizeCombatantModels,
+      data: { softCleanup: false, placeInHomePositions: true },
     });
   }, [savedCharacters]);
 
@@ -84,7 +89,7 @@ export const SavedCharacterManager = observer(() => {
               className="h-10 pr-2 pl-2 flex items-center border border-slate-400 bg-slate-700 pointer-events-auto"
               hotkeys={[`Key${CHARACTER_MANAGER_HOTKEY}`]}
               onClick={() => {
-                dialogStore.open(DialogElementName.SavedCharacterManager);
+                dialogs.open(DialogElementName.SavedCharacterManager);
               }}
             >
               MANAGE SAVED CHARACTERS
@@ -98,7 +103,7 @@ export const SavedCharacterManager = observer(() => {
             <HotkeyButton
               className="h-10 w-10 p-2 border-b border-l absolute top-0 right-0 border-slate-400"
               hotkeys={["Escape", `Key${CHARACTER_MANAGER_HOTKEY}`]}
-              onClick={() => dialogStore.close(DialogElementName.SavedCharacterManager)}
+              onClick={() => dialogs.close(DialogElementName.SavedCharacterManager)}
             >
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>

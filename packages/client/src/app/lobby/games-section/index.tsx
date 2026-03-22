@@ -18,17 +18,18 @@ import HostGameForm from "./HostGameForm";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const GamesSection = observer(() => {
   const [gameListRefreshedAt, setGameListRefreshedAt] = useState("...");
-  const gameList = AppStore.get().lobbyStore.getGameList();
+  const clientApplication = useClientApplication();
+  const { lobbyContext, lobbyClientRef } = clientApplication;
+  const { gameList } = lobbyContext;
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
-  const { dialogStore } = AppStore.get();
-  const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
+  const { dialogs } = clientApplication.uiStore;
+  const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
   const gameFormHolderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export const GamesSection = observer(() => {
   }, []);
 
   function refreshGameList() {
-    lobbyClientSingleton
+    lobbyClientRef
       .get()
       .dispatchIntent({ type: ClientIntentType.RequestsGameList, data: undefined });
     setGameListRefreshedAt(new Date(Date.now()).toLocaleTimeString());
@@ -49,7 +50,7 @@ export const GamesSection = observer(() => {
       const maxX = x + width;
       const maxY = y + height;
       if (e.x < x || e.x > maxX || e.y > maxY || e.y < y) {
-        dialogStore.close(DialogElementName.GameCreation);
+        dialogs.close(DialogElementName.GameCreation);
       }
     }
   };
@@ -129,10 +130,10 @@ export const GamesSection = observer(() => {
           <HotkeyButton
             hotkeys={["KeyA"]}
             className="w-full h-full disabled:opacity-10"
-            disabled={!lobbyClientSingleton.isInitialized}
+            disabled={!lobbyClientRef.isInitialized}
             onClick={() => {
-              dialogStore.toggle(DialogElementName.GameCreation);
-              dialogStore.close(DialogElementName.Credentials);
+              dialogs.toggle(DialogElementName.GameCreation);
+              dialogs.close(DialogElementName.Credentials);
             }}
           >
             HOST GAME {showGameCreationForm}
@@ -142,7 +143,7 @@ export const GamesSection = observer(() => {
               className="p-2 h-10 w-10 border-l border-slate-400 cursor-pointer pointer-events-none absolute right-0"
               hotkeys={["Escape"]}
               onClick={() => {
-                dialogStore.close(DialogElementName.GameCreation);
+                dialogs.close(DialogElementName.GameCreation);
               }}
               ariaLabel="close game form"
             >
@@ -161,8 +162,10 @@ interface GameListItemProps {
 }
 
 function GameListItem({ game }: GameListItemProps) {
+  const clientApplication = useClientApplication();
+  const { lobbyClientRef } = clientApplication;
   function joinGame() {
-    lobbyClientSingleton
+    lobbyClientRef
       .get()
       .dispatchIntent({ type: ClientIntentType.JoinGame, data: { gameName: game.gameName } });
   }

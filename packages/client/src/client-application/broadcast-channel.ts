@@ -1,4 +1,5 @@
 import { ClientSingleton } from "./clients/singleton";
+import { HttpRequestStore } from "./ui/http-requests";
 
 export enum TabMessageType {
   ReconnectSocket,
@@ -12,17 +13,22 @@ export interface TabMessage {
 export class BroadcastChannelMananger {
   static CHANNEL_NAME = "speed dungeon broadcast channel";
   private broadcastChannel = new BroadcastChannel(BroadcastChannelMananger.CHANNEL_NAME);
-  readonly sessionFetcher: {
-    fromZustand: null | (() => Promise<void>);
-  } = { fromZustand: null };
 
-  constructor(lobbyClientRef: ClientSingleton) {
+  reconnectAllTabs() {
+    this.broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
+  }
+
+  refetchAuthSessionInAllTabs() {
+    this.broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
+  }
+
+  constructor(lobbyClientRef: ClientSingleton, httpRequests: HttpRequestStore) {
     this.broadcastChannel.onmessage = (message: any) => {
       if (message.data.type === TabMessageType.ReconnectSocket) {
         lobbyClientRef.get().resetConnection();
       }
       if (message.data.type === TabMessageType.RefetchAuthSession) {
-        if (this.sessionFetcher.fromZustand) this.sessionFetcher.fromZustand();
+        httpRequests.fetchAuthSession();
       }
     };
   }

@@ -4,13 +4,12 @@ import { GameLobby } from "../GameLobby";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { PartySetupCard } from "./AdventuringPartySetupCard";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const RaceGameLobby = observer(() => {
-  const { gameStore } = AppStore.get();
-  const username = gameStore.getExpectedUsername();
-  const game = gameStore.getExpectedGame();
+  const { session, gameContext } = useClientApplication();
+  const username = session.requireUsername();
+  const game = gameContext.requireGame();
   const playerOption = game.getPlayer(username);
 
   return (
@@ -39,8 +38,9 @@ export const RaceGameLobby = observer(() => {
 function CreatePartyCard() {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
+  const { lobbyClientRef } = useClientApplication();
   function createParty() {
-    lobbyClientSingleton.get().dispatchIntent({
+    lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateParty,
       data: {
         partyName: "" as PartyName,

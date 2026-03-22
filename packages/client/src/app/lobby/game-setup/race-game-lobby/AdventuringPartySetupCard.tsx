@@ -19,9 +19,8 @@ import {
 } from "@speed-dungeon/common";
 import { FormEvent, ReactNode, useState } from "react";
 import { CharacterCard } from "./CharacterCard";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const PartySetupCard = observer(
   ({
@@ -35,11 +34,13 @@ export const PartySetupCard = observer(
     const characters = party.combatantManager.getPartyMemberCharacters();
     const characterCount = characters.length;
 
-    const username = AppStore.get().gameStore.getExpectedUsername();
+    const { session, lobbyClientRef } = useClientApplication();
+
+    const username = session.requireUsername();
     const userIsInThisParty = party.playerUsernames.includes(username);
 
     function leaveParty() {
-      lobbyClientSingleton.get().dispatchIntent({
+      lobbyClientRef.get().dispatchIntent({
         type: ClientIntentType.LeaveParty,
         data: undefined,
       });
@@ -124,12 +125,13 @@ const EmptyCharacterSlot = observer(
 
     if (userIsInThisParty) return <CreateCharacterForm i={i} />;
 
+    const { lobbyClientRef } = useClientApplication();
     return (
       <PartyCardListItem key={i}>
         <HotkeyButton
           className="h-full w-full"
           onClick={() => {
-            lobbyClientSingleton.get().dispatchIntent({
+            lobbyClientRef.get().dispatchIntent({
               type: ClientIntentType.JoinParty,
               data: { partyName: party.name },
             });
@@ -153,11 +155,12 @@ const PartyCardListItem = observer(({ children }: { children: ReactNode }) => {
 const CreateCharacterForm = observer(({ i }: { i: number }) => {
   const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
   const [characterName, setCharacterName] = useState("");
+  const { lobbyClientRef } = useClientApplication();
 
   function handleCreateCharacter(e: FormEvent<HTMLElement>) {
     e.preventDefault();
 
-    lobbyClientSingleton.get().dispatchIntent({
+    lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateCharacter,
       data: {
         name: characterName as EntityName,

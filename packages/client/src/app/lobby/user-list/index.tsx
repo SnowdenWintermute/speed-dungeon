@@ -2,12 +2,13 @@ import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import { UserPlaque } from "./UserPlaque";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const UserList = observer(() => {
-  const { lobbyStore, connectionStatusStore } = AppStore.get();
-  const usersInChannel = lobbyStore.getUsersList();
-  const clientConnected = connectionStatusStore.isConnected;
+  const clientApplication = useClientApplication();
+  const { lobbyContext, uiStore } = clientApplication;
+  const { usersList } = lobbyContext.channel;
+  const clientConnected = uiStore.connectionStatus.isConnected;
 
   return (
     <section
@@ -21,7 +22,7 @@ export const UserList = observer(() => {
       <h2 className="text-slate-200 text-l mb-2 pointer-events-auto w-fit flex items-center">
         {clientConnected ? "In lobby" : "Connecting"}
         {clientConnected ? (
-          ` - ${usersInChannel.length}`
+          ` - ${usersList.length}`
         ) : (
           <span className="ml-2 h-4 w-4 inline">
             <LoadingSpinner />
@@ -30,7 +31,7 @@ export const UserList = observer(() => {
       </h2>
       <ul className="list-none flex-grow overflow-y-auto pointer-events-auto">
         {clientConnected &&
-          usersInChannel.map(([username, displayData]) => (
+          usersList.map(([username, displayData]) => (
             <UserPlaque username={username} displayData={displayData} key={username} />
           ))}
       </ul>

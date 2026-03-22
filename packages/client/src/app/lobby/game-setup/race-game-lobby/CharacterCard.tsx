@@ -3,7 +3,7 @@ import { COMBATANT_CLASS_NAME_STRINGS, ClientIntentType, Combatant } from "@spee
 import XShape from "../../../../../public/img/basic-shapes/x-shape.svg";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import { observer } from "mobx-react-lite";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const CharacterCard = observer(
   ({ character, username }: { character: Combatant; username: string }) => {
@@ -12,8 +12,10 @@ export const CharacterCard = observer(
 
     const { controllerPlayerName } = character.combatantProperties.controlledBy;
 
+    const { lobbyClientRef } = useClientApplication();
+
     function deleteCharacter() {
-      lobbyClientSingleton.get().dispatchIntent({
+      lobbyClientRef.get().dispatchIntent({
         type: ClientIntentType.DeleteCharacter,
         data: {
           characterId: character.getEntityId(),

@@ -1,16 +1,17 @@
 import { ClientIntentType, GameMode, GameName, formatGameMode } from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export default function HostGameForm() {
+  const clientApplication = useClientApplication();
+  const { uiStore, lobbyClientRef } = clientApplication;
   const currentSessionHttpResponseTracker =
-    useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
+    uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
   const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
@@ -20,7 +21,7 @@ export default function HostGameForm() {
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
     event.preventDefault();
-    lobbyClientSingleton.get().dispatchIntent({
+    lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateGame,
       data: {
         gameName,

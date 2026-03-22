@@ -1,6 +1,6 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
   CharacterSlotIndex,
@@ -14,9 +14,10 @@ import React, { useState } from "react";
 export default function CreateCharacterForm({ currentSlot }: { currentSlot: CharacterSlotIndex }) {
   const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
   const [newCharacterName, setNewCharacterName] = useState("");
+  const { lobbyClientRef } = useClientApplication();
 
   function createCharacter() {
-    lobbyClientSingleton.get().dispatchIntent({
+    lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateSavedCharacter,
       data: {
         name: newCharacterName as EntityName,

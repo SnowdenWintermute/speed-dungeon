@@ -16,18 +16,17 @@ import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
 import { GameLobby } from "./GameLobby";
 import { CharacterModelDisplay } from "@/app/character-model-display";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
-import { lobbyClientSingleton } from "@/singletons/lobby-client";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const ProgressionGameLobby = observer(() => {
-  const { gameStore } = AppStore.get();
-  const username = gameStore.getExpectedUsername();
-  const game = gameStore.getExpectedGame();
+  const { session, gameContext, lobbyClientRef } = useClientApplication();
+  const username = session.requireUsername();
+  const game = gameContext.requireGame();
   if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
-    lobbyClientSingleton
+    lobbyClientRef
       .get()
       .dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
   }, []);
@@ -47,9 +46,9 @@ export const ProgressionGameLobby = observer(() => {
 
   useEffect(() => {
     if (game.selectedStartingFloor > maxStartingFloor) {
-      gameStore.getExpectedGame().selectedStartingFloor = maxStartingFloor;
+      game.selectedStartingFloor = maxStartingFloor;
     }
-  }, [maxStartingFloor, game.selectedStartingFloor, game.players]);
+  }, [maxStartingFloor, game.selectedStartingFloor, game.players, game]);
 
   return (
     <GameLobby>
@@ -71,7 +70,7 @@ export const ProgressionGameLobby = observer(() => {
           title={"starting-floor-select"}
           value={game.selectedStartingFloor}
           setValue={(value: number) => {
-            lobbyClientSingleton.get().dispatchIntent({
+            lobbyClientRef.get().dispatchIntent({
               type: ClientIntentType.SelectProgressionGameStartingFloor,
               data: { floorNumber: value },
             });
@@ -97,8 +96,9 @@ const PlayerDisplay = observer(
     game: SpeedDungeonGame;
     index: number;
   }) => {
-    const username = AppStore.get().gameStore.getExpectedUsername();
-    const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
+    const { session, lobbyContext, lobbyClientRef } = useClientApplication();
+    const username = session.requireUsername();
+    const savedCharacters = lobbyContext.savedCharacters.slots;
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);
@@ -117,7 +117,7 @@ const PlayerDisplay = observer(
     const selectedCharacterId = playerOption?.characterIds[0];
 
     function changeSelectedCharacterId(entityId: CombatantId) {
-      lobbyClientSingleton.get().dispatchIntent({
+      lobbyClientRef.get().dispatchIntent({
         type: ClientIntentType.SelectSavedCharacterForProgressGame,
         data: { entityId },
       });
@@ -190,12 +190,12 @@ const PlayerDisplay = observer(
   }
 );
 
-export function formatCharacterTag(combatant: Combatant) {
+function formatCharacterTag(combatant: Combatant) {
   const deadText = combatant.combatantProperties.isDead() ? " - DEAD" : "";
   return `${combatant.entityProperties.name} - ${formatCharacterLevelAndClass(combatant)}${deadText}`;
 }
 
-export function formatCharacterLevelAndClass(combatant: Combatant) {
+function formatCharacterLevelAndClass(combatant: Combatant) {
   const { combatantClass } =
     combatant.combatantProperties.classProgressionProperties.getMainClass();
   return `level ${combatant.getLevel()} ${COMBATANT_CLASS_NAME_STRINGS[combatantClass]}`;

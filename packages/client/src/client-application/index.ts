@@ -62,7 +62,7 @@ export class ClientApplication {
   readonly alertsService = new AlertsService();
 
   // browser tab sync
-  readonly broadcastCHannel: BroadcastChannelMananger;
+  readonly broadcastChannel: BroadcastChannelMananger;
 
   // rng
   readonly randomNumberGenerator = new BasicRandomNumberGenerator();
@@ -88,7 +88,10 @@ export class ClientApplication {
     this.eventLogMessageService = new EventLogGameMessageService(this);
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.sequentialEventProcessor = new ClientSequentialEventProcessor(this);
-    this.broadcastCHannel = new BroadcastChannelMananger(this.lobbyClientRef);
+    this.broadcastChannel = new BroadcastChannelMananger(
+      this.lobbyClientRef,
+      this.uiStore.httpRequests
+    );
   }
 
   dispose() {

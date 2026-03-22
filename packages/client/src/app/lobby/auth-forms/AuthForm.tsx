@@ -1,7 +1,5 @@
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { ReactNode, useEffect } from "react";
-import { reconnectWebsocketInAllTabs, refetchAuthSessionInAllTabs } from "./auth-utils";
-import { setAlert } from "@/app/components/alerts";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   titleText: string;
@@ -28,16 +26,19 @@ export default function AuthForm({
   successMessage,
   handleSuccess,
 }: Props) {
-  const fetchData = useHttpRequestStore().fetchData;
-  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
+  const { uiStore, alertsService, broadcastChannel, lobbyClientRef } = useClientApplication();
+  const { httpRequests } = uiStore;
+  const { fetchData } = httpRequests;
+  const responseTracker = httpRequests.requests[httpRequestTrackerName];
 
   useEffect(() => {
     if (responseTracker?.ok) {
       if (handleSuccess) handleSuccess();
-      successAlert && setAlert(successAlert);
+      if (successAlert) alertsService.setAlert(successAlert);
       if (reauthorizeOnSuccess) {
-        refetchAuthSessionInAllTabs();
-        reconnectWebsocketInAllTabs();
+        broadcastChannel.refetchAuthSessionInAllTabs();
+        lobbyClientRef.get().resetConnection();
+        broadcastChannel.reconnectAllTabs();
       }
     }
   }, [responseTracker?.ok]);
