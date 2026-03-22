@@ -12,9 +12,10 @@ interface Props {
 }
 
 export const DetailedCombatantInfoCard = observer((props: Props) => {
-  const { focusStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
   const { detailed: detailedEntity, hovered: hoveredEntity } =
-    focusStore.detailables.getIfInstanceOf(Combatant);
+    detailableEntityFocus.detailables.getIfInstanceOf(Combatant);
 
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
   const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({
@@ -48,15 +49,15 @@ export const DetailedCombatantInfoCard = observer((props: Props) => {
   const showingCard = combatantOption !== undefined;
 
   useEffect(() => {
-    let plaqueOption = props.combatantPlaqueRef.current;
-    let detailedInfoContainer = detailedInfoContainerRef.current;
+    const plaqueOption = props.combatantPlaqueRef.current;
+    const detailedInfoContainer = detailedInfoContainerRef.current;
     if (!(plaqueOption && detailedInfoContainer)) return;
 
-    let windowWidth = window.innerWidth;
-    let detailedInfoWidth = detailedInfoContainer.clientWidth;
-    let detailedInfoHeight = detailedInfoContainer.clientHeight;
-    let plaqueX = plaqueOption.getBoundingClientRect().x;
-    let plaqueY = plaqueOption.getBoundingClientRect().y;
+    const windowWidth = window.innerWidth;
+    const detailedInfoWidth = detailedInfoContainer.clientWidth;
+    const detailedInfoHeight = detailedInfoContainer.clientHeight;
+    const plaqueX = plaqueOption.getBoundingClientRect().x;
+    const plaqueY = plaqueOption.getBoundingClientRect().y;
 
     if (!detailedInfoHeight || !detailedInfoWidth) return;
     const style: { [key: string]: string } = {};
@@ -71,7 +72,7 @@ export const DetailedCombatantInfoCard = observer((props: Props) => {
       transformStyle = transformStyle.concat(`translateX(-100%)`);
     } else style["left"] = "-1px";
 
-    style["transform"] = `transformStyle`;
+    style["transform"] = transformStyle;
 
     setCardPositionStyle(style);
   }, [showingCard]);

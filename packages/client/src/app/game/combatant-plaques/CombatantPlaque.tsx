@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TargetingIndicators } from "./TargetingIndicators";
 import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
-import CombatantInfoButton from "./CombatantInfoButton";
+import { CombatantInfoButton } from "./CombatantInfoButton";
 import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
 import { Combatant, CombatantControllerType } from "@speed-dungeon/common";
 import "./floating-text-animation.css";

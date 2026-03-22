@@ -8,9 +8,10 @@ import { observer } from "mobx-react-lite";
 
 export const CharacterSheet = observer(
   ({ showCharacterSheet }: { showCharacterSheet: boolean }) => {
-    const { actionMenuStore } = AppStore.get();
+    const clientApplication = useClientApplication();
+    const { actionMenu, gameContext } = clientApplication;
 
-    const party = AppStore.get().gameStore.getExpectedParty();
+    const party = gameContext.requireParty();
 
     const characterIdsByPhysicalPositions = party.combatantManager.sortCombatantIdsLeftToRight(
       party.combatantManager.getPartyMemberCombatants().map((combatant) => combatant.getEntityId())
@@ -20,7 +21,7 @@ export const CharacterSheet = observer(
       ? "pointer-events-auto w-fit "
       : "opacity-0 overflow-hidden pointer-events-none";
 
-    const shouldShowAbilityTree = actionMenuStore.viewingAbilityTree();
+    const shouldShowAbilityTree = actionMenu.viewingAbilityTree();
 
     const paperDollAndAttributesRef = useRef<HTMLDivElement>(null);
     const paperDollAndAttributesHiddenStyles = shouldShowAbilityTree ? "invisible absolute" : "";

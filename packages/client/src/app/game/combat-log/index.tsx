@@ -2,15 +2,16 @@ import Divider from "@/app/components/atoms/Divider";
 import React, { useState } from "react";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   GAME_LOG_MESSAGE_STYLE_STRINGS,
   GameLogMessage,
-} from "@/mobx-stores/game-event-notifications/game-log-messages";
-import { useClientApplication } from "@/hooks/create-client-application-context";
+} from "@/client-application/event-log/game-log-messages";
 
 export const GameLog = observer(() => {
   const [expanded, setExpanded] = useState(false);
-  const gameLogMessages = AppStore.get().gameEventNotificationStore.getGameLogMessages();
+  const { eventLogStore } = useClientApplication();
+  const gameLogMessages = eventLogStore.getMessages();
 
   const expandedStyle = expanded
     ? "absolute bg-slate-700 p-2 top-0 right-0 h-screen w-screen"

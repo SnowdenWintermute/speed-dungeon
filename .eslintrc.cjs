@@ -17,6 +17,7 @@ module.exports = {
     "plugin:@typescript-eslint/stylistic",
   ],
   rules: {
+    "@next/next/no-img-element":"off",
     "@typescript-eslint/no-empty-function":"off",
     "@typescript-eslint/consistent-indexed-object-style":"off",
     "react/no-unescaped-entities": "off",

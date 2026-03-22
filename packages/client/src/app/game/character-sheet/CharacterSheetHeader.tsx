@@ -3,7 +3,6 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import {
   ClientIntentType,
@@ -48,9 +47,10 @@ export const CharacterSheetHeader = observer((props: Props) => {
   const isPlayerPet = controlledBy.isPlayerPet();
   const shouldShowExp = isPlayerControlled || isPlayerPet;
 
-  const { gameStore } = AppStore.get();
-  const party = gameStore.getExpectedParty();
-  const player = gameStore.getExpectedClientPlayer();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
+  const player = gameContext.requireClientPlayer();
   const isPetOfClientPlayer = controlledBy.wasSummonedByCharacterControlledByPlayer(
     player.username,
     party
@@ -63,7 +63,7 @@ export const CharacterSheetHeader = observer((props: Props) => {
   function handleSubmitChangePetName(e: FormEvent) {
     e.preventDefault();
 
-    gameClientSingleton.get().dispatchIntent({
+    clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.RenamePet,
       data: {
         petId: entityId,

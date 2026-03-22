@@ -4,7 +4,9 @@ import React from "react";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 
 export const NeutralCombatantPlaques = observer(() => {
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
   let plaques = <div />;
   if (party.battleId === null) return plaques;
 

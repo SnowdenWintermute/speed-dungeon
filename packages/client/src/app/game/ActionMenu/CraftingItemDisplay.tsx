@@ -13,8 +13,9 @@ interface Props {
 
 export const CraftingItemDisplay = observer((props: Props) => {
   const { equipment } = props;
-
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
   const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
 
   const ilvlLimited = equipment.itemLevel > currentFloor;

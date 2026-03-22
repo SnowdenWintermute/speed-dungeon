@@ -1,26 +1,28 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { Combatant } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 interface Props {
   combatant: Combatant;
 }
 
-export default function CombatantInfoButton({ combatant }: Props) {
-  const { focusStore } = AppStore.get();
+export const CombatantInfoButton = observer(({ combatant }: Props) => {
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
 
   function handleClick() {
-    focusStore.updateDetailedCombatant(combatant);
+    detailableEntityFocus.updateDetailedCombatant(combatant);
   }
 
   function handleMouseEnter() {
-    focusStore.detailables.setHovered(
+    detailableEntityFocus.detailables.setHovered(
       Combatant.createInitialized(combatant.entityProperties, combatant.combatantProperties)
     );
   }
 
   function handleMouseLeave() {
-    focusStore.detailables.clearHovered();
+    detailableEntityFocus.detailables.clearHovered();
   }
 
   return (
@@ -33,4 +35,4 @@ export default function CombatantInfoButton({ combatant }: Props) {
       {"ⓘ "}
     </button>
   );
-}
+});

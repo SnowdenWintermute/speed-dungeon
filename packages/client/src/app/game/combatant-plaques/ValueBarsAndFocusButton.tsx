@@ -2,7 +2,6 @@ import ValueBar from "@/app/components/atoms/ValueBar";
 import { CombatantProperties } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";
-import FocusCharacterButton from "./FocusCharacterButton";
 import { observer } from "mobx-react-lite";
 import { COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT } from "@/client-consts";
 
@@ -15,7 +14,7 @@ interface Props {
 }
 
 export const ValueBarsAndFocusButton = observer(
-  ({ combatantProperties, combatantId, showExperience, isFocused, combactView }: Props) => {
+  ({ combatantProperties, showExperience, combactView }: Props) => {
     const totalAttributes = combatantProperties.attributeProperties.getTotalAttributes();
     const maxHitPointsOption = totalAttributes[CombatAttribute.Hp];
     const maxManaOption = totalAttributes[CombatAttribute.Mp];

@@ -3,17 +3,20 @@ import EyeIcon from "../../../../public/img/game-ui-icons/eye-open.svg";
 import ClosedEyeIcon from "../../../../public/img/game-ui-icons/eye-closed.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CombatantId } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   combatantId: CombatantId;
   isFocused: boolean;
 }
 
-export default function FocusCharacterButton({ combatantId, isFocused }: Props) {
+export const FocusCharacterButton = observer(({ combatantId, isFocused }: Props) => {
   const conditionalStyles = isFocused ? "bg-slate-400 text-slate-700" : "";
+  const clientApplication = useClientApplication();
+  const { combatantFocus } = clientApplication;
 
   function handleClick() {
-    AppStore.get().gameStore.setFocusedCharacter(combatantId);
+    combatantFocus.setFocusedCharacter(combatantId);
   }
 
   const conditionalIconClassname = isFocused ? "stroke-slate-700" : "stroke-slate-400";
@@ -31,4 +34,4 @@ export default function FocusCharacterButton({ combatantId, isFocused }: Props) 
       )}
     </button>
   );
-}
+});
