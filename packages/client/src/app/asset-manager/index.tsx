@@ -1,28 +1,30 @@
 "use client";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { getClientAppAssetService } from "@/singletons";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import Divider from "../components/atoms/Divider";
 import ClickOutsideHandlerWrapper from "../components/atoms/ClickOutsideHandlerWrapper";
 
 export const AssetManager = observer(() => {
+  const clientApplication = useClientApplication();
+  const { assetFetchProgress } = clientApplication.uiStore;
+
   useEffect(() => {
     const initAssetService = async () => {
       try {
-        const { assetFetchProgressStore } = AppStore.get();
+        const { assetService } = clientApplication;
 
-        const manifest = await getClientAppAssetService().initialize({
+        const manifest = await assetService.initialize({
           // clearCache: true,
           onFetchStartedCallback: (assetId) => {
-            assetFetchProgressStore.onFetchStart(assetId);
+            assetFetchProgress.onFetchStart(assetId);
           },
           onFetchCompleteCallback: (assetId) => {
-            assetFetchProgressStore.onFetchComplete(assetId);
+            assetFetchProgress.onFetchComplete(assetId);
           },
           onFetchAbortCallback: (assetId) => {
-            assetFetchProgressStore.onFetchAbort(assetId);
+            assetFetchProgress.onFetchAbort(assetId);
           },
         });
 
@@ -31,9 +33,9 @@ export const AssetManager = observer(() => {
           return;
         }
 
-        const prefetchQueue = await getClientAppAssetService().scheduleAssetUpdates();
-        assetFetchProgressStore.initialize(manifest, prefetchQueue);
-        await getClientAppAssetService().startAssetUpdatesPrefetch();
+        const prefetchQueue = await assetService.scheduleAssetUpdates();
+        assetFetchProgress.initialize(manifest, prefetchQueue);
+        await assetService.startAssetUpdatesPrefetch();
       } catch (err) {
         console.error(err);
       }
@@ -42,8 +44,7 @@ export const AssetManager = observer(() => {
     initAssetService();
   }, []);
 
-  const { assetFetchProgressStore } = AppStore.get();
-  const { initialized, displayPercent, isComplete } = assetFetchProgressStore;
+  const { initialized, displayPercent, isComplete } = assetFetchProgress;
 
   const [hovered, setHovered] = useState(false);
   function handleClick() {
@@ -74,7 +75,7 @@ export const AssetManager = observer(() => {
             <div className="overflow-auto">
               <Divider />
               <ul className="flex flex-wrap justify-between">
-                {Array.from(assetFetchProgressStore.fetchCompletions).map(([assetId, data]) => {
+                {Array.from(assetFetchProgress.fetchCompletions).map(([assetId, data]) => {
                   const { wasCached, isComplete, started, aborted } = data;
                   const textColor = (() => {
                     if (wasCached) {

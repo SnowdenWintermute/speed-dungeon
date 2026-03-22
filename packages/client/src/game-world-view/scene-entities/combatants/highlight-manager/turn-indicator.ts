@@ -96,4 +96,11 @@ export class TurnIndicator {
 
     return color;
   }
+
+  showDebug() {
+    this.mesh.showBoundingBox = true;
+  }
+  hideDebug() {
+    this.mesh.showBoundingBox = false;
+  }
 }

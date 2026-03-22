@@ -18,7 +18,7 @@ export class ActionMenu {
   }
 
   /** Avoid a circular dependency by not constructing the BaseActionMenuScreen class here
-   * because the BaseActionMenuScreen class (like most ActionMenuScreen classes) call AppStore.get()
+   * because the BaseActionMenuScreen class (like most ActionMenuScreen classes) call AppStore.get ()
    * and AppStore holds ActionMenuStore */
   initialize(baseActionMenuScreen: ActionMenuScreen) {
     this.baseActionMenuScreen = baseActionMenuScreen;

@@ -3,19 +3,20 @@ import ButtonBasic from "../components/atoms/ButtonBasic";
 import { AdventuringParty, ClientIntentType } from "@speed-dungeon/common";
 import Divider from "../components/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { HOTKEYS, letterFromKeyCode } from "@/client-application/ui/keybind-config";
 
 export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) => {
+  const clientApplication = useClientApplication();
+
   function leaveGame() {
-    gameClientSingleton.get().dispatchIntent({
+    clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.LeaveGame,
       data: undefined,
     });
-    AppStore.get().gameStore.clearGame();
-    AppStore.get().gameEventNotificationStore.clearGameLog();
+    clientApplication.gameContext.clearGame();
+    clientApplication.eventLogStore.clear();
   }
 
   const leaveGameHotkey = HOTKEYS.SIDE_1;

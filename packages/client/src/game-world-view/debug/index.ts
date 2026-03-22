@@ -17,9 +17,31 @@ export class GameWorldViewDebug {
     private gameWorldView: GameWorldView
   ) {}
 
-  draw() {
+  show() {
     this.gameWorldView.environment.groundPlane.drawGrid();
     this.gameWorldView.environment.groundPlane.compassDrawer.draw();
+
+    const { combatantSceneEntityManager } = this.gameWorldView.sceneEntityService;
+
+    for (const modularCharacter of combatantSceneEntityManager.getAll()) {
+      modularCharacter.debugView.setUpDebugMeshes();
+      modularCharacter.rootMesh.showBoundingBox = true;
+      modularCharacter.highlightManager.turnIndicator?.showDebug();
+
+      modularCharacter.debugView.despawnDebugMeshes();
+      modularCharacter.rootMesh.showBoundingBox = false;
+      modularCharacter.highlightManager.turnIndicator?.hideDebug();
+    }
+  }
+
+  hide() {
+    const { combatantSceneEntityManager } = this.gameWorldView.sceneEntityService;
+
+    for (const modularCharacter of combatantSceneEntityManager.getAll()) {
+      modularCharacter.debugView.despawnDebugMeshes();
+      modularCharacter.rootMesh.showBoundingBox = false;
+      modularCharacter.highlightManager.turnIndicator?.hideDebug();
+    }
   }
 
   updateDebugText() {
@@ -151,5 +173,13 @@ export class GameWorldViewDebug {
         lastTime = currTime;
       }, 1000 / fps);
     }, timeout);
+  }
+
+  getGpuName() {
+    const babylonGl = this.gameWorldView.engine._gl;
+    if (!babylonGl) return "Unknown GPU";
+    // Use the standard WebGL parameter instead of the deprecated extension
+    const renderer = babylonGl.getParameter(babylonGl.RENDERER);
+    return renderer || "Unknown GPU";
   }
 }

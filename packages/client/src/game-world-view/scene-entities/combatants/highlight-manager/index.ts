@@ -224,6 +224,14 @@ export class HighlightManager {
 
     return { elapsed, scale, normalized };
   }
+
+  showDebug() {
+    this.turnIndicator?.showDebug();
+  }
+
+  hideDebug() {
+    this.turnIndicator?.hideDebug();
+  }
 }
 
 export interface PulseEffectParameters {

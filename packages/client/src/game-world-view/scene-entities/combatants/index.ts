@@ -35,8 +35,8 @@ export class CombatantSceneEntity extends SceneEntity {
   readonly highlightManager: HighlightManager;
   readonly targetingIndicatorManager: TargetIndicatorBillboardManager;
 
-  readonly debugElement: HTMLDivElement | null = null;
-  readonly modelDomPositionElement: HTMLDivElement | null = null;
+  public debugElement: HTMLDivElement | null = null;
+  public modelDomPositionElement: HTMLDivElement | null = null;
 
   constructor(
     private gameWorldView: GameWorldView,

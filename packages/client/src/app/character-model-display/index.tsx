@@ -1,16 +1,19 @@
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
-import { getGameWorldView } from "../game-world-view-canvas/SceneManager";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const CharacterModelDisplay = observer(
   ({ character, children }: { character: Combatant; children?: ReactNode }) => {
     const { entityProperties } = character;
     const entityId = entityProperties.id;
-    const modelIsLoading = AppStore.get().gameWorldStore.modelIsLoading(entityId);
-    const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+    const clientApplication = useClientApplication();
+    const { uiStore, gameWorldView } = clientApplication;
+    const combatantSceneEntityManager =
+      gameWorldView?.sceneEntityService.combatantSceneEntityManager;
+    const modelIsLoading = combatantSceneEntityManager?.loadingStates.entityIsLoading(entityId);
+    const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
 
     // @TODO - this is symantec coupling. instead of directly passing the modelDomPositionElement to babylon
     // we could make a singleton registry of dom elements by entity id and have babylon query for them
@@ -20,7 +23,7 @@ export const CharacterModelDisplay = observer(
         `${entityId}-position-div`
       ) as HTMLDivElement | null;
       if (modelDomPositionElement === null) return;
-      const modelOption = getGameWorldView().modelManager.findOneOptional(entityId);
+      const modelOption = combatantSceneEntityManager?.getOptional(entityId);
       if (!modelOption) return;
 
       modelOption.modelDomPositionElement = modelDomPositionElement;

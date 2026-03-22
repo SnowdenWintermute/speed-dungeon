@@ -2,11 +2,9 @@ import { ClientIntentType, CombatantId, CombatantProperties } from "@speed-dunge
 import React from "react";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ActionMenuScreenType } from "./ActionMenu/menu-state/menu-state-type";
-import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const UnspentAttributesButton = observer(
   ({
@@ -18,13 +16,14 @@ export const UnspentAttributesButton = observer(
   }) => {
     if (combatantProperties.attributeProperties.getUnspentPoints() < 1) return <></>;
 
-    const { actionMenuStore, gameStore } = AppStore.get();
+    const clientApplication = useClientApplication();
+    const { gameClientRef, actionMenu, combatantFocus } = clientApplication;
 
     function handleUnspentAttributesButtonClick() {
-      const previouslyFocusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+      const previouslyFocusedCharacterId = combatantFocus.requireFocusedCharacterId();
 
-      if (gameStore.clientUserControlsFocusedCombatant()) {
-        gameClientSingleton.get().dispatchIntent({
+      if (combatantFocus.clientUserControlsFocusedCombatant()) {
+        gameClientRef.get().dispatchIntent({
           type: ClientIntentType.SelectCombatAction,
           data: {
             characterId: previouslyFocusedCharacterId,
@@ -33,16 +32,17 @@ export const UnspentAttributesButton = observer(
         });
       }
 
-      gameStore.setFocusedCharacter(entityId);
+      combatantFocus.setFocusedCharacter(entityId);
 
       if (
-        actionMenuStore.currentMenuIsType(ActionMenuScreenType.AssignAttributePoints) &&
+        actionMenu.currentMenuIsType(ActionMenuScreenType.AssignAttributePoints) &&
         entityId === previouslyFocusedCharacterId
       ) {
-        actionMenuStore.popStack();
+        actionMenu.popStack();
       } else {
-        gameStore.setFocusedCharacter(entityId);
-        actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.AssignAttributePoints)]);
+        combatantFocus.setFocusedCharacter(entityId);
+        actionMenu.clearStack();
+        actionMenu.pushFromPool(ActionMenuScreenType.AssignAttributePoints);
       }
     }
 
@@ -50,11 +50,11 @@ export const UnspentAttributesButton = observer(
     // the hotkey being available when inventory is open and other times
     // where it would collide with using the hotkey for dropping shards
     const buttonType = HotkeyButtonTypes.ToggleAssignAttributesMenu;
-    const { hotkeysStore } = AppStore.get();
+    const { keybinds } = clientApplication.uiStore;
 
     return (
       <HoverableTooltipWrapper
-        tooltipText={`Assign attributes (${hotkeysStore.getKeybindString(buttonType)})`}
+        tooltipText={`Assign attributes (${keybinds.getKeybindString(buttonType)})`}
       >
         <button
           onClick={handleUnspentAttributesButtonClick}

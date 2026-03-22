@@ -98,7 +98,7 @@ export class TargetIndicatorStore {
   }
 
   /** avoid a circular reference since targetIndicatorStore will need to access GameWorld
-  but GameWorld also accesses AppStore.get() which targetIndicatorStore is a member of
+  but GameWorld also accesses AppStore.get () which targetIndicatorStore is a member of
   so we can't directly call getGameWorldView() inside it */
   initialize(gameWorld: GameWorldView) {
     this._gameWorld = gameWorld;

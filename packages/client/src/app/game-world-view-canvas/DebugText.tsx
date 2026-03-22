@@ -2,29 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { ZIndexLayers } from "../z-index-layers";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
-import { ModifierKey } from "@/mobx-stores/input";
-import { gameWorldView } from "./SceneManager";
-import { drawCompass, drawDebugGrid } from "@/game-world-view/clear-floor-texture";
-
-function getGpuName() {
-  if (gameWorldView.current === null) return;
-
-  const babylonGl = gameWorldView.current.engine._gl;
-  if (!babylonGl) return "Unknown GPU";
-
-  // Use the standard WebGL parameter instead of the deprecated extension
-  const renderer = babylonGl.getParameter(babylonGl.RENDERER);
-  return renderer || "Unknown GPU";
-}
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 export const DebugText = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
-    const { dialogStore, inputStore, imageStore } = AppStore.get();
+    const clientApplication = useClientApplication();
+    const { uiStore, gameWorldView, imageStore } = clientApplication;
+    const { dialogs, inputs } = uiStore;
     const itemThumbnails = imageStore.getItemThumbnails();
-    const showDebug = dialogStore.isOpen(DialogElementName.Debug);
-    const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
+    const showDebug = dialogs.isOpen(DialogElementName.Debug);
+    const hotkeysDisabled = inputs.getHotkeysDisabled();
     const headerRef = useRef<HTMLDivElement>(null);
     const keydownListenerRef = useRef<(e: KeyboardEvent) => void>(null);
     const mouseDownListenerRef = useRef<(e: MouseEvent) => void>(null);
@@ -37,7 +26,7 @@ export const DebugText = observer(
     const [gpuName, setGpuName] = useState("getting GPU name...");
 
     useEffect(() => {
-      const gpuName = getGpuName();
+      const gpuName = gameWorldView?.debug.getGpuName();
       // console.info(
       //   "User Agent:",
       //   navigator.userAgent,
@@ -47,31 +36,20 @@ export const DebugText = observer(
       //   navigator.hardwareConcurrency,
       // );
       setGpuName(gpuName);
-    }, [gameWorldView.current]);
+    }, [gameWorldView]);
 
     useEffect(() => {
       keydownListenerRef.current = function (e: KeyboardEvent) {
         if (e.code !== "KeyP" || hotkeysDisabled) return;
 
-        dialogStore.toggle(DialogElementName.Debug);
-        const showDebug = dialogStore.isOpen(DialogElementName.Debug);
+        dialogs.toggle(DialogElementName.Debug);
+        const showDebug = dialogs.isOpen(DialogElementName.Debug);
 
-        if (gameWorldView.current) {
+        if (gameWorldView) {
           if (showDebug) {
-            drawCompass(gameWorldView.current);
-            drawDebugGrid(gameWorldView.current);
+            gameWorldView.debug.show();
           } else {
-            gameWorldView.current.clearFloorTexture();
-          }
-
-          for (const modularCharacter of Object.values(
-            gameWorldView.current.modelManager.combatantModels
-          )) {
-            if (showDebug) modularCharacter.setUpDebugMeshes();
-            else modularCharacter.despawnDebugMeshes();
-            modularCharacter.rootMesh.showBoundingBox = showDebug;
-            if (modularCharacter.highlightManager.targetingIndicator)
-              modularCharacter.highlightManager.targetingIndicator.showBoundingBox = showDebug;
+            gameWorldView.debug.hide();
           }
         }
       };
@@ -119,13 +97,14 @@ export const DebugText = observer(
       };
     }, [hotkeysDisabled]);
 
-    const partyOption = AppStore.get().gameStore.getPartyOption();
+    const { gameContext } = clientApplication;
+    const { partyOption } = gameContext;
     const inputLockStatus = partyOption
       ? JSON.stringify(partyOption.inputLock.isLocked())
       : "no party";
 
-    const alternateClickKeyHeld = inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
-    const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
+    const alternateClickKeyHeld = inputs.getKeyIsHeld(ModifierKey.AlternateClick);
+    const modKeyHeld = inputs.getKeyIsHeld(ModifierKey.Mod);
 
     return (
       <div
@@ -137,7 +116,7 @@ export const DebugText = observer(
           <button
             className="h-full p-2 border-l border-white"
             onClick={() => {
-              dialogStore.close(DialogElementName.Debug);
+              dialogs.close(DialogElementName.Debug);
             }}
           >
             Hide

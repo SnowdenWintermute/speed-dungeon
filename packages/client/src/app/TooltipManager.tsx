@@ -4,7 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const TooltipManager = observer(() => {
-  const { text, position } = AppStore.get().tooltipStore.get();
+  const { text, position } = useClientApplication().uiStore.tooltips.get();
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   if (position === null) return <></>;
