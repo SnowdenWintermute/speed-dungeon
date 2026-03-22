@@ -9,17 +9,18 @@ import { ActionMenuAndCharacterSheetLayer } from "./ActionMenuAndCharacterSheetL
 import { ZIndexLayers } from "../z-index-layers";
 import { PersistentActionEntityDisplay } from "./persistent-action-entity-display";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { NeutralCombatantPlaques } from "./NeutralCombatantPlaques";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const Game = observer(() => {
-  const { actionMenuStore, gameStore } = AppStore.get();
-  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+  const clientApplication = useClientApplication();
+  const { actionMenu, combatantFocus, uiStore } = clientApplication;
+  const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
 
-  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
+  const viewingLeaveGameModal = uiStore.dialogs.isOpen(DialogElementName.LeaveGame);
 
-  const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
+  const { focusedCharacterOption } = combatantFocus;
 
   if (focusedCharacterOption === undefined) {
     return (
@@ -29,7 +30,7 @@ export const Game = observer(() => {
     );
   }
 
-  const { game, party } = gameStore.getFocusedCharacterContext();
+  const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
   return (
     <>

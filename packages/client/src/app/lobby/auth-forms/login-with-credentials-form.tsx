@@ -1,15 +1,13 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import React, { useState } from "react";
 import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
-import AuthForm from "./AuthForm";
-import { AppStore } from "@/mobx-stores/app-store";
+import { AuthForm } from "./AuthForm";
 import { observer } from "mobx-react-lite";
-import { gameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
@@ -17,13 +15,16 @@ interface Props {
 
 export const LoginWithCredentialsForm = observer(({ setActiveForm }: Props) => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS;
-  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
+
+  const { httpRequests, forms } = useClientApplication().uiStore;
+  const responseTracker = httpRequests.requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
 
-  const email = AppStore.get().formsStore.getAuthFormEmailField();
-  const setEmail = AppStore.get().formsStore.setAuthFormEmailField;
+  const email = forms.getAuthFormEmailField();
+  const setEmail = forms.setAuthFormEmailField;
   const [password, setPassword] = useState("");
 
+  const { gameWorldView } = useClientApplication();
   return (
     <AuthForm
       titleText="Log in or sign up to save your progress"
@@ -39,7 +40,7 @@ export const LoginWithCredentialsForm = observer(({ setActiveForm }: Props) => {
       nonFieldErrors={nonFieldErrors}
       reauthorizeOnSuccess={true}
       successAlert="Welcome back!"
-      handleSuccess={() => gameWorldView.current?.drawCharacterSlots()}
+      handleSuccess={() => gameWorldView?.environment.groundPlane.drawCharacterSlots()}
     >
       <LabeledTextInputWithErrorDisplay
         name={"email"}

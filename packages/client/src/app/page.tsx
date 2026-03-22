@@ -6,7 +6,7 @@ import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import { TooltipManager } from "./TooltipManager";
 import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
-import SceneManager from "./game-world-view-canvas/SceneManager";
+import { SceneManager } from "./game-world-view-canvas/SceneManager";
 import { useEffect, useRef, useState } from "react";
 import { AssetManager } from "./asset-manager";
 import { ClientApplication } from "@/client-application";
@@ -18,7 +18,7 @@ import { MainAppWindow } from "./MainAppWindow";
 function createClientApplication() {
   const assetCache = new IndexedDbAssetStore(indexedDB);
   const tickScheduler = new ManualTickScheduler();
-  return new ClientApplication(null, assetCache, "", tickScheduler.scheduler);
+  return new ClientApplication(assetCache, "", tickScheduler.scheduler);
 }
 
 export default observer(() => {

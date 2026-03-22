@@ -27,12 +27,15 @@ import { ClientSequentialEventProcessor } from "./sequential-event-processor";
 import { GameWorldView } from "@/game-world-view";
 import { BroadcastChannelMananger } from "./broadcast-channel";
 import { ConnectionTopology } from "./connection-topology";
+import { GameClient } from "./clients/game";
+import { LobbyClient } from "./clients/lobby";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
+  private _gameWorldView: null | GameWorldView = null;
   // clients
-  readonly gameClientRef = new ClientSingleton();
-  readonly lobbyClientRef = new ClientSingleton();
+  readonly gameClientRef = new ClientSingleton<GameClient>();
+  readonly lobbyClientRef = new ClientSingleton<LobbyClient>();
   readonly assetService: ClientAppAssetService;
 
   // event processing
@@ -71,7 +74,6 @@ export class ClientApplication {
   readonly topologyManager = new ConnectionTopology(this);
 
   constructor(
-    readonly gameWorldView: null | GameWorldView,
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
     assetServerUrl: string,
     replayManagerTickScheduler: TickScheduler
@@ -97,6 +99,19 @@ export class ClientApplication {
   dispose() {
     this.unregisterReplayManagerTick();
     this.gameWorldView?.dispose();
+  }
+
+  setGameWorldView(gameWorldView: GameWorldView) {
+    this._gameWorldView = gameWorldView;
+  }
+
+  clearGameWorldView() {
+    this._gameWorldView?.dispose();
+    this._gameWorldView = null;
+  }
+
+  get gameWorldView() {
+    return this._gameWorldView;
   }
 }
 

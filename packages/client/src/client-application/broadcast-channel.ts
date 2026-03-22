@@ -1,3 +1,4 @@
+import { LobbyClient } from "./clients/lobby";
 import { ClientSingleton } from "./clients/singleton";
 import { HttpRequestStore } from "./ui/http-requests";
 
@@ -22,7 +23,7 @@ export class BroadcastChannelMananger {
     this.broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
   }
 
-  constructor(lobbyClientRef: ClientSingleton, httpRequests: HttpRequestStore) {
+  constructor(lobbyClientRef: ClientSingleton<LobbyClient>, httpRequests: HttpRequestStore) {
     this.broadcastChannel.onmessage = (message: any) => {
       if (message.data.type === TabMessageType.ReconnectSocket) {
         lobbyClientRef.get().resetConnection();

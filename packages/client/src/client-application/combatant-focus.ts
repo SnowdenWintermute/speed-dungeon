@@ -12,11 +12,12 @@ import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { ActionMenuScreenType } from "./action-menu/screen-types";
 import { ClientSingleton } from "./clients/singleton";
 import { ClientApplication } from ".";
+import { GameClient } from "./clients/game";
 
 export class CombatantFocus {
   private focusedCharacterId: CombatantId | null = null;
 
-  private gameClientRef: ClientSingleton;
+  private gameClientRef: ClientSingleton<GameClient>;
   private clientSession: ClientApplicationSession;
   private gameContext: ClientApplicationGameContext;
   private actionMenu: ActionMenu;

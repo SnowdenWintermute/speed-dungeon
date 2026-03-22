@@ -22,10 +22,10 @@ import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { CombatantConditionFactory } from "@speed-dungeon/common";
+import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   actionName: CombatActionName;
@@ -33,7 +33,8 @@ interface Props {
 }
 
 export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props) => {
-  const { game, party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
+  const { game, party, combatant } =
+    useClientApplication().combatantFocus.requireFocusedCharacterContext();
   const { combatantProperties } = combatant;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.getOwnedActionOption(actionName);

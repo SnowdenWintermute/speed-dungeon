@@ -7,10 +7,11 @@ import ButtonBasic from "../components/atoms/ButtonBasic";
 import { HTTP_REQUEST_NAMES, SPACING_REM_LARGE } from "@/client-consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import WithTopBar from "../components/layouts/with-top-bar";
-import AuthForm from "../lobby/auth-forms/AuthForm";
+import { AuthForm } from "../lobby/auth-forms/AuthForm";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { observer } from "mobx-react-lite";
 
-export default function PasswordResetPage() {
+export const PasswordResetPage = observer(() => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.CHANGE_PASSWORD;
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -85,4 +86,4 @@ export default function PasswordResetPage() {
       </div>
     </WithTopBar>
   );
-}
+});

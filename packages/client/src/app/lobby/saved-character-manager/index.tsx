@@ -13,7 +13,6 @@ import CreateCharacterForm from "./CreateCharacterForm";
 import DeleteCharacterForm from "./DeleteCharacterForm";
 import { CharacterModelDisplay } from "@/app/character-model-display";
 import { observer } from "mobx-react-lite";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
 import { CHARACTER_SLOT_SPACING } from "@/client-consts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
@@ -31,7 +30,7 @@ export const SavedCharacterManager = observer(() => {
   const showCharacterManager = dialogs.isOpen(DialogElementName.SavedCharacterManager);
 
   useEffect(() => {
-    const camera = getGameWorldView().camera;
+    const camera = clientApplication.gameWorldView?.camera;
     if (!camera) return;
     camera.target.copyFrom(
       new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0)
@@ -39,14 +38,14 @@ export const SavedCharacterManager = observer(() => {
     camera.alpha = Math.PI / 2;
     camera.beta = (Math.PI / 5) * 2;
     camera.radius = 4.28;
-  }, [currentSlot]);
+  }, [currentSlot, clientApplication.gameWorldView?.camera]);
 
   useEffect(() => {
     sequentialEventProcessor.scheduleEvent({
       type: ClientSequentialEventType.SynchronizeCombatantModels,
       data: { softCleanup: false, placeInHomePositions: true },
     });
-  }, [savedCharacters]);
+  }, [savedCharacters, sequentialEventProcessor]);
 
   return (
     <>

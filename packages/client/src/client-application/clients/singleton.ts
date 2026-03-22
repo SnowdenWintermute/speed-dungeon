@@ -1,8 +1,8 @@
 import { makeAutoObservable } from "mobx";
 import { BaseClient } from "./base";
 
-export class ClientSingleton {
-  private _client: null | BaseClient = null;
+export class ClientSingleton<T extends BaseClient> {
+  private _client: null | T = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -15,7 +15,7 @@ export class ClientSingleton {
     return this._client;
   }
 
-  setClient(client: BaseClient) {
+  setClient(client: T) {
     this._client = client;
   }
 

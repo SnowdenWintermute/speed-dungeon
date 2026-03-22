@@ -1,39 +1,31 @@
 import React, { useEffect, useRef } from "react";
 import { DebugText } from "./DebugText";
 import { ZIndexLayers } from "../z-index-layers";
-import { ERROR_MESSAGES } from "@speed-dungeon/common";
 import { GameWorldView } from "@/game-world-view";
+import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export const gameWorldView: { current: null | GameWorldView } = { current: null };
-
-export function getGameWorldView() {
-  if (!gameWorldView.current) throw new Error(ERROR_MESSAGES.GAME_WORLD.NOT_FOUND);
-  return gameWorldView.current;
-}
-
-export default function SceneManager() {
+export const SceneManager = observer(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const debugRef = useRef<HTMLUListElement>(null);
   const resizeHandlerRef = useRef<(e: UIEvent) => void>(null);
+  const clientApplication = useClientApplication();
 
   useEffect(() => {
     if (canvasRef.current && debugRef.current !== null) {
-      gameWorldView.current = new GameWorldView(canvasRef.current, debugRef);
+      clientApplication.setGameWorldView(new GameWorldView(canvasRef.current, debugRef));
     }
     resizeHandlerRef.current = function () {
-      gameWorldView.current?.engine?.resize();
+      clientApplication.gameWorldView?.engine.resize();
     };
 
     window.addEventListener("resize", resizeHandlerRef.current);
 
     return () => {
-      gameWorldView.current?.scene.dispose();
-      gameWorldView.current?.engine.dispose();
-      gameWorldView.current = null;
-
+      clientApplication.clearGameWorldView();
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
     };
-  }, []);
+  }, [clientApplication]);
 
   return (
     <>
@@ -46,4 +38,4 @@ export default function SceneManager() {
       />
     </>
   );
-}
+});

@@ -5,8 +5,8 @@ import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
 import { PasswordResetEmailForm } from "../lobby/auth-forms/password-reset-email-form";
 import Divider from "../components/atoms/Divider";
-import DeleteAccountForm from "../lobby/auth-forms/delete-account-form";
-import ChangeUsernameForm from "../lobby/auth-forms/change-username-form";
+import { DeleteAccountForm } from "../lobby/auth-forms/delete-account-form";
+import { ChangeUsernameForm } from "../lobby/auth-forms/change-username-form";
 import { ZIndexLayers } from "../z-index-layers";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
@@ -20,10 +20,10 @@ export const Settings = observer(() => {
   const { usernameOption } = session;
 
   useEffect(() => {
-    delete httpRequests.requests[HTTP_REQUEST_NAMES.DELETE_ACCOUNT];
-    delete httpRequests.requests[HTTP_REQUEST_NAMES.CHANGE_USERNAME];
-    delete httpRequests.requests[HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL];
-  }, [settingsIsOpen]);
+    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.DELETE_ACCOUNT);
+    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.CHANGE_USERNAME);
+    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL);
+  }, [settingsIsOpen, httpRequests]);
 
   if (!settingsIsOpen) return <></>;
 
