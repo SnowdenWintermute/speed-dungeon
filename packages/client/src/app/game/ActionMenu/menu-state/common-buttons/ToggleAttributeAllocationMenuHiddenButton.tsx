@@ -1,5 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ClientIntentType } from "@speed-dungeon/common";
 import React from "react";

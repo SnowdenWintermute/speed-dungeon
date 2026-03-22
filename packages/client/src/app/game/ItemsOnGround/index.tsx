@@ -4,7 +4,7 @@ import React from "react";
 import { ItemOnGround } from "./ItemOnGround";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   party: AdventuringParty;

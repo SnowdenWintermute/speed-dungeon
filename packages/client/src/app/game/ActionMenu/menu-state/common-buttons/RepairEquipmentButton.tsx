@@ -1,4 +1,4 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   ClientIntentType,
   CraftingAction,
@@ -19,7 +19,7 @@ interface Props {
 
 export const RepairEquipmentButton = observer((props: Props) => {
   const { equipment, listIndex } = props;
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
   const price = getCraftingActionPrice(CraftingAction.Repair, equipment);
   const durability = equipment.getDurability();

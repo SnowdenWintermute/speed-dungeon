@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { ZIndexLayers } from "../z-index-layers";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 import { ModifierKey } from "@/mobx-stores/input";

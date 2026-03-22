@@ -1,6 +1,6 @@
 import { ActionMenuScreen } from ".";
 import { ACTION_NAMES_TO_HIDE_IN_MENU } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import { CombatActionButton } from "./common-buttons/CombatActionButton";

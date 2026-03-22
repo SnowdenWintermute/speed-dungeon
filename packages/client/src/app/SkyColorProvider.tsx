@@ -1,7 +1,7 @@
 "use client";
 import React, { ReactNode } from "react";
 import { DungeonFloor, SKY_COLORS_BY_FLOOR } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
 export const SkyColorProvider = observer(({ children }: { children: ReactNode }) => {

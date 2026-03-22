@@ -7,7 +7,7 @@ import { HOTKEYS } from "@/hotkeys";
 import { ClientIntentType, stringIsValidNumber } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { gameClientSingleton } from "@/singletons/lobby-client";

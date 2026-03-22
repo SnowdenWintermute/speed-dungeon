@@ -1,4 +1,4 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { Combatant } from "@speed-dungeon/common";
 import React from "react";
 

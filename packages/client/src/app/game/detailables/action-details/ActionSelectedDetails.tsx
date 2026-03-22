@@ -33,8 +33,10 @@ interface Props {
 }
 
 export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props) => {
+  const clientApplication = useClientApplication();
   const { game, party, combatant } =
-    useClientApplication().combatantFocus.requireFocusedCharacterContext();
+    clientApplication.combatantFocus.requireFocusedCharacterContext();
+  const { gameClientRef } = clientApplication;
   const { combatantProperties } = combatant;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
@@ -134,7 +136,9 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
             <button
               key={`${action.name}${rank}`}
               className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && " pointer-events-none"} ${!!(selectedActionAndRankOption?.rank === rank) && "bg-slate-800"} `}
-              onClick={() => handleSelectActionLevel(rank)}
+              onClick={() =>
+                handleSelectActionLevel(gameClientRef.get(), combatant.getEntityId(), rank)
+              }
             >
               <div className="flex items-center h-full">
                 {iterateNumericEnumKeyedRecord(rankCosts).map(([resourceType, cost]) => (

@@ -5,7 +5,7 @@ import {
   ClientIntentType,
 } from "@speed-dungeon/common";
 import { ActionMenuScreenType } from "./menu-state-type";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";

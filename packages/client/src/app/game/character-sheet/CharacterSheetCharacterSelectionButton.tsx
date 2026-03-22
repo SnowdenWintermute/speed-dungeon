@@ -1,5 +1,5 @@
 import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CombatantId } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";

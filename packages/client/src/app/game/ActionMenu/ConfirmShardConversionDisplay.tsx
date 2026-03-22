@@ -3,7 +3,7 @@ import { getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
 import { ConfirmConvertToShardsActionMenuScreen } from "./menu-state/confirm-convert-to-shards";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
 
 export function ConfirmShardConversionDisplay() {

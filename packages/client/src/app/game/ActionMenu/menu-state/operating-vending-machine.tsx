@@ -6,7 +6,7 @@ import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ActionMenuNumberedButton } from "./common-buttons/ActionMenuNumberedButton";
 import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { VendingMachineShardDisplay } from "../VendingMachineShardDisplay";
 
 export const operateVendingMachineHotkey = HOTKEYS.SIDE_2;

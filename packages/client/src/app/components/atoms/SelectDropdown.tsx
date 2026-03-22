@@ -1,7 +1,7 @@
 import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import React, { useEffect, useRef, useState } from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
 interface Props {

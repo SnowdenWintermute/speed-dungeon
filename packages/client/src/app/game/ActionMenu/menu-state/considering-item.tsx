@@ -1,6 +1,6 @@
 import { ActionMenuScreen } from ".";
 import { Equipment, EquipmentType, Item } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ModifierKey } from "@/mobx-stores/input";
 import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";

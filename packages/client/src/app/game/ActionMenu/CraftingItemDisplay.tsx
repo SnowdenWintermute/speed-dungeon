@@ -4,7 +4,7 @@ import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { Equipment, INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ItemDetails } from "../detailables/ItemDetails";
 
 interface Props {

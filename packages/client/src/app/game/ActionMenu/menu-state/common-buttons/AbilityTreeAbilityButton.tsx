@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import { AbilityTreeAbility, getAbilityTreeAbilityNameString } from "@speed-dungeon/common";
 import { getAbilityIcon } from "@/app/game/character-sheet/ability-tree/ability-icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ConsideringCombatantAbilityActionMenuScreen } from "../considering-tree-ability";
 
 interface Props {

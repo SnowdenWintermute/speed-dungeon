@@ -1,6 +1,6 @@
 import { EQUIPMENT_ICONS } from "@/app/game/detailables/EquipmentDetails/equipment-icons";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ModifierKey } from "@/mobx-stores/input";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
 import { Color4 } from "@babylonjs/core";
@@ -50,7 +50,7 @@ export const ItemButton = observer((props: Props) => {
     }
   }
 
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   const { attributeProperties } = focusedCharacter.combatantProperties;
   const totalAttributes = attributeProperties.getTotalAttributes();
   const itemIsNotBroken = !(item instanceof Equipment && item.isBroken());

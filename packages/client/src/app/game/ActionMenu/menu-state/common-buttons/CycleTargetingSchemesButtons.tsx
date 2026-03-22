@@ -1,5 +1,5 @@
 import { setAlert } from "@/app/components/alerts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ClientIntentType } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";

@@ -11,7 +11,7 @@ import isEqual from "lodash.isequal";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   itemOption: null | Equipment;

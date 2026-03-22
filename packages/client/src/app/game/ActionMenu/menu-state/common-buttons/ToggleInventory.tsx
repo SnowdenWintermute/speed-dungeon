@@ -1,5 +1,5 @@
 import React from "react";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { ActionMenuScreenType } from "../menu-state-type";
 import ActionMenuTopButton from "./ActionMenuTopButton";

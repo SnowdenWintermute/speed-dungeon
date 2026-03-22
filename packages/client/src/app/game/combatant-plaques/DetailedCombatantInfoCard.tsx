@@ -3,7 +3,7 @@ import { SPACING_REM_SMALL } from "@/client-consts";
 import { Combatant } from "@speed-dungeon/common";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CombatantDisplay } from "../detailables/CombatantDisplay";
 
 interface Props {

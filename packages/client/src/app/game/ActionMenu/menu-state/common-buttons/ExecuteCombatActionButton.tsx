@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ClientIntentType } from "@speed-dungeon/common";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 
@@ -22,7 +22,7 @@ function clickHandler() {
 
   const party = gameStore.getExpectedParty();
 
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
   party.inputLock.lockInput();
 }

@@ -1,6 +1,6 @@
 import { Item } from "@speed-dungeon/common";
 import { ConsideringItemActionMenuScreen } from "./considering-item";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
@@ -26,7 +26,7 @@ export class EquippedItemsActionMenuScreen extends ActionMenuScreen {
   }
 
   getNumberedButtons() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
     const itemsInInventory = focusedCharacter.combatantProperties.equipment.getAllEquippedItems({
       includeUnselectedHotswapSlots: false,
     });

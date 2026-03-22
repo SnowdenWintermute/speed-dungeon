@@ -1,5 +1,5 @@
 import { MAIN_TEXT_AND_BORDERS_COLOR } from "@/client-consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { AbilityTreeAbility, AbilityUtils } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { RefObject, useLayoutEffect, useRef, useState } from "react";
@@ -27,7 +27,7 @@ export const PrerequisiteArrows = observer((props: Props) => {
 
   const { cellRefs } = props;
 
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   const { combatantProperties } = focusedCharacter;
 
   useLayoutEffect(() => {

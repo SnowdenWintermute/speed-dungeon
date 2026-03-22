@@ -13,7 +13,7 @@ import React from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 

@@ -1,5 +1,5 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM } from "@/client-consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";

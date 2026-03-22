@@ -1,4 +1,4 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ChangeEvent, useEffect, useRef } from "react";
 
 interface Props {

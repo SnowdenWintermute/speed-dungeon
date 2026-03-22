@@ -1,6 +1,6 @@
 import { ActionMenuScreen } from ".";
 import { ClientIntentType, CombatActionName } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import { ReactNode } from "react";

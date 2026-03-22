@@ -9,7 +9,7 @@ import { AbilityTreeButton } from "./AbilityTreeButton";
 import { useRef } from "react";
 import { PrerequisiteArrows } from "./PrerequisiteArrows";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "../../ActionMenu/menu-state/menu-state-type";
 
 export const CharacterClassAbilityTree = observer(
@@ -22,7 +22,7 @@ export const CharacterClassAbilityTree = observer(
       Record<string, { element: HTMLDivElement; prerequisites: AbilityTreeAbility[] }>
     >({});
 
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
     const { combatantProperties } = focusedCharacter;
 

@@ -1,6 +1,6 @@
 import { getAttackActionIcons } from "@/app/game/character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   AbilityType,
   ActionAndRank,

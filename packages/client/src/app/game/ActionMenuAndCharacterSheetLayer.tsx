@@ -8,7 +8,7 @@ import { SPACING_REM } from "@/client-consts";
 import { ZIndexLayers } from "../z-index-layers";
 import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const ActionMenuAndCharacterSheetLayer = observer(
   ({ party }: { party: AdventuringParty }) => {
@@ -16,7 +16,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
     const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
     const abilityTreeOpen = actionMenuStore.viewingAbilityTree();
 
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
     const inputLocked = party.inputLock.isLocked();
 

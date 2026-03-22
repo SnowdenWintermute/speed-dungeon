@@ -1,7 +1,7 @@
 import { ActionMenuScreen } from ".";
 import { ConsideringAbilityTreeColumnActionMenuScreen } from "./considering-tree-ability-column";
 import { ABILITY_TREE_DIMENSIONS, ArrayUtils } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";
 import GoBackButton from "./common-buttons/GoBackButton";

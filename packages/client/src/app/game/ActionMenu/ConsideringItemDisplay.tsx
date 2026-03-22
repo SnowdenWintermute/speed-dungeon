@@ -7,7 +7,7 @@ import { ConfirmConvertToShardsActionMenuScreen } from "./menu-state/confirm-con
 import { ActionMenuScreenType } from "./menu-state/menu-state-type";
 import { ConsideringItemActionMenuScreen } from "./menu-state/considering-item";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 

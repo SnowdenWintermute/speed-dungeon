@@ -7,7 +7,7 @@ import {
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
 import { getAbilityIcon } from "../../character-sheet/ability-tree/ability-icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import AbilityTreeAbilityButton from "./common-buttons/AbilityTreeAbilityButton";
@@ -30,7 +30,7 @@ export class ConsideringAbilityTreeColumnActionMenuScreen extends ActionMenuScre
   }
 
   getNumberedButtons() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
     const { combatantProperties } = focusedCharacter;
     const { classProgressionProperties } = combatantProperties;

@@ -8,7 +8,7 @@ import { CharacterSheetWeaponDamage } from "./CharacterSheetWeaponDamage";
 import ElementalAffinitiesDisplay from "./ElementalAffinitiesDisplay";
 import KineticAffinitiesDisplay from "./KineticAffinitiesDisplay";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CharacterSheetHeader } from "./CharacterSheetHeader";
 
 interface Props {

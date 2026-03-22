@@ -1,6 +1,6 @@
 import { Combatant } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
 import { getGameWorldView } from "../game-world-view-canvas/SceneManager";

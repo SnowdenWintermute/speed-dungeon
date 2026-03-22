@@ -2,7 +2,7 @@ import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import {

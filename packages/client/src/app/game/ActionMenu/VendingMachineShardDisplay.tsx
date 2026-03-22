@@ -5,7 +5,7 @@ import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import { DropShardsModal } from "../character-sheet/DropShardsModal";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 
 export const VendingMachineShardDisplay = observer(() => {
@@ -15,7 +15,7 @@ export const VendingMachineShardDisplay = observer(() => {
   const { dialogStore } = AppStore.get();
   const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
 
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   const totalShards = focusedCharacter.combatantProperties.inventory.shards;
 
   return (

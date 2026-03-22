@@ -6,7 +6,7 @@ import {
   createDummyConsumable,
 } from "@speed-dungeon/common";
 import { SelectItemToTradeForBookActionMenuScreen } from "./select-item-to-trade-for-book";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";

@@ -1,4 +1,4 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";

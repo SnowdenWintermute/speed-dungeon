@@ -1,7 +1,7 @@
 import { ClientIntentType } from "@speed-dungeon/common";
 import { takeItem } from "../../ItemsOnGround/ItemOnGround";
 import { ActionMenuScreenType } from "./menu-state-type";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ActionMenuTopButton from "./common-buttons/ActionMenuTopButton";

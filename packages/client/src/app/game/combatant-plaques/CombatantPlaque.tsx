@@ -14,12 +14,12 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
 import { ConditionIndicators } from "./condition-indicators/";
 import { ThreatPriorityList } from "./ThreatPriorityList";
-import Portrait from "./Portrait";
+import { Portrait } from "./Portrait";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   combatant: Combatant;
@@ -30,14 +30,15 @@ interface Props {
 
 export const CombatantPlaque = observer(
   ({ combatant, showExperience, extraStyles, compactView }: Props) => {
-    const { focusStore, dialogStore, gameWorldStore, imageStore, gameStore } = AppStore.get();
-    const showDebug = dialogStore.isOpen(DialogElementName.Debug);
+    const clientApplication = useClientApplication();
+    const { combatantFocus, uiStore, imageStore, detailableEntityFocus } = clientApplication;
+    const { dialogs } = uiStore;
+    const showDebug = dialogs.isOpen(DialogElementName.Debug);
 
     const portraitOption = imageStore.getCombatantPortraitOption(combatant.getEntityId());
     const entityId = combatant.getEntityId();
-    const babylonDebugInfo = gameWorldStore.getCombatantDebugDisplay(entityId);
 
-    const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
+    const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
     const { entityProperties, combatantProperties } = combatant;
     const battleOption = party.getBattleOption(game);
@@ -53,9 +54,9 @@ export const CombatantPlaque = observer(
       setPortraitHeight(height);
     }, []);
 
-    const combatantIsDetailed = focusStore.entityIsDetailed(entityId);
+    const combatantIsDetailed = detailableEntityFocus.entityIsDetailed(entityId);
 
-    const isFocused = gameStore.characterIsFocused(entityId);
+    const isFocused = combatantFocus.characterIsFocused(entityId);
 
     const { controlledBy } = combatantProperties;
 
@@ -63,7 +64,7 @@ export const CombatantPlaque = observer(
       controlledBy.isPlayerControlled() ||
       controlledBy.controllerType === CombatantControllerType.PlayerPetAI;
 
-    const isHovered = focusStore.entityIsHovered(entityId);
+    const isHovered = detailableEntityFocus.entityIsHovered(entityId);
     const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
 
     const lockedUiState = party.inputLock.isLocked()
@@ -112,9 +113,6 @@ export const CombatantPlaque = observer(
       <div className={`${extraStyles} w-full ${compactView ? "mb-2" : ""}`}>
         <CharacterModelDisplay character={combatant}>
           <CombatantFloatingMessagesDisplay entityId={entityId} />
-          <div className="absolute flex flex-col justify-center items-center text-center top-1/2 left-1/2 -translate-x-1/2 w-[400px]">
-            {babylonDebugInfo}
-          </div>
         </CharacterModelDisplay>
         {isPartyMember && conditionIndicators("mb-2") /* otherwise put it below */}
 

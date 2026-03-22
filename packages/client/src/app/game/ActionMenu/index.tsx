@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   ACTION_MENU_CENTRAL_SECTION_HEIGHT,
   BUTTON_HEIGHT,

@@ -1,6 +1,6 @@
 import React from "react";
 import { HOTKEYS } from "@/hotkeys";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 

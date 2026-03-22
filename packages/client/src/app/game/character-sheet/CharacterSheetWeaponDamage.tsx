@@ -16,7 +16,7 @@ import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const CharacterSheetWeaponDamage = observer(
   ({ combatant, disableOh }: { combatant: Combatant; disableOh?: boolean }) => {

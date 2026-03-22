@@ -11,7 +11,7 @@ import {
   Option,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ModifierKey } from "@/mobx-stores/input";
 import { setAlert } from "@/app/components/alerts";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";

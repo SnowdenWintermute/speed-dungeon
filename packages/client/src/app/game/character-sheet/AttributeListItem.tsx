@@ -10,7 +10,7 @@ import {
   ClientIntentType,
 } from "@speed-dungeon/common";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { gameClientSingleton } from "@/singletons/lobby-client";
 

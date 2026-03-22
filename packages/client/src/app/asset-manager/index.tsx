@@ -1,6 +1,6 @@
 "use client";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getClientAppAssetService } from "@/singletons";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";

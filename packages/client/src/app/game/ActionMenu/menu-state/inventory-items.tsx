@@ -1,5 +1,5 @@
 import { Item } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import { ActionMenuScreen } from ".";
 import { ReactNode } from "react";
@@ -30,7 +30,7 @@ export class InventoryItemsActionMenuScreen extends ActionMenuScreen {
   }
 
   getNumberedButtons() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
     const itemsInInventory = focusedCharacter.combatantProperties.inventory.getItems();
 
     function itemButtonClickHandler(item: Item) {

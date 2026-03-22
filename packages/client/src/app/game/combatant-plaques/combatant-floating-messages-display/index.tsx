@@ -8,16 +8,18 @@ import {
   MAGICAL_ELEMENT_STRINGS,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 import {
   FloatingMessageElementType,
   FloatingMessageIconType,
-} from "@/mobx-stores/game-event-notifications/floating-messages";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+} from "@/client-application/event-log/floating-messages";
 
 export const CombatantFloatingMessagesDisplay = observer(({ entityId }: { entityId: string }) => {
-  const floatingMessages = AppStore.get().gameEventNotificationStore.getFloatingMessages(entityId);
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+  const clientApplication = useClientApplication();
+  const { floatingMessagesStore } = clientApplication;
+  const floatingMessages = floatingMessagesStore.getFloatingMessages(entityId);
+  const showDebug = clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
 
   return (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full flex flex-col items-center text-center w-[300px]">

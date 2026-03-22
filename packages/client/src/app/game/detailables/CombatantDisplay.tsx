@@ -4,7 +4,7 @@ import { Combatant } from "@speed-dungeon/common";
 import React from "react";
 import { CharacterAttributes } from "../character-sheet/CharacterAttributes";
 import CombatantTraitsDisplay from "./CombatantTraitsDisplay";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
 interface Props {
@@ -13,9 +13,11 @@ interface Props {
 
 export const CombatantDisplay = observer(({ combatant }: Props) => {
   const { combatantProperties } = combatant;
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
 
   function closeDisplay() {
-    AppStore.get().focusStore.detailables.clear();
+    detailableEntityFocus.detailables.clear();
   }
 
   return (

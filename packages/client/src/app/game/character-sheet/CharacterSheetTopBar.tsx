@@ -3,7 +3,7 @@ import React from "react";
 import { CharacterSheetCharacterSelectionButton } from "./CharacterSheetCharacterSelectionButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { CombatantId } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   partyCharacterIds: CombatantId[];

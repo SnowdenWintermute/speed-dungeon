@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import BackpackIcon from "../../../../public/img/game-ui-icons/backpack.svg";
 import { CombatantId, INVENTORY_DEFAULT_CAPACITY } from "@speed-dungeon/common";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { InventoryItemsActionMenuScreen } from "../ActionMenu/menu-state/inventory-items";
+import { InventoryItemsActionMenuScreen } from "@/client-application/action-menu/screens/items-in-inventory";
 
 export const InventoryIconButton = observer(
   ({ entityId, numItemsInInventory }: { entityId: CombatantId; numItemsInInventory: number }) => {
@@ -20,16 +20,18 @@ export const InventoryIconButton = observer(
           setIsHovered(false);
         }}
         onClick={() => {
-          const { actionMenuStore, gameStore } = AppStore.get();
-          gameStore.setFocusedCharacter(entityId);
+          const clientApplication = useClientApplication();
+          const { actionMenu, combatantFocus } = clientApplication;
 
-          const shouldShowCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+          combatantFocus.setFocusedCharacter(entityId);
+
+          const shouldShowCharacterSheet = actionMenu.shouldShowCharacterSheet();
           if (shouldShowCharacterSheet) {
             // happens if you click inventory button on a character that was already
             // focused and was already in inventory
-            actionMenuStore.clearStack();
+            actionMenu.clearStack();
           } else {
-            actionMenuStore.pushStack(new InventoryItemsActionMenuScreen());
+            actionMenu.pushStack(new InventoryItemsActionMenuScreen(clientApplication));
           }
         }}
       >

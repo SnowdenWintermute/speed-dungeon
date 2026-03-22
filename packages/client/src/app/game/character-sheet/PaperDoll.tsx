@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import { HotswapSlotButtons } from "../combatant-plaques/HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 
 interface Props {

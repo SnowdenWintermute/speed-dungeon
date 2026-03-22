@@ -12,10 +12,10 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { CharacterClassAbilityTree } from "./CharacterClassAbilityTree";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const AbilitySelection = observer(() => {
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
   const { combatantProperties } = focusedCharacter;
   const { classProgressionProperties } = combatantProperties;

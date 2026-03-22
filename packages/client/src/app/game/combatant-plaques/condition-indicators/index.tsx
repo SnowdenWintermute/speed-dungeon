@@ -1,5 +1,4 @@
 import {
-  COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
   CombatantConditionName,
@@ -7,9 +6,9 @@ import {
 import React from "react";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { CONDITION_INDICATOR_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   conditions: CombatantCondition[];
@@ -39,7 +38,9 @@ export const ConditionIndicators = observer((props: Props) => {
 });
 
 export const ConditionIndicator = observer(({ condition }: { condition: CombatantCondition }) => {
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
 
   const hoverableDebugText = showDebug
     ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
@@ -72,7 +73,9 @@ export const ConditionIndicator = observer(({ condition }: { condition: Combatan
 });
 
 export const DummyConditionIndicatorForUiTesting = observer(() => {
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
 
   const hoverableDebugText = showDebug ? `\nid: doesn't exist - debug \nappliedBy: nothing` : "";
 

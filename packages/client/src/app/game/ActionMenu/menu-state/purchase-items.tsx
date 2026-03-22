@@ -1,6 +1,6 @@
 import { ActionMenuScreen } from ".";
 import { ConsumableType, createDummyConsumable } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
 import GoBackButton from "./common-buttons/GoBackButton";

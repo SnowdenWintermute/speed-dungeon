@@ -8,7 +8,7 @@ import {
 } from "@speed-dungeon/common";
 import React, { ReactNode, useState } from "react";
 import { ConsideringCombatantAbilityActionMenuScreen } from "../../ActionMenu/menu-state/considering-tree-ability";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "../../ActionMenu/menu-state/menu-state-type";
 import { observer } from "mobx-react-lite";
 import { gameClientSingleton } from "@/singletons/lobby-client";
@@ -35,7 +35,7 @@ export const AbilityTreeButton = observer((props: Props) => {
         ${disabled && "opacity-50 cursor-auto"} ${!isAllocatable.canAllocate ? "cursor-auto hover:border-white" : !isDetailed ? "cursor-pointer" : "cursor-cell hover:bg-slate-950"}
         `}
         onClick={() => {
-          const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+          const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
           if (!isDetailed) {
             const { focusStore, actionMenuStore } = AppStore.get();

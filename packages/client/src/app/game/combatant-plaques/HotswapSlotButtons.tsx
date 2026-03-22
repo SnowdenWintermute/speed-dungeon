@@ -6,12 +6,13 @@ import {
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { HOTKEYS } from "@/hotkeys";
 import { disableButtonBecauseNotThisCombatantTurn } from "../ActionMenu/menu-state/base";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { ClientSingleton } from "@/client-application/clients/singleton";
+import { GameClient } from "@/client-application/clients/game";
 
 interface Props {
   entityId: CombatantId;
@@ -26,8 +27,10 @@ export const HotswapSlotButtons = observer(
   ({ entityId, selectedSlotIndex, slotsCount, className, vertical, registerKeyEvents }: Props) => {
     const listenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
 
-    const { gameStore } = AppStore.get();
-    const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
+    const clientApplication = useClientApplication();
+    const { combatantFocus, uiStore, gameClientRef } = clientApplication;
+
+    const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
     const prevSlotIndexRef = useRef(selectedSlotIndex);
     const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
     const disableIfNotTurn = disableButtonBecauseNotThisCombatantTurn(entityId);
@@ -40,7 +43,7 @@ export const HotswapSlotButtons = observer(
         minNumber: 0,
       });
 
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.SelectHoldableHotswapSlot,
         data: {
           characterId: focusedCharacterId,
@@ -60,13 +63,13 @@ export const HotswapSlotButtons = observer(
       }
     }, [selectedSlotIndex]);
 
-    const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
+    const hotkeysDisabled = uiStore.inputs.getHotkeysDisabled();
 
     useEffect(() => {
       if (!registerKeyEvents) return;
 
       listenerRef.current = (e: KeyboardEvent) => {
-        if (AppStore.get().inputStore.getHotkeysDisabled()) return;
+        if (uiStore.inputs.getHotkeysDisabled()) return;
         if (e.code === HOTKEYS.BOTTOM_LEFT) selectNextOrPrevious(NextOrPrevious.Previous);
         if (e.code === HOTKEYS.BOTTOM_RIGHT) selectNextOrPrevious(NextOrPrevious.Next);
       };
@@ -103,6 +106,7 @@ export const HotswapSlotButtons = observer(
               index={i}
               isSelected={selectedSlotIndex === i}
               disabled={waitingForIndexChange || disableIfNotTurn}
+              gameClientRef={gameClientRef}
             />
           </div>
         ))}
@@ -116,11 +120,13 @@ function HotswapSlotButton({
   isSelected,
   index,
   disabled,
+  gameClientRef,
 }: {
   entityId: CombatantId;
   index: number;
   isSelected: boolean;
   disabled: boolean;
+  gameClientRef: ClientSingleton<GameClient>;
 }) {
   return (
     <HoverableTooltipWrapper
@@ -134,7 +140,7 @@ function HotswapSlotButton({
         style={{ lineHeight: "14px" }}
         disabled={disabled}
         onClick={() => {
-          gameClientSingleton.get().dispatchIntent({
+          gameClientRef.get().dispatchIntent({
             type: ClientIntentType.SelectHoldableHotswapSlot,
             data: {
               characterId: entityId,

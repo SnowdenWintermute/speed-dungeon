@@ -1,4 +1,4 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ModifierKey } from "@/mobx-stores/input";
 import React, { useEffect } from "react";
 

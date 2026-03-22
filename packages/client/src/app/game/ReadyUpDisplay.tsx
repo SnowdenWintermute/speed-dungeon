@@ -8,7 +8,7 @@ import React, { MouseEventHandler } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./ActionMenu/menu-state/menu-state-type";
 import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { gameClientSingleton } from "@/singletons/lobby-client";

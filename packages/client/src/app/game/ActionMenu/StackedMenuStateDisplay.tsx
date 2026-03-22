@@ -1,7 +1,7 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client-consts";
 import React from "react";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const StackedActionMenuScreenDisplay = observer(() => {
   const { actionMenuStore } = AppStore.get();
@@ -40,7 +40,7 @@ const ActionMenuScreenDisplay = observer(
     stackSize: number;
   }) => {
     const offsetPx = index * 3;
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
     const filterStrengthNormalized = 1 - 0.2 * (stackSize - index);
 

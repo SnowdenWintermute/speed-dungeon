@@ -1,6 +1,6 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ACTION_ENTITY_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionEntityTurnTracker } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";

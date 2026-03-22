@@ -2,7 +2,7 @@ import React from "react";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { NextOrPrevious } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 
 interface Props {

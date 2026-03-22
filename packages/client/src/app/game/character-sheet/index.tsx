@@ -3,7 +3,7 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 import CharacterSheetTopBar from "./CharacterSheetTopBar";
 import { PaperDollAndAttributes } from "./PaperDollAndAttributes";
 import { AbilitySelection } from "./ability-tree";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
 export const CharacterSheet = observer(

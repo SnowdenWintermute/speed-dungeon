@@ -1,7 +1,7 @@
 import { Item, getItemSellPrice } from "@speed-dungeon/common";
 import { PriceDisplay } from "../../character-sheet/ShardsDisplay";
 import { ConfirmConvertToShardsActionMenuScreen } from "./confirm-convert-to-shards";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";

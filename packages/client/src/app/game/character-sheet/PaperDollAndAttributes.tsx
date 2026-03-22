@@ -8,7 +8,7 @@ import { ShardsDisplay } from "./ShardsDisplay";
 import { DropShardsModal } from "./DropShardsModal";
 import { CharacterAttributes } from "./CharacterAttributes";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/mobx-stores/dialogs";
 import { ActionMenuScreenType } from "../ActionMenu/menu-state/menu-state-type";
 

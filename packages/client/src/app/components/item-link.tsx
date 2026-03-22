@@ -6,7 +6,7 @@ import {
   Item,
   MAGICAL_PROPERTY_BLUE_TEXT,
 } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
 export const ItemLink = observer(({ item }: { item: Item }) => {

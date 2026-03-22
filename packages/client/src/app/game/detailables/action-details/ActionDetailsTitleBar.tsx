@@ -1,6 +1,6 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { AppStore } from "@/mobx-stores/app-store";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { GameClient } from "@/client-application/clients/game";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   ActionRank,
   ArrayUtils,
@@ -9,6 +9,7 @@ import {
   COMBAT_ACTIONS,
   CombatActionName,
   CombatantActionState,
+  CombatantId,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
@@ -21,11 +22,15 @@ interface Props {
   };
 }
 
-export function handleSelectActionLevel(actionRank: ActionRank) {
-  gameClientSingleton.get().dispatchIntent({
+export function handleSelectActionLevel(
+  gameClient: GameClient,
+  characterId: CombatantId,
+  actionRank: ActionRank
+) {
+  gameClient.dispatchIntent({
     type: ClientIntentType.SelectCombatActionRank,
     data: {
-      characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
+      characterId,
       actionRank,
     },
   });
@@ -37,10 +42,10 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
   const selectedLevelOption = actionStateAndSelectedLevel?.selectedLevelOption;
   const action = COMBAT_ACTIONS[actionName];
 
-  const { gameStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const { gameClientRef, combatantFocus } = useClientApplication();
+  const { combatant, party } = combatantFocus.requireFocusedCharacterContext();
 
-  const inBattle = gameStore.getExpectedParty().combatantManager.monstersArePresent();
+  const inBattle = party.combatantManager.monstersArePresent();
 
   const maxRankToShow = action.selectableRankLimit || actionStateOption?.level;
 
@@ -57,21 +62,26 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
                   (rankUncast) => {
                     const rank = rankUncast as ActionRank;
                     const costs = action.costProperties.getResourceCosts(
-                      focusedCharacter,
+                      combatant,
                       !!inBattle,
                       rank
                     );
-                    const unmet =
-                      focusedCharacter.combatantProperties.resources.getUnmetCostResourceTypes(
-                        costs || {}
-                      );
+                    const unmet = combatant.combatantProperties.resources.getUnmetCostResourceTypes(
+                      costs || {}
+                    );
 
                     return (
                       <li key={actionName + rank} className="mr-1 last:mr-0">
                         <HotkeyButton
                           hotkeys={[`Digit${rank.toString()}`, `Numpad${rank.toString()}`]}
                           disabled={selectedLevelOption === null || !!unmet.length}
-                          onClick={() => handleSelectActionLevel(rank)}
+                          onClick={() =>
+                            handleSelectActionLevel(
+                              gameClientRef.get(),
+                              combatant.getEntityId(),
+                              rank
+                            )
+                          }
                         >
                           <div
                             className={`h-5 w-5 flex items-center justify-center border border-slate-400 

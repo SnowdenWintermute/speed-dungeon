@@ -6,7 +6,7 @@ import {
   GAME_LOG_MESSAGE_STYLE_STRINGS,
   GameLogMessage,
 } from "@/mobx-stores/game-event-notifications/game-log-messages";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const GameLog = observer(() => {
   const [expanded, setExpanded] = useState(false);

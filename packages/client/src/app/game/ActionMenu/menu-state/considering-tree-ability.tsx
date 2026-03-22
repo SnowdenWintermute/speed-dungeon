@@ -16,7 +16,7 @@ import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/a
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import Divider from "@/app/components/atoms/Divider";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "./menu-state-type";
 import { ReactNode } from "react";
 import GoBackButton from "./common-buttons/GoBackButton";
@@ -48,7 +48,7 @@ export class ConsideringCombatantAbilityActionMenuScreen extends ActionMenuScree
   }
 
   getCentralSection() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
     // const { gameStore } = AppStore.get();
 
     const conditionsToShowDetailButtonsFor = getConditionsToShowDetailButtonsFor(

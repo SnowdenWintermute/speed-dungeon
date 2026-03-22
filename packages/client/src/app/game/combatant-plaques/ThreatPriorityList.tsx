@@ -10,10 +10,10 @@ import {
   getCombatantUiIdentifierIcon,
 } from "@/utils/get-combatant-class-icon";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode } from "@/mobx-stores/config";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode } from "@/client-application/ui/config";
 
 interface Props {
   threatManager: null | ThreatManager;
@@ -55,13 +55,15 @@ const ThreatTrackerIcon = observer(
     threatTableEntry: ThreatTableEntry;
     percentOfTopThreat: number;
   }) => {
-    const { dialogStore, configStore } = AppStore.get();
-    const threatTableDetailedDisplayMode = configStore.getThreatTableDisplayMode();
-    const showDebug = dialogStore.isOpen(DialogElementName.Debug);
+    const clientApplication = useClientApplication();
+    const { uiStore, gameContext } = clientApplication;
+    const { dialogs, config } = uiStore;
+    const threatTableDetailedDisplayMode = config.getThreatTableDisplayMode();
+    const showDebug = dialogs.isOpen(DialogElementName.Debug);
 
     const { extraStyles, entityId, threatTableEntry } = props;
 
-    const { party, combatant } = AppStore.get().gameStore.getExpectedCombatantContext(entityId);
+    const { party, combatant } = gameContext.requireCombatantContext(entityId);
 
     const { combatantClass } =
       combatant.combatantProperties.classProgressionProperties.getMainClass();
@@ -76,7 +78,7 @@ const ThreatTrackerIcon = observer(
     const totalThreat = stableThreat + volatileThreat;
 
     function handleClick() {
-      configStore.cycleThreatTableDisplayMode();
+      config.cycleThreatTableDisplayMode();
     }
 
     const hoverableDebugText = showDebug ? entityId : "";

@@ -1,5 +1,5 @@
 import { ActionMenuScreenType } from "./menu-state-type";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreen } from ".";
 import GoBackButton from "./common-buttons/GoBackButton";
 import ToggleInventoryButton from "./common-buttons/ToggleInventory";
@@ -22,7 +22,7 @@ export class RepairItemSelectionActionMenuScreen extends ActionMenuScreen {
   }
 
   getNumberedButtons() {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
     const ownedEquipment = focusedCharacter.combatantProperties.inventory.getOwnedEquipment();
 
     return ownedEquipment

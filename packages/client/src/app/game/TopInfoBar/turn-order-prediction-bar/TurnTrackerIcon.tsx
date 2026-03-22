@@ -1,5 +1,5 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import {
   CombatantTurnTracker,
