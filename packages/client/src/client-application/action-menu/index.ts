@@ -2,8 +2,8 @@ import { CombatantId, isDefined } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ActionMenuScreenPool } from "./action-menu-screen-pool";
 import { ActionMenuScreen } from "./screens";
-import { ActionMenuScreenType, MENU_STATE_TYPE_STRINGS } from "./screen-types";
 import { ClientApplication } from "..";
+import { ActionMenuScreenType, MENU_STATE_TYPE_STRINGS } from "./screen-types";
 
 export class ActionMenu {
   private baseActionMenuScreen: ActionMenuScreen | null = null;

@@ -6,12 +6,12 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
-import { ConsideringItemActionMenuScreen } from "../ActionMenu/menu-state/considering-item";
 import isEqual from "lodash.isequal";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
 
 interface Props {
   itemOption: null | Equipment;
@@ -25,14 +25,16 @@ const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export const PaperDollSlot = observer(
   ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
-    const { focusStore, imageStore, gameStore } = AppStore.get();
+    const clientApplication = useClientApplication();
+    const { detailableEntityFocus, imageStore, combatantFocus, actionMenu } = clientApplication;
 
-    const { detailedItem, hoveredItem } = focusStore.getFocusedItems();
-    const { comparedSlot } = focusStore.getItemComparison();
+    const { detailedItem, hoveredItem } = detailableEntityFocus.getFocusedItems();
+    const { comparedSlot } = detailableEntityFocus.getItemComparison();
 
-    const consideredItemUnmetRequirements = focusStore.getSelectedItemUnmetRequirements();
+    const consideredItemUnmetRequirements =
+      detailableEntityFocus.getSelectedItemUnmetRequirements();
 
-    const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
+    const playerOwnsCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
     const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
@@ -84,30 +86,29 @@ export const PaperDollSlot = observer(
     }, [detailedItem, hoveredItem, itemOption]);
 
     function handleFocus() {
-      if (itemOption !== null) focusStore.detailables.setHovered(itemOption);
+      if (itemOption !== null) detailableEntityFocus.detailables.setHovered(itemOption);
     }
 
     function handleBlur() {
-      focusStore.detailables.clearHovered();
+      detailableEntityFocus.detailables.clearHovered();
     }
 
     function handleClick() {
       if (!playerOwnsCharacter) return;
       if (!itemOption) return;
 
-      focusStore.selectItem(itemOption);
-      const detailedItemIsNowNull = focusStore.detailables.get().detailed === null;
+      detailableEntityFocus.selectItem(itemOption);
+      const detailedItemIsNowNull = detailableEntityFocus.detailables.get().detailed === null;
 
-      const { actionMenuStore } = AppStore.get();
-      const currentMenu = actionMenuStore.getCurrentMenu();
+      const currentMenu = actionMenu.getCurrentMenu();
       if (currentMenu instanceof ConsideringItemActionMenuScreen && detailedItemIsNowNull) {
-        return actionMenuStore.popStack();
+        return actionMenu.popStack();
       }
 
       if (currentMenu instanceof ConsideringItemActionMenuScreen) {
         currentMenu.item = itemOption;
       } else {
-        actionMenuStore.pushStack(new ConsideringItemActionMenuScreen(itemOption));
+        actionMenu.pushStack(new ConsideringItemActionMenuScreen(clientApplication, itemOption));
       }
     }
 

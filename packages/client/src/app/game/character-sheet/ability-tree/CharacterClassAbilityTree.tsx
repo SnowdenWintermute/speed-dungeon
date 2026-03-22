@@ -10,13 +10,14 @@ import { useRef } from "react";
 import { PrerequisiteArrows } from "./PrerequisiteArrows";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ActionMenuScreenType } from "../../ActionMenu/menu-state/menu-state-type";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 
 export const CharacterClassAbilityTree = observer(
   ({ abilityTree, isSupportClass }: { abilityTree: AbilityTree; isSupportClass: boolean }) => {
-    const { actionMenuStore, focusStore } = AppStore.get();
-    const currentMenu = actionMenuStore.getCurrentMenu();
-    const detailedAbilityOption = focusStore.combatantAbilities.get().detailed;
+    const clientApplication = useClientApplication();
+    const { actionMenu, detailableEntityFocus } = clientApplication;
+    const currentMenu = actionMenu.getCurrentMenu();
+    const detailedAbilityOption = detailableEntityFocus.combatantAbilities.get().detailed;
 
     const cellRefs = useRef<
       Record<string, { element: HTMLDivElement; prerequisites: AbilityTreeAbility[] }>

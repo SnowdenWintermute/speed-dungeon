@@ -12,7 +12,9 @@ import React, { useState } from "react";
 const SHOWN_CLASSES = "mr-2 last:mr-0";
 
 export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantTurnTracker }) => {
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
 
   const [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
   const [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });

@@ -15,6 +15,7 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const AbilitySelection = observer(() => {
+  const clientApplication = useClientApplication();
   const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
   const { combatantProperties } = focusedCharacter;

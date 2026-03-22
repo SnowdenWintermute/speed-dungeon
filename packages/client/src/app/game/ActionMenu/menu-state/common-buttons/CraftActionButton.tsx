@@ -15,7 +15,6 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   equipment: Equipment;
@@ -25,12 +24,13 @@ interface Props {
 
 export const CraftActionButton = observer((props: Props) => {
   const { equipment, craftingAction, listIndex } = props;
+  const clientApplication = useClientApplication();
+  const { gameClientRef, gameContext, actionMenu, combatantFocus } = clientApplication;
 
-  const { gameStore, actionMenuStore } = AppStore.get();
-  const focusedCharacterResult = gameStore.getExpectedFocusedCharacter();
-  const party = gameStore.getExpectedParty();
+  const focusedCharacterResult = combatantFocus.requireFocusedCharacter();
+  const party = gameContext.requireParty();
 
-  const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+  const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
   const actionPrice = getCraftingActionPrice(craftingAction, equipment);
   const { inventory } = focusedCharacterResult.combatantProperties;
@@ -39,7 +39,7 @@ export const CraftActionButton = observer((props: Props) => {
     equipment,
     party.dungeonExplorationManager.getCurrentFloor()
   );
-  const isWaitingForPendingCraftResult = actionMenuStore.characterIsCrafting(
+  const isWaitingForPendingCraftResult = actionMenu.characterIsCrafting(
     focusedCharacterResult.getEntityId()
   );
 
@@ -60,8 +60,8 @@ export const CraftActionButton = observer((props: Props) => {
       hotkeys={[`Digit${buttonNumber}`]}
       hotkeyLabel={buttonNumber.toString()}
       clickHandler={() => {
-        actionMenuStore.setCharacterIsCrafting(focusedCharacterResult.getEntityId());
-        gameClientSingleton.get().dispatchIntent({
+        actionMenu.setCharacterIsCrafting(focusedCharacterResult.getEntityId());
+        gameClientRef.get().dispatchIntent({
           type: ClientIntentType.PerformCraftingAction,
           data: {
             characterId: focusedCharacterResult.getEntityId(),

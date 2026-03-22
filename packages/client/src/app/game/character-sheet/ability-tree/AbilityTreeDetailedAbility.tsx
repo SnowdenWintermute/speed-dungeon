@@ -13,8 +13,10 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant }) => {
-  const focusedAbility = AppStore.get().focusStore.combatantAbilities.get();
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext, detailableEntityFocus } = clientApplication;
+  const party = gameContext.requireParty();
+  const focusedAbility = detailableEntityFocus.combatantAbilities.get();
   const { detailed: detailedAbility, hovered: hoveredCombatantAbility } = focusedAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
 

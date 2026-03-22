@@ -13,7 +13,6 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   actionName: CombatActionName;
@@ -27,23 +26,24 @@ export const CombatActionButton = observer((props: Props) => {
   const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
   const standardActionIcon = ACTION_ICONS[actionName];
 
-  const { gameStore, focusStore } = AppStore.get();
-  const game = gameStore.getExpectedGame();
-  const party = gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext, gameClientRef, combatantFocus, detailableEntityFocus } = clientApplication;
+  const party = gameContext.requireParty();
+  const game = gameContext.requireGame();
 
   const isAttack = actionName === CombatActionName.Attack;
 
   function focusHandler() {
-    AppStore.get().focusStore.combatantAbilities.setHovered({
+    detailableEntityFocus.combatantAbilities.setHovered({
       type: AbilityType.Action,
       actionName,
     });
   }
   function blurHandler() {
-    AppStore.get().focusStore.combatantAbilities.clearHovered();
+    detailableEntityFocus.combatantAbilities.clearHovered();
   }
 
-  const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+  const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
   const useWouldBeError =
     user.canUseAction(new ActionAndRank(actionName, 1 as ActionRank), game, party) instanceof Error;
@@ -60,7 +60,7 @@ export const CombatActionButton = observer((props: Props) => {
       hotkeys={props.hotkeys}
       hotkeyLabel={props.hotkeyLabel}
       clickHandler={() => {
-        gameClientSingleton.get().dispatchIntent({
+        gameClientRef.get().dispatchIntent({
           type: ClientIntentType.SelectCombatAction,
           data: {
             characterId: user.getEntityId(),
@@ -68,7 +68,7 @@ export const CombatActionButton = observer((props: Props) => {
           },
         });
 
-        focusStore.combatantAbilities.clear();
+        detailableEntityFocus.combatantAbilities.clear();
       }}
     >
       <div className="flex justify-between h-full w-full px-2">
@@ -94,9 +94,10 @@ export const CombatActionButton = observer((props: Props) => {
 
 const AttackActionIcon = observer(({ user }: { user: Combatant }) => {
   const { combatantProperties } = user;
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
 
-  const { gameStore } = AppStore.get();
-  const party = gameStore.getExpectedParty();
   const inCombat = party.isInCombat();
   const mainHandIcons = [];
   const offHandIcons = [];

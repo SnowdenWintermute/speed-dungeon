@@ -226,4 +226,18 @@ export class CombatantFocus {
       }
     }
   }
+
+  disableButtonBecauseNotThisCombatantTurn(combatantId: string) {
+    const { game, party } = this.requireFocusedCharacterContext();
+
+    const battleOption = party.getBattleOption(game);
+    let disableButtonBecauseNotThisCombatantTurn = false;
+
+    if (battleOption && !(battleOption instanceof Error)) {
+      disableButtonBecauseNotThisCombatantTurn =
+        !battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatantId);
+    }
+
+    return disableButtonBecauseNotThisCombatantTurn;
+  }
 }

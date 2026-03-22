@@ -7,11 +7,10 @@ import {
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
 import React, { ReactNode, useState } from "react";
-import { ConsideringCombatantAbilityActionMenuScreen } from "../../ActionMenu/menu-state/considering-tree-ability";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ActionMenuScreenType } from "../../ActionMenu/menu-state/menu-state-type";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { ConsideringCombatantAbilityActionMenuScreen } from "@/client-application/action-menu/screens/ability-tree-ability";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 
 interface Props {
   ability: AbilityTreeAbility;
@@ -24,8 +23,10 @@ interface Props {
 export const AbilityTreeButton = observer((props: Props) => {
   const [hovered, setHovered] = useState(false);
   const { ability, abilityLevel, buttonContent, isAllocatable, isDetailed } = props;
+  const clientApplication = useClientApplication();
 
   const disabled = !isAllocatable.canAllocate && abilityLevel <= 0;
+  const { detailableEntityFocus, actionMenu } = clientApplication;
 
   return (
     <div className="bg-slate-700">
@@ -38,9 +39,7 @@ export const AbilityTreeButton = observer((props: Props) => {
           const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
           if (!isDetailed) {
-            const { focusStore, actionMenuStore } = AppStore.get();
-
-            focusStore.combatantAbilities.setDetailed(ability);
+            detailableEntityFocus.combatantAbilities.setDetailed(ability);
 
             const { combatantProperties } = focusedCharacter;
             const { combatantClass } =
@@ -75,17 +74,18 @@ export const AbilityTreeButton = observer((props: Props) => {
                     (item): item is AbilityTreeAbility => item !== undefined
                   );
                   const newActionMenuScreen = new ConsideringCombatantAbilityActionMenuScreen(
+                    clientApplication,
                     filteredColumn,
                     ability
                   );
 
                   if (
-                    actionMenuStore.currentMenuIsType(ActionMenuScreenType.ConsideringAbilityTreeAbility)
+                    actionMenu.currentMenuIsType(ActionMenuScreenType.ConsideringAbilityTreeAbility)
                   ) {
-                    actionMenuStore.popStack();
+                    actionMenu.popStack();
                   }
 
-                  actionMenuStore.pushStack(newActionMenuScreen);
+                  actionMenu.pushStack(newActionMenuScreen);
 
                   break;
                 }
@@ -97,7 +97,7 @@ export const AbilityTreeButton = observer((props: Props) => {
               return;
             }
 
-            gameClientSingleton.get().dispatchIntent({
+            clientApplication.gameClientRef.get().dispatchIntent({
               type: ClientIntentType.AllocateAbilityPoint,
               data: {
                 characterId: focusedCharacter.getEntityId(),
@@ -107,11 +107,11 @@ export const AbilityTreeButton = observer((props: Props) => {
           }
         }}
         onMouseEnter={() => {
-          AppStore.get().focusStore.combatantAbilities.setHovered(ability);
+          detailableEntityFocus.combatantAbilities.setHovered(ability);
           setHovered(true);
         }}
         onMouseLeave={() => {
-          AppStore.get().focusStore.combatantAbilities.clearHovered();
+          detailableEntityFocus.combatantAbilities.clearHovered();
           setHovered(false);
         }}
       >

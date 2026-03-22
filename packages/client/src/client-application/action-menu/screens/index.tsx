@@ -10,11 +10,10 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { ReactNode } from "react";
-import { ActionMenuScreenType } from "../screen-types";
+import { ActionMenuScreenType, MENU_STATE_TYPE_STRINGS } from "../screen-types";
 import { ACTION_MENU_PAGE_SIZE } from "@/client-consts";
 import EmptyItemsList from "@/app/game/ActionMenu/menu-state/common-buttons/EmptyItemsList";
 import { PageTurningButtons } from "@/app/game/ActionMenu/menu-state/common-buttons/PageTurningButtons";
-import { MENU_STATE_TYPE_STRINGS } from "@/app/game/ActionMenu/menu-state/menu-state-type";
 import { ItemButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ItemButton";
 import { ClientApplication } from "@/client-application";
 

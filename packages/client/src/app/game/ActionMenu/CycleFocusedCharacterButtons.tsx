@@ -1,16 +1,17 @@
 import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import React from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ActionMenuScreenType } from "./menu-state/menu-state-type";
-import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const CycleFocusedCharacterButtons = observer(() => {
-  const { gameStore, actionMenuStore, hotkeysStore } = AppStore.get();
-  const focusedCharacterId = gameStore.getExpectedFocusedCharacterId();
-  const party = gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext, uiStore, actionMenu, combatantFocus } = clientApplication;
+  const { keybinds } = uiStore;
+  const party = gameContext.requireParty();
+  const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
 
   const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
     party.combatantManager.getPartyMemberCombatants().map((combatant) => combatant.getEntityId())
@@ -36,22 +37,23 @@ export const CycleFocusedCharacterButtons = observer(() => {
     // this is because if you are looking at an ability that one character owns and you
     // switch to focusing a character that doesn't own it, it doesn't make sense you
     // could still be looking at the allocation menu for that ability
-    if (actionMenuStore.viewingAbilityTree()) {
-      actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.ViewingAbilityTree)]);
+    if (actionMenu.viewingAbilityTree()) {
+      actionMenu.replaceStack([]);
+      actionMenu.pushFromPool(ActionMenuScreenType.ViewingAbilityTree);
     }
 
-    gameStore.setFocusedCharacter(newCharacterId);
+    combatantFocus.setFocusedCharacter(newCharacterId);
   }
 
   return (
     <ul className={`hidden`}>
       <HotkeyButton
-        hotkeys={hotkeysStore.getKeybind(HotkeyButtonTypes.CycleBackAlternate)}
+        hotkeys={keybinds.getKeybind(HotkeyButtonTypes.CycleBackAlternate)}
         onClick={() => clickHandler(NextOrPrevious.Previous)}
         children={undefined}
       />
       <HotkeyButton
-        hotkeys={hotkeysStore.getKeybind(HotkeyButtonTypes.CycleForwardAlternate)}
+        hotkeys={keybinds.getKeybind(HotkeyButtonTypes.CycleForwardAlternate)}
         onClick={() => clickHandler(NextOrPrevious.Next)}
         children={undefined}
       />

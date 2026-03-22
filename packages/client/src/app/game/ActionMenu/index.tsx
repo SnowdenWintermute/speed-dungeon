@@ -10,25 +10,26 @@ import { AbilityType, NextOrPrevious } from "@speed-dungeon/common";
 import { CycleFocusedCharacterButtons } from "./CycleFocusedCharacterButtons";
 import HoveredItemDisplay from "./HoveredItemDisplay";
 import { CraftingItemDisplay } from "./CraftingItemDisplay";
-import { CraftingItemActionMenuScreen } from "./menu-state/crafting-item";
 import HoveredActionDisplay from "./HoveredActionDisplay";
 import { StackedActionMenuScreenDisplay } from "./StackedMenuStateDisplay";
+import { CraftingItemActionMenuScreen } from "@/client-application/action-menu/screens/crafting-item";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
-  const { actionMenuStore, focusStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { actionMenu, detailableEntityFocus } = clientApplication;
 
-  const currentMenu = actionMenuStore.getCurrentMenu();
+  const currentMenu = actionMenu.getCurrentMenu();
   const topSection = currentMenu.getTopSection();
   const numberedButtons = currentMenu.getNumberedButtonsOnCurrentPage();
   const centralSection = currentMenu.getCentralSection();
   const bottomSection = currentMenu.getBottomSection();
 
-  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+  const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
   const craftingItem = currentMenu instanceof CraftingItemActionMenuScreen;
   const shouldShowHoveredItem = !viewingCharacterSheet && !craftingItem;
   const shouldShowCraftingItemDisplay = craftingItem;
 
-  const { hovered: hoveredAction } = focusStore.combatantAbilities.get();
+  const { hovered: hoveredAction } = detailableEntityFocus.combatantAbilities.get();
   const isHoveringAction = hoveredAction?.type === AbilityType.Action;
   const shouldShowHoveredActionDisplay = isHoveringAction && !viewingCharacterSheet;
 

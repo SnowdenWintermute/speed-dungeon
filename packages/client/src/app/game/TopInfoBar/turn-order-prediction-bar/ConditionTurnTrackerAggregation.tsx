@@ -7,7 +7,9 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 
 export const ConditionTurnTrackerAggregation = observer(
   ({ trackers }: { trackers: ConditionTurnTracker[] }) => {
-    const party = AppStore.get().gameStore.getExpectedParty();
+    const clientApplication = useClientApplication();
+    const { gameContext } = clientApplication;
+    const party = gameContext.requireParty();
 
     return (
       <div

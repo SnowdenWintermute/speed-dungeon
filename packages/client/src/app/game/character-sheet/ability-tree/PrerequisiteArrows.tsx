@@ -27,6 +27,7 @@ export const PrerequisiteArrows = observer((props: Props) => {
 
   const { cellRefs } = props;
 
+  const clientApplication = useClientApplication();
   const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   const { combatantProperties } = focusedCharacter;
 

@@ -6,7 +6,6 @@ import {
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { disableButtonBecauseNotThisCombatantTurn } from "../ActionMenu/menu-state/base";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
@@ -25,7 +24,7 @@ interface Props {
 
 export const HotswapSlotButtons = observer(
   ({ entityId, selectedSlotIndex, slotsCount, className, vertical, registerKeyEvents }: Props) => {
-    const listenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
+    const listenerRef = useRef<((e: KeyboardEvent) => void) | null>(null);
 
     const clientApplication = useClientApplication();
     const { combatantFocus, uiStore, gameClientRef } = clientApplication;
@@ -33,7 +32,7 @@ export const HotswapSlotButtons = observer(
     const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
     const prevSlotIndexRef = useRef(selectedSlotIndex);
     const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
-    const disableIfNotTurn = disableButtonBecauseNotThisCombatantTurn(entityId);
+    const disableIfNotTurn = combatantFocus.disableButtonBecauseNotThisCombatantTurn(entityId);
 
     function selectNextOrPrevious(nextOrPrevious: NextOrPrevious) {
       if (waitingForIndexChange) return;

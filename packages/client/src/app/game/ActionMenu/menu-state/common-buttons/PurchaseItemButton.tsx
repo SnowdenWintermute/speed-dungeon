@@ -10,7 +10,6 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   item: Item;
@@ -24,12 +23,12 @@ export const PurchaseItemButton = observer((props: Props) => {
     return <div>unhandled purchaseable item type</div>;
   }
 
-  const { gameStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { gameContext, combatantFocus, gameClientRef } = clientApplication;
+  const party = gameContext.requireParty();
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
 
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
-  const party = gameStore.getExpectedParty();
-
-  const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+  const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
   const { consumableType } = item;
   const price = getConsumableShardPrice(
@@ -46,7 +45,7 @@ export const PurchaseItemButton = observer((props: Props) => {
       hotkeyLabel={(listIndex + 1).toString()}
       hotkeys={[`Digit${listIndex + 1}`]}
       clickHandler={() => {
-        gameClientSingleton.get().dispatchIntent({
+        gameClientRef.get().dispatchIntent({
           type: ClientIntentType.PurchaseItem,
           data: {
             characterId: focusedCharacter.getEntityId(),
