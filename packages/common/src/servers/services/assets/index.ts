@@ -40,6 +40,8 @@ export class ClientAppAssetService implements AssetService {
     onFetchAbortCallback?: FetchCompletionCallback;
     onFetchStartedCallback?: FetchCompletionCallback;
   }) {
+    invariant(this.assetManifest === null, `asset service initialized already`);
+
     if (options?.clearCache) {
       await this.cache.clear();
     }

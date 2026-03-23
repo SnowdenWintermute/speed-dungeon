@@ -23,6 +23,9 @@ export default observer(() => {
     clientApplicationRef.current = clientApplication;
     clientApplication.topologyManager.enterOnline();
     setIsReady(true);
+    return () => {
+      clientApplication.dispose();
+    };
   }, []);
 
   if (!clientApplicationRef.current && typeof window !== "undefined") {
@@ -32,8 +35,6 @@ export default observer(() => {
   if (!isReady || !clientApplicationRef.current) {
     return null;
   }
-
-  console.log("client application:", clientApplicationRef.current);
 
   return (
     <ClientApplicationContext.Provider value={clientApplicationRef.current}>

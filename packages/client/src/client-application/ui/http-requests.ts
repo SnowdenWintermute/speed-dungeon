@@ -51,7 +51,6 @@ export class HttpRequestStore {
 
   async fetchAuthSession() {
     const getSessionRequestTrackerName = "get session";
-    const responseTracker = this.requests[getSessionRequestTrackerName];
     this.fetchData(
       getSessionRequestTrackerName,
       `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`,
@@ -60,6 +59,7 @@ export class HttpRequestStore {
         credentials: "include",
       }
     );
+    const responseTracker = this.requests[getSessionRequestTrackerName];
     invariant(
       responseTracker !== undefined,
       "should have started a response tracker when fetching auth"

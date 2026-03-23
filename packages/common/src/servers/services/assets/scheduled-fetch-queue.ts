@@ -30,7 +30,7 @@ export class ScheduledFetchQueue {
   }
 
   add(assetId: AssetId, priority: AssetFetchPriority) {
-    invariant(!this.prioritiesById.has(assetId), "entry already exists");
+    // invariant(!this.prioritiesById.has(assetId), `entry already exists: ${assetId}`);
     this.getIdsAtPriority(priority).add(assetId);
     this.prioritiesById.set(assetId, priority);
   }

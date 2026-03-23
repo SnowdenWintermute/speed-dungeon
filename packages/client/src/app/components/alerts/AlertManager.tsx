@@ -17,6 +17,8 @@ export const AlertManager = observer(() => {
   const { alertsService } = clientApplication;
   const { alerts } = alertsService;
 
+  console.log("alerts:", alerts);
+
   function handleClick(id: string) {
     alertsService.removeAlert(id);
   }

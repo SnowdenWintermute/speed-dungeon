@@ -100,6 +100,7 @@ export class ClientApplication {
 
   dispose() {
     this.unregisterReplayManagerTick();
+
     this.gameWorldView?.dispose();
   }
 

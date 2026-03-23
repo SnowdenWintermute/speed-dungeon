@@ -1,4 +1,4 @@
-import { Scene, Engine, Vector3, ArcRotateCamera } from "@babylonjs/core";
+import { Scene, Engine, Vector3, ArcRotateCamera, Color4 } from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { IdGenerator, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
@@ -7,7 +7,7 @@ import { MaterialManager } from "./materials/material-manager";
 import { ImageGenerator } from "./images/image-generator";
 import { TextureManager } from "./textures/texture-manager";
 import { GameWorldViewDebug } from "./debug";
-import { LAYER_MASK_ALL } from "./game-world-view-consts";
+import { GROUND_COLOR, LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
 import { SceneEntityService } from "./scene-entity-service/index";
 
@@ -29,11 +29,15 @@ export class GameWorldView {
   constructor(readonly canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
+    this.scene.clearColor = new Color4(0, 0, 0, 0);
+
     this.materialManager = new MaterialManager(this.scene);
     this.textureManager = new TextureManager(this.scene);
     this.camera = this.createMainCamera();
 
     this.environment = new EnvironmentView(this.scene);
+
+    this.environment.groundPlane.clear();
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld(this.engine.getDeltaTime());

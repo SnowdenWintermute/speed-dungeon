@@ -4,7 +4,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import Divider from "../components/atoms/Divider";
-import ClickOutsideHandlerWrapper from "../components/atoms/ClickOutsideHandlerWrapper";
+import { ClickOutsideHandlerWrapper } from "../components/atoms/ClickOutsideHandlerWrapper";
 
 export const AssetManager = observer(() => {
   const clientApplication = useClientApplication();
@@ -38,6 +38,7 @@ export const AssetManager = observer(() => {
         await assetService.startAssetUpdatesPrefetch();
       } catch (err) {
         console.error(err);
+        clientApplication.alertsService.setAlert("couldn't fetch asset manifest");
       }
     };
 

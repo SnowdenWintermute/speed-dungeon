@@ -1,4 +1,4 @@
-import { makeObservable } from "mobx";
+import { makeAutoObservable, makeObservable } from "mobx";
 
 const ALERT_DISPLAY_TIME = 4000;
 
@@ -17,16 +17,18 @@ export class Alert {
 }
 
 export class AlertsService {
-  alerts: Alert[] = [];
-  lastAlertId = 0;
+  readonly alerts: Alert[] = [];
+  private lastAlertId = 0;
   constructor() {
-    makeObservable(this);
+    makeAutoObservable(this);
   }
+
   setAlert(message: Error | string, isSuccess?: boolean) {
     console.info(`alert: ${message}`);
     if (message instanceof Error) {
       console.trace(message);
     }
+
     const text = message instanceof Error ? message.message : message;
 
     const newAlert = new Alert(

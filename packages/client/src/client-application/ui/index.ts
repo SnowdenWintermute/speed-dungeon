@@ -7,8 +7,13 @@ import { InputStore } from "./inputs";
 import { KeybindConfig } from "./keybind-config";
 import { AssetFetchProgressStore } from "./asset-fetch-progress";
 import { HttpRequestStore } from "./http-requests";
+import { makeAutoObservable } from "mobx";
 
 export class UiStore {
+  constructor() {
+    makeAutoObservable(this);
+  }
+
   readonly config = new UiConfig();
   readonly connectionStatus = new ConnectionStatusStore();
   readonly dialogs = new DialogStore();
