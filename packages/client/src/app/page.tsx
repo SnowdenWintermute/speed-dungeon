@@ -10,16 +10,9 @@ import { SceneManager } from "./game-world-view-canvas/SceneManager";
 import { useEffect, useRef, useState } from "react";
 import { AssetManager } from "./asset-manager";
 import { ClientApplication } from "@/client-application";
-import { IndexedDbAssetStore } from "@speed-dungeon/common";
-import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import { ClientApplicationContext } from "@/hooks/create-client-application-context";
 import { MainAppWindow } from "./MainAppWindow";
-
-function createClientApplication() {
-  const assetCache = new IndexedDbAssetStore(indexedDB);
-  const tickScheduler = new ManualTickScheduler();
-  return new ClientApplication(assetCache, "", tickScheduler.scheduler);
-}
+import { createClientApplication } from "./create-client-application";
 
 export default observer(() => {
   const clientApplicationRef = useRef<ClientApplication | null>(null);

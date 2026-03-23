@@ -265,7 +265,6 @@ export const ACTION_ENTITY_ICONS: Record<
   [ActionEntityName.IceBolt]: null,
   [ActionEntityName.Explosion]: null,
   [ActionEntityName.IceBurst]: null,
-  [ActionEntityName.TargetChangedIndicatorArrow]: null,
   [ActionEntityName.Firewall]: (className: string) =>
     SVG_ICONS[IconName.Firewall](className + " fill-firered"),
 };

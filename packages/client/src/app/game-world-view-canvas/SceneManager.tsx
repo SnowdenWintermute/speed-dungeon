@@ -12,8 +12,14 @@ export const SceneManager = observer(() => {
   const clientApplication = useClientApplication();
 
   useEffect(() => {
-    if (canvasRef.current && debugRef.current !== null) {
-      clientApplication.setGameWorldView(new GameWorldView(canvasRef.current, debugRef));
+    if (
+      canvasRef.current &&
+      debugRef.current !== null &&
+      !clientApplication.gameWorldView?.initialized
+    ) {
+      const gameWorldView = new GameWorldView(canvasRef.current);
+      clientApplication.setGameWorldView(gameWorldView);
+      gameWorldView.initialize(clientApplication, debugRef);
     }
     resizeHandlerRef.current = function () {
       clientApplication.gameWorldView?.engine.resize();

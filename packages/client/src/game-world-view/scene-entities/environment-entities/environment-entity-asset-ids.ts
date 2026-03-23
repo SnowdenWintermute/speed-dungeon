@@ -4,6 +4,7 @@ export const ENVIRONMENT_MODELS_FOLDER = "environment/";
 
 export const ENVIRONMENT_MODEL_ASSET_IDS: Record<EnvironmentEntityName, string> = {
   [EnvironmentEntityName.VendingMachine]: "vending-machine-custom.glb",
+  [EnvironmentEntityName.ThreatTargetChangedArrow]: "",
 };
 
 export function getEnvironmentModelAssetId(name: EnvironmentEntityName) {

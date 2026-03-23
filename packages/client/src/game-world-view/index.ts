@@ -1,6 +1,6 @@
 import { Scene, Engine, Vector3, ArcRotateCamera } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import { invariant } from "@speed-dungeon/common";
+import { IdGenerator, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
 import { MaterialManager } from "./materials/material-manager";
@@ -18,6 +18,7 @@ export class GameWorldView {
   readonly camera: ArcRotateCamera;
   readonly materialManager: MaterialManager;
   readonly textureManager: TextureManager;
+  readonly idGenerator = new IdGenerator({ saveHistory: false });
 
   private _clientApplication: ClientApplication | null = null;
   private _sceneEntityService: SceneEntityService | null = null;
@@ -25,17 +26,13 @@ export class GameWorldView {
   private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
   private _debug: GameWorldViewDebug | null = null;
 
-  constructor(
-    readonly canvas: HTMLCanvasElement,
-    uiDebugDisplayRef: React.RefObject<HTMLUListElement | null>
-  ) {
+  constructor(readonly canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.materialManager = new MaterialManager(this.scene);
     this.textureManager = new TextureManager(this.scene);
     this.camera = this.createMainCamera();
 
-    this.debug.uiDebugDisplayRef = uiDebugDisplayRef;
     this.environment = new EnvironmentView(this.scene);
 
     this.engine.runRenderLoop(() => {
@@ -44,7 +41,10 @@ export class GameWorldView {
     });
   }
 
-  initialize(clientApplication: ClientApplication) {
+  initialize(
+    clientApplication: ClientApplication,
+    uiDebugDisplayRef: React.RefObject<HTMLUListElement | null>
+  ) {
     this._clientApplication = clientApplication;
     this._itemSceneEntityFactory = new ItemSceneEntityFactory(
       clientApplication.assetService,
@@ -56,6 +56,13 @@ export class GameWorldView {
     this._imageGenerator = new ImageGenerator(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
+
+    this._debug = new GameWorldViewDebug(clientApplication, this);
+    this._debug.uiDebugDisplayRef = uiDebugDisplayRef;
+  }
+
+  get initialized() {
+    return this._clientApplication !== null;
   }
 
   createMainCamera() {

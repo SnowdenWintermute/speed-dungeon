@@ -6,6 +6,7 @@ import {
 } from "@speed-dungeon/common";
 import debounce from "lodash.debounce";
 import { ClientApplication } from "@/client-application";
+import { threatTargetChangedIndicatorSequence } from "@/game-world-view/scene-entities/cosmetic/threat-target-changed-indicator";
 
 const debounceThreatTargetChangeIndicatorSequence = debounce(
   threatTargetChangedIndicatorSequence,
@@ -29,6 +30,10 @@ export function handleThreatChangesUpdate(
     // debouncing this is an easy but perhaps not optimal way to avoid showing many
     // threat target change events in a row when threat changes rapidly such as several
     // burning conditions going off in a row
-    debounceThreatTargetChangeIndicatorSequence();
+    const gameWorldView = clientApplication.gameWorldView;
+    if (!gameWorldView) return;
+    debounceThreatTargetChangeIndicatorSequence(clientApplication.gameWorldView, () => {
+      return clientApplication.gameContext.partyOption;
+    });
   }
 }

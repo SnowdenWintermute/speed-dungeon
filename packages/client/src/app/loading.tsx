@@ -1,10 +1,9 @@
 import React from "react";
 import LoadingSpinner from "./components/atoms/LoadingSpinner";
 import { ArrayUtils } from "@speed-dungeon/common";
-import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export const Loading = observer(() => {
+export default function Loading() {
   const loadingMessages = [
     "Travelling to a new area",
     "Descending deeper",
@@ -24,4 +23,4 @@ export const Loading = observer(() => {
       </div>
     </main>
   );
-});
+}

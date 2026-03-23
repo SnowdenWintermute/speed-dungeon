@@ -26,6 +26,7 @@ export const DebugText = observer(
     const [gpuName, setGpuName] = useState("getting GPU name...");
 
     useEffect(() => {
+      if (!gameWorldView?.initialized) return;
       const gpuName = gameWorldView?.debug.getGpuName();
       // console.info(
       //   "User Agent:",
@@ -36,7 +37,7 @@ export const DebugText = observer(
       //   navigator.hardwareConcurrency,
       // );
       setGpuName(gpuName);
-    }, [gameWorldView]);
+    }, [gameWorldView, gameWorldView?.initialized]);
 
     useEffect(() => {
       keydownListenerRef.current = function (e: KeyboardEvent) {
@@ -45,7 +46,7 @@ export const DebugText = observer(
         dialogs.toggle(DialogElementName.Debug);
         const showDebug = dialogs.isOpen(DialogElementName.Debug);
 
-        if (gameWorldView) {
+        if (gameWorldView?.initialized) {
           if (showDebug) {
             gameWorldView.debug.show();
           } else {
