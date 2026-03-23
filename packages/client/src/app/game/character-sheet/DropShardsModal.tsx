@@ -3,26 +3,27 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HOTKEYS } from "@/hotkeys";
 import { ClientIntentType, stringIsValidNumber } from "@speed-dungeon/common";
 import { setAlert } from "@/app/components/alerts";
 import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { DialogElementName } from "@/mobx-stores/dialogs";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {
-    const { dialogStore, inputStore } = AppStore.get();
-    const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
+    const clientApplication = useClientApplication();
+    const { gameClientRef } = clientApplication;
+    const { dialogs, inputs } = clientApplication.uiStore;
+    const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<number>(0);
 
     useEffect(() => {
-      inputStore.setHotkeysDisabled(true);
+      inputs.setHotkeysDisabled(true);
       return () => {
-        inputStore.setHotkeysDisabled(false);
+        inputs.setHotkeysDisabled(false);
       };
     }, []);
 
@@ -44,15 +45,15 @@ export const DropShardsModal = observer(
         return;
       }
 
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.DropShards,
         data: {
-          characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
+          characterId: clientApplication.combatantFocus.requireFocusedCharacterId(),
           shardCount: value,
         },
       });
 
-      dialogStore.close(DialogElementName.DropShards);
+      dialogs.close(DialogElementName.DropShards);
     }
 
     return (
@@ -60,7 +61,7 @@ export const DropShardsModal = observer(
         <ClickOutsideHandlerWrapper
           isActive={viewingDropShardsModal}
           onClickOutside={() => {
-            dialogStore.close(DialogElementName.DropShards);
+            dialogs.close(DialogElementName.DropShards);
           }}
         >
           <div className="p-4 bg-slate-800 z-50 pointer-events-auto w-72">
@@ -71,7 +72,7 @@ export const DropShardsModal = observer(
               hotkeys={[HOTKEYS.MAIN_2, HOTKEYS.CANCEL]}
               alwaysEnabled={true}
               onClick={() => {
-                dialogStore.close(DialogElementName.DropShards);
+                dialogs.close(DialogElementName.DropShards);
               }}
             >
               <XShape className="h-full w-full fill-zinc-300" />

@@ -3,7 +3,6 @@ import { ClientIntentType, Item } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   item: Item;
@@ -11,35 +10,37 @@ interface Props {
 }
 
 export function takeItem(item: Item) {
-  const { focusStore, gameStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { gameClientRef, detailableEntityFocus, combatantFocus } = clientApplication;
 
-  focusStore.detailables.clear();
+  detailableEntityFocus.detailables.clear();
 
-  gameClientSingleton.get().dispatchIntent({
+  gameClientRef.get().dispatchIntent({
     type: ClientIntentType.PickUpItems,
     data: {
-      characterId: gameStore.getExpectedFocusedCharacterId(),
+      characterId: combatantFocus.requireFocusedCharacterId(),
       itemIds: [item.entityProperties.id],
     },
   });
 }
 
 export const ItemOnGround = observer((props: Props) => {
-  const { focusStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
 
   const { item } = props;
   function mouseEnterHandler() {
-    focusStore.detailables.setHovered(item);
+    detailableEntityFocus.detailables.setHovered(item);
   }
   function mouseLeaveHandler() {
-    focusStore.detailables.clearHovered();
+    detailableEntityFocus.detailables.clearHovered();
   }
   function clickHandler() {
-    focusStore.selectItem(item);
+    detailableEntityFocus.selectItem(item);
   }
 
-  const itemIsDetailed = focusStore.entityIsDetailed(item.entityProperties.id);
-  const itemIsHovered = focusStore.entityIsHovered(item.entityProperties.id);
+  const itemIsDetailed = detailableEntityFocus.entityIsDetailed(item.entityProperties.id);
+  const itemIsHovered = detailableEntityFocus.entityIsHovered(item.entityProperties.id);
 
   const conditionalClassNames = (() => {
     if (itemIsDetailed) return "border-yellow-400 hover:border-t";

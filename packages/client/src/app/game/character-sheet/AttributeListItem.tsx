@@ -12,7 +12,6 @@ import {
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   attribute: CombatAttribute;
@@ -23,8 +22,9 @@ interface Props {
 }
 
 export const AttributeListItem = observer((props: Props) => {
-  const consideredItemUnmetRequirements =
-    AppStore.get().focusStore.getSelectedItemUnmetRequirements();
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
+  const consideredItemUnmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements();
 
   const isUnmetRequirement = consideredItemUnmetRequirements.has(props.attribute);
 
@@ -71,10 +71,12 @@ export const AttributeListItem = observer((props: Props) => {
 });
 
 const IncreaseAttributeButton = observer(({ attribute }: { attribute: CombatAttribute }) => {
-  const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, gameClientRef } = clientApplication;
+  const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
 
   function handleClick() {
-    gameClientSingleton.get()?.dispatchIntent({
+    gameClientRef.get()?.dispatchIntent({
       type: ClientIntentType.IncrementAttribute,
       data: {
         characterId: focusedCharacterId,

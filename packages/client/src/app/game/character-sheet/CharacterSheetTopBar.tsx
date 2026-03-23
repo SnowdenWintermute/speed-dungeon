@@ -10,6 +10,8 @@ interface Props {
 }
 
 export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus, actionMenu } = clientApplication;
   return (
     <div className="flex justify-between">
       <ul className="flex list-none" style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}>
@@ -23,8 +25,8 @@ export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
         style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
         aria-label="close inventory"
         onClick={() => {
-          AppStore.get().focusStore.combatantAbilities.clear();
-          AppStore.get().actionMenuStore.clearStack();
+          detailableEntityFocus.combatantAbilities.clear();
+          actionMenu.clearStack();
         }}
       >
         <XShape className="h-full w-full fill-zinc-300" />

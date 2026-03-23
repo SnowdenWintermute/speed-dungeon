@@ -9,13 +9,14 @@ interface Props {
 }
 
 export const CharacterSheetCharacterSelectionButton = observer(({ characterId }: Props) => {
-  const { gameStore } = AppStore.get();
-  const isfocused = gameStore.characterIsFocused(characterId);
-  const character = gameStore.getExpectedCombatant(characterId);
+  const clientApplication = useClientApplication();
+  const { combatantFocus, gameContext } = clientApplication;
+  const isfocused = combatantFocus.characterIsFocused(characterId);
+  const character = gameContext.requireCombatant(characterId);
   const isSelectedStyle = isfocused ? "border-yellow-400" : "";
 
   function handleClick() {
-    gameStore.setFocusedCharacter(characterId);
+    combatantFocus.setFocusedCharacter(characterId);
   }
 
   return (

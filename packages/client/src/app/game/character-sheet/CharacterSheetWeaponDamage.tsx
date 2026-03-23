@@ -7,6 +7,7 @@ import {
   COMBAT_ACTIONS,
   CombatActionResource,
   HitOutcomeMitigationCalculator,
+  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -23,13 +24,17 @@ export const CharacterSheetWeaponDamage = observer(
     const { combatantProperties } = combatant;
     const { equipment } = combatantProperties;
 
+    const clientApplication = useClientApplication();
+    const { gameContext } = clientApplication;
+
     const mhWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.MainHand);
 
     if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
     const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
       combatant,
       mhWeaponOption,
-      false
+      false,
+      gameContext.gameOption
     );
     const isTwoHanded = mhWeaponOption
       ? Equipment.isTwoHandedWeaponType(mhWeaponOption.taggedBaseEquipment.equipmentType)
@@ -47,7 +52,12 @@ export const CharacterSheetWeaponDamage = observer(
     ) {
       let ohWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.OffHand);
       if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
-      ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(combatant, ohWeaponOption, true);
+      ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
+        combatant,
+        ohWeaponOption,
+        true,
+        gameContext.gameOption
+      );
     }
 
     if (mhDamageAndAccuracyResult instanceof Error)
@@ -124,11 +134,10 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 function getAttackActionDamageAndAccuracy(
   combatant: Combatant,
   weaponOption: undefined | WeaponProperties,
-  isOffHand: boolean
+  isOffHand: boolean,
+  gameOption: SpeedDungeonGame | null
 ) {
   const actionName = getAttackActionName(weaponOption, isOffHand);
-
-  const gameOption = AppStore.get().gameStore.getGameOption();
 
   const currentlyTargetedCombatantResult = combatant
     .getTargetingProperties()

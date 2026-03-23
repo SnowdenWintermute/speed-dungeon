@@ -21,7 +21,8 @@ interface Props {
 
 export default function TextInput(props: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { inputStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
 
   useEffect(() => {
     // trying to make it so we trigger the onfocus event, which didn't seem to be triggered
@@ -30,7 +31,7 @@ export default function TextInput(props: Props) {
     if (inputRef.current && props.autofocus) {
       inputRef.current.focus();
       inputRef.current.dispatchEvent(new Event("focus", { bubbles: true })); // Trigger the focus event manually
-      inputStore.setHotkeysDisabled(true);
+      uiStore.inputs.setHotkeysDisabled(true);
     }
 
     return () => {

@@ -12,9 +12,10 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 
 export const ActionMenuAndCharacterSheetLayer = observer(
   ({ party }: { party: AdventuringParty }) => {
-    const { actionMenuStore } = AppStore.get();
-    const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-    const abilityTreeOpen = actionMenuStore.viewingAbilityTree();
+    const clientApplication = useClientApplication();
+    const { actionMenu } = clientApplication;
+    const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
+    const abilityTreeOpen = actionMenu.viewingAbilityTree();
 
     const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 

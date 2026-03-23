@@ -1,19 +1,19 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { HOTKEYS } from "@/hotkeys";
 import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import { DropShardsModal } from "../character-sheet/DropShardsModal";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
 
 export const VendingMachineShardDisplay = observer(() => {
-  const { actionMenuStore } = AppStore.get();
-  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
+  const clientApplication = useClientApplication();
+  const { actionMenu, uiStore } = clientApplication;
+  const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
 
-  const { dialogStore } = AppStore.get();
-  const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
+  const viewingDropShardsModal = uiStore.dialogs.isOpen(DialogElementName.DropShards);
 
   const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   const totalShards = focusedCharacter.combatantProperties.inventory.shards;
@@ -25,7 +25,7 @@ export const VendingMachineShardDisplay = observer(() => {
           className="disabled:opacity-50"
           hotkeys={[HOTKEYS.MAIN_2]}
           onClick={() => {
-            dialogStore.toggle(DialogElementName.DropShards);
+            uiStore.dialogs.toggle(DialogElementName.DropShards);
           }}
         >
           <ShardsDisplay extraStyles="h-10" numShards={totalShards} />

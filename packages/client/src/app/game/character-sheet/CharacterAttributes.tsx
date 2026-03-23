@@ -21,8 +21,9 @@ interface Props {
 export const CharacterAttributes = observer(
   ({ combatant, showAttributeAssignmentButtons, widthOptionClass, hideHeader }: Props) => {
     const { entityProperties, combatantProperties } = combatant;
-    const { gameStore } = AppStore.get();
-    const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
+    const clientApplication = useClientApplication();
+    const { combatantFocus } = clientApplication;
+    const playerOwnsCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
     const { attributeProperties } = combatantProperties;
 

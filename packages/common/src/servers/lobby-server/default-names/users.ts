@@ -30,6 +30,7 @@ export const PLAYER_FIRST_NAMES = [
   "chiana",
   "ka",
   "stark",
+  "poly",
 ];
 export const PLAYER_LAST_NAMES = [
   "kenobi",
@@ -60,6 +61,7 @@ export const PLAYER_LAST_NAMES = [
   "zhaan",
   "d'argo",
   "crais",
+  "quine",
 ];
 
 export const RANDOM_PARTY_NAMES = [

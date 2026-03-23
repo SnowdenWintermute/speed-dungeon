@@ -5,7 +5,8 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const RoomExplorationTracker = observer(() => {
-  const { party } = AppStore.get().gameStore.getFocusedCharacterContext();
+  const clientApplication = useClientApplication();
+  const { party } = clientApplication.combatantFocus.requireFocusedCharacterContext();
 
   const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
   const roomList = party.dungeonExplorationManager.getClientVisibleRoomExplorationList();

@@ -80,15 +80,17 @@ export class ClientApplication {
   ) {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
+
+    this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.unregisterReplayManagerTick = replayManagerTickScheduler(() =>
       this.replayTreeScheduler.tick()
     );
+
     this.gameContext = new ClientApplicationGameContext(this.session);
     this.combatantFocus = new CombatantFocus(this);
     this.detailableEntityFocus.initialize(this.combatantFocus);
     this.targetIndicatorStore = new TargetIndicatorStore();
     this.eventLogMessageService = new EventLogGameMessageService(this);
-    this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.sequentialEventProcessor = new ClientSequentialEventProcessor(this);
     this.broadcastChannel = new BroadcastChannelMananger(
       this.lobbyClientRef,

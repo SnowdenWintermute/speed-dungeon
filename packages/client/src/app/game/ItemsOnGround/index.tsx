@@ -13,10 +13,11 @@ interface Props {
 
 export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
   const itemsToDisplay = party.currentRoom.inventory.getItems();
-  const { actionMenuStore } = AppStore.get();
-  const showItemsOnGround = actionMenuStore.getShowGroundItems();
+  const clientApplication = useClientApplication();
+  const { actionMenu, combatantFocus } = clientApplication;
+  const showItemsOnGround = actionMenu.getShowGroundItems();
 
-  const playerOwnsCharacter = AppStore.get().gameStore.clientUserControlsFocusedCombatant({
+  const playerOwnsCharacter = combatantFocus.clientUserControlsFocusedCombatant({
     includePets: true,
   });
 
@@ -31,7 +32,7 @@ export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
         <span>{"Items on the ground"}</span>
         <HotkeyButton
           onClick={() => {
-            actionMenuStore.setShowGroundItems(!showItemsOnGround);
+            actionMenu.setShowGroundItems(!showItemsOnGround);
           }}
         >
           {showItemsOnGround ? "Hide" : "Show"}

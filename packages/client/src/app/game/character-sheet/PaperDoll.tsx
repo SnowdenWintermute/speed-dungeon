@@ -9,7 +9,7 @@ import {
 import { HotswapSlotButtons } from "../combatant-plaques/HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   combatant: Combatant;
@@ -18,7 +18,9 @@ interface Props {
 export const PaperDoll = observer(({ combatant }: Props) => {
   const { combatantProperties } = combatant;
   const equippedHoldables = combatantProperties.equipment.getActiveHoldableSlot();
-  const viewingDropShardsModal = AppStore.get().dialogStore.isOpen(DialogElementName.DropShards);
+  const clientApplication = useClientApplication();
+  const { dialogs } = clientApplication.uiStore;
+  const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
 
   const { equipment } = combatantProperties;
 

@@ -3,21 +3,23 @@ import { PaperDoll } from "./PaperDoll";
 import { InventoryCapacityDisplay } from "./InventoryCapacityDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HOTKEYS } from "@/hotkeys";
 import { ShardsDisplay } from "./ShardsDisplay";
 import { DropShardsModal } from "./DropShardsModal";
 import { CharacterAttributes } from "./CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/mobx-stores/dialogs";
-import { ActionMenuScreenType } from "../ActionMenu/menu-state/menu-state-type";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 
 export const PaperDollAndAttributes = observer(() => {
-  const { dialogStore, actionMenuStore } = AppStore.get();
-  const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
-  const currentMenu = actionMenuStore.getCurrentMenu();
+  const clientApplication = useClientApplication();
+  const { uiStore, actionMenu, combatantFocus } = clientApplication;
+  const { dialogs } = uiStore;
+  const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
+  const currentMenu = actionMenu.getCurrentMenu();
 
-  const { party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
+  const { combatant } = combatantFocus.requireFocusedCharacterContext();
 
   return (
     <div className="flex">
@@ -32,13 +34,13 @@ export const PaperDollAndAttributes = observer(() => {
                 hotkeys={[HOTKEYS.MAIN_2]}
                 disabled={currentMenu.type !== ActionMenuScreenType.InventoryItems}
                 onClick={() => {
-                  dialogStore.toggle(DialogElementName.DropShards);
+                  dialogs.toggle(DialogElementName.DropShards);
                 }}
               >
                 <ShardsDisplay numShards={combatant.combatantProperties.inventory.shards} />
               </HotkeyButton>
             </HoverableTooltipWrapper>
-            {viewingDropShardsModal === true && actionMenuStore.shouldShowCharacterSheet() && (
+            {viewingDropShardsModal === true && actionMenu.shouldShowCharacterSheet() && (
               <DropShardsModal
                 className="absolute bottom-0 right-0 border border-slate-400"
                 min={0}

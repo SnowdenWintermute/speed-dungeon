@@ -4,8 +4,9 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const StackedActionMenuScreenDisplay = observer(() => {
-  const { actionMenuStore } = AppStore.get();
-  const stackedActionMenuScreenStringNames = actionMenuStore.getStackedMenuStringNames();
+  const clientApplication = useClientApplication();
+  const { actionMenu } = clientApplication;
+  const stackedActionMenuScreenStringNames = actionMenu.getStackedMenuStringNames();
 
   return (
     <div
@@ -39,8 +40,10 @@ const ActionMenuScreenDisplay = observer(
     isTop: boolean;
     stackSize: number;
   }) => {
+    const clientApplication = useClientApplication();
+    const { combatantFocus } = clientApplication;
     const offsetPx = index * 3;
-    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+    const focusedCharacter = combatantFocus.requireFocusedCharacter();
 
     const filterStrengthNormalized = 1 - 0.2 * (stackSize - index);
 
