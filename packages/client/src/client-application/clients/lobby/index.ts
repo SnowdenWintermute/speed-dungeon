@@ -10,7 +10,6 @@ import {
 } from "@speed-dungeon/common";
 import { createLobbyUpdateHandlers } from "./update-handlers";
 import { BaseClient } from "../base";
-import { setAlert } from "@/app/components/alerts";
 
 export class LobbyClient extends BaseClient {
   private updateHandlers = createLobbyUpdateHandlers(
@@ -24,7 +23,7 @@ export class LobbyClient extends BaseClient {
     try {
       handlerOption(message.data as never);
     } catch (error) {
-      setAlert(error as Error);
+      this.clientApplication.alertsService.setAlert(error as Error);
       console.trace(error);
     }
   }

@@ -1,22 +1,21 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { ClientIntentType } from "@speed-dungeon/common";
 import React from "react";
-import { ActionMenuScreenType } from "../menu-state-type";
-import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
-  const { hotkeysStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { uiStore, actionMenu, combatantFocus, gameClientRef } = clientApplication;
+  const { keybinds } = uiStore;
 
   function clickHandler() {
-    const { actionMenuStore, gameStore } = AppStore.get();
-    const entityId = gameStore.getExpectedFocusedCharacterId();
+    const entityId = combatantFocus.requireFocusedCharacterId();
 
-    if (gameStore.clientUserControlsFocusedCombatant()) {
-      gameClientSingleton.get().dispatchIntent({
+    if (combatantFocus.clientUserControlsFocusedCombatant()) {
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.SelectCombatAction,
         data: {
           characterId: entityId,
@@ -25,11 +24,12 @@ export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
       });
     }
 
-    if (actionMenuStore.currentMenuIsType(ActionMenuScreenType.AssignAttributePoints)) {
-      actionMenuStore.popStack();
+    if (actionMenu.currentMenuIsType(ActionMenuScreenType.AssignAttributePoints)) {
+      actionMenu.popStack();
     } else {
-      gameStore.setFocusedCharacter(entityId);
-      actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.AssignAttributePoints)]);
+      combatantFocus.setFocusedCharacter(entityId);
+      actionMenu.clearStack();
+      actionMenu.pushFromPool(ActionMenuScreenType.AssignAttributePoints);
     }
   }
 
@@ -38,7 +38,7 @@ export const ToggleAttributeAllocationMenuHiddenButton = observer(() => {
   return (
     <HotkeyButton
       onClick={clickHandler}
-      hotkeys={hotkeysStore.getKeybind(buttonType)}
+      hotkeys={keybinds.getKeybind(buttonType)}
       className="hidden"
       children=""
     />

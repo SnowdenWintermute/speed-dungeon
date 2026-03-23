@@ -2,51 +2,51 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { ClientIntentType } from "@speed-dungeon/common";
-import { ActionMenuScreenType } from "../menu-state-type";
-import { ConfirmConvertToShardsActionMenuScreen as ConfirmConvertToShardsActionMenuScreenOld } from "../confirm-convert-to-shards";
 import { ConfirmConvertToShardsActionMenuScreen } from "@/client-application/action-menu/screens/convert-to-shards-confirm";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 
 interface Props {
-  menuState: ConfirmConvertToShardsActionMenuScreenOld | ConfirmConvertToShardsActionMenuScreen;
+  menuState: ConfirmConvertToShardsActionMenuScreen;
 }
 
 export function ConfirmShardConversionButton(props: Props) {
   const { menuState } = props;
-  const { gameStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore, gameClientRef, actionMenu, detailableEntityFocus } =
+    clientApplication;
+  const { keybinds } = uiStore;
 
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const itemId = menuState.item.entityProperties.id;
-  const { hotkeysStore } = AppStore.get();
   const buttonType = HotkeyButtonTypes.Confirm;
-  const shouldBeDisabled = !gameStore.clientUserControlsFocusedCombatant();
+  const shouldBeDisabled = !combatantFocus.clientUserControlsFocusedCombatant();
 
   return (
     <ActionMenuTopButton
       disabled={shouldBeDisabled}
-      hotkeys={hotkeysStore.getKeybind(buttonType)}
+      hotkeys={keybinds.getKeybind(buttonType)}
       handleClick={() => {
-        gameClientSingleton.get().dispatchIntent({
+        gameClientRef.get().dispatchIntent({
           type: ClientIntentType.ConvertItemsToShards,
           data: {
             characterId: focusedCharacter.getEntityId(),
             itemIds: [itemId],
           },
         });
-        AppStore.get().actionMenuStore.popStack();
+        actionMenu.popStack();
         if (menuState.type === ActionMenuScreenType.ItemSelected) {
           // converting to shards from the inventory nessecitates going back two
           // stacked menus since we go itemSelected -> confirmShard and now that the item is
           // shards it doesn't make sense we would have it selected
-          AppStore.get().actionMenuStore.popStack();
+          actionMenu.popStack();
         }
 
-        AppStore.get().focusStore.selectItem(null);
-        AppStore.get().focusStore.clearItemComparison();
+        detailableEntityFocus.selectItem(null);
+        detailableEntityFocus.clearItemComparison();
       }}
     >
-      Convert ({hotkeysStore.getKeybindString(buttonType)})
+      Convert ({keybinds.getKeybindString(buttonType)})
     </ActionMenuTopButton>
   );
 }

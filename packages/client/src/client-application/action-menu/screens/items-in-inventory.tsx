@@ -5,8 +5,8 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "../..";
 import { ActionMenuScreenType } from "../screen-types";
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
-import ToggleViewingEquipmentButton from "@/app/game/ActionMenu/menu-state/common-buttons/ToggleViewingEquipmentButton";
-import ViewAbilityTreeButton from "@/app/game/ActionMenu/menu-state/common-buttons/ViewAbilityTreeButton";
+import { ToggleViewingEquipmentButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ToggleViewingEquipmentButton";
+import { ViewAbilityTreeButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ViewAbilityTreeButton";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export class InventoryItemsActionMenuScreen extends ActionMenuScreen {

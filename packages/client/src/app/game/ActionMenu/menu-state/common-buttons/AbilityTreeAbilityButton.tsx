@@ -3,7 +3,7 @@ import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import { AbilityTreeAbility, getAbilityTreeAbilityNameString } from "@speed-dungeon/common";
 import { getAbilityIcon } from "@/app/game/character-sheet/ability-tree/ability-icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ConsideringCombatantAbilityActionMenuScreen } from "../considering-tree-ability";
+import { ConsideringCombatantAbilityActionMenuScreen } from "@/client-application/action-menu/screens/ability-tree-ability";
 
 interface Props {
   abilityOption: undefined | AbilityTreeAbility;
@@ -22,32 +22,39 @@ export default function AbilityTreeAbilityButton(props: Props) {
     iconOption = iconGetter ? iconGetter("h-full p-2 fill-slate-400") : "icon";
   }
 
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus, actionMenu } = clientApplication;
+
   function clickHandler() {
     if (abilityOption === undefined) {
-      AppStore.get().focusStore.combatantAbilities.clearDetailed();
+      detailableEntityFocus.combatantAbilities.clearDetailed();
     } else {
-      AppStore.get().focusStore.combatantAbilities.setDetailed(abilityOption);
+      detailableEntityFocus.combatantAbilities.setDetailed(abilityOption);
 
       const filteredColumn = abilityTreeColumn.filter(
         (item): item is AbilityTreeAbility => item !== undefined
       );
 
-      AppStore.get().actionMenuStore.pushStack(
-        new ConsideringCombatantAbilityActionMenuScreen(filteredColumn, abilityOption)
+      actionMenu.pushStack(
+        new ConsideringCombatantAbilityActionMenuScreen(
+          clientApplication,
+          filteredColumn,
+          abilityOption
+        )
       );
     }
   }
 
   function focusHandler() {
     if (abilityOption === undefined) {
-      AppStore.get().focusStore.combatantAbilities.clearHovered();
+      detailableEntityFocus.combatantAbilities.clearHovered();
     } else {
-      AppStore.get().focusStore.combatantAbilities.setHovered(abilityOption);
+      detailableEntityFocus.combatantAbilities.setHovered(abilityOption);
     }
   }
 
   function blurHandler() {
-    AppStore.get().focusStore.combatantAbilities.clearHovered();
+    detailableEntityFocus.combatantAbilities.clearHovered();
   }
 
   const displayIndex = rowIndex + 1;

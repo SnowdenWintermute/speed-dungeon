@@ -4,7 +4,6 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ClientIntentType, stringIsValidNumber } from "@speed-dungeon/common";
-import { setAlert } from "@/app/components/alerts";
 import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
@@ -27,6 +26,8 @@ export const DropShardsModal = observer(
       };
     }, []);
 
+    const { alertsService } = clientApplication;
+
     function onInputChange(e: ChangeEvent<HTMLInputElement>) {
       if (typeof e.target.value === "string" && isNaN(parseInt(e.target.value))) return;
       if (!stringIsValidNumber(e.target.value) && e.target.value !== "") {
@@ -34,7 +35,7 @@ export const DropShardsModal = observer(
       } else {
         const newValue = parseInt(e.target.value);
         if (newValue > max || newValue < min)
-          return setAlert("Enter a number between zero and your total shards");
+          return alertsService.setAlert("Enter a number between zero and your total shards");
         setValue(Number(newValue));
       }
     }

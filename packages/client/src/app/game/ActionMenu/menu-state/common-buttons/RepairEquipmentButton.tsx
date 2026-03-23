@@ -10,7 +10,6 @@ import React from "react";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import { gameClientSingleton } from "@/singletons/lobby-client";
 
 interface Props {
   equipment: Equipment;
@@ -19,6 +18,8 @@ interface Props {
 
 export const RepairEquipmentButton = observer((props: Props) => {
   const { equipment, listIndex } = props;
+  const clientApplication = useClientApplication();
+  const { gameClientRef } = clientApplication;
   const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
   const price = getCraftingActionPrice(CraftingAction.Repair, equipment);
@@ -28,7 +29,7 @@ export const RepairEquipmentButton = observer((props: Props) => {
   }
 
   function clickHandler() {
-    gameClientSingleton.get().dispatchIntent({
+    gameClientRef.get().dispatchIntent({
       type: ClientIntentType.PerformCraftingAction,
       data: {
         characterId: focusedCharacter.getEntityId(),

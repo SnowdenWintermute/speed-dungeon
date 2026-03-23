@@ -1,25 +1,27 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { ActionMenuScreenType } from "../menu-state-type";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { observer } from "mobx-react-lite";
 
-const { hotkeysStore } = AppStore.get();
-const buttonHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.ToggleInventory);
-const buttonHotkeysString = hotkeysStore.getKeybindString(HotkeyButtonTypes.ToggleInventory);
+export const OpenInventoryAsFreshStackButton = observer(() => {
+  const clientApplication = useClientApplication();
+  const { uiStore, actionMenu, detailableEntityFocus } = clientApplication;
+  const { keybinds } = uiStore;
+  const buttonHotkeys = keybinds.getKeybind(HotkeyButtonTypes.ToggleInventory);
+  const buttonHotkeysString = keybinds.getKeybindString(HotkeyButtonTypes.ToggleInventory);
 
-export default function OpenInventoryAsFreshStackButton() {
   return (
     <ActionMenuTopButton
       hotkeys={buttonHotkeys}
       handleClick={() => {
-        const { actionMenuStore, focusStore } = AppStore.get();
-        focusStore.combatantAbilities.clear();
-        actionMenuStore.replaceStack([ActionMenuScreenPool.get(ActionMenuScreenType.InventoryItems)]);
+        detailableEntityFocus.combatantAbilities.clear();
+        actionMenu.clearStack();
+        actionMenu.pushFromPool(ActionMenuScreenType.InventoryItems);
       }}
     >
       Inventory ({buttonHotkeysString})
     </ActionMenuTopButton>
   );
-}
+});

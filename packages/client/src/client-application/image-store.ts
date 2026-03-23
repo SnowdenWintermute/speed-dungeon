@@ -1,4 +1,4 @@
-import { EntityId } from "@speed-dungeon/common";
+import { CONSUMABLE_TYPE_STRINGS, Consumable, EntityId, Item } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export type ImageString = string;
@@ -39,5 +39,13 @@ export class ImageStore {
 
   getCombatantPortraitOption(entityId: EntityId) {
     return this.combatantPortraits.get(entityId);
+  }
+
+  getItemButtonThumbnail(item: Item) {
+    let thumbnailId = item.entityProperties.id;
+    if (item instanceof Consumable) {
+      thumbnailId = CONSUMABLE_TYPE_STRINGS[item.consumableType];
+    }
+    return this.getItemThumbnailOption(thumbnailId);
   }
 }

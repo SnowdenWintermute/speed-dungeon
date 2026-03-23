@@ -2,33 +2,34 @@ import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ClientIntentType, Item } from "@speed-dungeon/common";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 interface Props {
   item: Item;
 }
 
-const { hotkeysStore } = AppStore.get();
-const dropItemHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.DropItem);
-const dropItemHotkeysString = hotkeysStore.getKeybindString(HotkeyButtonTypes.DropItem);
-
 export const DropItemButton = observer((props: Props) => {
-  const { gameStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore, actionMenu, gameClientRef, detailableEntityFocus } =
+    clientApplication;
+  const { keybinds } = uiStore;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const characterId = focusedCharacter.getEntityId();
   const itemId = props.item.entityProperties.id;
-  const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant({
+  const userDoesNotControlCharacter = !combatantFocus.clientUserControlsFocusedCombatant({
     includePets: true,
   });
+
+  const dropItemHotkeys = keybinds.getKeybind(HotkeyButtonTypes.DropItem);
+  const dropItemHotkeysString = keybinds.getKeybindString(HotkeyButtonTypes.DropItem);
 
   function clickHandler() {
     const slotEquipped =
       focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
     if (slotEquipped !== null) {
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.DropEquippedItem,
         data: {
           characterId,
@@ -36,14 +37,14 @@ export const DropItemButton = observer((props: Props) => {
         },
       });
     } else {
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.DropItem,
         data: { characterId, itemId },
       });
     }
 
-    AppStore.get().actionMenuStore.popStack();
-    AppStore.get().focusStore.detailables.clearDetailed();
+    actionMenu.popStack();
+    detailableEntityFocus.detailables.clearDetailed();
   }
 
   const shouldBeDisabled = userDoesNotControlCharacter;

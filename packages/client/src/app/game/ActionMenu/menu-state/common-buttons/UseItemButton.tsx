@@ -12,16 +12,10 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ModifierKey } from "@/mobx-stores/input";
-import { setAlert } from "@/app/components/alerts";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
-import { gameClientSingleton } from "@/singletons/lobby-client";
-
-const { hotkeysStore } = AppStore.get();
-const buttonType = HotkeyButtonTypes.Confirm;
-const useItemHotkeys = hotkeysStore.getKeybind(buttonType);
-const useItemHotkeyString = hotkeysStore.getKeybindString(buttonType);
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { ClientApplication } from "@/client-application";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 interface Props {
   item: Item;
@@ -29,19 +23,39 @@ interface Props {
 
 export const UseItemButton = observer((props: Props) => {
   const { item } = props;
-
-  const { gameStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore } = clientApplication;
+  const { keybinds } = uiStore;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
+  const buttonType = HotkeyButtonTypes.Confirm;
+  const useItemHotkeys = keybinds.getKeybind(buttonType);
+  const useItemHotkeyString = keybinds.getKeybindString(buttonType);
 
   const itemId = item.entityProperties.id;
   const slotItemIsEquippedTo =
     focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
   const isEquipped = slotItemIsEquippedTo !== null;
-  const buttonText = getUseItemButtonText(item, isEquipped);
-  const clickHandler = getUseItemClickHandler(item, slotItemIsEquippedTo);
 
-  const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+  const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemHotkeyString})`;
+  const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemHotkeyString})`;
+  const UNEQUIP_ITEM_BUTTON_TEXT = `Unequip (${useItemHotkeyString})`;
+
+  function getUseItemButtonText(item: Item, isEquipped: boolean) {
+    const isEquipment = item instanceof Equipment;
+    if (isEquipment && isEquipped) {
+      return UNEQUIP_ITEM_BUTTON_TEXT;
+    } else if (isEquipment) {
+      return EQUIP_ITEM_BUTTON_TEXT;
+    } else {
+      return USE_CONSUMABLE_BUTTON_TEXT;
+    }
+  }
+
+  const buttonText = getUseItemButtonText(item, isEquipped);
+  const clickHandler = getUseItemClickHandler(item, slotItemIsEquippedTo, clientApplication);
+
+  const userDoesNotControlCharacter = !combatantFocus.clientUserControlsFocusedCombatant();
   const shouldBeDisabled = userDoesNotControlCharacter;
 
   return (
@@ -55,33 +69,22 @@ export const UseItemButton = observer((props: Props) => {
   );
 });
 
-export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemHotkeyString})`;
-export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemHotkeyString})`;
-export const UNEQUIP_ITEM_BUTTON_TEXT = `Unequip (${useItemHotkeyString})`;
-
-function getUseItemButtonText(item: Item, isEquipped: boolean) {
-  const isEquipment = item instanceof Equipment;
-  if (isEquipment && isEquipped) {
-    return UNEQUIP_ITEM_BUTTON_TEXT;
-  } else if (isEquipment) {
-    return EQUIP_ITEM_BUTTON_TEXT;
-  } else {
-    return USE_CONSUMABLE_BUTTON_TEXT;
-  }
-}
-
-function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedEquipmentSlot) {
+function getUseItemClickHandler(
+  item: Item,
+  slotItemIsEquippedTo: null | TaggedEquipmentSlot,
+  clientApplication: ClientApplication
+) {
   const isEquipment = item instanceof Equipment;
   const isEquipped = slotItemIsEquippedTo !== null;
   const isConsumable = item instanceof Consumable;
 
-  const { gameStore, inputStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const { combatantFocus, gameClientRef, uiStore, alertsService } = clientApplication;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const characterId = focusedCharacter.getEntityId();
 
   if (isEquipment && isEquipped) {
     return () => {
-      gameClientSingleton.get().dispatchIntent({
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.UnequipSlot,
         data: {
           characterId,
@@ -91,8 +94,8 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
     };
   } else if (isEquipment) {
     return () => {
-      const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
-      gameClientSingleton.get().dispatchIntent({
+      const modKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.Mod);
+      gameClientRef.get().dispatchIntent({
         type: ClientIntentType.EquipInventoryItem,
         data: {
           characterId,
@@ -122,12 +125,12 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
     }
 
     return () => {
-      gameClientSingleton
+      gameClientRef
         .get()
         .dispatchIntent({ type: ClientIntentType.SelectCombatAction, data: eventData });
     };
   } else {
-    setAlert(new Error("unknown item type"));
+    alertsService.setAlert(new Error("unknown item type"));
     throw new Error("unknown item type");
   }
 }

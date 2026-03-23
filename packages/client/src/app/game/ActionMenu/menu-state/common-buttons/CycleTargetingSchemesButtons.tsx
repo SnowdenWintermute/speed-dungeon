@@ -1,15 +1,15 @@
-import { setAlert } from "@/app/components/alerts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ClientIntentType } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const CycleTargetingSchemesButtons = observer(() => {
-  const { gameStore, hotkeysStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore, gameClientRef, alertsService } = clientApplication;
+  const { keybinds } = uiStore;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const { combatantProperties } = focusedCharacter;
   const characterId = focusedCharacter.getEntityId();
 
@@ -24,7 +24,7 @@ export const CycleTargetingSchemesButtons = observer(() => {
   const combatActionProperties =
     abilityProperties.getCombatActionPropertiesIfOwned(selectedActionAndRank);
   if (combatActionProperties instanceof Error) {
-    setAlert(combatActionProperties);
+    alertsService.setAlert(combatActionProperties);
     return <div />;
   }
 
@@ -39,14 +39,14 @@ export const CycleTargetingSchemesButtons = observer(() => {
   const buttonType = HotkeyButtonTypes.CycleTargetingSchemes;
 
   function clickHandler() {
-    gameClientSingleton
+    gameClientRef
       .get()
       .dispatchIntent({ type: ClientIntentType.CycleTargetingSchemes, data: { characterId } });
   }
 
   return (
-    <ActionMenuTopButton hotkeys={hotkeysStore.getKeybind(buttonType)} handleClick={clickHandler}>
-      Targeting Scheme ({hotkeysStore.getKeybindString(buttonType)})
+    <ActionMenuTopButton hotkeys={keybinds.getKeybind(buttonType)} handleClick={clickHandler}>
+      Targeting Scheme ({keybinds.getKeybindString(buttonType)})
     </ActionMenuTopButton>
   );
 });

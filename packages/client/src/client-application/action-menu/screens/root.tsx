@@ -1,6 +1,6 @@
 import { ToggleAttributeAllocationMenuHiddenButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ToggleAttributeAllocationMenuHiddenButton";
 import ToggleInventoryButton from "@/app/game/ActionMenu/menu-state/common-buttons/ToggleInventory";
-import ViewAbilityTreeButton from "@/app/game/ActionMenu/menu-state/common-buttons/ViewAbilityTreeButton";
+import { ViewAbilityTreeButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ViewAbilityTreeButton";
 import { ViewItemsOnGroundButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ViewItemsOnGroundButton";
 import React from "react";
 import { ActionMenuScreenType } from "../screen-types";

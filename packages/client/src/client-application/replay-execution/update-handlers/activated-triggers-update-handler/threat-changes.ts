@@ -5,7 +5,6 @@ import {
   ThreatChanges,
 } from "@speed-dungeon/common";
 import debounce from "lodash.debounce";
-import { threatTargetChangedIndicatorSequence } from "@/game-world-view/scene-entities/character-models/threat-target-changed-indicator-sequence";
 import { ClientApplication } from "@/client-application";
 
 const debounceThreatTargetChangeIndicatorSequence = debounce(

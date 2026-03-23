@@ -1,4 +1,3 @@
-import { setAlert } from "@/app/components/alerts";
 import {
   AdventuringParty,
   ClientSequentialEventType,
@@ -31,7 +30,7 @@ export function createLobbyUpdateHandlers(
   const { lobbyContext, gameContext, session, gameWorldView } = clientApplication;
   return {
     [GameStateUpdateType.ErrorMessage]: (data) => {
-      setAlert(data.message);
+      clientApplication.alertsService.setAlert(data.message);
     },
     [GameStateUpdateType.OnConnection]: (data) => {
       session.setUsername(data.username);
@@ -145,11 +144,15 @@ export function createLobbyUpdateHandlers(
       const partyName = getProgressionGamePartyName(game.name);
       const party = game.adventuringParties.get(partyName);
       if (!party) {
-        return setAlert(new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST));
+        return clientApplication.alertsService.setAlert(
+          new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST)
+        );
       }
       const player = game.getPlayer(username);
       if (!player) {
-        return setAlert(new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST));
+        return clientApplication.alertsService.setAlert(
+          new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST)
+        );
       }
 
       const previouslySelectedCharacterId = player.characterIds[0];

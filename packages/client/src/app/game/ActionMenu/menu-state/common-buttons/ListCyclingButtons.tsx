@@ -3,7 +3,7 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { NextOrPrevious } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 interface Props {
   onCycle: (direction: NextOrPrevious) => void;
@@ -15,14 +15,15 @@ interface Props {
 
 export const ListCyclingButtons = observer((props: Props) => {
   const { listTitle, itemCount, currentIndex, directionTitle, onCycle } = props;
-
-  const { hotkeysStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const { keybinds } = uiStore;
 
   const prevButtonType = HotkeyButtonTypes.CycleBack;
   const nextButtonType = HotkeyButtonTypes.CycleForward;
 
-  const prevButtonHotkey = hotkeysStore.getKeybind(prevButtonType);
-  const nextButtonHotkey = hotkeysStore.getKeybind(nextButtonType);
+  const prevButtonHotkey = keybinds.getKeybind(prevButtonType);
+  const nextButtonHotkey = keybinds.getKeybind(nextButtonType);
 
   let parentHiddenStyles = "pointer-events-auto";
   if (itemCount !== null && itemCount <= 1) {
@@ -41,7 +42,7 @@ export const ListCyclingButtons = observer((props: Props) => {
           hotkeys={prevButtonHotkey}
           onClick={() => onCycle(NextOrPrevious.Previous)}
         >
-          Previous {directionTitle || ""} ({hotkeysStore.getKeybindString(prevButtonType)})
+          Previous {directionTitle || ""} ({keybinds.getKeybindString(prevButtonType)})
         </HotkeyButton>
       </div>
       <div
@@ -57,7 +58,7 @@ export const ListCyclingButtons = observer((props: Props) => {
           hotkeys={nextButtonHotkey}
           onClick={() => onCycle(NextOrPrevious.Next)}
         >
-          Next {directionTitle} ({hotkeysStore.getKeybindString(nextButtonType)})
+          Next {directionTitle} ({keybinds.getKeybindString(nextButtonType)})
         </HotkeyButton>
       </div>
     </div>

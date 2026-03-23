@@ -1,9 +1,10 @@
-import { useAlertStore } from "@/stores/alert-store";
 import React, { ReactNode } from "react";
-import { AlertType, removeAlert } from ".";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import SuccessIcon from "../../../../public/img/alert-icons/success.svg";
 import DangerIcon from "../../../../public/img/alert-icons/danger.svg";
+import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { AlertType } from "@/client-application/alerts";
 
 const ALERT_ICONS_BY_TYPE: Record<AlertType, ReactNode> = {
   [AlertType.Error]: <DangerIcon className="h-full inline fill-red-500" />,
@@ -11,14 +12,13 @@ const ALERT_ICONS_BY_TYPE: Record<AlertType, ReactNode> = {
   [AlertType.Success]: <SuccessIcon className="h-full inline fill-green-600" />,
 };
 
-export default function AlertManager() {
-  const alerts = useAlertStore().alerts;
-  const mutateAlertState = useAlertStore().mutateState;
+export const AlertManager = observer(() => {
+  const clientApplication = useClientApplication();
+  const { alertsService } = clientApplication;
+  const { alerts } = alertsService;
 
   function handleClick(id: string) {
-    mutateAlertState((state) => {
-      removeAlert(state, id);
-    });
+    alertsService.removeAlert(id);
   }
 
   return (
@@ -47,4 +47,4 @@ export default function AlertManager() {
         .reverse()}
     </ul>
   );
-}
+});

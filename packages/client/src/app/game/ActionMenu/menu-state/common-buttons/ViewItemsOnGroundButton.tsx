@@ -1,11 +1,9 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
-
-export const VIEW_LOOT_BUTTON_TEXT = ``;
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const ViewItemsOnGroundButton = observer(() => {
   const clientApplication = useClientApplication();

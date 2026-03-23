@@ -1,5 +1,5 @@
 import GoBackButton from "@/app/game/ActionMenu/menu-state/common-buttons/GoBackButton";
-import OpenInventoryAsFreshStackButton from "@/app/game/ActionMenu/menu-state/common-buttons/OpenInventoryAsFreshStackButton";
+import { OpenInventoryAsFreshStackButton } from "@/app/game/ActionMenu/menu-state/common-buttons/OpenInventoryAsFreshStackButton";
 import { ABILITY_TREE_DIMENSIONS, ArrayUtils } from "@speed-dungeon/common";
 import { ActionMenuNumberedButton } from "@/app/game/ActionMenu/menu-state/common-buttons/ActionMenuNumberedButton";
 import { ClientApplication } from "../..";

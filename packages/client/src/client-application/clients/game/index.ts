@@ -7,7 +7,6 @@ import {
 } from "@speed-dungeon/common";
 import { BaseClient } from "../base";
 import { createGameUpdateHandlers } from "./update-handlers";
-import { setAlert } from "@/app/components/alerts";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ConnectionStatus } from "@/client-application/ui/connection-status";
 
@@ -21,7 +20,7 @@ export class GameClient extends BaseClient {
     try {
       handlerOption(message.data as never);
     } catch (error) {
-      setAlert(error as Error);
+      this.clientApplication.alertsService.setAlert(error as Error);
       console.trace(error);
     }
   }

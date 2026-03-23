@@ -101,9 +101,6 @@ export class ActionEntitySceneEntityFactory {
       assetContainer.meshes = [mesh];
       return assetContainer;
     },
-    [ActionEntityName.TargetChangedIndicatorArrow]: function () {
-      throw new Error("Function not implemented.");
-    },
     [ActionEntityName.Firewall]: async function (position, taggedDimensions) {
       invariant(taggedDimensions?.type === ShapeType3D.Box, "expected box shape");
       const { width, height, depth } = taggedDimensions.dimensions;

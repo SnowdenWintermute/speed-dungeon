@@ -40,7 +40,7 @@ export default function TextInput(props: Props) {
   }, []);
 
   function handleBlur() {
-    inputStore.setHotkeysDisabled(false);
+    uiStore.inputs.setHotkeysDisabled(false);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -60,7 +60,7 @@ export default function TextInput(props: Props) {
     <input
       ref={inputRef}
       onFocus={() => {
-        inputStore.setHotkeysDisabled(true);
+        uiStore.inputs.setHotkeysDisabled(true);
       }}
       onBlur={handleBlur}
       className={`pointer-events-auto ${props.className}`}

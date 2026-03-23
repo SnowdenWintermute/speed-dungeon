@@ -1,6 +1,6 @@
 // @refresh reset
 "use client";
-import AlertManager from "./components/alerts/AlertManager";
+import { AlertManager } from "./components/alerts/AlertManager";
 import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import { TooltipManager } from "./TooltipManager";

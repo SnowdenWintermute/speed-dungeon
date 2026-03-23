@@ -11,7 +11,7 @@ import { AuthForm } from "../lobby/auth-forms/AuthForm";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
-export const PasswordResetPage = observer(() => {
+const PasswordResetPage = observer(() => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.CHANGE_PASSWORD;
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -87,3 +87,5 @@ export const PasswordResetPage = observer(() => {
     </WithTopBar>
   );
 });
+
+export default PasswordResetPage;
