@@ -1,6 +1,6 @@
 import React from "react";
 import { RoomExplorationTracker } from "./RoomExplorationTracker";
-import { CleanupMode, ClientIntentType, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
+import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
@@ -8,61 +8,17 @@ import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
-import { gameClientSingleton } from "@/singletons/lobby-client";
-import { ConnectionStatus } from "@/mobx-stores/connection-status";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const TopInfoBar = observer(() => {
-  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
-
-  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore, actionMenu, gameClientRef } = clientApplication;
+  const { dialogs } = uiStore;
+  const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
   const battleOption = party.getBattleOption(game);
-
-  function leaveGame() {
-    AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
-
-    // @TODO - replace with clientApplication sequential queue clear
-    // actionCommandQueue.clear();
-
-    const { actionEntityManager } = party;
-    for (const [entityId, entity] of actionEntityManager.getActionEntities()) {
-      actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
-      getGameWorldView().actionEntityManager.unregister(
-        entity.entityProperties.id,
-        CleanupMode.Soft
-      );
-    }
-
-    party.combatantManager.iterateAllCombatants().forEach((combatant) => {
-      combatant.combatantProperties.targetingProperties.clear();
-    });
-
-    AppStore.get().targetIndicatorStore.clear();
-
-    const { gameStore, connectionStatusStore } = AppStore.get();
-    gameStore.clearGame();
-
-    gameClientSingleton.get().dispatchIntent({
-      type: ClientIntentType.LeaveGame,
-      data: undefined,
-    });
-    gameClientSingleton.get().close();
-    connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
-
-    getGameWorldView().replayTreeManager.clear();
-    getGameWorldView().modelManager.modelActionQueue.clear();
-
-    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
-      type: ModelActionType.SynchronizeCombatantModels,
-      placeInHomePositions: true,
-    });
-
-    getGameWorldView()?.drawCharacterSlots();
-  }
+  const viewingLeaveGameModal = dialogs.isOpen(DialogElementName.LeaveGame);
 
   const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
   const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
@@ -95,8 +51,8 @@ export const TopInfoBar = observer(() => {
         <HotkeyButton
           className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
-            AppStore.get().dialogStore.toggle(DialogElementName.LeaveGame);
-            AppStore.get().actionMenuStore.clearStack();
+            dialogs.toggle(DialogElementName.LeaveGame);
+            actionMenu.clearStack();
           }}
         >
           LEAVE GAME{" "}
@@ -121,14 +77,14 @@ export const TopInfoBar = observer(() => {
             <HotkeyButton
               hotkeys={["Escape"]}
               onClick={() => {
-                AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
+                dialogs.close(DialogElementName.LeaveGame);
               }}
               className="h-10 w-24 p-2 border border-slate-400 mr-1 bg-slate-700"
             >
               No
             </HotkeyButton>
             <HotkeyButton
-              onClick={leaveGame}
+              onClick={() => gameClientRef.get().leaveGame()}
               className="h-10 w-24 p-2 border border-slate-400 ml-1"
             >
               Yes

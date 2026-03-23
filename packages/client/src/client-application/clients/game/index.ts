@@ -1,7 +1,15 @@
-import { GameStateUpdate, invariant } from "@speed-dungeon/common";
+import {
+  CleanupMode,
+  ClientIntentType,
+  ClientSequentialEventType,
+  GameStateUpdate,
+  invariant,
+} from "@speed-dungeon/common";
 import { BaseClient } from "../base";
 import { createGameUpdateHandlers } from "./update-handlers";
 import { setAlert } from "@/app/components/alerts";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { ConnectionStatus } from "@/client-application/ui/connection-status";
 
 export class GameClient extends BaseClient {
   private updateHandlers = createGameUpdateHandlers(this.clientApplication);
@@ -20,5 +28,56 @@ export class GameClient extends BaseClient {
 
   resetConnection(): void {
     //
+  }
+
+  leaveGame() {
+    const {
+      combatantFocus,
+      uiStore,
+      gameContext,
+      gameWorldView,
+      targetIndicatorStore,
+      replayTreeScheduler,
+      sequentialEventProcessor,
+    } = this.clientApplication;
+
+    const { dialogs, connectionStatus } = uiStore;
+    const { party } = combatantFocus.requireFocusedCharacterContext();
+
+    dialogs.close(DialogElementName.LeaveGame);
+
+    const { actionEntityManager } = party;
+    for (const [entityId, entity] of actionEntityManager.getActionEntities()) {
+      actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
+      gameWorldView?.sceneEntityService.actionEntityManager.unregister(
+        entity.entityProperties.id,
+        CleanupMode.Soft
+      );
+    }
+
+    party.combatantManager.iterateAllCombatants().forEach((combatant) => {
+      combatant.combatantProperties.targetingProperties.clear();
+    });
+
+    targetIndicatorStore.clear();
+
+    gameContext.clearGame();
+
+    this.dispatchIntent({
+      type: ClientIntentType.LeaveGame,
+      data: undefined,
+    });
+    this.close();
+    connectionStatus.connectionStatus = ConnectionStatus.Initializing;
+
+    replayTreeScheduler.clear();
+    sequentialEventProcessor.cancelQueued();
+
+    sequentialEventProcessor.scheduleEvent({
+      type: ClientSequentialEventType.SynchronizeCombatantModels,
+      data: { softCleanup: false, placeInHomePositions: true },
+    });
+
+    gameWorldView?.environment.groundPlane.drawCharacterSlots();
   }
 }

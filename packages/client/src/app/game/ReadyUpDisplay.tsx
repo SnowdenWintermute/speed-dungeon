@@ -6,35 +6,35 @@ import {
 } from "@speed-dungeon/common";
 import React, { MouseEventHandler } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
-import { HOTKEYS, letterFromKeyCode } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ActionMenuScreenType } from "./ActionMenu/menu-state/menu-state-type";
-import { ActionMenuScreenPool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { gameClientSingleton } from "@/singletons/lobby-client";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { HOTKEYS, letterFromKeyCode } from "@/client-application/ui/keybind-config";
 
 interface Props {
   party: AdventuringParty;
 }
 
 export const ReadyUpDisplay = observer(({ party }: Props) => {
-  const { focusStore, actionMenuStore, gameStore } = AppStore.get();
-  const username = gameStore.getExpectedUsername();
-  const focusedCharacterId = AppStore.get().gameStore.getExpectedFocusedCharacterId();
+  const clientApplication = useClientApplication();
+  const { session, combatantFocus, actionMenu, gameClientRef, detailableEntityFocus } =
+    clientApplication;
+  const username = session.requireUsername();
+  const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
 
   function handleExploreClick() {
-    gameClientSingleton.get().dispatchIntent({
+    gameClientRef.get().dispatchIntent({
       type: ClientIntentType.ToggleReadyToExplore,
       data: undefined,
     });
-    actionMenuStore.clearStack();
+    actionMenu.clearStack();
   }
   function handleDescendClick() {
-    gameClientSingleton.get().dispatchIntent({
+    gameClientRef.get().dispatchIntent({
       type: ClientIntentType.ToggleReadyToDescend,
       data: undefined,
     });
-    actionMenuStore.clearStack();
+    actionMenu.clearStack();
   }
 
   const exploreButtonsText =
@@ -68,15 +68,16 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
 
   const inStaircaseRoom = party.currentRoom.roomType === DungeonRoomType.Staircase;
   const isVendingMachine = party.currentRoom.roomType === DungeonRoomType.VendingMachine;
-  const currentMenu = actionMenuStore.getCurrentMenu();
+  const currentMenu = actionMenu.getCurrentMenu();
 
-  const { detailed: detailedEntity, hovered: hoveredEntity } = focusStore.detailables.get();
+  const { detailed: detailedEntity, hovered: hoveredEntity } =
+    detailableEntityFocus.detailables.get();
 
   const shouldDim =
     detailedEntity ||
     hoveredEntity ||
-    actionMenuStore.shouldShowCharacterSheet() ||
-    currentMenu.type !== ActionMenuScreenType.Base;
+    actionMenu.shouldShowCharacterSheet() ||
+    currentMenu.type !== ActionMenuScreenType.Root;
   const descendHotkey = HOTKEYS.SIDE_2;
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
@@ -99,7 +100,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
             <HotkeyButton
               className={`h-10 pr-2 pl-2 ${!isVendingMachine ? "bg-slate-800 w-full" : "w-1/2 mr-1 "} border border-white text-center hover:bg-slate-950`}
               hotkeys={["KeyG"]}
-              disabled={actionMenuStore.operatingVendingMachine()}
+              disabled={actionMenu.operatingVendingMachine()}
               onClick={handleExploreClick}
             >
               Explore next room (G)
@@ -110,19 +111,16 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                 hotkeys={["KeyT"]}
                 disabled={
                   !party.combatantManager.playerOwnsCharacter(username, focusedCharacterId) ||
-                  (currentMenu.type !== ActionMenuScreenType.Base &&
+                  (currentMenu.type !== ActionMenuScreenType.Root &&
                     currentMenu.type !== ActionMenuScreenType.OperatingVendingMachine)
                 }
                 onClick={() => {
-                  const { actionMenuStore } = AppStore.get();
-                  const currentMenu = actionMenuStore.getCurrentMenu();
+                  const currentMenu = actionMenu.getCurrentMenu();
                   if (currentMenu.type === ActionMenuScreenType.OperatingVendingMachine) {
-                    actionMenuStore.popStack();
+                    actionMenu.popStack();
                   } else {
-                    actionMenuStore.pushStack(
-                      ActionMenuScreenPool.get(ActionMenuScreenType.OperatingVendingMachine)
-                    );
-                    focusStore.detailables.clear();
+                    actionMenu.pushFromPool(ActionMenuScreenType.OperatingVendingMachine);
+                    detailableEntityFocus.detailables.clear();
                   }
                 }}
               >
