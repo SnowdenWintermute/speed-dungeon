@@ -45,16 +45,16 @@ export class CombatantSceneEntityFactory {
 
     await this.attachModularParts(sceneEntity);
 
+    this.setScaling(sceneEntity, combatantProperties);
+
+    sceneEntity.initChildTransformNodes();
+
     const shouldSyncEquipment = combatantProperties.combatantSpecies === CombatantSpecies.Humanoid;
     if (shouldSyncEquipment) {
       sceneEntity.equipmentManager.synchronizeCombatantEquipmentModels();
     }
 
-    this.setScaling(sceneEntity, combatantProperties);
-
     sceneEntity.bounding.updateBox();
-
-    sceneEntity.initChildTransformNodes();
 
     if (options?.spawnInDeadPose) {
       sceneEntity.setToDeadPose();

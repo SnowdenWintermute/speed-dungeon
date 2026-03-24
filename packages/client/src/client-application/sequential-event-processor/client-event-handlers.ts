@@ -20,6 +20,7 @@ export function createClientSequentialEventHandlers(
       return clientApplication.gameWorldView?.sceneEntityService.clearAll();
     },
     [ClientSequentialEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
+      console.log("sync equ models for event:", event);
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantEquipmentModels(
         event.entityId
       );

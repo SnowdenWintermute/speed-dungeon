@@ -7,7 +7,7 @@ import { MaterialManager } from "./materials/material-manager";
 import { ImageGenerator } from "./images/image-generator";
 import { TextureManager } from "./textures/texture-manager";
 import { GameWorldViewDebug } from "./debug";
-import { GROUND_COLOR, LAYER_MASK_ALL } from "./game-world-view-consts";
+import { LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
 import { SceneEntityService } from "./scene-entity-service/index";
 

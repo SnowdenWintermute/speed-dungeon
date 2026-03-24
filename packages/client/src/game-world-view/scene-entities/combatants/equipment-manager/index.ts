@@ -52,8 +52,9 @@ export class CombatantSceneEntityEquipmentManager {
   }
 
   cleanup() {
-    for (const equipmentModel of this.getAllModels())
+    for (const equipmentModel of this.getAllModels()) {
       equipmentModel.cleanup({ softCleanup: false });
+    }
   }
 
   /** Some hotswap slots may be hidden since we only show two slots but a character may have more that two */
@@ -91,17 +92,14 @@ export class CombatantSceneEntityEquipmentManager {
     const { combatant } = this.combatantSceneEntity;
     const { combatantProperties } = combatant;
 
-    const newState: HoldableHotswapSlotsModels = [];
-
-    this.syncExistingValidModelsWithNewState(newState, combatantProperties);
+    const newState = this.syncExistingValidModelsWithNewState(combatantProperties);
+    console.log("new state after sync:", newState);
     await this.spawnNewModelsForNewState(newState, combatantProperties);
     this.applyNewState(newState, combatantProperties);
   }
 
-  private syncExistingValidModelsWithNewState(
-    newState: HoldableHotswapSlotsModels,
-    combatantProperties: CombatantProperties
-  ) {
+  private syncExistingValidModelsWithNewState(combatantProperties: CombatantProperties) {
+    const existingSceneEntities: HoldableHotswapSlotsModels = [];
     this.holdableHotswapSlots.forEach((hotswapSlot) => {
       for (const [_holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
         hotswapSlot
@@ -122,17 +120,25 @@ export class CombatantSceneEntityEquipmentManager {
 
         const equipmentIsBroken = equipmentModelOption.equipment.isBroken();
 
-        if (equipmentIsBroken) equipmentModelOption.setVisibility(0);
-        else equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
+        if (equipmentIsBroken) {
+          equipmentModelOption.setVisibility(0);
+        } else {
+          equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
+        }
 
         const { slotIndex, holdableSlot } = indexAndHoldableSlotIfEquipped;
 
         // put it in a temporary new state to later sync with current state
-        const existingNewStateSlot = newState[slotIndex];
-        if (existingNewStateSlot) existingNewStateSlot[holdableSlot] = equipmentModelOption;
-        else newState[slotIndex] = { [holdableSlot]: equipmentModelOption };
+        const existingNewStateSlot = existingSceneEntities[slotIndex];
+        if (existingNewStateSlot) {
+          existingNewStateSlot[holdableSlot] = equipmentModelOption;
+        } else {
+          existingSceneEntities[slotIndex] = { [holdableSlot]: equipmentModelOption };
+        }
       }
     });
+
+    return existingSceneEntities;
   }
 
   private async spawnNewModelsForNewState(
@@ -184,6 +190,8 @@ export class CombatantSceneEntityEquipmentManager {
       hotswapSlots,
       equippedSlotIndex
     );
+
+    console.log("slots in new state:", newState);
 
     let slotIndex = -1;
     for (const hotswapSlot of this.holdableHotswapSlots) {

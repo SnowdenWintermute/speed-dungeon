@@ -39,6 +39,8 @@ export class EquipmentSceneEntity extends SceneEntity {
 
     this.initChildTransformNodes();
     this.setVisibility(0);
+
+    this.rootTransformNode.name += this.equipment.entityProperties.name;
   }
 
   showDebug(scene: Scene) {

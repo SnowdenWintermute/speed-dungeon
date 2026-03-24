@@ -25,6 +25,13 @@ export function attachHoldableModelToSkeleton(
   equipmentModel: EquipmentSceneEntity,
   slot: HoldableSlotType
 ) {
+  console.log(
+    "attachng",
+    equipmentModel.entityId,
+    equipmentModel.equipment.entityProperties.name,
+    "to",
+    combatantModel.combatant.entityProperties.name
+  );
   const itemTransformNode = equipmentModel.rootTransformNode;
   const { equipment } = equipmentModel;
 
@@ -37,15 +44,23 @@ export function attachHoldableModelToSkeleton(
   } else {
     const isBow =
       equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon;
-    if (isBow) attachmentPointName = CombatantBaseChildTransformNodeName.OffhandEquipment;
-    else attachmentPointName = CombatantBaseChildTransformNodeName.MainHandEquipment;
+    if (isBow) {
+      attachmentPointName = CombatantBaseChildTransformNodeName.OffhandEquipment;
+    } else {
+      attachmentPointName = CombatantBaseChildTransformNodeName.MainHandEquipment;
+    }
   }
 
   const attachmentPoint = combatantModel.childTransformNodes[attachmentPointName];
 
   if (!attachmentPoint) return console.error("no equipment bone found");
 
+  console.log("itemTransformNode:", itemTransformNode.name, "set parent to", attachmentPoint.name);
   itemTransformNode.setParent(attachmentPoint);
+
+  setTimeout(() => {
+    console.log("still parented?:", itemTransformNode.parent);
+  }, 1000);
 
   setTransformNodePositionAndRotationToZero(itemTransformNode);
 
@@ -60,7 +75,9 @@ export function attachHoldableModelToSkeleton(
     }
   }
 
-  if (equipmentType === EquipmentType.TwoHandedRangedWeapon) itemTransformNode.rotation.y = Math.PI;
+  if (equipmentType === EquipmentType.TwoHandedRangedWeapon) {
+    itemTransformNode.rotation.y = Math.PI;
+  }
 }
 
 // @TODO - conform to new SceneEntityChildTransformNode style instead of directly to bones
@@ -77,7 +94,9 @@ export function attachHoldableModelToHolsteredPosition(
   const hipHolsterBoneName = slot === HoldableSlotType.OffHand ? "HipHolster.L" : "HipHolster.R";
   const holsterBackBone = getChildMeshByName(skeletonRoot, backHolsterBoneName);
   const holsterHipBone = getChildMeshByName(skeletonRoot, hipHolsterBoneName);
-  if (!holsterBackBone || !holsterHipBone) throw new Error("expected holster bones missing");
+  if (!holsterBackBone || !holsterHipBone) {
+    throw new Error("expected holster bones missing");
+  }
   const { taggedBaseEquipment } = equipmentModel.equipment.equipmentBaseItemProperties;
   const { equipmentType, baseItemType } = taggedBaseEquipment;
 
@@ -85,10 +104,7 @@ export function attachHoldableModelToHolsteredPosition(
 
   if (holsterAtHip) {
     equipmentTransformNode.setParent(holsterHipBone);
-    console.log("set parent: ", holsterHipBone, equipmentTransformNode);
-    setTimeout(() => {
-      console.log(equipmentTransformNode.parent);
-    }, 100);
+    console.log(equipmentTransformNode.name, "set parent to ", holsterHipBone.name);
     setTransformNodePositionAndRotationToZero(equipmentTransformNode);
     equipmentTransformNode.rotation.y = -Math.PI / 2 - Math.PI;
     equipmentTransformNode.rotation.x = Math.PI;

@@ -85,6 +85,7 @@ export class CombatantSceneEntity extends SceneEntity {
     this.highlightManager = new HighlightManager(gameWorldView.scene, clientApplication, this);
 
     this.initChildTransformNodes();
+    this.rootTransformNode.name += this._combatant.entityProperties.name;
   }
 
   initRootMesh(assetContainer: AssetContainer) {

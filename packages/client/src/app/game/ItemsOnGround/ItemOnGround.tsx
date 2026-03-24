@@ -3,14 +3,14 @@ import { ClientIntentType, Item } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
+import { ClientApplication } from "@/client-application";
 
 interface Props {
   item: Item;
   disabled: boolean;
 }
 
-export function takeItem(item: Item) {
-  const clientApplication = useClientApplication();
+export function takeItem(clientApplication: ClientApplication, item: Item) {
   const { gameClientRef, detailableEntityFocus, combatantFocus } = clientApplication;
 
   detailableEntityFocus.detailables.clear();
@@ -60,7 +60,7 @@ export const ItemOnGround = observer((props: Props) => {
         className="cursor-pointer pr-4 pl-4 box-border
             flex justify-center items-center disabled:opacity-50 disabled:cursor-auto
             border-slate-400 border-r h-full hover:bg-slate-950"
-        onClick={() => takeItem(item)}
+        onClick={() => takeItem(clientApplication, item)}
         onFocus={mouseEnterHandler}
         onBlur={mouseLeaveHandler}
         disabled={props.disabled}

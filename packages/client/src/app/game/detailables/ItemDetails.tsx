@@ -24,6 +24,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import { getModelAttribution } from "@/game-world-view/scene-entities/items/get-item-asset-attribution";
 import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -147,6 +148,8 @@ export const ItemDetails = observer(
 
     const attribution = itemOption && getModelAttribution(itemOption);
 
+    const showDebug = clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
+
     return (
       <div
         className={`border ${isDetailedEntity ? "border-yellow-400" : isHoveredEntity ? "border-white" : "border-slate-400"} bg-slate-700 h-fit
@@ -213,6 +216,13 @@ export const ItemDetails = observer(
           >
             {itemOption?.entityProperties.name}
           </span>
+          {showDebug && (
+            <div
+              className={`pr-2 ${itemOption instanceof Equipment && itemOption.isMagical() && "text-blue-300"}`}
+            >
+              {itemOption?.entityProperties.id}
+            </div>
+          )}
           <Divider extraStyles="mr-4" />
           {itemDetailsDisplay}
         </div>

@@ -9,6 +9,7 @@ import { InventoryItemsActionMenuScreen } from "@/client-application/action-menu
 export const InventoryIconButton = observer(
   ({ entityId, numItemsInInventory }: { entityId: CombatantId; numItemsInInventory: number }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const clientApplication = useClientApplication();
 
     return (
       <button
@@ -20,17 +21,21 @@ export const InventoryIconButton = observer(
           setIsHovered(false);
         }}
         onClick={() => {
-          const clientApplication = useClientApplication();
           const { actionMenu, combatantFocus } = clientApplication;
 
+          const previouslyFocused = combatantFocus.requireFocusedCharacterId();
           combatantFocus.setFocusedCharacter(entityId);
 
           const shouldShowCharacterSheet = actionMenu.shouldShowCharacterSheet();
-          if (shouldShowCharacterSheet) {
+          if (
+            shouldShowCharacterSheet &&
+            previouslyFocused === combatantFocus.requireFocusedCharacterId()
+          ) {
             // happens if you click inventory button on a character that was already
             // focused and was already in inventory
             actionMenu.clearStack();
           } else {
+            actionMenu.clearStack();
             actionMenu.pushStack(new InventoryItemsActionMenuScreen(clientApplication));
           }
         }}

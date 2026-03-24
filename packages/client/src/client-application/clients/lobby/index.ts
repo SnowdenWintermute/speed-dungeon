@@ -33,6 +33,12 @@ export class LobbyClient extends BaseClient {
     this.connectionTopology.resetLobbyConnection();
   }
 
+  static QUICK_START_CHARACTER_CLASSES = [
+    CombatantClass.Rogue,
+    CombatantClass.Warrior,
+    CombatantClass.Mage,
+  ];
+
   quickStartGame() {
     this.dispatchIntent({
       type: ClientIntentType.CreateGame,
@@ -49,20 +55,14 @@ export class LobbyClient extends BaseClient {
       },
     });
 
-    this.dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
-      data: {
-        name: "" as EntityName,
-        combatantClass: CombatantClass.Rogue,
-      },
-    });
-
-    this.dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
-      data: {
-        name: "" as EntityName,
-        combatantClass: CombatantClass.Warrior,
-      },
+    LobbyClient.QUICK_START_CHARACTER_CLASSES.forEach((combatantClass) => {
+      this.dispatchIntent({
+        type: ClientIntentType.CreateCharacter,
+        data: {
+          name: "" as EntityName,
+          combatantClass,
+        },
+      });
     });
 
     this.dispatchIntent({
