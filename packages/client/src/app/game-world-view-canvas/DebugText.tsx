@@ -96,7 +96,7 @@ export const DebugText = observer(
         if (mouseMoveListenerRef.current)
           window.removeEventListener("mousemove", mouseMoveListenerRef.current);
       };
-    }, [hotkeysDisabled]);
+    }, [hotkeysDisabled, gameWorldView?.initialized]);
 
     const { gameContext } = clientApplication;
     const { partyOption } = gameContext;

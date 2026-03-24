@@ -26,9 +26,9 @@ export class DebugCompassDrawer {
     this.center = new Vector2(GROUND_TEXTURE_WIDTH / 2, GROUND_TEXTURE_HEIGHT / 2);
     this.points = new CardinalPoints2(
       new Vector2(this.center.x, this.center.y - this.radius),
-      new Vector2(this.center.x + length, this.center.y),
+      new Vector2(this.center.x + this.radius, this.center.y),
       new Vector2(this.center.x, this.center.y + this.radius),
-      new Vector2(this.center.x - length, this.center.y)
+      new Vector2(this.center.x - this.radius, this.center.y)
     );
   }
 

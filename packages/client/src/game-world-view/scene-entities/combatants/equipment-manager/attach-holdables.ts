@@ -69,6 +69,7 @@ export function attachHoldableModelToHolsteredPosition(
   equipmentModel: EquipmentSceneEntity,
   slot: HoldableSlotType
 ) {
+  console.log("attaching to holstered");
   const equipmentTransformNode = equipmentModel.rootTransformNode;
   const skeletonRoot = combatantModel.rootMesh;
 
@@ -84,6 +85,7 @@ export function attachHoldableModelToHolsteredPosition(
 
   if (holsterAtHip) {
     equipmentTransformNode.setParent(holsterHipBone);
+    console.log("set parent: ", holsterHipBone, equipmentTransformNode);
     setTransformNodePositionAndRotationToZero(equipmentTransformNode);
     equipmentTransformNode.rotation.y = -Math.PI / 2 - Math.PI;
     equipmentTransformNode.rotation.x = Math.PI;

@@ -108,6 +108,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
+      clientApplication.combatantFocus.focusFirstOwnedCharacter();
     },
     [GameStateUpdateType.GameStarted]: (_) => {
       eventLogStore.clear();

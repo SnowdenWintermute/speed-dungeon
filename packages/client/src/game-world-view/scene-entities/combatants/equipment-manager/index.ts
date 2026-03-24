@@ -192,18 +192,19 @@ export class CombatantSceneEntityEquipmentManager {
         if (!equipmentModel) continue;
         // attach to appropriate positions
 
-        if (slotIndex === equippedSlotIndex)
+        if (slotIndex === equippedSlotIndex) {
           attachHoldableModelToSkeleton(
             this.combatantSceneEntity,
             equipmentModel,
             holdableSlotType
           );
-        else if (slotIndex === holsteredSlotIndex)
+        } else if (slotIndex === holsteredSlotIndex) {
           attachHoldableModelToHolsteredPosition(
             this.combatantSceneEntity,
             equipmentModel,
             holdableSlotType
           );
+        }
 
         if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {
           let newVisibility = this.visibilityForShownHotswapSlots;

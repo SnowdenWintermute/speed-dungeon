@@ -43,7 +43,7 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
 
       try {
         // why cast as never: see README.md -> Typed Event Handler Records
-        await this.eventHandlers[event.type](event as never);
+        await this.eventHandlers[event.type](event.data as never);
         const becameStaleWhileProcessing = scheduledGeneration !== this.generation;
         if (becameStaleWhileProcessing) {
           console.info("a stale event finished processing", event);

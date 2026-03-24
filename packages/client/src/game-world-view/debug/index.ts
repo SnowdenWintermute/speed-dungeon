@@ -42,6 +42,8 @@ export class GameWorldViewDebug {
       modularCharacter.rootMesh.showBoundingBox = false;
       modularCharacter.highlightManager.turnIndicator?.hideDebug();
     }
+
+    this.gameWorldView.environment.groundPlane.clear();
   }
 
   updateDebugText() {

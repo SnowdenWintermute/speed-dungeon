@@ -30,7 +30,7 @@ import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-cate
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
-import { makeObservable } from "mobx";
+import { makeAutoObservable, makeObservable } from "mobx";
 
 export enum ActionEntityName {
   Arrow,
@@ -82,7 +82,7 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   ) {}
 
   makeObservable() {
-    makeObservable(this);
+    makeAutoObservable(this);
     const stacks = this.actionEntityProperties.actionOriginData?.stacks;
     if (stacks) {
       stacks.makeObservable();
