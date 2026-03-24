@@ -109,6 +109,17 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
       clientApplication.combatantFocus.focusFirstOwnedCharacter();
+
+      const { partyOption } = clientApplication.gameContext;
+      if (!partyOption) {
+        return;
+      }
+
+      gameWorldView?.imageGenerator.enqueueConsumableGenericThumbnailCreation();
+      const { combatantManager } = partyOption;
+      for (const character of combatantManager.iterateAllCombatants()) {
+        gameWorldView?.imageGenerator.enqueueCharacterItemsForThumbnails(character);
+      }
     },
     [GameStateUpdateType.GameStarted]: (_) => {
       eventLogStore.clear();
@@ -125,13 +136,7 @@ export function createGameUpdateHandlers(
       party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
       gameWorldView?.environment.groundPlane.clear();
 
-      gameWorldView?.imageGenerator.enqueueConsumableGenericThumbnailCreation();
-
       const { combatantManager } = party;
-
-      for (const character of combatantManager.iterateAllCombatants()) {
-        gameWorldView?.imageGenerator.enqueueCharacterItemsForThumbnails(character);
-      }
 
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();

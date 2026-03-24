@@ -16,6 +16,11 @@ export function gameFullUpdateHandler(
       type: ClientSequentialEventType.ClearAllModels,
       data: undefined,
     });
+
+    clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
+      type: ImageGenerationRequestType.ClearState,
+      data: undefined,
+    });
   }
 
   clientApplication.sequentialEventProcessor.scheduleEvent({

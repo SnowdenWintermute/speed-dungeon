@@ -20,7 +20,7 @@ import {
   EntityName,
   Equipment,
   Item,
-  iterateNumericEnum,
+  EquipmentType,
 } from "@speed-dungeon/common";
 import {
   ImageGenerationRequest,
@@ -115,11 +115,9 @@ export class ImageGenerator {
       [ImageGenerationRequestType.ItemCreation]: ({ item }) => {
         try {
           this.createItemImage(item);
-          this.engine.runRenderLoop(() => {
-            //
-          });
         } catch (err) {
-          console.error(err);
+          console.info(err);
+          this.processNextMessage();
         }
       },
       // we're calling processNextMessage() individually because we haven't figured out how
@@ -139,12 +137,12 @@ export class ImageGenerator {
 
   async enqueueMessage(message: ImageGenerationRequest) {
     this.queue.push(message);
-    if (this.isProcessing) return;
+    if (this.isProcessing) return console.info("already processing");
     this.isProcessing = true;
     this.processNextMessage();
   }
 
-  processNextMessage() {
+  private processNextMessage() {
     if (this.queue.length === 0) {
       this.isProcessing = false;
       console.info("image manager queue emptied");
@@ -155,52 +153,91 @@ export class ImageGenerator {
     if (!message) {
       return console.error("expected message not found");
     }
+    const { imageStore } = this.clientApplication;
+    switch (message.type) {
+      // we're calling processNextMessage() individually because we haven't figured out how
+      // to await createItemImage because we need to run the render loop for it to finish
+      // so we call processNextMessage() in the promise resolution of that one, so even though we'd like to
+      // just call processNextMessage() after the switch statement, I haven't figured out how to make it work
+      case ImageGenerationRequestType.ItemCreation:
+        try {
+          this.createItemImage(message.data.item);
+          this.engine.runRenderLoop(() => {});
+        } catch (err) {
+          console.error(err);
+          this.processNextMessage();
+        }
+        break;
+      case ImageGenerationRequestType.ItemDeletion:
+        imageStore.clearThumbnailIds(message.data.itemIds);
+        this.processNextMessage();
+        break;
+      case ImageGenerationRequestType.ClearState:
+        imageStore.clearAllThumbnails();
+        this.processNextMessage();
+        break;
+      default:
+        throw new Error("unexpected message type");
+    }
   }
 
-  async createItemImage(item: Item) {
-    const equipmentModelResult = await this.itemSceneEntityFactory.create(item, false);
-
-    if (equipmentModelResult instanceof Error) {
-      this.processNextMessage();
-      return console.info(equipmentModelResult.message);
-    }
-
-    equipmentModelResult.setVisibility(1);
-
-    const parentMesh = equipmentModelResult.rootMesh;
-
-    parentMesh.position = Vector3.Zero();
-
-    const box = calculateCompositeBoundingBox(equipmentModelResult.assetContainer.meshes);
-    const itemHeight = box.max.y - box.min.y;
-
-    const center = box.min.add(box.max).scale(0.5);
-    const size = box.max.subtract(box.min);
-
-    const camera = this.camera;
-    const fov = camera.fov;
-    const maxDimension = Math.max(size.x, size.y);
-    const distance = maxDimension / (2 * Math.tan(fov / 2));
-    camera.position.copyFrom(center.add(new Vector3(0, 0, distance)));
-    camera.setTarget(center);
-
-    const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;
-    const canvasWidth = (size.x / size.y) * canvasHeight;
-    this.canvas.width = canvasWidth;
-    this.canvas.height = canvasHeight;
-
-    CreateScreenshotUsingRenderTarget(
-      this.engine,
-      camera,
-      { width: canvasWidth, height: canvasHeight },
-      (image) => {
-        this.engine.stopRenderLoop();
-        this.clientApplication.imageStore.setItemThumbnail(item.entityProperties.id, image);
-        equipmentModelResult.cleanup({ softCleanup: false });
+  private async createItemImage(item: Item) {
+    try {
+      const itemTypesWithNoModels = [
+        EquipmentType.Ring,
+        EquipmentType.Amulet,
+        EquipmentType.BodyArmor,
+      ];
+      if (
+        item instanceof Equipment &&
+        itemTypesWithNoModels.includes(item.equipmentBaseItemProperties.equipmentType)
+      ) {
         this.processNextMessage();
-      },
-      "image/png"
-    );
+        return;
+      }
+      const sceneEntity = await this.itemSceneEntityFactory.create(item, false);
+
+      sceneEntity.setVisibility(1);
+
+      const parentMesh = sceneEntity.rootMesh;
+
+      parentMesh.position = Vector3.Zero();
+
+      const box = calculateCompositeBoundingBox(sceneEntity.assetContainer.meshes);
+      const itemHeight = box.max.y - box.min.y;
+
+      const center = box.min.add(box.max).scale(0.5);
+      const size = box.max.subtract(box.min);
+
+      const camera = this.camera;
+      const fov = camera.fov;
+      const maxDimension = Math.max(size.x, size.y);
+      const distance = maxDimension / (2 * Math.tan(fov / 2));
+      camera.position.copyFrom(center.add(new Vector3(0, 0, distance)));
+      camera.setTarget(center);
+
+      const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;
+      const canvasWidth = (size.x / size.y) * canvasHeight;
+      this.canvas.width = canvasWidth;
+      this.canvas.height = canvasHeight;
+
+      this.engine.runRenderLoop(() => {});
+      CreateScreenshotUsingRenderTarget(
+        this.engine,
+        camera,
+        { width: canvasWidth, height: canvasHeight },
+        (image) => {
+          this.engine.stopRenderLoop();
+          this.clientApplication.imageStore.setItemThumbnail(item.entityProperties.id, image);
+          sceneEntity.cleanup({ softCleanup: false });
+          this.processNextMessage();
+        },
+        "image/png"
+      );
+    } catch (err) {
+      console.info(err);
+      this.processNextMessage();
+    }
   }
 
   async createCombatantPortrait(combatantId: string) {
@@ -298,9 +335,12 @@ export class ImageGenerator {
   }
 
   enqueueConsumableGenericThumbnailCreation() {
-    for (const consumableType of iterateNumericEnum(ConsumableType)) {
+    for (const consumableType of [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector]) {
       const item = new Consumable(
-        { id: CONSUMABLE_TYPE_STRINGS[consumableType], name: "" as EntityName },
+        {
+          id: CONSUMABLE_TYPE_STRINGS[consumableType],
+          name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName,
+        },
         0,
         {},
         consumableType,

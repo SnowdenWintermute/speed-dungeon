@@ -86,6 +86,9 @@ export function attachHoldableModelToHolsteredPosition(
   if (holsterAtHip) {
     equipmentTransformNode.setParent(holsterHipBone);
     console.log("set parent: ", holsterHipBone, equipmentTransformNode);
+    setTimeout(() => {
+      console.log(equipmentTransformNode.parent);
+    }, 100);
     setTransformNodePositionAndRotationToZero(equipmentTransformNode);
     equipmentTransformNode.rotation.y = -Math.PI / 2 - Math.PI;
     equipmentTransformNode.rotation.x = Math.PI;

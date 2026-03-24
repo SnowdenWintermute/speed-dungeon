@@ -58,6 +58,14 @@ export class LobbyClient extends BaseClient {
     });
 
     this.dispatchIntent({
+      type: ClientIntentType.CreateCharacter,
+      data: {
+        name: "" as EntityName,
+        combatantClass: CombatantClass.Warrior,
+      },
+    });
+
+    this.dispatchIntent({
       type: ClientIntentType.ToggleReadyToStartGame,
       data: undefined,
     });

@@ -43,7 +43,7 @@ export abstract class SceneEntity {
     startRotation: Quaternion
   ) {
     this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
-    this.rootTransformNode.position = plainToInstance(Vector3, startPosition);
+    this.rootTransformNode.position = startPosition;
     this.movementManager = new SceneEntityMovementManager(this.rootTransformNode);
 
     const rootMesh = this.initRootMesh(assetContainer);

@@ -13,6 +13,7 @@ import { ActionMenuScreenType } from "./action-menu/screen-types";
 import { ClientSingleton } from "./clients/singleton";
 import { ClientApplication } from ".";
 import { GameClient } from "./clients/game";
+import { makeAutoObservable } from "mobx";
 
 export class CombatantFocus {
   private focusedCharacterId: CombatantId | null = null;
@@ -29,6 +30,7 @@ export class CombatantFocus {
     this.gameContext = clientApplication.gameContext;
     this.actionMenu = clientApplication.actionMenu;
     this.detailableEntityFocus = clientApplication.detailableEntityFocus;
+    makeAutoObservable(this);
   }
 
   get focusedCharacterIdOption() {
