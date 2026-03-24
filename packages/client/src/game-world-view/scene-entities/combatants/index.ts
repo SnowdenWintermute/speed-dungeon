@@ -172,6 +172,8 @@ export class CombatantSceneEntity extends SceneEntity {
     }
     this.equipmentManager.cleanup();
     this.modularPartsManager.cleanup();
+
+    console.log("disposed combatant scene entity", this.entityId);
   }
 
   setVisibility(value: NormalizedPercentage) {

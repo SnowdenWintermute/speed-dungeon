@@ -1,9 +1,11 @@
+"use client";
 import React, { useEffect, useRef } from "react";
 import { DebugText } from "./DebugText";
 import { ZIndexLayers } from "../z-index-layers";
 import { GameWorldView } from "@/game-world-view";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { createBabylonScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 
 export const SceneManager = observer(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,6 +22,7 @@ export const SceneManager = observer(() => {
       const gameWorldView = new GameWorldView(canvasRef.current);
       clientApplication.setGameWorldView(gameWorldView);
       gameWorldView.initialize(clientApplication, debugRef);
+      clientApplication.setReplayManagerTickScheduler(createBabylonScheduler(gameWorldView.scene));
     }
     resizeHandlerRef.current = function () {
       clientApplication.gameWorldView?.engine.resize();
@@ -28,8 +31,9 @@ export const SceneManager = observer(() => {
     window.addEventListener("resize", resizeHandlerRef.current);
 
     return () => {
-      // clientApplication.clearGameWorldView();
-      if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
+      if (resizeHandlerRef.current) {
+        window.removeEventListener("resize", resizeHandlerRef.current);
+      }
     };
   }, [clientApplication]);
 

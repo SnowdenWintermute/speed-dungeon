@@ -24,6 +24,7 @@ export class GameWorldViewDebug {
     const { combatantSceneEntityManager } = this.gameWorldView.sceneEntityService;
 
     for (const modularCharacter of combatantSceneEntityManager.getAll()) {
+      console.log("showing debug meshes");
       modularCharacter.debugView.setUpDebugMeshes();
       modularCharacter.rootMesh.showBoundingBox = true;
       modularCharacter.highlightManager.turnIndicator?.showDebug();
@@ -56,13 +57,14 @@ export class GameWorldViewDebug {
     const replayScheduler = this.clientApplication.replayTreeScheduler;
     const branches = replayScheduler.getCurrent()?.getActiveBranches();
     const fps = `${this.gameWorldView.engine.getFps().toFixed()}`;
+    const sequentialQueueStrings = this.getSequentialEventQueueStrings();
 
     this.uiDebugDisplayRef.current.innerHTML = [
       `movementTrackers: ${this.getActiveMovementTrackersText()}`,
       `branches: ${this.getReplayBranchesText(branches)}`,
       `fps: ${fps}`,
-      `sequentialEventProcessor queue: ${this.getSequentialEventQueueStrings()}`,
-      `image queue: ${this.gameWorldView.imageGenerator.queue}`,
+      `sequentialEventProcessor queue: ${sequentialQueueStrings}`,
+      // `image queue: ${this.gameWorldView.imageGenerator.queue}`,
       `isProcessing: ${this.clientApplication.sequentialEventProcessor.isProcessing}`,
       `${this.getCombatantSceneEntityPositions()}`,
       ...this.getGameWorldResources(),

@@ -46,11 +46,11 @@ export abstract class BaseClient {
       this.connectionTopology.runtimeMode = this._targetConnectionMode;
       uiStore.connectionStatus.connectionStatus = ConnectionStatus.Connected;
 
-      this.clientApplication.sequentialEventProcessor.cancelQueued();
-      this.clientApplication.sequentialEventProcessor.scheduleEvent({
-        type: ClientSequentialEventType.ClearAllModels,
-        data: undefined,
-      });
+      // this.clientApplication.sequentialEventProcessor.cancelQueued();
+      // this.clientApplication.sequentialEventProcessor.scheduleEvent({
+      //   type: ClientSequentialEventType.ClearAllModels,
+      //   data: undefined,
+      // });
       this.clientApplication.replayTreeScheduler.clear();
 
       // this.dispatchIntent({ type: ClientIntentType.RequestsGameList, data: undefined });

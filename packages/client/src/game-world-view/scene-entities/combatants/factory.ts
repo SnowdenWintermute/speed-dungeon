@@ -53,16 +53,21 @@ export class CombatantSceneEntityFactory {
     }
 
     sceneEntity.bounding.updateBox();
+    this.setStartingAnimation(sceneEntity, options);
+    sceneEntity.setVisibility(1);
 
+    return sceneEntity;
+  }
+
+  private setStartingAnimation(
+    sceneEntity: CombatantSceneEntity,
+    options?: { spawnInDeadPose?: boolean; doNotIdle?: boolean }
+  ) {
     if (options?.spawnInDeadPose) {
       sceneEntity.setToDeadPose();
     } else if (!options?.doNotIdle) {
       sceneEntity.animationControls.startIdleAnimation(0, {});
     }
-
-    sceneEntity.setVisibility(1);
-
-    return sceneEntity;
   }
 
   private async attachModularParts(sceneEntity: CombatantSceneEntity) {

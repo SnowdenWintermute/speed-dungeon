@@ -80,7 +80,6 @@ export class HoldableAttacher {
   }
 
   attachToHolstered(equipmentSceneEntity: EquipmentSceneEntity, slot: HoldableSlotType) {
-    console.log("attaching to holstered");
     const holsterAtHip = this.shouldHolsterAtHip(equipmentSceneEntity);
     if (holsterAtHip) {
       this.attachToHip(equipmentSceneEntity, slot);
@@ -100,7 +99,6 @@ export class HoldableAttacher {
     setTransformNodePositionAndRotationToZero(rootTransformNode);
     rootTransformNode.rotation.y = -Math.PI / 2 - Math.PI;
     rootTransformNode.rotation.x = Math.PI;
-    console.log(rootTransformNode.name, "set parent to ", holsterBone.name);
   }
 
   private attachToBack(equipmentSceneEntity: EquipmentSceneEntity, slot: HoldableSlotType) {

@@ -42,7 +42,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
       ? "Players ready to explore: "
       : "Players voting to stay on current floor: ";
 
-  if (party.battleId !== null) return <></>;
+  // if (party.battleId !== null) return <></>;
 
   const { dungeonExplorationManager } = party;
 
@@ -190,6 +190,7 @@ function createReadyButtons(
 ) {
   return usernames.map((item) => {
     const isReady = listOfReadyUsers.includes(item);
+    console.log("username:", username, "other: ", item);
     const isPlayerOfThisClient = username == item;
     const conditionalClasses = isReady ? "" : "opacity-50";
     const handleClick = isPlayerOfThisClient ? clickHandler : () => {};

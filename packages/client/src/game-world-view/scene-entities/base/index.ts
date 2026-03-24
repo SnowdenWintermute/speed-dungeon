@@ -169,8 +169,11 @@ export abstract class SceneEntity {
   }
 
   cleanup(options: { softCleanup: boolean }) {
-    if (options.softCleanup) this.softCleanup();
-    else this.dispose();
+    if (options.softCleanup) {
+      this.softCleanup();
+    } else {
+      this.dispose();
+    }
   }
 
   private softCleanup() {

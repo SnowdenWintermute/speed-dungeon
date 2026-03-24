@@ -17,10 +17,10 @@ export function gameFullUpdateHandler(
       data: undefined,
     });
 
-    clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-      type: ImageGenerationRequestType.ClearState,
-      data: undefined,
-    });
+    // clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
+    //   type: ImageGenerationRequestType.ClearState,
+    //   data: undefined,
+    // });
   }
 
   clientApplication.sequentialEventProcessor.scheduleEvent({
@@ -28,10 +28,10 @@ export function gameFullUpdateHandler(
     data: { softCleanup: true, placeInHomePositions: true },
   });
 
-  clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-    type: ImageGenerationRequestType.ClearState,
-    data: undefined,
-  });
+  // clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
+  //   type: ImageGenerationRequestType.ClearState,
+  //   data: undefined,
+  // });
 
   const currentSessionHttpResponseTracker =
     clientApplication.uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];

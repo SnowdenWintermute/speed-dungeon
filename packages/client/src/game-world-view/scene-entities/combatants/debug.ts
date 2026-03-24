@@ -85,6 +85,7 @@ export class CombatantSceneEntityDebug {
   }
 
   createRootTransformNodeLocationMarker() {
+    console.log("createRootTransformNodeLocationMarker");
     const box = MeshBuilder.CreateBox(`${this.parent.entityId}-root-mesh-location-box`, {
       size: 0.25,
     });

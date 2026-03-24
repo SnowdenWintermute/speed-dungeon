@@ -19,6 +19,7 @@ export class GameWorldView {
   readonly materialManager: MaterialManager;
   readonly textureManager: TextureManager;
   readonly idGenerator = new IdGenerator({ saveHistory: false });
+  readonly id = this.idGenerator.generate();
 
   private _clientApplication: ClientApplication | null = null;
   private _sceneEntityService: SceneEntityService | null = null;
@@ -27,6 +28,7 @@ export class GameWorldView {
   private _debug: GameWorldViewDebug | null = null;
 
   constructor(readonly canvas: HTMLCanvasElement) {
+    console.log("created game world view");
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(0, 0, 0, 0);
@@ -57,7 +59,7 @@ export class GameWorldView {
       this.materialManager
     );
     this._sceneEntityService = new SceneEntityService(clientApplication, this);
-    this._imageGenerator = new ImageGenerator(clientApplication, this);
+    // this._imageGenerator = new ImageGenerator(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
 
@@ -114,6 +116,7 @@ export class GameWorldView {
   }
 
   dispose() {
+    console.log("disposing GameWorldView id:", this.id);
     this.scene.dispose();
     this.engine.dispose();
   }

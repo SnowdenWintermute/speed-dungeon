@@ -30,6 +30,7 @@ export default observer(() => {
 
   if (!clientApplicationRef.current && typeof window !== "undefined") {
     clientApplicationRef.current = createClientApplication();
+    console.log("createClientApplication");
   }
 
   if (!isReady || !clientApplicationRef.current) {

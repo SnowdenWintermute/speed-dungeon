@@ -56,12 +56,12 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
 
     const { entityId } = sceneEntity;
     try {
-      const portraitOption =
-        await this.gameWorldView.imageGenerator.createCombatantPortrait(entityId);
+      // const portraitOption =
+      //   await this.gameWorldView.imageGenerator.createCombatantPortrait(entityId);
 
-      if (portraitOption) {
-        this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);
-      }
+      // if (portraitOption) {
+      //   this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);
+      // }
 
       this.loadingStates.setEntityIsLoaded(entityId);
     } catch (error) {

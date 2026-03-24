@@ -98,9 +98,12 @@ export class ClientApplication {
     );
   }
 
+  setReplayManagerTickScheduler(scheduler: TickScheduler) {
+    this.unregisterReplayManagerTick = scheduler(() => this.replayTreeScheduler.tick());
+  }
+
   dispose() {
     this.unregisterReplayManagerTick();
-
     this.gameWorldView?.dispose();
   }
 

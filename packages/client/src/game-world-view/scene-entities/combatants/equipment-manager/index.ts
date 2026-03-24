@@ -93,7 +93,6 @@ export class CombatantSceneEntityEquipmentManager {
     const { combatantProperties } = combatant;
 
     const newState = this.syncExistingValidModelsWithNewState(combatantProperties);
-    console.log("new state after sync:", newState);
     await this.spawnNewModelsForNewState(newState, combatantProperties);
     this.applyNewState(newState, combatantProperties);
   }
@@ -190,8 +189,6 @@ export class CombatantSceneEntityEquipmentManager {
       hotswapSlots,
       equippedSlotIndex
     );
-
-    console.log("slots in new state:", newState);
 
     let slotIndex = -1;
     for (const hotswapSlot of this.holdableHotswapSlots) {

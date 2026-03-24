@@ -18,7 +18,7 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
   // generation before executing.
   private generation: number = 0;
 
-  constructor(clientApplication: ClientApplication) {
+  constructor(private clientApplication: ClientApplication) {
     this.eventHandlers = createClientSequentialEventHandlers(clientApplication);
   }
 
@@ -54,13 +54,19 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
       } finally {
         this.pendingEvents.delete(event);
         this.currentEventProcessing = null;
-        console.log("processed event:", CLIENT_EVENT_TYPE_STRINGS[event.type], event.data);
+        console.log(
+          `game world id: ${this.clientApplication.gameWorldView?.id}`,
+          "processed event:",
+          CLIENT_EVENT_TYPE_STRINGS[event.type],
+          event.data
+        );
       }
     });
   }
 
   /** sets queued events to be skipped but does not cancel the currently processing event */
   cancelQueued() {
+    console.log("canceled queued SequentialClientSequentialEventProcessor");
     this.generation += 1;
     this.pendingEvents.clear();
     // we don't set currentEventProcessing to null because there's no way

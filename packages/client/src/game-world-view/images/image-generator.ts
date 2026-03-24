@@ -57,6 +57,7 @@ export class ImageGenerator {
       throw new Error("Failed to create WebGL context.");
     }
 
+    console.log("creating image generator engine");
     this.engine = new Engine(gl, true, {
       preserveDrawingBuffer: true,
       stencil: true,
@@ -153,32 +154,7 @@ export class ImageGenerator {
     if (!message) {
       return console.error("expected message not found");
     }
-    const { imageStore } = this.clientApplication;
-    switch (message.type) {
-      // we're calling processNextMessage() individually because we haven't figured out how
-      // to await createItemImage because we need to run the render loop for it to finish
-      // so we call processNextMessage() in the promise resolution of that one, so even though we'd like to
-      // just call processNextMessage() after the switch statement, I haven't figured out how to make it work
-      case ImageGenerationRequestType.ItemCreation:
-        try {
-          this.createItemImage(message.data.item);
-          this.engine.runRenderLoop(() => {});
-        } catch (err) {
-          console.error(err);
-          this.processNextMessage();
-        }
-        break;
-      case ImageGenerationRequestType.ItemDeletion:
-        imageStore.clearThumbnailIds(message.data.itemIds);
-        this.processNextMessage();
-        break;
-      case ImageGenerationRequestType.ClearState:
-        imageStore.clearAllThumbnails();
-        this.processNextMessage();
-        break;
-      default:
-        throw new Error("unexpected message type");
-    }
+    this.requestHandlers[message.type](message.data as never);
   }
 
   private async createItemImage(item: Item) {
