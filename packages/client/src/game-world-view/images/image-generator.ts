@@ -137,7 +137,7 @@ export class ImageGenerator {
 
   async enqueueMessage(message: ImageGenerationRequest) {
     this.queue.push(message);
-    if (this.isProcessing) return console.info("already processing");
+    if (this.isProcessing) return;
     this.isProcessing = true;
     this.processNextMessage();
   }

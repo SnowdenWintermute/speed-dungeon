@@ -1,5 +1,6 @@
 import { createClientSequentialEventHandlers } from "./client-event-handlers";
 import {
+  CLIENT_EVENT_TYPE_STRINGS,
   ClientSequentialEvent,
   ClientSequentialEventHandlers,
   ReactiveNode,
@@ -53,6 +54,7 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
       } finally {
         this.pendingEvents.delete(event);
         this.currentEventProcessing = null;
+        console.log("processed event:", CLIENT_EVENT_TYPE_STRINGS[event.type], event.data);
       }
     });
   }

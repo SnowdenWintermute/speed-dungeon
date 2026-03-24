@@ -204,8 +204,7 @@ export function createGameUpdateHandlers(
       dungeonExplorationManager.incrementExploredRoomsTrackers();
 
       const indexOfRoomTypeToReveal = dungeonExplorationManager.getCurrentRoomNumber() - 1;
-      dungeonExplorationManager.getClientVisibleRoomExplorationList()[indexOfRoomTypeToReveal] =
-        dungeonRoom.roomType;
+      dungeonExplorationManager.revealRoom(indexOfRoomTypeToReveal, dungeonRoom.roomType);
 
       const noPreviouslySpawnedVendingMachine = !(
         previousRoomType === DungeonRoomType.VendingMachine
@@ -505,6 +504,10 @@ export function createGameUpdateHandlers(
         }
       }
 
+      // clientApplication.sequentialEventProcessor.scheduleEvent({
+      //   type: ClientSequentialEventType.SynchronizeCombatantModels,
+      //   data: { softCleanup: true, placeInHomePositions: true },
+      // });
       sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },

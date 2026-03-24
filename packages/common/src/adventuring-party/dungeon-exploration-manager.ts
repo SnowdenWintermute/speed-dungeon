@@ -144,6 +144,10 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
     return this.clientCurrentFloorRoomsList;
   }
 
+  revealRoom(indexOfRoomTypeToReveal: number, roomType: DungeonRoomType) {
+    this.clientCurrentFloorRoomsList[indexOfRoomTypeToReveal] = roomType;
+  }
+
   setClientVisibleRoomExplorationList(newList: (DungeonRoomType | null)[]) {
     this.clientCurrentFloorRoomsList = newList;
   }

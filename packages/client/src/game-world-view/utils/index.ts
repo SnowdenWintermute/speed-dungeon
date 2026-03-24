@@ -8,9 +8,20 @@ import {
   Node,
   Scene,
   StandardMaterial,
+  TransformNode,
   Vector3,
 } from "@babylonjs/core";
 import { invariant } from "@speed-dungeon/common";
+
+export function setTransformNodePositionAndRotationToZero(transformNode: TransformNode) {
+  setTransformNodeRotationToZero(transformNode);
+  transformNode.setPositionWithLocalVector(Vector3.Zero());
+}
+
+export function setTransformNodeRotationToZero(transformNode: TransformNode) {
+  transformNode.rotationQuaternion = null;
+  transformNode.rotation = Vector3.Zero();
+}
 
 export function getTransformNodeByName(container: AssetContainer, name: string) {
   for (const transformNode of container.transformNodes) {

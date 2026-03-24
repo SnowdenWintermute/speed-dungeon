@@ -10,10 +10,7 @@ import {
   invariant,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import {
-  attachHoldableModelToHolsteredPosition,
-  attachHoldableModelToSkeleton,
-} from "./attach-holdables";
+import { HoldableAttacher } from "./attach-holdables";
 import { EquipmentSceneEntity } from "../../items/equipment-scene-entity";
 import { CombatantSceneEntity } from "..";
 import { ItemSceneEntityFactory } from "../../items/item-scene-entity-factory";
@@ -29,12 +26,15 @@ export class CombatantSceneEntityEquipmentManager {
     [WearableSlotType.Amulet]: null,
   };
   holdableHotswapSlots: HoldableHotswapSlotsModels = [];
+  holdableAttacher: HoldableAttacher;
   private visibilityForShownHotswapSlots = 0;
 
   constructor(
     public combatantSceneEntity: CombatantSceneEntity,
     private itemSceneEntityFactory: ItemSceneEntityFactory
-  ) {}
+  ) {
+    this.holdableAttacher = new HoldableAttacher(this.combatantSceneEntity);
+  }
 
   getAllModels() {
     const toReturn = [];
@@ -100,7 +100,7 @@ export class CombatantSceneEntityEquipmentManager {
 
   private syncExistingValidModelsWithNewState(combatantProperties: CombatantProperties) {
     const existingSceneEntities: HoldableHotswapSlotsModels = [];
-    this.holdableHotswapSlots.forEach((hotswapSlot) => {
+    this.holdableHotswapSlots.forEach((hotswapSlot, i) => {
       for (const [_holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
         hotswapSlot
       )) {
@@ -201,17 +201,9 @@ export class CombatantSceneEntityEquipmentManager {
         // attach to appropriate positions
 
         if (slotIndex === equippedSlotIndex) {
-          attachHoldableModelToSkeleton(
-            this.combatantSceneEntity,
-            equipmentModel,
-            holdableSlotType
-          );
+          this.holdableAttacher.attachToHoldableSlot(equipmentModel, holdableSlotType);
         } else if (slotIndex === holsteredSlotIndex) {
-          attachHoldableModelToHolsteredPosition(
-            this.combatantSceneEntity,
-            equipmentModel,
-            holdableSlotType
-          );
+          this.holdableAttacher.attachToHolstered(equipmentModel, holdableSlotType);
         }
 
         if (slotIndex === equippedSlotIndex || slotIndex === holsteredSlotIndex) {

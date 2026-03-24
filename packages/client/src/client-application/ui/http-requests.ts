@@ -10,6 +10,18 @@ export class HttpRequestTracker {
   statusCode: number = 0;
   errors: null | { message: string; field?: string }[] = null;
   ok: boolean = false;
+
+  setStatusCode(newCode: number) {
+    this.statusCode = newCode;
+  }
+
+  setLoading(newLoading: boolean) {
+    this.loading = newLoading;
+  }
+
+  setOk(value: boolean) {
+    this.ok = value;
+  }
 }
 
 /** We are acting under the assumption that requests made with this store
@@ -35,9 +47,9 @@ export class HttpRequestStore {
     // });
 
     const response = await fetch(url, options);
-    tracker.ok = response.ok;
-    tracker.loading = false;
-    tracker.statusCode = response.status;
+    tracker.setOk(response.ok);
+    tracker.setLoading(false);
+    tracker.setStatusCode(response.status);
     let data: { [key: string]: any } = {};
     try {
       data = await response.json();

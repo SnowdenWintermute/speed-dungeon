@@ -93,7 +93,7 @@ function UserMenu({ username }: { username: null | string }) {
     // state depend on if this request tracker has been created yet
     const existingLoginRequestTracker = httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
     if (existingLoginRequestTracker) {
-      existingLoginRequestTracker.statusCode = 1;
+      existingLoginRequestTracker.setStatusCode(1);
     }
     delete httpRequests.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
 

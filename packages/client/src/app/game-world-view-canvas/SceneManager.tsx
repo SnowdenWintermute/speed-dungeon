@@ -28,7 +28,7 @@ export const SceneManager = observer(() => {
     window.addEventListener("resize", resizeHandlerRef.current);
 
     return () => {
-      clientApplication.clearGameWorldView();
+      // clientApplication.clearGameWorldView();
       if (resizeHandlerRef.current) window.removeEventListener("resize", resizeHandlerRef.current);
     };
   }, [clientApplication]);
