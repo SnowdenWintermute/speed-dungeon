@@ -78,39 +78,39 @@ export class ActionEntitySceneEntityFactory {
     [ActionEntityName.IceBolt]: async () =>
       this.createActionEntityModelFromAssetPath(ActionEntityName.IceBolt),
     [ActionEntityName.Explosion]: async (position) => {
-      const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 });
-      const material = new StandardMaterial("");
+      const mesh = MeshBuilder.CreateIcoSphere("", { radius: 0.5 }, this.scene);
+      const material = new StandardMaterial("", this.scene);
       material.diffuseColor = new Color3(0.7, 0.3, 0.2);
       material.alpha = 0.5;
 
       mesh.material = material;
       mesh.position.copyFrom(position);
-      const model = new AssetContainer();
+      const model = new AssetContainer(this.scene);
       model.meshes = [mesh];
       return model;
     },
     [ActionEntityName.IceBurst]: async (position) => {
-      const mesh = MeshBuilder.CreateGoldberg("", { size: 0.35 });
-      const material = new StandardMaterial("");
+      const mesh = MeshBuilder.CreateGoldberg("", { size: 0.35 }, this.scene);
+      const material = new StandardMaterial("", this.scene);
       material.diffuseColor = new Color3(0.2, 0.3, 0.7);
       material.alpha = 0.5;
 
       mesh.material = material;
       mesh.position.copyFrom(position);
-      const assetContainer = new AssetContainer();
+      const assetContainer = new AssetContainer(this.scene);
       assetContainer.meshes = [mesh];
       return assetContainer;
     },
-    [ActionEntityName.Firewall]: async function (position, taggedDimensions) {
+    [ActionEntityName.Firewall]: async (position, taggedDimensions) => {
       invariant(taggedDimensions?.type === ShapeType3D.Box, "expected box shape");
       const { width, height, depth } = taggedDimensions.dimensions;
-      const mesh = MeshBuilder.CreateBox("", { width, height, depth });
-      const material = new StandardMaterial("");
+      const mesh = MeshBuilder.CreateBox("", { width, height, depth }, this.scene);
+      const material = new StandardMaterial("", this.scene);
       material.alpha = 0;
 
       mesh.material = material;
       mesh.position.copyFrom(position);
-      const assetContainer = new AssetContainer();
+      const assetContainer = new AssetContainer(this.scene);
       assetContainer.meshes = [mesh];
       return assetContainer;
     },

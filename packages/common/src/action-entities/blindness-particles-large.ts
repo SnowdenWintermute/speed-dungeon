@@ -26,11 +26,14 @@ export class BlindnessParticlesLarge extends CosmeticEffect {
     const managedParticleSystems: ManagedParticleSystem[] = [];
 
     particleSystems.forEach((particleSystem, i) => {
-      particleSystem.particleTexture = new Texture(`img/particle-textures/eye-strikethrough.png`);
+      particleSystem.particleTexture = new Texture(
+        `img/particle-textures/eye-strikethrough.png`,
+        scene
+      );
       particleSystem.minSize = 0.3;
       particleSystem.maxSize = 0.4;
 
-      const mesh = new Mesh("");
+      const mesh = new Mesh("", this.scene);
 
       particleSystem.addColorGradient(0, new Color4(0.1, 0.1, 1, 0));
       particleSystem.addColorGradient(0.5, new Color4(0.2, 0.1, 0.2, 0.7));

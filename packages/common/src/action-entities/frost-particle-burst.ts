@@ -17,11 +17,11 @@ export class FrostParticleBurst extends CosmeticEffect {
   }
   createParticleSystems(scene: Scene): ManagedParticleSystem[] {
     const particleSystem = new GPUParticleSystem("particles", { capacity: 300 }, scene);
-    particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
+    particleSystem.particleTexture = new Texture("img/particle-textures/flare.png", scene);
 
     particleSystem.createSphereEmitter(1.5, 1);
 
-    const mesh = new Mesh("");
+    const mesh = new Mesh("", this.scene);
     mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
     particleSystem.emitter = mesh;
 

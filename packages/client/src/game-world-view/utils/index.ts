@@ -52,6 +52,7 @@ export function getChildrenByName(rootNode: Node) {
 }
 
 export function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scene: Scene) {
+  const result: Mesh[] = [];
   for (const node of rootNode.getDescendants(false)) {
     const boneMarkerCube = MeshBuilder.CreateBox(
       `node-cube-${node.name}`,
@@ -70,7 +71,9 @@ export function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color
 
     boneMarkerCube.setParent(node);
     boneMarkerCube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));
+    result.push(boneMarkerCube);
   }
+  return result;
 }
 
 // adapted from https://forum.babylonjs.com/t/get-mesh-bounding-box-position-and-size-in-2d-screen-coordinates/1058/3

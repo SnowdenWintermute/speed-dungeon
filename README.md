@@ -74,6 +74,11 @@ Next.js (Turbopack) reads the .js imports in the source and cannot find the corr
   Solution: Try using direct path imports in the complaining file instead of importing from a mass
   export file like common/index.ts
 
+- Error description: Things aren't being attached even though you are parenting them
+  Solution: make sure you are passing the scene to everything that takes it as an optional parameter.
+  Anything without an explicit scene will take the most recently created scene instead, like the ImageGenerator
+  scene.
+
 ### Old problems and comments about their solutions
 
 In the old LobbyStore class

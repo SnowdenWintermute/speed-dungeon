@@ -49,9 +49,13 @@ export class EquipmentSceneEntity extends SceneEntity {
     for (const [nodeName, transformNode] of iterateNumericEnumKeyedRecord(
       this.childTransformNodes
     )) {
-      const markerMesh = MeshBuilder.CreateBox(`debug-box-${this.entityId}-${nodeName}`, {
-        size: 0.1,
-      });
+      const markerMesh = MeshBuilder.CreateBox(
+        `debug-box-${this.entityId}-${nodeName}`,
+        {
+          size: 0.1,
+        },
+        this.scene
+      );
       markerMesh.setParent(transformNode);
       markerMesh.setPositionWithLocalVector(Vector3.Zero());
     }
@@ -88,7 +92,7 @@ export class EquipmentSceneEntity extends SceneEntity {
   }
 
   setShowBones(scene: Scene) {
-    const transparentMaterial = new StandardMaterial("");
+    const transparentMaterial = new StandardMaterial("", this.scene);
     transparentMaterial.alpha = 0.3;
     for (const mesh of this.rootMesh.getChildMeshes()) {
       mesh.material = transparentMaterial;

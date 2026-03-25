@@ -27,11 +27,11 @@ export class HeartParticlesLarge extends CosmeticEffect {
 
     particleSystems.forEach((particleSystem, i) => {
       particleSystem.blendMode = GPUParticleSystem.BLENDMODE_STANDARD;
-      particleSystem.particleTexture = new Texture(`img/particle-textures/heart-white.png`);
+      particleSystem.particleTexture = new Texture(`img/particle-textures/heart-white.png`, scene);
       particleSystem.minSize = 0.3;
       particleSystem.maxSize = 0.4;
 
-      const mesh = new Mesh("");
+      const mesh = new Mesh("", this.scene);
 
       particleSystem.addColorGradient(0, new Color4(0.66, 0.33, 0.33, 1));
       particleSystem.addColorGradient(0.5, new Color4(0.66, 0.33, 0.33, 0.7));

@@ -129,7 +129,7 @@ function spawnTargetChangedIndicatorArrow(gameWorldView: GameWorldView, position
     height: 0.4,
   });
 
-  const material = new StandardMaterial("threat indicator arrow material");
+  const material = new StandardMaterial("threat indicator arrow material", gameWorldView.scene);
   material.diffuseColor = new Color3(0.9, 0.1, 0.1);
   material.alpha = 0.5;
 
@@ -138,7 +138,7 @@ function spawnTargetChangedIndicatorArrow(gameWorldView: GameWorldView, position
 
   mesh.rotate(Vector3.Left(), -Math.PI / 2);
 
-  const assetContainer = new AssetContainer();
+  const assetContainer = new AssetContainer(gameWorldView.scene);
   assetContainer.meshes = [mesh];
   const entityId = gameWorldView.idGenerator.generate();
 
@@ -162,7 +162,7 @@ function spawnTargetChangedIndicatorTrail(
 ) {
   const trail = new Mesh("trail", scene);
 
-  const material = new StandardMaterial("");
+  const material = new StandardMaterial("", scene);
   material.diffuseColor = new Color3(0.9, 0.1, 0.1);
   material.alpha = 0.5;
   trail.material = material;

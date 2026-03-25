@@ -215,7 +215,7 @@ export abstract class SceneEntity {
     negativeZline.setPositionWithLocalVector(Vector3.Zero());
     negativeZline.setParent(this.rootTransformNode);
 
-    const testMesh = MeshBuilder.CreateBox("", { size: 0.1 });
+    const testMesh = MeshBuilder.CreateBox("", { size: 0.1 }, this.scene);
     testMesh.setParent(this.rootTransformNode);
     testMesh.setPositionWithLocalVector(Vector3.Zero());
   }

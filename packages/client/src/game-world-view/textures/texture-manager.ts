@@ -1,16 +1,9 @@
-import { DynamicTexture, RenderTargetTexture, Scene } from "@babylonjs/core";
+import { DynamicTexture, Scene } from "@babylonjs/core";
 
 export class TextureManager {
-  readonly portraitRenderTarget: RenderTargetTexture;
   readonly targetIndicatorTexture: DynamicTexture;
 
   constructor(scene: Scene) {
-    this.portraitRenderTarget = new RenderTargetTexture(
-      "portraitTexture",
-      { width: 100, height: 100 },
-      scene
-    );
-
     const targetIndicatorTexture = new DynamicTexture(
       "target indicator texture",
       256,

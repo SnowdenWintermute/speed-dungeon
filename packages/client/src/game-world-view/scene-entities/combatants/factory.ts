@@ -121,21 +121,10 @@ export class CombatantSceneEntityFactory {
     partResult: AssetContainer,
     combatantProperties: CombatantProperties
   ) {
-    if (combatantProperties.controlledBy.isPlayerControlled()) {
-      for (const mesh of partResult.meshes) {
-        if (mesh.material?.name === "Purple") {
-          // mesh.material.dispose();
-          // const newMaterial = new StandardMaterial("test");
-          // newMaterial.diffuseColor = new Color3(0.3, 0.4, 0.6);
-          // mesh.material = newMaterial;
-        }
-      }
-    }
-
     if (combatantProperties.monsterType === MonsterType.FireMage) {
       for (const mesh of partResult.meshes) {
         if (mesh.material?.name === "Purple") {
-          const redMaterial = new StandardMaterial("red");
+          const redMaterial = new StandardMaterial("red", this.scene);
           redMaterial.diffuseColor = new Color3(0.7, 0.2, 0.2);
           mesh.material.dispose();
           mesh.material = redMaterial;
@@ -146,7 +135,7 @@ export class CombatantSceneEntityFactory {
     if (combatantProperties.monsterType === MonsterType.Cultist) {
       for (const mesh of partResult.meshes) {
         if (mesh.material?.name === "Purple") {
-          const whiteMaterial = new StandardMaterial("white");
+          const whiteMaterial = new StandardMaterial("white", this.scene);
           whiteMaterial.diffuseColor = new Color3(0.85, 0.75, 0.75);
           mesh.material.dispose();
           mesh.material = whiteMaterial;

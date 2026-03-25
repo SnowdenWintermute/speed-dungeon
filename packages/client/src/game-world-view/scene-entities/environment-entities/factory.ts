@@ -64,17 +64,17 @@ export class EnvironmentSceneEntityFactory {
           if (mesh.material) oldMaterials.push(mesh.material);
 
           if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Accent1]) {
-            const material = new StandardMaterial("VendingMachineAccent1");
+            const material = new StandardMaterial("VendingMachineAccent1", this.scene);
             material.diffuseColor = Color3.FromHexString(MAIN_BG_COLOR);
             mesh.material = material;
           }
           if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Accent2]) {
-            const material = new StandardMaterial("VendingMachineAccent2");
+            const material = new StandardMaterial("VendingMachineAccent2", this.scene);
             material.diffuseColor = Color3.FromHexString(MAIN_TEXT_AND_BORDERS_COLOR);
             mesh.material = material;
           }
           if (materialName === MATERIAL_LABEL_STRINGS[MaterialLabel.Accent3]) {
-            const material = new StandardMaterial("VendingMachineAccent3");
+            const material = new StandardMaterial("VendingMachineAccent3", this.scene);
             material.diffuseColor = Color3.FromHexString(HP_COLOR);
             mesh.material = material;
           }
@@ -91,7 +91,7 @@ export class EnvironmentSceneEntityFactory {
               ][MaterialShade.Darkest].clone("");
           }
           if (materialName === "Dark") {
-            const material = new StandardMaterial("VendingMachineDark");
+            const material = new StandardMaterial("VendingMachineDark", this.scene);
             material.diffuseColor = Color3.FromHexString(MAIN_ACCENT_COLOR);
             mesh.material = material;
           }

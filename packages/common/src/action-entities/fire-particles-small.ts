@@ -25,11 +25,14 @@ export class FireParticlesSmall extends CosmeticEffect {
     const managedParticleSystems: ManagedParticleSystem[] = [];
 
     particleSystems.forEach((particleSystem, i) => {
-      particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
+      particleSystem.particleTexture = new Texture(
+        `img/particle-textures/explosion-${i + 1}.jpg`,
+        scene
+      );
       particleSystem.minSize = 0.3;
       particleSystem.maxSize = 0.4;
 
-      const mesh = new Mesh("");
+      const mesh = new Mesh("", this.scene);
 
       mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
       particleSystem.emitter = mesh;

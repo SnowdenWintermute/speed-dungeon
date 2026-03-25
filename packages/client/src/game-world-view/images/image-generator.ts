@@ -4,7 +4,6 @@ import {
   CreateScreenshotUsingRenderTarget,
   CreateScreenshotUsingRenderTargetAsync,
   Engine,
-  EngineStore,
   GlowLayer,
   HemisphericLight,
   PointLight,
@@ -37,18 +36,18 @@ import { calculateCompositeBoundingBox, getChildMeshByName } from "../utils";
 import { ItemSceneEntityFactory } from "../scene-entities/items/item-scene-entity-factory";
 
 export class ImageGenerator {
-  canvas = new OffscreenCanvas(100, 100);
-  engine: Engine;
+  private canvas = new OffscreenCanvas(100, 100);
+  private engine: Engine;
   private scene: Scene;
-  portraitEngine: Engine;
   queue: ImageGenerationRequest[] = [];
   isProcessing: boolean = false;
-  camera: UniversalCamera;
-  requestHandlers: ImageGenerationRequestHandlers;
-  materialManager: MaterialManager;
-  itemSceneEntityFactory: ItemSceneEntityFactory;
+  private camera: UniversalCamera;
+  private requestHandlers: ImageGenerationRequestHandlers;
+  private materialManager: MaterialManager;
+  private itemSceneEntityFactory: ItemSceneEntityFactory;
   // portraits
-  portraitCamera: ArcRotateCamera;
+  private portraitEngine: Engine;
+  private portraitCamera: ArcRotateCamera;
 
   constructor(
     private clientApplication: ClientApplication,

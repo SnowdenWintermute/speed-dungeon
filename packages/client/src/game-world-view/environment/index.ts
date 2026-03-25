@@ -35,7 +35,7 @@ export class EnvironmentView {
 
   setUpSun(pointLight: PointLight) {
     const ball = MeshBuilder.CreateSphere("ball", { diameter: 0.25 }, this.scene);
-    const sunMaterial = new StandardMaterial("sun material");
+    const sunMaterial = new StandardMaterial("sun material", this.scene);
     sunMaterial.emissiveColor = new Color3(1, 1, 1);
     ball.material = sunMaterial;
     ball.position = pointLight.position;
