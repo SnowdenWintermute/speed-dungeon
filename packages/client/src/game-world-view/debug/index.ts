@@ -28,10 +28,6 @@ export class GameWorldViewDebug {
       modularCharacter.debugView.setUpDebugMeshes();
       modularCharacter.rootMesh.showBoundingBox = true;
       modularCharacter.highlightManager.turnIndicator?.showDebug();
-
-      modularCharacter.debugView.despawnDebugMeshes();
-      modularCharacter.rootMesh.showBoundingBox = false;
-      modularCharacter.highlightManager.turnIndicator?.hideDebug();
     }
   }
 

@@ -56,8 +56,6 @@ export class CombatantSceneEntity extends SceneEntity {
       homeRotation
     );
 
-    console.log("this.rootMesh name", this.rootMesh.name);
-
     const rotation = this.rootTransformNode.rotationQuaternion;
     invariant(rotation !== null, ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
 
@@ -74,7 +72,7 @@ export class CombatantSceneEntity extends SceneEntity {
       _combatant,
       this.rootTransformNode
     );
-    this.debugView = new CombatantSceneEntityDebug(gameWorldView.scene, this);
+    this.debugView = new CombatantSceneEntityDebug(this.gameWorldView, this);
     this.modularPartsManager = new CombatantSceneEntityModularPartsManager(
       gameWorldView.clientApplication.assetService,
       this
@@ -84,7 +82,7 @@ export class CombatantSceneEntity extends SceneEntity {
       this,
       gameWorldView.itemSceneEntityFactory
     );
-    this.highlightManager = new HighlightManager(gameWorldView.scene, clientApplication, this);
+    this.highlightManager = new HighlightManager(this.scene, clientApplication, this);
 
     this.initChildTransformNodes();
     this.rootTransformNode.name += this._combatant.entityProperties.name;
@@ -106,7 +104,6 @@ export class CombatantSceneEntity extends SceneEntity {
     while (assetContainer.meshes.length > 1) {
       const expected = assetContainer.meshes.pop();
       invariant(expected !== undefined, "removeSkinnedPlaceholderMesh");
-      console.log("removed:", expected.name);
       expected.dispose(false, true);
     }
   }
@@ -181,8 +178,6 @@ export class CombatantSceneEntity extends SceneEntity {
     }
     this.equipmentManager.cleanup();
     this.modularPartsManager.cleanup();
-
-    console.log("disposed combatant scene entity", this.entityId);
   }
 
   setVisibility(value: NormalizedPercentage) {

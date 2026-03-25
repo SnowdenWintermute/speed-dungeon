@@ -21,7 +21,7 @@ export const SceneManager = observer(() => {
     ) {
       const gameWorldView = new GameWorldView(canvasRef.current);
       canvasRef.current.addEventListener("webglcontextlost", (e) => {
-        console.log("context lost!", e);
+        console.error("context lost!", e);
       });
       clientApplication.setGameWorldView(gameWorldView);
       gameWorldView.initialize(clientApplication, debugRef);

@@ -39,8 +39,6 @@ export class ImageGenerator {
   private canvas = new OffscreenCanvas(100, 100);
   private engine: Engine;
   private scene: Scene;
-  queue: ImageGenerationRequest[] = [];
-  isProcessing: boolean = false;
   private camera: UniversalCamera;
   private requestHandlers: ImageGenerationRequestHandlers;
   private materialManager: MaterialManager;
@@ -48,6 +46,10 @@ export class ImageGenerator {
   // portraits
   private portraitEngine: Engine;
   private portraitCamera: ArcRotateCamera;
+
+  // public
+  readonly queue: ImageGenerationRequest[] = [];
+  isProcessing: boolean = false;
 
   constructor(
     private clientApplication: ClientApplication,
@@ -144,12 +146,10 @@ export class ImageGenerator {
   private processNextMessage() {
     if (this.queue.length === 0) {
       this.isProcessing = false;
-      console.info("image manager queue emptied");
       return;
     }
 
     const message = this.queue.shift();
-    console.log("processNextMessage:", message);
     if (!message) {
       return console.error("expected message not found");
     }

@@ -1,32 +1,25 @@
-import {
-  Color3,
-  Color4,
-  Mesh,
-  MeshBuilder,
-  Scene,
-  StandardMaterial,
-  Vector3,
-} from "@babylonjs/core";
+import { Color3, Color4, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { FFIX_COLORS, CombatantTransformProperties } from "@speed-dungeon/common";
 import { SceneEntityMovementType } from "../base/scene-entity-movement-manager/movement-tracker";
 import { CombatantSceneEntity } from ".";
 import { getChildMeshByName, paintCubesOnNodes } from "@/game-world-view/utils";
 import { ARMATURE_ROOT_BONE_NAME } from "@/game-world-view/game-world-view-consts";
+import { GameWorldView } from "@/game-world-view";
 
 export class CombatantSceneEntityDebug {
   debugMeshes: Mesh[] | null = null;
   transformProperties: CombatantTransformProperties;
 
   constructor(
-    private scene: Scene,
+    private gameWorldView: GameWorldView,
     private parent: CombatantSceneEntity
   ) {
     this.transformProperties = this.parent.combatant.combatantProperties.transformProperties;
   }
 
   setShowBones() {
-    const transparentMaterial = new StandardMaterial("", this.scene);
+    const transparentMaterial = new StandardMaterial("", this.gameWorldView.scene);
     transparentMaterial.alpha = 0.3;
     for (const [_category, assetContainer] of iterateNumericEnumKeyedRecord(
       this.parent.modularPartsManager.parts
@@ -44,7 +37,7 @@ export class CombatantSceneEntityDebug {
     const skeletonRootBone = getChildMeshByName(this.parent.rootMesh, ARMATURE_ROOT_BONE_NAME);
 
     if (skeletonRootBone !== undefined) {
-      return paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.scene);
+      return paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.gameWorldView.scene);
     }
     return [];
   }
@@ -56,7 +49,7 @@ export class CombatantSceneEntityDebug {
       this.createRootTransformNodeLocationMarker(),
       this.createDestinationMarkerSphere(),
       // createMeleeRangeDisc(this),
-      ...this.setShowBones(),
+      // ...this.setShowBones(),
     ];
   }
 
@@ -71,17 +64,17 @@ export class CombatantSceneEntityDebug {
   }
 
   createHomeLocationMarker() {
-    console.log("created home locationmarker");
     const box = MeshBuilder.CreateBox(
       `${this.parent.entityId}-home-location-box`,
       {
         size: 0.1,
         height: 0.4,
       },
-      this.scene
+      this.gameWorldView.scene
     );
-    const material = new StandardMaterial("marker box material", this.scene);
-    material.diffuseColor = Color3.FromHexString(FFIX_COLORS.iceblue);
+    const material = new StandardMaterial("marker box material", this.gameWorldView.scene);
+    // material.diffuseColor = Color3.FromHexString(FFIX_COLORS.iceblue);
+    material.diffuseColor = Color3.Red();
     material.alpha = 0.5;
     box.material = material;
     box.position = this.parent.combatant.combatantProperties.transformProperties
@@ -91,15 +84,14 @@ export class CombatantSceneEntityDebug {
   }
 
   createRootTransformNodeLocationMarker() {
-    console.log("createRootTransformNodeLocationMarker");
     const box = MeshBuilder.CreateBox(
       `${this.parent.entityId}-root-mesh-location-box`,
       {
         size: 0.25,
       },
-      this.scene
+      this.gameWorldView.scene
     );
-    const material = new StandardMaterial("marker box material", this.scene);
+    const material = new StandardMaterial("marker box material", this.gameWorldView.scene);
     material.diffuseColor = Color3.FromHexString(FFIX_COLORS.lightningpurple);
     material.alpha = 0.5;
     box.material = material;
@@ -118,7 +110,7 @@ export class CombatantSceneEntityDebug {
     const sphere = MeshBuilder.CreateIcoSphere(
       "sphere",
       { subdivisions: 10, radius: 0.2 },
-      this.scene
+      this.gameWorldView.scene
     );
     sphere.position = this.parent.rootTransformNode.position.add(direction.scale(1.5));
 
@@ -139,11 +131,11 @@ export class CombatantSceneEntityDebug {
     const sphere = MeshBuilder.CreateIcoSphere(
       "sphere",
       { subdivisions: 10, radius: 0.2 },
-      this.scene
+      this.gameWorldView.scene
     );
     sphere.position = destination;
 
-    const material = new StandardMaterial("marker box material", this.scene);
+    const material = new StandardMaterial("marker box material", this.gameWorldView.scene);
     material.diffuseColor = Color3.FromHexString(FFIX_COLORS.windgreen);
     sphere.material = material;
 

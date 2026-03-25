@@ -66,6 +66,7 @@ export class DebugCompassDrawer {
     context.moveTo(point.x, point.y);
     context.lineTo(this.center.x, this.center.y);
     context.stroke();
+    context.fillStyle = "lightgrey";
     context.fillText(text, point.x, point.y);
   }
 }

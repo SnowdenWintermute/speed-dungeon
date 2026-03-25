@@ -1,4 +1,12 @@
-import { Scene, Engine, Vector3, ArcRotateCamera, Color4 } from "@babylonjs/core";
+import {
+  Scene,
+  Engine,
+  Vector3,
+  ArcRotateCamera,
+  Color4,
+  MeshBuilder,
+  Color3,
+} from "@babylonjs/core";
 import "@babylonjs/loaders";
 import { IdGenerator, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
@@ -30,7 +38,8 @@ export class GameWorldView {
   constructor(readonly canvas: HTMLCanvasElement) {
     console.log("created game world view");
     this.engine = new Engine(canvas, true);
-    this.scene = new Scene(this.engine);
+    this.scene = new Scene(this.engine, {});
+    console.log("created scene:", this.scene);
     this.scene.clearColor = new Color4(0, 0, 0, 0);
     this.materialManager = new MaterialManager(this.scene);
     this.textureManager = new TextureManager(this.scene);
@@ -38,8 +47,19 @@ export class GameWorldView {
     this.environment = new EnvironmentView(this.scene);
     this.environment.groundPlane.clear();
 
+    // const start = Date.now();
     this.engine.runRenderLoop(() => {
       this.updateGameWorld(this.engine.getDeltaTime());
+      // if ((Date.now() - start) % 5000 > 2500) {
+      //   const box = MeshBuilder.CreateBox("", {
+      //     size: 0.5,
+      //     faceColors: [Color4.FromColor3(Color3.Red())],
+      //   });
+      //   const x = Math.random() * 2;
+      //   const y = Math.random() * 2;
+      //   const z = Math.random() * 2;
+      //   box.position = new Vector3(x, y, z);
+      // }
       this.scene.render();
     });
   }
@@ -55,12 +75,12 @@ export class GameWorldView {
       this.scene,
       this.materialManager
     );
-    this._sceneEntityService = new SceneEntityService(clientApplication, this);
     this._imageGenerator = new ImageGenerator(clientApplication, this);
+
+    this._sceneEntityService = new SceneEntityService(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
 
-    this._debug = new GameWorldViewDebug(clientApplication, this);
     this._debug.uiDebugDisplayRef = uiDebugDisplayRef;
   }
 
@@ -113,7 +133,6 @@ export class GameWorldView {
   }
 
   dispose() {
-    console.log("disposing GameWorldView id:", this.id);
     this.scene.dispose();
     this.engine.dispose();
   }

@@ -115,10 +115,15 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      gameWorldView?.imageGenerator.enqueueConsumableGenericThumbnailCreation();
+      if (!gameWorldView) {
+        console.info("couldn't make images because no game world view");
+        return;
+      }
+
+      gameWorldView.imageGenerator.enqueueConsumableGenericThumbnailCreation();
       const { combatantManager } = partyOption;
       for (const character of combatantManager.iterateAllCombatants()) {
-        gameWorldView?.imageGenerator.enqueueCharacterItemsForThumbnails(character);
+        gameWorldView.imageGenerator.enqueueCharacterItemsForThumbnails(character);
       }
     },
     [GameStateUpdateType.GameStarted]: (_) => {

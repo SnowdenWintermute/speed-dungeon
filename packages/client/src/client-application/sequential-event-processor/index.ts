@@ -54,12 +54,6 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
       } finally {
         this.pendingEvents.delete(event);
         this.currentEventProcessing = null;
-        console.log(
-          `game world id: ${this.clientApplication.gameWorldView?.id}`,
-          "processed event:",
-          CLIENT_EVENT_TYPE_STRINGS[event.type],
-          event.data
-        );
       }
     });
   }
