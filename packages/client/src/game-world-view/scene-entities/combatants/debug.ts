@@ -1,9 +1,8 @@
 import { Color3, Color4, Mesh, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
-import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { FFIX_COLORS, CombatantTransformProperties } from "@speed-dungeon/common";
 import { SceneEntityMovementType } from "../base/scene-entity-movement-manager/movement-tracker";
 import { CombatantSceneEntity } from ".";
-import { getChildMeshByName, paintCubesOnNodes } from "@/game-world-view/utils";
+import { getChildMeshByName, paintCubeOnNode, paintCubesOnNodeTree } from "@/game-world-view/utils";
 import { ARMATURE_ROOT_BONE_NAME } from "@/game-world-view/game-world-view-consts";
 import { GameWorldView } from "@/game-world-view";
 
@@ -24,7 +23,7 @@ export class CombatantSceneEntityDebug {
     const skeletonRootBone = getChildMeshByName(this.parent.rootMesh, ARMATURE_ROOT_BONE_NAME);
 
     if (skeletonRootBone !== undefined) {
-      return paintCubesOnNodes(skeletonRootBone, cubeSize, red, this.gameWorldView.scene);
+      return paintCubesOnNodeTree(skeletonRootBone, cubeSize, red, this.gameWorldView.scene);
     }
     return [];
   }
@@ -35,8 +34,8 @@ export class CombatantSceneEntityDebug {
       this.createForwardDirectionMarkerSphere(),
       this.createRootTransformNodeLocationMarker(),
       this.createDestinationMarkerSphere(),
-      // createMeleeRangeDisc(this),
       ...this.setShowBones(),
+      ...this.showChildTransformNodes(),
     ];
   }
 
@@ -48,6 +47,18 @@ export class CombatantSceneEntityDebug {
     for (const mesh of this.debugMeshes) {
       mesh.dispose(false, true);
     }
+  }
+
+  showChildTransformNodes() {
+    const cubeSize = 0.02;
+    return Object.values(this.parent.childTransformNodes).map((transformNode) =>
+      paintCubeOnNode(
+        transformNode,
+        cubeSize,
+        Color4.FromColor3(Color3.Purple()),
+        this.gameWorldView.scene
+      )
+    );
   }
 
   createHomeLocationMarker() {

@@ -51,29 +51,38 @@ export function getChildrenByName(rootNode: Node) {
   return childrenByName;
 }
 
-export function paintCubesOnNodes(rootNode: Node, cubeSize: number, color: Color4, scene: Scene) {
+export function paintCubesOnNodeTree(
+  rootNode: Node,
+  cubeSize: number,
+  color: Color4,
+  scene: Scene
+) {
   const result: Mesh[] = [];
   for (const node of rootNode.getDescendants(false)) {
-    const boneMarkerCube = MeshBuilder.CreateBox(
-      `node-cube-${node.name}`,
-      {
-        height: cubeSize,
-        width: cubeSize,
-        depth: cubeSize,
-        faceColors: new Array(6).fill(color),
-      },
-      scene
-    );
-
-    const billboard = createBillboard(node.name, scene);
-    billboard.setParent(boneMarkerCube);
-    billboard.setPositionWithLocalVector(new Vector3(0, 0, 0.1));
-
-    boneMarkerCube.setParent(node);
-    boneMarkerCube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));
-    result.push(boneMarkerCube);
+    result.push(paintCubeOnNode(node, cubeSize, color, scene));
   }
   return result;
+}
+
+export function paintCubeOnNode(node: Node, cubeSize: number, color: Color4, scene: Scene) {
+  const cube = MeshBuilder.CreateBox(
+    `node-cube-${node.name}`,
+    {
+      height: cubeSize,
+      width: cubeSize,
+      depth: cubeSize,
+      faceColors: new Array(6).fill(color),
+    },
+    scene
+  );
+
+  const billboard = createBillboard(node.name, scene);
+  billboard.setParent(cube);
+  billboard.setPositionWithLocalVector(new Vector3(0, 0, 0.1));
+
+  cube.setParent(node);
+  cube.setPositionWithLocalVector(new Vector3(0.0, 0.0, 0.0));
+  return cube;
 }
 
 // adapted from https://forum.babylonjs.com/t/get-mesh-bounding-box-position-and-size-in-2d-screen-coordinates/1058/3

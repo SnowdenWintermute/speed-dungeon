@@ -1,9 +1,14 @@
 import { EntityId, SequentialIdGenerator } from "@speed-dungeon/common";
 import { FloatingMessage, FloatingMessageElement } from "./floating-messages";
+import { makeAutoObservable } from "mobx";
 
 export class FloatingMessagesStore {
   private messageIdGenerator = new SequentialIdGenerator();
   private floatingMessages = new Map<EntityId, FloatingMessage[]>();
+
+  constructor() {
+    makeAutoObservable(this);
+  }
 
   getFloatingMessages(entityId: EntityId) {
     const messagesOption = this.floatingMessages.get(entityId);

@@ -1,3 +1,4 @@
+import { T } from "oxide.ts/dist/common.js";
 import {
   AffixCategory,
   AffixType,
@@ -44,6 +45,15 @@ export function givePlaytestingItems(
       {
         equipmentType: EquipmentType.Shield,
         baseItemType: Shield.LanternShield,
+      },
+      { itemLevel: 1 }
+    )
+  );
+  inventory.equipment.push(
+    itemGenerator.generateSpecificEquipmentType(
+      {
+        equipmentType: EquipmentType.TwoHandedRangedWeapon,
+        baseItemType: TwoHandedRangedWeapon.ShortBow,
       },
       { itemLevel: 1 }
     )

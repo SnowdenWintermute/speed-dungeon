@@ -47,6 +47,8 @@ export class CombatantSceneEntityFactory {
 
     this.setScaling(sceneEntity, combatantProperties);
 
+    sceneEntity.initChildTransformNodes();
+
     const shouldSyncEquipment = combatantProperties.combatantSpecies === CombatantSpecies.Humanoid;
     if (shouldSyncEquipment) {
       sceneEntity.equipmentManager.synchronizeCombatantEquipmentModels();

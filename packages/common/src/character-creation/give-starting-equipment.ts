@@ -6,6 +6,7 @@ import { EquipmentBaseItem, EquipmentType } from "../items/equipment/equipment-t
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
 import { Shield } from "../items/equipment/equipment-types/shield.js";
 import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
+import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { ItemGenerator } from "../items/item-creation/index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
@@ -35,18 +36,18 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
     },
   },
   [CombatantClass.Rogue]: {
-    // [HoldableSlotType.MainHand]: {
-    //   equipmentType: EquipmentType.TwoHandedRangedWeapon,
-    //   baseItemType: TwoHandedRangedWeapon.CompositeBow,
-    // },
     [HoldableSlotType.MainHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Dagger,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.CompositeBow,
     },
-    [HoldableSlotType.OffHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.Rapier,
-    },
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.Dagger,
+    // },
+    // [HoldableSlotType.OffHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.Rapier,
+    // },
   },
 };
 

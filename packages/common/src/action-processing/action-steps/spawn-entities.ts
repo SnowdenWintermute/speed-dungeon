@@ -5,11 +5,7 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
-import {
-  SerializedSpawnableEntity,
-  SpawnableEntity,
-  SpawnableEntityType,
-} from "../../spawnables/index.js";
+import { SerializedSpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {

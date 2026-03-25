@@ -17,7 +17,7 @@ import {
   EquipmentType,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { getChildMeshByName, paintCubesOnNodes } from "@/game-world-view/utils";
+import { getChildMeshByName, paintCubesOnNodeTree } from "@/game-world-view/utils";
 
 export class EquipmentSceneEntity extends SceneEntity {
   childTransformNodes: Partial<Record<CombatantHoldableChildTransformNodeName, TransformNode>> = {};
@@ -102,7 +102,7 @@ export class EquipmentSceneEntity extends SceneEntity {
     const skeletonRootBone = getChildMeshByName(this.rootMesh, "BowArmature");
 
     if (skeletonRootBone !== undefined) {
-      paintCubesOnNodes(skeletonRootBone, cubeSize, red, scene);
+      paintCubesOnNodeTree(skeletonRootBone, cubeSize, red, scene);
     }
   }
 }
