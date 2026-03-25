@@ -7,6 +7,7 @@ export class ReplayBranchExecution {
   private currentIndex = -1;
   private isComplete = false;
   private currentGameUpdateOption: null | ReplayGameUpdateTracker<GameUpdateCommand> = null;
+
   constructor(
     private parentReplayTreeProcessor: ReplayTreeExecution,
     private node: NestedNodeReplayEvent,

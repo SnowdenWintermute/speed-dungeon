@@ -109,7 +109,7 @@ export const DebugText = observer(
 
     return (
       <div
-        className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
+        className={`absolute bottom-10 left-10 opacity-80 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
         style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
       >
         <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>

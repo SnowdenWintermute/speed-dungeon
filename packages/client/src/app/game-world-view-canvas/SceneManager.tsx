@@ -25,7 +25,9 @@ export const SceneManager = observer(() => {
       });
       clientApplication.setGameWorldView(gameWorldView);
       gameWorldView.initialize(clientApplication, debugRef);
-      clientApplication.setReplayManagerTickScheduler(createBabylonScheduler(gameWorldView.scene));
+      clientApplication.setReplayManagerTickScheduler(
+        createBabylonScheduler(gameWorldView.engine, gameWorldView.scene)
+      );
     }
     resizeHandlerRef.current = function () {
       clientApplication.gameWorldView?.engine.resize();

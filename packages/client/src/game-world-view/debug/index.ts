@@ -24,7 +24,6 @@ export class GameWorldViewDebug {
     const { combatantSceneEntityManager } = this.gameWorldView.sceneEntityService;
 
     for (const modularCharacter of combatantSceneEntityManager.getAll()) {
-      console.log("showing debug meshes");
       modularCharacter.debugView.setUpDebugMeshes();
       modularCharacter.rootMesh.showBoundingBox = true;
       modularCharacter.highlightManager.turnIndicator?.showDebug();
@@ -87,7 +86,9 @@ export class GameWorldViewDebug {
     const materialsCount = `materials: ${scene.materials.length}`;
     const transformNodesCount = `transform nodes: ${scene.transformNodes.length}`;
     const particleSystemsCount = `particleSystems: ${scene.particleSystems.length}`;
-    return [materialsCount, transformNodesCount, particleSystemsCount];
+    const meshesCount = `meshes: ${scene.meshes.length}`;
+    const skeletonsCount = `skeletons: ${scene.skeletons.length}`;
+    return [materialsCount, transformNodesCount, particleSystemsCount, meshesCount, skeletonsCount];
   }
 
   private getSequentialEventQueueStrings() {

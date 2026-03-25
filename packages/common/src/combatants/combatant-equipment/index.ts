@@ -458,7 +458,9 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
       }
 
       for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        if (holdable.entityProperties.id === equipmentId) return { holdableSlot, slotIndex };
+        if (holdable.entityProperties.id === equipmentId) {
+          return { holdableSlot, slotIndex };
+        }
       }
     }
 

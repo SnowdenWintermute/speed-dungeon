@@ -8,11 +8,11 @@ export class ReplayTreeScheduler {
 
   constructor(private clientApplication: ClientApplication) {}
 
-  tick() {
+  tick(deltaTime: number) {
     if (this.currentTreeCompleted()) {
       this.startNext();
     }
-    this.process();
+    this.process(deltaTime);
   }
 
   getCurrent() {
@@ -50,8 +50,10 @@ export class ReplayTreeScheduler {
       : null;
   }
 
-  process() {
-    if (this.current) this.current.processBranches();
+  process(deltaTime: number) {
+    if (this.current) {
+      this.current.processBranches(deltaTime);
+    }
     if (this.currentTreeCompleted()) {
       if (this.current !== null) {
         this.current.onComplete();

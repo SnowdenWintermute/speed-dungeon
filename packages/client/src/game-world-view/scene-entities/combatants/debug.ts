@@ -19,19 +19,6 @@ export class CombatantSceneEntityDebug {
   }
 
   setShowBones() {
-    const transparentMaterial = new StandardMaterial("", this.gameWorldView.scene);
-    transparentMaterial.alpha = 0.3;
-    for (const [_category, assetContainer] of iterateNumericEnumKeyedRecord(
-      this.parent.modularPartsManager.parts
-    )) {
-      if (!assetContainer) continue;
-      for (const mesh of assetContainer.meshes) {
-        for (const child of mesh.getChildMeshes()) {
-          child.material = transparentMaterial;
-        }
-      }
-    }
-
     const cubeSize = 0.02;
     const red = new Color4(255, 0, 0, 1.0);
     const skeletonRootBone = getChildMeshByName(this.parent.rootMesh, ARMATURE_ROOT_BONE_NAME);
@@ -49,7 +36,7 @@ export class CombatantSceneEntityDebug {
       this.createRootTransformNodeLocationMarker(),
       this.createDestinationMarkerSphere(),
       // createMeleeRangeDisc(this),
-      // ...this.setShowBones(),
+      ...this.setShowBones(),
     ];
   }
 

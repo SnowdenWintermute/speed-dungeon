@@ -1,16 +1,17 @@
-import { Scene } from "@babylonjs/core";
+import { Engine, Scene } from "@babylonjs/core";
 
-export type TickScheduler = (tick: () => void) => () => void; // returns unsubscribe
+export type TickScheduler = (tick: (deltaTime: number) => void) => () => void; // returns unsubscribe
 
-export function createBabylonScheduler(scene: Scene): TickScheduler {
+export function createBabylonScheduler(engine: Engine, scene: Scene): TickScheduler {
   return (tick) => {
-    scene.registerBeforeRender(tick);
-    return () => scene.unregisterBeforeRender(tick);
+    const callTickWithEngineDeltaTime = () => tick(engine.getDeltaTime());
+    scene.registerBeforeRender(callTickWithEngineDeltaTime);
+    return () => scene.unregisterBeforeRender(callTickWithEngineDeltaTime);
   };
 }
 
 export class ManualTickScheduler {
-  private tick: (() => void) | null = null;
+  private tick: ((deltaTime: number) => void) | null = null;
 
   readonly scheduler: TickScheduler = (tick) => {
     this.tick = tick;
@@ -19,7 +20,7 @@ export class ManualTickScheduler {
     };
   };
 
-  advance() {
-    this.tick?.();
+  advance(deltaTime: number) {
+    this.tick?.(deltaTime);
   }
 }

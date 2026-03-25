@@ -1,17 +1,46 @@
 import {
   ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  AnimationTimingType,
   COMBAT_ACTION_NAME_STRINGS,
   GameUpdateCommand,
+  GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { ReplayTreeExecution } from "./tree-execution";
 
 export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
   private isComplete: boolean = false;
   private shouldCompleteInSequence: boolean = false;
+  private timeStarted = Date.now();
   constructor(public readonly command: T) {}
 
   getIsComplete() {
-    return this.isComplete;
+    const elapsed = Date.now() - this.timeStarted;
+    switch (this.command.type) {
+      case GameUpdateCommandType.SpawnEntities:
+      case GameUpdateCommandType.ResourcesPaid:
+      case GameUpdateCommandType.ActionUseGameLogMessage:
+      case GameUpdateCommandType.ActionResolutionGameLogMessage:
+      case GameUpdateCommandType.ActivatedTriggers:
+      case GameUpdateCommandType.HitOutcomes:
+      case GameUpdateCommandType.ActionCompletion:
+        return true;
+      case GameUpdateCommandType.ActionEntityMotion:
+      case GameUpdateCommandType.CombatantMotion: {
+        let duration = 0;
+        const { mainEntityUpdate } = this.command;
+        if (mainEntityUpdate.translationOption?.duration) {
+          duration = mainEntityUpdate.translationOption?.duration;
+        }
+        const animationOption = mainEntityUpdate.animationOption;
+        if (animationOption && animationOption.timing.type === AnimationTimingType.Timed) {
+          if (animationOption.timing.duration > duration) {
+            duration = animationOption.timing.duration;
+          }
+        }
+        return elapsed >= duration;
+      }
+    }
+    // return this.isComplete;
   }
 
   /** Replay events have a completionOrderId. In the interest of making sure we start the next

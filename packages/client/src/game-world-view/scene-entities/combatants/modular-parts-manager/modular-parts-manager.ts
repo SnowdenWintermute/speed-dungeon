@@ -32,30 +32,30 @@ export class CombatantSceneEntityModularPartsManager {
 
   async attachPart(scene: Scene, partCategory: CharacterModelPartCategory, assetId: AssetId) {
     const { assetContainer } = this.sceneEntity;
-
     const part = await loadAssetContainerIntoScene(this.assetService, scene, assetId);
-
     if (!assetContainer.skeletons[0]) {
       throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
     }
-
     for (const mesh of part.meshes) {
       // attach part
-      if (mesh.skeleton) mesh.skeleton = assetContainer.skeletons[0];
+      if (mesh.skeleton) {
+        mesh.skeleton.dispose();
+        mesh.skeleton = assetContainer.skeletons[0];
+      }
       mesh.visibility = this.sceneEntity.getVisibility();
       invariant(parent !== undefined);
       mesh.parent = this.armatureRoot;
     }
 
+    for (const transformNode of part.transformNodes) {
+      transformNode.dispose(false);
+    }
+
     part.skeletons[0]?.dispose();
-
     this.removePart(partCategory);
-
     // we need to save a reference to the part so we can dispose of it when switching to a different part
     this.parts[partCategory] = part;
-
     this.sceneEntity.bounding.updateBox();
-
     return part;
   }
 

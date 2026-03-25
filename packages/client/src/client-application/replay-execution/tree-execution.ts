@@ -60,7 +60,7 @@ export class ReplayTreeExecution {
     return ids.sort((a, b) => a - b);
   }
 
-  processBranches() {
+  processBranches(deltaTime: number) {
     // iterate backwards so we can splice out branches without affecting the iteration
     for (let i = this.activeBranches.length - 1; i >= 0; i--) {
       const branch = this.activeBranches[i];
@@ -68,7 +68,11 @@ export class ReplayTreeExecution {
       if (!branch) {
         continue;
       }
-      if (branch.isDoneProcessing()) this.activeBranches.splice(i, 1);
+
+      if (branch.isDoneProcessing()) {
+        this.activeBranches.splice(i, 1);
+      }
+
       let branchIsComplete = branch.isDoneProcessing();
 
       const currentUpdateTrackerOption = branch.getCurrentGameUpdate();
