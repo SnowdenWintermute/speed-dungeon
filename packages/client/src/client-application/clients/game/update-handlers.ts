@@ -115,11 +115,11 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      // gameWorldView?.imageGenerator.enqueueConsumableGenericThumbnailCreation();
-      // const { combatantManager } = partyOption;
-      // for (const character of combatantManager.iterateAllCombatants()) {
-      //   gameWorldView?.imageGenerator.enqueueCharacterItemsForThumbnails(character);
-      // }
+      gameWorldView?.imageGenerator.enqueueConsumableGenericThumbnailCreation();
+      const { combatantManager } = partyOption;
+      for (const character of combatantManager.iterateAllCombatants()) {
+        gameWorldView?.imageGenerator.enqueueCharacterItemsForThumbnails(character);
+      }
     },
     [GameStateUpdateType.GameStarted]: (_) => {
       eventLogStore.clear();
@@ -233,18 +233,18 @@ export function createGameUpdateHandlers(
       });
 
       // clean up unused screenshots for items left behind
-      // gameWorldView?.imageGenerator.enqueueMessage({
-      //   type: ImageGenerationRequestType.ItemDeletion,
-      //   data: { itemIds: itemIdsOnGroundInPreviousRoom },
-      // });
+      gameWorldView?.imageGenerator.enqueueMessage({
+        type: ImageGenerationRequestType.ItemDeletion,
+        data: { itemIds: itemIdsOnGroundInPreviousRoom },
+      });
 
       for (const item of newItemsOnGround) {
         if (item instanceof Consumable) continue;
 
-        // gameWorldView?.imageGenerator.enqueueMessage({
-        //   type: ImageGenerationRequestType.ItemCreation,
-        //   data: { item },
-        // });
+        gameWorldView?.imageGenerator.enqueueMessage({
+          type: ImageGenerationRequestType.ItemCreation,
+          data: { item },
+        });
       }
     },
     [GameStateUpdateType.BattleFullUpdate]: (data) => {
@@ -619,10 +619,10 @@ export function createGameUpdateHandlers(
       }
 
       if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        // gameWorldView?.imageGenerator.enqueueMessage({
-        //   type: ImageGenerationRequestType.ItemCreation,
-        //   data: { item: itemResult },
-        // });
+        gameWorldView?.imageGenerator.enqueueMessage({
+          type: ImageGenerationRequestType.ItemCreation,
+          data: { item: itemResult },
+        });
       }
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;

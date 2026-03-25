@@ -38,69 +38,66 @@ import { ItemSceneEntityFactory } from "../scene-entities/items/item-scene-entit
 
 export class ImageGenerator {
   canvas = new OffscreenCanvas(100, 100);
-  // engine: Engine;
-  // private scene: Scene;
-  // portraitEngine: Engine;
+  engine: Engine;
+  private scene: Scene;
+  portraitEngine: Engine;
   queue: ImageGenerationRequest[] = [];
   isProcessing: boolean = false;
-  // camera: UniversalCamera;
-  // requestHandlers: ImageGenerationRequestHandlers;
-  // materialManager: MaterialManager;
-  // itemSceneEntityFactory: ItemSceneEntityFactory;
-  // // portraits
-  // portraitCamera: ArcRotateCamera;
+  camera: UniversalCamera;
+  requestHandlers: ImageGenerationRequestHandlers;
+  materialManager: MaterialManager;
+  itemSceneEntityFactory: ItemSceneEntityFactory;
+  // portraits
+  portraitCamera: ArcRotateCamera;
 
   constructor(
     private clientApplication: ClientApplication,
     private gameWorldView: GameWorldView
   ) {
-    // const gl = this.canvas.getContext("webgl2");
-    // if (!gl) {
-    //   throw new Error("Failed to create WebGL context.");
-    // }
-    // console.log("creating image generator engine");
-    // this.engine = new Engine(gl, true, {
-    //   preserveDrawingBuffer: true,
-    //   stencil: true,
-    // });
-    // this.scene = this.createScene(this.gameWorldView.engine);
-    // this.portraitEngine = new Engine(gl, true, { preserveDrawingBuffer: true, stencil: true });
-    // this.materialManager = new MaterialManager(this.scene);
-    // this.itemSceneEntityFactory = new ItemSceneEntityFactory(
-    //   clientApplication.assetService,
-    //   clientApplication.floatingMessagesService,
-    //   this.scene,
-    //   this.materialManager
-    // );
-    // this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
-    // this.camera.minZ = 0;
-    // this.requestHandlers = this.createRequestHandlers();
-    // this.portraitCamera = new ArcRotateCamera(
-    //   "portrait camera",
-    //   0,
-    //   0,
-    //   0,
-    //   Vector3.Zero(),
-    //   this.gameWorldView.scene
-    // );
-    // this.portraitCamera.minZ = 0;
-    // this.portraitCamera.layerMask = LAYER_MASK_1;
-    // const portraitRenderTarget = new RenderTargetTexture(
-    //   "portraitTexture",
-    //   { width: 100, height: 100 },
-    //   this.gameWorldView.scene
-    // );
-    // this.portraitCamera.outputRenderTarget = portraitRenderTarget;
+    const gl = this.canvas.getContext("webgl2");
+    if (!gl) {
+      throw new Error("Failed to create WebGL context.");
+    }
+    this.engine = new Engine(gl, true, {
+      preserveDrawingBuffer: true,
+      stencil: true,
+    });
+    this.scene = this.createScene(this.engine);
+    this.portraitEngine = new Engine(gl, true, { preserveDrawingBuffer: true, stencil: true });
+    this.materialManager = new MaterialManager(this.scene);
+    this.itemSceneEntityFactory = new ItemSceneEntityFactory(
+      clientApplication.assetService,
+      clientApplication.floatingMessagesService,
+      this.scene,
+      this.materialManager
+    );
+    this.camera = new UniversalCamera("camera", new Vector3(0, 0, 3), this.scene);
+    this.camera.minZ = 0;
+    this.requestHandlers = this.createRequestHandlers();
+    this.portraitCamera = new ArcRotateCamera(
+      "portrait camera",
+      0,
+      0,
+      0,
+      Vector3.Zero(),
+      this.gameWorldView.scene
+    );
+    this.portraitCamera.minZ = 0;
+    this.portraitCamera.layerMask = LAYER_MASK_1;
+    const portraitRenderTarget = new RenderTargetTexture(
+      "portraitTexture",
+      { width: 100, height: 100 },
+      this.gameWorldView.scene
+    );
+    this.portraitCamera.outputRenderTarget = portraitRenderTarget;
   }
 
   private createScene(engine: Engine): Scene {
-    console.log("before:", EngineStore.LastCreatedScene);
     const scene = new Scene(engine);
-    console.log("after:", EngineStore.LastCreatedScene);
-    // scene.clearColor = new Color4(0, 0, 0, 0);
-    // this.setUpSceneLighting(scene);
-    // const glowLayer = new GlowLayer("glow-2", scene);
-    // glowLayer.intensity = 0.5;
+    scene.clearColor = new Color4(0, 0, 0, 0);
+    this.setUpSceneLighting(scene);
+    const glowLayer = new GlowLayer("glow-2", scene);
+    glowLayer.intensity = 0.5;
     return scene;
   }
 
@@ -113,222 +110,223 @@ export class ImageGenerator {
     pointLight.position = new Vector3(-1, 2, 2);
   }
 
-  // private createRequestHandlers(): ImageGenerationRequestHandlers {
-  //   return {
-  //     [ImageGenerationRequestType.ItemCreation]: ({ item }) => {
-  //       try {
-  //         this.createItemImage(item);
-  //       } catch (err) {
-  //         console.info(err);
-  //         this.processNextMessage();
-  //       }
-  //     },
-  //     // we're calling processNextMessage() individually because we haven't figured out how
-  //     // to await createItemImage because we need to run the render loop for it to finish
-  //     // so we call processNextMessage() in the promise resolution of that one, so even though we'd like to
-  //     // just call processNextMessage() after the switch statement, I haven't figured out how to make it work
-  //     [ImageGenerationRequestType.ItemDeletion]: ({ itemIds }) => {
-  //       this.clientApplication.imageStore.clearThumbnailIds(itemIds);
-  //       this.processNextMessage();
-  //     },
-  //     [ImageGenerationRequestType.ClearState]: () => {
-  //       this.clientApplication.imageStore.clearAllThumbnails();
-  //       this.processNextMessage();
-  //     },
-  //   };
-  // }
+  private createRequestHandlers(): ImageGenerationRequestHandlers {
+    return {
+      [ImageGenerationRequestType.ItemCreation]: ({ item }) => {
+        try {
+          this.createItemImage(item);
+        } catch (err) {
+          console.info(err);
+          this.processNextMessage();
+        }
+      },
+      // we're calling processNextMessage() individually because we haven't figured out how
+      // to await createItemImage because we need to run the render loop for it to finish
+      // so we call processNextMessage() in the promise resolution of that one, so even though we'd like to
+      // just call processNextMessage() after the switch statement, I haven't figured out how to make it work
+      [ImageGenerationRequestType.ItemDeletion]: ({ itemIds }) => {
+        this.clientApplication.imageStore.clearThumbnailIds(itemIds);
+        this.processNextMessage();
+      },
+      [ImageGenerationRequestType.ClearState]: () => {
+        this.clientApplication.imageStore.clearAllThumbnails();
+        this.processNextMessage();
+      },
+    };
+  }
 
-  // async enqueueMessage(message: ImageGenerationRequest) {
-  //   this.queue.push(message);
-  //   if (this.isProcessing) return;
-  //   this.isProcessing = true;
-  //   this.processNextMessage();
-  // }
+  async enqueueMessage(message: ImageGenerationRequest) {
+    this.queue.push(message);
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    this.processNextMessage();
+  }
 
-  // private processNextMessage() {
-  //   if (this.queue.length === 0) {
-  //     this.isProcessing = false;
-  //     console.info("image manager queue emptied");
-  //     return;
-  //   }
+  private processNextMessage() {
+    if (this.queue.length === 0) {
+      this.isProcessing = false;
+      console.info("image manager queue emptied");
+      return;
+    }
 
-  //   const message = this.queue.shift();
-  //   if (!message) {
-  //     return console.error("expected message not found");
-  //   }
-  //   this.requestHandlers[message.type](message.data as never);
-  // }
+    const message = this.queue.shift();
+    console.log("processNextMessage:", message);
+    if (!message) {
+      return console.error("expected message not found");
+    }
+    this.requestHandlers[message.type](message.data as never);
+  }
 
-  // private async createItemImage(item: Item) {
-  //   try {
-  //     const itemTypesWithNoModels = [
-  //       EquipmentType.Ring,
-  //       EquipmentType.Amulet,
-  //       EquipmentType.BodyArmor,
-  //     ];
-  //     if (
-  //       item instanceof Equipment &&
-  //       itemTypesWithNoModels.includes(item.equipmentBaseItemProperties.equipmentType)
-  //     ) {
-  //       this.processNextMessage();
-  //       return;
-  //     }
-  //     const sceneEntity = await this.itemSceneEntityFactory.create(item, false);
+  private async createItemImage(item: Item) {
+    try {
+      const itemTypesWithNoModels = [
+        EquipmentType.Ring,
+        EquipmentType.Amulet,
+        EquipmentType.BodyArmor,
+      ];
+      if (
+        item instanceof Equipment &&
+        itemTypesWithNoModels.includes(item.equipmentBaseItemProperties.equipmentType)
+      ) {
+        this.processNextMessage();
+        return;
+      }
+      const sceneEntity = await this.itemSceneEntityFactory.create(item, false);
 
-  //     sceneEntity.setVisibility(1);
+      sceneEntity.setVisibility(1);
 
-  //     const parentMesh = sceneEntity.rootMesh;
+      const parentMesh = sceneEntity.rootMesh;
 
-  //     parentMesh.position = Vector3.Zero();
+      parentMesh.position = Vector3.Zero();
 
-  //     const box = calculateCompositeBoundingBox(sceneEntity.assetContainer.meshes);
-  //     const itemHeight = box.max.y - box.min.y;
+      const box = calculateCompositeBoundingBox(sceneEntity.assetContainer.meshes);
+      const itemHeight = box.max.y - box.min.y;
 
-  //     const center = box.min.add(box.max).scale(0.5);
-  //     const size = box.max.subtract(box.min);
+      const center = box.min.add(box.max).scale(0.5);
+      const size = box.max.subtract(box.min);
 
-  //     const camera = this.camera;
-  //     const fov = camera.fov;
-  //     const maxDimension = Math.max(size.x, size.y);
-  //     const distance = maxDimension / (2 * Math.tan(fov / 2));
-  //     camera.position.copyFrom(center.add(new Vector3(0, 0, distance)));
-  //     camera.setTarget(center);
+      const camera = this.camera;
+      const fov = camera.fov;
+      const maxDimension = Math.max(size.x, size.y);
+      const distance = maxDimension / (2 * Math.tan(fov / 2));
+      camera.position.copyFrom(center.add(new Vector3(0, 0, distance)));
+      camera.setTarget(center);
 
-  //     const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;
-  //     const canvasWidth = (size.x / size.y) * canvasHeight;
-  //     this.canvas.width = canvasWidth;
-  //     this.canvas.height = canvasHeight;
+      const canvasHeight = item instanceof Equipment ? itemHeight * 120 : itemHeight * 420;
+      const canvasWidth = (size.x / size.y) * canvasHeight;
+      this.canvas.width = canvasWidth;
+      this.canvas.height = canvasHeight;
 
-  //     this.engine.runRenderLoop(() => {});
-  //     CreateScreenshotUsingRenderTarget(
-  //       this.engine,
-  //       camera,
-  //       { width: canvasWidth, height: canvasHeight },
-  //       (image) => {
-  //         this.engine.stopRenderLoop();
-  //         this.clientApplication.imageStore.setItemThumbnail(item.entityProperties.id, image);
-  //         sceneEntity.cleanup({ softCleanup: false });
-  //         this.processNextMessage();
-  //       },
-  //       "image/png"
-  //     );
-  //   } catch (err) {
-  //     console.info(err);
-  //     this.processNextMessage();
-  //   }
-  // }
+      this.engine.runRenderLoop(() => {});
+      CreateScreenshotUsingRenderTarget(
+        this.engine,
+        camera,
+        { width: canvasWidth, height: canvasHeight },
+        (image) => {
+          this.engine.stopRenderLoop();
+          this.clientApplication.imageStore.setItemThumbnail(item.entityProperties.id, image);
+          sceneEntity.cleanup({ softCleanup: false });
+          this.processNextMessage();
+        },
+        "image/png"
+      );
+    } catch (err) {
+      console.info(err);
+      this.processNextMessage();
+    }
+  }
 
-  // async createCombatantPortrait(combatantId: string) {
-  //   const world = this.gameWorldView;
-  //   const combatantModelOption =
-  //     world.sceneEntityService.combatantSceneEntityManager.getOptional(combatantId);
-  //   if (!combatantModelOption) {
-  //     // might be processing image request after left game?
-  //     return;
-  //   }
+  async createCombatantPortrait(combatantId: string) {
+    const world = this.gameWorldView;
+    const combatantModelOption =
+      world.sceneEntityService.combatantSceneEntityManager.getOptional(combatantId);
+    if (!combatantModelOption) {
+      // might be processing image request after left game?
+      return;
+    }
 
-  //   let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "DEF-head");
-  //   if (!headBoneOption) {
-  //     headBoneOption = combatantModelOption.rootMesh;
-  //   }
+    let headBoneOption = getChildMeshByName(combatantModelOption.rootMesh, "DEF-head");
+    if (!headBoneOption) {
+      headBoneOption = combatantModelOption.rootMesh;
+    }
 
-  //   const headPosition = headBoneOption.getWorldMatrix().getTranslation();
+    const headPosition = headBoneOption.getWorldMatrix().getTranslation();
 
-  //   const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
-  //   const min = boundingInfo.boundingBox.minimumWorld;
-  //   const max = boundingInfo.boundingBox.maximumWorld;
+    const boundingInfo = combatantModelOption.rootMesh.getBoundingInfo();
+    const min = boundingInfo.boundingBox.minimumWorld;
+    const max = boundingInfo.boundingBox.maximumWorld;
 
-  //   const width = max.x - min.x;
+    const width = max.x - min.x;
 
-  //   const { portraitCamera } = this;
-  //   // Camera parameters
-  //   const fov = portraitCamera.fov;
-  //   // Calculate the distance needed to align the top of the viewport with the top of the bounding box
-  //   const distance = width / (2 * Math.tan(fov / 2)); // Vertical frustum size
-  //   const inFrontOf = combatantModelOption.rootTransformNode.forward.scale(distance);
-  //   const cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
-  //   const alphaOffset = -0.2;
-  //   portraitCamera.position.copyFrom(cameraPosition);
-  //   portraitCamera.setTarget(headPosition);
-  //   portraitCamera.alpha += alphaOffset;
-  //   portraitCamera.beta -= 0.2;
+    const { portraitCamera } = this;
+    // Camera parameters
+    const fov = portraitCamera.fov;
+    // Calculate the distance needed to align the top of the viewport with the top of the bounding box
+    const distance = width / (2 * Math.tan(fov / 2)); // Vertical frustum size
+    const inFrontOf = combatantModelOption.rootTransformNode.forward.scale(distance);
+    const cameraPosition = headPosition.add(new Vector3(0, 0, inFrontOf.z));
+    const alphaOffset = -0.2;
+    portraitCamera.position.copyFrom(cameraPosition);
+    portraitCamera.setTarget(headPosition);
+    portraitCamera.alpha += alphaOffset;
+    portraitCamera.beta -= 0.2;
 
-  //   const { monsterType } = combatantModelOption.combatant.combatantProperties;
-  //   if (monsterType !== null) {
-  //     const { arcRotate, position } = MODEL_PORTRAIT_CAMERA_POSITIONS[monsterType];
-  //     const { alpha, beta, radius } = arcRotate;
-  //     portraitCamera.alpha += alpha;
-  //     portraitCamera.beta += beta;
-  //     portraitCamera.radius += radius;
-  //     portraitCamera.target.copyFrom(this.portraitCamera.target.add(position));
-  //   } else {
-  //     // humanoid
-  //     portraitCamera.target.copyFrom(portraitCamera.target.add(new Vector3(0, 0.05, 0)));
-  //   }
+    const { monsterType } = combatantModelOption.combatant.combatantProperties;
+    if (monsterType !== null) {
+      const { arcRotate, position } = MODEL_PORTRAIT_CAMERA_POSITIONS[monsterType];
+      const { alpha, beta, radius } = arcRotate;
+      portraitCamera.alpha += alpha;
+      portraitCamera.beta += beta;
+      portraitCamera.radius += radius;
+      portraitCamera.target.copyFrom(this.portraitCamera.target.add(position));
+    } else {
+      // humanoid
+      portraitCamera.target.copyFrom(portraitCamera.target.add(new Vector3(0, 0.05, 0)));
+    }
 
-  //   for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
-  //     mesh.layerMask = LAYER_MASK_1;
-  //   }
+    for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
+      mesh.layerMask = LAYER_MASK_1;
+    }
 
-  //   this.portraitEngine.runRenderLoop(() => {
-  //     //
-  //   });
-  //   const image = await CreateScreenshotUsingRenderTargetAsync(
-  //     // using this engine instead of the main engine somehow works
-  //     // and avoids the flash of low resolution rendering to the main canvas
-  //     this.portraitEngine,
-  //     portraitCamera,
-  //     { width: 100, height: 100 },
-  //     "image/png"
-  //   );
+    this.portraitEngine.runRenderLoop(() => {
+      //
+    });
+    const image = await CreateScreenshotUsingRenderTargetAsync(
+      // using this engine instead of the main engine somehow works
+      // and avoids the flash of low resolution rendering to the main canvas
+      this.portraitEngine,
+      portraitCamera,
+      { width: 100, height: 100 },
+      "image/png"
+    );
 
-  //   // @TODO - stopping this affects item screenshot creation, fix it
-  //   this.portraitEngine.stopRenderLoop();
+    // @TODO - stopping this affects item screenshot creation, fix it
+    this.portraitEngine.stopRenderLoop();
 
-  //   for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
-  //     mesh.layerMask = LAYER_MASK_ALL;
-  //   }
+    for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
+      mesh.layerMask = LAYER_MASK_ALL;
+    }
 
-  //   return image;
-  // }
+    return image;
+  }
 
-  // enqueueCharacterItemsForThumbnails(character: Combatant) {
-  //   const itemsToCreateThumbnailsFor = [];
-  //   itemsToCreateThumbnailsFor.push(...character.combatantProperties.inventory.equipment);
-  //   const equipment = character.getEquipmentOption();
-  //   const hotswapSets = equipment.getHoldableHotswapSlots();
-  //   if (hotswapSets) {
-  //     for (const hotswapSet of hotswapSets) {
-  //       itemsToCreateThumbnailsFor.push(...Object.values(hotswapSet.holdables));
-  //       itemsToCreateThumbnailsFor.push(...Object.values(equipment.getWearables()));
-  //     }
-  //   }
+  enqueueCharacterItemsForThumbnails(character: Combatant) {
+    const itemsToCreateThumbnailsFor = [];
+    itemsToCreateThumbnailsFor.push(...character.combatantProperties.inventory.equipment);
+    const equipment = character.getEquipmentOption();
+    const hotswapSets = equipment.getHoldableHotswapSlots();
+    if (hotswapSets) {
+      for (const hotswapSet of hotswapSets) {
+        itemsToCreateThumbnailsFor.push(...Object.values(hotswapSet.holdables));
+        itemsToCreateThumbnailsFor.push(...Object.values(equipment.getWearables()));
+      }
+    }
 
-  //   for (const item of itemsToCreateThumbnailsFor) {
-  //     this.enqueueMessage({
-  //       type: ImageGenerationRequestType.ItemCreation,
-  //       data: { item },
-  //     });
-  //   }
-  // }
+    for (const item of itemsToCreateThumbnailsFor) {
+      this.enqueueMessage({
+        type: ImageGenerationRequestType.ItemCreation,
+        data: { item },
+      });
+    }
+  }
 
-  // enqueueConsumableGenericThumbnailCreation() {
-  //   for (const consumableType of [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector]) {
-  //     const item = new Consumable(
-  //       {
-  //         id: CONSUMABLE_TYPE_STRINGS[consumableType],
-  //         name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName,
-  //       },
-  //       0,
-  //       {},
-  //       consumableType,
-  //       1
-  //     );
+  enqueueConsumableGenericThumbnailCreation() {
+    for (const consumableType of [ConsumableType.HpAutoinjector, ConsumableType.MpAutoinjector]) {
+      const item = new Consumable(
+        {
+          id: CONSUMABLE_TYPE_STRINGS[consumableType],
+          name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName,
+        },
+        0,
+        {},
+        consumableType,
+        1
+      );
 
-  //     this.enqueueMessage({
-  //       type: ImageGenerationRequestType.ItemCreation,
-  //       data: { item },
-  //     });
-  //   }
-  // }
+      this.enqueueMessage({
+        type: ImageGenerationRequestType.ItemCreation,
+        data: { item },
+      });
+    }
+  }
 }

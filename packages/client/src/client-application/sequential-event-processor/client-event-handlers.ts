@@ -82,10 +82,10 @@ export function createClientSequentialEventHandlers(
         loot.consumables = loot.consumables.map((item) => Consumable.fromSerialized(item));
 
         for (const item of loot.equipment) {
-          // gameWorldView?.imageGenerator.enqueueMessage({
-          //   type: ImageGenerationRequestType.ItemCreation,
-          //   data: { item },
-          // });
+          gameWorldView?.imageGenerator.enqueueMessage({
+            type: ImageGenerationRequestType.ItemCreation,
+            data: { item },
+          });
         }
 
         if (actionMenu.currentMenuIsType(ActionMenuScreenType.Root)) {
@@ -176,10 +176,10 @@ export function createClientSequentialEventHandlers(
         }
       );
 
-      // gameWorldView?.imageGenerator.enqueueMessage({
-      //   type: ImageGenerationRequestType.ItemDeletion,
-      //   data: { itemIds: itemsToRemoveThumbnails },
-      // });
+      gameWorldView?.imageGenerator.enqueueMessage({
+        type: ImageGenerationRequestType.ItemDeletion,
+        data: { itemIds: itemsToRemoveThumbnails },
+      });
     },
   };
 }

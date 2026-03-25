@@ -38,13 +38,6 @@ export class GameWorldView {
     this.environment = new EnvironmentView(this.scene);
     this.environment.groundPlane.clear();
 
-    const otherEngine = new Engine(canvas, true);
-    const otherScene = new Scene(otherEngine);
-    // const otherCamera = new ArcRotateCamera("",1,1,1,otherScene
-    //                                        )
-    // otherScene.autoClear = false;
-    // otherEngine.runRenderLoop(() => {});
-
     this.engine.runRenderLoop(() => {
       this.updateGameWorld(this.engine.getDeltaTime());
       this.scene.render();
@@ -63,7 +56,7 @@ export class GameWorldView {
       this.materialManager
     );
     this._sceneEntityService = new SceneEntityService(clientApplication, this);
-    // this._imageGenerator = new ImageGenerator(clientApplication, this);
+    this._imageGenerator = new ImageGenerator(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
 
