@@ -83,7 +83,7 @@ export class GameWorldViewDebug {
         `<li>${e.entityId.slice(0, 3)}: x:${e.rootTransformNode.position.x}, z: ${e.rootTransformNode.position.z}</li>`
       );
     }
-    return `<ul>${result.join()}</ul>`;
+    return `<ul>${result.join("")}</ul>`;
   }
 
   private getGameWorldResources() {

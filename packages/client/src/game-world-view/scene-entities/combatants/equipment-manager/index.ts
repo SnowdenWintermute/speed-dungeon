@@ -30,7 +30,7 @@ export class CombatantSceneEntityEquipmentManager {
   private visibilityForShownHotswapSlots = 0;
 
   constructor(
-    public combatantSceneEntity: CombatantSceneEntity,
+    readonly combatantSceneEntity: CombatantSceneEntity,
     private itemSceneEntityFactory: ItemSceneEntityFactory
   ) {
     this.holdableAttacher = new HoldableAttacher(this.combatantSceneEntity);

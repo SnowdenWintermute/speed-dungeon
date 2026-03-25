@@ -14,6 +14,7 @@ export async function loadAssetContainerIntoScene(
   const assetContainer = await LoadAssetContainerAsync(new Uint8Array(buffer), scene, {
     pluginExtension: ".glb",
   });
+
   assetContainer.addToScene();
 
   return assetContainer;

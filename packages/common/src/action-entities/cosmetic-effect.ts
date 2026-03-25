@@ -23,11 +23,12 @@ export enum CosmeticEffectNames {
 export abstract class CosmeticEffect {
   public lifetimeTimeouts: null | NodeJS.Timeout[] = null;
   particleSystems: ManagedParticleSystem[] = [];
-  public transformNode = new TransformNode("");
+  public transformNode: TransformNode;
   constructor(
     public scene: Scene,
     public rank: number
   ) {
+    this.transformNode = new TransformNode("", scene);
     this.initialize(scene);
   }
   createParticleSystems?(scene: Scene): ManagedParticleSystem[];

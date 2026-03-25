@@ -20,6 +20,9 @@ export const SceneManager = observer(() => {
       !clientApplication.gameWorldView?.initialized
     ) {
       const gameWorldView = new GameWorldView(canvasRef.current);
+      canvasRef.current.addEventListener("webglcontextlost", (e) => {
+        console.log("context lost!", e);
+      });
       clientApplication.setGameWorldView(gameWorldView);
       gameWorldView.initialize(clientApplication, debugRef);
       clientApplication.setReplayManagerTickScheduler(createBabylonScheduler(gameWorldView.scene));

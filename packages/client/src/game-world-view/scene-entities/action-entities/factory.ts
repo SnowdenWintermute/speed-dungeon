@@ -53,7 +53,7 @@ export class ActionEntitySceneEntityFactory {
     const parentMesh = assetContainer.meshes[0];
     invariant(parentMesh !== undefined, "expected mesh was missing in imported scene");
 
-    const transformNode = new TransformNode("");
+    const transformNode = new TransformNode("", this.scene);
     transformNode.position.copyFrom(parentMesh.position);
     parentMesh.setParent(transformNode);
     assetContainer.transformNodes.push(transformNode);

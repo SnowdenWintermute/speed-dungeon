@@ -36,13 +36,13 @@ export abstract class SceneEntity {
 
   constructor(
     public entityId: EntityId,
-    private scene: Scene,
+    protected scene: Scene,
     public assetContainer: AssetContainer,
     public floatingMessagesService: FloatingMessageService,
     startPosition: Vector3,
     startRotation: Quaternion
   ) {
-    this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`);
+    this.rootTransformNode = new TransformNode(`${this.entityId}-root-transform-node`, this.scene);
     this.rootTransformNode.position = startPosition;
     this.movementManager = new SceneEntityMovementManager(this.rootTransformNode);
 
@@ -85,16 +85,12 @@ export abstract class SceneEntity {
 
   getVisibility = () => this.visibility;
 
-  static createTransformNodeChildOfBone(
-    rootMesh: Mesh | AbstractMesh,
-    name: string,
-    boneName: string
-  ) {
+  createTransformNodeChildOfBone(rootMesh: Mesh | AbstractMesh, name: string, boneName: string) {
     const bone = getChildMeshByName(rootMesh, boneName);
     if (bone === undefined) {
       return;
     }
-    const newTransformNode = new TransformNode(name);
+    const newTransformNode = new TransformNode(name, this.scene);
     newTransformNode.setParent(bone);
     newTransformNode.setPositionWithLocalVector(Vector3.Zero());
     newTransformNode.rotationQuaternion = new Quaternion();

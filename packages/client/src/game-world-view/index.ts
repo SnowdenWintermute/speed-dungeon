@@ -32,14 +32,18 @@ export class GameWorldView {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(0, 0, 0, 0);
-
     this.materialManager = new MaterialManager(this.scene);
     this.textureManager = new TextureManager(this.scene);
     this.camera = this.createMainCamera();
-
     this.environment = new EnvironmentView(this.scene);
-
     this.environment.groundPlane.clear();
+
+    const otherEngine = new Engine(canvas, true);
+    const otherScene = new Scene(otherEngine);
+    // const otherCamera = new ArcRotateCamera("",1,1,1,otherScene
+    //                                        )
+    // otherScene.autoClear = false;
+    // otherEngine.runRenderLoop(() => {});
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld(this.engine.getDeltaTime());

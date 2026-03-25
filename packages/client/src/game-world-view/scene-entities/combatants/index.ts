@@ -45,8 +45,8 @@ export class CombatantSceneEntity extends SceneEntity {
     skeletonAssetContainer: AssetContainer
   ) {
     const { transformProperties } = _combatant.combatantProperties;
-    const homePosition = transformProperties.getHomePosition();
-    const homeRotation = transformProperties.homeRotation;
+    const homePosition = transformProperties.getHomePosition().clone();
+    const homeRotation = transformProperties.homeRotation.clone();
     super(
       _combatant.getEntityId(),
       gameWorldView.scene,
@@ -55,6 +55,8 @@ export class CombatantSceneEntity extends SceneEntity {
       homePosition,
       homeRotation
     );
+
+    console.log("this.rootMesh name", this.rootMesh.name);
 
     const rotation = this.rootTransformNode.rotationQuaternion;
     invariant(rotation !== null, ERROR_MESSAGES.GAME_WORLD.MISSING_ROTATION_QUATERNION);
@@ -104,12 +106,13 @@ export class CombatantSceneEntity extends SceneEntity {
     while (assetContainer.meshes.length > 1) {
       const expected = assetContainer.meshes.pop();
       invariant(expected !== undefined, "removeSkinnedPlaceholderMesh");
+      console.log("removed:", expected.name);
       expected.dispose(false, true);
     }
   }
 
   initChildTransformNodes(): void {
-    const mainHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
+    const mainHandEquipmentNode = this.createTransformNodeChildOfBone(
       this.rootMesh,
       `${this.entityId}-mh-equipment`,
       "Equipment.R"
@@ -123,7 +126,7 @@ export class CombatantSceneEntity extends SceneEntity {
         mainHandEquipmentNode;
     }
 
-    const offHandEquipmentNode = SceneEntity.createTransformNodeChildOfBone(
+    const offHandEquipmentNode = this.createTransformNodeChildOfBone(
       this.rootMesh,
       `${this.entityId}-oh-equipment`,
       "Equipment.L"
@@ -131,7 +134,7 @@ export class CombatantSceneEntity extends SceneEntity {
     this.childTransformNodes[CombatantBaseChildTransformNodeName.OffhandEquipment] =
       offHandEquipmentNode;
 
-    const headNode = SceneEntity.createTransformNodeChildOfBone(
+    const headNode = this.createTransformNodeChildOfBone(
       this.rootMesh,
       `${this.entityId}-head`,
       "DEF-head"
@@ -143,7 +146,10 @@ export class CombatantSceneEntity extends SceneEntity {
     this.childTransformNodes[CombatantBaseChildTransformNodeName.EntityRoot] =
       this.rootTransformNode;
 
-    const hitboxCenterTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
+    const hitboxCenterTransformNode = new TransformNode(
+      `${this.entityId}-hitbox-center`,
+      this.scene
+    );
     const hitboxCenter = this.bounding.boundingInfo.boundingBox.center;
 
     hitboxCenterTransformNode.setParent(this.rootTransformNode);
@@ -152,7 +158,10 @@ export class CombatantSceneEntity extends SceneEntity {
     this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter] =
       hitboxCenterTransformNode;
 
-    const hitboxCenterTopTransformNode = new TransformNode(`${this.entityId}-hitbox-center`);
+    const hitboxCenterTopTransformNode = new TransformNode(
+      `${this.entityId}-hitbox-center`,
+      this.scene
+    );
     const hitboxTop = this.bounding.boundingInfo.boundingBox.center.clone();
     hitboxTop.y += this.bounding.boundingInfo.boundingBox.extendSize.y;
     hitboxCenterTopTransformNode.setParent(this.rootTransformNode);

@@ -65,7 +65,7 @@ export class EquipmentSceneEntity extends SceneEntity {
       this.equipment.equipmentBaseItemProperties.equipmentType ===
       EquipmentType.TwoHandedRangedWeapon
     ) {
-      const nockNode = SceneEntity.createTransformNodeChildOfBone(
+      const nockNode = this.createTransformNodeChildOfBone(
         this.rootMesh,
         `${this.entityId}-nock`,
         "String"
@@ -73,7 +73,7 @@ export class EquipmentSceneEntity extends SceneEntity {
       if (!nockNode) console.error("no nock bone found");
 
       this.childTransformNodes[CombatantHoldableChildTransformNodeName.NockBone] = nockNode;
-      const arrowRestNode = SceneEntity.createTransformNodeChildOfBone(
+      const arrowRestNode = this.createTransformNodeChildOfBone(
         this.rootMesh,
         `${this.entityId}-arrow-rest`,
         "ArrowRest"
