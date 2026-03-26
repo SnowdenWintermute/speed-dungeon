@@ -1,5 +1,9 @@
 import { Vector3 } from "@babylonjs/core";
-import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
+import {
+  ActionEntity,
+  ActionEntityName,
+  ActionEntityProperties,
+} from "../../../../action-entities/index.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { Combatant } from "../../../../combatants/index.js";
 import {
@@ -95,31 +99,33 @@ export class ProjectileFactory {
     const { actionUserContext } = this.context;
     const { actionUser } = actionUserContext;
 
+    const actionEntityProperties = new ActionEntityProperties(
+      ActionEntityName.Arrow,
+      this.startPosition
+    );
+
+    // {
+    //   initialRotation: new Vector3(Math.PI / 2, 0, 0),
+    //   parentOption: {
+    //     sceneEntityIdentifier: {
+    //       type: SceneEntityType.CharacterModel,
+    //       entityId: actionUser.getEntityId(),
+    //     },
+    //     transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+    //   },
+    //   actionOriginData: {
+    //     spawnedBy: actionUser.getEntityProperties(),
+    //     userCombatantAttributes: actionUser.getTotalAttributes(),
+    //     resourceChangeProperties: this.resourceChangeProperties,
+    //   },
+    // }
+
     return {
       type: SpawnableEntityType.ActionEntity,
-      actionEntity: new ActionEntity(
-        {
-          id: this.context.idGenerator.generate(),
-          name: `${nameToPossessive(this.firedByCombatantName)} arrow` as EntityName,
-        },
-        {
-          position: this.startPosition,
-          name: ActionEntityName.Arrow,
-          initialRotation: new Vector3(Math.PI / 2, 0, 0),
-          parentOption: {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: actionUser.getEntityId(),
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
-          },
-          actionOriginData: {
-            spawnedBy: actionUser.getEntityProperties(),
-            userCombatantAttributes: actionUser.getTotalAttributes(),
-            resourceChangeProperties: this.resourceChangeProperties,
-          },
-        }
-      ),
+      actionEntity: new ActionEntity({
+        id: this.context.idGenerator.generate(),
+        name: `${nameToPossessive(this.firedByCombatantName)} arrow` as EntityName,
+      }),
     };
   }
 

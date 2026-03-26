@@ -1,5 +1,6 @@
 import {
   ActionEntity,
+  ActionEntityActionOriginData,
   ActionEntityName,
   ActionEntityProperties,
 } from "../../../../action-entities/index.js";
@@ -28,15 +29,15 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       id: context.idGenerator.generate(),
       name: "ice burst" as EntityName,
     };
-    const actionEntityProperties: ActionEntityProperties = {
-      position,
-      name: ActionEntityName.IceBurst,
-      actionOriginData: {
-        spawnedBy: actionUser.getConditionAppliedBy().entityProperties,
-        stacks: actionUser.getConditionStacks(),
-        actionLevel: new MaxAndCurrent(actionUser.getLevel(), actionUser.getLevel()),
-      },
-    };
+    const actionEntityProperties = new ActionEntityProperties(ActionEntityName.IceBurst, position);
+    actionEntityProperties.actionOriginData = new ActionEntityActionOriginData(
+      actionUser.getConditionAppliedBy().entityProperties
+    );
+    actionEntityProperties.actionOriginData.stacks = actionUser.getConditionStacks();
+    actionEntityProperties.actionOriginData.actionLevel = new MaxAndCurrent(
+      actionUser.getLevel(),
+      actionUser.getLevel()
+    );
 
     return [
       {

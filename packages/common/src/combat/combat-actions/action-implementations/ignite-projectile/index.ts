@@ -1,4 +1,5 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActionEntityActionOriginData } from "../../../../action-entities/index.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import { EntityName } from "../../../../aliases.js";
 import {
@@ -54,10 +55,12 @@ const config: CombatActionComponentConfig = {
         const { actionUser } = context.actionUserContext;
         const actionEntityProperties = actionUser.getActionEntityProperties();
 
-        if (!actionEntityProperties.actionOriginData)
-          actionEntityProperties.actionOriginData = {
-            spawnedBy: { id: "", name: "" as EntityName },
-          };
+        if (!actionEntityProperties.actionOriginData) {
+          actionEntityProperties.actionOriginData = new ActionEntityActionOriginData({
+            id: "",
+            name: "" as EntityName,
+          });
+        }
 
         const { actionOriginData } = actionEntityProperties;
 

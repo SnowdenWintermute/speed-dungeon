@@ -32,19 +32,17 @@ export async function spawnEntitiesGameUpdateHandler(
         );
       }
     } else {
-      deserialized.push(ActionEntity.fromSerialized(entity));
-      if (clientApplication.gameWorldView) {
-        const deserialized = ActionEntity.fromSerialized(entity);
-        deserialized.makeObservable();
-        const { actionEntityManager } = party;
-        const battleOption = party.getBattleOption(game);
-        actionEntityManager.registerActionEntity(deserialized, battleOption);
+      const actionEntity = ActionEntity.fromSerialized(entity.actionEntity);
+      deserialized.push(actionEntity);
+      actionEntity.makeObservable();
+      const { actionEntityManager } = party;
+      const battleOption = party.getBattleOption(game);
+      actionEntityManager.registerActionEntity(actionEntity, battleOption);
 
-        if (clientApplication.gameWorldView) {
-          promises.push(
-            handleNewSpawnableActionEntity(clientApplication.gameWorldView, entity.actionEntity)
-          );
-        }
+      if (clientApplication.gameWorldView) {
+        promises.push(
+          handleNewSpawnableActionEntity(clientApplication.gameWorldView, actionEntity)
+        );
       }
     }
   }

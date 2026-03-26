@@ -31,6 +31,7 @@ import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-act
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { makeAutoObservable, makeObservable } from "mobx";
+import { removeUndefinedFields } from "../utils/index.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -48,7 +49,7 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Firewall]: "Firewall",
 };
 
-export interface ActionEntityActionOriginData {
+export class ActionEntityActionOriginData {
   targetingProperties?: ActionUserTargetingProperties;
   actionLevel?: MaxAndCurrent;
   turnOrderSpeed?: number;
@@ -60,19 +61,89 @@ export interface ActionEntityActionOriginData {
     Record<CombatActionResource, CombatActionResourceChangeProperties>
   >;
   wasIncinerated?: boolean;
-  spawnedBy: EntityProperties;
+  constructor(public spawnedBy: EntityProperties) {}
+
+  toSerialized() {
+    const result = {
+      ...this,
+      stacks: this.stacks?.toSerialized(),
+      actionLevel: this.actionLevel?.toSerialized(),
+      targetingProperties: this.targetingProperties?.toSerialized(),
+    };
+    return result;
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionEntityActionOriginData>) {
+    const result = new ActionEntityActionOriginData(serialized.spawnedBy);
+
+    if (serialized.targetingProperties) {
+      result.targetingProperties = ActionUserTargetingProperties.fromSerialized(
+        serialized.targetingProperties
+      );
+    }
+    if (serialized.actionLevel) {
+      result.actionLevel = MaxAndCurrent.fromSerialized(serialized.actionLevel);
+    }
+    result.turnOrderSpeed = serialized.turnOrderSpeed;
+    if (serialized.stacks) {
+      result.stacks = MaxAndCurrent.fromSerialized(serialized.stacks);
+    }
+    result.userCombatantAttributes = serialized.userCombatantAttributes;
+    result.userElementalAffinities = serialized.userElementalAffinities;
+    result.userKineticAffinities = serialized.userKineticAffinities;
+    result.resourceChangeProperties = serialized.resourceChangeProperties;
+    result.wasIncinerated = serialized.wasIncinerated;
+
+    return result;
+  }
 }
 
-export interface ActionEntityProperties {
-  position: Vector3;
-  name: ActionEntityName;
-  dimensions?: TaggedShape3DDimensions;
-  initialCosmeticYPosition?: SceneEntityChildTransformNodeIdentifier;
-  parentOption?: SceneEntityChildTransformNodeIdentifier;
-  initialRotation?: Vector3;
-  initialPointToward?: SceneEntityChildTransformNodeIdentifier;
-  initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
-  actionOriginData?: ActionEntityActionOriginData;
+export class ActionEntityProperties {
+  public dimensions?: TaggedShape3DDimensions;
+  public initialCosmeticYPosition?: SceneEntityChildTransformNodeIdentifier;
+  public parentOption?: SceneEntityChildTransformNodeIdentifier;
+  public initialRotation?: Vector3;
+  public initialPointToward?: SceneEntityChildTransformNodeIdentifier;
+  public initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
+  public actionOriginData?: ActionEntityActionOriginData;
+  constructor(
+    public name: ActionEntityName,
+    public position: Vector3
+  ) {}
+
+  toSerialized() {
+    const result = {
+      ...this,
+      position: this.position.asArray(),
+      dimensions: this.dimensions,
+      initialCosmeticYPosition: this.initialCosmeticYPosition,
+      parentOption: this.parentOption,
+      initialRotation: this.initialRotation?.asArray(),
+      initialPointToward: this.initialPointToward,
+      initialLockRotationToFace: this.initialLockRotationToFace,
+      actionOriginData: this.actionOriginData,
+    };
+
+    removeUndefinedFields(result);
+
+    return result;
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionEntityProperties>) {
+    const result = new ActionEntityProperties(serialized.name, serialized.position);
+    result.position = serialized.position;
+    result.dimensions = serialized.dimensions;
+    result.initialCosmeticYPosition = serialized.initialCosmeticYPosition;
+    result.parentOption = serialized.parentOption;
+    if (serialized.initialRotation) {
+      result.initialRotation = Vector3.FromArray(serialized.initialRotation);
+    }
+    result.initialPointToward = serialized.initialPointToward;
+    result.initialLockRotationToFace = serialized.initialLockRotationToFace;
+    result.actionOriginData = serialized.actionOriginData;
+
+    return result;
+  }
 }
 
 export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
@@ -94,27 +165,17 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   }
 
   toSerialized() {
-    return instanceToPlain(this);
+    return {
+      entityProperties: this.entityProperties,
+      actionEntityProperties: this.actionEntityProperties.toSerialized(),
+    };
   }
 
   static fromSerialized(serialized: SerializedOf<ActionEntity>) {
-    const result = plainToInstance(ActionEntity, serialized);
-
-    if (result.actionEntityProperties.actionOriginData) {
-      if (result.actionEntityProperties.actionOriginData.stacks) {
-        result.actionEntityProperties.actionOriginData.stacks = MaxAndCurrent.fromSerialized(
-          result.actionEntityProperties.actionOriginData.stacks
-        );
-      }
-    }
-    if (result.actionEntityProperties.actionOriginData) {
-      if (result.actionEntityProperties.actionOriginData.actionLevel) {
-        result.actionEntityProperties.actionOriginData.actionLevel = MaxAndCurrent.fromSerialized(
-          result.actionEntityProperties.actionOriginData.actionLevel
-        );
-      }
-    }
-    return result;
+    const deserializedActionEntityProperties = ActionEntityProperties.fromSerialized(
+      serialized.actionEntityProperties
+    );
+    return new ActionEntity(serialized.entityProperties, deserializedActionEntityProperties);
   }
 
   getType = () => ActionUserType.ActionEntity;
