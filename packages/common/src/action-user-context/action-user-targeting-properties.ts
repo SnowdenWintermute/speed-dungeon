@@ -1,3 +1,5 @@
+import { makeAutoObservable } from "mobx";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Option } from "../primatives/option.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
 import { NextOrPrevious } from "../primatives/index.js";
@@ -6,9 +8,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
-import { makeAutoObservable } from "mobx";
-import { instanceToPlain, plainToInstance } from "class-transformer";
-import { ActionRank, CombatantId, EntityId } from "../aliases.js";
+import { ActionRank, EntityId } from "../aliases.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import {
   FriendOrFoe,

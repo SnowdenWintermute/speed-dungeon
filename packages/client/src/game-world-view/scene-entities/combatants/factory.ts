@@ -30,6 +30,10 @@ export class CombatantSceneEntityFactory {
     combatant: Combatant,
     options?: { spawnInDeadPose?: boolean; doNotIdle?: boolean }
   ): Promise<CombatantSceneEntity> {
+    this.gameWorldView.sceneEntityService.combatantSceneEntityManager.pendingEntitySpawns.set(
+      combatant.getEntityId(),
+      { pendingUpdates: [] }
+    );
     const { combatantProperties } = combatant;
 
     const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies] as AssetId;

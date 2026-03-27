@@ -8,8 +8,9 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 
 export class EnvironmentSceneEntityManager extends SceneEntityManager<EnvironmentSceneEntity> {
   private factory: EnvironmentSceneEntityFactory;
+
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
-    super();
+    super(clientApplication, gameWorldView);
     this.factory = new EnvironmentSceneEntityFactory(gameWorldView, clientApplication);
   }
 

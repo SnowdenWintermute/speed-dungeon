@@ -18,6 +18,7 @@ export async function spawnEntitiesGameUpdateHandler(
   const { game, party } = clientApplication.combatantFocus.requireFocusedCharacterContext();
 
   const promises: Promise<void>[] = [];
+  console.log("spawnEntitiesGameUpdateHandler", update.command);
 
   const deserialized: (Combatant | ActionEntity)[] = [];
   for (const entity of command.entities) {
@@ -80,7 +81,8 @@ async function handleNewSpawnableCombatant(
     model.movementManager.transformNode.rotationQuaternion = Quaternion.Identity();
   }
 
-  await combatantSceneEntityManager.register(model);
+  const applyUpdatesQueuedWhileSpawning = await combatantSceneEntityManager.register(model);
+  applyUpdatesQueuedWhileSpawning();
 }
 
 async function handleNewSpawnableActionEntity(
@@ -95,7 +97,7 @@ async function handleNewSpawnableActionEntity(
 
   const sceneEntity = await actionEntityManager.spawnActionEntitySceneEntity(actionEntity);
 
-  actionEntityManager.register(sceneEntity);
+  const applyUpdatesQueuedWhileSpawning = await actionEntityManager.register(sceneEntity);
 
   if (actionEntityProperties.parentOption) {
     const targetTransformNode = sceneEntityService.getChildTransformNodeFromIdentifier(
@@ -138,4 +140,6 @@ async function handleNewSpawnableActionEntity(
       _z
     );
   }
+
+  applyUpdatesQueuedWhileSpawning();
 }

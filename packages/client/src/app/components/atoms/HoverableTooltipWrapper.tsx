@@ -2,7 +2,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
-  tooltipText?: ReactNode;
+  tooltipText?: ReactNode | (() => ReactNode);
   extraStyles?: string;
   offsetTop?: number;
   children: ReactNode;
@@ -19,15 +19,19 @@ export default function HoverableTooltipWrapper(props: Props) {
     return () => tooltips.hideTooltip();
   }, []);
 
-  function handleFocus() {
+  const handleFocus = () => {
     if (props.tooltipText) {
-      tooltips.showTooltip(elementRef.current, props.tooltipText);
+      if (props.tooltipText instanceof Function) {
+        tooltips.showTooltip(elementRef.current, props.tooltipText());
+      } else {
+        tooltips.showTooltip(elementRef.current, props.tooltipText);
+      }
     }
-  }
+  };
 
-  function handleBlur() {
+  const handleBlur = () => {
     tooltips.hideTooltip();
-  }
+  };
 
   return (
     <div

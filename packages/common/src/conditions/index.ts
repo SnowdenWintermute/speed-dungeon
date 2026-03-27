@@ -18,15 +18,14 @@ import { ActionIntentAndUser } from "../action-processing/action-steps/index.js"
 import { CosmeticEffectOnTargetTransformNode } from "../combat/combat-actions/combat-action-steps-config.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { TransformModifiers } from "../scene-entities/index.js";
-import { ActionEntityProperties } from "../action-entities/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
 import { ConditionTickProperties } from "./condition-tick-properties.js";
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
-import { CombatantConditionFactory } from "./condition-factory.js";
-import { ReactiveNode, SerializedOf } from "../serialization/index.js";
+import { ReactiveNode } from "../serialization/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
+import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
 
 export const MAX_CONDITION_STACKS = 99;
 

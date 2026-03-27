@@ -51,7 +51,10 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
             case SpawnableEntityType.Combatant:
               return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.toSerialized() };
             case SpawnableEntityType.ActionEntity:
-              return taggedSpawnable;
+              return {
+                ...taggedSpawnable,
+                actionEntity: taggedSpawnable.actionEntity.toSerialized(),
+              };
           }
         }
       );

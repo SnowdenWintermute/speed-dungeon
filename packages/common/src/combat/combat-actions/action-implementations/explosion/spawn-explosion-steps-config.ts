@@ -1,7 +1,8 @@
+import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 import {
   ActionEntity,
+  ActionEntityActionOriginData,
   ActionEntityName,
-  ActionEntityProperties,
 } from "../../../../action-entities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { EntityName } from "../../../../aliases.js";
@@ -29,15 +30,14 @@ stepsOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       id: context.idGenerator.generate(),
       name: "explosion" as EntityName,
     };
-    const actionEntityProperties: ActionEntityProperties = {
-      position,
-      name: ActionEntityName.Explosion,
-      actionOriginData: {
-        spawnedBy: actionUser.getConditionAppliedBy().entityProperties,
-        stacks: actionUser.getConditionStacks(),
-        actionLevel: new MaxAndCurrent(actionUser.getLevel(), actionUser.getLevel()),
-      },
-    };
+    const actionOriginData = new ActionEntityActionOriginData(
+      actionUser.getConditionAppliedBy().entityProperties
+    );
+
+    actionOriginData.stacks = actionUser.getConditionStacks();
+    actionOriginData.actionLevel = new MaxAndCurrent(actionUser.getLevel(), actionUser.getLevel());
+    const actionEntityProperties = new ActionEntityProperties(ActionEntityName.Explosion, position);
+    actionEntityProperties.actionOriginData = actionOriginData;
 
     return [
       {

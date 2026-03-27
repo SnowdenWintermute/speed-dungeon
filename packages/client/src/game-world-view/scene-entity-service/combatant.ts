@@ -22,11 +22,8 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
   factory: CombatantSceneEntityFactory;
   readonly loadingStates = new SceneEntityLoadingStateTracker();
 
-  constructor(
-    private clientApplication: ClientApplication,
-    private gameWorldView: GameWorldView
-  ) {
-    super();
+  constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
+    super(clientApplication, gameWorldView);
     this.factory = new CombatantSceneEntityFactory(gameWorldView, clientApplication);
   }
 
@@ -48,20 +45,19 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { conditionManager } = combatantProperties;
 
     conditionManager.getConditions().forEach((condition) => {
-      this.gameWorldView.sceneEntityService.startOrStopCosmeticEffects(
-        condition.getCosmeticEffectWhileActive?.(entityProperties.id),
-        []
-      );
+      const effects = condition.getCosmeticEffectWhileActive?.(entityProperties.id);
+      if (!effects) return;
+      this.gameWorldView.sceneEntityService.queueCosmeticEffectStart(effects);
     });
 
     const { entityId } = sceneEntity;
     try {
-      // const portraitOption =
-      //   await this.gameWorldView.imageGenerator.createCombatantPortrait(entityId);
+      const portraitOption =
+        await this.gameWorldView.imageGenerator.createCombatantPortrait(entityId);
 
-      // if (portraitOption) {
-      //   this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);
-      // }
+      if (portraitOption) {
+        this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);
+      }
 
       this.loadingStates.setEntityIsLoaded(entityId);
     } catch (error) {

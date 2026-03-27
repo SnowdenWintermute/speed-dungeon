@@ -57,10 +57,8 @@ export class ReplayBranchExecution {
     try {
       const sceneEntityServiceOption =
         this.parentReplayTreeProcessor.clientApplication.gameWorldView?.sceneEntityService;
-      sceneEntityServiceOption?.startOrStopCosmeticEffects(
-        cosmeticEffectsToStartOption,
-        cosmeticEffectsToStopOption
-      );
+      sceneEntityServiceOption?.queueCosmeticEffectStart(cosmeticEffectsToStartOption || []);
+      sceneEntityServiceOption?.stopCosmeticEffects(cosmeticEffectsToStopOption || []);
     } catch (err) {
       console.error("error with cosmetic effects", this.currentGameUpdateOption.command, err);
     }

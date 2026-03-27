@@ -3,7 +3,6 @@ import { Inventory } from "./inventory/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
-import { ActionEntityProperties } from "../action-entities/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
@@ -25,6 +24,7 @@ import { CombatantConditionName } from "../conditions/condition-names.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(

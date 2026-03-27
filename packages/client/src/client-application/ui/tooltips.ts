@@ -7,7 +7,7 @@ export class TooltipStore {
   private text: null | ReactNode = null;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {}, {autoBind:true});
   }
 
   get() {

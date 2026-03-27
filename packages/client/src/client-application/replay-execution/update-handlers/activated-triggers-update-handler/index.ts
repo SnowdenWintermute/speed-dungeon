@@ -107,9 +107,8 @@ export class ActionEffectsApplyerCommand {
           const targetModelOption =
             gameWorldView.sceneEntityService.combatantSceneEntityManager.requireById(entityId);
 
-          gameWorldView.sceneEntityService.startOrStopCosmeticEffects(
-            [],
-            conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
+          gameWorldView.sceneEntityService?.stopCosmeticEffects(
+            conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId) || []
           );
         }
       }
@@ -134,9 +133,9 @@ export class ActionEffectsApplyerCommand {
         if (conditionRemovedOption) {
           const targetModelOption =
             gameWorldView.sceneEntityService.combatantSceneEntityManager.requireById(entityId);
-          gameWorldView.sceneEntityService.startOrStopCosmeticEffects(
-            [],
-            conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId)
+
+          gameWorldView.sceneEntityService?.stopCosmeticEffects(
+            conditionRemovedOption.getCosmeticEffectWhileActive?.(targetModelOption.entityId) || []
           );
         }
       }
@@ -330,12 +329,15 @@ export class ActionEffectsApplyerCommand {
             deserializedCondition
           );
 
-          this.clientApplication.gameWorldView?.sceneEntityService.startOrStopCosmeticEffects(
-            deserializedCondition.getCosmeticEffectWhileActive?.(
-              combatantResult.entityProperties.id
-            ),
-            []
+          const cosmeticEffectsOption = deserializedCondition.getCosmeticEffectWhileActive?.(
+            combatantResult.entityProperties.id
           );
+
+          if (cosmeticEffectsOption) {
+            this.clientApplication.gameWorldView?.sceneEntityService.queueCosmeticEffectStart(
+              cosmeticEffectsOption
+            );
+          }
 
           this.battleOption?.turnOrderManager.turnSchedulerManager.addConditionToTurnOrder(
             this.party,
@@ -359,9 +361,11 @@ export class ActionEffectsApplyerCommand {
       const actionEntity = actionEntityManager.getExpectedActionEntity(id);
       let { actionOriginData } = actionEntity.actionEntityProperties;
       if (!actionOriginData) {
-        actionOriginData = actionEntity.actionEntityProperties.actionOriginData = {
-          spawnedBy: { id: "", name: "not found" as EntityName },
-        };
+        actionOriginData = actionEntity.actionEntityProperties.actionOriginData =
+          new ActionEntityActionOriginData({
+            id: "",
+            name: "not found" as EntityName,
+          });
       }
 
       // @PERF - probably don't need to send the whole MaxAndCurrent for level and stacks unless

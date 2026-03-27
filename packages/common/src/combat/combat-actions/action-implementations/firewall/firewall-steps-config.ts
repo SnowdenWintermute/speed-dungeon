@@ -24,6 +24,7 @@ import { ActionUserTargetingProperties } from "../../../../action-user-context/a
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { EntityName } from "../../../../aliases.js";
+import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -71,29 +72,29 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
       getFirewallStacksByLevel(actionLevel.current)
     );
 
-    const actionOriginData: ActionEntityActionOriginData = {
-      actionLevel,
-      userCombatantAttributes: actionUser.getTotalAttributes(),
-      userElementalAffinities: actionUser
-        .getCombatantProperties()
-        .mitigationProperties.getElementalAffinities(),
-      turnOrderSpeed: BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED,
-      stacks: lifetime,
-      targetingProperties: new ActionUserTargetingProperties(),
-      spawnedBy: actionUser.getEntityProperties(),
-    };
+    const actionOriginData = new ActionEntityActionOriginData(actionUser.getEntityProperties());
+    actionOriginData.actionLevel = actionLevel;
+
+    actionOriginData.userCombatantAttributes = actionUser.getTotalAttributes();
+    actionOriginData.userElementalAffinities = actionUser
+      .getCombatantProperties()
+      .mitigationProperties.getElementalAffinities();
+    actionOriginData.turnOrderSpeed = BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED;
+    actionOriginData.stacks = lifetime;
+    actionOriginData.targetingProperties = new ActionUserTargetingProperties();
+    actionOriginData.spawnedBy = actionUser.getEntityProperties();
+
+    const actionEntityProperties = new ActionEntityProperties(ActionEntityName.Firewall, position);
+
+    actionEntityProperties.dimensions = taggedDimensions;
+    actionEntityProperties.actionOriginData = actionOriginData;
 
     return [
       {
         type: SpawnableEntityType.ActionEntity,
         actionEntity: new ActionEntity(
           { id: context.idGenerator.generate(), name: "firewall" as EntityName },
-          {
-            position,
-            name: ActionEntityName.Firewall,
-            dimensions: taggedDimensions,
-            actionOriginData,
-          }
+          actionEntityProperties
         ),
       },
     ];

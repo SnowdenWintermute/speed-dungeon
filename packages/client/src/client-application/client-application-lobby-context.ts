@@ -27,6 +27,9 @@ export class ClientApplicationLobbyContext {
 
 class ClientApplicationLobbyChannel {
   private usersInChannel = new Map<Username, UserChannelDisplayData>();
+  constructor() {
+    makeAutoObservable(this);
+  }
 
   update(users: Map<Username, UserChannelDisplayData>) {
     this.usersInChannel.clear();

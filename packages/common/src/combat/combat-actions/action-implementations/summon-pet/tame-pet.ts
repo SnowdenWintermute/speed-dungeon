@@ -1,8 +1,3 @@
-import {
-  BASE_ACTION_HIERARCHY_PROPERTIES,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-} from "../../index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
@@ -29,6 +24,10 @@ import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionComponentConfig } from "../../index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
+import { CombatActionLeaf } from "../../combat-action-leaf.js";
+import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -99,12 +98,6 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   }
 );
 
-export function getTamePetMaxPetLevel(actionRank: number) {
-  const BASE_SUMMONED_PET_LEVEL = 4;
-  const PET_LEVEL_PER_SUMMON_PET_RANK = 2;
-  const levelBonus = PET_LEVEL_PER_SUMMON_PET_RANK * actionRank;
-  return BASE_SUMMONED_PET_LEVEL + levelBonus;
-}
 
 const config: CombatActionComponentConfig = {
   description: "Attempt to convince a creature to join your pack.",

@@ -41,7 +41,7 @@ export interface SpawnedActionEntity {
 
 export interface SerializedSpawnedActionEntity {
   type: SpawnableEntityType.ActionEntity;
-  actionEntity: ActionEntity;
+  actionEntity: SerializedOf<ActionEntity>;
 }
 
 export type SpawnableEntity = SpawnedCombatant | SpawnedActionEntity;

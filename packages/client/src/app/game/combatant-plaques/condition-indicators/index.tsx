@@ -38,28 +38,11 @@ export const ConditionIndicators = observer((props: Props) => {
 });
 
 export const ConditionIndicator = observer(({ condition }: { condition: CombatantCondition }) => {
-  const clientApplication = useClientApplication();
-  const { uiStore } = clientApplication;
-  const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
-
-  const hoverableDebugText = showDebug
-    ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
-    : "";
   return (
     <div className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative">
       <HoverableTooltipWrapper
         extraStyles="h-full w-full p-0.5"
-        tooltipText={
-          <div className="flex items-center">
-            <div className="h-10 mr-2 p-1 border border-slate-400 bg-slate-700">
-              {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
-            </div>
-            <div>
-              {COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: {condition.getDescription()}
-              {hoverableDebugText}
-            </div>
-          </div>
-        }
+        tooltipText={() => <ConditionIndicatorTooltip condition={condition} />}
       >
         {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
       </HoverableTooltipWrapper>
@@ -68,6 +51,28 @@ export const ConditionIndicator = observer(({ condition }: { condition: Combatan
           {condition.stacksOption.current}
         </div>
       )}
+    </div>
+  );
+});
+
+const ConditionIndicatorTooltip = observer((props: { condition: CombatantCondition }) => {
+  const { condition } = props;
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
+
+  const hoverableDebugText = showDebug
+    ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
+    : "";
+  return (
+    <div className="flex items-center">
+      <div className="h-10 mr-2 p-1 border border-slate-400 bg-slate-700">
+        {CONDITION_INDICATOR_ICONS[condition.name]}
+      </div>
+      <div>
+        {COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: {condition.getDescription()}
+        {hoverableDebugText}
+      </div>
     </div>
   );
 });

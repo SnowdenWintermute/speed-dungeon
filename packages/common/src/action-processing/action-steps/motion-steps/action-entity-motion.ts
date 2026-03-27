@@ -14,9 +14,10 @@ export class ActionEntityMotionActionResolutionStep extends EntityMotionActionRe
     const { party, actionUser } = context.actionUserContext;
 
     let actionEntity = actionUser; // try to act on the user first
-    if (!(actionUser instanceof ActionEntity))
+    if (!(actionUser instanceof ActionEntity)) {
       // otherwise check if the action has a spawned action entity
       actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
+    }
 
     const { actionEntityManager } = party;
     const entityIsStillRegistered =

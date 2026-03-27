@@ -1,9 +1,5 @@
+import { makeAutoObservable } from "mobx";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import {
-  SceneEntityChildTransformNodeIdentifier,
-  SceneEntityChildTransformNodeIdentifierWithDuration,
-} from "../scene-entities/index.js";
-import { TaggedShape3DDimensions } from "../utils/shape-utils.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
@@ -11,7 +7,6 @@ import {
   ActionAndRank,
   ActionUserTargetingProperties,
 } from "../action-user-context/action-user-targeting-properties.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
@@ -30,8 +25,7 @@ import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-cate
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
-import { makeAutoObservable, makeObservable } from "mobx";
-import { removeUndefinedFields } from "../utils/index.js";
+import { ActionEntityProperties } from "./action-entity-properties.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -62,6 +56,16 @@ export class ActionEntityActionOriginData {
   >;
   wasIncinerated?: boolean;
   constructor(public spawnedBy: EntityProperties) {}
+
+  makeObservable() {
+    makeAutoObservable(this);
+    if (this.actionLevel) {
+      this.actionLevel.makeObservable();
+    }
+    if (this.stacks) {
+      this.stacks.makeObservable();
+    }
+  }
 
   toSerialized() {
     const result = {
@@ -98,54 +102,6 @@ export class ActionEntityActionOriginData {
   }
 }
 
-export class ActionEntityProperties {
-  public dimensions?: TaggedShape3DDimensions;
-  public initialCosmeticYPosition?: SceneEntityChildTransformNodeIdentifier;
-  public parentOption?: SceneEntityChildTransformNodeIdentifier;
-  public initialRotation?: Vector3;
-  public initialPointToward?: SceneEntityChildTransformNodeIdentifier;
-  public initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
-  public actionOriginData?: ActionEntityActionOriginData;
-  constructor(
-    public name: ActionEntityName,
-    public position: Vector3
-  ) {}
-
-  toSerialized() {
-    const result = {
-      ...this,
-      position: this.position.asArray(),
-      dimensions: this.dimensions,
-      initialCosmeticYPosition: this.initialCosmeticYPosition,
-      parentOption: this.parentOption,
-      initialRotation: this.initialRotation?.asArray(),
-      initialPointToward: this.initialPointToward,
-      initialLockRotationToFace: this.initialLockRotationToFace,
-      actionOriginData: this.actionOriginData,
-    };
-
-    removeUndefinedFields(result);
-
-    return result;
-  }
-
-  static fromSerialized(serialized: SerializedOf<ActionEntityProperties>) {
-    const result = new ActionEntityProperties(serialized.name, serialized.position);
-    result.position = serialized.position;
-    result.dimensions = serialized.dimensions;
-    result.initialCosmeticYPosition = serialized.initialCosmeticYPosition;
-    result.parentOption = serialized.parentOption;
-    if (serialized.initialRotation) {
-      result.initialRotation = Vector3.FromArray(serialized.initialRotation);
-    }
-    result.initialPointToward = serialized.initialPointToward;
-    result.initialLockRotationToFace = serialized.initialLockRotationToFace;
-    result.actionOriginData = serialized.actionOriginData;
-
-    return result;
-  }
-}
-
 export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   constructor(
     public entityProperties: EntityProperties,
@@ -154,14 +110,7 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
 
   makeObservable() {
     makeAutoObservable(this);
-    const stacks = this.actionEntityProperties.actionOriginData?.stacks;
-    if (stacks) {
-      stacks.makeObservable();
-    }
-    const level = this.actionEntityProperties.actionOriginData?.actionLevel;
-    if (level) {
-      level.makeObservable();
-    }
+    this.actionEntityProperties.makeObservable();
   }
 
   toSerialized() {
@@ -187,9 +136,10 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   }
   setWasRemovedBeforeHitOutcomes() {
     if (this.actionEntityProperties.actionOriginData === undefined)
-      this.actionEntityProperties.actionOriginData = {
-        spawnedBy: { id: "", name: "" as EntityName },
-      };
+      this.actionEntityProperties.actionOriginData = new ActionEntityActionOriginData({
+        id: "",
+        name: "" as EntityName,
+      });
     this.actionEntityProperties.actionOriginData.wasIncinerated = true;
   }
   wasRemovedBeforeHitOutcomes(): boolean {

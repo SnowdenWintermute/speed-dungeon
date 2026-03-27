@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 
 export class GameLogMessage {
   timestamp: number = new Date().getTime();
+
   constructor(
     public message: ReactNode,
     public style: GameLogMessageStyle

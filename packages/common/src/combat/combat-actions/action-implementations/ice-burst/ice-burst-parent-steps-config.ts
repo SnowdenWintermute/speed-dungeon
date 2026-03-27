@@ -1,8 +1,8 @@
+import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 import {
   ActionEntity,
   ActionEntityActionOriginData,
   ActionEntityName,
-  ActionEntityProperties,
 } from "../../../../action-entities/index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { EntityName } from "../../../../aliases.js";

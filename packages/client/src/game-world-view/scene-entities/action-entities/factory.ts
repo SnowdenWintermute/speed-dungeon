@@ -19,20 +19,26 @@ import { ACTION_ENTITY_NAME_TO_ASSET_ID } from "./action-entity-asset-ids";
 import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ActionEntitySceneEntity } from ".";
 import { ClientApplication } from "@/client-application";
+import { GameWorldView } from "@/game-world-view";
 
 export class ActionEntitySceneEntityFactory {
   constructor(
+    private gameWorldView: GameWorldView,
     private scene: Scene,
     private clientApplication: ClientApplication
   ) {}
 
   async create(actionEntity: ActionEntity) {
+    const { sceneEntityService } = this.gameWorldView;
+    sceneEntityService.actionEntityManager.pendingEntitySpawns.set(actionEntity.getEntityId(), {
+      pendingUpdates: [],
+    });
     const { name, dimensions, position } = actionEntity.actionEntityProperties;
     const assetContainer = await this.spawnActionEntityModel(name, position, dimensions);
 
     return new ActionEntitySceneEntity(
       actionEntity.getEntityId(),
-      this.scene,
+      this.gameWorldView.scene,
       assetContainer,
       this.clientApplication.floatingMessagesService,
       position,

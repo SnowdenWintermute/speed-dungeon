@@ -16,7 +16,6 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
-import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/tame-pet.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant } from "../index.js";
 import cloneDeep from "lodash.clonedeep";
@@ -27,6 +26,7 @@ import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-c
 import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { MapUtils } from "../../utils/map-utils.js";
+import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/get-tame-pet-max-level.js";
 
 export class CombatantAbilityProperties
   extends CombatantSubsystem

@@ -1,15 +1,41 @@
 import { CleanupMode, EntityId } from "@speed-dungeon/common";
 import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { SceneEntity } from "../scene-entities/base";
+import { GameWorldView } from "..";
+import { ClientApplication } from "@/client-application";
 
 export abstract class SceneEntityManager<T extends SceneEntity> {
   sceneEntities = new Map<EntityId, T>();
+  pendingEntitySpawns = new Map<
+    EntityId,
+    { pendingUpdates: ((sceneEntity: SceneEntity) => void)[] }
+  >();
   readonly loadingStates = new SceneEntityLoadingStateTracker();
+
+  constructor(
+    protected clientApplication: ClientApplication,
+    protected gameWorldView: GameWorldView
+  ) {}
 
   async register(sceneEntity: T) {
     const { entityId } = sceneEntity;
     this.sceneEntities.set(entityId, sceneEntity);
+    const pendingOption = this.pendingEntitySpawns.get(entityId);
+    this.pendingEntitySpawns.delete(entityId);
+    this.gameWorldView.sceneEntityService.startPendingQueuedEffects(sceneEntity);
     await this.onRegister(sceneEntity);
+
+    if (!pendingOption) {
+      throw new Error("spawned an entity that was never marked as pending to spawn");
+    }
+
+    // allow the caller to finish what it needs to do like setting the initial parent
+    // at spawn before we apply the stored updates
+    return () => {
+      pendingOption.pendingUpdates.forEach((update) => {
+        update(sceneEntity);
+      });
+    };
   }
 
   protected abstract onRegister(sceneEntity: T): Promise<void>;

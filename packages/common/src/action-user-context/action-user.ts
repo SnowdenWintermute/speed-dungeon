@@ -6,7 +6,7 @@ import {
 } from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ActionEntityProperties } from "../action-entities/index.js";
+import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
 import { Battle } from "../battle/index.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Item } from "../items/index.js";

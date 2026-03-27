@@ -8,8 +8,12 @@ import { ActionEntity } from "@speed-dungeon/common";
 export class ActionEntitySceneEntityManager extends SceneEntityManager<ActionEntitySceneEntity> {
   private factory: ActionEntitySceneEntityFactory;
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
-    super();
-    this.factory = new ActionEntitySceneEntityFactory(gameWorldView.scene, clientApplication);
+    super(clientApplication, gameWorldView);
+    this.factory = new ActionEntitySceneEntityFactory(
+      gameWorldView,
+      gameWorldView.scene,
+      clientApplication
+    );
   }
   protected async onRegister(_sceneEntity: ActionEntitySceneEntity) {
     /*no-op*/

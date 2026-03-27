@@ -160,13 +160,55 @@ export class EntityMotionGameUpdateHandlerCommand {
       return;
     }
 
-    const { translationOption, rotationOption, animationOption } = motionUpdate;
     const entityTypeHandler = this.getEntityTypeMotionUpdateHandler(gameWorldView, motionUpdate);
-    const completionHandlers = entityTypeHandler();
 
     const { sceneEntityService } = gameWorldView;
-    const sceneEntity = sceneEntityService.getFromMotionUpdate(motionUpdate);
+    const sceneEntity = sceneEntityService.getOptionFromMotionUpdate(motionUpdate);
 
+    if (!sceneEntity) {
+      const sceneEntityManager = this.getSceneEntityManagerByEntityType(
+        gameWorldView,
+        motionUpdate
+      );
+      const pendingEntitySpawn = sceneEntityManager.pendingEntitySpawns.get(motionUpdate.entityId);
+      if (!pendingEntitySpawn) {
+        throw new Error("expected entity was not instantiated and is not awaiting spawn");
+      }
+
+      console.log("pushed motion update handler to pending entity");
+      pendingEntitySpawn.pendingUpdates.push((pendingEntity) => {
+        const completionHandlers = entityTypeHandler();
+        this.handleUpdate(pendingEntity, motionUpdate, sceneEntityService, completionHandlers);
+      });
+    } else {
+      const completionHandlers = entityTypeHandler();
+      console.log("handling motion update handler on existing entity");
+      this.handleUpdate(sceneEntity, motionUpdate, sceneEntityService, completionHandlers);
+    }
+  }
+
+  private getSceneEntityManagerByEntityType(
+    gameWorldView: GameWorldView,
+    motionUpdate: EntityMotionUpdate
+  ) {
+    switch (motionUpdate.entityType) {
+      case SpawnableEntityType.Combatant:
+        return gameWorldView.sceneEntityService.combatantSceneEntityManager;
+      case SpawnableEntityType.ActionEntity:
+        return gameWorldView.sceneEntityService.actionEntityManager;
+    }
+  }
+
+  handleUpdate(
+    sceneEntity: SceneEntity,
+    motionUpdate: EntityMotionUpdate,
+    sceneEntityService: SceneEntityService,
+    completionHandlers?: {
+      onTranslationComplete: () => void;
+      onAnimationComplete: () => void;
+    }
+  ) {
+    const { translationOption, rotationOption, animationOption } = motionUpdate;
     if (translationOption) {
       this.handleTranslation(
         motionUpdate,
@@ -214,6 +256,7 @@ export class EntityMotionGameUpdateHandlerCommand {
     const { actionEntityManager } = gameWorldView.sceneEntityService;
     const sceneEntity = actionEntityManager.requireById(motionUpdate.entityId);
 
+    console.log("processActionEntity setParent:", motionUpdate.setParent);
     if (motionUpdate.setParent !== undefined) {
       this.handleEntityMotionSetNewParentUpdate(
         sceneEntity,
@@ -286,7 +329,9 @@ export class EntityMotionGameUpdateHandlerCommand {
     identifierWithDuration: null | SceneEntityChildTransformNodeIdentifierWithDuration
   ) {
     if (identifierWithDuration === null) {
-      return sceneEntity.rootTransformNode.setParent(null);
+      console.log("set parent to null", sceneEntity.entityId);
+      sceneEntity.movementManager.transformNode.setParent(null);
+      return sceneEntity.movementManager.transformNode.setParent(null);
     }
     const { identifier, duration } = identifierWithDuration;
     const targetTransformNode = sceneEntityService.getChildTransformNodeFromIdentifier(identifier);
@@ -294,14 +339,5 @@ export class EntityMotionGameUpdateHandlerCommand {
     sceneEntity.movementManager.startTranslating(Vector3.Zero(), duration, {}, () => {
       // no-op
     });
-  }
-
-  despawnAndUnregisterActionEntity(
-    gameWorldView: GameWorldView,
-    entityId: EntityId,
-    cleanupMode: CleanupMode
-  ) {
-    const { actionEntityManager } = gameWorldView.sceneEntityService;
-    actionEntityManager.unregister(entityId, cleanupMode);
   }
 }
