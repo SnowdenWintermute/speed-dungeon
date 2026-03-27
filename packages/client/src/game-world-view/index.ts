@@ -118,8 +118,6 @@ export class GameWorldView {
 
   updateGameWorld(deltaTime: number) {
     this.debug.updateDebugText();
-    // @TODO - tick injected scheduler
-    // this.replayTreeManager.tick();
     this._sceneEntityService?.updateEntities(deltaTime);
   }
 

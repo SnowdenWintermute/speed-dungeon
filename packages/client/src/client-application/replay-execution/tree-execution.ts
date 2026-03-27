@@ -3,15 +3,11 @@ import {
   LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   ReplayEventType,
-  SequentialIdGenerator,
 } from "@speed-dungeon/common";
 import { ReplayBranchExecution } from "./branch-execution";
 import { ClientApplication } from "..";
 
 export class ReplayTreeExecution {
-  static sequentialIdGenerator = new SequentialIdGenerator();
-  sequenceId: number;
-
   activeBranches: ReplayBranchExecution[] = [];
   private nextExpectedCompletionOrderIdListIndex: number = 0;
   private expectedCompletionOrderIds: number[];
@@ -21,8 +17,8 @@ export class ReplayTreeExecution {
     root: NestedNodeReplayEvent,
     public onComplete: () => void
   ) {
-    this.sequenceId = ReplayTreeExecution.sequentialIdGenerator.getNextIdNumeric();
     this.expectedCompletionOrderIds = this.collectCompletionOrderIds(root);
+    console.log("expectedCompletionOrderIds:", this.expectedCompletionOrderIds);
     this.activeBranches.push(new ReplayBranchExecution(this, root, this.activeBranches));
   }
 
@@ -42,7 +38,7 @@ export class ReplayTreeExecution {
     this.nextExpectedCompletionOrderIdListIndex += 1;
   }
 
-  collectCompletionOrderIds(root: NestedNodeReplayEvent): number[] {
+  private collectCompletionOrderIds(root: NestedNodeReplayEvent): number[] {
     const ids: number[] = [];
     for (const event of root.events) {
       if (event.type === ReplayEventType.GameUpdate) {
