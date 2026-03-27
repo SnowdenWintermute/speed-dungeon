@@ -55,12 +55,14 @@ export async function threatTargetChangedIndicatorSequence(
     );
 
     const id = gameWorldView.idGenerator.generate();
+    await gameWorldView.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
+      id,
+      EnvironmentEntityName.ThreatTargetChangedArrow,
+      monsterCharacterModel.movementManager.transformNode.position
+    );
+
     const indicatorArrow =
-      await gameWorldView.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
-        id,
-        EnvironmentEntityName.ThreatTargetChangedArrow,
-        monsterCharacterModel.movementManager.transformNode.position
-      );
+      gameWorldView.sceneEntityService.environmentEntityManager.requireById(id);
 
     const newTargetId = threatManager.getHighestThreatCombatantId();
     if (newTargetId === null) continue;

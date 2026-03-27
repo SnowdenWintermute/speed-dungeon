@@ -10,6 +10,7 @@ import {
   CleanupMode,
   CombatantClass,
   CombatantCondition,
+  CombatantId,
   DurabilityChangesByEntityId,
   EntityId,
   EntityName,
@@ -176,7 +177,7 @@ export class ActionEffectsApplyerCommand {
     }
   }
 
-  private applyPetsTamed(petsTamed?: { petId: EntityId; tamerId: EntityId }[]) {
+  private applyPetsTamed(petsTamed?: { petId: CombatantId; tamerId: CombatantId }[]) {
     if (!petsTamed) return;
 
     for (const { petId, tamerId } of petsTamed) {
