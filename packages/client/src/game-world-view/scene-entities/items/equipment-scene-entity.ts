@@ -30,6 +30,7 @@ export class EquipmentSceneEntity extends SceneEntity {
   ) {
     super(
       equipment.entityProperties.id,
+      equipment.entityProperties.name,
       scene,
       assetContainer,
       floatingMessagesService,

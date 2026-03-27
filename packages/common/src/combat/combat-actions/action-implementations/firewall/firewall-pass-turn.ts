@@ -68,9 +68,10 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         // change the cosmetic effect if firewall has deleveled
         if (newActionLevel < currentFirewallLevel) {
           const firewallCosmeticsStepOption =
-            FIREWALL_STEPS_CONFIG.steps[ActionResolutionStepType.RecoveryMotion];
-          if (!firewallCosmeticsStepOption)
+            FIREWALL_STEPS_CONFIG.finalSteps[ActionResolutionStepType.RecoveryMotion];
+          if (!firewallCosmeticsStepOption) {
             throw new Error("expected to have configured RecoveryMotion for Firewall");
+          }
 
           // @REFACTOR
           // @BADPRACTICE

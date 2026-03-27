@@ -38,6 +38,7 @@ export class ActionEntitySceneEntityFactory {
 
     return new ActionEntitySceneEntity(
       actionEntity.getEntityId(),
+      actionEntity.entityProperties.name,
       this.gameWorldView.scene,
       assetContainer,
       this.clientApplication.floatingMessagesService,

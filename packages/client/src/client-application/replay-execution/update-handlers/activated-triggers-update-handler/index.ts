@@ -334,7 +334,7 @@ export class ActionEffectsApplyerCommand {
           );
 
           if (cosmeticEffectsOption) {
-            this.clientApplication.gameWorldView?.sceneEntityService.queueCosmeticEffectStart(
+            this.clientApplication.gameWorldView?.sceneEntityService.queueCosmeticEffectsStart(
               cosmeticEffectsOption
             );
           }

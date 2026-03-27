@@ -1,6 +1,7 @@
 import { ClientApplication } from "@/client-application";
 import {
   COSMETIC_EFFECT_CONSTRUCTORS,
+  COSMETIC_EFFECT_NAME_STRINGS,
   CosmeticEffectOnTargetTransformNode,
   EntityMotionUpdate,
   SceneEntityChildTransformNodeIdentifier,
@@ -47,18 +48,21 @@ export class SceneEntityService {
     this.combatantSceneEntityManager.updateEntities(deltaTime);
   }
 
-  queueCosmeticEffectStart(toStart: CosmeticEffectOnTargetTransformNode[]) {
+  queueCosmeticEffectsStart(toStart: CosmeticEffectOnTargetTransformNode[]) {
     for (const effect of toStart) {
+      console.log("trying to start cosmeticEffect:", COSMETIC_EFFECT_NAME_STRINGS[effect.name]);
       const sceneEntity = this.getOptionFromIdentifier(effect.parent.sceneEntityIdentifier);
       if (sceneEntity) {
+        console.log("found scene entity for effect:", COSMETIC_EFFECT_NAME_STRINGS[effect.name]);
         this.startCosmeticEffect(sceneEntity, effect);
       } else {
+        console.log("pushed pending cosmeticEffect:", COSMETIC_EFFECT_NAME_STRINGS[effect.name]);
         this.pendingCosmeticEffectsToStart.push(effect);
       }
     }
   }
 
-  startCosmeticEffect(
+  private startCosmeticEffect(
     sceneEntity: SceneEntity,
     cosmeticEffect: CosmeticEffectOnTargetTransformNode
   ) {
@@ -139,11 +143,21 @@ export class SceneEntityService {
     for (const cosmeticEffectOnEntity of toEnd) {
       const { name, parent } = cosmeticEffectOnEntity;
       const sceneEntityOption = this.getOptionFromIdentifier(parent.sceneEntityIdentifier);
+
+      console.log(
+        "trying to stop cosmeticEffect:",
+        COSMETIC_EFFECT_NAME_STRINGS[cosmeticEffectOnEntity.name]
+      );
       if (!sceneEntityOption) {
+        console.log(
+          "tried to stop cosmeticEffectOnEntity but entity wasn't found",
+          COSMETIC_EFFECT_NAME_STRINGS[cosmeticEffectOnEntity.name]
+        );
         return;
       }
       const { cosmeticEffectManager } = sceneEntityOption;
       cosmeticEffectManager.stopEffect(name, () => {
+        console.log("stopped effect");
         // no-op
       });
     }

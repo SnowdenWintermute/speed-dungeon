@@ -24,7 +24,7 @@ export abstract class SceneEntityManager<T extends SceneEntity> {
 
     if (pendingOption === undefined) {
       throw new Error(
-        `spawned an entity that was never marked as pending to spawn ${sceneEntity.entityId}, ${JSON.stringify(this.pendingEntitySpawns)}`
+        `spawned an entity that was never marked as pending to spawn ${sceneEntity.stringName} ${sceneEntity.entityId}, ${JSON.stringify(this.pendingEntitySpawns)}`
       );
     }
 

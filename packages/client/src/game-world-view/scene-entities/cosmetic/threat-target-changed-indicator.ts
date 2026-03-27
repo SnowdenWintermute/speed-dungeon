@@ -144,6 +144,7 @@ function spawnTargetChangedIndicatorArrow(gameWorldView: GameWorldView, position
 
   const sceneEntity = new EnvironmentSceneEntity(
     entityId,
+    "threat target changed indicator",
     gameWorldView.scene,
     assetContainer,
     gameWorldView.clientApplication.floatingMessagesService,

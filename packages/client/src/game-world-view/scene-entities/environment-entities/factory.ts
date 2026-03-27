@@ -1,7 +1,11 @@
 import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { Color3, Material, Quaternion, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { EnvironmentSceneEntity } from ".";
-import { ClientAppAssetService, EnvironmentEntityName } from "@speed-dungeon/common";
+import {
+  ClientAppAssetService,
+  ENVIRONMENT_ENTITY_STRINGS,
+  EnvironmentEntityName,
+} from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import {
   HP_COLOR,
@@ -46,6 +50,7 @@ export class EnvironmentSceneEntityFactory {
       );
       const result = new EnvironmentSceneEntity(
         id,
+        ENVIRONMENT_ENTITY_STRINGS[name],
         this.scene,
         assetContainer,
         this.clientApplication.floatingMessagesService,

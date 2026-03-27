@@ -12,13 +12,22 @@ export class EnvironmentSceneEntity extends SceneEntity {
 
   constructor(
     public id: EntityId,
+    stringName: string,
     scene: Scene,
     assetContainer: AssetContainer,
     floatingMessagesService: FloatingMessageService,
     startPosition: Vector3,
     public name: EnvironmentEntityName
   ) {
-    super(id, scene, assetContainer, floatingMessagesService, startPosition, new Quaternion());
+    super(
+      id,
+      stringName,
+      scene,
+      assetContainer,
+      floatingMessagesService,
+      startPosition,
+      new Quaternion()
+    );
 
     this.initChildTransformNodes();
   }

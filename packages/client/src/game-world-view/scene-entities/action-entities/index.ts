@@ -11,13 +11,22 @@ export class ActionEntitySceneEntity extends SceneEntity {
   childTransformNodes: Partial<Record<GenericBaseChildTransformNodeName, TransformNode>> = {};
   constructor(
     public id: EntityId,
+    stringName: string,
     scene: Scene,
     assetContainer: AssetContainer,
     floatingMessagesService: FloatingMessageService,
     startPosition: Vector3,
     public name: ActionEntityName
   ) {
-    super(id, scene, assetContainer, floatingMessagesService, startPosition, new Quaternion());
+    super(
+      id,
+      stringName,
+      scene,
+      assetContainer,
+      floatingMessagesService,
+      startPosition,
+      new Quaternion()
+    );
 
     this.initChildTransformNodes();
   }

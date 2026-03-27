@@ -27,6 +27,8 @@ import { EntityName } from "../../../../aliases.js";
 import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
+const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =
+  {};
 
 stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   getSpawnableEntities: (context) => {
@@ -101,7 +103,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
   },
 };
 
-stepOverrides[ActionResolutionStepType.RecoveryMotion] = {
+finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticEffectsToStop(context) {
     const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
 
@@ -148,9 +150,12 @@ delete base.finalSteps[ActionResolutionStepType.RecoveryMotion]?.getCosmeticEffe
 
 const stepsConfig = createStepsConfig(() => base, {
   steps: stepOverrides,
+  finalSteps: finalStepOverrides,
 });
 
 export const FIREWALL_STEPS_CONFIG = stepsConfig;
+
+console.log("Firewall steps config:", JSON.stringify(FIREWALL_STEPS_CONFIG));
 
 export function getFirewallStacksByLevel(actionLevel: number) {
   const baseFirewallLifetime = 0;

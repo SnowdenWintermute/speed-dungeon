@@ -47,7 +47,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     conditionManager.getConditions().forEach((condition) => {
       const effects = condition.getCosmeticEffectWhileActive?.(entityProperties.id);
       if (!effects) return;
-      this.gameWorldView.sceneEntityService.queueCosmeticEffectStart(effects);
+      this.gameWorldView.sceneEntityService.queueCosmeticEffectsStart(effects);
     });
 
     const { entityId } = sceneEntity;

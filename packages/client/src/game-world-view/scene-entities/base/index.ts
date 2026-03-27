@@ -36,6 +36,7 @@ export abstract class SceneEntity {
 
   constructor(
     public entityId: EntityId,
+    public stringName: string,
     protected scene: Scene,
     public assetContainer: AssetContainer,
     public floatingMessagesService: FloatingMessageService,

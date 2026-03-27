@@ -38,9 +38,12 @@ export class CosmeticEffectManager {
       return console.info("tried to end a cosmetic effect but couldn't find it");
     }
 
+    console.log("existingEffectOption rc before", existingEffectOption.referenceCount);
     existingEffectOption.referenceCount -= 1;
+    console.log("existingEffectOption rc after", existingEffectOption.referenceCount);
 
     if (existingEffectOption.referenceCount <= 0) {
+      console.log("deleting existing effect");
       existingEffectOption.effect.softCleanup(onComplete);
       delete this.cosmeticEffects[name];
     }

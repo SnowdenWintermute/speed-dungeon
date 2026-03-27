@@ -1,6 +1,6 @@
-import { AbstractMesh, AssetContainer, Quaternion, Scene, Vector3 } from "@babylonjs/core";
+import { AssetContainer, Quaternion, Scene, Vector3 } from "@babylonjs/core";
 import { SceneEntity } from "../base/index";
-import { Consumable, ERROR_MESSAGES } from "@speed-dungeon/common";
+import { Consumable } from "@speed-dungeon/common";
 import { FloatingMessageService } from "@/client-application/event-log/floating-messages-service";
 
 export class ConsumableItemSceneEntity extends SceneEntity {
@@ -13,6 +13,7 @@ export class ConsumableItemSceneEntity extends SceneEntity {
   ) {
     super(
       consumable.entityProperties.id,
+      consumable.entityProperties.name,
       scene,
       assetContainer,
       floatingMessagesService,

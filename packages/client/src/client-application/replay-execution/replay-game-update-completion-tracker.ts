@@ -28,8 +28,12 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
       case GameUpdateCommandType.CombatantMotion: {
         let duration = 0;
         const { mainEntityUpdate } = this.command;
+
         if (mainEntityUpdate.translationOption?.duration) {
           duration = mainEntityUpdate.translationOption?.duration;
+        }
+        if (mainEntityUpdate.delayOption && mainEntityUpdate.delayOption > duration) {
+          duration = mainEntityUpdate.delayOption;
         }
         const animationOption = mainEntityUpdate.animationOption;
         if (animationOption && animationOption.timing.type === AnimationTimingType.Timed) {
