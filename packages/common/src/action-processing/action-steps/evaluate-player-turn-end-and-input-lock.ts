@@ -88,7 +88,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
     // only decay threat for combatant turns ending
     // not for conditions or action entities
-    if (userIsCombatant) {
+    if (context.actionUserContext.actionUser instanceof Combatant) {
       const threatCalculator = new ThreatCalculator(
         threatChanges,
         context.tracker.hitOutcomes,

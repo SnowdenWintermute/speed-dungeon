@@ -28,6 +28,7 @@ import { CombatActionComponentConfig } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
 import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
+import { CombatantId } from "../../../../aliases.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -91,13 +92,15 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       return {
         petsTamed: [
-          { petId: hitTargetId, tamerId: context.actionUserContext.actionUser.getEntityId() },
+          {
+            petId: hitTargetId as CombatantId,
+            tamerId: context.actionUserContext.actionUser.getEntityId() as CombatantId,
+          },
         ],
       };
     },
   }
 );
-
 
 const config: CombatActionComponentConfig = {
   description: "Attempt to convince a creature to join your pack.",

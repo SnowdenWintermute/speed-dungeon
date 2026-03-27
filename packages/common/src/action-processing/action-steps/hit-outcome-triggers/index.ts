@@ -168,10 +168,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const monster of party.combatantManager.getDungeonControlledCombatants()) {
             const { threatManager } = monster.combatantProperties;
             if (!threatManager) continue;
-            threatChanges.addEntryToRemove(
-              monster.getEntityId(),
-              targetCombatant.entityProperties.id
-            );
+            threatChanges.addEntryToRemove(monster.getEntityId(), targetCombatant.getEntityId());
           }
 
           if (

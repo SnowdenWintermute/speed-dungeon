@@ -270,7 +270,7 @@ export class CombatantManager
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */
-  removeCombatant(combatantId: EntityId, game: SpeedDungeonGame) {
+  removeCombatant(combatantId: CombatantId, game: SpeedDungeonGame) {
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
     const party = this.getParty();

@@ -22,6 +22,7 @@ export class EnvironmentSceneEntityManager extends SceneEntityManager<Environmen
   ) {
     const entity = await this.factory.create(id, name, position, rotationQuat);
     this.register(entity);
+    return entity;
   }
 
   protected async onRegister(sceneEntity: EnvironmentSceneEntity) {

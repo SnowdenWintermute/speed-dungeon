@@ -22,7 +22,7 @@ import {
 } from "@speed-dungeon/common";
 import { GameWorldView } from "@/game-world-view";
 
-export function threatTargetChangedIndicatorSequence(
+export async function threatTargetChangedIndicatorSequence(
   gameWorldView: GameWorldView,
   partyOptionGetter: () => AdventuringParty | undefined
 ) {
@@ -49,17 +49,18 @@ export function threatTargetChangedIndicatorSequence(
     const monsterCharacterModel = combatantSceneEntityManager.requireById(combatant.getEntityId());
     const { transformProperties } = monsterCharacterModel.combatant.combatantProperties;
     monsterCharacterModel.movementManager.startRotatingTowards(
-      transformProperties.rotation,
+      transformProperties.homeRotation,
       1000,
       () => {}
     );
 
-    const indicatorArrow = spawnTargetChangedIndicatorArrow(
-      gameWorldView,
-      monsterCharacterModel.movementManager.transformNode.position
-    );
-
-    environmentEntityManager.register(indicatorArrow);
+    const id = gameWorldView.idGenerator.generate();
+    const indicatorArrow =
+      await gameWorldView.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
+        id,
+        EnvironmentEntityName.ThreatTargetChangedArrow,
+        monsterCharacterModel.movementManager.transformNode.position
+      );
 
     const newTargetId = threatManager.getHighestThreatCombatantId();
     if (newTargetId === null) continue;
@@ -118,7 +119,11 @@ export function threatTargetChangedIndicatorSequence(
   }
 }
 
-function spawnTargetChangedIndicatorArrow(gameWorldView: GameWorldView, position: Vector3) {
+export function spawnTargetChangedIndicatorArrow(
+  id: string,
+  gameWorldView: GameWorldView,
+  position: Vector3
+) {
   const mesh = MeshBuilder.CreateCylinder("cylinder", {
     diameterBottom: 0.1,
     diameterTop: 0,
@@ -136,10 +141,9 @@ function spawnTargetChangedIndicatorArrow(gameWorldView: GameWorldView, position
 
   const assetContainer = new AssetContainer(gameWorldView.scene);
   assetContainer.meshes = [mesh];
-  const entityId = gameWorldView.idGenerator.generate();
 
   const sceneEntity = new EnvironmentSceneEntity(
-    entityId,
+    id,
     "threat target changed indicator",
     gameWorldView.scene,
     assetContainer,

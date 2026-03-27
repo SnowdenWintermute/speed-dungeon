@@ -10,7 +10,7 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { EntityId, PartyName, Username } from "../aliases.js";
+import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
 import {
@@ -138,7 +138,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   }
 
   removeCharacter(
-    characterId: EntityId,
+    characterId: CombatantId,
     player: SpeedDungeonPlayer,
     game: SpeedDungeonGame
   ): Combatant {

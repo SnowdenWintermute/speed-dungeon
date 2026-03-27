@@ -59,6 +59,7 @@ export class SceneEntityMovementManager {
   }
 
   startRotatingTowards(destination: Quaternion, duration: number, onComplete: () => void) {
+    console.log("started rotatating toward:", destination, duration);
     const previous =
       this.transformNode.rotationQuaternion?.clone() ||
       Quaternion.RotationYawPitchRoll(

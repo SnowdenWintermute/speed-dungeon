@@ -35,6 +35,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
       combatantModel.skeletalAnimationManager.handleCompletedAnimations();
       combatantModel.updateDomRefPosition();
+
       combatantModel.targetingIndicatorManager.updateBillboardPositions();
     }
   }

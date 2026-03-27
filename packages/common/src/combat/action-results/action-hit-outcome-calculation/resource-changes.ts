@@ -1,7 +1,7 @@
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { EntityId } from "../../../aliases.js";
-import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
+import { CombatantId, EntityId } from "../../../aliases.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 import { ThreatType } from "../../../combatants/threat-manager/index.js";
 import { Serializable, SerializedOf } from "../../../serialization/index.js";
@@ -82,13 +82,13 @@ export class ThreatChanges implements Serializable {
   // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entries: {
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-    [entityIdOfThreatTableToUpdate: EntityId]: {
-      [threatTableEntityId: EntityId]: Partial<Record<ThreatType, number>>;
+    [entityIdOfThreatTableToUpdate: CombatantId]: {
+      [threatTableEntityId: CombatantId]: Partial<Record<ThreatType, number>>;
     };
   } = {};
   // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entriesToRemove: {
-    [entityIdOfThreatTableToUpdate: EntityId]: EntityId[];
+    [entityIdOfThreatTableToUpdate: CombatantId]: CombatantId[];
   } = {};
 
   toSerialized() {
@@ -102,7 +102,7 @@ export class ThreatChanges implements Serializable {
   isEmpty() {
     return Object.keys(this.entries).length === 0;
   }
-  addEntryToRemove(entityIdOfThreatTableToUpdate: EntityId, threatTableEntityId: EntityId) {
+  addEntryToRemove(entityIdOfThreatTableToUpdate: CombatantId, threatTableEntityId: CombatantId) {
     let existing = this.entriesToRemove[entityIdOfThreatTableToUpdate];
     if (existing === undefined) existing = this.entriesToRemove[entityIdOfThreatTableToUpdate] = [];
     if (existing.includes(threatTableEntityId)) return;
@@ -112,8 +112,8 @@ export class ThreatChanges implements Serializable {
     return this.entriesToRemove;
   }
   addOrUpdateEntry(
-    monsterIdOwnerOfThreatTable: EntityId,
-    entityIdOfEntryInTable: EntityId,
+    monsterIdOwnerOfThreatTable: CombatantId,
+    entityIdOfEntryInTable: CombatantId,
     threatType: ThreatType,
     value: number
   ) {
@@ -150,7 +150,7 @@ export class ThreatChanges implements Serializable {
 
       for (const [entityId, changesByThreatType] of Object.entries(changes)) {
         for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType)) {
-          threatManager.changeThreat(entityId, threatType, value);
+          threatManager.changeThreat(entityId as CombatantId, threatType, value);
         }
       }
     }

@@ -185,8 +185,8 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
   petSlotsSummoned?: PetSlot[];
   petSlotsReleased?: PetSlot[];
-  petsUnsummoned?: EntityId[];
-  petsTamed?: { petId: EntityId; tamerId: EntityId }[];
+  petsUnsummoned?: CombatantId[];
+  petsTamed?: { petId: CombatantId; tamerId: CombatantId }[];
 }
 
 export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {

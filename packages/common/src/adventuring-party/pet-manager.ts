@@ -1,7 +1,7 @@
 import { AdventuringParty } from "./index.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { EntityId } from "../aliases.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -168,7 +168,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     return pets.filter((pet) => pet.combatantProperties.controlledBy.summonedBy === combatantId)[0];
   }
 
-  handlePetTamed(petId: EntityId, newOwnerId: EntityId, game: SpeedDungeonGame) {
+  handlePetTamed(petId: CombatantId, newOwnerId: CombatantId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const petCombatant = party.combatantManager.removeCombatant(petId, game);
     const { controlledBy } = petCombatant.combatantProperties;

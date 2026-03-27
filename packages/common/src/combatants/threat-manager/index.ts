@@ -2,10 +2,11 @@ import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { Combatant } from "../index.js";
 import { makeAutoObservable } from "mobx";
-import { EntityId } from "../../aliases.js";
+import { CombatantId, EntityId } from "../../aliases.js";
 import { ThreatTableEntry } from "./threat-table-entry.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { MapUtils } from "../../utils/map-utils.js";
+import cloneDeep from "lodash.clonedeep";
 
 export const STABLE_THREAT_CAP = 10000;
 export const VOLATILE_THREAT_CAP = 10000;
@@ -21,7 +22,7 @@ export const THREAT_TYPE_STRINGS: Record<ThreatType, string> = {
 };
 
 export class ThreatManager implements Serializable, ReactiveNode {
-  private threatScoresByCombatantId = new Map<EntityId, ThreatTableEntry>();
+  private threatScoresByCombatantId = new Map<CombatantId, ThreatTableEntry>();
   private previouslyHighestThreatId: null | EntityId = null;
   private observable = false;
 
@@ -50,7 +51,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
     return result;
   }
 
-  changeThreat(combatantId: EntityId, threatType: ThreatType, value: number) {
+  changeThreat(combatantId: CombatantId, threatType: ThreatType, value: number) {
     let existingEntry = this.threatScoresByCombatantId.get(combatantId);
     // don't create a new entry if not generating threat
     if (existingEntry === undefined && value < 1) return;
@@ -72,7 +73,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
     this.previouslyHighestThreatId = id;
   }
 
-  getHighestThreatCombatantId(): EntityId | null {
+  getHighestThreatCombatantId(): CombatantId | null {
     if (this.threatScoresByCombatantId.size === 0) return null;
     return [...this.threatScoresByCombatantId].reduce((a, b) =>
       a[1].getTotal() > b[1].getTotal() ? a : b
@@ -83,13 +84,20 @@ export class ThreatManager implements Serializable, ReactiveNode {
     return this.threatScoresByCombatantId;
   }
 
-  removeEntry(entityId: EntityId) {
+  removeEntry(entityId: CombatantId) {
     this.threatScoresByCombatantId.delete(entityId);
   }
 
   /** Returns true if updated top target */
   updateHomeRotationToPointTowardNewTopThreatTarget(party: AdventuringParty, monster: Combatant) {
+    console.log("try update updateHomeRotationToPointTowardNewTopThreatTarget");
     const newThreatTargetIdOption = this.getHighestThreatCombatantId();
+    console.log(
+      "newThreatTargetIdOption:",
+      newThreatTargetIdOption,
+      "was same:",
+      newThreatTargetIdOption === this.getPreviouslyHighestThreatId()
+    );
     if (newThreatTargetIdOption === this.getPreviouslyHighestThreatId()) return false;
 
     if (!newThreatTargetIdOption) return false;
@@ -99,7 +107,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
     const targetPos = newTargetCombatant.getHomePosition().clone();
 
     // don't use their Y coordinate otherwise it will look strange when ground
-    // units loot at flyers
+    // units look at flyers
     targetPos.y = 0;
 
     const monsterHomePos = monster.getHomePosition();
@@ -108,7 +116,12 @@ export class ThreatManager implements Serializable, ReactiveNode {
     // Invert because LookAtLH returns a view matrix
     const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
 
-    monster.combatantProperties.transformProperties.homeRotation = worldRotation;
+    console.log(
+      "home rotation before:",
+      monster.combatantProperties.transformProperties.homeRotation
+    );
+    monster.combatantProperties.transformProperties.homeRotation.copyFrom(worldRotation);
+    console.log("set home rotation:", worldRotation);
 
     return true;
   }

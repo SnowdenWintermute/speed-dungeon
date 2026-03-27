@@ -2,6 +2,7 @@ import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-
 import { Color3, Material, Quaternion, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { EnvironmentSceneEntity } from ".";
 import {
+  AssetId,
   ClientAppAssetService,
   ENVIRONMENT_ENTITY_STRINGS,
   EnvironmentEntityName,
@@ -21,6 +22,7 @@ import {
 } from "@/game-world-view/materials/material-colors";
 import { GameWorldView } from "@/game-world-view";
 import { getEnvironmentModelAssetId } from "./environment-entity-asset-ids";
+import { spawnTargetChangedIndicatorArrow } from "../cosmetic/threat-target-changed-indicator";
 
 export class EnvironmentSceneEntityFactory {
   private scene: Scene;
@@ -38,15 +40,33 @@ export class EnvironmentSceneEntityFactory {
     position: Vector3,
     rotationQuat?: Quaternion
   ) {
+    const { sceneEntityService } = this.gameWorldView;
+    sceneEntityService.environmentEntityManager.pendingEntitySpawns.set(id, {
+      pendingUpdates: [],
+    });
+
+    const assetIdOption = getEnvironmentModelAssetId(name);
+    if (assetIdOption && name !== EnvironmentEntityName.ThreatTargetChangedArrow) {
+      return this.createFromAssetId(assetIdOption, id, name, position, rotationQuat);
+    } else if (name === EnvironmentEntityName.ThreatTargetChangedArrow) {
+      return spawnTargetChangedIndicatorArrow(id, this.gameWorldView, position);
+    } else {
+      throw new Error("unknown environment entity");
+    }
+  }
+
+  private async createFromAssetId(
+    assetId: AssetId,
+    id: string,
+    name: EnvironmentEntityName,
+    position: Vector3,
+    rotationQuat?: Quaternion
+  ) {
     try {
-      const { sceneEntityService } = this.gameWorldView;
-      sceneEntityService.environmentEntityManager.pendingEntitySpawns.set(id, {
-        pendingUpdates: [],
-      });
       const assetContainer = await loadAssetContainerIntoScene(
         this.assetService,
         this.scene,
-        getEnvironmentModelAssetId(name)
+        assetId
       );
       const result = new EnvironmentSceneEntity(
         id,
