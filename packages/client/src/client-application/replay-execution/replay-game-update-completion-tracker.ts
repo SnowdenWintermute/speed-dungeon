@@ -6,6 +6,7 @@ import {
   GameUpdateCommandType,
 } from "@speed-dungeon/common";
 import { ReplayTreeExecution } from "./tree-execution";
+import { ClientApplication } from "..";
 
 export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
   private isComplete: boolean = false;
@@ -44,7 +45,18 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
         return elapsed >= duration;
       }
     }
-    // return this.isComplete;
+  }
+
+  onComplete(clientApplication: ClientApplication) {
+    console.log("trying to complete", ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]);
+    if (this.command.type === GameUpdateCommandType.ActionEntityMotion) {
+      if (this.command.mainEntityUpdate.despawnOnCompleteMode !== undefined) {
+        const partyResult = clientApplication.gameContext.requireParty();
+        partyResult.actionEntityManager.unregisterActionEntity(
+          this.command.mainEntityUpdate.entityId
+        );
+      }
+    }
   }
 
   /** Replay events have a completionOrderId. In the interest of making sure we start the next
@@ -64,8 +76,14 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
 
   /** Check if next in line to complete */
   tryToCompleteInSequence(parentReplayTreeProcessor: ReplayTreeExecution) {
+    console.log(
+      "tried to complete in sequence",
+      this.command.completionOrderId,
+      COMBAT_ACTION_NAME_STRINGS[this.command.actionName],
+      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]
+    );
     if (!this.shouldCompleteInSequence) {
-      return;
+      return false;
     }
 
     const nextExpectedCompletionOrderId = parentReplayTreeProcessor.getNextNodeCompletionId();
@@ -75,6 +93,7 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
         parentReplayTreeProcessor.incrementNextExpectedCompletedNodeIdIndex();
       }
       this.isComplete = true;
+      this.onComplete(parentReplayTreeProcessor.clientApplication);
     } else {
       // sometimes things complete out of order. I assume this is due to
       // the fact that there are race conditions in translation and animation events

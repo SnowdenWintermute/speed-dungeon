@@ -90,14 +90,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
 
   /** Returns true if updated top target */
   updateHomeRotationToPointTowardNewTopThreatTarget(party: AdventuringParty, monster: Combatant) {
-    console.log("try update updateHomeRotationToPointTowardNewTopThreatTarget");
     const newThreatTargetIdOption = this.getHighestThreatCombatantId();
-    console.log(
-      "newThreatTargetIdOption:",
-      newThreatTargetIdOption,
-      "was same:",
-      newThreatTargetIdOption === this.getPreviouslyHighestThreatId()
-    );
     if (newThreatTargetIdOption === this.getPreviouslyHighestThreatId()) return false;
 
     if (!newThreatTargetIdOption) return false;
@@ -116,12 +109,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
     // Invert because LookAtLH returns a view matrix
     const worldRotation = Quaternion.FromRotationMatrix(lookAtMatrix).invert();
 
-    console.log(
-      "home rotation before:",
-      monster.combatantProperties.transformProperties.homeRotation
-    );
     monster.combatantProperties.transformProperties.homeRotation.copyFrom(worldRotation);
-    console.log("set home rotation:", worldRotation);
 
     return true;
   }

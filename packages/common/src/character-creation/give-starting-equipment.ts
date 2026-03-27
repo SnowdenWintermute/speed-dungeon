@@ -17,17 +17,21 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
 > = {
   [CombatantClass.Warrior]: {
     [HoldableSlotType.MainHand]: {
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: OneHandedMeleeWeapon.ShortSword,
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.ShortBow,
     },
+    // [HoldableSlotType.MainHand]: {
+    //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
+    //   baseItemType: OneHandedMeleeWeapon.ShortSword,
+    // },
     // [HoldableSlotType.MainHand]: {
     //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
     //   baseItemType: OneHandedMeleeWeapon.Dagger,
     // },
-    [HoldableSlotType.OffHand]: {
-      equipmentType: EquipmentType.Shield,
-      baseItemType: Shield.Heater,
-    },
+    // [HoldableSlotType.OffHand]: {
+    //   equipmentType: EquipmentType.Shield,
+    //   baseItemType: Shield.Heater,
+    // },
   },
   [CombatantClass.Mage]: {
     [HoldableSlotType.MainHand]: {
@@ -38,7 +42,7 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   [CombatantClass.Rogue]: {
     [HoldableSlotType.MainHand]: {
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: TwoHandedRangedWeapon.CompositeBow,
+      baseItemType: TwoHandedRangedWeapon.ShortBow,
     },
     // [HoldableSlotType.MainHand]: {
     //   equipmentType: EquipmentType.OneHandedMeleeWeapon,
