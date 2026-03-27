@@ -35,6 +35,10 @@ export class EnvironmentSceneEntityFactory {
     rotationQuat?: Quaternion
   ) {
     try {
+      const { sceneEntityService } = this.gameWorldView;
+      sceneEntityService.environmentEntityManager.pendingEntitySpawns.set(id, {
+        pendingUpdates: [],
+      });
       const assetContainer = await loadAssetContainerIntoScene(
         this.assetService,
         this.scene,

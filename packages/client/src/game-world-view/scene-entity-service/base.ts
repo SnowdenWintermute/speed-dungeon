@@ -21,13 +21,17 @@ export abstract class SceneEntityManager<T extends SceneEntity> {
     const { entityId } = sceneEntity;
     this.sceneEntities.set(entityId, sceneEntity);
     const pendingOption = this.pendingEntitySpawns.get(entityId);
+
+    if (pendingOption === undefined) {
+      throw new Error(
+        `spawned an entity that was never marked as pending to spawn ${sceneEntity.entityId}, ${JSON.stringify(this.pendingEntitySpawns)}`
+      );
+    }
+
     this.pendingEntitySpawns.delete(entityId);
     this.gameWorldView.sceneEntityService.startPendingQueuedEffects(sceneEntity);
-    await this.onRegister(sceneEntity);
 
-    if (!pendingOption) {
-      throw new Error("spawned an entity that was never marked as pending to spawn");
-    }
+    await this.onRegister(sceneEntity);
 
     // allow the caller to finish what it needs to do like setting the initial parent
     // at spawn before we apply the stored updates

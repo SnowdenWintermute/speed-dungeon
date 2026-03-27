@@ -34,6 +34,7 @@ export class CombatantSceneEntityFactory {
       combatant.getEntityId(),
       { pendingUpdates: [] }
     );
+
     const { combatantProperties } = combatant;
 
     const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies] as AssetId;

@@ -18,7 +18,6 @@ export async function spawnEntitiesGameUpdateHandler(
   const { game, party } = clientApplication.combatantFocus.requireFocusedCharacterContext();
 
   const promises: Promise<void>[] = [];
-  console.log("spawnEntitiesGameUpdateHandler", update.command);
 
   const deserialized: (Combatant | ActionEntity)[] = [];
   for (const entity of command.entities) {

@@ -175,14 +175,12 @@ export class EntityMotionGameUpdateHandlerCommand {
         throw new Error("expected entity was not instantiated and is not awaiting spawn");
       }
 
-      console.log("pushed motion update handler to pending entity");
       pendingEntitySpawn.pendingUpdates.push((pendingEntity) => {
         const completionHandlers = entityTypeHandler();
         this.handleUpdate(pendingEntity, motionUpdate, sceneEntityService, completionHandlers);
       });
     } else {
       const completionHandlers = entityTypeHandler();
-      console.log("handling motion update handler on existing entity");
       this.handleUpdate(sceneEntity, motionUpdate, sceneEntityService, completionHandlers);
     }
   }
@@ -256,7 +254,6 @@ export class EntityMotionGameUpdateHandlerCommand {
     const { actionEntityManager } = gameWorldView.sceneEntityService;
     const sceneEntity = actionEntityManager.requireById(motionUpdate.entityId);
 
-    console.log("processActionEntity setParent:", motionUpdate.setParent);
     if (motionUpdate.setParent !== undefined) {
       this.handleEntityMotionSetNewParentUpdate(
         sceneEntity,
@@ -329,7 +326,6 @@ export class EntityMotionGameUpdateHandlerCommand {
     identifierWithDuration: null | SceneEntityChildTransformNodeIdentifierWithDuration
   ) {
     if (identifierWithDuration === null) {
-      console.log("set parent to null", sceneEntity.entityId);
       sceneEntity.movementManager.transformNode.setParent(null);
       return sceneEntity.movementManager.transformNode.setParent(null);
     }

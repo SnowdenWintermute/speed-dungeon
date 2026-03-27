@@ -77,6 +77,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
 
       model.cleanup({ softCleanup: !!options.softCleanup });
       this.sceneEntities.delete(entityId);
+      this.pendingEntitySpawns.delete(entityId);
       this.loadingStates.clearEntityLoadingState(entityId);
     }
   }
@@ -112,7 +113,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
         spawnInDeadPose: combatant.combatantProperties.isDead(),
       });
     } else {
-      return new Promise<CombatantSceneEntity>((resolve) => {
+      return new Promise<undefined>((resolve) => {
         const { transformProperties } = sceneEntityOption.combatant.combatantProperties;
         transformProperties.setHomeRotation(homeRotation.clone());
         transformProperties.setHomePosition(homeLocation.clone());
@@ -120,7 +121,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
           sceneEntityOption.positionControls.setPosition(homeLocation);
           sceneEntityOption.positionControls.setRotation(homeRotation);
         }
-        resolve(sceneEntityOption);
+        resolve(undefined);
       });
     }
   }
@@ -135,7 +136,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       softCleanup: !!options.softCleanup,
     });
 
-    const modelSpawnPromises: Promise<CombatantSceneEntity>[] = [];
+    const modelSpawnPromises: Promise<CombatantSceneEntity | undefined>[] = [];
 
     for (const [_entityId, combatant] of modelsAndPositions) {
       modelSpawnPromises.push(
@@ -148,6 +149,10 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const spawnResults = await Promise.all(modelSpawnPromises);
 
     for (const result of spawnResults) {
+      if (result === undefined) {
+        // already the model exists
+        continue;
+      }
       this.register(result);
     }
 

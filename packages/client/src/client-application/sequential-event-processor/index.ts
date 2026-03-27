@@ -60,7 +60,6 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
 
   /** sets queued events to be skipped but does not cancel the currently processing event */
   cancelQueued() {
-    console.log("canceled queued SequentialClientSequentialEventProcessor");
     this.generation += 1;
     this.pendingEvents.clear();
     // we don't set currentEventProcessing to null because there's no way

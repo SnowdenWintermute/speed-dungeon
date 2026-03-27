@@ -162,6 +162,7 @@ export class ImageGenerator {
         EquipmentType.Ring,
         EquipmentType.Amulet,
         EquipmentType.BodyArmor,
+        EquipmentType.HeadGear,
       ];
       if (
         item instanceof Equipment &&

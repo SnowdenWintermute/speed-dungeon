@@ -51,10 +51,8 @@ export class SceneEntityService {
     for (const effect of toStart) {
       const sceneEntity = this.getOptionFromIdentifier(effect.parent.sceneEntityIdentifier);
       if (sceneEntity) {
-        console.log("starting effect on existing sceneEntity");
         this.startCosmeticEffect(sceneEntity, effect);
       } else {
-        console.log("delaying effect until scene entity is registered");
         this.pendingCosmeticEffectsToStart.push(effect);
       }
     }
