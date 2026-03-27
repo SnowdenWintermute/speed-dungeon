@@ -18,22 +18,7 @@ export class ReplayBranchExecution {
     private parentReplayTreeProcessor: ReplayTreeExecution,
     private node: NestedNodeReplayEvent,
     private branchProcessors: ReplayBranchExecution[]
-  ) {
-    console.log(
-      "events:",
-      node.events.map((item) => {
-        switch (item.type) {
-          case ReplayEventType.GameUpdate:
-            return (
-              COMBAT_ACTIONS[item.gameUpdate.actionName].getStringName() +
-              ACTION_RESOLUTION_STEP_TYPE_STRINGS[item.gameUpdate.step]
-            );
-          case ReplayEventType.NestedNode:
-            return "nested branch";
-        }
-      })
-    );
-  }
+  ) {}
 
   getCurrentGameUpdate() {
     return this.currentGameUpdateOption;
@@ -63,7 +48,6 @@ export class ReplayBranchExecution {
         node,
         this.branchProcessors
       );
-      console.log("start initial branch processing");
       newBranch.startProcessingNext();
       this.branchProcessors.push(newBranch);
       return;
@@ -79,10 +63,6 @@ export class ReplayBranchExecution {
     try {
       const sceneEntityServiceOption =
         this.parentReplayTreeProcessor.clientApplication.gameWorldView?.sceneEntityService;
-      console.log(
-        "branch execution",
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.currentGameUpdateOption.command.step]
-      );
       sceneEntityServiceOption?.stopCosmeticEffects(cosmeticEffectsToStopOption || []);
       sceneEntityServiceOption?.queueCosmeticEffectsStart(cosmeticEffectsToStartOption || []);
     } catch (err) {

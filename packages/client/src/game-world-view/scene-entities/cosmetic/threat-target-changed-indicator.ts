@@ -45,6 +45,7 @@ export function threatTargetChangedIndicatorSequence(
       combatant
     );
     if (!updatedTopThreat) continue;
+
     const monsterCharacterModel = combatantSceneEntityManager.requireById(combatant.getEntityId());
     const { transformProperties } = monsterCharacterModel.combatant.combatantProperties;
     monsterCharacterModel.movementManager.startRotatingTowards(
@@ -88,11 +89,6 @@ export function threatTargetChangedIndicatorSequence(
       trailHeight
     );
 
-    const distance = Vector3.Distance(
-      indicatorArrow.rootTransformNode.position,
-      targetCurrentPosition
-    );
-    // const duration = distance * COMBATANT_TIME_TO_MOVE_ONE_METER * 0.75;
     const duration = 900;
 
     indicatorArrow.movementManager.startTranslating(
@@ -148,7 +144,7 @@ function spawnTargetChangedIndicatorArrow(gameWorldView: GameWorldView, position
     gameWorldView.scene,
     assetContainer,
     gameWorldView.clientApplication.floatingMessagesService,
-    position,
+    position.clone(),
     EnvironmentEntityName.ThreatTargetChangedArrow
   );
 

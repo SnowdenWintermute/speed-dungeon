@@ -27,4 +27,10 @@ export class EnvironmentSceneEntityManager extends SceneEntityManager<Environmen
   protected async onRegister(sceneEntity: EnvironmentSceneEntity) {
     //
   }
+
+  updateEntities(deltaTime: number) {
+    for (const [_, sceneEntity] of this.sceneEntities) {
+      sceneEntity.movementManager.processActiveActions(deltaTime);
+    }
+  }
 }
