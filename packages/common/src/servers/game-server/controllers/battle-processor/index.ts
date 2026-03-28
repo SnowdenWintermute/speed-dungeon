@@ -159,7 +159,7 @@ export class BattleProcessor {
           if (party.battleId !== null) {
             game.battles.delete(party.battleId);
           }
-          party.battleId = null;
+          party.setBattleId(null);
 
           party.timeOfWipe = Date.now();
 

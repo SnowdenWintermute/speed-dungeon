@@ -18,7 +18,7 @@ const STARTING_EQUIPMENT_BY_COMBATANT_CLASS: Record<
   [CombatantClass.Warrior]: {
     [HoldableSlotType.MainHand]: {
       equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: TwoHandedRangedWeapon.ShortBow,
+      baseItemType: TwoHandedRangedWeapon.CompositeBow,
     },
     // [HoldableSlotType.MainHand]: {
     //   equipmentType: EquipmentType.OneHandedMeleeWeapon,

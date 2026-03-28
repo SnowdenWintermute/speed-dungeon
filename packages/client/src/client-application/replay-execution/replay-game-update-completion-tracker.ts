@@ -75,13 +75,6 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
 
   /** Check if next in line to complete */
   tryToCompleteInSequence(parentReplayTreeProcessor: ReplayTreeExecution) {
-    console.log(
-      "tried to complete in sequence",
-      this.command.completionOrderId,
-      COMBAT_ACTION_NAME_STRINGS[this.command.actionName],
-      ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]
-    );
-
     const nextExpectedCompletionOrderId = parentReplayTreeProcessor.getNextNodeCompletionId();
 
     if (this.command.completionOrderId === nextExpectedCompletionOrderId) {
@@ -89,6 +82,7 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
         parentReplayTreeProcessor.incrementNextExpectedCompletedNodeIdIndex();
       }
       this._isComplete = true;
+
       this.onComplete(parentReplayTreeProcessor.clientApplication);
     } else {
       // sometimes things complete out of order. I assume this is due to

@@ -273,7 +273,7 @@ export class DungeonExplorationController {
 
     if (party.combatantManager.monstersArePresent()) {
       const battleIdResult = Battle.createInitialized(game, party, this.idGenerator.generate());
-      party.battleId = battleIdResult;
+      party.setBattleId(battleIdResult);
     }
 
     return monsters;

@@ -81,7 +81,7 @@ export class Battle implements Serializable, ReactiveNode {
     combatantManager.removeNeutralCombatants(game);
 
     const battleIdToRemoveOption = party.battleId;
-    party.battleId = null;
+    party.setBattleId(null);
     if (battleIdToRemoveOption !== null) {
       game.battles.delete(battleIdToRemoveOption);
     }

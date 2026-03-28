@@ -119,6 +119,10 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
   }
 
+  setBattleId(newId: null | EntityId) {
+    this.battleId = newId;
+  }
+
   getBattleOption(game: SpeedDungeonGame) {
     const battleIdOption = this.battleId;
     if (battleIdOption === null) {

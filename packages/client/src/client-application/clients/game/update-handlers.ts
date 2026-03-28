@@ -263,7 +263,7 @@ export function createGameUpdateHandlers(
         }
 
         const battle = battleOption;
-        party.battleId = battle.id;
+        party.setBattleId(battle.id);
         const deserializedBattle = Battle.fromSerialized(battle);
         deserializedBattle.initialize(game, party);
         deserializedBattle.makeObservable();
