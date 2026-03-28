@@ -1,5 +1,5 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import {
   CombatantTurnTracker,
@@ -12,10 +12,12 @@ import React, { useState } from "react";
 const SHOWN_CLASSES = "mr-2 last:mr-0";
 
 export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantTurnTracker }) => {
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
 
-  let [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
-  let [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
+  const [preRemovalClassesState, _setPreRemovalClassesState] = useState(SHOWN_CLASSES);
+  const [transitionStyle, _setTransitionStyle] = useState({ transition: "width 1s" });
 
   const taggedTrackedEntityId = tracker.getTaggedIdOfTrackedEntity();
 

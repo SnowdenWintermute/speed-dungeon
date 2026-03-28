@@ -1,8 +1,5 @@
-import { EntityId } from "../primatives/index.js";
 import { DungeonRoom, DungeonRoomType } from "./dungeon-room.js";
-import { InputLock } from "./input-lock.js";
-import { ActionCommandQueue } from "../action-processing/action-command-queue.js";
-import { SpeedDungeonGame, SpeedDungeonPlayer } from "../game/index.js";
+import { SpeedDungeonGame } from "../game/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { DungeonExplorationManager } from "./dungeon-exploration-manager.js";
 import { ActionEntityManager } from "./action-entity-manager.js";
@@ -11,70 +8,91 @@ import { CombatantManager } from "./combatant-manager.js";
 import { Combatant } from "../combatants/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
-import { runIfInBrowser } from "../utils/index.js";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { plainToInstance } from "class-transformer";
-export * from "./dungeon-room.js";
-export * from "./dungeon-exploration-manager.js";
-export * from "./input-lock.js";
+import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
+import { SpeedDungeonPlayer } from "../game/player.js";
+import { TimedLock } from "../primatives/timed-lock.js";
+import {
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+  makePropertiesObservable,
+} from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class AdventuringParty {
+export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
   actionEntityManager = new ActionEntityManager();
   dungeonExplorationManager = new DungeonExplorationManager();
   petManager = new PetManager();
   combatantManager = new CombatantManager();
-
-  // players
-  playerUsernames: string[] = [];
-
-  // current room
+  // other
+  playerUsernames: Username[] = [];
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
-
-  // party status
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
-
-  // player input management
-  itemsOnGroundNotYetReceivedByAllClients: { [id: EntityId]: EntityId[] } = {};
-  inputLock: InputLock = new InputLock();
-
-  // event management
-  actionCommandQueue: ActionCommandQueue = new ActionCommandQueue();
+  itemsOnGroundNotYetReceivedByAllClients = new Map<EntityId, EntityId[]>();
+  inputLock = new TimedLock();
 
   constructor(
     public id: string,
-    public name: string
-  ) {
-    runIfInBrowser(() => makeAutoObservable(this));
+    public name: PartyName
+  ) {}
+
+  makeObservable() {
+    makeAutoObservable(this);
+    makePropertiesObservable(this);
   }
 
   static createInitialized(id: EntityId, name: string) {
-    const party = new AdventuringParty(id, name);
+    const party = new AdventuringParty(id, name as PartyName);
     party.initialize();
     return party;
   }
 
-  static getDeserialized(plain: AdventuringParty) {
-    const toReturn = plainToInstance(AdventuringParty, plain);
-    toReturn.combatantManager = CombatantManager.getDeserialized(toReturn.combatantManager);
-    toReturn.currentRoom = DungeonRoom.getDeserialized(toReturn.currentRoom);
-    toReturn.inputLock = InputLock.getDeserialized(toReturn.inputLock);
-    toReturn.dungeonExplorationManager = DungeonExplorationManager.getDeserialized(
-      toReturn.dungeonExplorationManager
+  toSerialized() {
+    return {
+      id: this.id,
+      name: this.name,
+      actionEntityManager: this.actionEntityManager.toSerialized(),
+      dungeonExplorationManager: this.dungeonExplorationManager.toSerialized(),
+      petManager: this.petManager.toSerialized(),
+      combatantManager: this.combatantManager.toSerialized(),
+      playerUsernames: this.playerUsernames,
+      currentRoom: this.currentRoom.toSerialized(),
+      battleId: this.battleId,
+      timeOfWipe: this.timeOfWipe,
+      timeOfEscape: this.timeOfEscape,
+      itemsOnGroundNotYetReceivedByAllClients: MapUtils.serialize(
+        this.itemsOnGroundNotYetReceivedByAllClients
+      ),
+      inputLock: this.inputLock.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<AdventuringParty>) {
+    const result = new AdventuringParty(serialized.id, serialized.name);
+
+    result.actionEntityManager = ActionEntityManager.fromSerialized(serialized.actionEntityManager);
+    result.dungeonExplorationManager = DungeonExplorationManager.fromSerialized(
+      serialized.dungeonExplorationManager
     );
-    toReturn.petManager = PetManager.getDeserialized(toReturn.petManager);
-    toReturn.actionEntityManager = ActionEntityManager.getDeserialized(
-      toReturn.actionEntityManager
+    result.petManager = PetManager.fromSerialized(serialized.petManager);
+    result.combatantManager = CombatantManager.fromSerialized(serialized.combatantManager);
+    result.playerUsernames = serialized.playerUsernames;
+    result.currentRoom = DungeonRoom.fromSerialized(serialized.currentRoom);
+    result.battleId = serialized.battleId;
+    result.timeOfWipe = serialized.timeOfWipe;
+    result.timeOfEscape = serialized.timeOfEscape;
+    result.itemsOnGroundNotYetReceivedByAllClients = MapUtils.deserialize(
+      serialized.itemsOnGroundNotYetReceivedByAllClients
     );
+    result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
+    result.initialize();
 
-    toReturn.actionCommandQueue = ActionCommandQueue.getDeserialized(toReturn.actionCommandQueue);
-
-    toReturn.initialize();
-
-    return toReturn;
+    return result;
   }
 
   initialize() {
@@ -88,7 +106,7 @@ export class AdventuringParty {
   getItem(itemId: string) {
     let toReturn: undefined | Item;
 
-    for (const combatant of this.combatantManager.getAllCombatants()) {
+    for (const combatant of this.combatantManager.iterateAllCombatants()) {
       const itemResult = combatant.combatantProperties.inventory.getStoredOrEquipped(itemId);
       if (itemResult instanceof Error) continue;
       toReturn = itemResult;
@@ -101,20 +119,30 @@ export class AdventuringParty {
     return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
   }
 
+  setBattleId(newId: null | EntityId) {
+    this.battleId = newId;
+  }
+
   getBattleOption(game: SpeedDungeonGame) {
     const battleIdOption = this.battleId;
-    if (battleIdOption === null) return null;
-    const battleOption = game.battles[battleIdOption];
-    if (!battleOption) throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    return battleOption;
+    if (battleIdOption === null) {
+      return null;
+    }
+    return game.getExpectedBattle(battleIdOption);
   }
 
   isInCombat() {
     return this.combatantManager.monstersArePresent();
   }
 
+  requireNotInCombat() {
+    if (this.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.PARTY.CANT_EXPLORE_WHILE_MONSTERS_ARE_PRESENT);
+    }
+  }
+
   removeCharacter(
-    characterId: EntityId,
+    characterId: CombatantId,
     player: SpeedDungeonPlayer,
     game: SpeedDungeonGame
   ): Combatant {
@@ -132,5 +160,16 @@ export class AdventuringParty {
 
   setCurrentRoom(room: DungeonRoom) {
     this.currentRoom = room;
+  }
+
+  requireInputUnlocked() {
+    if (this.inputLock.isLocked()) {
+      throw new Error(ERROR_MESSAGES.PARTY.INPUT_IS_LOCKED);
+    }
+  }
+
+  requireDescentPermitted() {
+    this.requireNotInCombat();
+    this.currentRoom.requireType(DungeonRoomType.Staircase);
   }
 }

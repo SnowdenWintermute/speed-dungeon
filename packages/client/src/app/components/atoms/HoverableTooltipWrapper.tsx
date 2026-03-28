@@ -1,74 +1,46 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import React, { ReactNode, useEffect, useRef } from "react";
 
 interface Props {
-  tooltipText?: ReactNode;
+  tooltipText?: ReactNode | (() => ReactNode);
   extraStyles?: string;
   offsetTop?: number;
   children: ReactNode;
 }
 
 export default function HoverableTooltipWrapper(props: Props) {
-  const { tooltipStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const { tooltips } = uiStore;
+
   const elementRef = useRef<HTMLDivElement>(null);
 
-  function showTooltip(elementOption: null | HTMLDivElement, content: ReactNode) {
-    if (!elementOption) return;
-    const { x, y, width, height } = elementOption.getBoundingClientRect();
-    const offsetTop = props.offsetTop !== undefined ? props.offsetTop : 4;
-    let tooltipX = x + width / 2.0;
-    let tooltipY = -9999; // send it off screen for measuring before showing it
-
-    tooltipStore.set(content, { x: tooltipX, y: tooltipY });
-
-    // measure tooltip after render
-    requestAnimationFrame(() => {
-      const tooltipElement = document.getElementById("hoverable-tooltip");
-      if (!tooltipElement) return console.info("no tooltip found");
-
-      const tooltipRect = tooltipElement.getBoundingClientRect();
-      // const viewportWidth = window.innerWidth;
-
-      if (y - tooltipRect.height - offsetTop < 0) {
-        tooltipY = Math.max(tooltipY, y + height + offsetTop + tooltipRect.height);
-      } else {
-        tooltipY = y - offsetTop;
-      }
-
-      if (tooltipRect.x < 0 || x + tooltipRect.x < 0) {
-        tooltipX = x + tooltipRect.width / 2;
-      } else if (tooltipRect.x + tooltipRect.width + 5 > window.innerWidth) {
-        tooltipX = x - tooltipRect.width / 2 - 10;
-      }
-
-      tooltipStore.moveTo({ x: tooltipX, y: tooltipY });
-    });
-  }
-
-  function hideTooltip() {
-    tooltipStore.clear();
-  }
-
   useEffect(() => {
-    return () => hideTooltip();
+    return () => tooltips.hideTooltip();
   }, []);
 
-  function handleMouseEnter(_e: React.MouseEvent) {
-    if (props.tooltipText) showTooltip(elementRef.current, props.tooltipText);
-  }
+  const handleFocus = () => {
+    if (props.tooltipText) {
+      if (props.tooltipText instanceof Function) {
+        tooltips.showTooltip(elementRef.current, props.tooltipText());
+      } else {
+        tooltips.showTooltip(elementRef.current, props.tooltipText);
+      }
+    }
+  };
 
-  function handleFocus(_e: React.FocusEvent): void {
-    if (props.tooltipText) showTooltip(elementRef.current, props.tooltipText);
-  }
+  const handleBlur = () => {
+    tooltips.hideTooltip();
+  };
 
   return (
     <div
       className={`h-fit w-fit ${props.extraStyles} p-0`}
       ref={elementRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={hideTooltip}
+      onMouseEnter={handleFocus}
+      onMouseLeave={handleBlur}
       onFocus={handleFocus}
-      onBlur={hideTooltip}
+      onBlur={handleBlur}
       tabIndex={0}
     >
       {props.children}

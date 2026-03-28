@@ -1,13 +1,7 @@
-import { ActionResolutionStepContext } from "../../action-processing/index.js";
+import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
 import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "./combat-action-names.js";
-
-export enum CombatActionOrigin {
-  SpellCast,
-  TriggeredCondition,
-  Medication,
-  Attack,
-}
+import { CombatActionOrigin } from "./combat-action-origin.js";
 
 export interface ActionUseMessageData {
   nameOfActionUser?: string;
@@ -32,20 +26,29 @@ export class CombatActionGameLogProperties {
   public doNotPostResourceChange?: boolean;
   /** Used by the combat log to determine how to format messages */
   constructor(config: CombatActionGameLogPropertiesConfig) {
-    if (config.origin !== undefined) this.origin = config.origin;
-    if (config.getOnUseMessage) this.getOnUseMessage = config.getOnUseMessage;
-    if (config.getOnSuccessMessage) this.getOnSuccessMessage = config.getOnSuccessMessage;
-    if (config.getOnUseMessageDataOverride)
+    if (config.origin !== undefined) {
+      this.origin = config.origin;
+    }
+    if (config.getOnUseMessage) {
+      this.getOnUseMessage = config.getOnUseMessage;
+    }
+    if (config.getOnSuccessMessage) {
+      this.getOnSuccessMessage = config.getOnSuccessMessage;
+    }
+    if (config.getOnUseMessageDataOverride) {
       this.getOnUseMessageData = config.getOnUseMessageDataOverride;
-    if (config.doNotPostResourceChange)
+    }
+
+    if (config.doNotPostResourceChange) {
       this.doNotPostResourceChange = config.doNotPostResourceChange;
+    }
   }
 
   getOnUseMessageData(context: ActionResolutionStepContext): ActionUseMessageData {
     const { actionUserContext } = context;
     const { actionUser, party } = actionUserContext;
     const { actionExecutionIntent } = context.tracker;
-    const { rank, actionName, targets } = actionExecutionIntent;
+    const { rank, targets } = actionExecutionIntent;
 
     const targetingCalculator = new TargetingCalculator(actionUserContext, null);
     const primaryTarget = targetingCalculator.getPrimaryTargetCombatant(

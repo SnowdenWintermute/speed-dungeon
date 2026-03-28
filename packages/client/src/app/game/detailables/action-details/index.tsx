@@ -1,6 +1,7 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   AbilityType,
+  ActionRank,
   COMBAT_ACTIONS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
   CombatActionName,
@@ -8,10 +9,10 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { ActionDetailsTitleBar } from "./ActionDetailsTitleBar";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   actionName: CombatActionName;
@@ -21,13 +22,17 @@ interface Props {
 
 export const ActionDetails = observer(
   ({ actionName, consumableDescriptionOption, hideTitle }: Props) => {
-    const party = AppStore.get().gameStore.getExpectedParty();
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const clientApplication = useClientApplication();
+    const { gameContext, combatantFocus } = clientApplication;
+
+    const party = gameContext.requireParty();
+    const focusedCharacter = combatantFocus.requireFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
     const { abilityProperties } = combatantProperties;
     const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
     const selectedLevelOption =
-      focusedCharacter.getTargetingProperties().getSelectedActionAndRank()?.rank || 1;
+      focusedCharacter.getTargetingProperties().getSelectedActionAndRank()?.rank ||
+      (1 as ActionRank);
 
     const inCombat = party.combatantManager.monstersArePresent();
 

@@ -1,0 +1,25 @@
+{
+  "name": "@speed-dungeon/integration-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "scripts": {
+    "compileClean": "rm -rf tsconfig.tsbuildinfo && rm -rf ./dist && npx tsc"
+  },
+  "dependencies": {
+    "@speed-dungeon/common": "1.0.0",
+    "@speed-dungeon/server": "*",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/lodash.clonedeep": "4.5.9",
+    "@types/lodash.ismatch": "^4.4.9",
+    "fake-indexeddb": "^6.2.5"
+  }
+}

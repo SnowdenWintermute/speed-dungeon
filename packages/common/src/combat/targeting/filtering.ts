@@ -7,13 +7,12 @@ import {
   PROHIBITED_TARGET_COMBATANT_STATE_CALCULATORS,
   ProhibitedTargetCombatantStates,
 } from "../combat-actions/prohibited-target-combatant-states.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TargetFilterer {
-  constructor() {}
-
   static filterPossibleTargetIdsByProhibitedCombatantStates(
     party: AdventuringParty,
     prohibitedStates: null | ProhibitedTargetCombatantStates[],

@@ -1,9 +1,9 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
 import { SkeletalAnimationName } from "../../../../../app-consts.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 import { getSpeciesTimedAnimation } from "../../get-species-timed-animation.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 
 const config = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 

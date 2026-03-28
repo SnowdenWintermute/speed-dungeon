@@ -1,11 +1,9 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
-import { BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL } from "../../../../combatants/index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
+
+import { BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL } from "../../../../combatants/combatant-traits/index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
@@ -14,7 +12,6 @@ import {
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { ConsumableType } from "../../../../items/consumables/index.js";
 import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
@@ -32,6 +29,7 @@ import {
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
+import { ConsumableType } from "../../../../items/consumables/consumable-types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 

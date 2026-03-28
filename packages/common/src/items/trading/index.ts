@@ -1,4 +1,3 @@
-export * from "./combatant-is-allowed-to-trade-for-books.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import { BookConsumableType } from "../consumables/index.js";
 import { Equipment } from "../equipment/index.js";

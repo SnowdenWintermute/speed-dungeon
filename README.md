@@ -32,6 +32,18 @@ Join the Discord: [Discord](https://discord.gg/NxzPFUBVVm)
   methods to gain the benefits of traditional OOP techniques. To allow for circular references in subsystems that need access
   to their parent classes, we will take on the complexity of initialization functions.
 
+### Typed Event Handler Records
+
+TS asks: what argument would be valid for _any_ possible handler?
+Because this is a union of handlers, the parameter type becomes the
+intersection of all payload types, which collapses to `never`.
+Since we look up handler in a typed record and check it is not undefined
+we can say the data is the correct type for the handler
+
+```
+const outbox = await handlerOption(parsed.data as never, session);
+```
+
 ### Common errors and their solutions
 
 - Error description: All of a sudden Typescript complains of missing modules, things are of type unknown, or
@@ -55,3 +67,47 @@ Explanation:
 Importing from src tries to pull in the TypeScript source directly. This breaks because:
 Node requires .js extensions in ESM imports, which is handled in the compiled dist files.
 Next.js (Turbopack) reads the .js imports in the source and cannot find the corresponding files.
+
+- Error description: TypeError: Class extends value undefined is not a constructor or null or
+  some other undefined like MyEnum.Member can't find .Member on Undefined. It is probably a circular
+  import.
+  Solution: Try using direct path imports in the complaining file instead of importing from a mass
+  export file like common/index.ts
+
+- Error description: Things aren't being attached even though you are parenting them
+  Solution: make sure you are passing the scene to everything that takes it as an optional parameter.
+  Anything without an explicit scene will take the most recently created scene instead, like the ImageGenerator
+  scene.
+
+### Old problems and comments about their solutions
+
+In the old LobbyStore class
+
+```
+constructor() {
+// we autoBind because that allows us to pass methods of this class
+// to callbacks like socket.on(ServerToClientEvent.UserLeftChannel, lobbyStore.handleUserLeftChannel);
+// see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
+makeAutoObservable(this, {}, { autoBind: true });
+}
+```
+
+TargetIndicatorStore circular import
+
+```
+export class TargetIndicatorStore {
+  private indicators: TargetIndicator[] = [];
+  _gameWorld: GameWorldView | null = null; // we'd like it to be private but then we can't mark it as "not observable"
+  constructor(gameWorldView: GameWorldView|null) {
+    makeAutoObservable(this, { _gameWorld: false });
+  }
+
+  /** avoid a circular reference since targetIndicatorStore will need to access GameWorld
+  but GameWorld also accesses AppStore.get () which targetIndicatorStore is a member of
+  so we can't directly call getGameWorldView() inside it */
+  initialize(gameWorld: GameWorldView) {
+    this._gameWorld = gameWorld;
+  }
+  // ...
+}
+```

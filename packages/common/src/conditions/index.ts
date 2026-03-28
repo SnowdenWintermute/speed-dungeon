@@ -1,32 +1,31 @@
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { EntityId, MaxAndCurrent } from "../primatives/index.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatActionIntent } from "../combat/combat-actions/combat-action-intent.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
-import {
-  ActionEntityProperties,
-  ActionIntentAndUser,
-  ActionUserContext,
-  ActionUserTargetingProperties,
-  ActionUserType,
-  AdventuringParty,
-  AiType,
-  Battle,
-  CombatActionName,
-  Combatant,
-  COMBATANT_CONDITION_DESCRIPTIONS,
-  CombatantProperties,
-  ConditionTickProperties,
-  CosmeticEffectOnTargetTransformNode,
-  IActionUser,
-  IdGenerator,
-  TransformModifiers,
-} from "../index.js";
 import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./condition-names.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionInit } from "./condition-config.js";
-import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
+import { EntityId, EntityName } from "../aliases.js";
+import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
+import { COMBATANT_CONDITION_DESCRIPTIONS } from "./condition-descriptions.js";
+import { ActionUserContext } from "../action-user-context/index.js";
+import { IdGenerator } from "../utility-classes/index.js";
+import { Combatant } from "../combatants/index.js";
+import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
+import { CosmeticEffectOnTargetTransformNode } from "../combat/combat-actions/combat-action-steps-config.js";
+import { CombatantProperties } from "../combatants/combatant-properties.js";
+import { TransformModifiers } from "../scene-entities/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
+import { Battle } from "../battle/index.js";
+import { AiType } from "../combat/ai-behavior/index.js";
+import { ConditionTickProperties } from "./condition-tick-properties.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
+import { ReactiveNode } from "../serialization/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
+import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -35,7 +34,7 @@ export interface ConditionWithCombatantIdAppliedTo {
   appliedTo: EntityId;
 }
 
-export abstract class CombatantCondition implements IActionUser {
+export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   public name: CombatantConditionName;
   public rank: number;
   public id: EntityId;
@@ -61,19 +60,21 @@ export abstract class CombatantCondition implements IActionUser {
     this.appliedTo = init.appliedTo;
   }
 
-  static getInit(condition: CombatantCondition): CombatantConditionInit {
+  toSerialized() {
     return {
-      name: condition.name,
-      rank: condition.rank,
-      id: condition.id,
-      appliedBy: condition.appliedBy,
-      appliedTo: condition.appliedTo,
-      stacks: condition.stacksOption?.current || null,
+      name: this.name,
+      rank: this.rank,
+      id: this.id,
+      appliedBy: this.appliedBy,
+      appliedTo: this.appliedTo,
+      stacks: this.stacksOption?.current || null,
     };
   }
 
-  getSerialized() {
-    return CombatantCondition.getInit(this);
+  makeObservable() {
+    makeAutoObservable(this);
+    this.stacksOption?.makeObservable();
+    this.targetingProperties?.makeObservable();
   }
 
   getDescription = () => `${COMBATANT_CONDITION_DESCRIPTIONS[this.name]} (rank ${this.rank})`;
@@ -142,7 +143,7 @@ export abstract class CombatantCondition implements IActionUser {
   getEntityProperties(): EntityProperties {
     return { id: this.id, name: this.getName() };
   }
-  getName = () => COMBATANT_CONDITION_NAME_STRINGS[this.name];
+  getName = () => COMBATANT_CONDITION_NAME_STRINGS[this.name] as EntityName;
   getPositionOption = () => null;
   getMovementSpeedOption = () => null;
   getHomePosition(): Vector3 {

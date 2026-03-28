@@ -1,6 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import { MELEE_SKILL_STEPS_CONFIG } from "./melee-skill.js";
-import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 
 const config = cloneDeep(MELEE_SKILL_STEPS_CONFIG);
 config.steps[ActionResolutionStepType.DetermineMeleeActionAnimations] = {};

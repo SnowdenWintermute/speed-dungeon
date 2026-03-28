@@ -1,10 +1,4 @@
-import {
-  CombatActionComponentConfig,
-  CombatActionGameLogProperties,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
@@ -20,12 +14,11 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { START_FLYING_STEPS_CONFIG } from "./start-flying-steps-config.js";
-import {
-  CombatantConditionFactory,
-  CombatantConditionName,
-  FriendOrFoe,
-  HitOutcome,
-} from "../../../../index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatantConditionName } from "../../../../conditions/condition-names.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_ANY_TIME,

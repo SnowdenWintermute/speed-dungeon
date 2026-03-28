@@ -8,7 +8,7 @@ import { CharacterSheetWeaponDamage } from "./CharacterSheetWeaponDamage";
 import ElementalAffinitiesDisplay from "./ElementalAffinitiesDisplay";
 import KineticAffinitiesDisplay from "./KineticAffinitiesDisplay";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CharacterSheetHeader } from "./CharacterSheetHeader";
 
 interface Props {
@@ -21,8 +21,9 @@ interface Props {
 export const CharacterAttributes = observer(
   ({ combatant, showAttributeAssignmentButtons, widthOptionClass, hideHeader }: Props) => {
     const { entityProperties, combatantProperties } = combatant;
-    const { gameStore } = AppStore.get();
-    const playerOwnsCharacter = gameStore.clientUserControlsFocusedCombatant();
+    const clientApplication = useClientApplication();
+    const { combatantFocus } = clientApplication;
+    const playerOwnsCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
     const { attributeProperties } = combatantProperties;
 
@@ -66,7 +67,7 @@ export const CharacterAttributes = observer(
       >
         {!hideHeader && (
           <CharacterSheetHeader
-            entityId={entityProperties.id}
+            entityId={combatant.getEntityId()}
             name={entityProperties.name}
             combatantProperties={combatantProperties}
           />

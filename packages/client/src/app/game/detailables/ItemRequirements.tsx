@@ -1,5 +1,5 @@
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   COMBAT_ATTRIBUTE_STRINGS,
   CombatAttribute,
@@ -13,9 +13,11 @@ interface Props {
 }
 
 export const ItemRequirements = observer(({ attributeRequirements }: Props) => {
-  const unmetRequirements = AppStore.get().focusStore.getSelectedItemUnmetRequirements();
+  const clientApplication = useClientApplication();
+  const unmetRequirements =
+    clientApplication.detailableEntityFocus.getSelectedItemUnmetRequirements();
 
-  let displays = [];
+  const displays = [];
 
   let i = 0;
   for (const [attributeKey, requirementValue] of Object.entries(attributeRequirements)) {

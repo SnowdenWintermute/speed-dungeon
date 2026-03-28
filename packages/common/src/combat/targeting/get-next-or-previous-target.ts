@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { EntityId, NextOrPrevious } from "../../primatives/index.js";
+import { NextOrPrevious } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { cycleListGivenCurrentValue } from "../../utils/index.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
 import {

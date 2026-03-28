@@ -1,23 +1,29 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
-  ClientToServerEvent,
+  CharacterSlotIndex,
+  ClientIntentType,
   CombatantClass,
+  EntityName,
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
-export default function CreateCharacterForm({ currentSlot }: { currentSlot: number }) {
+export default function CreateCharacterForm({ currentSlot }: { currentSlot: CharacterSlotIndex }) {
   const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
   const [newCharacterName, setNewCharacterName] = useState("");
+  const { lobbyClientRef } = useClientApplication();
 
   function createCharacter() {
-    websocketConnection.emit(ClientToServerEvent.CreateSavedCharacter, {
-      name: newCharacterName,
-      combatantClass: selectedNewCharacterClass,
-      slotNumber: currentSlot,
+    lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.CreateSavedCharacter,
+      data: {
+        name: newCharacterName as EntityName,
+        combatantClass: selectedNewCharacterClass,
+        slotIndex: currentSlot,
+      },
     });
   }
 

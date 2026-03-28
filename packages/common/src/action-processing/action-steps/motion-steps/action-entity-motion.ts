@@ -7,16 +7,17 @@ import {
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import { ActionEntity } from "../../../action-entities/index.js";
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
 
 export class ActionEntityMotionActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
     const { party, actionUser } = context.actionUserContext;
 
     let actionEntity = actionUser; // try to act on the user first
-    if (!(actionUser instanceof ActionEntity))
+    if (!(actionUser instanceof ActionEntity)) {
       // otherwise check if the action has a spawned action entity
       actionEntity = context.tracker.getFirstExpectedSpawnedActionEntity().actionEntity;
+    }
 
     const { actionEntityManager } = party;
     const entityIsStillRegistered =

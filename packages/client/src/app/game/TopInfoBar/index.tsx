@@ -1,65 +1,24 @@
 import React from "react";
-import getCurrentBattleOption from "@/utils/getCurrentBattleOption";
 import { RoomExplorationTracker } from "./RoomExplorationTracker";
-import { CleanupMode, ClientToServerEvent, DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
-
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { actionCommandQueue } from "@/singletons/action-command-manager";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
-import { ModelActionType } from "@/game-world-view/model-manager/model-actions";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const TopInfoBar = observer(() => {
-  const { game, party } = AppStore.get().gameStore.getFocusedCharacterContext();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore, actionMenu, gameClientRef } = clientApplication;
+  const { dialogs } = uiStore;
+  const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
-  const viewingLeaveGameModal = AppStore.get().dialogStore.isOpen(DialogElementName.LeaveGame);
-
-  const battleOptionResult = getCurrentBattleOption(game, party.name);
-
-  function leaveGame() {
-    AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
-
-    party.actionCommandQueue.clear();
-    actionCommandQueue.clear();
-
-    const { actionEntityManager } = party;
-    for (const [entityId, entity] of Object.entries(actionEntityManager.getActionEntities())) {
-      actionEntityManager.unregisterActionEntity(entity.entityProperties.id);
-      getGameWorldView().actionEntityManager.unregister(
-        entity.entityProperties.id,
-        CleanupMode.Soft
-      );
-    }
-
-    party.combatantManager.getAllCombatants().forEach((combatant) => {
-      combatant.combatantProperties.targetingProperties.clear();
-    });
-
-    AppStore.get().targetIndicatorStore.clear();
-
-    const { gameStore } = AppStore.get();
-    gameStore.clearGame();
-
-    websocketConnection.emit(ClientToServerEvent.LeaveGame);
-
-    getGameWorldView().replayTreeManager.clear();
-    getGameWorldView().modelManager.modelActionQueue.clear();
-
-    getGameWorldView().modelManager.modelActionQueue.enqueueMessage({
-      type: ModelActionType.SynchronizeCombatantModels,
-      placeInHomePositions: true,
-    });
-
-    getGameWorldView()?.drawCharacterSlots();
-  }
+  const battleOption = party.getBattleOption(game);
+  const viewingLeaveGameModal = dialogs.isOpen(DialogElementName.LeaveGame);
 
   const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
   const currentRoom = party.dungeonExplorationManager.getCurrentRoomNumber();
@@ -83,8 +42,8 @@ export const TopInfoBar = observer(() => {
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
       </div>
-      {!(battleOptionResult instanceof Error) && battleOptionResult !== null ? (
-        <TurnOrderPredictionBar trackers={battleOptionResult.turnOrderManager.getTrackers()} />
+      {battleOption !== null ? (
+        <TurnOrderPredictionBar trackers={battleOption.turnOrderManager.getTrackers()} />
       ) : (
         <RoomExplorationTracker />
       )}
@@ -92,8 +51,8 @@ export const TopInfoBar = observer(() => {
         <HotkeyButton
           className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
-            AppStore.get().dialogStore.toggle(DialogElementName.LeaveGame);
-            AppStore.get().actionMenuStore.clearStack();
+            dialogs.toggle(DialogElementName.LeaveGame);
+            actionMenu.clearStack();
           }}
         >
           LEAVE GAME{" "}
@@ -118,14 +77,14 @@ export const TopInfoBar = observer(() => {
             <HotkeyButton
               hotkeys={["Escape"]}
               onClick={() => {
-                AppStore.get().dialogStore.close(DialogElementName.LeaveGame);
+                dialogs.close(DialogElementName.LeaveGame);
               }}
               className="h-10 w-24 p-2 border border-slate-400 mr-1 bg-slate-700"
             >
               No
             </HotkeyButton>
             <HotkeyButton
-              onClick={leaveGame}
+              onClick={() => gameClientRef.get().leaveGame()}
               className="h-10 w-24 p-2 border border-slate-400 ml-1"
             >
               Yes

@@ -1,4 +1,4 @@
-import { SPACING_REM, SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM, SPACING_REM_SMALL } from "@/client-consts";
 import {
   CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE,
   CONSUMABLE_DESCRIPTIONS,
@@ -17,13 +17,14 @@ import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HOTKEYS } from "@/hotkeys";
 import domtoimage from "dom-to-image";
 import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { getModelAttribution } from "@/game-world-view/scene-entities/item-models/get-model-attribution";
+import { getModelAttribution } from "@/game-world-view/scene-entities/items/get-item-asset-attribution";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   shouldShowModKeyTooltip: boolean;
@@ -49,7 +50,7 @@ export const ItemDetails = observer(
     } | null>(null);
 
     async function handleDownload(entityProperties: EntityProperties, ilvl: number) {
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         const { id, name } = entityProperties;
         const node = document.getElementById(id);
         if (!node) return;
@@ -81,16 +82,17 @@ export const ItemDetails = observer(
       }
     }, [preppedForDownloadPhoto]);
 
-    const { focusStore } = AppStore.get();
-    const unmetRequirements = focusStore.getSelectedItemUnmetRequirements();
+    const clientApplication = useClientApplication();
+    const { detailableEntityFocus, imageStore } = clientApplication;
+    const unmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements();
     let BG_COLOR = "bg-slate-800";
 
     let thumbnailIdOption = "";
 
     const isDetailedEntity =
-      itemOption && focusStore.entityIsDetailed(itemOption.entityProperties.id);
+      itemOption && detailableEntityFocus.entityIsDetailed(itemOption.entityProperties.id);
     const isHoveredEntity =
-      itemOption && focusStore.entityIsHovered(itemOption.entityProperties.id);
+      itemOption && detailableEntityFocus.entityIsHovered(itemOption.entityProperties.id);
 
     if (!itemOption) {
       itemDetailsDisplay = <></>;
@@ -139,12 +141,14 @@ export const ItemDetails = observer(
       }
     }
 
-    const thumbnailOption = AppStore.get().imageStore.getItemThumbnailOption(thumbnailIdOption);
+    const thumbnailOption = imageStore.getItemThumbnailOption(thumbnailIdOption);
     if (!thumbnailPath && thumbnailOption) thumbnailPath = thumbnailOption;
     if (!thumbnailPath && !svgThumbnailOption)
       svgThumbnailOption = SVG_ICONS[IconName.Sword]("h-full fill-slate-950");
 
     const attribution = itemOption && getModelAttribution(itemOption);
+
+    const showDebug = clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
 
     return (
       <div
@@ -165,7 +169,7 @@ export const ItemDetails = observer(
               className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
               hotkeys={[HOTKEYS.CANCEL]}
               onClick={() => {
-                focusStore.detailables.clearDetailed();
+                detailableEntityFocus.detailables.clearDetailed();
               }}
             >
               {SVG_ICONS[IconName.XShape]("h-full fill-slate-400")}
@@ -212,6 +216,13 @@ export const ItemDetails = observer(
           >
             {itemOption?.entityProperties.name}
           </span>
+          {showDebug && (
+            <div
+              className={`pr-2 ${itemOption instanceof Equipment && itemOption.isMagical() && "text-blue-300"}`}
+            >
+              {itemOption?.entityProperties.id}
+            </div>
+          )}
           <Divider extraStyles="mr-4" />
           {itemDetailsDisplay}
         </div>
@@ -223,6 +234,7 @@ export const ItemDetails = observer(
           >
             {thumbnailPath ? (
               <img
+                alt={thumbnailPath}
                 src={thumbnailPath}
                 ref={imageRef}
                 className="max-h-full object-contain"

@@ -1,12 +1,12 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../primatives/index.js";
-import { CombatAttribute } from "../../combatants/index.js";
+import { CombatantId } from "../../aliases.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatantTurnTracker } from "./turn-trackers.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
-  constructor(public readonly combatantId: EntityId) {
+  constructor(public readonly combatantId: CombatantId) {
     super();
   }
   getTurnTakerId = () => this.combatantId;

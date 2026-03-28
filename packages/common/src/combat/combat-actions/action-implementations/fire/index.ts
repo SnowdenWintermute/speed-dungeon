@@ -1,11 +1,4 @@
-import {
-  ActionPayableResource,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  TargetingScheme,
-  createGenericSpellCastMessageProperties,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../combat-action-targeting-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { FIRE_STEPS_CONFIG } from "./fire-steps-config.js";
@@ -16,6 +9,10 @@ import {
   createCostPropertiesConfig,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { TargetingScheme } from "../../targeting-schemes-and-categories.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   // ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(), @ TODO - put this back

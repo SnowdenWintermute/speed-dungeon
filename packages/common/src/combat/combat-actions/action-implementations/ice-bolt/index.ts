@@ -1,12 +1,8 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionExecutionIntent,
   CombatActionLeaf,
-  CombatActionName,
-  createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ICE_BOLT_HIT_OUTCOME_PROPERTIES } from "./ice-bolt-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
@@ -20,6 +16,10 @@ import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templat
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ProjectileFactory } from "../generic-action-templates/projectile-factory.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_SPELL();
 

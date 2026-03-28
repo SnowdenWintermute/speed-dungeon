@@ -1,12 +1,12 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { ListCyclingButtons } from "./ListCyclingButtons";
-import { ConsideringCombatantAbilityMenuState } from "../considering-tree-ability";
 import { AbilityUtils, NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { ConsideringCombatantAbilityActionMenuScreen } from "@/client-application/action-menu/screens/ability-tree-ability";
 
 interface Props {
-  menuState: ConsideringCombatantAbilityMenuState;
+  menuState: ConsideringCombatantAbilityActionMenuScreen;
 }
 
 export const CycleConsideredAbilityInTreeColumnButtons = observer((props: Props) => {
@@ -30,8 +30,9 @@ export const CycleConsideredAbilityInTreeColumnButtons = observer((props: Props)
     if (newDetailedAbilityOption === undefined) {
       throw new Error("Expected to have a valid ability here");
     }
-
-    AppStore.get().focusStore.combatantAbilities.setDetailed(newDetailedAbilityOption);
+    const clientApplication = useClientApplication();
+    const { detailableEntityFocus } = clientApplication;
+    detailableEntityFocus.combatantAbilities.setDetailed(newDetailedAbilityOption);
 
     menuState.setAbility(newDetailedAbilityOption);
   }

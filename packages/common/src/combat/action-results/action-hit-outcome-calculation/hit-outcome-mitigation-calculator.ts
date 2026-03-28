@@ -3,21 +3,22 @@ import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import {
-  SHIELD_SIZE_BLOCK_RATE,
-  SHIELD_SIZE_DAMAGE_REDUCTION,
-} from "../../../items/equipment/index.js";
-import { Percentage } from "../../../primatives/index.js";
+import { Percentage } from "../../../aliases.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
-import { randBetween } from "../../../utils/index.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { CombatActionComponent, CombatActionIntent } from "../../combat-actions/index.js";
+import { CombatActionComponent } from "../../combat-actions/index.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 import { CombatActionRequiredRange } from "../../combat-actions/combat-action-range.js";
+import { randBetween } from "../../../utils/rand-between.js";
+import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
+import {
+  SHIELD_SIZE_BLOCK_RATE,
+  SHIELD_SIZE_DAMAGE_REDUCTION,
+} from "../../../items/equipment/equipment-properties/shield-properties.js";
 
 const BASE_PARRY_CHANCE = 5;
 
@@ -194,7 +195,6 @@ export class HitOutcomeMitigationCalculator {
     const targetIsDead = target.isDead();
     if (targetIsDead && !canHitDeadCombatants) {
       return { beforeEvasion: 0, afterEvasion: 0 };
-    } else {
     }
 
     const actionBaseAccuracy = combatAction.getAccuracy(user, actionLevel);

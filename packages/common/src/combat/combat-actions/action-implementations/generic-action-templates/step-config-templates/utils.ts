@@ -1,6 +1,7 @@
-import { ActionResolutionStepType } from "../../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
 import { ActionResolutionStepsConfig } from "../../../combat-action-steps-config.js";
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ActionStepConfigUtils {
   /** Actions should sometimes animate faster and thus not require walking forward to use */
   static removeMoveForwardSteps(stepsConfig: ActionResolutionStepsConfig) {

@@ -1,31 +1,29 @@
-import { AppStore } from "@/mobx-stores/app-store";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../menu-state-type";
-
-export const VIEW_LOOT_BUTTON_TEXT = ``;
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const ViewItemsOnGroundButton = observer(() => {
-  const { gameStore, focusStore, hotkeysStore } = AppStore.get();
-  const partyResult = gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext, actionMenu, uiStore, detailableEntityFocus } = clientApplication;
+  const party = gameContext.requireParty();
 
   const buttonType = HotkeyButtonTypes.ViewItemsOnGround;
 
-  const hotkeys = hotkeysStore.getKeybind(buttonType);
-  const hotkeyString = hotkeysStore.getKeybindString(buttonType);
+  const hotkeys = uiStore.keybinds.getKeybind(buttonType);
+  const hotkeyString = uiStore.keybinds.getKeybindString(buttonType);
 
-  const itemsCount = partyResult.currentRoom.inventory.getItems().length;
+  const itemsCount = party.currentRoom.inventory.getItems().length;
   if (itemsCount === 0) return <div id="" />;
 
   return (
     <ActionMenuTopButton
       hotkeys={hotkeys}
       handleClick={() => {
-        focusStore.combatantAbilities.clear();
-        AppStore.get().actionMenuStore.pushStack(MenuStatePool.get(MenuStateType.ItemsOnGround));
+        detailableEntityFocus.combatantAbilities.clear();
+        actionMenu.pushFromPool(ActionMenuScreenType.ItemsOnGround);
       }}
     >
       Loot ({hotkeyString})

@@ -1,10 +1,8 @@
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   ActionResolutionStepConfig,
   CosmeticEffectOnTargetTransformNode,
@@ -15,6 +13,8 @@ import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const mainStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> =

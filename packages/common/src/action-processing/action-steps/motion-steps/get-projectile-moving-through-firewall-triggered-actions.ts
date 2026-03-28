@@ -1,10 +1,4 @@
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-} from "../../../combat/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
 import {
   ActionIntentAndUser,
@@ -15,7 +9,11 @@ import { TriggerEnvironmentalHazardsActionResolutionStep } from "./determine-env
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
 import cloneDeep from "lodash.clonedeep";
 import { timeToReachBox } from "../../../utils/index.js";
-import { Milliseconds } from "../../../primatives/index.js";
+import { ActionRank, Milliseconds } from "../../../aliases.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionExecutionIntent } from "../../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../../combat/combat-actions/combat-action-names.js";
+import { CombatActionTargetType } from "../../../combat/targeting/combat-action-targets.js";
 
 const requiredFirewallLevelForIgnitingProjectiles = 2;
 const requiredFirewallLevelForIncineratingProjectiles = 3;
@@ -87,7 +85,7 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   const movementVector = destination.subtract(entityPosition);
   const distance = movementVector.length();
   const speed = distance / duration;
-  let timeToReachFirewallOption = timeToReachBox(
+  const timeToReachFirewallOption = timeToReachBox(
     entityPosition,
     destination,
     firewallPosition,
@@ -118,10 +116,14 @@ function triggerIncinerateProjectile(
     throw new Error("expected incinerated projectile to have actionOriginData");
   actionOriginDataOption.wasIncinerated = true;
 
-  const intent = new CombatActionExecutionIntent(CombatActionName.IncinerateProjectile, 1, {
-    type: CombatActionTargetType.Single,
-    targetId: projectileEntity.entityProperties.id,
-  });
+  const intent = new CombatActionExecutionIntent(
+    CombatActionName.IncinerateProjectile,
+    1 as ActionRank,
+    {
+      type: CombatActionTargetType.Single,
+      targetId: projectileEntity.entityProperties.id,
+    }
+  );
 
   // use InitialPositioning motion, so that the delay happens before the post initial positioning
   // shouldExecute check in case some reason not to execute happens while it is delaying
@@ -150,7 +152,7 @@ function triggerIngiteProjectile(
 
   const igniteProjectileIntent = new CombatActionExecutionIntent(
     CombatActionName.IgniteProjectile,
-    1,
+    1 as ActionRank,
     { type: CombatActionTargetType.Single, targetId: projectileEntity.entityProperties.id }
   );
 

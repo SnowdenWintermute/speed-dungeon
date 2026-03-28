@@ -6,42 +6,41 @@ import {
   SPACING_REM,
   SPACING_REM_LARGE,
   TOP_BAR_HEIGHT_REM,
-} from "@/client_consts";
+} from "@/client-consts";
 import { GamesSection } from "./games-section";
 import { UserList } from "./user-list/";
-import { quickStartGame, quickStartGameProgression } from "./games-section/quick-start-game";
 import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
 import WithTopBar from "../components/layouts/with-top-bar";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import { useEffect } from "react";
 import { AuthFormContainer } from "./auth-forms";
 import { SavedCharacterManager } from "./saved-character-manager";
 import { ZIndexLayers } from "../z-index-layers";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
-import { HOTKEYS } from "@/hotkeys";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
-  const currentSessionHttpResponseTracker =
-    useHttpRequestStore().requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const { dialogStore, lobbyStore } = AppStore.get();
-  const showGameCreationForm = dialogStore.isOpen(DialogElementName.GameCreation);
-  const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
-  const showSavedCharacterManager = dialogStore.isOpen(DialogElementName.SavedCharacterManager);
-  const websocketConnected = lobbyStore.websocketIsConnected();
+  const clientApplication = useClientApplication();
+  const { httpRequests, dialogs, connectionStatus } = clientApplication.uiStore;
+  const currentSessionHttpResponseTracker = httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
+  const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
+  const showAuthForm = dialogs.isOpen(DialogElementName.Credentials);
+  const showSavedCharacterManager = dialogs.isOpen(DialogElementName.SavedCharacterManager);
+
+  const clientConnected = connectionStatus.isConnected;
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {
-      dialogStore.close(DialogElementName.Credentials);
+      dialogs.close(DialogElementName.Credentials);
     }
-  }, [currentSessionHttpResponseTracker]);
+  }, [currentSessionHttpResponseTracker, dialogs]);
 
   const hideAuthForm =
     !showAuthForm ||
@@ -91,7 +90,7 @@ export const Lobby = observer(() => {
         className={`absolute h-full w-full top-0 right-0 flex items-center justify-center`}
         style={{ zIndex: -0 }}
       >
-        {currentSessionHttpResponseTracker?.statusCode === 200 && websocketConnected && (
+        {currentSessionHttpResponseTracker?.statusCode === 200 && clientConnected && (
           <SavedCharacterManager />
         )}
       </section>
@@ -99,14 +98,14 @@ export const Lobby = observer(() => {
         className={`absolute bottom-0 w-full p-7 flex items-center justify-center`}
         style={{ zIndex: ZIndexLayers.PlayNowButton }}
       >
-        {!showGameCreationForm && !showSavedCharacterManager && websocketConnected && (
+        {!showGameCreationForm && !showSavedCharacterManager && clientConnected && (
           <HoverableTooltipWrapper
             offsetTop={8}
             tooltipText="Start a single player game where you control one of each character type (G)"
             extraStyles="flex"
           >
             <HotkeyButton
-              onClick={() => quickStartGame()}
+              onClick={() => clientApplication.lobbyClientRef.get().quickStartGame()}
               hotkeys={[HOTKEYS.SIDE_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
@@ -116,7 +115,7 @@ export const Lobby = observer(() => {
               RACE
             </HotkeyButton>
             <HotkeyButton
-              onClick={() => quickStartGameProgression()}
+              onClick={() => clientApplication.lobbyClientRef.get().quickStartGameProgression()}
               hotkeys={[HOTKEYS.MAIN_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto

@@ -1,10 +1,10 @@
 import React from "react";
-import { ActionMenuState } from "../index";
 import { observer } from "mobx-react-lite";
 import { ListCyclingButtons } from "./ListCyclingButtons";
+import { ActionMenuScreen } from "@/client-application/action-menu/screens";
 
 interface Props {
-  menuState: ActionMenuState;
+  menuState: ActionMenuScreen;
 }
 
 export const PageTurningButtons = observer((props: Props) => {

@@ -7,15 +7,15 @@ export enum ReplayEventType {
   NestedNode,
 }
 
-export type GameUpdateReplayEvent = {
+export interface GameUpdateReplayEvent {
   type: ReplayEventType.GameUpdate;
   gameUpdate: GameUpdateCommand;
-};
+}
 
-export type NestedNodeReplayEvent = {
+export interface NestedNodeReplayEvent {
   type: ReplayEventType.NestedNode;
   events: ReplayEventNode[];
-};
+}
 
 export class NestedNodeReplayEventUtls {
   static appendGameUpdate(node: NestedNodeReplayEvent, gameUpdate: GameUpdateCommand) {

@@ -2,21 +2,21 @@ import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import {
-  ClientToServerEvent,
+  ClientIntentType,
   COMBATANT_CLASS_NAME_STRINGS,
+  CombatantId,
   CombatantProperties,
-  EntityId,
+  EntityName,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { FormEvent, useEffect, useState } from "react";
 
 interface Props {
   name: string;
-  entityId: EntityId;
+  entityId: CombatantId;
   combatantProperties: CombatantProperties;
 }
 
@@ -47,9 +47,10 @@ export const CharacterSheetHeader = observer((props: Props) => {
   const isPlayerPet = controlledBy.isPlayerPet();
   const shouldShowExp = isPlayerControlled || isPlayerPet;
 
-  const { gameStore } = AppStore.get();
-  const party = gameStore.getExpectedParty();
-  const player = gameStore.getExpectedClientPlayer();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
+  const player = gameContext.requireClientPlayer();
   const isPetOfClientPlayer = controlledBy.wasSummonedByCharacterControlledByPlayer(
     player.username,
     party
@@ -62,9 +63,12 @@ export const CharacterSheetHeader = observer((props: Props) => {
   function handleSubmitChangePetName(e: FormEvent) {
     e.preventDefault();
 
-    websocketConnection.emit(ClientToServerEvent.RenamePet, {
-      petId: entityId,
-      newName: editNameText,
+    clientApplication.gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.RenamePet,
+      data: {
+        petId: entityId,
+        newName: editNameText as EntityName,
+      },
     });
 
     setIsEditingName(false);

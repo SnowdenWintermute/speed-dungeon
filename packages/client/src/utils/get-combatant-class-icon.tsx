@@ -33,14 +33,15 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
     .map((combatant) => combatant.getEntityId());
   const characterPositions = combatantManager.sortCombatantIdsLeftToRight(characterIds);
 
-  const playerPosition = characterPositions.indexOf(combatant.entityProperties.id);
+  const playerPosition = characterPositions.indexOf(combatant.getEntityId());
   if (playerPosition !== -1)
     return { type: CombatantUiIdentifierType.PlayerCharacter, position: playerPosition };
 
   const playerPetIds = combatantManager
     .getPartyMemberPets()
     .map((combatant) => combatant.getEntityId());
-  const playerPetPosition = playerPetIds.indexOf(combatant.entityProperties.id);
+
+  const playerPetPosition = playerPetIds.indexOf(combatant.getEntityId());
   if (playerPetPosition !== -1)
     return { type: CombatantUiIdentifierType.PlayerCharacterPet, position: playerPetPosition };
 
@@ -48,7 +49,7 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
     .getNeutralCombatants()
     .map((combatant) => combatant.getEntityId());
 
-  const neutralPosition = neutralIds.indexOf(combatant.entityProperties.id);
+  const neutralPosition = neutralIds.indexOf(combatant.getEntityId());
   if (neutralPosition !== -1)
     return { type: CombatantUiIdentifierType.Neutral, position: neutralPosition };
 
@@ -58,7 +59,7 @@ export function getCombatantUiIdentifier(party: AdventuringParty, combatant: Com
 
   const monsterPositions = combatantManager.sortCombatantIdsLeftToRight(monsterIds);
 
-  const monsterPosition = monsterPositions.indexOf(combatant.entityProperties.id);
+  const monsterPosition = monsterPositions.indexOf(combatant.getEntityId());
   if (monsterPosition !== -1)
     return { type: CombatantUiIdentifierType.Monster, position: monsterPosition };
 

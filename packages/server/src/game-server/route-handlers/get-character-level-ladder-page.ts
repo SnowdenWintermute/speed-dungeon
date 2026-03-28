@@ -4,11 +4,13 @@ import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
 import CustomError from "../../express-error-handler/CustomError.js";
 import {
   ERROR_MESSAGES,
+  EntityId,
   LADDER_PAGE_SIZE,
   LevelLadderEntry,
+  SerializedPlayerCharacter,
   calculateTotalExperience,
 } from "@speed-dungeon/common";
-import { PlayerCharacter, playerCharactersRepo } from "../../database/repos/player-characters.js";
+import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { getUsernamesByUserIds } from "../../database/get-usernames-by-user-ids.js";
 
 export async function getCharacterLevelLadderPageHandler(
@@ -56,7 +58,7 @@ export async function getCharacterLevelLadderPageHandler(
     }
 
     const characterFetchPromises: Promise<void>[] = [];
-    const charactersById: { [characterId: string]: PlayerCharacter } = {};
+    const charactersById: Record<EntityId, SerializedPlayerCharacter> = {};
 
     for (const id of characterIds) {
       characterFetchPromises.push(
@@ -92,7 +94,7 @@ export async function getCharacterLevelLadderPageHandler(
       }
 
       const { classProgressionProperties } = character.combatantProperties;
-      const level = classProgressionProperties.getMainClass().level;
+      const level = classProgressionProperties.mainClass.level;
       const currentExperience = classProgressionProperties.experiencePoints.getCurrent();
 
       toReturn.push({

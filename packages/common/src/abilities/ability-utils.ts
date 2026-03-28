@@ -1,15 +1,14 @@
 import cloneDeep from "lodash.clonedeep";
 import { MAX_ALLOCATABLE_ACTION_LEVEL } from "../app-consts.js";
-import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../combat/index.js";
-import {
-  ABILITY_TREES,
-  AbilityTree,
-  COMBATANT_TRAIT_DESCRIPTIONS,
-  CombatantClass,
-} from "../combatants/index.js";
 import { AbilityType } from "./ability-types.js";
 import { AbilityTreeAbility } from "./index.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { CombatantClass } from "../combatants/combatant-class/classes.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../combat/combat-actions/combat-action-names.js";
+import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatants/combatant-traits/index.js";
+import { ABILITY_TREES } from "../combatants/ability-tree/set-up-ability-trees.js";
+import { AbilityTree } from "../combatants/ability-tree/ability-tree.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 
 let ABILITY_CLASS_AND_LEVEL_REQUIREMENTS: Record<
   string,

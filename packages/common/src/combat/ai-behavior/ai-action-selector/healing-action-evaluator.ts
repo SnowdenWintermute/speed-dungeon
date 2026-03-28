@@ -1,11 +1,12 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
-import { Combatant, CombatAttribute } from "../../../combatants/index.js";
-import { NormalizedPercentage } from "../../../primatives/index.js";
+import { Combatant } from "../../../combatants/index.js";
+import { NormalizedPercentage } from "../../../aliases.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
 import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
 
 export const NEEDS_HEALING_HP_NORMALIZED_PERCENTAGE: NormalizedPercentage = 0.7;
 

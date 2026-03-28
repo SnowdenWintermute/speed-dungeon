@@ -1,29 +1,45 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBATANT_MAX_ACTION_POINTS } from "../app-consts.js";
-import { CombatAttribute } from "./index.js";
-import { ActionPayableResource } from "../combat/combat-actions/index.js";
+import { ActionPayableResource } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
+import { CombatAttribute } from "./attributes/index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class CombatantResources extends CombatantSubsystem {
+export class CombatantResources extends CombatantSubsystem implements ReactiveNode, Serializable {
   private hitPoints: number = 1;
   private mana: number = 0;
   private actionPoints: number = 0;
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this, {}, {}));
+  makeObservable() {
+    makeAutoObservable(this);
   }
 
-  static getDeserialized(self: CombatantResources) {
-    const deserialized = plainToInstance(CombatantResources, self);
-    return deserialized;
+  toSerialized() {
+    return instanceToPlain(this);
   }
 
-  getHitPoints = () => this.hitPoints;
-  getMana = () => this.mana;
-  getActionPoints = () => this.actionPoints;
+  static fromSerialized(serialized: SerializedOf<CombatantResources>) {
+    const result = plainToInstance(CombatantResources, serialized);
+    return result;
+  }
+
+  getHitPoints() {
+    return this.hitPoints;
+  }
+  getMana() {
+    return this.mana;
+  }
+  getActionPoints() {
+    return this.actionPoints;
+  }
+  requireActionPointCount(count: number) {
+    if (this.actionPoints < count) {
+      new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INSUFFICIENT_RESOURCES);
+    }
+  }
 
   refillActionPoints() {
     this.actionPoints = COMBATANT_MAX_ACTION_POINTS;
@@ -104,28 +120,26 @@ export class CombatantResources extends CombatantSubsystem {
   }
 
   getUnmetCostResourceTypes(costs: Partial<Record<ActionPayableResource, number>> | null) {
-    if (costs === null) return [];
-
-    const combatantProperties = this.getCombatantProperties();
+    if (costs === null) {
+      return [];
+    }
 
     const unmet: ActionPayableResource[] = [];
 
     for (const [resourceType, cost] of iterateNumericEnumKeyedRecord(costs)) {
       const absoluteCost = Math.abs(cost); // costs are in negative values
 
-      switch (resourceType) {
-        case ActionPayableResource.HitPoints:
-          if (absoluteCost > this.getHitPoints()) unmet.push(resourceType);
-          break;
-        case ActionPayableResource.Mana:
-          if (absoluteCost > this.getMana()) unmet.push(resourceType);
-          break;
-        case ActionPayableResource.Shards:
-          if (absoluteCost > combatantProperties.inventory.shards) unmet.push(resourceType);
-          break;
-        case ActionPayableResource.ActionPoints:
-          if (absoluteCost > this.getActionPoints()) unmet.push(resourceType);
-          break;
+      const resourceGetters: Record<ActionPayableResource, () => number> = {
+        [ActionPayableResource.HitPoints]: () => this.getHitPoints(),
+        [ActionPayableResource.Mana]: () => this.getMana(),
+        [ActionPayableResource.Shards]: () => this.getCombatantProperties().inventory.shards,
+        [ActionPayableResource.ActionPoints]: () => this.getActionPoints(),
+      };
+
+      const resourceGetter = resourceGetters[resourceType];
+      const resourceValue = resourceGetter();
+      if (absoluteCost > resourceValue) {
+        unmet.push(resourceType);
       }
     }
 

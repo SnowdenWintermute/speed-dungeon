@@ -1,11 +1,9 @@
 import cloneDeep from "lodash.clonedeep";
-import {
-  ActionResolutionStepType,
-  AnimationTimingType,
-} from "../../../../../action-processing/index.js";
 import { AnimationType, SkeletalAnimationName } from "../../../../../app-consts.js";
 import { getMeleeAttackDestination } from "../../../combat-action-destination-getters.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
+import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
+import { AnimationTimingType } from "../../../../../action-processing/game-update-commands.js";
 
 const config = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 

@@ -1,11 +1,12 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { FocusedAndComparedItemDetails } from "./detailables/FocusedAndComparedItemDetails";
 
 export const ItemDetailsWithComparison = observer(() => {
-  const { focusStore } = AppStore.get();
-  const { hoveredItem, detailedItem } = focusStore.getFocusedItems();
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
+  const { hoveredItem, detailedItem } = detailableEntityFocus.getFocusedItems();
 
   const focusedItemOption = hoveredItem || detailedItem;
 

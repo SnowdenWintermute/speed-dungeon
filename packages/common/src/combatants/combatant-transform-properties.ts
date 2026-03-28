@@ -1,11 +1,10 @@
-import makeAutoObservable from "mobx-store-inheritance";
-import { cloneVector3, runIfInBrowser } from "../utils/index.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { plainToInstance } from "class-transformer";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { EntityId, NormalizedPercentage } from "../index.js";
+import { Serializable, SerializedOf } from "../serialization/index.js";
+import { SetUtils } from "../utils/set-utils.js";
 
-export class CombatantTransformProperties extends CombatantSubsystem {
+export class CombatantTransformProperties extends CombatantSubsystem implements Serializable {
   public homeRotation: Quaternion = Quaternion.Zero();
   public rotation: Quaternion = Quaternion.Zero();
   private homePosition: Vector3 = Vector3.Zero();
@@ -13,18 +12,32 @@ export class CombatantTransformProperties extends CombatantSubsystem {
   public attachedCombatants = new Set<EntityId>();
   public scaleModifier?: NormalizedPercentage;
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  toSerialized() {
+    const result = {
+      homeRotation: this.homeRotation.asArray(),
+      rotation: this.rotation.asArray(),
+      homePosition: this.homePosition.asArray(),
+      position: this.position.asArray(),
+      attachedCombatants: SetUtils.serializeShallow(this.attachedCombatants),
+      scaleModifier: this.scaleModifier,
+    };
+
+    if (this.scaleModifier === undefined) {
+      delete result.scaleModifier;
+    }
+    return result;
   }
 
-  static getDeserialized(plain: CombatantTransformProperties) {
-    const deserialized = plainToInstance(CombatantTransformProperties, plain);
-    deserialized.homePosition = cloneVector3(plain.homePosition);
-    deserialized.position = cloneVector3(plain.position);
-    deserialized.homeRotation = plainToInstance(Quaternion, plain.homeRotation);
-    deserialized.rotation = plainToInstance(Quaternion, plain.rotation);
-    return deserialized;
+  static fromSerialized(serialized: SerializedOf<CombatantTransformProperties>) {
+    const result = new CombatantTransformProperties();
+    result.homeRotation = Quaternion.FromArray(serialized.homeRotation);
+    result.rotation = Quaternion.FromArray(serialized.rotation);
+    result.homePosition = Vector3.FromArray(serialized.homePosition);
+    result.position = Vector3.FromArray(serialized.position);
+    result.attachedCombatants = SetUtils.deserializeShallow(serialized.attachedCombatants);
+    result.scaleModifier = serialized.scaleModifier;
+
+    return result;
   }
 
   setAttachedCombatant(entityId: EntityId) {

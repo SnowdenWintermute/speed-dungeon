@@ -7,6 +7,7 @@ import {
   TurnTrackerEntityType,
 } from "./turn-tracker-tagged-tracked-entity-ids.js";
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class TurnSchedulerFactory {
   static create(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number): ITurnScheduler {
     let scheduler: ITurnScheduler;

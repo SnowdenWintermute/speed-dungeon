@@ -1,19 +1,19 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../menu-state-type";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { observer } from "mobx-react-lite";
 
-const buttonType = HotkeyButtonTypes.ToggleViewingAbilityTree;
-const { hotkeysStore } = AppStore.get();
-
-export const toggleAbilityTreeHotkeys = hotkeysStore.getKeybind(buttonType);
-export const toggleViewingAbilityTreeHotkeysString = hotkeysStore.getKeybindString(buttonType);
-
-export default function ViewAbilityTreeButton() {
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+export const ViewAbilityTreeButton = observer(() => {
+  const clientApplication = useClientApplication();
+  const { uiStore, actionMenu, detailableEntityFocus, combatantFocus } = clientApplication;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const unspent = focusedCharacter.combatantProperties.abilityProperties.getUnspentPointsCount();
+  const buttonType = HotkeyButtonTypes.ToggleViewingAbilityTree;
+
+  const toggleAbilityTreeHotkeys = uiStore.keybinds.getKeybind(buttonType);
+  const toggleViewingAbilityTreeHotkeysString = uiStore.keybinds.getKeybindString(buttonType);
   const highlightClass = unspent ? "text-yellow-400" : "";
 
   return (
@@ -21,13 +21,13 @@ export default function ViewAbilityTreeButton() {
       extraStyles={highlightClass}
       hotkeys={toggleAbilityTreeHotkeys}
       handleClick={() => {
-        const { actionMenuStore, focusStore } = AppStore.get();
-        focusStore.combatantAbilities.clear();
-        focusStore.detailables.clearHovered();
-        actionMenuStore.replaceStack([MenuStatePool.get(MenuStateType.ViewingAbilityTree)]);
+        detailableEntityFocus.combatantAbilities.clear();
+        detailableEntityFocus.detailables.clearHovered();
+        actionMenu.clearStack();
+        actionMenu.pushFromPool(ActionMenuScreenType.ViewingAbilityTree);
       }}
     >
       Abilities ({toggleViewingAbilityTreeHotkeysString})
     </ActionMenuTopButton>
   );
-}
+});

@@ -1,34 +1,90 @@
-import { EntityId } from "../primatives/index.js";
 import {
   FriendOrFoe,
   TargetingScheme,
 } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { COMBAT_ACTIONS, CombatActionTarget, CombatActionTargetType } from "../combat/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../combat/targeting/combat-action-targets.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { SpeedDungeonGame } from "./index.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { makeAutoObservable } from "mobx";
 
-export class SpeedDungeonPlayer {
-  partyName: null | string = null;
-  characterIds: string[] = [];
+export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
+  partyName: null | PartyName = null;
+  characterIds: CombatantId[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
-  constructor(public username: string) {}
+  constructor(public username: Username) {}
 
-  static deserialize(player: SpeedDungeonPlayer) {
-    player.targetPreferences = CombatActionTargetPreferences.getDeserialized(
-      player.targetPreferences
+  makeObservable(): void {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return {
+      ...instanceToPlain(this),
+      targetPreferences: this.targetPreferences.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<SpeedDungeonPlayer>) {
+    const result = plainToInstance(SpeedDungeonPlayer, serialized);
+    result.targetPreferences = CombatActionTargetPreferences.fromSerialized(
+      serialized.targetPreferences
     );
+    return result;
+  }
+
+  getExpectedPartyName() {
+    if (this.partyName === null) {
+      throw new Error(
+        "Expected player to have a party when their pending game session is being created"
+      );
+    }
+
+    return this.partyName;
+  }
+
+  getPartyOption(game: SpeedDungeonGame) {
+    if (this.partyName === null) {
+      return null;
+    }
+    return game.getExpectedParty(this.partyName);
+  }
+
+  getExpectedParty(game: SpeedDungeonGame) {
+    const partyOption = this.getPartyOption(game);
+    if (partyOption === null) {
+      throw new Error(ERROR_MESSAGES.PLAYER.NOT_IN_PARTY);
+    }
+    return partyOption;
+  }
+
+  requireHasCharacters() {
+    const playerHasNoCharacters = this.characterIds.length === 0;
+    if (playerHasNoCharacters) {
+      throw new Error("You must control at least one character");
+    }
   }
 }
 
-export class CombatActionTargetPreferences {
+export class CombatActionTargetPreferences implements Serializable {
   friendlySingle: null | EntityId = null;
   hostileSingle: null | EntityId = null;
   category: null | FriendOrFoe = null;
   targetingSchemePreference: TargetingScheme = TargetingScheme.Single;
-  constructor() {}
 
-  static getDeserialized(targetPreferences: CombatActionTargetPreferences) {
-    return plainToInstance(CombatActionTargetPreferences, targetPreferences);
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<CombatActionTargetPreferences>) {
+    return plainToInstance(CombatActionTargetPreferences, serialized);
   }
 
   clear() {
@@ -91,7 +147,7 @@ export class CombatActionTargetPreferences {
     const targetingSchemes = targetingProperties.getTargetingSchemes(rank);
 
     switch (newTargets.type) {
-      case CombatActionTargetType.Single:
+      case CombatActionTargetType.Single: {
         const { targetId } = newTargets;
         const isOpponentId = !!opponentIdsOption?.includes(targetId);
         if (isOpponentId) {
@@ -104,17 +160,23 @@ export class CombatActionTargetPreferences {
 
         this.targetingSchemePreference = TargetingScheme.Single;
         break;
+      }
       case CombatActionTargetType.Group:
-        const category = newTargets.friendOrFoe;
-        if (targetingSchemes.length > 1) {
-          this.category = category;
-          this.targetingSchemePreference = TargetingScheme.Area;
-        } else {
-          // if they had no choice in targeting schemes, don't update their preference
+        {
+          const category = newTargets.friendOrFoe;
+          if (targetingSchemes.length > 1) {
+            this.category = category;
+            this.targetingSchemePreference = TargetingScheme.Area;
+          } else {
+            // if they had no choice in targeting schemes, don't update their preference
+          }
         }
         break;
       case CombatActionTargetType.All:
         if (targetingSchemes.length > 1) this.targetingSchemePreference = TargetingScheme.All;
+        break;
+      default:
+        throw new Error("Not implemented yet: CombatActionTargetType.SingleAndSides case");
     }
   }
 }

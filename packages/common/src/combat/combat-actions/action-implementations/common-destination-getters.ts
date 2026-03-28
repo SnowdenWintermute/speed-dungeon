@@ -1,11 +1,9 @@
 import { Matrix, Quaternion, Vector3 } from "@babylonjs/core";
-import {
-  ActionResolutionStepContext,
-  EntityDestination,
-} from "../../../action-processing/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { Combatant } from "../../../combatants/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
+import { ActionResolutionStepContext } from "../../../action-processing/action-steps/index.js";
+import { EntityDestination } from "../../../action-processing/game-update-commands.js";
 
 export function getHomeDestination(context: ActionResolutionStepContext) {
   const { actionUserContext } = context;

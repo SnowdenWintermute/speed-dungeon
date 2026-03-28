@@ -1,6 +1,4 @@
-import { Milliseconds } from "../../primatives/index.js";
-import { COMBAT_ACTIONS, CombatActionComponent } from "../../combat/index.js";
-import { ReplayEventNode } from "../replay-events.js";
+import { Milliseconds } from "../../aliases.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
@@ -8,13 +6,7 @@ import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
-
-export interface ActionExecuting {
-  timeStarted: Milliseconds;
-  action: CombatActionComponent;
-  step: ActionResolutionStep;
-  replayNode: ReplayEventNode;
-}
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export enum ActionResolutionStepType {
   PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
@@ -73,7 +65,7 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
   [ActionResolutionStepType.PostOnResolutionGameLogMessage]: "postOnResolutionGameLogMessage",
-  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "EvaluatePlayerEndTurnAndInputLock",
+  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "evaluatePlayerEndTurnAndInputLock",
   [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
@@ -84,10 +76,10 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.RemoveTickedConditionStacks]: "removeTickedConditionStacks",
 };
 
-export type ActionResolutionStepResult = {
+export interface ActionResolutionStepResult {
   branchingActions: ActionIntentAndUser[];
   nextStepOption: ActionResolutionStep | null;
-};
+}
 
 export interface ActionResolutionStepContext {
   actionUserContext: ActionUserContext;
@@ -108,15 +100,13 @@ export interface ActionIntentOptionAndUser {
 
 export abstract class ActionResolutionStep {
   protected elapsed: Milliseconds = 0;
-  public readonly action: CombatActionComponent;
   constructor(
     public readonly type: ActionResolutionStepType,
     protected context: ActionResolutionStepContext,
     protected gameUpdateCommandOption: null | GameUpdateCommand
   ) {
-    this.action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
-
-    const stepConfig = this.action.stepsConfig.getStepConfigOption(type);
+    const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
+    const stepConfig = action.stepsConfig.getStepConfigOption(type);
 
     if (stepConfig === undefined) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {

@@ -1,25 +1,26 @@
-import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client-consts";
 import React from "react";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export const StackedMenuStateDisplay = observer(() => {
-  const { actionMenuStore } = AppStore.get();
-  const stackedMenuStateStringNames = actionMenuStore.getStackedMenuStringNames();
+export const StackedActionMenuScreenDisplay = observer(() => {
+  const clientApplication = useClientApplication();
+  const { actionMenu } = clientApplication;
+  const stackedActionMenuScreenStringNames = actionMenu.getStackedMenuStringNames();
 
   return (
     <div
       className={`relative min-w-[25rem] max-w-[25rem] z-0`}
       style={{ marginBottom: `${SPACING_REM_SMALL}rem`, height: `${BUTTON_HEIGHT_SMALL}rem` }}
     >
-      {stackedMenuStateStringNames.map((stringName, i) => {
+      {stackedActionMenuScreenStringNames.map((stringName, i) => {
         return (
-          <MenuStateDisplay
+          <ActionMenuScreenDisplay
             key={i + stringName}
             menuStringName={stringName}
             index={i}
-            isTop={stackedMenuStateStringNames.length === i + 1}
-            stackSize={stackedMenuStateStringNames.length}
+            isTop={stackedActionMenuScreenStringNames.length === i + 1}
+            stackSize={stackedActionMenuScreenStringNames.length}
           />
         );
       })}
@@ -27,7 +28,7 @@ export const StackedMenuStateDisplay = observer(() => {
   );
 });
 
-const MenuStateDisplay = observer(
+const ActionMenuScreenDisplay = observer(
   ({
     menuStringName,
     index,
@@ -39,11 +40,12 @@ const MenuStateDisplay = observer(
     isTop: boolean;
     stackSize: number;
   }) => {
-    let offsetPx = index * 3;
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const clientApplication = useClientApplication();
+    const { combatantFocus } = clientApplication;
+    const offsetPx = index * 3;
+    const focusedCharacter = combatantFocus.requireFocusedCharacter();
 
     const filterStrengthNormalized = 1 - 0.2 * (stackSize - index);
-    const filterStrength = filterStrengthNormalized * 100;
 
     return (
       <div

@@ -1,8 +1,6 @@
-import { plainToInstance } from "class-transformer";
-import { FriendOrFoe, TurnTrackerEntityType } from "../combat/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { EntityId } from "../primatives/index.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
@@ -10,18 +8,41 @@ import {
 } from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import makeAutoObservable from "mobx-store-inheritance";
-import { runIfInBrowser } from "../utils/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
+import { PartyWipes } from "../types.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class CombatantManager extends AdventuringPartySubsystem {
-  private combatants: Map<EntityId, Combatant> = new Map();
+export class CombatantManager
+  extends AdventuringPartySubsystem
+  implements Serializable, ReactiveNode
+{
+  private combatants = new Map<EntityId, Combatant>();
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable(): void {
+    makeAutoObservable(this);
+    for (const [_, combatant] of this.combatants) {
+      combatant.makeObservable();
+    }
+  }
+
+  toSerialized() {
+    return {
+      combatants: MapUtils.serialize(this.combatants, (v) => v.toSerialized()),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<CombatantManager>): CombatantManager {
+    const result = new CombatantManager();
+    result.combatants = MapUtils.deserialize(serialized.combatants, (v) =>
+      Combatant.fromSerialized(v)
+    );
+    return result;
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {
@@ -31,7 +52,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
   getExpectedCombatant(combatantId: EntityId) {
     const combatantOption = this.getCombatantOption(combatantId);
     if (combatantOption === undefined) {
-      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND + combatantId);
+      throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
     }
     return combatantOption;
   }
@@ -44,12 +65,12 @@ export class CombatantManager extends AdventuringPartySubsystem {
    * the group members' home positions facing the world origin. Useful for rendering combatant
    * plaques in order and for cycling through targets in a group in order.*/
   sortCombatantIdsLeftToRight(
-    entityIds: EntityId[],
+    entityIds: CombatantId[],
     options?: {
       summonedCombatantsOnly?: boolean;
       excludeSummonedCombatants?: boolean;
     }
-  ): EntityId[] {
+  ): CombatantId[] {
     const combatants = this.getExpectedCombatants(entityIds);
 
     const filtered = combatants.filter((combatant) => {
@@ -69,13 +90,17 @@ export class CombatantManager extends AdventuringPartySubsystem {
   }
 
   getAllCombatants() {
-    return Array.from(this.combatants.values());
+    return this.combatants;
+  }
+
+  iterateAllCombatants() {
+    return [...this.combatants.values()];
   }
 
   getAllTickableConditionsAndCombatants() {
     const combatants = this.getAllCombatants();
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
-    for (const combatant of combatants) {
+    for (const [_, combatant] of combatants) {
       const { conditionManager } = combatant.combatantProperties;
       for (const condition of conditionManager.getConditions()) {
         const tickPropertiesOption = condition.getTickProperties();
@@ -157,7 +182,9 @@ export class CombatantManager extends AdventuringPartySubsystem {
     conditionId: EntityId
   ): CombatantCondition {
     const conditionOption = this.getConditionOptionOnCombatant(combatantId, conditionId);
-    if (conditionOption === undefined) throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    if (conditionOption === undefined) {
+      throw new Error(`combatant ${combatantId} or condition ${conditionId} not found`);
+    }
     return conditionOption;
   }
 
@@ -238,19 +265,18 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   playerOwnsCharacter(playerName: string, characterId: string) {
     const combatant = this.getExpectedCombatant(characterId);
-    combatant.combatantProperties;
     const { controllerPlayerName } = combatant.combatantProperties.controlledBy;
     return controllerPlayerName === playerName;
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */
-  removeCombatant(combatantId: EntityId, game: SpeedDungeonGame) {
+  removeCombatant(combatantId: CombatantId, game: SpeedDungeonGame) {
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
     const party = this.getParty();
     party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
 
-    for (const combatant of party.combatantManager.getAllCombatants()) {
+    for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
       const { threatManager } = combatant.combatantProperties;
       if (threatManager === undefined) {
         continue;
@@ -287,7 +313,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
           type: TurnTrackerEntityType.Combatant,
-          combatantId: combatant.entityProperties.id,
+          combatantId: combatant.getEntityId(),
         },
         delayOfNewCombatantSheduler
       );
@@ -382,7 +408,7 @@ export class CombatantManager extends AdventuringPartySubsystem {
 
   refillAllCombatantActionPoints() {
     const combatants = this.getAllCombatants();
-    for (const combatant of combatants) {
+    for (const [_, combatant] of combatants) {
       combatant.combatantProperties.resources.refillActionPoints();
     }
   }
@@ -411,15 +437,44 @@ export class CombatantManager extends AdventuringPartySubsystem {
     transformProperties.homeRotation = homeRotation;
   }
 
-  static getDeserialized(serialized: CombatantManager): CombatantManager {
-    const deserialized = plainToInstance(CombatantManager, serialized);
-    deserialized.combatants = new Map();
+  checkForWipes(inBattle: boolean): PartyWipes {
+    // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
+    if (!inBattle) {
+      const partyMemberCombatants = this.getPartyMemberCombatants();
 
-    for (const [entityId, combatantJson] of Object.entries(serialized.combatants)) {
-      const combatant = Combatant.getDeserialized(combatantJson);
-      deserialized.combatants.set(entityId as EntityId, combatant);
+      const alliesDefeated = Combatant.groupIsDead(partyMemberCombatants);
+
+      return {
+        alliesDefeated,
+        opponentsDefeated: false,
+      };
     }
 
-    return deserialized;
+    // MORE LIKELY, IN BATTLE
+    const partyCombatants = this.getPartyMemberCombatants();
+    const dungeonControlledCombatants = this.getDungeonControlledCombatants();
+
+    const partyWipesResult = this.checkForDefeatedCombatantGroups(
+      partyCombatants,
+      dungeonControlledCombatants
+    );
+    if (partyWipesResult instanceof Error) throw partyWipesResult;
+
+    return partyWipesResult;
+  }
+
+  private checkForDefeatedCombatantGroups(
+    allies: Combatant[],
+    opponents: Combatant[]
+  ):
+    | Error
+    | {
+        alliesDefeated: boolean;
+        opponentsDefeated: boolean;
+      } {
+    const alliesDefeated = Combatant.groupIsDead(allies);
+    const opponentsDefeated = Combatant.groupIsDead(opponents);
+
+    return { alliesDefeated, opponentsDefeated };
   }
 }

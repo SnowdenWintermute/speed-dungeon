@@ -1,5 +1,4 @@
 import {
-  COMBATANT_CONDITION_DESCRIPTIONS,
   COMBATANT_CONDITION_NAME_STRINGS,
   CombatantCondition,
   CombatantConditionName,
@@ -7,9 +6,9 @@ import {
 import React from "react";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { CONDITION_INDICATOR_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   conditions: CombatantCondition[];
@@ -39,26 +38,11 @@ export const ConditionIndicators = observer((props: Props) => {
 });
 
 export const ConditionIndicator = observer(({ condition }: { condition: CombatantCondition }) => {
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
-
-  const hoverableDebugText = showDebug
-    ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
-    : "";
   return (
     <div className="h-6 mr-1 border border-slate-400 bg-slate-700 pointer-events-auto cursor-help relative">
       <HoverableTooltipWrapper
         extraStyles="h-full w-full p-0.5"
-        tooltipText={
-          <div className="flex items-center">
-            <div className="h-10 mr-2 p-1 border border-slate-400 bg-slate-700">
-              {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
-            </div>
-            <div>
-              {COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: {condition.getDescription()}
-              {hoverableDebugText}
-            </div>
-          </div>
-        }
+        tooltipText={() => <ConditionIndicatorTooltip condition={condition} />}
       >
         {CONDITION_INDICATOR_ICONS[condition.name]}{" "}
       </HoverableTooltipWrapper>
@@ -71,8 +55,32 @@ export const ConditionIndicator = observer(({ condition }: { condition: Combatan
   );
 });
 
+const ConditionIndicatorTooltip = observer((props: { condition: CombatantCondition }) => {
+  const { condition } = props;
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
+
+  const hoverableDebugText = showDebug
+    ? `\nid: ${condition.id} \nappliedBy: ${condition.appliedBy.entityProperties.id}`
+    : "";
+  return (
+    <div className="flex items-center">
+      <div className="h-10 mr-2 p-1 border border-slate-400 bg-slate-700">
+        {CONDITION_INDICATOR_ICONS[condition.name]}
+      </div>
+      <div>
+        {COMBATANT_CONDITION_NAME_STRINGS[condition.name]}: {condition.getDescription()}
+        {hoverableDebugText}
+      </div>
+    </div>
+  );
+});
+
 export const DummyConditionIndicatorForUiTesting = observer(() => {
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+  const clientApplication = useClientApplication();
+  const { uiStore } = clientApplication;
+  const showDebug = uiStore.dialogs.isOpen(DialogElementName.Debug);
 
   const hoverableDebugText = showDebug ? `\nid: doesn't exist - debug \nappliedBy: nothing` : "";
 

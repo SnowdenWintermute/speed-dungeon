@@ -8,17 +8,19 @@ import {
 } from "@speed-dungeon/common";
 import { HotswapSlotButtons } from "../combatant-plaques/HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
   combatant: Combatant;
 }
 
 export const PaperDoll = observer(({ combatant }: Props) => {
-  const { combatantProperties, entityProperties } = combatant;
+  const { combatantProperties } = combatant;
   const equippedHoldables = combatantProperties.equipment.getActiveHoldableSlot();
-  const viewingDropShardsModal = AppStore.get().dialogStore.isOpen(DialogElementName.DropShards);
+  const clientApplication = useClientApplication();
+  const { dialogs } = clientApplication.uiStore;
+  const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
 
   const { equipment } = combatantProperties;
 
@@ -39,7 +41,7 @@ export const PaperDoll = observer(({ combatant }: Props) => {
       <HotswapSlotButtons
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}
-        entityId={entityProperties.id}
+        entityId={combatant.getEntityId()}
         selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
         slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
       />

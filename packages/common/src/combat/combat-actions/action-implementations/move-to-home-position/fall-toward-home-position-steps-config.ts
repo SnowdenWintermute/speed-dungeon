@@ -1,4 +1,4 @@
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { SkeletalAnimationName } from "../../../../app-consts.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
 import { getHomeDestination } from "../common-destination-getters.js";

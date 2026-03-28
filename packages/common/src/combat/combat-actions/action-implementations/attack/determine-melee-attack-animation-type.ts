@@ -1,9 +1,9 @@
-import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
-import { Equipment, EquipmentType } from "../../../../items/equipment/index.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
+import { EquipmentType } from "../../../../items/equipment/equipment-types/index.js";
 import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { FixedNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { throwIfError } from "../../../../utils/index.js";
-import { IncomingResourceChangesCalculator } from "../../../action-results/index.js";
+import { IncomingResourceChangesCalculator } from "../../../action-results/action-hit-outcome-calculation/incoming-resource-change-calculator.js";
 import { KineticDamageType } from "../../../kinetic-damage-types.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";

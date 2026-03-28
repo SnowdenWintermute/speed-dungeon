@@ -7,22 +7,25 @@ import {
   COMBAT_ACTIONS,
   CombatActionResource,
   HitOutcomeMitigationCalculator,
+  SpeedDungeonGame,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
-import { getTargetOption } from "@/utils/get-target-option";
 import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const CharacterSheetWeaponDamage = observer(
   ({ combatant, disableOh }: { combatant: Combatant; disableOh?: boolean }) => {
     const { combatantProperties } = combatant;
     const { equipment } = combatantProperties;
+
+    const clientApplication = useClientApplication();
+    const { gameContext } = clientApplication;
 
     const mhWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.MainHand);
 
@@ -30,7 +33,8 @@ export const CharacterSheetWeaponDamage = observer(
     const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
       combatant,
       mhWeaponOption,
-      false
+      false,
+      gameContext.gameOption
     );
     const isTwoHanded = mhWeaponOption
       ? Equipment.isTwoHandedWeaponType(mhWeaponOption.taggedBaseEquipment.equipmentType)
@@ -48,7 +52,12 @@ export const CharacterSheetWeaponDamage = observer(
     ) {
       let ohWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.OffHand);
       if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
-      ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(combatant, ohWeaponOption, true);
+      ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
+        combatant,
+        ohWeaponOption,
+        true,
+        gameContext.gameOption
+      );
     }
 
     if (mhDamageAndAccuracyResult instanceof Error)
@@ -125,13 +134,14 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 function getAttackActionDamageAndAccuracy(
   combatant: Combatant,
   weaponOption: undefined | WeaponProperties,
-  isOffHand: boolean
+  isOffHand: boolean,
+  gameOption: SpeedDungeonGame | null
 ) {
   const actionName = getAttackActionName(weaponOption, isOffHand);
 
-  const gameOption = AppStore.get().gameStore.getGameOption();
-
-  const currentlyTargetedCombatantResult = getTargetOption(gameOption, combatant, actionName);
+  const currentlyTargetedCombatantResult = combatant
+    .getTargetingProperties()
+    .getPrimaryTargetOption(gameOption, combatant, actionName);
   if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
   const usingDummy = currentlyTargetedCombatantResult === undefined;
 

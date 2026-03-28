@@ -20,14 +20,34 @@ export enum CosmeticEffectNames {
   HeartParticles,
 }
 
+export const COSMETIC_EFFECT_NAME_STRINGS: Record<CosmeticEffectNames, string> = {
+  [CosmeticEffectNames.FrostParticleAccumulation]: "FrostParticleAccumulation",
+  [CosmeticEffectNames.FrostParticleStream]: "FrostParticleStream",
+  [CosmeticEffectNames.FrostParticleBurst]: "FrostParticleBurst",
+  [CosmeticEffectNames.CombatantIsCold]: "CombatantIsCold",
+  [CosmeticEffectNames.Burning]: "Burning",
+  [CosmeticEffectNames.FlameParticleAccumulation]: "FlameParticleAccumulation",
+  [CosmeticEffectNames.FireParticlesLarge]: "FireParticlesLarge",
+  [CosmeticEffectNames.FireParticlesSmall]: "FireParticlesSmall",
+  [CosmeticEffectNames.LightParticleAccumulation]: "LightParticleAccumulation",
+  [CosmeticEffectNames.LightParticleBurst]: "LightParticleBurst",
+  [CosmeticEffectNames.DarkParticleAccumulation]: "DarkParticleAccumulation",
+  [CosmeticEffectNames.BlindnessCast]: "BlindnessCast",
+  [CosmeticEffectNames.FirewallParticles]: "FirewallParticles",
+  [CosmeticEffectNames.SmokeParticleStream]: "SmokeParticleStream",
+  [CosmeticEffectNames.SmokePuff]: "SmokePuff",
+  [CosmeticEffectNames.HeartParticles]: "HeartParticles",
+};
+
 export abstract class CosmeticEffect {
   public lifetimeTimeouts: null | NodeJS.Timeout[] = null;
   particleSystems: ManagedParticleSystem[] = [];
-  public transformNode = new TransformNode("");
+  public transformNode: TransformNode;
   constructor(
     public scene: Scene,
     public rank: number
   ) {
+    this.transformNode = new TransformNode("", scene);
     this.initialize(scene);
   }
   createParticleSystems?(scene: Scene): ManagedParticleSystem[];

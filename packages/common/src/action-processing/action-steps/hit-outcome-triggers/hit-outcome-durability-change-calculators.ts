@@ -1,22 +1,23 @@
 import { ONE_THIRD_OF_ONE } from "../../../app-consts.js";
 import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
-import { CombatActionComponent } from "../../../combat/index.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { Combatant, CombatantEquipment } from "../../../combatants/index.js";
+import { Combatant } from "../../../combatants/index.js";
 import {
   BASE_DURABILITY_LOSS,
   DurabilityChangesByEntityId,
   HIT_OUTCOMES_THAT_CONTACT_TARGET,
 } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
+import { ItemId } from "../../../aliases.js";
+import { CombatActionComponent } from "../../../combat/combat-actions/index.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
   TaggedEquipmentSlot,
   WearableSlotType,
-} from "../../../items/equipment/index.js";
-import { EntityId } from "../../../primatives/index.js";
+} from "../../../items/equipment/slots.js";
+import { CombatantEquipment } from "../../../combatants/combatant-equipment/index.js";
 
 export function addHitOutcomeDurabilityChanges(
   durabilityChanges: DurabilityChangesByEntityId,
@@ -26,7 +27,7 @@ export function addHitOutcomeDurabilityChanges(
   action: CombatActionComponent,
   hitOutcomeType: HitOutcome,
   isCrit?: boolean
-): Error | { [itemId: EntityId]: number } | undefined {
+): Error | Record<ItemId, number> | undefined {
   // healing magic shouldn't cause durability loss
   const hpChangePropertiesGetter =
     action.hitOutcomeProperties.resourceChangePropertiesGetters[CombatActionResource.HitPoints];

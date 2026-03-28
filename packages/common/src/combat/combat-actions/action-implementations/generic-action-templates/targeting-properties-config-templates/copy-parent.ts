@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "../../../../../errors/index.js";
-import { AutoTargetingScheme } from "../../../../targeting/index.js";
+import { AutoTargetingScheme } from "../../../../targeting/auto-targeting/index.js";
 import { CombatActionTargetingPropertiesConfig } from "../../../combat-action-targeting-properties.js";
 import { SINGLE_HOSTILE_TARGETING_PROPERTIES } from "./single.js";
 

@@ -2,10 +2,6 @@ import format from "pg-format";
 import WrappedPool from "../wrapped-pool.js";
 import { toCamelCase, camelToSnakeCase } from "../utils.js";
 
-export interface DataTypesForInsert {
-  [columnName: string]: any;
-}
-
 export class DatabaseRepository<T> {
   constructor(
     public pgPool: WrappedPool,

@@ -1,11 +1,5 @@
-import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
-import {
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat/combat-actions/index.js";
 import {
   CombatActionTargetSingle,
   CombatActionTargetType,
@@ -19,11 +13,14 @@ import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../scene-entities/index.js";
-import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
-import { CombatantCondition } from "../index.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
-import { ConditionTickProperties, EntityId } from "../../index.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { ConditionTickProperties } from "../condition-tick-properties.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { ActionRank, EntityId } from "../../aliases.js";
+import { CombatantCondition } from "../index.js";
 
 export class BlindedCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {
@@ -32,8 +29,6 @@ export class BlindedCondition extends CombatantCondition {
     if (init.stacks) {
       this.stacksOption = new MaxAndCurrent(10, init.stacks);
     }
-
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   intent = CombatActionIntent.Malicious;
@@ -60,7 +55,7 @@ export class BlindedCondition extends CombatantCondition {
             user,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.ConditionPassTurn,
-              0,
+              0 as ActionRank,
               targets
             ),
           },

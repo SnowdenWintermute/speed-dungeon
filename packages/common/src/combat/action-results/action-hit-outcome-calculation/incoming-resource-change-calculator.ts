@@ -1,5 +1,5 @@
-import { EntityId } from "../../../primatives/index.js";
-import { iterateNumericEnumKeyedRecord, randBetween } from "../../../utils/index.js";
+import { EntityId } from "../../../aliases.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
@@ -15,6 +15,7 @@ import cloneDeep from "lodash.clonedeep";
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { randBetween } from "../../../utils/rand-between.js";
 
 export interface ResourceChangesPerTarget {
   value: number;

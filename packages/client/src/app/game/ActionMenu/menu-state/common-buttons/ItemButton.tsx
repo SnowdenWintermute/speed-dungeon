@@ -1,7 +1,6 @@
 import { EQUIPMENT_ICONS } from "@/app/game/detailables/EquipmentDetails/equipment-icons";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { AppStore } from "@/mobx-stores/app-store";
-import { ModifierKey } from "@/mobx-stores/input";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { createEaseGradient } from "@/utils/create-ease-gradient-style";
 import { Color4 } from "@babylonjs/core";
 import {
@@ -9,7 +8,6 @@ import {
   Consumable,
   CONSUMABLE_TEXT_COLOR,
   CONSUMABLE_TURQUOISE,
-  CONSUMABLE_TYPE_STRINGS,
   Equipment,
   Item,
   MAGICAL_PROPERTY_BLUE_TEXT,
@@ -17,9 +15,9 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
 import { ReactNode, useState } from "react";
-import { postItemLink } from "@/utils/post-item-link";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import { CONSUMABLE_ICONS } from "@/app/icons";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 interface Props {
   item: Item;
@@ -33,11 +31,13 @@ interface Props {
 
 export const ItemButton = observer((props: Props) => {
   const [isHovered, setIsHovered] = useState(false);
-  const alternateClickKeyHeld = AppStore.get().inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
+  const clientApplication = useClientApplication();
+  const { uiStore, detailableEntityFocus, imageStore, eventLogMessageService } = clientApplication;
+  const alternateClickKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.AlternateClick);
 
   const { item, text, hotkeyLabel, hotkeys, children, disabled } = props;
 
-  const thumbnailOption = getItemButtonThumbnail(item);
+  const thumbnailOption = imageStore.getItemButtonThumbnail(item);
 
   let svgIconOption;
   if (!thumbnailOption && item instanceof Equipment) {
@@ -50,7 +50,8 @@ export const ItemButton = observer((props: Props) => {
     }
   }
 
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+  const player = clientApplication.gameContext.requireClientPlayer();
   const { attributeProperties } = focusedCharacter.combatantProperties;
   const totalAttributes = attributeProperties.getTotalAttributes();
   const itemIsNotBroken = !(item instanceof Equipment && item.isBroken());
@@ -66,20 +67,21 @@ export const ItemButton = observer((props: Props) => {
   );
 
   function focusHandler() {
-    const { focusStore } = AppStore.get();
-    focusStore.detailables.setHovered(item);
+    detailableEntityFocus.detailables.setHovered(item);
     setIsHovered(true);
   }
 
   function blurHandler() {
-    const { focusStore } = AppStore.get();
-    focusStore.detailables.clearHovered();
+    detailableEntityFocus.detailables.clearHovered();
     setIsHovered(false);
   }
 
   function clickHandler() {
-    if (alternateClickKeyHeld) postItemLink(item);
-    else props.clickHandler(item);
+    if (alternateClickKeyHeld) {
+      eventLogMessageService.postItemLink(player.username, item);
+    } else {
+      props.clickHandler(item);
+    }
   }
 
   const disabledStyles = disabled ? "opacity-50" : "";
@@ -168,12 +170,4 @@ function getItemButtonConditionalStyles(
   if (itemIsWeapon || itemIsConsumable) imageContainerStyles.push("scale-[300%]");
   else imageContainerStyles.push("scale-[200%] -translate-x-1/2 p-[2px]");
   return { imageContainerStyles: imageContainerStyles.join(" "), mainContainerStyles };
-}
-
-function getItemButtonThumbnail(item: Item) {
-  let thumbnailId = item.entityProperties.id;
-  if (item instanceof Consumable) {
-    thumbnailId = CONSUMABLE_TYPE_STRINGS[item.consumableType];
-  }
-  return AppStore.get().imageStore.getItemThumbnailOption(thumbnailId);
 }

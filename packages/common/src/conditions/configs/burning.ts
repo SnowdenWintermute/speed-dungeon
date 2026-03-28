@@ -1,23 +1,15 @@
-import makeAutoObservable from "mobx-store-inheritance";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
-import {
-  CombatActionExecutionIntent,
-  CombatActionIntent,
-  CombatActionName,
-} from "../../combat/combat-actions/index.js";
+import { ActionRank, EntityId } from "../../aliases.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
 import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
-import {
-  ConditionTickProperties,
-  EntityId,
-  MAX_CONDITION_STACKS,
-  MaxAndCurrent,
-  runIfInBrowser,
-} from "../../index.js";
+import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import {
   CharacterModelIdentifier,
   CombatantBaseChildTransformNodeIdentifier,
@@ -25,7 +17,8 @@ import {
   SceneEntityType,
 } from "../../scene-entities/index.js";
 import { CombatantConditionInit } from "../condition-config.js";
-import { CombatantCondition } from "../index.js";
+import { ConditionTickProperties } from "../condition-tick-properties.js";
+import { CombatantCondition, MAX_CONDITION_STACKS } from "../index.js";
 
 export class BurningCondition extends CombatantCondition {
   constructor(init: CombatantConditionInit) {
@@ -34,8 +27,6 @@ export class BurningCondition extends CombatantCondition {
     if (init.stacks) {
       this.stacksOption = new MaxAndCurrent(MAX_CONDITION_STACKS, init.stacks || 1);
     }
-
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
   intent = CombatActionIntent.Malicious;
@@ -60,7 +51,7 @@ export class BurningCondition extends CombatantCondition {
             user,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.BurningTick,
-              user.getLevel(),
+              user.getLevel() as ActionRank,
               targets
             ),
           },

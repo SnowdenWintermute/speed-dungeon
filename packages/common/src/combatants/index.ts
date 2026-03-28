@@ -1,14 +1,8 @@
-import { EntityId, MaxAndCurrent } from "../primatives/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { EntityProperties } from "../primatives/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatActionName, FriendOrFoe } from "../combat/combat-actions/index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
-import { CombatantConditionName } from "../index.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
-import { ActionEntityProperties } from "../action-entities/index.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
@@ -18,34 +12,25 @@ import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
-import { runIfInBrowser } from "../utils/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatantId, EntityId } from "../aliases.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
+import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { CombatantConditionName } from "../conditions/condition-names.js";
+import { ArrayUtils } from "../utils/array-utils.js";
+import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
 
-export * from "./combatant-class/index.js";
-export * from "./combatant-species.js";
-export * from "./combatant-traits/index.js";
-export * from "./owned-actions/index.js";
-export * from "./inventory/index.js";
-export * from "./combatant-equipment/index.js";
-export * from "./threat-manager/index.js";
-export * from "./combatant-traits/index.js";
-export * from "./ability-tree/index.js";
-export * from "./combatant-abilities/index.js";
-export * from "./attributes/index.js";
-export * from "./attribute-properties.js";
-export * from "./class-progression-properties.js";
-
-export * from "./attributes/initialize-combat-attribute-record.js";
-
-export class Combatant implements IActionUser {
+export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
     public entityProperties: EntityProperties,
     public combatantProperties: CombatantProperties
-  ) {
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
+  ) {}
 
   static createInitialized(
     entityProperties: EntityProperties,
@@ -56,28 +41,23 @@ export class Combatant implements IActionUser {
     return combatant;
   }
 
-  getSerialized() {
-    const serializedConditionManager = this.combatantProperties.conditionManager.getSerialized();
-    const serialized = instanceToPlain(this) as Combatant;
-
-    serialized.combatantProperties.conditionManager = serializedConditionManager;
-
-    return serialized;
+  makeObservable(): void {
+    makeAutoObservable(this);
+    this.combatantProperties.makeObservable();
   }
 
-  static getDeserialized(combatant: Combatant) {
-    const toReturn = plainToInstance(Combatant, combatant);
+  toSerialized() {
+    return {
+      entityProperties: this.entityProperties,
+      combatantProperties: this.combatantProperties.toSerialized(),
+    };
+  }
 
-    const { combatantProperties } = combatant;
-
-    const deserializedCombatantProperties =
-      CombatantProperties.getDeserialized(combatantProperties);
-
-    deserializedCombatantProperties.initialize();
-
-    toReturn.combatantProperties = deserializedCombatantProperties;
-
-    return toReturn;
+  static fromSerialized(serialized: SerializedOf<Combatant>) {
+    const deserializedCombatantProperties = CombatantProperties.fromSerialized(
+      serialized.combatantProperties
+    );
+    return new Combatant(serialized.entityProperties, deserializedCombatantProperties);
   }
 
   getType = () => ActionUserType.Combatant;
@@ -90,7 +70,9 @@ export class Combatant implements IActionUser {
   wasRemovedBeforeHitOutcomes(): boolean {
     return false;
   }
-  setWasRemovedBeforeHitOutcomes(): void {}
+  setWasRemovedBeforeHitOutcomes(): void {
+    //
+  }
   getConditionTickPropertiesOption(): null {
     throw new Error("getCombatantPropertiesOption() is invalid on Combatants.");
   }
@@ -142,8 +124,8 @@ export class Combatant implements IActionUser {
     this.combatantProperties.resources.refillActionPoints();
     this.combatantProperties.abilityProperties.tickCooldowns();
   }
-  getEntityId(): EntityId {
-    return this.entityProperties.id;
+  getEntityId() {
+    return this.entityProperties.id as CombatantId;
   }
   getLevel(): number {
     return this.combatantProperties.classProgressionProperties.getMainClass().level;
@@ -237,8 +219,9 @@ export class Combatant implements IActionUser {
     }
 
     const costs = action.costProperties.getResourceCosts(this, party.isInCombat(), rank);
-    const hasRequiredResources =
-      !this.combatantProperties.resources.getUnmetCostResourceTypes(costs).length;
+
+    const unmetResourceTypes = this.combatantProperties.resources.getUnmetCostResourceTypes(costs);
+    const hasRequiredResources = !unmetResourceTypes.length;
 
     if (!hasRequiredResources) {
       return {
@@ -267,7 +250,7 @@ export class Combatant implements IActionUser {
     // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
     let battleOption: null | Battle = null;
     if (party.battleId !== null) {
-      const battle = game.battles[party.battleId];
+      const battle = game.battles.get(party.battleId);
       if (battle !== undefined) battleOption = battle;
       else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     }
@@ -335,5 +318,29 @@ export class Combatant implements IActionUser {
     return this.combatantProperties.conditionManager.hasConditionName(
       CombatantConditionName.Ensnared
     );
+  }
+
+  convertOwnedItemsToShards(itemIds: EntityId[]) {
+    const { combatantProperties } = this;
+    const itemsInInventory = combatantProperties.inventory.getItems();
+    const equippedItems = combatantProperties.equipment.getAllEquippedItems({
+      includeUnselectedHotswapSlots: true,
+    });
+
+    if (itemIds.length === 0) return;
+    for (const item of itemsInInventory.concat(equippedItems)) {
+      if (!itemIds.includes(item.entityProperties.id)) continue;
+      const shardsCount = this.convertItemToShards(item, combatantProperties);
+      combatantProperties.inventory.changeShards(shardsCount);
+      ArrayUtils.removeElement(itemIds, item.entityProperties.id);
+      if (itemIds.length === 0) break;
+    }
+  }
+
+  private convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
+    const itemId = item.entityProperties.id;
+    const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemId);
+    if (removedItemResult instanceof Error) throw removedItemResult;
+    return getItemSellPrice(removedItemResult);
   }
 }

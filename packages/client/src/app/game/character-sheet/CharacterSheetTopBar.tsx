@@ -1,15 +1,17 @@
-import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client-consts";
 import React from "react";
 import { CharacterSheetCharacterSelectionButton } from "./CharacterSheetCharacterSelectionButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { EntityId } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
+import { CombatantId } from "@speed-dungeon/common";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
-  partyCharacterIds: EntityId[];
+  partyCharacterIds: CombatantId[];
 }
 
 export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus, actionMenu } = clientApplication;
   return (
     <div className="flex justify-between">
       <ul className="flex list-none" style={{ marginBottom: `${SPACING_REM_SMALL}rem ` }}>
@@ -23,8 +25,8 @@ export default function CharacterSheetTopBar({ partyCharacterIds }: Props) {
         style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
         aria-label="close inventory"
         onClick={() => {
-          AppStore.get().focusStore.combatantAbilities.clear();
-          AppStore.get().actionMenuStore.clearStack();
+          detailableEntityFocus.combatantAbilities.clear();
+          actionMenu.clearStack();
         }}
       >
         <XShape className="h-full w-full fill-zinc-300" />

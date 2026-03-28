@@ -1,13 +1,16 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { COMBATANT_CLASS_NAME_STRINGS, iterateNumericEnum } from "@speed-dungeon/common";
+import {
+  ClientIntentType,
+  COMBATANT_CLASS_NAME_STRINGS,
+  EntityName,
+  iterateNumericEnum,
+} from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import TextInput from "@/app/components/atoms/TextInput";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   AdventuringParty,
   BASE_SCREEN_SIZE,
-  ClientToServerEvent,
   CombatantClass,
   ERROR_MESSAGES,
   GOLDEN_RATIO,
@@ -16,8 +19,8 @@ import {
 } from "@speed-dungeon/common";
 import { FormEvent, ReactNode, useState } from "react";
 import { CharacterCard } from "./CharacterCard";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const PartySetupCard = observer(
   ({
@@ -31,11 +34,16 @@ export const PartySetupCard = observer(
     const characters = party.combatantManager.getPartyMemberCharacters();
     const characterCount = characters.length;
 
-    const username = AppStore.get().gameStore.getExpectedUsername();
+    const { session, lobbyClientRef } = useClientApplication();
+
+    const username = session.requireUsername();
     const userIsInThisParty = party.playerUsernames.includes(username);
 
     function leaveParty() {
-      websocketConnection.emit(ClientToServerEvent.LeaveParty);
+      lobbyClientRef.get().dispatchIntent({
+        type: ClientIntentType.LeaveParty,
+        data: undefined,
+      });
     }
 
     const characterCards = characters.map((character) => {
@@ -117,12 +125,16 @@ const EmptyCharacterSlot = observer(
 
     if (userIsInThisParty) return <CreateCharacterForm i={i} />;
 
+    const { lobbyClientRef } = useClientApplication();
     return (
       <PartyCardListItem key={i}>
         <HotkeyButton
           className="h-full w-full"
           onClick={() => {
-            websocketConnection.emit(ClientToServerEvent.JoinParty, party.name);
+            lobbyClientRef.get().dispatchIntent({
+              type: ClientIntentType.JoinParty,
+              data: { partyName: party.name },
+            });
           }}
         >
           JOIN PARTY
@@ -143,14 +155,18 @@ const PartyCardListItem = observer(({ children }: { children: ReactNode }) => {
 const CreateCharacterForm = observer(({ i }: { i: number }) => {
   const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
   const [characterName, setCharacterName] = useState("");
+  const { lobbyClientRef } = useClientApplication();
 
   function handleCreateCharacter(e: FormEvent<HTMLElement>) {
     e.preventDefault();
-    websocketConnection.emit(ClientToServerEvent.CreateCharacter, {
-      name: characterName,
-      combatantClass: combatantClassSelection,
+
+    lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.CreateCharacter,
+      data: {
+        name: characterName as EntityName,
+        combatantClass: combatantClassSelection,
+      },
     });
-    setCharacterName("");
   }
 
   return (

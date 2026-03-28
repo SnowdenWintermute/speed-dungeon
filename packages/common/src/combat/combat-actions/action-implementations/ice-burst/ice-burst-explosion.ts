@@ -1,23 +1,18 @@
-import {
-  BASE_ACTION_HIERARCHY_PROPERTIES,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-  TargetCategories,
-} from "../../index.js";
-import {
-  CombatActionGameLogProperties,
-  CombatActionOrigin,
-} from "../../combat-action-combat-log-properties.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
-import { AutoTargetingScheme } from "../../../targeting/index.js";
 import { BASE_EXPLOSION_RADIUS } from "../../../../app-consts.js";
 import { ICE_BURST_EXPLOSION_HIT_OUTCOME_PROPERTIES } from "./ice-burst-explosion-hit-outcome-properties.js";
 import { ICE_BURST_EXPLOSION_STEPS_CONFIG } from "./ice-burst-explosion-steps-config.js";
+import { TargetCategories } from "../../targeting-schemes-and-categories.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
+import { AutoTargetingScheme } from "../../../targeting/auto-targeting/index.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.EXPLOSION,

@@ -1,10 +1,4 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import {
   OFF_HAND_ACCURACY_MODIFIER,
   OFF_HAND_CRIT_CHANCE_MODIFIER,
@@ -30,6 +24,9 @@ import {
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { CombatActionRequiredRange } from "../../combat-action-range.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;

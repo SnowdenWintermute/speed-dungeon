@@ -1,22 +1,27 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { CombatantActionState, CombatantEquipment, Inventory } from "../combatants/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
-import { EntityId, EntityProperties, MaxAndCurrent } from "../primatives/index.js";
 import {
   ActionAndRank,
   ActionUserTargetingProperties,
 } from "./action-user-targeting-properties.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ActionEntityProperties } from "../action-entities/index.js";
+import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
 import { Battle } from "../battle/index.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
-import { Equipment, WeaponProperties } from "../items/equipment/index.js";
+import { Equipment } from "../items/equipment/index.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
+import { EntityId } from "../aliases.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatantActionState } from "../combatants/owned-actions/combatant-action-state.js";
+import { CombatantEquipment } from "../combatants/combatant-equipment/index.js";
+import { Inventory } from "../combatants/inventory/index.js";
+import { WeaponProperties } from "../items/equipment/equipment-properties/weapon-properties.js";
+import { MaxAndCurrent } from "../primatives/max-and-current.js";
 
 export enum ActionUserType {
   Combatant,

@@ -1,6 +1,6 @@
 import React from "react";
 import { Equipment } from "@speed-dungeon/common";
-import { UNMET_REQUIREMENT_COLOR, WARNING_COLOR_DARK } from "@/client_consts";
+import { UNMET_REQUIREMENT_COLOR, WARNING_COLOR_DARK } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { EQUIPMENT_ICONS } from "../detailables/EquipmentDetails/equipment-icons";
 import { observer } from "mobx-react-lite";

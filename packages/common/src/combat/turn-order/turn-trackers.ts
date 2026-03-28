@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { CombatantId, EntityId } from "../../aliases.js";
 import { ActionEntityTurnScheduler } from "./action-entity-turn-scheduler.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
@@ -14,12 +14,18 @@ import { ITurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { Battle } from "../../battle/index.js";
 import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-target.js";
-import { ActionIntentOptionAndUser } from "../../action-processing/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
+import { Serializable } from "../../serialization/index.js";
+import { instanceToPlain } from "class-transformer";
 
-export abstract class TurnTracker {
+export abstract class TurnTracker implements Serializable {
   constructor(public readonly timeOfNextMove: number) {}
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
 
   abstract getTaggedIdOfTrackedEntity(): TaggedTurnTrackerTrackedEntityId;
   abstract getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler;
@@ -50,7 +56,7 @@ export abstract class TurnTracker {
 
 export class CombatantTurnTracker extends TurnTracker {
   constructor(
-    private combatantId: string,
+    private combatantId: CombatantId,
     timeOfNextMove: number
   ) {
     super(timeOfNextMove);
@@ -84,6 +90,10 @@ export class ConditionTurnTracker extends TurnTracker {
     public readonly timeOfNextMove: number
   ) {
     super(timeOfNextMove);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
   }
 
   getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {

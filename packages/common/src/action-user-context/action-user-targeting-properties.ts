@@ -1,26 +1,43 @@
+import { makeAutoObservable } from "mobx";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Option } from "../primatives/option.js";
-import { CombatActionName, FriendOrFoe, TargetingScheme } from "../combat/combat-actions/index.js";
 import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
-import { EntityId, NextOrPrevious } from "../primatives/index.js";
+import { NextOrPrevious } from "../primatives/index.js";
 import { CombatActionTargetPreferences, SpeedDungeonPlayer } from "../game/player.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import getNextOrPreviousTarget from "../combat/targeting/get-next-or-previous-target.js";
 import { TargetingCalculator } from "../combat/targeting/targeting-calculator.js";
-import { makeAutoObservable } from "mobx";
-import { plainToInstance } from "class-transformer";
-import { runIfInBrowser } from "../utils/index.js";
+import { ActionRank, EntityId } from "../aliases.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat/combat-actions/targeting-schemes-and-categories.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { Combatant } from "../combatants/index.js";
+import { ActionUserContext } from "./index.js";
 
-export class ActionAndRank {
+export class ActionAndRank implements Serializable, ReactiveNode {
   constructor(
     public actionName: CombatActionName,
-    public rank: number
-  ) {
-    runIfInBrowser(() => makeAutoObservable(this));
+    public rank: ActionRank
+  ) {}
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionAndRank>) {
+    return plainToInstance(ActionAndRank, serialized);
   }
 }
 
-export class ActionUserTargetingProperties {
+export class ActionUserTargetingProperties implements Serializable, ReactiveNode {
   private selectedActionAndRank: Option<ActionAndRank> = null;
   private selectedTarget: Option<CombatActionTarget> = null;
   /** Used for when a pet needs to know which target their owner most recently targeted .
@@ -30,15 +47,28 @@ export class ActionUserTargetingProperties {
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
 
-  constructor() {
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
+    this.selectedActionAndRank?.makeObservable();
   }
 
-  static getDeserialized(actionUserTargetingProperties: ActionUserTargetingProperties) {
-    actionUserTargetingProperties.targetPreferences = CombatActionTargetPreferences.getDeserialized(
-      actionUserTargetingProperties.targetPreferences
+  toSerialized() {
+    return {
+      ...instanceToPlain(this),
+      targetPreferences: this.targetPreferences.toSerialized(),
+      selectedActionAndRank: this.selectedActionAndRank?.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<ActionUserTargetingProperties>) {
+    const result = plainToInstance(ActionUserTargetingProperties, serialized);
+    if (serialized.selectedActionAndRank) {
+      result.selectedActionAndRank = ActionAndRank.fromSerialized(serialized.selectedActionAndRank);
+    }
+    result.targetPreferences = CombatActionTargetPreferences.fromSerialized(
+      serialized.targetPreferences
     );
-    return plainToInstance(ActionUserTargetingProperties, actionUserTargetingProperties);
+    return result;
   }
 
   clear(options?: { clearTargetingPreferences?: boolean }) {
@@ -200,13 +230,16 @@ export class ActionUserTargetingProperties {
 
     if (lastUsedTargetingScheme === null || !targetingSchemes.includes(lastUsedTargetingScheme)) {
       const defaultScheme = targetingSchemes[0];
-      if (typeof defaultScheme === "undefined")
+      if (typeof defaultScheme === "undefined") {
         throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGETING_SCHEMES);
+      }
       newTargetingScheme = defaultScheme;
     } else {
       const lastUsedTargetingSchemeIndex = targetingSchemes.indexOf(lastUsedTargetingScheme);
-      if (lastUsedTargetingSchemeIndex < 0)
+      if (lastUsedTargetingSchemeIndex < 0) {
         throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
+      }
+
       const isSelectingLastInList = lastUsedTargetingSchemeIndex === targetingSchemes.length - 1;
       const newSchemeIndex = isSelectingLastInList ? 0 : lastUsedTargetingSchemeIndex + 1;
       newTargetingScheme = targetingSchemes[newSchemeIndex]!;
@@ -232,5 +265,40 @@ export class ActionUserTargetingProperties {
 
     this.setSelectedTarget(newTargetsResult);
     return newTargetsResult;
+  }
+
+  getPrimaryTargetOption(
+    gameOption: null | SpeedDungeonGame,
+    combatant: Combatant,
+    actionName: CombatActionName
+  ) {
+    const combatActionTarget = this.getSelectedTarget();
+    const actionRank = this.getSelectedActionAndRank()?.rank;
+
+    if (!gameOption || combatActionTarget === null || actionRank === undefined) return undefined;
+    const game = gameOption;
+    const partyOption = game.getPartyOptionOfCombatant(combatant.getEntityId());
+    if (partyOption === undefined) return undefined;
+
+    const actionPropertiesResult = COMBAT_ACTIONS[actionName];
+    if (actionPropertiesResult instanceof Error) return actionPropertiesResult;
+    const combatActionProperties = actionPropertiesResult;
+
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, partyOption, combatant),
+      null
+    );
+
+    const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+      combatActionProperties,
+      combatActionTarget
+    );
+    if (targetIdsResult instanceof Error) return undefined;
+    const targetIds = targetIdsResult;
+    const firstTargetIdOption = targetIds[0];
+    if (firstTargetIdOption === undefined) return undefined;
+    const firstTargetCombatant = game.getCombatantById(firstTargetIdOption);
+    if (firstTargetCombatant instanceof Error) return undefined;
+    return firstTargetCombatant.combatantProperties;
   }
 }

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { HoldableSlotType } from "../items/equipment";
-import { Axis, EntityId, Milliseconds } from "../primatives";
+import { Axis } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../aliases.js";
+import { HoldableSlotType } from "../items/equipment/slots.js";
 
 export enum SceneEntityType {
   CharacterModel,
@@ -29,23 +30,23 @@ export type SceneEntityIdentifier =
   | CharacterEquipmentModelIdentifier
   | ActionEntityModelIdentifier;
 
-export type CombatantBaseChildTransformNodeIdentifier = {
+export interface CombatantBaseChildTransformNodeIdentifier {
   sceneEntityIdentifier: CharacterModelIdentifier;
   transformNodeName: CombatantBaseChildTransformNodeName;
   ignoreAxes?: Axis[];
-};
+}
 
-export type ActionEntityBaseChildTransformNodeIdentifier = {
+export interface ActionEntityBaseChildTransformNodeIdentifier {
   sceneEntityIdentifier: ActionEntityModelIdentifier;
-  transformNodeName: ActionEntityBaseChildTransformNodeName;
+  transformNodeName: GenericBaseChildTransformNodeName;
   ignoreAxes?: Axis[];
-};
+}
 
-export type CombatantHoldableChildTransformNodeIdentifier = {
+export interface CombatantHoldableChildTransformNodeIdentifier {
   sceneEntityIdentifier: CharacterEquipmentModelIdentifier;
   transformNodeName: CombatantHoldableChildTransformNodeName;
   ignoreAxes?: Axis[];
-};
+}
 
 export type SceneEntityChildTransformNodeIdentifier =
   | CombatantBaseChildTransformNodeIdentifier
@@ -78,7 +79,7 @@ export const COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS: Record<
   [CombatantBaseChildTransformNodeName.HitboxCenterTop]: "HitboxCenterTop",
 };
 
-export enum ActionEntityBaseChildTransformNodeName {
+export enum GenericBaseChildTransformNodeName {
   EntityRoot,
 }
 

@@ -1,10 +1,10 @@
 import React from "react";
 import Divider from "@/app/components/atoms/Divider";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { Equipment, INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ItemDetails } from "../detailables/ItemDetails";
 
 interface Props {
@@ -13,8 +13,9 @@ interface Props {
 
 export const CraftingItemDisplay = observer((props: Props) => {
   const { equipment } = props;
-
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
   const currentFloor = party.dungeonExplorationManager.getCurrentFloor();
 
   const ilvlLimited = equipment.itemLevel > currentFloor;

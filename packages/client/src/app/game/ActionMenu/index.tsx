@@ -1,35 +1,35 @@
 import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   ACTION_MENU_CENTRAL_SECTION_HEIGHT,
   BUTTON_HEIGHT,
-  BUTTON_HEIGHT_SMALL,
   SPACING_REM_SMALL,
-} from "@/client_consts";
+} from "@/client-consts";
 import { AbilityType, NextOrPrevious } from "@speed-dungeon/common";
 import { CycleFocusedCharacterButtons } from "./CycleFocusedCharacterButtons";
-import { StackedMenuStateDisplay } from "./StackedMenuStateDisplay";
 import HoveredItemDisplay from "./HoveredItemDisplay";
 import { CraftingItemDisplay } from "./CraftingItemDisplay";
-import { CraftingItemMenuState } from "./menu-state/crafting-item";
 import HoveredActionDisplay from "./HoveredActionDisplay";
+import { StackedActionMenuScreenDisplay } from "./StackedMenuStateDisplay";
+import { CraftingItemActionMenuScreen } from "@/client-application/action-menu/screens/crafting-item";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
-  const { actionMenuStore, focusStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { actionMenu, detailableEntityFocus } = clientApplication;
 
-  const currentMenu = actionMenuStore.getCurrentMenu();
+  const currentMenu = actionMenu.getCurrentMenu();
   const topSection = currentMenu.getTopSection();
   const numberedButtons = currentMenu.getNumberedButtonsOnCurrentPage();
   const centralSection = currentMenu.getCentralSection();
   const bottomSection = currentMenu.getBottomSection();
 
-  const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-  const craftingItem = currentMenu instanceof CraftingItemMenuState;
+  const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
+  const craftingItem = currentMenu instanceof CraftingItemActionMenuScreen;
   const shouldShowHoveredItem = !viewingCharacterSheet && !craftingItem;
   const shouldShowCraftingItemDisplay = craftingItem;
 
-  const { hovered: hoveredAction } = focusStore.combatantAbilities.get();
+  const { hovered: hoveredAction } = detailableEntityFocus.combatantAbilities.get();
   const isHoveringAction = hoveredAction?.type === AbilityType.Action;
   const shouldShowHoveredActionDisplay = isHoveringAction && !viewingCharacterSheet;
 
@@ -44,7 +44,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
   return (
     <section className={`flex flex-col justify-between`}>
       <CycleFocusedCharacterButtons />
-      <StackedMenuStateDisplay />
+      <StackedActionMenuScreenDisplay />
       <div className="flex">
         <div className="flex flex-col">
           <div

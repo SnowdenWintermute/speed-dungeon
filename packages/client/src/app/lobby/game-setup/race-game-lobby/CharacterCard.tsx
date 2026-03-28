@@ -1,13 +1,9 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import {
-  COMBATANT_CLASS_NAME_STRINGS,
-  ClientToServerEvent,
-  Combatant,
-} from "@speed-dungeon/common";
+import { COMBATANT_CLASS_NAME_STRINGS, ClientIntentType, Combatant } from "@speed-dungeon/common";
 import XShape from "../../../../../public/img/basic-shapes/x-shape.svg";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const CharacterCard = observer(
   ({ character, username }: { character: Combatant; username: string }) => {
@@ -16,8 +12,15 @@ export const CharacterCard = observer(
 
     const { controllerPlayerName } = character.combatantProperties.controlledBy;
 
+    const { lobbyClientRef } = useClientApplication();
+
     function deleteCharacter() {
-      websocketConnection.emit(ClientToServerEvent.DeleteCharacter, character.entityProperties.id);
+      lobbyClientRef.get().dispatchIntent({
+        type: ClientIntentType.DeleteCharacter,
+        data: {
+          characterId: character.getEntityId(),
+        },
+      });
     }
 
     const icon = getCombatantClassIcon(combatantClass, "fill-slate-400", "stroke-slate-400");

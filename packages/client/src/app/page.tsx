@@ -1,44 +1,52 @@
 // @refresh reset
 "use client";
-import { Lobby } from "./lobby";
-import { enableMapSet } from "immer";
-import { GameSetup } from "./lobby/game-setup";
-import AlertManager from "./components/alerts/AlertManager";
-import { Game } from "./game";
+import { AlertManager } from "./components/alerts/AlertManager";
 import TailwindClassLoader from "./TailwindClassLoader";
 import GlobalKeyboardEventManager from "./GlobalKeyboardEventManager";
 import { TooltipManager } from "./TooltipManager";
-import WebsocketManager from "./websocket-manager";
 import { SkyColorProvider } from "./SkyColorProvider";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import SceneManager from "./game-world-view-canvas/SceneManager";
-// for immer to be able to use map and set
-enableMapSet();
+import { SceneManager } from "./game-world-view-canvas/SceneManager";
+import { useEffect, useRef, useState } from "react";
+import { AssetManager } from "./asset-manager";
+import { ClientApplication } from "@/client-application";
+import { ClientApplicationContext } from "@/hooks/create-client-application-context";
+import { MainAppWindow } from "./MainAppWindow";
+import { createClientApplication } from "./create-client-application";
 
 export default observer(() => {
-  const game = AppStore.get().gameStore.getGameOption();
-  const focusedCharacterOption = AppStore.get().gameStore.getFocusedCharacterOption();
+  const clientApplicationRef = useRef<ClientApplication | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
-  const shouldShowGame = focusedCharacterOption !== undefined && game?.timeStarted !== undefined;
+  useEffect(() => {
+    const clientApplication = createClientApplication();
+    clientApplicationRef.current = clientApplication;
+    clientApplication.topologyManager.enterOnline();
+    setIsReady(true);
+    return () => {
+      clientApplication.dispose();
+    };
+  }, []);
 
-  const componentToRender = shouldShowGame ? (
-    <Game />
-  ) : game ? (
-    <GameSetup gameMode={game.mode} />
-  ) : (
-    <Lobby />
-  );
+  if (!clientApplicationRef.current && typeof window !== "undefined") {
+    clientApplicationRef.current = createClientApplication();
+  }
+
+  if (!isReady || !clientApplicationRef.current) {
+    return null;
+  }
 
   return (
-    <>
+    <ClientApplicationContext.Provider value={clientApplicationRef.current}>
+      <AssetManager />
       <TailwindClassLoader />
-      <WebsocketManager />
       <AlertManager />
       <GlobalKeyboardEventManager />
       <TooltipManager />
       <SceneManager />
-      <SkyColorProvider>{componentToRender}</SkyColorProvider>
-    </>
+      <SkyColorProvider>
+        <MainAppWindow />
+      </SkyColorProvider>
+    </ClientApplicationContext.Provider>
   );
 });

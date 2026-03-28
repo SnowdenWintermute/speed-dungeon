@@ -4,19 +4,20 @@ import { AdventuringParty } from "@speed-dungeon/common";
 import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
 import { ItemsOnGround } from "./ItemsOnGround";
 import { CharacterSheet } from "./character-sheet";
-import { SPACING_REM } from "@/client_consts";
+import { SPACING_REM } from "@/client-consts";
 import { ZIndexLayers } from "../z-index-layers";
 import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const ActionMenuAndCharacterSheetLayer = observer(
   ({ party }: { party: AdventuringParty }) => {
-    const { actionMenuStore } = AppStore.get();
-    const viewingCharacterSheet = actionMenuStore.shouldShowCharacterSheet();
-    const abilityTreeOpen = actionMenuStore.viewingAbilityTree();
+    const clientApplication = useClientApplication();
+    const { actionMenu } = clientApplication;
+    const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
+    const abilityTreeOpen = actionMenu.viewingAbilityTree();
 
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
     const inputLocked = party.inputLock.isLocked();
 

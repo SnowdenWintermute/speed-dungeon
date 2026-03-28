@@ -1,17 +1,12 @@
 import { ActionEntity } from "../../../../action-entities/index.js";
-import {
-  ActionResolutionStepType,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { CleanupMode } from "../../../../types.js";
-import {
-  ActionResolutionStepsConfig,
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-} from "../../index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
@@ -73,9 +68,10 @@ const hitOutcomeProperties = createHitOutcomeProperties(
         // change the cosmetic effect if firewall has deleveled
         if (newActionLevel < currentFirewallLevel) {
           const firewallCosmeticsStepOption =
-            FIREWALL_STEPS_CONFIG.steps[ActionResolutionStepType.RecoveryMotion];
-          if (!firewallCosmeticsStepOption)
+            FIREWALL_STEPS_CONFIG.finalSteps[ActionResolutionStepType.RecoveryMotion];
+          if (!firewallCosmeticsStepOption) {
             throw new Error("expected to have configured RecoveryMotion for Firewall");
+          }
 
           // @REFACTOR
           // @BADPRACTICE

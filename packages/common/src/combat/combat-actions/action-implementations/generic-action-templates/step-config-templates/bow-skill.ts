@@ -1,12 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
 import {
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-  AnimationTimingType,
-  EntityAnimation,
-  EntityMotionUpdate,
-} from "../../../../../action-processing/index.js";
-import {
   ActionResolutionStepsConfig,
   EquipmentAnimation,
 } from "../../../combat-action-steps-config.js";
@@ -16,15 +9,7 @@ import {
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
 } from "../../../../../app-consts.js";
-import {
-  EquipmentSlotType,
-  EquipmentType,
-  HoldableSlotType,
-  TaggedEquipmentSlot,
-  TwoHandedRangedWeapon,
-} from "../../../../../items/equipment/index.js";
 import { getRotateTowardPrimaryTargetDestination } from "../../common-destination-getters.js";
-import { CombatantSpecies } from "../../../../../combatants/index.js";
 import { SpawnableEntityType, getSpawnableEntityId } from "../../../../../spawnables/index.js";
 import {
   CombatantHoldableChildTransformNodeName,
@@ -35,6 +20,23 @@ import {
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { RANGED_SKILL_STEPS_CONFIG } from "./ranged-skill.js";
 import { ProjectileFactory } from "../projectile-factory.js";
+import {
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../../../../../action-processing/action-steps/index.js";
+import { TwoHandedRangedWeapon } from "../../../../../items/equipment/equipment-types/two-handed-ranged-weapon.js";
+import {
+  EquipmentSlotType,
+  HoldableSlotType,
+  TaggedEquipmentSlot,
+} from "../../../../../items/equipment/slots.js";
+import { EquipmentType } from "../../../../../items/equipment/equipment-types/index.js";
+import {
+  AnimationTimingType,
+  EntityAnimation,
+  EntityMotionUpdate,
+} from "../../../../../action-processing/game-update-commands.js";
+import { CombatantSpecies } from "../../../../../combatants/combatant-species.js";
 
 const base = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];

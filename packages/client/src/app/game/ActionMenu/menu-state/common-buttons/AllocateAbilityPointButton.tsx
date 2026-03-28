@@ -1,10 +1,9 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { AppStore } from "@/mobx-stores/app-store";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { AbilityTreeAbility, ClientToServerEvent } from "@speed-dungeon/common";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { AbilityTreeAbility, ClientIntentType } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 interface Props {
   ability: AbilityTreeAbility;
@@ -12,12 +11,13 @@ interface Props {
 
 export const AllocateAbilityPointButton = observer((props: Props) => {
   const { ability } = props;
+  const clientApplication = useClientApplication();
+  const { uiStore, gameClientRef, combatantFocus } = clientApplication;
 
-  const { hotkeysStore } = AppStore.get();
   const buttonType = HotkeyButtonTypes.AllocateAbilityPoint;
-  const hotkeyList = hotkeysStore.getKeybind(buttonType);
+  const hotkeyList = uiStore.keybinds.getKeybind(buttonType);
 
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
 
   const { combatantProperties } = focusedCharacter;
 
@@ -28,15 +28,18 @@ export const AllocateAbilityPointButton = observer((props: Props) => {
       disabled={!canAllocate}
       hotkeys={hotkeyList}
       handleClick={() => {
-        websocketConnection.emit(ClientToServerEvent.AllocateAbilityPoint, {
-          characterId: focusedCharacter.getEntityId(),
-          ability,
+        gameClientRef.get().dispatchIntent({
+          type: ClientIntentType.AllocateAbilityPoint,
+          data: {
+            characterId: focusedCharacter.getEntityId(),
+            ability,
+          },
         });
       }}
     >
       <div className="flex justify-between h-full w-full pr-2">
         <div className="flex items-center whitespace-nowrap overflow-hidden overflow-ellipsis flex-1">
-          Allocate point ({hotkeysStore.getKeybindString(buttonType)})
+          Allocate point ({uiStore.keybinds.getKeybindString(buttonType)})
         </div>
       </div>
     </ActionMenuTopButton>

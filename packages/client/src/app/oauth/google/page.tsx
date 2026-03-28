@@ -2,16 +2,15 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { enableMapSet } from "immer";
-import {
-  reconnectWebsocketInAllTabs,
-  refetchAuthSessionInAllTabs,
-} from "@/app/lobby/auth-forms/auth-utils";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 enableMapSet();
 
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
   const authorizationCode = searchParams.get("code");
+  const clientApplication = useClientApplication();
+  const { broadcastChannel } = clientApplication;
 
   const [loadingTextState, setLoadingStateText] = useState("Authenticating...");
   // don't run this effect twice in development using strict mode
@@ -24,11 +23,13 @@ export default function GoogleOAuthLoader() {
       return setLoadingStateText("Error authenticating - missing query parameters");
     (async () => {
       await fetchToken(authorizationCode, state);
-      refetchAuthSessionInAllTabs();
-      reconnectWebsocketInAllTabs();
+
+      broadcastChannel.refetchAuthSessionInAllTabs();
+      broadcastChannel.reconnectAllTabs();
+
       window.close();
     })();
-  }, [authorizationCode, state]);
+  }, [authorizationCode, state, broadcastChannel]);
 
   return <div className="w-full flex justify-center p-4">{loadingTextState}</div>;
 }

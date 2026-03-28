@@ -1,40 +1,40 @@
 import { AdventuringParty } from "./index.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { EntityId } from "../primatives/index.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
-import { plainToInstance } from "class-transformer";
 import { CombatantConditionName } from "../conditions/condition-names.js";
-import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
+import { Serializable, SerializedOf } from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class PetManager extends AdventuringPartySubsystem {
-  private unsummonedPetsByOwnerId: { [ownerId: EntityId]: (Combatant | undefined)[] } = {};
+export class PetManager extends AdventuringPartySubsystem implements Serializable {
+  private unsummonedPetsByOwnerId = new Map<EntityId, (Combatant | undefined)[]>();
 
-  static getDeserialized(plain: PetManager) {
-    const toReturn = plainToInstance(PetManager, plain);
+  toSerialized() {
+    return {
+      unsummonedPetsByOwnerId: MapUtils.serialize(this.unsummonedPetsByOwnerId, (v) =>
+        v.map((pet) => pet?.toSerialized())
+      ),
+    };
+  }
 
-    for (const [entityId, petSlots] of Object.entries(plain.unsummonedPetsByOwnerId)) {
-      const deserializedSlots: (Combatant | undefined)[] = [];
-      for (const slotContent of petSlots) {
-        if (slotContent === undefined) {
-          deserializedSlots.push(slotContent);
-        } else {
-          const deserializedPet = Combatant.getDeserialized(slotContent);
-          deserializedSlots.push(deserializedPet);
-        }
-      }
-      toReturn.unsummonedPetsByOwnerId[entityId] = deserializedSlots;
-    }
-    return toReturn;
+  static fromSerialized(serialized: SerializedOf<PetManager>) {
+    const result = new PetManager();
+    result.unsummonedPetsByOwnerId = MapUtils.deserialize(serialized.unsummonedPetsByOwnerId, (v) =>
+      v.map((serializedPet) =>
+        serializedPet ? Combatant.fromSerialized(serializedPet) : undefined
+      )
+    );
+    return result;
   }
 
   getAllPetsByOwnerId(ownerId: EntityId) {
     const unsummoned = this.iteratePetSlots(ownerId)
       .map((petSlot) => petSlot.petOption)
-      .filter((petOption) => petOption !== undefined);
+      .filter((petOption): petOption is Combatant => petOption !== undefined);
     const summonedOption = this.getCombatantSummonedPetOption(ownerId);
 
     const allPets = [...unsummoned];
@@ -47,15 +47,15 @@ export class PetManager extends AdventuringPartySubsystem {
   }
 
   setCombatantPets(ownerId: EntityId, pets: Combatant[]) {
-    this.unsummonedPetsByOwnerId[ownerId] = pets;
+    this.unsummonedPetsByOwnerId.set(ownerId, pets);
   }
 
   clearCombatantPets(ownerId: EntityId) {
-    delete this.unsummonedPetsByOwnerId[ownerId];
+    this.unsummonedPetsByOwnerId.delete(ownerId);
   }
 
   getUnsummonedPetOptionByOwnerAndSlot(ownerId: EntityId, petSlot: number) {
-    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[petSlot];
+    const petOption = this.unsummonedPetsByOwnerId.get(ownerId)?.[petSlot];
     return petOption;
   }
 
@@ -85,16 +85,17 @@ export class PetManager extends AdventuringPartySubsystem {
   }
 
   private removePetFromUnsummonedSlot(ownerId: EntityId, slotIndex: number) {
-    const petOption = this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
-    delete this.unsummonedPetsByOwnerId[ownerId]?.[slotIndex];
+    const petOption = this.unsummonedPetsByOwnerId.get(ownerId)?.[slotIndex];
+    delete this.unsummonedPetsByOwnerId.get(ownerId)?.[slotIndex];
     return petOption;
   }
 
   putPetInFirstEmptyUnsummonedSlot(ownerId: EntityId, pet: Combatant) {
-    let ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId];
+    let ownerPetSlots = this.unsummonedPetsByOwnerId.get(ownerId);
     if (ownerPetSlots === undefined) {
       // possible if taming a pet before summoning one
-      ownerPetSlots = this.unsummonedPetsByOwnerId[ownerId] = [];
+      this.unsummonedPetsByOwnerId.set(ownerId, []);
+      ownerPetSlots = [];
     }
     const emptyIndex = ownerPetSlots.findIndex((slot) => slot === undefined);
     if (emptyIndex === -1) {
@@ -167,7 +168,7 @@ export class PetManager extends AdventuringPartySubsystem {
     return pets.filter((pet) => pet.combatantProperties.controlledBy.summonedBy === combatantId)[0];
   }
 
-  handlePetTamed(petId: EntityId, newOwnerId: EntityId, game: SpeedDungeonGame) {
+  handlePetTamed(petId: CombatantId, newOwnerId: CombatantId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const petCombatant = party.combatantManager.removeCombatant(petId, game);
     const { controlledBy } = petCombatant.combatantProperties;

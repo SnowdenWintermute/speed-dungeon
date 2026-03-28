@@ -1,197 +1,128 @@
-import {
-  Scene,
-  Engine,
-  Vector3,
-  ArcRotateCamera,
-  Mesh,
-  DynamicTexture,
-  NodeMaterial,
-  Constants,
-  InputBlock,
-  Camera,
-  RenderTargetTexture,
-  GroundMesh,
-} from "@babylonjs/core";
+import { Scene, Engine, Vector3, ArcRotateCamera, Color4 } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import { initScene } from "./init-scene";
-import { IdGenerator } from "@speed-dungeon/common";
-import { updateDebugText } from "./model-manager/update-debug-text";
-import { ModelManager } from "./model-manager";
-import { handleGameWorldViewError } from "./handle-game-world-view-error";
-import { clearFloorTexture } from "./clear-floor-texture";
-import { drawCharacterSlots } from "./draw-character-slots";
-import { SavedMaterials, createDefaultMaterials } from "./materials/create-default-materials";
-import { ImageManager } from "./image-manager";
-import pixelationShader from "./materials/node-materials/pixelation.json";
-import { ActionEntityModelManager } from "./scene-entities/action-entity-models";
-import { fillDynamicTextureWithSvg } from "@/utils";
-import { AppStore } from "@/mobx-stores/app-store";
-import { ReplayTreeProcessorManager } from "@/replay-tree-manager";
-
-export const LAYER_MASK_1 = 0x10000000;
-export const LAYER_MASK_ALL = 0xffffffff;
+import { IdGenerator, invariant } from "@speed-dungeon/common";
+import { ClientApplication } from "@/client-application";
+import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
+import { MaterialManager } from "./materials/material-manager";
+import { ImageGenerator } from "./images/image-generator";
+import { TextureManager } from "./textures/texture-manager";
+import { GameWorldViewDebug } from "./debug";
+import { LAYER_MASK_ALL } from "./game-world-view-consts";
+import { EnvironmentView } from "./environment";
+import { SceneEntityService } from "./scene-entity-service/index";
 
 export class GameWorldView {
-  engine: Engine;
-  scene: Scene;
-  camera: ArcRotateCamera | null = null;
-  portraitCamera: ArcRotateCamera;
-  sun: Mesh;
-  ground: GroundMesh;
-  // shadowGenerator: null | ShadowGenerator = null;
-  mouse: Vector3 = new Vector3(0, 1, 0);
-  debug: { debugRef: React.RefObject<HTMLUListElement | null> | null } = { debugRef: null };
-  useShadows: boolean = false;
-  modelManager: ModelManager = new ModelManager(this);
-  actionEntityManager = new ActionEntityModelManager();
-  groundTexture: DynamicTexture;
-  defaultMaterials: SavedMaterials;
-  // imageCreationDefaultMaterials: SavedMaterials;
-  numImagesBeingCreated: number = 0;
-  imageManager: ImageManager = new ImageManager();
-  portraitRenderTarget: RenderTargetTexture;
-  replayTreeManager = new ReplayTreeProcessorManager();
-  idGenerator = new IdGenerator({ saveHistory: false });
-  tickCounter: number = 0;
-  targetIndicatorTexture: DynamicTexture;
+  readonly engine: Engine;
+  readonly scene: Scene;
+  readonly environment: EnvironmentView;
+  readonly camera: ArcRotateCamera;
+  readonly materialManager: MaterialManager;
+  readonly textureManager: TextureManager;
+  readonly idGenerator = new IdGenerator({ saveHistory: false });
+  readonly id = this.idGenerator.generate();
 
-  constructor(
-    public canvas: HTMLCanvasElement,
-    debugRef: React.RefObject<HTMLUListElement | null>
-  ) {
-    AppStore.get().targetIndicatorStore.initialize(this);
+  private _clientApplication: ClientApplication | null = null;
+  private _sceneEntityService: SceneEntityService | null = null;
+  private _imageGenerator: ImageGenerator | null = null;
+  private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
+  private _debug: GameWorldViewDebug | null = null;
 
-    // this.imageCreatorEngine = new Engine(imageCreatorCanvas, false);
-    // this.imageCreatorScene = createImageCreatorScene(this.imageCreatorEngine);
-
+  constructor(readonly canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
-
-    // this.engine.setHardwareScalingLevel(10); // renders at lower resolutions
-    this.debug.debugRef = debugRef;
-    [this.camera, this.sun, this.groundTexture, this.ground] = this.initScene();
-    this.camera.layerMask = LAYER_MASK_ALL;
-    this.defaultMaterials = createDefaultMaterials(this.scene);
-    this.scene.activeCamera = this.camera;
-
-    this.portraitCamera = new ArcRotateCamera(
-      "portrait camera",
-      0,
-      0,
-      0,
-      Vector3.Zero(),
-      this.scene
-    );
-
-    this.portraitCamera.minZ = 0;
-    this.portraitCamera.layerMask = LAYER_MASK_1;
-
-    this.portraitRenderTarget = new RenderTargetTexture(
-      "portraitTexture",
-      { width: 100, height: 100 },
-      this.scene
-    );
-
-    this.portraitCamera.outputRenderTarget = this.portraitRenderTarget;
-
-    const targetIndicatorTexture = new DynamicTexture(
-      "target indicator texture",
-      256,
-      this.scene,
-      false
-    );
-    targetIndicatorTexture.hasAlpha = true;
-
-    const targetImageUrl = "/img/game-ui-icons/target-icon.svg";
-    fillDynamicTextureWithSvg(targetImageUrl, targetIndicatorTexture, {
-      strokeColor: "white",
-      fillColor: "white",
-    });
-    this.targetIndicatorTexture = targetIndicatorTexture;
-
-    // PIXELATION FILTER
-    // pixelate(this.camera, this.scene);
+    this.scene.clearColor = new Color4(0, 0, 0, 0);
+    this.materialManager = new MaterialManager(this.scene);
+    this.textureManager = new TextureManager(this.scene);
+    this.camera = this.createMainCamera();
+    this.environment = new EnvironmentView(this.scene);
+    this.environment.groundPlane.clear();
 
     this.engine.runRenderLoop(() => {
-      this.updateGameWorld();
+      this.updateGameWorld(this.engine.getDeltaTime());
       this.scene.render();
     });
-
-    // testingSounds();
-
-    // const particleSystems = testParticleSystem(this.scene);
-    // particleSystems.forEach((system) => system.start());
-
-    // this.startLimitedFramerateRenderLoop(5, 3000);
   }
 
-  updateGameWorld() {
-    this.tickCounter += 1;
-    this.updateDebugText();
-    if (this.replayTreeManager.currentTreeCompleted()) {
-      this.replayTreeManager.startNext();
-    }
-    this.replayTreeManager.process();
+  initialize(
+    clientApplication: ClientApplication,
+    uiDebugDisplayRef: React.RefObject<HTMLUListElement | null>
+  ) {
+    this._clientApplication = clientApplication;
+    this._itemSceneEntityFactory = new ItemSceneEntityFactory(
+      clientApplication.assetService,
+      clientApplication.floatingMessagesService,
+      this.scene,
+      this.materialManager
+    );
+    this._imageGenerator = new ImageGenerator(clientApplication, this);
 
-    if (
-      !this.modelManager.modelActionQueue.isProcessing &&
-      this.modelManager.modelActionQueue.messages.length
-    )
-      this.modelManager.modelActionQueue.processMessages();
+    this._sceneEntityService = new SceneEntityService(clientApplication, this);
+    this._debug = new GameWorldViewDebug(clientApplication, this);
+    clientApplication.targetIndicatorStore.initialize(this);
 
-    for (const actionEntityModel of this.actionEntityManager.getAll()) {
-      actionEntityModel.movementManager.processActiveActions();
-      actionEntityModel.dynamicAnimationManager.playing?.animationGroup?.animateScene(
-        actionEntityModel.dynamicAnimationManager.assetContainer
-      );
-      actionEntityModel.dynamicAnimationManager.handleCompletedAnimations();
-      actionEntityModel.dynamicAnimationManager.stepAnimationTransitionWeights();
-    }
-
-    for (const combatantModel of Object.values(this.modelManager.combatantModels)) {
-      combatantModel.highlightManager.updateHighlight();
-
-      combatantModel.movementManager.processActiveActions();
-      combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
-      combatantModel.skeletalAnimationManager.handleCompletedAnimations();
-      combatantModel.updateDomRefPosition();
-      combatantModel.targetingIndicatorBillboardManager.updateBillboardPositions();
-    }
+    this._debug.uiDebugDisplayRef = uiDebugDisplayRef;
   }
 
-  handleError = handleGameWorldViewError;
-  initScene = initScene;
-  clearFloorTexture = clearFloorTexture;
-  drawCharacterSlots = drawCharacterSlots;
-  updateDebugText = updateDebugText;
-
-  startLimitedFramerateRenderLoop(fps: number, timeout: number) {
-    window.setTimeout(() => {
-      this.engine.stopRenderLoop();
-      let lastTime = new Date().getTime();
-      // const fpsLabel = document.getElementsByClassName("fps")[0];
-      window.setInterval(() => {
-        this.updateGameWorld();
-        this.scene.render();
-        let curTime = new Date().getTime();
-        // fpsLabel.innerHTML = (1000 / (curTime - lastTime)).toFixed() + " fps";
-        lastTime = curTime;
-      }, 1000 / fps);
-    }, timeout);
+  get initialized() {
+    return this._clientApplication !== null;
   }
-}
 
-export function pixelate(camera: Camera, scene: Scene, value: number = 3.8) {
-  const nodeMaterial = NodeMaterial.Parse(pixelationShader, scene);
-  nodeMaterial.build();
-  const postProcess = nodeMaterial.createPostProcess(camera, 1.0, Constants.TEXTURE_LINEAR_LINEAR);
+  createMainCamera() {
+    const camera = new ArcRotateCamera("camera", 0, 0, 0, new Vector3(0, 1, 0), this.scene);
+    camera.alpha = Math.PI / 2;
+    camera.beta = (Math.PI / 5) * 2;
+    camera.radius = 4.28;
+    camera.wheelDeltaPercentage = 0.01;
+    camera.attachControl();
+    camera.minZ = 0;
+    camera.layerMask = LAYER_MASK_ALL;
 
-  if (!postProcess) return;
+    return camera;
+  }
 
-  postProcess.samples = 4;
+  setDefaultCameraPositionForGame() {
+    const { camera } = this;
+    camera.target.copyFrom(new Vector3(-1, 0.85, 0.51));
+    camera.alpha = 4.7;
+    camera.beta = 1.06;
+    camera.radius = 10.94;
+  }
 
-  const pixelateX = nodeMaterial.getBlockByName("pixelateSizeX") as InputBlock;
-  const pixelateY = nodeMaterial.getBlockByName("pixelateSizeY") as InputBlock;
-  if (pixelateX) pixelateX.value = value;
-  if (pixelateY) pixelateY.value = value;
+  static NOT_INITIALIZED = "GameWorldView not initialized with ClientApplication";
+
+  get clientApplication() {
+    invariant(this._clientApplication !== null, GameWorldView.NOT_INITIALIZED);
+    return this._clientApplication;
+  }
+  get sceneEntityService() {
+    invariant(this._sceneEntityService !== null, GameWorldView.NOT_INITIALIZED);
+    return this._sceneEntityService;
+  }
+  get itemSceneEntityFactory() {
+    invariant(this._itemSceneEntityFactory !== null, GameWorldView.NOT_INITIALIZED);
+    return this._itemSceneEntityFactory;
+  }
+  get imageGenerator() {
+    invariant(this._imageGenerator !== null, GameWorldView.NOT_INITIALIZED);
+    return this._imageGenerator;
+  }
+  get debug() {
+    invariant(this._debug !== null, GameWorldView.NOT_INITIALIZED);
+    return this._debug;
+  }
+
+  dispose() {
+    this.scene.dispose();
+    this.engine.dispose();
+  }
+
+  updateGameWorld(deltaTime: number) {
+    this.debug.updateDebugText();
+    this._sceneEntityService?.updateEntities(deltaTime);
+  }
+
+  handleError(error: Error) {
+    console.error("critical error in GameWorldView, stopping render loop:", error);
+    this.engine.stopRenderLoop();
+  }
 }

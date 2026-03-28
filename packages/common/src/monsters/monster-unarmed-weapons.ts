@@ -1,15 +1,14 @@
+import { EntityName } from "../aliases.js";
 import {
   ResourceChangeSource,
   ResourceChangeSourceCategory,
 } from "../combat/hp-change-source-types.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
-import {
-  Equipment,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-} from "../items/equipment/index.js";
+import { EquipmentType } from "../items/equipment/equipment-types/index.js";
+import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
+import { Equipment } from "../items/equipment/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
 import { NumberRange } from "../primatives/number-range.js";
 import { MonsterType } from "./monster-types.js";
@@ -18,12 +17,11 @@ export const MONSTER_UNARMED_WEAPONS: Record<
   MonsterType,
   null | Partial<Record<HoldableSlotType, Equipment>>
 > = {
-  [MonsterType.MetallicGolem]: null,
   [MonsterType.Wolf]: {
     [HoldableSlotType.MainHand]: new Equipment(
       {
         id: "wolf default main hand weapon id",
-        name: "wolf default main hand weapon",
+        name: "wolf default main hand weapon" as EntityName,
       },
       1,
       {},
@@ -46,7 +44,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     [HoldableSlotType.OffHand]: new Equipment(
       {
         id: "wolf default off hand weapon id",
-        name: "wolf default off hand weapon",
+        name: "wolf default off hand weapon" as EntityName,
       },
       1,
       {},
@@ -68,19 +66,13 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     ),
   },
 
-  [MonsterType.Zombie]: null,
-  [MonsterType.SkeletonArcher]: null,
-  [MonsterType.Scavenger]: null,
-  [MonsterType.Vulture]: null,
   [MonsterType.FireMage]: null,
-  [MonsterType.FireElemental]: null,
-  [MonsterType.IceElemental]: null,
   [MonsterType.Cultist]: null,
   [MonsterType.Spider]: {
     [HoldableSlotType.MainHand]: new Equipment(
       {
         id: "spider default main hand weapon id",
-        name: "spider default main hand weapon",
+        name: "spider default main hand weapon" as EntityName,
       },
       1,
       {},
@@ -106,7 +98,7 @@ export const MONSTER_UNARMED_WEAPONS: Record<
     [HoldableSlotType.MainHand]: new Equipment(
       {
         id: "manta ray default main hand weapon id",
-        name: "manta ray default main hand weapon",
+        name: "manta ray default main hand weapon" as EntityName,
       },
       1,
       {},

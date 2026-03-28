@@ -1,4 +1,5 @@
-import { COMBAT_ACTIONS } from "../../../combat/index.js";
+import { CombatantId } from "../../../aliases.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { CombatantConditionFactory } from "../../../conditions/condition-factory.js";
 import { HitOutcome } from "../../../hit-outcome.js";
@@ -52,7 +53,7 @@ export function handleHit(
         condition.id,
         numStacksRemoved,
         gameUpdateCommand,
-        targetCombatant.entityProperties.id
+        targetCombatant.getEntityId()
       );
     }
   }

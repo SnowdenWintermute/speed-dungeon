@@ -1,22 +1,21 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { ClientToServerEvent, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
+import { ClientIntentType, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { SPACING_REM_LARGE } from "@/client_consts";
+import { SPACING_REM_LARGE } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   children: ReactNode;
 }
 
 export const GameLobby = observer(({ children }: Props) => {
-  const { gameStore } = AppStore.get();
-  const game = gameStore.getGameOption();
-  if (game === null) return <div>Loading...</div>;
+  const { session, gameContext, lobbyClientRef } = useClientApplication();
+  const { gameOption } = gameContext;
+  if (gameOption === null) return <div>Loading...</div>;
   const titleRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
 
@@ -34,14 +33,20 @@ export const GameLobby = observer(({ children }: Props) => {
   }, []);
 
   function leaveGame() {
-    websocketConnection.emit(ClientToServerEvent.LeaveGame);
+    lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.LeaveGame,
+      data: undefined,
+    });
   }
   function toggleReady() {
-    websocketConnection.emit(ClientToServerEvent.ToggleReadyToStartGame);
+    lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.ToggleReadyToStartGame,
+      data: undefined,
+    });
   }
 
-  const username = gameStore.getExpectedUsername();
-  const isReady = game.playersReadied.includes(username);
+  const username = session.requireUsername();
+  const isReady = gameOption.playersReadied.includes(username);
   const readyStyle = isReady ? "bg-green-800" : "";
 
   return (
@@ -52,15 +57,15 @@ export const GameLobby = observer(({ children }: Props) => {
         className="p-2 border-slate-400 border-b bg-slate-700 h-fit w-full relative pointer-events-auto flex"
       >
         <div className="mr-4">
-          <h2 className="text-xl">{game.name}</h2>
-          <h4 className="text-slate-400">{formatGameMode(game.mode) + " game"}</h4>
+          <h2 className="text-xl">{gameOption.name}</h2>
+          <h4 className="text-slate-400">{formatGameMode(gameOption.mode) + " game"}</h4>
         </div>
         <div className="w-[1px] h-full bg-slate-400 mr-4" />
         <ul className="flex items-center">
           <div className="text-lg mr-2">Players:</div>
-          {Object.values(game.players).map((player) => (
+          {Array.from(gameOption.players).map(([username, player]) => (
             <PlayerInGameIcon
-              playersReadied={game.playersReadied}
+              playersReadied={gameOption.playersReadied}
               player={player}
               key={player.username}
             />

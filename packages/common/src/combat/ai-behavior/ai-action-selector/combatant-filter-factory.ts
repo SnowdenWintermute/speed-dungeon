@@ -2,7 +2,7 @@ import { ActionUserContext } from "../../../action-user-context/index.js";
 import { CombatantManager } from "../../../adventuring-party/combatant-manager.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ActionUserType, AdventuringParty, IActionUser } from "../../../index.js";
-import { EntityId, NormalizedPercentage } from "../../../primatives/index.js";
+import { EntityId, NormalizedPercentage } from "../../../aliases.js";
 import {
   FriendOrFoe,
   TargetCategories,

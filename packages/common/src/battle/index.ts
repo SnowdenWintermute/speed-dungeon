@@ -1,38 +1,44 @@
 import { makeAutoObservable } from "mobx";
-import { BattleResultActionCommandPayload } from "../action-processing/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { FriendOrFoe, TurnOrderManager } from "../combat/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { runIfInBrowser } from "../index.js";
-import { EntityId } from "../primatives/index.js";
-import { IdGenerator } from "../utility-classes/index.js";
+import { Consumable, Equipment, FriendOrFoe } from "../index.js";
+import { CombatantId, EntityId } from "../aliases.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
-export class Battle {
+export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
-  constructor(
-    public id: EntityId,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ) {
-    this.turnOrderManager = new TurnOrderManager(game, party);
+  constructor(public id: EntityId) {
+    this.turnOrderManager = new TurnOrderManager();
+  }
+
+  makeObservable(): void {
+    makeAutoObservable(this);
+    this.turnOrderManager.makeObservable();
+  }
+
+  toSerialized() {
+    return {
+      id: this.id,
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<Battle>) {
+    return new Battle(serialized.id);
+  }
+
+  initialize(game: SpeedDungeonGame, party: AdventuringParty) {
     party.combatantManager.refillAllCombatantActionPoints();
-    runIfInBrowser(() => makeAutoObservable(this));
+    game.battles.set(this.id, this);
+    this.turnOrderManager.turnSchedulerManager.createSchedulers(party);
+    this.turnOrderManager.updateTrackers(game, party);
   }
 
-  static createInitialized(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    idGenerator: IdGenerator
-  ) {
-    const battle = new Battle(idGenerator.generate(), game, party);
-    game.battles[battle.id] = battle;
-    battle.turnOrderManager.updateTrackers(game, party);
+  static createInitialized(game: SpeedDungeonGame, party: AdventuringParty, id: EntityId) {
+    const battle = new Battle(id);
+    battle.initialize(game, party);
     return battle.id;
-  }
-
-  static getDeserialized(battle: Battle, game: SpeedDungeonGame, party: AdventuringParty) {
-    return new Battle(battle.id, game, party);
   }
 
   static invertAllyAndOpponentIds(
@@ -49,15 +55,14 @@ export class Battle {
   static handleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    payload: BattleResultActionCommandPayload
+    experiencePointChanges: Record<CombatantId, number>,
+    loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] }
   ) {
-    const { experiencePointChanges, loot } = payload;
-
     if (loot) {
       party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
     }
     applyExperiencePointChanges(party, experiencePointChanges);
-    const levelUps: { [entityId: string]: number } = {};
+    const levelUps: Record<EntityId, number> = {};
 
     const { combatantManager } = party;
     const partyMembers = combatantManager.getPartyMemberCombatants();
@@ -76,8 +81,10 @@ export class Battle {
     combatantManager.removeNeutralCombatants(game);
 
     const battleIdToRemoveOption = party.battleId;
-    party.battleId = null;
-    if (battleIdToRemoveOption !== null) delete game.battles[battleIdToRemoveOption];
+    party.setBattleId(null);
+    if (battleIdToRemoveOption !== null) {
+      game.battles.delete(battleIdToRemoveOption);
+    }
 
     return levelUps;
   }

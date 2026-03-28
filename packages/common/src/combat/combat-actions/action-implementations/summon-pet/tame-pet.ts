@@ -1,12 +1,3 @@
-import {
-  BASE_ACTION_HIERARCHY_PROPERTIES,
-  CombatActionComponentConfig,
-  CombatActionGameLogProperties,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionOrigin,
-  CombatActionResource,
-} from "../../index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
@@ -29,6 +20,15 @@ import { TAME_PET_STEP_CONFIG } from "./tame-pet-steps-config.js";
 import { AbilityType } from "../../../../abilities/ability-types.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { COMBATANT_MAX_LEVEL } from "../../../../app-consts.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionComponentConfig } from "../../index.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
+import { CombatActionLeaf } from "../../combat-action-leaf.js";
+import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
+import { CombatantId } from "../../../../aliases.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -79,7 +79,8 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const rawChanceToResist = (percentOfMaxHitPoints + levelDifferenceMultiplier) * 100;
       const chanceToResist = Math.min(100, rawChanceToResist);
 
-      return chanceToResist;
+      return 0;
+      // return chanceToResist;
     },
 
     getHitOutcomeTriggers: (context) => {
@@ -92,19 +93,15 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 
       return {
         petsTamed: [
-          { petId: hitTargetId, tamerId: context.actionUserContext.actionUser.getEntityId() },
+          {
+            petId: hitTargetId as CombatantId,
+            tamerId: context.actionUserContext.actionUser.getEntityId() as CombatantId,
+          },
         ],
       };
     },
   }
 );
-
-export function getTamePetMaxPetLevel(actionRank: number) {
-  const BASE_SUMMONED_PET_LEVEL = 4;
-  const PET_LEVEL_PER_SUMMON_PET_RANK = 2;
-  const levelBonus = PET_LEVEL_PER_SUMMON_PET_RANK * actionRank;
-  return BASE_SUMMONED_PET_LEVEL + levelBonus;
-}
 
 const config: CombatActionComponentConfig = {
   description: "Attempt to convince a creature to join your pack.",

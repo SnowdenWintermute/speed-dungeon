@@ -1,6 +1,6 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId, Milliseconds } from "../../primatives/index.js";
+import { EntityId, Milliseconds } from "../../aliases.js";
 import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import {
   BASE_ACTION_DELAY,
@@ -10,18 +10,17 @@ import {
 import { TurnTrackerEntityType } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
-import { runIfInBrowser } from "../../utils/index.js";
 import { makeAutoObservable } from "mobx";
+import { ERROR_MESSAGES } from "../../errors/index.js";
+import { ReactiveNode } from "../../serialization/index.js";
 
-export class TurnOrderManager {
+export class TurnOrderManager implements ReactiveNode {
   private minTrackersCount: number = 12;
-  turnSchedulerManager: TurnSchedulerManager;
   private turnTrackers: TurnTracker[] = [];
-  constructor(game: SpeedDungeonGame, party: AdventuringParty) {
-    this.turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount, party);
-    this.updateTrackers(game, party);
+  turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount);
 
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable(): void {
+    makeAutoObservable(this);
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
@@ -83,6 +82,17 @@ export class TurnOrderManager {
       taggedIdOfTrackedEntity.type === TurnTrackerEntityType.Combatant &&
       taggedIdOfTrackedEntity.combatantId === combatantId
     );
+  }
+
+  requireActionUserFirstInTurnOrder(id: EntityId) {
+    const isCombatantTurn = this.combatantIsFirstInTurnOrder(id);
+    if (!isCombatantTurn) {
+      console.info(`
+      actual first action user: ${this.getFastestActorTurnOrderTracker().getEntityId()},
+      you attempted to move as ${id}`);
+
+      throw new Error(`${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE}`);
+    }
   }
 
   updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {

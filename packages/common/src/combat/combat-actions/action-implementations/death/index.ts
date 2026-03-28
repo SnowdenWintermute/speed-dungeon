@@ -1,17 +1,4 @@
-import {
-  ActionResolutionStepsConfig,
-  BASE_ACTION_HIERARCHY_PROPERTIES,
-  CombatActionComponentConfig,
-  CombatActionIntent,
-  CombatActionLeaf,
-  CombatActionName,
-  CombatActionResource,
-} from "../../index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
-import {
-  CombatActionGameLogProperties,
-  CombatActionOrigin,
-} from "../../combat-action-combat-log-properties.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
@@ -26,6 +13,15 @@ import {
   ResourceChangeSourceCategory,
 } from "../../../hp-change-source-types.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
+import { CombatActionIntent } from "../../combat-action-intent.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
+import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionLeaf } from "../../combat-action-leaf.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
+import { CombatActionComponentConfig } from "../../index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_IN_COMBAT,

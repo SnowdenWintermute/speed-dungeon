@@ -1,29 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import { ZIndexLayers } from "../z-index-layers";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { ModifierKey } from "@/mobx-stores/input";
-import { gameWorldView } from "./SceneManager";
-import { drawCompass, drawDebugGrid } from "@/game-world-view/clear-floor-texture";
-
-function getGpuName() {
-  if (gameWorldView.current === null) return;
-
-  const babylonGl = gameWorldView.current.engine._gl;
-  if (!babylonGl) return "Unknown GPU";
-
-  // Use the standard WebGL parameter instead of the deprecated extension
-  const renderer = babylonGl.getParameter(babylonGl.RENDERER);
-  return renderer || "Unknown GPU";
-}
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 export const DebugText = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
-    const { dialogStore, inputStore, imageStore } = AppStore.get();
+    const clientApplication = useClientApplication();
+    const { uiStore, gameWorldView, imageStore } = clientApplication;
+    const { dialogs, inputs } = uiStore;
     const itemThumbnails = imageStore.getItemThumbnails();
-    const showDebug = dialogStore.isOpen(DialogElementName.Debug);
-    const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
+    const showDebug = dialogs.isOpen(DialogElementName.Debug);
+    const hotkeysDisabled = inputs.getHotkeysDisabled();
     const headerRef = useRef<HTMLDivElement>(null);
     const keydownListenerRef = useRef<(e: KeyboardEvent) => void>(null);
     const mouseDownListenerRef = useRef<(e: MouseEvent) => void>(null);
@@ -36,7 +26,8 @@ export const DebugText = observer(
     const [gpuName, setGpuName] = useState("getting GPU name...");
 
     useEffect(() => {
-      const gpuName = getGpuName();
+      if (!gameWorldView?.initialized) return;
+      const gpuName = gameWorldView?.debug.getGpuName();
       // console.info(
       //   "User Agent:",
       //   navigator.userAgent,
@@ -46,31 +37,20 @@ export const DebugText = observer(
       //   navigator.hardwareConcurrency,
       // );
       setGpuName(gpuName);
-    }, [gameWorldView.current]);
+    }, [gameWorldView, gameWorldView?.initialized]);
 
     useEffect(() => {
       keydownListenerRef.current = function (e: KeyboardEvent) {
         if (e.code !== "KeyP" || hotkeysDisabled) return;
 
-        dialogStore.toggle(DialogElementName.Debug);
-        const showDebug = dialogStore.isOpen(DialogElementName.Debug);
+        dialogs.toggle(DialogElementName.Debug);
+        const showDebug = dialogs.isOpen(DialogElementName.Debug);
 
-        if (gameWorldView.current) {
+        if (gameWorldView?.initialized) {
           if (showDebug) {
-            drawCompass(gameWorldView.current);
-            drawDebugGrid(gameWorldView.current);
+            gameWorldView.debug.show();
           } else {
-            gameWorldView.current.clearFloorTexture();
-          }
-
-          for (const modularCharacter of Object.values(
-            gameWorldView.current.modelManager.combatantModels
-          )) {
-            if (showDebug) modularCharacter.setUpDebugMeshes();
-            else modularCharacter.despawnDebugMeshes();
-            modularCharacter.rootMesh.showBoundingBox = showDebug;
-            if (modularCharacter.highlightManager.targetingIndicator)
-              modularCharacter.highlightManager.targetingIndicator.showBoundingBox = showDebug;
+            gameWorldView.debug.hide();
           }
         }
       };
@@ -116,19 +96,20 @@ export const DebugText = observer(
         if (mouseMoveListenerRef.current)
           window.removeEventListener("mousemove", mouseMoveListenerRef.current);
       };
-    }, [hotkeysDisabled]);
+    }, [hotkeysDisabled, gameWorldView?.initialized]);
 
-    const partyOption = AppStore.get().gameStore.getPartyOption();
+    const { gameContext } = clientApplication;
+    const { partyOption } = gameContext;
     const inputLockStatus = partyOption
       ? JSON.stringify(partyOption.inputLock.isLocked())
       : "no party";
 
-    const alternateClickKeyHeld = inputStore.getKeyIsHeld(ModifierKey.AlternateClick);
-    const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
+    const alternateClickKeyHeld = inputs.getKeyIsHeld(ModifierKey.AlternateClick);
+    const modKeyHeld = inputs.getKeyIsHeld(ModifierKey.Mod);
 
     return (
       <div
-        className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
+        className={`absolute bottom-10 left-10 opacity-80 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
         style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
       >
         <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>
@@ -136,7 +117,7 @@ export const DebugText = observer(
           <button
             className="h-full p-2 border-l border-white"
             onClick={() => {
-              dialogStore.close(DialogElementName.Debug);
+              dialogs.close(DialogElementName.Debug);
             }}
           >
             Hide

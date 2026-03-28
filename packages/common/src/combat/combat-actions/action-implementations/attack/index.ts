@@ -1,25 +1,25 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponent,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
-import { CombatantEquipment } from "../../../../combatants/index.js";
-import {
-  ActionResolutionStepContext,
-  ActionResolutionStepType,
-} from "../../../../action-processing/index.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
-import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
   createHitOutcomeProperties,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import {
+  CombatActionComponent,
+  CombatActionComponentConfig,
+  CombatActionComposite,
+} from "../../index.js";
+import {
+  ActionResolutionStepContext,
+  ActionResolutionStepType,
+} from "../../../../action-processing/action-steps/index.js";
+import { CombatantEquipment } from "../../../../combatants/combatant-equipment/index.js";
 
 // placeholder since all this action does is get children
 const hitOutcomeProperties = createHitOutcomeProperties(

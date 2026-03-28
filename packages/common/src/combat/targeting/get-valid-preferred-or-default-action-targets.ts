@@ -1,5 +1,4 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonPlayer } from "../../game/index.js";
 import { iterateNumericEnum } from "../../utils/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import {
@@ -8,8 +7,10 @@ import {
 } from "../combat-actions/targeting-schemes-and-categories.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
+import { SpeedDungeonPlayer } from "../../game/player.js";
+import { CombatActionIntent } from "../combat-actions/combat-action-intent.js";
 
 export function getValidPreferredOrDefaultActionTargets(
   actionUser: IActionUser,
@@ -55,6 +56,9 @@ export function getValidPreferredOrDefaultActionTargets(
                   [...allyIds, ...neutralIds]
                 );
                 break;
+              case FriendOrFoe.Neutral: {
+                // don't assign any target yet
+              }
             }
           }
           // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
@@ -92,6 +96,8 @@ export function getValidPreferredOrDefaultActionTargets(
     }
   }
 
+  const actionIntent = COMBAT_ACTIONS[actionName].targetingProperties.intent;
+
   // IF NO VALID TARGET IN PREFERRED SCHEME OR PREFERRED SCHEME NOT VALID GET ANY VALID TARGET
   const targetingProperties = actionUser.getTargetingProperties();
   const selectedTargetingSchemeOption = targetingProperties.getSelectedTargetingScheme();
@@ -108,18 +114,23 @@ export function getValidPreferredOrDefaultActionTargets(
 
     switch (targetingScheme) {
       case TargetingScheme.Single:
-        for (const category of iterateNumericEnum(FriendOrFoe)) {
-          const idsOption =
-            category === FriendOrFoe.Friendly
-              ? [...allyIds, ...neutralIds]
-              : [...opponentIds, ...neutralIds];
+        switch (actionIntent) {
+          case CombatActionIntent.Benevolent:
+            {
+              const idsOption = [...allyIds, ...neutralIds];
+              newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+            }
+            break;
+          case CombatActionIntent.Malicious:
+            {
+              const idsOption = [...opponentIds, ...neutralIds];
+              newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
+            }
+            break;
+        }
 
-          if (idsOption) {
-            newTargets = getPreferredOrDefaultSingleTargetOption(idsOption[0] || null, idsOption);
-          }
-          if (newTargets) {
-            return newTargets;
-          }
+        if (newTargets) {
+          return newTargets;
         }
         break;
       case TargetingScheme.Area:

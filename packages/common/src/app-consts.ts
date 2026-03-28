@@ -1,4 +1,4 @@
-import { Meters, Milliseconds } from "./primatives/index.js";
+import { Meters, Milliseconds } from "./aliases.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 40;
 
@@ -23,9 +23,6 @@ export const GAME_CONFIG = {
   MIN_RACE_GAME_PARTIES: 2,
 };
 
-export const DEBUG_CONFIG = {
-  SAVE_ID_GENERATOR_HISTORY: true,
-};
 export const MAX_PARTY_SIZE = 3;
 export const NUM_MONSTERS_PER_ROOM = 3;
 // export const NUM_MONSTERS_PER_ROOM = 1;
@@ -44,6 +41,7 @@ export const MAXIMUM_PET_SLOTS = COMBAT_ACTION_MAX_LEVEL;
 export const BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS = 10;
 export const COMBATANT_MAX_ACTION_POINTS = 2;
 export const HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST = 1;
+export const MAX_ACTION_POINTS_COST = 2;
 
 // UI
 export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
@@ -98,7 +96,7 @@ export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 5.0;
 // export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 9;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
-// const arrowMoveSpeedBase = 65;
+// const arrowMoveSpeedBase = 700;
 const arrowMoveSpeedBase = 130;
 // export const ARROW_TIME_TO_MOVE_ONE_METER = 600;
 export const ARROW_TIME_TO_MOVE_ONE_METER = arrowMoveSpeedBase * DEBUG_ANIMATION_SPEED_MULTIPLIER;

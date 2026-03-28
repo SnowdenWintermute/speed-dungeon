@@ -1,13 +1,16 @@
-import { setAlert } from "@/app/components/alerts";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import React from "react";
 import GoogleLogo from "../../../../public/google-logo.svg";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export default function LogInWithGoogleButton({
   setGoogleAuthLoading,
 }: {
   setGoogleAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const clientApplication = useClientApplication();
+  const { alertsService } = clientApplication;
+
   async function startGoogleSignIn() {
     setGoogleAuthLoading(true);
     const requestUriResponse = await fetch(
@@ -21,7 +24,7 @@ export default function LogInWithGoogleButton({
     const asJson = await requestUriResponse.json();
 
     if (typeof asJson.requestUri !== "string") {
-      return setAlert("Couldn't get the google sign in link from the auth server");
+      return alertsService.setAlert("Couldn't get the google sign in link from the auth server");
     }
 
     const width = 500;

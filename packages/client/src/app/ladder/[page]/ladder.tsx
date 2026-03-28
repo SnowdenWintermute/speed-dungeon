@@ -1,4 +1,4 @@
-import { TOP_BAR_HEIGHT_REM } from "@/client_consts";
+import { TOP_BAR_HEIGHT_REM } from "@/client-consts";
 import { LevelLadderEntry } from "@speed-dungeon/common";
 import Link from "next/link";
 import React from "react";

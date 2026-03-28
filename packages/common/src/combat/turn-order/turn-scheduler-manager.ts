@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantCondition } from "../../conditions/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
@@ -22,15 +22,16 @@ export enum TurnTrackerSortableProperty {
 export class TurnSchedulerManager {
   private schedulers: ITurnScheduler[] = [];
 
-  constructor(
-    private minTurnTrackersCount: number,
-    party: AdventuringParty
-  ) {
+  constructor(private minTurnTrackersCount: number) {}
+
+  createSchedulers(party: AdventuringParty) {
     const { combatants, tickableConditions } =
       party.combatantManager.getAllTickableConditionsAndCombatants();
 
     this.schedulers = [
-      ...combatants.map((combatant) => new CombatantTurnScheduler(combatant.entityProperties.id)),
+      ...[...combatants.values()].map(
+        (combatant) => new CombatantTurnScheduler(combatant.getEntityId())
+      ),
       ...tickableConditions.map(
         ({ appliedTo, condition }) => new ConditionTurnScheduler(appliedTo, condition.id)
       ),
@@ -93,7 +94,9 @@ export class TurnSchedulerManager {
 
   getMatchingSchedulerFromTurnOrderTracker(turnOrderTracker: TurnTracker) {
     const schedulerOption = turnOrderTracker.getMatchingScheduler(this.schedulers);
-    if (schedulerOption === undefined) throw new Error("expected turnSchedulerTracker was missing");
+    if (schedulerOption === undefined) {
+      throw new Error("expected turnSchedulerTracker was missing");
+    }
     return schedulerOption;
   }
 

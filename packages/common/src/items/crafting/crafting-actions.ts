@@ -1,9 +1,7 @@
-import {
-  Equipment,
-  EquipmentType,
-  OneHandedMeleeWeapon,
-  TwoHandedMeleeWeapon,
-} from "../equipment/index.js";
+import { EquipmentType } from "../equipment/equipment-types/index.js";
+import { OneHandedMeleeWeapon } from "../equipment/equipment-types/one-handed-melee-weapon.js";
+import { TwoHandedMeleeWeapon } from "../equipment/equipment-types/two-handed-melee-weapon.js";
+import { Equipment } from "../equipment/index.js";
 
 export enum CraftingAction {
   Repair, // Restore item to full durability

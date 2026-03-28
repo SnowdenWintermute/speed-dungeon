@@ -12,9 +12,9 @@ import {
 import { MagicalElement } from "../../../magical-elements.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
-import { CombatAttribute } from "../../../../combatants/index.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
 import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.resourceChangePropertiesGetters = {

@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 import { ZIndexLayers } from "./z-index-layers";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const TooltipManager = observer(() => {
-  const { text, position } = AppStore.get().tooltipStore.get();
+  const { text, position } = useClientApplication().uiStore.tooltips.get();
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   if (position === null) return <></>;

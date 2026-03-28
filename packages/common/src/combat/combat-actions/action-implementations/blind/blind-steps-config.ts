@@ -1,5 +1,5 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import {
   CombatantBaseChildTransformNodeName,
   SceneEntityType,

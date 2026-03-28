@@ -1,8 +1,8 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { createStepsConfig } from "../generic-action-templates/step-config-templates/index.js";
 import { BURNING_TICK_STEPS_CONFIG } from "../burning-tick/burning-tick-steps-config.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 

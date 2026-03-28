@@ -35,12 +35,15 @@ COPY --from=buildDeps /app/node_modules ./node_modules
 # COPY --from=deployDeps /app/packages/server/node_modules ./packages/server/node_modules
 
 COPY packages/common/ ./packages/common/
+COPY packages/server/assets ./packages/server/assets
 COPY packages/server/src ./packages/server/src
 COPY packages/server/tsconfig.json ./packages/server/
 COPY tsconfig.json .
 
 WORKDIR /app/packages/common
-RUN tsc && echo compiled common directory
+RUN rm tsconfig.tsbuildinfo
+RUN rm -rf ./dist
+RUN tsc -p tsconfig.build.json && echo compiled common directory
 
 WORKDIR /app/packages/server
 RUN tsc && echo compiled server directory
@@ -48,6 +51,7 @@ RUN tsc && echo compiled server directory
 FROM node:alpine
 WORKDIR /app
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/packages/server/assets ./packages/server/assets
 COPY --from=builder /app/packages/server/dist ./packages/server/dist
 COPY --from=builder /app/packages/server/src/database/migrations ./packages/server/src/database/migrations
 COPY --from=builder /app/packages/common/dist ./packages/common/dist

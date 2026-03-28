@@ -1,56 +1,207 @@
-export * from "./player.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
-import { EntityId } from "../primatives/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
 import { GameMode } from "../types.js";
-import { MAX_PARTY_SIZE } from "../app-consts.js";
+import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { runIfInBrowser } from "../utils/index.js";
 import { Combatant } from "../combatants/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { GAME_CHANNEL_PREFIX } from "../packets/channels.js";
+import {
+  ChannelName,
+  CombatantId,
+  EntityId,
+  GameId,
+  GameName,
+  PartyName,
+  Username,
+} from "../aliases.js";
+import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
+import { UserId } from "../servers/sessions/user-ids.js";
+import {
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+  makePropertiesObservable,
+} from "../serialization/index.js";
+import { MapUtils } from "../utils/map-utils.js";
 
-export class SpeedDungeonGame {
-  players: { [username: string]: SpeedDungeonPlayer } = {};
+export class SpeedDungeonGame implements Serializable, ReactiveNode {
+  players = new Map<Username, SpeedDungeonPlayer>();
   playerCapacity: number | null = null;
-  playersReadied: string[] = [];
-  adventuringParties: { [partyName: string]: AdventuringParty } = {};
-  battles: { [id: EntityId]: Battle } = {};
-  timeStarted: null | number = null;
-  lowestStartingFloorOptionsBySavedCharacter: { [entityId: string]: number } = {};
+  playersReadied: Username[] = [];
+  adventuringParties = new Map<PartyName, AdventuringParty>();
+  battles = new Map<EntityId, Battle>();
+  private timeStarted: null | number = null;
+  timeHandedOff: null | number = null;
+  lowestStartingFloorOptionsBySavedCharacter = new Map<EntityId, number>();
   selectedStartingFloor: number = 1;
+  inputLock = new ReferenceCountedLock<UserId>();
   constructor(
-    public id: string,
-    public name: string,
+    public id: GameId,
+    public name: GameName,
     public mode: GameMode,
     public gameCreator: string | null = null,
     public isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  getSerialized() {
-    const serialized = instanceToPlain(this) as SpeedDungeonGame;
-    return serialized;
+  makeObservable() {
+    makeAutoObservable(this);
+    for (const [_, player] of this.players) {
+      player.makeObservable();
+    }
+    for (const [_, party] of this.adventuringParties) {
+      party.makeObservable();
+    }
+    for (const [_, battle] of this.battles) {
+      battle.makeObservable();
+    }
+    makePropertiesObservable(this);
   }
 
-  static getDeserialized(game: SpeedDungeonGame) {
-    const deserialized = plainToInstance(SpeedDungeonGame, game);
+  toSerialized() {
+    return {
+      id: this.id,
+      name: this.name,
+      mode: this.mode,
+      gameCreator: this.gameCreator,
+      isRanked: this.isRanked,
+      players: MapUtils.serialize(this.players, (v) => v.toSerialized()),
+      playerCapacity: this.playerCapacity,
+      playersReadied: this.playersReadied,
+      adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
+      battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
+      timeStarted: this.timeStarted,
+      timeHandedOff: this.timeHandedOff,
+      lowestStartingFloorOptionsBySavedCharacter: MapUtils.serialize(
+        this.lowestStartingFloorOptionsBySavedCharacter
+      ),
+      selectedStartingFloor: this.selectedStartingFloor,
+      inputLock: this.inputLock.toSerialized(),
+    };
+  }
 
-    for (const [partyId, party] of Object.entries(deserialized.adventuringParties)) {
-      const deserializedParty = AdventuringParty.getDeserialized(party);
-      deserialized.adventuringParties[partyId] = deserializedParty;
+  static fromSerialized(serialized: SerializedOf<SpeedDungeonGame>) {
+    const { id, name, mode, gameCreator, isRanked } = serialized;
+    const result = new SpeedDungeonGame(id, name, mode, gameCreator, isRanked);
+    result.players = MapUtils.deserialize(serialized.players, (v) =>
+      SpeedDungeonPlayer.fromSerialized(v)
+    );
+    result.playerCapacity = serialized.playerCapacity;
+    result.playersReadied = serialized.playersReadied;
+    result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) =>
+      AdventuringParty.fromSerialized(v)
+    );
+    result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
+    result.timeStarted = serialized.timeStarted;
+    result.timeHandedOff = serialized.timeHandedOff;
+    result.lowestStartingFloorOptionsBySavedCharacter = MapUtils.deserialize(
+      serialized.lowestStartingFloorOptionsBySavedCharacter
+    );
+    result.selectedStartingFloor = serialized.selectedStartingFloor;
+    result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
+
+    return result;
+  }
+
+  initializeBattles() {
+    for (const [_, party] of this.adventuringParties) {
+      const battleOption = party.getBattleOption(this);
+      if (battleOption) {
+        battleOption.initialize(this, party);
+        console.info("initialized battle", battleOption.id);
+      }
+    }
+  }
+
+  getPlayers() {
+    return this.players;
+  }
+
+  getPlayer(username: Username) {
+    return this.players.get(username);
+  }
+
+  getExpectedPlayer(username: Username) {
+    const result = this.players.get(username);
+    if (result === undefined) {
+      throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    }
+    return result;
+  }
+
+  getPlayerCount() {
+    return this.players.size;
+  }
+
+  addPlayer(player: SpeedDungeonPlayer) {
+    this.players.set(player.username, player);
+  }
+
+  /** Used by subscribed user sessions to receive updates about this game.
+   * Created by adding a standard game prefix to the game's name so as not to
+   * mix up potentially identical game and party names*/
+  getChannelName() {
+    return `${GAME_CHANNEL_PREFIX}${this.name}` as ChannelName;
+  }
+
+  requireMode(mode: GameMode) {
+    if (this.mode !== mode) {
+      throw new Error(ERROR_MESSAGES.GAME.MODE);
+    }
+  }
+
+  requireNotYetStarted() {
+    if (this.timeStarted !== null) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
+    }
+  }
+
+  requireGameStartPrerequisites() {
+    this.requireNotYetStarted();
+
+    let minimumNumberOfParties = 1;
+    if (this.mode === GameMode.Race && this.isRanked) {
+      minimumNumberOfParties = GAME_CONFIG.MIN_RACE_GAME_PARTIES;
     }
 
-    for (const player of Object.values(deserialized.players)) {
-      SpeedDungeonPlayer.deserialize(player);
+    if (this.adventuringParties.size < minimumNumberOfParties) {
+      throw new Error(
+        `Game does not have the minimum number of parties (${minimumNumberOfParties})`
+      );
     }
+  }
 
-    return deserialized;
+  getTimeStarted() {
+    return this.timeStarted;
+  }
+
+  requireTimeStarted() {
+    if (this.timeStarted === null) {
+      throw new Error("Expected the game to have been started");
+    }
+    return this.timeStarted;
+  }
+
+  requireInputUnlocked() {
+    if (this.inputLock.isLocked) {
+      throw new Error(ERROR_MESSAGES.GAME.INPUT_IS_LOCKED);
+    }
+  }
+
+  setAsStarted() {
+    if (this.timeStarted !== null) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
+    }
+    this.timeStarted = Date.now();
+  }
+
+  registerPlayerFromLobbyUser(username: Username) {
+    this.addPlayer(new SpeedDungeonPlayer(username));
   }
 
   addCharacterToParty(
@@ -69,7 +220,7 @@ export class SpeedDungeonGame {
       throw new Error(ERROR_MESSAGES.GAME.MAX_PARTY_SIZE);
     }
 
-    const characterId = character.entityProperties.id;
+    const characterId = character.getEntityId();
 
     combatantManager.addCombatant(character, this);
 
@@ -78,8 +229,10 @@ export class SpeedDungeonGame {
     /// Could move this out of here
     character.combatantProperties.controlledBy.controllerPlayerName = player.username;
     player.characterIds.push(characterId);
-    this.lowestStartingFloorOptionsBySavedCharacter[characterId] =
-      character.combatantProperties.deepestFloorReached;
+    this.lowestStartingFloorOptionsBySavedCharacter.set(
+      characterId,
+      character.combatantProperties.deepestFloorReached
+    );
     ///
 
     combatantManager.updateHomePositions();
@@ -88,16 +241,15 @@ export class SpeedDungeonGame {
   }
 
   /** returns the name of the party and if the party was removed from the game (in the case of its last member being removed) */
-  removePlayerFromParty(username: string): Error | RemovedPlayerData {
-    const player = this.players[username];
+  removePlayerFromParty(username: Username): RemovedPlayerData {
+    const player = this.getExpectedPlayer(username);
     const charactersRemoved: Combatant[] = [];
-    if (!player) return new Error("No player found to remove");
+
     if (!player.partyName) {
       return { partyNameLeft: null, partyWasRemoved: false, charactersRemoved };
     }
 
-    const partyLeaving = this.adventuringParties[player.partyName];
-    if (!partyLeaving) return new Error("No party exists");
+    const partyLeaving = this.getExpectedParty(player.partyName);
 
     // if a removed character was taking their turn, end their turn
     const battleOption = this.getBattleOption(partyLeaving.battleId);
@@ -107,10 +259,9 @@ export class SpeedDungeonGame {
     const characterIds = cloneDeep(player.characterIds);
 
     Object.values(characterIds).forEach((characterId) => {
-      const removedCharacterResult = partyLeaving.removeCharacter(characterId, player, this);
-      if (removedCharacterResult instanceof Error) return removedCharacterResult;
-      charactersRemoved.push(removedCharacterResult);
-      delete this.lowestStartingFloorOptionsBySavedCharacter[characterId];
+      const removedCharacter = partyLeaving.removeCharacter(characterId, player, this);
+      charactersRemoved.push(removedCharacter);
+      this.lowestStartingFloorOptionsBySavedCharacter.delete(characterId);
     });
 
     battleOption?.turnOrderManager.updateTrackers(this, partyLeaving);
@@ -120,10 +271,10 @@ export class SpeedDungeonGame {
     ArrayUtils.removeElement(partyLeaving.playerUsernames, username);
 
     if (partyLeaving.playerUsernames.length < 1) {
-      delete this.adventuringParties[partyLeaving.name];
+      this.adventuringParties.delete(partyLeaving.name);
       // if we one day allow two parties to be in one battle this will need to change
       if (battleOption) {
-        delete this.battles[battleOption.id];
+        this.battles.delete(battleOption.id);
       }
       return { partyNameLeft: partyLeaving.name, partyWasRemoved: true, charactersRemoved };
     }
@@ -131,75 +282,151 @@ export class SpeedDungeonGame {
     return { partyNameLeft: partyLeaving.name, partyWasRemoved: false, charactersRemoved };
   }
 
-  removePlayer(username: string) {
+  removePlayer(username: Username) {
     const removedPlayerResult = this.removePlayerFromParty(username);
-    if (removedPlayerResult instanceof Error) return removedPlayerResult;
-    delete this.players[username];
+    this.players.delete(username);
     ArrayUtils.removeElement(this.playersReadied, username);
     return removedPlayerResult;
   }
 
-  putPlayerInParty(partyName: string, username: string) {
-    const party = this.adventuringParties[partyName];
-    if (!party) throw new Error("Tried to put a player in a party but the party didn't exist");
-    const player = this.players[username];
-    if (!player) {
-      throw new Error("Tried to put a player in a party but couldn't find the player in game");
-    }
+  putPlayerInParty(partyName: PartyName, username: Username) {
+    const party = this.getExpectedParty(partyName);
+    const player = this.getExpectedPlayer(username);
 
     party.playerUsernames.push(username);
     player.partyName = partyName;
   }
 
-  togglePlayerReadyToStartGameStatus(username: string) {
-    if (this.playersReadied.includes(username))
+  /** Returns true if all players are ready to start the game */
+  togglePlayerReadyToStartGameStatus(username: Username) {
+    if (this.playersReadied.includes(username)) {
       ArrayUtils.removeElement(this.playersReadied, username);
-    else this.playersReadied.push(username);
+    } else {
+      this.playersReadied.push(username);
+    }
+
+    const allPlayersReadied = this.allPlayersAreReadyToStart();
+    const notAllPlayersAreReady = !allPlayersReadied;
+    if (notAllPlayersAreReady) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private allPlayersAreReadyToStart() {
+    for (const [username, _player] of this.getPlayers()) {
+      if (this.playersReadied.includes(username)) {
+        continue;
+      } else {
+        return false;
+      }
+    }
+    return true;
   }
 
   addParty(party: AdventuringParty) {
-    this.adventuringParties[party.name] = party;
+    this.adventuringParties.set(party.name, party);
   }
 
-  getCombatantById(entityId: string): Error | Combatant {
-    for (const party of Object.values(this.adventuringParties)) {
+  // deprecated - use getExpectedCombatant
+  getCombatantById(entityId: string) {
+    for (const [_, party] of this.adventuringParties) {
       const combatantOption = party.combatantManager.getCombatantOption(entityId);
       const combatantWasFound = combatantOption !== undefined;
-      if (combatantWasFound) return combatantOption;
+      if (combatantWasFound) {
+        return combatantOption;
+      }
     }
 
-    return new Error(`${ERROR_MESSAGES.COMBATANT.NOT_FOUND}: Entity Id: ${entityId}`);
+    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(entityId));
   }
 
-  getPartyOfCombatant(combatantId: string): Error | AdventuringParty {
-    for (const party of Object.values(this.adventuringParties)) {
+  getExpectedCombatant(entityId: CombatantId) {
+    for (const [_, party] of this.adventuringParties) {
+      const combatantOption = party.combatantManager.getCombatantOption(entityId);
+      const combatantWasFound = combatantOption !== undefined;
+      if (combatantWasFound) {
+        return combatantOption;
+      }
+    }
+
+    throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(entityId));
+  }
+
+  getPartyOptionOfCombatant(combatantId: string) {
+    for (const [_, party] of this.adventuringParties) {
       const { combatantManager } = party;
       const combatantOption = combatantManager.getCombatantOption(combatantId);
       const combatantExistsInThisParty = combatantOption !== undefined;
       if (combatantExistsInThisParty) return party;
     }
 
-    return new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND);
+    return undefined;
   }
 
-  getPlayerPartyOption(username: string): Error | AdventuringParty | undefined {
-    const playerOption = this.players[username];
-    if (!playerOption) return new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
-    const partyNameOption = playerOption.partyName;
-    if (!partyNameOption) return undefined;
-    const partyOption = this.adventuringParties[partyNameOption];
-    if (!partyOption) return new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
-    return partyOption;
+  getPlayerPartyOption(username: Username): AdventuringParty | undefined {
+    const player = this.getExpectedPlayer(username);
+    const partyNameOption = player.partyName;
+    if (!partyNameOption) {
+      return undefined;
+    }
+    return this.getExpectedParty(partyNameOption);
   }
 
   getBattleOption(battleIdOption: null | string) {
-    if (!battleIdOption) return undefined;
-    return this.battles[battleIdOption];
+    if (!battleIdOption) {
+      return undefined;
+    }
+    return this.battles.get(battleIdOption);
+  }
+
+  getMaxStartingFloor() {
+    let maxFloor;
+
+    for (const [_, floor] of this.lowestStartingFloorOptionsBySavedCharacter) {
+      if (!maxFloor) maxFloor = floor;
+      else if (maxFloor > floor) maxFloor = floor;
+    }
+
+    return maxFloor || 1;
+  }
+
+  setMaxStartingFloor() {
+    const maxStartingFloor = this.getMaxStartingFloor();
+    if (this.selectedStartingFloor > maxStartingFloor) {
+      this.selectedStartingFloor = maxStartingFloor;
+    }
+  }
+
+  getExpectedParty(partyName: PartyName) {
+    const result = this.adventuringParties.get(partyName);
+    if (!result) {
+      throw new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST);
+    }
+    return result;
+  }
+
+  allPartiesWiped() {
+    for (const [_, party] of this.adventuringParties) {
+      if (party.timeOfWipe === null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  getExpectedBattle(battleId: string) {
+    const expectedBattle = this.battles.get(battleId);
+    if (!expectedBattle) {
+      throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    }
+    return expectedBattle;
   }
 }
 
-export type RemovedPlayerData = {
+export interface RemovedPlayerData {
   partyNameLeft: null | string;
   partyWasRemoved: boolean;
   charactersRemoved: Combatant[];
-};
+}

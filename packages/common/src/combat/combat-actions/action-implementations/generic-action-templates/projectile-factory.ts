@@ -1,6 +1,9 @@
 import { Vector3 } from "@babylonjs/core";
-import { ActionEntity, ActionEntityName } from "../../../../action-entities/index.js";
-import { ActionResolutionStepContext } from "../../../../action-processing/index.js";
+import {
+  ActionEntity,
+  ActionEntityActionOriginData,
+  ActionEntityName,
+} from "../../../../action-entities/index.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { Combatant } from "../../../../combatants/index.js";
 import {
@@ -18,9 +21,12 @@ import {
   CombatActionResource,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionResourceChangeProperties } from "../../combat-action-resource-change-properties.js";
-import { COMBAT_ACTIONS } from "../index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
+import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
+import { EntityName } from "../../../../aliases.js";
+import { COMBAT_ACTIONS } from "../index.js";
+import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 
 export class ProjectileFactory {
   private resourceChangeProperties: Partial<
@@ -94,30 +100,35 @@ export class ProjectileFactory {
     const { actionUserContext } = this.context;
     const { actionUser } = actionUserContext;
 
+    const actionEntityProperties = new ActionEntityProperties(
+      ActionEntityName.Arrow,
+      this.startPosition
+    );
+
+    actionEntityProperties.initialRotation = new Vector3(Math.PI / 2, 0, 0);
+    actionEntityProperties.parentOption = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: actionUser.getEntityId(),
+      },
+      transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+    };
+    actionEntityProperties.actionOriginData = new ActionEntityActionOriginData(
+      actionUser.getEntityProperties()
+    );
+    actionEntityProperties.actionOriginData.userCombatantAttributes =
+      actionUser.getTotalAttributes();
+    actionEntityProperties.actionOriginData.resourceChangeProperties =
+      this.resourceChangeProperties;
+
     return {
       type: SpawnableEntityType.ActionEntity,
       actionEntity: new ActionEntity(
         {
           id: this.context.idGenerator.generate(),
-          name: `${nameToPossessive(this.firedByCombatantName)} arrow`,
+          name: `${nameToPossessive(this.firedByCombatantName)} arrow` as EntityName,
         },
-        {
-          position: this.startPosition,
-          name: ActionEntityName.Arrow,
-          initialRotation: new Vector3(Math.PI / 2, 0, 0),
-          parentOption: {
-            sceneEntityIdentifier: {
-              type: SceneEntityType.CharacterModel,
-              entityId: actionUser.getEntityId(),
-            },
-            transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
-          },
-          actionOriginData: {
-            spawnedBy: actionUser.getEntityProperties(),
-            userCombatantAttributes: actionUser.getTotalAttributes(),
-            resourceChangeProperties: this.resourceChangeProperties,
-          },
-        }
+        actionEntityProperties
       ),
     };
   }
@@ -126,35 +137,37 @@ export class ProjectileFactory {
     const { actionUserContext } = this.context;
     const { actionUser } = actionUserContext;
 
+    const actionEntityProperties = new ActionEntityProperties(
+      ActionEntityName.IceBolt,
+      this.startPosition
+    );
+    actionEntityProperties.initialRotation = new Vector3(Math.PI / 2, 0, 0);
+    actionEntityProperties.parentOption = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: actionUser.getEntityId(),
+      },
+      transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
+    };
+    actionEntityProperties.initialPointToward = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: this.target.entityProperties.id,
+      },
+      transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
+    };
+    const actionOriginData = new ActionEntityActionOriginData(actionUser.getEntityProperties());
+    actionOriginData.userCombatantAttributes = actionUser.getTotalAttributes();
+    actionOriginData.resourceChangeProperties = this.resourceChangeProperties;
+
+    actionEntityProperties.actionOriginData = actionOriginData;
+
     const actionEntity = new ActionEntity(
       {
         id: this.context.idGenerator.generate(),
-        name: `${nameToPossessive(this.firedByCombatantName)} ice bolt`,
+        name: `${nameToPossessive(this.firedByCombatantName)} ice bolt` as EntityName,
       },
-      {
-        position: this.startPosition,
-        name: ActionEntityName.IceBolt,
-        initialRotation: new Vector3(Math.PI / 2, 0, 0),
-        parentOption: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: actionUser.getEntityId(),
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.OffhandEquipment,
-        },
-        initialPointToward: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.CharacterModel,
-            entityId: this.target.entityProperties.id,
-          },
-          transformNodeName: CombatantBaseChildTransformNodeName.HitboxCenter,
-        },
-        actionOriginData: {
-          spawnedBy: actionUser.getEntityProperties(),
-          userCombatantAttributes: actionUser.getTotalAttributes(),
-          resourceChangeProperties: this.resourceChangeProperties,
-        },
-      }
+      actionEntityProperties
     );
 
     return actionEntity;

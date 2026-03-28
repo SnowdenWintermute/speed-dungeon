@@ -1,9 +1,8 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonPlayer } from "../../game/index.js";
-import { CombatActionComponent, CombatActionExecutionIntent } from "../combat-actions/index.js";
+import { CombatActionComponent } from "../combat-actions/index.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../combat-actions/action-implementations/index.js";
@@ -11,6 +10,8 @@ import { TargetFilterer } from "./filtering.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ProhibitedTargetCombatantStates } from "../combat-actions/prohibited-target-combatant-states.js";
+import { SpeedDungeonPlayer } from "../../game/player.js";
+import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 
 export class TargetingCalculator {
   constructor(
@@ -104,7 +105,7 @@ export class TargetingCalculator {
       case CombatActionTargetType.Sides:
       case CombatActionTargetType.SingleAndSides:
       case CombatActionTargetType.Group:
-      case CombatActionTargetType.All:
+      case CombatActionTargetType.All: {
         const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
         const targetIdsResult = this.getCombatActionTargetIds(
           action,
@@ -115,6 +116,7 @@ export class TargetingCalculator {
         if (primaryTargetIdOption === undefined)
           return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NO_TARGET_PROVIDED);
         return primaryTargetIdOption;
+      }
     }
   }
 

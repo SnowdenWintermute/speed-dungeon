@@ -1,16 +1,17 @@
 import React from "react";
 import { getItemSellPrice } from "@speed-dungeon/common";
 import Divider from "@/app/components/atoms/Divider";
-import { ConfirmConvertToShardsMenuState } from "./menu-state/confirm-convert-to-shards";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
-import { AppStore } from "@/mobx-stores/app-store";
-import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client_consts";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
+import { ConfirmConvertToShardsActionMenuScreen } from "@/client-application/action-menu/screens/convert-to-shards-confirm";
 
 export function ConfirmShardConversionDisplay() {
-  const { actionMenuStore } = AppStore.get();
-  const currentMenu = actionMenuStore.getCurrentMenu();
+  const clientApplication = useClientApplication();
+  const { actionMenu } = clientApplication;
+  const currentMenu = actionMenu.getCurrentMenu();
 
-  if (!(currentMenu instanceof ConfirmConvertToShardsMenuState)) {
+  if (!(currentMenu instanceof ConfirmConvertToShardsActionMenuScreen)) {
     return <div>Unexpected menu state</div>;
   }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { observer } from "mobx-react-lite";
 
 export const ShardsDisplay = observer(

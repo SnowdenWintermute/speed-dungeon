@@ -1,18 +1,21 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { ListCyclingButtons } from "./ListCyclingButtons";
-import { ClientToServerEvent, NextOrPrevious } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientIntentType, NextOrPrevious } from "@speed-dungeon/common";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const CycleCombatActionTargetsButtons = observer(() => {
-  const { gameStore } = AppStore.get();
-  const characterId = gameStore.getExpectedFocusedCharacterId();
+  const clientApplication = useClientApplication();
+  const { gameClientRef, combatantFocus } = clientApplication;
+  const characterId = combatantFocus.requireFocusedCharacterId();
 
   function onCycle(direction: NextOrPrevious) {
-    websocketConnection.emit(ClientToServerEvent.CycleCombatActionTargets, {
-      characterId,
-      direction,
+    gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.CycleCombatActionTargets,
+      data: {
+        characterId,
+        direction,
+      },
     });
   }
 

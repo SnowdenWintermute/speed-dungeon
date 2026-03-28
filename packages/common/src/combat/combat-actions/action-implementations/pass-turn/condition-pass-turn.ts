@@ -1,15 +1,15 @@
 import cloneDeep from "lodash.clonedeep";
-import {
-  CombatActionGameLogProperties,
-  CombatActionOrigin,
-} from "../../combat-action-combat-log-properties.js";
-import { CombatActionComponentConfig, CombatActionLeaf, CombatActionName } from "../../index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { passTurnConfig } from "./index.js";
 import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionLeaf } from "../../combat-action-leaf.js";
+import { CombatActionComponentConfig } from "../../index.js";
 
 const cloned = cloneDeep(passTurnConfig);
 

@@ -1,14 +1,14 @@
-import { websocketConnection } from "@/singletons/websocket-connection";
 import {
   BASE_SCREEN_SIZE,
   COMBATANT_CLASS_NAME_STRINGS,
-  ClientToServerEvent,
+  ClientIntentType,
   Combatant,
+  CombatantId,
   GOLDEN_RATIO,
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
-  getProgressionGameMaxStartingFloor,
+  Username,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
 import React, { useEffect, useMemo } from "react";
@@ -16,20 +16,22 @@ import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
 import { GameLobby } from "./GameLobby";
 import { CharacterModelDisplay } from "@/app/character-model-display";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const ProgressionGameLobby = observer(() => {
-  const { gameStore } = AppStore.get();
-  const username = gameStore.getExpectedUsername();
-  const game = gameStore.getExpectedGame();
+  const { session, gameContext, lobbyClientRef } = useClientApplication();
+  const username = session.requireUsername();
+  const game = gameContext.requireGame();
   if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
-    websocketConnection.emit(ClientToServerEvent.GetSavedCharactersList);
+    lobbyClientRef
+      .get()
+      .dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
   }, []);
 
-  const numPlayersInGame = useMemo(() => Object.values(game.players).length, [game.players]);
+  const numPlayersInGame = useMemo(() => game.players.size, [game.players]);
 
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
@@ -40,21 +42,19 @@ export const ProgressionGameLobby = observer(() => {
   }
 
   // true max starting floor is the deepest that all selected have reached
-  const maxStartingFloor = getProgressionGameMaxStartingFloor(
-    game.lowestStartingFloorOptionsBySavedCharacter
-  );
+  const maxStartingFloor = game.getMaxStartingFloor();
 
   useEffect(() => {
     if (game.selectedStartingFloor > maxStartingFloor) {
-      gameStore.getExpectedGame().selectedStartingFloor = maxStartingFloor;
+      game.selectedStartingFloor = maxStartingFloor;
     }
-  }, [maxStartingFloor, game.selectedStartingFloor, game.players]);
+  }, [maxStartingFloor, game.selectedStartingFloor, game.players, game]);
 
   return (
     <GameLobby>
       <div style={{ width: `${menuWidth}px` }}>
         <ul className="w-full flex flex-col">
-          {Object.values(game.players).map((player, i) => (
+          {Array.from(game.players).map(([username, player], i) => (
             <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
           ))}
           {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((_item, i) => (
@@ -70,14 +70,17 @@ export const ProgressionGameLobby = observer(() => {
           title={"starting-floor-select"}
           value={game.selectedStartingFloor}
           setValue={(value: number) => {
-            websocketConnection.emit(ClientToServerEvent.SelectProgressionGameStartingFloor, value);
+            lobbyClientRef.get().dispatchIntent({
+              type: ClientIntentType.SelectProgressionGameStartingFloor,
+              data: { floorNumber: value },
+            });
           }}
           options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
             title: `Floor ${index + 1}`,
             value: index + 1,
             disabled: index + 1 > maxStartingFloor,
           }))}
-          disabled={Object.values(game.players)[0]?.username !== username}
+          disabled={Array.from(game.players)[0]?.[1].username !== username}
         />
       </div>
     </GameLobby>
@@ -93,12 +96,13 @@ const PlayerDisplay = observer(
     game: SpeedDungeonGame;
     index: number;
   }) => {
-    const username = AppStore.get().gameStore.getExpectedUsername();
-    const savedCharacters = AppStore.get().lobbyStore.getSavedCharacterSlots();
+    const { session, lobbyContext, lobbyClientRef } = useClientApplication();
+    const username = session.requireUsername();
+    const savedCharacters = lobbyContext.savedCharacters.slots;
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);
-    const partyOption = game.adventuringParties[partyName];
+    const partyOption = game.adventuringParties.get(partyName);
     if (!partyOption) return <div>Progression default party not found</div>;
 
     let selectedCharacterOption: null | Combatant = null;
@@ -112,12 +116,15 @@ const PlayerDisplay = observer(
 
     const selectedCharacterId = playerOption?.characterIds[0];
 
-    function changeSelectedCharacterId(entityId: string) {
-      websocketConnection.emit(ClientToServerEvent.SelectSavedCharacterForProgressGame, entityId);
+    function changeSelectedCharacterId(entityId: CombatantId) {
+      lobbyClientRef.get().dispatchIntent({
+        type: ClientIntentType.SelectSavedCharacterForProgressGame,
+        data: { entityId },
+      });
     }
 
     const readyText = playerOption
-      ? game.playersReadied.includes(playerOption.username || "")
+      ? game.playersReadied.includes(playerOption.username || ("" as Username))
         ? "Ready"
         : "Selecting character"
       : "";
@@ -151,16 +158,19 @@ const PlayerDisplay = observer(
           <SelectDropdown
             title={"character-select"}
             value={selectedCharacterId}
-            setValue={(value: string) => {
+            setValue={(value: CombatantId) => {
               changeSelectedCharacterId(value);
             }}
             options={Object.values(savedCharacters)
               .filter((character) => !!character)
               .map((character) => {
+                if (character === null) {
+                  throw new Error("unexpected null character");
+                }
                 return {
-                  title: formatCharacterTag(character!.combatant),
-                  value: character!.combatant.entityProperties.id,
-                  disabled: character!.combatant.combatantProperties.isDead(),
+                  title: formatCharacterTag(character.combatant),
+                  value: character.combatant.entityProperties.id,
+                  disabled: character.combatant.combatantProperties.isDead(),
                 };
               })}
             disabled={game.playersReadied.includes(username)}
@@ -180,12 +190,12 @@ const PlayerDisplay = observer(
   }
 );
 
-export function formatCharacterTag(combatant: Combatant) {
+function formatCharacterTag(combatant: Combatant) {
   const deadText = combatant.combatantProperties.isDead() ? " - DEAD" : "";
   return `${combatant.entityProperties.name} - ${formatCharacterLevelAndClass(combatant)}${deadText}`;
 }
 
-export function formatCharacterLevelAndClass(combatant: Combatant) {
+function formatCharacterLevelAndClass(combatant: Combatant) {
   const { combatantClass } =
     combatant.combatantProperties.classProgressionProperties.getMainClass();
   return `level ${combatant.getLevel()} ${COMBATANT_CLASS_NAME_STRINGS[combatantClass]}`;

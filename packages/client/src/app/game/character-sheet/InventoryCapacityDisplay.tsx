@@ -1,10 +1,12 @@
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const InventoryCapacityDisplay = observer(() => {
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const clientApplication = useClientApplication();
+  const { combatantFocus } = clientApplication;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const { combatantProperties } = focusedCharacter;
   const {
     itemsInNormalStorageCount,

@@ -1,12 +1,11 @@
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
-import { ClientToServerEvent, GameListEntry } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { ClientIntentType, GameListEntry } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const GameList = observer(() => {
-  const gameList = AppStore.get().lobbyStore.getGameList();
+  const { gameList } = useClientApplication().lobbyContext;
 
   return (
     <section
@@ -29,8 +28,12 @@ interface GameListItemProps {
 }
 
 function GameListItem(props: GameListItemProps) {
+  const { lobbyClientRef } = useClientApplication();
   function joinGame() {
-    websocketConnection.emit(ClientToServerEvent.JoinGame, props.game.gameName);
+    lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.JoinGame,
+      data: { gameName: props.game.gameName },
+    });
   }
 
   return (

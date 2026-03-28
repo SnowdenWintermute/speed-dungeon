@@ -2,10 +2,10 @@
   "name": "@speed-dungeon/server",
   "version": "0.11.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "migrate": "node-pg-migrate -f pg-migrate-config.json",
-    "serve": "tsc-watch -b --onSuccess \"node dist/index.js\"",
+    "serve": "tsc-watch -b --onSuccess \"node dist/main.js\"",
     "test": "node --experimental-vm-modules --trace-warnings --inspect $(yarn bin jest) --no-cache --setupFiles dotenv/config --watchAll"
   },
   "type": "module",
@@ -27,8 +27,7 @@
     "pg": "8.13.0",
     "pg-format": "1.0.4",
     "redis": "4.7.0",
-    "socket.io": "4.7.5",
-    "socket.io-client": "4.8.1",
+    "reflect-metadata": "0.2.2",
     "zod": "3.23.8"
   },
   "devDependencies": {

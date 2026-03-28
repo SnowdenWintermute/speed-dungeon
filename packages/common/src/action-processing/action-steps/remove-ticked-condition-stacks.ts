@@ -4,13 +4,14 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { CombatActionExecutionIntent } from "../../combat/index.js";
 import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../game-update-commands.js";
 import { Combatant } from "../../combatants/index.js";
 import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-triggered-condition-to-update.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatantId } from "../../aliases.js";
 
 // Made this its own step because conditions were being removed by ticking, then the end turn step
 // was trying to sort their turn order tracker but it couldn't get their speed since they no longer
@@ -18,17 +19,19 @@ import { addRemovedConditionStacksToUpdate } from "./hit-outcome-triggers/add-tr
 const stepType = ActionResolutionStepType.RemoveTickedConditionStacks;
 export class RemoveTickedConditionStacksActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext) {
+    const { actionUserContext } = context;
+    const { party, actionUser } = actionUserContext;
+
     const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      actionUserName: actionUser.getName(),
+      actionUserId: actionUser.getEntityId(),
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
     };
 
     super(stepType, context, gameUpdateCommand);
-
-    const { actionUserContext } = context;
-    const { party, actionUser } = actionUserContext;
 
     // action was used by a condition, remove stacks and send removed stacks update
     const condition = actionUser;
@@ -48,7 +51,7 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
         condition.getEntityId(),
         numStacksRemoved,
         gameUpdateCommand,
-        hostEntity.entityProperties.id
+        hostEntity.entityProperties.id as CombatantId
       );
     }
   }

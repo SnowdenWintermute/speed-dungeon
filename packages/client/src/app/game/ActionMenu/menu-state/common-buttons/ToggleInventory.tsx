@@ -1,27 +1,25 @@
 import React from "react";
-import { AppStore } from "@/mobx-stores/app-store";
-import { MenuStatePool } from "@/mobx-stores/action-menu/menu-state-pool";
-import { MenuStateType } from "../menu-state-type";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import ActionMenuTopButton from "./ActionMenuTopButton";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
-
-const { hotkeysStore } = AppStore.get();
-const buttonHotkeys = hotkeysStore.getKeybind(HotkeyButtonTypes.ToggleInventory);
-const buttonHotkeysString = hotkeysStore.getKeybindString(HotkeyButtonTypes.ToggleInventory);
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 
 export default function ToggleInventoryButton() {
+  const clientApplication = useClientApplication();
+  const { uiStore, actionMenu, detailableEntityFocus } = clientApplication;
+  const { keybinds } = uiStore;
+  const buttonHotkeys = keybinds.getKeybind(HotkeyButtonTypes.ToggleInventory);
+  const buttonHotkeysString = keybinds.getKeybindString(HotkeyButtonTypes.ToggleInventory);
   return (
     <ActionMenuTopButton
       handleClick={() => {
-        const { actionMenuStore, focusStore } = AppStore.get();
-        focusStore.combatantAbilities.clear();
-        focusStore.detailables.clearHovered();
+        detailableEntityFocus.combatantAbilities.clear();
+        detailableEntityFocus.detailables.clearHovered();
 
-        if (actionMenuStore.getCurrentMenu().type === MenuStateType.InventoryItems) {
-          actionMenuStore.popStack();
+        if (actionMenu.getCurrentMenu().type === ActionMenuScreenType.InventoryItems) {
+          actionMenu.popStack();
         } else {
-          const inventoryItemsMenu = MenuStatePool.get(MenuStateType.InventoryItems);
-          actionMenuStore.pushStack(inventoryItemsMenu);
+          actionMenu.pushFromPool(ActionMenuScreenType.InventoryItems);
         }
       }}
       hotkeys={buttonHotkeys}

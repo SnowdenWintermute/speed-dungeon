@@ -1,10 +1,4 @@
-import {
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionName,
-  CombatActionOrigin,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { ATTACK_RANGED_MAIN_HAND } from "./attack-ranged-main-hand.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
@@ -24,6 +18,9 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.PROJECTILE,

@@ -1,14 +1,13 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import Divider from "@/app/components/atoms/Divider";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
-import { useHttpRequestStore } from "@/stores/http-request-store";
 import React from "react";
 import { AuthFormTypes } from ".";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
-import AuthForm from "./AuthForm";
-import { HTTP_REQUEST_NAMES, WEBSITE_NAME } from "@/client_consts";
-import { AppStore } from "@/mobx-stores/app-store";
+import { HTTP_REQUEST_NAMES, WEBSITE_NAME } from "@/client-consts";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { AuthForm } from "./AuthForm";
 
 interface Props {
   setActiveForm: React.Dispatch<React.SetStateAction<AuthFormTypes>>;
@@ -16,10 +15,13 @@ interface Props {
 
 export const SignUpWithCredentialsForm = observer(({ setActiveForm }: Props) => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS;
-  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
-  const email = AppStore.get().formsStore.getAuthFormEmailField();
-  const setEmail = AppStore.get().formsStore.setAuthFormEmailField;
+
+  const { httpRequests, forms } = useClientApplication().uiStore;
+  const responseTracker = httpRequests.requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
+
+  const email = forms.getAuthFormEmailField();
+  const setEmail = forms.setAuthFormEmailField;
 
   return (
     <AuthForm

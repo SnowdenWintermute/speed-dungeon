@@ -1,32 +1,23 @@
-import makeAutoObservable from "mobx-store-inheritance";
-import { CombatActionIntent } from "../../combat/combat-actions/index.js";
-import {
-  ActionIntentAndUser,
-  ActionUserContext,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-  Combatant,
-  CombatantCondition,
-  CombatantProperties,
-  CombatantTraitType,
-  CombatAttribute,
-  IdGenerator,
-  MaxAndCurrent,
-  runIfInBrowser,
-} from "../../index.js";
-import { CombatantConditionInit } from "../condition-config.js";
+import { CombatantProperties } from "../../combatants/combatant-properties.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { ActionUserContext } from "../../action-user-context/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { ActionIntentAndUser } from "../../action-processing/action-steps/index.js";
+import { CombatantTraitType } from "../../combatants/combatant-traits/trait-types.js";
+import { CombatActionTargetType } from "../../combat/targeting/combat-action-targets.js";
+import { CombatantCondition } from "../index.js";
+import { MaxAndCurrent } from "../../primatives/max-and-current.js";
+import { CombatActionIntent } from "../../combat/combat-actions/combat-action-intent.js";
+import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { ActionRank } from "../../aliases.js";
 
 export function getEnsnaredEvasionChange(rank: number) {
   return rank * 25 * -1;
 }
 
 export class EnsnaredCondition extends CombatantCondition {
-  constructor(init: CombatantConditionInit) {
-    super(init);
-    runIfInBrowser(() => makeAutoObservable(this));
-  }
-
   intent = CombatActionIntent.Malicious;
   stacksOption = new MaxAndCurrent(1, 1);
   removedOnDeath = true;
@@ -69,10 +60,14 @@ export function getStartFlyingActionIntentIfAble(
     if (combatantCanGainFlying) {
       return {
         user: combatant,
-        actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.StartFlying, 1, {
-          type: CombatActionTargetType.Single,
-          targetId: combatant.getEntityId(),
-        }),
+        actionExecutionIntent: new CombatActionExecutionIntent(
+          CombatActionName.StartFlying,
+          1 as ActionRank,
+          {
+            type: CombatActionTargetType.Single,
+            targetId: combatant.getEntityId(),
+          }
+        ),
       };
     }
   }

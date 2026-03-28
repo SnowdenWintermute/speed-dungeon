@@ -4,14 +4,16 @@ import { speedDungeonProfilesRepo } from "../../database/repos/speed-dungeon-pro
 import { ERROR_MESSAGES, ProfileCharacterRanks, SanitizedProfile } from "@speed-dungeon/common";
 import { valkeyManager } from "../../kv-store/index.js";
 import { CHARACTER_LEVEL_LADDER } from "../../kv-store/consts.js";
-import { fetchSavedCharacters } from "../saved-character-event-handlers/fetch-saved-characters.js";
+import { fetchSavedCharacters } from "./fetch-saved-characters.js";
 
 export async function getUserProfileHandler(_req: Request, res: Response, next: NextFunction) {
   try {
     const userId: number = res.locals.userId; // expected from middleware
     const profile = await speedDungeonProfilesRepo.findOne("ownerId", userId);
 
-    if (!profile) return next([new CustomError(ERROR_MESSAGES.USER.MISSING_PROFILE, 404)]);
+    if (!profile) {
+      return next([new CustomError(ERROR_MESSAGES.USER.MISSING_PROFILE, 404)]);
+    }
 
     const sanitized = new SanitizedProfile(profile);
 
@@ -20,7 +22,7 @@ export async function getUserProfileHandler(_req: Request, res: Response, next: 
       return next(new CustomError(characterSlotsResult.message, 500));
     }
 
-    let characterRanks: ProfileCharacterRanks = {};
+    const characterRanks: ProfileCharacterRanks = {};
     for (const character of Object.values(characterSlotsResult)) {
       const rank = await valkeyManager.context.zRevRank(
         CHARACTER_LEVEL_LADDER,

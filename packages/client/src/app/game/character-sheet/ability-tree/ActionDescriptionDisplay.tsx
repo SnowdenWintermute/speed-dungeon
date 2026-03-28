@@ -1,4 +1,5 @@
 import {
+  ActionRank,
   AdventuringParty,
   ArrayUtils,
   CombatActionResourceChangeProperties,
@@ -14,7 +15,7 @@ import {
   THREAT_TYPE_STRINGS,
 } from "@speed-dungeon/common";
 import { ActionDescription, ActionDescriptionComponent } from "./action-description";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { formatActionAccuracy } from "@speed-dungeon/common";
 import { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
 import { observer } from "mobx-react-lite";
@@ -45,7 +46,11 @@ export const ActionDescriptionDisplay = observer(
     const maxRank = isSupportClassAbility ? 2 : 3;
 
     for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(maxRank, 1)) {
-      const rankDescription = description.getDescriptionByLevel(user, party, actionRank);
+      const rankDescription = description.getDescriptionByLevel(
+        user,
+        party,
+        actionRank as ActionRank
+      );
 
       const diff = ActionDescription.getDiff<Partial<typeof rankDescription>>(
         prevDescription,

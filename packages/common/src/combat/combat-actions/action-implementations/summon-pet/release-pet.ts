@@ -2,14 +2,7 @@ import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
   CombatActionLeaf,
-  CombatActionName,
-  CombatActionResource,
-  createGenericSpellCastMessageProperties,
 } from "../../index.js";
-import {
-  ActionResolutionStepType,
-  ActivatedTriggersGameUpdateCommand,
-} from "../../../../action-processing/index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -32,6 +25,11 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import cloneDeep from "lodash.clonedeep";
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
+import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 

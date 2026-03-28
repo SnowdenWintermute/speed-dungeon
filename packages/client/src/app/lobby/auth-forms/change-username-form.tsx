@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
-import { useHttpRequestStore } from "@/stores/http-request-store";
-import AuthForm from "./AuthForm";
+import { AuthForm } from "./AuthForm";
+import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export default function ChangeUsernameForm() {
+export const ChangeUsernameForm = observer(() => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.CHANGE_USERNAME;
-  const responseTracker = useHttpRequestStore().requests[httpRequestTrackerName];
+  const { httpRequests } = useClientApplication().uiStore;
+  const responseTracker = httpRequests.requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
   const [newUsername, setNewUsername] = useState("");
 
@@ -55,4 +57,4 @@ export default function ChangeUsernameForm() {
       </AuthForm>
     </>
   );
-}
+});

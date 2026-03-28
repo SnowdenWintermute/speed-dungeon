@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { randBetween } from "./rand-between.js";
 
@@ -7,6 +8,15 @@ export class ArrayUtils {
     if (indexToRemove !== -1) {
       return array.splice(indexToRemove, 1)[0];
     }
+  }
+
+  static getExpectedAtIndex<T>(array: T[], index: number) {
+    const value = array[index];
+    if (value === undefined) {
+      throw new Error("Expected value not found in array at provided index");
+    }
+
+    return value;
   }
 
   /** Randomizes the order of the array in place */

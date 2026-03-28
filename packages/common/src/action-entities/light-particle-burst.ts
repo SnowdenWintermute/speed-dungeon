@@ -18,11 +18,11 @@ export class LightParticleBurst extends CosmeticEffect {
   }
   createParticleSystems(scene: Scene): ManagedParticleSystem[] {
     const particleSystem = new GPUParticleSystem("particles", { capacity: 30 }, scene);
-    particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
+    particleSystem.particleTexture = new Texture("img/particle-textures/flare.png", scene);
 
     particleSystem.createSphereEmitter(0.5, 1);
 
-    const mesh = new Mesh("");
+    const mesh = new Mesh("", this.scene);
     mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
     particleSystem.emitter = mesh;
 

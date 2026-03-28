@@ -5,13 +5,6 @@ import { OneHandedMeleeWeapon } from "./one-handed-melee-weapon.js";
 import { Shield } from "./shield.js";
 import { TwoHandedMeleeWeapon } from "./two-handed-melee-weapon.js";
 import { TwoHandedRangedWeapon } from "./two-handed-ranged-weapon.js";
-export * from "./shield.js";
-export * from "./two-handed-ranged-weapon.js";
-export * from "./two-handed-melee-weapon.js";
-export * from "./one-handed-melee-weapon.js";
-export * from "./head-gear.js";
-export * from "./jewelry.js";
-export * from "./body-armor.js";
 
 export enum EquipmentType {
   BodyArmor,

@@ -1,46 +1,39 @@
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
-import { runIfInBrowser } from "../utils/index.js";
 import { CombatantCondition } from "../conditions/index.js";
-import { Exclude, instanceToPlain, plainToInstance } from "class-transformer";
-import { EntityId } from "../primatives/index.js";
-import { deserializeCondition } from "../conditions/deserialize-condition.js";
+import { EntityId } from "../aliases.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
-import cloneDeep from "lodash.clonedeep";
-import { CombatantConditionInit } from "../conditions/condition-config.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { deserializeCondition } from "../conditions/deserialize-condition.js";
 
-export class CombatantConditionManager extends CombatantSubsystem {
-  @Exclude({ toPlainOnly: true })
+export class CombatantConditionManager
+  extends CombatantSubsystem
+  implements ReactiveNode, Serializable
+{
   private conditions: CombatantCondition[] = [];
 
-  /** Conditions deserialize to an init object and reconstruct using their
-   * specific constructors via that object. plainToInstance does not work with
-   * the current implementation of conditions for reasons beyond my understanding, but
-   * allegedly because the getTickProperties() declaration takes in functions as arguments
-   * and makes them "own properties" of the class instance, which when plainToInstance tries to traverse
-   * and execute it can't */
-  public serializedConditions?: CombatantConditionInit[] = [];
-
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
+    this.conditions.forEach((condition) => condition.makeObservable());
   }
 
-  getSerialized() {
-    const cloned = cloneDeep(this);
-    cloned.serializedConditions = cloned.conditions.map((condition) => {
-      return condition.getSerialized();
-    });
-    const asPlain = instanceToPlain(cloned) as CombatantConditionManager;
-    return asPlain;
+  toSerialized() {
+    return { conditions: this.conditions.map((condition) => condition.toSerialized()) };
   }
 
-  static getDeserialized(plain: CombatantConditionManager) {
-    const deserializedConditions = plain.serializedConditions?.map(deserializeCondition) || [];
-    const deserialized = plainToInstance(CombatantConditionManager, plain);
-    deserialized.conditions = deserializedConditions;
+  static fromSerialized(serialized: SerializedOf<CombatantConditionManager>) {
+    /** Conditions deserialize to an init object and reconstruct using their
+     * specific constructors via that object. plainToInstance does not work with
+     * the current implementation of conditions for reasons beyond my understanding, but
+     * allegedly because the getTickProperties() declaration takes in functions as arguments
+     * and makes them "own properties" of the class instance, which when plainToInstance tries to traverse
+     * and execute it can't */
+    const result = new CombatantConditionManager();
+    result.conditions = serialized.conditions.map((conditionInit) =>
+      deserializeCondition(conditionInit)
+    );
 
-    return deserialized;
+    return result;
   }
 
   getConditions() {

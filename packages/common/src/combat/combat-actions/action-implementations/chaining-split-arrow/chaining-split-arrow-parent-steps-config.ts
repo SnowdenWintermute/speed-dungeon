@@ -1,4 +1,3 @@
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
 import {
@@ -6,6 +5,7 @@ import {
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
 import { ProjectileFactory } from "../generic-action-templates/projectile-factory.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const base = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BOW_SKILL;
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};

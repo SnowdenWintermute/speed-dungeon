@@ -1,10 +1,10 @@
 import React from "react";
 import { UserAuthStatus, UserChannelDisplayData } from "@speed-dungeon/common";
-import { SPACING_REM_SMALL } from "@/client_consts";
+import { SPACING_REM_SMALL } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   username: string;
@@ -12,10 +12,10 @@ interface Props {
 }
 
 export const UserPlaque = observer(({ username, displayData }: Props) => {
-  const thisTabUsername = AppStore.get().gameStore.getUsernameOption();
+  const thisTabUsername = useClientApplication().session.usernameOption;
   const bgStyle = displayData.authStatus === UserAuthStatus.Guest ? "bg-slate-700" : "bg-slate-950";
   let thisIsYouMarker = <span />;
-  if (thisTabUsername === username)
+  if (thisTabUsername === username) {
     thisIsYouMarker = (
       <HoverableTooltipWrapper tooltipText="This is you">
         <div className="mr-2 h-4 w-4">
@@ -23,6 +23,7 @@ export const UserPlaque = observer(({ username, displayData }: Props) => {
         </div>
       </HoverableTooltipWrapper>
     );
+  }
 
   return (
     <li

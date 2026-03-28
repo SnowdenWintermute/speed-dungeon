@@ -3,19 +3,11 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-
-export type CharacterSlot = {
-  id: string;
-  profileId: number;
-  slotNumber: number;
-  characterId: null | string; // UUID
-  createdAt: number | Date;
-  updatedAt: number | Date;
-};
+import { CharacterSlot } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.CHARACTER_SLOTS;
 
-class CharacterSlotsRepo extends DatabaseRepository<CharacterSlot> {
+export class CharacterSlotsRepo extends DatabaseRepository<CharacterSlot> {
   async insert(profileId: number, slotNumber: number, characterId: string) {
     const { rows } = await this.pgPool.query(
       format(

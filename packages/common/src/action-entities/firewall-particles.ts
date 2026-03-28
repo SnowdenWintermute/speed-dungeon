@@ -1,15 +1,11 @@
 import {
   AbstractMesh,
   BoxParticleEmitter,
-  Color3,
   Color4,
   GPUParticleSystem,
-  Material,
   Mesh,
-  MeshBuilder,
   Quaternion,
   Scene,
-  StandardMaterial,
   Texture,
   Vector3,
 } from "@babylonjs/core";
@@ -39,7 +35,10 @@ export class FirewallParticles extends CosmeticEffect {
 
     particleSystems.forEach((particleSystem, i) => {
       // particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
-      particleSystem.particleTexture = new Texture(`img/particle-textures/explosion-${i + 1}.jpg`);
+      particleSystem.particleTexture = new Texture(
+        `img/particle-textures/explosion-${i + 1}.jpg`,
+        scene
+      );
 
       const maxDepth = 0.75;
       const depth = Math.max(percentOfMaxRank, 0.45) * maxDepth;
@@ -73,7 +72,7 @@ export class FirewallParticles extends CosmeticEffect {
       particleSystem.particleEmitterType = boxEmitter;
 
       // Emitter mesh (placeholder for positioning)
-      const mesh = new Mesh("");
+      const mesh = new Mesh("", this.scene);
       // const mesh = MeshBuilder.CreateBox("", dimensions);
 
       // const debugMaterial = new StandardMaterial("");

@@ -1,9 +1,11 @@
+import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 import {
   ActionEntity,
+  ActionEntityActionOriginData,
   ActionEntityName,
-  ActionEntityProperties,
 } from "../../../../action-entities/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { EntityName } from "../../../../aliases.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
 import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js";
@@ -23,16 +25,19 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 
     const position = primaryTarget.combatantProperties.transformProperties.position.clone();
 
-    const entityProperties = { id: context.idGenerator.generate(), name: "ice burst" };
-    const actionEntityProperties: ActionEntityProperties = {
-      position,
-      name: ActionEntityName.IceBurst,
-      actionOriginData: {
-        spawnedBy: actionUser.getConditionAppliedBy().entityProperties,
-        stacks: actionUser.getConditionStacks(),
-        actionLevel: new MaxAndCurrent(actionUser.getLevel(), actionUser.getLevel()),
-      },
+    const entityProperties = {
+      id: context.idGenerator.generate(),
+      name: "ice burst" as EntityName,
     };
+    const actionEntityProperties = new ActionEntityProperties(ActionEntityName.IceBurst, position);
+    actionEntityProperties.actionOriginData = new ActionEntityActionOriginData(
+      actionUser.getConditionAppliedBy().entityProperties
+    );
+    actionEntityProperties.actionOriginData.stacks = actionUser.getConditionStacks();
+    actionEntityProperties.actionOriginData.actionLevel = new MaxAndCurrent(
+      actionUser.getLevel(),
+      actionUser.getLevel()
+    );
 
     return [
       {

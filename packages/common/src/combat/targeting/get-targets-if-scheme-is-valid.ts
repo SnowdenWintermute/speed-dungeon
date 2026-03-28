@@ -1,4 +1,4 @@
-import { EntityId } from "../../primatives/index.js";
+import { EntityId } from "../../aliases.js";
 import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
 import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
 

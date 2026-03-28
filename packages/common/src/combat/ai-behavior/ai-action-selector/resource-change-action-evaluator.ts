@@ -1,7 +1,7 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { FixedNumberGenerator } from "../../../utility-classes/randomizers.js";
-import { HitOutcomeCalculator } from "../../action-results/index.js";
+import { HitOutcomeCalculator } from "../../action-results/action-hit-outcome-calculation/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export abstract class ResourceChangeActionEvaluator {

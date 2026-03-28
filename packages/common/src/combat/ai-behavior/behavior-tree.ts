@@ -1,4 +1,4 @@
-import { ArrayUtils } from "../../utils/index.js";
+import { ArrayUtils } from "../../utils/array-utils.js";
 
 export enum BehaviorNodeState {
   Failure,
@@ -100,7 +100,7 @@ export class SucceederNode implements BehaviorNode {
 }
 
 export class RandomizerNode<T> implements BehaviorNode {
-  constructor(private arrayOptionGetter: () => undefined | Array<T>) {}
+  constructor(private arrayOptionGetter: () => undefined | T[]) {}
   execute(): BehaviorNodeState {
     const arrayOption = this.arrayOptionGetter();
     if (arrayOption === undefined) return BehaviorNodeState.Failure;
@@ -111,7 +111,7 @@ export class RandomizerNode<T> implements BehaviorNode {
 
 export class SorterNode<T> implements BehaviorNode {
   constructor(
-    private arrayOptionGetter: () => undefined | Array<T>,
+    private arrayOptionGetter: () => undefined | T[],
     /** Provide a function that returns a negative value if the first argument is less than the second argument,
      * zero if they're equal, and a positive value otherwise. */
     private sortingFunction: (a: T, b: T) => number

@@ -1,6 +1,9 @@
 import { INVENTORY_DEFAULT_CAPACITY, MAX_CHARACTER_NAME_LENGTH } from "../app-consts.js";
 
-export type CustomErrorDetails = { message: string; field?: string };
+export interface CustomErrorDetails {
+  message: string;
+  field?: string;
+}
 
 export const ERROR_MESSAGES = {
   TODO: "Not yet implemented",
@@ -11,11 +14,13 @@ export const ERROR_MESSAGES = {
   CLASS_INSTANCE_NOT_INITIALIZED: "The class instance was not initialized",
   LOOP_SAFETY_ITERATION_LIMIT_REACHED: (limit: number) =>
     `Loop reached the safety limit of ${limit}`,
+  DATABASE: { SAVING: "There was an error saving the record in the database" },
   SERVER: {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket IDs were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",
     SOCKET_NOT_FOUND: "No socket by that ID was found",
   },
+  USER_INPUT: { INVALID_TYPE: "Expected user input type was invalid" },
   AUTH: {
     REQUIRED: "Only a logged in user may perform that action",
   },
@@ -36,7 +41,9 @@ export const ERROR_MESSAGES = {
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
   },
   GAME: {
+    NOT_FOUND: "No game was found by that name",
     NOT_STARTED: "The specified game was never started",
+    ALREADY_STARTED: "That game has already started",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided ID",
@@ -46,6 +53,7 @@ export const ERROR_MESSAGES = {
     NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
     STARTING_FLOOR_LIMIT:
       "You can't start on a deeper floor than the deepest floor reached by any character in your party",
+    INPUT_IS_LOCKED: "Can't accept new inputs while waiting for a player to reconnect",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
@@ -73,12 +81,14 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
     CHARACTER_SLOT_FULL: "That character slot is occupied",
+    CHARACTER_SLOT_NOT_FOUND: "The expected character slot was not found",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",
+    GUEST_ALREADY_EXISTS: "Guest by that id already is connected",
   },
   COMBATANT: {
-    NOT_FOUND: "No combatant was found with the provided ID",
+    NOT_FOUND: (id: string) => `No combatant was found with the provided ID ${id}`,
     NO_ACTION_SELECTED: "That combatant has no selected combat action",
     NO_TARGET_SELECTED: "That combatant has no selected target",
     NO_ACTION_LEVEL_SELECTED: "That combatant has no selected action level",

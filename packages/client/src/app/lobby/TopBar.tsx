@@ -1,10 +1,11 @@
 "use client";
-import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client_consts";
+import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client-consts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Settings } from "@/app/settings";
 import { APP_VERSION_NUMBER } from "@speed-dungeon/common";
 import { UserMenuContainer } from "./user-menu";
+import { ConnectionSelector } from "./connection-selector";
 
 export default function TopBar() {
   const pathName = usePathname();
@@ -48,7 +49,12 @@ export default function TopBar() {
             </li>
           </ul>
         </div>
-        {<UserMenuContainer />}
+        <div className="flex">
+          <div className="mr-2 flex items-center">
+            <ConnectionSelector />
+          </div>
+          <UserMenuContainer />
+        </div>
       </section>
     </>
   );

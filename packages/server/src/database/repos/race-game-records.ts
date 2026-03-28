@@ -7,18 +7,18 @@ import { raceGamePartyRecordsRepo } from "./race-game-party-records.js";
 import { SERVER_VERSION } from "../../server-version.js";
 import { env } from "../../validate-env.js";
 
-export type RaceGameRecord = {
+export interface RaceGameRecord {
   id: number;
   gameName: string;
   gameVersion: string;
   timeOfCompletion: number | Date;
-};
+}
 
-export type RaceGameParticipant = {
+export interface RaceGameParticipant {
   id: number;
   partyId: number;
   userId: string; // UUID
-};
+}
 
 const tableName = RESOURCE_NAMES.RACE_GAME_RECORDS;
 
@@ -57,7 +57,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
   }
 
   async insertGameRecord(game: SpeedDungeonGame) {
-    if (!game.timeStarted) return new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
+    game.requireTimeStarted();
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_records

@@ -1,4 +1,4 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
@@ -22,7 +22,9 @@ interface Props {
 }
 
 export const HotkeyButton = observer((props: Props) => {
-  const hotkeysDisabled = AppStore.get().inputStore.getHotkeysDisabled();
+  const clientApplication = useClientApplication();
+  const { inputs } = clientApplication.uiStore;
+  const hotkeysDisabled = inputs.getHotkeysDisabled();
   const keydownListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const disabled = props.alwaysEnabled === true ? false : props.disabled || hotkeysDisabled;
   const listenerType = props.keyUp ? "keyup" : "keydown";

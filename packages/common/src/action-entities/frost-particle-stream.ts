@@ -28,11 +28,11 @@ export class FrostParticleStream extends CosmeticEffect {
 
 export function createParticleStream(scene: Scene) {
   const particleSystem = new GPUParticleSystem("particles", { capacity: 30 }, scene);
-  particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
+  particleSystem.particleTexture = new Texture("img/particle-textures/flare.png", scene);
 
   particleSystem.createPointEmitter(new Vector3(0, 0, 0.9), new Vector3(0, 0, 1));
 
-  const mesh = new Mesh("");
+  const mesh = new Mesh("", scene);
   mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
   particleSystem.emitter = mesh;
 

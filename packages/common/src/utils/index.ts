@@ -1,25 +1,29 @@
-export * from "./get-next-or-previous-number.js";
-export * from "./get-progression-game-max-starting-floor.js";
-export * from "./array-utils.js";
-export * from "./rand-between.js";
-export * from "./shape-utils.js";
-
-export * from "./interpolation-curves.js";
-
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { CONSUMABLE_TYPE_STRINGS, Consumable, ConsumableType } from "../items/consumables/index.js";
+import { CONSUMABLE_TYPE_STRINGS, Consumable } from "../items/consumables/index.js";
 import { BoxDimensions } from "./shape-utils.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { toJS } from "mobx";
 import cloneDeep from "lodash.clonedeep";
 import { plainToInstance } from "class-transformer";
+import { EntityId, EntityName, GameName, PartyName } from "../aliases.js";
+import { ConsumableType } from "../items/consumables/consumable-types.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
 
-export function iterateNumericEnum<T extends { [name: string]: string | number }>(
+export function invariant(condition: boolean, message?: string): asserts condition {
+  if (!condition) {
+    console.trace();
+    throw new Error(`${ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED}${message ? `: ${message}` : ""}`);
+  }
+}
+
+export function iterateNumericEnum<T extends Record<string, string | number>>(
   enumType: T
 ): T[keyof T][] {
   return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
 }
 
+// old version - creates 3 intermediate arrays
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>
 ): [T, U][] {
@@ -28,6 +32,16 @@ export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
     .map(([key, value]) => [parseInt(key) as T, value as U]);
 }
 
+// new - lazily generates next value
+// export function* iterateNumericEnumKeyedRecord<K extends number, V>(
+//   record: Partial<Record<K, V>>
+// ): Iterable<[K, V]> {
+//   for (const [key, value] of Object.entries(record)) {
+//     if (value !== undefined) {
+//       yield [Number(key) as K, value as V];
+//     }
+//   }
+// }
 export function randomNormal() {
   let u = 0,
     v = 0;
@@ -47,8 +61,8 @@ export function cloneVector3(vec3: Vector3) {
   return new Vector3(vec3.x, vec3.y, vec3.z);
 }
 
-export function getProgressionGamePartyName(gameName: string) {
-  return `Delvers of ${gameName}`;
+export function getProgressionGamePartyName(gameName: GameName) {
+  return `Delvers of ${gameName}` as PartyName;
 }
 
 export function isBrowser() {
@@ -65,7 +79,7 @@ export function stringIsValidNumber(str: string) {
 
 export function createDummyConsumable(consumableType: ConsumableType) {
   return new Consumable(
-    { name: CONSUMABLE_TYPE_STRINGS[consumableType], id: "" },
+    { name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName, id: "" as EntityId },
     0,
     {},
     consumableType,
@@ -75,7 +89,6 @@ export function createDummyConsumable(consumableType: ConsumableType) {
 
 export class SequentialIdGenerator {
   private nextId: number = 0;
-  constructor() {}
   getNextId() {
     return String(this.nextId++);
   }
@@ -174,13 +187,9 @@ export function nameToPossessive(name: string): string {
   return name.endsWith("s") ? `${name}'` : `${name}'s`;
 }
 
-export function cycleListGivenCurrentValue<T>(
-  list: Array<T>,
-  current: T,
-  direction: NextOrPrevious
-): T {
+export function cycleListGivenCurrentValue<T>(list: T[], current: T, direction: NextOrPrevious): T {
   if (list.length < 1) throw new Error("Tried to cycle an empty list");
-  let currentIndex = list.indexOf(current);
+  const currentIndex = list.indexOf(current);
   if (currentIndex === -1) throw new Error("Current value was not found in provided list");
 
   let newIndex;
@@ -224,4 +233,20 @@ export function calculateBalancedAttributeSynergy(attributeA: number, attributeB
   const total = base - imbalancePenalty;
 
   return Math.max(1, Math.round(total));
+}
+
+export function removeUndefinedFields<T extends object>(obj: T): T {
+  return Object.fromEntries(Object.entries(obj).filter(([_, value]) => value !== undefined)) as T;
+}
+
+export function isDefined<T>(value: T | null | undefined): value is T {
+  return value != null;
+}
+
+export function throwIfLoopLimitReached(safetyCounter: number) {
+  if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+    throw new Error(
+      ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT)
+    );
+  }
 }

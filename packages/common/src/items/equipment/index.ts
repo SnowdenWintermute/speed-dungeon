@@ -11,22 +11,17 @@ import {
   PrefixType,
   SuffixType,
 } from "./affixes.js";
-import { EquipmentBaseItemProperties, WeaponProperties } from "./equipment-properties/index.js";
+import { EquipmentBaseItemProperties } from "./equipment-properties/index.js";
 import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { iterateNumericEnumKeyedRecord, runIfInBrowser } from "../../utils/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { ResourceChangeSource } from "../../combat/hp-change-source-types.js";
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
-
-export * from "./equipment-properties/index.js";
-export * from "./pre-determined-items/index.js";
-export * from "./equipment-traits/index.js";
-export * from "./slots.js";
-export * from "./equipment-types/index.js";
-export * from "./affixes.js";
+import { WeaponProperties } from "./equipment-properties/weapon-properties.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -34,7 +29,7 @@ const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.TwoHandedRangedWeapon,
 ];
 
-export class Equipment extends Item {
+export class Equipment extends Item implements Serializable, ReactiveNode {
   attributes: CombatantAttributeRecord = {};
   affixes: EquipmentAffixes = {};
   constructor(
@@ -45,16 +40,24 @@ export class Equipment extends Item {
     public durability: null | { current: number; inherentMax: number }
   ) {
     super(entityProperties, itemLevel, requirements);
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  static getDeserialized(plain: Equipment) {
-    return plainToInstance(Equipment, plain);
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<Equipment>) {
+    return plainToInstance(Equipment, serialized);
   }
 
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
 
   getBaseArmorClass() {
+    // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
     switch (this.equipmentBaseItemProperties.equipmentType) {
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:
@@ -156,14 +159,21 @@ export class Equipment extends Item {
       if (!lifestealPercentageTrait)
         return new Error(ERROR_MESSAGES.EQUIPMENT.EXPECTED_TRAIT_MISSING);
 
-      hpChangeSource.lifestealPercentage
-        ? (hpChangeSource.lifestealPercentage += lifestealPercentageTrait.value)
-        : (hpChangeSource.lifestealPercentage = lifestealPercentageTrait.value);
+      if (hpChangeSource.lifestealPercentage) {
+        hpChangeSource.lifestealPercentage += lifestealPercentageTrait.value;
+      } else {
+        hpChangeSource.lifestealPercentage = lifestealPercentageTrait.value;
+      }
     }
   }
 
   getWeaponProperties(): Error | WeaponProperties {
     if (!this.isWeapon()) return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    return this.equipmentBaseItemProperties as WeaponProperties;
+  }
+
+  requireWeaponProperties() {
+    if (!this.isWeapon()) throw new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
     return this.equipmentBaseItemProperties as WeaponProperties;
   }
 
@@ -230,8 +240,14 @@ export class Equipment extends Item {
   }
 
   changeDurability(value: number) {
-    if (this.isIndestructable() || this.durability === null) return;
-    this.durability.current = Math.max(0, this.durability.current + value);
+    const durability = this.getDurability();
+    if (durability === null || this.isIndestructable() || this.durability === null) {
+      return;
+    }
+    this.durability.current = Math.min(
+      durability.max,
+      Math.max(0, this.durability.current + value)
+    );
   }
 
   isFullyRepaired() {

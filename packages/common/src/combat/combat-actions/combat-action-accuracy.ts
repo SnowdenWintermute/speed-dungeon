@@ -1,18 +1,18 @@
-import { Percentage } from "../../primatives/index.js";
+import { Percentage } from "../../aliases.js";
 
 export enum ActionAccuracyType {
   Percentage,
   Unavoidable,
 }
 
-export type ActionAccuracyPercentage = {
+export interface ActionAccuracyPercentage {
   type: ActionAccuracyType.Percentage;
   value: Percentage;
-};
+}
 
-export type ActionAccuracyUnavoidable = {
+export interface ActionAccuracyUnavoidable {
   type: ActionAccuracyType.Unavoidable;
-};
+}
 
 export type ActionAccuracy = ActionAccuracyPercentage | ActionAccuracyUnavoidable;
 

@@ -1,51 +1,60 @@
 import Divider from "@/app/components/atoms/Divider";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { BUTTON_HEIGHT_SMALL } from "@/client_consts";
+import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { HOTKEYS } from "@/hotkeys";
-import { ClientToServerEvent, stringIsValidNumber } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
-import ClickOutsideHandlerWrapper from "@/app/components/atoms/ClickOutsideHandlerWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
+import { ClientIntentType, stringIsValidNumber } from "@speed-dungeon/common";
+import { ClickOutsideHandlerWrapper } from "@/app/components/atoms/ClickOutsideHandlerWrapper";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { HOTKEYS } from "@/client-application/ui/keybind-config";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {
-    const { dialogStore, inputStore } = AppStore.get();
-    const viewingDropShardsModal = dialogStore.isOpen(DialogElementName.DropShards);
+    const clientApplication = useClientApplication();
+    const { gameClientRef } = clientApplication;
+    const { dialogs, inputs } = clientApplication.uiStore;
+    const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<number>(0);
 
     useEffect(() => {
-      inputStore.setHotkeysDisabled(true);
+      inputs.setHotkeysDisabled(true);
       return () => {
-        inputStore.setHotkeysDisabled(false);
+        inputs.setHotkeysDisabled(false);
       };
     }, []);
+
+    const { alertsService } = clientApplication;
 
     function onInputChange(e: ChangeEvent<HTMLInputElement>) {
       if (typeof e.target.value === "string" && isNaN(parseInt(e.target.value))) return;
       if (!stringIsValidNumber(e.target.value) && e.target.value !== "") {
         console.error("tried to type a non number in a number input");
       } else {
-        let newValue = parseInt(e.target.value);
+        const newValue = parseInt(e.target.value);
         if (newValue > max || newValue < min)
-          return setAlert("Enter a number between zero and your total shards");
+          return alertsService.setAlert("Enter a number between zero and your total shards");
         setValue(Number(newValue));
       }
     }
 
     function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
       e?.preventDefault();
-      if (value <= 0) return;
-      websocketConnection.emit(ClientToServerEvent.DropShards, {
-        characterId: AppStore.get().gameStore.getExpectedFocusedCharacterId(),
-        numShards: Number(value),
+      if (value <= 0) {
+        return;
+      }
+
+      gameClientRef.get().dispatchIntent({
+        type: ClientIntentType.DropShards,
+        data: {
+          characterId: clientApplication.combatantFocus.requireFocusedCharacterId(),
+          shardCount: value,
+        },
       });
-      dialogStore.close(DialogElementName.DropShards);
+
+      dialogs.close(DialogElementName.DropShards);
     }
 
     return (
@@ -53,7 +62,7 @@ export const DropShardsModal = observer(
         <ClickOutsideHandlerWrapper
           isActive={viewingDropShardsModal}
           onClickOutside={() => {
-            dialogStore.close(DialogElementName.DropShards);
+            dialogs.close(DialogElementName.DropShards);
           }}
         >
           <div className="p-4 bg-slate-800 z-50 pointer-events-auto w-72">
@@ -64,7 +73,7 @@ export const DropShardsModal = observer(
               hotkeys={[HOTKEYS.MAIN_2, HOTKEYS.CANCEL]}
               alwaysEnabled={true}
               onClick={() => {
-                dialogStore.close(DialogElementName.DropShards);
+                dialogs.close(DialogElementName.DropShards);
               }}
             >
               <XShape className="h-full w-full fill-zinc-300" />

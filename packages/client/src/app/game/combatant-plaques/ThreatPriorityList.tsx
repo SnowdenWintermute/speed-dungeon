@@ -10,10 +10,10 @@ import {
   getCombatantUiIdentifierIcon,
 } from "@/utils/get-combatant-class-icon";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode } from "@/mobx-stores/config";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { UI_DISPLAY_MODE_STRINGS, UiDisplayMode } from "@/client-application/ui/config";
 
 interface Props {
   threatManager: null | ThreatManager;
@@ -26,12 +26,12 @@ export const ThreatPriorityList = observer(({ threatManager }: Props) => {
 
   const topThreatId = threatManager.getHighestThreatCombatantId();
   const highestThreat =
-    topThreatId !== null ? threatManager.getEntries()[topThreatId]?.getTotal() : 0;
+    topThreatId !== null ? threatManager.getEntries().get(topThreatId)?.getTotal() : 0;
 
   return (
     <div className={`min-h-full pointer-events-auto pr-1`}>
       <ul>
-        {Object.entries(entries)
+        {[...entries]
           .sort((a, b) => b[1].getTotal() - a[1].getTotal())
           .map(([entityId, threatTableEntry], i) => (
             <li key={entityId} className="mb-1 last:mb-0">
@@ -55,13 +55,15 @@ const ThreatTrackerIcon = observer(
     threatTableEntry: ThreatTableEntry;
     percentOfTopThreat: number;
   }) => {
-    const { dialogStore, configStore } = AppStore.get();
-    const threatTableDetailedDisplayMode = configStore.getThreatTableDisplayMode();
-    const showDebug = dialogStore.isOpen(DialogElementName.Debug);
+    const clientApplication = useClientApplication();
+    const { uiStore, gameContext } = clientApplication;
+    const { dialogs, config } = uiStore;
+    const threatTableDetailedDisplayMode = config.getThreatTableDisplayMode();
+    const showDebug = dialogs.isOpen(DialogElementName.Debug);
 
     const { extraStyles, entityId, threatTableEntry } = props;
 
-    const { party, combatant } = AppStore.get().gameStore.getExpectedCombatantContext(entityId);
+    const { party, combatant } = gameContext.requireCombatantContext(entityId);
 
     const { combatantClass } =
       combatant.combatantProperties.classProgressionProperties.getMainClass();
@@ -76,7 +78,7 @@ const ThreatTrackerIcon = observer(
     const totalThreat = stableThreat + volatileThreat;
 
     function handleClick() {
-      configStore.cycleThreatTableDisplayMode();
+      config.cycleThreatTableDisplayMode();
     }
 
     const hoverableDebugText = showDebug ? entityId : "";

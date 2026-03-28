@@ -1,15 +1,5 @@
-import {
-  ActionPayableResource,
-  CombatActionGameLogProperties,
-  CombatActionComponentConfig,
-  CombatActionComposite,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionOrigin,
-  FriendOrFoe,
-} from "../../index.js";
+import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { CombatActionTargetType } from "../../../targeting/combat-action-targets.js";
-import { EquipmentType } from "../../../../items/equipment/index.js";
 import { AbilityType } from "../../../../abilities/index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
@@ -27,6 +17,13 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CHAINING_SPLIT_ARROW_PARENT_STEPS_CONFIG } from "./chaining-split-arrow-parent-steps-config.js";
 import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { EquipmentType } from "../../../../items/equipment/equipment-types/index.js";
+import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.BOW_ATTACK,

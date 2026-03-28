@@ -1,11 +1,9 @@
-import { CosmeticEffectNames } from "../../../../action-entities/index.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
 import {
   ACTION_STEPS_CONFIG_TEMPLATE_GETTERS,
   createStepsConfig,
 } from "../generic-action-templates/step-config-templates/index.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   CombatantBaseChildTransformNodeName,
   SceneEntityChildTransformNodeIdentifier,
   SceneEntityType,
@@ -16,6 +14,8 @@ import { ActionResolutionStepConfig } from "../../combat-action-steps-config.js"
 import { CosmeticEffectInstructionFactory } from "../generic-action-templates/cosmetic-effect-factories/index.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { CleanupMode } from "../../../../types.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 
 const stepOverrides: Partial<Record<ActionResolutionStepType, ActionResolutionStepConfig>> = {};
 
@@ -28,7 +28,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
     // @PERF - can probably combine all these individual targetingCalculator creations
     // and pass the targetId to getStartPointingTowardEntityOption and getCosmeticDestinationY et al
     const targetingCalculator = new TargetingCalculator(actionUserContext, null);
-    let primaryTargetId = throwIfError(
+    const primaryTargetId = throwIfError(
       targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
     );
     return {
@@ -70,7 +70,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
             type: SceneEntityType.ActionEntityModel,
             entityId: iceBoltProjectile.getEntityId(),
           },
-          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
         },
       },
     ];

@@ -1,4 +1,3 @@
-import { plainToInstance } from "class-transformer";
 import {
   ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED,
   AbilityTreeAbility,
@@ -8,13 +7,8 @@ import {
 } from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import {
-  CombatActionComponent,
-  CombatActionName,
-  FriendOrFoe,
-} from "../../combat/combat-actions/index.js";
+import { CombatActionComponent } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { runIfInBrowser } from "../../utils/index.js";
 import { CombatantTraitProperties } from "../combatant-traits/combatant-trait-properties.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { CombatantActionState } from "../owned-actions/combatant-action-state.js";
@@ -22,36 +16,51 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
-import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/tame-pet.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant } from "../index.js";
 import cloneDeep from "lodash.clonedeep";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { FriendOrFoe } from "../../combat/combat-actions/targeting-schemes-and-categories.js";
+import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { MapUtils } from "../../utils/map-utils.js";
+import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/get-tame-pet-max-level.js";
 
-export class CombatantAbilityProperties extends CombatantSubsystem {
-  private ownedActions: Map<CombatActionName, CombatantActionState> = new Map();
+export class CombatantAbilityProperties
+  extends CombatantSubsystem
+  implements Serializable, ReactiveNode
+{
+  private ownedActions = new Map<CombatActionName, CombatantActionState>();
   private unspentAbilityPoints: number = 0;
   private traitProperties = new CombatantTraitProperties();
 
-  constructor() {
-    super();
-    runIfInBrowser(() => makeAutoObservable(this));
+  makeObservable() {
+    makeAutoObservable(this);
+    for (const [_, action] of this.ownedActions) {
+      action.makeObservable();
+    }
+    this.traitProperties.makeObservable();
   }
 
-  static getDeserialized(serialized: CombatantAbilityProperties) {
-    const deserialized = plainToInstance(CombatantAbilityProperties, serialized);
+  toSerialized() {
+    return {
+      ownedActions: MapUtils.serialize(this.ownedActions, (v) => v.toSerialized()),
+      unspentAbilityPoints: this.unspentAbilityPoints,
+      traitProperties: this.traitProperties.toSerialized(),
+    };
+  }
 
-    deserialized.traitProperties = CombatantTraitProperties.getDeserialized(
-      deserialized.traitProperties
+  static fromSerialized(serialized: SerializedOf<CombatantAbilityProperties>) {
+    const result = new CombatantAbilityProperties();
+    result.ownedActions = MapUtils.deserialize(
+      serialized.ownedActions,
+      CombatantActionState.fromSerialized
     );
-
-    deserialized.ownedActions = new Map<CombatActionName, CombatantActionState>();
-    for (const [key, value] of Object.entries(serialized.ownedActions)) {
-      deserialized.ownedActions.set(parseInt(key), value);
-    }
-
-    return deserialized;
+    result.unspentAbilityPoints = serialized.unspentAbilityPoints;
+    result.traitProperties = CombatantTraitProperties.fromSerialized(serialized.traitProperties);
+    return result;
   }
 
   getUnspentPointsCount() {
@@ -87,12 +96,13 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
     switch (ability.type) {
       case AbilityType.Action:
         return this.ownedActions.get(ability.actionName)?.level || 0;
-      case AbilityType.Trait:
+      case AbilityType.Trait: {
         const { speccedTraitLevels, inherentTraitLevels } = this.traitProperties;
         return (
           (speccedTraitLevels[ability.traitType] || 0) +
           (inherentTraitLevels[ability.traitType] || 0)
         );
+      }
     }
   }
 
@@ -201,7 +211,7 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
   private changeAbilityRank(ability: AbilityTreeAbility, changeBy: number) {
     const { ownedActions, traitProperties } = this;
     switch (ability.type) {
-      case AbilityType.Action:
+      case AbilityType.Action: {
         const existingActionOption = ownedActions.get(ability.actionName);
         const actionComesWith = ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED[ability.actionName];
 
@@ -227,11 +237,13 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
           );
         }
         break;
-      case AbilityType.Trait:
+      }
+      case AbilityType.Trait: {
         const existingTraitLevel = traitProperties.speccedTraitLevels[ability.traitType];
         if (existingTraitLevel !== undefined)
           traitProperties.speccedTraitLevels[ability.traitType] = existingTraitLevel + changeBy;
         else traitProperties.speccedTraitLevels[ability.traitType] = changeBy;
+      }
     }
   }
 
@@ -294,5 +306,18 @@ export class CombatantAbilityProperties extends CombatantSubsystem {
       CombatantConditionName.Ensnared
     );
     return !isEnsnared;
+  }
+
+  shardConversionPermitted(currentRoomType: DungeonRoomType) {
+    return (
+      currentRoomType === DungeonRoomType.VendingMachine ||
+      this.getTraitProperties().hasTraitType(CombatantTraitType.CanConvertToShardsManually)
+    );
+  }
+
+  requireShardConversionPermitted(currentRoomType: DungeonRoomType) {
+    if (!this.shardConversionPermitted(currentRoomType)) {
+      throw new Error(ERROR_MESSAGES.NOT_PERMITTED);
+    }
   }
 }

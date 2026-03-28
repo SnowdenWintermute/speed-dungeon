@@ -1,13 +1,13 @@
-import { plainToInstance } from "class-transformer";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { ThreatType } from "../../../combatants/index.js";
-import { EntityId } from "../../../primatives/index.js";
+import { CombatantId, EntityId } from "../../../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
+import { ThreatType } from "../../../combatants/threat-manager/index.js";
+import { Serializable, SerializedOf } from "../../../serialization/index.js";
 
 export abstract class ResourceChanges<T> {
   protected changes: Record<EntityId, T> = {};
-  constructor() {}
   addRecord(entityId: string, change: T) {
     this.changes[entityId] = change;
   }
@@ -22,10 +22,15 @@ export abstract class ResourceChanges<T> {
   abstract applyToGame(party: AdventuringParty): void;
 }
 
-export class HitPointChanges extends ResourceChanges<ResourceChange> {
-  constructor() {
-    super();
+export class HitPointChanges extends ResourceChanges<ResourceChange> implements Serializable {
+  toSerialized() {
+    return instanceToPlain(this);
   }
+
+  static fromSerialized(serialized: SerializedOf<HitPointChanges>) {
+    return plainToInstance(HitPointChanges, serialized);
+  }
+
   applyToGame(party: AdventuringParty) {
     const combatantsKilled: EntityId[] = [];
 
@@ -64,10 +69,6 @@ export class ManaChange {
 }
 
 export class ManaChanges extends ResourceChanges<ManaChange> {
-  constructor() {
-    super();
-  }
-
   applyToGame(party: AdventuringParty) {
     for (const [targetId, change] of Object.entries(this.changes)) {
       const target = party.combatantManager.getExpectedCombatant(targetId);
@@ -77,25 +78,31 @@ export class ManaChanges extends ResourceChanges<ManaChange> {
   }
 }
 
-export class ThreatChanges {
+export class ThreatChanges implements Serializable {
+  // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entries: {
-    [entityIdOfThreatTableToUpdate: EntityId]: {
-      [threatTableEntityId: EntityId]: Partial<Record<ThreatType, number>>;
+    // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+    [entityIdOfThreatTableToUpdate: CombatantId]: {
+      [threatTableEntityId: CombatantId]: Partial<Record<ThreatType, number>>;
     };
   } = {};
+  // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
   private entriesToRemove: {
-    [entityIdOfThreatTableToUpdate: EntityId]: EntityId[];
+    [entityIdOfThreatTableToUpdate: CombatantId]: CombatantId[];
   } = {};
-  constructor() {}
 
-  static getDeserialized(plain: ThreatChanges) {
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(plain: SerializedOf<ThreatChanges>) {
     return plainToInstance(ThreatChanges, plain);
   }
 
   isEmpty() {
     return Object.keys(this.entries).length === 0;
   }
-  addEntryToRemove(entityIdOfThreatTableToUpdate: EntityId, threatTableEntityId: EntityId) {
+  addEntryToRemove(entityIdOfThreatTableToUpdate: CombatantId, threatTableEntityId: CombatantId) {
     let existing = this.entriesToRemove[entityIdOfThreatTableToUpdate];
     if (existing === undefined) existing = this.entriesToRemove[entityIdOfThreatTableToUpdate] = [];
     if (existing.includes(threatTableEntityId)) return;
@@ -105,8 +112,8 @@ export class ThreatChanges {
     return this.entriesToRemove;
   }
   addOrUpdateEntry(
-    monsterIdOwnerOfThreatTable: EntityId,
-    entityIdOfEntryInTable: EntityId,
+    monsterIdOwnerOfThreatTable: CombatantId,
+    entityIdOfEntryInTable: CombatantId,
     threatType: ThreatType,
     value: number
   ) {
@@ -117,10 +124,15 @@ export class ThreatChanges {
       };
 
     let existingEntityThreat = existingEntry[entityIdOfEntryInTable];
-    if (existingEntityThreat === undefined)
+    if (existingEntityThreat === undefined) {
       existingEntityThreat = existingEntry[entityIdOfEntryInTable] = {};
-    if (existingEntityThreat[threatType] === undefined) existingEntityThreat[threatType] = value;
-    else existingEntityThreat[threatType] += value;
+    }
+    const existing = existingEntityThreat[threatType];
+    if (existing === undefined) {
+      existingEntityThreat[threatType] = value;
+    } else {
+      existingEntityThreat[threatType] = existing + value;
+    }
 
     return existingEntityThreat[threatType];
   }
@@ -138,7 +150,7 @@ export class ThreatChanges {
 
       for (const [entityId, changesByThreatType] of Object.entries(changes)) {
         for (const [threatType, value] of iterateNumericEnumKeyedRecord(changesByThreatType)) {
-          threatManager.changeThreat(entityId, threatType, value);
+          threatManager.changeThreat(entityId as CombatantId, threatType, value);
         }
       }
     }

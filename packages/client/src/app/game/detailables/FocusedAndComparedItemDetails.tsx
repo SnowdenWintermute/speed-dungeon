@@ -3,25 +3,31 @@ import React, { useEffect } from "react";
 import { ItemDetails } from "./ItemDetails";
 import shouldDisplayModTooltip from "./should-display-mod-tooltip";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
-import { ModifierKey } from "@/mobx-stores/input";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 interface Props {
   focusedItem: Item;
 }
 
 export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) => {
-  const { focusStore, inputStore } = AppStore.get();
-  const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
-  const { comparedItem, comparedSlot } = focusStore.getItemComparison();
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
+  const { inputs } = clientApplication.uiStore;
+  const modKeyHeld = inputs.getKeyIsHeld(ModifierKey.Mod);
+  const { comparedItem, comparedSlot } = detailableEntityFocus.getItemComparison();
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
-    const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
-    focusStore.updateItemComparison(focusedItem, modKeyHeld, focusedCharacter.getEquipmentOption());
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+    detailableEntityFocus.updateItemComparison(
+      focusedItem,
+      modKeyHeld,
+      focusedCharacter.getEquipmentOption()
+    );
 
     return () => {
-      focusStore.clearItemComparison();
+      detailableEntityFocus.clearItemComparison();
     };
   }, [modKeyHeld, focusedItemId]);
 

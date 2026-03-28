@@ -28,11 +28,14 @@ export class SmokePuff extends CosmeticEffect {
 
     particleSystems.forEach((particleSystem, i) => {
       particleSystem.blendMode = ParticleSystem.BLENDMODE_STANDARD;
-      particleSystem.particleTexture = new Texture(`img/particle-textures/smoke-${i + 1}.png`);
+      particleSystem.particleTexture = new Texture(
+        `img/particle-textures/smoke-${i + 1}.png`,
+        scene
+      );
 
       particleSystem.createConeEmitter(0.1, 0.3);
 
-      const mesh = new Mesh("");
+      const mesh = new Mesh("", this.scene);
 
       mesh.rotationQuaternion = Quaternion.FromEulerVector(Vector3.Up());
 

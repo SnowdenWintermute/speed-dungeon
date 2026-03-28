@@ -1,7 +1,6 @@
-import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
-  ClientToServerEvent,
+  ClientIntentType,
   CraftingAction,
   Equipment,
   getCraftingActionPrice,
@@ -10,7 +9,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 
 interface Props {
   equipment: Equipment;
@@ -19,17 +18,24 @@ interface Props {
 
 export const RepairEquipmentButton = observer((props: Props) => {
   const { equipment, listIndex } = props;
-  const focusedCharacter = AppStore.get().gameStore.getExpectedFocusedCharacter();
+  const clientApplication = useClientApplication();
+  const { gameClientRef } = clientApplication;
+  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
 
   const price = getCraftingActionPrice(CraftingAction.Repair, equipment);
   const durability = equipment.getDurability();
-  if (durability === null) return <div>Indestructable item not shown</div>;
+  if (durability === null) {
+    return <div>Indestructable item not shown</div>;
+  }
 
   function clickHandler() {
-    websocketConnection.emit(ClientToServerEvent.PerformCraftingAction, {
-      characterId: focusedCharacter.getEntityId(),
-      itemId: equipment.entityProperties.id,
-      craftingAction: CraftingAction.Repair,
+    gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.PerformCraftingAction,
+      data: {
+        characterId: focusedCharacter.getEntityId(),
+        itemId: equipment.getEntityId(),
+        craftingAction: CraftingAction.Repair,
+      },
     });
   }
 

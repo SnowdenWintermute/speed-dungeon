@@ -1,9 +1,11 @@
 import cloneDeep from "lodash.clonedeep";
-import { EntityProperties } from "../primatives/index.js";
-import itemRequirementsMet from "./requirements-met.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
-import { Consumable, ConsumableType } from "./consumables/index.js";
-import { Equipment } from "./equipment/index.js";
+import { Consumable } from "./consumables/index.js";
+import { EntityProperties } from "../primatives/entity-properties.js";
+import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { ConsumableType } from "./consumables/consumable-types.js";
+import { ItemId } from "../aliases.js";
 
 export enum ItemType {
   Consumable,
@@ -29,6 +31,10 @@ export abstract class Item {
     Object.assign(this, cloneDeep(source));
   }
 
+  getEntityId() {
+    return this.entityProperties.id as ItemId;
+  }
+
   static removeFromArray(array: Item[], itemId: string) {
     let indexToRemove = -1;
     array.forEach((item, i) => {
@@ -42,9 +48,24 @@ export abstract class Item {
     }
   }
 
-  static requirementsMet = itemRequirementsMet;
+  static requirementsMet(item: Item, combatantAttributes: CombatantAttributeRecord) {
+    for (const [key, requiredValue] of iterateNumericEnumKeyedRecord(item.requirements)) {
+      const combatantAttributeValue = combatantAttributes[key];
+      if (!combatantAttributeValue) return false;
+      if (combatantAttributeValue < requiredValue) return false;
+    }
+    return true;
+  }
 
   static isConsumable(item: Item) {
     return item instanceof Consumable;
+  }
+
+  getType() {
+    return this instanceof Consumable ? ItemType.Consumable : ItemType.Equipment;
+  }
+
+  isShardStack(): this is Consumable & { consumableType: ConsumableType.StackOfShards } {
+    return this instanceof Consumable && this.consumableType === ConsumableType.StackOfShards;
   }
 }

@@ -1,42 +1,46 @@
 import React from "react";
-import { ClientToServerEvent, Item } from "@speed-dungeon/common";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { AppStore } from "@/mobx-stores/app-store";
+import { ClientIntentType, Item } from "@speed-dungeon/common";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
+import { ClientApplication } from "@/client-application";
 
 interface Props {
   item: Item;
   disabled: boolean;
 }
 
-export function takeItem(item: Item) {
-  const { focusStore, gameStore } = AppStore.get();
+export function takeItem(clientApplication: ClientApplication, item: Item) {
+  const { gameClientRef, detailableEntityFocus, combatantFocus } = clientApplication;
 
-  focusStore.detailables.clear();
+  detailableEntityFocus.detailables.clear();
 
-  websocketConnection.emit(ClientToServerEvent.PickUpItems, {
-    characterId: gameStore.getExpectedFocusedCharacterId(),
-    itemIds: [item.entityProperties.id],
+  gameClientRef.get().dispatchIntent({
+    type: ClientIntentType.PickUpItems,
+    data: {
+      characterId: combatantFocus.requireFocusedCharacterId(),
+      itemIds: [item.entityProperties.id],
+    },
   });
 }
 
 export const ItemOnGround = observer((props: Props) => {
-  const { focusStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { detailableEntityFocus } = clientApplication;
 
   const { item } = props;
   function mouseEnterHandler() {
-    focusStore.detailables.setHovered(item);
+    detailableEntityFocus.detailables.setHovered(item);
   }
   function mouseLeaveHandler() {
-    focusStore.detailables.clearHovered();
+    detailableEntityFocus.detailables.clearHovered();
   }
   function clickHandler() {
-    focusStore.selectItem(item);
+    detailableEntityFocus.selectItem(item);
   }
 
-  const itemIsDetailed = focusStore.entityIsDetailed(item.entityProperties.id);
-  const itemIsHovered = focusStore.entityIsHovered(item.entityProperties.id);
+  const itemIsDetailed = detailableEntityFocus.entityIsDetailed(item.entityProperties.id);
+  const itemIsHovered = detailableEntityFocus.entityIsHovered(item.entityProperties.id);
 
   const conditionalClassNames = (() => {
     if (itemIsDetailed) return "border-yellow-400 hover:border-t";
@@ -56,7 +60,7 @@ export const ItemOnGround = observer((props: Props) => {
         className="cursor-pointer pr-4 pl-4 box-border
             flex justify-center items-center disabled:opacity-50 disabled:cursor-auto
             border-slate-400 border-r h-full hover:bg-slate-950"
-        onClick={() => takeItem(item)}
+        onClick={() => takeItem(clientApplication, item)}
         onFocus={mouseEnterHandler}
         onBlur={mouseLeaveHandler}
         disabled={props.disabled}

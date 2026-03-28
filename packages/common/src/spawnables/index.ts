@@ -1,7 +1,8 @@
 import { ActionEntity } from "../action-entities/index.js";
+import { EntityId } from "../aliases.js";
 import { Combatant } from "../combatants/index.js";
-import { EntityId } from "../primatives/index.js";
 import { SceneEntityChildTransformNodeIdentifier } from "../scene-entities/index.js";
+import { SerializedOf } from "../serialization/index.js";
 
 export enum SpawnableEntityType {
   Combatant,
@@ -17,20 +18,34 @@ export interface PetProperties {
   ownerId: EntityId;
 }
 
-export type SpawnedCombatant = {
+export interface SpawnedCombatant {
   type: SpawnableEntityType.Combatant;
   combatant: Combatant;
   parentTransformNodeOption?: SceneEntityChildTransformNodeIdentifier;
   petProperties?: PetProperties;
   doNotIdle?: boolean;
-};
+}
 
-export type SpawnedActionEntity = {
+export interface SerializedSpawnedCombatant {
+  type: SpawnableEntityType.Combatant;
+  combatant: SerializedOf<Combatant>;
+  parentTransformNodeOption?: SceneEntityChildTransformNodeIdentifier;
+  petProperties?: PetProperties;
+  doNotIdle?: boolean;
+}
+
+export interface SpawnedActionEntity {
   type: SpawnableEntityType.ActionEntity;
   actionEntity: ActionEntity;
-};
+}
+
+export interface SerializedSpawnedActionEntity {
+  type: SpawnableEntityType.ActionEntity;
+  actionEntity: SerializedOf<ActionEntity>;
+}
 
 export type SpawnableEntity = SpawnedCombatant | SpawnedActionEntity;
+export type SerializedSpawnableEntity = SerializedSpawnedCombatant | SerializedSpawnedActionEntity;
 
 export function getSpawnableEntityId(entity: SpawnableEntity) {
   switch (entity.type) {

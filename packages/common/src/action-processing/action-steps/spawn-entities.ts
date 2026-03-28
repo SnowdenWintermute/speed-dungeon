@@ -5,8 +5,8 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
-import { COMBAT_ACTIONS, COMBAT_ACTION_NAME_STRINGS } from "../../combat/index.js";
-import { SpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
+import { SerializedSpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
+import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
@@ -16,7 +16,7 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
     if (!stepConfig) throw new Error("expected step config not found");
     const { getSpawnableEntities } = stepConfig;
     if (!getSpawnableEntities) {
-      const message = `no spawnable entity getter for this step ${COMBAT_ACTION_NAME_STRINGS[action.name]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]}`;
+      const message = `no spawnable entity getter for this step ${action.getStringName()} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[stepType]}`;
       throw new Error(message);
     }
 
@@ -35,21 +35,26 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
             spawnableEntity.combatant.combatantProperties.resources.setToMax();
             party.combatantManager.addCombatant(spawnableEntity.combatant, game);
             break;
-          case SpawnableEntityType.ActionEntity:
+          case SpawnableEntityType.ActionEntity: {
             const { actionEntityManager } = party;
             actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);
+            break;
+          }
         }
 
         context.tracker.spawnedEntities.push(spawnableEntity);
       }
 
-      const serializedSpawnedEntities: SpawnableEntity[] = taggedSpawnableEntities.map(
+      const serializedSpawnedEntities: SerializedSpawnableEntity[] = taggedSpawnableEntities.map(
         (taggedSpawnable) => {
           switch (taggedSpawnable.type) {
             case SpawnableEntityType.Combatant:
-              return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.getSerialized() };
+              return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.toSerialized() };
             case SpawnableEntityType.ActionEntity:
-              return taggedSpawnable;
+              return {
+                ...taggedSpawnable,
+                actionEntity: taggedSpawnable.actionEntity.toSerialized(),
+              };
           }
         }
       );

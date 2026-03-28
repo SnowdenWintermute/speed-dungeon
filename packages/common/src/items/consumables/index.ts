@@ -1,19 +1,16 @@
 import { EntityProperties } from "../../primatives/entity-properties.js";
 import { Item } from "../index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { CombatActionName } from "../../combat/index.js";
-import { CombatantClass } from "../../combatants/index.js";
+import { ConsumableType } from "./consumable-types.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { EntityName } from "../../aliases.js";
+import { IdGenerator } from "../../utility-classes/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import makeAutoObservable from "mobx-store-inheritance";
+import { instanceToPlain, plainToInstance } from "class-transformer";
 
-export enum ConsumableType {
-  HpAutoinjector,
-  MpAutoinjector,
-  StackOfShards,
-  WarriorSkillbook,
-  RogueSkillbook,
-  MageSkillbook,
-}
-
-export class Consumable extends Item {
+export class Consumable extends Item implements Serializable, ReactiveNode {
   constructor(
     public entityProperties: EntityProperties,
     public itemLevel: number,
@@ -24,12 +21,39 @@ export class Consumable extends Item {
     super(entityProperties, itemLevel, requirements);
   }
 
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<Consumable>) {
+    return plainToInstance(Consumable, serialized);
+  }
+
   getActionName() {
     return CONSUMABLE_ACTION_NAMES_BY_CONSUMABLE_TYPE[this.consumableType];
   }
 
   static isSkillBook(consumableType: ConsumableType) {
     return (SKILL_BOOK_CONSUMABLE_TYPES as readonly ConsumableType[]).includes(consumableType);
+  }
+
+  static createShardStack(numShards: number, idGenerator: IdGenerator) {
+    const name =
+      `${CONSUMABLE_TYPE_STRINGS[ConsumableType.StackOfShards]} (${numShards})` as EntityName;
+    return new Consumable(
+      {
+        name,
+        id: idGenerator.generate(),
+      },
+      0,
+      {},
+      ConsumableType.StackOfShards,
+      numShards
+    );
   }
 }
 
@@ -48,7 +72,7 @@ export function getSkillBookName(consumableType: ConsumableType, itemLevel: numb
     bookVolumeName = `, Volume ${itemLevel}`;
   }
 
-  return CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName;
+  return (CONSUMABLE_TYPE_STRINGS[consumableType] + bookVolumeName) as EntityName;
 }
 
 export const CONSUMABLE_DESCRIPTIONS: Record<ConsumableType, string> = {

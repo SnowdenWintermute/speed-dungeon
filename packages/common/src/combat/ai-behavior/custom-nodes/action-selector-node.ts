@@ -18,19 +18,13 @@ export class ActionSelectorNode implements BehaviorNode {
   }
 
   execute(): BehaviorNodeState {
-    console.log("attempting ai behavior type:", AI_BEHAVIOR_TYPE_STRINGS[this.aiType]);
     const actionIntentOption = this.actionSelector.getBestActionIntentOption(
       this.possibleTargetFilters,
       this.actionIntentEvaluator
     );
     const actionNameSelected = actionIntentOption?.actionName;
-    console.log(
-      "best action intent option:",
-      actionNameSelected !== undefined ? COMBAT_ACTION_NAME_STRINGS[actionNameSelected] : "none"
-    );
 
     if (actionIntentOption === null) {
-      console.log(AI_BEHAVIOR_TYPE_STRINGS[this.aiType], "failed to find action");
       return BehaviorNodeState.Failure;
     } else {
       this.behaviorContext.selectedActionIntent = actionIntentOption;

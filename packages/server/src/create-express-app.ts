@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import expressErrorHandler from "./express-error-handler/index.js";
@@ -9,12 +9,7 @@ import getUserIdFromUsernameInPath from "./game-server/route-handlers/middleware
 import getUserWinsAndLossesHandler from "./game-server/route-handlers/get-user-wins-and-losses.js";
 import { getUserProfileHandler } from "./game-server/route-handlers/get-user-profile.js";
 import { env } from "./validate-env.js";
-import { getAssetHandler } from "./asset-handlers/get-asset-handler.js";
-
-export default function appRoute(...args: string[]) {
-  const baseRoute = env.NODE_ENV === "production" ? "/api" : "";
-  return baseRoute.concat(...args);
-}
+import { appRoute } from "./app-route.js";
 
 export function createExpressApp() {
   const app = express();
@@ -28,31 +23,39 @@ export function createExpressApp() {
     })
   );
 
-  app.get(appRoute("/"), (_: Request, res: Response) => res.send("this is the api server"));
-  app.get(appRoute("/assets/*"), getAssetHandler);
-  app.get(appRoute("/profiles/:username"), getUserIdFromUsernameInPath, getUserProfileHandler);
-  app.get(appRoute("/ladders/level/:page"), getCharacterLevelLadderPageHandler);
+  const isProduction = env.NODE_ENV === "production";
+
+  app.get(appRoute({ isProduction }, "/"), (_: Request, res: Response) =>
+    res.send("this is the api server")
+  );
+  // app.get(appRoute("/assets/*"), getAssetHandler);
   app.get(
-    appRoute("/game-records/count/:username"),
+    appRoute({ isProduction }, "/profiles/:username"),
+    getUserIdFromUsernameInPath,
+    getUserProfileHandler
+  );
+  app.get(appRoute({ isProduction }, "/ladders/level/:page"), getCharacterLevelLadderPageHandler);
+  app.get(
+    appRoute({ isProduction }, "/game-records/count/:username"),
     getUserIdFromUsernameInPath,
     getUserRankedRaceGameCountHandler
   );
   app.get(
-    appRoute("/game-records/:username"),
+    appRoute({ isProduction }, "/game-records/:username"),
     getUserIdFromUsernameInPath,
     getUserRankedRaceHistoryHandler
   );
   app.get(
-    appRoute("/game-records/win-loss-records/:username"),
+    appRoute({ isProduction }, "/game-records/win-loss-records/:username"),
     getUserIdFromUsernameInPath,
     getUserWinsAndLossesHandler
   );
 
-  app.all(appRoute("*"), (req: Request, _: Response, next: NextFunction) => {
-    const err = new Error(`Route ${req.originalUrl} not found`) as any;
-    err.status = 404;
-    next(err);
-  });
+  // app.all(appRoute("*"), (req: Request, _: Response, next: NextFunction) => {
+  //   const err = new Error(`Route ${req.originalUrl} not found`) as any;
+  //   err.status = 404;
+  //   next(err);
+  // });
 
   app.use(expressErrorHandler);
   return app;

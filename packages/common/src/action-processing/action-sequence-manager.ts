@@ -1,8 +1,3 @@
-import {
-  COMBAT_ACTION_NAME_STRINGS,
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-} from "../combat/index.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
@@ -11,6 +6,8 @@ import { ActionUserContext } from "../action-user-context/index.js";
 import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
+import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -134,7 +131,7 @@ export class ActionSequenceManager {
       trackerOption.storeCompletedStep();
 
       if (!trackerOption.wasAborted) {
-        let nextStepOption = trackerOption.initializeNextStep();
+        const nextStepOption = trackerOption.initializeNextStep();
 
         // START NEXT STEPS
         if (nextStepOption !== null) {

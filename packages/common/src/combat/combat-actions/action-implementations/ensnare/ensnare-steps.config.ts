@@ -3,29 +3,31 @@ import { BASIC_SPELL_STEPS_CONFIG } from "../generic-action-templates/step-confi
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { getSpeciesTimedAnimation } from "../get-species-timed-animation.js";
+import { Vector3 } from "@babylonjs/core";
+import { Combatant } from "../../../../combatants/index.js";
+import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
+import { MonsterType } from "../../../../monsters/monster-types.js";
 import {
-  calculateBalancedAttributeSynergy,
-  Combatant,
-  COMBATANT_MAX_LEVEL,
-  CombatantBaseChildTransformNodeName,
-  CombatantClass,
   CombatantControlledBy,
   CombatantControllerType,
-  CombatantProperties,
-  CombatantSpecies,
-  CombatantTraitProperties,
-  CombatantTraitType,
-  CombatAttribute,
-  IActionUser,
-  KineticDamageType,
-  MagicalElement,
-  MonsterType,
+} from "../../../../combatants/combatant-controllers.js";
+import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
+import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
+import { SpawnableEntityType } from "../../../../spawnables/index.js";
+import {
+  CombatantBaseChildTransformNodeName,
   SceneEntityType,
-  SkeletalAnimationName,
-  SpawnableEntityType,
-  TargetingCalculator,
-} from "../../../../index.js";
-import { Vector3 } from "@babylonjs/core";
+} from "../../../../scene-entities/index.js";
+import { COMBATANT_MAX_LEVEL, SkeletalAnimationName } from "../../../../app-consts.js";
+import { MagicalElement } from "../../../magical-elements.js";
+import { KineticDamageType } from "../../../kinetic-damage-types.js";
+import { IActionUser } from "../../../../action-user-context/action-user.js";
+import { calculateBalancedAttributeSynergy } from "../../../../utils/index.js";
+import { CombatantSpecies } from "../../../../combatants/combatant-species.js";
+import { CombatantClass } from "../../../../combatants/combatant-class/classes.js";
+import { CombatantTraitProperties } from "../../../../combatants/combatant-traits/combatant-trait-properties.js";
+import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { EntityName, Username } from "../../../../aliases.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);
@@ -33,12 +35,12 @@ ActionStepConfigUtils.removeMoveForwardSteps(config);
 config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
   getSpawnableEntities: (context) => {
     const web = Combatant.createInitialized(
-      { name: "Webbbbbbbbbbbbbbbbbbbbbbb", id: context.idGenerator.generate() },
+      { name: "Webbbbbbbbbbbbbbbbbbbbbbb" as EntityName, id: context.idGenerator.generate() },
       new CombatantProperties(
         CombatantClass.Warrior,
         CombatantSpecies.Net,
         MonsterType.Net,
-        new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
+        new CombatantControlledBy(CombatantControllerType.Dungeon, "" as Username),
         Vector3.Zero()
       )
     );

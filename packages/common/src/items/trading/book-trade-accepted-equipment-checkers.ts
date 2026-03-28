@@ -1,7 +1,9 @@
 import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { BookConsumableType, ConsumableType } from "../consumables/index.js";
-import { Equipment, EquipmentType, STAVES, WANDS } from "../equipment/index.js";
+import { BookConsumableType } from "../consumables/index.js";
+import { Equipment } from "../equipment/index.js";
 import { KineticDamageType } from "../../combat/kinetic-damage-types.js";
+import { ConsumableType } from "../consumables/consumable-types.js";
+import { EquipmentType, STAVES, WANDS } from "../equipment/equipment-types/index.js";
 
 export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
   BookConsumableType,

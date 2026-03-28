@@ -2,24 +2,20 @@ import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import {
   ActionAndRank,
-  ClientToServerEvent,
+  ActionRank,
+  ClientIntentType,
+  CombatantId,
   Consumable,
   Equipment,
   Item,
   Option,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-import { AppStore } from "@/mobx-stores/app-store";
-import { ModifierKey } from "@/mobx-stores/input";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { setAlert } from "@/app/components/alerts";
-import { HotkeyButtonTypes } from "@/mobx-stores/hotkeys";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-
-const { hotkeysStore } = AppStore.get();
-const buttonType = HotkeyButtonTypes.Confirm;
-const useItemHotkeys = hotkeysStore.getKeybind(buttonType);
-const useItemHotkeyString = hotkeysStore.getKeybindString(buttonType);
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { ClientApplication } from "@/client-application";
+import { ModifierKey } from "@/client-application/ui/inputs";
 
 interface Props {
   item: Item;
@@ -27,19 +23,39 @@ interface Props {
 
 export const UseItemButton = observer((props: Props) => {
   const { item } = props;
-
-  const { gameStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const clientApplication = useClientApplication();
+  const { combatantFocus, uiStore } = clientApplication;
+  const { keybinds } = uiStore;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
+  const buttonType = HotkeyButtonTypes.Confirm;
+  const useItemHotkeys = keybinds.getKeybind(buttonType);
+  const useItemHotkeyString = keybinds.getKeybindString(buttonType);
 
   const itemId = item.entityProperties.id;
   const slotItemIsEquippedTo =
     focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
   const isEquipped = slotItemIsEquippedTo !== null;
-  const buttonText = getUseItemButtonText(item, isEquipped);
-  const clickHandler = getUseItemClickHandler(item, slotItemIsEquippedTo);
 
-  const userDoesNotControlCharacter = !gameStore.clientUserControlsFocusedCombatant();
+  const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemHotkeyString})`;
+  const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemHotkeyString})`;
+  const UNEQUIP_ITEM_BUTTON_TEXT = `Unequip (${useItemHotkeyString})`;
+
+  function getUseItemButtonText(item: Item, isEquipped: boolean) {
+    const isEquipment = item instanceof Equipment;
+    if (isEquipment && isEquipped) {
+      return UNEQUIP_ITEM_BUTTON_TEXT;
+    } else if (isEquipment) {
+      return EQUIP_ITEM_BUTTON_TEXT;
+    } else {
+      return USE_CONSUMABLE_BUTTON_TEXT;
+    }
+  }
+
+  const buttonText = getUseItemButtonText(item, isEquipped);
+  const clickHandler = getUseItemClickHandler(item, slotItemIsEquippedTo, clientApplication);
+
+  const userDoesNotControlCharacter = !combatantFocus.clientUserControlsFocusedCombatant();
   const shouldBeDisabled = userDoesNotControlCharacter;
 
   return (
@@ -53,44 +69,39 @@ export const UseItemButton = observer((props: Props) => {
   );
 });
 
-export const USE_CONSUMABLE_BUTTON_TEXT = `Use (${useItemHotkeyString})`;
-export const EQUIP_ITEM_BUTTON_TEXT = `Equip (${useItemHotkeyString})`;
-export const UNEQUIP_ITEM_BUTTON_TEXT = `Unequip (${useItemHotkeyString})`;
-
-function getUseItemButtonText(item: Item, isEquipped: boolean) {
-  const isEquipment = item instanceof Equipment;
-  if (isEquipment && isEquipped) {
-    return UNEQUIP_ITEM_BUTTON_TEXT;
-  } else if (isEquipment) {
-    return EQUIP_ITEM_BUTTON_TEXT;
-  } else {
-    return USE_CONSUMABLE_BUTTON_TEXT;
-  }
-}
-
-function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedEquipmentSlot) {
+function getUseItemClickHandler(
+  item: Item,
+  slotItemIsEquippedTo: null | TaggedEquipmentSlot,
+  clientApplication: ClientApplication
+) {
   const isEquipment = item instanceof Equipment;
   const isEquipped = slotItemIsEquippedTo !== null;
   const isConsumable = item instanceof Consumable;
 
-  const { gameStore, inputStore } = AppStore.get();
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
+  const { combatantFocus, gameClientRef, uiStore, alertsService } = clientApplication;
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const characterId = focusedCharacter.getEntityId();
 
   if (isEquipment && isEquipped) {
     return () => {
-      websocketConnection.emit(ClientToServerEvent.UnequipSlot, {
-        characterId,
-        slot: slotItemIsEquippedTo,
+      gameClientRef.get().dispatchIntent({
+        type: ClientIntentType.UnequipSlot,
+        data: {
+          characterId,
+          slot: slotItemIsEquippedTo,
+        },
       });
     };
   } else if (isEquipment) {
     return () => {
-      const modKeyHeld = inputStore.getKeyIsHeld(ModifierKey.Mod);
-      websocketConnection.emit(ClientToServerEvent.EquipInventoryItem, {
-        characterId,
-        itemId: item.entityProperties.id,
-        equipToAltSlot: modKeyHeld,
+      const modKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.Mod);
+      gameClientRef.get().dispatchIntent({
+        type: ClientIntentType.EquipInventoryItem,
+        data: {
+          characterId,
+          itemId: item.getEntityId(),
+          equipToAlternateSlot: modKeyHeld,
+        },
       });
     };
   } else if (isConsumable) {
@@ -101,12 +112,12 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
     }
 
     const eventData: {
-      characterId: string;
+      characterId: CombatantId;
       actionAndRankOption: Option<ActionAndRank>;
       itemIdOption?: string;
     } = {
       characterId,
-      actionAndRankOption: new ActionAndRank(actionName, 1),
+      actionAndRankOption: new ActionAndRank(actionName, 1 as ActionRank),
     };
 
     if (Consumable.isSkillBook(item.consumableType)) {
@@ -114,10 +125,12 @@ function getUseItemClickHandler(item: Item, slotItemIsEquippedTo: null | TaggedE
     }
 
     return () => {
-      websocketConnection.emit(ClientToServerEvent.SelectCombatAction, eventData);
+      gameClientRef
+        .get()
+        .dispatchIntent({ type: ClientIntentType.SelectCombatAction, data: eventData });
     };
   } else {
-    setAlert(new Error("unknown item type"));
+    alertsService.setAlert(new Error("unknown item type"));
     throw new Error("unknown item type");
   }
 }

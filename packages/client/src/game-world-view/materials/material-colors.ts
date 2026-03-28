@@ -1,55 +1,91 @@
 import { Color3 } from "@babylonjs/core";
 import { MagicalElement } from "@speed-dungeon/common";
 
-export const DEFAULT_MATERIAL_COLORS: { [name: string]: Color3 } = {
-  Main: new Color3(0.792, 0.761, 0.694),
-  Alternate: new Color3(0.259, 0.208, 0.18),
-  Accent1: new Color3(0.482, 0.486, 0.467),
-  Accent2: new Color3(0.278, 0.518, 0.447),
-  Handle: new Color3(0.169, 0.145, 0.11),
-  Hilt: new Color3(0.2, 0.204, 0.204),
-  Blade: new Color3(0.6, 0.6, 0.55),
+export const DYNAMIC_MATERIAL_TAG = "-dynamic-material";
+
+export enum MaterialCategory {
+  Default,
+  Wood,
+  Metal,
+  Plastic,
+  Accent,
+  Element,
+  Custom,
+}
+
+export const MATERIAL_CATEGORY_STRINGS: Record<MaterialCategory, string> = {
+  [MaterialCategory.Default]: "Default",
+  [MaterialCategory.Wood]: "Wood",
+  [MaterialCategory.Metal]: "Metal",
+  [MaterialCategory.Plastic]: "Plastic",
+  [MaterialCategory.Accent]: "Accent",
+  [MaterialCategory.Element]: "Element",
+  [MaterialCategory.Custom]: "Custom",
 };
 
-export enum LightestToDarkest {
+export enum MaterialLabel {
+  Main,
+  Alternate,
+  Accent1,
+  Accent2,
+  Accent3,
+  Handle,
+  Hilt,
+  Blade,
+}
+
+export const MATERIAL_LABEL_STRINGS: Record<MaterialLabel, string> = {
+  [MaterialLabel.Main]: "Main",
+  [MaterialLabel.Alternate]: "Alternate",
+  [MaterialLabel.Accent1]: "Accent1",
+  [MaterialLabel.Accent2]: "Accent2",
+  [MaterialLabel.Accent3]: "Accent3",
+  [MaterialLabel.Handle]: "Handle",
+  [MaterialLabel.Hilt]: "Hilt",
+  [MaterialLabel.Blade]: "Blade",
+};
+
+export const DEFAULT_MATERIAL_COLORS: Record<MaterialLabel, Color3> = {
+  [MaterialLabel.Main]: new Color3(0.792, 0.761, 0.694),
+  [MaterialLabel.Alternate]: new Color3(0.259, 0.208, 0.18),
+  [MaterialLabel.Accent1]: new Color3(0.482, 0.486, 0.467),
+  [MaterialLabel.Accent2]: new Color3(0.278, 0.518, 0.447),
+  [MaterialLabel.Accent3]: new Color3(0.169, 0.145, 0.11),
+  [MaterialLabel.Handle]: new Color3(0.2, 0.204, 0.204),
+  [MaterialLabel.Hilt]: new Color3(0.6, 0.6, 0.55),
+  [MaterialLabel.Blade]: new Color3(0.71, 0.694, 0.682),
+};
+
+export enum MaterialShade {
   Lightest,
   Lighter,
   Medium,
   Darker,
   Darkest,
 }
-export function formatLightestToDarkest(enumMember: LightestToDarkest) {
-  switch (enumMember) {
-    case LightestToDarkest.Lightest:
-      return "Lightest";
-    case LightestToDarkest.Lighter:
-      return "Lighter";
-    case LightestToDarkest.Medium:
-      return "Medium";
-    case LightestToDarkest.Darker:
-      return "Darker";
-    case LightestToDarkest.Darkest:
-      return "Darkest";
-  }
-}
 
-export const WOOD_COLORS: Record<LightestToDarkest, Color3> = {
-  // [LightestToDarkest.Lightest]: new Color3(0.722, 0.612, 0.463),
-  [LightestToDarkest.Lightest]: new Color3(0.722, 0.612, 0.463),
-  // [LightestToDarkest.Lighter]: new Color3(0.447, 0.365, 0.282),
-  [LightestToDarkest.Lighter]: new Color3(0.431, 0.365, 0.298),
-  // [LightestToDarkest.Medium]: new Color3(0.435, 0.314, 0.235),
-  [LightestToDarkest.Medium]: new Color3(0.396, 0.322, 0.275),
-  [LightestToDarkest.Darker]: new Color3(0.294, 0.224, 0.176),
-  [LightestToDarkest.Darkest]: new Color3(0.125, 0.106, 0.086),
+export const MATERIAL_SHADE_STRINGS: Record<MaterialShade, string> = {
+  [MaterialShade.Lightest]: "Lightest",
+  [MaterialShade.Lighter]: "Lighter",
+  [MaterialShade.Medium]: "Medium",
+  [MaterialShade.Darker]: "Darker",
+  [MaterialShade.Darkest]: "Darkest",
 };
 
-export const METAL_COLORS: Record<LightestToDarkest, Color3> = {
-  [LightestToDarkest.Lightest]: new Color3(0.71, 0.694, 0.682),
-  [LightestToDarkest.Lighter]: new Color3(0.588, 0.553, 0.553),
-  [LightestToDarkest.Medium]: new Color3(0.306, 0.298, 0.306),
-  [LightestToDarkest.Darker]: new Color3(0.125, 0.129, 0.133),
-  [LightestToDarkest.Darkest]: new Color3(0.07, 0.11, 0.09),
+export const WOOD_COLORS: Record<MaterialShade, Color3> = {
+  [MaterialShade.Lightest]: new Color3(0.722, 0.612, 0.463),
+  [MaterialShade.Lighter]: new Color3(0.431, 0.365, 0.298),
+  [MaterialShade.Medium]: new Color3(0.396, 0.322, 0.275),
+  [MaterialShade.Darker]: new Color3(0.294, 0.224, 0.176),
+  [MaterialShade.Darkest]: new Color3(0.125, 0.106, 0.086),
+};
+
+export const METAL_COLORS: Record<MaterialShade, Color3> = {
+  [MaterialShade.Lightest]: new Color3(0.71, 0.694, 0.682),
+  [MaterialShade.Lighter]: new Color3(0.588, 0.553, 0.553),
+  [MaterialShade.Medium]: new Color3(0.306, 0.298, 0.306),
+  [MaterialShade.Darker]: new Color3(0.125, 0.129, 0.133),
+  [MaterialShade.Darkest]: new Color3(0.07, 0.11, 0.09),
 };
 
 export enum PlasticColor {
@@ -58,6 +94,13 @@ export enum PlasticColor {
   White,
   Blue,
 }
+
+export const PLASTIC_COLOR_STRINGS: Record<PlasticColor, string> = {
+  [PlasticColor.Orange]: "Orange",
+  [PlasticColor.Yellow]: "Yellow",
+  [PlasticColor.White]: "White",
+  [PlasticColor.Blue]: "Blue",
+};
 
 export const PLASTIC_COLORS: Record<PlasticColor, Color3> = {
   [PlasticColor.Orange]: new Color3(0.973, 0.608, 0.204),
@@ -77,6 +120,18 @@ export enum AccentColor {
   HPGreen,
   MPBlue,
 }
+
+export const ACCENT_COLOR_STRINGS: Record<AccentColor, string> = {
+  [AccentColor.Rose]: "Rose",
+  [AccentColor.Brass]: "Brass",
+  [AccentColor.Cherry]: "Cherry",
+  [AccentColor.BurntOrange]: "BurntOrange",
+  [AccentColor.KellyGreen]: "KellyGreen",
+  [AccentColor.CobaltBlue]: "CobaltBlue",
+  [AccentColor.DarkBlue]: "DarkBlue",
+  [AccentColor.HPGreen]: "HPGreen",
+  [AccentColor.MPBlue]: "MPBlue",
+};
 
 export const ACCENT_COLORS: Record<AccentColor, Color3> = {
   [AccentColor.Rose]: new Color3(0.557, 0.365, 0.318),
@@ -99,17 +154,6 @@ export const ELEMENT_COLORS: Record<MagicalElement, Color3> = {
   [MagicalElement.Wind]: new Color3(0.184, 0.667, 0.212),
   [MagicalElement.Dark]: new Color3(0.18, 0.145, 0.078),
   [MagicalElement.Light]: new Color3(0.655, 0.627, 0.553),
-};
-
-export const MATERIAL_NAMES = {
-  MAIN: "Main",
-  ALTERNATE: "Alternate",
-  ACCENT_1: "Accent1",
-  ACCENT_2: "Accent2",
-  ACCENT_3: "Accent3",
-  HANDLE: "Handle",
-  HILT: "Hilt",
-  BLADE: "Blade",
 };
 
 export enum CustomMaterial {

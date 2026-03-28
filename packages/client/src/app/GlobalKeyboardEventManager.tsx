@@ -1,20 +1,21 @@
-import { AppStore } from "@/mobx-stores/app-store";
-import { ModifierKey } from "@/mobx-stores/input";
+import { ModifierKey } from "@/client-application/ui/inputs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import React, { useEffect } from "react";
 
 const ALTERNATE_CLICK_KEY_CODES = ["MetaRight", "MetaLeft", "ControlLeft", "ControlRight"];
 const MOD_KEY_CODES = ["ShiftLeft", "ShiftRight"];
 
 export default function GlobalKeyboardEventManager() {
-  const { inputStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { inputs } = clientApplication.uiStore;
 
   function keydownEventHandler(e: KeyboardEvent) {
     if (ALTERNATE_CLICK_KEY_CODES.includes(e.code)) {
-      inputStore.setKeyHeld(ModifierKey.AlternateClick);
+      inputs.setKeyHeld(ModifierKey.AlternateClick);
     }
 
     if (MOD_KEY_CODES.includes(e.code)) {
-      inputStore.setKeyHeld(ModifierKey.Mod);
+      inputs.setKeyHeld(ModifierKey.Mod);
     }
 
     // try to stop Firefox Quick Find when not typing in a text input
@@ -25,10 +26,10 @@ export default function GlobalKeyboardEventManager() {
 
   function keyupEventHandler(e: KeyboardEvent) {
     if (ALTERNATE_CLICK_KEY_CODES.includes(e.code)) {
-      inputStore.setKeyReleased(ModifierKey.AlternateClick);
+      inputs.setKeyReleased(ModifierKey.AlternateClick);
     }
     if (MOD_KEY_CODES.includes(e.code)) {
-      inputStore.setKeyReleased(ModifierKey.Mod);
+      inputs.setKeyReleased(ModifierKey.Mod);
     }
   }
 

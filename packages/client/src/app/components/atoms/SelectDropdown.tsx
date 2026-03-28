@@ -1,7 +1,7 @@
 import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import React, { useEffect, useRef, useState } from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 
 interface Props {
@@ -21,7 +21,9 @@ export const SelectDropdown = observer((props: Props) => {
   const [indexSelected, setIndexSelected] = useState<number>(
     options.reduce((accumulator, option, i) => (option.value === value ? i : accumulator), 0)
   );
-  const { inputStore } = AppStore.get();
+
+  const clientApplication = useClientApplication();
+  const { inputs } = clientApplication.uiStore;
 
   useEffect(() => {
     if (props.disabled) return;
@@ -37,7 +39,7 @@ export const SelectDropdown = observer((props: Props) => {
   }, [value]);
 
   function handleBlur() {
-    inputStore.setHotkeysDisabled(false);
+    inputs.setHotkeysDisabled(false);
     setIsFocused(false);
     setIsOpen(false);
     // const activeElement = document.activeElement as HTMLElement;
@@ -49,7 +51,7 @@ export const SelectDropdown = observer((props: Props) => {
   function handleFocus() {
     if (!selectInputRef.current) return;
     setIsFocused(true);
-    inputStore.setHotkeysDisabled(true);
+    inputs.setHotkeysDisabled(true);
   }
 
   function handleUserKeydown(e: KeyboardEvent) {

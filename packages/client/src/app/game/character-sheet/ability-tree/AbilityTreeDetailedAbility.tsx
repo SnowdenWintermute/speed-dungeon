@@ -10,11 +10,13 @@ import { COMBAT_ACTION_DESCRIPTIONS } from "./ability-descriptions";
 import { ActionDescriptionDisplay } from "./ActionDescriptionDisplay";
 import TraitDescriptionDisplay from "./TraitDescriptionDisplay";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant }) => {
-  const focusedAbility = AppStore.get().focusStore.combatantAbilities.get();
-  const party = AppStore.get().gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext, detailableEntityFocus } = clientApplication;
+  const party = gameContext.requireParty();
+  const focusedAbility = detailableEntityFocus.combatantAbilities.get();
   const { detailed: detailedAbility, hovered: hoveredCombatantAbility } = focusedAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
 

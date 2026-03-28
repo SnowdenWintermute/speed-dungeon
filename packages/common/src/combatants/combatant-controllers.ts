@@ -1,10 +1,12 @@
-import { plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
-import { EntityId } from "../primatives/index.js";
-import { runIfInBrowser } from "../utils/index.js";
+import { EntityId, Username } from "../aliases.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { AiType } from "../combat/ai-behavior/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { instanceToPlain, plainToInstance } from "class-transformer";
+import { CombatantProperties } from "./combatant-properties.js";
 
 export enum CombatantControllerType {
   Player,
@@ -18,20 +20,37 @@ export enum CombatantControllerType {
  * forfeiting control of their characters. In practice, we ask their client to reconnect all sockets anyway
  * after a username change.
  * */
-export class CombatantControlledBy extends CombatantSubsystem {
+export class CombatantControlledBy
+  extends CombatantSubsystem
+  implements ReactiveNode, Serializable
+{
   summonedBy?: EntityId;
   private aiTypes?: AiType[];
   constructor(
     public controllerType: CombatantControllerType,
     /** For player name, can be empty string if this is dungeon controlled */
-    public controllerPlayerName: string
+    public controllerPlayerName: Username
   ) {
     super();
-    runIfInBrowser(() => makeAutoObservable(this));
   }
 
-  static getDeserialized(controlledBy: CombatantControlledBy) {
-    return plainToInstance(CombatantControlledBy, controlledBy);
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return instanceToPlain(this);
+  }
+
+  static fromSerialized(serialized: SerializedOf<CombatantControlledBy>) {
+    const result = plainToInstance(CombatantControlledBy, serialized);
+    return result;
+  }
+
+  requireOwnedBy(username: Username) {
+    if (username !== this.controllerPlayerName) {
+      throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+    }
   }
 
   setAiTypes(aiTypes: AiType[]) {

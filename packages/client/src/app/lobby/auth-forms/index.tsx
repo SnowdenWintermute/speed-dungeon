@@ -1,5 +1,5 @@
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import { SPACING_REM_LARGE } from "@/client_consts";
+import { SPACING_REM_LARGE } from "@/client-consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import React, { useState } from "react";
 import { SignUpWithCredentialsForm } from "./sign-up-with-credentials-form";
@@ -9,12 +9,14 @@ import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const AuthFormContainer = observer(() => {
-  const { highlightAuthForm } = AppStore.get().dialogStore;
+  const clientApplication = useClientApplication();
+  const { dialogs } = clientApplication.uiStore;
+  const { highlightAuthForm } = dialogs;
 
   const authFormWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3.5));
   const borderStyle = highlightAuthForm ? "border-zinc-300" : "border-slate-400";
@@ -30,7 +32,7 @@ export const AuthFormContainer = observer(() => {
           className="p-2"
           hotkeys={["Escape"]}
           onClick={() => {
-            AppStore.get().dialogStore.close(DialogElementName.Credentials);
+            dialogs.close(DialogElementName.Credentials);
           }}
         >
           <XShape className="h-full w-full fill-slate-400" />

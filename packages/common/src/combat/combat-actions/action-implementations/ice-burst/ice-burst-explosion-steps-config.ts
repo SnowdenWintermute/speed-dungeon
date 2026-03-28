@@ -1,11 +1,9 @@
-import { CosmeticEffectNames } from "../../../../action-entities/index.js";
-import {
-  ActionResolutionStepType,
-  AnimationTimingType,
-} from "../../../../action-processing/index.js";
+import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
 import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
 import {
-  ActionEntityBaseChildTransformNodeName,
+  GenericBaseChildTransformNodeName,
   SceneEntityType,
 } from "../../../../scene-entities/index.js";
 import { CleanupMode } from "../../../../types.js";
@@ -36,7 +34,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
             type: SceneEntityType.ActionEntityModel,
             entityId: iceBurstEntity.getEntityId(),
           },
-          transformNodeName: ActionEntityBaseChildTransformNodeName.EntityRoot,
+          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
         },
         lifetime: 300,
       },

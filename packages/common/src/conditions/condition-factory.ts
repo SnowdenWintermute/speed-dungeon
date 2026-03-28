@@ -1,8 +1,7 @@
-import { IdGenerator } from "../utility-classes/index.js";
 import { CombatantConditionInit } from "./condition-config.js";
 import { CombatantConditionName } from "./condition-names.js";
-import { BlindedCondition } from "./configs/blinded.js";
 import { BurningCondition } from "./configs/burning.js";
+import { BlindedCondition } from "./configs/blinded.js";
 import { EnsnaredCondition } from "./configs/ensnared.js";
 import { FlyingCondition } from "./configs/flying.js";
 import { FollowingPetCommandCondition } from "./configs/following-pet-command.js";
@@ -13,7 +12,6 @@ import { CombatantCondition } from "./index.js";
 type CombatantConditionConstructor = new (init: CombatantConditionInit) => CombatantCondition;
 
 export class CombatantConditionFactory {
-  constructor(private idGenerator: IdGenerator) {}
   static create(init: CombatantConditionInit): CombatantCondition {
     return new CONDITION_CONSTRUCTORS[init.name](init);
   }

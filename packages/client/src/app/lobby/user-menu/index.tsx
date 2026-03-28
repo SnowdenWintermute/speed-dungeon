@@ -3,77 +3,62 @@ import { useRouter } from "next/navigation";
 import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { HTTP_REQUEST_NAMES } from "@/client_consts";
-import { TabMessageType, broadcastChannel, sessionFetcher } from "@/singletons/broadcast-channel";
-import { HttpRequestTracker, useHttpRequestStore } from "@/stores/http-request-store";
+import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { resetWebsocketConnection } from "@/singletons/websocket-connection";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
 import { observer } from "mobx-react-lite";
-import { getGameWorldView } from "@/app/game-world-view-canvas/SceneManager";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { HttpRequestTracker } from "@/client-application/ui/http-requests";
 
 export const UserMenuContainer = observer(() => {
-  const mutateHttpState = useHttpRequestStore().mutateState;
-  const { dialogStore, gameStore } = AppStore.get();
-  const showAuthForm = dialogStore.isOpen(DialogElementName.Credentials);
+  const clientApplication = useClientApplication();
+  const { dialogs, httpRequests } = clientApplication.uiStore;
+  const showAuthForm = dialogs.isOpen(DialogElementName.Credentials);
   const router = useRouter();
-  const username = gameStore.getUsernameOption();
-  const fetchData = useHttpRequestStore().fetchData;
   const getSessionRequestTrackerName = "get session";
-  const responseTracker = useHttpRequestStore().requests[getSessionRequestTrackerName];
+  const responseTracker = httpRequests.requests[getSessionRequestTrackerName];
 
   useEffect(() => {
     // always at least check auth status whenever the top bar is mounted
-    fetchData(getSessionRequestTrackerName, `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`, {
-      method: "GET",
-      credentials: "include",
-    });
+    httpRequests.fetchAuthSession();
+  }, [httpRequests]);
 
-    // this allows us to fetch the session from outside of a react component
-    // and still track updates inside components subscribed to this HttpRequestTracker
-    sessionFetcher.fromZustand = () =>
-      fetchData(
-        getSessionRequestTrackerName,
-        `${process.env.NEXT_PUBLIC_AUTH_SERVER_URL}/sessions`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-  }, []);
+  const { session } = clientApplication;
+  const { usernameOption } = session;
 
   useEffect(() => {
     if (responseTracker && responseTracker.data) {
       const data = responseTracker.data;
       if (typeof data !== "string") {
-        gameStore.setUsername(data["username"]);
+        session.setUsername(data["username"]);
       }
     }
   }, [responseTracker?.data]);
+
+  function flashHighlightAuthForm() {
+    dialogs.highlightAuthForm = true;
+    setTimeout(() => {
+      dialogs.highlightAuthForm = false;
+    }, 300);
+  }
 
   return !responseTracker || responseTracker?.loading ? (
     <div className="h-10 w-10">
       <LoadingSpinner />
     </div>
-  ) : responseTracker?.statusCode === 200 && username ? (
-    <UserMenu username={username} />
+  ) : responseTracker?.statusCode === 200 && usernameOption ? (
+    <UserMenu username={usernameOption} />
   ) : (
     <ButtonBasic
       onClick={() => {
         router.push("/");
-        mutateHttpState((state) => {
-          // so we don't see any old error messages
-          delete state.requests[HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS];
-        });
+        // so we don't see any old error messages
+        httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS);
 
         if (showAuthForm) {
-          dialogStore.highlightAuthForm = true;
-          setTimeout(() => {
-            dialogStore.highlightAuthForm = false;
-          }, 300);
+          flashHighlightAuthForm();
         } else {
-          dialogStore.open(DialogElementName.Credentials);
+          dialogs.open(DialogElementName.Credentials);
         }
       }}
     >
@@ -83,8 +68,9 @@ export const UserMenuContainer = observer(() => {
 });
 
 function UserMenu({ username }: { username: null | string }) {
-  const mutateHttpState = useHttpRequestStore().mutateState;
-  const { dialogStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { dialogs, httpRequests } = clientApplication.uiStore;
+  const { session, lobbyClientRef, broadcastChannel } = clientApplication;
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -98,26 +84,27 @@ function UserMenu({ username }: { username: null | string }) {
       method: "DELETE",
       credentials: "include",
     });
-    getGameWorldView().clearFloorTexture();
-    mutateHttpState((state) => {
-      if (!state.requests[HTTP_REQUEST_NAMES.GET_SESSION])
-        state.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();
-      // don't delete the tracker because our auth form and user menu loading spinner
-      // state depend on if this request tracke has been created yet
-      if (state.requests[HTTP_REQUEST_NAMES.GET_SESSION]) {
-        state.requests[HTTP_REQUEST_NAMES.GET_SESSION]!.statusCode = 1;
-      }
-      delete state.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
-    });
+    clientApplication.gameWorldView?.environment.groundPlane.clear();
 
-    dialogStore.open(DialogElementName.Credentials);
+    if (!httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION]) {
+      httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();
+    }
+    // don't delete the tracker because our auth form and user menu loading spinner
+    // state depend on if this request tracker has been created yet
+    const existingLoginRequestTracker = httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
+    if (existingLoginRequestTracker) {
+      existingLoginRequestTracker.setStatusCode(1);
+    }
+    delete httpRequests.requests[HTTP_REQUEST_NAMES.LOGIN_WITH_CREDENTIALS];
 
-    AppStore.get().gameStore.clearUsername();
+    dialogs.open(DialogElementName.Credentials);
 
-    resetWebsocketConnection();
-    // message to have their other tabs reconnect with new cookie
-    // to keep socket connections consistent with current authorization
-    broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
+    session.clearUsername();
+
+    lobbyClientRef.get().resetConnection();
+
+    // to keep open connections across tabs consistent with current authorization
+    broadcastChannel.reconnectAllTabs();
 
     setShowUserDropdown(false);
   }
@@ -170,8 +157,7 @@ function UserMenu({ username }: { username: null | string }) {
                   className="h-full w-full flex items-center p-4"
                   onClick={() => {
                     setShowUserDropdown(false);
-                    const { dialogStore } = AppStore.get();
-                    dialogStore.toggle(DialogElementName.AppSettings);
+                    dialogs.toggle(DialogElementName.AppSettings);
                   }}
                 >
                   Settings

@@ -1,4 +1,4 @@
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { Equipment } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";

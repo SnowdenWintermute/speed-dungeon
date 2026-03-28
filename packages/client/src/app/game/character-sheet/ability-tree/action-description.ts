@@ -4,32 +4,32 @@ import {
   AbilityType,
   AbilityUtils,
   ActionPayableResource,
-  ActionUserContext,
+  ActionRank,
   AdventuringParty,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
-  CombatActionExecutionIntent,
   Combatant,
   CombatantClass,
   CombatantControlledBy,
   CombatantControllerType,
   CombatantProperties,
   CombatantSpecies,
+  EntityId,
+  EntityName,
   IActionUser,
   iterateNumericEnumKeyedRecord,
-  SpeedDungeonGame,
-  TargetingCalculator,
+  Username,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
 export const TARGET_DUMMY_COMBATANT = Combatant.createInitialized(
-  { name: "Target Dummy", id: "Target Dummy Entity Id" },
+  { name: "Target Dummy" as EntityName, id: "Target Dummy Entity Id" as EntityId },
   new CombatantProperties(
     CombatantClass.Warrior,
     CombatantSpecies.Humanoid,
     null,
-    new CombatantControlledBy(CombatantControllerType.Dungeon, ""),
+    new CombatantControlledBy(CombatantControllerType.Dungeon, "" as Username),
     Vector3.Zero()
   )
 );
@@ -78,11 +78,11 @@ export class ActionDescription {
       abilityRank
     );
   }
-  getByRankDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: number) {
+  getByRankDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: ActionRank) {
     return this.combatAction.getByRankDescriptions?.(user, party)[abilityRank] || null;
   }
 
-  getByRankShortDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: number) {
+  getByRankShortDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: ActionRank) {
     return this.combatAction.getByRankShortDescriptions?.(user, party)[abilityRank] || null;
   }
 
@@ -90,7 +90,7 @@ export class ActionDescription {
     return this.combatAction.hitOutcomeProperties.flatThreatGeneratedOnHit;
   }
 
-  getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionRank: number) {
+  getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionRank: ActionRank) {
     const { combatantProperties } = user;
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 

@@ -1,6 +1,6 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { KINETIC_TYPE_ICONS } from "@/app/icons";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import {
   iterateNumericEnum,
   KINETIC_DAMAGE_TYPE_STRINGS,

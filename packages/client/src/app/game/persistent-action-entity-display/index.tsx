@@ -1,19 +1,20 @@
 import { ACTION_ENTITY_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
-import { DialogElementName } from "@/mobx-stores/dialogs";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ACTION_ENTITY_STRINGS, ActionEntity } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const PersistentActionEntityDisplay = observer(() => {
-  const party = AppStore.get().gameStore.getExpectedParty();
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+  const clientApplication = useClientApplication();
+  const party = clientApplication.gameContext.requireParty();
+  const showDebug = clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
 
   const { actionEntityManager } = party;
 
   return (
     <ul className="list-none w-full mb-2 mx-auto px-1">
-      {Object.entries(actionEntityManager.getActionEntities())
+      {[...actionEntityManager.getActionEntities()]
         .filter(([id, actionEnity]) => {
           if (showDebug) {
             return true;
@@ -47,7 +48,8 @@ const PersistentActionEntity = observer(({ actionEntity }: { actionEntity: Actio
     );
   }
 
-  const showDebug = AppStore.get().dialogStore.isOpen(DialogElementName.Debug);
+  const clientApplication = useClientApplication();
+  const showDebug = clientApplication.uiStore.dialogs.isOpen(DialogElementName.Debug);
 
   return (
     <div className="h-28 w-28 border-2 border-slate-400 relative bg-slate-800 text-zinc-300 pointer-events-auto">

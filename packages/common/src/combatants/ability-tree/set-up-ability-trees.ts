@@ -1,4 +1,4 @@
-import { CombatantClass } from "../combatant-class/index.js";
+import { CombatantClass } from "../combatant-class/classes.js";
 import { AbilityTree } from "./ability-tree.js";
 import { setUpMageAbilityTree } from "./mage-ability-tree.js";
 import { setUpRogueAbilityTree } from "./rogue-ability-tree.js";

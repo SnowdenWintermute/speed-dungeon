@@ -6,7 +6,9 @@ interface Props {
 }
 
 export const TargetingIndicators = observer(({ party, entityId }: Props) => {
-  const targetedBy = AppStore.get().targetIndicatorStore.getIndicatorsTargetingCombatant(entityId);
+  const clientApplication = useClientApplication();
+  const { targetIndicatorStore } = clientApplication;
+  const targetedBy = targetIndicatorStore.getIndicatorsTargetingCombatant(entityId);
 
   return targetedBy.length ? (
     <div
@@ -26,7 +28,7 @@ import React from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { CombatActionIntent } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface TargetingIndicatorProps {
   combatActionName: CombatActionName;

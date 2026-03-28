@@ -1,10 +1,7 @@
 import {
   BASE_ACTION_HIERARCHY_PROPERTIES,
   CombatActionComponentConfig,
-  CombatActionExecutionIntent,
   CombatActionLeaf,
-  CombatActionName,
-  createGenericSpellCastMessageProperties,
 } from "../../index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import {
@@ -25,8 +22,10 @@ import {
   getWebMaxHp,
 } from "./ensnare-steps.config.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
-import { ArrayUtils } from "../../../../utils/array-utils.js";
 import { getEnsnaredEvasionChange } from "../../../../conditions/configs/ensnared.js";
+import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
+import { CombatActionName } from "../../combat-action-names.js";
+import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};

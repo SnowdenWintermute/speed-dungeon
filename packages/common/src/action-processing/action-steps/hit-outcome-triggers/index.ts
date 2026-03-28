@@ -8,13 +8,7 @@ import {
   ActivatedTriggersGameUpdateCommand,
   GameUpdateCommandType,
 } from "../../game-update-commands.js";
-import {
-  COMBAT_ACTIONS,
-  CombatActionExecutionIntent,
-  CombatActionName,
-  CombatActionTargetType,
-  ThreatChanges,
-} from "../../../combat/index.js";
+
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { addHitOutcomeDurabilityChanges } from "./hit-outcome-durability-change-calculators.js";
 import { HitOutcome } from "../../../hit-outcome.js";
@@ -23,16 +17,27 @@ import { addRemovedConditionIdToUpdate } from "./add-triggered-condition-to-upda
 import { handleTriggeredLifesteals } from "./handle-triggered-lifesteals.js";
 import { handleHit } from "./handle-hit.js";
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
-import { CombatantConditionName } from "../../../conditions/condition-names.js";
 import { Combatant } from "../../../combatants/index.js";
-import { AdventuringParty } from "../../../index.js";
+import {
+  ActionRank,
+  AdventuringParty,
+  COMBAT_ACTIONS,
+  CombatActionExecutionIntent,
+  CombatActionName,
+  CombatActionTargetType,
+  CombatantId,
+  ThreatChanges,
+} from "../../../index.js";
 
 const stepType = ActionResolutionStepType.EvalOnHitOutcomeTriggers;
 export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResolutionStep {
   branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext) {
+    const { actionUser } = context.actionUserContext;
     const gameUpdateCommand: ActivatedTriggersGameUpdateCommand = {
       type: GameUpdateCommandType.ActivatedTriggers,
+      actionUserName: actionUser.getName(),
+      actionUserId: actionUser.getEntityId(),
       actionName: context.tracker.actionExecutionIntent.actionName,
       step: stepType,
       completionOrderId: null,
@@ -41,7 +46,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
     const { tracker, actionUserContext } = this.context;
     const { actionExecutionIntent } = tracker;
     const action = COMBAT_ACTIONS[actionExecutionIntent.actionName];
-    const { game, party, actionUser } = actionUserContext;
+    const { game, party } = actionUserContext;
     const battleOption = party.getBattleOption(game);
     const { outcomeFlags } = tracker.hitOutcomes;
 
@@ -98,12 +103,12 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             addRemovedConditionIdToUpdate(
               condition.id,
               gameUpdateCommand,
-              targetCombatant.entityProperties.id
+              targetCombatant.entityProperties.id as CombatantId
             );
           }
 
           // if was attached to anyone, remove their id from that list
-          for (const combatant of party.combatantManager.getAllCombatants()) {
+          for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
             if (
               combatant.combatantProperties.transformProperties.attachedCombatants.has(
                 targetCombatant.getEntityId()
@@ -128,7 +133,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             targetCombatant.combatantProperties.onDeathProperties?.removeConditionsApplied;
 
           if (shouldRemoveAllConditionsAppliedByDyingCombatant) {
-            for (const combatant of party.combatantManager.getAllCombatants()) {
+            for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
               for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
                 const wasAppliedByDyingCombatant =
                   condition.appliedBy.entityProperties.id === targetCombatant.getEntityId();
@@ -145,7 +150,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
                   addRemovedConditionIdToUpdate(
                     condition.id,
                     gameUpdateCommand,
-                    combatant.entityProperties.id
+                    combatant.entityProperties.id as CombatantId
                   );
                 }
               }
@@ -163,10 +168,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           for (const monster of party.combatantManager.getDungeonControlledCombatants()) {
             const { threatManager } = monster.combatantProperties;
             if (!threatManager) continue;
-            threatChanges.addEntryToRemove(
-              monster.getEntityId(),
-              targetCombatant.entityProperties.id
-            );
+            threatChanges.addEntryToRemove(monster.getEntityId(), targetCombatant.getEntityId());
           }
 
           if (
@@ -186,14 +188,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             targetId: actionUser.getEntityId(),
           });
           targetCombatant.combatantProperties.targetingProperties.setSelectedActionAndRank(
-            new ActionAndRank(CombatActionName.Counterattack, 1)
+            new ActionAndRank(CombatActionName.Counterattack, 1 as ActionRank)
           );
 
           this.branchingActions.push({
             user: targetCombatant,
             actionExecutionIntent: new CombatActionExecutionIntent(
               CombatActionName.Counterattack,
-              1,
+              1 as ActionRank,
               {
                 type: CombatActionTargetType.Single,
                 targetId: actionUser.getEntityId(),
@@ -252,10 +254,14 @@ function getKillAttachedCombatantsActionIntents(
     if (attachedCombatant.combatantProperties.shouldDieWhenCombatantAttachedToDies) {
       intents.push({
         user: attachedCombatant,
-        actionExecutionIntent: new CombatActionExecutionIntent(CombatActionName.Death, 1, {
-          type: CombatActionTargetType.Single,
-          targetId: attachedCombatant.getEntityId(),
-        }),
+        actionExecutionIntent: new CombatActionExecutionIntent(
+          CombatActionName.Death,
+          1 as ActionRank,
+          {
+            type: CombatActionTargetType.Single,
+            targetId: attachedCombatant.getEntityId(),
+          }
+        ),
       });
     }
   }

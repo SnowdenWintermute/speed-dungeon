@@ -1,11 +1,11 @@
 import { getAttackActionIcons } from "@/app/game/character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
-import { AppStore } from "@/mobx-stores/app-store";
-import { websocketConnection } from "@/singletons/websocket-connection";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   AbilityType,
   ActionAndRank,
-  ClientToServerEvent,
+  ActionRank,
+  ClientIntentType,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   Combatant,
@@ -26,25 +26,27 @@ export const CombatActionButton = observer((props: Props) => {
   const nameAsString = COMBAT_ACTION_NAME_STRINGS[actionName];
   const standardActionIcon = ACTION_ICONS[actionName];
 
-  const { gameStore, focusStore } = AppStore.get();
-  const game = gameStore.getExpectedGame();
-  const party = gameStore.getExpectedParty();
+  const clientApplication = useClientApplication();
+  const { gameContext, gameClientRef, combatantFocus, detailableEntityFocus } = clientApplication;
+  const party = gameContext.requireParty();
+  const game = gameContext.requireGame();
 
-  let isAttack = actionName === CombatActionName.Attack;
+  const isAttack = actionName === CombatActionName.Attack;
 
   function focusHandler() {
-    AppStore.get().focusStore.combatantAbilities.setHovered({
+    detailableEntityFocus.combatantAbilities.setHovered({
       type: AbilityType.Action,
       actionName,
     });
   }
   function blurHandler() {
-    AppStore.get().focusStore.combatantAbilities.clearHovered();
+    detailableEntityFocus.combatantAbilities.clearHovered();
   }
 
-  const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+  const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
-  const useWouldBeError = user.canUseAction({ actionName, rank: 1 }, game, party) instanceof Error;
+  const useWouldBeError =
+    user.canUseAction(new ActionAndRank(actionName, 1 as ActionRank), game, party) instanceof Error;
 
   const shouldBeDisabled = useWouldBeError || !userControlsThisCharacter;
 
@@ -58,12 +60,15 @@ export const CombatActionButton = observer((props: Props) => {
       hotkeys={props.hotkeys}
       hotkeyLabel={props.hotkeyLabel}
       clickHandler={() => {
-        websocketConnection.emit(ClientToServerEvent.SelectCombatAction, {
-          characterId: user.getEntityId(),
-          actionAndRankOption: new ActionAndRank(actionName, 1),
+        gameClientRef.get().dispatchIntent({
+          type: ClientIntentType.SelectCombatAction,
+          data: {
+            characterId: user.getEntityId(),
+            actionAndRankOption: new ActionAndRank(actionName, 1 as ActionRank),
+          },
         });
 
-        focusStore.combatantAbilities.clear();
+        detailableEntityFocus.combatantAbilities.clear();
       }}
     >
       <div className="flex justify-between h-full w-full px-2">
@@ -89,12 +94,13 @@ export const CombatActionButton = observer((props: Props) => {
 
 const AttackActionIcon = observer(({ user }: { user: Combatant }) => {
   const { combatantProperties } = user;
+  const clientApplication = useClientApplication();
+  const { gameContext } = clientApplication;
+  const party = gameContext.requireParty();
 
-  const { gameStore } = AppStore.get();
-  const party = gameStore.getExpectedParty();
   const inCombat = party.isInCombat();
-  let mainHandIcons = [];
-  let offHandIcons = [];
+  const mainHandIcons = [];
+  const offHandIcons = [];
   let ohDisabledStyle = "";
 
   const { mhIcons, ohIcons, ohDisabled } = getAttackActionIcons(combatantProperties, inCombat);

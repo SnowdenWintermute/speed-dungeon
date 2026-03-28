@@ -1,5 +1,5 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { ActionResolutionStepType } from "../../../../action-processing/index.js";
+import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { TargetingCalculator } from "../../../targeting/targeting-calculator.js";
 import {
   ActionResolutionStepConfig,
@@ -17,12 +17,12 @@ const finalStepOverrides: Partial<Record<ActionResolutionStepType, ActionResolut
   {};
 
 mainStepOverrides[ActionResolutionStepType.InitialPositioning] = {
-  getCosmeticEffectsToStart: (context) => [
-    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
-      CosmeticEffectNames.FlameParticleAccumulation,
-      context
-    ),
-  ],
+  // getCosmeticEffectsToStart: (context) => [
+  //   CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+  //     CosmeticEffectNames.FlameParticleAccumulation,
+  //     context
+  //   ),
+  // ],
 };
 
 finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
@@ -49,12 +49,12 @@ finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
 };
 
 finalStepOverrides[ActionResolutionStepType.FinalPositioning] = {
-  getCosmeticEffectsToStop: (context) => [
-    CosmeticEffectInstructionFactory.createParticlesOnOffhand(
-      CosmeticEffectNames.FlameParticleAccumulation,
-      context
-    ),
-  ],
+  // getCosmeticEffectsToStop: (context) => [
+  //   CosmeticEffectInstructionFactory.createParticlesOnOffhand(
+  //     CosmeticEffectNames.FlameParticleAccumulation,
+  //     context
+  //   ),
+  // ],
 };
 
 const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL, {

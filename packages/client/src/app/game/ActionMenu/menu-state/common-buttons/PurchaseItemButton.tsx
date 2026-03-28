@@ -1,13 +1,12 @@
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   CONSUMABLE_TYPE_STRINGS,
-  ClientToServerEvent,
+  ClientIntentType,
   Consumable,
   Item,
   getConsumableShardPrice,
 } from "@speed-dungeon/common";
 import React from "react";
-import { websocketConnection } from "@/singletons/websocket-connection";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "./ItemButton";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
@@ -24,12 +23,12 @@ export const PurchaseItemButton = observer((props: Props) => {
     return <div>unhandled purchaseable item type</div>;
   }
 
-  const { gameStore } = AppStore.get();
+  const clientApplication = useClientApplication();
+  const { gameContext, combatantFocus, gameClientRef } = clientApplication;
+  const party = gameContext.requireParty();
+  const focusedCharacter = combatantFocus.requireFocusedCharacter();
 
-  const focusedCharacter = gameStore.getExpectedFocusedCharacter();
-  const party = gameStore.getExpectedParty();
-
-  const userControlsThisCharacter = gameStore.clientUserControlsFocusedCombatant();
+  const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
   const { consumableType } = item;
   const price = getConsumableShardPrice(
@@ -46,9 +45,12 @@ export const PurchaseItemButton = observer((props: Props) => {
       hotkeyLabel={(listIndex + 1).toString()}
       hotkeys={[`Digit${listIndex + 1}`]}
       clickHandler={() => {
-        websocketConnection.emit(ClientToServerEvent.PurchaseItem, {
-          characterId: focusedCharacter.getEntityId(),
-          consumableType,
+        gameClientRef.get().dispatchIntent({
+          type: ClientIntentType.PurchaseItem,
+          data: {
+            characterId: focusedCharacter.getEntityId(),
+            consumableType,
+          },
         });
       }}
       disabled={shouldBeDisabled}

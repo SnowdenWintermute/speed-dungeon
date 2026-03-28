@@ -1,12 +1,12 @@
+import { CombatActionHitOutcomes } from "../../../combat/action-results/action-hit-outcome-calculation/index.js";
+import { HitPointChanges } from "../../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
+import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
+import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import {
-  COMBAT_ACTIONS,
-  CombatActionHitOutcomes,
-  CombatActionResource,
-  HitPointChanges,
   ResourceChange,
   ResourceChangeSource,
   ResourceChangeSourceCategory,
-} from "../../../combat/index.js";
+} from "../../../combat/hp-change-source-types.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
 import { ActionResolutionStepContext } from "../index.js";
 

@@ -2,10 +2,10 @@
 import {
   ActionAccuracyType,
   ActionPayableResource,
+  ActionRank,
   ActionUserContext,
   ArrayUtils,
   COMBAT_ACTIONS,
-  ClientToServerEvent,
   CombatActionExecutionIntent,
   CombatActionName,
   ERROR_MESSAGES,
@@ -14,19 +14,18 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
-import { ActionDetailsTitleBar } from "./ActionDetailsTitleBar";
+import { ActionDetailsTitleBar, handleSelectActionLevel } from "./ActionDetailsTitleBar";
 import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
 import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
 import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
-import { websocketConnection } from "@/singletons/websocket-connection";
-import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client_consts";
+import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
-import { AppStore } from "@/mobx-stores/app-store";
 import { observer } from "mobx-react-lite";
 import { CombatantConditionFactory } from "@speed-dungeon/common";
+import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {
   actionName: CombatActionName;
@@ -34,8 +33,11 @@ interface Props {
 }
 
 export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props) => {
-  const { game, party, combatant } = AppStore.get().gameStore.getFocusedCharacterContext();
-  const { combatantProperties, entityProperties } = combatant;
+  const clientApplication = useClientApplication();
+  const { game, party, combatant } =
+    clientApplication.combatantFocus.requireFocusedCharacterContext();
+  const { gameClientRef } = clientApplication;
+  const { combatantProperties } = combatant;
   const { abilityProperties } = combatantProperties;
   const actionStateOption = abilityProperties.getOwnedActionOption(actionName);
   if (actionStateOption === undefined) return <div>Somehow detailing an unowned action</div>;
@@ -72,7 +74,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
     party,
     new CombatActionExecutionIntent(
       actionStateOption.actionName,
-      selectedActionAndRankOption?.rank || 1,
+      selectedActionAndRankOption?.rank || (1 as ActionRank),
       currentTargetsOption
     )
   );
@@ -92,7 +94,9 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
         />
       )}
       <ul className="list-none">
-        {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow, 1).map((rank) => {
+        {ArrayUtils.createFilledWithSequentialNumbers(maxRankToShow, 1).map((rankUncast) => {
+          const rank = rankUncast as ActionRank;
+
           const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
             action,
             combatant,
@@ -128,18 +132,13 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
           const shortDescriptionOption =
             rankDescription[ActionDescriptionComponent.ByRankDescriptionsShort];
 
-          function handleSelectActionLevel(level: number) {
-            websocketConnection.emit(ClientToServerEvent.SelectCombatActionLevel, {
-              characterId: entityProperties.id,
-              actionLevel: level,
-            });
-          }
-
           return (
             <button
               key={`${action.name}${rank}`}
               className={`h-10 w-full flex items-center px-2 ${!!(unmetCosts.length > 0) && " pointer-events-none"} ${!!(selectedActionAndRankOption?.rank === rank) && "bg-slate-800"} `}
-              onClick={() => handleSelectActionLevel(rank)}
+              onClick={() =>
+                handleSelectActionLevel(gameClientRef.get(), combatant.getEntityId(), rank)
+              }
             >
               <div className="flex items-center h-full">
                 {iterateNumericEnumKeyedRecord(rankCosts).map(([resourceType, cost]) => (

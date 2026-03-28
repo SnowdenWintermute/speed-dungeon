@@ -42,10 +42,9 @@ export class RootAIBehaviorNode implements BehaviorNode {
     if (aiTypes[0] !== AiType.AlwaysPassTurn) {
       for (const aiType of aiTypes) {
         targetSelectionSchemes.push(aiBehaviorActionSelectorNodeFactory.createNode(aiType));
-        console.log("pushed target selection scheme:", AI_BEHAVIOR_TYPE_STRINGS[aiType]);
       }
     } else {
-      console.log("AI IS SET TO ALWAYS PASS TURN");
+      // AI IS SET TO ALWAYS PASS TURN
     }
 
     this.root = new SelectorNode(targetSelectionSchemes);

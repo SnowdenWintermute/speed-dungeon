@@ -4,14 +4,14 @@ import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { COMBATANT_CLASS_NAME_STRINGS, Combatant } from "@speed-dungeon/common";
 
-export type RaceGameCharacterRecord = {
+export interface RaceGameCharacterRecord {
   id: number;
   partyId: number;
   characterName: string;
   level: number;
   combatantClass: string;
   idOfControllingUser: string; // UUID
-};
+}
 
 const tableName = RESOURCE_NAMES.RACE_GAME_CHARACTER_RECORDS;
 

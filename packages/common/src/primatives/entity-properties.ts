@@ -1,6 +1,6 @@
-import { EntityId } from "./index.js";
+import { EntityId, EntityName } from "../aliases.js";
 
 export interface EntityProperties {
   id: EntityId;
-  name: string;
+  name: EntityName;
 }

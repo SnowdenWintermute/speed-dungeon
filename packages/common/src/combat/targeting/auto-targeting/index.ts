@@ -1,4 +1,4 @@
-import { Meters } from "../../../primatives/index.js";
+import { Meters } from "../../../aliases.js";
 import { TargetCategories } from "../../combat-actions/targeting-schemes-and-categories.js";
 
 export enum AutoTargetingScheme {
@@ -11,32 +11,32 @@ export enum AutoTargetingScheme {
 }
 
 // SELECTION METHODS
-export type AutoTargetSelectionMethodUserSelected = {
+export interface AutoTargetSelectionMethodUserSelected {
   scheme: AutoTargetingScheme.UserSelected;
-};
+}
 
-export type AutoTargetSelectionMethodCopyParent = {
+export interface AutoTargetSelectionMethodCopyParent {
   scheme: AutoTargetingScheme.CopyParent;
-};
+}
 
-export type AutoTargetSelectionMethodUser = {
+export interface AutoTargetSelectionMethodUser {
   scheme: AutoTargetingScheme.ActionUser;
-};
+}
 
-export type AutoTargetSelectionMethodAll = {
+export interface AutoTargetSelectionMethodAll {
   scheme: AutoTargetingScheme.All;
-};
+}
 
-export type AutoTargetSelectionMethodRandomCombatant = {
+export interface AutoTargetSelectionMethodRandomCombatant {
   scheme: AutoTargetingScheme.RandomCombatant;
-};
+}
 
-export type AutoTargetSelectionMethodWithinRadiusOfEntity = {
+export interface AutoTargetSelectionMethodWithinRadiusOfEntity {
   scheme: AutoTargetingScheme.WithinRadiusOfEntity;
   radius: Meters;
   validTargetCategories: TargetCategories;
   excludePrimaryTarget?: boolean;
-};
+}
 
 export type AutoTargetingSelectionMethod =
   | AutoTargetSelectionMethodUserSelected

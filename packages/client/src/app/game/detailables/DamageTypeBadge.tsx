@@ -1,6 +1,6 @@
 import getMagicalElementTailwindColor, {
   MAGICAL_ELEMENT_ICON_TAILWIND_STYLES,
-} from "@/utils/getMagicalElementTailwindColor";
+} from "@/utils/get-magical-element-tailwind-color";
 import {
   HP_CHANGE_SOURCE_CATEGORY_STRINGS,
   ResourceChangeSource,

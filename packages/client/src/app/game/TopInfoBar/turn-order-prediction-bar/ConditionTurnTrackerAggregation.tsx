@@ -3,11 +3,13 @@ import React from "react";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { CONDITION_INDICATOR_ICONS } from "@/app/icons";
 import { observer } from "mobx-react-lite";
-import { AppStore } from "@/mobx-stores/app-store";
+import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const ConditionTurnTrackerAggregation = observer(
   ({ trackers }: { trackers: ConditionTurnTracker[] }) => {
-    const party = AppStore.get().gameStore.getExpectedParty();
+    const clientApplication = useClientApplication();
+    const { gameContext } = clientApplication;
+    const party = gameContext.requireParty();
 
     return (
       <div

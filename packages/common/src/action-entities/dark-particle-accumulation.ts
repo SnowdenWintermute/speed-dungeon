@@ -15,12 +15,12 @@ export class DarkParticleAccumulation extends CosmeticEffect {
     throw new Error("Method not implemented.");
   }
   createParticleSystems(scene: Scene): ManagedParticleSystem[] {
-    const particleSystem = new ParticleSystem("particles", 150, scene); // scene is optional and defaults to the current scene
-    particleSystem.particleTexture = new Texture("img/particle-textures/flare.png");
+    const particleSystem = new ParticleSystem("particles", 150, scene);
+    particleSystem.particleTexture = new Texture("img/particle-textures/flare.png", scene);
 
     particleSystem.createSphereEmitter(0.2, 0.3);
 
-    const mesh = new Mesh("");
+    const mesh = new Mesh("", this.scene);
     mesh.rotationQuaternion = Quaternion.FromEulerVector(mesh.rotation);
     particleSystem.emitter = mesh;
 

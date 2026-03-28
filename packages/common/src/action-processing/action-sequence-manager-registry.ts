@@ -1,7 +1,6 @@
-import { COMBAT_ACTION_NAME_STRINGS, CombatActionExecutionIntent } from "../combat/index.js";
 import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
-import { EntityId, Milliseconds } from "../primatives/index.js";
+import { EntityId, Milliseconds } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
@@ -9,10 +8,10 @@ import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./acti
 import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 import { BoundingBoxSizesBySpecies } from "../types.js";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 
 export class TimeKeeper {
   ms: number = 0;
-  constructor() {}
 }
 
 export class ActionSequenceManagerRegistry {
@@ -54,9 +53,8 @@ export class ActionSequenceManagerRegistry {
     );
     this.actionManagers[id] = manager;
 
-    const stepTrackerResult = manager.startProcessingNext();
-    if (stepTrackerResult instanceof Error) return stepTrackerResult;
-    const initialGameUpdate = stepTrackerResult.currentStep.getGameUpdateCommandOption();
+    const stepTracker = manager.startProcessingNext();
+    const initialGameUpdate = stepTracker.currentStep.getGameUpdateCommandOption();
 
     return initialGameUpdate;
   }
