@@ -31,6 +31,4 @@ export async function resourcesPaidGameUpdateHandler(
       actionState.cooldown = new MaxAndCurrent(command.cooldownSet, command.cooldownSet);
     }
   }
-
-  update.setAsQueuedToComplete();
 }

@@ -21,9 +21,9 @@
 // Handle new ReplayBranchNode
 //   - if Branch, start new BranchExecution
 //   - if GameUpdate, handle start of new ReplayStepExecution
-//     - dispatch onStartReplayBranchNode side effects to GameWorldView
-//       - animations
-//       - translations
-//       - cosmetic effects
+//     - dispatch onReplayStepExecution side effects to GameWorldView
+//       - start animations
+//       - start translations
+//       - start cosmetic effects
 //     - determine duration to completion
-//     - process this BranchExecution
+//   - process this BranchExecution

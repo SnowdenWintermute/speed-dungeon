@@ -45,6 +45,4 @@ export async function actionCompletionGameUpdateHandler(
   }
 
   handleThreatChangesUpdate(clientApplication, update.command);
-
-  update.setAsQueuedToComplete();
 }

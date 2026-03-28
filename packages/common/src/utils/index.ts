@@ -8,6 +8,7 @@ import { plainToInstance } from "class-transformer";
 import { EntityId, EntityName, GameName, PartyName } from "../aliases.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
 
 export function invariant(condition: boolean, message?: string): asserts condition {
   if (!condition) {
@@ -240,4 +241,12 @@ export function removeUndefinedFields<T extends object>(obj: T): T {
 
 export function isDefined<T>(value: T | null | undefined): value is T {
   return value != null;
+}
+
+export function throwIfLoopLimitReached(safetyCounter: number) {
+  if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+    throw new Error(
+      ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT)
+    );
+  }
 }

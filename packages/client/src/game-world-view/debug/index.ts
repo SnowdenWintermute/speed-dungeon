@@ -50,7 +50,7 @@ export class GameWorldViewDebug {
     this.updateCombatantSceneEntityPositionDebug();
 
     const replayScheduler = this.clientApplication.replayTreeScheduler;
-    const branches = replayScheduler.getCurrent()?.getActiveBranches();
+    const branches = replayScheduler.current?.getActiveBranches();
     const fps = `${this.gameWorldView.engine.getFps().toFixed()}`;
     const sequentialQueueStrings = this.getSequentialEventQueueStrings();
 

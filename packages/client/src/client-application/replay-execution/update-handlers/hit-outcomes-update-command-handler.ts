@@ -150,6 +150,4 @@ export async function hitOutcomesGameUpdateHandler(
       targetCombatantResult.getName()
     );
   });
-
-  update.setAsQueuedToComplete();
 }

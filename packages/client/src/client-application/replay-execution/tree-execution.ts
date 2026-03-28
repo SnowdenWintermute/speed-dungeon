@@ -3,12 +3,14 @@ import {
   LOOP_SAFETY_ITERATION_LIMIT,
   NestedNodeReplayEvent,
   ReplayEventType,
+  invariant,
 } from "@speed-dungeon/common";
 import { ReplayBranchExecution } from "./branch-execution";
 import { ClientApplication } from "..";
 
+//   - process each active BranchExecution until none can be completed
 export class ReplayTreeExecution {
-  activeBranches: ReplayBranchExecution[] = [];
+  private activeBranches: ReplayBranchExecution[] = [];
   private nextExpectedCompletionOrderIdListIndex: number = 0;
   private expectedCompletionOrderIds: number[];
 
@@ -18,7 +20,6 @@ export class ReplayTreeExecution {
     public onComplete: () => void
   ) {
     this.expectedCompletionOrderIds = this.collectCompletionOrderIds(root);
-    console.log("expectedCompletionOrderIds:", this.expectedCompletionOrderIds);
     this.activeBranches.push(new ReplayBranchExecution(this, root, this.activeBranches));
   }
 
@@ -38,6 +39,20 @@ export class ReplayTreeExecution {
     this.nextExpectedCompletionOrderIdListIndex += 1;
   }
 
+  processBranches(deltaTime: number) {
+    // iterate backwards so we can splice out branches without affecting the iteration
+    for (let i = this.activeBranches.length - 1; i >= 0; i--) {
+      const branch = this.activeBranches[i];
+      invariant(branch !== undefined, "checked above");
+
+      if (branch.isDoneProcessing()) {
+        this.activeBranches.splice(i, 1);
+      }
+
+      branch.processAllCompletableSteps();
+    }
+  }
+
   private collectCompletionOrderIds(root: NestedNodeReplayEvent): number[] {
     const ids: number[] = [];
     for (const event of root.events) {
@@ -54,52 +69,5 @@ export class ReplayTreeExecution {
       }
     }
     return ids.sort((a, b) => a - b);
-  }
-
-  processBranches(deltaTime: number) {
-    // iterate backwards so we can splice out branches without affecting the iteration
-    for (let i = this.activeBranches.length - 1; i >= 0; i--) {
-      const branch = this.activeBranches[i];
-
-      if (!branch) {
-        continue;
-      }
-
-      if (branch.isDoneProcessing()) {
-        this.activeBranches.splice(i, 1);
-      }
-
-      let branchIsComplete = branch.isDoneProcessing();
-
-      const currentUpdateTrackerOption = branch.getCurrentGameUpdate();
-      if (currentUpdateTrackerOption && !currentUpdateTrackerOption.getIsComplete()) {
-        currentUpdateTrackerOption.tryToCompleteInSequence(this);
-      }
-
-      let currentStepComplete = branch.currentStepIsComplete();
-
-      let safetyCounter = -1;
-      while (currentStepComplete && !branchIsComplete) {
-        safetyCounter += 1;
-        if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
-          console.error(
-            ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
-            "in replay tree manager"
-          );
-        }
-
-        branch.startProcessingNext();
-
-        const currentUpdateTracker = branch.getCurrentGameUpdate();
-        if (currentUpdateTracker === null) break;
-
-        if (currentUpdateTracker && !currentUpdateTracker.getIsComplete()) {
-          currentUpdateTracker.tryToCompleteInSequence(this);
-        }
-
-        currentStepComplete = branch.currentStepIsComplete();
-        branchIsComplete = branch.isDoneProcessing();
-      }
-    }
   }
 }

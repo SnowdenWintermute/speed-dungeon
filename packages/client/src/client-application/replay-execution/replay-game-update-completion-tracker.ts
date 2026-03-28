@@ -9,12 +9,15 @@ import { ReplayTreeExecution } from "./tree-execution";
 import { ClientApplication } from "..";
 
 export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
-  private isComplete: boolean = false;
-  private shouldCompleteInSequence: boolean = false;
+  private _isComplete: boolean = false;
   private timeStarted = Date.now();
   constructor(public readonly command: T) {}
 
-  getIsComplete() {
+  /** Replay events have a completionOrderId. In the interest of making sure we start the next
+   * event in the correct sequenece as defined on the server, when the client has finished playing
+   * back the replay event, mark it as ready to be completed. We'll mark it as truly completed
+   * in the game loop if it is the next expected completionOrderId to complete. */
+  get shouldCompleteInSequence() {
     const elapsed = Date.now() - this.timeStarted;
     switch (this.command.type) {
       case GameUpdateCommandType.SpawnEntities:
@@ -47,6 +50,10 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
     }
   }
 
+  get isComplete() {
+    return this._isComplete;
+  }
+
   onComplete(clientApplication: ClientApplication) {
     console.log("trying to complete", ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]);
     if (this.command.type === GameUpdateCommandType.ActionEntityMotion) {
@@ -57,14 +64,6 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
         );
       }
     }
-  }
-
-  /** Replay events have a completionOrderId. In the interest of making sure we start the next
-   * event in the correct sequenece as defined on the server, when the client has finished playing
-   * back the replay event, mark it as ready to be completed. We'll mark it as truly completed
-   * in the game loop if it is the next expected completionOrderId to complete. */
-  setAsQueuedToComplete() {
-    this.shouldCompleteInSequence = true;
   }
 
   getActionNameAndStep() {
@@ -82,9 +81,6 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
       COMBAT_ACTION_NAME_STRINGS[this.command.actionName],
       ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]
     );
-    if (!this.shouldCompleteInSequence) {
-      return false;
-    }
 
     const nextExpectedCompletionOrderId = parentReplayTreeProcessor.getNextNodeCompletionId();
 
@@ -92,7 +88,7 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
       if (this.isComplete === false) {
         parentReplayTreeProcessor.incrementNextExpectedCompletedNodeIdIndex();
       }
-      this.isComplete = true;
+      this._isComplete = true;
       this.onComplete(parentReplayTreeProcessor.clientApplication);
     } else {
       // sometimes things complete out of order. I assume this is due to

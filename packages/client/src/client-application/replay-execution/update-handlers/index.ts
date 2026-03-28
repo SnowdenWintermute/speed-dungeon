@@ -30,14 +30,12 @@ export const GAME_UPDATE_HANDLERS: Record<
     update: ReplayGameUpdateTracker<ActionUseGameLogMessageUpdateCommand>
   ) => {
     clientApplication.eventLogMessageService.postActionUse(update.command);
-    update.setAsQueuedToComplete();
   },
   [GameUpdateCommandType.ActionResolutionGameLogMessage]: async (
     clientApplication: ClientApplication,
     update: ReplayGameUpdateTracker<ActionResolutionGameLogMessageUpdateCommand>
   ) => {
     clientApplication.eventLogMessageService.postActionResolution(update.command);
-    update.setAsQueuedToComplete();
   },
   [GameUpdateCommandType.ActivatedTriggers]: async (
     clientApplication: ClientApplication,

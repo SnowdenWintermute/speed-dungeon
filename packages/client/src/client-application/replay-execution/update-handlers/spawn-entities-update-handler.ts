@@ -50,8 +50,6 @@ export async function spawnEntitiesGameUpdateHandler(
   try {
     // @TODO - waiting for spawn completion will cause stutter
     await Promise.all(promises);
-
-    update.setAsQueuedToComplete();
   } catch (error) {
     console.info("some error with spawn entities:", error);
   }

@@ -64,8 +64,6 @@ export class ActionEffectsApplyerCommand {
     // on an entity right before we despawn it
     this.applyDespawnedActionEntities(command.actionEntityIdsDespawned);
     this.applyActionEntitiesHidden(command.actionEntityIdsToHide);
-
-    this.update.setAsQueuedToComplete();
   }
 
   private applySupportClassLevelsGained(supportClassLevelsGained?: Record<string, CombatantClass>) {

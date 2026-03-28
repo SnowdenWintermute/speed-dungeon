@@ -4,30 +4,9 @@ import { ClientApplication } from "..";
 
 export class ReplayTreeScheduler {
   private queue: { root: NestedNodeReplayEvent; onComplete: () => void }[] = [];
-  private current: null | ReplayTreeExecution = null;
+  private _current: null | ReplayTreeExecution = null;
 
   constructor(private clientApplication: ClientApplication) {}
-
-  tick(deltaTime: number) {
-    if (this.currentTreeCompleted()) {
-      this.startNext();
-    }
-    this.process(deltaTime);
-  }
-
-  getCurrent() {
-    return this.current;
-  }
-
-  isEmpty() {
-    const hasCurrentActiveTree = this.current && !this.current.isComplete();
-    return !hasCurrentActiveTree && this.queue.length === 0;
-  }
-
-  clear() {
-    this.current = null;
-    this.queue = [];
-  }
 
   enqueueTree(root: NestedNodeReplayEvent, doNotLockInput: boolean, onComplete: () => void) {
     this.queue.push({ root, onComplete });
@@ -36,30 +15,58 @@ export class ReplayTreeScheduler {
     if (partyOption && !doNotLockInput) {
       partyOption.inputLock.lockInput();
     }
-    this.clientApplication.actionMenu.clearStack();
   }
 
-  currentTreeCompleted() {
-    return this.current === null || this.current.isComplete();
+  clear() {
+    this._current = null;
+    this.queue = [];
   }
 
-  startNext() {
-    const nextOption = this.queue.shift();
-    this.current = nextOption
-      ? new ReplayTreeExecution(this.clientApplication, nextOption.root, nextOption.onComplete)
-      : null;
-  }
-
-  process(deltaTime: number) {
-    if (this.current) {
-      this.current.processBranches(deltaTime);
-    }
+  tick(deltaTime: number) {
     if (this.currentTreeCompleted()) {
-      if (this.current !== null) {
-        this.current.onComplete();
+      if (!this.peekNext()) {
+        return;
+      } else {
+        this.startNext();
       }
-      this.current = null;
+    }
+
+    this.process(deltaTime);
+  }
+
+  private process(deltaTime: number) {
+    if (this._current) {
+      this._current.processBranches(deltaTime);
+    }
+
+    if (this.currentTreeCompleted()) {
+      if (this._current !== null) {
+        this._current.onComplete();
+        this._current = null;
+      }
       this.startNext();
     }
+  }
+
+  get current() {
+    return this._current;
+  }
+
+  private currentTreeCompleted() {
+    return this._current === null || this._current.isComplete();
+  }
+
+  private startNext() {
+    const nextOption = this.queue.shift();
+    if (!nextOption) return;
+    this._current = new ReplayTreeExecution(
+      this.clientApplication,
+      nextOption.root,
+      nextOption.onComplete
+    );
+  }
+
+  private peekNext() {
+    return this.queue[0];
   }
 }
