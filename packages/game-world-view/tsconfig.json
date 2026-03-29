@@ -9,5 +9,10 @@
       "@/client-application": ["../client-application/src/index.ts"],
       "@/client-application/*": ["../client-application/src/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../common"
+    }
+  ]
 }

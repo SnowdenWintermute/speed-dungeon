@@ -1,6 +1,5 @@
 import { createClientSequentialEventHandlers } from "./client-event-handlers";
 import {
-  CLIENT_EVENT_TYPE_STRINGS,
   ClientSequentialEvent,
   ClientSequentialEventHandlers,
   ReactiveNode,
@@ -56,6 +55,10 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
         this.currentEventProcessing = null;
       }
     });
+  }
+
+  waitUntilIdle(): Promise<void> {
+    return this.chain;
   }
 
   /** sets queued events to be skipped but does not cancel the currently processing event */

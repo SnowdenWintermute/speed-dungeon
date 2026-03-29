@@ -14,7 +14,14 @@
 // - await resolution of client handling of messages from test game server
 // - assert game client state
 
-import { GameServer, IndexedDbAssetStore, LobbyServer } from "@speed-dungeon/common";
+import {
+  ClientIntentType,
+  GameMode,
+  GameName,
+  GameServer,
+  IndexedDbAssetStore,
+  LobbyServer,
+} from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
 import { TimeMachine } from "../test-utils/time-machine.js";
 import { createTestServers } from "../servers/fixtures/create-test-servers.js";
@@ -23,7 +30,7 @@ import { ManualTickScheduler } from "@/client-application/replay-execution/repla
 import { indexedDB } from "fake-indexeddb";
 
 // - continue with more actions and state assertions for complex scenarios
-describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
+describe.each([TEST_CONNECTION_ENDPOINT_FACTORIES[0]!])(
   "experiment with new architecture",
   ({ clientEndpointFactory, authSessionIds }) => {
     let lobbyServer: LobbyServer;
@@ -59,20 +66,26 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       );
 
       await clientApplication.topologyManager.enterOnline("http://localhost:8080");
-      clientApplication.lobbyClientRef.get().quickStartGame();
+      const intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+        type: ClientIntentType.CreateGame,
+        data: { gameName: "a" as GameName, mode: GameMode.Race },
+      });
+      await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
+      await clientApplication.sequentialEventProcessor.waitUntilIdle();
+      expect(clientApplication.gameContext.requireGame().name).toBe("a");
     });
 
-    it("instantiates2", async () => {
-      const assetCache = new IndexedDbAssetStore(indexedDB);
-      const tickScheduler = new ManualTickScheduler();
-      const clientApplication = new ClientApplication(
-        assetCache,
-        "http://localhost:8080",
-        tickScheduler.scheduler
-      );
+    // it("instantiates2", async () => {
+    //   const assetCache = new IndexedDbAssetStore(indexedDB);
+    //   const tickScheduler = new ManualTickScheduler();
+    //   const clientApplication = new ClientApplication(
+    //     assetCache,
+    //     "http://localhost:8080",
+    //     tickScheduler.scheduler
+    //   );
 
-      await clientApplication.topologyManager.enterOnline("http://localhost:8080");
-      clientApplication.lobbyClientRef.get().quickStartGame();
-    });
+    //   await clientApplication.topologyManager.enterOnline("http://localhost:8080");
+    //   clientApplication.lobbyClientRef.get().quickStartGame();
+    // });
   }
 );

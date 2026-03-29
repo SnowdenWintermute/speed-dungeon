@@ -1,9 +1,19 @@
-import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeon/common";
+import {
+  ClientIntent,
+  ConnectionEndpoint,
+  GameStateUpdate,
+  GameStateUpdateType,
+} from "@speed-dungeon/common";
 import { ClientApplication } from "..";
 import { ConnectionMode, ConnectionTopology } from "../connection-topology";
 import { ConnectionStatus } from "../ui/connection-status";
 
 export abstract class BaseClient {
+  // for determining if we have received a reply stream from the server
+  // which is associated with our sent client intent
+  private _intentSequenceCounter = 0;
+  private _pendingReplies = new Map<number, () => void>();
+
   constructor(
     protected name: string,
     protected connectionEndpoint: ConnectionEndpoint,
@@ -18,8 +28,20 @@ export abstract class BaseClient {
     this._targetConnectionMode = newMode;
   }
 
-  dispatchIntent(message: ClientIntent) {
+  dispatchIntent(message: ClientIntent): number {
+    this._intentSequenceCounter += 1;
     this.connectionEndpoint.send(JSON.stringify(message));
+    return this._intentSequenceCounter;
+  }
+
+  waitForServerReply(sequenceId: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this._pendingReplies.set(sequenceId, resolve);
+    });
+  }
+
+  waitForClientProcessing(): Promise<void> {
+    return this.clientApplication.sequentialEventProcessor.waitUntilIdle();
   }
 
   close() {
@@ -54,12 +76,24 @@ export abstract class BaseClient {
 
     this.connectionEndpoint.on("message", (untyped) => {
       const typedMessage = this.getTypedMessage(untyped);
+      this.handleEndOfStream(typedMessage);
       this.handleMessage(typedMessage);
     });
 
     this.connectionEndpoint.on("close", (reason) => {
       console.info(`closed connection endpoint with code ${reason}`);
     });
+  }
+
+  private handleEndOfStream(typedMessage: GameStateUpdate) {
+    if (typedMessage.type === GameStateUpdateType.EndOfUpdateStream) {
+      const resolver = this._pendingReplies.get(typedMessage.data.clientIntentSequenceId);
+      if (resolver) {
+        this._pendingReplies.delete(typedMessage.data.clientIntentSequenceId);
+        resolver();
+      }
+      return;
+    }
   }
 
   abstract resetConnection(): void;

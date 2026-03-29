@@ -9,5 +9,10 @@
       "@/game-world-view": ["../game-world-view/src/index.ts"],
       "@/game-world-view/*": ["../game-world-view/src/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../common"
+    }
+  ]
 }
