@@ -129,27 +129,32 @@ export class ConnectionTopology {
     // }
   }
 
-  enterOnline() {
-    this._mode = ConnectionMode.Initializing;
-    const { connectionStatus } = this.clientApplication.uiStore;
-    const { lobbyClientRef, gameClientRef } = this.clientApplication;
-    connectionStatus.connectionStatus = ConnectionStatus.Initializing;
-    const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL || "";
-    const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, []);
-    if (!lobbyClientRef.isInitialized) {
-      lobbyClientRef.setClient(
-        new LobbyClient(
-          "Lobby server",
-          connectionEndpoint,
-          this.clientApplication,
-          this,
-          ConnectionMode.Online
-        )
-      );
-    } else {
-      lobbyClientRef.get().targetConnectionMode = ConnectionMode.Online;
-      lobbyClientRef.get().setEndpoint(connectionEndpoint);
-    }
+  enterOnline(lobbyServerUrl: string) {
+    return new Promise<void>((resolve, reject) => {
+      this._mode = ConnectionMode.Initializing;
+      const { connectionStatus } = this.clientApplication.uiStore;
+      const { lobbyClientRef, gameClientRef } = this.clientApplication;
+      connectionStatus.connectionStatus = ConnectionStatus.Initializing;
+      const remoteLobbyServerAddress = lobbyServerUrl;
+      const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, []);
+      connectionEndpoint.on("open", () => {
+        resolve();
+      });
+      if (!lobbyClientRef.isInitialized) {
+        lobbyClientRef.setClient(
+          new LobbyClient(
+            "Lobby server",
+            connectionEndpoint,
+            this.clientApplication,
+            this,
+            ConnectionMode.Online
+          )
+        );
+      } else {
+        lobbyClientRef.get().targetConnectionMode = ConnectionMode.Online;
+        lobbyClientRef.get().setEndpoint(connectionEndpoint);
+      }
+    });
   }
 
   enterOffline() {

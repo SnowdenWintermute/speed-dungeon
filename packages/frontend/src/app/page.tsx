@@ -13,6 +13,7 @@ import { ClientApplication } from "@/client-application";
 import { ClientApplicationContext } from "@/hooks/create-client-application-context";
 import { MainAppWindow } from "./MainAppWindow";
 import { createClientApplication } from "./create-client-application";
+import { invariant } from "@speed-dungeon/common";
 
 export default observer(() => {
   const clientApplicationRef = useRef<ClientApplication | null>(null);
@@ -21,7 +22,9 @@ export default observer(() => {
   useEffect(() => {
     const clientApplication = createClientApplication();
     clientApplicationRef.current = clientApplication;
-    clientApplication.topologyManager.enterOnline();
+    const lobbyServerUrl = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+    invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
+    clientApplication.topologyManager.enterOnline(lobbyServerUrl);
     setIsReady(true);
     return () => {
       clientApplication.dispose();

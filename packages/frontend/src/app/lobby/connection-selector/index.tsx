@@ -1,6 +1,7 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { invariant } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
@@ -13,7 +14,9 @@ export const ConnectionSelector = observer(() => {
     if (isOnline && canEnterOffline) {
       topologyManager.enterOffline();
     } else if (isOffline) {
-      topologyManager.enterOnline();
+      const lobbyServerUrl = process.env.NEXT_PUBLIC_WS_SERVER_URL;
+      invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
+      topologyManager.enterOnline(lobbyServerUrl);
     }
   }
 

@@ -49,7 +49,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       timeMachine.returnToPresent();
     });
 
-    it("instantiates", () => {
+    it("instantiates", async () => {
       const assetCache = new IndexedDbAssetStore(indexedDB);
       const tickScheduler = new ManualTickScheduler();
       const clientApplication = new ClientApplication(
@@ -57,7 +57,22 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
         "http://localhost:8080",
         tickScheduler.scheduler
       );
-      expect(clientApplication).toBeDefined();
+
+      await clientApplication.topologyManager.enterOnline("http://localhost:8080");
+      clientApplication.lobbyClientRef.get().quickStartGame();
+    });
+
+    it("instantiates2", async () => {
+      const assetCache = new IndexedDbAssetStore(indexedDB);
+      const tickScheduler = new ManualTickScheduler();
+      const clientApplication = new ClientApplication(
+        assetCache,
+        "http://localhost:8080",
+        tickScheduler.scheduler
+      );
+
+      await clientApplication.topologyManager.enterOnline("http://localhost:8080");
+      clientApplication.lobbyClientRef.get().quickStartGame();
     });
   }
 );
