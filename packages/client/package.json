@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "@speed-dungeon/client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -53,9 +53,7 @@
     "tailwindcss": "3.4.1",
     "typescript": "5.4.5"
   },
-  "trustedDependencies": [
-    "babylonjs"
-  ],
+  "trustedDependencies": ["babylonjs"],
   "resolutions": {
     "@types/react": "19.1.9",
     "@types/react-dom": "19.1.7"

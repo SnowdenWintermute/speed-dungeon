@@ -13,6 +13,7 @@
   "dependencies": {
     "@speed-dungeon/common": "1.0.0",
     "@speed-dungeon/server": "*",
+    "@speed-dungeon/client": "*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "express": "^5.2.1"

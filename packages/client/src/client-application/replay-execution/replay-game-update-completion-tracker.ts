@@ -55,7 +55,6 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
   }
 
   onComplete(clientApplication: ClientApplication) {
-    console.log("trying to complete", ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]);
     if (this.command.type === GameUpdateCommandType.ActionEntityMotion) {
       if (this.command.mainEntityUpdate.despawnOnCompleteMode !== undefined) {
         const partyResult = clientApplication.gameContext.requireParty();

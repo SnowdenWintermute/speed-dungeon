@@ -6,6 +6,7 @@
 // - threat added to all monsters when ally healed
 // - firewall ticks down
 // - tickable condition stacks removed visually on tick
+// - items can be picked up and dropped
 //
 // need to be able to:
 // - outfit a party of characters with specific
