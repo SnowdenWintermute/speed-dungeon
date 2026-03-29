@@ -250,5 +250,8 @@ export function createLobbyUpdateHandlers(
 
       clientApplication.topologyManager.createGameClient(url, queryParams);
     },
+    [GameStateUpdateType.EndOfUpdateStream]: (data) => {
+      console.log(data);
+    },
   };
 }

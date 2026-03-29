@@ -1,3 +1,4 @@
+import { ConnectionId, Username } from "../aliases.js";
 import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
@@ -93,6 +94,15 @@ export abstract class SpeedDungeonServer {
         // why cast as never: see README.md -> Typed Event Handler Records
         try {
           const outbox = await handlerOption(parsed.data as never, session);
+
+          session.incrementLastIntentHandledId();
+          outbox.pushToConnection(session.connectionId, {
+            type: GameStateUpdateType.EndOfUpdateStream,
+            data: {
+              clientIntentSequenceId: session.lastIntentHandledId,
+            },
+          });
+
           this.dispatchOutboxMessages(outbox);
         } catch (error) {
           if (error instanceof Error) {

@@ -832,6 +832,9 @@ export function createGameUpdateHandlers(
       alertsService.setAlert(`Pet name changed from ${pet.entityProperties.name} to ${newName}`);
       pet.entityProperties.name = newName;
     },
+    [GameStateUpdateType.EndOfUpdateStream]: (data) => {
+      console.log(data);
+    },
   };
 }
 

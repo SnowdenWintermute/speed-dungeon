@@ -88,6 +88,7 @@ export enum GameStateUpdateType {
   CharacterAllocatedAbilityPoint,
   CharacterTradedItemForBook,
   CharacterRenamedPet,
+  EndOfUpdateStream,
 }
 
 export interface GameStateUpdateMap {
@@ -265,6 +266,9 @@ export interface GameStateUpdateMap {
     petId: CombatantId;
     newName: EntityName;
   };
+  [GameStateUpdateType.EndOfUpdateStream]: {
+    clientIntentSequenceId: number;
+  };
 }
 
 export type GameStateUpdate = {
@@ -375,4 +379,5 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.CharacterAllocatedAbilityPoint]: "CharacterAllocatedAbilityPoint",
   [GameStateUpdateType.CharacterTradedItemForBook]: "CharacterTradedItemForBook",
   [GameStateUpdateType.CharacterRenamedPet]: "CharacterRenamedPet",
+  [GameStateUpdateType.EndOfUpdateStream]: "EndOfUpdateStream",
 };

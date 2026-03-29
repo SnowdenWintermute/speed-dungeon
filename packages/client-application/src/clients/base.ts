@@ -1,9 +1,4 @@
-import {
-  ClientIntent,
-  ClientSequentialEventType,
-  ConnectionEndpoint,
-  GameStateUpdate,
-} from "@speed-dungeon/common";
+import { ClientIntent, ConnectionEndpoint, GameStateUpdate } from "@speed-dungeon/common";
 import { ClientApplication } from "..";
 import { ConnectionMode, ConnectionTopology } from "../connection-topology";
 import { ConnectionStatus } from "../ui/connection-status";
