@@ -15,11 +15,12 @@
 // - assert game client state
 
 import { GameServer, IndexedDbAssetStore, LobbyServer } from "@speed-dungeon/common";
-
-import { ClientApplication } from "@speed-dungeon/client"; // Cannot find module '@speed-dungeon/client' or its corresponding type declarations.
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
 import { TimeMachine } from "../test-utils/time-machine.js";
 import { createTestServers } from "../servers/fixtures/create-test-servers.js";
+import { ClientApplication } from "@/client-application";
+import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers.js";
+import { indexedDB } from "fake-indexeddb";
 
 // - continue with more actions and state assertions for complex scenarios
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
@@ -51,7 +52,12 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     it("instantiates", () => {
       const assetCache = new IndexedDbAssetStore(indexedDB);
       const tickScheduler = new ManualTickScheduler();
-      return new ClientApplication(assetCache, "http://localhost:8080", tickScheduler.scheduler);
+      const clientApplication = new ClientApplication(
+        assetCache,
+        "http://localhost:8080",
+        tickScheduler.scheduler
+      );
+      expect(clientApplication).toBeDefined();
     });
   }
 );

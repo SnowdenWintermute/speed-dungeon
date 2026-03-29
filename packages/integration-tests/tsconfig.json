@@ -1,11 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "src",
     "outDir": "dist",
-    "composite": true,
+    "moduleResolution": "bundler",
     "paths": {
-      "@speed-dungeon/*": ["../packages/*"]
+      "@speed-dungeon/*": ["../packages/*"],
+      "@/client-application": ["../client-application/src/index.ts"],
+      "@/client-application/*": ["../client-application/src/*"],
+      "@/game-world-view": ["../game-world-view/src/index.ts"],
+      "@/game-world-view/*": ["../game-world-view/src/*"],
+      "@/*": ["./src/*"]
     }
   },
   "references": [
