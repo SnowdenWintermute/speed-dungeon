@@ -32,6 +32,7 @@ import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers.js";
 import { indexedDB } from "fake-indexeddb";
 import { TEST_LOBBY_SERVER_PORT } from "@/servers/fixtures/index.js";
+import { ClientTestHarness } from "@/test-utils/client-test-harness.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "experiment with new architecture",
@@ -72,26 +73,24 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await clientApplication.topologyManager.enterOnline(
         `http://localhost:${TEST_LOBBY_SERVER_PORT}`
       );
-      let intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+      const lobbyClientHarness = new ClientTestHarness(
+        clientApplication,
+        clientApplication.lobbyClientRef.get()
+      );
+      await lobbyClientHarness.settleIntentResult({
         type: ClientIntentType.CreateGame,
         data: { gameName: "a" as GameName, mode: GameMode.Race },
       });
-      await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
-      await clientApplication.sequentialEventProcessor.waitUntilIdle();
       expect(clientApplication.gameContext.requireGame().name).toBe("a");
-      intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+      await lobbyClientHarness.settleIntentResult({
         type: ClientIntentType.CreateParty,
         data: { partyName: "a" as PartyName },
       });
-      await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
-      await clientApplication.sequentialEventProcessor.waitUntilIdle();
       expect(clientApplication.gameContext.requireParty().name).toBe("a");
-      intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+      await lobbyClientHarness.settleIntentResult({
         type: ClientIntentType.CreateCharacter,
         data: { name: "a" as EntityName, combatantClass: CombatantClass.Rogue },
       });
-      await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
-      await clientApplication.sequentialEventProcessor.waitUntilIdle();
       expect(
         clientApplication.gameContext.requireParty().combatantManager.getAllCombatants().size
       ).toBe(1);

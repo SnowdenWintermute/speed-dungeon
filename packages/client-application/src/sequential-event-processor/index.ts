@@ -58,6 +58,9 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
   }
 
   waitUntilIdle(): Promise<void> {
+    // since scheduling new events replaces the promise chain reference, this
+    // reference will be the chain as it was when waitUntilIdle is called, and not
+    // include subsequent promises added afterwards
     return this.chain;
   }
 
