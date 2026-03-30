@@ -16,11 +16,14 @@
 
 import {
   ClientIntentType,
+  CombatantClass,
+  EntityName,
   GameMode,
   GameName,
   GameServer,
   IndexedDbAssetStore,
   LobbyServer,
+  PartyName,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
 import { TimeMachine } from "../test-utils/time-machine.js";
@@ -28,11 +31,12 @@ import { createTestServers } from "../servers/fixtures/create-test-servers.js";
 import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers.js";
 import { indexedDB } from "fake-indexeddb";
+import { TEST_LOBBY_SERVER_PORT } from "@/servers/fixtures/index.js";
 
-// - continue with more actions and state assertions for complex scenarios
-describe.each([TEST_CONNECTION_ENDPOINT_FACTORIES[0]!])(
+describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "experiment with new architecture",
-  ({ clientEndpointFactory, authSessionIds }) => {
+  // ({ clientEndpointFactory, authSessionIds }) => {
+  ({ clientEndpointFactory }) => {
     let lobbyServer: LobbyServer;
     let gameServer: GameServer;
     const timeMachine = new TimeMachine();
@@ -61,18 +65,36 @@ describe.each([TEST_CONNECTION_ENDPOINT_FACTORIES[0]!])(
       const tickScheduler = new ManualTickScheduler();
       const clientApplication = new ClientApplication(
         assetCache,
-        "http://localhost:8080",
+        `http://localhost:${TEST_LOBBY_SERVER_PORT}`,
         tickScheduler.scheduler
       );
 
-      await clientApplication.topologyManager.enterOnline("http://localhost:8080");
-      const intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+      await clientApplication.topologyManager.enterOnline(
+        `http://localhost:${TEST_LOBBY_SERVER_PORT}`
+      );
+      let intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
         type: ClientIntentType.CreateGame,
         data: { gameName: "a" as GameName, mode: GameMode.Race },
       });
       await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
       await clientApplication.sequentialEventProcessor.waitUntilIdle();
       expect(clientApplication.gameContext.requireGame().name).toBe("a");
+      intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+        type: ClientIntentType.CreateParty,
+        data: { partyName: "a" as PartyName },
+      });
+      await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
+      await clientApplication.sequentialEventProcessor.waitUntilIdle();
+      expect(clientApplication.gameContext.requireParty().name).toBe("a");
+      intentId = clientApplication.lobbyClientRef.get().dispatchIntent({
+        type: ClientIntentType.CreateCharacter,
+        data: { name: "a" as EntityName, combatantClass: CombatantClass.Rogue },
+      });
+      await clientApplication.lobbyClientRef.get().waitForServerReply(intentId);
+      await clientApplication.sequentialEventProcessor.waitUntilIdle();
+      expect(
+        clientApplication.gameContext.requireParty().combatantManager.getAllCombatants().size
+      ).toBe(1);
     });
 
     // it("instantiates2", async () => {

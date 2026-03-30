@@ -58,6 +58,7 @@ export class ConnectionTopology {
       value: string;
     }[]
   ) {
+    console.log("url:", url, urlWithQueryParams(url, queryParams));
     const ws = new WebSocket(urlWithQueryParams(url, queryParams));
     return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
   }

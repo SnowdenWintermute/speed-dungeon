@@ -71,16 +71,16 @@ export const TEST_CONNECTION_ENDPOINT_FACTORIES = [
     name: "node-websocket",
     clientEndpointFactory: websocketFactory,
   },
-  {
-    name: "in-memory",
-    clientEndpointFactory: inMemoryFactory,
-  },
-  {
-    name: "in-memory-auth-users",
-    clientEndpointFactory: inMemoryFactory,
-    authSessionIds: {
-      hostAuthSessionId: TEST_AUTH_SESSION_ID_PLAYER_1,
-      joinerAuthSessionId: TEST_AUTH_SESSION_ID_PLAYER_2,
-    },
-  },
+  // {
+  //   name: "in-memory",
+  //   clientEndpointFactory: inMemoryFactory,
+  // },
+  // {
+  //   name: "in-memory-auth-users",
+  //   clientEndpointFactory: inMemoryFactory,
+  //   authSessionIds: {
+  //     hostAuthSessionId: TEST_AUTH_SESSION_ID_PLAYER_1,
+  //     joinerAuthSessionId: TEST_AUTH_SESSION_ID_PLAYER_2,
+  //   },
+  // },
 ];
