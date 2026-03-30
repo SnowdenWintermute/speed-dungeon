@@ -18,10 +18,12 @@ import {
   ClientIntentType,
   CombatantClass,
   EntityName,
+  ERROR_MESSAGES,
   GameMode,
   GameName,
   GameServer,
   IndexedDbAssetStore,
+  invariant,
   LobbyServer,
   PartyName,
 } from "@speed-dungeon/common";
@@ -70,6 +72,8 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
         tickScheduler.scheduler
       );
 
+      const { lobbyClientRef, gameContext, errorRecordService } = clientApplication;
+
       await clientApplication.topologyManager.enterOnline(
         `http://localhost:${TEST_LOBBY_SERVER_PORT}`
       );
@@ -94,6 +98,39 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       expect(
         clientApplication.gameContext.requireParty().combatantManager.getAllCombatants().size
       ).toBe(1);
+      await lobbyClientHarness.settleIntentResult({
+        type: ClientIntentType.CreateCharacter,
+        data: { name: "b" as EntityName, combatantClass: CombatantClass.Rogue },
+      });
+      await lobbyClientHarness.settleIntentResult({
+        type: ClientIntentType.CreateCharacter,
+        data: { name: "c" as EntityName, combatantClass: CombatantClass.Rogue },
+      });
+      expect(
+        clientApplication.gameContext.requireParty().combatantManager.getAllCombatants().size
+      ).toBe(3);
+      const lastIntentId = await lobbyClientHarness.settleIntentResult({
+        type: ClientIntentType.CreateCharacter,
+        data: { name: "d" as EntityName, combatantClass: CombatantClass.Rogue },
+      });
+      expect(errorRecordService.getLastError()).toEqual({
+        message: ERROR_MESSAGES.GAME.MAX_PARTY_SIZE,
+        clientIntentSequenceId: lastIntentId,
+      });
+      const someOwnedCombatantId = gameContext
+        .requireParty()
+        .combatantManager.getPartyMemberCombatants()[0]
+        ?.getEntityId();
+      invariant(someOwnedCombatantId !== undefined);
+      await lobbyClientHarness.settleIntentResult({
+        type: ClientIntentType.DeleteCharacter,
+        data: { characterId: someOwnedCombatantId },
+      });
+      await lobbyClientHarness.settleIntentResult({
+        type: ClientIntentType.CreateCharacter,
+        data: { name: "d" as EntityName, combatantClass: CombatantClass.Rogue },
+      });
+      expect(errorRecordService.count).toBe(1);
     });
 
     // it("instantiates2", async () => {

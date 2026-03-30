@@ -115,6 +115,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.ErrorMessage]: {
     message: string;
+    clientIntentSequenceId: number;
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SerializedOf<SpeedDungeonGame> | null;

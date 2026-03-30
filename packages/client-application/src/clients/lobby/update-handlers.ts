@@ -29,9 +29,7 @@ export function createLobbyUpdateHandlers(
 ): Partial<LobbyUpdateHandlers> {
   const { lobbyContext, gameContext, session, gameWorldView } = clientApplication;
   return {
-    [GameStateUpdateType.ErrorMessage]: (data) => {
-      clientApplication.alertsService.setAlert(data.message);
-    },
+    [GameStateUpdateType.ErrorMessage]: () => { /* handled in BaseClient */ },
     [GameStateUpdateType.OnConnection]: (data) => {
       session.setUsername(data.username);
     },

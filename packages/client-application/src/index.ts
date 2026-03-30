@@ -18,6 +18,7 @@ import { FloatingMessagesStore } from "./event-log/floating-messages-store";
 import { EventLogGameMessageService } from "./event-log/event-log-service";
 import { FloatingMessageService } from "./event-log/floating-messages-service";
 import { AlertsService } from "./alerts";
+import { ErrorRecordService } from "./error-record-service";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
@@ -63,6 +64,7 @@ export class ClientApplication {
   readonly floatingMessagesStore = new FloatingMessagesStore();
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   readonly alertsService = new AlertsService();
+  readonly errorRecordService = new ErrorRecordService();
 
   // browser tab sync
   readonly broadcastChannel: BroadcastChannelMananger;

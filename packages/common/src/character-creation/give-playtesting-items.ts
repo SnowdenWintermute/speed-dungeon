@@ -1,4 +1,3 @@
-import { T } from "oxide.ts/dist/common.js";
 import {
   AffixCategory,
   AffixType,

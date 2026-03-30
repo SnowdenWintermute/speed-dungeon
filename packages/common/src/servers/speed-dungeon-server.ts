@@ -92,34 +92,32 @@ export abstract class SpeedDungeonServer {
 
         const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
 
+        const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+        session.incrementLastIntentHandledId();
+        const intentId = session.lastIntentHandledId;
+
         // why cast as never: see README.md -> Typed Event Handler Records
         try {
-          const outbox = await handlerOption(parsed.data as never, session);
-
-          session.incrementLastIntentHandledId();
-          outbox.pushToConnection(session.connectionId, {
-            type: GameStateUpdateType.EndOfUpdateStream,
-            data: {
-              clientIntentSequenceId: session.lastIntentHandledId,
-            },
-          });
-
-          this.dispatchOutboxMessages(outbox);
+          const handlerOutbox = await handlerOption(parsed.data as never, session);
+          outbox.pushFromOther(handlerOutbox);
         } catch (error) {
           if (error instanceof Error) {
-            const errorOutbox = new MessageDispatchOutbox<GameStateUpdate>(
-              this.updateDispatchFactory
-            );
-            errorOutbox.pushToConnection(session.connectionId, {
+            outbox.pushToConnection(session.connectionId, {
               type: GameStateUpdateType.ErrorMessage,
-              data: { message: error.message },
+              data: { message: error.message, clientIntentSequenceId: intentId },
             });
-            this.dispatchOutboxMessages(errorOutbox);
-
             console.trace(error);
           } else {
             console.trace(error);
           }
+        } finally {
+          outbox.pushToConnection(session.connectionId, {
+            type: GameStateUpdateType.EndOfUpdateStream,
+            data: {
+              clientIntentSequenceId: intentId,
+            },
+          });
+          this.dispatchOutboxMessages(outbox);
         }
       });
     });

@@ -77,12 +77,37 @@ export abstract class BaseClient {
     this.connectionEndpoint.on("message", (untyped) => {
       const typedMessage = this.getTypedMessage(untyped);
       this.handleEndOfStream(typedMessage);
+      this.handleErrorMessage(typedMessage);
       this.handleMessage(typedMessage);
     });
 
     this.connectionEndpoint.on("close", (reason) => {
       console.info(`closed connection endpoint with code ${reason}`);
     });
+  }
+
+  private handleErrorMessage(typedMessage: GameStateUpdate) {
+    if (typedMessage.type !== GameStateUpdateType.ErrorMessage) return;
+
+    const { message, clientIntentSequenceId } = typedMessage.data;
+    const { alertsService, errorRecordService, gameContext, combatantFocus, targetIndicatorStore } =
+      this.clientApplication;
+
+    errorRecordService.record(message, clientIntentSequenceId);
+    alertsService.setAlert(message);
+
+    const { partyOption } = gameContext;
+    if (!partyOption) return;
+
+    // this is a quick and dirty fix until we have a way to associate errors
+    // with certain actions, which would also be good to associate responses with
+    // certain actions so we can show the buttons in a loading state
+    partyOption.inputLock.unlockInput();
+    const { focusedCharacterOption } = combatantFocus;
+    if (!focusedCharacterOption) return;
+
+    focusedCharacterOption.combatantProperties.targetingProperties.clear();
+    targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
   }
 
   private handleEndOfStream(typedMessage: GameStateUpdate) {

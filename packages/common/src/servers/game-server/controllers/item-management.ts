@@ -161,10 +161,7 @@ export class ItemManagementController {
     });
 
     if (reachedMaxCapacity) {
-      outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
-        type: GameStateUpdateType.ErrorMessage,
-        data: { message: ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY },
-      });
+      throw new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
     }
 
     return outbox;
