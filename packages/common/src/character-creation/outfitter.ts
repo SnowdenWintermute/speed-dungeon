@@ -22,7 +22,6 @@ export class CharacterOutfitter {
     CharacterOutfitter.givePlaytestingItems(combatantProperties, this.itemGenerator);
 
     CharacterOutfitter.giveStartingAbilities(character);
-    // CharacterOutfitter.giveStartingAttributes(combatantProperties);
     CharacterOutfitter.setUpInherentTraits(combatantProperties);
     this.giveStartingInventoryItems(combatantProperties);
     CharacterOutfitter.giveStartingEquipment(combatantProperties, this.itemGenerator);
@@ -33,14 +32,6 @@ export class CharacterOutfitter {
   static giveStartingEquipment = giveStartingEquipment;
   static setPlaytestingCombatantProperties = setPlaytestingCombatantProperties;
   static givePlaytestingItems = givePlaytestingItems;
-
-  static giveStartingAttributes(combatantProperties: CombatantProperties) {
-    const { combatantClass } = combatantProperties.classProgressionProperties.getMainClass();
-    const baseStartingAttributesOption = BASE_STARTING_ATTRIBUTES[combatantClass];
-    for (const [attribute, value] of iterateNumericEnumKeyedRecord(baseStartingAttributesOption)) {
-      combatantProperties.attributeProperties.setInherentAttributeValue(attribute, value);
-    }
-  }
 
   static setUpInherentTraits(combatantProperties: CombatantProperties) {
     const { combatantClass } = combatantProperties.classProgressionProperties.getMainClass();

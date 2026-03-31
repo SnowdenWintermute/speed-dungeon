@@ -62,6 +62,10 @@ export class ClassProgressionProperties
     this.mainClass.combatantClass = combatantClass;
   }
 
+  setSupportClass(combatantClass: CombatantClass, level: number) {
+    this.supportClass = new CombatantClassProperties(level, combatantClass);
+  }
+
   private convertExperienceToClassLevels() {
     let levelupCount = 0;
 

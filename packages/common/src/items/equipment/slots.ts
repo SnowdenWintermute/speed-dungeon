@@ -1,4 +1,4 @@
-import { EquipmentType } from "./equipment-types/index.js";
+import { EQUIPMENT_TYPE_STRINGS, EquipmentType } from "./equipment-types/index.js";
 
 export enum EquipmentSlotType {
   Holdable,
@@ -50,6 +50,27 @@ export const HOLDABLE_SLOT_STRINGS: Record<HoldableSlotType, string> = {
 export interface EquipableSlots {
   main: TaggedEquipmentSlot;
   alternate: null | TaggedEquipmentSlot;
+}
+
+export function validateEquipmentSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
+  const equipableSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+
+  const matchesMain =
+    equipableSlots.main.type === slot.type && equipableSlots.main.slot === slot.slot;
+  const matchesAlternate =
+    equipableSlots.alternate !== null &&
+    equipableSlots.alternate.type === slot.type &&
+    equipableSlots.alternate.slot === slot.slot;
+
+  if (!matchesMain && !matchesAlternate) {
+    const slotName =
+      slot.type === EquipmentSlotType.Wearable
+        ? WEARABLE_SLOT_STRINGS[slot.slot]
+        : HOLDABLE_SLOT_STRINGS[slot.slot];
+    throw new Error(
+      `${EQUIPMENT_TYPE_STRINGS[equipmentType]} cannot be equipped in ${slotName} slot`
+    );
+  }
 }
 
 export const EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipableSlots> = {

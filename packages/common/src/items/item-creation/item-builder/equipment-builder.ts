@@ -13,6 +13,9 @@ import { EquipmentBaseItemProperties } from "../../equipment/equipment-propertie
 import { EquipmentGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
+import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
+import { getPrefixName } from "../builders/item-namer/get-prefix-name.js";
+import { getSuffixName } from "../builders/item-namer/get-suffix-name.js";
 
 export abstract class EquipmentBuilder {
   protected template: EquipmentGenerationTemplate;
@@ -60,6 +63,35 @@ export abstract class EquipmentBuilder {
 
   protected abstract defaultName(): string;
 
+  protected buildName(): string {
+    const baseItemName = this.defaultName();
+    const prefixNames: string[] = [];
+    const suffixNames: string[] = [];
+
+    const prefixes = this._affixes[AffixCategory.Prefix] as
+      | Partial<Record<PrefixType, Affix>>
+      | undefined;
+    if (prefixes) {
+      for (const [prefixType, affix] of iterateNumericEnumKeyedRecord(prefixes)) {
+        prefixNames.push(getPrefixName(prefixType, affix.tier));
+      }
+    }
+
+    const suffixes = this._affixes[AffixCategory.Suffix] as
+      | Partial<Record<SuffixType, Affix>>
+      | undefined;
+    if (suffixes) {
+      for (const [suffixType, affix] of iterateNumericEnumKeyedRecord(suffixes)) {
+        suffixNames.push(getSuffixName(suffixType, affix.tier));
+      }
+    }
+
+    const prefix = prefixNames[0] ? prefixNames[0] + " " : "";
+    const suffix = suffixNames[0] ? " of " + suffixNames[0] : "";
+
+    return prefix + baseItemName + suffix;
+  }
+
   protected buildDurability(): null | { current: number; inherentMax: number } {
     if (this.template.maxDurability === null) return null;
     const current = this._currentDurability ?? this.template.maxDurability;
@@ -68,7 +100,7 @@ export abstract class EquipmentBuilder {
 
   build(idGenerator: IdGenerator): Equipment {
     const id = idGenerator.generate();
-    const name = this._name ?? this.defaultName();
+    const name = this._name ?? this.buildName();
 
     const equipment = new Equipment(
       { id, name: name as EntityName },

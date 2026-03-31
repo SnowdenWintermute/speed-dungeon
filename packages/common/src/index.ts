@@ -239,3 +239,5 @@ export * from "./transport/browser-websocket-connection-endpoint.js";
 export * from "./serialization/index.js";
 
 export * from "./environment-entities/index.js";
+export * from "./items/item-creation/item-builder/index.js";
+export * from "./combatants/combatant-builder.js";

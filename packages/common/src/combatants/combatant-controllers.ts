@@ -29,7 +29,7 @@ export class CombatantControlledBy
   constructor(
     public controllerType: CombatantControllerType,
     /** For player name, can be empty string if this is dungeon controlled */
-    public controllerPlayerName: Username
+    public controllerPlayerName: Username = "" as Username
   ) {
     super();
   }
