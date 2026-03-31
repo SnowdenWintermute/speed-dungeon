@@ -1,24 +1,24 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
-import { NUM_MONSTERS_PER_ROOM } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { generateMonster } from "../monsters/generate-monster.js";
+import { invariant } from "../utils/index.js";
 import { DungeonGenerationPolicy, DungeonRoomWithMonsters } from "./index.js";
 
+export interface ScriptedRoom {
+  type: DungeonRoomType;
+  monsters?: Combatant[];
+}
+
 export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
-  configureScript() {
-    // set some internal script to use
+  private floors: ScriptedRoom[][] = [];
+
+  setFloors(floors: ScriptedRoom[][]) {
+    this.floors = floors;
   }
 
   generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[] {
-    // const firstRooms = [];
-    // const mainRooms = [];
-    // const lastRooms = [];
-
-    // // reverse because we pop from the end when getting next room to generate
-    // const result = [...firstRooms, ...mainRooms, ...lastRooms].reverse();
-
-    const result: DungeonRoomType[] = []; // placeholder
-    return result;
+    const floorRooms = this.getFloorRooms(floorLevel);
+    // reverse because the exploration manager pops from the end
+    return floorRooms.map((r) => r.type).reverse();
   }
 
   generateDungeonRoom(
@@ -28,8 +28,21 @@ export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
   ): DungeonRoomWithMonsters {
     const room = new DungeonRoom(roomType);
 
-    // use scripted monsters
+    if (roomType !== DungeonRoomType.MonsterLair) {
+      return { room, monsters: [] };
+    }
 
-    return { room, monsters: [] };
+    const floorRooms = this.getFloorRooms(floorLevel);
+    const scriptedRoom = floorRooms[roomIndex];
+
+    invariant(scriptedRoom !== undefined, `No scripted room at index ${roomIndex} on floor ${floorLevel}`);
+
+    return { room, monsters: scriptedRoom.monsters ?? [] };
+  }
+
+  private getFloorRooms(floorLevel: number): ScriptedRoom[] {
+    const rooms = this.floors[floorLevel - 1];
+    invariant(rooms !== undefined, `No scripted floor definition for floor ${floorLevel}`);
+    return rooms;
   }
 }

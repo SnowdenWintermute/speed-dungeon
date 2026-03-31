@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
+import { GAME_CONFIG } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
@@ -10,7 +10,7 @@ import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index
 
 export class DungeonExplorationManager implements Serializable, ReactiveNode {
   private currentFloor: number = 1;
-  private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 1 };
+  private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 0 };
   private unexploredRooms: DungeonRoomType[] = [];
   private clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
   private playerExplorationActionChoices: Record<ExplorationAction, string[]> = {

@@ -258,7 +258,7 @@ export class DungeonExplorationController {
     const { room, monsters } = this.dungeonGenerationPolicy.generateDungeonRoom(
       floorNumber,
       roomTypeToGenerate,
-      party.dungeonExplorationManager.getCurrentRoomNumber() + 1
+      party.dungeonExplorationManager.getCurrentRoomNumber()
     );
 
     party.setCurrentRoom(room);
