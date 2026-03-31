@@ -1,0 +1,85 @@
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { EntityName } from "../../../aliases.js";
+import { Equipment } from "../../equipment/index.js";
+import {
+  Affix,
+  AffixCategory,
+  EquipmentAffixes,
+  PrefixType,
+  SuffixType,
+} from "../../equipment/affixes.js";
+import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";
+import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
+import { EquipmentGenerationTemplate } from "../equipment-templates/base-templates.js";
+import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
+import { IdGenerator } from "../../../utility-classes/index.js";
+
+export abstract class EquipmentBuilder {
+  protected template: EquipmentGenerationTemplate;
+  protected _itemLevel: number = 1;
+  protected _name: string | null = null;
+  protected _currentDurability: number | null = null;
+  protected _affixes: EquipmentAffixes = {};
+
+  constructor(protected baseEquipment: EquipmentBaseItem) {
+    this.template = getEquipmentGenerationTemplate(baseEquipment);
+  }
+
+  itemLevel(level: number): this {
+    this._itemLevel = level;
+    return this;
+  }
+
+  name(name: string): this {
+    this._name = name;
+    return this;
+  }
+
+  durability(current: number): this {
+    this._currentDurability = current;
+    return this;
+  }
+
+  prefix(prefixType: PrefixType, affix: Affix): this {
+    if (!this._affixes[AffixCategory.Prefix]) {
+      this._affixes[AffixCategory.Prefix] = {};
+    }
+    this._affixes[AffixCategory.Prefix][prefixType] = affix;
+    return this;
+  }
+
+  suffix(suffixType: SuffixType, affix: Affix): this {
+    if (!this._affixes[AffixCategory.Suffix]) {
+      this._affixes[AffixCategory.Suffix] = {};
+    }
+    this._affixes[AffixCategory.Suffix][suffixType] = affix;
+    return this;
+  }
+
+  protected abstract buildEquipmentBaseItemProperties(): EquipmentBaseItemProperties;
+
+  protected abstract defaultName(): string;
+
+  protected buildDurability(): null | { current: number; inherentMax: number } {
+    if (this.template.maxDurability === null) return null;
+    const current = this._currentDurability ?? this.template.maxDurability;
+    return { current, inherentMax: this.template.maxDurability };
+  }
+
+  build(idGenerator: IdGenerator): Equipment {
+    const id = idGenerator.generate();
+    const name = this._name ?? this.defaultName();
+
+    const equipment = new Equipment(
+      { id, name: name as EntityName },
+      this._itemLevel,
+      this.template.requirements,
+      this.buildEquipmentBaseItemProperties(),
+      this.buildDurability()
+    );
+
+    equipment.affixes = this._affixes;
+
+    return equipment;
+  }
+}

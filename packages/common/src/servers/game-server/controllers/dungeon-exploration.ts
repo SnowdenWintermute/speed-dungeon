@@ -1,7 +1,7 @@
 import { ExplorationAction } from "../../../adventuring-party/dungeon-exploration-manager.js";
 import { DungeonRoom, DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { GAME_CONFIG, NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
+import { NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
 import { Battle } from "../../../battle/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
@@ -111,13 +111,12 @@ export class DungeonExplorationController {
     const { dungeonExplorationManager } = party;
     dungeonExplorationManager.incrementCurrentFloor();
 
-    const floorNumber = dungeonExplorationManager.getCurrentFloor();
-
     dungeonExplorationManager.clearUnexploredRooms();
     dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const floorNumber = dungeonExplorationManager.getCurrentFloor();
 
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.DungeonFloorNumber,
       data: { floorNumber },
@@ -133,9 +132,7 @@ export class DungeonExplorationController {
 
     outbox.pushFromOther(descentMessageOutbox);
 
-    const partyEscapedTheDungeon = floorNumber === GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE;
-
-    if (partyEscapedTheDungeon) {
+    if (dungeonExplorationManager.partyEscapedDungeon()) {
       let anotherPartyAlreadyEscaped = false;
       for (const [_, party] of game.adventuringParties) {
         if (party.timeOfEscape) {

@@ -132,6 +132,10 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
     return this.currentFloor;
   }
 
+  partyEscapedDungeon() {
+    return this.currentFloor === GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE;
+  }
+
   getCurrentRoomNumber() {
     return this.roomsExplored.onCurrentFloor;
   }
