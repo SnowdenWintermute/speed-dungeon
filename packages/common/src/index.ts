@@ -241,3 +241,4 @@ export * from "./serialization/index.js";
 export * from "./environment-entities/index.js";
 export * from "./items/item-creation/item-builder/index.js";
 export * from "./combatants/combatant-builder.js";
+export * from "./dungeon-generation/random-dungeon-generation-policy.js";

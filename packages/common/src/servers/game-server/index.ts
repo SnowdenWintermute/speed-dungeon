@@ -35,6 +35,10 @@ import { CharacterProgressionController } from "./controllers/character-progress
 import { ItemManagementController } from "./controllers/item-management.js";
 import { CraftingController } from "./controllers/crafting/index.js";
 import { MiscUtilityController } from "./controllers/misc-utility-controller.js";
+import {
+  DungeonGenerationPolicy,
+  DungeonGenerationPolicyConstructor,
+} from "../../dungeon-generation/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -51,6 +55,7 @@ export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly itemGenerator: ItemGenerator;
+  private readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
@@ -77,18 +82,23 @@ export class GameServer extends SpeedDungeonServer {
     readonly name: GameServerName,
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
+    dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor
   ) {
     super(name, incomingConnectionGateway);
-
-    this.assetAnalyzer = new AssetAnalyzer(this.externalServices.assetService);
 
     this.itemGenerator = new ItemGenerator(
       this.idGenerator,
       this.randomNumberGenerator,
       new AffixGenerator(this.randomNumberGenerator)
     );
+    this.dungeonGenerationPolicy = new dungeonGenerationPolicyConstructor(
+      this.idGenerator,
+      this.itemGenerator,
+      this.randomNumberGenerator
+    );
 
+    this.assetAnalyzer = new AssetAnalyzer(this.externalServices.assetService);
     this.incomingConnectionGateway.initialize(
       async (context, identityContext) => await this.handleConnection(context, identityContext)
     );
@@ -119,6 +129,7 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator,
       this.itemGenerator,
       this.randomNumberGenerator,
+      this.dungeonGenerationPolicy,
       this.assetAnalyzer,
       this.gameModeContexts
     );

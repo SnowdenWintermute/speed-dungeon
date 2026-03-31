@@ -25,6 +25,7 @@ import {
   TEST_GAME_SERVER_URL,
 } from "./index.js";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
+import { RandomDungeonGenerationPolicy } from "@speed-dungeon/common";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -81,7 +82,8 @@ export async function createTestServers(
       raceGameRecordsService,
       gameServerNodeAssetService
     ),
-    codec
+    codec,
+    RandomDungeonGenerationPolicy
   );
 
   return { lobbyServer, gameServer };

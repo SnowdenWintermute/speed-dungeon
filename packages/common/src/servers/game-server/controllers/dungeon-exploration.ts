@@ -4,6 +4,7 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
 import { Battle } from "../../../battle/index.js";
 import { Combatant } from "../../../combatants/index.js";
+import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ItemGenerator } from "../../../items/item-creation/index.js";
 import { generateMonster } from "../../../monsters/generate-monster.js";
@@ -30,6 +31,7 @@ export class DungeonExplorationController {
     private readonly idGenerator: IdGenerator,
     private readonly itemGenerator: ItemGenerator,
     private readonly randomNumberGenerator: RandomNumberGenerator,
+    private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>
   ) {}
@@ -184,7 +186,10 @@ export class DungeonExplorationController {
 
     const reachedEndOfFloor = !dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
     if (reachedEndOfFloor) {
-      dungeonExplorationManager.generateUnexploredRoomsQueue();
+      const newRoomTypes = this.dungeonGenerationPolicy.generateUnexploredRoomTypesOnFloor(
+        dungeonExplorationManager.getCurrentFloor()
+      );
+      dungeonExplorationManager.setUnexploredRoomTypes(newRoomTypes);
 
       const newRoomTypesListForClient = dungeonExplorationManager.getFilteredNewRoomListForClient();
 
@@ -250,7 +255,7 @@ export class DungeonExplorationController {
     const { dungeonExplorationManager } = party;
     const floorNumber = dungeonExplorationManager.getCurrentFloor();
 
-    const { room, monsters } = this.generateDungeonRoom(
+    const { room, monsters } = this.dungeonGenerationPolicy.generateDungeonRoom(
       floorNumber,
       roomTypeToGenerate,
       party.dungeonExplorationManager.getCurrentRoomNumber() + 1
@@ -274,31 +279,5 @@ export class DungeonExplorationController {
     }
 
     return monsters;
-  }
-
-  private generateDungeonRoom(
-    floor: number,
-    roomType: DungeonRoomType,
-    roomIndex: number
-  ): { room: DungeonRoom; monsters: Combatant[] } {
-    const monsters: Combatant[] = [];
-
-    if (roomType === DungeonRoomType.MonsterLair) {
-      for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
-        const newMonster = generateMonster(
-          floor,
-          roomIndex,
-          this.idGenerator,
-          this.itemGenerator,
-          this.randomNumberGenerator
-        );
-
-        monsters.push(newMonster);
-      }
-    }
-
-    const room = new DungeonRoom(roomType);
-
-    return { room, monsters };
   }
 }

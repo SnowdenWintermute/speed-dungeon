@@ -26,6 +26,7 @@ import {
   SodiumHelpers,
   SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
+import { RandomDungeonGenerationPolicy } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
   return `ws://localhost:${port}`;
@@ -105,7 +106,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       raceGameRecordsService,
       assetService
     ),
-    codec
+    codec,
+    RandomDungeonGenerationPolicy
   );
 
   await gameServer.analyzeAssetsForGameplayRelevantData();
