@@ -1,12 +1,6 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
-import { Combatant } from "../combatants/index.js";
 import { invariant } from "../utils/index.js";
-import { DungeonGenerationPolicy, DungeonRoomWithMonsters } from "./index.js";
-
-export interface ScriptedRoom {
-  type: DungeonRoomType;
-  monsters?: Combatant[];
-}
+import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ScriptedRoom } from "./index.js";
 
 export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private floors: ScriptedRoom[][] = [];
@@ -35,7 +29,10 @@ export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
     const floorRooms = this.getFloorRooms(floorLevel);
     const scriptedRoom = floorRooms[roomIndex];
 
-    invariant(scriptedRoom !== undefined, `No scripted room at index ${roomIndex} on floor ${floorLevel}`);
+    invariant(
+      scriptedRoom !== undefined,
+      `No scripted room at index ${roomIndex} on floor ${floorLevel}`
+    );
 
     return { room, monsters: scriptedRoom.monsters ?? [] };
   }

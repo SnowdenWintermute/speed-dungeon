@@ -55,7 +55,7 @@ export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly itemGenerator: ItemGenerator;
-  private readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
+  readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;

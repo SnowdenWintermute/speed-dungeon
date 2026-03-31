@@ -8,7 +8,10 @@ import { CombatantClass } from "./combatant-class/classes.js";
 import { CombatantControlledBy } from "./combatant-controllers.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { CombatantSpecies } from "./combatant-species.js";
-import { MonsterType } from "../monsters/monster-types.js";
+import { getMonsterCombatantClass, MonsterType } from "../monsters/monster-types.js";
+import { MONSTER_SPECIES } from "../monsters/get-monster-combatant-species.js";
+import { CombatantControllerType } from "./combatant-controllers.js";
+import { Username } from "../aliases.js";
 import { Combatant } from "./index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
@@ -47,10 +50,27 @@ export class CombatantBuilder {
   private _abilities: CombatantActionState[] = [];
   private _traits: Partial<Record<CombatantTraitType, number>> = {};
 
-  constructor(
+  private constructor(
     private mainClass: CombatantClass,
     private controlledBy: CombatantControlledBy
   ) {}
+
+  static playerCharacter(mainClass: CombatantClass, playerName: Username): CombatantBuilder {
+    return new CombatantBuilder(
+      mainClass,
+      new CombatantControlledBy(CombatantControllerType.Player, playerName)
+    );
+  }
+
+  static monster(monsterType: MonsterType): CombatantBuilder {
+    const builder = new CombatantBuilder(
+      getMonsterCombatantClass(monsterType),
+      new CombatantControlledBy(CombatantControllerType.Dungeon)
+    );
+    builder._species = MONSTER_SPECIES[monsterType];
+    builder._monsterType = monsterType;
+    return builder;
+  }
 
   name(name: string): this {
     this._name = name;

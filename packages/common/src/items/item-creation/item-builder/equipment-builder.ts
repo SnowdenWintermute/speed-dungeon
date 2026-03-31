@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { EntityName } from "../../../aliases.js";
 import { Equipment } from "../../equipment/index.js";
@@ -16,6 +17,7 @@ import { IdGenerator } from "../../../utility-classes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { getPrefixName } from "../builders/item-namer/get-prefix-name.js";
 import { getSuffixName } from "../builders/item-namer/get-suffix-name.js";
+import { EquipmentRandomizer } from "./equipment-randomizer.js";
 
 export abstract class EquipmentBuilder {
   protected template: EquipmentGenerationTemplate;
@@ -24,7 +26,10 @@ export abstract class EquipmentBuilder {
   protected _currentDurability: number | null = null;
   protected _affixes: EquipmentAffixes = {};
 
-  constructor(protected baseEquipment: EquipmentBaseItem) {
+  constructor(
+    protected baseEquipment: EquipmentBaseItem,
+    protected randomizer: EquipmentRandomizer
+  ) {
     this.template = getEquipmentGenerationTemplate(baseEquipment);
   }
 
@@ -56,6 +61,26 @@ export abstract class EquipmentBuilder {
       this._affixes[AffixCategory.Suffix] = {};
     }
     this._affixes[AffixCategory.Suffix][suffixType] = affix;
+    return this;
+  }
+
+  randomizeAffixes(): this {
+    this._affixes = this.randomizer.rollAffixes(
+      this.template,
+      this._itemLevel,
+      this.baseEquipment.equipmentType
+    );
+    return this;
+  }
+
+  randomizeBaseProperties(): this {
+    return this;
+  }
+
+  randomizeDurability(): this {
+    if (this.template.maxDurability !== null) {
+      this._currentDurability = this.randomizer.rollDurability(this.template.maxDurability);
+    }
     return this;
   }
 
@@ -110,7 +135,7 @@ export abstract class EquipmentBuilder {
       this.buildDurability()
     );
 
-    equipment.affixes = this._affixes;
+    equipment.affixes = cloneDeep(this._affixes);
 
     return equipment;
   }

@@ -14,8 +14,8 @@ import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CharacterCreator } from "../../character-creation/index.js";
-import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
+import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
@@ -79,13 +79,11 @@ export class LobbyServer extends SpeedDungeonServer {
     );
     this.incomingConnectionGateway.listen();
 
+    const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
+    const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);
     this.characterCreator = new CharacterCreator(
       this.externalServices.idGenerator,
-      new ItemGenerator(
-        this.externalServices.idGenerator,
-        this.randomNumberGenerator,
-        new AffixGenerator(this.randomNumberGenerator)
-      )
+      new ItemBuilder(equipmentRandomizer)
     );
 
     const controllers = this.createControllers();

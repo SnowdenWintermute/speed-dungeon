@@ -5,6 +5,7 @@ import {
 import { WeaponProperties } from "../../equipment/equipment-properties/weapon-properties.js";
 import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
 import {
+  EquipmentBaseItem,
   EquipmentType,
   OneHandedMeleeWeaponBaseItemType,
   TwoHandedMeleeWeaponBaseItemType,
@@ -23,6 +24,12 @@ type WeaponBaseEquipment =
 
 export class WeaponBuilder extends EquipmentBuilder {
   private _damageClassification: ResourceChangeSource[] | null = null;
+
+  override randomizeBaseProperties(): this {
+    const weaponTemplate = this.template as WeaponGenerationTemplate;
+    this._damageClassification = this.randomizer.rollDamageClassifications(weaponTemplate);
+    return this;
+  }
 
   damageClassification(sources: ResourceChangeSource[]): this {
     this._damageClassification = sources;

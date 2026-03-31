@@ -66,7 +66,7 @@ export class CombatantTurnTracker extends TurnTracker {
     return { type: TurnTrackerEntityType.Combatant, combatantId: this.combatantId };
   }
 
-  getMatchingScheduler(schedulers: ITurnScheduler[]) {
+  getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler {
     return schedulers.find(
       (item) => item instanceof CombatantTurnScheduler && item.combatantId === this.combatantId
     );

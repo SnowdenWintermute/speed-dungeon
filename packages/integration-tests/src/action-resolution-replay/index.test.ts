@@ -16,15 +16,21 @@
 
 import {
   ClientIntentType,
+  CombatantBuilder,
   CombatantClass,
+  CombatantControlledBy,
+  CombatantControllerType,
+  DungeonRoomType,
   EntityName,
   ERROR_MESSAGES,
   GameMode,
   GameName,
   GameServer,
+  IdGenerator,
   IndexedDbAssetStore,
   invariant,
   LobbyServer,
+  MonsterType,
   PartyName,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
@@ -55,6 +61,16 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 
       lobbyServer = inMemoryTransportAndServers.lobbyServer;
       gameServer = inMemoryTransportAndServers.gameServer;
+
+      const idGenerator = new IdGenerator({ saveHistory: false });
+      gameServer.dungeonGenerationPolicy.setFloors([
+        [
+          {
+            type: DungeonRoomType.MonsterLair,
+            monsters: [CombatantBuilder.monster(MonsterType.Spider).build(idGenerator)],
+          },
+        ],
+      ]);
     });
 
     afterEach(async () => {

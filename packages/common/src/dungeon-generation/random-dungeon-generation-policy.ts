@@ -3,9 +3,13 @@ import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG, NUM_MONSTERS_PER_ROOM } from "../ap
 import { Combatant } from "../combatants/index.js";
 import { generateMonster } from "../monsters/generate-monster.js";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { DungeonGenerationPolicy, DungeonRoomWithMonsters } from "./index.js";
+import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ScriptedRoom } from "./index.js";
 
 export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
+  setFloors(_floors: ScriptedRoom[][]): void {
+    throw new Error("Cannot set scripted floors on RandomDungeonGenerationPolicy");
+  }
+
   generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[] {
     const firstRooms = [];
     const mainRooms = [];

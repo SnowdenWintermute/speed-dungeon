@@ -19,10 +19,11 @@ import { AffixGenerator } from "./builders/affix-generator/index.js";
 import { ItemGenerationDirector } from "./builders/item-generation-director.js";
 import { ItemGenerationBuilder } from "./builders/item.js";
 import { instantiateItemGenerationBuildersAndDirectors } from "./instantiate-item-builders-and-directors.js";
+import { ItemBuilder } from "./item-builder/index.js";
 
 export class ItemGenerator {
-  itemGenerationDirectors: Record<EquipmentType, ItemGenerationDirector>;
-  itemGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder>;
+  private itemGenerationDirectors: Record<EquipmentType, ItemGenerationDirector>;
+  readonly itemGenerationBuilders: Record<EquipmentType, ItemGenerationBuilder>;
 
   constructor(
     private idGenerator: IdGenerator,

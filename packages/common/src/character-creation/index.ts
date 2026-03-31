@@ -1,26 +1,19 @@
-import { Vector3 } from "@babylonjs/core";
 import { RANDOM_CHARACTER_NAMES_FIRST } from "./random-character-names.js";
-import { Combatant } from "../combatants/index.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
-import {
-  CombatantControlledBy,
-  CombatantControllerType,
-} from "../combatants/combatant-controllers.js";
-import { CombatantProperties } from "../combatants/combatant-properties.js";
-import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { CharacterOutfitter } from "./outfitter.js";
-import { ItemGenerator } from "../items/item-creation/index.js";
-import { EntityId, EntityName, Username } from "../aliases.js";
+import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
+import { EntityName, Username } from "../aliases.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { CombatantBuilder } from "../combatants/combatant-builder.js";
 
 export class CharacterCreator {
   private characterOutfitter: CharacterOutfitter;
   constructor(
     private idGenerator: IdGenerator,
-    itemGenerator: ItemGenerator
+    itemBuilder: ItemBuilder
   ) {
-    this.characterOutfitter = new CharacterOutfitter(itemGenerator);
+    this.characterOutfitter = new CharacterOutfitter(idGenerator, itemBuilder);
   }
 
   generateRandomCharacterName() {
@@ -37,24 +30,13 @@ export class CharacterCreator {
     combatantClass: CombatantClass,
     controllingPlayerName: Username
   ) {
-    const characterId = this.idGenerator.generate(
-      `player controlled character: ${name}`
-    ) as EntityId;
-
     if (name === "") {
       name = this.generateRandomCharacterName();
     }
 
-    const entityProperties = { id: characterId as EntityId, name };
-    const combatantProperties = new CombatantProperties(
-      combatantClass,
-      CombatantSpecies.Humanoid,
-      null,
-      new CombatantControlledBy(CombatantControllerType.Player, controllingPlayerName),
-      Vector3.Zero()
-    );
-
-    const newCharacter = Combatant.createInitialized(entityProperties, combatantProperties);
+    const newCharacter = CombatantBuilder.playerCharacter(combatantClass, controllingPlayerName)
+      .name(name)
+      .build(this.idGenerator);
 
     this.characterOutfitter.outfitNewCharacter(newCharacter);
 

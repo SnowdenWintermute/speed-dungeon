@@ -4,6 +4,11 @@ import { ItemGenerator } from "../items/item-creation/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 
+export interface ScriptedRoom {
+  type: DungeonRoomType;
+  monsters?: Combatant[];
+}
+
 export type DungeonGenerationPolicyConstructor = new (
   idGenerator: IdGenerator,
   itemGenerator: ItemGenerator,
@@ -17,6 +22,7 @@ export abstract class DungeonGenerationPolicy {
     protected readonly randomNumberGenerator: RandomNumberGenerator
   ) {}
 
+  abstract setFloors(floors: ScriptedRoom[][]): void;
   abstract generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[];
   abstract generateDungeonRoom(
     floorLevel: number,

@@ -6,7 +6,6 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
-import { CombatantProperties } from "./combatant-properties.js";
 
 export enum CombatantControllerType {
   Player,

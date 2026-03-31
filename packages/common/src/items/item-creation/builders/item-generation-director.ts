@@ -36,7 +36,7 @@ export class ItemGenerationDirector {
     };
 
     switch (itemType) {
-      case ItemType.Equipment:
+      case ItemType.Equipment: {
         const equipmentBaseItemProperties = builder.buildEquipmentBaseItemProperties(
           baseItemResult.taggedBaseEquipment
         );
@@ -55,6 +55,7 @@ export class ItemGenerationDirector {
         if (affixes !== null) item.affixes = affixes;
 
         return item;
+      }
       case ItemType.Consumable:
         return new Consumable(
           entityProperties,
