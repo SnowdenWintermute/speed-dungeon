@@ -1,4 +1,3 @@
-import { TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER } from "../../../../app-consts.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import {
   CRAFTING_ACTION_DISABLED_CONDITIONS,
@@ -6,10 +5,10 @@ import {
 } from "../../../../items/crafting/crafting-actions.js";
 import { AffixCategory } from "../../../../items/equipment/affixes.js";
 import { Equipment } from "../../../../items/equipment/index.js";
-import { ItemType } from "../../../../items/index.js";
-import { AffixGenerator } from "../../../../items/item-creation/builders/affix-generator/index.js";
+import { AffixGenerator } from "../../../../items/item-creation/affix-generator.js";
 import { getEquipmentGenerationTemplate } from "../../../../items/item-creation/equipment-templates/index.js";
-import { ItemGenerator } from "../../../../items/item-creation/index.js";
+import { EquipmentRandomizer } from "../../../../items/item-creation/item-builder/equipment-randomizer.js";
+import { buildEquipmentName } from "../../../../items/item-creation/item-builder/build-equipment-name.js";
 
 export class ItemCrafter {
   public craftingActionHandlers: Record<
@@ -29,7 +28,11 @@ export class ItemCrafter {
       this.randomizeExistingAffixRolls(equipment, itemLevelLimiter),
   };
 
-  constructor(private itemGenerator: ItemGenerator) {}
+  constructor(
+    private equipmentRandomizer: EquipmentRandomizer,
+    private affixGenerator: AffixGenerator
+  ) {}
+
   repairEquipment(equipment: Equipment) {
     const durability = equipment.getDurability();
     if (durability === null || durability.current === durability.max) {
@@ -60,16 +63,17 @@ export class ItemCrafter {
     const template = getEquipmentGenerationTemplate(
       equipment.equipmentBaseItemProperties.taggedBaseEquipment
     );
+    const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
 
     if (missingPrefix) {
       const prefixType = AffixGenerator.getRandomValidPrefixTypes(template, 1)[0];
       if (prefixType === undefined) {
         throw new Error("Couldn't generate affix type");
       }
-      const affixResult = this.itemGenerator.affixGenerator.rollAffixTierAndValue(
+      const affixResult = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Prefix, prefixType },
-        Math.min(equipment.itemLevel, itemLevelLimiter),
+        effectiveItemLevel,
         equipment.equipmentBaseItemProperties.equipmentType
       );
       if (affixResult instanceof Error) {
@@ -83,10 +87,10 @@ export class ItemCrafter {
       if (suffixType === undefined) {
         throw new Error("Couldn't generate affix type");
       }
-      const affixResult = this.itemGenerator.affixGenerator.rollAffixTierAndValue(
+      const affixResult = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Suffix, suffixType },
-        Math.min(equipment.itemLevel, itemLevelLimiter),
+        effectiveItemLevel,
         equipment.equipmentBaseItemProperties.equipmentType
       );
       if (affixResult instanceof Error) {
@@ -95,39 +99,22 @@ export class ItemCrafter {
       equipment.insertOrReplaceAffix(AffixCategory.Suffix, suffixType, affixResult);
     }
 
-    const { equipmentBaseItemProperties } = equipment;
-    const builder =
-      this.itemGenerator.itemGenerationBuilders[equipmentBaseItemProperties.equipmentType];
-    const newName = builder.buildItemName(
-      {
-        type: ItemType.Equipment,
-        taggedBaseEquipment: equipmentBaseItemProperties.taggedBaseEquipment,
-      },
-      equipment.affixes
-    );
-    equipment.entityProperties.name = newName;
+    this.updateEquipmentName(equipment);
   }
 
   private giveNewRandomAffixes(equipment: Equipment, itemLevelLimiter: number) {
     const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
-    const builder = this.itemGenerator.itemGenerationBuilders[taggedBaseEquipment.equipmentType];
+    const template = getEquipmentGenerationTemplate(taggedBaseEquipment);
+    const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
 
-    const affixesResult = builder.buildAffixes(
-      Math.min(equipment.itemLevel, itemLevelLimiter),
-      taggedBaseEquipment,
-      {
-        forcedIsMagical: true,
-      }
+    equipment.affixes = this.equipmentRandomizer.rollAffixes(
+      template,
+      effectiveItemLevel,
+      taggedBaseEquipment.equipmentType,
+      { forcedMagical: true }
     );
-    if (affixesResult instanceof Error) {
-      throw affixesResult;
-    }
-    equipment.affixes = affixesResult;
-    const newName = builder.buildItemName(
-      { type: ItemType.Equipment, taggedBaseEquipment },
-      affixesResult
-    );
-    equipment.entityProperties.name = newName;
+
+    this.updateEquipmentName(equipment);
   }
 
   replaceExistingWithNewRandomAffixes(equipment: Equipment, itemLevelLimiter: number) {
@@ -140,21 +127,10 @@ export class ItemCrafter {
 
   randomizeBaseItemRollableProperties(equipment: Equipment, itemLevelLimiter: number) {
     const shouldBeDisabled = CRAFTING_ACTION_DISABLED_CONDITIONS[CraftingAction.Reform];
-
     if (shouldBeDisabled(equipment, itemLevelLimiter)) {
       throw new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
     }
-    const builder =
-      this.itemGenerator.itemGenerationBuilders[
-        equipment.equipmentBaseItemProperties.equipmentType
-      ];
-    const newBaseItemPropertiesResult = builder.buildEquipmentBaseItemProperties(
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment
-    );
-    if (newBaseItemPropertiesResult instanceof Error) {
-      throw newBaseItemPropertiesResult;
-    }
-    equipment.equipmentBaseItemProperties = newBaseItemPropertiesResult;
+    this.equipmentRandomizer.rerollBaseProperties(equipment);
   }
 
   randomizeExistingAffixRolls(equipment: Equipment, itemLevelLimiter: number) {
@@ -166,35 +142,13 @@ export class ItemCrafter {
     const template = getEquipmentGenerationTemplate(
       equipment.equipmentBaseItemProperties.taggedBaseEquipment
     );
+    this.equipmentRandomizer.rerollAffixValues(equipment, template);
+  }
 
-    for (const [prefixType, prefix] of equipment.iteratePrefixes()) {
-      let multiplier = 1;
-      if (equipment.isTwoHanded()) {
-        multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
-      }
-
-      const affix = this.itemGenerator.affixGenerator.rollAffix(
-        { affixCategory: AffixCategory.Prefix, prefixType },
-        prefix.tier,
-        multiplier,
-        template
-      );
-      equipment.insertOrReplaceAffix(AffixCategory.Prefix, prefixType, affix);
-    }
-
-    for (const [suffixType, suffix] of equipment.iterateSuffixes()) {
-      let multiplier = 1;
-      if (equipment.isTwoHanded()) {
-        multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
-      }
-
-      const affix = this.itemGenerator.affixGenerator.rollAffix(
-        { affixCategory: AffixCategory.Suffix, suffixType },
-        suffix.tier,
-        multiplier,
-        template
-      );
-      equipment.insertOrReplaceAffix(AffixCategory.Suffix, suffixType, affix);
-    }
+  private updateEquipmentName(equipment: Equipment) {
+    equipment.entityProperties.name = buildEquipmentName(
+      equipment.equipmentBaseItemProperties.taggedBaseEquipment,
+      equipment.affixes
+    );
   }
 }

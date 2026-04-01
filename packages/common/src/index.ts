@@ -199,8 +199,7 @@ export * from "./conditions/condition-descriptions.js";
 export * from "./conditions/index.js";
 export * from "./conditions/condition-factory.js";
 
-export * from "./items/item-creation/index.js";
-export * from "./items/item-creation/builders/affix-generator/index.js";
+export * from "./items/item-creation/affix-generator.js";
 export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";

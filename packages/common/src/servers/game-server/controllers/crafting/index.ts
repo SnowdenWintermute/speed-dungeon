@@ -19,7 +19,9 @@ import {
   getConsumableShardPrice,
   getCraftingActionPrice,
 } from "../../../../items/crafting/craft-action-prices.js";
-import { ItemGenerator } from "../../../../items/item-creation/index.js";
+import { ItemBuilder } from "../../../../items/item-creation/item-builder/index.js";
+import { EquipmentRandomizer } from "../../../../items/item-creation/item-builder/equipment-randomizer.js";
+import { AffixGenerator } from "../../../../items/item-creation/affix-generator.js";
 import { CraftingAction } from "../../../../items/crafting/crafting-actions.js";
 import { Equipment } from "../../../../items/equipment/index.js";
 import { ItemCrafter } from "./craft-actions.js";
@@ -31,9 +33,11 @@ export class CraftingController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly idGenerator: IdGenerator,
-    private readonly itemGenerator: ItemGenerator
+    private readonly itemBuilder: ItemBuilder,
+    equipmentRandomizer: EquipmentRandomizer,
+    affixGenerator: AffixGenerator
   ) {
-    this.itemCrafter = new ItemCrafter(this.itemGenerator);
+    this.itemCrafter = new ItemCrafter(equipmentRandomizer, affixGenerator);
   }
 
   convertItemsToShardsHandler(session: UserSession, data: CharacterAndItems) {
@@ -111,7 +115,7 @@ export class CraftingController {
     inventory.requireShardCount(priceOption);
 
     inventory.changeShards(priceOption * -1);
-    const purchasedItem = this.itemGenerator.createConsumableByType(consumableType);
+    const purchasedItem = this.itemBuilder.consumable(consumableType).build(this.idGenerator);
     inventory.consumables.push(purchasedItem);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -243,7 +247,7 @@ export class CraftingController {
       throw removedItemResult;
     }
 
-    const bookToReturn = this.itemGenerator.createConsumableByType(bookType);
+    const bookToReturn = this.itemBuilder.consumable(bookType).build(this.idGenerator);
 
     bookToReturn.itemLevel = getBookLevelForTrade(removedItemResult.itemLevel, vendingMachineLevel);
 

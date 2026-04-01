@@ -23,8 +23,7 @@ import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
-import { ItemGenerator } from "../../items/item-creation/index.js";
-import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
+import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equipment-randomizer.js";
 import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
 import { LootGenerator } from "../../items/item-creation/loot-generator.js";
@@ -57,7 +56,6 @@ export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
 export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
-  private readonly itemGenerator: ItemGenerator;
   private readonly itemBuilder: ItemBuilder;
   private readonly lootGenerator: LootGenerator;
   readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
@@ -93,11 +91,6 @@ export class GameServer extends SpeedDungeonServer {
     super(name, incomingConnectionGateway);
 
     const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
-    this.itemGenerator = new ItemGenerator(
-      this.idGenerator,
-      this.randomNumberGenerator,
-      affixGenerator
-    );
     const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);
     this.itemBuilder = new ItemBuilder(equipmentRandomizer);
     this.lootGenerator = new LootGenerator(
@@ -183,7 +176,9 @@ export class GameServer extends SpeedDungeonServer {
     this.craftingController = new CraftingController(
       this.updateDispatchFactory,
       this.idGenerator,
-      this.itemGenerator
+      this.itemBuilder,
+      equipmentRandomizer,
+      affixGenerator
     );
 
     this.miscUtilityController = new MiscUtilityController(this.updateDispatchFactory);

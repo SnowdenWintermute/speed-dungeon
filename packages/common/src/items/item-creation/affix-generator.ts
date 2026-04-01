@@ -1,9 +1,9 @@
-import { DEEPEST_FLOOR, TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER } from "../../../../app-consts.js";
-import { CombatAttribute } from "../../../../combatants/attributes/index.js";
-import { NumberRange } from "../../../../primatives/number-range.js";
-import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
-import { ArrayUtils } from "../../../../utils/array-utils.js";
-import { randBetween } from "../../../../utils/rand-between.js";
+import { DEEPEST_FLOOR, TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER } from "../../app-consts.js";
+import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { NumberRange } from "../../primatives/number-range.js";
+import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { ArrayUtils } from "../../utils/array-utils.js";
+import { randBetween } from "../../utils/rand-between.js";
 import {
   Affix,
   AffixCategory,
@@ -11,11 +11,11 @@ import {
   PrefixType,
   SuffixType,
   TaggedAffixType,
-} from "../../../equipment/affixes.js";
-import { EquipmentTraitType } from "../../../equipment/equipment-traits/index.js";
-import { EquipmentType } from "../../../equipment/equipment-types/index.js";
-import { Equipment } from "../../../equipment/index.js";
-import { EquipmentGenerationTemplate } from "../../equipment-templates/base-templates.js";
+} from "../equipment/affixes.js";
+import { EquipmentTraitType } from "../equipment/equipment-traits/index.js";
+import { EquipmentType } from "../equipment/equipment-types/index.js";
+import { Equipment } from "../equipment/index.js";
+import { EquipmentGenerationTemplate } from "./equipment-templates/base-templates.js";
 
 const ATTRIBUTE_PER_TIER_BASE = 1.25;
 // since core attributes give several derived attributes,

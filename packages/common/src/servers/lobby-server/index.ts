@@ -14,7 +14,7 @@ import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { CharacterCreator } from "../../character-creation/index.js";
-import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
+import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";

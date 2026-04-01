@@ -11,29 +11,19 @@ import { NumberRange } from "../../../primatives/number-range.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { randBetween } from "../../../utils/rand-between.js";
-import {
-  Affix,
-  AffixCategory,
-  EquipmentAffixes,
-  PrefixType,
-  SuffixType,
-  TaggedAffixType,
-} from "../../equipment/affixes.js";
+import { AffixCategory, EquipmentAffixes } from "../../equipment/affixes.js";
 import { Equipment } from "../../equipment/index.js";
 import { EquipmentType } from "../../equipment/equipment-types/index.js";
 import {
+  ArmorGenerationTemplate,
   EquipmentGenerationTemplate,
   WeaponGenerationTemplate,
 } from "../equipment-templates/base-templates.js";
-import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/one-handed-melee-weapons.js";
-import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/two-handed-melee-weapons.js";
-import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/two-handed-ranged-weapons.js";
-import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/body-armor.js";
-import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/head-gear.js";
-import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/shields.js";
-import { AffixGenerator } from "../builders/affix-generator/index.js";
+import { ShieldGenerationTemplate } from "../equipment-templates/shields.js";
+import { AffixGenerator } from "../affix-generator.js";
 import cloneDeep from "lodash.clonedeep";
 import { invariant } from "../../../utils/index.js";
+import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
 
 export class EquipmentRandomizer {
   constructor(
@@ -125,11 +115,38 @@ export class EquipmentRandomizer {
   }
 
   rerollBaseProperties(equipment: Equipment) {
-    // if(equipment.isWeapon()){
-    //   const weaponProperties = equipment.requireWeaponProperties()
-    // }
-    // if(equipment.isShield()){
-    // }
+    const template = getEquipmentGenerationTemplate(
+      equipment.equipmentBaseItemProperties.taggedBaseEquipment
+    );
+    if (
+      template instanceof ArmorGenerationTemplate ||
+      template instanceof ShieldGenerationTemplate
+    ) {
+      const newAc = this.rollArmorClass(template.acRange);
+      if (
+        equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.HeadGear ||
+        equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.BodyArmor ||
+        equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield
+      ) {
+        equipment.equipmentBaseItemProperties.armorClass = newAc;
+      } else {
+        throw new Error("unexpected equipment type tried to roll armor class");
+      }
+    }
+    if (template instanceof WeaponGenerationTemplate) {
+      const newClassifications = this.rollDamageClassifications(template);
+      if (
+        equipment.equipmentBaseItemProperties.equipmentType ===
+          EquipmentType.OneHandedMeleeWeapon ||
+        equipment.equipmentBaseItemProperties.equipmentType ===
+          EquipmentType.TwoHandedMeleeWeapon ||
+        equipment.equipmentBaseItemProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon
+      ) {
+        equipment.equipmentBaseItemProperties.damageClassification = newClassifications;
+      } else {
+        throw new Error("unexpected equipment type tried to roll damage classifications");
+      }
+    }
   }
 
   rerollAffixValues(equipment: Equipment, template: EquipmentGenerationTemplate) {

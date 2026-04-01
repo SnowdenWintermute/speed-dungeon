@@ -187,11 +187,11 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
 
   insertOrReplaceAffix(affixCategory: AffixCategory, affixType: AffixType, affix: Affix) {
     const existingCategory = this.affixes[affixCategory];
-    if (existingCategory === undefined)
+    if (existingCategory === undefined) {
       this.affixes[affixCategory] = {
         [affixType]: affix,
       };
-    else {
+    } else {
       existingCategory[affixType] = affix;
     }
   }

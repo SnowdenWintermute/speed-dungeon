@@ -1,11 +1,7 @@
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceCategory,
-} from "../../../combat/hp-change-source-types.js";
+import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
 import { WeaponProperties } from "../../equipment/equipment-properties/weapon-properties.js";
 import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
 import {
-  EquipmentBaseItem,
   EquipmentType,
   OneHandedMeleeWeaponBaseItemType,
   TwoHandedMeleeWeaponBaseItemType,

@@ -13,7 +13,6 @@ import { ShieldBuilder } from "./shield-builder.js";
 import { JewelryBuilder } from "./jewelry-builder.js";
 import { ConsumableBuilder } from "./consumable-builder.js";
 import { EquipmentRandomizer } from "./equipment-randomizer.js";
-
 export { EquipmentBuilder } from "./equipment-builder.js";
 export { WeaponBuilder } from "./weapon-builder.js";
 export { ArmorBuilder } from "./armor-builder.js";
@@ -26,59 +25,83 @@ export class ItemBuilder {
   constructor(private randomizer: EquipmentRandomizer) {}
 
   oneHandedMeleeWeapon(baseItem: OneHandedMeleeWeapon): WeaponBuilder {
-    return new WeaponBuilder({
-      equipmentType: EquipmentType.OneHandedMeleeWeapon,
-      baseItemType: baseItem,
-    }, this.randomizer);
+    return new WeaponBuilder(
+      {
+        equipmentType: EquipmentType.OneHandedMeleeWeapon,
+        baseItemType: baseItem,
+      },
+      this.randomizer
+    );
   }
 
   twoHandedMeleeWeapon(baseItem: TwoHandedMeleeWeapon): WeaponBuilder {
-    return new WeaponBuilder({
-      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
-      baseItemType: baseItem,
-    }, this.randomizer);
+    return new WeaponBuilder(
+      {
+        equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+        baseItemType: baseItem,
+      },
+      this.randomizer
+    );
   }
 
   twoHandedRangedWeapon(baseItem: TwoHandedRangedWeapon): WeaponBuilder {
-    return new WeaponBuilder({
-      equipmentType: EquipmentType.TwoHandedRangedWeapon,
-      baseItemType: baseItem,
-    }, this.randomizer);
+    return new WeaponBuilder(
+      {
+        equipmentType: EquipmentType.TwoHandedRangedWeapon,
+        baseItemType: baseItem,
+      },
+      this.randomizer
+    );
   }
 
   bodyArmor(baseItem: BodyArmor): ArmorBuilder {
-    return new ArmorBuilder({
-      equipmentType: EquipmentType.BodyArmor,
-      baseItemType: baseItem,
-    }, this.randomizer);
+    return new ArmorBuilder(
+      {
+        equipmentType: EquipmentType.BodyArmor,
+        baseItemType: baseItem,
+      },
+      this.randomizer
+    );
   }
 
   headGear(baseItem: HeadGear): ArmorBuilder {
-    return new ArmorBuilder({
-      equipmentType: EquipmentType.HeadGear,
-      baseItemType: baseItem,
-    }, this.randomizer);
+    return new ArmorBuilder(
+      {
+        equipmentType: EquipmentType.HeadGear,
+        baseItemType: baseItem,
+      },
+      this.randomizer
+    );
   }
 
   shield(baseItem: Shield): ShieldBuilder {
-    return new ShieldBuilder({
-      equipmentType: EquipmentType.Shield,
-      baseItemType: baseItem,
-    }, this.randomizer);
+    return new ShieldBuilder(
+      {
+        equipmentType: EquipmentType.Shield,
+        baseItemType: baseItem,
+      },
+      this.randomizer
+    );
   }
 
   ring(): JewelryBuilder {
-    return new JewelryBuilder({
-      equipmentType: EquipmentType.Ring,
-      baseItemType: Ring.Ring,
-    }, this.randomizer);
+    return new JewelryBuilder(
+      {
+        equipmentType: EquipmentType.Ring,
+        baseItemType: Ring.Ring,
+      },
+      this.randomizer
+    );
   }
 
   amulet(): JewelryBuilder {
-    return new JewelryBuilder({
-      equipmentType: EquipmentType.Amulet,
-      baseItemType: Amulet.Amulet,
-    }, this.randomizer);
+    return new JewelryBuilder(
+      {
+        equipmentType: EquipmentType.Amulet,
+        baseItemType: Amulet.Amulet,
+      },
+      this.randomizer
+    );
   }
 
   consumable(type: ConsumableType): ConsumableBuilder {

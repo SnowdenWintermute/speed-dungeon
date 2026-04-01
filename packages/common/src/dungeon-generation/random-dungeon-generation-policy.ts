@@ -29,14 +29,13 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
 
     ArrayUtils.shuffle(mainRooms);
 
-    // result.push(DungeonRoomType.VendingMachine); // TESTING
-
     lastRooms.push(DungeonRoomType.VendingMachine);
     lastRooms.push(DungeonRoomType.Staircase);
 
     // reverse because we pop from the end when getting next room to generate
     const result = [...firstRooms, ...mainRooms, ...lastRooms].reverse();
 
+    result.push(DungeonRoomType.VendingMachine); // TESTING
     return result;
   }
 
