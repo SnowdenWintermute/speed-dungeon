@@ -58,7 +58,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
         floorLevel,
         roomIndex,
         this.idGenerator,
-        this.itemGenerator,
+        this.itemBuilder,
         this.randomNumberGenerator
       );
 

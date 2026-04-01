@@ -1,19 +1,15 @@
 import { ExplorationAction } from "../../../adventuring-party/dungeon-exploration-manager.js";
-import { DungeonRoom, DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
+import { DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
 import { Battle } from "../../../battle/index.js";
-import { Combatant } from "../../../combatants/index.js";
 import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { ItemGenerator } from "../../../items/item-creation/index.js";
-import { generateMonster } from "../../../monsters/generate-monster.js";
+import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
-import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -29,8 +25,7 @@ export class DungeonExplorationController {
     private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
-    private readonly itemGenerator: ItemGenerator,
-    private readonly randomNumberGenerator: RandomNumberGenerator,
+    private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>
@@ -238,8 +233,7 @@ export class DungeonExplorationController {
       battleOption,
       this.gameModeContexts,
       this.idGenerator,
-      this.itemGenerator,
-      this.randomNumberGenerator,
+      this.lootGenerator,
       this.assetAnalyzer
     );
     const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();

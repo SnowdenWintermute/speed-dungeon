@@ -12,7 +12,7 @@ import { IdGenerator } from "../../../../utility-classes/index.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { ItemGenerator } from "../../../../items/item-creation/index.js";
+import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { Equipment } from "../../../../items/equipment/index.js";
@@ -39,8 +39,7 @@ export class BattleProcessor {
     private battle: Battle,
     private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
-    private itemGenerator: ItemGenerator,
-    private rng: RandomNumberGenerator,
+    private lootGenerator: LootGenerator,
     private assetAnalyzer: AssetAnalyzer
   ) {}
 
@@ -227,10 +226,9 @@ export class BattleProcessor {
       conclusion = BattleConclusion.Defeat;
     } else {
       conclusion = BattleConclusion.Victory;
-      loot = this.itemGenerator.generateLoot(
+      loot = this.lootGenerator.generateLoot(
         NUM_MONSTERS_PER_ROOM,
-        party.dungeonExplorationManager.getCurrentFloor(),
-        this.rng
+        party.dungeonExplorationManager.getCurrentFloor()
       );
       experiencePointChanges = generateExperiencePoints(party);
 

@@ -25,6 +25,9 @@ import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
 import { ItemGenerator } from "../../items/item-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/builders/affix-generator/index.js";
+import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equipment-randomizer.js";
+import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
+import { LootGenerator } from "../../items/item-creation/loot-generator.js";
 import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
@@ -55,6 +58,8 @@ export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
   private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly itemGenerator: ItemGenerator;
+  private readonly itemBuilder: ItemBuilder;
+  private readonly lootGenerator: LootGenerator;
   readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
@@ -87,14 +92,22 @@ export class GameServer extends SpeedDungeonServer {
   ) {
     super(name, incomingConnectionGateway);
 
+    const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
     this.itemGenerator = new ItemGenerator(
       this.idGenerator,
       this.randomNumberGenerator,
-      new AffixGenerator(this.randomNumberGenerator)
+      affixGenerator
+    );
+    const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);
+    this.itemBuilder = new ItemBuilder(equipmentRandomizer);
+    this.lootGenerator = new LootGenerator(
+      this.itemBuilder,
+      this.idGenerator,
+      this.randomNumberGenerator
     );
     this.dungeonGenerationPolicy = new dungeonGenerationPolicyConstructor(
       this.idGenerator,
-      this.itemGenerator,
+      this.itemBuilder,
       this.randomNumberGenerator
     );
 
@@ -127,8 +140,7 @@ export class GameServer extends SpeedDungeonServer {
       this.partyDelayedGameMessageFactory,
       this.externalServices.savedCharactersService,
       this.idGenerator,
-      this.itemGenerator,
-      this.randomNumberGenerator,
+      this.lootGenerator,
       this.dungeonGenerationPolicy,
       this.assetAnalyzer,
       this.gameModeContexts
@@ -155,8 +167,7 @@ export class GameServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       this.gameModeContexts,
       this.idGenerator,
-      this.itemGenerator,
-      this.randomNumberGenerator,
+      this.lootGenerator,
       this.assetAnalyzer
     );
 

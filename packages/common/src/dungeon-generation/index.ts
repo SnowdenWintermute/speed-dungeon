@@ -1,6 +1,6 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 import { Combatant } from "../combatants/index.js";
-import { ItemGenerator } from "../items/item-creation/index.js";
+import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 
@@ -11,14 +11,14 @@ export interface ScriptedRoom {
 
 export type DungeonGenerationPolicyConstructor = new (
   idGenerator: IdGenerator,
-  itemGenerator: ItemGenerator,
+  itemBuilder: ItemBuilder,
   randomNumberGenerator: RandomNumberGenerator
 ) => DungeonGenerationPolicy;
 
 export abstract class DungeonGenerationPolicy {
   constructor(
     protected readonly idGenerator: IdGenerator,
-    protected readonly itemGenerator: ItemGenerator,
+    protected readonly itemBuilder: ItemBuilder,
     protected readonly randomNumberGenerator: RandomNumberGenerator
   ) {}
 

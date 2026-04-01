@@ -15,7 +15,7 @@ import { AiType } from "../combat/ai-behavior/index.js";
 import { AbilityType } from "../abilities/ability-types.js";
 import { Combatant } from "../combatants/index.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
-import { ItemGenerator } from "../items/item-creation/index.js";
+import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { ThreatManager } from "../combatants/threat-manager/index.js";
 // import { STOCK_MONSTER } from "../../index.js";
@@ -26,7 +26,7 @@ export function generateMonster(
   level: number,
   roomIndex: number,
   idGenerator: IdGenerator,
-  itemGenerator: ItemGenerator,
+  itemBuilder: ItemBuilder,
   rng: RandomNumberGenerator,
   forcedType?: MonsterType
 ) {
@@ -131,7 +131,7 @@ export function generateMonster(
 
   // equip weapons (do this before initialization because equipment needs to get its combatantProperties
   // reference set by the initialization)
-  combatantProperties.equipment = getMonsterEquipment(monsterType, idGenerator, itemGenerator, rng);
+  combatantProperties.equipment = getMonsterEquipment(monsterType, idGenerator, itemBuilder, rng);
   // will modify this monster after creation with basic values
   const monster = Combatant.createInitialized(entityProperties, combatantProperties);
   combatantProperties.threatManager = new ThreatManager();

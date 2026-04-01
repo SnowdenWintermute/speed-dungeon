@@ -23,6 +23,10 @@ export function iterateNumericEnum<T extends Record<string, string | number>>(
   return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
 }
 
+export function getNumericEnumValues(enumObj: object): number[] {
+  return Object.values(enumObj).filter((v): v is number => typeof v === "number");
+}
+
 // old version - creates 3 intermediate arrays
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>

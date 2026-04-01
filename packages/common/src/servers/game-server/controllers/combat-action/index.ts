@@ -17,8 +17,7 @@ import { CombatActionTarget } from "../../../../combat/targeting/combat-action-t
 import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
-import { ItemGenerator } from "../../../../items/item-creation/index.js";
-import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 import {
@@ -31,8 +30,7 @@ export class CombatActionController {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
-    private itemGenerator: ItemGenerator,
-    private rng: RandomNumberGenerator,
+    private lootGenerator: LootGenerator,
     private assetAnalyzer: AssetAnalyzer
   ) {}
 
@@ -343,8 +341,7 @@ export class CombatActionController {
         battleOption,
         this.gameModeContexts,
         this.idGenerator,
-        this.itemGenerator,
-        this.rng,
+        this.lootGenerator,
         this.assetAnalyzer
       );
 

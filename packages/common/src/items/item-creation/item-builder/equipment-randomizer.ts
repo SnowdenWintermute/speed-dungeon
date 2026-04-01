@@ -12,18 +12,28 @@ import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { randBetween } from "../../../utils/rand-between.js";
 import {
+  Affix,
   AffixCategory,
   EquipmentAffixes,
   PrefixType,
   SuffixType,
   TaggedAffixType,
-  Affix,
 } from "../../equipment/affixes.js";
 import { Equipment } from "../../equipment/index.js";
 import { EquipmentType } from "../../equipment/equipment-types/index.js";
-import { EquipmentGenerationTemplate, WeaponGenerationTemplate } from "../equipment-templates/base-templates.js";
+import {
+  EquipmentGenerationTemplate,
+  WeaponGenerationTemplate,
+} from "../equipment-templates/base-templates.js";
+import { ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/one-handed-melee-weapons.js";
+import { TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/two-handed-melee-weapons.js";
+import { TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/two-handed-ranged-weapons.js";
+import { BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/body-armor.js";
+import { HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/head-gear.js";
+import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "../equipment-templates/shields.js";
 import { AffixGenerator } from "../builders/affix-generator/index.js";
 import cloneDeep from "lodash.clonedeep";
+import { invariant } from "../../../utils/index.js";
 
 export class EquipmentRandomizer {
   constructor(
@@ -57,7 +67,8 @@ export class EquipmentRandomizer {
   rollAffixes(
     template: EquipmentGenerationTemplate,
     itemLevel: number,
-    equipmentType: EquipmentType
+    equipmentType: EquipmentType,
+    options?: { forcedMagical?: boolean }
   ): EquipmentAffixes {
     const affixes: EquipmentAffixes = {
       [AffixCategory.Prefix]: {},
@@ -65,6 +76,7 @@ export class EquipmentRandomizer {
     };
 
     const isMagical =
+      options?.forcedMagical ||
       Math.random() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||
       equipmentType === EquipmentType.Amulet ||
       equipmentType === EquipmentType.Ring;
@@ -93,7 +105,8 @@ export class EquipmentRandomizer {
         equipmentType
       );
       if (affixResult instanceof Error) continue;
-      affixes[AffixCategory.Prefix]![prefixType] = affixResult;
+      invariant(affixes[AffixCategory.Prefix] !== undefined);
+      affixes[AffixCategory.Prefix][prefixType] = affixResult;
     }
 
     for (const suffixType of suffixTypes) {
@@ -104,16 +117,22 @@ export class EquipmentRandomizer {
         equipmentType
       );
       if (affixResult instanceof Error) continue;
-      affixes[AffixCategory.Suffix]![suffixType] = affixResult;
+      invariant(affixes[AffixCategory.Suffix] !== undefined);
+      affixes[AffixCategory.Suffix][suffixType] = affixResult;
     }
 
     return affixes;
   }
 
-  rerollAffixValues(
-    equipment: Equipment,
-    template: EquipmentGenerationTemplate
-  ) {
+  rerollBaseProperties(equipment: Equipment) {
+    // if(equipment.isWeapon()){
+    //   const weaponProperties = equipment.requireWeaponProperties()
+    // }
+    // if(equipment.isShield()){
+    // }
+  }
+
+  rerollAffixValues(equipment: Equipment, template: EquipmentGenerationTemplate) {
     const multiplier = equipment.isTwoHanded() ? TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER : 1;
 
     for (const [prefixType, prefix] of equipment.iteratePrefixes()) {
