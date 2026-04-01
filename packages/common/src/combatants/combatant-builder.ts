@@ -23,6 +23,7 @@ import {
   WearableSlotType,
   validateEquipmentSlot,
 } from "../items/equipment/slots.js";
+import { HoldableHotswapSlot } from "./combatant-equipment/holdable-hotswap-slot.js";
 
 interface HoldableEquipEntry {
   equipment: Equipment;
@@ -180,7 +181,7 @@ export class CombatantBuilder {
     return this;
   }
 
-  ability(actionName: CombatActionName, rank: number = 1): this {
+  ownedAction(actionName: CombatActionName, rank: number = 1): this {
     this._abilities.push(new CombatantActionState(actionName, rank));
     return this;
   }
@@ -248,6 +249,13 @@ export class CombatantBuilder {
     const traitProperties = combatantProperties.abilityProperties.getTraitProperties();
     for (const [traitType, rank] of iterateNumericEnumKeyedRecord(this._traits)) {
       traitProperties.inherentTraitLevels[traitType] = rank;
+    }
+
+    // this is a one-off. as far as I know, no other traits have anything so special as to
+    // require anything other than an arbitrary number to represent either a value or the level
+    // of the trait which would be used in calculations scattered accross the codebase
+    if (traitProperties.hasTraitType(CombatantTraitType.ExtraHotswapSlot)) {
+      combatantProperties.equipment.addHoldableSlot(new HoldableHotswapSlot());
     }
 
     combatantProperties.resources.setToMax();
