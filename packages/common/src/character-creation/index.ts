@@ -1,20 +1,11 @@
 import { RANDOM_CHARACTER_NAMES_FIRST } from "./random-character-names.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
-import { IdGenerator } from "../utility-classes/index.js";
-import { CharacterOutfitter } from "./outfitter.js";
-import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { EntityName, Username } from "../aliases.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { CombatantBuilder } from "../combatants/combatant-builder.js";
+import { CharacterCreationPolicy } from "./character-creation-policy.js";
 
 export class CharacterCreator {
-  private characterOutfitter: CharacterOutfitter;
-  constructor(
-    private idGenerator: IdGenerator,
-    itemBuilder: ItemBuilder
-  ) {
-    this.characterOutfitter = new CharacterOutfitter(idGenerator, itemBuilder);
-  }
+  constructor(private creationPolicy: CharacterCreationPolicy) {}
 
   generateRandomCharacterName() {
     const name =
@@ -34,11 +25,11 @@ export class CharacterCreator {
       name = this.generateRandomCharacterName();
     }
 
-    const newCharacter = CombatantBuilder.playerCharacter(combatantClass, controllingPlayerName)
-      .name(name)
-      .build(this.idGenerator);
-
-    this.characterOutfitter.outfitNewCharacter(newCharacter);
+    const newCharacter = this.creationPolicy.createCharacter(
+      name,
+      combatantClass,
+      controllingPlayerName
+    );
 
     return newCharacter;
   }

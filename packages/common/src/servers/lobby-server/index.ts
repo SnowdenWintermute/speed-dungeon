@@ -29,6 +29,7 @@ import { LobbyReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameServerName } from "../../aliases.js";
+import { DefaultCharacterCreationPolicy } from "../../character-creation/default-creation-policy.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -81,10 +82,13 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
     const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);
-    this.characterCreator = new CharacterCreator(
+
+    const characterCreationPolicy = new DefaultCharacterCreationPolicy(
       this.externalServices.idGenerator,
       new ItemBuilder(equipmentRandomizer)
     );
+
+    this.characterCreator = new CharacterCreator(characterCreationPolicy);
 
     const controllers = this.createControllers();
     this.gameLifecycleController = controllers.gameLifecycleController;

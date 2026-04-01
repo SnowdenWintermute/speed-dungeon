@@ -2,12 +2,24 @@ import {
   AffixType,
   CombatantProperties,
   CombatAttribute,
+  EquipmentTraitType,
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedRangedWeapon,
 } from "../index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
+
+const LIFESTEAL_PREFIX = {
+  combatAttributes: {},
+  tier: 1,
+  equipmentTraits: {
+    [EquipmentTraitType.LifeSteal]: {
+      equipmentTraitType: EquipmentTraitType.LifeSteal,
+      value: 100,
+    },
+  },
+} as const;
 
 export function givePlaytestingItems(
   combatantProperties: CombatantProperties,
@@ -31,7 +43,10 @@ export function givePlaytestingItems(
 
   inventory.equipment.push(itemBuilder.shield(Shield.LanternShield).build(idGenerator));
   inventory.equipment.push(
-    itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator)
+    itemBuilder
+      .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+      .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
+      .build(idGenerator)
   );
   inventory.equipment.push(itemBuilder.ring().randomizeAffixes().build(idGenerator));
   inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));
