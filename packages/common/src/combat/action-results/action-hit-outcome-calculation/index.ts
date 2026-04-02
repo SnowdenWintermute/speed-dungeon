@@ -8,7 +8,10 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
+import {
+  RandomNumberGenerationPolicy,
+  rollIsSuccess,
+} from "../../../utility-classes/random-number-generation-policy.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
@@ -16,7 +19,7 @@ import { CombatActionResource } from "../../combat-actions/combat-action-hit-out
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
-import { randBetween } from "../../../utils/rand-between.js";
+import { randBetween, rollNormalized } from "../../../utils/rand-between.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export class CombatActionHitOutcomes {
@@ -157,7 +160,11 @@ export class HitOutcomeCalculator {
           targetWillAttemptMitigation
         );
 
-        resourceChange.isCrit = randBetween(0, 100, this.rngPolicy.combatCriticalHit) < percentChanceToCrit;
+        const critRoll = rollNormalized(this.rngPolicy.combatCriticalHit);
+        resourceChange.isCrit = rollIsSuccess({
+          roll: critRoll,
+          successChance: percentChanceToCrit,
+        });
 
         const resourceChangeModifier = new ResourceChangeModifier(
           this.action.hitOutcomeProperties,

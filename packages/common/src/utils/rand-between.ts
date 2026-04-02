@@ -1,6 +1,11 @@
+import { NormalizedPercentage } from "../aliases.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 
 /** random number between two given numbers, inclusive */
 export function randBetween(min: number, max: number, rng: RandomNumberGenerator) {
   return Math.floor(rng.roll() * (max - min + 1) + min);
+}
+
+export function rollNormalized(rng: RandomNumberGenerator): NormalizedPercentage {
+  return randBetween(0, 1, rng);
 }

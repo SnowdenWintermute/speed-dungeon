@@ -7,6 +7,7 @@ import { ActionPayableResource } from "../combat/combat-actions/action-calculati
 import { CombatAttribute } from "./attributes/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { NormalizedPercentage } from "../aliases.js";
 
 export class CombatantResources extends CombatantSubsystem implements ReactiveNode, Serializable {
   private hitPoints: number = 1;

@@ -3,7 +3,7 @@ import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { Percentage } from "../../../aliases.js";
+import { NormalizedPercentage } from "../../../aliases.js";
 import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
@@ -13,14 +13,15 @@ import { ResourceChangeSource } from "../../hp-change-source-types.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 import { CombatActionRequiredRange } from "../../combat-actions/combat-action-range.js";
-import { randBetween } from "../../../utils/rand-between.js";
+import { rollNormalized } from "../../../utils/rand-between.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import {
   SHIELD_SIZE_BLOCK_RATE,
   SHIELD_SIZE_DAMAGE_REDUCTION,
 } from "../../../items/equipment/equipment-properties/shield-properties.js";
+import { rollIsSuccess } from "../../../utility-classes/random-number-generation-policy.js";
 
-const BASE_PARRY_CHANCE = 5;
+const BASE_PARRY_CHANCE: NormalizedPercentage = 0.05;
 
 export class HitOutcomeMitigationCalculator {
   constructor(
@@ -53,23 +54,33 @@ export class HitOutcomeMitigationCalculator {
     const user = this.user;
     const target = this.targetCombatant;
 
-    const percentChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
+    const normalizedChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
       this.action,
       user,
       this.actionLevel,
       targetWillAttemptMitigation,
       target.combatantProperties
     );
+    console.log("action:", this.action.getStringName(), normalizedChanceToHit);
 
     // it is possible to miss a target who is not attempting mitigation if your accuracy
     // is just that bad
-    const hitRoll = randBetween(0, 100, this.rng);
-    const isMiss = hitRoll < 100 - percentChanceToHit.beforeEvasion;
+    const hitRoll = rollNormalized(this.rng);
+    const wouldHitIfNotEvaded = rollIsSuccess({
+      roll: hitRoll,
+      successChance: normalizedChanceToHit.beforeEvasion,
+    });
+    console.log("wouldHitIfNotEvaded:", wouldHitIfNotEvaded);
+    const isMiss = !wouldHitIfNotEvaded;
     if (isMiss) return [HitOutcome.Miss];
 
     if (!targetWillAttemptMitigation) return [HitOutcome.Hit];
 
-    const isEvaded = !isMiss && hitRoll < 100 - percentChanceToHit.afterEvasion;
+    const isHit = rollIsSuccess({
+      roll: hitRoll,
+      successChance: normalizedChanceToHit.afterEvasion,
+    });
+    const isEvaded = !isMiss && !isHit;
     if (isEvaded) return [HitOutcome.Evade];
 
     const { hitOutcomeProperties } = this.action;
@@ -82,23 +93,25 @@ export class HitOutcomeMitigationCalculator {
 
     // PARRIES
     if (willAttemptParry) {
-      const percentChanceToParry = HitOutcomeMitigationCalculator.getParryChance(user, target);
+      const normalizedChanceToParry = HitOutcomeMitigationCalculator.getParryChance(user, target);
       // const percentChanceToParry = 5;
-      const parryRoll = randBetween(0, 100, this.rng);
-      const isParried = parryRoll < percentChanceToParry;
+      const parryRoll = rollNormalized(this.rng);
+      const isParried = rollIsSuccess({ roll: parryRoll, successChance: normalizedChanceToParry });
       if (isParried) return [HitOutcome.Parry];
     }
 
     // COUNTERATTACKS
     if (hitOutcomeProperties.getCanTriggerCounterattack(user, actionLevel)) {
       // @TODO - derrive this from various combatant properties
-      const percentChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
+      const normalizedChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
         user,
         target
       );
-      // const percentChanceToCounterAttack = 100;
-      const counterAttackRoll = randBetween(0, 100, this.rng);
-      const isCounterAttacked = counterAttackRoll < percentChanceToCounterAttack;
+      const counterAttackRoll = rollNormalized(this.rng);
+      const isCounterAttacked = rollIsSuccess({
+        roll: counterAttackRoll,
+        successChance: normalizedChanceToCounterAttack,
+      });
       // const isCounterAttacked = percentChanceToCounterAttack !== 0;
       if (isCounterAttacked) return [HitOutcome.Counterattack];
     }
@@ -107,9 +120,11 @@ export class HitOutcomeMitigationCalculator {
     if (hitOutcomeProperties.getResistChance !== undefined) {
       const resistChance = hitOutcomeProperties.getResistChance(user, this.actionLevel, target);
 
-      const resistRoll = randBetween(0, 100, this.rng);
-
-      const isResisted = resistRoll < resistChance;
+      const resistRoll = rollNormalized(this.rng);
+      const isResisted = rollIsSuccess({
+        roll: resistRoll,
+        successChance: resistChance,
+      });
 
       if (isResisted) {
         return [HitOutcome.Resist];
@@ -126,12 +141,16 @@ export class HitOutcomeMitigationCalculator {
         hitOutcomeProperties.getIsBlockable(user, actionLevel) &&
         target.combatantProperties.mitigationProperties.canBlock()
       ) {
-        const percentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
+        const normalizedPercentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
           user,
           target
         );
-        const blockRoll = randBetween(0, 100, this.rng);
-        const isBlocked = blockRoll < percentChanceToBlock;
+
+        const blockRoll = rollNormalized(this.rng);
+        const isBlocked = rollIsSuccess({
+          roll: blockRoll,
+          successChance: normalizedPercentChanceToBlock,
+        });
         if (isBlocked) flagsToReturn.push(HitOutcome.ShieldBlock);
       }
     }
@@ -186,7 +205,7 @@ export class HitOutcomeMitigationCalculator {
     actionLevel: number,
     targetWillAttemptToEvade: boolean,
     target: CombatantProperties
-  ): { beforeEvasion: number; afterEvasion: number } {
+  ): { beforeEvasion: NormalizedPercentage; afterEvasion: NormalizedPercentage } {
     const targetEvasion = target.attributeProperties.getAttributeValue(CombatAttribute.Evasion);
     const canHitDeadCombatants =
       !combatAction.targetingProperties.prohibitedHitCombatantStates.includes(
@@ -199,7 +218,7 @@ export class HitOutcomeMitigationCalculator {
 
     const actionBaseAccuracy = combatAction.getAccuracy(user, actionLevel);
     if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable) {
-      return { beforeEvasion: 100, afterEvasion: 100 };
+      return { beforeEvasion: 1, afterEvasion: 1 };
     }
 
     const finalTargetEvasion = !targetWillAttemptToEvade ? 0 : targetEvasion;
@@ -217,9 +236,19 @@ export class HitOutcomeMitigationCalculator {
       afterEvasion = 0;
     }
 
+    const normalizedAccuracy = actionBaseAccuracy.value / 100;
+    const normalizedAfterEvasionHitChance = afterEvasion / 100;
+
+    console.log(
+      "normalizedAccuracy:",
+      normalizedAccuracy,
+      "normalizedAfterEvasionHitChance:",
+      normalizedAfterEvasionHitChance
+    );
+
     return {
-      beforeEvasion: actionBaseAccuracy.value,
-      afterEvasion,
+      beforeEvasion: Math.min(1, normalizedAccuracy),
+      afterEvasion: Math.min(1, normalizedAfterEvasionHitChance),
     };
   }
 
@@ -239,17 +268,20 @@ export class HitOutcomeMitigationCalculator {
     const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
     const finalUnroundedCritChance = (actionBaseCritChance || 0) - targetCritAvoidance;
 
-    return Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance)));
+    const percent = Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance)));
+    const normalized = percent / 100;
+
+    return normalized;
   }
 
-  static getParryChance(aggressor: IActionUser, defender: Combatant): Percentage {
+  static getParryChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
     if (!defender.combatantProperties.mitigationProperties.canParry()) return 0;
     return BASE_PARRY_CHANCE;
   }
 
-  static getCounterattackChance(aggressor: IActionUser, defender: Combatant): Percentage {
+  static getCounterattackChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
     if (defender.combatantProperties.isDead()) return 0;
     if (!defender.combatantProperties.mitigationProperties.canCounterattack()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
@@ -257,11 +289,11 @@ export class HitOutcomeMitigationCalculator {
     return BASE_PARRY_CHANCE;
   }
 
-  static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): Percentage {
+  static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
     const shieldPropertiesOption = defender.getEquipmentOption().getEquippedShieldProperties();
     if (!shieldPropertiesOption) return 0;
 
-    const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size] * 100;
+    const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size];
 
     return baseBlockRate;
 
@@ -270,7 +302,9 @@ export class HitOutcomeMitigationCalculator {
   }
 
   /**Should return a normalized percentage*/
-  static getShieldBlockDamageReduction(combatantProperties: CombatantProperties) {
+  static getShieldBlockDamageReduction(
+    combatantProperties: CombatantProperties
+  ): NormalizedPercentage {
     const shieldPropertiesOption = combatantProperties.equipment.getEquippedShieldProperties();
     if (!shieldPropertiesOption) return 0;
 

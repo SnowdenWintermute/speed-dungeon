@@ -54,7 +54,7 @@ export interface CombatActionHitOutcomeProperties {
     user: IActionUser,
     actionRank: number,
     targetCombatant: Combatant
-  ) => Percentage;
+  ) => NormalizedPercentage;
   getAppliedConditions: (
     user: IActionUser,
     actionLevel: number

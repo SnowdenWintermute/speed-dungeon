@@ -76,11 +76,10 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const levelDifference = targetLevel - userLevel;
       const levelDifferenceMultiplier = levelDifference / COMBATANT_MAX_LEVEL;
 
-      const rawChanceToResist = (percentOfMaxHitPoints + levelDifferenceMultiplier) * 100;
-      const chanceToResist = Math.min(100, rawChanceToResist);
+      const rawChanceToResist = percentOfMaxHitPoints + levelDifferenceMultiplier;
+      const chanceToResist = Math.min(1, rawChanceToResist);
 
-      return 0;
-      // return chanceToResist;
+      return chanceToResist;
     },
 
     getHitOutcomeTriggers: (context) => {
