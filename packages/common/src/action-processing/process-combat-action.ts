@@ -4,6 +4,7 @@ import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-act
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { AnimationLengths, BoundingBoxSizes } from "../types.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
 import {
   NestedNodeReplayEvent,
@@ -15,11 +16,13 @@ export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
   actionUserContext: ActionUserContext,
   idGenerator: IdGenerator,
+  rngPolicy: RandomNumberGenerationPolicy,
   animationLengths: AnimationLengths,
   boundingBoxSizes: BoundingBoxSizes
 ) {
   const registry = new ActionSequenceManagerRegistry(
     idGenerator,
+    rngPolicy,
     animationLengths,
     boundingBoxSizes
   );

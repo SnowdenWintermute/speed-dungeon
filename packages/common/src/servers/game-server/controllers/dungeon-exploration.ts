@@ -10,6 +10,7 @@ import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -25,6 +26,7 @@ export class DungeonExplorationController {
     private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
+    private readonly rngPolicy: RandomNumberGenerationPolicy,
     private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
@@ -233,6 +235,7 @@ export class DungeonExplorationController {
       battleOption,
       this.gameModeContexts,
       this.idGenerator,
+      this.rngPolicy,
       this.lootGenerator,
       this.assetAnalyzer
     );

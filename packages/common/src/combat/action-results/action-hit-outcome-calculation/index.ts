@@ -8,7 +8,7 @@ import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
@@ -62,7 +62,7 @@ export class HitOutcomeCalculator {
   constructor(
     private actionUserContext: ActionUserContext,
     private actionExecutionIntent: CombatActionExecutionIntent,
-    private rng: RandomNumberGenerator
+    private rngPolicy: RandomNumberGenerationPolicy
   ) {
     this.targetingCalculator = new TargetingCalculator(this.actionUserContext, null);
 
@@ -77,7 +77,7 @@ export class HitOutcomeCalculator {
       actionExecutionIntent,
       this.targetingCalculator,
       this.targetIds,
-      rng
+      rngPolicy.combatResourceChange
     );
   }
 
@@ -118,7 +118,7 @@ export class HitOutcomeCalculator {
           actionUser,
           targetCombatant,
           incomingResourceChangesPerTarget,
-          this.rng
+          this.rngPolicy.combatHitDetermination
         );
       } else {
         mitigationCalculator.setTargetCombatant(targetCombatant);
@@ -157,7 +157,7 @@ export class HitOutcomeCalculator {
           targetWillAttemptMitigation
         );
 
-        resourceChange.isCrit = randBetween(0, 100, this.rng) < percentChanceToCrit;
+        resourceChange.isCrit = randBetween(0, 100, this.rngPolicy.combatCriticalHit) < percentChanceToCrit;
 
         const resourceChangeModifier = new ResourceChangeModifier(
           this.action.hitOutcomeProperties,

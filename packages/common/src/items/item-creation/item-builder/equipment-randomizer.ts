@@ -8,7 +8,7 @@ import {
 } from "../../../app-consts.js";
 import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
 import { NumberRange } from "../../../primatives/number-range.js";
-import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { randBetween } from "../../../utils/rand-between.js";
 import { AffixCategory, EquipmentAffixes } from "../../equipment/affixes.js";
@@ -27,16 +27,19 @@ import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js"
 
 export class EquipmentRandomizer {
   constructor(
-    private rng: RandomNumberGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
     private affixGenerator: AffixGenerator
   ) {}
 
   rollArmorClass(acRange: NumberRange): number {
-    return randBetween(acRange.min, acRange.max, this.rng);
+    return randBetween(acRange.min, acRange.max, this.rngPolicy.equipmentBaseProperties);
   }
 
   rollDamageClassifications(template: WeaponGenerationTemplate): ResourceChangeSource[] {
-    const shuffled = ArrayUtils.shuffle(cloneDeep(template.possibleDamageClassifications));
+    const shuffled = ArrayUtils.shuffle(
+      cloneDeep(template.possibleDamageClassifications),
+      this.rngPolicy.equipmentBaseProperties
+    );
     const result: ResourceChangeSource[] = [];
     for (let i = 0; i < template.numDamageClassifications; i += 1) {
       const classification = shuffled.pop();
@@ -50,7 +53,7 @@ export class EquipmentRandomizer {
     return randBetween(
       Math.floor(maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
       Math.floor(maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER),
-      this.rng
+      this.rngPolicy.equipmentDurability
     );
   }
 
@@ -67,7 +70,7 @@ export class EquipmentRandomizer {
 
     const isMagical =
       options?.forcedMagical ||
-      Math.random() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||
+      this.rngPolicy.magicalDetermination.roll() < BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL ||
       equipmentType === EquipmentType.Amulet ||
       equipmentType === EquipmentType.Ring;
     if (!isMagical) return affixes;
@@ -76,7 +79,7 @@ export class EquipmentRandomizer {
     let hasSuffix = false;
     let hasBothAffixes = false;
 
-    const roll = Math.random();
+    const roll = this.rngPolicy.affixSlotDistribution.roll();
     if (roll < CHANCE_TO_HAVE_DOUBLE_AFFIX) hasBothAffixes = true;
     else if (roll < CHANCE_TO_HAVE_PREFIX + CHANCE_TO_HAVE_DOUBLE_AFFIX) hasPrefix = true;
     else hasSuffix = true;
@@ -84,8 +87,8 @@ export class EquipmentRandomizer {
     const numPrefixes = hasPrefix || hasBothAffixes ? 1 : 0;
     const numSuffixes = hasSuffix || hasBothAffixes ? 1 : 0;
 
-    const prefixTypes = AffixGenerator.getRandomValidPrefixTypes(template, numPrefixes);
-    const suffixTypes = AffixGenerator.getRandomValidSuffixTypes(template, numSuffixes);
+    const prefixTypes = this.affixGenerator.getRandomValidPrefixTypes(template, numPrefixes);
+    const suffixTypes = this.affixGenerator.getRandomValidSuffixTypes(template, numSuffixes);
 
     for (const prefixType of prefixTypes) {
       const affixResult = this.affixGenerator.rollAffixTierAndValue(

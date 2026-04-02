@@ -9,7 +9,7 @@ import {
   GameSessionStoreService,
   GameServerSessionClaimTokenCodec,
   DefaultCharacterCreationPolicy,
-  BasicRandomNumberGenerator,
+  RandomNumberGenerationPolicyFactory,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -49,7 +49,7 @@ export class LobbyServerNode {
       {},
       leastBusyGameServerUrlGetter,
       DefaultCharacterCreationPolicy,
-      new BasicRandomNumberGenerator()
+      RandomNumberGenerationPolicyFactory.allRandomPolicy()
     );
 
     console.info("lobby server node created");

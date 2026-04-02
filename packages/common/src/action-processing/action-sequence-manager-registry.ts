@@ -2,6 +2,7 @@ import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./action-steps/index.js";
@@ -23,6 +24,7 @@ export class ActionSequenceManagerRegistry {
   public time = new TimeKeeper();
   constructor(
     private idGenerator: IdGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
     public readonly boundingBoxSizes: BoundingBoxSizesBySpecies
   ) {}
@@ -49,6 +51,7 @@ export class ActionSequenceManagerRegistry {
       actionUserContext,
       this,
       this.idGenerator,
+      this.rngPolicy,
       previousTrackerInSequenceOption
     );
     this.actionManagers[id] = manager;

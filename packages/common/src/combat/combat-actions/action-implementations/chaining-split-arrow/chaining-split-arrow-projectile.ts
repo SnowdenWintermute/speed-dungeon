@@ -109,7 +109,7 @@ const config: CombatActionComponentConfig = {
 
       const randomTargetIdResult = ArrayUtils.chooseRandom(
         filteredPossibleTargetIdsResult.possibleTargetIds,
-        new BasicRandomNumberGenerator()
+        context.rngPolicy.bouncingProjectileTargetSelection
       );
       if (randomTargetIdResult instanceof Error) throw randomTargetIdResult;
       const targetId = randomTargetIdResult;

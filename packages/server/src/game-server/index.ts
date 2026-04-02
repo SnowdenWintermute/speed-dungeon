@@ -1,23 +1,19 @@
 import {
-  AffixGenerator,
   AssetCache,
   DungeonRoomType,
-  EquipmentRandomizer,
   GameServer,
   GameServerExternalServices,
   GameServerName,
   GameServerNodeAssetService,
   GameServerSessionClaimTokenCodec,
   GameSessionStoreService,
-  IdGenerator,
   InMemoryRaceGameRecordsPersistenceStrategy,
-  ItemBuilder,
   MonsterType,
   RaceGameRecordsService,
   ReconnectionForwardingStoreService,
   SavedCharactersService,
   ScriptedDungeonGenerationPolicy,
-  SequentialNumberGenerator,
+  RandomNumberGenerationPolicyFactory,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -34,7 +30,6 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { env } from "../validate-env.js";
-import { RandomDungeonGenerationPolicy, BasicRandomNumberGenerator } from "@speed-dungeon/common";
 import { MonsterGenerator } from "@speed-dungeon/common";
 
 export class GameServerNode {
@@ -61,27 +56,27 @@ export class GameServerNode {
       gameSessionStoreService
     );
 
+    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(0);
+
     this._server = new GameServer(
       name,
       incomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
       ScriptedDungeonGenerationPolicy,
-      new SequentialNumberGenerator([0.1, 0.5, 1])
+      rngPolicy
       // RandomDungeonGenerationPolicy,
-      // new BasicRandomNumberGenerator()
+      // allRandomPolicy()
     );
 
-    const idGenerator = new IdGenerator({ saveHistory: false });
-    const rng = new BasicRandomNumberGenerator();
-    const affixGenerator = new AffixGenerator(rng);
-    const equipmentRandomizer = new EquipmentRandomizer(rng, affixGenerator);
-    const monsterGenerator = new MonsterGenerator(
-      idGenerator,
-      new ItemBuilder(equipmentRandomizer),
-      rng
-    );
+    const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
     this._server.dungeonGenerationPolicy.setFloors([
+      [
+        {
+          type: DungeonRoomType.MonsterLair,
+          monsters: [monsterGenerator.generate(MonsterType.Wolf, 1)],
+        },
+      ],
       [
         {
           type: DungeonRoomType.MonsterLair,

@@ -1,7 +1,7 @@
 import { DEEPEST_FLOOR, TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { NumberRange } from "../../primatives/number-range.js";
-import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
 import { randBetween } from "../../utils/rand-between.js";
 import {
@@ -24,7 +24,7 @@ const ATTRIBUTE_PER_TIER_BASE = 1.25;
 const DERIVED_ATTRIBUTE_MULTIPLIER = 2.5;
 
 export class AffixGenerator {
-  constructor(private randomNumberGenerator: RandomNumberGenerator) {}
+  constructor(private rngPolicy: RandomNumberGenerationPolicy) {}
 
   rollAffixTierAndValue(
     template: EquipmentGenerationTemplate,
@@ -53,7 +53,7 @@ export class AffixGenerator {
     const minTierOnLevel = maxTier * minTierModifier;
     return Math.max(
       1,
-      Math.round(randBetween(minTierOnLevel, maxTierOnLevel, this.randomNumberGenerator))
+      Math.round(randBetween(minTierOnLevel, maxTierOnLevel, this.rngPolicy.affixTier))
     );
   }
 
@@ -77,7 +77,7 @@ export class AffixGenerator {
     const attributeOption = ATTRIBUTE_AFFIX_ATTRIBUTES[affixType];
     if (attributeOption !== undefined) {
       const range = this.getAffixValueRange(affixType, tier, rangeMultiplier);
-      const value = randBetween(range.min, range.max, this.randomNumberGenerator);
+      const value = randBetween(range.min, range.max, this.rngPolicy.affixValue);
       affix.combatAttributes[attributeOption] = value;
     }
 
@@ -98,7 +98,7 @@ export class AffixGenerator {
         max = range.max;
       }
 
-      const value = randBetween((tier - 1) * 10 + 1, tier * 10, this.randomNumberGenerator);
+      const value = randBetween((tier - 1) * 10 + 1, tier * 10, this.rngPolicy.affixValue);
 
       affix.equipmentTraits[traitTypeOption] = {
         equipmentTraitType: traitTypeOption,
@@ -109,12 +109,12 @@ export class AffixGenerator {
     return affix;
   }
 
-  static getRandomValidPrefixTypes(template: EquipmentGenerationTemplate, numToCreate: number) {
+  getRandomValidPrefixTypes(template: EquipmentGenerationTemplate, numToCreate: number) {
     const toReturn: PrefixType[] = [];
     const possiblePrefixes = Object.keys(template.possibleAffixes.prefix).map(
       (item) => parseInt(item) as PrefixType
     );
-    const shuffledPrefixes = ArrayUtils.shuffle(possiblePrefixes);
+    const shuffledPrefixes = ArrayUtils.shuffle(possiblePrefixes, this.rngPolicy.affixTypeSelection);
     for (let i = 0; i < numToCreate; i += 1) {
       const randomPrefixOption = shuffledPrefixes.pop();
       if (randomPrefixOption !== undefined) toReturn.push(randomPrefixOption);
@@ -122,12 +122,12 @@ export class AffixGenerator {
     return toReturn;
   }
 
-  static getRandomValidSuffixTypes(template: EquipmentGenerationTemplate, numToCreate: number) {
+  getRandomValidSuffixTypes(template: EquipmentGenerationTemplate, numToCreate: number) {
     const toReturn: SuffixType[] = [];
     const possibleSuffixes = Object.keys(template.possibleAffixes.suffix).map(
       (item) => parseInt(item) as SuffixType
     );
-    const shuffledSuffixes = ArrayUtils.shuffle(possibleSuffixes);
+    const shuffledSuffixes = ArrayUtils.shuffle(possibleSuffixes, this.rngPolicy.affixTypeSelection);
     for (let i = 0; i < numToCreate; i += 1) {
       const randomSuffixOption = shuffledSuffixes.pop();
       if (randomSuffixOption !== undefined) toReturn.push(randomSuffixOption);

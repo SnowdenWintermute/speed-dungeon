@@ -78,6 +78,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           targetCombatant,
           action,
           flag,
+          context.rngPolicy.combatDurabilityTarget,
           hpChangeIsCrit
         );
 

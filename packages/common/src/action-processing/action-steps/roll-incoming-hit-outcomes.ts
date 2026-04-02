@@ -6,7 +6,6 @@ import {
 } from "./index.js";
 import { GameUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import { HitOutcome } from "../../hit-outcome.js";
-import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { HitOutcomeCalculator } from "../../combat/action-results/action-hit-outcome-calculation/index.js";
@@ -19,15 +18,12 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     const { actionName } = context.tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
 
-    // @PERF - make this a singleton and move these steps to the server
-    const rng = new BasicRandomNumberGenerator();
-
-    const { actionUserContext, tracker } = context;
+    const { actionUserContext, tracker, rngPolicy } = context;
 
     const hitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       tracker.actionExecutionIntent,
-      rng
+      rngPolicy
     );
 
     const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();

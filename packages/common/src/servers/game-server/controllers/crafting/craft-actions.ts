@@ -66,7 +66,7 @@ export class ItemCrafter {
     const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
 
     if (missingPrefix) {
-      const prefixType = AffixGenerator.getRandomValidPrefixTypes(template, 1)[0];
+      const prefixType = this.affixGenerator.getRandomValidPrefixTypes(template, 1)[0];
       if (prefixType === undefined) {
         throw new Error("Couldn't generate affix type");
       }
@@ -83,7 +83,7 @@ export class ItemCrafter {
     }
 
     if (missingSuffix) {
-      const suffixType = AffixGenerator.getRandomValidSuffixTypes(template, 1)[0];
+      const suffixType = this.affixGenerator.getRandomValidSuffixTypes(template, 1)[0];
       if (suffixType === undefined) {
         throw new Error("Couldn't generate affix type");
       }

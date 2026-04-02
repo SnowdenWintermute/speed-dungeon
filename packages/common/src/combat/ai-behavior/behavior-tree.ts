@@ -1,3 +1,4 @@
+import { BasicRandomNumberGenerator } from "../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
 
 export enum BehaviorNodeState {
@@ -104,7 +105,7 @@ export class RandomizerNode<T> implements BehaviorNode {
   execute(): BehaviorNodeState {
     const arrayOption = this.arrayOptionGetter();
     if (arrayOption === undefined) return BehaviorNodeState.Failure;
-    ArrayUtils.shuffle(arrayOption);
+    ArrayUtils.shuffle(arrayOption, new BasicRandomNumberGenerator());
     return BehaviorNodeState.Success;
   }
 }

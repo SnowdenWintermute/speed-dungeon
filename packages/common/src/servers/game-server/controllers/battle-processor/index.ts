@@ -9,6 +9,7 @@ import { SpeedDungeonGame } from "../../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameMode, PartyWipes } from "../../../../types.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
@@ -38,6 +39,7 @@ export class BattleProcessor {
     private battle: Battle,
     private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
     private lootGenerator: LootGenerator,
     private assetAnalyzer: AssetAnalyzer
   ) {}
@@ -97,6 +99,7 @@ export class BattleProcessor {
           actionExecutionIntent,
           new ActionUserContext(game, party, user),
           this.idGenerator,
+          this.rngPolicy,
           this.assetAnalyzer.animationLengths,
           this.assetAnalyzer.boundingBoxes
         );

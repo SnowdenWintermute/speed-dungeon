@@ -41,7 +41,9 @@ import {
   DungeonGenerationPolicy,
   DungeonGenerationPolicyConstructor,
 } from "../../dungeon-generation/index.js";
-import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import {
+  RandomNumberGenerationPolicy,
+} from "../../utility-classes/random-number-generation-policy.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -88,22 +90,22 @@ export class GameServer extends SpeedDungeonServer {
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
-    randomNumberGenerator: RandomNumberGenerator
+    rngPolicy: RandomNumberGenerationPolicy
   ) {
-    super(name, incomingConnectionGateway, randomNumberGenerator);
+    super(name, incomingConnectionGateway, rngPolicy);
 
-    const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
-    const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);
+    const affixGenerator = new AffixGenerator(rngPolicy);
+    const equipmentRandomizer = new EquipmentRandomizer(rngPolicy, affixGenerator);
     this.itemBuilder = new ItemBuilder(equipmentRandomizer);
     this.lootGenerator = new LootGenerator(
       this.itemBuilder,
       this.idGenerator,
-      this.randomNumberGenerator
+      rngPolicy
     );
     this.dungeonGenerationPolicy = new dungeonGenerationPolicyConstructor(
       this.idGenerator,
       this.itemBuilder,
-      this.randomNumberGenerator
+      rngPolicy
     );
 
     this.assetAnalyzer = new AssetAnalyzer(this.externalServices.assetService);
@@ -135,6 +137,7 @@ export class GameServer extends SpeedDungeonServer {
       this.partyDelayedGameMessageFactory,
       this.externalServices.savedCharactersService,
       this.idGenerator,
+      rngPolicy,
       this.lootGenerator,
       this.dungeonGenerationPolicy,
       this.assetAnalyzer,
@@ -162,6 +165,7 @@ export class GameServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       this.gameModeContexts,
       this.idGenerator,
+      rngPolicy,
       this.lootGenerator,
       this.assetAnalyzer
     );

@@ -10,7 +10,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private monsterGenerator = new MonsterGenerator(
     this.idGenerator,
     this.itemBuilder,
-    this.randomNumberGenerator
+    this.rngPolicy.monsterEquipment
   );
   setFloors(_floors: ScriptedRoom[][]): void {
     throw new Error("Cannot set scripted floors on RandomDungeonGenerationPolicy");
@@ -33,7 +33,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
       mainRooms.push(DungeonRoomType.MonsterLair);
     }
 
-    ArrayUtils.shuffle(mainRooms);
+    ArrayUtils.shuffle(mainRooms, this.rngPolicy.dungeonLayout);
 
     lastRooms.push(DungeonRoomType.VendingMachine);
     lastRooms.push(DungeonRoomType.Staircase);

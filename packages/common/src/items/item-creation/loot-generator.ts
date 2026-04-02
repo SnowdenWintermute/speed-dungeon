@@ -1,5 +1,5 @@
 import { IdGenerator } from "../../utility-classes/index.js";
-import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { randBetween } from "../../utils/rand-between.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
 import { ConsumableType } from "../consumables/consumable-types.js";
@@ -27,7 +27,7 @@ export class LootGenerator {
   constructor(
     private itemBuilder: ItemBuilder,
     private idGenerator: IdGenerator,
-    private rng: RandomNumberGenerator
+    private rngPolicy: RandomNumberGenerationPolicy
   ) {
     this.equipmentTypeEntries = buildEquipmentTypeEntries();
   }
@@ -40,7 +40,7 @@ export class LootGenerator {
     const consumables: Consumable[] = [];
 
     for (let i = 0; i < quantity; i += 1) {
-      const iLvl = randBetween(1, maxItemLevel, this.rng);
+      const iLvl = randBetween(1, maxItemLevel, this.rngPolicy.lootTableSelection);
       const item = this.generateRandomItem(iLvl);
       if (item instanceof Consumable) consumables.push(item);
       else if (item instanceof Equipment) equipment.push(item);
@@ -50,7 +50,7 @@ export class LootGenerator {
   }
 
   generateRandomItem(itemLevel: number): Item {
-    const entry = ArrayUtils.chooseRandom(this.equipmentTypeEntries, this.rng);
+    const entry = ArrayUtils.chooseRandom(this.equipmentTypeEntries, this.rngPolicy.lootTableSelection);
     if (entry instanceof Error) {
       return this.createFallbackConsumable();
     }
@@ -60,7 +60,7 @@ export class LootGenerator {
       return itemLevel >= template.levelRange.min && itemLevel <= template.levelRange.max;
     });
 
-    const baseItem = ArrayUtils.chooseRandom(validBaseItems, this.rng);
+    const baseItem = ArrayUtils.chooseRandom(validBaseItems, this.rngPolicy.lootTableSelection);
     if (baseItem instanceof Error) {
       return this.createFallbackConsumable();
     }
@@ -108,7 +108,9 @@ export class LootGenerator {
 
   private createFallbackConsumable(): Consumable {
     const type =
-      Math.random() > 0.3 ? ConsumableType.HpAutoinjector : ConsumableType.MpAutoinjector;
+      this.rngPolicy.consumableTypeFallback.roll() > 0.3
+        ? ConsumableType.HpAutoinjector
+        : ConsumableType.MpAutoinjector;
     return this.itemBuilder.consumable(type).build(this.idGenerator);
   }
 }

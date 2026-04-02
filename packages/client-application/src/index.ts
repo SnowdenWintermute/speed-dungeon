@@ -1,6 +1,5 @@
 import {
   AssetCache,
-  BasicRandomNumberGenerator,
   ClientAppAssetService,
   GameStateUpdate,
   RemoteServerAssetStore,
@@ -68,9 +67,6 @@ export class ClientApplication {
 
   // browser tab sync
   readonly broadcastChannel: BroadcastChannelMananger;
-
-  // rng
-  readonly randomNumberGenerator = new BasicRandomNumberGenerator();
 
   // topology
   readonly topologyManager = new ConnectionTopology(this);

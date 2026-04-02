@@ -15,6 +15,7 @@
 // - assert game client state
 
 import {
+  allRandomPolicy,
   ClientIntentType,
   CombatantBuilder,
   CombatantClass,
@@ -28,6 +29,7 @@ import {
   IndexedDbAssetStore,
   invariant,
   LobbyServer,
+  MonsterGenerator,
   MonsterType,
   PartyName,
 } from "@speed-dungeon/common";
@@ -60,12 +62,20 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       lobbyServer = inMemoryTransportAndServers.lobbyServer;
       gameServer = inMemoryTransportAndServers.gameServer;
 
-      const idGenerator = new IdGenerator({ saveHistory: false });
+      const rngPolicy = allRandomPolicy();
+      const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
+
       gameServer.dungeonGenerationPolicy.setFloors([
         [
           {
             type: DungeonRoomType.MonsterLair,
-            monsters: [CombatantBuilder.monster(MonsterType.Spider).build(idGenerator)],
+            monsters: [monsterGenerator.generate(MonsterType.Wolf, 1)],
+          },
+        ],
+        [
+          {
+            type: DungeonRoomType.MonsterLair,
+            monsters: [monsterGenerator.generate(MonsterType.Wolf, 1)],
           },
         ],
       ]);

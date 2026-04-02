@@ -19,6 +19,7 @@ export * from "./utils/map-utils.js";
 export * from "./utils/url-with-query-params.js";
 
 export * from "./utility-classes/randomizers.js";
+export * from "./utility-classes/random-number-generation-policy.js";
 
 export * from "./aliases.js";
 export * from "./types.js";
@@ -247,3 +248,4 @@ export * from "./combatants/combatant-builder.js";
 export * from "./dungeon-generation/random-dungeon-generation-policy.js";
 export * from "./dungeon-generation/scripted-dungeon-generation-policy.js";
 export * from "./monsters/monster-generator.js";
+export * from "./utility-classes/random-number-generation-policy.js";

@@ -4,6 +4,7 @@ import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-
 import { ActionSequenceManager } from "../action-sequence-manager.js";
 import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
@@ -86,6 +87,7 @@ export interface ActionResolutionStepContext {
   tracker: ActionTracker;
   manager: ActionSequenceManager;
   idGenerator: IdGenerator;
+  rngPolicy: RandomNumberGenerationPolicy;
 }
 
 export interface ActionIntentAndUser {

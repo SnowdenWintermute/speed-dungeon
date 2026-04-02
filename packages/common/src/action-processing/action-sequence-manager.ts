@@ -2,6 +2,7 @@ import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registr
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { ActionUserContext } from "../action-user-context/index.js";
 import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -20,6 +21,7 @@ export class ActionSequenceManager {
     public actionUserContext: ActionUserContext,
     public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
     private idGenerator: IdGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
@@ -83,7 +85,8 @@ export class ActionSequenceManager {
       this.actionUserContext.actionUser,
       previousTrackerOption || null,
       this.sequentialActionManagerRegistry.time.ms,
-      this.idGenerator
+      this.idGenerator,
+      this.rngPolicy
     );
 
     this.currentTracker = tracker;

@@ -2,7 +2,7 @@ import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.
 import { Combatant } from "../combatants/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 
 export interface ScriptedRoom {
   type: DungeonRoomType;
@@ -12,14 +12,14 @@ export interface ScriptedRoom {
 export type DungeonGenerationPolicyConstructor = new (
   idGenerator: IdGenerator,
   itemBuilder: ItemBuilder,
-  randomNumberGenerator: RandomNumberGenerator
+  rngPolicy: RandomNumberGenerationPolicy
 ) => DungeonGenerationPolicy;
 
 export abstract class DungeonGenerationPolicy {
   constructor(
     protected readonly idGenerator: IdGenerator,
     protected readonly itemBuilder: ItemBuilder,
-    protected readonly randomNumberGenerator: RandomNumberGenerator
+    protected readonly rngPolicy: RandomNumberGenerationPolicy
   ) {}
 
   abstract setFloors(floors: ScriptedRoom[][]): void;
