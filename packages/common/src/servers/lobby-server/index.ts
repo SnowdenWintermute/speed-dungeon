@@ -32,6 +32,7 @@ import {
   CharacterCreationPolicy,
   CharacterCreationPolicyConstructor,
 } from "../../character-creation/character-creation-policy.js";
+import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -65,9 +66,10 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     private readonly gameServerUrlRegistry: Record<GameServerName, string>,
     fetchLeastBusyServer: () => Promise<string>,
-    characterCreationPolicyConstructor: CharacterCreationPolicyConstructor
+    characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
+    randomNumberGenerator: RandomNumberGenerator
   ) {
-    super("LobbyServer", incomingConnectionGateway);
+    super("LobbyServer", incomingConnectionGateway, randomNumberGenerator);
 
     this.gameHandoffManager = new GameHandoffManager(
       this.userSessionRegistry,

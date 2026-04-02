@@ -41,6 +41,7 @@ import {
   DungeonGenerationPolicy,
   DungeonGenerationPolicyConstructor,
 } from "../../dungeon-generation/index.js";
+import { RandomNumberGenerator } from "../../utility-classes/randomizers.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -86,9 +87,10 @@ export class GameServer extends SpeedDungeonServer {
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
-    dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor
+    dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
+    randomNumberGenerator: RandomNumberGenerator
   ) {
-    super(name, incomingConnectionGateway);
+    super(name, incomingConnectionGateway, randomNumberGenerator);
 
     const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
     const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);

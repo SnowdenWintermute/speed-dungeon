@@ -26,7 +26,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { env } from "../validate-env.js";
-import { RandomDungeonGenerationPolicy } from "@speed-dungeon/common";
+import { RandomDungeonGenerationPolicy, BasicRandomNumberGenerator } from "@speed-dungeon/common";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -57,7 +57,8 @@ export class GameServerNode {
       incomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
-      RandomDungeonGenerationPolicy
+      RandomDungeonGenerationPolicy,
+      new BasicRandomNumberGenerator()
     );
 
     await this._server.analyzeAssetsForGameplayRelevantData();

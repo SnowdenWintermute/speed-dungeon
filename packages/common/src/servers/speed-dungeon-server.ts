@@ -3,7 +3,10 @@ import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
-import { BasicRandomNumberGenerator } from "../utility-classes/randomizers.js";
+import {
+  BasicRandomNumberGenerator,
+  RandomNumberGenerator,
+} from "../utility-classes/randomizers.js";
 import { invariant } from "../utils/index.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
 import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
@@ -42,13 +45,12 @@ export abstract class SpeedDungeonServer {
     this.userSessionRegistry
   );
 
-  protected readonly randomNumberGenerator = new BasicRandomNumberGenerator();
-
   protected readonly executor = new GlobalIntentExecutor();
 
   constructor(
     readonly name: string,
-    protected readonly incomingConnectionGateway: IncomingConnectionGateway
+    protected readonly incomingConnectionGateway: IncomingConnectionGateway,
+    protected readonly randomNumberGenerator: RandomNumberGenerator
   ) {}
 
   closeTransportServer() {

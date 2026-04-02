@@ -28,11 +28,14 @@ import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
   ScriptedDungeonGenerationPolicy,
   ScriptedCharacterCreationPolicy,
+  RandomNumberGenerator,
+  BasicRandomNumberGenerator,
 } from "@speed-dungeon/common";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
-  gameServerIncomingConnectionGateway: IncomingConnectionGateway
+  gameServerIncomingConnectionGateway: IncomingConnectionGateway,
+  randomNumberGenerator: RandomNumberGenerator = new BasicRandomNumberGenerator()
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
@@ -72,7 +75,8 @@ export async function createTestServers(
     codec,
     { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter(),
-    ScriptedCharacterCreationPolicy
+    ScriptedCharacterCreationPolicy,
+    randomNumberGenerator
   );
 
   const gameServer = new GameServer(
@@ -87,7 +91,8 @@ export async function createTestServers(
       gameServerNodeAssetService
     ),
     codec,
-    ScriptedDungeonGenerationPolicy
+    ScriptedDungeonGenerationPolicy,
+    randomNumberGenerator
   );
 
   return { lobbyServer, gameServer };

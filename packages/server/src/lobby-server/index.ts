@@ -9,6 +9,7 @@ import {
   GameSessionStoreService,
   GameServerSessionClaimTokenCodec,
   DefaultCharacterCreationPolicy,
+  BasicRandomNumberGenerator,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -47,7 +48,8 @@ export class LobbyServerNode {
       gameServerSessionClaimTokenCodec,
       {},
       leastBusyGameServerUrlGetter,
-      DefaultCharacterCreationPolicy
+      DefaultCharacterCreationPolicy,
+      new BasicRandomNumberGenerator()
     );
 
     console.info("lobby server node created");

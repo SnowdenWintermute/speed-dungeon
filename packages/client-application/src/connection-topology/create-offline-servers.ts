@@ -29,6 +29,7 @@ import {
 import {
   RandomDungeonGenerationPolicy,
   DefaultCharacterCreationPolicy,
+  BasicRandomNumberGenerator,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -84,7 +85,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     codec,
     { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter(),
-    DefaultCharacterCreationPolicy
+    DefaultCharacterCreationPolicy,
+    new BasicRandomNumberGenerator()
   );
 
   const gameServerConnectionEndpointServer = new InMemoryConnectionEndpointServer();
@@ -111,7 +113,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       assetService
     ),
     codec,
-    RandomDungeonGenerationPolicy
+    RandomDungeonGenerationPolicy,
+    new BasicRandomNumberGenerator()
   );
 
   await gameServer.analyzeAssetsForGameplayRelevantData();
