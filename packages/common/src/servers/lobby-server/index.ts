@@ -13,7 +13,6 @@ import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { CharacterCreator } from "../../character-creation/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
 import { UserIdType } from "../sessions/user-ids.js";
@@ -29,7 +28,10 @@ import { LobbyReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameServerName } from "../../aliases.js";
-import { DefaultCharacterCreationPolicy } from "../../character-creation/default-creation-policy.js";
+import {
+  CharacterCreationPolicy,
+  CharacterCreationPolicyConstructor,
+} from "../../character-creation/character-creation-policy.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -44,7 +46,7 @@ export interface LobbyExternalServices {
 // lives either inside a LobbyServerNode or locally on a ClientApp
 export class LobbyServer extends SpeedDungeonServer {
   public readonly lobbyState = new LobbyState();
-  private readonly characterCreator: CharacterCreator;
+  public readonly characterCreationPolicy: CharacterCreationPolicy;
 
   private readonly gameHandoffManager: GameHandoffManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
@@ -62,7 +64,8 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     private readonly gameServerUrlRegistry: Record<GameServerName, string>,
-    fetchLeastBusyServer: () => Promise<string>
+    fetchLeastBusyServer: () => Promise<string>,
+    characterCreationPolicyConstructor: CharacterCreationPolicyConstructor
   ) {
     super("LobbyServer", incomingConnectionGateway);
 
@@ -83,12 +86,10 @@ export class LobbyServer extends SpeedDungeonServer {
     const affixGenerator = new AffixGenerator(this.randomNumberGenerator);
     const equipmentRandomizer = new EquipmentRandomizer(this.randomNumberGenerator, affixGenerator);
 
-    const characterCreationPolicy = new DefaultCharacterCreationPolicy(
+    this.characterCreationPolicy = new characterCreationPolicyConstructor(
       this.externalServices.idGenerator,
       new ItemBuilder(equipmentRandomizer)
     );
-
-    this.characterCreator = new CharacterCreator(characterCreationPolicy);
 
     const controllers = this.createControllers();
     this.gameLifecycleController = controllers.gameLifecycleController;
@@ -174,7 +175,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.externalServices.profileService,
       this.updateDispatchFactory,
       this.externalServices,
-      this.characterCreator
+      this.characterCreationPolicy
     );
 
     const partySetupController = new PartySetupController(
@@ -198,7 +199,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.externalServices.profileService,
       this.updateDispatchFactory,
       this.externalServices.savedCharactersService,
-      this.characterCreator
+      this.characterCreationPolicy
     );
 
     const userSessionLifecycleController = new LobbySessionLifecycleController(

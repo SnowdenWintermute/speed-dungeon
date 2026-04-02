@@ -27,6 +27,10 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     combatantClass: CombatantClass,
     controllingPlayerName: Username
   ): Combatant {
+    if (name === ("" as EntityName)) {
+      name = this.generateRandomCharacterName();
+    }
+
     const builder = CombatantBuilder.playerCharacter(combatantClass, controllingPlayerName).name(
       name
     );

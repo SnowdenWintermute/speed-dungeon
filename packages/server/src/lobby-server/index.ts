@@ -8,6 +8,7 @@ import {
   ReconnectionForwardingStoreService,
   GameSessionStoreService,
   GameServerSessionClaimTokenCodec,
+  DefaultCharacterCreationPolicy,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -45,7 +46,8 @@ export class LobbyServerNode {
       externalServices,
       gameServerSessionClaimTokenCodec,
       {},
-      leastBusyGameServerUrlGetter
+      leastBusyGameServerUrlGetter,
+      DefaultCharacterCreationPolicy
     );
 
     console.info("lobby server node created");

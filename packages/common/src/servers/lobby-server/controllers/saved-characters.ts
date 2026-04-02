@@ -1,7 +1,7 @@
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { CharacterCreator } from "../../../character-creation/index.js";
+import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
@@ -20,7 +20,7 @@ export class SavedCharactersController {
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     externalServices: LobbyExternalServices,
-    private readonly characterCreator: CharacterCreator
+    private readonly characterCreationPolicy: CharacterCreationPolicy
   ) {
     this.savedCharactersService = externalServices.savedCharactersService;
     this.rankedLadderService = externalServices.rankedLadderService;
@@ -79,7 +79,7 @@ export class SavedCharactersController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const newCharacter = this.characterCreator.createCharacter(
+    const newCharacter = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username

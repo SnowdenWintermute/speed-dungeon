@@ -25,7 +25,10 @@ import {
   TEST_GAME_SERVER_URL,
 } from "./index.js";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
-import { ScriptedDungeonGenerationPolicy } from "@speed-dungeon/common";
+import {
+  ScriptedDungeonGenerationPolicy,
+  ScriptedCharacterCreationPolicy,
+} from "@speed-dungeon/common";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -68,7 +71,8 @@ export async function createTestServers(
     ),
     codec,
     { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
-    () => testLeastBusyServerUrlGetter()
+    () => testLeastBusyServerUrlGetter(),
+    ScriptedCharacterCreationPolicy
   );
 
   const gameServer = new GameServer(

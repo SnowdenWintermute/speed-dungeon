@@ -67,7 +67,9 @@ export * from "./packets/game-state-updates.js";
 
 // @TODO - can remove exports after this becomes default lobby code
 
-export * from "./character-creation/index.js";
+export * from "./character-creation/character-creation-policy.js";
+export * from "./character-creation/default-creation-policy.js";
+export * from "./character-creation/scripted-character-creation-policy.js";
 export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";

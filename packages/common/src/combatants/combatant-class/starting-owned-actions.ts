@@ -1,8 +1,9 @@
+import cloneDeep from "lodash.clonedeep";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { CombatantClass } from "./classes.js";
 
 export function getPlayerCharacterStartingActions(combatantClass: CombatantClass) {
-  const actionsForClass = CHARACTER_STARTING_OWNED_ACTIONS[combatantClass];
+  const actionsForClass = cloneDeep(CHARACTER_STARTING_OWNED_ACTIONS[combatantClass]);
   for (const actionName of genericActions) {
     actionsForClass[actionName] = 1;
   }

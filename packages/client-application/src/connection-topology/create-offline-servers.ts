@@ -26,7 +26,10 @@ import {
   SodiumHelpers,
   SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
-import { RandomDungeonGenerationPolicy } from "@speed-dungeon/common";
+import {
+  RandomDungeonGenerationPolicy,
+  DefaultCharacterCreationPolicy,
+} from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
   return `ws://localhost:${port}`;
@@ -80,7 +83,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     ),
     codec,
     { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
-    () => testLeastBusyServerUrlGetter()
+    () => testLeastBusyServerUrlGetter(),
+    DefaultCharacterCreationPolicy
   );
 
   const gameServerConnectionEndpointServer = new InMemoryConnectionEndpointServer();

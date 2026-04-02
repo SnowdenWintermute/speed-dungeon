@@ -5,7 +5,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
-import { CharacterCreator } from "../../../character-creation/index.js";
+import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -17,7 +17,7 @@ export class CharacterLifecycleController {
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersService: SavedCharactersService,
-    private readonly characterCreator: CharacterCreator
+    private readonly characterCreationPolicy: CharacterCreationPolicy
   ) {}
 
   static requireValidCharacterNameLength(name: string) {
@@ -36,7 +36,7 @@ export class CharacterLifecycleController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const newCharacter = this.characterCreator.createCharacter(
+    const newCharacter = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
