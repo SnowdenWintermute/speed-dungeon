@@ -1,4 +1,5 @@
 import { NormalizedPercentage } from "../aliases.js";
+import { invariant } from "../utils/index.js";
 import {
   BasicRandomNumberGenerator,
   FixedNumberGenerator,
@@ -6,6 +7,21 @@ import {
 } from "./randomizers.js";
 
 export const RANDOM_VALUE = { MIN: 0, MAX: 1 };
+
+export function isValidNormalized(value: number): boolean {
+  return value >= 0 && value <= 1;
+}
+
+export function rollIsSuccess(chance: NormalizedPercentage, roll: NormalizedPercentage): boolean {
+  invariant(isValidNormalized(chance), "chance must be between 0 and 1");
+  invariant(isValidNormalized(roll), "roll must be between 0 and 1");
+
+  // High-roll system: success occurs if the roll falls within the top `chance`
+  // portion of the [0, 1] range. The comparison is inclusive so that:
+  // - chance === 0 always fails
+  // - chance === 1 always succeeds (even when roll = 0)
+  return roll >= 1 - chance;
+}
 
 export interface RandomNumberGenerationPolicy {
   // Item/Loot generation
