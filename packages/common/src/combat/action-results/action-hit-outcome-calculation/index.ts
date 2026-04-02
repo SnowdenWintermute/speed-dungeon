@@ -19,7 +19,7 @@ import { CombatActionResource } from "../../combat-actions/combat-action-hit-out
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
-import { randBetween, rollNormalized } from "../../../utils/rand-between.js";
+import { rollNormalized } from "../../../utils/rand-between.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 
 export class CombatActionHitOutcomes {
@@ -152,7 +152,7 @@ export class HitOutcomeCalculator {
 
         const targetWillAttemptMitigation = mitigationCalculator.targetWillAttemptMitigation();
 
-        const percentChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
+        const normalizedChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
           this.action,
           actionLevel,
           actionUser,
@@ -163,7 +163,7 @@ export class HitOutcomeCalculator {
         const critRoll = rollNormalized(this.rngPolicy.combatCriticalHit);
         resourceChange.isCrit = rollIsSuccess({
           roll: critRoll,
-          successChance: percentChanceToCrit,
+          successChance: normalizedChanceToCrit,
         });
 
         const resourceChangeModifier = new ResourceChangeModifier(

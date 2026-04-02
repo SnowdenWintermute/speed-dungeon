@@ -8,6 +8,8 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   safelist: [
+    "scale-[1.25]",
+    "animate-crit-text",
     "-scale-x-100",
     "outline-1",
     "outline",

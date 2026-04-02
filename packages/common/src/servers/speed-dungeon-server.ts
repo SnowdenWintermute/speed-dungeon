@@ -51,7 +51,6 @@ export abstract class SpeedDungeonServer {
 
   closeTransportServer() {
     this.incomingConnectionGateway.close();
-    console.log("closed", this.name, "transport server");
   }
 
   private parseMessage(rawData: string | ArrayBuffer | Buffer) {

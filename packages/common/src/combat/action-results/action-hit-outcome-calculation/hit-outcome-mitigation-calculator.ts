@@ -61,7 +61,6 @@ export class HitOutcomeMitigationCalculator {
       targetWillAttemptMitigation,
       target.combatantProperties
     );
-    console.log("action:", this.action.getStringName(), normalizedChanceToHit);
 
     // it is possible to miss a target who is not attempting mitigation if your accuracy
     // is just that bad
@@ -70,7 +69,6 @@ export class HitOutcomeMitigationCalculator {
       roll: hitRoll,
       successChance: normalizedChanceToHit.beforeEvasion,
     });
-    console.log("wouldHitIfNotEvaded:", wouldHitIfNotEvaded);
     const isMiss = !wouldHitIfNotEvaded;
     if (isMiss) return [HitOutcome.Miss];
 
@@ -239,16 +237,9 @@ export class HitOutcomeMitigationCalculator {
     const normalizedAccuracy = actionBaseAccuracy.value / 100;
     const normalizedAfterEvasionHitChance = afterEvasion / 100;
 
-    console.log(
-      "normalizedAccuracy:",
-      normalizedAccuracy,
-      "normalizedAfterEvasionHitChance:",
-      normalizedAfterEvasionHitChance
-    );
-
     return {
-      beforeEvasion: Math.min(1, normalizedAccuracy),
-      afterEvasion: Math.min(1, normalizedAfterEvasionHitChance),
+      beforeEvasion: normalizedAccuracy,
+      afterEvasion: normalizedAfterEvasionHitChance,
     };
   }
 
@@ -266,12 +257,11 @@ export class HitOutcomeMitigationCalculator {
     );
 
     const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
-    const finalUnroundedCritChance = (actionBaseCritChance || 0) - targetCritAvoidance;
+    const normalizedCritAvoidance = targetCritAvoidance / 100;
+    const finalUnroundedCritChance = (actionBaseCritChance || 0) - normalizedCritAvoidance;
+    const bounded = Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance));
 
-    const percent = Math.floor(Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance)));
-    const normalized = percent / 100;
-
-    return normalized;
+    return bounded;
   }
 
   static getParryChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {

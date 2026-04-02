@@ -118,12 +118,13 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
         </span>
         <span className="flex">
           {SVG_ICONS[IconName.Target]("h-6 fill-slate-400 mr-1")}{" "}
-          {hitChance.afterEvasion.toFixed(0)}%
+          {(hitChance.afterEvasion * 100).toFixed(0)}%
         </span>
       </div>
       <div className="flex justify-between ">
         <span className=" flex">
-          {SVG_ICONS[IconName.CritChance]("h-6 fill-slate-400 mr-1")} {critChance.toFixed(0)}%
+          {SVG_ICONS[IconName.CritChance]("h-6 fill-slate-400 mr-1")}{" "}
+          {(critChance * 100).toFixed(0)}%
         </span>
         <span>↟{((critMultiplierOption || 0) * 100).toFixed(0)}%</span>
       </div>

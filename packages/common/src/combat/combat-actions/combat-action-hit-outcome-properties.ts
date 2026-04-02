@@ -28,7 +28,7 @@ export interface CombatActionHitOutcomeProperties {
   // @TODO - could be used for generically adding weapon damage and kinetic types to hit outcomes
   addsPropertiesFromHoldableSlot: null | HoldableSlotType;
   getUnmodifiedAccuracy: (user: IActionUser, actionLevel: number) => ActionAccuracy;
-  getUnmodifiedCritChance: (user: IActionUser, actionLevel: number) => Percentage | null;
+  getUnmodifiedCritChance: (user: IActionUser, actionLevel: number) => NormalizedPercentage | null;
   getCritMultiplier: (user: IActionUser, actionLevel: number) => NormalizedPercentage | null;
   getArmorPenetration: (
     user: IActionUser,

@@ -295,17 +295,14 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
   async gameExistsByName(gameName: GameName) {
     const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOption(gameName);
-    console.log("lobbyGameExistsByThisName");
     if (lobbyGameExistsByThisName) {
       return true;
     }
     const pendingGameExistsByThisName =
       await this.gameSessionStoreService.getPendingGameSetup(gameName);
-    console.log("pendingGameExistsByThisName");
     if (pendingGameExistsByThisName) {
       return true;
     }
-    console.log("activeGameExistsByThisName");
     const activeGameExistsByThisName =
       await this.gameSessionStoreService.getActiveGameStatus(gameName);
     if (activeGameExistsByThisName) {

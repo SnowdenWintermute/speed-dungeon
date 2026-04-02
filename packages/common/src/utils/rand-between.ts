@@ -7,5 +7,5 @@ export function randBetween(min: number, max: number, rng: RandomNumberGenerator
 }
 
 export function rollNormalized(rng: RandomNumberGenerator): NormalizedPercentage {
-  return randBetween(0, 1, rng);
+  return rng.roll();
 }

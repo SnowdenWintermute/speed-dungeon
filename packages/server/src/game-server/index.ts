@@ -56,7 +56,7 @@ export class GameServerNode {
       gameSessionStoreService
     );
 
-    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(0);
+    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(1);
 
     this._server = new GameServer(
       name,
