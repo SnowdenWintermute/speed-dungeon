@@ -1,5 +1,5 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
-import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG, NUM_MONSTERS_PER_ROOM } from "../app-consts.js";
+import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
 import { generateMonster } from "../monsters/generate-monster.js";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -52,7 +52,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
 
     const monsters: Combatant[] = [];
 
-    for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
+    for (let i = 0; i < GAME_CONFIG.MONSTERS_PER_ROOM_COUNT; i += 1) {
       const newMonster = generateMonster(
         floorLevel,
         roomIndex,

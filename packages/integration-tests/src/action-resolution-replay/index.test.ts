@@ -18,8 +18,6 @@ import {
   ClientIntentType,
   CombatantBuilder,
   CombatantClass,
-  CombatantControlledBy,
-  CombatantControllerType,
   DungeonRoomType,
   EntityName,
   ERROR_MESSAGES,
@@ -38,7 +36,7 @@ import { TimeMachine } from "../test-utils/time-machine.js";
 import { createTestServers } from "../servers/fixtures/create-test-servers.js";
 import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers.js";
-import { indexedDB } from "fake-indexeddb";
+import fakeIndexedDB from "fake-indexeddb";
 import { TEST_LOBBY_SERVER_PORT } from "@/servers/fixtures/index.js";
 import { ClientTestHarness } from "@/test-utils/client-test-harness.js";
 
@@ -80,7 +78,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     });
 
     it("instantiates", async () => {
-      const assetCache = new IndexedDbAssetStore(indexedDB);
+      const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
       const tickScheduler = new ManualTickScheduler();
       const clientApplication = new ClientApplication(
         assetCache,
@@ -148,18 +146,5 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       });
       expect(errorRecordService.count).toBe(1);
     });
-
-    // it("instantiates2", async () => {
-    //   const assetCache = new IndexedDbAssetStore(indexedDB);
-    //   const tickScheduler = new ManualTickScheduler();
-    //   const clientApplication = new ClientApplication(
-    //     assetCache,
-    //     "http://localhost:8080",
-    //     tickScheduler.scheduler
-    //   );
-
-    //   await clientApplication.topologyManager.enterOnline("http://localhost:8080");
-    //   clientApplication.lobbyClientRef.get().quickStartGame();
-    // });
   }
 );

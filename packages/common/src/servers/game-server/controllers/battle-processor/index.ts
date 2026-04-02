@@ -2,7 +2,7 @@ import { ActionIntentOptionAndUser } from "../../../../action-processing/action-
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
-import { LOOP_SAFETY_ITERATION_LIMIT, NUM_MONSTERS_PER_ROOM } from "../../../../app-consts.js";
+import { LOOP_SAFETY_ITERATION_LIMIT } from "../../../../app-consts.js";
 import { Battle, BattleConclusion } from "../../../../battle/index.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
@@ -13,7 +13,6 @@ import { MessageDispatchFactory } from "../../../update-delivery/message-dispatc
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
-import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { Equipment } from "../../../../items/equipment/index.js";
 import { Consumable } from "../../../../items/consumables/index.js";
@@ -227,7 +226,7 @@ export class BattleProcessor {
     } else {
       conclusion = BattleConclusion.Victory;
       loot = this.lootGenerator.generateLoot(
-        NUM_MONSTERS_PER_ROOM,
+        party.combatantManager.getDungeonControlledCombatants().length,
         party.dungeonExplorationManager.getCurrentFloor()
       );
       experiencePointChanges = generateExperiencePoints(party);

@@ -1,15 +1,21 @@
 import {
   AssetCache,
+  CombatantBuilder,
+  DungeonRoomType,
   GameServer,
   GameServerExternalServices,
   GameServerName,
   GameServerNodeAssetService,
   GameServerSessionClaimTokenCodec,
   GameSessionStoreService,
+  IdGenerator,
   InMemoryRaceGameRecordsPersistenceStrategy,
+  MonsterType,
   RaceGameRecordsService,
   ReconnectionForwardingStoreService,
   SavedCharactersService,
+  ScriptedDungeonGenerationPolicy,
+  SequentialNumberGenerator,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -57,9 +63,21 @@ export class GameServerNode {
       incomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
-      RandomDungeonGenerationPolicy,
-      new BasicRandomNumberGenerator()
+      ScriptedDungeonGenerationPolicy,
+      new SequentialNumberGenerator([0.1, 0.5, 1])
+      // RandomDungeonGenerationPolicy,
+      // new BasicRandomNumberGenerator()
     );
+
+    const idGenerator = new IdGenerator({ saveHistory: false });
+    this._server.dungeonGenerationPolicy.setFloors([
+      [
+        {
+          type: DungeonRoomType.MonsterLair,
+          monsters: [CombatantBuilder.monster(MonsterType.Wolf).build(idGenerator)],
+        },
+      ],
+    ]);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

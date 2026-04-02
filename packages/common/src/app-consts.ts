@@ -19,13 +19,12 @@ export const EMPTY_ROOMS_PER_FLOOR = 0;
 export const DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE = 4;
 export const GAME_CONFIG = {
   MONSTER_LAIRS_PER_FLOOR: 2,
+  MONSTERS_PER_ROOM_COUNT: 3,
   LEVEL_TO_REACH_FOR_ESCAPE: DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   MIN_RACE_GAME_PARTIES: 2,
 };
 
 export const MAX_PARTY_SIZE = 3;
-export const NUM_MONSTERS_PER_ROOM = 3;
-// export const NUM_MONSTERS_PER_ROOM = 1;
 export const BASE_XP_PER_MONSTER = 30.0;
 // export const BASE_XP_PER_MONSTER = 100.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
@@ -312,13 +311,13 @@ export enum AnimationType {
   Dynamic,
 }
 
-export type SkeletalAnimationIdentifier = {
+export interface SkeletalAnimationIdentifier {
   type: AnimationType.Skeletal;
   name: SkeletalAnimationName;
-};
-export type DynamicAnimationIdentifier = {
+}
+export interface DynamicAnimationIdentifier {
   type: AnimationType.Dynamic;
   name: DynamicAnimationName;
-};
+}
 
 export type TaggedAnimationName = SkeletalAnimationIdentifier | DynamicAnimationIdentifier;
