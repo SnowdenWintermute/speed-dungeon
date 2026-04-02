@@ -12,6 +12,7 @@ import { getMonsterCombatantClass, MonsterType } from "../monsters/monster-types
 import { MONSTER_SPECIES } from "../monsters/get-monster-combatant-species.js";
 import { CombatantControllerType } from "./combatant-controllers.js";
 import { Username } from "../aliases.js";
+import { AiType } from "../combat/ai-behavior/index.js";
 import { Combatant } from "./index.js";
 import { CombatantActionState } from "./owned-actions/combatant-action-state.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
@@ -24,6 +25,7 @@ import {
   validateEquipmentSlot,
 } from "../items/equipment/slots.js";
 import { HoldableHotswapSlot } from "./combatant-equipment/holdable-hotswap-slot.js";
+import { ThreatManager } from "./threat-manager/index.js";
 
 interface HoldableEquipEntry {
   equipment: Equipment;
@@ -50,6 +52,8 @@ export class CombatantBuilder {
   private _shards: number = 0;
   private _abilities: CombatantActionState[] = [];
   private _traits: Partial<Record<CombatantTraitType, number>> = {};
+  private _aiTypes: AiType[] = [];
+  private _withThreatManager: boolean = false;
 
   private constructor(
     private mainClass: CombatantClass,
@@ -90,6 +94,16 @@ export class CombatantBuilder {
 
   monsterType(monsterType: MonsterType): this {
     this._monsterType = monsterType;
+    return this;
+  }
+
+  aiTypes(aiTypes: AiType[]): this {
+    this._aiTypes = aiTypes;
+    return this;
+  }
+
+  withThreatManager() {
+    this._withThreatManager = true;
     return this;
   }
 
@@ -214,6 +228,10 @@ export class CombatantBuilder {
       );
     }
 
+    if (this._aiTypes.length > 0) {
+      this.controlledBy.setAiTypes(this._aiTypes);
+    }
+
     const combatant = Combatant.createInitialized(entityProperties, combatantProperties);
 
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(this._speccedAttributes)) {
@@ -258,7 +276,11 @@ export class CombatantBuilder {
       combatantProperties.equipment.addHoldableSlot(new HoldableHotswapSlot());
     }
 
+    combatantProperties.abilityProperties.applyConditionsFromTraits(combatant, idGenerator);
     combatantProperties.resources.setToMax();
+    if (this._withThreatManager) {
+      combatantProperties.threatManager = new ThreatManager();
+    }
 
     return combatant;
   }

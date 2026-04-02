@@ -1,11 +1,17 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { generateMonster } from "../monsters/generate-monster.js";
+import { MonsterGenerator } from "../monsters/monster-generator.js";
+import { MonsterType } from "../monsters/monster-types.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ScriptedRoom } from "./index.js";
 
 export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
+  private monsterGenerator = new MonsterGenerator(
+    this.idGenerator,
+    this.itemBuilder,
+    this.randomNumberGenerator
+  );
   setFloors(_floors: ScriptedRoom[][]): void {
     throw new Error("Cannot set scripted floors on RandomDungeonGenerationPolicy");
   }
@@ -35,7 +41,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     // reverse because we pop from the end when getting next room to generate
     const result = [...firstRooms, ...mainRooms, ...lastRooms].reverse();
 
-    result.push(DungeonRoomType.VendingMachine); // TESTING
+    // result.push(DungeonRoomType.VendingMachine); // TESTING
     return result;
   }
 
@@ -51,16 +57,10 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     }
 
     const monsters: Combatant[] = [];
+    const monsterType = roomIndex % 2 === 1 ? MonsterType.MantaRay : MonsterType.Spider;
 
     for (let i = 0; i < GAME_CONFIG.MONSTERS_PER_ROOM_COUNT; i += 1) {
-      const newMonster = generateMonster(
-        floorLevel,
-        roomIndex,
-        this.idGenerator,
-        this.itemBuilder,
-        this.randomNumberGenerator
-      );
-
+      const newMonster = this.monsterGenerator.generate(monsterType, floorLevel);
       monsters.push(newMonster);
     }
 

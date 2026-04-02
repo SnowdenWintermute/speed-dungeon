@@ -63,21 +63,21 @@ export class GameServerNode {
       incomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
-      ScriptedDungeonGenerationPolicy,
-      new SequentialNumberGenerator([0.1, 0.5, 1])
-      // RandomDungeonGenerationPolicy,
-      // new BasicRandomNumberGenerator()
+      // ScriptedDungeonGenerationPolicy,
+      // new SequentialNumberGenerator([0.1, 0.5, 1])
+      RandomDungeonGenerationPolicy,
+      new BasicRandomNumberGenerator()
     );
 
-    const idGenerator = new IdGenerator({ saveHistory: false });
-    this._server.dungeonGenerationPolicy.setFloors([
-      [
-        {
-          type: DungeonRoomType.MonsterLair,
-          monsters: [CombatantBuilder.monster(MonsterType.Wolf).build(idGenerator)],
-        },
-      ],
-    ]);
+    // const idGenerator = new IdGenerator({ saveHistory: false });
+    // this._server.dungeonGenerationPolicy.setFloors([
+    //   [
+    //     {
+    //       type: DungeonRoomType.MonsterLair,
+    //       monsters: [CombatantBuilder.monster(MonsterType.Wolf).build(idGenerator)],
+    //     },
+    //   ],
+    // ]);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

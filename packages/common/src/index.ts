@@ -33,6 +33,8 @@ export * from "./game/player.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
 export * from "./monsters/monster-unarmed-weapons.js";
+export * from "./monsters/monster-generator.js";
+export * from "./monsters/monster-combat-profiles.js";
 
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";

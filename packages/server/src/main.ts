@@ -1,20 +1,10 @@
 import { createExpressApp } from "./create-express-app.js";
 import {
-  AffixType,
-  CombatantBuilder,
-  CombatantClass,
-  CombatantControlledBy,
-  CombatantControllerType,
   GameServerName,
-  IdGenerator,
   InMemoryGameSessionStoreService,
   InMemoryReconnectionForwardingStoreService,
-  ItemBuilder,
-  OneHandedMeleeWeapon,
   OpaqueEncryptionSessionClaimTokenCodec,
   SodiumHelpers,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
