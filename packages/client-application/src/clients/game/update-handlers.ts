@@ -63,7 +63,9 @@ export function createGameUpdateHandlers(
   const sceneEntityService = gameWorldView?.sceneEntityService;
 
   return {
-    [GameStateUpdateType.ErrorMessage]: () => { /* handled in BaseClient */ },
+    [GameStateUpdateType.ErrorMessage]: () => {
+      /* handled in BaseClient */
+    },
     [GameStateUpdateType.PlayerLeftGame]: (data) => {
       sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.RemovePlayerFromGame,
@@ -89,6 +91,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
+      clientApplication.transitionToGameServer.fire();
       clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
       const { partyOption } = clientApplication.gameContext;
@@ -813,7 +816,9 @@ export function createGameUpdateHandlers(
       alertsService.setAlert(`Pet name changed from ${pet.entityProperties.name} to ${newName}`);
       pet.entityProperties.name = newName;
     },
-    [GameStateUpdateType.EndOfUpdateStream]: () => { /* handled in BaseClient */ },
+    [GameStateUpdateType.EndOfUpdateStream]: () => {
+      /* handled in BaseClient */
+    },
   };
 }
 

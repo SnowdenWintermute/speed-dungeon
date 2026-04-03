@@ -20,6 +20,7 @@ export * from "./utils/url-with-query-params.js";
 
 export * from "./utility-classes/randomizers.js";
 export * from "./utility-classes/random-number-generation-policy.js";
+export * from "./utility-classes/deferred.js";
 
 export * from "./aliases.js";
 export * from "./types.js";
@@ -245,7 +246,9 @@ export * from "./serialization/index.js";
 export * from "./environment-entities/index.js";
 export * from "./items/item-creation/item-builder/index.js";
 export * from "./combatants/combatant-builder.js";
+export * from "./dungeon-generation/index.js";
 export * from "./dungeon-generation/random-dungeon-generation-policy.js";
 export * from "./dungeon-generation/scripted-dungeon-generation-policy.js";
 export * from "./monsters/monster-generator.js";
 export * from "./utility-classes/random-number-generation-policy.js";
+export * from "./test-utils/test-dungeon-floors.js";

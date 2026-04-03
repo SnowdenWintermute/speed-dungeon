@@ -1,12 +1,30 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
+import { Combatant } from "../combatants/index.js";
+import { MonsterGenerator } from "../monsters/monster-generator.js";
 import { invariant } from "../utils/index.js";
-import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ScriptedRoom } from "./index.js";
+import {
+  DungeonGenerationPolicy,
+  DungeonRoomWithMonsters,
+  ScriptedRoom,
+  ScriptedRoomTemplate,
+} from "./index.js";
 
 export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private floors: ScriptedRoom[][] = [];
 
-  setFloors(floors: ScriptedRoom[][]) {
-    this.floors = floors;
+  setFloors(floors: ScriptedRoomTemplate[][], monsterGenerator: MonsterGenerator) {
+    this.floors = floors.map((floor) => {
+      const floorResult: ScriptedRoom[] = floor.map(({ type, monsters }) => {
+        const roomResult: { type: DungeonRoomType; monsters: Combatant[] } = { type, monsters: [] };
+        if (monsters) {
+          roomResult.monsters = monsters.map((monsterTemplate) =>
+            monsterGenerator.generate(monsterTemplate.type, monsterTemplate.level)
+          );
+        }
+        return roomResult;
+      });
+      return floorResult;
+    });
   }
 
   generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[] {

@@ -4,7 +4,7 @@ import { Combatant } from "../combatants/index.js";
 import { MonsterGenerator } from "../monsters/monster-generator.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ScriptedRoom } from "./index.js";
+import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ScriptedRoomTemplate } from "./index.js";
 
 export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private monsterGenerator = new MonsterGenerator(
@@ -12,7 +12,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     this.itemBuilder,
     this.rngPolicy.monsterEquipment
   );
-  setFloors(_floors: ScriptedRoom[][]): void {
+  setFloors(_floors: ScriptedRoomTemplate[][], _monsterGenerator: MonsterGenerator): void {
     throw new Error("Cannot set scripted floors on RandomDungeonGenerationPolicy");
   }
 

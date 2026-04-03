@@ -188,12 +188,6 @@ export class ConnectionTopology {
         }
       }
     );
-
-    // create local lobby server
-    // create local game server
-    // create polymorphic strategy handler for connection actions
-    // - if online, use websocket
-    // - if offline, use in memory transport to local lobby or game server
   }
 
   createGameClient(

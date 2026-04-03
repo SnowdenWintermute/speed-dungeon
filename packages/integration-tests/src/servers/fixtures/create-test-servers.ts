@@ -13,6 +13,7 @@ import {
   LobbyServer,
   OpaqueEncryptionSessionClaimTokenCodec,
   RaceGameRecordsService,
+  RandomNumberGenerationPolicyFactory,
   SavedCharactersService,
   SodiumHelpers,
 } from "@speed-dungeon/common";
@@ -29,13 +30,12 @@ import {
   ScriptedDungeonGenerationPolicy,
   ScriptedCharacterCreationPolicy,
   RandomNumberGenerationPolicy,
-  allRandomPolicy,
 } from "@speed-dungeon/common";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
   gameServerIncomingConnectionGateway: IncomingConnectionGateway,
-  rngPolicy: RandomNumberGenerationPolicy = allRandomPolicy()
+  rngPolicy: RandomNumberGenerationPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy()
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();

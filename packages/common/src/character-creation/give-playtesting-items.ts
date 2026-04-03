@@ -10,16 +10,16 @@ import {
 import { IdGenerator } from "../utility-classes/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 
-const LIFESTEAL_PREFIX = {
-  combatAttributes: {},
-  tier: 1,
-  equipmentTraits: {
-    [EquipmentTraitType.LifeSteal]: {
-      equipmentTraitType: EquipmentTraitType.LifeSteal,
-      value: 100,
-    },
-  },
-} as const;
+// const LIFESTEAL_PREFIX = {
+//   combatAttributes: {},
+//   tier: 1,
+//   equipmentTraits: {
+//     [EquipmentTraitType.LifeSteal]: {
+//       equipmentTraitType: EquipmentTraitType.LifeSteal,
+//       value: 100,
+//     },
+//   },
+// } as const;
 
 export function givePlaytestingItems(
   combatantProperties: CombatantProperties,
@@ -45,7 +45,7 @@ export function givePlaytestingItems(
   inventory.equipment.push(
     itemBuilder
       .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
-      .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
+      // .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
       .build(idGenerator)
   );
   inventory.equipment.push(itemBuilder.ring().randomizeAffixes().build(idGenerator));

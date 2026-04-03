@@ -13,6 +13,7 @@ import {
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
+import { GAME_SERVER_TRANSITION_TIMEOUT_MS } from "@/client-application/consts";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
@@ -29,7 +30,9 @@ export function createLobbyUpdateHandlers(
 ): Partial<LobbyUpdateHandlers> {
   const { lobbyContext, gameContext, session, gameWorldView } = clientApplication;
   return {
-    [GameStateUpdateType.ErrorMessage]: () => { /* handled in BaseClient */ },
+    [GameStateUpdateType.ErrorMessage]: () => {
+      /* handled in BaseClient */
+    },
     [GameStateUpdateType.OnConnection]: (data) => {
       session.setUsername(data.username);
     },
@@ -237,7 +240,7 @@ export function createLobbyUpdateHandlers(
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
 
-      connectionEndpoint.close();
+      // connectionEndpoint.close();
 
       const queryParams = [
         {
@@ -246,8 +249,21 @@ export function createLobbyUpdateHandlers(
         },
       ];
 
+      clientApplication.transitionToGameServer.arm({
+        timeoutMs: GAME_SERVER_TRANSITION_TIMEOUT_MS,
+        onSuccess: () => {
+          connectionEndpoint.close();
+        },
+        onTimeout: () => {
+          clientApplication.alertsService.setAlert(
+            new Error("Timed out connecting to game server")
+          );
+        },
+      });
       clientApplication.topologyManager.createGameClient(url, queryParams);
     },
-    [GameStateUpdateType.EndOfUpdateStream]: () => { /* handled in BaseClient */ },
+    [GameStateUpdateType.EndOfUpdateStream]: () => {
+      /* handled in BaseClient */
+    },
   };
 }

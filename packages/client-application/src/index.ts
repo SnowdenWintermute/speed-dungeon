@@ -1,6 +1,7 @@
 import {
   AssetCache,
   ClientAppAssetService,
+  Deferred,
   GameStateUpdate,
   RemoteServerAssetStore,
 } from "@speed-dungeon/common";
@@ -70,6 +71,7 @@ export class ClientApplication {
 
   // topology
   readonly topologyManager = new ConnectionTopology(this);
+  readonly transitionToGameServer = new Deferred();
 
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)

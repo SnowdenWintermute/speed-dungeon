@@ -17,6 +17,7 @@ import {
   BasicRandomNumberGenerator,
   FixedNumberGenerator,
   RNG_RANGE,
+  TEST_DUNGEON_SIMPLE,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -78,20 +79,7 @@ export class GameServerNode {
     );
 
     const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
-    this._server.dungeonGenerationPolicy.setFloors([
-      [
-        {
-          type: DungeonRoomType.MonsterLair,
-          monsters: [monsterGenerator.generate(MonsterType.Wolf, 1)],
-        },
-      ],
-      [
-        {
-          type: DungeonRoomType.MonsterLair,
-          monsters: [monsterGenerator.generate(MonsterType.Wolf, 1)],
-        },
-      ],
-    ]);
+    this._server.dungeonGenerationPolicy.setFloors(TEST_DUNGEON_SIMPLE, monsterGenerator);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

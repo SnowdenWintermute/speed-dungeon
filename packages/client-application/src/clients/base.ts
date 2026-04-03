@@ -35,6 +35,7 @@ export abstract class BaseClient {
   }
 
   waitForServerReply(sequenceId: number): Promise<void> {
+    console.log("awaiting sequenceId:", sequenceId);
     return new Promise<void>((resolve) => {
       this._pendingReplies.set(sequenceId, resolve);
     });
