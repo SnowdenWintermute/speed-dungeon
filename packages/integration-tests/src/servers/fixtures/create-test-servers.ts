@@ -1,4 +1,5 @@
 import {
+  DefaultCharacterCreationPolicy,
   GameServer,
   GameServerName,
   GameServerNodeAssetService,
@@ -75,7 +76,8 @@ export async function createTestServers(
     codec,
     { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter(),
-    ScriptedCharacterCreationPolicy,
+    // ScriptedCharacterCreationPolicy,
+    DefaultCharacterCreationPolicy,
     rngPolicy
   );
 

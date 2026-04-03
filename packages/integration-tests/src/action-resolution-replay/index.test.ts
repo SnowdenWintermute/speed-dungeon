@@ -1,29 +1,12 @@
-// need to be able to:
-// - outfit a party of characters with specific
-//   - stats
-//   - abilities
-//   - test equipment with specific
-//     - durability state
-//     - affixes with set values
-// - enter a battle with monsters with specific
-//   - stats
-// - to this end we can create "test dungeon floors" filled with rooms of test fixture monsters
-//
-// - configure test game server with a RandomNumberGenerator that gives constant or scripted rolls (0.5, or [0.1, 0.5,...] for example)
-// - trigger player client to dispatch actions to a test game server
-// - await resolution of client handling of messages from test game server
-// - assert game client state
-
 import {
   ClientIntentType,
-  CombatantBuilder,
   CombatantClass,
+  DungeonRoomType,
   EntityName,
   ERROR_MESSAGES,
   GameMode,
   GameName,
   GameServer,
-  IdGenerator,
   IndexedDbAssetStore,
   invariant,
   LobbyServer,
@@ -59,17 +42,6 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       );
 
       lobbyServer = inMemoryTransportAndServers.lobbyServer;
-
-      const idGenerator = new IdGenerator({ saveHistory: false });
-      lobbyServer.characterCreationPolicy.setCharacters({
-        [CombatantClass.Warrior]: [
-          (controllerUsername) =>
-            CombatantBuilder.playerCharacter(CombatantClass.Warrior, controllerUsername).build(
-              idGenerator
-            ),
-        ],
-      });
-
       gameServer = inMemoryTransportAndServers.gameServer;
 
       const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
@@ -93,7 +65,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
         tickScheduler.scheduler
       );
 
-      const { lobbyClientRef, gameClientRef } = clientApplication;
+      const { lobbyClientRef, gameClientRef, gameContext } = clientApplication;
 
       await clientApplication.topologyManager.enterOnline(
         `http://localhost:${TEST_LOBBY_SERVER_PORT}`
@@ -104,15 +76,17 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
         type: ClientIntentType.ToggleReadyToStartGame,
         data: undefined,
       });
-      // lobbyClientRef.get().dispatchIntent({
-      //   type: ClientIntentType.ToggleReadyToStartGame,
-      //   data: undefined,
-      // });
 
       await clientApplication.sequentialEventProcessor.waitUntilIdle();
       await clientApplication.transitionToGameServer.waitFor();
 
       const gameClientHarness = new ClientTestHarness(clientApplication, gameClientRef.get());
+      expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.Empty);
+      await gameClientHarness.settleIntentResult({
+        type: ClientIntentType.ToggleReadyToExplore,
+        data: undefined,
+      });
+      expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
     });
   }
 );
