@@ -4,7 +4,6 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { NormalizedPercentage } from "../../../aliases.js";
-import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
@@ -19,7 +18,10 @@ import {
   SHIELD_SIZE_BLOCK_RATE,
   SHIELD_SIZE_DAMAGE_REDUCTION,
 } from "../../../items/equipment/equipment-properties/shield-properties.js";
-import { rollIsSuccess } from "../../../utility-classes/random-number-generation-policy.js";
+import {
+  RandomNumberGenerationPolicy,
+  rollIsSuccess,
+} from "../../../utility-classes/random-number-generation-policy.js";
 
 const BASE_PARRY_CHANCE: NormalizedPercentage = 0.05;
 
@@ -38,7 +40,7 @@ export class HitOutcomeMitigationCalculator {
         }
       >
     >,
-    private rng: RandomNumberGenerator
+    private rngPolicy: RandomNumberGenerationPolicy
   ) {
     //
   }
@@ -64,7 +66,7 @@ export class HitOutcomeMitigationCalculator {
 
     // it is possible to miss a target who is not attempting mitigation if your accuracy
     // is just that bad
-    const hitRoll = rollNormalized(this.rng);
+    const hitRoll = rollNormalized(this.rngPolicy.hitChance);
     const wouldHitIfNotEvaded = rollIsSuccess({
       roll: hitRoll,
       successChance: normalizedChanceToHit.beforeEvasion,
@@ -93,7 +95,7 @@ export class HitOutcomeMitigationCalculator {
     if (willAttemptParry) {
       const normalizedChanceToParry = HitOutcomeMitigationCalculator.getParryChance(user, target);
       // const percentChanceToParry = 5;
-      const parryRoll = rollNormalized(this.rng);
+      const parryRoll = rollNormalized(this.rngPolicy.parry);
       const isParried = rollIsSuccess({ roll: parryRoll, successChance: normalizedChanceToParry });
       if (isParried) return [HitOutcome.Parry];
     }
@@ -105,7 +107,7 @@ export class HitOutcomeMitigationCalculator {
         user,
         target
       );
-      const counterAttackRoll = rollNormalized(this.rng);
+      const counterAttackRoll = rollNormalized(this.rngPolicy.counterAttack);
       const isCounterAttacked = rollIsSuccess({
         roll: counterAttackRoll,
         successChance: normalizedChanceToCounterAttack,
@@ -118,7 +120,7 @@ export class HitOutcomeMitigationCalculator {
     if (hitOutcomeProperties.getResistChance !== undefined) {
       const resistChance = hitOutcomeProperties.getResistChance(user, this.actionLevel, target);
 
-      const resistRoll = rollNormalized(this.rng);
+      const resistRoll = rollNormalized(this.rngPolicy.parry);
       const isResisted = rollIsSuccess({
         roll: resistRoll,
         successChance: resistChance,
@@ -144,7 +146,7 @@ export class HitOutcomeMitigationCalculator {
           target
         );
 
-        const blockRoll = rollNormalized(this.rng);
+        const blockRoll = rollNormalized(this.rngPolicy.shieldBlock);
         const isBlocked = rollIsSuccess({
           roll: blockRoll,
           successChance: normalizedPercentChanceToBlock,

@@ -14,6 +14,9 @@ import {
   SavedCharactersService,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
+  BasicRandomNumberGenerator,
+  FixedNumberGenerator,
+  RNG_RANGE,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -56,7 +59,12 @@ export class GameServerNode {
       gameSessionStoreService
     );
 
-    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(1);
+    const basicRng = new BasicRandomNumberGenerator();
+    const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
+    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
+      counterAttack: fixedRngMinRoll,
+      criticalStrike: fixedRngMinRoll,
+    });
 
     this._server = new GameServer(
       name,

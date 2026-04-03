@@ -121,7 +121,7 @@ export class HitOutcomeCalculator {
           actionUser,
           targetCombatant,
           incomingResourceChangesPerTarget,
-          this.rngPolicy.combatHitDetermination
+          this.rngPolicy
         );
       } else {
         mitigationCalculator.setTargetCombatant(targetCombatant);
@@ -160,7 +160,7 @@ export class HitOutcomeCalculator {
           targetWillAttemptMitigation
         );
 
-        const critRoll = rollNormalized(this.rngPolicy.combatCriticalHit);
+        const critRoll = rollNormalized(this.rngPolicy.criticalStrike);
         resourceChange.isCrit = rollIsSuccess({
           roll: critRoll,
           successChance: normalizedChanceToCrit,

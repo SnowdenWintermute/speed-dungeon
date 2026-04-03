@@ -5,10 +5,11 @@ import {
   RandomNumberGenerator,
 } from "./randomizers.js";
 
-export const RANDOM_VALUE = { MIN: 0, MAX: 1 };
+export const NORMALIZED_VALUE = { MIN: 0, MAX: 1 };
+export const RNG_RANGE = { MIN: 0, MAX: 1 - Number.EPSILON };
 
 export function isValidNormalized(value: number): boolean {
-  return value >= 0 && value <= 1;
+  return value >= NORMALIZED_VALUE.MIN && value <= NORMALIZED_VALUE.MAX;
 }
 
 export function rollIsSuccess(props: {
@@ -39,8 +40,12 @@ export interface RandomNumberGenerationPolicy {
   affixTier: RandomNumberGenerator;
   affixValue: RandomNumberGenerator;
   // Combat
-  combatHitDetermination: RandomNumberGenerator;
-  combatCriticalHit: RandomNumberGenerator;
+  hitChance: RandomNumberGenerator;
+  criticalStrike: RandomNumberGenerator;
+  parry: RandomNumberGenerator;
+  counterAttack: RandomNumberGenerator;
+  shieldBlock: RandomNumberGenerator;
+  spellResist: RandomNumberGenerator;
   combatResourceChange: RandomNumberGenerator;
   combatDurabilityTarget: RandomNumberGenerator;
   bouncingProjectileTargetSelection: RandomNumberGenerator;
@@ -66,8 +71,12 @@ export class RandomNumberGenerationPolicyFactory {
       affixTypeSelection: basic,
       affixTier: basic,
       affixValue: basic,
-      combatHitDetermination: basic,
-      combatCriticalHit: basic,
+      hitChance: basic,
+      criticalStrike: basic,
+      parry: basic,
+      counterAttack: basic,
+      shieldBlock: basic,
+      spellResist: basic,
       combatResourceChange: basic,
       combatDurabilityTarget: basic,
       bouncingProjectileTargetSelection: basic,
@@ -93,8 +102,12 @@ export class RandomNumberGenerationPolicyFactory {
       affixTypeSelection: fixed,
       affixTier: fixed,
       affixValue: fixed,
-      combatHitDetermination: fixed,
-      combatCriticalHit: fixed,
+      hitChance: fixed,
+      criticalStrike: fixed,
+      parry: fixed,
+      counterAttack: fixed,
+      shieldBlock: fixed,
+      spellResist: fixed,
       combatResourceChange: fixed,
       combatDurabilityTarget: fixed,
       bouncingProjectileTargetSelection: fixed,

@@ -50,6 +50,9 @@ export class ResourceChangeModifier {
     let critMultiplier = this.hitOutcomeProperties.getCritMultiplier(this.user, actionLevel);
     if (critMultiplier === null) critMultiplier = 1;
 
+    console.log("resourceChange:", this.resourceChange.value);
+    console.log("critMultiplier:", critMultiplier);
+
     this.resourceChange.value *= critMultiplier;
   }
 
