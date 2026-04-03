@@ -1,11 +1,11 @@
 import { ActionCompletionUpdateCommand, CombatantTurnTracker } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
-import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
+import { ReplayStepExecution } from "../replay-step-execution";
 import { handleThreatChangesUpdate } from "./activated-triggers-update-handler/threat-changes";
 
 export async function actionCompletionGameUpdateHandler(
   clientApplication: ClientApplication,
-  update: ReplayGameUpdateTracker<ActionCompletionUpdateCommand>
+  update: ReplayStepExecution<ActionCompletionUpdateCommand>
 ) {
   const { combatantFocus } = clientApplication;
   const { game, party } = combatantFocus.requireFocusedCharacterContext();

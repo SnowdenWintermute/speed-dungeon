@@ -9,14 +9,14 @@ import {
   CombatActionResource,
 } from "@speed-dungeon/common";
 import { plainToInstance } from "class-transformer";
-import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
+import { ReplayStepExecution } from "../replay-step-execution";
 import { ClientApplication } from "@/client-application";
 import { CombatantResourceChangeUpdateHandlerCommand } from "./resource-change-update-handler-command";
 import { handleThreatChangesUpdate } from "./activated-triggers-update-handler/threat-changes";
 
 export async function hitOutcomesGameUpdateHandler(
   clientApplication: ClientApplication,
-  update: ReplayGameUpdateTracker<HitOutcomesGameUpdateCommand>
+  update: ReplayStepExecution<HitOutcomesGameUpdateCommand>
 ) {
   const { command } = update;
   const { outcomes, actionUserName } = command;

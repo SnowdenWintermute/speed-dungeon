@@ -14,7 +14,7 @@ import {
   EntityMotionUpdate,
   SpawnableEntityType,
 } from "@speed-dungeon/common";
-import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
+import { ReplayStepExecution } from "../../replay-step-execution";
 import { plainToInstance } from "class-transformer";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ClientApplication } from "@/client-application";
@@ -39,7 +39,7 @@ export class EntityMotionGameUpdateHandlerCommand {
 
   constructor(
     private clientApplication: ClientApplication,
-    private updateTracker: ReplayGameUpdateTracker<EntityMotionUpdateCommand>
+    private updateTracker: ReplayStepExecution<EntityMotionUpdateCommand>
   ) {
     this.gameWorldView = clientApplication.gameWorldView;
   }

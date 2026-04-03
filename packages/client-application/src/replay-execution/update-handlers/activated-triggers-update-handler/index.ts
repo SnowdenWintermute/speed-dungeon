@@ -26,7 +26,7 @@ import {
 } from "@speed-dungeon/common";
 import { handleThreatChangesUpdate } from "./threat-changes";
 import { ClientApplication } from "@/client-application";
-import { ReplayGameUpdateTracker } from "../../replay-game-update-completion-tracker";
+import { ReplayStepExecution } from "../../replay-step-execution";
 import { CombatantResourceChangeUpdateHandlerCommand } from "../resource-change-update-handler-command";
 import { GameWorldView } from "@/game-world-view";
 
@@ -37,7 +37,7 @@ export class ActionEffectsApplyerCommand {
   gameWorldView: GameWorldView | null;
   constructor(
     private clientApplication: ClientApplication,
-    private update: ReplayGameUpdateTracker<ActivatedTriggersGameUpdateCommand>
+    private update: ReplayStepExecution<ActivatedTriggersGameUpdateCommand>
   ) {
     const context = clientApplication.combatantFocus.requireFocusedCharacterContext();
     this.game = context.game;

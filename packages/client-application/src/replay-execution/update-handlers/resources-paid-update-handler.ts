@@ -1,10 +1,10 @@
 import { MaxAndCurrent, ResourcesPaidGameUpdateCommand } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
-import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
+import { ReplayStepExecution } from "../replay-step-execution";
 
 export async function resourcesPaidGameUpdateHandler(
   clientApplication: ClientApplication,
-  update: ReplayGameUpdateTracker<ResourcesPaidGameUpdateCommand>
+  update: ReplayStepExecution<ResourcesPaidGameUpdateCommand>
 ) {
   const { command } = update;
   const combatant = clientApplication.gameContext.requireCombatant(command.combatantId);

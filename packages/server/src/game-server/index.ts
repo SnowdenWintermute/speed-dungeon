@@ -60,7 +60,7 @@ export class GameServerNode {
       gameSessionStoreService
     );
 
-    const basicRng = new BasicRandomNumberGenerator();
+    // const basicRng = new BasicRandomNumberGenerator();
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
     const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
       counterAttack: fixedRngMinRoll,

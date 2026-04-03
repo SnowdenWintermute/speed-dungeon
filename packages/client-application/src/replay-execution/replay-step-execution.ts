@@ -8,7 +8,7 @@ import {
 import { ReplayTreeExecution } from "./tree-execution";
 import { ClientApplication } from "..";
 
-export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
+export class ReplayStepExecution<T extends GameUpdateCommand> {
   private _isComplete: boolean = false;
   private timeStarted = Date.now();
   constructor(public readonly command: T) {}
@@ -18,7 +18,19 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
    * back the replay event, mark it as ready to be completed. We'll mark it as truly completed
    * in the game loop if it is the next expected completionOrderId to complete. */
   get shouldCompleteInSequence() {
-    const elapsed = Date.now() - this.timeStarted;
+    return this.elapsed >= this.totalDuration;
+  }
+
+  get elapsed() {
+    return Date.now() - this.timeStarted;
+  }
+
+  get durationRemaining() {
+    const { totalDuration } = this;
+    return totalDuration - this.elapsed;
+  }
+
+  get totalDuration() {
     switch (this.command.type) {
       case GameUpdateCommandType.SpawnEntities:
       case GameUpdateCommandType.ResourcesPaid:
@@ -27,7 +39,7 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
       case GameUpdateCommandType.ActivatedTriggers:
       case GameUpdateCommandType.HitOutcomes:
       case GameUpdateCommandType.ActionCompletion:
-        return true;
+        return 0;
       case GameUpdateCommandType.ActionEntityMotion:
       case GameUpdateCommandType.CombatantMotion: {
         let duration = 0;
@@ -45,7 +57,7 @@ export class ReplayGameUpdateTracker<T extends GameUpdateCommand> {
             duration = animationOption.timing.duration;
           }
         }
-        return elapsed >= duration;
+        return duration;
       }
     }
   }

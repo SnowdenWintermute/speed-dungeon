@@ -6,15 +6,15 @@ import {
   SpawnEntitiesGameUpdateCommand,
 } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "@/game-world-view";
+import { ReplayStepExecution } from "../replay-step-execution";
 
 export async function spawnEntitiesGameUpdateHandler(
   clientApplication: ClientApplication,
-  update: ReplayGameUpdateTracker<SpawnEntitiesGameUpdateCommand>
+  stepExecution: ReplayStepExecution<SpawnEntitiesGameUpdateCommand>
 ) {
-  const { command } = update;
+  const { command } = stepExecution;
   const { game, party } = clientApplication.combatantFocus.requireFocusedCharacterContext();
 
   const promises: Promise<void>[] = [];

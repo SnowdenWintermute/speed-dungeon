@@ -5,13 +5,13 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { ReplayTreeExecution } from "./tree-execution";
-import { ReplayGameUpdateTracker } from "./replay-game-update-completion-tracker";
 import { GAME_UPDATE_HANDLERS } from "./update-handlers";
+import { ReplayStepExecution } from "./replay-step-execution";
 
 export class ReplayBranchExecution {
   private currentIndex = -1;
   private isComplete = false;
-  private currentStepExecution: null | ReplayGameUpdateTracker<GameUpdateCommand> = null;
+  private currentStepExecution: null | ReplayStepExecution<GameUpdateCommand> = null;
 
   constructor(
     private parentReplayTreeProcessor: ReplayTreeExecution,
@@ -30,6 +30,10 @@ export class ReplayBranchExecution {
 
   isDoneProcessing() {
     return this.isComplete;
+  }
+
+  getStepRemainingDuration(): number {
+    return this.currentStepExecution?.durationRemaining ?? 0;
   }
 
   processAllCompletableSteps() {
@@ -78,7 +82,7 @@ export class ReplayBranchExecution {
       return;
     }
 
-    this.currentStepExecution = new ReplayGameUpdateTracker(node.gameUpdate);
+    this.currentStepExecution = new ReplayStepExecution(node.gameUpdate);
 
     // Any update may include cosmetic effect updates
     const cosmeticEffectsToStartOption = this.currentStepExecution.command.cosmeticEffectsToStart;

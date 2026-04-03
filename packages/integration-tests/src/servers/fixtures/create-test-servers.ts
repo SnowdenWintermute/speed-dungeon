@@ -29,14 +29,13 @@ import {
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
   ScriptedDungeonGenerationPolicy,
-  ScriptedCharacterCreationPolicy,
   RandomNumberGenerationPolicy,
 } from "@speed-dungeon/common";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
   gameServerIncomingConnectionGateway: IncomingConnectionGateway,
-  rngPolicy: RandomNumberGenerationPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy()
+  rngPolicy: RandomNumberGenerationPolicy
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();

@@ -7,7 +7,7 @@ import {
 import { hitOutcomesGameUpdateHandler } from "./hit-outcomes-update-command-handler";
 import { spawnEntitiesGameUpdateHandler } from "./spawn-entities-update-handler";
 import { ClientApplication } from "@/client-application";
-import { ReplayGameUpdateTracker } from "../replay-game-update-completion-tracker";
+import { ReplayStepExecution } from "../replay-step-execution";
 import { actionCompletionGameUpdateHandler } from "./action-completion-update-handler";
 import { resourcesPaidGameUpdateHandler } from "./resources-paid-update-handler";
 import { ActionEffectsApplyerCommand } from "./activated-triggers-update-handler";
@@ -27,19 +27,19 @@ export const GAME_UPDATE_HANDLERS: Record<
   [GameUpdateCommandType.ResourcesPaid]: resourcesPaidGameUpdateHandler,
   [GameUpdateCommandType.ActionUseGameLogMessage]: async (
     clientApplication: ClientApplication,
-    update: ReplayGameUpdateTracker<ActionUseGameLogMessageUpdateCommand>
+    update: ReplayStepExecution<ActionUseGameLogMessageUpdateCommand>
   ) => {
     clientApplication.eventLogMessageService.postActionUse(update.command);
   },
   [GameUpdateCommandType.ActionResolutionGameLogMessage]: async (
     clientApplication: ClientApplication,
-    update: ReplayGameUpdateTracker<ActionResolutionGameLogMessageUpdateCommand>
+    update: ReplayStepExecution<ActionResolutionGameLogMessageUpdateCommand>
   ) => {
     clientApplication.eventLogMessageService.postActionResolution(update.command);
   },
   [GameUpdateCommandType.ActivatedTriggers]: async (
     clientApplication: ClientApplication,
-    update: ReplayGameUpdateTracker<ActivatedTriggersGameUpdateCommand>
+    update: ReplayStepExecution<ActivatedTriggersGameUpdateCommand>
   ) => {
     new ActionEffectsApplyerCommand(clientApplication, update).execute();
   },

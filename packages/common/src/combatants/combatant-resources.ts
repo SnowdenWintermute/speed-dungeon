@@ -46,25 +46,26 @@ export class CombatantResources extends CombatantSubsystem implements ReactiveNo
     this.actionPoints = COMBATANT_MAX_ACTION_POINTS;
   }
 
-  setToMax() {
+  get maxResources() {
     const { attributeProperties } = this.getCombatantProperties();
     const totalAttributes = attributeProperties.getTotalAttributes();
     const maxHpOption = totalAttributes[CombatAttribute.Hp];
     if (isNaN(maxHpOption)) throw new Error("unexpected NaN");
-    this.hitPoints = maxHpOption;
     const maxMpOption = totalAttributes[CombatAttribute.Mp];
     if (isNaN(maxMpOption)) throw new Error("unexpected NaN");
-    this.mana = maxMpOption;
+    return { mana: maxMpOption, hitPoints: maxHpOption };
+  }
+
+  setToMax() {
+    const { mana, hitPoints } = this.maxResources;
+    this.hitPoints = hitPoints;
+    this.mana = mana;
   }
 
   clampResourcesToMax() {
-    const { attributeProperties } = this.getCombatantProperties();
-    const totalAttributes = attributeProperties.getTotalAttributes();
-    const maxHp = totalAttributes[CombatAttribute.Hp];
-    const maxMp = totalAttributes[CombatAttribute.Mp];
-
-    if (this.hitPoints > maxHp) this.hitPoints = maxHp;
-    if (this.mana > maxMp) this.mana = maxMp;
+    const { mana: maxMana, hitPoints: maxHitPoints } = this.maxResources;
+    if (this.hitPoints > maxHitPoints) this.hitPoints = maxHitPoints;
+    if (this.mana > maxMana) this.mana = maxMana;
   }
 
   changeActionPoints(value: number) {
@@ -74,15 +75,13 @@ export class CombatantResources extends CombatantSubsystem implements ReactiveNo
 
   changeMana(value: number) {
     if (isNaN(value)) throw new Error("change was NaN");
-    const { attributeProperties } = this.getCombatantProperties();
-    const maxMana = attributeProperties.getAttributeValue(CombatAttribute.Mp);
+    const { mana: maxMana } = this.maxResources;
     this.mana = Math.max(0, Math.min(maxMana, this.mana + value));
   }
 
   changeHitPoints(value: number) {
     if (isNaN(value)) throw new Error("change was NaN");
-    const { attributeProperties } = this.getCombatantProperties();
-    const max = attributeProperties.getAttributeValue(CombatAttribute.Hp);
+    const { hitPoints: max } = this.maxResources;
     const newHitPoints = Math.max(0, Math.min(max, this.hitPoints + value));
     this.hitPoints = newHitPoints;
   }

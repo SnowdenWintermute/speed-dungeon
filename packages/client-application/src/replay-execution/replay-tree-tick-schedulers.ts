@@ -11,16 +11,16 @@ export function createBabylonScheduler(engine: Engine, scene: Scene): TickSchedu
 }
 
 export class ManualTickScheduler {
-  private tick: ((deltaTime: number) => void) | null = null;
+  private tickFn: ((deltaTime: number) => void) | null = null;
 
   readonly scheduler: TickScheduler = (tick) => {
-    this.tick = tick;
+    this.tickFn = tick;
     return () => {
-      this.tick = null;
+      this.tickFn = null;
     };
   };
 
-  advance(deltaTime: number) {
-    this.tick?.(deltaTime);
+  tick() {
+    this.tickFn?.(0);
   }
 }

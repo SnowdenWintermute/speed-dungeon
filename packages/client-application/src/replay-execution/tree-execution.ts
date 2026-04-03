@@ -31,6 +31,15 @@ export class ReplayTreeExecution {
     return !this.activeBranches.length;
   }
 
+  getMinRemainingDuration(): number {
+    let min = Infinity;
+    for (const branch of this.activeBranches) {
+      const remaining = branch.getStepRemainingDuration();
+      if (remaining < min) min = remaining;
+    }
+    return min === Infinity ? 0 : min;
+  }
+
   getNextNodeCompletionId() {
     return this.expectedCompletionOrderIds[this.nextExpectedCompletionOrderIdListIndex];
   }

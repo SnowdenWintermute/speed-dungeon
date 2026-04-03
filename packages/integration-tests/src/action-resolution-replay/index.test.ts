@@ -1,9 +1,13 @@
 import {
+  ActionAndRank,
+  ActionRank,
   ClientIntentType,
+  CombatActionName,
   CombatantClass,
   DungeonRoomType,
   EntityName,
   ERROR_MESSAGES,
+  FixedNumberGenerator,
   GameMode,
   GameName,
   GameServer,
@@ -13,6 +17,7 @@ import {
   MonsterGenerator,
   PartyName,
   RandomNumberGenerationPolicyFactory,
+  RNG_RANGE,
   TEST_DUNGEON_SIMPLE,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
@@ -36,15 +41,21 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
         clientEndpointFactory.createIncomingConnectionGateways();
 
+      const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
+      const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
+        counterAttack: fixedRngMinRoll,
+        criticalStrike: fixedRngMinRoll,
+      });
+
       const inMemoryTransportAndServers = await createTestServers(
         lobbyIncomingConnectionGateway,
-        gameServerIncomingConnectionGateway
+        gameServerIncomingConnectionGateway,
+        rngPolicy
       );
 
       lobbyServer = inMemoryTransportAndServers.lobbyServer;
       gameServer = inMemoryTransportAndServers.gameServer;
 
-      const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
       const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
 
       gameServer.dungeonGenerationPolicy.setFloors(TEST_DUNGEON_SIMPLE, monsterGenerator);
@@ -70,7 +81,13 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await clientApplication.topologyManager.enterOnline(
         `http://localhost:${TEST_LOBBY_SERVER_PORT}`
       );
-      const lobbyClientHarness = new ClientTestHarness(clientApplication, lobbyClientRef.get());
+      timeMachine.start();
+      const lobbyClientHarness = new ClientTestHarness(
+        clientApplication,
+        lobbyClientRef.get(),
+        tickScheduler,
+        timeMachine
+      );
       await testToCharacterInParty(lobbyClientHarness, clientApplication, CombatantClass.Warrior);
       await lobbyClientHarness.settleIntentResult({
         type: ClientIntentType.ToggleReadyToStartGame,
@@ -80,13 +97,56 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await clientApplication.sequentialEventProcessor.waitUntilIdle();
       await clientApplication.transitionToGameServer.waitFor();
 
-      const gameClientHarness = new ClientTestHarness(clientApplication, gameClientRef.get());
+      const gameClientHarness = new ClientTestHarness(
+        clientApplication,
+        gameClientRef.get(),
+        tickScheduler,
+        timeMachine
+      );
       expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.Empty);
       await gameClientHarness.settleIntentResult({
         type: ClientIntentType.ToggleReadyToExplore,
         data: undefined,
       });
       expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
+
+      const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+      await gameClientHarness.settleIntentResult({
+        type: ClientIntentType.SelectHoldableHotswapSlot,
+        data: {
+          characterId: focusedCharacter.getEntityId(),
+          slotIndex: 2,
+        },
+      });
+      expect(focusedCharacter.combatantProperties.resources.getActionPoints()).toBe(1);
+      await gameClientHarness.settleIntentResult({
+        type: ClientIntentType.SelectCombatAction,
+        data: {
+          characterId: focusedCharacter.getEntityId(),
+          actionAndRankOption: new ActionAndRank(CombatActionName.Attack, 1 as ActionRank),
+        },
+      });
+      expect(
+        focusedCharacter.combatantProperties.targetingProperties.getSelectedActionAndRank()
+          ?.actionName
+      ).toBe(CombatActionName.Attack);
+
+      await gameClientHarness.settleIntentResult({
+        type: ClientIntentType.UseSelectedCombatAction,
+        data: { characterId: focusedCharacter.getEntityId() },
+      });
+
+      const expectedMonster = gameContext
+        .requireParty()
+        .combatantManager.getDungeonControlledCombatants()[0];
+      console.log(
+        JSON.stringify(expectedMonster?.entityProperties),
+        expectedMonster?.combatantProperties.resources.maxResources,
+        clientApplication.eventLogStore.getMessages()
+      );
+
+      expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(48);
+      expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(37);
     });
   }
 );
