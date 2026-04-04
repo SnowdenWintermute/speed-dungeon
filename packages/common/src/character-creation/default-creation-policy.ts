@@ -54,7 +54,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
       case CombatantClass.Warrior: {
         builder
           .equipMainHand(
-            itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator)
+            itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.RuneSword).build(idGenerator)
           )
           .equipOffHand(itemBuilder.shield(Shield.PotLid).build(idGenerator));
         break;

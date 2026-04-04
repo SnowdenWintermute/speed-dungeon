@@ -1,7 +1,18 @@
 import { ClientApplication } from "@/client-application";
 import { BaseClient } from "@/client-application/clients/base";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
-import { ClientIntent, LOOP_SAFETY_ITERATION_LIMIT } from "@speed-dungeon/common";
+import {
+  ActionAndRank,
+  ActionRank,
+  ClientIntent,
+  ClientIntentType,
+  CombatActionName,
+  CombatantId,
+  ItemId,
+  LOOP_SAFETY_ITERATION_LIMIT,
+  NextOrPrevious,
+  TaggedEquipmentSlot,
+} from "@speed-dungeon/common";
 import { TimeMachine } from "./time-machine";
 
 export class ClientTestHarness {
@@ -35,5 +46,87 @@ export class ClientTestHarness {
     }
 
     return intentId;
+  }
+
+  async toggleReadyToExplore() {
+    return this.settleIntentResult({
+      type: ClientIntentType.ToggleReadyToExplore,
+      data: undefined,
+    });
+  }
+
+  async toggleReadyToDescend() {
+    return this.settleIntentResult({
+      type: ClientIntentType.ToggleReadyToDescend,
+      data: undefined,
+    });
+  }
+
+  async selectCombatAction(characterId: CombatantId, actionName: CombatActionName, rank: number) {
+    return this.settleIntentResult({
+      type: ClientIntentType.SelectCombatAction,
+      data: {
+        characterId,
+        actionAndRankOption: new ActionAndRank(actionName, rank as ActionRank),
+      },
+    });
+  }
+
+  async useSelectedCombatAction(characterId: CombatantId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.UseSelectedCombatAction,
+      data: { characterId },
+    });
+  }
+
+  async useCombatAction(characterId: CombatantId, actionName: CombatActionName, rank: number) {
+    await this.selectCombatAction(characterId, actionName, rank);
+    return this.useSelectedCombatAction(characterId);
+  }
+
+  async selectCombatActionRank(characterId: CombatantId, actionRank: number) {
+    return this.settleIntentResult({
+      type: ClientIntentType.SelectCombatActionRank,
+      data: { characterId, actionRank: actionRank as ActionRank },
+    });
+  }
+
+  async cycleTargets(characterId: CombatantId, direction: NextOrPrevious) {
+    return this.settleIntentResult({
+      type: ClientIntentType.CycleCombatActionTargets,
+      data: { characterId, direction },
+    });
+  }
+
+  async cycleTargetingSchemes(characterId: CombatantId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.CycleTargetingSchemes,
+      data: { characterId },
+    });
+  }
+
+  async selectHoldableHotswapSlot(characterId: CombatantId, slotIndex: number) {
+    return this.settleIntentResult({
+      type: ClientIntentType.SelectHoldableHotswapSlot,
+      data: { characterId, slotIndex },
+    });
+  }
+
+  async unequipSlot(characterId: CombatantId, slot: TaggedEquipmentSlot) {
+    return this.settleIntentResult({
+      type: ClientIntentType.UnequipSlot,
+      data: { characterId, slot },
+    });
+  }
+
+  async equipInventoryItem(
+    characterId: CombatantId,
+    itemId: ItemId,
+    equipToAlternateSlot: boolean = false
+  ) {
+    return this.settleIntentResult({
+      type: ClientIntentType.EquipInventoryItem,
+      data: { characterId, itemId, equipToAlternateSlot },
+    });
   }
 }

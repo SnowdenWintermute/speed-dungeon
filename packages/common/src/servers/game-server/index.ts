@@ -41,9 +41,7 @@ import {
   DungeonGenerationPolicy,
   DungeonGenerationPolicyConstructor,
 } from "../../dungeon-generation/index.js";
-import {
-  RandomNumberGenerationPolicy,
-} from "../../utility-classes/random-number-generation-policy.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -97,11 +95,7 @@ export class GameServer extends SpeedDungeonServer {
     const affixGenerator = new AffixGenerator(rngPolicy);
     const equipmentRandomizer = new EquipmentRandomizer(rngPolicy, affixGenerator);
     this.itemBuilder = new ItemBuilder(equipmentRandomizer);
-    this.lootGenerator = new LootGenerator(
-      this.itemBuilder,
-      this.idGenerator,
-      rngPolicy
-    );
+    this.lootGenerator = new LootGenerator(this.itemBuilder, this.idGenerator, rngPolicy);
     this.dungeonGenerationPolicy = new dungeonGenerationPolicyConstructor(
       this.idGenerator,
       this.itemBuilder,
@@ -214,7 +208,7 @@ export class GameServer extends SpeedDungeonServer {
         connectionEndpoint.id,
         identityResolutionContext
       );
-      // this.logUserConnected(session);
+      this.logUserConnected(session);
 
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -232,13 +226,18 @@ export class GameServer extends SpeedDungeonServer {
       );
 
       const gameIsInProgress = existingGame.getTimeStarted() !== null;
+      console.log("game is in progress", gameIsInProgress);
       const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
         session,
         gameIsInProgress
       );
 
       if (connectionContext.type === ConnectionContextType.Reconnection) {
+        console.log("attempting reconnection claim");
         await connectionContext.attemptReconnectionClaim();
+      } else if (gameIsInProgress) {
+        console.log("game in progress but not reconnecting");
+        throw new Error("Tried to join a game in progress without a reconnection claim");
       }
 
       const outbox = await this.sessionLifecycleController.activateSession(session);

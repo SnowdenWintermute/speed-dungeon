@@ -2,7 +2,6 @@ import {
   AffixType,
   CombatantProperties,
   CombatAttribute,
-  EquipmentTraitType,
   OneHandedMeleeWeapon,
   Shield,
   TwoHandedRangedWeapon,

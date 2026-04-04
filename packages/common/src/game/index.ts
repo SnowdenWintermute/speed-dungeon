@@ -198,6 +198,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
     }
     this.timeStarted = Date.now();
+    console.log(`game ${this.name} set as started at`, this.timeStarted);
   }
 
   registerPlayerFromLobbyUser(username: Username) {
