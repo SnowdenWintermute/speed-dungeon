@@ -125,6 +125,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     this.lobbyState.gameRegistry.registerGame(game);
     const joinGameUpdateHandlerOutbox = await this.joinGameHandler(gameName, session);
+    console.log("create game handler completed");
     return joinGameUpdateHandlerOutbox;
   }
 

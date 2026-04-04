@@ -16,7 +16,7 @@ export const ConnectionSelector = observer(() => {
     } else if (isOffline) {
       const lobbyServerUrl = process.env.NEXT_PUBLIC_WS_SERVER_URL;
       invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
-      topologyManager.enterOnline(lobbyServerUrl);
+      topologyManager.enterOnline();
     }
   }
 

@@ -78,5 +78,7 @@ export class GameClient extends BaseClient {
     });
 
     gameWorldView?.environment.groundPlane.drawCharacterSlots();
+
+    this.clientApplication.topologyManager.connectWithPrefferedMode();
   }
 }

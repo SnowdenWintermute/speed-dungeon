@@ -39,6 +39,7 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);
       lobbyContext.channel.update(deserialized);
+      clientApplication.transitionToLobbyServer.fire();
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
       lobbyContext.channel.handleUserJoined(data.username, data.userChannelDisplayData),

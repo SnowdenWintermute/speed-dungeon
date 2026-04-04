@@ -3,6 +3,7 @@ import {
   ConnectionId,
   GameServer,
   InMemoryConnectionEndpointServerRegistry,
+  invariant,
   LobbyServer,
   runIfInBrowser,
   urlWithQueryParams,
@@ -16,6 +17,7 @@ import {
   createOfflineLocalServers,
 } from "./create-offline-servers";
 import { GameClient } from "../clients/game";
+import { GAME_SERVER_TRANSITION_TIMEOUT_MS } from "../consts";
 
 export enum ConnectionMode {
   Initializing,
@@ -35,7 +37,7 @@ export enum ConnectionMode {
 
 export class ConnectionTopology {
   private _mode = ConnectionMode.Initializing;
-  private preferredMode = ConnectionMode.Online;
+  private _preferredMode = ConnectionMode.Online;
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -129,13 +131,14 @@ export class ConnectionTopology {
     // }
   }
 
-  enterOnline(lobbyServerUrl: string) {
+  enterOnline() {
+    this._preferredMode = ConnectionMode.Online;
     return new Promise<void>((resolve, reject) => {
       this._mode = ConnectionMode.Initializing;
       const { connectionStatus } = this.clientApplication.uiStore;
       const { lobbyClientRef, gameClientRef } = this.clientApplication;
       connectionStatus.connectionStatus = ConnectionStatus.Initializing;
-      const remoteLobbyServerAddress = lobbyServerUrl;
+      const remoteLobbyServerAddress = this.clientApplication.lobbyServerUrl;
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, []);
       connectionEndpoint.on("open", () => {
         resolve();
@@ -159,6 +162,7 @@ export class ConnectionTopology {
 
   enterOffline() {
     this._mode = ConnectionMode.Initializing;
+    this._preferredMode = ConnectionMode.Offline;
     const { connectionStatus } = this.clientApplication.uiStore;
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
@@ -188,6 +192,26 @@ export class ConnectionTopology {
         }
       }
     );
+  }
+
+  connectWithPrefferedMode() {
+    this.clientApplication.transitionToLobbyServer.arm({
+      timeoutMs: GAME_SERVER_TRANSITION_TIMEOUT_MS,
+      onSuccess: () => {},
+      onTimeout: () => {
+        this.clientApplication.alertsService.setAlert(
+          new Error("Timed out connecting to lobby server")
+        );
+      },
+    });
+    invariant(this._preferredMode !== ConnectionMode.Initializing);
+
+    if (this._preferredMode === ConnectionMode.Offline) {
+      return this.enterOffline();
+    }
+    if (this._preferredMode === ConnectionMode.Online) {
+      return this.enterOnline();
+    }
   }
 
   createGameClient(

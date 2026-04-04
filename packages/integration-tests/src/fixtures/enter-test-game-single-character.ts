@@ -49,12 +49,13 @@ export async function enterTestGameSingleCharacter(
   const clientApplication = new ClientApplication(
     assetCache,
     `http://localhost:${TEST_LOBBY_SERVER_PORT}`,
+    `http://localhost:${TEST_LOBBY_SERVER_PORT}`,
     tickScheduler.scheduler
   );
 
   const { lobbyClientRef, gameClientRef } = clientApplication;
 
-  await clientApplication.topologyManager.enterOnline(`http://localhost:${TEST_LOBBY_SERVER_PORT}`);
+  await clientApplication.topologyManager.enterOnline();
   timeMachine.start();
   const lobbyClientHarness = new ClientTestHarness(
     clientApplication,

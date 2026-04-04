@@ -72,10 +72,12 @@ export class ClientApplication {
   // topology
   readonly topologyManager = new ConnectionTopology(this);
   readonly transitionToGameServer = new Deferred();
+  readonly transitionToLobbyServer = new Deferred();
 
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
     assetServerUrl: string,
+    public lobbyServerUrl: string,
     replayManagerTickScheduler: TickScheduler
   ) {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);

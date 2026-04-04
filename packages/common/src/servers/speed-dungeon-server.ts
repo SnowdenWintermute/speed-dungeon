@@ -119,13 +119,15 @@ export abstract class SpeedDungeonServer {
       });
     });
 
-    userConnectionEndpoint.on("close", async (reason) => {
-      try {
-        await this.disconnectionHandler(session, reason);
-      } catch (error) {
-        console.info("error in disconnectionHandler", this.name);
-        console.trace(error);
-      }
+    userConnectionEndpoint.on("close", (reason) => {
+      this.executor.enqueue(async () => {
+        try {
+          await this.disconnectionHandler(session, reason);
+        } catch (error) {
+          console.info("error in disconnectionHandler", this.name);
+          console.trace(error);
+        }
+      });
     });
   }
 

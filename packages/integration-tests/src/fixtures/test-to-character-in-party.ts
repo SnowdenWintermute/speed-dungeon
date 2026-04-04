@@ -1,4 +1,5 @@
 import { ClientApplication } from "@/client-application";
+import { LobbyClient } from "@/client-application/clients/lobby";
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
   ClientIntentType,
@@ -10,7 +11,7 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testToCharacterInParty(
-  lobbyClientHarness: ClientTestHarness,
+  lobbyClientHarness: ClientTestHarness<LobbyClient>,
   clientApplication: ClientApplication,
   combatantClass: CombatantClass,
   gameName: string

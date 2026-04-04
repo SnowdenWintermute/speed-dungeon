@@ -70,9 +70,8 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       expect(gameContext.gameOption).toBe(null);
 
       console.log("reconnect lobby");
-      await clientApplication.topologyManager.enterOnline(
-        `http://localhost:${TEST_LOBBY_SERVER_PORT}`
-      );
+      await clientApplication.topologyManager.enterOnline();
+      await clientApplication.transitionToLobbyServer.waitFor();
       console.log("lobby connected");
       await testToCharacterInParty(
         lobbyClientHarness,
