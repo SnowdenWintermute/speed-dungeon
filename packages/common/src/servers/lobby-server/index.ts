@@ -82,9 +82,18 @@ export class LobbyServer extends SpeedDungeonServer {
       fetchLeastBusyServer
     );
 
-    this.incomingConnectionGateway.initialize(
-      async (context, identityContext) => await this.handleConnection(context, identityContext)
-    );
+    this.incomingConnectionGateway.initialize((context, identityContext) => {
+      return new Promise<void>((resolve, reject) => {
+        this.executor.enqueue(async () => {
+          try {
+            await this.handleConnection(context, identityContext);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      });
+    });
     this.incomingConnectionGateway.listen();
 
     const affixGenerator = new AffixGenerator(rngPolicy);

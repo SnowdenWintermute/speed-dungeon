@@ -17,7 +17,8 @@ import {
 import { OutgoingMessageGateway } from "./update-delivery/message-gateway.js";
 import { MessageDispatchOutbox } from "./update-delivery/outbox.js";
 
-/** used to ensure all client intent messages are handled in order of receipt,
+/** Ensures sequential execution of all state-mutating work: connection setup, intent handling,
+ * and disconnection cleanup.
  * @PERF - could make this per-game instead of server-wide
  * */
 class GlobalIntentExecutor {
