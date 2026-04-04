@@ -20,7 +20,8 @@ import { testToCharacterInParty } from "./test-to-character-in-party.js";
 
 export async function enterTestGameSingleCharacter(
   clientEndpointFactory: ClientEndpointFactory,
-  timeMachine: TimeMachine
+  timeMachine: TimeMachine,
+  gameName: string
 ) {
   const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
     clientEndpointFactory.createIncomingConnectionGateways();
@@ -57,11 +58,16 @@ export async function enterTestGameSingleCharacter(
   timeMachine.start();
   const lobbyClientHarness = new ClientTestHarness(
     clientApplication,
-    lobbyClientRef.get(),
+    lobbyClientRef,
     tickScheduler,
     timeMachine
   );
-  await testToCharacterInParty(lobbyClientHarness, clientApplication, CombatantClass.Warrior);
+  await testToCharacterInParty(
+    lobbyClientHarness,
+    clientApplication,
+    CombatantClass.Warrior,
+    gameName
+  );
   await lobbyClientHarness.settleIntentResult({
     type: ClientIntentType.ToggleReadyToStartGame,
     data: undefined,
@@ -72,10 +78,10 @@ export async function enterTestGameSingleCharacter(
 
   const gameClientHarness = new ClientTestHarness(
     clientApplication,
-    gameClientRef.get(),
+    gameClientRef,
     tickScheduler,
     timeMachine
   );
 
-  return { lobbyServer, gameServer, clientApplication, gameClientHarness };
+  return { lobbyServer, gameServer, clientApplication, gameClientHarness, lobbyClientHarness };
 }

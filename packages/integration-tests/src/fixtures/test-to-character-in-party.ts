@@ -12,13 +12,14 @@ import {
 export async function testToCharacterInParty(
   lobbyClientHarness: ClientTestHarness,
   clientApplication: ClientApplication,
-  combatantClass: CombatantClass
+  combatantClass: CombatantClass,
+  gameName: string
 ) {
   await lobbyClientHarness.settleIntentResult({
     type: ClientIntentType.CreateGame,
-    data: { gameName: "a" as GameName, mode: GameMode.Race },
+    data: { gameName: gameName as GameName, mode: GameMode.Race },
   });
-  expect(clientApplication.gameContext.requireGame().name).toBe("a");
+  expect(clientApplication.gameContext.requireGame().name).toBe(gameName);
   await lobbyClientHarness.settleIntentResult({
     type: ClientIntentType.CreateParty,
     data: { partyName: "a" as PartyName },

@@ -14,18 +14,19 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { TimeMachine } from "./time-machine";
+import { ClientSingleton } from "@/client-application/clients/singleton";
 
-export class ClientTestHarness {
+export class ClientTestHarness<T extends BaseClient> {
   constructor(
     readonly clientApplication: ClientApplication,
-    private client: BaseClient,
+    private clientSingleton: ClientSingleton<T>,
     private tickScheduler: ManualTickScheduler,
     private timeMachine: TimeMachine
   ) {}
 
   async settleIntentResult(intent: ClientIntent) {
-    const intentId = this.client.dispatchIntent(intent);
-    await this.client.waitForServerReply(intentId);
+    const intentId = this.clientSingleton.get().dispatchIntent(intent);
+    await this.clientSingleton.get().waitForServerReply(intentId);
 
     let iterationCount = 0;
     while (
