@@ -1,6 +1,6 @@
 import { Meters, Milliseconds } from "./aliases.js";
 
-export const LOOP_SAFETY_ITERATION_LIMIT = 400;
+export const LOOP_SAFETY_ITERATION_LIMIT = 10000;
 
 // remember to update it in package.json as well!
 export const APP_VERSION_NUMBER = "0.11.0";

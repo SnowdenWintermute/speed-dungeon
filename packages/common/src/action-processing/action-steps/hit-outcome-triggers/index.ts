@@ -103,7 +103,14 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
             const shouldRemoveCombatantOnDeath =
               targetCombatant.combatantProperties.removeFromPartyOnDeath;
+
             if (!shouldRemoveCombatantOnDeath) {
+              console.log(
+                "adding removed condition to update for combatant:",
+                targetCombatant.getName(),
+                "condition:",
+                condition.getStringName()
+              );
               addRemovedConditionIdToUpdate(
                 condition.id,
                 gameUpdateCommand,

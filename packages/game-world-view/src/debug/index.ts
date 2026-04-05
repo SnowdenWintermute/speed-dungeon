@@ -96,10 +96,10 @@ export class GameWorldViewDebug {
     const eventStrings = [];
     const { currentEventProcessing, pendingEvents } = sequentialEventProcessor;
     if (currentEventProcessing) {
-      eventStrings.push(CLIENT_EVENT_TYPE_STRINGS[currentEventProcessing.type]);
+      eventStrings.push(CLIENT_EVENT_TYPE_STRINGS[currentEventProcessing.type].slice(3) + "\n");
     }
     for (const event of pendingEvents) {
-      eventStrings.push(CLIENT_EVENT_TYPE_STRINGS[event.type]);
+      eventStrings.push(CLIENT_EVENT_TYPE_STRINGS[event.type].slice(0, 3));
     }
 
     return eventStrings;

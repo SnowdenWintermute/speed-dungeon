@@ -44,6 +44,11 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
       const entityConditionWasAppliedTo = condition.getConditionAppliedTo();
       const hostEntity = party.combatantManager.getExpectedCombatant(entityConditionWasAppliedTo);
 
+      const shouldRemoveCombatantOnDeath = hostEntity.combatantProperties.removeFromPartyOnDeath;
+      if (hostEntity.combatantProperties.isDead() && shouldRemoveCombatantOnDeath) {
+        return;
+      }
+
       const { conditionManager } = hostEntity.combatantProperties;
       conditionManager.removeStacks(condition.getEntityId(), numStacksRemoved);
 

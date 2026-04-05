@@ -13,7 +13,7 @@ import {
   MonsterGenerator,
   RandomNumberGenerationPolicyFactory,
   RNG_RANGE,
-  TEST_DUNGEON_SIMPLE,
+  ScriptedDungeonTemplate,
 } from "@speed-dungeon/common";
 import fakeIndexedDB from "fake-indexeddb";
 import { testToCharacterInParty } from "./test-to-character-in-party.js";
@@ -21,7 +21,8 @@ import { testToCharacterInParty } from "./test-to-character-in-party.js";
 export async function enterTestGameSingleCharacter(
   clientEndpointFactory: ClientEndpointFactory,
   timeMachine: TimeMachine,
-  gameName: string
+  gameName: string,
+  dungeonScript: ScriptedDungeonTemplate
 ) {
   const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
     clientEndpointFactory.createIncomingConnectionGateways();
@@ -42,7 +43,7 @@ export async function enterTestGameSingleCharacter(
   const gameServer = inMemoryTransportAndServers.gameServer;
 
   const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
-  gameServer.dungeonGenerationPolicy.setFloors(TEST_DUNGEON_SIMPLE, monsterGenerator);
+  gameServer.dungeonGenerationPolicy.setFloors(dungeonScript, monsterGenerator);
 
   const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
   const tickScheduler = new ManualTickScheduler();

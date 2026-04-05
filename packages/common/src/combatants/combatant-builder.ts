@@ -54,6 +54,7 @@ export class CombatantBuilder {
   private _traits: Partial<Record<CombatantTraitType, number>> = {};
   private _aiTypes: AiType[] = [];
   private _withThreatManager: boolean = false;
+  private _useExplicitAttributes: boolean = false;
 
   private constructor(
     private mainClass: CombatantClass,
@@ -104,6 +105,11 @@ export class CombatantBuilder {
 
   withThreatManager() {
     this._withThreatManager = true;
+    return this;
+  }
+
+  explicitAttributes(): this {
+    this._useExplicitAttributes = true;
     return this;
   }
 
@@ -233,6 +239,10 @@ export class CombatantBuilder {
     }
 
     const combatant = Combatant.createInitialized(entityProperties, combatantProperties);
+
+    if (this._useExplicitAttributes) {
+      combatantProperties.attributeProperties.setUseExplicitAttributes();
+    }
 
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(this._speccedAttributes)) {
       combatantProperties.attributeProperties.setSpeccedAttributeValue(attribute, value);

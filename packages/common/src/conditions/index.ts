@@ -44,6 +44,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
 
   public abstract intent: CombatActionIntent;
   public removedOnDeath?: boolean = true;
+  public canBeAppliedToDeadCombatant?: boolean = false;
   public triggeredWhenHitBy?: CombatActionName[];
   public triggeredWhenActionUsed?: CombatActionName[];
   /** As action user, this condition's attributes */

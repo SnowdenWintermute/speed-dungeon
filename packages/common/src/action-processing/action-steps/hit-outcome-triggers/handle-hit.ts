@@ -71,6 +71,10 @@ export function handleHit(
         appliedTo: targetCombatant.getEntityId(),
       });
 
+      if (targetCombatant.combatantProperties.isDead() && !condition.canBeAppliedToDeadCombatant) {
+        continue;
+      }
+
       const { conditionManager } = targetCombatant.combatantProperties;
       conditionManager.applyCondition(condition);
       if (battleOption !== null) {

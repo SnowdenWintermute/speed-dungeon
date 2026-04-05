@@ -16,6 +16,8 @@ export interface ScriptedRoomTemplate {
   monsters?: MonsterGenerationProps[];
 }
 
+export type ScriptedDungeonTemplate = ScriptedRoomTemplate[][];
+
 export interface ScriptedRoom {
   type: DungeonRoomType;
   monsters?: MonsterGenerationProps[];
@@ -34,6 +36,8 @@ export abstract class DungeonGenerationPolicy {
     protected readonly rngPolicy: RandomNumberGenerationPolicy
   ) {}
 
+  /** we set floors after construction so the game server can construct this with its own arugments, otherwise
+   * we would have to construct this outside the game server when setting up what floors we want*/
   abstract setFloors(floors: ScriptedRoomTemplate[][], monsterGenerator: MonsterGenerator): void;
   abstract generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[];
   abstract generateDungeonRoom(

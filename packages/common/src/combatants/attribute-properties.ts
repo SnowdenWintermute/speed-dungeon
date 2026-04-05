@@ -16,15 +16,25 @@ export class CombatantAttributeProperties
 {
   private speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
+  private _useExplicitAttributes: boolean = false;
 
   makeObservable(): void {
     makeAutoObservable(this);
+  }
+
+  setUseExplicitAttributes() {
+    this._useExplicitAttributes = true;
+  }
+
+  getUseExplicitAttributes() {
+    return this._useExplicitAttributes;
   }
 
   toSerialized() {
     return {
       speccedAttributes: this.speccedAttributes,
       unspentAttributePoints: this.unspentAttributePoints,
+      useExplicitAttributes: this._useExplicitAttributes,
     };
   }
 
@@ -32,6 +42,7 @@ export class CombatantAttributeProperties
     const result = new CombatantAttributeProperties();
     result.speccedAttributes = serialized.speccedAttributes;
     result.unspentAttributePoints = serialized.unspentAttributePoints;
+    result._useExplicitAttributes = serialized.useExplicitAttributes;
 
     return result;
   }

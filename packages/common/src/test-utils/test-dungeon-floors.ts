@@ -1,5 +1,5 @@
 import { DungeonRoomType } from "../adventuring-party/dungeon-room.js";
-import { MonsterGenerationProps } from "../dungeon-generation/index.js";
+import { ScriptedDungeonTemplate } from "../dungeon-generation/index.js";
 import { MonsterType } from "../monsters/monster-types.js";
 
 const ROOM_WITH_TWO_WOLVES = {
@@ -18,16 +18,38 @@ const ROOM_WITH_TWO_SPIDERS = {
   ],
 };
 
-export const TEST_DUNGEON_SIMPLE: {
-  type: DungeonRoomType;
-  monsters?: MonsterGenerationProps[];
-}[][] = [
+export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ScriptedDungeonTemplate = [
   [
     {
       type: DungeonRoomType.Empty,
     },
     ROOM_WITH_TWO_SPIDERS,
-    ROOM_WITH_TWO_WOLVES,
+    ROOM_WITH_TWO_SPIDERS,
+    {
+      type: DungeonRoomType.Staircase,
+    },
+  ],
+  [
+    {
+      type: DungeonRoomType.MonsterLair,
+      monsters: [{ type: MonsterType.Wolf, level: 1 }],
+    },
+  ],
+];
+
+export const TEST_DUNGEON_SIMPLE: ScriptedDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.Empty,
+    },
+    {
+      type: DungeonRoomType.MonsterLair,
+      monsters: [{ type: MonsterType.Wolf, level: 1 }],
+    },
+    {
+      type: DungeonRoomType.MonsterLair,
+      monsters: [{ type: MonsterType.Wolf, level: 1 }],
+    },
     {
       type: DungeonRoomType.Staircase,
     },
