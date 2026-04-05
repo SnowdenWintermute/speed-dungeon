@@ -1,10 +1,9 @@
 import { ActionAndRank } from "../../../action-user-context/action-user-targeting-properties.js";
 import { Combatant } from "../../../combatants/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat-actions/combat-action-names.js";
 import { AiActionSelector, AiActionEvaluator } from "../ai-action-selector/index.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { BehaviorNode, BehaviorNodeState } from "../behavior-tree.js";
-import { AI_BEHAVIOR_TYPE_STRINGS, AiType } from "../index.js";
+import { AiType } from "../index.js";
 
 export class ActionSelectorNode implements BehaviorNode {
   private actionSelector: AiActionSelector;
@@ -14,7 +13,7 @@ export class ActionSelectorNode implements BehaviorNode {
     private possibleTargetFilters: ((combatant: Combatant) => boolean)[],
     private actionIntentEvaluator: AiActionEvaluator
   ) {
-    this.actionSelector = new AiActionSelector(behaviorContext.actionUserContext);
+    this.actionSelector = new AiActionSelector(behaviorContext);
   }
 
   execute(): BehaviorNodeState {

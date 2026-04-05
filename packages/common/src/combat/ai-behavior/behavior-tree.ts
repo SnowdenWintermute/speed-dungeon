@@ -100,15 +100,15 @@ export class SucceederNode implements BehaviorNode {
   }
 }
 
-export class RandomizerNode<T> implements BehaviorNode {
-  constructor(private arrayOptionGetter: () => undefined | T[]) {}
-  execute(): BehaviorNodeState {
-    const arrayOption = this.arrayOptionGetter();
-    if (arrayOption === undefined) return BehaviorNodeState.Failure;
-    ArrayUtils.shuffle(arrayOption, new BasicRandomNumberGenerator());
-    return BehaviorNodeState.Success;
-  }
-}
+// export class RandomizerNode<T> implements BehaviorNode {
+//   constructor(private arrayOptionGetter: () => undefined | T[]) {}
+//   execute(): BehaviorNodeState {
+//     const arrayOption = this.arrayOptionGetter();
+//     if (arrayOption === undefined) return BehaviorNodeState.Failure;
+//     ArrayUtils.shuffle(arrayOption, new BasicRandomNumberGenerator());
+//     return BehaviorNodeState.Success;
+//   }
+// }
 
 export class SorterNode<T> implements BehaviorNode {
   constructor(

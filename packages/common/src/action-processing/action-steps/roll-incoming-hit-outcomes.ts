@@ -60,10 +60,11 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
         hitOutcomesResult.resourceChanges[CombatActionResource.HitPoints];
       if (hitPointChangesOption instanceof HitPointChanges) {
         const combatantsKilled = hitPointChangesOption?.applyToGame(party);
-        if (combatantsKilled)
+        if (combatantsKilled) {
           for (const entityId of combatantsKilled) {
             gameUpdateCommand.outcomes.insertOutcomeFlag(HitOutcome.Death, entityId);
           }
+        }
       }
 
       const manaChangesOption = hitOutcomesResult.resourceChanges[CombatActionResource.Mana];

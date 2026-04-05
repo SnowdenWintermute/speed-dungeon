@@ -101,11 +101,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
             this.branchingActions.push(...onRemovedTriggeredActions);
 
-            addRemovedConditionIdToUpdate(
-              condition.id,
-              gameUpdateCommand,
-              targetCombatant.entityProperties.id as CombatantId
-            );
+            const shouldRemoveCombatantOnDeath =
+              targetCombatant.combatantProperties.removeFromPartyOnDeath;
+            if (!shouldRemoveCombatantOnDeath) {
+              addRemovedConditionIdToUpdate(
+                condition.id,
+                gameUpdateCommand,
+                targetCombatant.entityProperties.id as CombatantId
+              );
+            }
           }
 
           // if was attached to anyone, remove their id from that list

@@ -19,6 +19,7 @@ import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
 import { Serializable } from "../../serialization/index.js";
 import { instanceToPlain } from "class-transformer";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 
 export abstract class TurnTracker implements Serializable {
   constructor(public readonly timeOfNextMove: number) {}
@@ -32,7 +33,7 @@ export abstract class TurnTracker implements Serializable {
   abstract getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    battle: Battle
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
   ): ActionIntentOptionAndUser;
 
   getEntityId() {
@@ -72,11 +73,19 @@ export class CombatantTurnTracker extends TurnTracker {
     );
   }
 
-  getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+  getNextActionIntentAndUser(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+  ) {
     const { combatantId } = this;
     const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
 
-    const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatant);
+    const actionExecutionIntent = AISelectActionAndTarget(
+      game,
+      activeCombatant,
+      randomNumberGenerationPolicy
+    );
     if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
 
     return { actionExecutionIntent, user: activeCombatant };
@@ -125,7 +134,11 @@ export class ConditionTurnTracker extends TurnTracker {
     );
   }
 
-  getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+  getNextActionIntentAndUser(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+  ) {
     const { combatantId, conditionId } = this;
     const condition = party.combatantManager.getExpectedConditionOnCombatant(
       combatantId,
@@ -179,7 +192,11 @@ export class ActionEntityTurnTracker extends TurnTracker {
     );
   }
 
-  getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+  getNextActionIntentAndUser(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+  ) {
     const { actionEntityId } = this;
 
     const { actionEntityManager } = party;

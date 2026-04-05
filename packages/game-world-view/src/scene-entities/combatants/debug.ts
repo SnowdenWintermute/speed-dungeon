@@ -34,8 +34,8 @@ export class CombatantSceneEntityDebug {
       this.createForwardDirectionMarkerSphere(),
       this.createRootTransformNodeLocationMarker(),
       this.createDestinationMarkerSphere(),
-      ...this.setShowBones(),
-      ...this.showChildTransformNodes(),
+      // ...this.setShowBones(),
+      // ...this.showChildTransformNodes(),
     ];
   }
 

@@ -139,7 +139,7 @@ export class BattleProcessor {
     battle.turnOrderManager.updateTrackers(game, party);
     const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
-    return fastestActorTurnTracker.getNextActionIntentAndUser(game, party, battle);
+    return fastestActorTurnTracker.getNextActionIntentAndUser(game, party, this.rngPolicy);
   }
 
   async handleBattleConclusion(partyWipes: PartyWipes) {

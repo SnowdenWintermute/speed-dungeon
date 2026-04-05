@@ -12,15 +12,21 @@ import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { ActionRank, EntityId } from "../../../aliases.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
+import { AIBehaviorContext } from "../ai-context.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 
 export type AiActionEvaluator = (
   intents: CombatActionExecutionIntent[],
   actionUserContext: ActionUserContext,
-  consideredCombatants: Combatant[]
+  consideredCombatants: Combatant[],
+  rngPolicy: RandomNumberGenerationPolicy
 ) => null | CombatActionExecutionIntent;
 
 export class AiActionSelector {
-  constructor(private actionUserContext: ActionUserContext) {}
+  private actionUserContext: ActionUserContext;
+  constructor(private behaviorContext: AIBehaviorContext) {
+    this.actionUserContext = behaviorContext.actionUserContext;
+  }
 
   private getConsideredCombatants(
     filteringFunctions: ((combatant: Combatant) => boolean)[]
@@ -174,7 +180,8 @@ export class AiActionSelector {
     const bestIntentOption = evaluator(
       actionIntentsThatCanTargetDesiredTargets,
       this.actionUserContext,
-      consideredTargetCombatants
+      consideredTargetCombatants,
+      this.behaviorContext.randomNumberGenerationPolicy
     );
 
     return bestIntentOption;

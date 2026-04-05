@@ -8,10 +8,12 @@ import { CombatActionName } from "../combat-actions/combat-action-names.js";
 import { CombatActionTargetType } from "../targeting/combat-action-targets.js";
 import { ActionRank } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 
 export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
-  user: Combatant
+  user: Combatant,
+  randomNumberGenerationPolicy: RandomNumberGenerationPolicy
 ): Error | null | CombatActionExecutionIntent {
   const { combatantProperties: userCombatantProperties } = user;
 
@@ -23,6 +25,7 @@ export function AISelectActionAndTarget(
 
   const behaviorContext = new AIBehaviorContext(
     new ActionUserContext(game, partyResult, user),
+    randomNumberGenerationPolicy,
     battleOption
   );
 

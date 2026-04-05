@@ -10,6 +10,14 @@ const ROOM_WITH_TWO_WOLVES = {
   ],
 };
 
+const ROOM_WITH_TWO_SPIDERS = {
+  type: DungeonRoomType.MonsterLair,
+  monsters: [
+    { type: MonsterType.Spider, level: 1 },
+    { type: MonsterType.Spider, level: 1 },
+  ],
+};
+
 export const TEST_DUNGEON_SIMPLE: {
   type: DungeonRoomType;
   monsters?: MonsterGenerationProps[];
@@ -18,7 +26,7 @@ export const TEST_DUNGEON_SIMPLE: {
     {
       type: DungeonRoomType.Empty,
     },
-    ROOM_WITH_TWO_WOLVES,
+    ROOM_WITH_TWO_SPIDERS,
     ROOM_WITH_TWO_WOLVES,
     {
       type: DungeonRoomType.Staircase,
