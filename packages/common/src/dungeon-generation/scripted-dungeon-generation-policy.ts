@@ -1,5 +1,4 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
-import { Combatant } from "../combatants/index.js";
 import { MonsterGenerator } from "../monsters/monster-generator.js";
 import { invariant } from "../utils/index.js";
 import {
@@ -11,20 +10,13 @@ import {
 
 export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private floors: ScriptedRoom[][] = [];
+  private monsterGenerator: MonsterGenerator | null = null;
 
   setFloors(floors: ScriptedRoomTemplate[][], monsterGenerator: MonsterGenerator) {
-    this.floors = floors.map((floor) => {
-      const floorResult: ScriptedRoom[] = floor.map(({ type, monsters }) => {
-        const roomResult: { type: DungeonRoomType; monsters: Combatant[] } = { type, monsters: [] };
-        if (monsters) {
-          roomResult.monsters = monsters.map((monsterTemplate) =>
-            monsterGenerator.generate(monsterTemplate.type, monsterTemplate.level)
-          );
-        }
-        return roomResult;
-      });
-      return floorResult;
-    });
+    this.monsterGenerator = monsterGenerator;
+    this.floors = floors.map((floor) =>
+      floor.map(({ type, monsters }) => ({ type, monsters }))
+    );
   }
 
   generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[] {
@@ -52,7 +44,14 @@ export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
       `No scripted room at index ${roomIndex} on floor ${floorLevel}`
     );
 
-    return { room, monsters: scriptedRoom.monsters ?? [] };
+    const { monsterGenerator } = this;
+    invariant(monsterGenerator !== null, "Monster generator not set");
+
+    const monsters = (scriptedRoom.monsters ?? []).map((template) =>
+      monsterGenerator.generate(template.type, template.level)
+    );
+
+    return { room, monsters };
   }
 
   private getFloorRooms(floorLevel: number): ScriptedRoom[] {

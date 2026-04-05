@@ -37,6 +37,10 @@ export class CombatantFocus {
     return this.focusedCharacterId;
   }
 
+  clearFocusedCharacter() {
+    this.focusedCharacterId = null;
+  }
+
   setFocusedCharacter(combatantId: CombatantId) {
     this.clientSession.requireUsername();
     if (this.focusedCharacterId === combatantId) {

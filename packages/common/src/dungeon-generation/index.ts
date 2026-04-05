@@ -18,7 +18,7 @@ export interface ScriptedRoomTemplate {
 
 export interface ScriptedRoom {
   type: DungeonRoomType;
-  monsters?: Combatant[];
+  monsters?: MonsterGenerationProps[];
 }
 
 export type DungeonGenerationPolicyConstructor = new (

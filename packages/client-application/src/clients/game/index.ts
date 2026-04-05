@@ -61,6 +61,7 @@ export class GameClient extends BaseClient {
     targetIndicatorStore.clear();
 
     gameContext.clearGame();
+    combatantFocus.clearFocusedCharacter();
 
     this.dispatchIntent({
       type: ClientIntentType.LeaveGame,
@@ -69,13 +70,11 @@ export class GameClient extends BaseClient {
     this.close();
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
 
-    replayTreeScheduler.clear();
     sequentialEventProcessor.cancelQueued();
-
-    sequentialEventProcessor.scheduleEvent({
-      type: ClientSequentialEventType.SynchronizeCombatantModels,
-      data: { softCleanup: false, placeInHomePositions: true },
-    });
+    replayTreeScheduler.clear();
+    gameWorldView?.sceneEntityService.clearAll();
+    sequentialEventProcessor.clearCurrent();
+    sequentialEventProcessor.resetChain();
 
     gameWorldView?.environment.groundPlane.drawCharacterSlots();
 

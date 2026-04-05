@@ -287,6 +287,13 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     game.timeHandedOff = Date.now();
 
+    console.log(
+      "handing off a game with name:",
+      game.name,
+      "parties:",
+      player.getExpectedParty(game).combatantManager.getAllCombatants()
+    );
+
     const connectionInstructions = await this.gameHandoffManager.initiateGameHandoff(game);
     outbox.pushFromOther(connectionInstructions);
 

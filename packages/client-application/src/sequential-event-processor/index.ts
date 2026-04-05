@@ -2,6 +2,7 @@ import { createClientSequentialEventHandlers } from "./client-event-handlers";
 import {
   ClientSequentialEvent,
   ClientSequentialEventHandlers,
+  ClientSequentialEventType,
   ReactiveNode,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
@@ -71,5 +72,12 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
     // we don't set currentEventProcessing to null because there's no way
     // to cancel it. A "clean up after stale events" event could be created
     // to reset app to a clean state after an in-flight stale event finishes
+  }
+  clearCurrent() {
+    this.currentEventProcessing = null;
+  }
+  /** Resets the promise chain so new events can process after a full cleanup */
+  resetChain() {
+    this.chain = Promise.resolve();
   }
 }

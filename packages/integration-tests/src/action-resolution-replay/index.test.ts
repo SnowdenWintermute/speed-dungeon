@@ -4,6 +4,7 @@ import {
   CombatantClass,
   DungeonRoomType,
   GameServer,
+  invariant,
   LobbyServer,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
@@ -69,13 +70,13 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(48);
       expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(37);
       await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
+      expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(28);
       gameClientRef.get().leaveGame();
+
+      // await clientApplication.sequentialEventProcessor.waitUntilIdle();
       expect(gameContext.gameOption).toBe(null);
 
-      await clientApplication.sequentialEventProcessor.waitUntilIdle();
-      await clientApplication.topologyManager.connectWithPrefferedMode();
       await clientApplication.transitionToLobbyServer.waitFor();
-      await clientApplication.sequentialEventProcessor.waitUntilIdle();
 
       await testToCharacterInParty(
         lobbyClientHarness,
@@ -88,32 +89,19 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
         data: undefined,
       });
 
-      console.log(
-        "event queue:",
-        // clientApplication.sequentialEventProcessor.pendingEvents,
-        clientApplication.sequentialEventProcessor.currentEventProcessing
-      );
-      await clientApplication.sequentialEventProcessor.waitUntilIdle();
       await clientApplication.transitionToGameServer.waitFor();
-      console.log("idled");
 
-      // expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(38);
-      // expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(28);
-      // await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
-      // expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(28);
-      // expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(19);
-      // await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
-      // expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(18);
-      // expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(10);
-      // await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
-      // expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(8);
-      // expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(1);
-      // await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
-      // expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(0);
-      // expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(1);
-      // expect(clientApplication.actionMenu.getCurrentMenu().type).toBe(
-      //   ActionMenuScreenType.ItemsOnGround
-      // );
+      expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.Empty);
+      await gameClientHarness.toggleReadyToExplore();
+      expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
+
+      const focusedCharacterSecondGame = clientApplication.combatantFocus.requireFocusedCharacter();
+      const characterIdSecondGame = focusedCharacter.getEntityId();
+      const expectedMonsterSecondGame = gameContext
+        .requireParty()
+        .combatantManager.getDungeonControlledCombatants()[0];
+      invariant(expectedMonsterSecondGame !== undefined);
+      expect(expectedMonsterSecondGame.combatantProperties.resources.getHitPoints()).toBe(54);
     });
   }
 );
@@ -156,3 +144,26 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 //     data: { name: "d" as EntityName, combatantClass: CombatantClass.Warrior },
 //   });
 // }
+//
+//
+//
+// await gameClientHarness.selectHoldableHotswapSlot(characterId, 2);
+// await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
+
+// expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(38);
+// expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(28);
+// await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
+// expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(28);
+// expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(19);
+// await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
+// expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(18);
+// expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(10);
+// await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
+// expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(8);
+// expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(1);
+// await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
+// expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(0);
+// expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(1);
+// expect(clientApplication.actionMenu.getCurrentMenu().type).toBe(
+//   ActionMenuScreenType.ItemsOnGround
+// );

@@ -28,11 +28,20 @@ export class ClientTestHarness<T extends BaseClient> {
     const intentId = this.clientSingleton.get().dispatchIntent(intent);
     await this.clientSingleton.get().waitForServerReply(intentId);
 
+    await this.flushReplayTree();
+
+    return intentId;
+  }
+
+  async flushReplayTree() {
     let iterationCount = 0;
     while (
       this.clientApplication.sequentialEventProcessor.isProcessing &&
       iterationCount < LOOP_SAFETY_ITERATION_LIMIT
     ) {
+      if (iterationCount >= LOOP_SAFETY_ITERATION_LIMIT - 1) {
+        console.error("LOOP_SAFETY_ITERATION_LIMIT reached");
+      }
       iterationCount += 1;
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
       if (remaining > 0) {
@@ -45,8 +54,6 @@ export class ClientTestHarness<T extends BaseClient> {
       // loop starves the microtask queue.
       await Promise.resolve();
     }
-
-    return intentId;
   }
 
   async toggleReadyToExplore() {

@@ -4,7 +4,9 @@ export type TickScheduler = (tick: (deltaTime: number) => void) => () => void; /
 
 export function createBabylonScheduler(engine: Engine, scene: Scene): TickScheduler {
   return (tick) => {
-    const callTickWithEngineDeltaTime = () => tick(engine.getDeltaTime());
+    const callTickWithEngineDeltaTime = () => {
+      tick(engine.getDeltaTime());
+    };
     scene.registerBeforeRender(callTickWithEngineDeltaTime);
     return () => scene.unregisterBeforeRender(callTickWithEngineDeltaTime);
   };

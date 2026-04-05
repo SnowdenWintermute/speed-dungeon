@@ -91,6 +91,7 @@ export async function threatTargetChangedIndicatorSequence(
       trailWidth,
       trailHeight
     );
+    // trail.setParent(indicatorArrow.rootMesh);
 
     const duration = 900;
 
@@ -126,15 +127,20 @@ export function spawnTargetChangedIndicatorArrow(
   gameWorldView: GameWorldView,
   position: Vector3
 ) {
-  const mesh = MeshBuilder.CreateCylinder("cylinder", {
-    diameterBottom: 0.1,
-    diameterTop: 0,
-    height: 0.4,
-  });
+  const mesh = MeshBuilder.CreateCylinder(
+    "cylinder",
+    {
+      diameterBottom: 0.1,
+      diameterTop: 0,
+      height: 0.4,
+    },
+    gameWorldView.scene
+  );
 
   const material = new StandardMaterial("threat indicator arrow material", gameWorldView.scene);
   material.diffuseColor = new Color3(0.9, 0.1, 0.1);
   material.alpha = 0.5;
+  // material.alpha = 0.0;
 
   mesh.material = material;
   mesh.position.copyFrom(position);
@@ -168,6 +174,7 @@ function spawnTargetChangedIndicatorTrail(
   const material = new StandardMaterial("", scene);
   material.diffuseColor = new Color3(0.9, 0.1, 0.1);
   material.alpha = 0.5;
+
   trail.material = material;
 
   const vertexData = new VertexData();
