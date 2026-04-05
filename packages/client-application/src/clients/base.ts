@@ -28,6 +28,10 @@ export abstract class BaseClient {
     this._targetConnectionMode = newMode;
   }
 
+  resetIntentSequenceCounter() {
+    this._intentSequenceCounter = 0;
+  }
+
   dispatchIntent(message: ClientIntent): number {
     this._intentSequenceCounter += 1;
     this.connectionEndpoint.send(JSON.stringify(message));
@@ -35,7 +39,6 @@ export abstract class BaseClient {
   }
 
   waitForServerReply(sequenceId: number): Promise<void> {
-    console.log("awaiting sequenceId:", sequenceId);
     return new Promise<void>((resolve) => {
       this._pendingReplies.set(sequenceId, resolve);
     });

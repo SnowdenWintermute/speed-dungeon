@@ -235,7 +235,6 @@ export class GameServer extends SpeedDungeonServer {
       );
 
       const gameIsInProgress = existingGame.getTimeStarted() !== null;
-      console.log("game is in progress", gameIsInProgress);
       const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
         session,
         gameIsInProgress

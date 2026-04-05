@@ -27,7 +27,6 @@ export class Deferred {
     this._resolve?.();
     this._onSuccess?.();
     this.clear();
-    console.log("Deferred fired");
   }
 
   waitFor(): Promise<void> {

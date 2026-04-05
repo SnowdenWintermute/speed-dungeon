@@ -55,7 +55,7 @@ export async function enterTestGameSingleCharacter(
 
   const { lobbyClientRef, gameClientRef } = clientApplication;
 
-  await clientApplication.topologyManager.enterOnline();
+  await clientApplication.topologyManager.connectWithPrefferedMode();
   timeMachine.start();
   const lobbyClientHarness = new ClientTestHarness(
     clientApplication,
@@ -84,5 +84,12 @@ export async function enterTestGameSingleCharacter(
     timeMachine
   );
 
-  return { lobbyServer, gameServer, clientApplication, gameClientHarness, lobbyClientHarness };
+  return {
+    lobbyServer,
+    gameServer,
+    clientApplication,
+    gameClientHarness,
+    lobbyClientHarness,
+    tickScheduler,
+  };
 }

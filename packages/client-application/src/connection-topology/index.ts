@@ -154,6 +154,7 @@ export class ConnectionTopology {
           )
         );
       } else {
+        lobbyClientRef.get().resetIntentSequenceCounter();
         lobbyClientRef.get().targetConnectionMode = ConnectionMode.Online;
         lobbyClientRef.get().setEndpoint(connectionEndpoint);
       }

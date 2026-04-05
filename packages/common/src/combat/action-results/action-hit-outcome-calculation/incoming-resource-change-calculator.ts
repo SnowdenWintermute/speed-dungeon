@@ -81,15 +81,11 @@ export class IncomingResourceChangesCalculator {
 
       // some actions have a base multiplier, such as offhand attack
       const modified = cloneDeep(resourceChangeProperties);
-      console.log("before base value modified:", modified.baseValues.max);
       modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
-      console.log("after base value modified:", modified.baseValues.max);
 
       const rolled = this.rollIncomingResourceChangeBaseValue(modified, this.rng);
 
-      console.log("rolled:", rolled);
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);
-      console.log("per target:", valuePerTarget);
 
       incomingResourceChangesPerTarget[actionResource] = {
         valuePerTarget,

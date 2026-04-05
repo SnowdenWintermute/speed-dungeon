@@ -16,6 +16,7 @@ import { TEST_LOBBY_SERVER_PORT } from "@/servers/fixtures/index.js";
 import { testToCharacterInParty } from "@/fixtures/test-to-character-in-party.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
+import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "experiment with new architecture",
@@ -25,6 +26,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     let gameClientHarness: ClientTestHarness<GameClient>;
     let lobbyClientHarness: ClientTestHarness<LobbyClient>;
     let clientApplication: ClientApplication;
+    let tickScheduler: ManualTickScheduler;
     const timeMachine = new TimeMachine();
 
     beforeEach(async () => {
@@ -38,6 +40,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       clientApplication = setup.clientApplication;
       gameClientHarness = setup.gameClientHarness;
       lobbyClientHarness = setup.lobbyClientHarness;
+      tickScheduler = setup.tickScheduler;
     });
 
     afterEach(async () => {
@@ -69,31 +72,31 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       gameClientRef.get().leaveGame();
       expect(gameContext.gameOption).toBe(null);
 
-      console.log("reconnect lobby");
-      await clientApplication.topologyManager.enterOnline();
+      await clientApplication.sequentialEventProcessor.waitUntilIdle();
+      await clientApplication.topologyManager.connectWithPrefferedMode();
       await clientApplication.transitionToLobbyServer.waitFor();
-      console.log("lobby connected");
+      await clientApplication.sequentialEventProcessor.waitUntilIdle();
+
       await testToCharacterInParty(
         lobbyClientHarness,
         clientApplication,
         CombatantClass.Warrior,
         "game 2"
       );
-      console.log("about to try start game 2");
       await lobbyClientHarness.settleIntentResult({
         type: ClientIntentType.ToggleReadyToStartGame,
         data: undefined,
       });
 
       console.log(
-        clientApplication.sequentialEventProcessor.pendingEvents,
+        "event queue:",
+        // clientApplication.sequentialEventProcessor.pendingEvents,
         clientApplication.sequentialEventProcessor.currentEventProcessing
       );
       await clientApplication.sequentialEventProcessor.waitUntilIdle();
-      console.log("idled");
       await clientApplication.transitionToGameServer.waitFor();
+      console.log("idled");
 
-      console.log("after start game 2");
       // expect(expectedMonster?.combatantProperties.resources.getHitPoints()).toBe(38);
       // expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(28);
       // await gameClientHarness.useCombatAction(characterId, CombatActionName.Attack, 1);
