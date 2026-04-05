@@ -6,7 +6,10 @@ import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RANDOM_CHARACTER_NAMES_FIRST } from "./random-character-names.js";
 
-export type CharacterFactory = (controllingPlayerName: Username) => Combatant;
+export type CharacterFactory = (
+  controllingPlayerName: Username,
+  idGenerator: IdGenerator
+) => Combatant;
 
 export type CharacterCreationPolicyConstructor = new (
   idGenerator: IdGenerator,

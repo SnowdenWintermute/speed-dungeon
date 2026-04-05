@@ -10,6 +10,9 @@ import {
   GameServerSessionClaimTokenCodec,
   DefaultCharacterCreationPolicy,
   RandomNumberGenerationPolicyFactory,
+  ScriptedCharacterCreationPolicy,
+  CombatantClass,
+  createExplicitAttributesTestWarrior,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -48,9 +51,14 @@ export class LobbyServerNode {
       gameServerSessionClaimTokenCodec,
       {},
       leastBusyGameServerUrlGetter,
-      DefaultCharacterCreationPolicy,
+      // DefaultCharacterCreationPolicy,
+      ScriptedCharacterCreationPolicy,
       RandomNumberGenerationPolicyFactory.allRandomPolicy()
     );
+
+    this._lobbyServer.characterCreationPolicy.setCharacters({
+      [CombatantClass.Warrior]: [createExplicitAttributesTestWarrior],
+    });
 
     console.info("lobby server node created");
   }

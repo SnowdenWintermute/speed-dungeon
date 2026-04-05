@@ -14,7 +14,7 @@ import {
   RandomNumberGenerationPolicyFactory,
   FixedNumberGenerator,
   RNG_RANGE,
-  TEST_DUNGEON_SIMPLE,
+  EXPLICIT_ATTACK_TEST_DUNGEON,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -31,7 +31,6 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { env } from "../validate-env.js";
-import { MonsterGenerator } from "@speed-dungeon/common";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -75,8 +74,7 @@ export class GameServerNode {
       // allRandomPolicy()
     );
 
-    const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
-    this._server.dungeonGenerationPolicy.setFloors(TEST_DUNGEON_SIMPLE, monsterGenerator);
+    this._server.dungeonGenerationPolicy.setExplicitFloors(EXPLICIT_ATTACK_TEST_DUNGEON);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

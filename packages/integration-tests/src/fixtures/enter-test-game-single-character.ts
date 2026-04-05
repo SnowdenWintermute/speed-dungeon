@@ -6,24 +6,36 @@ import { ClientEndpointFactory } from "@/servers/fixtures/test-connection-endpoi
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import { TimeMachine } from "@/test-utils/time-machine";
 import {
+  CharacterCreationPolicyConstructor,
   ClientIntentType,
   CombatantClass,
+  DefaultCharacterCreationPolicy,
+  ExplicitCombatantDungeonTemplate,
   FixedNumberGenerator,
   IndexedDbAssetStore,
-  MonsterGenerator,
+  LobbyServer,
   RandomNumberGenerationPolicyFactory,
   RNG_RANGE,
-  ScriptedDungeonTemplate,
 } from "@speed-dungeon/common";
 import fakeIndexedDB from "fake-indexeddb";
 import { testToCharacterInParty } from "./test-to-character-in-party.js";
+
+export interface EnterTestGameOptions {
+  characterCreationPolicyConstructor?: CharacterCreationPolicyConstructor;
+  beforeCharacterCreation?: (lobbyServer: LobbyServer) => void;
+}
 
 export async function enterTestGameSingleCharacter(
   clientEndpointFactory: ClientEndpointFactory,
   timeMachine: TimeMachine,
   gameName: string,
-  dungeonScript: ScriptedDungeonTemplate
+  dungeonScript: ExplicitCombatantDungeonTemplate,
+  options: EnterTestGameOptions = {}
 ) {
+  const {
+    characterCreationPolicyConstructor = DefaultCharacterCreationPolicy,
+    beforeCharacterCreation,
+  } = options;
   const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
     clientEndpointFactory.createIncomingConnectionGateways();
 
@@ -36,14 +48,14 @@ export async function enterTestGameSingleCharacter(
   const inMemoryTransportAndServers = await createTestServers(
     lobbyIncomingConnectionGateway,
     gameServerIncomingConnectionGateway,
-    rngPolicy
+    rngPolicy,
+    characterCreationPolicyConstructor
   );
 
   const lobbyServer = inMemoryTransportAndServers.lobbyServer;
   const gameServer = inMemoryTransportAndServers.gameServer;
 
-  const monsterGenerator = MonsterGenerator.createFromPolicy(rngPolicy);
-  gameServer.dungeonGenerationPolicy.setFloors(dungeonScript, monsterGenerator);
+  gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
 
   const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
   const tickScheduler = new ManualTickScheduler();
@@ -64,6 +76,8 @@ export async function enterTestGameSingleCharacter(
     tickScheduler,
     timeMachine
   );
+  beforeCharacterCreation?.(lobbyServer);
+
   await testToCharacterInParty(
     lobbyClientHarness,
     clientApplication,

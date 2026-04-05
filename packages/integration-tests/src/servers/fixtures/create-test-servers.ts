@@ -1,4 +1,5 @@
 import {
+  CharacterCreationPolicyConstructor,
   DefaultCharacterCreationPolicy,
   GameServer,
   GameServerName,
@@ -35,7 +36,8 @@ import {
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
   gameServerIncomingConnectionGateway: IncomingConnectionGateway,
-  rngPolicy: RandomNumberGenerationPolicy
+  rngPolicy: RandomNumberGenerationPolicy,
+  characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
@@ -75,8 +77,7 @@ export async function createTestServers(
     codec,
     { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter(),
-    // ScriptedCharacterCreationPolicy,
-    DefaultCharacterCreationPolicy,
+    characterCreationPolicyConstructor,
     rngPolicy
   );
 

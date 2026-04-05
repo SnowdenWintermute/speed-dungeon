@@ -1,27 +1,16 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
 import { Combatant } from "../combatants/index.js";
+import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
-import { MonsterGenerator } from "../monsters/monster-generator.js";
-import { MonsterType } from "../monsters/monster-types.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 
-export interface MonsterGenerationProps {
-  type: MonsterType;
-  level: number;
-}
-
-export interface ScriptedRoomTemplate {
+export interface ExplicitCombatantRoomTemplate {
   type: DungeonRoomType;
-  monsters?: MonsterGenerationProps[];
+  combatants?: CombatantBuilder[];
 }
 
-export type ScriptedDungeonTemplate = ScriptedRoomTemplate[][];
-
-export interface ScriptedRoom {
-  type: DungeonRoomType;
-  monsters?: MonsterGenerationProps[];
-}
+export type ExplicitCombatantDungeonTemplate = ExplicitCombatantRoomTemplate[][];
 
 export type DungeonGenerationPolicyConstructor = new (
   idGenerator: IdGenerator,
@@ -38,7 +27,7 @@ export abstract class DungeonGenerationPolicy {
 
   /** we set floors after construction so the game server can construct this with its own arugments, otherwise
    * we would have to construct this outside the game server when setting up what floors we want*/
-  abstract setFloors(floors: ScriptedRoomTemplate[][], monsterGenerator: MonsterGenerator): void;
+  abstract setExplicitFloors(floors: ExplicitCombatantDungeonTemplate): void;
   abstract generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[];
   abstract generateDungeonRoom(
     floorLevel: number,
