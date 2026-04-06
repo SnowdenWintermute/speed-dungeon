@@ -7,10 +7,15 @@ import {
   ClientIntent,
   ClientIntentType,
   CombatActionName,
+  CombatantClass,
   CombatantId,
+  EntityName,
+  GameMode,
+  GameName,
   ItemId,
   LOOP_SAFETY_ITERATION_LIMIT,
   NextOrPrevious,
+  PartyName,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { TimeMachine } from "./time-machine";
@@ -54,6 +59,31 @@ export class ClientTestHarness<T extends BaseClient> {
       // loop starves the microtask queue.
       await Promise.resolve();
     }
+  }
+
+  async createGame(gameName: string) {
+    await this.settleIntentResult({
+      type: ClientIntentType.CreateGame,
+      data: { gameName: gameName as GameName, mode: GameMode.Race },
+    });
+  }
+  async createParty(partyName: string) {
+    await this.settleIntentResult({
+      type: ClientIntentType.CreateParty,
+      data: { partyName: partyName as PartyName },
+    });
+  }
+  async createCharacter(characterName: string, combatantClass: CombatantClass) {
+    await this.settleIntentResult({
+      type: ClientIntentType.CreateCharacter,
+      data: { name: characterName as EntityName, combatantClass },
+    });
+  }
+  async toggleReadyToStartGame() {
+    await this.settleIntentResult({
+      type: ClientIntentType.ToggleReadyToStartGame,
+      data: undefined,
+    });
   }
 
   async toggleReadyToExplore() {
