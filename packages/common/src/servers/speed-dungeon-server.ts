@@ -51,7 +51,7 @@ export abstract class SpeedDungeonServer {
   ) {}
 
   closeTransportServer() {
-    this.incomingConnectionGateway.close();
+    return this.incomingConnectionGateway.close();
   }
 
   private parseMessage(rawData: string | ArrayBuffer | Buffer) {

@@ -7,7 +7,9 @@ export class InMemoryIncomingConnectionGateway extends IncomingConnectionGateway
   }
 
   close() {
-    this.inMemoryConnectionEndpointServer.close();
+    return new Promise<void>((resolve, reject) =>
+      this.inMemoryConnectionEndpointServer.close((err) => (err ? reject(err) : resolve()))
+    );
   }
 
   listen() {

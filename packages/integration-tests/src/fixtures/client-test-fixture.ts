@@ -25,8 +25,6 @@ export class ClientFixture {
 
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
 
-    this.timeMachine.start();
-
     this.lobbyClientHarness = new ClientTestHarness(
       this.clientApplication,
       lobbyClientRef,

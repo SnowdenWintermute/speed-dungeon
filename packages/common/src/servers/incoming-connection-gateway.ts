@@ -11,7 +11,7 @@ import { QUERY_PARAMS } from "./query-params.js";
  * to a TypedConnectionEndpoint<Sendable, Receiveable> */
 export abstract class IncomingConnectionGateway {
   abstract listen(): void;
-  abstract close(): void;
+  abstract close(): Promise<void>;
 
   issueConnectionId() {
     return uuidv4() as ConnectionId;

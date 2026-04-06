@@ -16,28 +16,23 @@ import { ClientFixture } from "./client-test-fixture.js";
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
   private _gameServer: GameServer | null = null;
-  readonly lobbyIncomingConnectionGateway: IncomingConnectionGateway;
-  readonly gameServerIncomingConnectionGateway: IncomingConnectionGateway;
   private clients = new Map<string, ClientFixture>();
 
   constructor(
     private clientEndpointFactory: ClientEndpointFactory,
-    private timeMachine: TimeMachine
-  ) {
-    const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
-      this.clientEndpointFactory.createIncomingConnectionGateways();
-    this.lobbyIncomingConnectionGateway = lobbyIncomingConnectionGateway;
-    this.gameServerIncomingConnectionGateway = gameServerIncomingConnectionGateway;
-  }
+    readonly timeMachine: TimeMachine
+  ) {}
 
   async createServers(
     rngPolicy: RandomNumberGenerationPolicy,
     dungeonScript: ExplicitCombatantDungeonTemplate,
     characterCreationFixture: FixedCharacterCreationLists
   ) {
+    const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
+      this.clientEndpointFactory.createIncomingConnectionGateways();
     const inMemoryTransportAndServers = await createTestServers(
-      this.lobbyIncomingConnectionGateway,
-      this.gameServerIncomingConnectionGateway,
+      lobbyIncomingConnectionGateway,
+      gameServerIncomingConnectionGateway,
       rngPolicy,
       ScriptedCharacterCreationPolicy
     );
