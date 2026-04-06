@@ -8,11 +8,11 @@ import {
   ReconnectionForwardingStoreService,
   GameSessionStoreService,
   GameServerSessionClaimTokenCodec,
-  DefaultCharacterCreationPolicy,
   RandomNumberGenerationPolicyFactory,
   ScriptedCharacterCreationPolicy,
   CombatantClass,
-  createExplicitAttributesTestWarrior,
+  PLAYER_CHARACTER_FIXTURES,
+  BASIC_CHARACTER_FIXTURES,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -56,9 +56,7 @@ export class LobbyServerNode {
       RandomNumberGenerationPolicyFactory.allRandomPolicy()
     );
 
-    this._lobbyServer.characterCreationPolicy.setCharacters({
-      [CombatantClass.Warrior]: [createExplicitAttributesTestWarrior],
-    });
+    this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
 
     console.info("lobby server node created");
   }

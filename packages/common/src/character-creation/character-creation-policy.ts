@@ -16,6 +16,8 @@ export type CharacterCreationPolicyConstructor = new (
   itemBuilder: ItemBuilder
 ) => CharacterCreationPolicy;
 
+export type FixedCharacterCreationLists = Partial<Record<CombatantClass, CharacterFactory[]>>;
+
 export abstract class CharacterCreationPolicy {
   constructor(
     protected readonly idGenerator: IdGenerator,
@@ -31,7 +33,7 @@ export abstract class CharacterCreationPolicy {
     return name as EntityName;
   }
 
-  abstract setCharacters(characters: Partial<Record<CombatantClass, CharacterFactory[]>>): void;
+  abstract setCharacters(characters: FixedCharacterCreationLists): void;
   abstract createCharacter(
     name: EntityName,
     combatantClass: CombatantClass,

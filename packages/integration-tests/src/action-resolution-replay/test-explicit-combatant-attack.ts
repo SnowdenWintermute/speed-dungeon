@@ -1,27 +1,16 @@
 import { IntegrationTestFixture } from "@/types";
 import {
   CombatActionName,
-  CombatAttribute,
-  CombatantBuilder,
-  CombatantClass,
   DungeonRoomType,
-  IdGenerator,
   LobbyServer,
-  ScriptedCharacterCreationPolicy,
-  Username,
-  createExplicitAttributesTestWarrior,
   invariant,
+  BASIC_CHARACTER_FIXTURES,
 } from "@speed-dungeon/common";
 
 export function configureExplicitAttackTestCharacters(lobbyServer: LobbyServer) {
   const policy = lobbyServer.characterCreationPolicy;
-  if (!(policy instanceof ScriptedCharacterCreationPolicy)) {
-    throw new Error("Expected ScriptedCharacterCreationPolicy");
-  }
 
-  policy.setCharacters({
-    [CombatantClass.Warrior]: [createExplicitAttributesTestWarrior],
-  });
+  policy.setCharacters(BASIC_CHARACTER_FIXTURES);
 }
 
 export async function testExplicitCombatantAttack(testFixture: IntegrationTestFixture) {

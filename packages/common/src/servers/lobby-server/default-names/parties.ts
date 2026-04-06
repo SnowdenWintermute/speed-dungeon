@@ -10,4 +10,5 @@ export const RANDOM_PARTY_NAMES = [
   "Descender's Anonymous",
   "Hello Kitty Bike Club",
   "Tantalus",
+  "Pine Valley Swim Club",
 ];

@@ -251,4 +251,7 @@ export * from "./dungeon-generation/random-dungeon-generation-policy.js";
 export * from "./dungeon-generation/scripted-dungeon-generation-policy.js";
 export * from "./monsters/monster-generator.js";
 export * from "./utility-classes/random-number-generation-policy.js";
-export * from "./test-utils/test-dungeon-floors.js";
+
+export * from "./testing/dungeon-generation-fixtures.js";
+export * from "./testing/monster-fixtures.js";
+export * from "./testing/player-character-fixtures.js";
