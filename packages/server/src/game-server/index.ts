@@ -15,6 +15,7 @@ import {
   FixedNumberGenerator,
   RNG_RANGE,
   EXPLICIT_ATTACK_TEST_DUNGEON,
+  TEST_DUNGEON_TWO_SPIDER_ROOMS,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -74,7 +75,8 @@ export class GameServerNode {
       // allRandomPolicy()
     );
 
-    this._server.dungeonGenerationPolicy.setExplicitFloors(EXPLICIT_ATTACK_TEST_DUNGEON);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(EXPLICIT_ATTACK_TEST_DUNGEON);
+    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

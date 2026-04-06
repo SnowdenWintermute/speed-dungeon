@@ -7,20 +7,9 @@ import {
 import { MonsterType } from "../monsters/monster-types.js";
 import { MONSTER_FIXTURES } from "./monster-fixtures.js";
 
-const ROOM_WITH_TWO_WOLVES: ExplicitCombatantRoomTemplate = {
-  type: DungeonRoomType.MonsterLair,
-  combatants: [
-    CombatantBuilder.monster(MonsterType.Wolf),
-    CombatantBuilder.monster(MonsterType.Wolf),
-  ],
-};
-
 const ROOM_WITH_TWO_SPIDERS: ExplicitCombatantRoomTemplate = {
   type: DungeonRoomType.MonsterLair,
-  combatants: [
-    CombatantBuilder.monster(MonsterType.Spider),
-    CombatantBuilder.monster(MonsterType.Spider),
-  ],
+  combatants: [MONSTER_FIXTURES.SPIDER, MONSTER_FIXTURES.SPIDER],
 };
 
 export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ExplicitCombatantDungeonTemplate = [
@@ -30,31 +19,6 @@ export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ExplicitCombatantDungeonTemplate = [
     },
     ROOM_WITH_TWO_SPIDERS,
     ROOM_WITH_TWO_SPIDERS,
-    {
-      type: DungeonRoomType.Staircase,
-    },
-  ],
-  [
-    {
-      type: DungeonRoomType.MonsterLair,
-      combatants: [CombatantBuilder.monster(MonsterType.Wolf)],
-    },
-  ],
-];
-
-export const TEST_DUNGEON_SIMPLE: ExplicitCombatantDungeonTemplate = [
-  [
-    {
-      type: DungeonRoomType.Empty,
-    },
-    {
-      type: DungeonRoomType.MonsterLair,
-      combatants: [CombatantBuilder.monster(MonsterType.Wolf)],
-    },
-    {
-      type: DungeonRoomType.MonsterLair,
-      combatants: [CombatantBuilder.monster(MonsterType.Wolf)],
-    },
     {
       type: DungeonRoomType.Staircase,
     },

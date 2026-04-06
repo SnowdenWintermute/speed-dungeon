@@ -7,7 +7,7 @@ export interface MonsterCombatProfile {
   aiTypes: AiType[];
 }
 
-const BASIC_AI_PRIORITY = [
+export const BASIC_AI_PRIORITY = [
   AiType.TargetTopOfThreatMeter,
   AiType.TargetLowestHpEnemy,
   AiType.RandomMaliciousAction,

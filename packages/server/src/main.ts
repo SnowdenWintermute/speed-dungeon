@@ -1,7 +1,5 @@
 import { createExpressApp } from "./create-express-app.js";
 import {
-  COMBAT_ACTIONS,
-  CombatActionName,
   GameServerName,
   InMemoryGameSessionStoreService,
   InMemoryReconnectionForwardingStoreService,
