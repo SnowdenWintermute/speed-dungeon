@@ -62,6 +62,8 @@ export class GameServerNode {
     const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
       counterAttack: fixedRngMinRoll,
       criticalStrike: fixedRngMinRoll,
+      parry: fixedRngMinRoll,
+      shieldBlock: fixedRngMinRoll,
     });
 
     this._server = new GameServer(

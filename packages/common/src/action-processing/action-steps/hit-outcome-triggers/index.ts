@@ -93,11 +93,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             if (!condition.removedOnDeath) continue;
             conditionManager.removeConditionById(condition.id);
 
-            const onRemovedTriggeredActions = condition.onRemoved(
-              actionUserContext,
-              targetCombatant,
-              context.idGenerator
-            );
+            const onRemovedTriggeredActions = condition.onRemoved(actionUserContext.party);
 
             this.branchingActions.push(...onRemovedTriggeredActions);
 
@@ -141,31 +137,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           // remove linked conditions such as when a web dies it must remove the ensnared condition
           // from corresponding target
-          const shouldRemoveAllConditionsAppliedByDyingCombatant =
-            targetCombatant.combatantProperties.onDeathProperties?.removeConditionsApplied;
+          const { onDeathProperties } = targetCombatant.combatantProperties;
+          const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
 
-          if (shouldRemoveAllConditionsAppliedByDyingCombatant) {
-            for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
-              for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
-                const wasAppliedByDyingCombatant =
-                  condition.appliedBy.entityProperties.id === targetCombatant.getEntityId();
-                if (wasAppliedByDyingCombatant) {
-                  combatant.combatantProperties.conditionManager.removeConditionById(condition.id);
-
-                  const onRemovedTriggeredActions = condition.onRemoved(
-                    actionUserContext,
-                    combatant,
-                    context.idGenerator
-                  );
-                  this.branchingActions.push(...onRemovedTriggeredActions);
-
-                  addRemovedConditionIdToUpdate(
-                    condition.id,
-                    gameUpdateCommand,
-                    combatant.entityProperties.id as CombatantId
-                  );
-                }
-              }
+          if (shouldRemoveAllConditionsAppliedBy) {
+            const { triggeredActions, conditionIdsRemoved } =
+              party.removeConditionsAppliedByCombatant(targetCombatant.getEntityId());
+            this.branchingActions.push(...triggeredActions);
+            for (const { conditionId, fromCombatantId } of conditionIdsRemoved) {
+              addRemovedConditionIdToUpdate(conditionId, gameUpdateCommand, fromCombatantId);
             }
           }
 

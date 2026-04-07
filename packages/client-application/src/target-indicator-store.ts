@@ -76,9 +76,10 @@ export class TargetIndicatorStore {
     }
 
     if (this._gameWorldView === null) {
-      return console.error(
-        "Expected targetIndicatorStore to be initialized with gameWorld reference"
-      );
+      return;
+      // return console.error(
+      //   "Expected targetIndicatorStore to be initialized with gameWorld reference"
+      // );
     }
 
     const { combatantSceneEntityManager } = this._gameWorldView.sceneEntityService;

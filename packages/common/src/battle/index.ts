@@ -2,8 +2,8 @@ import { makeAutoObservable } from "mobx";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { Consumable, Equipment, FriendOrFoe } from "../index.js";
-import { CombatantId, EntityId } from "../aliases.js";
+import { ActionIntentAndUser, Consumable, Equipment, FriendOrFoe } from "../index.js";
+import { CombatantId, ConditionId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 
@@ -77,8 +77,23 @@ export class Battle implements Serializable, ReactiveNode {
       }
     }
 
-    combatantManager.removeDungeonControlledCombatants(game);
-    combatantManager.removeNeutralCombatants(game);
+    const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
+    const removedNeutral = combatantManager.removeNeutralCombatants(game);
+    const branchingActions: ActionIntentAndUser[] = [];
+    const conditionIdsRemoved: ConditionId[] = [];
+    for (const removedCombatant of [...removedDungeonControlled, ...removedNeutral]) {
+      const { onDeathProperties } = removedCombatant.combatantProperties;
+      const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
+
+      if (shouldRemoveAllConditionsAppliedBy) {
+        const { triggeredActions, conditionIdsRemoved: idsRemoved } =
+          party.removeConditionsAppliedByCombatant(removedCombatant.getEntityId());
+        branchingActions.push(...triggeredActions);
+        for (const { conditionId, fromCombatantId } of idsRemoved) {
+          conditionIdsRemoved.push(conditionId);
+        }
+      }
+    }
 
     const battleIdToRemoveOption = party.battleId;
     party.setBattleId(null);
@@ -86,7 +101,7 @@ export class Battle implements Serializable, ReactiveNode {
       game.battles.delete(battleIdToRemoveOption);
     }
 
-    return levelUps;
+    return { levelUps, branchingActions, conditionIdsRemoved };
   }
 }
 

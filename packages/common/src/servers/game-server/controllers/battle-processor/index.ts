@@ -30,6 +30,7 @@ import {
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
 import { invariant } from "../../../../utils/index.js";
+import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
 
 export class BattleProcessor {
   constructor(
@@ -73,8 +74,9 @@ export class BattleProcessor {
 
       // battle ended, stop processing
       if (battleConcluded) {
-        const battleConclusionPayloads = await this.handleBattleConclusion(partyWipes);
-        sequentialEvents.push(...battleConclusionPayloads);
+        const battleConclusionClientSequentialEvents =
+          await this.handleBattleConclusion(partyWipes);
+        sequentialEvents.push(...battleConclusionClientSequentialEvents);
         shouldBreak = true;
       }
       // it is player's turn, stop processing
@@ -89,7 +91,10 @@ export class BattleProcessor {
       // get action intent for fastest actor
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
 
-      console.info("actionExecutionIntent:", actionExecutionIntent, "user:", user.getName());
+      const actionStringName = actionExecutionIntent
+        ? COMBAT_ACTIONS[actionExecutionIntent.actionName].getStringName()
+        : "null";
+      console.info("actionExecutionIntent:", actionStringName, "user:", user.getName());
 
       // process action intents
       if (actionExecutionIntent === null) {
@@ -122,6 +127,7 @@ export class BattleProcessor {
       }
 
       currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
+      console.log("current actor:", currentActorTurnTracker.getId());
     }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -129,6 +135,8 @@ export class BattleProcessor {
       type: GameStateUpdateType.ClientSequentialEvents,
       data: { sequentialEvents },
     });
+
+    console.log("returned outbox");
 
     return outbox;
   }
@@ -194,7 +202,7 @@ export class BattleProcessor {
         break;
       case BattleConclusion.Victory:
         {
-          const levelups = Battle.handleVictory(
+          const { levelUps, branchingActions, conditionIdsRemoved } = Battle.handleVictory(
             game,
             party,
             conclusionPayload.data.experiencePointChanges,
@@ -203,7 +211,7 @@ export class BattleProcessor {
           const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
             game,
             party,
-            levelups
+            levelUps
           );
           if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
           if (victoryMessagePayloadResults) sequentialEvents.push(...victoryMessagePayloadResults);

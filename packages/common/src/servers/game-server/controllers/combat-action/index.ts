@@ -242,6 +242,17 @@ export class CombatActionController {
 
     const actionExecutionIntent = new CombatActionExecutionIntent(actionName, rank, targets);
 
+    const actionStringName = actionExecutionIntent
+      ? COMBAT_ACTIONS[actionExecutionIntent.actionName].getStringName()
+      : "null";
+    console.info(
+      "player character used:",
+      actionStringName,
+      "user:",
+      characterContext.character.getName(),
+      targets
+    );
+
     this.updateCharacterTargetingPreferencesOnActionExecution(characterContext, targets);
 
     const outbox = await this.executeAction(characterContext, actionExecutionIntent, true);

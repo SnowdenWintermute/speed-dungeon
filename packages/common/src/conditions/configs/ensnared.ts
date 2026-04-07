@@ -12,6 +12,7 @@ import { CombatActionIntent } from "../../combat/combat-actions/combat-action-in
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { ActionRank } from "../../aliases.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
 
 export function getEnsnaredEvasionChange(rank: number) {
   return rank * 25 * -1;
@@ -28,13 +29,7 @@ export class EnsnaredCondition extends CombatantCondition {
     return { [CombatAttribute.Evasion]: getEnsnaredEvasionChange(this.rank) };
   }
 
-  onRemoved(
-    this: CombatantCondition,
-    actionUserContext: ActionUserContext,
-    targetCombatant: Combatant,
-    idGenerator: IdGenerator
-  ) {
-    const { party } = actionUserContext;
+  onRemoved(this: CombatantCondition, party: AdventuringParty) {
     const appliedToCombatant = party.combatantManager.getExpectedCombatant(this.appliedTo);
     const triggeredActions: ActionIntentAndUser[] = [];
     const startFlyingIntentAndUser = getStartFlyingActionIntentIfAble(appliedToCombatant);

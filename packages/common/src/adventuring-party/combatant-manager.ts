@@ -332,15 +332,21 @@ export class CombatantManager
   }
 
   removeDungeonControlledCombatants(game: SpeedDungeonGame) {
+    const removed: Combatant[] = [];
     for (const combatant of this.getDungeonControlledCombatants()) {
-      this.removeCombatant(combatant.getEntityId(), game);
+      const combatantRemoved = this.removeCombatant(combatant.getEntityId(), game);
+      removed.push(combatantRemoved);
     }
+    return removed;
   }
 
   removeNeutralCombatants(game: SpeedDungeonGame) {
+    const removed: Combatant[] = [];
     for (const combatant of this.getNeutralCombatants()) {
-      this.removeCombatant(combatant.getEntityId(), game);
+      const combatantRemoved = this.removeCombatant(combatant.getEntityId(), game);
+      removed.push(combatantRemoved);
     }
+    return removed;
   }
 
   monstersArePresent() {

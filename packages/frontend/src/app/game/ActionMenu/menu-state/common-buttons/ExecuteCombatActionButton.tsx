@@ -7,8 +7,7 @@ import { ClientApplication } from "@/client-application";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 function clickHandler(clientApplication: ClientApplication) {
-  const { gameContext, detailableEntityFocus, actionMenu, combatantFocus, gameClientRef } =
-    clientApplication;
+  const { actionMenu, combatantFocus, gameClientRef } = clientApplication;
   const characterId = combatantFocus.requireFocusedCharacterId();
   gameClientRef.get().dispatchIntent({
     type: ClientIntentType.UseSelectedCombatAction,
@@ -17,15 +16,7 @@ function clickHandler(clientApplication: ClientApplication) {
     },
   });
 
-  actionMenu.clearStack(); // don't just pop because could have used item from inventory
-  actionMenu.getCurrentMenu().goToFirstPage();
-  detailableEntityFocus.detailables.clear();
-
-  const party = gameContext.requireParty();
-
-  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
-  focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
-  party.inputLock.lockInput();
+  actionMenu.onExecuteAction();
 }
 
 export const ExecuteCombatActionButton = observer(() => {

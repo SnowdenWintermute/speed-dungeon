@@ -3,6 +3,7 @@ import { CombatActionName } from "../combat/combat-actions/combat-action-names.j
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
+import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
@@ -18,9 +19,14 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 2)
       .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.PassTurn)
+      .ownedAction(CombatActionName.UseGreenAutoinjector)
       .ownedAction(CombatActionName.Fire, 3)
       .equipMainHand(
         itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+      )
+      .addInventoryConsumable(
+        itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
       )
       .build(idGenerator),
   ROGUE: (playerName: Username, idGenerator: IdGenerator, itemBuilder: ItemBuilder) =>
@@ -32,6 +38,7 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 2)
       .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.PassTurn)
       .build(idGenerator),
   MAGE: (playerName: Username, idGenerator: IdGenerator, itemBuilder: ItemBuilder) =>
     CombatantBuilder.playerCharacter(CombatantClass.Mage, playerName)
@@ -42,6 +49,7 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 2)
       .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.PassTurn)
       .build(idGenerator),
 };
 

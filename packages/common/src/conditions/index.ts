@@ -6,7 +6,7 @@ import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./cond
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionInit } from "./condition-config.js";
-import { EntityId, EntityName } from "../aliases.js";
+import { ConditionId, EntityId, EntityName } from "../aliases.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
@@ -91,12 +91,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
     return { numStacksRemoved: 0, triggeredActions: [] };
   }
 
-  onRemoved(
-    this: CombatantCondition,
-    actionUserContext: ActionUserContext,
-    targetCombatant: Combatant,
-    idGenerator: IdGenerator
-  ): ActionIntentAndUser[] {
+  onRemoved(this: CombatantCondition, party: AdventuringParty): ActionIntentAndUser[] {
     return [];
   }
 
@@ -199,7 +194,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
 
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
-  getEntityId = () => this.id;
+  getEntityId = () => this.id as ConditionId;
   getLevel = () => this.rank;
   getTotalAttributes = () => this.combatAttributes || {};
   getOwnedActions = () => new Map();

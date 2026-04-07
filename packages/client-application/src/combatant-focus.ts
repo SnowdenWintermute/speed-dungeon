@@ -42,6 +42,7 @@ export class CombatantFocus {
   }
 
   setFocusedCharacter(combatantId: CombatantId) {
+    console.log("setting focusedCharacterId:", combatantId);
     this.clientSession.requireUsername();
     if (this.focusedCharacterId === combatantId) {
       return console.info("already focusing character id:", combatantId);
@@ -214,6 +215,7 @@ export class CombatantFocus {
     const clientIsViewingMenus = this.actionMenu.hasStackedMenus();
     const wouldInterruptMenuing = clientIsViewingMenus && !this.actionMenu.isViewingItemsOnGround();
     if (wouldInterruptMenuing) {
+      console.log("would interrupt menuing");
       return;
     }
 

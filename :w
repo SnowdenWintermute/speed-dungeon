@@ -116,12 +116,12 @@ export class ClientTestHarness<T extends BaseClient> {
       data: { characterId },
     });
     this.clientApplication.actionMenu.onExecuteAction();
-    return promise;
+    return promise
   }
 
   async useCombatAction(characterId: CombatantId, actionName: CombatActionName, rank: number) {
     await this.selectCombatAction(characterId, actionName, rank);
-    return this.useSelectedCombatAction(characterId);
+  return this.useSelectedCombatAction(characterId);
   }
 
   async selectCombatActionRank(characterId: CombatantId, actionRank: number) {

@@ -12,7 +12,7 @@ export class ActionMenu {
   private combatantsWithPendingCraftActions = new Set<CombatantId>();
   private _menuStatePool: ActionMenuScreenPool;
 
-  constructor(clientApplication: ClientApplication) {
+  constructor(private clientApplication: ClientApplication) {
     this._menuStatePool = new ActionMenuScreenPool(clientApplication);
     makeAutoObservable(this);
   }
@@ -137,6 +137,17 @@ export class ActionMenu {
 
   characterIsCrafting(entityId: CombatantId) {
     return this.combatantsWithPendingCraftActions.has(entityId);
+  }
+
+  onExecuteAction() {
+    this.clearStack(); // don't just pop because could have used item from inventory
+    this.getCurrentMenu().goToFirstPage();
+    const { detailableEntityFocus, gameContext, combatantFocus } = this.clientApplication;
+    detailableEntityFocus.detailables.clear();
+    const party = gameContext.requireParty();
+    const focusedCharacter = combatantFocus.requireFocusedCharacter();
+    focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
+    party.inputLock.lockInput();
   }
 }
 

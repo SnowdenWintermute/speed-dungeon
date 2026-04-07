@@ -10,7 +10,7 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
+import { CombatantId, ConditionId, EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
 import {
@@ -20,6 +20,7 @@ import {
   makePropertiesObservable,
 } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
 
 export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
@@ -171,5 +172,27 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   requireDescentPermitted() {
     this.requireNotInCombat();
     this.currentRoom.requireType(DungeonRoomType.Staircase);
+  }
+
+  removeConditionsAppliedByCombatant(applyerId: CombatantId) {
+    const triggeredActions: ActionIntentAndUser[] = [];
+    const conditionIdsRemoved: { conditionId: ConditionId; fromCombatantId: CombatantId }[] = [];
+    for (const [_, combatant] of this.combatantManager.getAllCombatants()) {
+      for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
+        const wasAppliedByDyingCombatant = condition.appliedBy.entityProperties.id === applyerId;
+        if (!wasAppliedByDyingCombatant) continue;
+
+        combatant.combatantProperties.conditionManager.removeConditionById(condition.id);
+
+        const onRemovedTriggeredActions = condition.onRemoved(this);
+        triggeredActions.push(...onRemovedTriggeredActions);
+        conditionIdsRemoved.push({
+          conditionId: condition.getEntityId(),
+          fromCombatantId: combatant.getEntityId(),
+        });
+      }
+    }
+
+    return { triggeredActions, conditionIdsRemoved };
   }
 }
