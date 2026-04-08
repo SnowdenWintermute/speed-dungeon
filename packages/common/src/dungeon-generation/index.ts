@@ -7,7 +7,11 @@ import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-g
 
 export interface ExplicitCombatantRoomTemplate {
   type: DungeonRoomType;
-  combatants?: CombatantBuilder[];
+  combatants?: ((
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => CombatantBuilder)[];
 }
 
 export type ExplicitCombatantDungeonTemplate = ExplicitCombatantRoomTemplate[][];

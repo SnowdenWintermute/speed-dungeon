@@ -74,16 +74,6 @@ export interface IActionUser {
     >
   >;
 
-  getNaturalUnarmedWeapons(): Partial<
-    Record<
-      HoldableSlotType,
-      {
-        equipment: Equipment;
-        weaponProperties: WeaponProperties;
-      }
-    >
-  >;
-
   targetFlyingConditionPreventsReachingMeleeRange(target: CombatantProperties): boolean;
 
   // COMBATANTS

@@ -241,10 +241,6 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
     return {};
   }
 
-  getNaturalUnarmedWeapons() {
-    return {};
-  }
-
   targetFlyingConditionPreventsReachingMeleeRange() {
     return false;
   }

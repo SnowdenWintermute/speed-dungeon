@@ -21,6 +21,7 @@ export abstract class EquipmentBuilder {
   protected _itemLevel: number = 1;
   protected _name: string | null = null;
   protected _currentDurability: number | null = null;
+  protected _indestructible: boolean = false;
   protected _affixes: EquipmentAffixes = {};
 
   constructor(
@@ -42,6 +43,11 @@ export abstract class EquipmentBuilder {
 
   durability(current: number): this {
     this._currentDurability = current;
+    return this;
+  }
+
+  indestructible() {
+    this._indestructible = true;
     return this;
   }
 
@@ -91,6 +97,7 @@ export abstract class EquipmentBuilder {
   }
 
   protected buildDurability(): null | { current: number; inherentMax: number } {
+    if (this._indestructible) return null;
     if (this.template.maxDurability === null) return null;
     const current = this._currentDurability ?? this.template.maxDurability;
     return { current, inherentMax: this.template.maxDurability };

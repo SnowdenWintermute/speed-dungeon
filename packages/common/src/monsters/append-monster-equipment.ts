@@ -1,7 +1,14 @@
+import {
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
+} from "../combat/hp-change-source-types.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
 import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
+import { NumberRange } from "../primatives/number-range.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -47,10 +54,60 @@ export function appendMonsterEquipment(
       );
       break;
     }
-    case MonsterType.Wolf:
+    case MonsterType.Wolf: {
+      const clawsBuilder = itemBuilder
+        .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSpear)
+        .indestructible();
+      const mainhandClaw = clawsBuilder.build(idGenerator);
+      mainhandClaw.requireWeaponProperties().damage = new NumberRange(2, 4);
+      mainhandClaw.requirements = {};
+      const offhandClaw = clawsBuilder.build(idGenerator);
+      offhandClaw.requireWeaponProperties().damage = new NumberRange(2, 4);
+      offhandClaw.requirements = {};
+
+      builder.equipMainHand(mainhandClaw);
+      builder.equipMainHand(offhandClaw);
+      break;
+    }
     case MonsterType.MantaRay:
+      {
+        const clawsBuilder = itemBuilder
+          .twoHandedMeleeWeapon(TwoHandedMeleeWeapon.Spear)
+          .indestructible();
+        const mainhandClaw = clawsBuilder.build(idGenerator);
+        mainhandClaw.requirements = {};
+        mainhandClaw.requireWeaponProperties().damage = new NumberRange(2, 8);
+        mainhandClaw.requireWeaponProperties().damageClassification = [
+          new ResourceChangeSource({
+            category: ResourceChangeSourceCategory.Physical,
+            kineticDamageTypeOption: KineticDamageType.Piercing,
+            elementOption: MagicalElement.Water,
+          }),
+        ];
+
+        builder.equipMainHand(mainhandClaw);
+      }
+      break;
+    case MonsterType.Spider: {
+      const clawsBuilder = itemBuilder
+        .twoHandedMeleeWeapon(TwoHandedMeleeWeapon.Spear)
+        .indestructible();
+      const mainhandClaw = clawsBuilder.build(idGenerator);
+      mainhandClaw.requireWeaponProperties().damage = new NumberRange(2, 8);
+      mainhandClaw.requireWeaponProperties().damageClassification = [
+        new ResourceChangeSource({
+          category: ResourceChangeSourceCategory.Physical,
+          kineticDamageTypeOption: KineticDamageType.Piercing,
+          elementOption: MagicalElement.Dark,
+        }),
+      ];
+      mainhandClaw.requirements = {};
+
+      builder.equipMainHand(mainhandClaw);
+      console.log("equipped claw to spider:", mainhandClaw);
+      break;
+    }
     case MonsterType.Net:
-    case MonsterType.Spider:
       break;
   }
 }

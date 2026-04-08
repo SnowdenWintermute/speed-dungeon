@@ -34,7 +34,6 @@ export * from "./game/index.js";
 export * from "./game/player.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
-export * from "./monsters/monster-unarmed-weapons.js";
 export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
 

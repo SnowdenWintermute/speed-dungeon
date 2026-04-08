@@ -49,8 +49,9 @@ export interface RandomNumberGenerationPolicy {
   combatResourceChange: RandomNumberGenerator;
   combatDurabilityTarget: RandomNumberGenerator;
   bouncingProjectileTargetSelection: RandomNumberGenerator;
-  // Monster AI
+  // Monsters
   monsterAiRandomAction: RandomNumberGenerator;
+  monsterEquipmentChoice: RandomNumberGenerator;
   // Consumables
   consumableEffect: RandomNumberGenerator;
   // World generation
@@ -83,6 +84,7 @@ export class RandomNumberGenerationPolicyFactory {
       combatDurabilityTarget: basic,
       bouncingProjectileTargetSelection: basic,
       monsterAiRandomAction: basic,
+      monsterEquipmentChoice: basic,
       consumableEffect: basic,
       dungeonLayout: basic,
       monsterEquipment: basic,
@@ -115,6 +117,7 @@ export class RandomNumberGenerationPolicyFactory {
       combatDurabilityTarget: fixed,
       bouncingProjectileTargetSelection: fixed,
       monsterAiRandomAction: fixed,
+      monsterEquipmentChoice: fixed,
       consumableEffect: fixed,
       dungeonLayout: fixed,
       monsterEquipment: fixed,

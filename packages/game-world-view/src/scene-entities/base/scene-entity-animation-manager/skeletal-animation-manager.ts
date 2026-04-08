@@ -135,6 +135,7 @@ export class SkeletalAnimationManager implements SceneEntityAnimationManager<Ani
   }
 
   getFallbackAnimationName(animationName: SkeletalAnimationName) {
+    console.log("fallback for:", SKELETAL_ANIMATION_NAME_STRINGS[animationName]);
     // if (animationName === AnimationName.MeleeOffHand) return AnimationName.MeleeMainHand;
     const chamberingNames = [
       SkeletalAnimationName.MainHandStabChambering,

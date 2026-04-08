@@ -39,8 +39,8 @@ export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
       `No scripted room at index ${roomIndex} on floor ${floorLevel}`
     );
 
-    const monsters = (scriptedRoom.combatants ?? []).map((builder) =>
-      builder.build(this.idGenerator)
+    const monsters = (scriptedRoom.combatants ?? []).map((builderFactory) =>
+      builderFactory(this.idGenerator, this.itemBuilder, this.rngPolicy).build(this.idGenerator)
     );
 
     return { room, monsters };

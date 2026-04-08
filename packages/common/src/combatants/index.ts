@@ -156,10 +156,6 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
   }
 
-  getNaturalUnarmedWeapons() {
-    return this.combatantProperties.equipment.getUnarmedWeapons();
-  }
-
   hasRequiredConsumablesToUseAction(actionName: CombatActionName) {
     const action = COMBAT_ACTIONS[actionName];
     const consumableCost = action.costProperties.getConsumableCost(this);
@@ -190,20 +186,11 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
       };
     }
 
-    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
-    // let battleOption: null | Battle = null;
-    // if (party.battleId !== null) {
-    //   const battle = game.battles.get(party.battleId);
-    //   if (battle !== undefined) battleOption = battle;
-    //   else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    // }
-
     if (battleOption !== null) {
       const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
       if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant) {
         return { canUse: false, reasonCanNot: "Combatant is not first in the turn order" };
-        // throw new Error("expected a combatant to be first in turn order");
       }
       if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {
         const message = `actual first action user: ${JSON.stringify(fastestActor)}, you attempted to move as ${this.entityProperties.id}`;

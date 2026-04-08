@@ -9,7 +9,7 @@ import { MONSTER_FIXTURES } from "./monster-fixtures.js";
 
 const ROOM_WITH_TWO_SPIDERS: ExplicitCombatantRoomTemplate = {
   type: DungeonRoomType.MonsterLair,
-  combatants: [MONSTER_FIXTURES.SPIDER(), MONSTER_FIXTURES.SPIDER()],
+  combatants: [MONSTER_FIXTURES.SPIDER, MONSTER_FIXTURES.SPIDER],
 };
 
 export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ExplicitCombatantDungeonTemplate = [
@@ -23,12 +23,6 @@ export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ExplicitCombatantDungeonTemplate = [
       type: DungeonRoomType.Staircase,
     },
   ],
-  [
-    {
-      type: DungeonRoomType.MonsterLair,
-      combatants: [CombatantBuilder.monster(MonsterType.Wolf)],
-    },
-  ],
 ];
 
 export const EXPLICIT_ATTACK_TEST_DUNGEON: ExplicitCombatantDungeonTemplate = [
@@ -36,7 +30,7 @@ export const EXPLICIT_ATTACK_TEST_DUNGEON: ExplicitCombatantDungeonTemplate = [
     { type: DungeonRoomType.Empty },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF(), MONSTER_FIXTURES.WOLF()],
+      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF],
     },
     { type: DungeonRoomType.Staircase },
   ],

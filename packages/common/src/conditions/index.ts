@@ -210,9 +210,6 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   getWeaponsInSlots() {
     return {};
   }
-  getNaturalUnarmedWeapons() {
-    return {};
-  }
 
   movementIsRestrained = () => false;
 }

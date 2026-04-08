@@ -15,7 +15,6 @@ export enum ActionExecutionPreconditions {
   TargetsAreAlive,
   WasNotCounterattacked,
   WasNotWearing2HWeaponOnPreviousAction,
-  NaturalUnarmedIsNotTwoHanded,
   NoPetCurrentlySummoned,
   PetCurrentlySummoned,
   PetSlotNotEmpty,
@@ -30,11 +29,6 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.UserIsAlive]: userIsAlive,
   [ActionExecutionPreconditions.TargetsAreAlive]: targetsAreAlive,
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
-  [ActionExecutionPreconditions.NaturalUnarmedIsNotTwoHanded]: (context) => {
-    const { actionUser } = context.actionUserContext;
-    const naturalMainhandOption = actionUser.getNaturalUnarmedWeapons()[HoldableSlotType.MainHand];
-    return !naturalMainhandOption?.equipment.isTwoHanded();
-  },
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
     wasWearing2HWeaponOnPreviousAction,
   [ActionExecutionPreconditions.NoPetCurrentlySummoned]: function (
