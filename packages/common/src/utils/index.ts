@@ -247,10 +247,12 @@ export function isDefined<T>(value: T | null | undefined): value is T {
   return value != null;
 }
 
-export function throwIfLoopLimitReached(safetyCounter: number) {
+export function throwIfLoopLimitReached(safetyCounter: number, message?: string) {
   if (safetyCounter >= LOOP_SAFETY_ITERATION_LIMIT) {
     throw new Error(
-      ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT)
+      ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT) +
+        " " +
+        message
     );
   }
 }

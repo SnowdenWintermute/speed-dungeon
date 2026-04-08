@@ -104,7 +104,6 @@ export function appendMonsterEquipment(
       mainhandClaw.requirements = {};
 
       builder.equipMainHand(mainhandClaw);
-      console.log("equipped claw to spider:", mainhandClaw);
       break;
     }
     case MonsterType.Net:

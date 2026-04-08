@@ -30,7 +30,7 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.TargetsAreAlive]: targetsAreAlive,
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
-    wasWearing2HWeaponOnPreviousAction,
+    wasNotWearing2HWeaponOnPreviousAction,
   [ActionExecutionPreconditions.NoPetCurrentlySummoned]: function (
     context: ActionResolutionStepContext
   ) {
@@ -68,15 +68,17 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   },
 };
 
-function wasWearing2HWeaponOnPreviousAction(
+function wasNotWearing2HWeaponOnPreviousAction(
   context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  return !(
+  const preconditionPassed = !(
     previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandStab ||
     previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandSwing
   );
+  console.log("wasNotWearing2HWeaponOnPreviousAction", preconditionPassed);
+  return preconditionPassed;
 }
 
 function wasNotCounterattacked(

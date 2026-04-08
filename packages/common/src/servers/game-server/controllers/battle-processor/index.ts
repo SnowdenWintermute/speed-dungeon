@@ -1,4 +1,7 @@
-import { ActionIntentOptionAndUser } from "../../../../action-processing/action-steps/index.js";
+import {
+  ActionIntentAndUser,
+  ActionIntentOptionAndUser,
+} from "../../../../action-processing/action-steps/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
@@ -26,6 +29,10 @@ import {
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
 import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
+import { throwIfLoopLimitReached } from "../../../../utils/index.js";
+import { TurnTracker } from "../../../../combat/turn-order/turn-trackers.js";
+import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
+import { IActionUser } from "../../../../action-user-context/action-user.js";
 
 export class BattleProcessor {
   constructor(
@@ -43,43 +50,23 @@ export class BattleProcessor {
   async processBattleUntilPlayerTurnOrConclusion() {
     const { game, party, battle } = this;
     battle.turnOrderManager.updateTrackers(game, party);
-    let currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
+    // let currentActorTurnTracker:TurnTracker|undefined = undefined;
+
+    // console.log("fastest tracker before loop:", currentActorTurnTracker);
 
     const sequentialEvents: ClientSequentialEvent[] = [];
 
     let safetyCounter = -1;
-    while (currentActorTurnTracker) {
+    while (party.battleId) {
+      throwIfLoopLimitReached(safetyCounter, "process-battle-until-player-turn-or-conclusion");
       safetyCounter += 1;
-      if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
-        console.error(
-          ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
-          "in process-battle-until-player-turn-or-conclusion"
-        );
-        break;
-      }
-
-      battle.turnOrderManager.updateTrackers(game, party);
-      currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
 
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
       if (party.battleId === null) break;
-
-      // it is player's turn, stop processing
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) break;
 
-      // get action intent for fastest actor
+      battle.turnOrderManager.updateTrackers(game, party);
       const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
-
-      const actionStringName = actionExecutionIntent
-        ? COMBAT_ACTIONS[actionExecutionIntent.actionName].getStringName()
-        : "null";
-      console.info(
-        "actionExecutionIntent:",
-        actionStringName,
-        "user:",
-        user.getName(),
-        user.getEntityId()
-      );
 
       // process action intents
       if (actionExecutionIntent === null) {
@@ -116,9 +103,6 @@ export class BattleProcessor {
           sequentialEvents.push(...postConclusionEvents);
         }
       }
-
-      currentActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
-      console.log("current actor:", currentActorTurnTracker?.getId());
     }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -130,6 +114,18 @@ export class BattleProcessor {
     console.log("returned outbox");
 
     return outbox;
+  }
+
+  logSelectedActionIntent(
+    user: IActionUser,
+    actionExecutionIntentOption: undefined | CombatActionExecutionIntent
+  ) {
+    const actionStringName = actionExecutionIntentOption
+      ? COMBAT_ACTIONS[actionExecutionIntentOption.actionName].getStringName()
+      : "null";
+    console.info(
+      `actionExecutionIntent: ${actionStringName} user: ${user.getName()} ${user.getEntityId()}`
+    );
   }
 
   getNextActionIntentAndUser(): ActionIntentOptionAndUser {

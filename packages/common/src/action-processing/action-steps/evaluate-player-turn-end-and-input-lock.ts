@@ -69,6 +69,15 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+  console.log(
+    context.actionUserContext.actionUser.getEntityId(),
+    "requiresTurnInThisContext:",
+    requiresTurnInThisContext,
+    "no ap left:",
+    noActionPointsLeft,
+    "turn already endeed:",
+    turnAlreadyEnded
+  );
 
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
