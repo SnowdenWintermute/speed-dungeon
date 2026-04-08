@@ -1,16 +1,12 @@
 import {
-  Battle,
-  BattleConclusion,
   CleanupMode,
   ClientSequentialEventHandlers,
   ClientSequentialEventType,
   CombatantId,
-  Consumable,
-  Equipment,
 } from "@speed-dungeon/common";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
-import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 import { ClientApplication } from "..";
+import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 
 export function createClientSequentialEventHandlers(
   clientApplication: ClientApplication
@@ -71,64 +67,6 @@ export function createClientSequentialEventHandlers(
       });
 
       await promise;
-    },
-    [ClientSequentialEventType.ProcessBattleResult]: (event) => {
-      const { conclusion, timestamp, actionEntitiesRemoved, experiencePointChanges, loot } = event;
-      const { gameWorldView, actionMenu, eventLogMessageService, combatantFocus } =
-        clientApplication;
-
-      if (loot) {
-        loot.equipment = loot.equipment.map((item) => Equipment.fromSerialized(item));
-        loot.consumables = loot.consumables.map((item) => Consumable.fromSerialized(item));
-
-        for (const item of loot.equipment) {
-          gameWorldView?.imageGenerator.enqueueMessage({
-            type: ImageGenerationRequestType.ItemCreation,
-            data: { item },
-          });
-        }
-
-        if (actionMenu.currentMenuIsType(ActionMenuScreenType.Root)) {
-          actionMenu.pushFromPool(ActionMenuScreenType.ItemsOnGround);
-        }
-      }
-
-      const { game, party } = combatantFocus.requireFocusedCharacterContext();
-
-      switch (conclusion) {
-        case BattleConclusion.Defeat:
-          party.timeOfWipe = timestamp;
-          eventLogMessageService.postWipeMessage();
-          break;
-        case BattleConclusion.Victory: {
-          combatantFocus.focusFirstOwnedCharacter();
-
-          party.inputLock.unlockInput();
-
-          const levelups = Battle.handleVictory(game, party, event.experiencePointChanges, loot);
-
-          for (const [characterId, expChange] of Object.entries(experiencePointChanges)) {
-            const characterResult = game.getCombatantById(characterId);
-            if (characterResult instanceof Error) return console.error(characterResult);
-            eventLogMessageService.postExperienceGained(characterResult.getName(), expChange);
-          }
-          for (const [characterId, levelup] of Object.entries(levelups)) {
-            const characterResult = game.getCombatantById(characterId);
-            if (characterResult instanceof Error) return console.error(characterResult);
-            eventLogMessageService.postLevelup(characterResult.getName(), levelup);
-          }
-          break;
-        }
-      }
-
-      const { actionEntityManager } = party;
-      for (const entityId of actionEntitiesRemoved) {
-        actionEntityManager.unregisterActionEntity(entityId);
-        gameWorldView?.sceneEntityService.actionEntityManager.unregister(
-          entityId,
-          CleanupMode.Soft
-        );
-      }
     },
     [ClientSequentialEventType.PostGameMessages]: (event) => {
       event.messages.forEach((message) => {

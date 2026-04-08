@@ -317,7 +317,8 @@ export class CombatActionController {
       this.idGenerator,
       this.rngPolicy,
       this.assetAnalyzer.animationLengths,
-      this.assetAnalyzer.boundingBoxes
+      this.assetAnalyzer.boundingBoxes,
+      this.lootGenerator
     );
 
     if (replayTreeResult instanceof Error) {

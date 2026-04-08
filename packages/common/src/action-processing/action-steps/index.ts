@@ -36,6 +36,7 @@ export enum ActionResolutionStepType {
   // if doing offhand attack instead of return home directly after mainhand attack
   PreFinalPositioningCheckEnvironmentalHazardTriggers,
   RemoveTickedConditionStacks,
+  BattleResolution, // on party wipe: generate loot/xp, cleanup, emit conclusion
   EvaluatePlayerEndTurnAndInputLock,
   ActionEntityDissipationMotion,
   RecoveryMotion,
@@ -66,7 +67,6 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
   [ActionResolutionStepType.PostOnResolutionGameLogMessage]: "postOnResolutionGameLogMessage",
-  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "evaluatePlayerEndTurnAndInputLock",
   [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
@@ -75,6 +75,8 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]:
     "preFinalPositioningCheckEnvironmentalHazardTriggers",
   [ActionResolutionStepType.RemoveTickedConditionStacks]: "removeTickedConditionStacks",
+  [ActionResolutionStepType.BattleResolution]: "battleResolution",
+  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "evaluatePlayerEndTurnAndInputLock",
 };
 
 export interface ActionResolutionStepResult {
@@ -142,8 +144,9 @@ export abstract class ActionResolutionStep {
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
   finalize(completionOrderId: number): Error | ActionIntentAndUser[] {
-    if (this.gameUpdateCommandOption)
+    if (this.gameUpdateCommandOption) {
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
+    }
     return this.onComplete();
   }
 

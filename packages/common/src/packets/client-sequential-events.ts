@@ -1,10 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { CombatantId, EntityId, PartyName, Username } from "../aliases";
+import { CombatantId, EntityId, Username } from "../aliases";
 import { EnvironmentEntityName } from "../environment-entities";
 import { NestedNodeReplayEvent } from "../action-processing/replay-events";
-import { BattleConclusion } from "../battle";
-import { Equipment } from "../items/equipment";
-import { Consumable } from "../items/consumables";
 import { GameMessage } from "./game-message";
 
 export enum ClientSequentialEventType {
@@ -14,7 +11,6 @@ export enum ClientSequentialEventType {
   SpawnEnvironmentModel,
   DespawnEnvironmentModel,
   ProcessReplayTree,
-  ProcessBattleResult,
   PostGameMessages,
   RemovePlayerFromGame,
 }
@@ -27,7 +23,6 @@ export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientSequentialEventType, string
   [ClientSequentialEventType.DespawnEnvironmentModel]: "Despawn Environment Model",
   [ClientSequentialEventType.ClearAllModels]: "Clear All Models",
   [ClientSequentialEventType.ProcessReplayTree]: "Process Replay Tree",
-  [ClientSequentialEventType.ProcessBattleResult]: "Process Battle Result",
   [ClientSequentialEventType.PostGameMessages]: "Post Game Messages",
   [ClientSequentialEventType.RemovePlayerFromGame]: "Remove Player From Game",
 };
@@ -51,14 +46,6 @@ export interface ClientSequentialEventMap {
     actionUserId: EntityId;
     root: NestedNodeReplayEvent;
     doNotLockInput?: boolean;
-  };
-  [ClientSequentialEventType.ProcessBattleResult]: {
-    conclusion: BattleConclusion;
-    partyName: PartyName;
-    experiencePointChanges: Record<CombatantId, number>;
-    timestamp: number;
-    actionEntitiesRemoved: EntityId[];
-    loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] };
   };
   [ClientSequentialEventType.PostGameMessages]: {
     messages: GameMessage[];

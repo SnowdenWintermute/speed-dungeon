@@ -12,6 +12,7 @@ import { actionCompletionGameUpdateHandler } from "./action-completion-update-ha
 import { resourcesPaidGameUpdateHandler } from "./resources-paid-update-handler";
 import { ActionEffectsApplyerCommand } from "./activated-triggers-update-handler";
 import { EntityMotionGameUpdateHandlerCommand } from "./entity-motion-update-handler";
+import { battleConclusionGameUpdateHandler } from "./battle-conclusion-update-handler";
 
 // @TODO - roll "resources paid", "hit outcomes" and "Activated Triggers"
 // into "action effects"
@@ -46,4 +47,5 @@ export const GAME_UPDATE_HANDLERS: Record<
   [GameUpdateCommandType.HitOutcomes]: hitOutcomesGameUpdateHandler,
   [GameUpdateCommandType.SpawnEntities]: spawnEntitiesGameUpdateHandler,
   [GameUpdateCommandType.ActionCompletion]: actionCompletionGameUpdateHandler,
+  [GameUpdateCommandType.BattleConclusion]: battleConclusionGameUpdateHandler,
 };

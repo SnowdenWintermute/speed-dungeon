@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
-import { CombatantId, EntityId, Milliseconds } from "../aliases.js";
+import { CombatantId, EntityId, Milliseconds, PartyName } from "../aliases.js";
 import { TaggedAnimationName } from "../app-consts.js";
 import { ActionResolutionStepType } from "./action-steps/index.js";
 import { Combatant } from "../combatants/index.js";
@@ -29,6 +29,9 @@ import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { CombatActionHitOutcomes } from "../combat/action-results/action-hit-outcome-calculation/index.js";
 import { ActionUseMessageData } from "../combat/combat-actions/combat-action-combat-log-properties.js";
 import { SerializedOf } from "../serialization/index.js";
+import { BattleConclusion } from "../battle/index.js";
+import { Equipment } from "../items/equipment/index.js";
+import { Consumable } from "../items/consumables/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -40,6 +43,7 @@ export enum GameUpdateCommandType {
   ActivatedTriggers,
   HitOutcomes,
   ActionCompletion,
+  BattleConclusion,
 }
 
 export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, string> = {
@@ -52,6 +56,7 @@ export const GAME_UPDATE_COMMAND_TYPE_STRINGS: Record<GameUpdateCommandType, str
   [GameUpdateCommandType.HitOutcomes]: "Hit Outcomes",
   [GameUpdateCommandType.ActionCompletion]: "Action Completion",
   [GameUpdateCommandType.ActionResolutionGameLogMessage]: "Action Resolution Game Log Message",
+  [GameUpdateCommandType.BattleConclusion]: "Battle Conclusion",
 };
 
 export type GameEntity = Combatant | ActionEntity;
@@ -215,6 +220,18 @@ export interface ActionResolutionGameLogMessageUpdateCommand extends IGameUpdate
   isSuccess?: boolean;
 }
 
+export interface BattleConclusionUpdateCommand extends IGameUpdateCommand {
+  type: GameUpdateCommandType.BattleConclusion;
+  partyName: PartyName;
+  conclusion: BattleConclusion;
+  timestamp: number;
+  loot?: { equipment: Equipment[]; consumables: Consumable[] };
+  experiencePointChanges?: Record<CombatantId, number>;
+  removedConditionIds?: Record<CombatantId, EntityId[]>;
+  removedCombatantIds?: CombatantId[];
+  actionEntitiesRemoved?: EntityId[];
+}
+
 export type GameUpdateCommand =
   | SpawnEntitiesGameUpdateCommand
   | CombatantMotionGameUpdateCommand
@@ -224,4 +241,5 @@ export type GameUpdateCommand =
   | HitOutcomesGameUpdateCommand
   | ActionCompletionUpdateCommand
   | ActionUseGameLogMessageUpdateCommand
-  | ActionResolutionGameLogMessageUpdateCommand;
+  | ActionResolutionGameLogMessageUpdateCommand
+  | BattleConclusionUpdateCommand;

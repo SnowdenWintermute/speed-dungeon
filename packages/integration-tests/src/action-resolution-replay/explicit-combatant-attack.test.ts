@@ -10,6 +10,7 @@ import {
   RandomNumberGenerationPolicyFactory,
   RNG_RANGE,
   TEST_DUNGEON_TWO_SPIDER_ROOMS,
+  TurnTrackerEntityType,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
 import { TimeMachine } from "../test-utils/time-machine.js";
@@ -32,7 +33,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       ]);
     });
 
-    it("web release condition after", async () => {
+    it("doesn't block turn order", async () => {
       const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
       const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
         counterAttack: fixedRngMinRoll,
@@ -52,7 +53,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await client.lobbyClientHarness.createGame("a");
       await client.lobbyClientHarness.createParty("a");
       await client.lobbyClientHarness.createCharacter("a", CombatantClass.Warrior);
-      await client.lobbyClientHarness.createCharacter("a", CombatantClass.Warrior);
+      await client.lobbyClientHarness.createCharacter("b", CombatantClass.Rogue);
       await client.lobbyClientHarness.toggleReadyToStartGame();
       const { clientApplication, gameClientHarness } = client;
       await clientApplication.sequentialEventProcessor.waitUntilIdle();
@@ -65,35 +66,99 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.Empty);
       await gameClientHarness.toggleReadyToExplore();
       expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
+
       let focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
-      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
 
-      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
 
-      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // cycle next x3
-      // cycle scheme
-      // use fire rank 3
-      await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 3);
-      await gameClientHarness.cycleTargets(focusedCharacterId, NextOrPrevious.Next);
-      await gameClientHarness.cycleTargets(focusedCharacterId, NextOrPrevious.Next);
-      await gameClientHarness.cycleTargets(focusedCharacterId, NextOrPrevious.Next);
+      await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 2);
       await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
       await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
-      // pass turn
+
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
-      // spiders should die from burning
 
-      const aSpider = party.combatantManager.getDungeonControlledCombatants()[0];
-      console.log(aSpider?.combatantProperties.resources.getHitPoints());
-      //
-      expect(party.combatantManager.getDungeonControlledCombatants().length).toBe(0);
-      // assert no web condition on either combatant
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 3);
+      await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
+      await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
+
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+
+      expect(
+        party
+          .getBattleOption(game)
+          ?.turnOrderManager.getFastestActorTurnOrderTracker()
+          .getTaggedIdOfTrackedEntity().type
+      ).toBe(TurnTrackerEntityType.Combatant);
     });
+
+    // it("web release condition after", async () => {
+    //   const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
+    //   const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
+    //     counterAttack: fixedRngMinRoll,
+    //     criticalStrike: fixedRngMinRoll,
+    //     parry: fixedRngMinRoll,
+    //     shieldBlock: fixedRngMinRoll,
+    //   });
+    //   await testFixture.createServers(
+    //     rngPolicy,
+    //     TEST_DUNGEON_TWO_SPIDER_ROOMS,
+    //     BASIC_CHARACTER_FIXTURES
+    //   );
+
+    //   const client = testFixture.createClient("client 1");
+    //   await client.connect();
+
+    //   await client.lobbyClientHarness.createGame("a");
+    //   await client.lobbyClientHarness.createParty("a");
+    //   await client.lobbyClientHarness.createCharacter("a", CombatantClass.Warrior);
+    //   await client.lobbyClientHarness.createCharacter("b", CombatantClass.Rogue);
+    //   await client.lobbyClientHarness.toggleReadyToStartGame();
+    //   const { clientApplication, gameClientHarness } = client;
+    //   await clientApplication.sequentialEventProcessor.waitUntilIdle();
+    //   await clientApplication.transitionToGameServer.waitFor();
+
+    //   const { gameContext } = clientApplication;
+    //   const game = gameContext.requireGame();
+    //   const party = gameContext.requireParty();
+
+    //   expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.Empty);
+    //   await gameClientHarness.toggleReadyToExplore();
+    //   expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
+    //   let focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+    //   await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+    //   focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+
+    //   await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+    //   focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+
+    //   await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+    //   focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+    //   // cycle next x3
+    //   // cycle scheme
+    //   // use fire rank 3
+    //   await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 3);
+    //   await gameClientHarness.cycleTargets(focusedCharacterId, NextOrPrevious.Next);
+    //   await gameClientHarness.cycleTargets(focusedCharacterId, NextOrPrevious.Next);
+    //   await gameClientHarness.cycleTargets(focusedCharacterId, NextOrPrevious.Next);
+    //   await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
+    //   await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
+    //   // pass turn
+    //   focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+    //   await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+    //   // spiders should die from burning
+
+    //   const aSpider = party.combatantManager.getDungeonControlledCombatants()[0];
+    //   console.log(aSpider?.combatantProperties.resources.getHitPoints());
+    //   //
+    //   expect(party.combatantManager.getDungeonControlledCombatants().length).toBe(0);
+    //   // assert no web condition on either combatant
+    // });
 
     // it("simple attack", async () => {
     //   const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);

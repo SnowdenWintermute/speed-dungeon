@@ -41,6 +41,7 @@ config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
       false
     ),
 };
+config.finalSteps[ActionResolutionStepType.BattleResolution] = {};
 
 export const BASIC_SPELL_STEPS_CONFIG = new ActionResolutionStepsConfig(
   config.steps,

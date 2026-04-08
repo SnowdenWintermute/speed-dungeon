@@ -2,6 +2,7 @@ import { ActionResolutionStepContext } from "../../../../../action-processing/ac
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../../items/equipment/slots.js";
+import { isDefined } from "../../../../../utils/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
@@ -156,7 +157,9 @@ function targetsAreAlive(
     return false;
   }
 
-  const targetCombatants = party.combatantManager.getExpectedCombatants(targetIdsResult);
+  const targetCombatants = party.combatantManager
+    .getOptionalCombatants(targetIdsResult)
+    .filter(isDefined);
   const targetsAreAlive = !Combatant.groupIsDead(targetCombatants);
 
   return targetsAreAlive;

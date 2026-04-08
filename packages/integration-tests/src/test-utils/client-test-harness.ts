@@ -17,6 +17,7 @@ import {
   NextOrPrevious,
   PartyName,
   TaggedEquipmentSlot,
+  throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { TimeMachine } from "./time-machine";
 import { ClientSingleton } from "@/client-application/clients/singleton";
@@ -40,13 +41,14 @@ export class ClientTestHarness<T extends BaseClient> {
 
   async flushReplayTree() {
     let iterationCount = 0;
-    while (
-      this.clientApplication.sequentialEventProcessor.isProcessing &&
-      iterationCount < LOOP_SAFETY_ITERATION_LIMIT
-    ) {
+    while (this.clientApplication.sequentialEventProcessor.isProcessing) {
       if (iterationCount >= LOOP_SAFETY_ITERATION_LIMIT - 1) {
-        console.error("LOOP_SAFETY_ITERATION_LIMIT reached");
+        console.error(
+          "reached LOOP_SAFETY_ITERATION_LIMIT",
+          this.clientApplication.sequentialEventProcessor.pendingEvents
+        );
       }
+      throwIfLoopLimitReached(iterationCount);
       iterationCount += 1;
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
       if (remaining > 0) {

@@ -123,6 +123,17 @@ export class CombatantManager
     return toReturn;
   }
 
+  getOptionalCombatants(entityIds: EntityId[]) {
+    const toReturn: (Combatant | undefined)[] = [];
+
+    for (const id of entityIds) {
+      const combatant = this.getCombatantOption(id);
+      toReturn.push(combatant);
+    }
+
+    return toReturn;
+  }
+
   getPartyMemberCharacters() {
     return this.getAllCombatantsWithControllerTypes([CombatantControllerType.Player]);
   }

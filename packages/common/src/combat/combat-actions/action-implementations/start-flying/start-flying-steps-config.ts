@@ -10,6 +10,7 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
   },
   {
+    [ActionResolutionStepType.BattleResolution]: {},
     [ActionResolutionStepType.FinalPositioning]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },

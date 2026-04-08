@@ -48,6 +48,7 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
   },
   {
+    [ActionResolutionStepType.BattleResolution]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.FinalPositioning]: {
       shouldIdleOnComplete: false,

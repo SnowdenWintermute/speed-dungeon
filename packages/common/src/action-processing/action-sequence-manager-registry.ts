@@ -10,6 +10,9 @@ import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 import { BoundingBoxSizesBySpecies } from "../types.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
+import { LootGenerator } from "../items/item-creation/loot-generator.js";
+import { BattleConclusion } from "../battle/index.js";
+import { CombatantId } from "../aliases.js";
 
 export class TimeKeeper {
   ms: number = 0;
@@ -22,11 +25,16 @@ export class ActionSequenceManagerRegistry {
   private inputBlockingActionStepsPendingReferenceCount = 0;
   private turnEnded = false;
   public time = new TimeKeeper();
+  public battleConcludedOption: {
+    conclusion: BattleConclusion;
+    levelUps: Record<CombatantId, number>;
+  } | null = null;
   constructor(
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
-    public readonly boundingBoxSizes: BoundingBoxSizesBySpecies
+    public readonly boundingBoxSizes: BoundingBoxSizesBySpecies,
+    public readonly lootGenerator: LootGenerator
   ) {}
 
   isEmpty() {

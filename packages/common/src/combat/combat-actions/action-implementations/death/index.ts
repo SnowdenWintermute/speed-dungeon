@@ -71,6 +71,7 @@ export const passTurnConfig: CombatActionComponentConfig = {
       [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
     },
     {
+      [ActionResolutionStepType.BattleResolution]: {},
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { getFinalSteps: (self) => self.finalSteps }

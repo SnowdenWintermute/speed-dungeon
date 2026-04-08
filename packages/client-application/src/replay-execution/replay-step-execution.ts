@@ -39,6 +39,7 @@ export class ReplayStepExecution<T extends GameUpdateCommand> {
       case GameUpdateCommandType.ActivatedTriggers:
       case GameUpdateCommandType.HitOutcomes:
       case GameUpdateCommandType.ActionCompletion:
+      case GameUpdateCommandType.BattleConclusion:
         return 0;
       case GameUpdateCommandType.ActionEntityMotion:
       case GameUpdateCommandType.CombatantMotion: {

@@ -17,7 +17,7 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
   }
 
   createCharacter(
-    _name: EntityName,
+    name: EntityName,
     combatantClass: CombatantClass,
     controllingPlayerName: Username
   ): Combatant {
@@ -34,6 +34,6 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
       factory !== undefined,
       `No scripted character factory for class ${CombatantClass[combatantClass]}`
     );
-    return factory(controllingPlayerName, this.idGenerator, this.itemBuilder);
+    return factory(controllingPlayerName, name, this.idGenerator, this.itemBuilder);
   }
 }

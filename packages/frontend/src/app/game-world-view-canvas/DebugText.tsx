@@ -118,6 +118,7 @@ export const DebugText = observer(
             className="h-full p-2 border-l border-white"
             onClick={() => {
               dialogs.close(DialogElementName.Debug);
+              clientApplication.gameWorldView?.debug.hide();
             }}
           >
             Hide

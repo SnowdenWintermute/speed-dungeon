@@ -8,6 +8,7 @@ import { RANDOM_CHARACTER_NAMES_FIRST } from "./random-character-names.js";
 
 export type CharacterFactory = (
   controllingPlayerName: Username,
+  characterName: EntityName,
   idGenerator: IdGenerator,
   itemBuilder: ItemBuilder
 ) => Combatant;

@@ -6,6 +6,7 @@ import { AnimationLengths, BoundingBoxSizes } from "../types.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
+import { LootGenerator } from "../items/item-creation/loot-generator.js";
 import {
   NestedNodeReplayEvent,
   NestedNodeReplayEventUtls,
@@ -18,13 +19,15 @@ export function processCombatAction(
   idGenerator: IdGenerator,
   rngPolicy: RandomNumberGenerationPolicy,
   animationLengths: AnimationLengths,
-  boundingBoxSizes: BoundingBoxSizes
+  boundingBoxSizes: BoundingBoxSizes,
+  lootGenerator: LootGenerator
 ) {
   const registry = new ActionSequenceManagerRegistry(
     idGenerator,
     rngPolicy,
     animationLengths,
-    boundingBoxSizes
+    boundingBoxSizes,
+    lootGenerator
   );
 
   const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
@@ -62,5 +65,5 @@ export function processCombatAction(
 
   const endedTurn = registry.getTurnEnded();
 
-  return { rootReplayNode, endedTurn };
+  return { rootReplayNode, endedTurn, battleConcludedOption: registry.battleConcludedOption };
 }

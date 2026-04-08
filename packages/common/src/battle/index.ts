@@ -3,9 +3,12 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ActionIntentAndUser, Consumable, Equipment, FriendOrFoe } from "../index.js";
-import { CombatantId, ConditionId, EntityId } from "../aliases.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { LootGenerator } from "../items/item-creation/loot-generator.js";
+import { PartyWipes } from "../types.js";
+import { generateExperiencePoints } from "../servers/game-server/controllers/battle-processor/generate-experience-points.js";
 
 export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
@@ -79,8 +82,12 @@ export class Battle implements Serializable, ReactiveNode {
 
     const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
     const removedNeutral = combatantManager.removeNeutralCombatants(game);
+    const removedCombatantIds: CombatantId[] = [
+      ...removedDungeonControlled.map((c) => c.getEntityId()),
+      ...removedNeutral.map((c) => c.getEntityId()),
+    ];
     const branchingActions: ActionIntentAndUser[] = [];
-    const conditionIdsRemoved: ConditionId[] = [];
+    const conditionIdsRemoved: { conditionId: EntityId; fromCombatantId: CombatantId }[] = [];
     for (const removedCombatant of [...removedDungeonControlled, ...removedNeutral]) {
       const { onDeathProperties } = removedCombatant.combatantProperties;
       const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
@@ -89,9 +96,7 @@ export class Battle implements Serializable, ReactiveNode {
         const { triggeredActions, conditionIdsRemoved: idsRemoved } =
           party.removeConditionsAppliedByCombatant(removedCombatant.getEntityId());
         branchingActions.push(...triggeredActions);
-        for (const { conditionId, fromCombatantId } of idsRemoved) {
-          conditionIdsRemoved.push(conditionId);
-        }
+        conditionIdsRemoved.push(...idsRemoved);
       }
     }
 
@@ -101,7 +106,67 @@ export class Battle implements Serializable, ReactiveNode {
       game.battles.delete(battleIdToRemoveOption);
     }
 
-    return { levelUps, branchingActions, conditionIdsRemoved };
+    return { levelUps, branchingActions, conditionIdsRemoved, removedCombatantIds };
+  }
+
+  static resolveBattle(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    lootGenerator: LootGenerator,
+    partyWipes: PartyWipes
+  ) {
+    let conclusion: BattleConclusion;
+    let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
+      equipment: [],
+      consumables: [],
+    };
+    let experiencePointChanges: Record<CombatantId, number> = {};
+    let branchingActions: ActionIntentAndUser[] = [];
+    let levelUps: Record<CombatantId, number> = {};
+    let removedCombatantIds: CombatantId[] = [];
+    const removedConditionIds: Record<CombatantId, EntityId[]> = {};
+
+    if (partyWipes.alliesDefeated) {
+      conclusion = BattleConclusion.Defeat;
+      party.timeOfWipe = Date.now();
+      if (party.battleId !== null) {
+        game.battles.delete(party.battleId);
+      }
+      party.setBattleId(null);
+    } else {
+      conclusion = BattleConclusion.Victory;
+      loot = lootGenerator.generateLoot(
+        party.combatantManager.getDungeonControlledCombatants().length,
+        party.dungeonExplorationManager.getCurrentFloor()
+      );
+      experiencePointChanges = generateExperiencePoints(party);
+      party.inputLock.unlockInput();
+
+      const victoryResult = Battle.handleVictory(game, party, experiencePointChanges, loot);
+      levelUps = victoryResult.levelUps;
+      branchingActions = victoryResult.branchingActions;
+      removedCombatantIds = victoryResult.removedCombatantIds;
+      for (const { conditionId, fromCombatantId } of victoryResult.conditionIdsRemoved) {
+        const existing = removedConditionIds[fromCombatantId] ?? [];
+        existing.push(conditionId);
+        removedConditionIds[fromCombatantId] = existing;
+      }
+    }
+
+    const actionEntitiesRemoved =
+      party.actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
+
+    return {
+      conclusion,
+      loot,
+      experiencePointChanges,
+      removedConditionIds,
+      removedCombatantIds,
+      actionEntitiesRemoved,
+      branchingActions,
+      levelUps,
+      timestamp: Date.now(),
+    };
   }
 }
 
