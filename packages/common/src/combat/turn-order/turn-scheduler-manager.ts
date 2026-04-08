@@ -124,7 +124,7 @@ export class TurnSchedulerManager {
             return a.timeOfNextMove - b.timeOfNextMove;
           } else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
+          } else return 0;
         });
         break;
       case TurnTrackerSortableProperty.AccumulatedDelay:
@@ -133,7 +133,7 @@ export class TurnSchedulerManager {
             return a.accumulatedDelay - b.accumulatedDelay;
           else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
+          } else return 0;
         });
         break;
     }

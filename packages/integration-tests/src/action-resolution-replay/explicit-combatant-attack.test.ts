@@ -88,6 +88,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+      console.log("PENDING EVENTS", clientApplication.sequentialEventProcessor.pendingEvents);
 
       expect(
         party
