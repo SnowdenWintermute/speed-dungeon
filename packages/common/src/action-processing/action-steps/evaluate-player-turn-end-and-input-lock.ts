@@ -69,8 +69,10 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+  console.log("checking required turn for actor:", actionUser.getName(), actionUser.getEntityId());
   console.log(
     context.actionUserContext.actionUser.getEntityId(),
+    action.getStringName(),
     "requiresTurnInThisContext:",
     requiresTurnInThisContext,
     "no ap left:",

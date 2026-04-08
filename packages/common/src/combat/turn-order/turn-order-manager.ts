@@ -1,7 +1,10 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId, Milliseconds } from "../../aliases.js";
-import { CombatActionName } from "../combat-actions/combat-action-names.js";
+import {
+  COMBAT_ACTION_NAME_STRINGS,
+  CombatActionName,
+} from "../combat-actions/combat-action-names.js";
 import {
   BASE_ACTION_DELAY,
   BASE_ACTION_DELAY_MULTIPLIER,
@@ -52,7 +55,16 @@ export class TurnOrderManager implements ReactiveNode {
     // @TODO - get delay multiplier from action
     const delay = TurnOrderManager.getActionDelayCost(speedResult, BASE_ACTION_DELAY_MULTIPLIER);
 
-    if (actionNameOption) scheduler.accumulatedDelay += delay;
+    if (actionNameOption) {
+      scheduler.accumulatedDelay += delay;
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[actionNameOption],
+        "added",
+        delay,
+        "to scheduler:",
+        scheduler.getTurnTakerId()
+      );
+    }
 
     return delay;
   }

@@ -13,6 +13,7 @@ import {
   TurnTrackerEntityType,
 } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
+import { throwIfLoopLimitReached } from "../../utils/index.js";
 
 export enum TurnTrackerSortableProperty {
   TimeOfNextMove,
@@ -49,13 +50,9 @@ export class TurnSchedulerManager {
 
     let numCombatantTrackersCreated = 0;
 
-    const ITERATION_LIMIT = 40;
     let iterationLimiter = 0;
-
-    while (
-      numCombatantTrackersCreated < this.minTurnTrackersCount &&
-      iterationLimiter < ITERATION_LIMIT
-    ) {
+    while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
+      throwIfLoopLimitReached(iterationLimiter, "turn-scheduler-manager buildNewList");
       iterationLimiter += 1;
       this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
 

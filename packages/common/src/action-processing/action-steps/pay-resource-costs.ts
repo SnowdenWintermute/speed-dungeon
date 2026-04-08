@@ -48,7 +48,7 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
         combatantId: actionUser.getEntityId(),
       };
 
-      if (!!consumableTypeAndLevelToConsumeOption) {
+      if (consumableTypeAndLevelToConsumeOption) {
         const { inventory } = combatantProperties;
         const consumableOption = inventory.getConsumableByTypeAndLevel(
           consumableTypeAndLevelToConsumeOption.type,

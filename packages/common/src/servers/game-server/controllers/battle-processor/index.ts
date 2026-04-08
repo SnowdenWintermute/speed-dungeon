@@ -30,7 +30,6 @@ import {
 } from "../../../../packets/client-sequential-events.js";
 import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
 import { throwIfLoopLimitReached } from "../../../../utils/index.js";
-import { TurnTracker } from "../../../../combat/turn-order/turn-trackers.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 
@@ -61,12 +60,22 @@ export class BattleProcessor {
       throwIfLoopLimitReached(safetyCounter, "process-battle-until-player-turn-or-conclusion");
       safetyCounter += 1;
 
+      battle.turnOrderManager.updateTrackers(game, party);
+      const fastestTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
+      console.log(
+        "fastest tracker:",
+        battle.turnOrderManager.getFastestActorTurnOrderTracker().getEntityId()
+      );
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
       if (party.battleId === null) break;
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) break;
 
-      battle.turnOrderManager.updateTrackers(game, party);
-      const { actionExecutionIntent, user } = this.getNextActionIntentAndUser();
+      const { actionExecutionIntent, user } = fastestTracker.getNextActionIntentAndUser(
+        game,
+        party,
+        this.rngPolicy
+      );
+      this.logSelectedActionIntent(user, actionExecutionIntent);
 
       // process action intents
       if (actionExecutionIntent === null) {
@@ -118,7 +127,7 @@ export class BattleProcessor {
 
   logSelectedActionIntent(
     user: IActionUser,
-    actionExecutionIntentOption: undefined | CombatActionExecutionIntent
+    actionExecutionIntentOption: null | CombatActionExecutionIntent
   ) {
     const actionStringName = actionExecutionIntentOption
       ? COMBAT_ACTIONS[actionExecutionIntentOption.actionName].getStringName()
@@ -128,14 +137,11 @@ export class BattleProcessor {
     );
   }
 
-  getNextActionIntentAndUser(): ActionIntentOptionAndUser {
-    const { game, party, battle } = this;
-    // get action intents for conditions or ai combatants
-    battle.turnOrderManager.updateTrackers(game, party);
-    const fastestActorTurnTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
+  // getNextActionIntentAndUser(fastestTracker:TurnTracker): ActionIntentOptionAndUser {
+  //   const { game, party, battle } = this;
 
-    return fastestActorTurnTracker.getNextActionIntentAndUser(game, party, this.rngPolicy);
-  }
+  //   return fastestTracker.getNextActionIntentAndUser(game, party, this.rngPolicy);
+  // }
 
   async handlePostBattleConclusion(battleConcluded: {
     conclusion: BattleConclusion;

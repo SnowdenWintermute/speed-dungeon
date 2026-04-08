@@ -57,7 +57,7 @@ export const ATTACK_CONFIG: CombatActionComponentConfig = {
       [ActionResolutionStepType.DetermineChildActions]: {},
     },
     {
-      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
+      // [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     { getFinalSteps: (self) => self.finalSteps }
   ),
