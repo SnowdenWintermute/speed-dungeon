@@ -73,7 +73,13 @@ export class BattleProcessor {
       const actionStringName = actionExecutionIntent
         ? COMBAT_ACTIONS[actionExecutionIntent.actionName].getStringName()
         : "null";
-      console.info("actionExecutionIntent:", actionStringName, "user:", user.getName());
+      console.info(
+        "actionExecutionIntent:",
+        actionStringName,
+        "user:",
+        user.getName(),
+        user.getEntityId()
+      );
 
       // process action intents
       if (actionExecutionIntent === null) {

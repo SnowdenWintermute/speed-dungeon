@@ -37,6 +37,7 @@ export async function hitOutcomesGameUpdateHandler(
   const entitiesAlreadyAnimatingHitRecovery: string[] = [];
 
   const action = COMBAT_ACTIONS[command.actionName];
+  console.log("hit outcomes action user", update.command.actionUserId, update.command.actionName);
 
   if (hitPointChanges) {
     for (const [entityId, hpChange] of hitPointChanges.getRecords()) {

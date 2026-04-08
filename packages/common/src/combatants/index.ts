@@ -190,6 +190,27 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
       };
     }
 
+    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
+    // let battleOption: null | Battle = null;
+    // if (party.battleId !== null) {
+    //   const battle = game.battles.get(party.battleId);
+    //   if (battle !== undefined) battleOption = battle;
+    //   else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
+    // }
+
+    if (battleOption !== null) {
+      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
+      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant) {
+        return { canUse: false, reasonCanNot: "Combatant is not first in the turn order" };
+        // throw new Error("expected a combatant to be first in turn order");
+      }
+      if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {
+        const message = `actual first action user: ${JSON.stringify(fastestActor)}, you attempted to move as ${this.entityProperties.id}`;
+        return { canUse: false, reasonCanNot: message };
+      }
+    }
+
     if (action.costProperties.getMeetsCustomRequirements) {
       const { meetsRequirements, reasonDoesNot } = action.costProperties.getMeetsCustomRequirements(
         this,
@@ -240,42 +261,6 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     }
 
     return { canUse: true };
-  }
-
-  canUseAction(
-    actionAndRank: ActionAndRank,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): Error | void {
-    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
-    let battleOption: null | Battle = null;
-    if (party.battleId !== null) {
-      const battle = game.battles.get(party.battleId);
-      if (battle !== undefined) battleOption = battle;
-      else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    }
-
-    const meetsUseRequirements = this.actionAndRankMeetsUseRequirements(
-      actionAndRank,
-      party,
-      battleOption
-    );
-
-    const { canUse, reasonCanNot } = meetsUseRequirements;
-    if (!canUse) {
-      return new Error(reasonCanNot || "unspecified reason can not use action");
-    }
-
-    if (battleOption !== null) {
-      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
-      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant)
-        return new Error("expected a combatant to be first in turn order");
-      if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {
-        const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
-        return new Error(message);
-      }
-    }
 
     // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
     // action would only make sense if we didn't already check valid states when targeting... unless

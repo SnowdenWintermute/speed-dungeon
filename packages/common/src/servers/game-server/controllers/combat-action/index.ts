@@ -275,10 +275,15 @@ export class CombatActionController {
     if (selectedActionAndRankOption === null) {
       throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
     }
+    const battleOption = party.getBattleOption(game);
+    const canUseAction = character.actionAndRankMeetsUseRequirements(
+      selectedActionAndRankOption,
+      party,
+      battleOption
+    );
 
-    const maybeError = character.canUseAction(selectedActionAndRankOption, game, party);
-    if (maybeError instanceof Error) {
-      throw maybeError;
+    if (!canUseAction.canUse) {
+      throw new Error(canUseAction.reasonCanNot || "Can not use action: unspecified reason");
     }
 
     return { actionAndRank: selectedActionAndRankOption, targets };

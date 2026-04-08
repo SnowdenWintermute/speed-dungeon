@@ -10,8 +10,6 @@ import {
   GameServerSessionClaimTokenCodec,
   RandomNumberGenerationPolicyFactory,
   ScriptedCharacterCreationPolicy,
-  CombatantClass,
-  PLAYER_CHARACTER_FIXTURES,
   BASIC_CHARACTER_FIXTURES,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";

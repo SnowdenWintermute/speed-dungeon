@@ -86,9 +86,10 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
       await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
 
+      console.log("PENDING EVENTS", clientApplication.sequentialEventProcessor.pendingEvents);
+
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
-      console.log("PENDING EVENTS", clientApplication.sequentialEventProcessor.pendingEvents);
 
       expect(
         party
