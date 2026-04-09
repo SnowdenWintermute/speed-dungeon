@@ -4,6 +4,7 @@ import {
   GameServer,
   GameServerName,
   GameServerNodeAssetService,
+  IdGeneratorSequential,
   IncomingConnectionGateway,
   InMemoryGameSessionStoreService,
   InMemoryRaceGameRecordsPersistenceStrategy,
@@ -78,7 +79,8 @@ export async function createTestServers(
     { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter(),
     characterCreationPolicyConstructor,
-    rngPolicy
+    rngPolicy,
+    new IdGeneratorSequential({ saveHistory: false })
   );
 
   const gameServer = new GameServer(
@@ -94,7 +96,9 @@ export async function createTestServers(
     ),
     codec,
     ScriptedDungeonGenerationPolicy,
-    rngPolicy
+    rngPolicy,
+
+    new IdGeneratorSequential({ saveHistory: false })
   );
 
   return { lobbyServer, gameServer };

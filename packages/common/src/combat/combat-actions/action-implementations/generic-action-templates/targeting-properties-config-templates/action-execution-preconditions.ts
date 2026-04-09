@@ -77,7 +77,6 @@ function wasNotWearing2HWeaponOnPreviousAction(
     previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandStab ||
     previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandSwing
   );
-  console.log("wasNotWearing2HWeaponOnPreviousAction", preconditionPassed);
   return preconditionPassed;
 }
 

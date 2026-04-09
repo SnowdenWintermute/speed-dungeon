@@ -32,9 +32,7 @@ import {
   CharacterCreationPolicy,
   CharacterCreationPolicyConstructor,
 } from "../../character-creation/character-creation-policy.js";
-import {
-  RandomNumberGenerationPolicy,
-} from "../../utility-classes/random-number-generation-policy.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -43,7 +41,6 @@ export interface LobbyExternalServices {
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
-  idGenerator: IdGenerator;
 }
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
@@ -69,7 +66,8 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly gameServerUrlRegistry: Record<GameServerName, string>,
     fetchLeastBusyServer: () => Promise<string>,
     characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
-    rngPolicy: RandomNumberGenerationPolicy
+    rngPolicy: RandomNumberGenerationPolicy,
+    private idGenerator: IdGenerator
   ) {
     super("LobbyServer", incomingConnectionGateway, rngPolicy);
 
@@ -100,11 +98,11 @@ export class LobbyServer extends SpeedDungeonServer {
     const equipmentRandomizer = new EquipmentRandomizer(rngPolicy, affixGenerator);
 
     this.characterCreationPolicy = new characterCreationPolicyConstructor(
-      this.externalServices.idGenerator,
+      this.idGenerator,
       new ItemBuilder(equipmentRandomizer)
     );
 
-    const controllers = this.createControllers();
+    const controllers = this.createControllers(idGenerator);
     this.gameLifecycleController = controllers.gameLifecycleController;
     this.partySetupController = controllers.partySetupController;
     this.userSessionLifecycleController = controllers.userSessionLifecycleController;
@@ -129,7 +127,7 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
-    // this.logUserConnected(session);
+    this.logUserConnected(session);
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(
@@ -183,7 +181,7 @@ export class LobbyServer extends SpeedDungeonServer {
     this.dispatchOutboxMessages(outbox);
   }
 
-  private createControllers() {
+  private createControllers(idGenerator: IdGenerator) {
     const savedCharactersController = new SavedCharactersController(
       this.externalServices.profileService,
       this.updateDispatchFactory,
@@ -195,7 +193,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       savedCharactersController,
       this.externalServices.profileService,
-      this.externalServices.idGenerator
+      idGenerator
     );
 
     const gameLifecycleController = new LobbyGameLifecycleController(
@@ -203,7 +201,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.updateDispatchFactory,
       partySetupController,
-      this.externalServices.idGenerator,
+      idGenerator,
       this.gameHandoffManager,
       this.externalServices.gameSessionStoreService
     );
@@ -222,7 +220,7 @@ export class LobbyServer extends SpeedDungeonServer {
       savedCharactersController,
       gameLifecycleController,
       this.externalServices.identityProviderService,
-      this.externalServices.idGenerator
+      idGenerator
     );
 
     return {

@@ -57,13 +57,6 @@ export class TurnOrderManager implements ReactiveNode {
 
     if (actionNameOption) {
       scheduler.accumulatedDelay += delay;
-      console.log(
-        COMBAT_ACTION_NAME_STRINGS[actionNameOption],
-        "added",
-        delay,
-        "to scheduler:",
-        scheduler.getTurnTakerId()
-      );
     }
 
     return delay;

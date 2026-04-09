@@ -43,14 +43,12 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     }
 
     if (CombatantEquipment.isWearingUsableTwoHandedMeleeWeapon(user)) {
-      console.log("isWearingUsableTwoHandedMeleeWeapon", true);
       return true;
     }
 
     const shouldExecuteOffhandAttack = COMBAT_ACTIONS[
       CombatActionName.AttackMeleeOffhand
     ].shouldExecute(context, context.tracker);
-    console.log("shouldExecuteOffhandAttack:", shouldExecuteOffhandAttack);
     if (!shouldExecuteOffhandAttack) {
       return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
     }

@@ -16,6 +16,8 @@ import {
   RNG_RANGE,
   EXPLICIT_ATTACK_TEST_DUNGEON,
   TEST_DUNGEON_TWO_SPIDER_ROOMS,
+  IdGenerator,
+  IdGeneratorSequential,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -72,7 +74,8 @@ export class GameServerNode {
       externalServices,
       gameServerSessionClaimTokenCodec,
       ScriptedDungeonGenerationPolicy,
-      rngPolicy
+      rngPolicy,
+      new IdGeneratorSequential({ saveHistory: false })
       // RandomDungeonGenerationPolicy,
       // allRandomPolicy()
     );

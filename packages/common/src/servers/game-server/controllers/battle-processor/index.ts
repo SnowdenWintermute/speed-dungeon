@@ -49,9 +49,6 @@ export class BattleProcessor {
   async processBattleUntilPlayerTurnOrConclusion() {
     const { game, party, battle } = this;
     battle.turnOrderManager.updateTrackers(game, party);
-    // let currentActorTurnTracker:TurnTracker|undefined = undefined;
-
-    // console.log("fastest tracker before loop:", currentActorTurnTracker);
 
     const sequentialEvents: ClientSequentialEvent[] = [];
 
@@ -62,10 +59,6 @@ export class BattleProcessor {
 
       battle.turnOrderManager.updateTrackers(game, party);
       const fastestTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
-      console.log(
-        "fastest tracker:",
-        battle.turnOrderManager.getFastestActorTurnOrderTracker().getEntityId()
-      );
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
       if (party.battleId === null) break;
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) break;
@@ -119,8 +112,6 @@ export class BattleProcessor {
       type: GameStateUpdateType.ClientSequentialEvents,
       data: { sequentialEvents },
     });
-
-    console.log("returned outbox");
 
     return outbox;
   }

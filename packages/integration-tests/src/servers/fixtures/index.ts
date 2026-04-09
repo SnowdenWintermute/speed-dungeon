@@ -5,6 +5,7 @@ import {
   GameSessionStoreService,
   IdentityProviderService,
   IdGenerator,
+  IdGeneratorSequential,
   InMemoryIdentityProviderQueryStrategy,
   RaceGameRecordsService,
   RankedLadderService,
@@ -55,7 +56,7 @@ export function createLobbyTestServices(
     profileService,
     savedCharactersService,
     rankedLadderService,
-    idGenerator: new IdGenerator({ saveHistory: false }),
+    idGenerator: new IdGeneratorSequential({ saveHistory: false }),
     gameSessionStoreService,
     reconnectionForwardingStoreService,
   };

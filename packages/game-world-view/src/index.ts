@@ -1,6 +1,6 @@
 import { Scene, Engine, Vector3, ArcRotateCamera, Color4 } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import { IdGenerator, invariant } from "@speed-dungeon/common";
+import { IdGenerator, IdGeneratorRandom, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
 import { MaterialManager } from "./materials/material-manager";
@@ -18,7 +18,7 @@ export class GameWorldView {
   readonly camera: ArcRotateCamera;
   readonly materialManager: MaterialManager;
   readonly textureManager: TextureManager;
-  readonly idGenerator = new IdGenerator({ saveHistory: false });
+  readonly idGenerator = new IdGeneratorRandom({ saveHistory: false });
   readonly id = this.idGenerator.generate();
 
   private _clientApplication: ClientApplication | null = null;

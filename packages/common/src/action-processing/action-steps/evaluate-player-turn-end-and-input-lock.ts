@@ -52,7 +52,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
-  console.log("evaluatePlayerEndTurnAndInputLock for action:", action.getStringName());
 
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = party.getBattleOption(game);
@@ -70,17 +69,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
-  console.log("checking required turn for actor:", actionUser.getName(), actionUser.getEntityId());
-  console.log(
-    context.actionUserContext.actionUser.getEntityId(),
-    action.getStringName(),
-    "requiresTurnInThisContext:",
-    requiresTurnInThisContext,
-    "no ap left:",
-    noActionPointsLeft,
-    "turn already endeed:",
-    turnAlreadyEnded
-  );
 
   let shouldSendEndActiveTurnMessage = false;
   const threatChanges = new ThreatChanges();
@@ -118,8 +106,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   const noBlockingActionsRemain = !hasRemainingActions && !blockingStepsPending;
 
-  console.log("no noBlockingActionsRemain", noBlockingActionsRemain);
-
   let shouldUnlockInput = false;
 
   if (battleOption === null) {
@@ -135,12 +121,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     }
   }
   if (!shouldUnlockInput && !requiredTurn) {
-    console.log(
-      "not unlocking input, requiredTurn:",
-      requiredTurn,
-      "shouldUnlockInput:",
-      shouldUnlockInput
-    );
     return;
   }
 
@@ -157,7 +137,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     gameUpdateCommandOption.endActiveCombatantTurn = true;
   }
 
-  console.log("unlocking input", shouldUnlockInput);
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
     party.inputLock.unlockInput();

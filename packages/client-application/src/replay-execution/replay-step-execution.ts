@@ -96,18 +96,7 @@ export class ReplayStepExecution<T extends GameUpdateCommand> {
       this._isComplete = true;
 
       this.onComplete(parentReplayTreeProcessor.clientApplication);
-
-      console.log(
-        "completed",
-        COMBAT_ACTION_NAME_STRINGS[this.command.actionName],
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]
-      );
     } else {
-      console.log(
-        "tried to complete in incorrect sequence order",
-        COMBAT_ACTION_NAME_STRINGS[this.command.actionName],
-        ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.command.step]
-      );
       // sometimes things complete out of order. I assume this is due to
       // the fact that there are race conditions in translation and animation events
       // in the game updates. That is why we have the completionOrderId system to begin with

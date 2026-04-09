@@ -54,14 +54,21 @@ export class LobbySessionLifecycleController
       return guestSession;
     } else {
       const { username, taggedUserId } = authenticatedUserOption;
-      return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
+      const result = new UserSession(
+        username,
+        connectionId,
+        taggedUserId,
+        this.lobbyState.gameRegistry
+      );
+      return result;
     }
   }
 
   private createGuestUser() {
+    const guestId = this.idGenerator.generate() as GuestUserId;
     const taggedUserId: TaggedUserId = {
       type: UserIdType.Guest,
-      id: this.idGenerator.generate() as GuestUserId,
+      id: guestId,
     };
 
     const username = this.generateRandomUsername();

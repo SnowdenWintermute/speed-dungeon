@@ -63,8 +63,6 @@ export class EntityMotionGameUpdateHandlerCommand {
     const { gameWorldView } = this;
     if (!gameWorldView) return;
 
-    // console.log("motion update action user", motionUpdate.entityId, motionUpdate);
-
     const { movementManager } = sceneEntity;
     const destination = plainToInstance(Vector3, translation.destination);
     const cosmeticDestinationYOption =

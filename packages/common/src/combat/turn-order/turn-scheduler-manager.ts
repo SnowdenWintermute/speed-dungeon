@@ -13,7 +13,6 @@ import {
   TurnTrackerEntityType,
 } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
-import { throwIfLoopLimitReached } from "../../utils/index.js";
 
 export enum TurnTrackerSortableProperty {
   TimeOfNextMove,
@@ -46,35 +45,21 @@ export class TurnSchedulerManager {
       scheduler.reset(party);
     }
 
-    // sort a copy so the canonical schedulers array order is preserved across builds.
-    // mutating this.schedulers via sort would cause tied entries to flip-flop between
-    // builds, since stable sort preserves the current array order — and the underlying
-    // order would be whatever the previous build's iterative bumping left behind.
-    // capture the canonical insertion index for each scheduler so the sort uses it as
-    // a deterministic final tie-break — without it, repeated sorts within this build
-    // (whose workingList order changes after each iteration's bump) would cause
-    // predicted upcoming turns to oscillate even when the actor selection is correct.
-    const insertionIndex = new Map<ITurnScheduler, number>();
-    this.schedulers.forEach((s, i) => insertionIndex.set(s, i));
-    const workingList = [...this.schedulers];
-
     const turnTrackerList: TurnTracker[] = [];
 
     let numCombatantTrackersCreated = 0;
 
+    const ITERATION_LIMIT = 40;
     let iterationLimiter = 0;
-    while (numCombatantTrackersCreated < this.minTurnTrackersCount) {
-      throwIfLoopLimitReached(iterationLimiter, "turn-scheduler-manager buildNewList");
-      iterationLimiter += 1;
-      this.sortSchedulerList(
-        workingList,
-        TurnTrackerSortableProperty.TimeOfNextMove,
-        party,
-        insertionIndex
-      );
 
-      const fastestActor = workingList[0];
-      if (fastestActor === undefined) throw new Error("turn scheduler list was empty");
+    while (
+      numCombatantTrackersCreated < this.minTurnTrackersCount &&
+      iterationLimiter < ITERATION_LIMIT
+    ) {
+      iterationLimiter += 1;
+      this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
+
+      const fastestActor = this.getFirstScheduler();
 
       const trackerOption = fastestActor.createTurnTrackerOption(game, party);
       if (trackerOption instanceof CombatantTurnTracker) {
@@ -131,31 +116,24 @@ export class TurnSchedulerManager {
     });
   }
 
-  private sortSchedulerList(
-    list: ITurnScheduler[],
-    sortBy: TurnTrackerSortableProperty,
-    party: AdventuringParty,
-    insertionIndex: Map<ITurnScheduler, number>
-  ) {
-    const tieBreakByInsertion = (a: ITurnScheduler, b: ITurnScheduler) =>
-      (insertionIndex.get(a) ?? 0) - (insertionIndex.get(b) ?? 0);
+  private sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
     switch (sortBy) {
       case TurnTrackerSortableProperty.TimeOfNextMove:
-        list.sort((a, b) => {
+        this.schedulers.sort((a, b) => {
           if (a.timeOfNextMove !== b.timeOfNextMove) {
             return a.timeOfNextMove - b.timeOfNextMove;
           } else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return tieBreakByInsertion(a, b);
+          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
         });
         break;
       case TurnTrackerSortableProperty.AccumulatedDelay:
-        list.sort((a, b) => {
+        this.schedulers.sort((a, b) => {
           if (a.accumulatedDelay !== b.accumulatedDelay)
             return a.accumulatedDelay - b.accumulatedDelay;
           else if (a.getSpeed(party) !== b.getSpeed(party)) {
             return b.getSpeed(party) - a.getSpeed(party);
-          } else return tieBreakByInsertion(a, b);
+          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
         });
         break;
     }

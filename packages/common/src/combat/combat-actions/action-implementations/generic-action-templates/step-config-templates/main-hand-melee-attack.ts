@@ -69,7 +69,6 @@ config.finalSteps[ActionResolutionStepType.FinalPositioning] = cloneDeep(
 config.options.getFinalSteps = (self, context) => {
   const offhandAttack = COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand];
   const offhandShouldExecute = offhandAttack.shouldExecute(context, context.tracker);
-  console.log("MainHand melee attack offhandShouldExecute:", offhandShouldExecute);
 
   const { actionUser } = context.actionUserContext;
   const combatantProperties = actionUser.getCombatantProperties();

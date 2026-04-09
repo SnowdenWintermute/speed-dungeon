@@ -71,11 +71,6 @@ export class ActionSequenceManager {
     }
 
     this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
-    console.log(
-      "incrementInputLockReferenceCount for action:",
-      COMBAT_ACTION_NAME_STRINGS[nextActionExecutionIntentOption.actionName],
-      this.sequentialActionManagerRegistry.getInputLockReferenceCount()
-    );
 
     let previousTrackerOption: null | ActionTracker = null;
     if (this.trackerThatSpawnedThisActionOption) {

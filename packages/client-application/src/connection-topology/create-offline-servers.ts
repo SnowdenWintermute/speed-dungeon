@@ -28,6 +28,7 @@ import {
   RandomDungeonGenerationPolicy,
   DefaultCharacterCreationPolicy,
   RandomNumberGenerationPolicyFactory,
+  IdGeneratorRandom,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -84,7 +85,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
     () => testLeastBusyServerUrlGetter(),
     DefaultCharacterCreationPolicy,
-    RandomNumberGenerationPolicyFactory.allRandomPolicy()
+    RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+    new IdGeneratorRandom({ saveHistory: false })
   );
 
   const gameServerConnectionEndpointServer = new InMemoryConnectionEndpointServer();
@@ -112,7 +114,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     ),
     codec,
     RandomDungeonGenerationPolicy,
-    RandomNumberGenerationPolicyFactory.allRandomPolicy()
+    RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+    new IdGeneratorRandom({ saveHistory: false })
   );
 
   await gameServer.analyzeAssetsForGameplayRelevantData();
@@ -143,7 +146,6 @@ function createOfflineLobbyServerServices(
     profileService,
     savedCharactersService,
     rankedLadderService,
-    idGenerator: new IdGenerator({ saveHistory: false }),
     gameSessionStoreService,
     reconnectionForwardingStoreService,
   };

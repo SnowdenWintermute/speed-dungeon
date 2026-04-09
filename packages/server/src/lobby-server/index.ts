@@ -11,6 +11,7 @@ import {
   RandomNumberGenerationPolicyFactory,
   ScriptedCharacterCreationPolicy,
   BASIC_CHARACTER_FIXTURES,
+  IdGeneratorSequential,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -51,7 +52,8 @@ export class LobbyServerNode {
       leastBusyGameServerUrlGetter,
       // DefaultCharacterCreationPolicy,
       ScriptedCharacterCreationPolicy,
-      RandomNumberGenerationPolicyFactory.allRandomPolicy()
+      RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+      new IdGeneratorSequential({ saveHistory: false })
     );
 
     this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
@@ -88,7 +90,6 @@ export class LobbyServerNode {
       profileService,
       savedCharactersService,
       rankedLadderService,
-      idGenerator: new IdGenerator({ saveHistory: false }),
       gameSessionStoreService,
       reconnectionForwardingStoreService,
     };

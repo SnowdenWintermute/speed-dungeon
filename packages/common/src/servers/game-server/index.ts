@@ -56,7 +56,6 @@ export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
 
 export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
-  private readonly idGenerator = new IdGenerator({ saveHistory: false });
   private readonly itemBuilder: ItemBuilder;
   private readonly lootGenerator: LootGenerator;
   readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
@@ -88,7 +87,8 @@ export class GameServer extends SpeedDungeonServer {
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
-    rngPolicy: RandomNumberGenerationPolicy
+    rngPolicy: RandomNumberGenerationPolicy,
+    private readonly idGenerator: IdGenerator
   ) {
     super(name, incomingConnectionGateway, rngPolicy);
 
@@ -241,10 +241,8 @@ export class GameServer extends SpeedDungeonServer {
       );
 
       if (connectionContext.type === ConnectionContextType.Reconnection) {
-        console.log("attempting reconnection claim");
         await connectionContext.attemptReconnectionClaim();
       } else if (gameIsInProgress) {
-        console.log("game in progress but not reconnecting");
         throw new Error("Tried to join a game in progress without a reconnection claim");
       }
 

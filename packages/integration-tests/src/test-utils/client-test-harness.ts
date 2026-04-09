@@ -44,7 +44,6 @@ export class ClientTestHarness<T extends BaseClient> {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
-      console.log("min remaining duration:", remaining);
       if (remaining > 0) {
         this.timeMachine.advanceTime(remaining, { logMessage: true });
       }

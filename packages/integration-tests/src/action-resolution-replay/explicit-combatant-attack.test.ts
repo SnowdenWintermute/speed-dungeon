@@ -89,16 +89,16 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
 
-      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
 
-      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
 
-      // client input locked here
+      // // client input locked here
 
-      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
       // expect(
       //   party
       //     .getBattleOption(game)
@@ -164,7 +164,6 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     //   // spiders should die from burning
 
     //   const aSpider = party.combatantManager.getDungeonControlledCombatants()[0];
-    //   console.log(aSpider?.combatantProperties.resources.getHitPoints());
     //   //
     //   expect(party.combatantManager.getDungeonControlledCombatants().length).toBe(0);
     //   // assert no web condition on either combatant

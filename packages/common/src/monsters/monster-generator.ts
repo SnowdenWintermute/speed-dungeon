@@ -18,17 +18,6 @@ export class MonsterGenerator {
     private rng: RandomNumberGenerator
   ) {}
 
-  static createFromPolicy(rngPolicy: RandomNumberGenerationPolicy) {
-    const idGenerator = new IdGenerator({ saveHistory: false });
-    const affixGenerator = new AffixGenerator(rngPolicy);
-    const equipmentRandomizer = new EquipmentRandomizer(rngPolicy, affixGenerator);
-    return new MonsterGenerator(
-      idGenerator,
-      new ItemBuilder(equipmentRandomizer),
-      rngPolicy.monsterEquipment
-    );
-  }
-
   generate(monsterType: MonsterType, level: number): Combatant {
     const profile = MONSTER_COMBAT_PROFILES[monsterType];
 
