@@ -49,6 +49,8 @@ export interface IActionUser {
     battleOption: null | Battle
   ): Record<FriendOrFoe, EntityId[]>;
 
+  getDelayForActionUse(actionName: CombatActionName): number;
+
   // ex: a condition should give threat caused by it's burning ticks to the caster of the spell that caused the condition
   getIdOfEntityToCreditWithThreat(): EntityId;
 

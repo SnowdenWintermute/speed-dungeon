@@ -143,6 +143,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             }
           }
 
+          const shouldRemove = targetCombatant.getCombatantProperties().removeFromPartyOnDeath;
+          if (shouldRemove) {
+            party.combatantManager.removeCombatant(targetCombatant.getEntityId(), game);
+            if (gameUpdateCommand.removedCombatantIds === undefined) {
+              gameUpdateCommand.removedCombatantIds = [];
+            }
+            gameUpdateCommand.removedCombatantIds.push(targetCombatant.getEntityId());
+          }
+
           // @TODO
           // kill attached combatants that die when their attachedTo is killed
 

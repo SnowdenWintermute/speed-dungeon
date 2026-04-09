@@ -26,6 +26,9 @@ import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { ReactiveNode } from "../serialization/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -194,6 +197,22 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
 
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
+
+  getSpeed() {
+    const tickPropertiesOption = this.getTickProperties();
+    if (!tickPropertiesOption) {
+      throw new Error("expected condition to be tickable");
+    }
+    return tickPropertiesOption.getTickSpeed(this);
+  }
+
+  getDelayForActionUse(_actionName: CombatActionName) {
+    const speed = this.getSpeed();
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
+    return delay;
+  }
+
   getEntityId = () => this.id as ConditionId;
   getLevel = () => this.rank;
   getTotalAttributes = () => this.combatAttributes || {};

@@ -10,18 +10,16 @@ export async function actionCompletionGameUpdateHandler(
   const { combatantFocus } = clientApplication;
   const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
-  if (update.command.endActiveCombatantTurn) {
+  if (update.command.addDelayToTurnScheduler) {
     const battleOption = party.getBattleOption(game);
     if (!battleOption) {
       return console.error("no battle but tried to end turn");
     }
 
-    const actionNameOption = update.command.actionName;
-
-    battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(
-      party,
-      actionNameOption
-    );
+    const { schedulerId, delay } = update.command.addDelayToTurnScheduler;
+    const scheduler =
+      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerByEntityId(schedulerId);
+    scheduler.accumulatedDelay += delay;
 
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk

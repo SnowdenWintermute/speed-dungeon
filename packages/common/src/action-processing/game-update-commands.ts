@@ -184,6 +184,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   >;
   removedConditionStacks?: Record<CombatantId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<CombatantId, EntityId[]>;
+  removedCombatantIds?: CombatantId[];
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
@@ -205,7 +206,7 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
   unlockInput?: boolean;
-  endActiveCombatantTurn?: boolean;
+  addDelayToTurnScheduler?: { delay: number; schedulerId: EntityId };
   threatChanges?: SerializedOf<ThreatChanges>;
 }
 

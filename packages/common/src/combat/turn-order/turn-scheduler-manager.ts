@@ -92,6 +92,12 @@ export class TurnSchedulerManager {
     return found;
   }
 
+  getSchedulerByEntityId(entityId: EntityId) {
+    const found = this.schedulers.find((scheduler) => scheduler.getTurnTakerId() === entityId);
+    if (found === undefined) throw new Error("Expected combatant turn order scheduler not found");
+    return found;
+  }
+
   getMatchingSchedulerFromTurnOrderTracker(turnOrderTracker: TurnTracker) {
     const schedulerOption = turnOrderTracker.getMatchingScheduler(this.schedulers);
     if (schedulerOption === undefined) {

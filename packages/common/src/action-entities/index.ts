@@ -26,6 +26,8 @@ import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-act
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { ActionEntityProperties } from "./action-entity-properties.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -156,6 +158,23 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
     throw new Error("Method not implemented.");
   }
   handleTurnEnded(): void {}
+
+  getSpeed() {
+    const { actionEntityProperties } = this;
+    const { actionOriginData } = actionEntityProperties;
+    if (actionOriginData === undefined)
+      throw new Error("expected action entity to have origin data");
+
+    return actionOriginData.turnOrderSpeed || 0;
+  }
+
+  getDelayForActionUse(_actionName: CombatActionName) {
+    const speed = this.getSpeed();
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
+    return delay;
+  }
+
   getEntityId(): EntityId {
     return this.entityProperties.id;
   }

@@ -104,11 +104,6 @@ export class CombatantResourceChangeUpdateHandlerCommand {
       );
     }
 
-    const shouldRemove = this.targetCombatant.getCombatantProperties().removeFromPartyOnDeath;
-    if (shouldRemove) {
-      party.combatantManager.removeCombatant(this.targetCombatant.getEntityId(), game);
-    }
-
     this.postDeathMessage();
     this.targetSceneEntity?.handleDeath();
   }

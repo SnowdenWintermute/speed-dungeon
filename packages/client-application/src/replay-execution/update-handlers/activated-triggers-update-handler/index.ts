@@ -50,6 +50,7 @@ export class ActionEffectsApplyerCommand {
     this.applySupportClassLevelsGained(command.supportClassLevelsGained);
     this.applyConditionStacksRemoved(command.removedConditionStacks);
     this.applyConditionsRemoved(command.removedConditionIds);
+    this.applyCombatantsRemoved(command.removedCombatantIds);
     this.applyPetSlotsUnsummoned(command.petsUnsummoned);
     this.applyPetsTamed(command.petsTamed);
     this.applyPetSlotsSummoned(command.petSlotsSummoned);
@@ -111,6 +112,13 @@ export class ActionEffectsApplyerCommand {
           );
         }
       }
+    }
+  }
+
+  private applyCombatantsRemoved(combatantIds?: CombatantId[]) {
+    if (!combatantIds) return;
+    for (const id of combatantIds) {
+      this.party.combatantManager.removeCombatant(id, this.game);
     }
   }
 

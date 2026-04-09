@@ -15,6 +15,7 @@ import {
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
 import { TimeMachine } from "../test-utils/time-machine.js";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture.js";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "explicit combatant attack",
@@ -88,23 +89,30 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
 
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
       // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+      expect(party.battleId).toBe(null);
+      expect(clientApplication.actionMenu.getCurrentMenu().type).toBe(
+        ActionMenuScreenType.ItemsOnGround
+      );
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.toggleReadyToExplore();
 
-      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
-
-      // // client input locked here
-
-      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
-      // expect(
-      //   party
-      //     .getBattleOption(game)
-      //     ?.turnOrderManager.getFastestActorTurnOrderTracker()
-      //     .getTaggedIdOfTrackedEntity().type
-      // ).toBe(TurnTrackerEntityType.Combatant);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
     });
 
     // it("web release condition after", async () => {

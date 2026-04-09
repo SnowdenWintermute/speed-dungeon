@@ -1,6 +1,9 @@
 import { CombatantId, EntityName } from "../../../aliases.js";
 import { MAX_CHARACTER_NAME_LENGTH } from "../../../app-consts.js";
-import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
+import {
+  COMBATANT_CLASS_NAME_STRINGS,
+  CombatantClass,
+} from "../../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
@@ -40,6 +43,11 @@ export class CharacterLifecycleController {
       name,
       combatantClass,
       session.username
+    );
+
+    console.log(
+      "created",
+      newCharacter.combatantProperties.classProgressionProperties.getMainClass().getStringName()
     );
 
     const pets: Combatant[] = [];

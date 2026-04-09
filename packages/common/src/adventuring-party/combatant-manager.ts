@@ -1,6 +1,6 @@
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { CombatantId, EntityId, EntityName } from "../aliases.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
@@ -41,6 +41,10 @@ export class CombatantManager
     const result = new CombatantManager();
     result.combatants = MapUtils.deserialize(serialized.combatants, (v) =>
       Combatant.fromSerialized(v)
+    );
+    console.log(
+      "deserialized combatants:",
+      [...result.combatants.values()].map((item) => item.getEntityId())
     );
     return result;
   }

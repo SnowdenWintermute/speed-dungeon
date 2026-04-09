@@ -1,3 +1,3 @@
-# Commands
+## Commands
 
-- vitest
+yarn test # runs tests

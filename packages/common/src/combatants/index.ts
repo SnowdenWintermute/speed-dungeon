@@ -25,6 +25,9 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
+import { CombatAttribute } from "./attributes/index.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -117,6 +120,21 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
+
+  getSpeed() {
+    const combatantSpeed = this.combatantProperties.attributeProperties.getAttributeValue(
+      CombatAttribute.Speed
+    );
+    return combatantSpeed;
+  }
+
+  getDelayForActionUse(_actionName: CombatActionName) {
+    const speed = this.getSpeed();
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
+    return delay;
+  }
+
   handleTurnEnded(): void {
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk

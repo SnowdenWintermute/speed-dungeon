@@ -212,10 +212,9 @@ export class CombatantBuilder {
   }
 
   build(idGenerator: IdGenerator): Combatant {
-    const entityProperties = {
-      id: idGenerator.generate("combatant-builder"),
-      name: this._name as EntityName,
-    };
+    const id = idGenerator.generate("combatant-builder");
+    const entityProperties = { id, name: this._name as EntityName };
+    console.log("created character with id:", id);
 
     const combatantProperties = new CombatantProperties(
       this.mainClass,

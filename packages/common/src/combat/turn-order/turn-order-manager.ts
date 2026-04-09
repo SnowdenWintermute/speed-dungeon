@@ -38,28 +38,11 @@ export class TurnOrderManager implements ReactiveNode {
     return this.turnTrackers;
   }
 
-  updateFastestSchedulerWithExecutedActionDelay(
-    party: AdventuringParty,
-    actionNameOption: null | CombatActionName
-  ): Milliseconds {
+  updateFastestSchedulerWithDelay(delay: number) {
     const fastest = this.getFastestActorTurnOrderTracker();
     const scheduler = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
-
-    let speedResult = 0;
-    try {
-      speedResult = scheduler.getSpeed(party);
-    } catch (err) {
-      console.info("couldn't get tracker speed, maybe its associated entity was already removed");
-    }
-
-    // @TODO - get delay multiplier from action
-    const delay = TurnOrderManager.getActionDelayCost(speedResult, BASE_ACTION_DELAY_MULTIPLIER);
-
-    if (actionNameOption) {
-      scheduler.accumulatedDelay += delay;
-    }
-
-    return delay;
+    scheduler.accumulatedDelay += delay;
+    return { delay, schedulerId: scheduler.getTurnTakerId() };
   }
 
   currentActorIsPlayerControlled(party: AdventuringParty) {

@@ -45,7 +45,7 @@ export class ClientTestHarness<T extends BaseClient> {
       iterationCount += 1;
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
       if (remaining > 0) {
-        this.timeMachine.advanceTime(remaining, { logMessage: true });
+        this.timeMachine.advanceTime(remaining);
       }
       this.tickScheduler.tick();
       // Yield the call stack so microtasks queued by ticking (e.g. resolved

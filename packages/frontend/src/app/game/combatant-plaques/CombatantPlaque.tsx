@@ -179,7 +179,7 @@ export const CombatantPlaque = observer(
                     <span>
                       {showDebug ? (
                         <HoverableTooltipWrapper tooltipText={entityId}>
-                          _[{entityId.slice(0, 5)}]
+                          _[{entityId.slice(0, 8)}]
                         </HoverableTooltipWrapper>
                       ) : (
                         ""

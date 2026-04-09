@@ -1,3 +1,4 @@
+import { EntityId } from "../../aliases.js";
 import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { Combatant } from "../../combatants/index.js";
@@ -70,7 +71,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
 
-  let shouldSendEndActiveTurnMessage = false;
+  let tellClientDelayAdded: { delay: number; schedulerId: EntityId } | undefined = undefined;
   const threatChanges = new ThreatChanges();
 
   if (requiredTurn && !turnAlreadyEnded && !!battleOption) {
@@ -78,11 +79,13 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
 
-    battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(party, actionName);
+    const delay = actionUser.getDelayForActionUse(actionName);
+    const delayAddedToSchedulerId =
+      battleOption.turnOrderManager.updateFastestSchedulerWithDelay(delay);
     battleOption.turnOrderManager.updateTrackers(game, party);
 
     sequentialActionManagerRegistry.setTurnEnded();
-    shouldSendEndActiveTurnMessage = true;
+    tellClientDelayAdded = delayAddedToSchedulerId;
 
     actionUser.handleTurnEnded();
 
@@ -133,8 +136,9 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   };
 
   if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
-  if (shouldSendEndActiveTurnMessage) {
-    gameUpdateCommandOption.endActiveCombatantTurn = true;
+
+  if (tellClientDelayAdded) {
+    gameUpdateCommandOption.addDelayToTurnScheduler = tellClientDelayAdded;
   }
 
   if (shouldUnlockInput) {
