@@ -66,10 +66,16 @@ export class ActionSequenceManager {
 
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
 
-    if (!nextActionExecutionIntentOption)
+    if (!nextActionExecutionIntentOption) {
       throw new Error("Tried to process next action but there wasn't one");
+    }
 
     this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
+    console.log(
+      "incrementInputLockReferenceCount for action:",
+      COMBAT_ACTION_NAME_STRINGS[nextActionExecutionIntentOption.actionName],
+      this.sequentialActionManagerRegistry.getInputLockReferenceCount()
+    );
 
     let previousTrackerOption: null | ActionTracker = null;
     if (this.trackerThatSpawnedThisActionOption) {

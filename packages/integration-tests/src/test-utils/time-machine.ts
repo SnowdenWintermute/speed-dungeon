@@ -1,17 +1,20 @@
 import { vi } from "vitest";
 
 export class TimeMachine {
-  private originalDateNow: () => number = Date.now;
-  private currentTimeMs = 0;
   private isStarted = false;
 
   start() {
     if (this.isStarted) {
       throw new Error("Time machine already started");
     }
+    // useFakeTimers mocks Date.now as well as setTimeout/setInterval, and
+    // advanceTimersByTime advances both. No need to maintain a separate
+    // currentTimeMs or override Date.now ourselves — doing so would drift out
+    // of sync with vitest's frozen Date and cause ReplayStepExecution.elapsed
+    // (which uses Date.now()) to compare against a different time base than
+    // what advanceTime advances.
     vi.useFakeTimers();
     this.isStarted = true;
-    this.currentTimeMs = this.originalDateNow();
   }
 
   advanceTime(milliseconds: number, options?: { logMessage: boolean }) {
@@ -24,14 +27,10 @@ export class TimeMachine {
     }
 
     vi.advanceTimersByTime(milliseconds);
-    this.currentTimeMs = this.currentTimeMs + milliseconds;
-    Date.now = () => this.currentTimeMs;
   }
 
   returnToPresent() {
-    Date.now = this.originalDateNow;
     vi.useRealTimers();
-    this.currentTimeMs = 0;
     this.isStarted = false;
   }
 }

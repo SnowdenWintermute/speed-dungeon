@@ -66,7 +66,7 @@ export function appendMonsterEquipment(
       offhandClaw.requirements = {};
 
       builder.equipMainHand(mainhandClaw);
-      builder.equipMainHand(offhandClaw);
+      builder.equipOffHand(offhandClaw);
       break;
     }
     case MonsterType.MantaRay:

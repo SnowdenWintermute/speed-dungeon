@@ -1,11 +1,11 @@
 import { Engine, Scene } from "@babylonjs/core";
 
-export type TickScheduler = (tick: (deltaTime: number) => void) => () => void; // returns unsubscribe
+export type TickScheduler = (tick: () => void) => () => void; // returns unsubscribe
 
 export function createBabylonScheduler(engine: Engine, scene: Scene): TickScheduler {
   return (tick) => {
     const callTickWithEngineDeltaTime = () => {
-      tick(engine.getDeltaTime());
+      tick();
     };
     scene.registerBeforeRender(callTickWithEngineDeltaTime);
     return () => scene.unregisterBeforeRender(callTickWithEngineDeltaTime);

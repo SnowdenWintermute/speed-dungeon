@@ -13,7 +13,6 @@ import {
   GameMode,
   GameName,
   ItemId,
-  LOOP_SAFETY_ITERATION_LIMIT,
   NextOrPrevious,
   PartyName,
   TaggedEquipmentSlot,
@@ -42,17 +41,12 @@ export class ClientTestHarness<T extends BaseClient> {
   async flushReplayTree() {
     let iterationCount = 0;
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
-      if (iterationCount >= LOOP_SAFETY_ITERATION_LIMIT - 1) {
-        console.error(
-          "reached LOOP_SAFETY_ITERATION_LIMIT",
-          this.clientApplication.sequentialEventProcessor.pendingEvents
-        );
-      }
-      throwIfLoopLimitReached(iterationCount);
+      throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
+      console.log("min remaining duration:", remaining);
       if (remaining > 0) {
-        this.timeMachine.advanceTime(remaining);
+        this.timeMachine.advanceTime(remaining, { logMessage: true });
       }
       this.tickScheduler.tick();
       // Yield the call stack so microtasks queued by ticking (e.g. resolved

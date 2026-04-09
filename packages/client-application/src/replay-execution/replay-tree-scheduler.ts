@@ -22,7 +22,7 @@ export class ReplayTreeScheduler {
     this.queue = [];
   }
 
-  tick(deltaTime: number) {
+  tick() {
     if (this.currentTreeCompleted()) {
       if (!this.peekNext()) {
         return;
@@ -31,12 +31,12 @@ export class ReplayTreeScheduler {
       }
     }
 
-    this.process(deltaTime);
+    this.process();
   }
 
-  private process(deltaTime: number) {
+  private process() {
     if (this._current) {
-      this._current.processBranches(deltaTime);
+      this._current.processBranches();
     }
 
     if (this.currentTreeCompleted()) {

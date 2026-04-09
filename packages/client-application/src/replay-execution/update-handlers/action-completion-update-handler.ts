@@ -41,7 +41,9 @@ export async function actionCompletionGameUpdateHandler(
   }
 
   if (update.command.unlockInput) {
-    if (party) party.inputLock.unlockInput();
+    console.log("trying to unlock input");
+    party.inputLock.unlockInput();
+    console.log("is locked:", party.inputLock.isLocked());
   }
 
   handleThreatChangesUpdate(clientApplication, update.command);

@@ -73,24 +73,32 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
       await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
 
-      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 2);
-      // await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
-      // await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 2);
+      await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
+      await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
 
-      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
 
-      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 3);
-      // await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
-      // await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 3);
+      await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
+      await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
 
-      // console.log("PENDING EVENTS", clientApplication.sequentialEventProcessor.pendingEvents);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
 
-      // focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-      // await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
 
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+
+      // client input locked here
+
+      focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
+      await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
       // expect(
       //   party
       //     .getBattleOption(game)

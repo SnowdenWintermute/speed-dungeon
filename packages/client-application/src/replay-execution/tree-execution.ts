@@ -1,10 +1,4 @@
-import {
-  ERROR_MESSAGES,
-  LOOP_SAFETY_ITERATION_LIMIT,
-  NestedNodeReplayEvent,
-  ReplayEventType,
-  invariant,
-} from "@speed-dungeon/common";
+import { NestedNodeReplayEvent, ReplayEventType, invariant } from "@speed-dungeon/common";
 import { ReplayBranchExecution } from "./branch-execution";
 import { ClientApplication } from "..";
 
@@ -32,10 +26,14 @@ export class ReplayTreeExecution {
   }
 
   getMinRemainingDuration(): number {
+    // only consider branches whose current step still has time left to elapse.
+    // a branch with remaining <= 0 is waiting on completionOrderId, not on time —
+    // including it would pull the min to <=0 and starve other branches whose
+    // freshly-started steps still need time to advance, causing a deadlock.
     let min = Infinity;
     for (const branch of this.activeBranches) {
       const remaining = branch.getStepRemainingDuration();
-      if (remaining < min) min = remaining;
+      if (remaining > 0 && remaining < min) min = remaining;
     }
     return min === Infinity ? 0 : min;
   }
@@ -48,7 +46,7 @@ export class ReplayTreeExecution {
     this.nextExpectedCompletionOrderIdListIndex += 1;
   }
 
-  processBranches(deltaTime: number) {
+  processBranches() {
     // iterate backwards so we can splice out branches without affecting the iteration
     for (let i = this.activeBranches.length - 1; i >= 0; i--) {
       const branch = this.activeBranches[i];

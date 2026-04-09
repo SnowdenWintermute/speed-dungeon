@@ -63,7 +63,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     return false;
   },
 };
-const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_RANGED_MAIN_HAND_ATTACK;
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_MELEE_MAIN_HAND_ATTACK;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {

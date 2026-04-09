@@ -51,9 +51,9 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 1)
       .ownedAction(CombatActionName.Attack)
-      // .ownedAction(CombatActionName.Ensnare, 3)
-      .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
-      // .aiTypes([AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY])
+      .ownedAction(CombatActionName.Ensnare, 3)
+      // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY])
       .withThreatManager();
 
     appendMonsterEquipment(

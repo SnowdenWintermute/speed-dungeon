@@ -58,11 +58,13 @@ export const TurnOrderPredictionBar = observer(({ trackers }: Props) => {
         </div>
       </HoverableTooltipWrapper>
       {listWithAggregatedSequentialConditionTrackers.map((tracker, i) => {
-        if (tracker instanceof CombatantTurnTracker)
+        if (tracker instanceof CombatantTurnTracker) {
           return <TurnOrderTrackerIcon key={tracker.getId() + i} tracker={tracker} />;
-        else if (tracker instanceof ActionEntityTurnTracker) {
+        } else if (tracker instanceof ActionEntityTurnTracker) {
           return <ActionEntityTurnOrderTrackerIcon key={tracker.getId()} tracker={tracker} />;
-        } else return <ConditionTurnTrackerAggregation key={i} trackers={tracker} />;
+        } else {
+          return <ConditionTurnTrackerAggregation key={i} trackers={tracker} />;
+        }
       })}
     </div>
   );

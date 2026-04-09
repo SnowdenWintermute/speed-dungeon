@@ -52,6 +52,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
+  console.log("evaluatePlayerEndTurnAndInputLock for action:", action.getStringName());
 
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = party.getBattleOption(game);
@@ -117,17 +118,31 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const blockingStepsPending = sequentialActionManagerRegistry.inputBlockingActionStepsArePending();
   const noBlockingActionsRemain = !hasRemainingActions && !blockingStepsPending;
 
+  console.log("no noBlockingActionsRemain", noBlockingActionsRemain);
+
   let shouldUnlockInput = false;
 
   if (battleOption === null) {
-    if (noBlockingActionsRemain) shouldUnlockInput = true;
+    if (noBlockingActionsRemain) {
+      shouldUnlockInput = true;
+    }
   } else if (noBlockingActionsRemain) {
     const newlyUpdatedCurrentTurnIsPlayerControlled =
       battleOption.turnOrderManager.currentActorIsPlayerControlled(party);
 
-    if (newlyUpdatedCurrentTurnIsPlayerControlled) shouldUnlockInput = true;
+    if (newlyUpdatedCurrentTurnIsPlayerControlled) {
+      shouldUnlockInput = true;
+    }
   }
-  if (!shouldUnlockInput && !requiredTurn) return;
+  if (!shouldUnlockInput && !requiredTurn) {
+    console.log(
+      "not unlocking input, requiredTurn:",
+      requiredTurn,
+      "shouldUnlockInput:",
+      shouldUnlockInput
+    );
+    return;
+  }
 
   // push a game update command to unlock input
   const gameUpdateCommandOption: ActionCompletionUpdateCommand = {
@@ -142,6 +157,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     gameUpdateCommandOption.endActiveCombatantTurn = true;
   }
 
+  console.log("unlocking input", shouldUnlockInput);
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
     party.inputLock.unlockInput();
