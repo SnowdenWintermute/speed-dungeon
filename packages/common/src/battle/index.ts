@@ -70,6 +70,7 @@ export class Battle implements Serializable, ReactiveNode {
     const { combatantManager } = party;
     const partyMembers = combatantManager.getPartyMemberCombatants();
 
+    const revivedCharacterIds: CombatantId[] = [];
     for (const combatant of partyMembers) {
       const { combatantProperties } = combatant;
       const newLevelOption = combatantProperties.classProgressionProperties.awardLevelups();
@@ -77,6 +78,7 @@ export class Battle implements Serializable, ReactiveNode {
       // until revives are added, res dead characters to 1 hp
       if (combatantProperties.isDead()) {
         combatantProperties.resources.changeHitPoints(1);
+        revivedCharacterIds.push(combatant.getEntityId());
       }
     }
 
@@ -107,7 +109,13 @@ export class Battle implements Serializable, ReactiveNode {
       game.battles.delete(battleIdToRemoveOption);
     }
 
-    return { levelUps, branchingActions, conditionIdsRemoved, removedCombatantIds };
+    return {
+      levelUps,
+      branchingActions,
+      conditionIdsRemoved,
+      removedCombatantIds,
+      revivedCharacterIds,
+    };
   }
 
   static resolveBattle(
@@ -125,6 +133,7 @@ export class Battle implements Serializable, ReactiveNode {
     let branchingActions: ActionIntentAndUser[] = [];
     let levelUps: Record<CombatantId, number> = {};
     let removedCombatantIds: CombatantId[] = [];
+    let revivedCharacterIds: CombatantId[] = [];
     const removedConditionIds: Record<CombatantId, EntityId[]> = {};
 
     if (partyWipes.alliesDefeated) {
@@ -147,6 +156,7 @@ export class Battle implements Serializable, ReactiveNode {
       levelUps = victoryResult.levelUps;
       branchingActions = victoryResult.branchingActions;
       removedCombatantIds = victoryResult.removedCombatantIds;
+      revivedCharacterIds = victoryResult.revivedCharacterIds;
       for (const { conditionId, fromCombatantId } of victoryResult.conditionIdsRemoved) {
         const existing = removedConditionIds[fromCombatantId] ?? [];
         existing.push(conditionId);
@@ -163,6 +173,7 @@ export class Battle implements Serializable, ReactiveNode {
       experiencePointChanges,
       removedConditionIds,
       removedCombatantIds,
+      revivedCharacterIds,
       actionEntitiesRemoved,
       branchingActions,
       levelUps,

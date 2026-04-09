@@ -230,6 +230,7 @@ export interface BattleConclusionUpdateCommand extends IGameUpdateCommand {
   experiencePointChanges?: Record<CombatantId, number>;
   removedConditionIds?: Record<CombatantId, EntityId[]>;
   removedCombatantIds?: CombatantId[];
+  revivedCharacterIds?: CombatantId[];
   actionEntitiesRemoved?: EntityId[];
 }
 

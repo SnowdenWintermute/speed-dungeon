@@ -38,6 +38,14 @@ export async function battleConclusionGameUpdateHandler(
     }
   }
 
+  if (command.revivedCharacterIds) {
+    for (const id of command.revivedCharacterIds) {
+      const combatant = party.combatantManager.getExpectedCombatant(id);
+      combatant.combatantProperties.resources.changeHitPoints(1);
+      console.log("revived:", combatant);
+    }
+  }
+
   if (command.loot) {
     const equipment = command.loot.equipment.map((item) => Equipment.fromSerialized(item));
     const consumables = command.loot.consumables.map((item) => Consumable.fromSerialized(item));
