@@ -42,7 +42,6 @@ export async function battleConclusionGameUpdateHandler(
     for (const id of command.revivedCharacterIds) {
       const combatant = party.combatantManager.getExpectedCombatant(id);
       combatant.combatantProperties.resources.changeHitPoints(1);
-      console.log("revived:", combatant);
     }
   }
 

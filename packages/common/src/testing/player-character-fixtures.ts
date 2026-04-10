@@ -5,6 +5,7 @@ import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
 
@@ -28,8 +29,13 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .ownedAction(CombatActionName.PassTurn)
       .ownedAction(CombatActionName.UseGreenAutoinjector)
       .ownedAction(CombatActionName.Fire, 3)
+      .ownedAction(CombatActionName.Firewall, 3)
       .equipMainHand(
         itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+      )
+      .equipMainHand(
+        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        1
       )
       .addInventoryConsumable(
         itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
@@ -54,8 +60,16 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .ownedAction(CombatActionName.PassTurn)
       .ownedAction(CombatActionName.UseGreenAutoinjector)
       .ownedAction(CombatActionName.Fire, 3)
+      .ownedAction(CombatActionName.Firewall, 3)
       .equipMainHand(
         itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger).build(idGenerator)
+      )
+      .equipMainHand(
+        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        1
+      )
+      .addInventoryConsumable(
+        itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
       )
       .build(idGenerator),
   MAGE: (
@@ -73,6 +87,9 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .attribute(CombatAttribute.Speed, 2)
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)
+      .addInventoryConsumable(
+        itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
+      )
       .build(idGenerator),
 };
 

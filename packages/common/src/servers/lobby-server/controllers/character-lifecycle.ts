@@ -45,11 +45,6 @@ export class CharacterLifecycleController {
       session.username
     );
 
-    console.log(
-      "created",
-      newCharacter.combatantProperties.classProgressionProperties.getMainClass().getStringName()
-    );
-
     const pets: Combatant[] = [];
 
     const player = game.getExpectedPlayer(session.username);

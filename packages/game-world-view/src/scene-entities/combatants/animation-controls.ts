@@ -3,6 +3,7 @@ import {
   AnimationType,
   Combatant,
   CombatantConditionName,
+  DEBUG_ANIMATION_SPEED_MULTIPLIER,
   EquipmentAnimation,
   EquipmentType,
   HoldableSlotType,
@@ -76,6 +77,7 @@ export class CombatantSceneEntityAnimationControls {
   }
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
+    transitionMs *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
     if (this.combatant.combatantProperties.isDead()) {
       return;
     }

@@ -42,10 +42,6 @@ export class CombatantManager
     result.combatants = MapUtils.deserialize(serialized.combatants, (v) =>
       Combatant.fromSerialized(v)
     );
-    console.log(
-      "deserialized combatants:",
-      [...result.combatants.values()].map((item) => item.getEntityId())
-    );
     return result;
   }
 

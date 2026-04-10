@@ -34,6 +34,11 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
       factory !== undefined,
       `No scripted character factory for class ${CombatantClass[combatantClass]}`
     );
+
+    if (!name) {
+      name = this.generateRandomCharacterName();
+    }
+
     return factory(controllingPlayerName, name, this.idGenerator, this.itemBuilder);
   }
 }
