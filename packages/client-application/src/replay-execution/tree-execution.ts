@@ -46,7 +46,7 @@ export class ReplayTreeExecution {
     this.nextExpectedCompletionOrderIdListIndex += 1;
   }
 
-  processBranches() {
+  processBranches(deltaMs: number) {
     // iterate backwards so we can splice out branches without affecting the iteration
     for (let i = this.activeBranches.length - 1; i >= 0; i--) {
       const branch = this.activeBranches[i];
@@ -56,7 +56,7 @@ export class ReplayTreeExecution {
         this.activeBranches.splice(i, 1);
       }
 
-      branch.processAllCompletableSteps();
+      branch.processAllCompletableSteps(deltaMs);
     }
   }
 

@@ -36,10 +36,13 @@ export class ReplayBranchExecution {
     return this.currentStepExecution?.durationRemaining ?? 0;
   }
 
-  processAllCompletableSteps() {
+  processAllCompletableSteps(deltaMs: number) {
     const currentStepExecution = this.getCurrentGameUpdate();
-    if (currentStepExecution && currentStepExecution.shouldCompleteInSequence) {
-      currentStepExecution.tryToCompleteInSequence(this.parentReplayTreeProcessor);
+    if (currentStepExecution) {
+      currentStepExecution.advanceTime(deltaMs);
+      if (currentStepExecution.shouldCompleteInSequence) {
+        currentStepExecution.tryToCompleteInSequence(this.parentReplayTreeProcessor);
+      }
     }
     let branchIsComplete = this.isDoneProcessing();
     let currentStepComplete = this.currentStepIsComplete();

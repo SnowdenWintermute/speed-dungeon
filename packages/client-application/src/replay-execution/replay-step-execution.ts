@@ -10,7 +10,7 @@ import { ClientApplication } from "..";
 
 export class ReplayStepExecution<T extends GameUpdateCommand> {
   private _isComplete: boolean = false;
-  private timeStarted = Date.now();
+  private _elapsed = 0;
   constructor(public readonly command: T) {}
 
   /** Replay events have a completionOrderId. In the interest of making sure we start the next
@@ -18,16 +18,20 @@ export class ReplayStepExecution<T extends GameUpdateCommand> {
    * back the replay event, mark it as ready to be completed. We'll mark it as truly completed
    * in the game loop if it is the next expected completionOrderId to complete. */
   get shouldCompleteInSequence() {
-    return this.elapsed >= this.totalDuration;
+    return this._elapsed >= this.totalDuration;
+  }
+
+  advanceTime(deltaMs: number) {
+    this._elapsed += deltaMs;
   }
 
   get elapsed() {
-    return Date.now() - this.timeStarted;
+    return this._elapsed;
   }
 
   get durationRemaining() {
     const { totalDuration } = this;
-    return totalDuration - this.elapsed;
+    return totalDuration - this._elapsed;
   }
 
   get totalDuration() {

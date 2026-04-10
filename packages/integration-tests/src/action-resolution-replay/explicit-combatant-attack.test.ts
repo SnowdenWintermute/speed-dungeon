@@ -13,7 +13,6 @@ import {
   TurnTrackerEntityType,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
-import { TimeMachine } from "../test-utils/time-machine.js";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture.js";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types.js";
 import { testTwoSpidersAndBurning } from "./two-spiders-and-burning.js";
@@ -21,12 +20,7 @@ import { testTwoSpidersAndBurning } from "./two-spiders-and-burning.js";
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "explicit combatant attack",
   ({ clientEndpointFactory }) => {
-    const testFixture = new IntegrationTestFixture(clientEndpointFactory, new TimeMachine());
-
-    beforeEach(() => {
-      testFixture.timeMachine.returnToPresent();
-      testFixture.timeMachine.start();
-    });
+    const testFixture = new IntegrationTestFixture(clientEndpointFactory);
 
     afterEach(async () => {
       await Promise.all([

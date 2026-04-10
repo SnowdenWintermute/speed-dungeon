@@ -1,6 +1,5 @@
 import { createTestServers } from "@/servers/fixtures/create-test-servers";
 import { ClientEndpointFactory } from "@/servers/fixtures/test-connection-endpoint-factories";
-import { TimeMachine } from "@/test-utils/time-machine";
 import {
   ExplicitCombatantDungeonTemplate,
   FixedCharacterCreationLists,
@@ -18,10 +17,7 @@ export class IntegrationTestFixture {
   private _gameServer: GameServer | null = null;
   private clients = new Map<string, ClientFixture>();
 
-  constructor(
-    private clientEndpointFactory: ClientEndpointFactory,
-    readonly timeMachine: TimeMachine
-  ) {}
+  constructor(private clientEndpointFactory: ClientEndpointFactory) {}
 
   async createServers(
     rngPolicy: RandomNumberGenerationPolicy,
@@ -54,7 +50,7 @@ export class IntegrationTestFixture {
   }
 
   createClient(id: string) {
-    const client = new ClientFixture(this.timeMachine);
+    const client = new ClientFixture();
     this.clients.set(id, client);
     return client;
   }

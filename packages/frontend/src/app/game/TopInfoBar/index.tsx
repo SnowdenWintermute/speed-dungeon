@@ -10,6 +10,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
+import { ReplayStepper } from "@/app/debug/replay-stepper";
 
 export const TopInfoBar = observer(() => {
   const clientApplication = useClientApplication();
@@ -32,7 +33,6 @@ export const TopInfoBar = observer(() => {
           </div>
         </HoverableTooltipWrapper>
         <span className="mr-2">{currentFloor}</span>
-
         <HoverableTooltipWrapper tooltipText="Current room">
           <div className="h-5 my-1 mr-1">
             <DoorIcon className="fill-slate-400 h-full" />
@@ -41,6 +41,7 @@ export const TopInfoBar = observer(() => {
         {currentRoom}
         {": "}
         {DUNGEON_ROOM_TYPE_STRINGS[party.currentRoom.roomType]}
+        <ReplayStepper />
       </div>
       {battleOption !== null ? (
         <TurnOrderPredictionBar trackers={battleOption.turnOrderManager.getTrackers()} />

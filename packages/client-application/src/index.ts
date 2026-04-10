@@ -84,8 +84,8 @@ export class ClientApplication {
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
 
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
-    this.unregisterReplayManagerTick = replayManagerTickScheduler(() =>
-      this.replayTreeScheduler.tick()
+    this.unregisterReplayManagerTick = replayManagerTickScheduler((deltaMs) =>
+      this.replayTreeScheduler.tick(deltaMs)
     );
 
     this.gameContext = new ClientApplicationGameContext(this.session);
@@ -101,7 +101,10 @@ export class ClientApplication {
   }
 
   setReplayManagerTickScheduler(scheduler: TickScheduler) {
-    this.unregisterReplayManagerTick = scheduler(() => this.replayTreeScheduler.tick());
+    this.unregisterReplayManagerTick();
+    this.unregisterReplayManagerTick = scheduler((deltaMs) =>
+      this.replayTreeScheduler.tick(deltaMs)
+    );
   }
 
   dispose() {

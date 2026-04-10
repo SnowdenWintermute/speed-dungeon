@@ -12,21 +12,20 @@ import {
   EntityName,
   GameMode,
   GameName,
+  invariant,
   ItemId,
   NextOrPrevious,
   PartyName,
   TaggedEquipmentSlot,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
-import { TimeMachine } from "./time-machine";
 import { ClientSingleton } from "@/client-application/clients/singleton";
 
 export class ClientTestHarness<T extends BaseClient> {
   constructor(
     readonly clientApplication: ClientApplication,
     private clientSingleton: ClientSingleton<T>,
-    private tickScheduler: ManualTickScheduler,
-    private timeMachine: TimeMachine
+    private tickScheduler: ManualTickScheduler
   ) {}
 
   async settleIntentResult(intent: ClientIntent) {
@@ -44,10 +43,8 @@ export class ClientTestHarness<T extends BaseClient> {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
-      if (remaining > 0) {
-        this.timeMachine.advanceTime(remaining);
-      }
-      this.tickScheduler.tick();
+      invariant(remaining >= 0, "remaining duration should not be negative");
+      this.tickScheduler.tick(remaining);
       // Yield the call stack so microtasks queued by ticking (e.g. resolved
       // promises in the sequential event processor chain) can execute.
       // Without this, isProcessing never updates because the synchronous
