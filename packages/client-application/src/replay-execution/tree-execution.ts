@@ -1,4 +1,10 @@
-import { NestedNodeReplayEvent, ReplayEventType, invariant } from "@speed-dungeon/common";
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  COMBAT_ACTION_NAME_STRINGS,
+  NestedNodeReplayEvent,
+  ReplayEventType,
+  invariant,
+} from "@speed-dungeon/common";
 import { ReplayBranchExecution } from "./branch-execution";
 import { ClientApplication } from "..";
 
@@ -23,6 +29,17 @@ export class ReplayTreeExecution {
 
   isComplete() {
     return !this.activeBranches.length;
+  }
+
+  get nextExpectedStepString() {
+    const nextCompletionId = this.getNextNodeCompletionId();
+    for (const branch of this.activeBranches) {
+      const commandOption = branch.getCurrentGameUpdate()?.command;
+      if (!commandOption) continue;
+      if (commandOption.completionOrderId === nextCompletionId) {
+        return `${COMBAT_ACTION_NAME_STRINGS[commandOption.actionName]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]}`;
+      }
+    }
   }
 
   getMinRemainingDuration(): number {

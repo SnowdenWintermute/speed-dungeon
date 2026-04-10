@@ -80,13 +80,18 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     const { actionName } = tracker.actionExecutionIntent;
 
     const delay = actionUser.getDelayForActionUse(actionName);
-    const delayAddedToSchedulerId =
-      battleOption.turnOrderManager.updateFastestSchedulerWithDelay(delay);
-    battleOption.turnOrderManager.updateTrackers(game, party);
+    const turnSchedulerOption =
+      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerOptionByEntityId(
+        actionUser.getEntityId()
+      );
+
+    if (turnSchedulerOption) {
+      turnSchedulerOption.accumulatedDelay += delay;
+      tellClientDelayAdded = { schedulerId: actionUser.getEntityId(), delay };
+      battleOption.turnOrderManager.updateTrackers(game, party);
+    }
 
     sequentialActionManagerRegistry.setTurnEnded();
-    tellClientDelayAdded = delayAddedToSchedulerId;
-
     actionUser.handleTurnEnded();
 
     // only decay threat for combatant turns ending

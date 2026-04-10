@@ -18,9 +18,12 @@ export async function actionCompletionGameUpdateHandler(
 
     const { schedulerId, delay } = update.command.addDelayToTurnScheduler;
     const scheduler =
-      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerByEntityId(schedulerId);
+      battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerByEntityId(schedulerId);
     scheduler.accumulatedDelay += delay;
+  }
 
+  const battleOption = party.getBattleOption(game);
+  if (battleOption) {
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk
     // of actions taking them away before they get their turn again

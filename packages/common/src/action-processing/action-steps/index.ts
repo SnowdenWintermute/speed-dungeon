@@ -155,6 +155,7 @@ export abstract class ActionResolutionStep {
   }
 
   onComplete(): Error | ActionIntentAndUser[] {
+    console.log("completed step:", this.getStringName());
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;
     return branchingActionsResult;

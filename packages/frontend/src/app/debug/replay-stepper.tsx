@@ -12,6 +12,7 @@ export const ReplayStepper = observer(() => {
   const clientApplication = useClientApplication();
   const { replayTreeScheduler, alertsService } = clientApplication;
   const [manualTickScheduler, setManualTickScheduler] = useState<ManualTickScheduler | null>(null);
+  const [nextExpectedStepString, setNextExpectedStepString] = useState("");
 
   useEffect(() => {
     return () => setAuto();
@@ -41,6 +42,9 @@ export const ReplayStepper = observer(() => {
       alertsService.setAlert("Replay mode set to automatic");
     } else {
       setManual();
+      setNextExpectedStepString(
+        replayTreeScheduler.current?.nextExpectedStepString || "awaiting next replay"
+      );
       alertsService.setAlert("Replay mode set to manual control");
     }
   }
@@ -50,11 +54,11 @@ export const ReplayStepper = observer(() => {
       alertsService.setAlert("no manual tick scheduler");
       return;
     }
-
     if (replayTreeScheduler.current === null && !replayTreeScheduler.hasQueue) {
       alertsService.setAlert("No replay tree scheduled");
     }
     manualTickScheduler.tickToNextNonZeroDurationStep(replayTreeScheduler);
+    setNextExpectedStepString(replayTreeScheduler.current?.nextExpectedStepString || "none");
   }
 
   const getToggleIcon = () =>
@@ -66,9 +70,15 @@ export const ReplayStepper = observer(() => {
         {getToggleIcon()("fill-slate-400 h-full")}
       </HotkeyButton>
       {manualTickScheduler && (
-        <div className="h-full flex items-center">
-          <HotkeyButton className="ml-2 h-8" onClick={tickToNextNotZeroDurationStep}>
-            {SVG_ICONS[IconName.ArrowRightToLineNext]("h-full fill-slate-400")}
+        <div className="h-full flex items-center relative">
+          <HotkeyButton className=" h-8 " onClick={tickToNextNotZeroDurationStep}>
+            {SVG_ICONS[IconName.ArrowRightToLineNext]("h-full fill-slate-400 ")}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-2 whitespace-nowrap"
+              style={{ top: `calc(100% + 6px) ` }}
+            >
+              {nextExpectedStepString}
+            </div>
           </HotkeyButton>
         </div>
       )}

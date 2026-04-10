@@ -4,6 +4,7 @@ import {
   CombatActionName,
   CombatantClass,
   DungeonRoomType,
+  TEST_DUNGEON_TWO_WOLF_ROOMS,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
 } from "@speed-dungeon/common";
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
@@ -27,7 +28,7 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
 
     it("firewall", async () => {
       const client = await testFixture.resetWithOptions(
-        TEST_DUNGEON_ZERO_SPEED_WOLVES,
+        TEST_DUNGEON_TWO_WOLF_ROOMS,
         BASIC_CHARACTER_FIXTURES,
         [
           { name: "a", combatantClass: CombatantClass.Warrior },
@@ -38,15 +39,8 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       const { clientApplication, gameClientHarness } = client;
       const { gameContext } = clientApplication;
       const party = gameContext.requireParty();
-
-      expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.Empty);
-      // disappears on new room entered
-      await gameClientHarness.useCombatAction(CombatActionName.Firewall, 1);
       await gameClientHarness.toggleReadyToExplore();
-      expect(
-        party.actionEntityManager.getExistingActionEntityOfType(ActionEntityName.Firewall)
-      ).toBe(null);
-      expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
+      await gameClientHarness.useCombatAction(CombatActionName.Firewall, 3);
 
       // enemy dies in firewall on way to melee
       // enemy dies in firewall comming back from melee

@@ -66,7 +66,18 @@ export const MONSTER_FIXTURES = {
 
     return builder;
   },
-  WOLF_ZERO_SPEED: (
+  WOLF_ZERO_SPEED: () => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name("Test Wolf")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 1)
+      .attribute(CombatAttribute.Speed, 0)
+      .ownedAction(CombatActionName.Attack)
+      .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .withThreatManager();
+    return builder;
+  },
+  WOLF_LOW_HP: (
     idGenerator: IdGenerator,
     itemBuilder: ItemBuilder,
     rngPolicy: RandomNumberGenerationPolicy
@@ -74,10 +85,10 @@ export const MONSTER_FIXTURES = {
     const builder = CombatantBuilder.monster(MonsterType.Wolf)
       .name("Test Wolf")
       .explicitAttributes()
-      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Hp, 7)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 0)
+      .attribute(CombatAttribute.Speed, 1)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
       .withThreatManager();
