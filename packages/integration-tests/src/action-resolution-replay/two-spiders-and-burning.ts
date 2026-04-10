@@ -45,50 +45,37 @@ export async function testTwoSpidersAndBurning(testFixture: IntegrationTestFixtu
   await gameClientHarness.toggleReadyToExplore();
   expect(gameContext.requireParty().currentRoom.roomType).toBe(DungeonRoomType.MonsterLair);
 
-  let focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 2);
-  await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
-  await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
+  await gameClientHarness.selectCombatAction(CombatActionName.Fire, 2);
+  await gameClientHarness.cycleTargetingSchemes();
+  await gameClientHarness.useSelectedCombatAction();
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.selectCombatAction(focusedCharacterId, CombatActionName.Fire, 3);
-  await gameClientHarness.cycleTargetingSchemes(focusedCharacterId);
-  await gameClientHarness.useSelectedCombatAction(focusedCharacterId);
+  await gameClientHarness.selectCombatAction(CombatActionName.Fire, 3);
+  await gameClientHarness.cycleTargetingSchemes();
+  await gameClientHarness.useSelectedCombatAction();
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
 
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-  await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
   expect(party.battleId).toBe(null);
   expect(clientApplication.actionMenu.getCurrentMenu().type).toBe(
     ActionMenuScreenType.ItemsOnGround
   );
-  focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
   await gameClientHarness.toggleReadyToExplore();
 
   try {
-    focusedCharacterId = clientApplication.combatantFocus.requireFocusedCharacterId();
-    await gameClientHarness.useCombatAction(focusedCharacterId, CombatActionName.Attack, 1);
+    await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
   } catch (err) {
     expect(true).toBeFalsy();
   }

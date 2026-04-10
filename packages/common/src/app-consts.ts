@@ -86,6 +86,7 @@ export const MELEE_START_ATTACK_RANGE = 0.5;
 
 // 3D MODELS
 export const GRAVITY = -9.81;
+// export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.3; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;
@@ -97,8 +98,10 @@ export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300 * DEBUG_ANIMATION_SPEED_MULT
 // export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
 // const arrowMoveSpeedBase = 700;
 const arrowMoveSpeedBase = 130;
+const explosionMoveSpeedBase = 200;
 // export const ARROW_TIME_TO_MOVE_ONE_METER = 600;
 export const ARROW_TIME_TO_MOVE_ONE_METER = arrowMoveSpeedBase * DEBUG_ANIMATION_SPEED_MULTIPLIER;
+export const EXPLOSION_DURATION = explosionMoveSpeedBase * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME =
   1000 * DEBUG_ANIMATION_SPEED_MULTIPLIER;

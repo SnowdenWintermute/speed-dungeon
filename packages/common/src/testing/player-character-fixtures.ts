@@ -28,6 +28,8 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)
       .ownedAction(CombatActionName.UseGreenAutoinjector)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.ChainingSplitArrowParent)
       .ownedAction(CombatActionName.Fire, 3)
       .ownedAction(CombatActionName.Firewall, 3)
       .equipMainHand(
@@ -59,6 +61,8 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)
       .ownedAction(CombatActionName.UseGreenAutoinjector)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.ChainingSplitArrowParent)
       .ownedAction(CombatActionName.Fire, 3)
       .ownedAction(CombatActionName.Firewall, 3)
       .equipMainHand(

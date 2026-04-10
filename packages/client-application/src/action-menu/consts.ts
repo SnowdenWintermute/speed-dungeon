@@ -1,1 +1,1 @@
-export const ACTION_MENU_PAGE_SIZE = 6;
+export const ACTION_MENU_PAGE_SIZE = 5;

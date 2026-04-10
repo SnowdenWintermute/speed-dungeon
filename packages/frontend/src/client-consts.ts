@@ -1,4 +1,4 @@
-export const ACTION_MENU_PAGE_SIZE = 6;
+import { ACTION_MENU_PAGE_SIZE } from "@/client-application/action-menu/consts";
 
 export const BASE_FILE_PATH = process.env.NEXT_PUBLIC_ASSET_BASE_PATH_3D;
 

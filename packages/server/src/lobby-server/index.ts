@@ -53,7 +53,7 @@ export class LobbyServerNode {
       // DefaultCharacterCreationPolicy,
       ScriptedCharacterCreationPolicy,
       RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-      new IdGeneratorSequential({ saveHistory: false })
+      new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
     );
 
     this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);

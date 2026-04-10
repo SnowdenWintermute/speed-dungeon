@@ -80,7 +80,7 @@ export async function createTestServers(
     () => testLeastBusyServerUrlGetter(),
     characterCreationPolicyConstructor,
     rngPolicy,
-    new IdGeneratorSequential({ saveHistory: false })
+    new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
   );
 
   const gameServer = new GameServer(
@@ -97,8 +97,7 @@ export async function createTestServers(
     codec,
     ScriptedDungeonGenerationPolicy,
     rngPolicy,
-
-    new IdGeneratorSequential({ saveHistory: false })
+    new IdGeneratorSequential({ saveHistory: false, prefix: "gid" })
   );
 
   return { lobbyServer, gameServer };

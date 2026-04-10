@@ -30,6 +30,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const firewallId = actionUser.getEntityId();
       const { actionEntityManager } = party;
       const existingFirewall = actionEntityManager.getExpectedActionEntity(firewallId);
+      console.log("existingFirewall:", existingFirewall.getEntityId());
 
       const { actionOriginData } = existingFirewall.actionEntityProperties;
       if (actionOriginData === undefined)

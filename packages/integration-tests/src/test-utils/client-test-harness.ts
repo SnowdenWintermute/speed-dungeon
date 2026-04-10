@@ -92,7 +92,8 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async selectCombatAction(characterId: CombatantId, actionName: CombatActionName, rank: number) {
+  async selectCombatAction(actionName: CombatActionName, rank: number) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     return this.settleIntentResult({
       type: ClientIntentType.SelectCombatAction,
       data: {
@@ -102,7 +103,8 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async useSelectedCombatAction(characterId: CombatantId) {
+  async useSelectedCombatAction() {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     const promise = this.settleIntentResult({
       type: ClientIntentType.UseSelectedCombatAction,
       data: { characterId },
@@ -111,26 +113,29 @@ export class ClientTestHarness<T extends BaseClient> {
     return promise;
   }
 
-  async useCombatAction(characterId: CombatantId, actionName: CombatActionName, rank: number) {
-    await this.selectCombatAction(characterId, actionName, rank);
-    return this.useSelectedCombatAction(characterId);
+  async useCombatAction(actionName: CombatActionName, rank: number) {
+    await this.selectCombatAction(actionName, rank);
+    return this.useSelectedCombatAction();
   }
 
-  async selectCombatActionRank(characterId: CombatantId, actionRank: number) {
+  async selectCombatActionRank(actionRank: number) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     return this.settleIntentResult({
       type: ClientIntentType.SelectCombatActionRank,
       data: { characterId, actionRank: actionRank as ActionRank },
     });
   }
 
-  async cycleTargets(characterId: CombatantId, direction: NextOrPrevious) {
+  async cycleTargets(direction: NextOrPrevious) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     return this.settleIntentResult({
       type: ClientIntentType.CycleCombatActionTargets,
       data: { characterId, direction },
     });
   }
 
-  async cycleTargetingSchemes(characterId: CombatantId) {
+  async cycleTargetingSchemes() {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     return this.settleIntentResult({
       type: ClientIntentType.CycleTargetingSchemes,
       data: { characterId },

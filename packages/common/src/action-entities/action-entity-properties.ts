@@ -64,4 +64,11 @@ export class ActionEntityProperties {
 
     return result;
   }
+
+  requireStackCount() {
+    if (!this.actionOriginData?.stacks) {
+      throw new Error("tried to require stacks but there were none");
+    }
+    return this.actionOriginData.stacks.current;
+  }
 }

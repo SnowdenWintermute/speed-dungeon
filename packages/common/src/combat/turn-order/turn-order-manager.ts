@@ -27,6 +27,9 @@ export class TurnOrderManager implements ReactiveNode {
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
+    if (speed === 0) {
+      return Infinity;
+    }
     const speedBonus = speed * SPEED_DELAY_RECOVERY_WEIGHT;
     const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
     const delay = actionDelayMultiplier * delayAfterSpeedBonus;
