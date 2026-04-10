@@ -132,8 +132,7 @@ export const DebugText = observer(
         <ul className="p-2">
           <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
           <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
-          <li>Input Locked</li>
-          <li>{inputLockStatus}</li>
+          <li>Input Locked: {inputLockStatus}</li>
         </ul>
         <ul className="flex flex-wrap bg-slate-700 w-full">
           <li key="ayy" className="border p-2 w-full mb-2">

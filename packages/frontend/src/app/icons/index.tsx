@@ -42,6 +42,10 @@ import SpiderWeb from "../../../public/img/game-ui-icons/spider-web.svg";
 import Dove from "../../../public/img/game-ui-icons/dove.svg";
 import WifiOnline from "../../../public/img/menu-icons/wifi-online.svg";
 import WifiOffline from "../../../public/img/menu-icons/wifi-offline.svg";
+import ColumnsPause from "../../../public/img/menu-icons/columns.svg";
+import CaretRightPlay from "../../../public/img/menu-icons/caret-right.svg";
+import ArrowRightToLineNext from "../../../public/img/menu-icons/arrow-right-to-line.svg";
+import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
 
 import { ReactNode } from "react";
 import {
@@ -98,6 +102,10 @@ export enum IconName {
   Dove,
   WifiOnline,
   WifiOffline,
+  ColumnsPause,
+  CaretRightPlay,
+  ArrowRightToLineNext,
+  ArrowRight,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -143,6 +151,12 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Dove]: (className: string) => <Dove className={className} />,
   [IconName.WifiOnline]: (className: string) => <WifiOnline className={className} />,
   [IconName.WifiOffline]: (className: string) => <WifiOffline className={className} />,
+  [IconName.ColumnsPause]: (className: string) => <ColumnsPause className={className} />,
+  [IconName.CaretRightPlay]: (className: string) => <CaretRightPlay className={className} />,
+  [IconName.ArrowRightToLineNext]: (className: string) => (
+    <ArrowRightToLineNext className={className} />
+  ),
+  [IconName.ArrowRight]: (className: string) => <ArrowRight className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

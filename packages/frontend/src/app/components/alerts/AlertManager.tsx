@@ -23,7 +23,7 @@ export const AlertManager = observer(() => {
 
   return (
     <ul
-      className={`absolute p-3 list-none flex flex-col-reverse`}
+      className={`absolute p-3 list-none flex flex-col-reverse top-32`}
       style={{ zIndex: ZIndexLayers.Alerts }}
     >
       {alerts

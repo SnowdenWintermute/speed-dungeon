@@ -1,4 +1,5 @@
 import { Engine, Scene } from "@babylonjs/core";
+import { ReplayTreeScheduler } from "./replay-tree-scheduler";
 
 export type TickScheduler = (tick: (deltaMs: number) => void) => () => void; // returns unsubscribe
 
@@ -24,5 +25,12 @@ export class ManualTickScheduler {
 
   tick(deltaMs: number) {
     this.tickFn?.(deltaMs);
+  }
+
+  tickToNextNonZeroDurationStep(replayTreeScheduler: ReplayTreeScheduler) {
+    this.tick(replayTreeScheduler.getMinRemainingDuration());
+    while (replayTreeScheduler.current && replayTreeScheduler.getMinRemainingDuration() === 0) {
+      this.tick(replayTreeScheduler.getMinRemainingDuration());
+    }
   }
 }

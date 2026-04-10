@@ -52,6 +52,10 @@ export class ReplayTreeScheduler {
     return this._current;
   }
 
+  get hasQueue() {
+    return this.queue.length > 0;
+  }
+
   getMinRemainingDuration(): number {
     return this._current?.getMinRemainingDuration() ?? 0;
   }
