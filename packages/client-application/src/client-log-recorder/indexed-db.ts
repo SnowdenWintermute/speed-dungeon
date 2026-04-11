@@ -1,4 +1,5 @@
 import {
+  APP_VERSION_NUMBER,
   ClientIntent,
   ClientSequentialEvent,
   ClientSequentialEventType,
@@ -29,6 +30,11 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   ) {
     this.dbPromise = this.open();
     this.hydratePromise = this.dbPromise.then((db) => this.hydrate(db));
+    this.put({
+      type: ClientLogEntryKind.SessionStarted,
+      timestamp: Date.now(),
+      appVersion: APP_VERSION_NUMBER,
+    });
   }
 
   recordIntentDispatched(sequenceId: number, intent: ClientIntent) {

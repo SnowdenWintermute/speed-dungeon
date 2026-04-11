@@ -34,9 +34,6 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("firewall", ({ clientEndpointF
     ]);
   });
 
-  // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
-  // - doesn't unlock input early
-  //
   it("firewall ignites projectiles", async () => {
     await testFirewallIgnitesProjectiles(testFixture);
   });

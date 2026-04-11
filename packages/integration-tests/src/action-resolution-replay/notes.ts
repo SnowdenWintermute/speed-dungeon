@@ -4,16 +4,6 @@
 // ensnare debuff removed when web killed
 // flying trait combatant starts flying when ensnare debuff removed
 //
-//
-// FIREWALL
-// enemy dies in firewall on way to melee
-// enemy dies in firewall comming back from melee
-// arrows light on fire (deal fire damage)
-// arrows disintigrate
-// firewall deteriorates stacks/ranks
-// firewall can be stoked by recast
-// disappears on new room entered
-//
 // PETS
 // pet dismissed removes web
 // pet summoned still has conditions it had when dismissed
@@ -41,3 +31,15 @@
 //
 // THREAT
 // combatants attack highest threat target
+//
+
+// -DONE-
+//
+// FIREWALL
+// enemy dies in firewall on way to melee
+// enemy dies in firewall comming back from melee
+// arrows light on fire (deal fire damage)
+// arrows disintigrate
+// firewall deteriorates stacks/ranks
+// firewall can be stoked by recast
+// disappears on new room entered

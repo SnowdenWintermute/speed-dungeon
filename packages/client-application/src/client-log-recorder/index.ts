@@ -1,12 +1,18 @@
 import { ClientIntent, GameStateUpdate, GameUpdateCommand } from "@speed-dungeon/common";
 
 export enum ClientLogEntryKind {
+  SessionStarted,
   IntentDispatched,
   UpdateReceived,
   ReplayStepNominal,
 }
 
 export type ClientLogEntry =
+  | {
+      type: ClientLogEntryKind.SessionStarted;
+      timestamp: number;
+      appVersion: string;
+    }
   | {
       type: ClientLogEntryKind.IntentDispatched;
       timestamp: number;

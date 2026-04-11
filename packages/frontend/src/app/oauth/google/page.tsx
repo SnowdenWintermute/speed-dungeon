@@ -1,9 +1,7 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { enableMapSet } from "immer";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-enableMapSet();
 
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
