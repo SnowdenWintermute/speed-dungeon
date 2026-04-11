@@ -51,7 +51,7 @@ export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant 
   }
 
   return (
-    <div className="max-h-full flex flex-col">
+    <div className="max-h-full flex flex-col pointer-events-auto">
       <div className="flex-grow-0 flex-shrink">
         <h3 className="text-lg">{abilityNameString}</h3>
         <Divider />

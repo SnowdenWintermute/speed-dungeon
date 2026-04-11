@@ -2,21 +2,18 @@ import { ClientApplication } from "@/client-application";
 import { BaseClient } from "@/client-application/clients/base";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionAndRank,
   ActionRank,
   ActionResolutionStepType,
   BeforeOrAfter,
   ClientIntent,
   ClientIntentType,
-  COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   CombatantClass,
   CombatantId,
   EntityName,
   GameMode,
   GameName,
-  GameStateUpdate,
   GameUpdateCommand,
   invariant,
   ItemId,
@@ -51,28 +48,21 @@ export class ClientTestHarness<T extends BaseClient> {
     step: ActionResolutionStepType;
   }) {
     let iterationCount = 0;
+    const { replayTreeScheduler } = this.clientApplication;
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
 
-      const commandOption =
-        this.clientApplication.replayTreeScheduler.current?.nextExpectedStep?.command;
+      const commandOption = replayTreeScheduler.current?.nextExpectedStep?.command;
       if (
         untilMatchedStep &&
         commandOption &&
         this.replayStepIsMatch(commandOption, untilMatchedStep)
       ) {
         if (untilMatchedStep.stoppingPoint === BeforeOrAfter.After) {
-          // console.info("matching step ticking");
           await this.tickNextStep();
         }
         break;
-      } else if (commandOption) {
-        // console.info(
-        //   "ticked unmatched step",
-        //   COMBAT_ACTION_NAME_STRINGS[commandOption.actionName],
-        //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]
-        // );
       }
 
       await this.tickNextStep();

@@ -16,6 +16,7 @@ export const CycleConsideredAbilityInTreeColumnButtons = observer((props: Props)
   );
 
   const abilitiesInRowCount = menuState.column.length;
+  const clientApplication = useClientApplication();
 
   function onCycle(direction: NextOrPrevious) {
     const newDetailedAbilityIndex = getNextOrPreviousNumber(
@@ -30,7 +31,6 @@ export const CycleConsideredAbilityInTreeColumnButtons = observer((props: Props)
     if (newDetailedAbilityOption === undefined) {
       throw new Error("Expected to have a valid ability here");
     }
-    const clientApplication = useClientApplication();
     const { detailableEntityFocus } = clientApplication;
     detailableEntityFocus.combatantAbilities.setDetailed(newDetailedAbilityOption);
 

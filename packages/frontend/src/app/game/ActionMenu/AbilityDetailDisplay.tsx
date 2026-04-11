@@ -33,7 +33,8 @@ export default observer(function AbilityDetailDisplay({ ability, column }: Props
   const conditionsToShow = getConditionsToShowDetailButtonsFor(party, ability, focusedCharacter);
   const conditionDescriptions = conditionsToShow.map((conditionName) => (
     <div key={conditionName}>
-      {COMBATANT_CONDITION_NAME_STRINGS[conditionName]}: {COMBATANT_CONDITION_DESCRIPTIONS[conditionName]}
+      {COMBATANT_CONDITION_NAME_STRINGS[conditionName]}:{" "}
+      {COMBATANT_CONDITION_DESCRIPTIONS[conditionName]}
     </div>
   ));
 
@@ -46,7 +47,9 @@ export default observer(function AbilityDetailDisplay({ ability, column }: Props
     content = (
       <div>
         <div>{description.getSummary()}</div>
-        <div>Usable {COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[description.getUsabilityContext()]}</div>
+        <div>
+          Usable {COMBAT_ACTION_USABLITY_CONTEXT_STRINGS[description.getUsabilityContext()]}
+        </div>
         <div>{}</div>
         {!!conditionDescriptions.length && (
           <div>
@@ -66,7 +69,7 @@ export default observer(function AbilityDetailDisplay({ ability, column }: Props
     <div className="h-full w-full border border-slate-400 bg-slate-700 p-2 pointer-events-auto flex flex-col relative">
       {iconGetter &&
         iconGetter(
-          "absolute h-full p-6 fill-slate-400 stroke-slate-400 opacity-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          "absolute h-full p-6 pointer-events-none fill-slate-400 stroke-slate-400 opacity-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         )}
       <div className="text-lg">{getAbilityTreeAbilityNameString(ability)}</div>
       <Divider />
@@ -86,7 +89,11 @@ function getConditionsToShowDetailButtonsFor(
   const conditionsToShowDetailButtonsFor: CombatantConditionName[] = [];
 
   for (const actionRank of ArrayUtils.createFilledWithSequentialNumbers(3, 1)) {
-    const rankDescription = description.getDescriptionByLevel(user, party, actionRank as ActionRank);
+    const rankDescription = description.getDescriptionByLevel(
+      user,
+      party,
+      actionRank as ActionRank
+    );
     const conditionsAppliedOption = rankDescription[ActionDescriptionComponent.AppliesConditions];
     if (!conditionsAppliedOption) continue;
     for (const conditionBlueprint of conditionsAppliedOption) {

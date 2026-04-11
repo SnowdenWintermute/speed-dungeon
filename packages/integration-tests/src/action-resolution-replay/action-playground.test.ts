@@ -7,7 +7,9 @@ import {
   CombatActionName,
   CombatantClass,
   DungeonRoomType,
+  MONSTER_FIXTURE_NAMES,
   TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
+  TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
 } from "@speed-dungeon/common";
@@ -18,6 +20,7 @@ import { testFirewallStokedOnRecast } from "./firewall/stoked-on-recast.js";
 import { testFirewallDeteriorates } from "./firewall/deteriorates.js";
 import { testFirewallDissipateOnExplore } from "./firewall/dissipates-on-explore.js";
 import { deathInFirewallOnMeleeApproach } from "./firewall/death-on-melee-approach.js";
+import { deathInFirewallOnMeleeReturnHome } from "./firewall/death-on-melee-return-home.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "explicit combatant attack",
@@ -35,39 +38,29 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     // arrows disintigrate
     // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
     // - doesn't unlock input early
-    it("death in firewall on return", async () => {
-      const client = await testFixture.resetWithOptions(
-        TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
-        BASIC_CHARACTER_FIXTURES
-      );
-      const { clientApplication, gameClientHarness } = client;
-      const { combatantFocus } = clientApplication;
-      const { gameContext } = clientApplication;
-      const party = gameContext.requireParty();
-      await gameClientHarness.toggleReadyToExplore();
-      // enemy dies in firewall comming back from melee
 
-      //
+    it("death in firewall on return", async () => {
+      await deathInFirewallOnMeleeReturnHome(testFixture);
     });
 
-    // it("death in firewall on approach", async () => {
-    //   await deathInFirewallOnMeleeApproach(testFixture);
-    // });
+    it("death in firewall on approach", async () => {
+      await deathInFirewallOnMeleeApproach(testFixture);
+    });
 
-    // it("two spiders burning", async () => {
-    //   await testTwoSpidersAndBurning(testFixture);
-    // });
+    it("two spiders burning", async () => {
+      await testTwoSpidersAndBurning(testFixture);
+    });
 
-    // it("firewall dissipates after explore", async () => {
-    //   await testFirewallDissipateOnExplore(testFixture);
-    // });
+    it("firewall dissipates after explore", async () => {
+      await testFirewallDissipateOnExplore(testFixture);
+    });
 
-    // it("firewall deteriorates", async () => {
-    //   await testFirewallDeteriorates(testFixture);
-    // });
+    it("firewall deteriorates", async () => {
+      await testFirewallDeteriorates(testFixture);
+    });
 
-    // it("firewall stoked by recast", async () => {
-    //   await testFirewallStokedOnRecast(testFixture);
-    // });
+    it("firewall stoked by recast", async () => {
+      await testFirewallStokedOnRecast(testFixture);
+    });
   }
 );

@@ -6,12 +6,13 @@ import {
   ClientIntentType,
   CombatActionName,
   MONSTER_FIXTURE_NAMES,
-  TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
+  TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
 } from "@speed-dungeon/common";
 
-export async function deathInFirewallOnMeleeApproach(testFixture: IntegrationTestFixture) {
+/** enemy dies in firewall comming back from melee */
+export async function deathInFirewallOnMeleeReturnHome(testFixture: IntegrationTestFixture) {
   const client = await testFixture.resetWithOptions(
-    TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
+    TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
     BASIC_CHARACTER_FIXTURES
   );
   const { clientApplication, gameClientHarness } = client;
@@ -26,7 +27,12 @@ export async function deathInFirewallOnMeleeApproach(testFixture: IntegrationTes
     type: ClientIntentType.UseSelectedCombatAction,
     data: { characterId: combatantFocus.requireFocusedCharacterId() },
   });
-  const testWolf = party.combatantManager.requireCombatantByName(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP);
+  const testWolf = party.combatantManager.requireCombatantByName(MONSTER_FIXTURE_NAMES.WOLF_MID_HP);
+  await gameClientHarness.flushReplayTree({
+    stoppingPoint: BeforeOrAfter.After,
+    actionName: CombatActionName.FirewallBurn,
+    step: ActionResolutionStepType.RollIncomingHitOutcomes,
+  });
   expect(testWolf.combatantProperties.isDead()).toBeFalsy();
   await gameClientHarness.flushReplayTree({
     stoppingPoint: BeforeOrAfter.After,
@@ -37,7 +43,7 @@ export async function deathInFirewallOnMeleeApproach(testFixture: IntegrationTes
   expect(party.inputLock.isLocked()).toBeTruthy();
   await gameClientHarness.flushReplayTree({
     stoppingPoint: BeforeOrAfter.After,
-    actionName: CombatActionName.AttackMeleeMainhand,
+    actionName: CombatActionName.FirewallBurn,
     step: ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock,
   });
   expect(party.inputLock.isLocked()).toBeFalsy();

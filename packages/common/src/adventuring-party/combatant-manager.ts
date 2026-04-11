@@ -1,6 +1,6 @@
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { CombatantId, EntityId } from "../aliases.js";
+import { CombatantId, EntityId, EntityName } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import {
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
@@ -17,6 +17,7 @@ import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-
 import { PartyWipes } from "../types.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import { invariant } from "../utils/index.js";
 
 export class CombatantManager
   extends AdventuringPartySubsystem
@@ -59,6 +60,22 @@ export class CombatantManager
 
   getAllCombatantIds() {
     return Array.from(this.combatants.keys());
+  }
+
+  /** Returns the first match. Combatant names are not enforced unique. */
+  getCombatantOptionByName(name: EntityName) {
+    for (const [id, combatant] of this.getAllCombatants()) {
+      if (combatant.getName() === name) {
+        return combatant;
+      }
+    }
+  }
+
+  /** Returns the first match. Combatant names are not enforced unique. */
+  requireCombatantByName(name: string) {
+    const option = this.getCombatantOptionByName(name as EntityName);
+    invariant(option !== undefined, "requireCombatantByName");
+    return option;
   }
 
   /** Gets entityIds of combatants in group in left to right order from the perspective of

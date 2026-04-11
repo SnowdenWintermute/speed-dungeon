@@ -9,6 +9,11 @@ import { MonsterType } from "../monsters/monster-types.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 
+export const MONSTER_FIXTURE_NAMES = {
+  WOLF_LOW_HP: "Test Wolf Low Hp",
+  WOLF_MID_HP: "Test Wolf Mid Hp",
+};
+
 export const MONSTER_FIXTURES = {
   WOLF: (
     idGenerator: IdGenerator,
@@ -83,7 +88,7 @@ export const MONSTER_FIXTURES = {
     rngPolicy: RandomNumberGenerationPolicy
   ) => {
     const builder = CombatantBuilder.monster(MonsterType.Wolf)
-      .name("Test Wolf")
+      .name(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP)
       .explicitAttributes()
       .attribute(CombatAttribute.Hp, 7)
       .attribute(CombatAttribute.Strength, 10)
@@ -110,7 +115,7 @@ export const MONSTER_FIXTURES = {
     rngPolicy: RandomNumberGenerationPolicy
   ) => {
     const builder = CombatantBuilder.monster(MonsterType.Wolf)
-      .name("Test Wolf")
+      .name(MONSTER_FIXTURE_NAMES.WOLF_MID_HP)
       .explicitAttributes()
       .attribute(CombatAttribute.Hp, 14)
       .attribute(CombatAttribute.Strength, 10)

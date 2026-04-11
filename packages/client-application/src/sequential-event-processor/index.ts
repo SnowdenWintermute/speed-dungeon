@@ -2,7 +2,6 @@ import { createClientSequentialEventHandlers } from "./client-event-handlers";
 import {
   ClientSequentialEvent,
   ClientSequentialEventHandlers,
-  ClientSequentialEventType,
   ReactiveNode,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
