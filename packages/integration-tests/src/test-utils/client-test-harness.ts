@@ -6,6 +6,7 @@ import {
   ActionAndRank,
   ActionRank,
   ActionResolutionStepType,
+  BeforeOrAfter,
   ClientIntent,
   ClientIntentType,
   COMBAT_ACTION_NAME_STRINGS,
@@ -15,6 +16,8 @@ import {
   EntityName,
   GameMode,
   GameName,
+  GameStateUpdate,
+  GameUpdateCommand,
   invariant,
   ItemId,
   NextOrPrevious,
@@ -42,26 +45,11 @@ export class ClientTestHarness<T extends BaseClient> {
     return intentId;
   }
 
-  async flushReplayTree() {
-    let iterationCount = 0;
-    while (this.clientApplication.sequentialEventProcessor.isProcessing) {
-      throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
-      iterationCount += 1;
-      const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
-      invariant(remaining >= 0, "remaining duration should not be negative");
-      this.tickScheduler.tick(remaining);
-      // Yield the call stack so microtasks queued by ticking (e.g. resolved
-      // promises in the sequential event processor chain) can execute.
-      // Without this, isProcessing never updates because the synchronous
-      // loop starves the microtask queue.
-      await Promise.resolve();
-    }
-  }
-
-  async flushReplayTreeUntilMatchedStep(
-    actionName: CombatActionName,
-    step: ActionResolutionStepType
-  ) {
+  async flushReplayTree(untilMatchedStep?: {
+    stoppingPoint: BeforeOrAfter;
+    actionName: CombatActionName;
+    step: ActionResolutionStepType;
+  }) {
     let iterationCount = 0;
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
@@ -69,28 +57,53 @@ export class ClientTestHarness<T extends BaseClient> {
 
       const commandOption =
         this.clientApplication.replayTreeScheduler.current?.nextExpectedStep?.command;
-      if (commandOption) {
-        const isMatch = commandOption.actionName === actionName && commandOption.step === step;
-        if (isMatch) {
-          console.log("found matching step");
-          break;
-        } else {
-          console.log(
-            "ticked unmatched step:",
-            COMBAT_ACTION_NAME_STRINGS[commandOption.actionName],
-            ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]
-          );
+      if (
+        untilMatchedStep &&
+        commandOption &&
+        this.replayStepIsMatch(commandOption, untilMatchedStep)
+      ) {
+        if (untilMatchedStep.stoppingPoint === BeforeOrAfter.After) {
+          // console.info("matching step ticking");
+          await this.tickNextStep();
         }
+        break;
+      } else if (commandOption) {
+        // console.info(
+        //   "ticked unmatched step",
+        //   COMBAT_ACTION_NAME_STRINGS[commandOption.actionName],
+        //   ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]
+        // );
       }
 
-      const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
-      invariant(remaining >= 0, "remaining duration should not be negative");
-      this.tickScheduler.tick(remaining);
-      // Yield the call stack so microtasks queued by ticking (e.g. resolved
-      // promises in the sequential event processor chain) can execute.
-      // Without this, isProcessing never updates because the synchronous
-      // loop starves the microtask queue.
-      await Promise.resolve();
+      await this.tickNextStep();
+    }
+  }
+
+  private async tickNextStep() {
+    const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
+    invariant(remaining >= 0, "remaining duration should not be negative");
+    this.tickScheduler.tick(remaining);
+    // Yield the call stack so microtasks queued by ticking (e.g. resolved
+    // promises in the sequential event processor chain) can execute.
+    // Without this, isProcessing never updates because the synchronous
+    // loop starves the microtask queue.
+    await Promise.resolve();
+  }
+
+  private replayStepIsMatch(
+    commandOption: GameUpdateCommand,
+    toMatch: { actionName: CombatActionName; step: ActionResolutionStepType }
+  ) {
+    if (!commandOption) {
+      return false;
+    }
+    const isMatch =
+      commandOption.actionName === toMatch.actionName && commandOption.step === toMatch.step;
+    if (isMatch) {
+      console.log("found matching step");
+      return true;
+    } else {
+      return false;
     }
   }
 

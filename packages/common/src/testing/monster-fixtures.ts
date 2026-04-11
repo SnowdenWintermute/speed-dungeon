@@ -21,7 +21,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 1)
+      .attribute(CombatAttribute.Speed, 2)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
@@ -90,7 +90,34 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 1)
       .ownedAction(CombatActionName.Attack)
-      .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+
+  WOLF_MID_HP: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name("Test Wolf")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 14)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 1)
+      .ownedAction(CombatActionName.Attack)
+      .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
 
     appendMonsterEquipment(

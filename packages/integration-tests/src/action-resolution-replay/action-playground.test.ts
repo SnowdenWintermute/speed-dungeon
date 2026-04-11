@@ -2,6 +2,7 @@ import {
   ActionEntityName,
   ActionResolutionStepType,
   BASIC_CHARACTER_FIXTURES,
+  BeforeOrAfter,
   ClientIntentType,
   CombatActionName,
   CombatantClass,
@@ -16,6 +17,7 @@ import { testTwoSpidersAndBurning } from "./two-spiders-and-burning.js";
 import { testFirewallStokedOnRecast } from "./firewall/stoked-on-recast.js";
 import { testFirewallDeteriorates } from "./firewall/deteriorates.js";
 import { testFirewallDissipateOnExplore } from "./firewall/dissipates-on-explore.js";
+import { deathInFirewallOnMeleeApproach } from "./firewall/death-on-melee-approach.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "explicit combatant attack",
@@ -29,39 +31,28 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       ]);
     });
 
-    it("firewall", async () => {
+    // arrows light on fire (deal fire damage)
+    // arrows disintigrate
+    // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
+    // - doesn't unlock input early
+    it("death in firewall on return", async () => {
       const client = await testFixture.resetWithOptions(
         TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
-        BASIC_CHARACTER_FIXTURES,
-        [
-          { name: "a", combatantClass: CombatantClass.Warrior },
-          { name: "b", combatantClass: CombatantClass.Rogue },
-        ]
+        BASIC_CHARACTER_FIXTURES
       );
-
       const { clientApplication, gameClientHarness } = client;
       const { combatantFocus } = clientApplication;
       const { gameContext } = clientApplication;
       const party = gameContext.requireParty();
       await gameClientHarness.toggleReadyToExplore();
-      await gameClientHarness.useCombatAction(CombatActionName.Firewall, 3);
-      await gameClientHarness.selectCombatAction(CombatActionName.PassTurn, 1);
-      await gameClientHarness.dispatchAndAwaitReply({
-        type: ClientIntentType.UseSelectedCombatAction,
-        data: { characterId: combatantFocus.requireFocusedCharacterId() },
-      });
-      await gameClientHarness.flushReplayTreeUntilMatchedStep(
-        CombatActionName.FirewallBurn,
-        ActionResolutionStepType.RollIncomingHitOutcomes
-      );
-
-      // enemy dies in firewall on way to melee
       // enemy dies in firewall comming back from melee
-      // arrows light on fire (deal fire damage)
-      // arrows disintigrate
-      // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
-      // - doesn't unlock input early
+
+      //
     });
+
+    // it("death in firewall on approach", async () => {
+    //   await deathInFirewallOnMeleeApproach(testFixture);
+    // });
 
     // it("two spiders burning", async () => {
     //   await testTwoSpidersAndBurning(testFixture);

@@ -73,6 +73,21 @@ export const TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTe
   ],
 ];
 
+export const TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.Empty,
+    },
+    {
+      type: DungeonRoomType.MonsterLair,
+      combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF],
+    },
+    {
+      type: DungeonRoomType.Staircase,
+    },
+  ],
+];
+
 export const EXPLICIT_ATTACK_TEST_DUNGEON: ExplicitCombatantDungeonTemplate = [
   [
     { type: DungeonRoomType.Empty },
