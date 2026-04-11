@@ -49,6 +49,7 @@ export class ClientTestHarness<T extends BaseClient> {
   }) {
     let iterationCount = 0;
     const { replayTreeScheduler } = this.clientApplication;
+    let matched = false;
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
@@ -62,10 +63,14 @@ export class ClientTestHarness<T extends BaseClient> {
         if (untilMatchedStep.stoppingPoint === BeforeOrAfter.After) {
           await this.tickNextStep();
         }
+        matched = true;
         break;
       }
 
       await this.tickNextStep();
+    }
+    if (untilMatchedStep && !matched) {
+      throw new Error("expected to match a step but never found it");
     }
   }
 

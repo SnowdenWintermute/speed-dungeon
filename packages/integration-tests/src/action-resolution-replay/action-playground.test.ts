@@ -22,6 +22,7 @@ import { testFirewallDissipateOnExplore } from "./firewall/dissipates-on-explore
 import { deathInFirewallOnMeleeApproach } from "./firewall/death-on-melee-approach.js";
 import { deathInFirewallOnMeleeReturnHome } from "./firewall/death-on-melee-return-home.js";
 import { testFirewallIncineratesProjectiles } from "./firewall/projectiles-incinerate.js";
+import { testFirewallIgnitesProjectiles } from "./firewall/projectiles-ignite.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("firewall", ({ clientEndpointFactory }) => {
   const testFixture = new IntegrationTestFixture(clientEndpointFactory);
@@ -33,11 +34,13 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("firewall", ({ clientEndpointF
     ]);
   });
 
-  // arrows light on fire (deal fire damage)
-  // arrows disintigrate
   // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
   // - doesn't unlock input early
   //
+  it("firewall ignites projectiles", async () => {
+    await testFirewallIgnitesProjectiles(testFixture);
+  });
+
   it("firewall incinerates projectiles", async () => {
     await testFirewallIncineratesProjectiles(testFixture);
   });
