@@ -1,5 +1,6 @@
 import { Engine, Scene } from "@babylonjs/core";
 import { ReplayTreeScheduler } from "./replay-tree-scheduler";
+import { ActionResolutionStepType, CombatActionName } from "@speed-dungeon/common";
 
 export type TickScheduler = (tick: (deltaMs: number) => void) => () => void; // returns unsubscribe
 
@@ -30,6 +31,47 @@ export class ManualTickScheduler {
   tickToNextNonZeroDurationStep(replayTreeScheduler: ReplayTreeScheduler) {
     this.tick(replayTreeScheduler.getMinRemainingDuration());
     while (replayTreeScheduler.current && replayTreeScheduler.getMinRemainingDuration() === 0) {
+      this.tick(replayTreeScheduler.getMinRemainingDuration());
+    }
+  }
+
+  tickToNext(replayTreeScheduler: ReplayTreeScheduler) {
+    this.tick(replayTreeScheduler.getMinRemainingDuration());
+  }
+
+  tickToExpectedStep(
+    replayTreeScheduler: ReplayTreeScheduler,
+    action: CombatActionName,
+    stepType: ActionResolutionStepType
+  ) {
+    if (!replayTreeScheduler.current) {
+      console.log("no replay tree");
+      return;
+    }
+    while (replayTreeScheduler.current) {
+      const nextExpectedStep = replayTreeScheduler.current.nextExpectedStep;
+      if (!nextExpectedStep) {
+        console.log("no nextExpectedStep");
+        break;
+      }
+
+      const { step, actionName } = nextExpectedStep.command;
+      const isMatch = step === stepType && actionName === action;
+      console.log(
+        "step:",
+        step,
+        "stepType",
+        stepType,
+        "action:",
+        action,
+        "actionName:",
+        actionName
+      );
+
+      if (isMatch) {
+        console.log("found expected step");
+        break;
+      }
       this.tick(replayTreeScheduler.getMinRemainingDuration());
     }
   }

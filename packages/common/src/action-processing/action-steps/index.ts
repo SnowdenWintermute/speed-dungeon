@@ -8,6 +8,7 @@ import { RandomNumberGenerationPolicy } from "../../utility-classes/random-numbe
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 
 export enum ActionResolutionStepType {
   PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
@@ -155,7 +156,11 @@ export abstract class ActionResolutionStep {
   }
 
   onComplete(): Error | ActionIntentAndUser[] {
-    console.log("completed step:", this.getStringName());
+    // console.log(
+    //   "completed step:",
+    //   COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+    //   this.getStringName()
+    // );
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;
     return branchingActionsResult;

@@ -31,15 +31,25 @@ export class ReplayTreeExecution {
     return !this.activeBranches.length;
   }
 
-  get nextExpectedStepString() {
+  get nextExpectedStep() {
     const nextCompletionId = this.getNextNodeCompletionId();
     for (const branch of this.activeBranches) {
-      const commandOption = branch.getCurrentGameUpdate()?.command;
+      const stepExecutionOption = branch.getCurrentGameUpdate();
+      const commandOption = stepExecutionOption?.command;
       if (!commandOption) continue;
       if (commandOption.completionOrderId === nextCompletionId) {
-        return `${COMBAT_ACTION_NAME_STRINGS[commandOption.actionName]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]}`;
+        return stepExecutionOption;
       }
     }
+  }
+
+  get nextExpectedStepString() {
+    const nextExpectedStepOption = this.nextExpectedStep;
+    if (!nextExpectedStepOption) {
+      return undefined;
+    }
+    const commandOption = nextExpectedStepOption?.command;
+    return `${COMBAT_ACTION_NAME_STRINGS[commandOption.actionName]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]}`;
   }
 
   getMinRemainingDuration(): number {

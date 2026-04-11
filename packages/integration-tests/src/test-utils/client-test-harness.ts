@@ -2,10 +2,13 @@ import { ClientApplication } from "@/client-application";
 import { BaseClient } from "@/client-application/clients/base";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionAndRank,
   ActionRank,
+  ActionResolutionStepType,
   ClientIntent,
   ClientIntentType,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   CombatantClass,
   CombatantId,
@@ -25,15 +28,17 @@ export class ClientTestHarness<T extends BaseClient> {
   constructor(
     readonly clientApplication: ClientApplication,
     private clientSingleton: ClientSingleton<T>,
-    private tickScheduler: ManualTickScheduler
+    readonly tickScheduler: ManualTickScheduler
   ) {}
 
-  async settleIntentResult(intent: ClientIntent) {
+  async dispatchAndAwaitReply(intent: ClientIntent) {
     const intentId = this.clientSingleton.get().dispatchIntent(intent);
     await this.clientSingleton.get().waitForServerReply(intentId);
+  }
 
+  async settleIntentResult(intent: ClientIntent) {
+    const intentId = await this.dispatchAndAwaitReply(intent);
     await this.flushReplayTree();
-
     return intentId;
   }
 
@@ -42,6 +47,42 @@ export class ClientTestHarness<T extends BaseClient> {
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
+      const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
+      invariant(remaining >= 0, "remaining duration should not be negative");
+      this.tickScheduler.tick(remaining);
+      // Yield the call stack so microtasks queued by ticking (e.g. resolved
+      // promises in the sequential event processor chain) can execute.
+      // Without this, isProcessing never updates because the synchronous
+      // loop starves the microtask queue.
+      await Promise.resolve();
+    }
+  }
+
+  async flushReplayTreeUntilMatchedStep(
+    actionName: CombatActionName,
+    step: ActionResolutionStepType
+  ) {
+    let iterationCount = 0;
+    while (this.clientApplication.sequentialEventProcessor.isProcessing) {
+      throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
+      iterationCount += 1;
+
+      const commandOption =
+        this.clientApplication.replayTreeScheduler.current?.nextExpectedStep?.command;
+      if (commandOption) {
+        const isMatch = commandOption.actionName === actionName && commandOption.step === step;
+        if (isMatch) {
+          console.log("found matching step");
+          break;
+        } else {
+          console.log(
+            "ticked unmatched step:",
+            COMBAT_ACTION_NAME_STRINGS[commandOption.actionName],
+            ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]
+          );
+        }
+      }
+
       const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
       invariant(remaining >= 0, "remaining duration should not be negative");
       this.tickScheduler.tick(remaining);

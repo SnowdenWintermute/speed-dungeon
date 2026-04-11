@@ -23,7 +23,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 1)
       .ownedAction(CombatActionName.Attack)
-      .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
 
     appendMonsterEquipment(
@@ -73,7 +73,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 1)
       .attribute(CombatAttribute.Speed, 0)
       .ownedAction(CombatActionName.Attack)
-      .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
     return builder;
   },

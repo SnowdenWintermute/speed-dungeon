@@ -35,3 +35,8 @@
 // ranged counterattack light on fire
 //
 //
+// ICE BURST
+// if killed with primed for ice burst, don't error
+//
+// THREAT
+// combatants attack highest threat target
