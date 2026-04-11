@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import { ZIndexLayers } from "../z-index-layers";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ModifierKey } from "@/client-application/ui/inputs";
+import DebugLogReportMenu from "./download-debug-log-button";
+import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
 
-export const DebugText = observer(
+export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
     const clientApplication = useClientApplication();
     const { uiStore, gameWorldView, imageStore } = clientApplication;
@@ -113,7 +114,10 @@ export const DebugText = observer(
         style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
       >
         <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>
-          <h5 className="p-2 ">DEBUG</h5>
+          <h5 className="p-2 flex w-full justify-between">
+            <span>DEBUG</span>
+            <DebugLogReportMenu />
+          </h5>
           <button
             className="h-full p-2 border-l border-white"
             onClick={() => {

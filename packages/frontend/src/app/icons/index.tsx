@@ -46,6 +46,7 @@ import ColumnsPause from "../../../public/img/menu-icons/columns.svg";
 import CaretRightPlay from "../../../public/img/menu-icons/caret-right.svg";
 import ArrowRightToLineNext from "../../../public/img/menu-icons/arrow-right-to-line.svg";
 import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
+import DownloadDocument from "../../../public/img/menu-icons/download-document.svg";
 
 import { ReactNode } from "react";
 import {
@@ -106,6 +107,7 @@ export enum IconName {
   CaretRightPlay,
   ArrowRightToLineNext,
   ArrowRight,
+  DownloadDocument,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -157,6 +159,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
     <ArrowRightToLineNext className={className} />
   ),
   [IconName.ArrowRight]: (className: string) => <ArrowRight className={className} />,
+  [IconName.DownloadDocument]: (className: string) => <DownloadDocument className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

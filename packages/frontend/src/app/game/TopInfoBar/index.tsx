@@ -48,9 +48,9 @@ export const TopInfoBar = observer(() => {
       ) : (
         <RoomExplorationTracker />
       )}
-      <div className="absolute right-0 h-full w-fit border-l border-slate-400 flex items-center justify-center">
+      <div className="absolute right-0 h-full w-fit border-slate-400 flex items-center justify-center">
         <HotkeyButton
-          className="h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
+          className="border-l border-slate-400 h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {
             dialogs.toggle(DialogElementName.LeaveGame);
             actionMenu.clearStack();

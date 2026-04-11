@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import { DebugText } from "./DebugText";
 import { ZIndexLayers } from "../z-index-layers";
 import { GameWorldView } from "@/game-world-view";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { createBabylonScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
+import { DebugPanel } from "../debug/debug-panel";
 
 export const SceneManager = observer(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -44,7 +44,7 @@ export const SceneManager = observer(() => {
 
   return (
     <>
-      <DebugText debugRef={debugRef} />
+      <DebugPanel debugRef={debugRef} />
       <canvas
         ref={canvasRef}
         className={`h-full w-full absolute pointer-events-auto `}

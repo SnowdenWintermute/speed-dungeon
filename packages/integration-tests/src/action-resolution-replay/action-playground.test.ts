@@ -21,46 +21,48 @@ import { testFirewallDeteriorates } from "./firewall/deteriorates.js";
 import { testFirewallDissipateOnExplore } from "./firewall/dissipates-on-explore.js";
 import { deathInFirewallOnMeleeApproach } from "./firewall/death-on-melee-approach.js";
 import { deathInFirewallOnMeleeReturnHome } from "./firewall/death-on-melee-return-home.js";
+import { testFirewallIncineratesProjectiles } from "./firewall/projectiles-incinerate.js";
 
-describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
-  "explicit combatant attack",
-  ({ clientEndpointFactory }) => {
-    const testFixture = new IntegrationTestFixture(clientEndpointFactory);
+describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("firewall", ({ clientEndpointFactory }) => {
+  const testFixture = new IntegrationTestFixture(clientEndpointFactory);
 
-    afterEach(async () => {
-      await Promise.all([
-        testFixture.lobbyServer.closeTransportServer(),
-        testFixture.gameServer.closeTransportServer(),
-      ]);
-    });
+  afterEach(async () => {
+    await Promise.all([
+      testFixture.lobbyServer.closeTransportServer(),
+      testFixture.gameServer.closeTransportServer(),
+    ]);
+  });
 
-    // arrows light on fire (deal fire damage)
-    // arrows disintigrate
-    // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
-    // - doesn't unlock input early
+  // arrows light on fire (deal fire damage)
+  // arrows disintigrate
+  // counterattack + enemy countered is hit from firewally on way back from getting counterattacked:
+  // - doesn't unlock input early
+  //
+  it("firewall incinerates projectiles", async () => {
+    await testFirewallIncineratesProjectiles(testFixture);
+  });
 
-    it("death in firewall on return", async () => {
-      await deathInFirewallOnMeleeReturnHome(testFixture);
-    });
+  it("death in firewall on return", async () => {
+    await deathInFirewallOnMeleeReturnHome(testFixture);
+  });
 
-    it("death in firewall on approach", async () => {
-      await deathInFirewallOnMeleeApproach(testFixture);
-    });
+  it("death in firewall on approach", async () => {
+    await deathInFirewallOnMeleeApproach(testFixture);
+  });
 
-    it("two spiders burning", async () => {
-      await testTwoSpidersAndBurning(testFixture);
-    });
+  it("two spiders burning", async () => {
+    await testTwoSpidersAndBurning(testFixture);
+  });
 
-    it("firewall dissipates after explore", async () => {
-      await testFirewallDissipateOnExplore(testFixture);
-    });
+  it("firewall dissipates after explore", async () => {
+    await testFirewallDissipateOnExplore(testFixture);
+  });
 
-    it("firewall deteriorates", async () => {
-      await testFirewallDeteriorates(testFixture);
-    });
+  it("firewall deteriorates", async () => {
+    await testFirewallDeteriorates(testFixture);
+  });
 
-    it("firewall stoked by recast", async () => {
-      await testFirewallStokedOnRecast(testFixture);
-    });
-  }
-);
+  it("firewall stoked by recast", async () => {
+    await testFirewallStokedOnRecast(testFixture);
+  });
+});

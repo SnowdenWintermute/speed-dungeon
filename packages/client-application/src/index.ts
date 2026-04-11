@@ -19,6 +19,7 @@ import { EventLogGameMessageService } from "./event-log/event-log-service";
 import { FloatingMessageService } from "./event-log/floating-messages-service";
 import { AlertsService } from "./alerts";
 import { ErrorRecordService } from "./error-record-service";
+import { ClientLogRecorder } from "./client-log-recorder";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
@@ -65,6 +66,7 @@ export class ClientApplication {
   readonly floatingMessagesService = new FloatingMessageService(this.floatingMessagesStore);
   readonly alertsService = new AlertsService();
   readonly errorRecordService = new ErrorRecordService();
+  readonly clientLogRecorder: ClientLogRecorder;
 
   // browser tab sync
   readonly broadcastChannel: BroadcastChannelMananger;
@@ -78,10 +80,12 @@ export class ClientApplication {
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
     assetServerUrl: string,
     public lobbyServerUrl: string,
-    replayManagerTickScheduler: TickScheduler
+    replayManagerTickScheduler: TickScheduler,
+    clientLogRecorder: ClientLogRecorder
   ) {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
+    this.clientLogRecorder = clientLogRecorder;
 
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.unregisterReplayManagerTick = replayManagerTickScheduler((deltaMs) =>

@@ -100,6 +100,9 @@ export class ReplayStepExecution<T extends GameUpdateCommand> {
       this._isComplete = true;
 
       this.onComplete(parentReplayTreeProcessor.clientApplication);
+      parentReplayTreeProcessor.clientApplication.clientLogRecorder.recordReplayStepNominal(
+        this.command
+      );
     } else {
       // sometimes things complete out of order. I assume this is due to
       // the fact that there are race conditions in translation and animation events

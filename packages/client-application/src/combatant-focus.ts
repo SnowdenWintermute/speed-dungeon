@@ -3,7 +3,9 @@ import {
   CombatantId,
   CombatantTurnTracker,
   ERROR_MESSAGES,
+  NextOrPrevious,
   TurnTracker,
+  getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import { ClientApplicationGameContext } from "./client-application-game-context";
 import { ClientApplicationSession } from "./client-application-session";
@@ -82,6 +84,39 @@ export class CombatantFocus {
       const currentMenu = this.actionMenu.getCurrentMenu();
       currentMenu.goToFirstPage();
     }
+  }
+
+  cycleFocusedCharacter(direction: NextOrPrevious) {
+    const party = this.gameContext.requireParty();
+    const characterPositions = party.combatantManager.sortCombatantIdsLeftToRight(
+      party.combatantManager.getPartyMemberCombatants().map((combatant) => combatant.getEntityId())
+    );
+
+    const currCharIndex = characterPositions.indexOf(this.requireFocusedCharacterId());
+
+    if (currCharIndex === -1) {
+      console.error("Character ID not in position list");
+      return null;
+    }
+
+    const nextIndex = getNextOrPreviousNumber(
+      currCharIndex,
+      characterPositions.length - 1,
+      direction,
+      { minNumber: 0 }
+    );
+    const newCharacterId = characterPositions[nextIndex];
+    if (newCharacterId === undefined) return console.error("Invalid character position index");
+
+    // this is because if you are looking at an ability that one character owns and you
+    // switch to focusing a character that doesn't own it, it doesn't make sense you
+    // could still be looking at the allocation menu for that ability
+    if (this.actionMenu.viewingAbilityTree()) {
+      this.actionMenu.replaceStack([]);
+      this.actionMenu.pushFromPool(ActionMenuScreenType.ViewingAbilityTree);
+    }
+
+    this.setFocusedCharacter(newCharacterId);
   }
 
   characterIsFocused(combatantId: CombatantId) {

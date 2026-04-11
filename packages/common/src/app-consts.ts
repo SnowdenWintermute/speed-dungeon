@@ -44,6 +44,7 @@ export const MAX_ACTION_POINTS_COST = 2;
 
 // UI
 export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
+export const CLIENT_LOG_RECORDER_MAX_BYTES = 5 * 1024 * 1024;
 
 // EQUIPMENT
 export const DEX_TO_RANGED_ARMOR_PEN_RATIO = 1;

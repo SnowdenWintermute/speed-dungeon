@@ -186,7 +186,8 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async selectHoldableHotswapSlot(characterId: CombatantId, slotIndex: number) {
+  async selectHoldableHotswapSlot(slotIndex: number) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     return this.settleIntentResult({
       type: ClientIntentType.SelectHoldableHotswapSlot,
       data: { characterId, slotIndex },

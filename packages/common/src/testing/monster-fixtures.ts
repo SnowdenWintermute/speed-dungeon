@@ -12,6 +12,7 @@ import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-g
 export const MONSTER_FIXTURE_NAMES = {
   WOLF_LOW_HP: "Test Wolf Low Hp",
   WOLF_MID_HP: "Test Wolf Mid Hp",
+  WOLF_ZERO_SPEED: "Test Wolf Zero Speed",
 };
 
 export const MONSTER_FIXTURES = {
@@ -73,9 +74,9 @@ export const MONSTER_FIXTURES = {
   },
   WOLF_ZERO_SPEED: () => {
     const builder = CombatantBuilder.monster(MonsterType.Wolf)
-      .name("Test Wolf")
+      .name(MONSTER_FIXTURE_NAMES.WOLF_ZERO_SPEED)
       .explicitAttributes()
-      .attribute(CombatAttribute.Hp, 1)
+      .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Speed, 0)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])

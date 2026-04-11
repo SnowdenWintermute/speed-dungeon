@@ -34,6 +34,10 @@ export abstract class BaseClient {
 
   dispatchIntent(message: ClientIntent): number {
     this._intentSequenceCounter += 1;
+    this.clientApplication.clientLogRecorder.recordIntentDispatched(
+      this._intentSequenceCounter,
+      message
+    );
     this.connectionEndpoint.send(JSON.stringify(message));
     return this._intentSequenceCounter;
   }
@@ -80,6 +84,7 @@ export abstract class BaseClient {
 
     this.connectionEndpoint.on("message", (untyped) => {
       const typedMessage = this.getTypedMessage(untyped);
+      this.clientApplication.clientLogRecorder.recordUpdateReceived(typedMessage);
       this.handleEndOfStream(typedMessage);
       this.handleErrorMessage(typedMessage);
       this.handleMessage(typedMessage);

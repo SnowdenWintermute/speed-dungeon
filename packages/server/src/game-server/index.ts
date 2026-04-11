@@ -85,9 +85,9 @@ export class GameServerNode {
 
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
+    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL);
-    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

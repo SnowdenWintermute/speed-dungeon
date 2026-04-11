@@ -37,6 +37,7 @@
 //
 // ICE BURST
 // if killed with primed for ice burst, don't error
+// ice burst triggered by firewall doesn't hit anyone
 //
 // THREAT
 // combatants attack highest threat target
