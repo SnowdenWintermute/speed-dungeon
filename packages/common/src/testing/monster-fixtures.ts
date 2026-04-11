@@ -2,6 +2,7 @@ import { AiType } from "../combat/ai-behavior/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { appendMonsterEquipment } from "../monsters/append-monster-equipment.js";
 import { BASIC_AI_PRIORITY } from "../monsters/monster-combat-profiles.js";
@@ -13,6 +14,7 @@ export const MONSTER_FIXTURE_NAMES = {
   WOLF_LOW_HP: "Test Wolf Low Hp",
   WOLF_MID_HP: "Test Wolf Mid Hp",
   WOLF_ZERO_SPEED: "Test Wolf Zero Speed",
+  CULTIST_ZERO_SPEED: "Test Cultist Zero Speed",
 };
 
 export const MONSTER_FIXTURES = {
@@ -79,6 +81,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Speed, 0)
       .ownedAction(CombatActionName.Attack)
+      .trait(CombatantTraitType.IsTameable, 1)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
     return builder;
@@ -134,6 +137,17 @@ export const MONSTER_FIXTURES = {
       rngPolicy.monsterEquipmentChoice
     );
 
+    return builder;
+  },
+  CULTIST_ZERO_SPEED: () => {
+    const builder = CombatantBuilder.monster(MonsterType.Cultist)
+      .name(MONSTER_FIXTURE_NAMES.CULTIST_ZERO_SPEED)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Speed, 0)
+      .ownedAction(CombatActionName.Attack)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
     return builder;
   },
 };

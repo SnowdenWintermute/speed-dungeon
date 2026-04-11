@@ -18,9 +18,6 @@ export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ExplicitCombatantDungeonTemplate = [
     },
     ROOM_WITH_TWO_SPIDERS,
     ROOM_WITH_TWO_SPIDERS,
-    {
-      type: DungeonRoomType.Staircase,
-    },
   ],
 ];
 
@@ -34,10 +31,6 @@ export const TEST_DUNGEON_TWO_WOLF_ROOMS: ExplicitCombatantDungeonTemplate = [
       type: DungeonRoomType.Empty,
     },
     ROOM_WITH_TWO_WOLVES,
-    ROOM_WITH_TWO_WOLVES,
-    {
-      type: DungeonRoomType.Staircase,
-    },
   ],
 ];
 
@@ -51,10 +44,6 @@ export const TEST_DUNGEON_ZERO_SPEED_WOLVES: ExplicitCombatantDungeonTemplate = 
       type: DungeonRoomType.Empty,
     },
     ROOM_WITH_TWO_ZERO_SPEED_WOLVES,
-    ROOM_WITH_TWO_ZERO_SPEED_WOLVES,
-    {
-      type: DungeonRoomType.Staircase,
-    },
   ],
 ];
 
@@ -66,9 +55,6 @@ export const TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTe
     {
       type: DungeonRoomType.MonsterLair,
       combatants: [MONSTER_FIXTURES.WOLF_LOW_HP, MONSTER_FIXTURES.WOLF],
-    },
-    {
-      type: DungeonRoomType.Staircase,
     },
   ],
 ];
@@ -82,9 +68,6 @@ export const TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTe
       type: DungeonRoomType.MonsterLair,
       combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF],
     },
-    {
-      type: DungeonRoomType.Staircase,
-    },
   ],
 ];
 
@@ -95,6 +78,14 @@ export const EXPLICIT_ATTACK_TEST_DUNGEON: ExplicitCombatantDungeonTemplate = [
       type: DungeonRoomType.MonsterLair,
       combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF],
     },
-    { type: DungeonRoomType.Staircase },
+  ],
+];
+
+export const TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST: ExplicitCombatantDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.MonsterLair,
+      combatants: [MONSTER_FIXTURES.WOLF_ZERO_SPEED, MONSTER_FIXTURES.CULTIST_ZERO_SPEED],
+    },
   ],
 ];

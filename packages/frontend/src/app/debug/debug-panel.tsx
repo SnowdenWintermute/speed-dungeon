@@ -4,13 +4,14 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ModifierKey } from "@/client-application/ui/inputs";
-import DebugLogReportMenu from "./download-debug-log-button";
-import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
+import DownloadDebugLogButton from "./download-debug-log-button";
+import ClearDebugLogButton from "./clear-debug-log-button";
+import { formatThousandsAsK } from "@speed-dungeon/common";
 
 export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
     const clientApplication = useClientApplication();
-    const { uiStore, gameWorldView, imageStore } = clientApplication;
+    const { uiStore, gameWorldView, imageStore, clientLogRecorder } = clientApplication;
     const { dialogs, inputs } = uiStore;
     const itemThumbnails = imageStore.getItemThumbnails();
     const showDebug = dialogs.isOpen(DialogElementName.Debug);
@@ -110,13 +111,17 @@ export const DebugPanel = observer(
 
     return (
       <div
-        className={`absolute bottom-10 left-10 opacity-80 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
+        className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
         style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
       >
         <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>
           <h5 className="p-2 flex w-full justify-between">
             <span>DEBUG</span>
-            <DebugLogReportMenu />
+            <div className="flex">
+              <div>Log: {formatThousandsAsK(clientLogRecorder.logSizeBytes)}b</div>
+              <ClearDebugLogButton />
+              <DownloadDebugLogButton />
+            </div>
           </h5>
           <button
             className="h-full p-2 border-l border-white"
@@ -128,31 +133,33 @@ export const DebugPanel = observer(
             Hide
           </button>
         </div>
-        <div className="p-2">Renderer: {gpuName}</div>
+        <div>
+          <div className="p-2">Renderer: {gpuName}</div>
 
-        {/* to be populated in the babylon render loop*/}
-        <ul ref={debugRef} className="p-2"></ul>
+          {/* to be populated in the babylon render loop*/}
+          <ul ref={debugRef} className="p-2"></ul>
 
-        <ul className="p-2">
-          <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
-          <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
-          <li>Input Locked: {inputLockStatus}</li>
-        </ul>
-        <ul className="flex flex-wrap bg-slate-700 w-full">
-          <li key="ayy" className="border p-2 w-full mb-2">
-            Num thumbnails: {itemThumbnails.size}
-          </li>
-          <li className="p-2 flex max-w-40 overflow-auto">
-            {[...itemThumbnails.entries()].map(([id, data], i) => (
-              <div className="relative w-fit" key={id}>
-                <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
-                <button>
-                  <img alt={id} src={data} className="object-contain h-16" />
-                </button>
-              </div>
-            ))}
-          </li>
-        </ul>
+          <ul className="p-2">
+            <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
+            <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
+            <li>Input Locked: {inputLockStatus}</li>
+          </ul>
+          <ul className="flex flex-wrap bg-slate-700 w-full">
+            <li key="ayy" className="border p-2 w-full mb-2">
+              Num thumbnails: {itemThumbnails.size}
+            </li>
+            <li className="p-2 flex max-w-40 overflow-auto">
+              {[...itemThumbnails.entries()].map(([id, data], i) => (
+                <div className="relative w-fit" key={id}>
+                  <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>
+                  <button>
+                    <img alt={id} src={data} className="object-contain h-16" />
+                  </button>
+                </div>
+              ))}
+            </li>
+          </ul>
+        </div>
       </div>
     );
   }

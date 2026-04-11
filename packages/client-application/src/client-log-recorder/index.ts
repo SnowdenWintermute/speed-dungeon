@@ -36,4 +36,6 @@ export interface ClientLogRecorder {
   recordReplayStepNominal(command: GameUpdateCommand): void;
   getAllEntries(): Promise<ClientLogEntry[]>;
   exportAsJson(): Promise<string>;
+  clear(): Promise<void>;
+  logSizeBytes: number;
 }

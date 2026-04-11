@@ -9,6 +9,7 @@ import {
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { ClientLogEntry, ClientLogEntryKind, ClientLogRecorder } from ".";
+import { makeAutoObservable } from "mobx";
 
 const DB_NAME = "client-log";
 const STORE_NAME = "entries";
@@ -35,6 +36,12 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
       timestamp: Date.now(),
       appVersion: APP_VERSION_NUMBER,
     });
+
+    makeAutoObservable(this);
+  }
+
+  get logSizeBytes() {
+    return this.totalBytes;
   }
 
   recordIntentDispatched(sequenceId: number, intent: ClientIntent) {
@@ -101,7 +108,7 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
 
   async exportAsJson(): Promise<string> {
     const entries = await this.getAllEntries();
-    return JSON.stringify(entries, null, 2);
+    return JSON.stringify(entries);
   }
 
   async clear(): Promise<void> {

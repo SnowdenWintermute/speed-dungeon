@@ -1,18 +1,22 @@
-// ENSNARE
-// ensnare debuff gained when ensnared
-// melee attackers hit flying when combatant ensnared
-// ensnare debuff removed when web killed
-// flying trait combatant starts flying when ensnare debuff removed
-//
 // PETS
+// monster with tameable trait is tameable
+// monster without tameable trait is not tameable
 // pet dismissed removes web
 // pet summoned still has conditions it had when dismissed
 // tickable conditions added to turn order bar when pet with conditions summoned in battle
 // pet ai with no active pet command
 // pet ai with pet command
-// monster with tameable trait is tameable
 // monster can resist taming
 // release pet frees up slot
+// can not tame pet if slots are full
+// can not tame pet above rank limit pet level
+// pet can not level up beyond rank limit pet level
+//
+// ENSNARE
+// ensnare debuff gained when ensnared
+// melee attackers hit flying when combatant ensnared
+// ensnare debuff removed when web killed
+// flying trait combatant starts flying when ensnare debuff removed
 //
 // CHAINING SPLIT ARROW
 // chaining split arrow sets off ice bursts in correct order
@@ -32,6 +36,10 @@
 // THREAT
 // combatants attack highest threat target
 //
+// ABILITY TREE ALLOCATION
+// allocate point
+// can not allocate without prerequisite
+// can not allocate without required level
 
 // -DONE-
 //

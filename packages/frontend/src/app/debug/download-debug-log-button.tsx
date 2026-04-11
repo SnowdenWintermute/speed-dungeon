@@ -2,8 +2,9 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import React from "react";
+import ButtonBasic from "../components/atoms/ButtonBasic";
 
-export default function DebugLogReportMenu() {
+export default function DownloadDebugLogButton() {
   const clientApplication = useClientApplication();
 
   async function handleClick() {
@@ -24,10 +25,8 @@ export default function DebugLogReportMenu() {
   }
 
   return (
-    <div>
-      <HotkeyButton className="flex whitespace-nowrap px-2 h-full" onClick={handleClick}>
-        {SVG_ICONS[IconName.DownloadDocument]("h-6 fill-slate-400")}
-      </HotkeyButton>
-    </div>
+    <HotkeyButton className="flex whitespace-nowrap px-1 h-full" onClick={handleClick}>
+      {SVG_ICONS[IconName.DownloadDocument]("h-6 fill-slate-400")}
+    </HotkeyButton>
   );
 }
