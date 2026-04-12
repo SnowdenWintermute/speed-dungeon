@@ -95,7 +95,6 @@ export class ClientTestHarness<T extends BaseClient> {
     const isMatch =
       commandOption.actionName === toMatch.actionName && commandOption.step === toMatch.step;
     if (isMatch) {
-      console.log("found matching step");
       return true;
     } else {
       return false;
@@ -160,6 +159,12 @@ export class ClientTestHarness<T extends BaseClient> {
     });
     this.clientApplication.actionMenu.onExecuteAction();
     return promise;
+  }
+
+  async passTurns(count: number) {
+    for (let i = 0; i < count; i += 1) {
+      await this.useCombatAction(CombatActionName.PassTurn, 1);
+    }
   }
 
   async useCombatAction(actionName: CombatActionName, rank: number) {

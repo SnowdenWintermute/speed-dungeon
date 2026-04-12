@@ -156,7 +156,7 @@ export abstract class ActionResolutionStep {
   }
 
   onComplete(): Error | ActionIntentAndUser[] {
-    // console.log(
+    // console.info(
     //   "completed step:",
     //   COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
     //   this.getStringName()

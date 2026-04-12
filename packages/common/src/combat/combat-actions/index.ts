@@ -125,8 +125,9 @@ export abstract class CombatActionComponent {
 
   getAccuracy(user: IActionUser, actionLevel: number) {
     const baseAccuracy = this.hitOutcomeProperties.getUnmodifiedAccuracy(user, actionLevel);
-    if (baseAccuracy.type === ActionAccuracyType.Percentage)
+    if (baseAccuracy.type === ActionAccuracyType.Percentage) {
       baseAccuracy.value *= this.hitOutcomeProperties.accuracyModifier;
+    }
     return baseAccuracy;
   }
 

@@ -3,12 +3,12 @@ import {
   ActionEntityName,
   BASIC_CHARACTER_FIXTURES,
   CombatActionName,
-  TEST_DUNGEON_ZERO_SPEED_WOLVES,
+  TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
 
 export async function testFirewallDissipateOnExplore(testFixture: IntegrationTestFixture) {
   const client = await testFixture.resetWithOptions(
-    TEST_DUNGEON_ZERO_SPEED_WOLVES,
+    TEST_DUNGEON_TWO_WOLF_ROOMS,
     BASIC_CHARACTER_FIXTURES
   );
 

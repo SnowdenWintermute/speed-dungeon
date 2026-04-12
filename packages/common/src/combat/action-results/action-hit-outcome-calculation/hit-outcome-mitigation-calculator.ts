@@ -120,7 +120,7 @@ export class HitOutcomeMitigationCalculator {
     if (hitOutcomeProperties.getResistChance !== undefined) {
       const resistChance = hitOutcomeProperties.getResistChance(user, this.actionLevel, target);
 
-      const resistRoll = rollNormalized(this.rngPolicy.parry);
+      const resistRoll = rollNormalized(this.rngPolicy.spellResist);
       const isResisted = rollIsSuccess({
         roll: resistRoll,
         successChance: resistChance,

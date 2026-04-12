@@ -29,9 +29,10 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 2)
+      .attribute(CombatAttribute.Speed, 20)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
+      .trait(CombatantTraitType.IsTameable, 1)
       .withThreatManager();
 
     appendMonsterEquipment(
@@ -57,7 +58,37 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Dexterity, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 1)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.Ensnare, 3)
+      // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Spider,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  SPIDER_SLOW_LOTS_OF_MANA: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Spider)
+      .name("Test Spider")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Mp, 200)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Dexterity, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.Ensnare, 3)
       // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
@@ -97,7 +128,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 7)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 1)
+      .attribute(CombatAttribute.Speed, 10)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
@@ -124,7 +155,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 14)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 1)
+      .attribute(CombatAttribute.Speed, 10)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();

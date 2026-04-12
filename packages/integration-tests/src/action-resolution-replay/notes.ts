@@ -1,12 +1,9 @@
 // PETS
-// monster with tameable trait is tameable
-// monster without tameable trait is not tameable
-// pet dismissed removes web
+// pet dismissed removes web and ensnared condition
 // pet summoned still has conditions it had when dismissed
 // tickable conditions added to turn order bar when pet with conditions summoned in battle
 // pet ai with no active pet command
 // pet ai with pet command
-// monster can resist taming
 // release pet frees up slot
 // can not tame pet if slots are full
 // can not tame pet above rank limit pet level
@@ -42,6 +39,11 @@
 // can not allocate without required level
 
 // -DONE-
+//
+// PETS
+// monster with tameable trait is tameable
+// monster without tameable trait is not tameable
+// pet tamed removes web and ensnared condition
 //
 // FIREWALL
 // enemy dies in firewall on way to melee

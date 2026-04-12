@@ -10,8 +10,6 @@ export default function DownloadDebugLogButton() {
   async function handleClick() {
     const { clientLogRecorder } = clientApplication;
     const asJson = await clientLogRecorder.exportAsJson();
-    // const bytes = new TextEncoder().encode(asJson).length;
-    // console.log("client log entries:", bytes);
 
     const blob = new Blob([asJson], { type: "application/json" });
     const url = URL.createObjectURL(blob);

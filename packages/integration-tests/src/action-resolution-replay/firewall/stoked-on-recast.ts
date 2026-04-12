@@ -26,20 +26,15 @@ export async function testFirewallStokedOnRecast(testFixture: IntegrationTestFix
   await gameClientHarness.useCombatAction(CombatActionName.Firewall, 1);
   invariant(firewallOption !== null);
   expect(firewallOption.getLevel()).toBe(3);
-  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(4);
-  await gameClientHarness.useCombatAction(CombatActionName.Firewall, 1);
-  expect(firewallOption.getLevel()).toBe(3);
-  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(6);
+  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(5);
   // existing firewall can be increased in rank by higher rank spell cast
-  for (let i = 0; i < 7; i += 1) {
-    await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  }
+  await gameClientHarness.passTurns(12);
   expect(firewallOption.getLevel()).toBe(1);
   expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(1);
   await gameClientHarness.useCombatAction(CombatActionName.Firewall, 2);
   expect(firewallOption.getLevel()).toBe(2);
-  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(2);
+  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(3);
   await gameClientHarness.useCombatAction(CombatActionName.Firewall, 3);
   expect(firewallOption.getLevel()).toBe(3);
-  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(5);
+  expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(6);
 }

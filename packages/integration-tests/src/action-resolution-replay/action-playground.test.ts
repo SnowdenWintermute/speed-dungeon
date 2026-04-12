@@ -1,6 +1,5 @@
 import { TEST_CONNECTION_ENDPOINT_FACTORIES } from "../servers/fixtures/test-connection-endpoint-factories.js";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture.js";
-import { testTwoSpidersAndBurning } from "./two-spiders-and-burning.js";
 import { testFirewallStokedOnRecast } from "./firewall/stoked-on-recast.js";
 import { testFirewallDeteriorates } from "./firewall/deteriorates.js";
 import { testFirewallDissipateOnExplore } from "./firewall/dissipates-on-explore.js";
@@ -8,46 +7,78 @@ import { deathInFirewallOnMeleeApproach } from "./firewall/death-on-melee-approa
 import { deathInFirewallOnMeleeReturnHome } from "./firewall/death-on-melee-return-home.js";
 import { testFirewallIncineratesProjectiles } from "./firewall/projectiles-incinerate.js";
 import { testFirewallIgnitesProjectiles } from "./firewall/projectiles-ignite.js";
+import { testOnlyTameDamagedTameableCombatants } from "./tame-pet/only-tame-tameable-combatants.js";
+import { testTamingRemovesWeb } from "./tame-pet/taming-removes-web.js";
+import { testDismissPetRemovesWeb } from "./tame-pet/dismiss-pet-removes-web.js";
 
-describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)("firewall", ({ clientEndpointFactory }) => {
-  const testFixture = new IntegrationTestFixture(clientEndpointFactory);
+describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
+  "action playground",
+  ({ clientEndpointFactory }) => {
+    const testFixture = new IntegrationTestFixture(clientEndpointFactory);
 
-  afterEach(async () => {
-    await Promise.all([
-      testFixture.lobbyServer.closeTransportServer(),
-      testFixture.gameServer.closeTransportServer(),
-    ]);
-  });
+    afterEach(async () => {
+      await Promise.all([
+        testFixture.lobbyServer.closeTransportServer(),
+        testFixture.gameServer.closeTransportServer(),
+      ]);
+    });
 
-  it("firewall ignites projectiles", async () => {
-    await testFirewallIgnitesProjectiles(testFixture);
-  });
+    // PETS
+    // pet dismissed removes web and ensnared condition
+    // pet summoned still has conditions it had when dismissed
+    // pet summoned added to turn order
+    // pet summoned adds tickable conditions to turn order
+    // pet ai with no active pet command
+    // pet ai with pet command
+    // release pet frees up slot
+    // can not tame pet if slots are full
+    // can not tame pet above rank limit pet level
+    // pet can not level up beyond rank limit pet level
 
-  it("firewall incinerates projectiles", async () => {
-    await testFirewallIncineratesProjectiles(testFixture);
-  });
+    it("dismiss pet removes web", async () => {
+      await testDismissPetRemovesWeb(testFixture);
+    });
 
-  it("death in firewall on return", async () => {
-    await deathInFirewallOnMeleeReturnHome(testFixture);
-  });
+    // it("taming removes web", async () => {
+    //   await testTamingRemovesWeb(testFixture);
+    // });
 
-  it("death in firewall on approach", async () => {
-    await deathInFirewallOnMeleeApproach(testFixture);
-  });
+    // it("only tame tameable damaged combatants", async () => {
+    //   await testOnlyTameDamagedTameableCombatants(testFixture);
+    // });
 
-  it("two spiders burning", async () => {
-    await testTwoSpidersAndBurning(testFixture);
-  });
+    // // // FIREWALL
+    // it("firewall ignites projectiles", async () => {
+    //   await testFirewallIgnitesProjectiles(testFixture);
+    // });
 
-  it("firewall dissipates after explore", async () => {
-    await testFirewallDissipateOnExplore(testFixture);
-  });
+    // it("firewall incinerates projectiles", async () => {
+    //   await testFirewallIncineratesProjectiles(testFixture);
+    // });
 
-  it("firewall deteriorates", async () => {
-    await testFirewallDeteriorates(testFixture);
-  });
+    // it("death in firewall on return", async () => {
+    //   await deathInFirewallOnMeleeReturnHome(testFixture);
+    // });
 
-  it("firewall stoked by recast", async () => {
-    await testFirewallStokedOnRecast(testFixture);
-  });
-});
+    // it("death in firewall on approach", async () => {
+    //   await deathInFirewallOnMeleeApproach(testFixture);
+    // });
+
+    // it("firewall dissipates after explore", async () => {
+    //   await testFirewallDissipateOnExplore(testFixture);
+    // });
+
+    // it("firewall deteriorates", async () => {
+    //   await testFirewallDeteriorates(testFixture);
+    // });
+
+    // it("firewall stoked by recast", async () => {
+    //   await testFirewallStokedOnRecast(testFixture);
+    // });
+
+    // LEGACY/NEEDS REDO:
+    // it("two spiders burning", async () => {
+    //   await testTwoSpidersAndBurning(testFixture);
+    // });
+  }
+);

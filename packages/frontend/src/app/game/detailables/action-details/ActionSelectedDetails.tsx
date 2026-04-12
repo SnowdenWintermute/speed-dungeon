@@ -11,6 +11,8 @@ import {
   ERROR_MESSAGES,
   HitOutcomeMitigationCalculator,
   TargetingCalculator,
+  invariant,
+  isDefined,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -48,7 +50,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   const inCombat = party.combatantManager.monstersArePresent();
 
   const disableOh = inCombat && combatantProperties.resources.getActionPoints() < 2;
-  if (actionName === CombatActionName.Attack)
+  if (actionName === CombatActionName.Attack) {
     return (
       <div className="w-full flex flex-col">
         <div className="mb-2">
@@ -58,6 +60,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
         <CharacterSheetWeaponDamage combatant={combatant} disableOh={disableOh} />
       </div>
     );
+  }
 
   const action = COMBAT_ACTIONS[actionName];
   const actionDescription = COMBAT_ACTION_DESCRIPTIONS[actionName];
@@ -157,15 +160,18 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                 {resourceChangePropertiesOption && (
                   <ul className="ml-2">
                     {resourceChangePropertiesOption
-                      .filter((item) => item.changeProperties !== null)
-                      .map((item, i) => (
-                        <ResourceChangeDisplay
-                          key={i}
-                          resourceChangeProperties={item.changeProperties!}
-                          useIcon
-                          hideHpChangeType
-                        />
-                      ))}
+                      .filter((item) => isDefined(item.changeProperties))
+                      .map((item, i) => {
+                        invariant(item.changeProperties !== null);
+                        return (
+                          <ResourceChangeDisplay
+                            key={i}
+                            resourceChangeProperties={item.changeProperties}
+                            useIcon
+                            hideHpChangeType
+                          />
+                        );
+                      })}
                   </ul>
                 )}
                 {percentAccuracyOption && (
@@ -182,10 +188,10 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                   <div className="h-full flex items-center ml-2 mr-1">
                     {
                       <div className="h-6 mr-1">
-                        {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
+                        {SVG_ICONS[IconName.Target]("h-full fill-blue-300 stroke-slate-400 ")}
                       </div>
                     }{" "}
-                    <div className="">{Math.floor(100 - percentChanceToResist)}%</div>
+                    <div className="">{100 - Math.floor(100 * percentChanceToResist)}%</div>
                   </div>
                 )}
                 {conditionsAppliedOption && (

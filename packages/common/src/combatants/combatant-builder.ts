@@ -211,6 +211,24 @@ export class CombatantBuilder {
     return this;
   }
 
+  appendAllActions() {
+    this.ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.PassTurn)
+      .ownedAction(CombatActionName.UseGreenAutoinjector)
+      .ownedAction(CombatActionName.UseBlueAutoinjector)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.ChainingSplitArrowParent)
+      .ownedAction(CombatActionName.SummonPetParent)
+      .ownedAction(CombatActionName.DismissPet)
+      .ownedAction(CombatActionName.PetCommand)
+      .ownedAction(CombatActionName.TamePet)
+      .ownedAction(CombatActionName.ReleasePet)
+      .ownedAction(CombatActionName.Ensnare)
+      .ownedAction(CombatActionName.Fire, 3)
+      .ownedAction(CombatActionName.Firewall, 3);
+    return this;
+  }
+
   build(idGenerator: IdGenerator): Combatant {
     const id = idGenerator.generate("combatant-builder");
     const entityProperties = { id, name: this._name as EntityName };

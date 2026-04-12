@@ -172,7 +172,7 @@ export const CombatantPlaque = observer(
                 <div className="mb-1.5 max-w-full flex justify-between items-center align-middle leading-5 text-lg ">
                   <span className="flex w-full">
                     <span
-                      className={`${compactView ? "w-16 text-xs" : "max-w-44"} overflow-hidden text-ellipsis`}
+                      className={`${compactView ? "w-16 text-xs" : "max-w-44"} overflow-hidden whitespace-nowrap text-ellipsis`}
                     >
                       {entityProperties.name}
                     </span>

@@ -9,6 +9,7 @@ export async function actionCompletionGameUpdateHandler(
 ) {
   const { combatantFocus } = clientApplication;
   const { game, party } = combatantFocus.requireFocusedCharacterContext();
+  const battleOption = party.getBattleOption(game);
 
   if (update.command.addDelayToTurnScheduler) {
     const battleOption = party.getBattleOption(game);
@@ -20,10 +21,6 @@ export async function actionCompletionGameUpdateHandler(
     const scheduler =
       battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerByEntityId(schedulerId);
     scheduler.accumulatedDelay += delay;
-  }
-
-  const battleOption = party.getBattleOption(game);
-  if (battleOption) {
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk
     // of actions taking them away before they get their turn again
@@ -35,7 +32,9 @@ export async function actionCompletionGameUpdateHandler(
       combatantProperties.resources.refillActionPoints();
       combatantProperties.abilityProperties.tickCooldowns();
     }
+  }
 
+  if (battleOption) {
     battleOption.turnOrderManager.updateTrackers(game, party);
     const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
     combatantFocus.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);

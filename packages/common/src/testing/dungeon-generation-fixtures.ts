@@ -39,12 +39,7 @@ const ROOM_WITH_TWO_ZERO_SPEED_WOLVES: ExplicitCombatantRoomTemplate = {
   combatants: [MONSTER_FIXTURES.WOLF_ZERO_SPEED, MONSTER_FIXTURES.WOLF_ZERO_SPEED],
 };
 export const TEST_DUNGEON_ZERO_SPEED_WOLVES: ExplicitCombatantDungeonTemplate = [
-  [
-    {
-      type: DungeonRoomType.Empty,
-    },
-    ROOM_WITH_TWO_ZERO_SPEED_WOLVES,
-  ],
+  [{ type: DungeonRoomType.Empty }, ROOM_WITH_TWO_ZERO_SPEED_WOLVES],
 ];
 
 export const TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTemplate = [
@@ -86,6 +81,15 @@ export const TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST: ExplicitCombatantDungeonT
     {
       type: DungeonRoomType.MonsterLair,
       combatants: [MONSTER_FIXTURES.WOLF_ZERO_SPEED, MONSTER_FIXTURES.CULTIST_ZERO_SPEED],
+    },
+  ],
+];
+
+export const TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA: ExplicitCombatantDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.MonsterLair,
+      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.SPIDER_SLOW_LOTS_OF_MANA],
     },
   ],
 ];

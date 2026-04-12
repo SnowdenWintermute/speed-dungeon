@@ -15,8 +15,6 @@ export async function testFirewallDeteriorates(testFixture: IntegrationTestFixtu
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
-
-  await gameClientHarness.useCombatAction(CombatActionName.Firewall, 1);
   await gameClientHarness.toggleReadyToExplore();
 
   await gameClientHarness.useCombatAction(CombatActionName.Firewall, 3);
@@ -26,16 +24,13 @@ export async function testFirewallDeteriorates(testFixture: IntegrationTestFixtu
   invariant(firewallOption !== null);
   expect(firewallOption.getLevel()).toBe(3);
   expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(3);
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  await gameClientHarness.passTurns(7);
   expect(firewallOption.getLevel()).toBe(2);
   expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(2);
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-
+  await gameClientHarness.passTurns(2);
   expect(firewallOption.getLevel()).toBe(1);
   expect(firewallOption.getActionEntityProperties().requireStackCount()).toBe(1);
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  await gameClientHarness.passTurns(2);
   firewallOption = party.actionEntityManager.getExistingActionEntityOfType(
     ActionEntityName.Firewall
   );

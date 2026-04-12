@@ -140,7 +140,9 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     completionOrderId: null,
   };
 
-  if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
+  if (!threatChanges.isEmpty()) {
+    gameUpdateCommandOption.threatChanges = threatChanges;
+  }
 
   if (tellClientDelayAdded) {
     gameUpdateCommandOption.addDelayToTurnScheduler = tellClientDelayAdded;

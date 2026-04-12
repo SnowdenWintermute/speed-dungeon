@@ -81,6 +81,7 @@ export class IntegrationTestFixture {
       criticalStrike: fixedRngMinRoll,
       parry: fixedRngMinRoll,
       shieldBlock: fixedRngMinRoll,
+      spellResist: fixedRngMinRoll,
     };
     const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
       ...basicOverrides,

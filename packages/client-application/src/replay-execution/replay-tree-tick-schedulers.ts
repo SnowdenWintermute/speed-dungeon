@@ -45,31 +45,18 @@ export class ManualTickScheduler {
     stepType: ActionResolutionStepType
   ) {
     if (!replayTreeScheduler.current) {
-      console.log("no replay tree");
       return;
     }
     while (replayTreeScheduler.current) {
       const nextExpectedStep = replayTreeScheduler.current.nextExpectedStep;
       if (!nextExpectedStep) {
-        console.log("no nextExpectedStep");
         break;
       }
 
       const { step, actionName } = nextExpectedStep.command;
       const isMatch = step === stepType && actionName === action;
-      console.log(
-        "step:",
-        step,
-        "stepType",
-        stepType,
-        "action:",
-        action,
-        "actionName:",
-        actionName
-      );
 
       if (isMatch) {
-        console.log("found expected step");
         break;
       }
       this.tick(replayTreeScheduler.getMinRemainingDuration());
