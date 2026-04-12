@@ -356,6 +356,10 @@ export class CombatantManager
         });
 
       battleOption.turnOrderManager.updateTrackers(game, party);
+      console.log(
+        "added combatant with turn tracker:",
+        battleOption.turnOrderManager.getTrackers()
+      );
     }
   }
 
@@ -432,6 +436,17 @@ export class CombatantManager
     const homeRotation = new Quaternion();
     Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
     pet.combatantProperties.transformProperties.homeRotation = homeRotation;
+  }
+
+  updateHomePositionsToPointAtTopThreat() {
+    for (const combatant of this.iterateAllCombatants()) {
+      if (!combatant.combatantProperties.threatManager) continue;
+      if (combatant.combatantProperties.isDead()) continue;
+      combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+        this.getParty(),
+        combatant
+      );
+    }
   }
 
   setAllCombatantsToHomePositions() {

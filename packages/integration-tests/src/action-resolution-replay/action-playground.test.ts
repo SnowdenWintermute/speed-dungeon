@@ -39,42 +39,42 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       await testDismissPetRemovesWeb(testFixture);
     });
 
-    // it("taming removes web", async () => {
-    //   await testTamingRemovesWeb(testFixture);
-    // });
+    //     it("taming removes web", async () => {
+    //       await testTamingRemovesWeb(testFixture);
+    //     });
 
-    // it("only tame tameable damaged combatants", async () => {
-    //   await testOnlyTameDamagedTameableCombatants(testFixture);
-    // });
+    //     it("only tame tameable damaged combatants", async () => {
+    //       await testOnlyTameDamagedTameableCombatants(testFixture);
+    //     });
 
-    // // // FIREWALL
-    // it("firewall ignites projectiles", async () => {
-    //   await testFirewallIgnitesProjectiles(testFixture);
-    // });
+    //     // // FIREWALL
+    //     it("firewall ignites projectiles", async () => {
+    //       await testFirewallIgnitesProjectiles(testFixture);
+    //     });
 
-    // it("firewall incinerates projectiles", async () => {
-    //   await testFirewallIncineratesProjectiles(testFixture);
-    // });
+    //     it("firewall incinerates projectiles", async () => {
+    //       await testFirewallIncineratesProjectiles(testFixture);
+    //     });
 
-    // it("death in firewall on return", async () => {
-    //   await deathInFirewallOnMeleeReturnHome(testFixture);
-    // });
+    //     it("death in firewall on return", async () => {
+    //       await deathInFirewallOnMeleeReturnHome(testFixture);
+    //     });
 
-    // it("death in firewall on approach", async () => {
-    //   await deathInFirewallOnMeleeApproach(testFixture);
-    // });
+    //     it("death in firewall on approach", async () => {
+    //       await deathInFirewallOnMeleeApproach(testFixture);
+    //     });
 
-    // it("firewall dissipates after explore", async () => {
-    //   await testFirewallDissipateOnExplore(testFixture);
-    // });
+    //     it("firewall dissipates after explore", async () => {
+    //       await testFirewallDissipateOnExplore(testFixture);
+    //     });
 
-    // it("firewall deteriorates", async () => {
-    //   await testFirewallDeteriorates(testFixture);
-    // });
+    //     it("firewall deteriorates", async () => {
+    //       await testFirewallDeteriorates(testFixture);
+    //     });
 
-    // it("firewall stoked by recast", async () => {
-    //   await testFirewallStokedOnRecast(testFixture);
-    // });
+    //     it("firewall stoked by recast", async () => {
+    //       await testFirewallStokedOnRecast(testFixture);
+    //     });
 
     // LEGACY/NEEDS REDO:
     // it("two spiders burning", async () => {

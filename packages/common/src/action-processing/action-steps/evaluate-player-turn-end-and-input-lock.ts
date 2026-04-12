@@ -21,14 +21,7 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;
-
-      for (const combatant of party.combatantManager.iterateAllCombatants()) {
-        if (!combatant.combatantProperties.threatManager) continue;
-        combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
-          party,
-          combatant
-        );
-      }
+      party.combatantManager.updateHomePositionsToPointAtTopThreat();
     }
 
     // @TODO
@@ -52,16 +45,14 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
 
-  const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
-
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = party.getBattleOption(game);
 
   const userIsCombatant = actionUser instanceof Combatant;
-
   const noActionPointsLeft =
     userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
 
+  const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const requiresTurnInThisContext = action.costProperties.requiresCombatTurnInThisContext(
     context,
     action
@@ -75,18 +66,17 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const threatChanges = new ThreatChanges();
 
   if (requiredTurn && !turnAlreadyEnded && !!battleOption) {
-    // if they died on their own turn we should not end the active combatant's turn because
-    // we would have already removed their turn tracker on death
     const { actionName } = tracker.actionExecutionIntent;
 
     const delay = actionUser.getDelayForActionUse(actionName);
-    const turnSchedulerOption =
-      battleOption.turnOrderManager.turnSchedulerManager.getSchedulerOptionByEntityId(
-        actionUser.getEntityId()
-      );
+    const { turnSchedulerManager } = battleOption.turnOrderManager;
+    const turnSchedulerOption = turnSchedulerManager.getSchedulerOptionByEntityId(
+      actionUser.getEntityId()
+    );
 
     if (turnSchedulerOption) {
-      turnSchedulerOption.accumulatedDelay += delay;
+      console.log("evaluatePlayerEndTurnAndInputLock add delay");
+      turnSchedulerOption.addDelay(delay);
       tellClientDelayAdded = { schedulerId: actionUser.getEntityId(), delay };
       battleOption.turnOrderManager.updateTrackers(game, party);
     }

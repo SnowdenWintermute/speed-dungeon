@@ -7,6 +7,7 @@ import { TurnOrderManager } from "./turn-order-manager.js";
 export interface ITurnScheduler {
   timeOfNextMove: number;
   accumulatedDelay: number; // when they take their turn, add to this
+  addDelay: (delay: number) => void;
   getSpeed: (party: AdventuringParty) => number;
   getTurnTakerId: () => string;
   isStale: (party: AdventuringParty) => boolean;
@@ -19,6 +20,11 @@ export abstract class TurnScheduler implements ITurnScheduler {
   timeOfNextMove = 0;
   accumulatedDelay = 0;
   protected predictedConsumedStacks = 0;
+
+  addDelay(delay: number) {
+    this.accumulatedDelay += delay;
+    console.log("added delay", delay, "to", this.getTurnTakerId());
+  }
 
   abstract getSpeed(party: AdventuringParty): number;
   abstract getTurnTakerId(): string;

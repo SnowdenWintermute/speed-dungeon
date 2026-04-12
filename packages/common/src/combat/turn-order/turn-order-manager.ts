@@ -33,13 +33,6 @@ export class TurnOrderManager implements ReactiveNode {
     return this.turnTrackers;
   }
 
-  updateFastestSchedulerWithDelay(delay: number) {
-    const fastest = this.getFastestActorTurnOrderTracker();
-    const scheduler = this.turnSchedulerManager.getMatchingSchedulerFromTurnOrderTracker(fastest);
-    scheduler.accumulatedDelay += delay;
-    return { delay, schedulerId: scheduler.getTurnTakerId() };
-  }
-
   currentActorIsPlayerControlled(party: AdventuringParty) {
     const fastestTurnOrderTracker = this.getFastestActorTurnOrderTracker();
     const taggedIdOfTrackedEntity = fastestTurnOrderTracker.getTaggedIdOfTrackedEntity();

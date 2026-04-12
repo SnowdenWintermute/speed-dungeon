@@ -7,6 +7,7 @@ import { ModifierKey } from "@/client-application/ui/inputs";
 import DownloadDebugLogButton from "./download-debug-log-button";
 import ClearDebugLogButton from "./clear-debug-log-button";
 import { formatThousandsAsK } from "@speed-dungeon/common";
+import { HotkeyButton } from "../components/atoms/HotkeyButton";
 
 export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
@@ -114,8 +115,11 @@ export const DebugPanel = observer(
         className={`absolute bottom-10 left-10 flex flex-col ${!showDebug && "hidden"} pointer-events-auto bg-black h-fit border border-white`}
         style={{ top: `${y}px`, left: `${x}px`, zIndex: ZIndexLayers.DebugText }}
       >
-        <div className="cursor-grab border-b border-white flex justify-between" ref={headerRef}>
-          <h5 className="p-2 flex w-full justify-between">
+        <div
+          className="cursor-grab border-b border-white flex justify-between items-center h-10 px-2"
+          ref={headerRef}
+        >
+          <h5 className=" flex w-full justify-between">
             <span>DEBUG</span>
             <div className="flex">
               <div>Log: {formatThousandsAsK(clientLogRecorder.logSizeBytes)}b</div>
@@ -124,7 +128,7 @@ export const DebugPanel = observer(
             </div>
           </h5>
           <button
-            className="h-full p-2 border-l border-white"
+            className="h-full  border-l border-white pl-2"
             onClick={() => {
               dialogs.close(DialogElementName.Debug);
               clientApplication.gameWorldView?.debug.hide();
@@ -133,22 +137,51 @@ export const DebugPanel = observer(
             Hide
           </button>
         </div>
-        <div>
-          <div className="p-2">Renderer: {gpuName}</div>
+        <div className="p-2 pt-1">
+          <div>
+            <HotkeyButton
+              className="underline"
+              onClick={() => {
+                if (gameContext.partyOption?.inputLock.isLocked()) {
+                  gameContext.partyOption?.inputLock.unlockInput();
+                } else {
+                  gameContext.partyOption?.inputLock.lockInput();
+                }
+              }}
+            >
+              Toggle Input Lock
+            </HotkeyButton>
+          </div>
+          <HotkeyButton
+            className="underline"
+            onClick={() => {
+              if (!gameContext) {
+                return;
+              }
+              const game = gameContext.requireGame();
+
+              gameContext.partyOption
+                ?.getBattleOption(game)
+                ?.turnOrderManager.updateTrackers(game, gameContext.partyOption);
+            }}
+          >
+            Sort turn order
+          </HotkeyButton>
+          <div className="">Renderer: {gpuName}</div>
 
           {/* to be populated in the babylon render loop*/}
-          <ul ref={debugRef} className="p-2"></ul>
+          <ul ref={debugRef} className=""></ul>
 
-          <ul className="p-2">
+          <ul className="">
             <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
             <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
             <li>Input Locked: {inputLockStatus}</li>
           </ul>
-          <ul className="flex flex-wrap bg-slate-700 w-full">
-            <li key="ayy" className="border p-2 w-full mb-2">
-              Num thumbnails: {itemThumbnails.size}
+          <ul className="flex  flex-wrap bg-slate-700 border border-slate-400 w-full">
+            <li key="ayy" className="px-1 border-b border-slate-400 w-full mb-2">
+              Thumbnail count: {itemThumbnails.size}
             </li>
-            <li className="p-2 flex max-w-40 overflow-auto">
+            <li className=" flex max-w-40 overflow-auto p-1">
               {[...itemThumbnails.entries()].map(([id, data], i) => (
                 <div className="relative w-fit" key={id}>
                   <div className="absolute top-0 left-0 border bg-slate-800">{i}</div>

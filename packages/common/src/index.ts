@@ -128,6 +128,9 @@ export * from "./combat/combat-actions/combat-action-origin.js";
 
 // turn order
 export * from "./combat/turn-order/turn-trackers.js";
+export * from "./combat/turn-order/turn-schedulers.js";
+export * from "./combat/turn-order/turn-scheduler-manager.js";
+export * from "./combat/turn-order/combatant-turn-scheduler.js";
 export * from "./combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export * from "./combat/action-results/action-hit-outcome-calculation/hit-outcome-mitigation-calculator.js";

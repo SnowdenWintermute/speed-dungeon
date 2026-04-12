@@ -156,6 +156,7 @@ export class TurnSchedulerManager {
   }
 
   addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
+    console.log("created scheduler from starting delay:", startingDelay, "for", from);
     const scheduler = TurnSchedulerFactory.create(from, startingDelay);
     this.schedulers.push(scheduler);
   }
