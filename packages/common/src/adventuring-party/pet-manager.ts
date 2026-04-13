@@ -105,6 +105,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     }
   }
 
+  /** returns the dismissed pet */
   unsummonPet(petId: EntityId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const expectedPet = party.combatantManager.getExpectedCombatant(petId);
@@ -114,6 +115,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     }
     this.putPetInFirstEmptyUnsummonedSlot(summonedBy, expectedPet);
     party.combatantManager.removeCombatant(expectedPet.getEntityId(), game);
+    return expectedPet;
   }
 
   /** Moves the pet from the unsummoned pets storage to the summoned pets storage
@@ -123,7 +125,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     party: AdventuringParty,
     ownerId: EntityId,
     slotIndex: number,
-    battleOption: null | Battle
+    withDelay?: number
   ) {
     const owner = party.combatantManager.getExpectedCombatant(ownerId);
 
@@ -148,7 +150,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
 
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {
-      party.combatantManager.addCombatant(pet, game);
+      party.combatantManager.addCombatant(pet, game, withDelay);
     } else if (isMonsterPet) {
       throw new Error("not implemented");
     }

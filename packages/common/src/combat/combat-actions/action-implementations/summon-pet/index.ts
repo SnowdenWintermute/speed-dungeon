@@ -65,13 +65,6 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
         userCombatantLevel: 0,
       },
     },
-    [ActionPayableResource.ActionPoints]: {
-      base: 1,
-      additives: {
-        actionLevel: 0,
-        userCombatantLevel: 0,
-      },
-    },
   },
   getMeetsCustomRequirements: (user, party) => {
     const { combatantManager } = party;

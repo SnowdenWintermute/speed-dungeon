@@ -66,43 +66,50 @@ export class ReplayBranchExecution {
   }
 
   private startProcessingNext() {
-    this.currentIndex += 1;
-    const node = this.node.events[this.currentIndex];
+    // Loop so that nested nodes (concurrent sub-actions) are skipped and the
+    // parent immediately advances to its next game update. On the server,
+    // the parent manager finishes its remaining instant steps before the child
+    // manager runs. By not returning on nested nodes we apply the parent's
+    // state mutations (e.g. adding delay) before the child branch processes.
+    while (true) {
+      this.currentIndex += 1;
+      const node = this.node.events[this.currentIndex];
 
-    if (node === undefined) {
-      this.isComplete = true;
-      return;
-    }
+      if (node === undefined) {
+        this.isComplete = true;
+        return;
+      }
 
-    if (node.type === ReplayEventType.NestedNode) {
-      const newBranch = new ReplayBranchExecution(
-        this.parentReplayTreeProcessor,
-        node,
-        this.branchProcessors
+      if (node.type === ReplayEventType.NestedNode) {
+        const newBranch = new ReplayBranchExecution(
+          this.parentReplayTreeProcessor,
+          node,
+          this.branchProcessors
+        );
+        this.branchProcessors.push(newBranch);
+        continue;
+      }
+
+      this.currentStepExecution = new ReplayStepExecution(node.gameUpdate);
+
+      // Any update may include cosmetic effect updates
+      const cosmeticEffectsToStartOption = this.currentStepExecution.command.cosmeticEffectsToStart;
+      const cosmeticEffectsToStopOption = this.currentStepExecution.command.cosmeticEffectsToStop;
+
+      try {
+        const sceneEntityServiceOption =
+          this.parentReplayTreeProcessor.clientApplication.gameWorldView?.sceneEntityService;
+        sceneEntityServiceOption?.stopCosmeticEffects(cosmeticEffectsToStopOption || []);
+        sceneEntityServiceOption?.queueCosmeticEffectsStart(cosmeticEffectsToStartOption || []);
+      } catch (err) {
+        console.error("error with cosmetic effects", this.currentStepExecution.command, err);
+      }
+
+      GAME_UPDATE_HANDLERS[node.gameUpdate.type](
+        this.parentReplayTreeProcessor.clientApplication,
+        this.currentStepExecution
       );
-      newBranch.startProcessingNext();
-      this.branchProcessors.push(newBranch);
       return;
     }
-
-    this.currentStepExecution = new ReplayStepExecution(node.gameUpdate);
-
-    // Any update may include cosmetic effect updates
-    const cosmeticEffectsToStartOption = this.currentStepExecution.command.cosmeticEffectsToStart;
-    const cosmeticEffectsToStopOption = this.currentStepExecution.command.cosmeticEffectsToStop;
-
-    try {
-      const sceneEntityServiceOption =
-        this.parentReplayTreeProcessor.clientApplication.gameWorldView?.sceneEntityService;
-      sceneEntityServiceOption?.stopCosmeticEffects(cosmeticEffectsToStopOption || []);
-      sceneEntityServiceOption?.queueCosmeticEffectsStart(cosmeticEffectsToStartOption || []);
-    } catch (err) {
-      console.error("error with cosmetic effects", this.currentStepExecution.command, err);
-    }
-
-    GAME_UPDATE_HANDLERS[node.gameUpdate.type](
-      this.parentReplayTreeProcessor.clientApplication,
-      this.currentStepExecution
-    );
   }
 }

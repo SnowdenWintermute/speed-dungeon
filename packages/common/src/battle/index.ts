@@ -90,11 +90,6 @@ export class Battle implements Serializable, ReactiveNode {
       : undefined;
 
     if (turnSchedulerOption) {
-      console.log(
-        "add delay in battle handleTurnEnded",
-        turnSchedulerOption.getTurnTakerId(),
-        actionUserOption?.getName()
-      );
       turnSchedulerOption.addDelay(delay);
       this.turnOrderManager.updateTrackers(this.game, this.party);
     }
@@ -104,6 +99,14 @@ export class Battle implements Serializable, ReactiveNode {
     if (threatChanges) {
       threatChanges.applyToGame(this.party);
     }
+  }
+
+  getSchedulerDelayForNewActionUser() {
+    this.turnOrderManager.updateTrackers(this.game, this.party);
+    const fastestTurnTracker = this.turnOrderManager.getFastestActorTurnOrderTracker();
+    const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
+    const delayOfNewSheduler = delayOfCurrentActor + 1;
+    return delayOfNewSheduler;
   }
 
   /** Returns any levelups by character id  */

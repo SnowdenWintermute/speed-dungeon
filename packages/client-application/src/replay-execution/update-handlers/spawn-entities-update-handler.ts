@@ -20,12 +20,12 @@ export async function spawnEntitiesGameUpdateHandler(
   const promises: Promise<void>[] = [];
 
   const deserialized: (Combatant | ActionEntity)[] = [];
-  for (const entity of command.entities) {
+  for (const { entity, withDelay } of command.entities) {
     if (entity.type === SpawnableEntityType.Combatant) {
       const { combatant } = entity;
       const deserialized = Combatant.fromSerialized(combatant);
       deserialized.makeObservable();
-      party.combatantManager.addCombatant(deserialized, game);
+      party.combatantManager.addCombatant(deserialized, game, withDelay);
       if (clientApplication.gameWorldView) {
         promises.push(
           handleNewSpawnableCombatant(clientApplication.gameWorldView, entity, deserialized)

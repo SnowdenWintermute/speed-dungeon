@@ -116,6 +116,7 @@ export class TurnSchedulerManager {
     for (const scheduler of this.schedulers) {
       if (scheduler.isStale(party)) toRemove.push(scheduler);
     }
+    console.log("removing stale schedulers:", toRemove);
 
     // @PERF - probably a faster way to do this
     this.schedulers = this.schedulers.filter((scheduler) => {
@@ -156,7 +157,6 @@ export class TurnSchedulerManager {
   }
 
   addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
-    console.log("created scheduler from starting delay:", startingDelay, "for", from);
     const scheduler = TurnSchedulerFactory.create(from, startingDelay);
     this.schedulers.push(scheduler);
   }

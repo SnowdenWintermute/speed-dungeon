@@ -29,6 +29,7 @@ import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processin
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { invariant } from "../../../../utils/index.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -122,7 +123,9 @@ const config: CombatActionComponentConfig = {
 
 // @TODO - create a template for these
 ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
-delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
-stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
+const finalPositioningStep = stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning];
+invariant(finalPositioningStep !== undefined);
+delete finalPositioningStep.getAnimation;
+finalPositioningStep.shouldIdleOnComplete = true;
 
 export const DISMISS_PET = new CombatActionLeaf(CombatActionName.DismissPet, config);

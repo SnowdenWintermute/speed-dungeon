@@ -206,16 +206,19 @@ export class ActionEffectsApplyerCommand {
     }
   }
 
-  private applyPetSlotsSummoned(petSlotsSummoned?: PetSlot[]) {
+  private applyPetSlotsSummoned(petSlotsSummoned?: { slot: PetSlot; withDelay?: number }[]) {
     if (!petSlotsSummoned) return;
 
-    for (const { ownerId, slotIndex } of petSlotsSummoned) {
+    for (const {
+      slot: { ownerId, slotIndex },
+      withDelay,
+    } of petSlotsSummoned) {
       const pet = this.party.petManager.summonPetFromSlot(
         this.game,
         this.party,
         ownerId,
         slotIndex,
-        this.battleOption
+        withDelay
       );
 
       if (pet === undefined) {

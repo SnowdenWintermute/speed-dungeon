@@ -1,5 +1,4 @@
 // PETS
-// pet dismissed removes web and ensnared condition
 // pet summoned still has conditions it had when dismissed
 // tickable conditions added to turn order bar when pet with conditions summoned in battle
 // pet ai with no active pet command
@@ -44,6 +43,7 @@
 // monster with tameable trait is tameable
 // monster without tameable trait is not tameable
 // pet tamed removes web and ensnared condition
+// pet dismissed removes web and ensnared condition
 //
 // FIREWALL
 // enemy dies in firewall on way to melee

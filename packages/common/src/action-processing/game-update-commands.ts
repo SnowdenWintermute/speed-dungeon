@@ -101,7 +101,7 @@ export interface EntityAnimation {
 
 export interface SpawnEntitiesGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntities;
-  entities: SerializedSpawnableEntity[];
+  entities: { entity: SerializedSpawnableEntity; withDelay?: number }[];
 }
 
 export interface IEntityMotionUpdate {
@@ -189,7 +189,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
   actionEntityChanges?: Record<EntityId, Partial<ActionEntityActionOriginData>>;
-  petSlotsSummoned?: PetSlot[];
+  petSlotsSummoned?: { slot: PetSlot; withDelay?: number }[];
   petSlotsReleased?: PetSlot[];
   petsUnsummoned?: CombatantId[];
   petsTamed?: { petId: CombatantId; tamerId: CombatantId }[];

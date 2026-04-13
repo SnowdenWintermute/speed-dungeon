@@ -23,6 +23,9 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
     let gameUpdateCommand: SpawnEntitiesGameUpdateCommand | null = null;
 
     const taggedSpawnableEntitiesOption = getSpawnableEntities(context);
+    const serializedSpawnedEntities: { entity: SerializedSpawnableEntity; withDelay?: number }[] =
+      [];
+
     if (taggedSpawnableEntitiesOption !== null) {
       const taggedSpawnableEntities = taggedSpawnableEntitiesOption;
 
@@ -31,33 +34,35 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
 
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
-          case SpawnableEntityType.Combatant:
-            spawnableEntity.combatant.combatantProperties.resources.setToMax();
-            party.combatantManager.addCombatant(spawnableEntity.combatant, game);
+          case SpawnableEntityType.Combatant: {
+            const delay = battleOption?.getSchedulerDelayForNewActionUser();
+            console.log(
+              "delay for new action user:",
+              spawnableEntity.combatant.getEntityId(),
+              delay
+            );
+            party.combatantManager.addCombatant(spawnableEntity.combatant, game, delay);
+            serializedSpawnedEntities.push({
+              entity: { ...spawnableEntity, combatant: spawnableEntity.combatant.toSerialized() },
+              withDelay: delay,
+            });
             break;
+          }
           case SpawnableEntityType.ActionEntity: {
             const { actionEntityManager } = party;
             actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);
+            serializedSpawnedEntities.push({
+              entity: {
+                ...spawnableEntity,
+                actionEntity: spawnableEntity.actionEntity.toSerialized(),
+              },
+            });
             break;
           }
         }
 
         context.tracker.spawnedEntities.push(spawnableEntity);
       }
-
-      const serializedSpawnedEntities: SerializedSpawnableEntity[] = taggedSpawnableEntities.map(
-        (taggedSpawnable) => {
-          switch (taggedSpawnable.type) {
-            case SpawnableEntityType.Combatant:
-              return { ...taggedSpawnable, combatant: taggedSpawnable.combatant.toSerialized() };
-            case SpawnableEntityType.ActionEntity:
-              return {
-                ...taggedSpawnable,
-                actionEntity: taggedSpawnable.actionEntity.toSerialized(),
-              };
-          }
-        }
-      );
 
       gameUpdateCommand = {
         type: GameUpdateCommandType.SpawnEntities,

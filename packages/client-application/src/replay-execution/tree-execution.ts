@@ -74,16 +74,21 @@ export class ReplayTreeExecution {
   }
 
   processBranches(deltaMs: number) {
-    // iterate backwards so we can splice out branches without affecting the iteration
-    for (let i = this.activeBranches.length - 1; i >= 0; i--) {
+    // Iterate forwards so parent branches process before children they spawned.
+    // On the server, processActiveActionSequences snapshots the manager list,
+    // so a child registered mid-tick runs after the parent. Forward iteration
+    // preserves that ordering since children are appended to the end.
+    const length = this.activeBranches.length;
+    for (let i = 0; i < length; i++) {
       const branch = this.activeBranches[i];
       invariant(branch !== undefined, "checked above");
+      branch.processAllCompletableSteps(deltaMs);
+    }
 
-      if (branch.isDoneProcessing()) {
+    for (let i = this.activeBranches.length - 1; i >= 0; i--) {
+      if (this.activeBranches[i]!.isDoneProcessing()) {
         this.activeBranches.splice(i, 1);
       }
-
-      branch.processAllCompletableSteps(deltaMs);
     }
   }
 

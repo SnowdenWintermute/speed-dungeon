@@ -302,7 +302,10 @@ export class CombatantManager
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
     const party = this.getParty();
-    party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
+    const battleOption = party.getBattleOption(game);
+    if (battleOption) {
+      battleOption.turnOrderManager.updateTrackers(game, party);
+    }
 
     for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
       const { threatManager } = combatant.combatantProperties;
@@ -316,7 +319,8 @@ export class CombatantManager
     return combatant;
   }
 
-  addCombatant(combatant: Combatant, game: SpeedDungeonGame) {
+  addCombatant(combatant: Combatant, game: SpeedDungeonGame, withDelay: number = 0) {
+    console.log("ading combatant:", combatant.getEntityId());
     this.combatants.set(combatant.getEntityId(), combatant);
 
     const party = this.getParty();
@@ -334,22 +338,19 @@ export class CombatantManager
 
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
-      const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
-      const delayOfNewCombatantSheduler = delayOfCurrentActor + 1;
-
+      console.log("adding scheduler:", withDelay);
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
           type: TurnTrackerEntityType.Combatant,
           combatantId: combatant.getEntityId(),
         },
-        delayOfNewCombatantSheduler
+        withDelay
       );
 
       combatant.combatantProperties.conditionManager
         .getConditions()
         .forEach((condition, conditionIndex) => {
-          const conditionStartingDelay = delayOfNewCombatantSheduler + conditionIndex;
+          const conditionStartingDelay = withDelay;
           turnSchedulerManager.addConditionToTurnOrder(party, condition, {
             withCustomStartingDelay: conditionStartingDelay,
           });

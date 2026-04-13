@@ -1,6 +1,7 @@
 import { EntityId } from "../../aliases.js";
 import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
 import { ActionCompletionUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
@@ -16,7 +17,7 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
   branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
-    const { party } = context.actionUserContext;
+    const { game, party } = context.actionUserContext;
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {

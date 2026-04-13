@@ -238,7 +238,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   }
 }
 
-function getKillAttachedCombatantsActionIntents(
+export function getKillAttachedCombatantsActionIntents(
   targetCombatant: Combatant,
   party: AdventuringParty
 ) {

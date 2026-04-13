@@ -6,9 +6,9 @@ const config = cloneDeep(MELEE_SKILL_STEPS_CONFIG);
 config.steps[ActionResolutionStepType.DetermineMeleeActionAnimations] = {};
 config.steps[ActionResolutionStepType.RollIncomingHitOutcomes] = {};
 
+config.steps[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {};
 config.steps[ActionResolutionStepType.DetermineChildActions] = {};
 
-config.finalSteps[ActionResolutionStepType.EvalOnHitOutcomeTriggers] = {};
 config.finalSteps[ActionResolutionStepType.BattleResolution] = {};
 
 export const MELEE_ATTACK_STEPS_CONFIG = config;

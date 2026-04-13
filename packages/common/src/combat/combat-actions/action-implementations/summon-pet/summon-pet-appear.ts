@@ -38,18 +38,19 @@ const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION,
   {
     getOnUseTriggers: (context) => {
-      console.log(
-        "summon pet appear action user:",
-        context.actionUserContext.actionUser.getEntityId()
-      );
       const { rank } = context.tracker.actionExecutionIntent;
       const petSlot = rank - 1;
 
       const { actionUserContext } = context;
-      const { actionUser } = actionUserContext;
+      const { actionUser, game, party } = actionUserContext;
+
+      const battleOption = party.getBattleOption(game);
+      const withDelay = battleOption?.getSchedulerDelayForNewActionUser();
 
       const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-        petSlotsSummoned: [{ ownerId: actionUser.getEntityId(), slotIndex: petSlot }],
+        petSlotsSummoned: [
+          { slot: { ownerId: actionUser.getEntityId(), slotIndex: petSlot }, withDelay },
+        ],
       };
 
       return toReturn;

@@ -16,6 +16,7 @@ export function AISelectActionAndTarget(
   randomNumberGenerationPolicy: RandomNumberGenerationPolicy
 ): Error | null | CombatActionExecutionIntent {
   const { combatantProperties: userCombatantProperties } = user;
+  console.log("AISelectActionAndTarget:", user.getEntityId(), user.getName());
 
   const partyResult = game.getPartyOptionOfCombatant(user.entityProperties.id);
   if (partyResult === undefined) {

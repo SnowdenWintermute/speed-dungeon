@@ -23,7 +23,6 @@ export abstract class TurnScheduler implements ITurnScheduler {
 
   addDelay(delay: number) {
     this.accumulatedDelay += delay;
-    console.log("added delay", delay, "to", this.getTurnTakerId());
   }
 
   abstract getSpeed(party: AdventuringParty): number;

@@ -1,37 +1,11 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
-  AdventuringParty,
   BASIC_CHARACTER_FIXTURES,
   CombatActionName,
   invariant,
-  SpeedDungeonGame,
+  NextOrPrevious,
   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
 } from "@speed-dungeon/common";
-
-function logClientTurnOrder(party: AdventuringParty, game: SpeedDungeonGame, label: string) {
-  const battleOption = party.getBattleOption(game);
-  if (!battleOption) {
-    console.log(`[CLIENT TURN ORDER - ${label}] no battle`);
-    return;
-  }
-  battleOption.turnOrderManager.updateTrackers(game, party);
-  const trackers = battleOption.turnOrderManager.getTrackers();
-  const schedulers = battleOption.turnOrderManager.turnSchedulerManager;
-  console.log(`[CLIENT TURN ORDER - ${label}]`);
-  for (let i = 0; i < Math.min(6, trackers.length); i++) {
-    const t = trackers[i];
-    invariant(t !== undefined);
-    const tagged = t.getTaggedIdOfTrackedEntity();
-    const entityId = t.getEntityId();
-    const combatant = party.combatantManager.getCombatantOption(entityId);
-    const name = combatant?.getName?.() || entityId;
-    const isPlayerControlled =
-      combatant?.combatantProperties?.controlledBy?.isPlayerControlled?.() ?? "N/A";
-    console.log(
-      `  [${i}] ${name} (${entityId}) timeOfNextMove=${t.timeOfNextMove} type=${tagged.type} isPlayerControlled=${isPlayerControlled}`
-    );
-  }
-}
 
 export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixture) {
   const client = await testFixture.resetWithOptions(
@@ -51,14 +25,17 @@ export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixtu
   expect(combatantManager.getDungeonControlledCharacters().length).toBe(1);
 
   await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent, 1);
-  logClientTurnOrder(party, game, "after SummonPetParent");
-
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+  await gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
+  await gameClientHarness.cycleTargets(NextOrPrevious.Next);
+  await gameClientHarness.useSelectedCombatAction();
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  logClientTurnOrder(party, game, "after PassTurn 1");
-
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  logClientTurnOrder(party, game, "after PassTurn 2");
-
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  logClientTurnOrder(party, game, "after PassTurn 3");
+  await gameClientHarness.useCombatAction(CombatActionName.DismissPet, 1);
+  expect(combatantManager.getNeutralCombatants().length).toBe(0);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent, 1);
+  const wolf = combatantManager.getPartyMemberPets()[0];
+  invariant(wolf !== undefined, "no pet after summon");
+  expect(wolf.getCombatantProperties().conditionManager.getConditions().length).toBe(0);
 }
