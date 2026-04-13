@@ -39,54 +39,26 @@ export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixtu
     BASIC_CHARACTER_FIXTURES
   );
   const { clientApplication, gameClientHarness } = client;
-  const { gameContext } = clientApplication;
+  const { gameContext, combatantFocus } = clientApplication;
   const party = gameContext.requireParty();
   const game = gameContext.requireGame();
 
   const { combatantManager } = party;
 
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
-  logClientTurnOrder(party, game, "after Attack");
 
   await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
-  logClientTurnOrder(party, game, "after TamePet");
   expect(combatantManager.getDungeonControlledCharacters().length).toBe(1);
 
-  const lid7 = combatantManager.getExpectedCombatant(
-    clientApplication.combatantFocus.requireFocusedCharacterId()
-  );
-  console.log(
-    `[BEFORE SUMMON] focused char: ${lid7.getName()} (${lid7.getEntityId()}) AP=${lid7.combatantProperties.resources.getActionPoints()}`
-  );
-  const battle1 = party.getBattleOption(game);
-  if (battle1) {
-    for (const s of (battle1 as any).turnOrderManager.turnSchedulerManager["schedulers"]) {
-      console.log(
-        `  scheduler: ${s.getTurnTakerId()} accDelay=${s.accumulatedDelay} timeOfNext=${s.timeOfNextMove}`
-      );
-    }
-  }
-
   await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent, 1);
-
-  console.log(`[AFTER SUMMON] AP=${lid7.combatantProperties.resources.getActionPoints()}`);
-  const battle2 = party.getBattleOption(game);
-  if (battle2) {
-    for (const s of (battle2 as any).turnOrderManager.turnSchedulerManager["schedulers"]) {
-      console.log(
-        `  scheduler: ${s.getTurnTakerId()} accDelay=${s.accumulatedDelay} timeOfNext=${s.timeOfNextMove}`
-      );
-    }
-  }
   logClientTurnOrder(party, game, "after SummonPetParent");
 
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  console.log(
-    "trackers pass turn 1::",
-    party.getBattleOption(game)?.turnOrderManager.getTrackers()
-  );
   logClientTurnOrder(party, game, "after PassTurn 1");
 
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
   logClientTurnOrder(party, game, "after PassTurn 2");
+
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  logClientTurnOrder(party, game, "after PassTurn 3");
 }

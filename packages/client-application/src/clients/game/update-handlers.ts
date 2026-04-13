@@ -236,22 +236,20 @@ export function createGameUpdateHandlers(
         });
       }
     },
-    [GameStateUpdateType.BattleFullUpdate]: (data) => {
+    [GameStateUpdateType.BattleFullUpdate]: (serializedBattleOption) => {
       {
-        const { battle: battleOption } = data;
         const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
-        if (battleOption === null) {
+        if (serializedBattleOption === null) {
           game.battles.clear();
           return;
         }
 
-        const battle = battleOption;
-        party.setBattleId(battle.id);
-        const deserializedBattle = Battle.fromSerialized(battle);
+        const deserializedBattle = Battle.fromSerialized(serializedBattleOption);
+        party.setBattleId(deserializedBattle.id);
         deserializedBattle.initialize(game, party);
         deserializedBattle.makeObservable();
-        game.battles.set(battle.id, deserializedBattle);
+        game.battles.set(deserializedBattle.id, deserializedBattle);
 
         const currentActorIsPlayerControlled =
           deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);

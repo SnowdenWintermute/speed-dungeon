@@ -2,7 +2,17 @@ import { makeAutoObservable } from "mobx";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { applyExperiencePointChanges } from "../combatants/experience-points/apply-experience-point-changes.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { ActionIntentAndUser, Consumable, Equipment, FriendOrFoe } from "../index.js";
+import {
+  ActionIntentAndUser,
+  CombatActionName,
+  Combatant,
+  Consumable,
+  Equipment,
+  FriendOrFoe,
+  IActionUser,
+  invariant,
+  ThreatChanges,
+} from "../index.js";
 import { CombatantId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
@@ -12,6 +22,8 @@ import { generateExperiencePoints } from "../servers/game-server/controllers/bat
 
 export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
+  private _game: SpeedDungeonGame | null = null;
+  private _party: AdventuringParty | null = null;
   constructor(public id: EntityId) {
     this.turnOrderManager = new TurnOrderManager();
   }
@@ -32,10 +44,22 @@ export class Battle implements Serializable, ReactiveNode {
   }
 
   initialize(game: SpeedDungeonGame, party: AdventuringParty) {
+    this._game = game;
+    this._party = party;
     party.combatantManager.refillAllCombatantActionPoints();
     game.battles.set(this.id, this);
     this.turnOrderManager.turnSchedulerManager.createSchedulers(party);
     this.turnOrderManager.updateTrackers(game, party);
+  }
+
+  get party() {
+    invariant(this._party !== null, "battle not initialized");
+    return this._party;
+  }
+
+  get game() {
+    invariant(this._game !== null, "battle not initialized");
+    return this._game;
   }
 
   static createInitialized(game: SpeedDungeonGame, party: AdventuringParty, id: EntityId) {
@@ -52,6 +76,34 @@ export class Battle implements Serializable, ReactiveNode {
       [FriendOrFoe.Friendly]: idsByDisposition[FriendOrFoe.Hostile],
       [FriendOrFoe.Neutral]: idsByDisposition[FriendOrFoe.Neutral],
     };
+  }
+
+  handleTurnEnded(
+    actionUserOption: IActionUser | undefined,
+    delay: number,
+    threatChanges?: ThreatChanges
+  ) {
+    const { turnSchedulerManager } = this.turnOrderManager;
+
+    const turnSchedulerOption = actionUserOption
+      ? turnSchedulerManager.getSchedulerOptionByEntityId(actionUserOption.getEntityId())
+      : undefined;
+
+    if (turnSchedulerOption) {
+      console.log(
+        "add delay in battle handleTurnEnded",
+        turnSchedulerOption.getTurnTakerId(),
+        actionUserOption?.getName()
+      );
+      turnSchedulerOption.addDelay(delay);
+      this.turnOrderManager.updateTrackers(this.game, this.party);
+    }
+
+    actionUserOption?.handleTurnEnded();
+
+    if (threatChanges) {
+      threatChanges.applyToGame(this.party);
+    }
   }
 
   /** Returns any levelups by character id  */

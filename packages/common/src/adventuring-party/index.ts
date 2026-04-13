@@ -21,6 +21,7 @@ import {
 } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
 import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
+import { IActionUser } from "../action-user-context/action-user.js";
 
 export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
@@ -194,5 +195,23 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     }
 
     return { triggeredActions, conditionIdsRemoved };
+  }
+
+  getActionUserById(id: EntityId): IActionUser | undefined {
+    const combatantOption = this.combatantManager.getCombatantOption(id);
+    if (combatantOption) {
+      return combatantOption;
+    }
+    for (const [actionEntityId, actionEntity] of this.actionEntityManager.getActionEntities()) {
+      if (id === actionEntityId) {
+        return actionEntity;
+      }
+    }
+    for (const [combatantId, combatant] of this.combatantManager.getAllCombatants()) {
+      const conditionOption = this.combatantManager.getConditionOptionOnCombatant(combatantId, id);
+      if (conditionOption) {
+        return conditionOption;
+      }
+    }
   }
 }

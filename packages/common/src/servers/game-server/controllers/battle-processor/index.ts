@@ -58,7 +58,6 @@ export class BattleProcessor {
       safetyCounter += 1;
 
       battle.turnOrderManager.updateTrackers(game, party);
-      console.log("updated trackers", battle.turnOrderManager.getTrackers());
       const fastestTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
       if (party.battleId === null) break;

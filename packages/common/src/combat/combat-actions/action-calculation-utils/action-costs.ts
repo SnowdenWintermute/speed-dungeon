@@ -23,5 +23,8 @@ export const ACTION_PAYABLE_RESOURCE_STRINGS: Record<ActionPayableResource, stri
 };
 
 export type ActionResourceCostBases = Partial<Record<ActionPayableResource, CombatActionCostBase>>;
+export type ActionResourceCostBasesOverride = Partial<
+  Record<ActionPayableResource, CombatActionCostBase | null>
+>;
 
 export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>;

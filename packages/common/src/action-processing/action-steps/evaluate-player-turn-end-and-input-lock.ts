@@ -42,62 +42,45 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
 export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepContext) {
   const { tracker } = context;
   const { sequentialActionManagerRegistry } = tracker.parentActionManager;
-
-  sequentialActionManagerRegistry.decrementInputLockReferenceCount();
-
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = party.getBattleOption(game);
-
   const userIsCombatant = actionUser instanceof Combatant;
   const noActionPointsLeft =
     userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
-
   const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const requiresTurnInThisContext = action.costProperties.requiresCombatTurnInThisContext(
     context,
     action
   );
-
   const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
-
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+  const shouldEndTurn = requiredTurn && !turnAlreadyEnded && battleOption;
 
+  // FOR SERVER
+  sequentialActionManagerRegistry.decrementInputLockReferenceCount();
+  // FOR BOTH
   let tellClientDelayAdded: { delay: number; schedulerId: EntityId } | undefined = undefined;
+
+  // only decay threat for combatant turns ending
+  // not for conditions or action entities
   const threatChanges = new ThreatChanges();
-
-  if (requiredTurn && !turnAlreadyEnded && !!battleOption) {
-    const { actionName } = tracker.actionExecutionIntent;
-
-    const delay = actionUser.getDelayForActionUse(actionName);
-    const { turnSchedulerManager } = battleOption.turnOrderManager;
-    const turnSchedulerOption = turnSchedulerManager.getSchedulerOptionByEntityId(
-      actionUser.getEntityId()
+  if (actionUser instanceof Combatant) {
+    const threatCalculator = new ThreatCalculator(
+      threatChanges,
+      context.tracker.hitOutcomes,
+      context.actionUserContext.party,
+      actionUser,
+      context.tracker.actionExecutionIntent.actionName
     );
+    threatCalculator.addVolatileThreatDecay();
+  }
 
-    if (turnSchedulerOption) {
-      console.log("evaluatePlayerEndTurnAndInputLock add delay");
-      turnSchedulerOption.addDelay(delay);
-      tellClientDelayAdded = { schedulerId: actionUser.getEntityId(), delay };
-      battleOption.turnOrderManager.updateTrackers(game, party);
-    }
-
+  if (shouldEndTurn) {
+    const { actionName } = tracker.actionExecutionIntent;
+    const delay = actionUser.getDelayForActionUse(actionName);
+    tellClientDelayAdded = { schedulerId: actionUser.getEntityId(), delay };
+    battleOption.handleTurnEnded(actionUser, delay, threatChanges);
     sequentialActionManagerRegistry.setTurnEnded();
-    actionUser.handleTurnEnded();
-
-    // only decay threat for combatant turns ending
-    // not for conditions or action entities
-    if (context.actionUserContext.actionUser instanceof Combatant) {
-      const threatCalculator = new ThreatCalculator(
-        threatChanges,
-        context.tracker.hitOutcomes,
-        context.actionUserContext.party,
-        context.actionUserContext.actionUser,
-        context.tracker.actionExecutionIntent.actionName
-      );
-      threatCalculator.addVolatileThreatDecay();
-
-      threatChanges.applyToGame(party);
-    }
   }
 
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
@@ -118,6 +101,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
       shouldUnlockInput = true;
     }
   }
+
   if (!shouldUnlockInput && !requiredTurn) {
     return;
   }

@@ -11,6 +11,10 @@ import {
 } from "./basic-attacks.js";
 import { FREE_ACTION_COST_PROPERTIES_CONFIG } from "./free-action.js";
 import { EquipmentSlotType } from "../../../../../items/equipment/slots.js";
+import {
+  ActionResourceCostBases,
+  ActionResourceCostBasesOverride,
+} from "../../../action-calculation-utils/action-costs.js";
 
 export const COST_PROPERTIES_TEMPLATE_GETTERS = {
   BASIC_ACTION: () => cloneDeep(BASIC_ACTION_COST_PROPERTIES_CONFIG),
@@ -25,9 +29,27 @@ export const COST_PROPERTIES_TEMPLATE_GETTERS = {
   FREE_ACTION: () => cloneDeep(FREE_ACTION_COST_PROPERTIES_CONFIG),
 };
 
+export type CostPropertiesOverrides = Omit<Partial<CombatActionCostPropertiesConfig>, "costBases"> & {
+  costBases?: ActionResourceCostBasesOverride;
+};
+
+function mergeCostBases(
+  base: ActionResourceCostBases,
+  overrides: ActionResourceCostBasesOverride
+): ActionResourceCostBases {
+  const merged = { ...base, ...overrides };
+  const result: ActionResourceCostBases = {};
+  for (const [key, value] of Object.entries(merged)) {
+    if (value != null) {
+      result[key as unknown as keyof ActionResourceCostBases] = value;
+    }
+  }
+  return result;
+}
+
 export function createCostPropertiesConfig(
   templateGetter: () => CombatActionCostPropertiesConfig,
-  overrides: Partial<CombatActionCostPropertiesConfig>
+  overrides: CostPropertiesOverrides
 ): CombatActionCostPropertiesConfig {
   const base = templateGetter();
 
@@ -44,9 +66,8 @@ export function createCostPropertiesConfig(
         ...overrides.incursDurabilityLoss?.[EquipmentSlotType.Holdable],
       },
     },
-    costBases: {
-      ...base.costBases,
-      ...overrides.costBases,
-    },
+    costBases: overrides.costBases
+      ? mergeCostBases(base.costBases, overrides.costBases)
+      : base.costBases,
   };
 }

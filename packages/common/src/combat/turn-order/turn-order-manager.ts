@@ -74,6 +74,7 @@ export class TurnOrderManager implements ReactiveNode {
   updateTrackers(game: SpeedDungeonGame, party: AdventuringParty) {
     const newList = this.turnSchedulerManager.buildNewList(game, party);
     this.turnTrackers = newList;
+    console.log("updated trackers");
   }
 
   getFastestActorTurnOrderTracker() {

@@ -170,9 +170,8 @@ export interface GameStateUpdateMap {
     monsters: SerializedOf<Combatant>[];
     actionEntitiesToRemove: EntityId[];
   };
-  [GameStateUpdateType.BattleFullUpdate]: {
-    battle: Battle | null;
-  };
+  [GameStateUpdateType.BattleFullUpdate]: SerializedOf<Battle> | null;
+
   [GameStateUpdateType.ClientSequentialEvents]: {
     sequentialEvents: ClientSequentialEvent[];
   };

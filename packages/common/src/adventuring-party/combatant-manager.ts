@@ -356,10 +356,6 @@ export class CombatantManager
         });
 
       battleOption.turnOrderManager.updateTrackers(game, party);
-      console.log(
-        "added combatant with turn tracker:",
-        battleOption.turnOrderManager.getTrackers()
-      );
     }
   }
 

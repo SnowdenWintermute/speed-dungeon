@@ -223,9 +223,7 @@ export class DungeonExplorationController {
 
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.BattleFullUpdate,
-      data: {
-        battle,
-      },
+      data: battle.toSerialized(),
     });
 
     const battleProcessor = new BattleProcessor(

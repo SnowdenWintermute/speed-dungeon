@@ -1,4 +1,8 @@
-import { ActionCompletionUpdateCommand, CombatantTurnScheduler } from "@speed-dungeon/common";
+import {
+  ActionCompletionUpdateCommand,
+  CombatantTurnScheduler,
+  ThreatChanges,
+} from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ReplayStepExecution } from "../replay-step-execution";
 import { handleThreatChangesUpdate } from "./activated-triggers-update-handler/threat-changes";
@@ -12,28 +16,22 @@ export async function actionCompletionGameUpdateHandler(
   const battleOption = party.getBattleOption(game);
   const { command } = update;
 
-  if (command.addDelayToTurnScheduler) {
-    const battleOption = party.getBattleOption(game);
-    if (!battleOption) {
-      return console.error("no battle but tried to end turn");
-    }
-    // refill action points on turn end
-    // this way, if we want to remove their action points they can be at risk
-    // of actions taking them away before they get their turn again
-    const { schedulerId, delay } = command.addDelayToTurnScheduler;
-    const scheduler =
-      battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerByEntityId(schedulerId);
-    if (scheduler instanceof CombatantTurnScheduler) {
-      const combatantEndingTurn = party.combatantManager.getExpectedCombatant(schedulerId);
-      combatantEndingTurn.handleTurnEnded();
-    }
-
-    console.log("actionCompletionGameUpdateHandler add delay");
-    scheduler.addDelay(delay);
+  if (battleOption && command.addDelayToTurnScheduler) {
+    const actionUserId = command.addDelayToTurnScheduler.schedulerId;
+    const actionUserOption = party.getActionUserById(actionUserId);
+    const { threatChanges } = command;
+    const deserializedThreatChangesOption = threatChanges
+      ? ThreatChanges.fromSerialized(threatChanges)
+      : undefined;
+    battleOption.handleTurnEnded(
+      actionUserOption,
+      command.addDelayToTurnScheduler.delay,
+      deserializedThreatChangesOption
+    );
   }
 
   if (battleOption) {
-    battleOption.turnOrderManager.updateTrackers(game, party);
+    // battleOption.turnOrderManager.updateTrackers(game, party);
     const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
     combatantFocus.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
   }
