@@ -99,7 +99,8 @@ export class LobbyServer extends SpeedDungeonServer {
 
     this.characterCreationPolicy = new characterCreationPolicyConstructor(
       this.idGenerator,
-      new ItemBuilder(equipmentRandomizer)
+      new ItemBuilder(equipmentRandomizer),
+      this.rngPolicy
     );
 
     const controllers = this.createControllers(idGenerator);

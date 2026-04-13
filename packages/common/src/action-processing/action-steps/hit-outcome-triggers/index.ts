@@ -216,6 +216,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       for (const { petId, tamerId } of petsTamed) {
         const petCombatant = party.combatantManager.getExpectedCombatant(petId);
 
+        // kill any webs that were on the pet
         const attachedCombatantsDeathActionIntents = getKillAttachedCombatantsActionIntents(
           petCombatant,
           party
@@ -223,7 +224,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         this.branchingActions.push(...attachedCombatantsDeathActionIntents);
 
         party.petManager.handlePetTamed(petId, tamerId, game);
-        // kill any webs that were on the pet
       }
     }
   }

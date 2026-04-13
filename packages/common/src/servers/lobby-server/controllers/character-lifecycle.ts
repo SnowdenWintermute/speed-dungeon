@@ -1,9 +1,6 @@
 import { CombatantId, EntityName } from "../../../aliases.js";
 import { MAX_CHARACTER_NAME_LENGTH } from "../../../app-consts.js";
-import {
-  COMBATANT_CLASS_NAME_STRINGS,
-  CombatantClass,
-} from "../../../combatants/combatant-class/classes.js";
+import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
@@ -39,13 +36,11 @@ export class CharacterLifecycleController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const newCharacter = this.characterCreationPolicy.createCharacter(
+    const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
     );
-
-    const pets: Combatant[] = [];
 
     const player = game.getExpectedPlayer(session.username);
     game.addCharacterToParty(party, player, newCharacter, pets);

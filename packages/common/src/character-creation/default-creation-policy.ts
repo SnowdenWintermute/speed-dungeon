@@ -1,7 +1,6 @@
 import { EntityName, Username } from "../aliases.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
-import { Combatant } from "../combatants/index.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
@@ -22,11 +21,11 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     throw new Error("DefaultCharacterCreationPolicy will set characters internally");
   }
 
-  createCharacter(
+  override createCharacter(
     name: EntityName,
     combatantClass: CombatantClass,
     controllingPlayerName: Username
-  ): Combatant {
+  ) {
     if (name === ("" as EntityName)) {
       name = this.generateRandomCharacterName();
     }
@@ -45,7 +44,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     setPlaytestingCombatantProperties(result.combatantProperties);
     givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
-    return result;
+    return { character: result, pets: [] };
   }
 
   private appendStartingEquipment(combatantClass: CombatantClass, builder: CombatantBuilder) {

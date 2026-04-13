@@ -4,6 +4,7 @@ import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { RANDOM_CHARACTER_NAMES_FIRST } from "./random-character-names.js";
 
 export type CharacterFactory = (
@@ -13,17 +14,28 @@ export type CharacterFactory = (
   itemBuilder: ItemBuilder
 ) => Combatant;
 
+export type CombatantFactory = (
+  idGenerator: IdGenerator,
+  itemBuilder: ItemBuilder,
+  rngPolicy: RandomNumberGenerationPolicy,
+  name?: EntityName | undefined
+) => Combatant;
+
 export type CharacterCreationPolicyConstructor = new (
   idGenerator: IdGenerator,
-  itemBuilder: ItemBuilder
+  itemBuilder: ItemBuilder,
+  rngPolicy: RandomNumberGenerationPolicy
 ) => CharacterCreationPolicy;
 
-export type FixedCharacterCreationLists = Partial<Record<CombatantClass, CharacterFactory[]>>;
+export type FixedCharacterCreationLists = Partial<
+  Record<CombatantClass, { characterFactory: CharacterFactory; petFactories: CombatantFactory[] }[]>
+>;
 
 export abstract class CharacterCreationPolicy {
   constructor(
     protected readonly idGenerator: IdGenerator,
-    protected readonly itemBuilder: ItemBuilder
+    protected readonly itemBuilder: ItemBuilder,
+    protected readonly rngPolicy: RandomNumberGenerationPolicy
   ) {}
 
   generateRandomCharacterName(): EntityName {
@@ -40,5 +52,5 @@ export abstract class CharacterCreationPolicy {
     name: EntityName,
     combatantClass: CombatantClass,
     controllingPlayerName: Username
-  ): Combatant;
+  ): { character: Combatant; pets: Combatant[] };
 }

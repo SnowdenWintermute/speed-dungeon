@@ -4,7 +4,6 @@ import {
   IdentityProviderService,
   ConnectionIdentityResolutionContext,
   SavedCharactersService,
-  IdGenerator,
   ReconnectionForwardingStoreService,
   GameSessionStoreService,
   GameServerSessionClaimTokenCodec,
@@ -12,6 +11,7 @@ import {
   ScriptedCharacterCreationPolicy,
   BASIC_CHARACTER_FIXTURES,
   IdGeneratorSequential,
+  CHARARCTER_FIXTURES_WITH_PETS,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -56,7 +56,8 @@ export class LobbyServerNode {
       new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
     );
 
-    this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
+    // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
+    this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
 
     console.info("lobby server node created");
   }

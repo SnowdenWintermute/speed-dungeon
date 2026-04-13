@@ -2,7 +2,10 @@ import { EntityName, Username } from "../aliases.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { Combatant } from "../combatants/index.js";
 import { invariant } from "../utils/index.js";
-import { CharacterCreationPolicy, CharacterFactory } from "./character-creation-policy.js";
+import {
+  CharacterCreationPolicy,
+  FixedCharacterCreationLists,
+} from "./character-creation-policy.js";
 
 export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
   private lastCreatedIndicies: Record<CombatantClass, number> = {
@@ -10,9 +13,9 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
     [CombatantClass.Mage]: 0,
     [CombatantClass.Rogue]: 0,
   };
-  private characterQueues: Partial<Record<CombatantClass, CharacterFactory[]>> = {};
+  private characterQueues: FixedCharacterCreationLists = {};
 
-  override setCharacters(characters: Partial<Record<CombatantClass, CharacterFactory[]>>) {
+  override setCharacters(characters: FixedCharacterCreationLists) {
     this.characterQueues = characters;
   }
 
@@ -20,18 +23,20 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
     name: EntityName,
     combatantClass: CombatantClass,
     controllingPlayerName: Username
-  ): Combatant {
+  ): { character: Combatant; pets: Combatant[] } {
     const queue = this.characterQueues[combatantClass];
     if (!queue || queue.length === 0) {
       throw new Error(`No scripted character factory for class ${CombatantClass[combatantClass]}`);
     }
 
     const factoryIndex = this.lastCreatedIndicies[combatantClass];
-    const factory = queue[factoryIndex];
+    const factories = queue[factoryIndex];
+    invariant(factories !== undefined, "factories not found in ScriptedCharacterCreationPolicy");
+    const { characterFactory, petFactories } = factories;
     this.lastCreatedIndicies[combatantClass] = (factoryIndex + 1) % queue.length;
 
     invariant(
-      factory !== undefined,
+      factories !== undefined,
       `No scripted character factory for class ${CombatantClass[combatantClass]}`
     );
 
@@ -39,6 +44,15 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
       name = this.generateRandomCharacterName();
     }
 
-    return factory(controllingPlayerName, name, this.idGenerator, this.itemBuilder);
+    const pets: Combatant[] = [];
+    for (const petFactory of petFactories) {
+      const pet = petFactory(this.idGenerator, this.itemBuilder, this.rngPolicy);
+      pets.push(pet);
+    }
+
+    return {
+      character: characterFactory(controllingPlayerName, name, this.idGenerator, this.itemBuilder),
+      pets,
+    };
   }
 }

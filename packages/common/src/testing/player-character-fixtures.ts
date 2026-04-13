@@ -1,5 +1,5 @@
 import { EntityName, Username } from "../aliases.js";
-import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { FixedCharacterCreationLists } from "../character-creation/character-creation-policy.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
@@ -8,6 +8,7 @@ import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-han
 import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { MONSTER_FIXTURES } from "./monster-fixtures.js";
 
 export const PLAYER_CHARACTER_FIXTURES = {
   WARRIOR: (
@@ -84,8 +85,40 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .build(idGenerator),
 };
 
-export const BASIC_CHARACTER_FIXTURES = {
-  [CombatantClass.Warrior]: [PLAYER_CHARACTER_FIXTURES.WARRIOR],
-  [CombatantClass.Rogue]: [PLAYER_CHARACTER_FIXTURES.ROGUE],
-  [CombatantClass.Mage]: [PLAYER_CHARACTER_FIXTURES.MAGE],
+export const BASIC_CHARACTER_FIXTURES: FixedCharacterCreationLists = {
+  [CombatantClass.Warrior]: [
+    { characterFactory: PLAYER_CHARACTER_FIXTURES.WARRIOR, petFactories: [] },
+  ],
+  [CombatantClass.Rogue]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE, petFactories: [] }],
+  [CombatantClass.Mage]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE, petFactories: [] }],
+};
+
+export const CHARARCTER_FIXTURES_WITH_PETS: FixedCharacterCreationLists = {
+  [CombatantClass.Warrior]: [
+    {
+      characterFactory: PLAYER_CHARACTER_FIXTURES.WARRIOR,
+      petFactories: [
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ],
+    },
+  ],
+  [CombatantClass.Rogue]: [
+    {
+      characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE,
+      petFactories: [
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ],
+    },
+  ],
+  [CombatantClass.Mage]: [
+    {
+      characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE,
+      petFactories: [
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ],
+    },
+  ],
 };

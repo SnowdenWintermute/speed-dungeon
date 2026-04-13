@@ -79,13 +79,12 @@ export class SavedCharactersController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const newCharacter = this.characterCreationPolicy.createCharacter(
+    const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
     );
 
-    const pets: Combatant[] = [];
     const serializedPets = pets.map((pet) => pet.toSerialized());
 
     // check if the slot is valid to put a new character in

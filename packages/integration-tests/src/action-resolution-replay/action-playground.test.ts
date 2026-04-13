@@ -10,6 +10,9 @@ import { testFirewallIgnitesProjectiles } from "./firewall/projectiles-ignite.js
 import { testOnlyTameDamagedTameableCombatants } from "./tame-pet/only-tame-tameable-combatants.js";
 import { testTamingRemovesWeb } from "./tame-pet/taming-removes-web.js";
 import { testDismissPetRemovesWeb } from "./tame-pet/dismiss-pet-removes-web.js";
+import { testSummonedPetTickableConditions } from "./tame-pet/summoned-pet-tickable-conditions.js";
+import { testSummonedPetTurnOrder } from "./tame-pet/pet-summoned-turn-order.js";
+import { testPetSlotLimitations } from "./tame-pet/pet-slots.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "action playground",
@@ -24,19 +27,27 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     });
 
     // PETS
-    // pet summoned still has conditions it had when dismissed
-    // pet summoned added to turn order
-    // pet summoned adds tickable conditions to turn order
+    // can not tame pet if slots are full
+    // release pet frees up slot
+    // can not tame pet above rank limit pet level
     // pet ai with no active pet command
     // pet ai with pet command
-    // release pet frees up slot
-    // can not tame pet if slots are full
-    // can not tame pet above rank limit pet level
     // pet can not level up beyond rank limit pet level
-
-    it("dismiss pet removes web", async () => {
-      await testDismissPetRemovesWeb(testFixture);
+    it("tame pet slots", async () => {
+      await testPetSlotLimitations(testFixture);
     });
+
+    // it("summoned pet turn order", async () => {
+    //   await testSummonedPetTurnOrder(testFixture);
+    // });
+
+    // it("summoned pet tickable conditions", async () => {
+    //   await testSummonedPetTickableConditions(testFixture);
+    // });
+
+    // it("dismiss pet removes web", async () => {
+    //   await testDismissPetRemovesWeb(testFixture);
+    // });
 
     // it("taming removes web", async () => {
     //   await testTamingRemovesWeb(testFixture);
