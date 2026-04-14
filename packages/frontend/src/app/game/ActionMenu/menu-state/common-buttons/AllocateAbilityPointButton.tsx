@@ -1,7 +1,11 @@
 import React from "react";
 import ActionMenuTopButton from "./ActionMenuTopButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { AbilityTreeAbility, ClientIntentType } from "@speed-dungeon/common";
+import {
+  AbilityTreeAbility,
+  ClientIntentType,
+  cloneAbilityTreeAbility,
+} from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { toJS } from "mobx";
@@ -33,7 +37,7 @@ export const AllocateAbilityPointButton = observer((props: Props) => {
           type: ClientIntentType.AllocateAbilityPoint,
           data: {
             characterId: focusedCharacter.getEntityId(),
-            ability: toJS(ability),
+            ability: cloneAbilityTreeAbility(ability),
           },
         });
       }}

@@ -1,17 +1,31 @@
 import { AdventuringParty } from "./index.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { CombatantId, EntityId, Username } from "../aliases.js";
-import { Battle } from "../battle/index.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
-import { Serializable, SerializedOf } from "../serialization/index.js";
+import {
+  makePropertiesObservable,
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+} from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
-export class PetManager extends AdventuringPartySubsystem implements Serializable {
+export class PetManager extends AdventuringPartySubsystem implements Serializable, ReactiveNode {
   private unsummonedPetsByOwnerId = new Map<EntityId, (Combatant | undefined)[]>();
+
+  makeObservable() {
+    makeAutoObservable(this);
+    for (const [_, petSlots] of this.unsummonedPetsByOwnerId) {
+      for (const petOption of petSlots) {
+        if (petOption) petOption.makeObservable();
+      }
+    }
+  }
 
   toSerialized() {
     return {

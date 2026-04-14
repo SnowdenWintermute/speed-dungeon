@@ -20,6 +20,16 @@ export interface TraitAbility {
 
 export type AbilityTreeAbility = ActionAbility | TraitAbility;
 
+/** to get around mobx observable can't be cloned */
+export function cloneAbilityTreeAbility(ability: AbilityTreeAbility) {
+  switch (ability.type) {
+    case AbilityType.Action:
+      return { type: ability.type, actionName: ability.actionName };
+    case AbilityType.Trait:
+      return { type: ability.type, traitType: ability.traitType };
+  }
+}
+
 export function getAbilityTreeAbilityNameString(ability: AbilityTreeAbility) {
   switch (ability.type) {
     case AbilityType.Action:
@@ -40,14 +50,12 @@ export const ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED: Partial<
     ],
     2: [
       { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
-      { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
       { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
 
       { type: AbilityType.Action, actionName: CombatActionName.PetCommand },
     ],
     3: [
       { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
-      { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
       { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
     ],
   },

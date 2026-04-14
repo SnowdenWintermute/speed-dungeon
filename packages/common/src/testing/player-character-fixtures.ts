@@ -1,5 +1,8 @@
 import { EntityName, Username } from "../aliases.js";
-import { FixedCharacterCreationLists } from "../character-creation/character-creation-policy.js";
+import {
+  CombatantFactory,
+  FixedCharacterCreationLists,
+} from "../character-creation/character-creation-policy.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
@@ -197,32 +200,27 @@ export const CHARARCTER_FIXTURES_WITH_PETS: FixedCharacterCreationLists = {
   ],
 };
 
-export const HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS: FixedCharacterCreationLists = {
-  [CombatantClass.Warrior]: [
-    {
-      characterFactory: HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES.WARRIOR,
-      petFactories: [
-        (idGenerator, itemBuilder, rngPolicy, name) =>
-          MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
-      ],
-    },
-  ],
-  [CombatantClass.Rogue]: [
-    {
-      characterFactory: HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES.ROGUE,
-      petFactories: [
-        (idGenerator, itemBuilder, rngPolicy, name) =>
-          MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
-      ],
-    },
-  ],
-  [CombatantClass.Mage]: [
-    {
-      characterFactory: HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES.MAGE,
-      petFactories: [
-        (idGenerator, itemBuilder, rngPolicy, name) =>
-          MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
-      ],
-    },
-  ],
+export const HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS: (
+  petFactories: CombatantFactory[]
+) => FixedCharacterCreationLists = (petFactories) => {
+  return {
+    [CombatantClass.Warrior]: [
+      {
+        characterFactory: HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES.WARRIOR,
+        petFactories,
+      },
+    ],
+    [CombatantClass.Rogue]: [
+      {
+        characterFactory: HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES.ROGUE,
+        petFactories,
+      },
+    ],
+    [CombatantClass.Mage]: [
+      {
+        characterFactory: HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES.MAGE,
+        petFactories,
+      },
+    ],
+  };
 };

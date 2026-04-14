@@ -13,6 +13,7 @@ import {
   IdGeneratorSequential,
   CHARARCTER_FIXTURES_WITH_PETS,
   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
+  MONSTER_FIXTURES,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -60,7 +61,10 @@ export class LobbyServerNode {
     // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
     this._lobbyServer.characterCreationPolicy.setCharacters(
-      HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS
+      HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS([
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ])
     );
 
     console.info("lobby server node created");
