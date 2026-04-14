@@ -116,7 +116,6 @@ export class TurnSchedulerManager {
     for (const scheduler of this.schedulers) {
       if (scheduler.isStale(party)) toRemove.push(scheduler);
     }
-    console.log("removing stale schedulers:", toRemove);
 
     // @PERF - probably a faster way to do this
     this.schedulers = this.schedulers.filter((scheduler) => {

@@ -1,5 +1,6 @@
 import { EntityName, Username } from "../aliases.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
+import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { Combatant } from "../combatants/index.js";
 import { invariant } from "../utils/index.js";
 import {
@@ -44,14 +45,28 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
       name = this.generateRandomCharacterName();
     }
 
+    const character = characterFactory(
+      controllingPlayerName,
+      name,
+      this.idGenerator,
+      this.itemBuilder
+    );
+
     const pets: Combatant[] = [];
     for (const petFactory of petFactories) {
       const pet = petFactory(this.idGenerator, this.itemBuilder, this.rngPolicy);
+      const { controlledBy } = pet.combatantProperties;
+
+      pet.combatantProperties.threatManager = undefined;
+      controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+      controlledBy.controllerPlayerName =
+        character.combatantProperties.controlledBy.controllerPlayerName;
+
       pets.push(pet);
     }
 
     return {
-      character: characterFactory(controllingPlayerName, name, this.idGenerator, this.itemBuilder),
+      character,
       pets,
     };
   }

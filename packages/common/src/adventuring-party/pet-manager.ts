@@ -1,7 +1,7 @@
 import { AdventuringParty } from "./index.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
-import { CombatantId, EntityId } from "../aliases.js";
+import { CombatantId, EntityId, Username } from "../aliases.js";
 import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
@@ -158,6 +158,10 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     party.combatantManager.setPetHomePositionNextTo(petOption, owner);
     petOption.combatantProperties.transformProperties.setToHomeTransform();
 
+    if (party.battleId) {
+      pet.combatantProperties.resources.refillActionPoints();
+    }
+
     return pet;
   }
 
@@ -173,14 +177,15 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
   handlePetTamed(petId: CombatantId, newOwnerId: CombatantId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const petCombatant = party.combatantManager.removeCombatant(petId, game);
-    const { controlledBy } = petCombatant.combatantProperties;
-    controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 
     petCombatant.combatantProperties.threatManager = undefined;
-
     party.combatantManager.updateHomePositions();
     const newOwner = party.combatantManager.getExpectedCombatant(newOwnerId);
     party.combatantManager.setPetHomePositionNextTo(petCombatant, newOwner);
+    const { controlledBy } = petCombatant.combatantProperties;
+    controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+    controlledBy.controllerPlayerName =
+      newOwner.combatantProperties.controlledBy.controllerPlayerName;
 
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }

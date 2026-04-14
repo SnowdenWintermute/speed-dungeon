@@ -38,6 +38,12 @@ export class CombatantFilterFactory {
         battle
       );
 
+      console.log(
+        actionUserContext.actionUser.getEntityId(),
+        "combatantIdsByDisposition:",
+        combatantIdsByDisposition
+      );
+
       const allyIds = combatantIdsByDisposition[FriendOrFoe.Friendly];
       const opponentIds = combatantIdsByDisposition[FriendOrFoe.Hostile];
       const neutralIds = combatantIdsByDisposition[FriendOrFoe.Neutral];
@@ -47,14 +53,15 @@ export class CombatantFilterFactory {
         case TargetCategories.Any:
           idsToFetchCombatants.push(...opponentIds, ...allyIds, ...neutralIds);
           break;
-        case TargetCategories.Opponent:
+        case TargetCategories.Opponent: {
           // only want to attack neutral that were summoned by an enemy
           const validNeutralOpponents = neutralIds.filter((id) =>
             filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Opponent)
           );
           idsToFetchCombatants.push(...opponentIds, ...validNeutralOpponents);
           break;
-        case TargetCategories.Friendly:
+        }
+        case TargetCategories.Friendly: {
           // only want to heal neutral that were summoned by an ally like a net
           const validNeutralFriendlies = neutralIds.filter((id) =>
             filterNeutralIdsByDisposition(actionUser, party, id, TargetCategories.Friendly)
@@ -62,6 +69,7 @@ export class CombatantFilterFactory {
 
           idsToFetchCombatants.push(...allyIds, ...validNeutralFriendlies);
           break;
+        }
         case TargetCategories.User:
           combatantsToConsider.push(combatant);
           break;

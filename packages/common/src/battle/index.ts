@@ -105,7 +105,7 @@ export class Battle implements Serializable, ReactiveNode {
     this.turnOrderManager.updateTrackers(this.game, this.party);
     const fastestTurnTracker = this.turnOrderManager.getFastestActorTurnOrderTracker();
     const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
-    const delayOfNewSheduler = delayOfCurrentActor + 1;
+    const delayOfNewSheduler = delayOfCurrentActor;
     return delayOfNewSheduler;
   }
 

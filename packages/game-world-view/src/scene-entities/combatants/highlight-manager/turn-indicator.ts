@@ -8,7 +8,10 @@ const LIGHTER_YELLOW = new Color3(0.941, 0.788, 0.565);
 
 export class TurnIndicator {
   private mesh: Mesh;
-  constructor(scene: Scene) {
+  constructor(
+    scene: Scene,
+    private wireframe: boolean = false
+  ) {
     const topRadius = 1; // Radius of the top triangle
     const elongation = 3; // How far the tip extends downward
     // Top triangle vertices
@@ -51,7 +54,7 @@ export class TurnIndicator {
     );
 
     const material = new StandardMaterial("targeting indicator material", scene);
-    // material.diffuseColor = new Color3(0.941, 0.788, 0.565);
+    material.wireframe = wireframe;
 
     this.mesh.material = material;
     this.mesh.visibility = 0.75;

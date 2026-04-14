@@ -14,6 +14,7 @@ export class HighlightManager {
     [equipmentId: string]: { [meshName: string]: Color3 };
   } = {};
   public turnIndicator: null | TurnIndicator = null;
+  public focusIndicator: null | TurnIndicator = null;
   public isHighlighted: boolean = false;
   private isDirty = false;
 
@@ -119,6 +120,13 @@ export class HighlightManager {
     }
   }
 
+  removeFocusIndicator() {
+    if (this.focusIndicator) {
+      this.focusIndicator.dispose();
+      this.focusIndicator = null;
+    }
+  }
+
   updateHighlight() {
     if (this.isDirty) {
       // @TODO - check if this still matters now that we changed combatants to have a ref stored on their scene entities
@@ -140,6 +148,7 @@ export class HighlightManager {
       const battleOption = partyOption.getBattleOption(gameOption);
       if (battleOption === null) {
         this.removeHighlight();
+        this.removeFocusIndicator();
         return;
       }
 
@@ -169,12 +178,26 @@ export class HighlightManager {
         } else if ((this.isHighlighted && !isTurn) || inputIsLocked || isSelectingActionTargets) {
           this.removeHighlight();
         }
+
+        const isFocused = this.clientApplication.combatantFocus.characterIsFocused(entityId);
+        const shouldShowFocusIndicator =
+          isFocused && !isTurn && !inputIsLocked && !isSelectingActionTargets;
+        if (shouldShowFocusIndicator && !this.focusIndicator) {
+          this.focusIndicator = new TurnIndicator(this.scene, true);
+          this.focusIndicator.attachToCombatantEntity(this.sceneEntity);
+        } else if (!shouldShowFocusIndicator && this.focusIndicator) {
+          this.removeFocusIndicator();
+        }
       } catch (error) {
         console.info("highlighter error", error);
         this.isDirty = true;
         this.removeHighlight();
+        this.removeFocusIndicator();
       }
     }
+
+    const pulseEffectParameters = this.getRotationParameters();
+    this.focusIndicator?.update(pulseEffectParameters, true);
 
     if (!this.isHighlighted) return;
 
@@ -182,7 +205,6 @@ export class HighlightManager {
     const isFocused = this.clientApplication.combatantFocus.characterIsFocused(
       this.sceneEntity.combatant.getEntityId()
     );
-    const pulseEffectParameters = this.getRotationParameters();
     this.turnIndicator?.update(pulseEffectParameters, isFocused);
 
     // glow the character and their equipment

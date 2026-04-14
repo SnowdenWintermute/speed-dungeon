@@ -7,6 +7,7 @@ import { GameUpdateCommandType, ResourcesPaidGameUpdateCommand } from "../game-u
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { ActionRank } from "../../aliases.js";
+import { ActionPayableResource } from "../../combat/combat-actions/action-calculation-utils/action-costs.js";
 
 const stepType = ActionResolutionStepType.PayResourceCosts;
 export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {

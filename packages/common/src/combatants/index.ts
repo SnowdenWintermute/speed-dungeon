@@ -28,6 +28,7 @@ import { ActionEntityProperties } from "../action-entities/action-entity-propert
 import { CombatAttribute } from "./attributes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
+import { ActionPayableResource } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -247,6 +248,7 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     const costs = action.costProperties.getResourceCosts(this, party.isInCombat(), rank);
 
     const unmetResourceTypes = this.combatantProperties.resources.getUnmetCostResourceTypes(costs);
+
     const hasRequiredResources = !unmetResourceTypes.length;
 
     if (!hasRequiredResources) {

@@ -58,7 +58,7 @@ export class CombatantBuilder {
 
   private constructor(
     private mainClass: CombatantClass,
-    private controlledBy: CombatantControlledBy
+    private _controlledBy: CombatantControlledBy
   ) {}
 
   static playerCharacter(mainClass: CombatantClass, playerName: Username): CombatantBuilder {
@@ -96,6 +96,10 @@ export class CombatantBuilder {
   monsterType(monsterType: MonsterType): this {
     this._monsterType = monsterType;
     return this;
+  }
+
+  petOf(playerName: Username) {
+    this._controlledBy = new CombatantControlledBy(CombatantControllerType.PlayerPetAI, playerName);
   }
 
   aiTypes(aiTypes: AiType[]): this {
@@ -224,6 +228,7 @@ export class CombatantBuilder {
       .ownedAction(CombatActionName.TamePet)
       .ownedAction(CombatActionName.ReleasePet)
       .ownedAction(CombatActionName.Ensnare)
+      .ownedAction(CombatActionName.Healing, 3)
       .ownedAction(CombatActionName.Fire, 3)
       .ownedAction(CombatActionName.Firewall, 3);
     return this;
@@ -237,7 +242,7 @@ export class CombatantBuilder {
       this.mainClass,
       this._species,
       this._monsterType,
-      this.controlledBy,
+      this._controlledBy,
       Vector3.Zero()
     );
 
@@ -251,7 +256,7 @@ export class CombatantBuilder {
     }
 
     if (this._aiTypes.length > 0) {
-      this.controlledBy.setAiTypes(this._aiTypes);
+      this._controlledBy.setAiTypes(this._aiTypes);
     }
 
     const combatant = Combatant.createInitialized(entityProperties, combatantProperties);

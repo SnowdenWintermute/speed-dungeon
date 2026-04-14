@@ -1,6 +1,7 @@
 import {
   ACTION_PAYABLE_RESOURCE_STRINGS,
   AbilityType,
+  ActionPayableResource,
   ActionRank,
   COMBAT_ACTIONS,
   COMBAT_ACTION_USABLITY_CONTEXT_STRINGS,
@@ -40,6 +41,9 @@ export const ActionDetails = observer(
     const costs =
       action.costProperties.getResourceCosts(focusedCharacter, inCombat, selectedLevelOption) || {};
     const unmetCosts = costs ? combatantProperties.resources.getUnmetCostResourceTypes(costs) : [];
+    if (party.battleId === undefined) {
+      delete unmetCosts[ActionPayableResource.ActionPoints];
+    }
     const { usabilityContext } = action.targetingProperties;
 
     const notInUsableContext =
