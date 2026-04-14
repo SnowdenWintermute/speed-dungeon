@@ -114,7 +114,7 @@ const config: CombatActionComponentConfig = {
   getByRankDescriptions: () => {
     return {
       [1]: `One pet slot, max pet level: ${getTamePetMaxPetLevel(1)}`,
-      [2]: `Two pet slots, max pet level: ${getTamePetMaxPetLevel(2)}`,
+      [2]: `Two pet slots, max pet level: ${getTamePetMaxPetLevel(2)} \n Pet command ability`,
       [3]: `Three pet slots, max pet level: ${getTamePetMaxPetLevel(3)}`,
     };
   },

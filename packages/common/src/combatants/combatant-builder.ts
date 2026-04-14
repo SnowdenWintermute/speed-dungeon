@@ -236,7 +236,6 @@ export class CombatantBuilder {
       .ownedAction(CombatActionName.ChainingSplitArrowParent)
       .ownedAction(CombatActionName.SummonPetParent)
       .ownedAction(CombatActionName.DismissPet)
-      .ownedAction(CombatActionName.PetCommand)
       .ownedAction(CombatActionName.TamePet)
       .ownedAction(CombatActionName.ReleasePet)
       .ownedAction(CombatActionName.Ensnare)

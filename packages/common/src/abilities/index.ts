@@ -30,14 +30,27 @@ export function getAbilityTreeAbilityNameString(ability: AbilityTreeAbility) {
 }
 
 export const ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED: Partial<
-  Record<CombatActionName, AbilityTreeAbility[]>
+  Record<CombatActionName, Record<number, AbilityTreeAbility[]>>
 > = {
-  [CombatActionName.TamePet]: [
-    { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
-    { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
-    { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
-    { type: AbilityType.Action, actionName: CombatActionName.PetCommand },
-  ],
+  [CombatActionName.TamePet]: {
+    1: [
+      { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
+      { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
+      { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
+    ],
+    2: [
+      { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
+      { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
+      { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
+
+      { type: AbilityType.Action, actionName: CombatActionName.PetCommand },
+    ],
+    3: [
+      { type: AbilityType.Action, actionName: CombatActionName.SummonPetParent },
+      { type: AbilityType.Action, actionName: CombatActionName.DismissPet },
+      { type: AbilityType.Action, actionName: CombatActionName.ReleasePet },
+    ],
+  },
 };
 
 export const ACTION_FORCED_RANKS: Partial<Record<CombatActionName, number>> = {

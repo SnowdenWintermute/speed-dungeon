@@ -57,11 +57,11 @@ export class LobbyServerNode {
       new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
     );
 
-    this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
+    // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(
-    //   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS
-    // );
+    this._lobbyServer.characterCreationPolicy.setCharacters(
+      HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS
+    );
 
     console.info("lobby server node created");
   }

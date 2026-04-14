@@ -213,17 +213,7 @@ export class CombatantAbilityProperties
     switch (ability.type) {
       case AbilityType.Action: {
         const existingActionOption = ownedActions.get(ability.actionName);
-        const actionComesWith = ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED[ability.actionName];
-
         const forcedRankOption = ACTION_FORCED_RANKS[ability.actionName];
-
-        // some abilities grant "sub abilities" such as Tame Pet which comes with all associated
-        // pet abilities
-        if (actionComesWith) {
-          for (const extraAbility of actionComesWith) {
-            this.changeAbilityRank(extraAbility, changeBy);
-          }
-        }
 
         if (existingActionOption) {
           existingActionOption.level += changeBy;
@@ -235,6 +225,17 @@ export class CombatantAbilityProperties
             ability.actionName,
             new CombatantActionState(ability.actionName, forcedRankOption || 1)
           );
+        }
+
+        const newRank = ownedActions.get(ability.actionName)?.level || 0;
+        // some abilities grant "sub abilities" such as Tame Pet which comes with all associated
+        // pet abilities
+        const actionComesWith =
+          ABILITIES_GRANTED_WHEN_ACTION_ALLOCATED[ability.actionName]?.[newRank];
+        if (actionComesWith) {
+          for (const extraAbility of actionComesWith) {
+            this.changeAbilityRank(extraAbility, changeBy);
+          }
         }
         break;
       }

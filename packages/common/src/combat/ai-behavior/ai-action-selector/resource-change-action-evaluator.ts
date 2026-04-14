@@ -6,19 +6,18 @@ import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-
 
 export abstract class ResourceChangeActionEvaluator {
   protected static getLowestHpCombatantOption(combatants: Combatant[]) {
-    let mainTargetOption: Combatant | null = null;
+    let currentBestTargetOption: Combatant | null = null;
 
     for (const combatant of combatants) {
-      if (
-        mainTargetOption === null ||
-        combatant.combatantProperties.resources.getHitPoints() <
-          mainTargetOption.combatantProperties.resources.getHitPoints()
-      ) {
-        mainTargetOption = combatant;
+      const consideringTargetHp = combatant.combatantProperties.resources.getHitPoints();
+      const currentBestTargetHp =
+        currentBestTargetOption?.combatantProperties.resources.getHitPoints() || Infinity;
+      if (consideringTargetHp < currentBestTargetHp) {
+        currentBestTargetOption = combatant;
       }
     }
 
-    return mainTargetOption;
+    return currentBestTargetOption;
   }
 
   protected static getPredictedHitOutcomes(
