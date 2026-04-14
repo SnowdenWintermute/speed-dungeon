@@ -14,7 +14,7 @@ export function AISelectActionAndTarget(
   game: SpeedDungeonGame,
   user: Combatant,
   randomNumberGenerationPolicy: RandomNumberGenerationPolicy
-): Error | null | CombatActionExecutionIntent {
+): null | CombatActionExecutionIntent {
   const { combatantProperties: userCombatantProperties } = user;
   // console.info("AISelectActionAndTarget:", user.getEntityId(), user.getName());
 

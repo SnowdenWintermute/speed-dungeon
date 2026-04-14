@@ -87,7 +87,7 @@ export class GameServer extends SpeedDungeonServer {
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
-    rngPolicy: RandomNumberGenerationPolicy,
+    public readonly rngPolicy: RandomNumberGenerationPolicy,
     private readonly idGenerator: IdGenerator
   ) {
     super(name, incomingConnectionGateway, rngPolicy);

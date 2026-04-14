@@ -47,6 +47,8 @@ export class RootAIBehaviorNode implements BehaviorNode {
       // AI IS SET TO ALWAYS PASS TURN
     }
 
+    console.log("aitypes", aiTypes);
+
     this.root = new SelectorNode(targetSelectionSchemes);
   }
 

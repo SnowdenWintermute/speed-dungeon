@@ -168,8 +168,8 @@ export class ClientTestHarness<T extends BaseClient> {
     }
   }
 
-  async useCombatAction(actionName: CombatActionName, rank: number) {
-    await this.selectCombatAction(actionName, rank);
+  async useCombatAction(actionName: CombatActionName, rank?: number) {
+    await this.selectCombatAction(actionName, rank || 1);
     return this.useSelectedCombatAction();
   }
 
