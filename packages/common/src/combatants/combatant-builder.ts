@@ -40,6 +40,7 @@ interface WearableEquipEntry {
 
 export class CombatantBuilder {
   private _name: string = "Test Combatant";
+  private _controllingPlayerName: Username | null = null;
   private _level: number = 1;
   private _species: CombatantSpecies = CombatantSpecies.Humanoid;
   private _monsterType: MonsterType | null = null;
@@ -55,6 +56,7 @@ export class CombatantBuilder {
   private _aiTypes: AiType[] = [];
   private _withThreatManager: boolean = false;
   private _useExplicitAttributes: boolean = false;
+  private _unspentAbilityPoints: number = 0;
 
   private constructor(
     private mainClass: CombatantClass,
@@ -80,6 +82,11 @@ export class CombatantBuilder {
 
   name(name: string): this {
     this._name = name;
+    return this;
+  }
+
+  controllingPlayerName(name: Username) {
+    this._controllingPlayerName = name;
     return this;
   }
 
@@ -215,6 +222,11 @@ export class CombatantBuilder {
     return this;
   }
 
+  unspentAbilityPoints(points: number) {
+    this._unspentAbilityPoints = points;
+    return this;
+  }
+
   appendAllActions() {
     this.ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)
@@ -257,6 +269,10 @@ export class CombatantBuilder {
 
     if (this._aiTypes.length > 0) {
       this._controlledBy.setAiTypes(this._aiTypes);
+    }
+
+    if (this._controllingPlayerName) {
+      combatantProperties.controlledBy.controllerPlayerName = this._controllingPlayerName;
     }
 
     const combatant = Combatant.createInitialized(entityProperties, combatantProperties);
@@ -311,6 +327,10 @@ export class CombatantBuilder {
     combatantProperties.resources.setToMax();
     if (this._withThreatManager) {
       combatantProperties.threatManager = new ThreatManager();
+    }
+
+    if (this._unspentAbilityPoints) {
+      combatantProperties.abilityProperties.setUnspentAbilityPoints(this._unspentAbilityPoints);
     }
 
     return combatant;

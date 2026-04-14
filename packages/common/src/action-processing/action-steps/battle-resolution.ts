@@ -22,6 +22,7 @@ export class BattleResolutionActionResolutionStep extends ActionResolutionStep {
 
     if (party.battleId !== null) {
       const partyWipes = party.combatantManager.checkForWipes(party.isInCombat());
+      const noMonstersInBattle = party.combatantManager.monstersArePresent();
       if (partyWipes.alliesDefeated || partyWipes.opponentsDefeated) {
         const registry = context.manager.sequentialActionManagerRegistry;
         const resolution = Battle.resolveBattle(game, party, registry.lootGenerator, partyWipes);

@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { TargetingCalculator } from "../targeting/targeting-calculator.js";
-import { getLookRotationFromPositions } from "../../utils/index.js";
+import { getLookRotationFromPositions, invariant } from "../../utils/index.js";
 import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
 
 const meleeRange = 1.5;
@@ -38,12 +38,13 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
     return { position: userPosition.clone() };
   }
 
-  const homePosition = actionUser.getHomePosition();
+  const targetPosition = actionUser.getPositionOption();
+  invariant(targetPosition !== null);
 
   let destination;
   let destinationRotation: Quaternion | undefined;
 
-  let direction = targetTransformProperties.getHomePosition().subtract(homePosition).normalize();
+  let direction = targetTransformProperties.getHomePosition().subtract(targetPosition).normalize();
   destination = targetTransformProperties.getHomePosition().subtract(direction.scale(meleeRange));
 
   const shouldFlyTowardsTarget = !actionUser.targetFlyingConditionPreventsReachingMeleeRange(
@@ -52,18 +53,21 @@ export function getMeleeAttackDestination(context: ActionResolutionStepContext) 
   const constrainToXZPlane = !shouldFlyTowardsTarget;
 
   if (constrainToXZPlane) {
-    destination.y = homePosition.y;
+    destination.y = targetPosition.y;
   }
 
   if (constrainToXZPlane) {
     // Use XZ-projected look rotation
-    const forwardXZ = targetTransformProperties.getHomePosition().subtract(homePosition);
+    const forwardXZ = targetTransformProperties.getHomePosition().subtract(targetPosition);
     forwardXZ.y = 0;
     forwardXZ.normalize();
-    destinationRotation = getLookRotationFromPositions(homePosition, homePosition.add(forwardXZ));
+    destinationRotation = getLookRotationFromPositions(
+      targetPosition,
+      targetPosition.add(forwardXZ)
+    );
   } else {
     destinationRotation = getLookRotationFromPositions(
-      homePosition,
+      targetPosition,
       targetTransformProperties.getHomePosition()
     );
   }

@@ -1,9 +1,6 @@
 // PETS
 // pet ai with no active pet command
 // pet ai with pet command
-// release pet frees up slot
-// can not tame pet if slots are full
-// can not tame pet above rank limit pet level
 // pet can not level up beyond rank limit pet level
 //
 // ENSNARE
@@ -27,7 +24,8 @@
 // if killed with primed for ice burst, don't error
 // ice burst triggered by firewall doesn't hit anyone
 //
-// THREAT
+// MONSTER AI
+// monsters heal allies
 // combatants attack highest threat target
 //
 // ABILITY TREE ALLOCATION
@@ -45,6 +43,10 @@
 // pet summoned added to turn order
 // pet summoned still has conditions it had when dismissed
 // tickable conditions added to turn order bar when pet with conditions summoned in battle
+// can not tame pet if slots are full
+// release pet frees up slot
+// can not tame pet above rank limit pet level
+// battle ends if last monster is tamed
 //
 // FIREWALL
 // enemy dies in firewall on way to melee

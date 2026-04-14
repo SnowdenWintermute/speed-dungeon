@@ -8,7 +8,7 @@ import {
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
 
-export async function testPetSlotLimitations(testFixture: IntegrationTestFixture) {
+export async function testPetAi(testFixture: IntegrationTestFixture) {
   const client = await testFixture.resetWithOptions(
     TEST_DUNGEON_TWO_WOLF_ROOMS,
     HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS

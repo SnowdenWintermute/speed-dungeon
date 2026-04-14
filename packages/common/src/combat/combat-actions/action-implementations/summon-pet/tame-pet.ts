@@ -29,6 +29,7 @@ import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-propertie
 import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
 import { CombatantId } from "../../../../aliases.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -43,7 +44,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     if (occupiedPetSlotsCount >= userMaxTamePetRank) {
       return {
         meetsRequirements: false,
-        reasonDoesNot: `You already have the maximum number of tamed pets for your Tame Pet action rank (${userMaxTamePetRank})`,
+        reasonDoesNot: ERROR_MESSAGES.COMBAT_ACTIONS.PET_SLOTS_FULL(userMaxTamePetRank),
       };
     }
 

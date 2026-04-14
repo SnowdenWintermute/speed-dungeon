@@ -45,6 +45,7 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   }
 
   recordIntentDispatched(sequenceId: number, intent: ClientIntent) {
+    console.log("intent to record:", intent);
     this.put({
       type: ClientLogEntryKind.IntentDispatched,
       timestamp: Date.now(),

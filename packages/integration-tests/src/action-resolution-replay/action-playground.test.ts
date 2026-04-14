@@ -27,68 +27,66 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     });
 
     // PETS
-    // can not tame pet if slots are full
-    // release pet frees up slot
-    // can not tame pet above rank limit pet level
     // pet ai with no active pet command
     // pet ai with pet command
     // pet can not level up beyond rank limit pet level
+
     it("tame pet slots", async () => {
       await testPetSlotLimitations(testFixture);
     });
 
-    // it("summoned pet turn order", async () => {
-    //   await testSummonedPetTurnOrder(testFixture);
-    // });
+    it("summoned pet turn order", async () => {
+      await testSummonedPetTurnOrder(testFixture);
+    });
 
-    // it("summoned pet tickable conditions", async () => {
-    //   await testSummonedPetTickableConditions(testFixture);
-    // });
+    it("summoned pet tickable conditions", async () => {
+      await testSummonedPetTickableConditions(testFixture);
+    });
 
-    // it("dismiss pet removes web", async () => {
-    //   await testDismissPetRemovesWeb(testFixture);
-    // });
+    it("dismiss pet removes web", async () => {
+      await testDismissPetRemovesWeb(testFixture);
+    });
 
-    // it("taming removes web", async () => {
-    //   await testTamingRemovesWeb(testFixture);
-    // });
+    it("taming removes web", async () => {
+      await testTamingRemovesWeb(testFixture);
+    });
 
-    // it("only tame tameable damaged combatants", async () => {
-    //   await testOnlyTameDamagedTameableCombatants(testFixture);
-    // });
+    it("only tame tameable damaged combatants", async () => {
+      await testOnlyTameDamagedTameableCombatants(testFixture);
+    });
 
-    // // // FIREWALL
-    // it("firewall ignites projectiles", async () => {
-    //   await testFirewallIgnitesProjectiles(testFixture);
-    // });
+    // // FIREWALL
+    it("firewall ignites projectiles", async () => {
+      await testFirewallIgnitesProjectiles(testFixture);
+    });
 
-    // it("firewall incinerates projectiles", async () => {
-    //   await testFirewallIncineratesProjectiles(testFixture);
-    // });
+    it("firewall incinerates projectiles", async () => {
+      await testFirewallIncineratesProjectiles(testFixture);
+    });
 
-    // it("death in firewall on return", async () => {
-    //   await deathInFirewallOnMeleeReturnHome(testFixture);
-    // });
+    it("death in firewall on return", async () => {
+      await deathInFirewallOnMeleeReturnHome(testFixture);
+    });
 
-    // it("death in firewall on approach", async () => {
-    //   await deathInFirewallOnMeleeApproach(testFixture);
-    // });
+    it("death in firewall on approach", async () => {
+      await deathInFirewallOnMeleeApproach(testFixture);
+    });
 
-    // it("firewall dissipates after explore", async () => {
-    //   await testFirewallDissipateOnExplore(testFixture);
-    // });
+    it("firewall dissipates after explore", async () => {
+      await testFirewallDissipateOnExplore(testFixture);
+    });
 
-    // it("firewall deteriorates", async () => {
-    //   await testFirewallDeteriorates(testFixture);
-    // });
+    it("firewall deteriorates", async () => {
+      await testFirewallDeteriorates(testFixture);
+    });
 
-    // it("firewall stoked by recast", async () => {
-    //   await testFirewallStokedOnRecast(testFixture);
-    // });
+    it("firewall stoked by recast", async () => {
+      await testFirewallStokedOnRecast(testFixture);
+    });
 
-    // // LEGACY/NEEDS REDO:
-    // // it("two spiders burning", async () => {
-    // //   await testTwoSpidersAndBurning(testFixture);
-    // // });
+    // LEGACY/NEEDS REDO:
+    // it("two spiders burning", async () => {
+    //   await testTwoSpidersAndBurning(testFixture);
+    // });
   }
 );

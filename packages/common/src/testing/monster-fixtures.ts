@@ -5,7 +5,7 @@ import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { appendMonsterEquipment } from "../monsters/append-monster-equipment.js";
-import { BASIC_AI_PRIORITY } from "../monsters/monster-combat-profiles.js";
+import { BASIC_AI_PRIORITY, MONSTER_COMBAT_PROFILES } from "../monsters/monster-combat-profiles.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
@@ -32,6 +32,37 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Speed, 20)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
+      .trait(CombatantTraitType.IsTameable, 1)
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  MANTA_RAY: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.MantaRay)
+      .name("Test Manta")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 20)
+      .attribute(CombatAttribute.Mp, 20)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.Healing, 2)
+      .trait(CombatantTraitType.Flyer, 1)
+      .aiTypes([...MONSTER_COMBAT_PROFILES[MonsterType.MantaRay].aiTypes])
       .trait(CombatantTraitType.IsTameable, 1)
       .withThreatManager();
 

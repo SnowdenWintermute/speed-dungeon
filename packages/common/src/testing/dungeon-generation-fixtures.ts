@@ -93,3 +93,12 @@ export const TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA: ExplicitCombatantDu
     },
   ],
 ];
+
+export const TEST_DUNGEON_MANTA_TWO_WOLF: ExplicitCombatantDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.MonsterLair,
+      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.MANTA_RAY],
+    },
+  ],
+];

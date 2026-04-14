@@ -131,6 +131,8 @@ export const ERROR_MESSAGES = {
     INVALID_ACTION_IN_CHAIN:
       "Action failed to activate because the previous action in the chain was invalid",
     MISSING_COST_BASES: "Expected action cost bases not found",
+    PET_SLOTS_FULL: (userMaxTamePetRank: number) =>
+      `You already have the maximum number of tamed pets for your Tame Pet action rank (${userMaxTamePetRank})`,
   },
   ACTION_ENTITIES: {
     NOT_FOUND: "Expected action entity was not found",

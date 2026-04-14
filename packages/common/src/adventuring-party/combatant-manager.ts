@@ -320,7 +320,6 @@ export class CombatantManager
   }
 
   addCombatant(combatant: Combatant, game: SpeedDungeonGame, withDelay: number = 0) {
-    console.log("ading combatant:", combatant.getEntityId());
     this.combatants.set(combatant.getEntityId(), combatant);
 
     const party = this.getParty();
@@ -338,7 +337,6 @@ export class CombatantManager
 
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
-      console.log("adding scheduler:", withDelay);
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
           type: TurnTrackerEntityType.Combatant,
@@ -489,11 +487,19 @@ export class CombatantManager
       const partyMemberCombatants = this.getPartyMemberCombatants();
 
       const alliesDefeated = Combatant.groupIsDead(partyMemberCombatants);
-
-      return {
-        alliesDefeated,
-        opponentsDefeated: false,
-      };
+      const battleEndedByMonsterRemoval = !alliesDefeated && !this.monstersArePresent();
+      if (alliesDefeated) {
+        return {
+          alliesDefeated,
+          opponentsDefeated: false,
+        };
+      } else {
+        invariant(battleEndedByMonsterRemoval, "battleEndedByMonsterRemoval expected true");
+        return {
+          alliesDefeated: false,
+          opponentsDefeated: true,
+        };
+      }
     }
 
     // MORE LIKELY, IN BATTLE

@@ -38,12 +38,6 @@ export class CombatantFilterFactory {
         battle
       );
 
-      console.log(
-        actionUserContext.actionUser.getEntityId(),
-        "combatantIdsByDisposition:",
-        combatantIdsByDisposition
-      );
-
       const allyIds = combatantIdsByDisposition[FriendOrFoe.Friendly];
       const opponentIds = combatantIdsByDisposition[FriendOrFoe.Hostile];
       const neutralIds = combatantIdsByDisposition[FriendOrFoe.Neutral];

@@ -32,6 +32,7 @@ export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixtu
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
   await gameClientHarness.useCombatAction(CombatActionName.DismissPet, 1);
   expect(combatantManager.getNeutralCombatants().length).toBe(0);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
   await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent, 1);

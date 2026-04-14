@@ -2,6 +2,7 @@ import { ClientApplication } from "@/client-application";
 import { BaseClient } from "@/client-application/clients/base";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import {
+  AbilityTreeAbility,
   ActionAndRank,
   ActionRank,
   ActionResolutionStepType,
@@ -219,6 +220,14 @@ export class ClientTestHarness<T extends BaseClient> {
     return this.settleIntentResult({
       type: ClientIntentType.EquipInventoryItem,
       data: { characterId, itemId, equipToAlternateSlot },
+    });
+  }
+
+  async allocateAbilityPoint(ability: AbilityTreeAbility) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
+    return this.settleIntentResult({
+      type: ClientIntentType.AllocateAbilityPoint,
+      data: { characterId, ability },
     });
   }
 }

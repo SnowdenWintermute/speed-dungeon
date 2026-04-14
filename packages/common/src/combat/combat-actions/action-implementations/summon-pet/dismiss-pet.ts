@@ -30,6 +30,7 @@ import { CombatActionGameLogProperties } from "../../combat-action-combat-log-pr
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { invariant } from "../../../../utils/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -74,6 +75,8 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, {
       reasonDoesNot: "You must have a pet summoned in order to dismiss it",
     };
   },
+  requiresCombatTurnInThisContext: () => false,
+  costBases: { [ActionPayableResource.Mana]: { base: 0 } },
 });
 
 const hitOutcomeProperties = createHitOutcomeProperties(
