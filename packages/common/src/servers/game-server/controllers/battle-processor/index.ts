@@ -32,6 +32,7 @@ import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-impleme
 import { throwIfLoopLimitReached } from "../../../../utils/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
+import { EntityId } from "../../../../aliases.js";
 
 export class BattleProcessor {
   constructor(
@@ -77,6 +78,11 @@ export class BattleProcessor {
       if (actionExecutionIntent === null) {
         console.info("AI action intent was null");
       } else {
+        sequentialEvents.push({
+          type: ClientSequentialEventType.RecordAiActionSelected,
+          data: { userId: user.getEntityId(), actionExecutionIntent },
+        });
+
         const replayTreeResult = processCombatAction(
           actionExecutionIntent,
           new ActionUserContext(game, party, user),
@@ -130,12 +136,6 @@ export class BattleProcessor {
       `actionExecutionIntent: ${actionStringName} user: ${user.getName()} ${user.getEntityId()}`
     );
   }
-
-  // getNextActionIntentAndUser(fastestTracker:TurnTracker): ActionIntentOptionAndUser {
-  //   const { game, party, battle } = this;
-
-  //   return fastestTracker.getNextActionIntentAndUser(game, party, this.rngPolicy);
-  // }
 
   async handlePostBattleConclusion(battleConcluded: {
     conclusion: BattleConclusion;

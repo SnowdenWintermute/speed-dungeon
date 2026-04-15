@@ -47,8 +47,6 @@ export function AISelectActionAndTarget(
     );
   }
 
-  console.log("actionExecutionIntent:", actionExecutionIntentOption);
-
   // must set their target because getAutoTarget may use it when creating action children or triggered actions
   // although I think this is already done by the behavior tree
   userCombatantProperties.targetingProperties.setSelectedTarget(

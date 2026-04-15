@@ -1,4 +1,4 @@
-import { Milliseconds } from "../../aliases.js";
+import { EntityId, Milliseconds } from "../../aliases.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
@@ -91,6 +91,11 @@ export interface ActionResolutionStepContext {
   manager: ActionSequenceManager;
   idGenerator: IdGenerator;
   rngPolicy: RandomNumberGenerationPolicy;
+}
+
+export interface ActionIntentAndUserId {
+  userId: EntityId;
+  actionExecutionIntent: CombatActionExecutionIntent;
 }
 
 export interface ActionIntentAndUser {

@@ -1,4 +1,11 @@
-import { ClientIntent, GameStateUpdate, GameUpdateCommand } from "@speed-dungeon/common";
+import {
+  ActionIntentAndUserId,
+  ClientIntent,
+  CombatActionExecutionIntent,
+  EntityId,
+  GameStateUpdate,
+  GameUpdateCommand,
+} from "@speed-dungeon/common";
 
 export enum ClientLogEntryKind {
   SessionStarted,
@@ -38,4 +45,9 @@ export interface ClientLogRecorder {
   exportAsJson(): Promise<string>;
   clear(): Promise<void>;
   logSizeBytes: number;
+  recordAiActionUsed(userId: EntityId, actionExecutionIntent: CombatActionExecutionIntent): void;
+  aiActionsHistory: ActionIntentAndUserId[];
+  getAiActionsUsedBy(userId: EntityId): ActionIntentAndUserId[];
+  getLastAiActionUsed(): ActionIntentAndUserId | undefined;
+  getLastAiActionUsedBy(userId: EntityId): ActionIntentAndUserId | undefined;
 }

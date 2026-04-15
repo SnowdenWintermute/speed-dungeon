@@ -3,6 +3,8 @@ import { CombatantId, EntityId, Username } from "../aliases";
 import { EnvironmentEntityName } from "../environment-entities";
 import { NestedNodeReplayEvent } from "../action-processing/replay-events";
 import { GameMessage } from "./game-message";
+import { SerializedOf } from "../serialization";
+import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent";
 
 export enum ClientSequentialEventType {
   ClearAllModels,
@@ -13,6 +15,7 @@ export enum ClientSequentialEventType {
   ProcessReplayTree,
   PostGameMessages,
   RemovePlayerFromGame,
+  RecordAiActionSelected,
 }
 
 export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientSequentialEventType, string> = {
@@ -25,6 +28,7 @@ export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientSequentialEventType, string
   [ClientSequentialEventType.ProcessReplayTree]: "Process Replay Tree",
   [ClientSequentialEventType.PostGameMessages]: "Post Game Messages",
   [ClientSequentialEventType.RemovePlayerFromGame]: "Remove Player From Game",
+  [ClientSequentialEventType.RecordAiActionSelected]: "Record AI Action Selected",
 };
 
 export interface ClientSequentialEventMap {
@@ -53,6 +57,10 @@ export interface ClientSequentialEventMap {
   };
   [ClientSequentialEventType.RemovePlayerFromGame]: {
     username: Username;
+  };
+  [ClientSequentialEventType.RecordAiActionSelected]: {
+    userId: EntityId;
+    actionExecutionIntent: CombatActionExecutionIntent;
   };
 }
 

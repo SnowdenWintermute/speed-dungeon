@@ -2,11 +2,18 @@ import {
   CleanupMode,
   ClientSequentialEventHandlers,
   ClientSequentialEventType,
+  CombatActionExecutionIntent,
   CombatantId,
+  EntityId,
+  EnvironmentEntityName,
+  GameMessage,
+  NestedNodeReplayEvent,
+  Username,
 } from "@speed-dungeon/common";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
 import { ClientApplication } from "..";
 import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
+import { Vector3, Quaternion } from "@babylonjs/core";
 
 export function createClientSequentialEventHandlers(
   clientApplication: ClientApplication
@@ -118,6 +125,10 @@ export function createClientSequentialEventHandlers(
         type: ImageGenerationRequestType.ItemDeletion,
         data: { itemIds: itemsToRemoveThumbnails },
       });
+    },
+    [ClientSequentialEventType.RecordAiActionSelected]: async (data) => {
+      const { userId, actionExecutionIntent } = data;
+      clientApplication.clientLogRecorder.recordAiActionUsed(userId, actionExecutionIntent);
     },
   };
 }

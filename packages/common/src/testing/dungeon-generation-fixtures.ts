@@ -99,7 +99,7 @@ export const TEST_DUNGEON_MANTA_TWO_WOLF: ExplicitCombatantDungeonTemplate = [
     { type: DungeonRoomType.Empty },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.MANTA_RAY],
+      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF_LOW_HP, MONSTER_FIXTURES.MANTA_RAY],
     },
   ],
 ];

@@ -1,8 +1,11 @@
 import {
+  ActionIntentAndUserId,
   APP_VERSION_NUMBER,
   ClientIntent,
   ClientSequentialEvent,
   ClientSequentialEventType,
+  CombatActionExecutionIntent,
+  EntityId,
   GameStateUpdate,
   GameStateUpdateType,
   GameUpdateCommand,
@@ -24,6 +27,7 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   private dbPromise: Promise<IDBDatabase>;
   private hydratePromise: Promise<void>;
   private totalBytes = 0;
+  private _aiActionsHistory: ActionIntentAndUserId[] = [];
 
   constructor(
     private readonly indexedDB: IDBFactory,
@@ -44,8 +48,31 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
     return this.totalBytes;
   }
 
+  recordAiActionUsed(userId: EntityId, actionExecutionIntent: CombatActionExecutionIntent) {
+    this._aiActionsHistory.push({ userId, actionExecutionIntent });
+  }
+
+  get aiActionsHistory() {
+    return this._aiActionsHistory;
+  }
+
+  getAiActionsUsedBy(userId: EntityId) {
+    return this._aiActionsHistory.filter((entry) => entry.userId === userId);
+  }
+
+  getLastAiActionUsed() {
+    return this._aiActionsHistory.at(-1);
+  }
+
+  getLastAiActionUsedBy(userId: EntityId) {
+    for (let i = this._aiActionsHistory.length - 1; i >= 0; i--) {
+      const entry = this._aiActionsHistory[i];
+      if (entry && entry.userId === userId) return entry;
+    }
+    return undefined;
+  }
+
   recordIntentDispatched(sequenceId: number, intent: ClientIntent) {
-    console.log("intent to record:", intent);
     this.put({
       type: ClientLogEntryKind.IntentDispatched,
       timestamp: Date.now(),

@@ -1,7 +1,6 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   AbilityType,
-  AISelectActionAndTarget,
   CombatActionName,
   CombatActionTargetType,
   CombatantConditionName,
@@ -47,8 +46,6 @@ export async function testPetAi(testFixture: IntegrationTestFixture) {
   await gameClientHarness.toggleReadyToExplore();
   const battle = party.getBattleOption(game);
   invariant(battle !== null, "no battle");
-  await gameClientHarness.useCombatAction(CombatActionName.Attack);
-
   const lowestHpMonster = combatantManager
     .getDungeonControlledCombatants()
     .sort(
@@ -56,10 +53,16 @@ export async function testPetAi(testFixture: IntegrationTestFixture) {
         a.getCombatantProperties().resources.getHitPoints() -
         b.getCombatantProperties().resources.getHitPoints()
     )[0];
-  invariant(lowestHpMonster !== undefined);
-  const petActionIntent = AISelectActionAndTarget(game, mantaRay, testFixture.gameServer.rngPolicy);
-  invariant(petActionIntent !== null);
-  invariant(petActionIntent.targets.type === CombatActionTargetType.Single);
-  expect(petActionIntent.targets.targetId).toBe(lowestHpMonster.getEntityId());
-  // console.log("ayy:'", a);
+
+  await gameClientHarness.useCombatAction(CombatActionName.Attack);
+
+  const mantaRayActionTaken = clientApplication.clientLogRecorder.getLastAiActionUsedBy(
+    mantaRay.getEntityId()
+  );
+  invariant(
+    mantaRayActionTaken?.actionExecutionIntent.targets.type === CombatActionTargetType.Single
+  );
+  expect(mantaRayActionTaken?.actionExecutionIntent.targets.targetId).toBe(
+    lowestHpMonster?.getEntityId()
+  );
 }
