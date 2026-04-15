@@ -3,6 +3,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat-actions/combat-action-names.js";
 import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
 import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
 
@@ -49,6 +50,13 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
 
     const { actionUser } = actionUserContext;
 
+    console.log(
+      "mainTarget:",
+      mainTarget.getEntityId(),
+      "HP",
+      mainTarget.combatantProperties.resources.getHitPoints()
+    );
+
     for (const actionExecutionIntent of intents) {
       const { actionName, rank } = actionExecutionIntent;
       const action = COMBAT_ACTIONS[actionName];
@@ -62,6 +70,14 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
         averageHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
 
       const maxHitPointChanges = maxHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];
+
+      console.log(
+        COMBAT_ACTION_NAME_STRINGS[actionExecutionIntent.actionName],
+        "averageHitPointChanges:",
+        averageHitPointChanges,
+        "maxHitPointChanges",
+        maxHitPointChanges
+      );
 
       if (!averageHitPointChanges || !maxHitPointChanges) {
         continue;
@@ -85,6 +101,18 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
 
         const maxDamage = Math.min(0, maxHitPointChanges.getRecord(targetId)?.value || 0);
         const maxEffectiveDamage = Math.max(remainingHitPoints * -1, maxDamage);
+
+        console.log(
+          COMBAT_ACTION_NAME_STRINGS[actionName],
+          "potential target:",
+          targetCombatant.getEntityId(),
+          "hp:",
+          hitPoints,
+          "maxDamage",
+          maxDamage,
+          "maxEffectiveDamage",
+          maxEffectiveDamage
+        );
 
         if (targetId === mainTarget.entityProperties.id) {
           evaluation.setPrimaryTargetEfficiencyEvaluation(
