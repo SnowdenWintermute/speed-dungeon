@@ -13,7 +13,9 @@ import { testDismissPetRemovesWeb } from "./tame-pet/dismiss-pet-removes-web.js"
 import { testSummonedPetTickableConditions } from "./tame-pet/summoned-pet-tickable-conditions.js";
 import { testSummonedPetTurnOrder } from "./tame-pet/pet-summoned-turn-order.js";
 import { testPetSlotLimitations } from "./tame-pet/pet-slots.js";
-import { testPetAi } from "./tame-pet/pet-ai.js";
+import { testPetAiKill } from "./tame-pet/pet-ai-kill.js";
+import { testPetAiAssist } from "./tame-pet/pet-ai-assist.js";
+import { testTamedPetHealsAlliesAttacksMonsters } from "./tame-pet/tamed-pet-attacks-monsters.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "action playground",
@@ -28,16 +30,24 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     });
 
     // PETS
-    // pet ai with no active pet command
-    // pet ai with pet command
-    // tamed pet with no pet command attacks monsters
-    // assist command attacks most recent owner target using mana skills if possible and pet desires it
-    // kill command attacks lowest hp enemy target (and doesn't heal it if has healing)
+    // kill command makes pet target lowest hp enemy target (and doesn't heal it if has healing)
+    // assist command makes pet target most recent owner target
+    // tamed pet with no pet command heals allies
+    // tamed pet with no pet command attacks monsters not player characters
+    //
     // pet can not level up beyond rank limit pet level
 
-    it("pet ai", async () => {
-      await testPetAi(testFixture);
+    it("tamed pet attacks monsters", async () => {
+      await testTamedPetHealsAlliesAttacksMonsters(testFixture);
     });
+
+    // it("pet ai assist", async () => {
+    //   await testPetAiAssist(testFixture);
+    // });
+
+    // it("pet ai kill", async () => {
+    //   await testPetAiKill(testFixture);
+    // });
 
     // it("tame pet slots", async () => {
     //   await testPetSlotLimitations(testFixture);

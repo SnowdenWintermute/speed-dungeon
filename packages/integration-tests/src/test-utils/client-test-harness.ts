@@ -24,13 +24,17 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { ClientSingleton } from "@/client-application/clients/singleton";
+import { CombatActionHistoryInspector } from "./combat-action-history-inspector.js";
 
 export class ClientTestHarness<T extends BaseClient> {
+  readonly actionHistory: CombatActionHistoryInspector;
   constructor(
     readonly clientApplication: ClientApplication,
     private clientSingleton: ClientSingleton<T>,
     readonly tickScheduler: ManualTickScheduler
-  ) {}
+  ) {
+    this.actionHistory = new CombatActionHistoryInspector(clientApplication);
+  }
 
   async dispatchAndAwaitReply(intent: ClientIntent) {
     const intentId = this.clientSingleton.get().dispatchIntent(intent);

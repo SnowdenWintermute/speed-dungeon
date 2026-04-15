@@ -10,7 +10,7 @@ import {
   TEST_DUNGEON_MANTA_TWO_WOLF,
 } from "@speed-dungeon/common";
 
-export async function testPetAi(testFixture: IntegrationTestFixture) {
+export async function testPetAiKill(testFixture: IntegrationTestFixture) {
   const client = await testFixture.resetWithOptions(
     TEST_DUNGEON_MANTA_TWO_WOLF,
     HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS([
@@ -56,9 +56,7 @@ export async function testPetAi(testFixture: IntegrationTestFixture) {
 
   await gameClientHarness.useCombatAction(CombatActionName.Attack);
 
-  const mantaRayActionTaken = clientApplication.clientLogRecorder.getLastAiActionUsedBy(
-    mantaRay.getEntityId()
-  );
+  const mantaRayActionTaken = gameClientHarness.actionHistory.getLastUsedBy(mantaRay.getEntityId());
   invariant(
     mantaRayActionTaken?.actionExecutionIntent.targets.type === CombatActionTargetType.Single
   );

@@ -45,9 +45,9 @@ export interface ClientLogRecorder {
   exportAsJson(): Promise<string>;
   clear(): Promise<void>;
   logSizeBytes: number;
-  recordAiActionUsed(userId: EntityId, actionExecutionIntent: CombatActionExecutionIntent): void;
-  aiActionsHistory: ActionIntentAndUserId[];
-  getAiActionsUsedBy(userId: EntityId): ActionIntentAndUserId[];
-  getLastAiActionUsed(): ActionIntentAndUserId | undefined;
-  getLastAiActionUsedBy(userId: EntityId): ActionIntentAndUserId | undefined;
+  recordCombatantActionSelected(
+    userId: EntityId,
+    actionExecutionIntent: CombatActionExecutionIntent
+  ): void;
+  combatantActionsHistory: ActionIntentAndUserId[];
 }

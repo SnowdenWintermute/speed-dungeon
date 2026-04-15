@@ -161,6 +161,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 10)
       .ownedAction(CombatActionName.Attack)
+      .trait(CombatantTraitType.IsTameable, 1)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
 

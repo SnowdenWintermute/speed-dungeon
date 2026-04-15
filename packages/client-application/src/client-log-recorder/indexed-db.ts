@@ -27,7 +27,7 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   private dbPromise: Promise<IDBDatabase>;
   private hydratePromise: Promise<void>;
   private totalBytes = 0;
-  private _aiActionsHistory: ActionIntentAndUserId[] = [];
+  private _combatantActionsHistory: ActionIntentAndUserId[] = [];
 
   constructor(
     private readonly indexedDB: IDBFactory,
@@ -48,28 +48,15 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
     return this.totalBytes;
   }
 
-  recordAiActionUsed(userId: EntityId, actionExecutionIntent: CombatActionExecutionIntent) {
-    this._aiActionsHistory.push({ userId, actionExecutionIntent });
+  recordCombatantActionSelected(
+    userId: EntityId,
+    actionExecutionIntent: CombatActionExecutionIntent
+  ) {
+    this._combatantActionsHistory.push({ userId, actionExecutionIntent });
   }
 
-  get aiActionsHistory() {
-    return this._aiActionsHistory;
-  }
-
-  getAiActionsUsedBy(userId: EntityId) {
-    return this._aiActionsHistory.filter((entry) => entry.userId === userId);
-  }
-
-  getLastAiActionUsed() {
-    return this._aiActionsHistory.at(-1);
-  }
-
-  getLastAiActionUsedBy(userId: EntityId) {
-    for (let i = this._aiActionsHistory.length - 1; i >= 0; i--) {
-      const entry = this._aiActionsHistory[i];
-      if (entry && entry.userId === userId) return entry;
-    }
-    return undefined;
+  get combatantActionsHistory() {
+    return this._combatantActionsHistory;
   }
 
   recordIntentDispatched(sequenceId: number, intent: ClientIntent) {

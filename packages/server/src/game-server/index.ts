@@ -92,9 +92,9 @@ export class GameServerNode {
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL);
-    this._server.dungeonGenerationPolicy.setExplicitFloors(
-      TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA
-    );
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(
+    //   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA
+    // );
     this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
 
     await this._server.analyzeAssetsForGameplayRelevantData();

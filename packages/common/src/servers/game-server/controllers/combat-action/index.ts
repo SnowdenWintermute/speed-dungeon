@@ -242,9 +242,7 @@ export class CombatActionController {
 
     const actionExecutionIntent = new CombatActionExecutionIntent(actionName, rank, targets);
 
-    const actionStringName = actionExecutionIntent
-      ? COMBAT_ACTIONS[actionExecutionIntent.actionName].getStringName()
-      : "null";
+    const actionStringName = COMBAT_ACTIONS[actionExecutionIntent.actionName].getStringName();
     console.info(
       "player character used:",
       actionStringName,
@@ -316,6 +314,8 @@ export class CombatActionController {
     const { game, party, character } = characterContext;
     const actionUserContext = new ActionUserContext(game, party, character);
 
+    const sequentialEvents: ClientSequentialEvent[] = [];
+
     const replayTreeResult = processCombatAction(
       actionExecutionIntent,
       actionUserContext,
@@ -329,6 +329,11 @@ export class CombatActionController {
     if (replayTreeResult instanceof Error) {
       throw replayTreeResult;
     }
+
+    sequentialEvents.push({
+      type: ClientSequentialEventType.RecordCombatantActionSelected,
+      data: { userId: actionUserContext.actionUser.getEntityId(), actionExecutionIntent },
+    });
 
     const battleOption = party.battleId ? game.battles.get(party.battleId) || null : null;
 
@@ -344,7 +349,7 @@ export class CombatActionController {
       replayTreePayload.data.doNotLockInput = true;
     }
 
-    const sequentialEvents: ClientSequentialEvent[] = [replayTreePayload];
+    sequentialEvents.push(replayTreePayload);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 

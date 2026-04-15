@@ -126,9 +126,12 @@ export function createClientSequentialEventHandlers(
         data: { itemIds: itemsToRemoveThumbnails },
       });
     },
-    [ClientSequentialEventType.RecordAiActionSelected]: async (data) => {
+    [ClientSequentialEventType.RecordCombatantActionSelected]: async (data) => {
       const { userId, actionExecutionIntent } = data;
-      clientApplication.clientLogRecorder.recordAiActionUsed(userId, actionExecutionIntent);
+      clientApplication.clientLogRecorder.recordCombatantActionSelected(
+        userId,
+        actionExecutionIntent
+      );
     },
   };
 }

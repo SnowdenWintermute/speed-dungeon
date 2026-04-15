@@ -32,7 +32,6 @@ import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-impleme
 import { throwIfLoopLimitReached } from "../../../../utils/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
-import { EntityId } from "../../../../aliases.js";
 
 export class BattleProcessor {
   constructor(
@@ -79,7 +78,7 @@ export class BattleProcessor {
         console.info("AI action intent was null");
       } else {
         sequentialEvents.push({
-          type: ClientSequentialEventType.RecordAiActionSelected,
+          type: ClientSequentialEventType.RecordCombatantActionSelected,
           data: { userId: user.getEntityId(), actionExecutionIntent },
         });
 
