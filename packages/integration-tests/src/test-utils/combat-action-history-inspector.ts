@@ -42,7 +42,7 @@ export class CombatActionHistoryInspector {
         return entry.actionExecutionIntent.targets.targetId as CombatantId;
       }
     }
-    return undefined;
+    throw new Error(`expected user ${userId} to have targeted a single target as last used action`);
   }
 
   actionUsersHadSameSingleTarget(a: EntityId, b: EntityId) {

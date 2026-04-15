@@ -137,7 +137,8 @@ export class Battle implements Serializable, ReactiveNode {
       }
     }
 
-    const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
+    // const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
+    const removedDungeonControlled: Combatant[] = [];
     const removedNeutral = combatantManager.removeNeutralCombatants(game);
 
     const removedCombatantIds: CombatantId[] = [

@@ -33,6 +33,24 @@ export const TEST_DUNGEON_TWO_WOLF_ROOMS: ExplicitCombatantDungeonTemplate = [
     ROOM_WITH_TWO_WOLVES,
   ],
 ];
+export const TEST_DUNGEON_TWO_MID_HP_WOLVES: ExplicitCombatantDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.Empty,
+    },
+    {
+      type: DungeonRoomType.MonsterLair,
+      combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF_MID_HP],
+    },
+    {
+      type: DungeonRoomType.Empty,
+    },
+    {
+      type: DungeonRoomType.MonsterLair,
+      combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF_MID_HP],
+    },
+  ],
+];
 
 const ROOM_WITH_TWO_ZERO_SPEED_WOLVES: ExplicitCombatantRoomTemplate = {
   type: DungeonRoomType.MonsterLair,

@@ -24,6 +24,7 @@ import {
   TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST,
   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
   TEST_DUNGEON_MANTA_TWO_WOLF,
+  TEST_DUNGEON_TWO_MID_HP_WOLVES,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -91,11 +92,11 @@ export class GameServerNode {
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL);
+    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_MID_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(
     //   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA
     // );
-    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }

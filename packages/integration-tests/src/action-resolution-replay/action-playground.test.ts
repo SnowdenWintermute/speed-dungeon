@@ -16,6 +16,7 @@ import { testPetSlotLimitations } from "./tame-pet/pet-slots.js";
 import { testPetAiKill } from "./tame-pet/pet-ai-kill.js";
 import { testPetAiAssist } from "./tame-pet/pet-ai-assist.js";
 import { testTamedPetHealsAlliesAttacksMonsters } from "./tame-pet/tamed-pet-attacks-monsters.js";
+import { testCombatantDiesWhilePrimedForIceBurst } from "./ice-burst/combatant-dies-while-primed.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "action playground",
@@ -29,18 +30,20 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
       ]);
     });
 
-    // PETS
-    // kill command makes pet target lowest hp enemy target (and doesn't heal it if has healing)
-    // assist command makes pet target most recent owner target
-    // tamed pet with no pet command heals allies
-    // tamed pet with no pet command attacks monsters not player characters
-    //
-    // pet can not level up beyond rank limit pet level
+    // ICE BURST
+    // if killed with primed for ice burst, don't error
+    // ice burst triggered by firewall doesn't hit anyone
+    // ice burst adds condition to nearby combatants
 
-    it("tamed pet attacks monsters", async () => {
-      await testTamedPetHealsAlliesAttacksMonsters(testFixture);
+    it("combatant dies while primed for ice burst", async () => {
+      await testCombatantDiesWhilePrimedForIceBurst(testFixture);
     });
 
+    // it("tamed pet attacks monsters", async () => {
+    //   await testTamedPetHealsAlliesAttacksMonsters(testFixture);
+    // });
+    //
+    // PETS
     // it("pet ai assist", async () => {
     //   await testPetAiAssist(testFixture);
     // });

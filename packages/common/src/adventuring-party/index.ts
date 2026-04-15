@@ -133,8 +133,16 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     return game.getExpectedBattle(battleIdOption);
   }
 
+  allMonstersAreDead() {
+    return this.combatantManager
+      .getDungeonControlledCombatants()
+      .every((combatant) => combatant.getCombatantProperties().isDead());
+  }
+
   isInCombat() {
-    return this.combatantManager.monstersArePresent();
+    const monstersArePresent = this.combatantManager.monstersArePresent();
+    const livingMonstersRemain = !this.allMonstersAreDead();
+    return monstersArePresent && livingMonstersRemain;
   }
 
   requireNotInCombat() {

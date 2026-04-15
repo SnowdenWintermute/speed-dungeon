@@ -1,7 +1,6 @@
-// PETS
-// pet ai with no active pet command
-// pet ai with pet command
-// pet can not level up beyond rank limit pet level
+// ICE BURST
+// if killed with primed for ice burst, don't error
+// ice burst triggered by firewall doesn't hit anyone
 //
 // ENSNARE
 // ensnare debuff gained when ensnared
@@ -14,15 +13,12 @@
 //
 // COUNTERATTACK
 // combatant dies from explosion set off from their own counterattack
+// combatant gets primed-for-ice-burst condition from ice burst set off from their own counterattack
 // counterattack + enemy countered is hit from firewall on way back from getting counterattacked:
 // - doesn't unlock input early
 // ranged counterattack through firewall incinerates (does no damage)
 // ranged counterattack through firewall ignites projectile
 //
-//
-// ICE BURST
-// if killed with primed for ice burst, don't error
-// ice burst triggered by firewall doesn't hit anyone
 //
 // MONSTER AI
 // monsters heal allies
@@ -32,6 +28,10 @@
 // allocate point
 // can not allocate without prerequisite
 // can not allocate without required level
+//
+// PETS
+// pet can not level up beyond rank limit pet level
+//
 
 // -DONE-
 //
@@ -47,6 +47,11 @@
 // release pet frees up slot
 // can not tame pet above rank limit pet level
 // battle ends if last monster is tamed
+// kill command makes pet target lowest hp enemy target (and doesn't heal it if has healing)
+// assist command makes pet target most recent owner target
+// tamed pet with no pet command heals allies
+// tamed pet with no pet command attacks monsters not player characters
+//
 //
 // FIREWALL
 // enemy dies in firewall on way to melee

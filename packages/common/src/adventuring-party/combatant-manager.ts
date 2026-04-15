@@ -487,13 +487,14 @@ export class CombatantManager
       const partyMemberCombatants = this.getPartyMemberCombatants();
 
       const alliesDefeated = Combatant.groupIsDead(partyMemberCombatants);
+      // such as taming the last remaining monster
       const battleEndedByMonsterRemoval = !alliesDefeated && !this.monstersArePresent();
       if (alliesDefeated) {
         return {
           alliesDefeated,
           opponentsDefeated: false,
         };
-      } else {
+      } else if (battleEndedByMonsterRemoval) {
         invariant(battleEndedByMonsterRemoval, "battleEndedByMonsterRemoval expected true");
         return {
           alliesDefeated: false,
