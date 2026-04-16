@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,

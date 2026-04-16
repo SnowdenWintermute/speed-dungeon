@@ -118,7 +118,7 @@ export abstract class ActionResolutionStep {
     const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
     const stepConfig = action.stepsConfig.getStepConfigOption(type);
 
-    // console.info("started step:", action.getStringName(), "-", this.getStringName());
+    console.info("started step:", action.getStringName(), "-", this.getStringName());
 
     if (stepConfig === undefined) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {
