@@ -241,10 +241,19 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   }
 
   onComplete(): Error | ActionIntentAndUser[] {
-    if (this.translationOption?.setAsNewHome) {
-      this.context.actionUserContext.actionUser
-        .getCombatantProperties()
-        .transformProperties.setHomePosition(this.translationOption.destination);
+    if (this.translationOption) {
+      // onTick's Lerp is skipped when concurrent instant steps keep timeToTick at 0,
+      // so snap to destination on complete to avoid stale positions bleeding into later checks
+      const positionOption = this.actionUser.getPositionOption();
+      if (positionOption !== null) {
+        positionOption.copyFrom(this.translationOption.destination);
+      }
+
+      if (this.translationOption.setAsNewHome) {
+        this.context.actionUserContext.actionUser
+          .getCombatantProperties()
+          .transformProperties.setHomePosition(this.translationOption.destination);
+      }
     }
 
     const { party } = this.context.actionUserContext;

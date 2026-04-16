@@ -250,6 +250,7 @@ export class CombatActionController {
     console.info(
       "player character used:",
       actionStringName,
+      rank,
       "user:",
       characterContext.character.getName(),
       targets

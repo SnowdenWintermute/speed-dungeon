@@ -1,7 +1,10 @@
+import { GameClient } from "@/client-application/clients/game";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
   ActionEntityName,
   ActionResolutionStepType,
+  AdventuringParty,
   BASIC_CHARACTER_FIXTURES,
   BeforeOrAfter,
   ClientIntentType,
@@ -34,10 +37,17 @@ export async function testFirewallIgnitesProjectiles(testFixture: IntegrationTes
     type: ClientIntentType.UseSelectedCombatAction,
     data: { characterId: combatantFocus.requireFocusedCharacterId() },
   });
+  await checkForIgnitedProjectile(gameClientHarness, party);
+}
+
+export async function checkForIgnitedProjectile(
+  gameClientHarness: ClientTestHarness<GameClient>,
+  party: AdventuringParty
+) {
   await gameClientHarness.flushReplayTree({
     stoppingPoint: BeforeOrAfter.After,
     actionName: CombatActionName.IgniteProjectile,
-    step: ActionResolutionStepType.EvalOnUseTriggers,
+    step: ActionResolutionStepType.EvalOnHitOutcomeTriggers,
   });
   const arrow = party.actionEntityManager.getExistingActionEntityOfType(ActionEntityName.Arrow);
   invariant(arrow !== null);
