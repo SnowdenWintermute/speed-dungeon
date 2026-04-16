@@ -68,7 +68,39 @@ export const MONSTER_FIXTURES = {
 
     appendMonsterEquipment(
       builder,
-      MonsterType.Wolf,
+      MonsterType.Wolf, // mistake but will break some tests if changed
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+
+  ZERO_SPEED_MANTA_RAY: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.MantaRay)
+      .name("Test Manta")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 0)
+      .attribute(CombatAttribute.Mp, 20)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.Healing, 2)
+      .trait(CombatantTraitType.Flyer, 1)
+      .aiTypes([...MONSTER_COMBAT_PROFILES[MonsterType.MantaRay].aiTypes])
+      .trait(CombatantTraitType.IsTameable, 1)
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.MantaRay,
       idGenerator,
       itemBuilder,
       rngPolicy.monsterEquipmentChoice

@@ -39,6 +39,8 @@ export abstract class ResourceChangeActionEvaluator {
       actionExecutionIntent,
       RandomNumberGenerationPolicyFactory.allFixedPolicy(1 - EPSILON, {
         parry: minRollRng,
+        shieldBlock: minRollRng,
+        counterAttack: minRollRng,
         spellResist: minRollRng,
       })
     );

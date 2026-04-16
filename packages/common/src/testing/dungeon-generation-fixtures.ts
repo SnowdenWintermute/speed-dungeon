@@ -121,3 +121,16 @@ export const TEST_DUNGEON_MANTA_TWO_WOLF: ExplicitCombatantDungeonTemplate = [
     },
   ],
 ];
+
+const ROOM_WITH_TWO_ZERO_SPEED_MANTAS: ExplicitCombatantRoomTemplate = {
+  type: DungeonRoomType.MonsterLair,
+  combatants: [MONSTER_FIXTURES.ZERO_SPEED_MANTA_RAY, MONSTER_FIXTURES.ZERO_SPEED_MANTA_RAY],
+};
+export const TEST_DUNGEON_ZERO_SPEED_MANTAS: ExplicitCombatantDungeonTemplate = [
+  [
+    { type: DungeonRoomType.Empty },
+    ROOM_WITH_TWO_ZERO_SPEED_MANTAS,
+    { type: DungeonRoomType.Empty },
+    ROOM_WITH_TWO_ZERO_SPEED_MANTAS,
+  ],
+];

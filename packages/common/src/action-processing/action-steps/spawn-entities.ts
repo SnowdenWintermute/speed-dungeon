@@ -36,11 +36,6 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant: {
             const delay = battleOption?.getSchedulerDelayForNewActionUser();
-            console.log(
-              "delay for new action user:",
-              spawnableEntity.combatant.getEntityId(),
-              delay
-            );
             party.combatantManager.addCombatant(spawnableEntity.combatant, game, delay);
             serializedSpawnedEntities.push({
               entity: { ...spawnableEntity, combatant: spawnableEntity.combatant.toSerialized() },

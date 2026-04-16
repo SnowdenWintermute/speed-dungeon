@@ -1,13 +1,3 @@
-// ICE BURST
-// if killed with primed for ice burst, don't error
-// ice burst triggered by firewall doesn't hit anyone
-//
-// ENSNARE
-// ensnare debuff gained when ensnared
-// melee attackers hit flying when combatant ensnared
-// ensnare debuff removed when web killed
-// flying trait combatant starts flying when ensnare debuff removed
-//
 // CHAINING SPLIT ARROW
 // chaining split arrow sets off ice bursts in correct order
 //
@@ -34,6 +24,16 @@
 //
 
 // -DONE-
+// ENSNARE
+// ensnare debuff gained when ensnared
+// melee attackers hit flying when combatant ensnared
+// ensnare debuff removed when web killed
+// flying trait combatant starts flying when ensnare debuff removed
+//
+// ICE BURST
+// ice burst applies ice burst to nearby targets
+// if killed with primed for ice burst, don't error
+// ice burst triggered by firewall doesn't hit anyone
 //
 // PETS
 // monster with tameable trait is tameable

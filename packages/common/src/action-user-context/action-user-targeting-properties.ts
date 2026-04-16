@@ -1,7 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Option } from "../primatives/option.js";
-import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../combat/targeting/combat-action-targets.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { CombatActionTargetPreferences, SpeedDungeonPlayer } from "../game/player.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -18,6 +21,7 @@ import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index
 import { SpeedDungeonGame } from "../game/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ActionUserContext } from "./index.js";
+import { invariant } from "../utils/index.js";
 
 export class ActionAndRank implements Serializable, ReactiveNode {
   constructor(
@@ -87,6 +91,16 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
 
   getSelectedTarget() {
     return this.selectedTarget;
+  }
+
+  requireSelectedSingleTargetId() {
+    const selectedTarget = this.getSelectedTarget();
+    invariant(selectedTarget !== null, "no target selected");
+    invariant(
+      selectedTarget.type === CombatActionTargetType.Single,
+      "expected single target selected"
+    );
+    return selectedTarget.targetId;
   }
 
   getSelectedTargetingScheme() {

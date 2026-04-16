@@ -351,7 +351,6 @@ export class CombatActionController {
 
     sequentialEvents.push(replayTreePayload);
     if (replayTreeResult.removedCombatantIds.length) {
-      console.log("removed:", replayTreeResult.removedCombatantIds);
       sequentialEvents.push({
         type: ClientSequentialEventType.PostReplayTreeCleanup,
         data: { removedCombatantIds: replayTreeResult.removedCombatantIds },
