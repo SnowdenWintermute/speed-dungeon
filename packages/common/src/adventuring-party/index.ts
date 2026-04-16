@@ -22,6 +22,7 @@ import {
 import { MapUtils } from "../utils/map-utils.js";
 import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
+import { invariant } from "../utils/index.js";
 
 export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
@@ -133,6 +134,12 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     return game.getExpectedBattle(battleIdOption);
   }
 
+  requireBattle(game: SpeedDungeonGame) {
+    const battleOption = this.getBattleOption(game);
+    invariant(battleOption !== null, "expected battle not found");
+    return battleOption;
+  }
+
   allMonstersAreDead() {
     return this.combatantManager
       .getDungeonControlledCombatants()
@@ -221,5 +228,44 @@ export class AdventuringParty implements Serializable, ReactiveNode {
         return conditionOption;
       }
     }
+  }
+
+  getBranchingActionsFromConditionsRemovedOnBattleEnd() {
+    const { combatantManager } = this;
+    const dungeonControlledCombatants = combatantManager.getDungeonControlledCombatants();
+    const neutralCombatants = combatantManager.getNeutralCombatants();
+
+    const branchingActions: ActionIntentAndUser[] = [];
+    const conditionIdsRemoved: { conditionId: EntityId; fromCombatantId: CombatantId }[] = [];
+
+    for (const combatant of [...neutralCombatants, ...dungeonControlledCombatants]) {
+      const { onDeathProperties } = combatant.combatantProperties;
+      const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
+
+      if (shouldRemoveAllConditionsAppliedBy) {
+        const { triggeredActions, conditionIdsRemoved: idsRemoved } =
+          this.removeConditionsAppliedByCombatant(combatant.getEntityId());
+        branchingActions.push(...triggeredActions);
+        conditionIdsRemoved.push(...idsRemoved);
+      }
+    }
+
+    return {
+      branchingActions,
+      conditionIdsRemoved,
+    };
+  }
+
+  removeCombatantsOnBattleEnd(game: SpeedDungeonGame) {
+    const { combatantManager } = this;
+    const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
+    const removedNeutral = combatantManager.removeNeutralCombatants(game);
+
+    const removedCombatantIds: CombatantId[] = [
+      ...removedDungeonControlled.map((c) => c.getEntityId()),
+      ...removedNeutral.map((c) => c.getEntityId()),
+    ];
+
+    return removedCombatantIds;
   }
 }

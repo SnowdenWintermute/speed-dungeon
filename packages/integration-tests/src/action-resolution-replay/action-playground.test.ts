@@ -17,6 +17,7 @@ import { testPetAiKill } from "./tame-pet/pet-ai-kill.js";
 import { testPetAiAssist } from "./tame-pet/pet-ai-assist.js";
 import { testTamedPetHealsAlliesAttacksMonsters } from "./tame-pet/tamed-pet-attacks-monsters.js";
 import { testCombatantDiesWhilePrimedForIceBurst } from "./ice-burst/combatant-dies-while-primed.js";
+import { testIceBurstOnWebRemovedAtBattleEnd } from "./ice-burst/ice-burst-on-web-removed-on-battle-end.js";
 
 describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
   "action playground",
@@ -31,19 +32,22 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     });
 
     // ICE BURST
-    // if killed with primed for ice burst, don't error
     // ice burst triggered by firewall doesn't hit anyone
     // ice burst adds condition to nearby combatants
-
-    it("combatant dies while primed for ice burst", async () => {
-      await testCombatantDiesWhilePrimedForIceBurst(testFixture);
+    it("ice burst on web removed at battle end", async () => {
+      await testIceBurstOnWebRemovedAtBattleEnd(testFixture);
     });
+
+    // it("combatant dies while primed for ice burst", async () => {
+    //   // if killed with primed for ice burst as last monster, don't error
+    //   await testCombatantDiesWhilePrimedForIceBurst(testFixture);
+    // });
 
     // it("tamed pet attacks monsters", async () => {
     //   await testTamedPetHealsAlliesAttacksMonsters(testFixture);
     // });
-    //
-    // PETS
+
+    // // PETS
     // it("pet ai assist", async () => {
     //   await testPetAiAssist(testFixture);
     // });

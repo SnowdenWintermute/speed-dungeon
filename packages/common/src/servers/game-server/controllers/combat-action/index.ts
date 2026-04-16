@@ -15,7 +15,10 @@ import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/c
 import { CharacterAssociatedData, GameMode } from "../../../../types.js";
 import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
 import { BattleProcessor } from "../battle-processor/index.js";
-import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
+import {
+  postActionProcessedCleanup,
+  processCombatAction,
+} from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
@@ -25,6 +28,7 @@ import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../../../combat/combat-actions/combat-action-names.js";
 
 export class CombatActionController {
   constructor(
@@ -326,10 +330,6 @@ export class CombatActionController {
       this.lootGenerator
     );
 
-    if (replayTreeResult instanceof Error) {
-      throw replayTreeResult;
-    }
-
     sequentialEvents.push({
       type: ClientSequentialEventType.RecordCombatantActionSelected,
       data: { userId: actionUserContext.actionUser.getEntityId(), actionExecutionIntent },
@@ -350,9 +350,15 @@ export class CombatActionController {
     }
 
     sequentialEvents.push(replayTreePayload);
+    if (replayTreeResult.removedCombatantIds.length) {
+      console.log("removed:", replayTreeResult.removedCombatantIds);
+      sequentialEvents.push({
+        type: ClientSequentialEventType.PostReplayTreeCleanup,
+        data: { removedCombatantIds: replayTreeResult.removedCombatantIds },
+      });
+    }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.ClientSequentialEvents,
       data: { sequentialEvents },

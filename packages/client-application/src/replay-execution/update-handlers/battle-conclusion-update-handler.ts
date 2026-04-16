@@ -20,21 +20,13 @@ export async function battleConclusionGameUpdateHandler(
   const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
   if (command.removedConditionIds) {
-    for (const [combatantId, conditionIds] of Object.entries(command.removedConditionIds)) {
-      const combatantResult = game.getCombatantById(combatantId);
+    for (const { conditionId, fromCombatantId } of command.removedConditionIds) {
+      const combatantResult = game.getCombatantById(fromCombatantId);
       if (combatantResult instanceof Error) {
         console.error(combatantResult);
         continue;
       }
-      for (const conditionId of conditionIds) {
-        combatantResult.combatantProperties.conditionManager.removeConditionById(conditionId);
-      }
-    }
-  }
-
-  if (command.removedCombatantIds) {
-    for (const id of command.removedCombatantIds) {
-      party.combatantManager.removeCombatant(id, game);
+      combatantResult.combatantProperties.conditionManager.removeConditionById(conditionId);
     }
   }
 

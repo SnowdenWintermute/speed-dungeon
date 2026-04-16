@@ -1,13 +1,7 @@
-import {
-  ActionIntentAndUser,
-  ActionIntentOptionAndUser,
-} from "../../../../action-processing/action-steps/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
-import { LOOP_SAFETY_ITERATION_LIMIT } from "../../../../app-consts.js";
 import { Battle, BattleConclusion } from "../../../../battle/index.js";
-import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameMode } from "../../../../types.js";
@@ -107,6 +101,13 @@ export class BattleProcessor {
         };
 
         sequentialEvents.push(payload);
+
+        if (replayTreeResult.removedCombatantIds.length) {
+          sequentialEvents.push({
+            type: ClientSequentialEventType.PostReplayTreeCleanup,
+            data: { removedCombatantIds: replayTreeResult.removedCombatantIds },
+          });
+        }
 
         if (battleConcludedOption !== null) {
           const postConclusionEvents = await this.handlePostBattleConclusion(battleConcludedOption);

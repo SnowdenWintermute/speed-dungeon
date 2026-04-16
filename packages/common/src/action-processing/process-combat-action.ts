@@ -12,6 +12,10 @@ import {
   NestedNodeReplayEventUtls,
   ReplayEventType,
 } from "./replay-events.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
+import { CombatantId } from "../aliases.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../combat/combat-actions/combat-action-names.js";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
@@ -22,6 +26,8 @@ export function processCombatAction(
   boundingBoxSizes: BoundingBoxSizes,
   lootGenerator: LootGenerator
 ) {
+  const { party, game } = actionUserContext;
+  const wasInBattle = party.battleId !== null;
   const registry = new ActionSequenceManagerRegistry(
     idGenerator,
     rngPolicy,
@@ -65,5 +71,41 @@ export function processCombatAction(
 
   const endedTurn = registry.getTurnEnded();
 
-  return { rootReplayNode, endedTurn, battleConcludedOption: registry.battleConcludedOption };
+  const battleJustEnded = wasInBattle && party.battleId === null;
+  const removedCombatantIds = postActionProcessedCleanup(game, party, battleJustEnded);
+
+  return {
+    rootReplayNode,
+    removedCombatantIds,
+    endedTurn,
+    battleConcludedOption: registry.battleConcludedOption,
+  };
+}
+
+// try clean up after replay tree. need to remove combatants after all actions resolved, including those
+// which would be triggered by removal of conditions on neutral combatant death, like web removed
+// at end of battle triggering flying condition, but the web had an ice burst that needed to go off on it
+// so we couldn't remove the web yet, just act like it would be removed and trigger conditions as such
+export function postActionProcessedCleanup(
+  game: SpeedDungeonGame,
+  party: AdventuringParty,
+  battleJustEnded: boolean
+) {
+  const removedCombatantIds: CombatantId[] = [];
+  if (battleJustEnded) {
+    removedCombatantIds.push(...party.removeCombatantsOnBattleEnd(game));
+  }
+
+  for (const [entityId, combatant] of party.combatantManager.getAllCombatants()) {
+    if (!combatant.getCombatantProperties().isDead()) {
+      continue;
+    }
+    const shouldRemove = combatant.getCombatantProperties().removeFromPartyOnDeath;
+    if (shouldRemove) {
+      party.combatantManager.removeCombatant(entityId as CombatantId, game);
+      removedCombatantIds.push(entityId as CombatantId);
+    }
+  }
+
+  return removedCombatantIds;
 }

@@ -24,7 +24,9 @@ export class BattleResolutionActionResolutionStep extends ActionResolutionStep {
       const partyWipes = party.combatantManager.checkForWipes(party.battleId !== null);
       if (partyWipes.alliesDefeated || partyWipes.opponentsDefeated) {
         const registry = context.manager.sequentialActionManagerRegistry;
-        const resolution = Battle.resolveBattle(game, party, registry.lootGenerator, partyWipes);
+        const battle = party.requireBattle(game);
+        const resolution = battle.resolveBattle(registry.lootGenerator, partyWipes);
+        collectedBranchingActions.push(...resolution.branchingActions);
 
         registry.battleConcludedOption = {
           conclusion: resolution.conclusion,
@@ -42,14 +44,13 @@ export class BattleResolutionActionResolutionStep extends ActionResolutionStep {
           loot: resolution.loot,
           experiencePointChanges: resolution.experiencePointChanges,
           removedConditionIds: resolution.removedConditionIds,
-          removedCombatantIds: resolution.removedCombatantIds,
           revivedCharacterIds: resolution.revivedCharacterIds,
           actionEntitiesRemoved: resolution.actionEntitiesRemoved,
         };
 
         console.log(action.getStringName(), "battle concluded");
 
-        collectedBranchingActions.push(...resolution.branchingActions);
+        // collectedBranchingActions.push(...resolution.branchingActions);
       }
     }
 

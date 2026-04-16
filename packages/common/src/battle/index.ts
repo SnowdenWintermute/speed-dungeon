@@ -110,128 +110,98 @@ export class Battle implements Serializable, ReactiveNode {
   }
 
   /** Returns any levelups by character id  */
-  static handleVictory(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
+  handleVictory(
     experiencePointChanges: Record<CombatantId, number>,
     loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] }
-  ) {
-    if (loot) {
-      party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
-    }
-    applyExperiencePointChanges(party, experiencePointChanges);
-    const levelUps: Record<EntityId, number> = {};
+  ) {}
 
-    const { combatantManager } = party;
-    const partyMembers = combatantManager.getPartyMemberCombatants();
-
+  reviveCharactersOnPartyVictory() {
     const revivedCharacterIds: CombatantId[] = [];
+    const { combatantManager } = this.party;
+    const partyMembers = combatantManager.getPartyMemberCombatants();
     for (const combatant of partyMembers) {
       const { combatantProperties } = combatant;
-      const newLevelOption = combatantProperties.classProgressionProperties.awardLevelups();
-      if (newLevelOption !== null) levelUps[combatant.entityProperties.id] = newLevelOption;
-      // until revives are added, res dead characters to 1 hp
       if (combatantProperties.isDead()) {
         combatantProperties.resources.changeHitPoints(1);
         revivedCharacterIds.push(combatant.getEntityId());
       }
     }
 
-    // const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
-    const removedDungeonControlled: Combatant[] = [];
-    const removedNeutral = combatantManager.removeNeutralCombatants(game);
-
-    const removedCombatantIds: CombatantId[] = [
-      ...removedDungeonControlled.map((c) => c.getEntityId()),
-      ...removedNeutral.map((c) => c.getEntityId()),
-    ];
-    const branchingActions: ActionIntentAndUser[] = [];
-    const conditionIdsRemoved: { conditionId: EntityId; fromCombatantId: CombatantId }[] = [];
-    for (const removedCombatant of [...removedDungeonControlled, ...removedNeutral]) {
-      const { onDeathProperties } = removedCombatant.combatantProperties;
-      const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
-
-      if (shouldRemoveAllConditionsAppliedBy) {
-        const { triggeredActions, conditionIdsRemoved: idsRemoved } =
-          party.removeConditionsAppliedByCombatant(removedCombatant.getEntityId());
-        branchingActions.push(...triggeredActions);
-        conditionIdsRemoved.push(...idsRemoved);
-      }
-    }
-
-    const battleIdToRemoveOption = party.battleId;
-    party.setBattleId(null);
-    if (battleIdToRemoveOption !== null) {
-      game.battles.delete(battleIdToRemoveOption);
-    }
-
-    return {
-      levelUps,
-      branchingActions,
-      conditionIdsRemoved,
-      removedCombatantIds,
-      revivedCharacterIds,
-    };
+    return revivedCharacterIds;
   }
 
-  static resolveBattle(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    lootGenerator: LootGenerator,
-    partyWipes: PartyWipes
-  ) {
+  calculateLevelupsOnBattleEnd() {
+    const levelUps: Record<EntityId, number> = {};
+    const { combatantManager } = this.party;
+    const partyMembers = combatantManager.getPartyMemberCombatants();
+    for (const combatant of partyMembers) {
+      const { combatantProperties } = combatant;
+      const newLevelOption = combatantProperties.classProgressionProperties.awardLevelups();
+      if (newLevelOption !== null) levelUps[combatant.entityProperties.id] = newLevelOption;
+    }
+    return levelUps;
+  }
+
+  resolveBattle(lootGenerator: LootGenerator, partyWipes: PartyWipes) {
     let conclusion: BattleConclusion;
     let loot: { equipment: Equipment[]; consumables: Consumable[] } = {
       equipment: [],
       consumables: [],
     };
     let experiencePointChanges: Record<CombatantId, number> = {};
-    let branchingActions: ActionIntentAndUser[] = [];
-    let levelUps: Record<CombatantId, number> = {};
-    let removedCombatantIds: CombatantId[] = [];
+    let removedConditionIds: {
+      conditionId: EntityId;
+      fromCombatantId: CombatantId;
+    }[] = [];
+    let levelUps: Record<EntityId, number> = {};
     let revivedCharacterIds: CombatantId[] = [];
-    const removedConditionIds: Record<CombatantId, EntityId[]> = {};
+    const branchingActionsResult: ActionIntentAndUser[] = [];
 
     if (partyWipes.alliesDefeated) {
       conclusion = BattleConclusion.Defeat;
-      party.timeOfWipe = Date.now();
-      if (party.battleId !== null) {
-        game.battles.delete(party.battleId);
-      }
-      party.setBattleId(null);
+      this.party.timeOfWipe = Date.now();
+      this.game.battles.delete(this.id);
+      this.party.setBattleId(null);
     } else {
       conclusion = BattleConclusion.Victory;
       loot = lootGenerator.generateLoot(
-        party.combatantManager.getDungeonControlledCombatants().length,
-        party.dungeonExplorationManager.getCurrentFloor()
+        this.party.combatantManager.getDungeonControlledCombatants().length,
+        this.party.dungeonExplorationManager.getCurrentFloor()
       );
-      experiencePointChanges = generateExperiencePoints(party);
-      party.inputLock.unlockInput();
+      experiencePointChanges = generateExperiencePoints(this.party);
+      this.party.inputLock.unlockInput();
 
-      const victoryResult = Battle.handleVictory(game, party, experiencePointChanges, loot);
-      levelUps = victoryResult.levelUps;
-      branchingActions = victoryResult.branchingActions;
-      removedCombatantIds = victoryResult.removedCombatantIds;
-      revivedCharacterIds = victoryResult.revivedCharacterIds;
-      for (const { conditionId, fromCombatantId } of victoryResult.conditionIdsRemoved) {
-        const existing = removedConditionIds[fromCombatantId] ?? [];
-        existing.push(conditionId);
-        removedConditionIds[fromCombatantId] = existing;
+      if (loot) {
+        this.party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
+      }
+      applyExperiencePointChanges(this.party, experiencePointChanges);
+      levelUps = this.calculateLevelupsOnBattleEnd();
+      // until revive spell/consumables are added, res dead characters to 1 hp
+      revivedCharacterIds = this.reviveCharactersOnPartyVictory();
+      const conditionRemovalsAndTriggeredActions =
+        this.party.getBranchingActionsFromConditionsRemovedOnBattleEnd();
+      const { conditionIdsRemoved, branchingActions } = conditionRemovalsAndTriggeredActions;
+      removedConditionIds = conditionIdsRemoved;
+      branchingActionsResult.push(...branchingActions);
+
+      const battleIdToRemoveOption = this.party.battleId;
+      this.party.setBattleId(null);
+      if (battleIdToRemoveOption !== null) {
+        this.game.battles.delete(battleIdToRemoveOption);
       }
     }
 
     const actionEntitiesRemoved =
-      party.actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
+      this.party.actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
     return {
       conclusion,
       loot,
       experiencePointChanges,
       removedConditionIds,
-      removedCombatantIds,
       revivedCharacterIds,
+      branchingActions: branchingActionsResult,
       actionEntitiesRemoved,
-      branchingActions,
       levelUps,
       timestamp: Date.now(),
     };

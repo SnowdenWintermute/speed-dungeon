@@ -200,6 +200,36 @@ export const CHARARCTER_FIXTURES_WITH_PETS: FixedCharacterCreationLists = {
   ],
 };
 
+export const CHARARCTER_FIXTURES_WITH_PET_MANTAS: FixedCharacterCreationLists = {
+  [CombatantClass.Warrior]: [
+    {
+      characterFactory: PLAYER_CHARACTER_FIXTURES.WARRIOR,
+      petFactories: [
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ],
+    },
+  ],
+  [CombatantClass.Rogue]: [
+    {
+      characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE,
+      petFactories: [
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ],
+    },
+  ],
+  [CombatantClass.Mage]: [
+    {
+      characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE,
+      petFactories: [
+        (idGenerator, itemBuilder, rngPolicy, name) =>
+          MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
+      ],
+    },
+  ],
+};
+
 export const HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS: (
   petFactories: CombatantFactory[]
 ) => FixedCharacterCreationLists = (petFactories) => {

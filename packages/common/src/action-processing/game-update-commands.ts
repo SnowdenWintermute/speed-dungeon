@@ -228,8 +228,11 @@ export interface BattleConclusionUpdateCommand extends IGameUpdateCommand {
   timestamp: number;
   loot?: { equipment: Equipment[]; consumables: Consumable[] };
   experiencePointChanges?: Record<CombatantId, number>;
-  removedConditionIds?: Record<CombatantId, EntityId[]>;
-  removedCombatantIds?: CombatantId[];
+  removedConditionIds: {
+    conditionId: EntityId;
+    fromCombatantId: CombatantId;
+  }[];
+
   revivedCharacterIds?: CombatantId[];
   actionEntitiesRemoved?: EntityId[];
 }

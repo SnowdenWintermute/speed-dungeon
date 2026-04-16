@@ -16,6 +16,7 @@ export enum ClientSequentialEventType {
   PostGameMessages,
   RemovePlayerFromGame,
   RecordCombatantActionSelected,
+  PostReplayTreeCleanup,
 }
 
 export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientSequentialEventType, string> = {
@@ -29,6 +30,7 @@ export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientSequentialEventType, string
   [ClientSequentialEventType.PostGameMessages]: "Post Game Messages",
   [ClientSequentialEventType.RemovePlayerFromGame]: "Remove Player From Game",
   [ClientSequentialEventType.RecordCombatantActionSelected]: "Record Combatant Action Selected",
+  [ClientSequentialEventType.PostReplayTreeCleanup]: "Post Replay Tree Cleanup",
 };
 
 export interface ClientSequentialEventMap {
@@ -61,6 +63,9 @@ export interface ClientSequentialEventMap {
   [ClientSequentialEventType.RecordCombatantActionSelected]: {
     userId: EntityId;
     actionExecutionIntent: CombatActionExecutionIntent;
+  };
+  [ClientSequentialEventType.PostReplayTreeCleanup]: {
+    removedCombatantIds?: CombatantId[];
   };
 }
 
