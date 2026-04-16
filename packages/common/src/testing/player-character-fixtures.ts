@@ -162,12 +162,83 @@ export const HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES = {
       .build(idGenerator),
 };
 
+export const LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES = {
+  WARRIOR: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.WARRIOR()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .attribute(CombatAttribute.Hp, 1)
+      .equipMainHand(
+        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+      )
+      .equipMainHand(
+        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        1
+      )
+      .addInventoryConsumable(
+        itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
+      )
+      .build(idGenerator),
+  ROGUE: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.ROGUE()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .attribute(CombatAttribute.Hp, 1)
+      .equipMainHand(
+        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger).build(idGenerator)
+      )
+      .equipMainHand(
+        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        1
+      )
+      .addInventoryConsumable(
+        itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
+      )
+      .build(idGenerator),
+  MAGE: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.MAGE()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .attribute(CombatAttribute.Hp, 1)
+      .addInventoryConsumable(
+        itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
+      )
+      .build(idGenerator),
+};
+
 export const BASIC_CHARACTER_FIXTURES: FixedCharacterCreationLists = {
   [CombatantClass.Warrior]: [
     { characterFactory: PLAYER_CHARACTER_FIXTURES.WARRIOR, petFactories: [] },
   ],
   [CombatantClass.Rogue]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE, petFactories: [] }],
   [CombatantClass.Mage]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE, petFactories: [] }],
+};
+
+export const LOW_HP_CHARACTER_FIXTURES: FixedCharacterCreationLists = {
+  [CombatantClass.Warrior]: [
+    { characterFactory: LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES.WARRIOR, petFactories: [] },
+  ],
+  [CombatantClass.Rogue]: [
+    { characterFactory: LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES.ROGUE, petFactories: [] },
+  ],
+  [CombatantClass.Mage]: [
+    { characterFactory: LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES.MAGE, petFactories: [] },
+  ],
 };
 
 export const CHARARCTER_FIXTURES_WITH_PETS: FixedCharacterCreationLists = {

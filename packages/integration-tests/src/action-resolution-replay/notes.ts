@@ -1,14 +1,11 @@
-// CHAINING SPLIT ARROW
-// chaining split arrow sets off ice bursts in correct order
-//
 // COUNTERATTACK
-// combatant dies from explosion set off from their own counterattack
-// combatant gets primed-for-ice-burst condition from ice burst set off from their own counterattack
 // counterattack + enemy countered is hit from firewall on way back from getting counterattacked:
 // - doesn't unlock input early
 // ranged counterattack through firewall incinerates (does no damage)
 // ranged counterattack through firewall ignites projectile
 //
+// CHAINING SPLIT ARROW
+// chaining split arrow sets off ice bursts in correct order
 //
 // MONSTER AI
 // monsters heal allies
@@ -22,8 +19,14 @@
 // PETS
 // pet can not level up beyond rank limit pet level
 //
+// APPLICATION FUNCTION
+// - can join another game after leave game button
+// - reconnection flow
 
 // -DONE-
+// COUNTERATTACK
+// combatant dies from ice burst set off from their own counterattack
+//
 // ENSNARE
 // ensnare debuff gained when ensnared
 // melee attackers hit flying when combatant ensnared
