@@ -25,7 +25,7 @@ export interface ClientEndpointFactory {
   };
 }
 
-const websocketFactory: ClientEndpointFactory = {
+export const websocketFactory: ClientEndpointFactory = {
   createClientEndpoint(
     url,
     options?: {
