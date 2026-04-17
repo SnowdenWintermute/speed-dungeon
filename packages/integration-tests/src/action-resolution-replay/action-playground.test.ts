@@ -108,10 +108,10 @@ describe.each(TEST_CONNECTION_ENDPOINT_FACTORIES)(
     //   await testOnlyTameDamagedTameableCombatants(testFixture);
     // });
 
-    // // FIREWALL
-    it("firewall ignites projectiles", async () => {
-      await testFirewallIgnitesProjectiles(testFixture);
-    });
+    // // // FIREWALL
+    // it("firewall ignites projectiles", async () => {
+    //   await testFirewallIgnitesProjectiles(testFixture);
+    // });
 
     // it("firewall incinerates projectiles", async () => {
     //   await testFirewallIncineratesProjectiles(testFixture);

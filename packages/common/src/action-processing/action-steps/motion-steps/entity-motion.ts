@@ -103,6 +103,7 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
     }
 
     const entitySpeedOption = actionUser.getMovementSpeedOption();
+    console.log("entitySpeedOption:", entitySpeedOption);
     const positionOption = actionUser.getPositionOption();
     if (entitySpeedOption === null || positionOption === null) {
       return null;
@@ -211,6 +212,29 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
       normalizedPercentTravelled
     );
 
+    console.log("[MOTION-TICK]", {
+      type: ACTION_RESOLUTION_STEP_TYPE_STRINGS[this.type],
+      user: this.actionUser.getEntityId(),
+      elapsed: this.elapsed,
+      duration: this.translationOption.duration,
+      pct: normalizedPercentTravelled.toFixed(2),
+      from: {
+        x: positionOption.x.toFixed(2),
+        y: positionOption.y.toFixed(2),
+        z: positionOption.z.toFixed(2),
+      },
+      to: {
+        x: newPosition.x.toFixed(2),
+        y: newPosition.y.toFixed(2),
+        z: newPosition.z.toFixed(2),
+      },
+      dest: {
+        x: this.translationOption.destination.x.toFixed(2),
+        y: this.translationOption.destination.y.toFixed(2),
+        z: this.translationOption.destination.z.toFixed(2),
+      },
+    });
+
     positionOption.copyFrom(newPosition);
   }
 
@@ -242,13 +266,6 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
 
   onComplete(): Error | ActionIntentAndUser[] {
     if (this.translationOption) {
-      // onTick's Lerp is skipped when concurrent instant steps keep timeToTick at 0,
-      // so snap to destination on complete to avoid stale positions bleeding into later checks
-      const positionOption = this.actionUser.getPositionOption();
-      if (positionOption !== null) {
-        positionOption.copyFrom(this.translationOption.destination);
-      }
-
       if (this.translationOption.setAsNewHome) {
         this.context.actionUserContext.actionUser
           .getCombatantProperties()

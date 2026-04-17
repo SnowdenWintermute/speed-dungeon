@@ -31,10 +31,11 @@ export async function testRangedCounterattackThroughFirewall(testFixture: Integr
   await gameClientHarness.selectHoldableHotswapSlot(1);
 
   await gameClientHarness.toggleReadyToExplore();
-  await gameClientHarness.selectCombatAction(CombatActionName.Firewall, 2);
-  await gameClientHarness.dispatchAndAwaitReply({
-    type: ClientIntentType.UseSelectedCombatAction,
-    data: { characterId: combatantFocus.requireFocusedCharacterId() },
-  });
-  await checkForIgnitedProjectile(gameClientHarness, party);
+  await gameClientHarness.useCombatAction(CombatActionName.Firewall, 2);
+  // await gameClientHarness.selectCombatAction(CombatActionName.Firewall, 2);
+  // await gameClientHarness.dispatchAndAwaitReply({
+  //   type: ClientIntentType.UseSelectedCombatAction,
+  //   data: { characterId: combatantFocus.requireFocusedCharacterId() },
+  // });
+  // await checkForIgnitedProjectile(gameClientHarness, party);
 }

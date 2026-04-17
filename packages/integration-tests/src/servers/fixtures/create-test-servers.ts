@@ -80,6 +80,7 @@ export async function createTestServers(
     () => testLeastBusyServerUrlGetter(),
     characterCreationPolicyConstructor,
     rngPolicy,
+    // must use sequential ids for deterministic turn ordering since id is used as tiebreaker
     new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
   );
 
