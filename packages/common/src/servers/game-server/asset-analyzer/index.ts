@@ -33,6 +33,10 @@ export class AssetAnalyzer {
     return this._animationLengths;
   }
 
+  set animationLengths(value: SpeciesAnimationLengths) {
+    this._animationLengths = value;
+  }
+
   private async getAnimationLengths(assetId: AssetId) {
     try {
       const asset = await this.assetService.getAsset(assetId);

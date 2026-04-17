@@ -4,7 +4,6 @@ import {
   CombatActionName,
   CombatantConditionName,
   invariant,
-  NextOrPrevious,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
 
@@ -19,7 +18,6 @@ export async function testIceBurstAppliesPrimedForIceBurst(testFixture: Integrat
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
   const { combatantManager } = party;
-  await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent);
 
   await gameClientHarness.toggleReadyToExplore();
   const iceBoltUserId = combatantFocus.requireFocusedCharacterId();

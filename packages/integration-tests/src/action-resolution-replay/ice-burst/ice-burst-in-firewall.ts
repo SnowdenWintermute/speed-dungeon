@@ -17,7 +17,6 @@ export async function testIceBurstTriggeredByFirewall(testFixture: IntegrationTe
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
   const { combatantManager } = party;
-  await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent);
 
   await gameClientHarness.toggleReadyToExplore();
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn);

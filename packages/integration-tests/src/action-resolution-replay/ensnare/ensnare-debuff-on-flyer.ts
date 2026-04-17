@@ -19,10 +19,10 @@ export async function testEnsnareDebuffOnFlyer(testFixture: IntegrationTestFixtu
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
   const { combatantManager } = party;
-  await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent);
 
   await gameClientHarness.toggleReadyToExplore();
-  const attackUserId = combatantFocus.requireFocusedCharacterId();
+  const attackUser = combatantFocus.requireFocusedCharacter();
+  const attackUserId = attackUser.getEntityId();
   await gameClientHarness.useCombatAction(CombatActionName.Attack);
   const attackTargetId = actionHistory.requireLastUsedActionSingleTargetId(attackUserId);
   console.log("ENSNARE DEBUFF TARGET ID:", attackTargetId);

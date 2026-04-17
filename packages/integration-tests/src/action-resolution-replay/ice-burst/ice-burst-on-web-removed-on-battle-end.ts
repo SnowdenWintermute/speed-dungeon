@@ -1,12 +1,8 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
-  BASIC_CHARACTER_FIXTURES,
   CHARARCTER_FIXTURES_WITH_PET_MANTAS,
   CombatActionName,
-  CombatantConditionName,
-  invariant,
   NextOrPrevious,
-  TEST_DUNGEON_TWO_MID_HP_WOLVES,
   TEST_DUNGEON_TWO_SPIDER_ROOMS,
 } from "@speed-dungeon/common";
 

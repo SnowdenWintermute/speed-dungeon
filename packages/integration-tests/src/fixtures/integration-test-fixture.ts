@@ -16,12 +16,13 @@ import {
   ScriptedCharacterCreationPolicy,
 } from "@speed-dungeon/common";
 import { ClientFixture } from "./client-test-fixture.js";
+import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
 
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
   private _gameServer: GameServer | null = null;
   private clients = new Map<string, ClientFixture>();
-  private initializedAnimationLengths: boolean = false;
+  private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
 
   constructor(private clientEndpointFactory: ClientEndpointFactory) {}
 
@@ -32,6 +33,10 @@ export class IntegrationTestFixture {
   ) {
     const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
       this.clientEndpointFactory.createIncomingConnectionGateways();
+
+    if (this._gameServer !== null) {
+      this.previouslyCalculatedAnimationLengths = this._gameServer.assetAnalyzer.animationLengths;
+    }
 
     const inMemoryTransportAndServers = await createTestServers(
       lobbyIncomingConnectionGateway,
@@ -45,10 +50,10 @@ export class IntegrationTestFixture {
     this._gameServer = inMemoryTransportAndServers.gameServer;
     this._gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
 
-    if (!this.initializedAnimationLengths) {
-      console.log("initializedAnimationLengths");
+    if (!this.previouslyCalculatedAnimationLengths) {
       await this._gameServer.analyzeAssetsForGameplayRelevantData();
-      this.initializedAnimationLengths = true;
+    } else {
+      this._gameServer.assetAnalyzer.animationLengths = this.previouslyCalculatedAnimationLengths;
     }
   }
 

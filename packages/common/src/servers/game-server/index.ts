@@ -67,7 +67,7 @@ export class GameServer extends SpeedDungeonServer {
     this.updateDispatchFactory
   );
 
-  private readonly assetAnalyzer: AssetAnalyzer;
+  readonly assetAnalyzer: AssetAnalyzer;
 
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;

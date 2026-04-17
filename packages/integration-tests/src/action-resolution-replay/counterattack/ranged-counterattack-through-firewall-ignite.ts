@@ -1,4 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { checkForIgnitedProjectile } from "@/test-utils/check-for-ignited-projectile";
 import {
   ClientIntentType,
   CombatActionName,
@@ -8,7 +9,6 @@ import {
   NextOrPrevious,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
-import { checkForIgnitedProjectile } from "../firewall/projectiles-ignite";
 
 export async function testRangedCounterattackThroughFirewallIgnite(
   testFixture: IntegrationTestFixture
