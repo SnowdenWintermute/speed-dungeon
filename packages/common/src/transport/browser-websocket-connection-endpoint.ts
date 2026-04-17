@@ -95,7 +95,7 @@ export class BrowserWebSocketConnectionEndpoint implements ConnectionEndpoint {
   }
 
   close(code?: number, reason?: string): void {
-    console.info("closing browser WebSocket");
+    // console.info("closing browser WebSocket");
     this.ws.close(code, reason);
   }
 

@@ -1,6 +1,7 @@
 import { ClientApplication } from "@/client-application";
 import {
   ActionIntentAndUserId,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionTargetType,
   CombatantId,
   EntityId,
@@ -14,7 +15,16 @@ export class CombatActionHistoryInspector {
     return this.clientApplication.clientLogRecorder.combatantActionsHistory;
   }
 
-  getAll() {
+  private asString(actionIntentAndUserId: ActionIntentAndUserId) {
+    const { actionName, rank, targets } = actionIntentAndUserId.actionExecutionIntent;
+    const { userId } = actionIntentAndUserId;
+    return `user: ${userId}:${COMBAT_ACTION_NAME_STRINGS[actionName]} R:${rank} on ${targets}`;
+  }
+
+  getAll(options?: { asStrings: boolean }) {
+    if (options?.asStrings) {
+      return this.history.map((item) => this.asString(item));
+    }
     return this.history;
   }
 

@@ -415,6 +415,7 @@ export class ActionEffectsApplyerCommand {
 
   private applyActionEntitiesHidden(actionEntityIdsToHide?: string[]) {
     if (!actionEntityIdsToHide) return;
+
     const gameWorldView = this.clientApplication.gameWorldView;
     if (!gameWorldView) return;
 

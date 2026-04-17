@@ -60,34 +60,6 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
 
   const { party } = context.actionUserContext;
 
-  console.log("[FIREWALL-HAZARD-CHECK]", {
-    action: actionExecutionIntent.actionName,
-    projectileId: projectileEntity.entityProperties.id,
-    projectilePos: {
-      x: entityPosition.x.toFixed(2),
-      y: entityPosition.y.toFixed(2),
-      z: entityPosition.z.toFixed(2),
-    },
-    destination: {
-      x: translationOption.destination.x.toFixed(2),
-      y: translationOption.destination.y.toFixed(2),
-      z: translationOption.destination.z.toFixed(2),
-    },
-    combatantPositions: Array.from(party.combatantManager.iterateAllCombatants()).map((c) => ({
-      id: c.entityProperties.id,
-      pos: {
-        x: c.combatantProperties.transformProperties.position.x.toFixed(2),
-        y: c.combatantProperties.transformProperties.position.y.toFixed(2),
-        z: c.combatantProperties.transformProperties.position.z.toFixed(2),
-      },
-      home: {
-        x: c.combatantProperties.transformProperties.getHomePosition().x.toFixed(2),
-        y: c.combatantProperties.transformProperties.getHomePosition().y.toFixed(2),
-        z: c.combatantProperties.transformProperties.getHomePosition().z.toFixed(2),
-      },
-    })),
-  });
-
   // we only expect one firewall to exist
 
   const { actionEntityManager } = party;
@@ -99,11 +71,6 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
 
   const firewallActionLevel =
     existingFirewallOption.actionEntityProperties.actionOriginData?.actionLevel?.current || 0;
-  console.log(
-    "firewallActionLevel:",
-    firewallActionLevel,
-    firewallActionLevel >= requiredFirewallLevelForIgnitingProjectiles
-  );
   if (firewallActionLevel < requiredFirewallLevelForIgnitingProjectiles) return [];
 
   const { destination, duration } = translationOption;
@@ -119,14 +86,6 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   const movementVector = destination.subtract(entityPosition);
   const distance = movementVector.length();
   const speed = distance / duration;
-  console.log(
-    "entityPosition",
-    entityPosition,
-    "destination",
-    destination,
-    context.actionUserContext.actionUser.getEntityId(),
-    ACTION_RESOLUTION_STEP_TYPE_STRINGS[step.type]
-  );
   const timeToReachFirewallOption = timeToReachBox(
     entityPosition,
     destination,
@@ -136,12 +95,10 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
   );
 
   if (timeToReachFirewallOption === null) {
-    console.log("timeToReachFirewallOption === null");
     return [];
   }
 
   if (firewallActionLevel === requiredFirewallLevelForIgnitingProjectiles) {
-    console.log("triggerIngiteProjectile");
     return triggerIngiteProjectile(context, projectileEntity, timeToReachFirewallOption);
   }
   if (firewallActionLevel === requiredFirewallLevelForIncineratingProjectiles)

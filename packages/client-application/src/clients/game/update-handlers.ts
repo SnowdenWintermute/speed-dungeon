@@ -100,7 +100,7 @@ export function createGameUpdateHandlers(
       }
 
       if (!gameWorldView) {
-        console.info("couldn't make images because no game world view");
+        // console.info("couldn't make images because no game world view");
         return;
       }
 

@@ -48,8 +48,6 @@ export class BattleResolutionActionResolutionStep extends ActionResolutionStep {
           actionEntitiesRemoved: resolution.actionEntitiesRemoved,
         };
 
-        console.log(action.getStringName(), "battle concluded");
-
         // collectedBranchingActions.push(...resolution.branchingActions);
       }
     }

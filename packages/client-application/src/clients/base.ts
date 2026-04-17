@@ -65,7 +65,7 @@ export abstract class BaseClient {
 
   protected registerListeners() {
     this.connectionEndpoint.on("open", () => {
-      console.info(`connected to ${this.name}`);
+      // console.info(`connected to ${this.name}`);
       const { gameContext, uiStore } = this.clientApplication;
       gameContext.clearGame();
       this.connectionTopology.runtimeMode = this._targetConnectionMode;
@@ -91,7 +91,7 @@ export abstract class BaseClient {
     });
 
     this.connectionEndpoint.on("close", (reason) => {
-      console.info(`closed connection endpoint with code ${reason}`);
+      // console.info(`closed connection endpoint with code ${reason}`);
     });
   }
 

@@ -56,7 +56,7 @@ export class BattleProcessor {
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
       if (party.battleId === null) break;
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
-        console.log("stop processing - is turn of player controlled combatant", fastestTracker);
+        // console.info("stop processing - is turn of player controlled combatant", fastestTracker);
         break;
       }
 
@@ -65,11 +65,11 @@ export class BattleProcessor {
         party,
         this.rngPolicy
       );
-      this.logSelectedActionIntent(user, actionExecutionIntent);
+      // this.logSelectedActionIntent(user, actionExecutionIntent);
 
       // process action intents
       if (actionExecutionIntent === null) {
-        console.info("AI action intent was null");
+        // console.info("AI action intent was null");
       } else {
         sequentialEvents.push({
           type: ClientSequentialEventType.RecordCombatantActionSelected,

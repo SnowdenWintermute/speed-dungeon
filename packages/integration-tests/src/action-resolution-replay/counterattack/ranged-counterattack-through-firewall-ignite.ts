@@ -10,7 +10,9 @@ import {
 } from "@speed-dungeon/common";
 import { checkForIgnitedProjectile } from "../firewall/projectiles-ignite";
 
-export async function testRangedCounterattackThroughFirewall(testFixture: IntegrationTestFixture) {
+export async function testRangedCounterattackThroughFirewallIgnite(
+  testFixture: IntegrationTestFixture
+) {
   const client = await testFixture.resetWithOptions(
     TEST_DUNGEON_TWO_WOLF_ROOMS,
     LOW_HP_CHARACTER_FIXTURES,
@@ -31,11 +33,11 @@ export async function testRangedCounterattackThroughFirewall(testFixture: Integr
   await gameClientHarness.selectHoldableHotswapSlot(1);
 
   await gameClientHarness.toggleReadyToExplore();
-  await gameClientHarness.useCombatAction(CombatActionName.Firewall, 2);
-  // await gameClientHarness.selectCombatAction(CombatActionName.Firewall, 2);
-  // await gameClientHarness.dispatchAndAwaitReply({
-  //   type: ClientIntentType.UseSelectedCombatAction,
-  //   data: { characterId: combatantFocus.requireFocusedCharacterId() },
-  // });
-  // await checkForIgnitedProjectile(gameClientHarness, party);
+  await gameClientHarness.selectCombatAction(CombatActionName.Firewall, 2);
+  await gameClientHarness.dispatchAndAwaitReply({
+    type: ClientIntentType.UseSelectedCombatAction,
+    data: { characterId: combatantFocus.requireFocusedCharacterId() },
+  });
+  await checkForIgnitedProjectile(gameClientHarness, party);
+  await gameClientHarness.flushReplayTree();
 }

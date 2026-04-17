@@ -128,7 +128,7 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
-    this.logUserConnected(session);
+    // this.logUserConnected(session);
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(

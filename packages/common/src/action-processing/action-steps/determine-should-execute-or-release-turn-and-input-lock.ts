@@ -37,7 +37,6 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
 
     const shouldExecute =
       executionPreconditionsPassed && (!turnAlreadyEnded || actionShouldExecuteEvenIfTurnEnded);
-    console.log(action.getStringName(), "shouldExecute:", shouldExecute);
 
     if (shouldExecute) return;
 

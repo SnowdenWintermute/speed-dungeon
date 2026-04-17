@@ -36,7 +36,7 @@ export function AISelectActionAndTarget(
 
   let actionExecutionIntentOption = behaviorContext.selectedActionIntent;
   if (actionExecutionIntentOption === null) {
-    console.info("ai context did not have a selected actionExecutionIntent - passing turn");
+    // console.info("ai context did not have a selected actionExecutionIntent - passing turn");
     actionExecutionIntentOption = new CombatActionExecutionIntent(
       CombatActionName.PassTurn,
       0 as ActionRank,

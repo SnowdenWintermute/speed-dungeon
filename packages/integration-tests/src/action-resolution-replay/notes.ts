@@ -1,12 +1,3 @@
-// COUNTERATTACK
-// counterattack + enemy countered is hit from firewall on way back from getting counterattacked:
-// - doesn't unlock input early
-// ranged counterattack through firewall incinerates (does no damage)
-// ranged counterattack through firewall ignites projectile
-//
-// CHAINING SPLIT ARROW
-// chaining split arrow sets off ice bursts in correct order
-//
 // MONSTER AI
 // monsters heal allies
 // combatants attack highest threat target
@@ -16,8 +7,11 @@
 // can not allocate without prerequisite
 // can not allocate without required level
 //
-// PETS
+// DEFERRED
 // pet can not level up beyond rank limit pet level
+// counterattack + enemy countered is hit from firewall on way back from getting counterattacked doesn't unlock input early
+// ranged counterattack against monster that dies in firewall before arrow has chance to land
+// chaining split arrow sets off ice bursts in correct order
 //
 // APPLICATION FUNCTION
 // - can join another game after leave game button
@@ -26,6 +20,8 @@
 // -DONE-
 // COUNTERATTACK
 // combatant dies from ice burst set off from their own counterattack
+// ranged counterattack through firewall incinerates
+// ranged counterattack through firewall ignites projectile
 //
 // ENSNARE
 // ensnare debuff gained when ensnared
