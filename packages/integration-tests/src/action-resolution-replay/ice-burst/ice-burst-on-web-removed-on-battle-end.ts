@@ -7,18 +7,13 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testIceBurstOnWebRemovedAtBattleEnd(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
+  await testFixture.resetWithOptions(
     TEST_DUNGEON_TWO_SPIDER_ROOMS,
     CHARARCTER_FIXTURES_WITH_PET_MANTAS
   );
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
-  const { actionHistory } = gameClientHarness;
-  const { combatantFocus } = clientApplication;
-  const { gameContext } = clientApplication;
-  const party = gameContext.requireParty();
-  const { combatantManager } = party;
   await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent);
-
   await gameClientHarness.toggleReadyToExplore();
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
@@ -29,4 +24,5 @@ export async function testIceBurstOnWebRemovedAtBattleEnd(testFixture: Integrati
   await gameClientHarness.cycleTargetingSchemes();
   await gameClientHarness.cycleTargets(NextOrPrevious.Next);
   await gameClientHarness.useSelectedCombatAction();
+  expect(clientApplication.errorRecordService.getErrors().length).toBe(0);
 }

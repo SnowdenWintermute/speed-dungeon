@@ -1,23 +1,14 @@
-import { GameClient } from "@/client-application/clients/game";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
-  ActionEntityName,
-  ActionResolutionStepType,
-  AdventuringParty,
   BASIC_CHARACTER_FIXTURES,
-  BeforeOrAfter,
   CombatActionName,
-  invariant,
   NextOrPrevious,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
 } from "@speed-dungeon/common";
 
 export async function testFirewallIncineratesProjectiles(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
-    TEST_DUNGEON_ZERO_SPEED_WOLVES,
-    BASIC_CHARACTER_FIXTURES
-  );
+  await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();

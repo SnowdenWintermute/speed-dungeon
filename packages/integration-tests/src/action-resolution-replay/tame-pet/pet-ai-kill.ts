@@ -11,13 +11,14 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testPetAiKill(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
+  await testFixture.resetWithOptions(
     TEST_DUNGEON_MANTA_TWO_WOLF,
     HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS([
       (idGenerator, itemBuilder, rngPolicy, name) =>
         MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
     ])
   );
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;
   const party = gameContext.requireParty();

@@ -26,7 +26,7 @@ export class IntegrationTestFixture {
 
   constructor(private clientEndpointFactory: ClientEndpointFactory) {}
 
-  async createServers(
+  private async createServers(
     rngPolicy: RandomNumberGenerationPolicy,
     dungeonScript: ExplicitCombatantDungeonTemplate,
     characterCreationFixture: FixedCharacterCreationLists
@@ -67,25 +67,15 @@ export class IntegrationTestFixture {
     return this._gameServer;
   }
 
-  createClient(id: string) {
+  private createClient(id: string) {
     const client = new ClientFixture();
     this.clients.set(id, client);
     return client;
   }
 
-  requireClient(id: string) {
-    const option = this.clients.get(id);
-    invariant(option !== undefined, "no client fixture found");
-    return option;
-  }
-
   async resetWithOptions(
     dungeonTemplate: ExplicitCombatantDungeonTemplate,
     charactersTemplate: FixedCharacterCreationLists,
-    playerCharacterClasses: { name: string; combatantClass: CombatantClass }[] = [
-      { name: "a", combatantClass: CombatantClass.Warrior },
-      { name: "b", combatantClass: CombatantClass.Rogue },
-    ],
     rngOverrides: Partial<RandomNumberGenerationPolicy> = {}
   ) {
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
@@ -101,7 +91,14 @@ export class IntegrationTestFixture {
       ...rngOverrides,
     });
     await this.createServers(rngPolicy, dungeonTemplate, charactersTemplate);
+  }
 
+  async createClientInGame(
+    playerCharacterClasses: { name: string; combatantClass: CombatantClass }[] = [
+      { name: "a", combatantClass: CombatantClass.Warrior },
+      { name: "b", combatantClass: CombatantClass.Rogue },
+    ]
+  ) {
     const client = this.createClient("client 1");
     await client.connect();
 

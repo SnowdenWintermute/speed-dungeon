@@ -13,14 +13,11 @@ import {
 export async function testRangedCounterattackThroughFirewallIgnite(
   testFixture: IntegrationTestFixture
 ) {
-  const client = await testFixture.resetWithOptions(
-    TEST_DUNGEON_TWO_WOLF_ROOMS,
-    LOW_HP_CHARACTER_FIXTURES,
-    undefined,
-    {
-      counterAttack: new FixedNumberGenerator(1 - EPSILON),
-    }
-  );
+  await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, LOW_HP_CHARACTER_FIXTURES, {
+    counterAttack: new FixedNumberGenerator(1 - EPSILON),
+  });
+  const client = await testFixture.createClientInGame();
+
   const { clientApplication, gameClientHarness } = client;
   const { actionHistory } = gameClientHarness;
   const { combatantFocus } = clientApplication;

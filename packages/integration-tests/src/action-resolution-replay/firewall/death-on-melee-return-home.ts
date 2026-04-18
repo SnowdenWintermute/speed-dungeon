@@ -11,10 +11,11 @@ import {
 
 /** enemy dies in firewall comming back from melee */
 export async function deathInFirewallOnMeleeReturnHome(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
+  await testFixture.resetWithOptions(
     TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
     BASIC_CHARACTER_FIXTURES
   );
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
   const { combatantFocus } = clientApplication;
   const { gameContext } = clientApplication;

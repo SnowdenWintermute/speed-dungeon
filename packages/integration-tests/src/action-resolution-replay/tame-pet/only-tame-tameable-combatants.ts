@@ -7,10 +7,11 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testOnlyTameDamagedTameableCombatants(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
+  await testFixture.resetWithOptions(
     TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST,
     BASIC_CHARACTER_FIXTURES
   );
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();

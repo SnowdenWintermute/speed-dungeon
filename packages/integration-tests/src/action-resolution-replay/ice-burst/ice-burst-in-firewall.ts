@@ -7,13 +7,9 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testIceBurstTriggeredByFirewall(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
-    TEST_DUNGEON_TWO_WOLF_ROOMS,
-    BASIC_CHARACTER_FIXTURES
-  );
+  await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, BASIC_CHARACTER_FIXTURES);
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
-  const { actionHistory } = gameClientHarness;
-  const { combatantFocus } = clientApplication;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
   const { combatantManager } = party;

@@ -8,10 +8,8 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testFirewallDeteriorates(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
-    TEST_DUNGEON_ZERO_SPEED_WOLVES,
-    BASIC_CHARACTER_FIXTURES
-  );
+  await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();

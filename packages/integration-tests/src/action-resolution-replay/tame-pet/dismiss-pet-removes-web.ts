@@ -8,14 +8,14 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
+  await testFixture.resetWithOptions(
     TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
     BASIC_CHARACTER_FIXTURES
   );
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
-  const { gameContext, combatantFocus } = clientApplication;
+  const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
-  const game = gameContext.requireGame();
 
   const { combatantManager } = party;
 

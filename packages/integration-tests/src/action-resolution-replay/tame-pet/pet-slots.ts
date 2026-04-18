@@ -10,13 +10,14 @@ import {
 } from "@speed-dungeon/common";
 
 export async function testPetSlotLimitations(testFixture: IntegrationTestFixture) {
-  const client = await testFixture.resetWithOptions(
+  await testFixture.resetWithOptions(
     TEST_DUNGEON_TWO_WOLF_ROOMS,
     HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS([
       (idGenerator, itemBuilder, rngPolicy, name) =>
         MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
     ])
   );
+  const client = await testFixture.createClientInGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;
   const party = gameContext.requireParty();
