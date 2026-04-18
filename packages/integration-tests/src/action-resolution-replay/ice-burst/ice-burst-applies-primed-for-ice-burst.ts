@@ -10,8 +10,7 @@ import {
 export async function testIceBurstAppliesPrimedForIceBurst(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, BASIC_CHARACTER_FIXTURES);
 
-  const client = await testFixture.createClientInGame();
-  console.log("client:", client);
+  const client = await testFixture.createSingleClientInStartedGame();
 
   const { clientApplication, gameClientHarness } = client;
   const { actionHistory } = gameClientHarness;

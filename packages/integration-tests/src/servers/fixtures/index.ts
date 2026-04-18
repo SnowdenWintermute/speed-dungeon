@@ -4,7 +4,6 @@ import {
   GameServerName,
   GameSessionStoreService,
   IdentityProviderService,
-  IdGenerator,
   IdGeneratorSequential,
   InMemoryIdentityProviderQueryStrategy,
   RaceGameRecordsService,
@@ -20,6 +19,9 @@ export const TEST_LOBBY_SERVER_PORT = 8190;
 export const TEST_GAME_SERVER_PORT = 8191;
 export const TEST_LOBBY_URL = localServerUrl(TEST_LOBBY_SERVER_PORT);
 export const TEST_GAME_SERVER_URL = localServerUrl(TEST_GAME_SERVER_PORT);
+
+export const TEST_GAME_NAME = "test-game-a";
+export const TEST_PARTY_NAME = "test-party-a";
 
 export const TEST_AUTH_SESSION_ID_PLAYER_1 = "0000";
 export const TEST_AUTH_SESSION_ID_PLAYER_2 = "0001";

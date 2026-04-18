@@ -10,7 +10,7 @@ import {
 
 export async function testEnsnareDebuffOnFlyer(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_MANTAS, BASIC_CHARACTER_FIXTURES);
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { actionHistory } = gameClientHarness;
   const { combatantFocus } = clientApplication;

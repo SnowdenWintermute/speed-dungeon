@@ -11,7 +11,7 @@ export async function testOnlyTameDamagedTameableCombatants(testFixture: Integra
     TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST,
     BASIC_CHARACTER_FIXTURES
   );
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();

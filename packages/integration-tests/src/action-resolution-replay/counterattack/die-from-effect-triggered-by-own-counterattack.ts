@@ -15,7 +15,7 @@ export async function testDieFromCounterattackTriggeredExplosion(
     counterAttack: new FixedNumberGenerator(1 - EPSILON),
   });
 
-  const client = await testFixture.createClientInGame(
+  const client = await testFixture.createSingleClientInStartedGame(
     // warriors start with swords, who's animation is fast enough to set off the explosion
     // while still in range. The Rogue's daggers hit after the wolf has walked back out of range.
     [

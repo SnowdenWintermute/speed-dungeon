@@ -17,7 +17,7 @@ export async function testPetAiAssist(testFixture: IntegrationTestFixture) {
         MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
     ])
   );
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;
   const { actionHistory } = gameClientHarness;

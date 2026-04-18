@@ -16,7 +16,7 @@ export async function testRangedCounterattackThroughFirewallIgnite(
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, LOW_HP_CHARACTER_FIXTURES, {
     counterAttack: new FixedNumberGenerator(1 - EPSILON),
   });
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
 
   const { clientApplication, gameClientHarness } = client;
   const { actionHistory } = gameClientHarness;

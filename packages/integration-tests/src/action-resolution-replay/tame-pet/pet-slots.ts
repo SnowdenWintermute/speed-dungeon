@@ -17,7 +17,7 @@ export async function testPetSlotLimitations(testFixture: IntegrationTestFixture
         MONSTER_FIXTURES.WOLF(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
     ])
   );
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;
   const party = gameContext.requireParty();

@@ -11,7 +11,7 @@ export async function testIceBurstOnWebRemovedAtBattleEnd(testFixture: Integrati
     TEST_DUNGEON_TWO_SPIDER_ROOMS,
     CHARARCTER_FIXTURES_WITH_PET_MANTAS
   );
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent);
   await gameClientHarness.toggleReadyToExplore();

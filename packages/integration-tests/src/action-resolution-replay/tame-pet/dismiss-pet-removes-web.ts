@@ -12,7 +12,7 @@ export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixtu
     TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
     BASIC_CHARACTER_FIXTURES
   );
-  const client = await testFixture.createClientInGame();
+  const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();

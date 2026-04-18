@@ -67,7 +67,7 @@ export class IntegrationTestFixture {
     return this._gameServer;
   }
 
-  private createClient(id: string) {
+  createClient(id: string) {
     const client = new ClientFixture();
     this.clients.set(id, client);
     return client;
@@ -93,7 +93,7 @@ export class IntegrationTestFixture {
     await this.createServers(rngPolicy, dungeonTemplate, charactersTemplate);
   }
 
-  async createClientInGame(
+  async createSingleClientInStartedGame(
     playerCharacterClasses: { name: string; combatantClass: CombatantClass }[] = [
       { name: "a", combatantClass: CombatantClass.Warrior },
       { name: "b", combatantClass: CombatantClass.Rogue },

@@ -106,15 +106,33 @@ export class ClientTestHarness<T extends BaseClient> {
     }
   }
 
-  async createGame(gameName: string) {
+  async createGame(gameName: string, mode = GameMode.Race) {
     await this.settleIntentResult({
       type: ClientIntentType.CreateGame,
-      data: { gameName: gameName as GameName, mode: GameMode.Race },
+      data: { gameName: gameName as GameName, mode },
+    });
+  }
+  async joinGame(gameName: string) {
+    await this.settleIntentResult({
+      type: ClientIntentType.JoinGame,
+      data: { gameName: gameName as GameName },
+    });
+  }
+  async fetchGameList() {
+    await this.settleIntentResult({
+      type: ClientIntentType.RequestsGameList,
+      data: undefined,
     });
   }
   async createParty(partyName: string) {
     await this.settleIntentResult({
       type: ClientIntentType.CreateParty,
+      data: { partyName: partyName as PartyName },
+    });
+  }
+  async joinParty(partyName: string) {
+    await this.settleIntentResult({
+      type: ClientIntentType.JoinParty,
       data: { partyName: partyName as PartyName },
     });
   }
