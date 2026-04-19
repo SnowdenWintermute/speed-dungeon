@@ -18,18 +18,26 @@ import {
   RaceGameRecordsService,
   SavedCharactersService,
   SodiumHelpers,
-} from "@speed-dungeon/common";
-import {
-  createGameServerTestServices,
-  createLobbyTestServices,
-  localServerUrl,
-  TEST_GAME_SERVER_NAME,
-} from "./index.js";
-import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
-import {
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicy,
+  GameSessionStoreService,
+  ReconnectionForwardingStoreService,
+  RankedLadderService,
+  SpeedDungeonProfileService,
+  InMemoryIdentityProviderQueryStrategy,
+  IdentityProviderService,
+  GameServerExternalServices,
+  AssetService,
 } from "@speed-dungeon/common";
+import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
+import {
+  TEST_GAME_SERVER_NAME,
+  TEST_AUTH_SESSION_ID_PLAYER_1,
+  TEST_AUTH_SESSION_ID_PLAYER_2,
+  TEST_AUTH_USERNAME_PLAYER_1,
+  TEST_AUTH_USERNAME_PLAYER_2,
+  localServerUrl,
+} from "./consts";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -100,4 +108,56 @@ export async function createTestServers(
   );
 
   return { lobbyServer, gameServer };
+}
+
+export function createLobbyTestServices(
+  gameSessionStoreService: GameSessionStoreService,
+  reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+  savedCharactersService: SavedCharactersService,
+  rankedLadderService: RankedLadderService,
+  profileService: SpeedDungeonProfileService
+) {
+  const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
+
+  identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
+    TEST_AUTH_USERNAME_PLAYER_1,
+    TEST_AUTH_SESSION_ID_PLAYER_1
+  );
+
+  identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
+    TEST_AUTH_USERNAME_PLAYER_2,
+    TEST_AUTH_SESSION_ID_PLAYER_2
+  );
+
+  const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);
+
+  const externalServices = {
+    identityProviderService,
+    profileService,
+    savedCharactersService,
+    rankedLadderService,
+    idGenerator: new IdGeneratorSequential({ saveHistory: false }),
+    gameSessionStoreService,
+    reconnectionForwardingStoreService,
+  };
+  return externalServices;
+}
+
+export function createGameServerTestServices(
+  gameSessionStoreService: GameSessionStoreService,
+  reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+  savedCharactersService: SavedCharactersService,
+  rankedLadderService: RankedLadderService,
+  raceGameRecordsService: RaceGameRecordsService,
+  assetService: AssetService
+): GameServerExternalServices {
+  const externalServices = {
+    gameSessionStoreService,
+    reconnectionForwardingStoreService,
+    savedCharactersService,
+    rankedLadderService,
+    raceGameRecordsService,
+    assetService,
+  };
+  return externalServices;
 }

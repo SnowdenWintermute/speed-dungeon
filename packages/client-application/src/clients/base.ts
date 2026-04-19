@@ -1,5 +1,6 @@
 import {
   ClientIntent,
+  CONNECTION_ENDPOINT_READY_STATE_STRINGS,
   ConnectionEndpoint,
   GameStateUpdate,
   GameStateUpdateType,
@@ -70,6 +71,10 @@ export abstract class BaseClient {
     oldEndpoint.close();
   }
 
+  get connectionStatus() {
+    return CONNECTION_ENDPOINT_READY_STATE_STRINGS[this.connectionEndpoint.readyState];
+  }
+
   protected registerListeners() {
     this.connectionEndpoint.on("open", () => {
       // console.info(`connected to ${this.name}`);
@@ -92,9 +97,9 @@ export abstract class BaseClient {
     this.connectionEndpoint.on("message", (untyped) => {
       const typedMessage = this.getTypedMessage(untyped);
       this.clientApplication.clientLogRecorder.recordUpdateReceived(typedMessage);
-      this.handleEndOfStream(typedMessage);
-      this.handleErrorMessage(typedMessage);
       this.handleMessage(typedMessage);
+      this.handleErrorMessage(typedMessage);
+      this.handleEndOfStream(typedMessage);
     });
 
     this.connectionEndpoint.on("close", (reason) => {

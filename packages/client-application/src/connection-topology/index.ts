@@ -1,8 +1,7 @@
 import {
-  BrowserWebSocketConnectionEndpoint,
-  ConnectionId,
   GameServer,
   InMemoryConnectionEndpointServerRegistry,
+  ClientRemoteConnectionEndpointFactory,
   invariant,
   LobbyServer,
   QUERY_PARAMS,
@@ -48,7 +47,10 @@ export class ConnectionTopology {
     gameServer: undefined,
   };
 
-  constructor(private clientApplication: ClientApplication) {
+  constructor(
+    private clientApplication: ClientApplication,
+    private remoteEndpointFactory: ClientRemoteConnectionEndpointFactory
+  ) {
     runIfInBrowser(() => {
       makeAutoObservable(this, {}, { autoBind: true });
     });
@@ -61,8 +63,9 @@ export class ConnectionTopology {
       value: string;
     }[]
   ) {
-    const ws = new WebSocket(urlWithQueryParams(url, queryParams));
-    return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
+    return this.remoteEndpointFactory.createRemoteEndpoint(url, queryParams);
+    // const ws = new WebSocket(urlWithQueryParams(url, queryParams));
+    // return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
   }
 
   private createLocalConnectionEndpoint(
@@ -213,6 +216,7 @@ export class ConnectionTopology {
         this.clientApplication.alertsService.setAlert(
           new Error("Timed out connecting to lobby server")
         );
+        this.clientApplication.topologyManager.enterOffline();
       },
     });
     invariant(this._preferredMode !== ConnectionMode.Initializing);

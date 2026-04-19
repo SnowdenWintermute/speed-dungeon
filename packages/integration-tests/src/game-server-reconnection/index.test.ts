@@ -1,10 +1,7 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { TEST_GAME_NAME, TEST_PARTY_NAME } from "@/servers/fixtures";
-import { websocketFactory } from "@/servers/fixtures/test-connection-endpoint-factories";
 import {
-  AbilityType,
   BASIC_CHARACTER_FIXTURES,
-  CombatActionName,
   CombatantClass,
   CombatAttribute,
   DungeonRoomType,
@@ -15,7 +12,7 @@ import {
 } from "@speed-dungeon/common";
 
 describe("game server reconnection", () => {
-  const testFixture = new IntegrationTestFixture(websocketFactory);
+  const testFixture = new IntegrationTestFixture();
 
   afterEach(async () => {
     await Promise.all([
@@ -27,25 +24,25 @@ describe("game server reconnection", () => {
   it("reconnection success", async () => {
     testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
 
-    const a = testFixture.createClient("client a");
-    const b = testFixture.createClient("client b");
-    await Promise.all([a.connect(), b.connect()]);
+    const alpha = testFixture.createClient("client a");
+    const bravo = testFixture.createClient("client b");
+    await Promise.all([alpha.connect(), bravo.connect()]);
 
-    await a.lobbyClientHarness.createGame(TEST_GAME_NAME);
-    await a.lobbyClientHarness.createParty(TEST_PARTY_NAME);
-    await a.lobbyClientHarness.createCharacter("a", CombatantClass.Rogue);
+    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
+    await alpha.lobbyClientHarness.createParty(TEST_PARTY_NAME);
+    await alpha.lobbyClientHarness.createCharacter("a", CombatantClass.Rogue);
 
-    await b.lobbyClientHarness.fetchGameList();
-    const gameInList = b.clientApplication.lobbyContext.gameList[0];
+    await bravo.lobbyClientHarness.fetchGameList();
+    const gameInList = bravo.clientApplication.lobbyContext.gameList[0];
     invariant(gameInList !== undefined);
     expect(gameInList.gameName).toBe(TEST_GAME_NAME);
 
-    await b.lobbyClientHarness.joinGame(TEST_GAME_NAME);
-    await b.lobbyClientHarness.joinParty(TEST_PARTY_NAME);
-    await b.lobbyClientHarness.createCharacter("b", CombatantClass.Warrior);
+    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+    await bravo.lobbyClientHarness.joinParty(TEST_PARTY_NAME);
+    await bravo.lobbyClientHarness.createCharacter("b", CombatantClass.Warrior);
 
-    await a.eventually(() => {
-      const partyOption = a.clientApplication.gameContext.partyOption;
+    await alpha.eventually(() => {
+      const partyOption = alpha.clientApplication.gameContext.partyOption;
       expect(
         partyOption?.combatantManager
           .getPartyMemberCharacters()
@@ -54,62 +51,56 @@ describe("game server reconnection", () => {
     });
 
     await Promise.all([
-      a.lobbyClientHarness.toggleReadyToStartGame(),
-      b.lobbyClientHarness.toggleReadyToStartGame(),
+      alpha.lobbyClientHarness.toggleReadyToStartGame(),
+      bravo.lobbyClientHarness.toggleReadyToStartGame(),
     ]);
 
-    await a.clientApplication.sequentialEventProcessor.waitUntilIdle();
-    await a.clientApplication.transitionToGameServer.waitFor();
-    await b.clientApplication.sequentialEventProcessor.waitUntilIdle();
-    await b.clientApplication.transitionToGameServer.waitFor();
+    await alpha.clientApplication.sequentialEventProcessor.waitUntilIdle();
+    await alpha.clientApplication.transitionToGameServer.waitFor();
 
-    expect(a.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted());
-    expect(b.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted());
+    // here we would want to test for trying to input before 2nd player joined
 
-    const partyA = a.gameClientHarness.clientApplication.gameContext.requireParty();
-    const partyB = b.gameClientHarness.clientApplication.gameContext.requireParty();
-    await a.gameClientHarness.toggleReadyToExplore();
+    await bravo.clientApplication.sequentialEventProcessor.waitUntilIdle();
+    await bravo.clientApplication.transitionToGameServer.waitFor();
+
+    expect(
+      alpha.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted()
+    );
+    expect(
+      bravo.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted()
+    );
+
+    const partyA = alpha.gameClientHarness.clientApplication.gameContext.requireParty();
+    const partyB = bravo.gameClientHarness.clientApplication.gameContext.requireParty();
+    await alpha.gameClientHarness.toggleReadyToExplore();
     expect(partyA.currentRoom.requireType(DungeonRoomType.Empty));
-    await b.gameClientHarness.toggleReadyToExplore();
+    await bravo.gameClientHarness.toggleReadyToExplore();
     expect(partyB.currentRoom.requireType(DungeonRoomType.MonsterLair));
 
     // now try disconnect/reconnect
-    await a.clientApplication.gameClientRef.get().close();
+    await alpha.clientApplication.gameClientRef.get().close();
 
-    await b.eventually(() => {
-      const partyOption = b.clientApplication.gameContext.partyOption;
+    await bravo.eventually(() => {
+      const partyOption = bravo.clientApplication.gameContext.partyOption;
       invariant(partyOption !== undefined);
-      console.log("before:", partyOption.playerUsernamesAwaitingReconnection);
       expect(partyOption.playerUsernamesAwaitingReconnection.size > 0).toBeTruthy();
     });
     // b can not enter inputs while a has disconnected
-    b.clientApplication.combatantFocus.cycleFocusedCharacter(NextOrPrevious.Next);
-    await b.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
-    console.log(b.clientApplication.errorRecordService.getLastError());
-    expect(b.clientApplication.errorRecordService.getLastError()?.message).toBe(
+    bravo.clientApplication.combatantFocus.cycleFocusedCharacter(NextOrPrevious.Next);
+    await bravo.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
+    expect(bravo.clientApplication.errorRecordService.getLastError()?.message).toBe(
       ERROR_MESSAGES.GAME.INPUT_IS_LOCKED
     );
     // a reconnect
-    await a.connect();
-    await b.eventually(() => {
-      const partyOption = b.clientApplication.gameContext.partyOption;
+    await alpha.connect();
+    await bravo.eventually(() => {
+      const partyOption = bravo.clientApplication.gameContext.partyOption;
       invariant(partyOption !== undefined);
-      console.log(
-        "after:",
-        partyOption.playerUsernamesAwaitingReconnection,
-        partyOption.playerUsernamesAwaitingReconnection.size,
-        partyOption.playerUsernamesAwaitingReconnection.size === 0
-      );
       expect(partyOption.playerUsernamesAwaitingReconnection.size === 0).toBeTruthy();
     });
-
-    const partyOption = b.clientApplication.gameContext.partyOption;
-    invariant(partyOption !== undefined);
-    console.log(
-      "finally:",
-      partyOption.playerUsernamesAwaitingReconnection,
-      partyOption.playerUsernamesAwaitingReconnection.size,
-      partyOption.playerUsernamesAwaitingReconnection.size === 0
-    );
+    // inputs are now accepted
+    bravo.clientApplication.errorRecordService.clear();
+    await bravo.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
+    expect(bravo.clientApplication.errorRecordService.getLastError()).toBeUndefined();
   });
 });

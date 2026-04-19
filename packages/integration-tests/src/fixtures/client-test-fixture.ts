@@ -1,7 +1,11 @@
 import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
-import { CLIENT_LOG_RECORDER_MAX_BYTES, IndexedDbAssetStore } from "@speed-dungeon/common";
+import {
+  BrowserWebsocketClientConnectionEndpointFactory,
+  CLIENT_LOG_RECORDER_MAX_BYTES,
+  IndexedDbAssetStore,
+} from "@speed-dungeon/common";
 import fakeIndexedDB from "fake-indexeddb";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
@@ -25,7 +29,8 @@ export class ClientFixture {
       `http://localhost:${lobbyServerPort}`,
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
-      clientLogRecorder
+      clientLogRecorder,
+      new BrowserWebsocketClientConnectionEndpointFactory()
     );
 
     const { lobbyClientRef, gameClientRef } = this.clientApplication;

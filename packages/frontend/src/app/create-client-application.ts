@@ -1,4 +1,5 @@
 import {
+  BrowserWebsocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   IndexedDbAssetStore,
   invariant,
@@ -21,6 +22,7 @@ export function createClientApplication() {
     "http://localhost:8080",
     lobbyServerUrl,
     tickScheduler.scheduler,
-    clientLogRecorder
+    clientLogRecorder,
+    new BrowserWebsocketClientConnectionEndpointFactory()
   );
 }

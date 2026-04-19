@@ -1,3 +1,4 @@
+import { clear } from "node:console";
 import { AbilityTreeAbility } from "../../../abilities/index.js";
 import { CombatantId } from "../../../aliases.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";

@@ -2,10 +2,9 @@ import {
   AssetCache,
   ClientAppAssetService,
   Deferred,
-  GameStateUpdate,
   RemoteServerAssetStore,
+  ClientRemoteConnectionEndpointFactory,
 } from "@speed-dungeon/common";
-import { ProcessedUpdateAwaiter } from "./event-latch";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
 import { ClientApplicationGameContext } from "./client-application-game-context";
@@ -42,7 +41,6 @@ export class ClientApplication {
   readonly assetService: ClientAppAssetService;
 
   // event processing
-  readonly processedUpdateAwaiter = new ProcessedUpdateAwaiter<GameStateUpdate>();
   readonly replayTreeScheduler: ReplayTreeScheduler;
   readonly sequentialEventProcessor: ClientSequentialEventProcessor;
   private unregisterReplayManagerTick: () => void;
@@ -73,7 +71,7 @@ export class ClientApplication {
   readonly broadcastChannel: BroadcastChannelMananger;
 
   // topology
-  readonly topologyManager = new ConnectionTopology(this);
+  readonly topologyManager: ConnectionTopology;
   readonly transitionToGameServer = new Deferred();
   readonly transitionToLobbyServer = new Deferred();
 
@@ -85,11 +83,14 @@ export class ClientApplication {
     assetServerUrl: string,
     public lobbyServerUrl: string,
     replayManagerTickScheduler: TickScheduler,
-    clientLogRecorder: ClientLogRecorder
+    clientLogRecorder: ClientLogRecorder,
+    remoteEndpointFactory: ClientRemoteConnectionEndpointFactory
   ) {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
     this.clientLogRecorder = clientLogRecorder;
+
+    this.topologyManager = new ConnectionTopology(this, remoteEndpointFactory);
 
     this.replayTreeScheduler = new ReplayTreeScheduler(this);
     this.unregisterReplayManagerTick = replayManagerTickScheduler((deltaMs) =>

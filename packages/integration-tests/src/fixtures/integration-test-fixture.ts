@@ -1,5 +1,3 @@
-import { createTestServers } from "@/servers/fixtures/create-test-servers";
-import { ClientEndpointFactory } from "@/servers/fixtures/test-connection-endpoint-factories";
 import {
   CombatantClass,
   ExplicitCombatantDungeonTemplate,
@@ -15,6 +13,10 @@ import {
 } from "@speed-dungeon/common";
 import { ClientFixture } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
+import { WebSocketServer } from "ws";
+import { getPortFromAddress } from "@/servers/fixtures/create-test-websocket-incoming-connection-gateways.js";
+import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
+import { createTestServers } from "./create-test-servers.js";
 
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
@@ -23,7 +25,26 @@ export class IntegrationTestFixture {
   private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
 
-  constructor(private clientEndpointFactory: ClientEndpointFactory) {}
+  private createIncomingConnectionGateways() {
+    const lobbyWebSocketServer = new WebSocketServer({ port: 0 });
+    const lobbyServerPort = getPortFromAddress(lobbyWebSocketServer);
+
+    const lobbyIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(
+      lobbyWebSocketServer
+    );
+    const gameServerWebSocketServer = new WebSocketServer({ port: 0 });
+    const gameServerIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(
+      gameServerWebSocketServer
+    );
+    const gameServerPort = getPortFromAddress(gameServerWebSocketServer);
+
+    return {
+      lobbyIncomingConnectionGateway,
+      gameServerIncomingConnectionGateway,
+      lobbyServerPort,
+      gameServerPort,
+    };
+  }
 
   private async createServers(
     rngPolicy: RandomNumberGenerationPolicy,
@@ -35,7 +56,7 @@ export class IntegrationTestFixture {
       gameServerIncomingConnectionGateway,
       lobbyServerPort,
       gameServerPort,
-    } = this.clientEndpointFactory.createIncomingConnectionGateways(this.lobbyServerPort);
+    } = this.createIncomingConnectionGateways();
     this._lobbyServerPort = lobbyServerPort;
 
     if (this._gameServer !== null) {

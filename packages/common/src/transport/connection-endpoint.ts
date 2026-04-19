@@ -7,6 +7,14 @@ export enum ConnectionEndpointReadyState {
   CLOSED = 3,
 }
 
+export const CONNECTION_ENDPOINT_READY_STATE_STRINGS: Record<ConnectionEndpointReadyState, string> =
+  {
+    [ConnectionEndpointReadyState.CONNECTING]: "CONNECTING",
+    [ConnectionEndpointReadyState.OPEN]: "OPEN",
+    [ConnectionEndpointReadyState.CLOSING]: "CLOSING",
+    [ConnectionEndpointReadyState.CLOSED]: "CLOSED",
+  };
+
 export interface ConnectionEndpoint {
   id: ConnectionId;
   readyState: ConnectionEndpointReadyState;
