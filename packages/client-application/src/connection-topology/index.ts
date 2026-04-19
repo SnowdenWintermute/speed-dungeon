@@ -157,6 +157,7 @@ export class ConnectionTopology {
         lobbyClientRef.get().resetIntentSequenceCounter();
         lobbyClientRef.get().targetConnectionMode = ConnectionMode.Online;
         lobbyClientRef.get().setEndpoint(connectionEndpoint);
+        lobbyClientRef.get().stopAwaitingReplies();
       }
     });
   }

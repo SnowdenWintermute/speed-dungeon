@@ -19,6 +19,8 @@ export class CharacterProgressionController {
       requireOwned: true,
       requireAlive: true,
     });
+    game.requireInputUnlocked();
+
     const { combatantProperties } = character;
 
     combatantProperties.attributeProperties.requireUnspentAttributes();

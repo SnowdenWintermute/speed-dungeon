@@ -12,6 +12,7 @@ import {
   CombatActionName,
   CombatantClass,
   CombatantId,
+  CombatAttribute,
   EntityName,
   GameMode,
   GameName,
@@ -250,6 +251,14 @@ export class ClientTestHarness<T extends BaseClient> {
     return this.settleIntentResult({
       type: ClientIntentType.AllocateAbilityPoint,
       data: { characterId, ability },
+    });
+  }
+
+  async allocateAttributePoint(attribute: CombatAttribute) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
+    return this.settleIntentResult({
+      type: ClientIntentType.IncrementAttribute,
+      data: { characterId, attribute },
     });
   }
 }

@@ -57,6 +57,7 @@ export class CombatantBuilder {
   private _withThreatManager: boolean = false;
   private _useExplicitAttributes: boolean = false;
   private _unspentAbilityPoints: number = 0;
+  private _unspentAttributePoints: number = 0;
 
   private constructor(
     private mainClass: CombatantClass,
@@ -227,6 +228,11 @@ export class CombatantBuilder {
     return this;
   }
 
+  unspentAttributePoints(points: number) {
+    this._unspentAttributePoints = points;
+    return this;
+  }
+
   appendAllActions() {
     this.ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)
@@ -330,6 +336,9 @@ export class CombatantBuilder {
 
     if (this._unspentAbilityPoints) {
       combatantProperties.abilityProperties.setUnspentAbilityPoints(this._unspentAbilityPoints);
+    }
+    if (this._unspentAttributePoints) {
+      combatantProperties.attributeProperties.changeUnspentPoints(this._unspentAttributePoints);
     }
 
     return combatant;

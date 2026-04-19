@@ -24,6 +24,7 @@ export const BASIC_CHARACTER_FIXTURE_BUILDERS = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 30)
       .unspentAbilityPoints(2)
+      .unspentAttributePoints(2)
       .appendAllActions(),
   WARRIOR: () =>
     CombatantBuilder.playerCharacter(CombatantClass.Warrior, "" as Username)
@@ -35,6 +36,7 @@ export const BASIC_CHARACTER_FIXTURE_BUILDERS = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 20)
       .unspentAbilityPoints(2)
+      .unspentAttributePoints(2)
       .appendAllActions(),
   MAGE: () =>
     CombatantBuilder.playerCharacter(CombatantClass.Mage, "" as Username)
@@ -44,6 +46,7 @@ export const BASIC_CHARACTER_FIXTURE_BUILDERS = {
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 20)
       .unspentAbilityPoints(2)
+      .unspentAttributePoints(2)
       .appendAllActions(),
 };
 

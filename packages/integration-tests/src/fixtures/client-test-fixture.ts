@@ -7,6 +7,7 @@ import fakeIndexedDB from "fake-indexeddb";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
+import { vi } from "vitest";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -44,5 +45,12 @@ export class ClientFixture {
 
   async connect() {
     await this.clientApplication.topologyManager.connectWithPrefferedMode();
+  }
+
+  eventually(assertion: () => void | Promise<void>, options = { timeout: 500, interval: 20 }) {
+    return vi.waitFor(async () => {
+      await this.clientApplication.sequentialEventProcessor.waitUntilIdle();
+      await assertion();
+    }, options);
   }
 }

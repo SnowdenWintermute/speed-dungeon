@@ -32,6 +32,10 @@ export abstract class BaseClient {
     this._intentSequenceCounter = 0;
   }
 
+  stopAwaitingReplies() {
+    this._pendingReplies.clear();
+  }
+
   dispatchIntent(message: ClientIntent): number {
     this._intentSequenceCounter += 1;
     this.clientApplication.clientLogRecorder.recordIntentDispatched(
@@ -52,8 +56,11 @@ export abstract class BaseClient {
     return this.clientApplication.sequentialEventProcessor.waitUntilIdle();
   }
 
-  close() {
-    this.connectionEndpoint.close();
+  async close() {
+    await new Promise<void>((resolve) => {
+      this.connectionEndpoint.once("close", () => resolve());
+      this.connectionEndpoint.close();
+    });
   }
 
   setEndpoint(connectionEndpoint: ConnectionEndpoint) {

@@ -115,6 +115,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       return outbox;
     }
 
+    console.log("added input lock");
     game.inputLock.add(session.taggedUserId.id);
 
     outbox.pushToChannel(game.getChannelName(), {

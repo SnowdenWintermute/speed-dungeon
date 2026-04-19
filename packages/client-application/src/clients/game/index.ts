@@ -1,10 +1,4 @@
-import {
-  CleanupMode,
-  ClientIntentType,
-  ClientSequentialEventType,
-  GameStateUpdate,
-  invariant,
-} from "@speed-dungeon/common";
+import { CleanupMode, ClientIntentType, GameStateUpdate, invariant } from "@speed-dungeon/common";
 import { BaseClient } from "../base";
 import { createGameUpdateHandlers } from "./update-handlers";
 import { DialogElementName } from "@/client-application/ui/dialogs";
