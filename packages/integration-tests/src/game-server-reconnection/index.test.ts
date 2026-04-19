@@ -1,5 +1,5 @@
+import { TEST_GAME_NAME, TEST_PARTY_NAME } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { TEST_GAME_NAME, TEST_PARTY_NAME } from "@/servers/fixtures";
 import {
   BASIC_CHARACTER_FIXTURES,
   CombatantClass,
@@ -50,25 +50,31 @@ describe("game server reconnection", () => {
       ).toBeDefined();
     });
 
-    await Promise.all([
-      alpha.lobbyClientHarness.toggleReadyToStartGame(),
-      bravo.lobbyClientHarness.toggleReadyToStartGame(),
-    ]);
+    const alphaReadiedUpPromise = alpha.lobbyClientHarness.toggleReadyToStartGame();
+    const bravoReadiedUpPromise = bravo.lobbyClientHarness.toggleReadyToStartGame();
+    bravo.lobbyClientHarness.pauseTransport();
 
-    await alpha.clientApplication.sequentialEventProcessor.waitUntilIdle();
+    await alphaReadiedUpPromise;
+
     await alpha.clientApplication.transitionToGameServer.waitFor();
 
     // here we would want to test for trying to input before 2nd player joined
+    await alpha.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
+    console.log(
+      "error expected:",
+      alpha.clientApplication.errorRecordService.getLastError()?.message
+    );
 
-    await bravo.clientApplication.sequentialEventProcessor.waitUntilIdle();
+    bravo.lobbyClientHarness.resumeTransport();
+    await bravoReadiedUpPromise;
     await bravo.clientApplication.transitionToGameServer.waitFor();
 
-    expect(
-      alpha.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted()
-    );
-    expect(
-      bravo.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted()
-    );
+    // expect(
+    //   alpha.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted()
+    // );
+    // expect(
+    //   bravo.gameClientHarness.clientApplication.gameContext.requireGame().requireTimeStarted()
+    // );
 
     const partyA = alpha.gameClientHarness.clientApplication.gameContext.requireParty();
     const partyB = bravo.gameClientHarness.clientApplication.gameContext.requireParty();

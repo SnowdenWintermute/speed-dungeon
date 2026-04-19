@@ -14,9 +14,9 @@ import {
 import { ClientFixture } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
 import { WebSocketServer } from "ws";
-import { getPortFromAddress } from "@/servers/fixtures/create-test-websocket-incoming-connection-gateways.js";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
 import { createTestServers } from "./create-test-servers.js";
+import { getPortFromAddress } from "@/test-utils/get-port-from-address.js";
 
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;

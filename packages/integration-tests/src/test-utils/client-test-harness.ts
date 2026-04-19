@@ -26,6 +26,7 @@ import {
 } from "@speed-dungeon/common";
 import { ClientSingleton } from "@/client-application/clients/singleton";
 import { CombatActionHistoryInspector } from "./combat-action-history-inspector.js";
+import { PausableEndpoint } from "./pausable-endpoint.js";
 
 export class ClientTestHarness<T extends BaseClient> {
   readonly actionHistory: CombatActionHistoryInspector;
@@ -35,6 +36,14 @@ export class ClientTestHarness<T extends BaseClient> {
     readonly tickScheduler: ManualTickScheduler
   ) {
     this.actionHistory = new CombatActionHistoryInspector(clientApplication);
+  }
+
+  pauseTransport() {
+    (this.clientSingleton.get().connectionEndpoint as PausableEndpoint).pause();
+  }
+
+  resumeTransport() {
+    (this.clientSingleton.get().connectionEndpoint as PausableEndpoint).resume();
   }
 
   async dispatchAndAwaitReply(intent: ClientIntent) {

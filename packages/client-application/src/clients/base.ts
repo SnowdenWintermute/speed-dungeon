@@ -17,7 +17,7 @@ export abstract class BaseClient {
 
   constructor(
     protected name: string,
-    protected connectionEndpoint: ConnectionEndpoint,
+    protected _connectionEndpoint: ConnectionEndpoint,
     protected clientApplication: ClientApplication,
     protected connectionTopology: ConnectionTopology,
     protected _targetConnectionMode: ConnectionMode
@@ -43,7 +43,7 @@ export abstract class BaseClient {
       this._intentSequenceCounter,
       message
     );
-    this.connectionEndpoint.send(JSON.stringify(message));
+    this._connectionEndpoint.send(JSON.stringify(message));
     return this._intentSequenceCounter;
   }
 
@@ -59,24 +59,28 @@ export abstract class BaseClient {
 
   async close() {
     await new Promise<void>((resolve) => {
-      this.connectionEndpoint.once("close", () => resolve());
-      this.connectionEndpoint.close();
+      this._connectionEndpoint.once("close", () => resolve());
+      this._connectionEndpoint.close();
     });
   }
 
-  setEndpoint(connectionEndpoint: ConnectionEndpoint) {
-    const oldEndpoint = this.connectionEndpoint;
-    this.connectionEndpoint = connectionEndpoint;
+  setEndpoint(_connectionEndpoint: ConnectionEndpoint) {
+    const oldEndpoint = this._connectionEndpoint;
+    this._connectionEndpoint = _connectionEndpoint;
     this.registerListeners();
     oldEndpoint.close();
   }
 
   get connectionStatus() {
-    return CONNECTION_ENDPOINT_READY_STATE_STRINGS[this.connectionEndpoint.readyState];
+    return CONNECTION_ENDPOINT_READY_STATE_STRINGS[this._connectionEndpoint.readyState];
+  }
+
+  get connectionEndpoint() {
+    return this._connectionEndpoint;
   }
 
   protected registerListeners() {
-    this.connectionEndpoint.on("open", () => {
+    this._connectionEndpoint.on("open", () => {
       // console.info(`connected to ${this.name}`);
       const { gameContext, uiStore } = this.clientApplication;
       gameContext.clearGame();
@@ -94,7 +98,7 @@ export abstract class BaseClient {
       // this.dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
     });
 
-    this.connectionEndpoint.on("message", (untyped) => {
+    this._connectionEndpoint.on("message", (untyped) => {
       const typedMessage = this.getTypedMessage(untyped);
       this.clientApplication.clientLogRecorder.recordUpdateReceived(typedMessage);
       this.handleMessage(typedMessage);
@@ -102,7 +106,7 @@ export abstract class BaseClient {
       this.handleEndOfStream(typedMessage);
     });
 
-    this.connectionEndpoint.on("close", (reason) => {
+    this._connectionEndpoint.on("close", (reason) => {
       // console.info(`closed connection endpoint with code ${reason}`);
     });
   }

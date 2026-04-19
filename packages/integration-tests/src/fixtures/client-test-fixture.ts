@@ -11,6 +11,7 @@ import { LobbyClient } from "@/client-application/clients/lobby/index.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
 import { vi } from "vitest";
+import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -30,7 +31,9 @@ export class ClientFixture {
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder,
-      new BrowserWebsocketClientConnectionEndpointFactory()
+      new PausableClientRemoteConnectionEndpointFactory(
+        new BrowserWebsocketClientConnectionEndpointFactory()
+      )
     );
 
     const { lobbyClientRef, gameClientRef } = this.clientApplication;

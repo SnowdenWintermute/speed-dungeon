@@ -18,6 +18,7 @@ export class CharacterProgressionController {
     const { characterId, attribute } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
     const { combatantProperties } = character;
+    console.log("spend attribute");
 
     combatantProperties.attributeProperties.requireUnspentAttributes();
     combatantProperties.attributeProperties.requireAttributeAllocatable(attribute);
