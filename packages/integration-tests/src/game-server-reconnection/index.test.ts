@@ -8,6 +8,7 @@ import {
   CombatantClass,
   CombatAttribute,
   DungeonRoomType,
+  ERROR_MESSAGES,
   invariant,
   NextOrPrevious,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
@@ -78,12 +79,37 @@ describe("game server reconnection", () => {
     await b.eventually(() => {
       const partyOption = b.clientApplication.gameContext.partyOption;
       invariant(partyOption !== undefined);
+      console.log("before:", partyOption.playerUsernamesAwaitingReconnection);
       expect(partyOption.playerUsernamesAwaitingReconnection.size > 0).toBeTruthy();
     });
     // b can not enter inputs while a has disconnected
     b.clientApplication.combatantFocus.cycleFocusedCharacter(NextOrPrevious.Next);
     await b.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
     console.log(b.clientApplication.errorRecordService.getLastError());
-    expect(b.clientApplication.errorRecordService.getLastError());
+    expect(b.clientApplication.errorRecordService.getLastError()?.message).toBe(
+      ERROR_MESSAGES.GAME.INPUT_IS_LOCKED
+    );
+    // a reconnect
+    await a.connect();
+    await b.eventually(() => {
+      const partyOption = b.clientApplication.gameContext.partyOption;
+      invariant(partyOption !== undefined);
+      console.log(
+        "after:",
+        partyOption.playerUsernamesAwaitingReconnection,
+        partyOption.playerUsernamesAwaitingReconnection.size,
+        partyOption.playerUsernamesAwaitingReconnection.size === 0
+      );
+      expect(partyOption.playerUsernamesAwaitingReconnection.size === 0).toBeTruthy();
+    });
+
+    const partyOption = b.clientApplication.gameContext.partyOption;
+    invariant(partyOption !== undefined);
+    console.log(
+      "finally:",
+      partyOption.playerUsernamesAwaitingReconnection,
+      partyOption.playerUsernamesAwaitingReconnection.size,
+      partyOption.playerUsernamesAwaitingReconnection.size === 0
+    );
   });
 });

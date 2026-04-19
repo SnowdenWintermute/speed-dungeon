@@ -128,7 +128,7 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
-    // this.logUserConnected(session);
+    this.logUserConnected(session);
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(
@@ -145,9 +145,11 @@ export class LobbyServer extends SpeedDungeonServer {
         sessionWillBeForwardedToGameServer: true,
       });
       const reconnectionCredentialsOutbox = await connectionContext.issueCredentials();
+      console.log("issued reconnection credetials:", reconnectionCredentialsOutbox);
       outbox.pushFromOther(reconnectionCredentialsOutbox);
       this.dispatchOutboxMessages(outbox);
     } else {
+      console.log("not a reconnection");
       this.attachIntentHandlersToSessionConnection(
         session,
         connectionEndpoint,

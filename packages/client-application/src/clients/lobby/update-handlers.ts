@@ -241,7 +241,7 @@ export function createLobbyUpdateHandlers(
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
 
-      // connectionEndpoint.close();
+      console.log("got connectionInstructions:", url, encryptedSessionClaimToken);
 
       const queryParams = [
         {
@@ -261,6 +261,9 @@ export function createLobbyUpdateHandlers(
           );
         },
       });
+
+      console.log("armed deferred");
+
       clientApplication.topologyManager.createGameClient(url, queryParams);
     },
     [GameStateUpdateType.EndOfUpdateStream]: () => {

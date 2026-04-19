@@ -87,7 +87,7 @@ export function createGameUpdateHandlers(
       clientApplication.session.setUsername(data.username);
     },
     [GameStateUpdateType.CacheGuestSessionReconnectionToken]: (data) => {
-      //
+      clientApplication.reconnectionTokenStore.guestGameReconnectionToken = data.token;
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);

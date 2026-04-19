@@ -31,6 +31,7 @@ import { BroadcastChannelMananger } from "./broadcast-channel";
 import { ConnectionTopology } from "./connection-topology";
 import { GameClient } from "./clients/game";
 import { LobbyClient } from "./clients/lobby";
+import { ReconnectionTokenStore } from "./reconnection-token-store";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
@@ -75,6 +76,9 @@ export class ClientApplication {
   readonly topologyManager = new ConnectionTopology(this);
   readonly transitionToGameServer = new Deferred();
   readonly transitionToLobbyServer = new Deferred();
+
+  // reconnection
+  readonly reconnectionTokenStore = new ReconnectionTokenStore();
 
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)

@@ -5,6 +5,7 @@ import {
   InMemoryConnectionEndpointServerRegistry,
   invariant,
   LobbyServer,
+  QUERY_PARAMS,
   runIfInBrowser,
   urlWithQueryParams,
 } from "@speed-dungeon/common";
@@ -139,7 +140,15 @@ export class ConnectionTopology {
       const { lobbyClientRef, gameClientRef } = this.clientApplication;
       connectionStatus.connectionStatus = ConnectionStatus.Initializing;
       const remoteLobbyServerAddress = this.clientApplication.lobbyServerUrl;
-      const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, []);
+      const queryParams = [];
+      const { guestGameReconnectionToken } = this.clientApplication.reconnectionTokenStore;
+      if (guestGameReconnectionToken) {
+        queryParams.push({
+          name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
+          value: guestGameReconnectionToken,
+        });
+      }
+      const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
       connectionEndpoint.on("open", () => {
         resolve();
       });

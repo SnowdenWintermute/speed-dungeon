@@ -217,7 +217,7 @@ export class GameServer extends SpeedDungeonServer {
         connectionEndpoint.id,
         identityResolutionContext
       );
-      // this.logUserConnected(session);
+      this.logUserConnected(session);
 
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -242,6 +242,7 @@ export class GameServer extends SpeedDungeonServer {
 
       if (connectionContext.type === ConnectionContextType.Reconnection) {
         await connectionContext.attemptReconnectionClaim();
+        console.log("reconnection claim attempted");
       } else if (gameIsInProgress) {
         throw new Error("Tried to join a game in progress without a reconnection claim");
       }
