@@ -50,10 +50,7 @@ export class CombatActionController {
   ) {
     const { characterId, actionAndRankOption, itemIdOption } = data;
 
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
 
     const { abilityProperties } = character.combatantProperties;
 
@@ -118,10 +115,7 @@ export class CombatActionController {
   ) {
     const { actionRank, characterId } = data;
 
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
     const targetingProperties = character.getTargetingProperties();
     const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
@@ -182,10 +176,7 @@ export class CombatActionController {
     data: { characterId: CombatantId; direction: NextOrPrevious }
   ) {
     const { characterId, direction } = data;
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
 
     const targetingCalculator = new TargetingCalculator(
       new ActionUserContext(game, party, character),
@@ -208,10 +199,7 @@ export class CombatActionController {
 
   cycleTargetingSchemesHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
 
     const targetingCalculator = new TargetingCalculator(
       new ActionUserContext(game, party, character),
@@ -234,10 +222,7 @@ export class CombatActionController {
 
   async useSelectedCombatActionHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
-    const characterContext = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const characterContext = session.requireCharacterContext(characterId);
 
     const validTargetsAndActionNameResult = this.validateClientActionUseRequest(characterContext);
 

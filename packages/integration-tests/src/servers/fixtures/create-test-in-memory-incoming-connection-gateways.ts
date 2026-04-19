@@ -3,12 +3,17 @@ import {
   InMemoryConnectionEndpointServerRegistry,
   InMemoryIncomingConnectionGateway,
 } from "@speed-dungeon/common";
-import { TEST_GAME_SERVER_URL, TEST_LOBBY_URL } from "./index.js";
+import {
+  LOCAL_GAME_SERVER_PORT,
+  LOCAL_GAME_SERVER_URL,
+  LOCAL_LOBBY_SERVER_PORT,
+  LOCAL_LOBBY_URL,
+} from ".";
 
 export function createTestInMemoryIncomingConnectionGateways() {
   const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();
   InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
-    TEST_LOBBY_URL,
+    LOCAL_LOBBY_URL,
     lobbyConnectionEndpointServer
   );
 
@@ -18,7 +23,7 @@ export function createTestInMemoryIncomingConnectionGateways() {
 
   const gameServerConnectionEndpointServer = new InMemoryConnectionEndpointServer();
   InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
-    TEST_GAME_SERVER_URL,
+    LOCAL_GAME_SERVER_URL,
     gameServerConnectionEndpointServer
   );
 
@@ -29,5 +34,7 @@ export function createTestInMemoryIncomingConnectionGateways() {
   return {
     lobbyIncomingConnectionGateway,
     gameServerIncomingConnectionGateway,
+    lobbyServerPort: LOCAL_LOBBY_SERVER_PORT,
+    gameServerPort: LOCAL_GAME_SERVER_PORT,
   };
 }

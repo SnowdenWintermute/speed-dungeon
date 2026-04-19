@@ -16,7 +16,6 @@ import {
   LobbyServer,
   OpaqueEncryptionSessionClaimTokenCodec,
   RaceGameRecordsService,
-  RandomNumberGenerationPolicyFactory,
   SavedCharactersService,
   SodiumHelpers,
 } from "@speed-dungeon/common";
@@ -25,8 +24,6 @@ import {
   createLobbyTestServices,
   localServerUrl,
   TEST_GAME_SERVER_NAME,
-  TEST_GAME_SERVER_PORT,
-  TEST_GAME_SERVER_URL,
 } from "./index.js";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -37,6 +34,7 @@ import {
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
   gameServerIncomingConnectionGateway: IncomingConnectionGateway,
+  testGameServerPort: number,
   rngPolicy: RandomNumberGenerationPolicy,
   characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
@@ -63,7 +61,7 @@ export async function createTestServers(
   const codec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
 
   async function testLeastBusyServerUrlGetter() {
-    return localServerUrl(TEST_GAME_SERVER_PORT);
+    return localServerUrl(testGameServerPort);
   }
 
   const lobbyServer = new LobbyServer(
@@ -76,7 +74,7 @@ export async function createTestServers(
       profileService
     ),
     codec,
-    { [TEST_GAME_SERVER_NAME]: TEST_GAME_SERVER_URL },
+    { [TEST_GAME_SERVER_NAME]: localServerUrl(testGameServerPort) },
     () => testLeastBusyServerUrlGetter(),
     characterCreationPolicyConstructor,
     rngPolicy,

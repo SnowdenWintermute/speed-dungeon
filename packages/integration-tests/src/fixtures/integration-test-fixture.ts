@@ -1,13 +1,11 @@
 import { createTestServers } from "@/servers/fixtures/create-test-servers";
 import { ClientEndpointFactory } from "@/servers/fixtures/test-connection-endpoint-factories";
 import {
-  BASIC_CHARACTER_FIXTURES,
   CombatantClass,
   ExplicitCombatantDungeonTemplate,
   FixedCharacterCreationLists,
   FixedNumberGenerator,
   GameServer,
-  IncomingConnectionGateway,
   invariant,
   LobbyServer,
   RandomNumberGenerationPolicy,
@@ -23,6 +21,7 @@ export class IntegrationTestFixture {
   private _gameServer: GameServer | null = null;
   private clients = new Map<string, ClientFixture>();
   private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
+  private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
 
   constructor(private clientEndpointFactory: ClientEndpointFactory) {}
 
@@ -31,23 +30,29 @@ export class IntegrationTestFixture {
     dungeonScript: ExplicitCombatantDungeonTemplate,
     characterCreationFixture: FixedCharacterCreationLists
   ) {
-    const { lobbyIncomingConnectionGateway, gameServerIncomingConnectionGateway } =
-      this.clientEndpointFactory.createIncomingConnectionGateways();
+    const {
+      lobbyIncomingConnectionGateway,
+      gameServerIncomingConnectionGateway,
+      lobbyServerPort,
+      gameServerPort,
+    } = this.clientEndpointFactory.createIncomingConnectionGateways(this.lobbyServerPort);
+    this._lobbyServerPort = lobbyServerPort;
 
     if (this._gameServer !== null) {
       this.previouslyCalculatedAnimationLengths = this._gameServer.assetAnalyzer.animationLengths;
     }
 
-    const inMemoryTransportAndServers = await createTestServers(
+    const servers = await createTestServers(
       lobbyIncomingConnectionGateway,
       gameServerIncomingConnectionGateway,
+      gameServerPort,
       rngPolicy,
       ScriptedCharacterCreationPolicy
     );
 
-    this._lobbyServer = inMemoryTransportAndServers.lobbyServer;
+    this._lobbyServer = servers.lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
-    this._gameServer = inMemoryTransportAndServers.gameServer;
+    this._gameServer = servers.gameServer;
     this._gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
 
     if (!this.previouslyCalculatedAnimationLengths) {
@@ -62,13 +67,17 @@ export class IntegrationTestFixture {
     return this._lobbyServer;
   }
 
+  get lobbyServerPort() {
+    return this._lobbyServerPort;
+  }
+
   get gameServer() {
     invariant(this._gameServer !== null, "no game server initialized");
     return this._gameServer;
   }
 
   createClient(id: string) {
-    const client = new ClientFixture();
+    const client = new ClientFixture(this.lobbyServerPort);
     this.clients.set(id, client);
     return client;
   }

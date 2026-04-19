@@ -76,7 +76,6 @@ describe("game server reconnection", () => {
     await a.clientApplication.gameClientRef.get().close();
 
     await b.eventually(() => {
-      console.log("checking");
       const partyOption = b.clientApplication.gameContext.partyOption;
       invariant(partyOption !== undefined);
       expect(partyOption.playerUsernamesAwaitingReconnection.size > 0).toBeTruthy();

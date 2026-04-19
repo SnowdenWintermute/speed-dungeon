@@ -42,10 +42,7 @@ export class CraftingController {
 
   convertItemsToShardsHandler(session: UserSession, data: CharacterAndItems) {
     const { characterId, itemIds } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     character.combatantProperties.abilityProperties.requireShardConversionPermitted(
       party.currentRoom.roomType
@@ -65,10 +62,7 @@ export class CraftingController {
 
   dropShardsHandler(session: UserSession, data: { characterId: CombatantId; shardCount: number }) {
     const { characterId, shardCount } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
     const { inventory } = character.combatantProperties;
 
     inventory.requireShardCount(shardCount);
@@ -91,10 +85,7 @@ export class CraftingController {
     data: { characterId: CombatantId; consumableType: ConsumableType }
   ) {
     const { characterId, consumableType } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     party.currentRoom.requireType(DungeonRoomType.VendingMachine);
 
@@ -136,10 +127,7 @@ export class CraftingController {
     data: { characterId: CombatantId; itemId: ItemId; craftingAction: CraftingAction }
   ) {
     const { characterId, itemId, craftingAction } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
     party.currentRoom.requireType(DungeonRoomType.VendingMachine);
 
     const { inventory } = character.combatantProperties;
@@ -199,10 +187,7 @@ export class CraftingController {
     data: { characterId: CombatantId; itemId: ItemId; bookType: BookConsumableType }
   ) {
     const { characterId, itemId, bookType } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const { combatantProperties } = character;
     party.currentRoom.requireType(DungeonRoomType.VendingMachine);

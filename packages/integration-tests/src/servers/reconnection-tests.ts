@@ -9,7 +9,6 @@ import {
   TestAuthSessionIds,
 } from "./fixtures/test-connection-endpoint-factories.js";
 import { testGameSetupToSuccessfulGameReconnect } from "./fixtures/checkpoints/successful-game-reconnect.js";
-import { TEST_LOBBY_URL } from "./fixtures/index.js";
 import { testGameSetupToBothPlayersJoined } from "./fixtures/checkpoints/two-players-joined-game-server.js";
 import { TimeMachine } from "../test-utils/time-machine.js";
 
@@ -34,7 +33,9 @@ export function reconnectionTests(
       value: usedJoinerGuestReconnectionToken || "",
     };
 
-    const endpoint = clientEndpointFactory.createClientEndpoint(TEST_LOBBY_URL, {
+    const endpoint = clientEndpointFactory.createClientEndpoint(
+      // TEST_LOBBY_URL
+      , {
       queryParams: [queryParams],
       headers: { cookie: `id=${authSessionIds?.joinerAuthSessionId}` },
     });

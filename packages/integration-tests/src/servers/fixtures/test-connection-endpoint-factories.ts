@@ -19,9 +19,11 @@ export interface ClientEndpointFactory {
       headers?: Record<string, string>;
     }
   ): ConnectionEndpoint;
-  createIncomingConnectionGateways(): {
+  createIncomingConnectionGateways(lobbyPort: number): {
     lobbyIncomingConnectionGateway: IncomingConnectionGateway;
     gameServerIncomingConnectionGateway: IncomingConnectionGateway;
+    lobbyServerPort: number;
+    gameServerPort: number;
   };
 }
 

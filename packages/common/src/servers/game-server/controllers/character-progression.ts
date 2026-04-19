@@ -15,12 +15,7 @@ export class CharacterProgressionController {
     data: { characterId: CombatantId; attribute: CombatAttribute }
   ) {
     const { characterId, attribute } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
-    game.requireInputUnlocked();
-
+    const { game, party, character } = session.requireCharacterContext(characterId);
     const { combatantProperties } = character;
 
     combatantProperties.attributeProperties.requireUnspentAttributes();
@@ -42,10 +37,7 @@ export class CharacterProgressionController {
     data: { characterId: CombatantId; ability: AbilityTreeAbility }
   ) {
     const { characterId, ability } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
     const { combatantProperties } = character;
 
     const { canAllocate, reasonCanNot } =

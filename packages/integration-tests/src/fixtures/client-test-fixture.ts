@@ -1,6 +1,5 @@
 import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
-import { TEST_LOBBY_SERVER_PORT } from "@/servers/fixtures";
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import { CLIENT_LOG_RECORDER_MAX_BYTES, IndexedDbAssetStore } from "@speed-dungeon/common";
 import fakeIndexedDB from "fake-indexeddb";
@@ -14,7 +13,7 @@ export class ClientFixture {
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
 
-  constructor() {
+  constructor(lobbyServerPort: number) {
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
     const tickScheduler = new ManualTickScheduler();
     const clientLogRecorder = new IndexedDbClientLogRecorder(
@@ -23,8 +22,8 @@ export class ClientFixture {
     );
     this.clientApplication = new ClientApplication(
       assetCache,
-      `http://localhost:${TEST_LOBBY_SERVER_PORT}`,
-      `http://localhost:${TEST_LOBBY_SERVER_PORT}`,
+      `http://localhost:${lobbyServerPort}`,
+      `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder
     );

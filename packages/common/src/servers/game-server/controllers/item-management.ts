@@ -26,10 +26,7 @@ export class ItemManagementController {
 
   dropItemHandler(session: UserSession, data: CharacterAndItem) {
     const { characterId, itemId } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const itemDroppedIdResult = character.combatantProperties.inventory.dropItem(party, itemId);
 
@@ -50,10 +47,7 @@ export class ItemManagementController {
 
   dropEquippedItemHandler(session: UserSession, data: CharacterAndSlot) {
     const { characterId, slot } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const { inventory } = character.combatantProperties;
     const itemDroppedIdResult = inventory.dropEquippedItem(party, slot);
@@ -106,10 +100,7 @@ export class ItemManagementController {
 
   pickUpItemsHandler(session: UserSession, data: CharacterAndItems) {
     const { characterId, itemIds } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     let reachedMaxCapacity = false;
 
@@ -169,10 +160,7 @@ export class ItemManagementController {
 
   unequipSlotHandler(session: UserSession, data: CharacterAndSlot) {
     const { characterId, slot } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     character.combatantProperties.equipment.unequipSlots([slot]);
 
@@ -189,10 +177,7 @@ export class ItemManagementController {
     data: { characterId: CombatantId; slotIndex: number }
   ) {
     const { characterId, slotIndex } = data;
-    const characterContext = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const characterContext = session.requireCharacterContext(characterId);
     const { game, party, character } = characterContext;
     const { combatantProperties } = character;
 
@@ -243,10 +228,7 @@ export class ItemManagementController {
     }
   ) {
     const { characterId, itemId, equipToAlternateSlot } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const equipItemResult = character.combatantProperties.equipment.equipItem(
       itemId,

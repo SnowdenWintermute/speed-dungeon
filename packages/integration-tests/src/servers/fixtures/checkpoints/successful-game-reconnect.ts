@@ -4,7 +4,6 @@ import {
   TestAuthSessionIds,
 } from "../test-connection-endpoint-factories.js";
 import { testGameSetupToGameHandoff } from "./game-handoff.js";
-import { TEST_LOBBY_URL } from "../index.js";
 
 export async function testGameSetupToSuccessfulGameReconnect(
   clientEndpointFactory: ClientEndpointFactory,

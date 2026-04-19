@@ -30,7 +30,8 @@ import { testRangedCounterattackThroughFirewallIncinerate } from "./counterattac
 
 describe("action playground", () => {
   it("placeholder", () => {});
-  const testFixture = new IntegrationTestFixture(websocketFactory);
+
+  // const testFixture = new IntegrationTestFixture(websocketFactory);
 
   // afterEach(async () => {
   //   await Promise.all([

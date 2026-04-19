@@ -198,16 +198,25 @@ export class UserSession extends ConnectionSession {
 
   requireCharacterContext(
     characterId: CombatantId,
-    options?: { requireOwned?: boolean; requireAlive?: boolean }
+    options: { requireOwned?: boolean; requireAlive?: boolean; requireInputsUnlocked?: boolean } = {
+      requireOwned: true,
+      requireAlive: true,
+      requireInputsUnlocked: true,
+    }
   ): CharacterAssociatedData {
     const { game, party, player } = this.requirePlayerContext();
     const character = party.combatantManager.getExpectedCombatant(characterId);
 
-    if (options?.requireOwned) {
+    if (options.requireInputsUnlocked) {
+      game.requireInputUnlocked();
+      party.requireInputUnlocked();
+    }
+
+    if (options.requireOwned) {
       character.combatantProperties.controlledBy.requireOwnedBy(this.username);
     }
 
-    if (options?.requireAlive) {
+    if (options.requireAlive) {
       character.combatantProperties.requireAlive();
     }
 
