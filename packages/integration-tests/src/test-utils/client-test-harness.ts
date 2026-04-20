@@ -48,14 +48,14 @@ export class ClientTestHarness<T extends BaseClient> {
     (this.clientSingleton.get().connectionEndpoint as PausableEndpoint).resume();
   }
 
-  awaitMessageOfType(type: GameStateUpdateType): Promise<void> {
+  awaitMessageOfType(type: GameStateUpdateType): Promise<GameStateUpdate> {
     return new Promise((resolve) => {
       const endpoint = this.clientSingleton.get().connectionEndpoint;
       const checkForExpectedType = (raw: string | ArrayBuffer) => {
         const message = JSON.parse(raw.toString()) as GameStateUpdate;
         if (message.type === type) {
           endpoint.off("message", checkForExpectedType);
-          resolve();
+          resolve(message);
         }
       };
       endpoint.on("message", checkForExpectedType);

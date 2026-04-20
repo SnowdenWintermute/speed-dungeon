@@ -1,3 +1,5 @@
+import { GameClient } from "@/client-application/clients/game";
+import { localServerUrl } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   BASIC_CHARACTER_FIXTURES,
@@ -7,6 +9,7 @@ import {
   GameStateUpdateType,
   invariant,
   NextOrPrevious,
+  QUERY_PARAMS,
   RECONNECTION_OPPORTUNITY_TIMEOUT_MS,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
 } from "@speed-dungeon/common";
@@ -21,9 +24,119 @@ describe("game server reconnection", () => {
     ]);
   });
 
-  it("reconnection timeout", async () => {
-    testFixture.timeMachine.start();
+  it("session claim token reuse", async () => {
     await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+    const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+
+    await alpha.clientApplication.gameClientRef.get().close();
+    await alpha.connect();
+    const gameConnectionInstructions = await alpha.lobbyClientHarness.awaitMessageOfType(
+      GameStateUpdateType.GameServerConnectionInstructions
+    );
+    invariant(
+      gameConnectionInstructions.type === GameStateUpdateType.GameServerConnectionInstructions
+    );
+    const { encryptedSessionClaimToken } = gameConnectionInstructions.data.connectionInstructions;
+    const tokenToAttemptReuse = encryptedSessionClaimToken;
+
+    await alpha.clientApplication.transitionToGameServer.waitFor();
+
+    await alpha.clientApplication.gameClientRef.get().close();
+
+    const queryParams = [
+      {
+        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+        value: tokenToAttemptReuse,
+      },
+    ];
+
+    alpha.clientApplication.topologyManager.createGameClient(
+      localServerUrl(testFixture.gameServerPort),
+      queryParams
+    );
+    const connectionRejectedPromise = new Promise<void>((resolve, reject) => {
+      alpha.clientApplication.gameClientRef
+        .get()
+        .connectionEndpoint.on("close", (_code, message) => {
+          expect(message).toBe(ERROR_MESSAGES.SERVERS.TOKEN_REPLAY_ATTACK);
+          resolve();
+        });
+    });
+    await connectionRejectedPromise;
+  });
+
+  it("invalid session claim token", async () => {
+    await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+    const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+
+    await alpha.clientApplication.gameClientRef.get().close();
+    await alpha.connect();
+    const gameConnectionInstructions = await alpha.lobbyClientHarness.awaitMessageOfType(
+      GameStateUpdateType.GameServerConnectionInstructions
+    );
+    invariant(
+      gameConnectionInstructions.type === GameStateUpdateType.GameServerConnectionInstructions
+    );
+    const { encryptedSessionClaimToken } = gameConnectionInstructions.data.connectionInstructions;
+    const someInvalidToken = encryptedSessionClaimToken + " ";
+
+    await alpha.clientApplication.transitionToGameServer.waitFor();
+
+    await alpha.clientApplication.gameClientRef.get().close();
+
+    const queryParams = [
+      {
+        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+        value: someInvalidToken,
+      },
+    ];
+
+    alpha.clientApplication.topologyManager.createGameClient(
+      localServerUrl(testFixture.gameServerPort),
+      queryParams
+    );
+    const connectionRejectedPromise = new Promise<void>((resolve, reject) => {
+      alpha.clientApplication.gameClientRef
+        .get()
+        .connectionEndpoint.on("close", (_code, message) => {
+          expect(message).toBe(ERROR_MESSAGES.SERVERS.INVALID_TOKEN);
+          resolve();
+        });
+    });
+    await connectionRejectedPromise;
+  });
+
+  it("session claim token required", async () => {
+    await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+    const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+
+    await alpha.clientApplication.gameClientRef.get().close();
+
+    const queryParams = [
+      {
+        name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,
+        value: "",
+      },
+    ];
+
+    alpha.clientApplication.topologyManager.createGameClient(
+      localServerUrl(testFixture.gameServerPort),
+      queryParams
+    );
+    const connectionRejectedPromise = new Promise<void>((resolve, reject) => {
+      alpha.clientApplication.gameClientRef
+        .get()
+        .connectionEndpoint.on("close", (_code, message) => {
+          expect(message).toBe(ERROR_MESSAGES.SERVERS.SESSION_CLAIM_TOKEN_MISSING);
+          resolve();
+        });
+    });
+    await connectionRejectedPromise;
+  });
+
+  it("reconnection timeout", async () => {
+    await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+    testFixture.timeMachine.start();
     const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
 
     await alpha.clientApplication.gameClientRef.get().close();
@@ -33,7 +146,7 @@ describe("game server reconnection", () => {
     const alphaReconnectionTimedOutPacketReceivedPromise =
       bravo.gameClientHarness.awaitMessageOfType(GameStateUpdateType.PlayerReconnectionTimedOut);
 
-    testFixture.timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS + 1);
+    testFixture.timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
 
     await alphaReconnectionTimedOutPacketReceivedPromise;
 

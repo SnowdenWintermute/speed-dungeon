@@ -137,7 +137,6 @@ export function createGameUpdateHandlers(
       const { game, party } = combatantFocus.requireFocusedCharacterContext();
 
       game.setAsStarted();
-      console.log("game started");
       gameWorldView?.setDefaultCameraPositionForGame();
       party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
       gameWorldView?.environment.groundPlane.clear();

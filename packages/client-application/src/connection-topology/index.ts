@@ -64,8 +64,6 @@ export class ConnectionTopology {
     }[]
   ) {
     return this.remoteEndpointFactory.createRemoteEndpoint(url, queryParams);
-    // const ws = new WebSocket(urlWithQueryParams(url, queryParams));
-    // return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
   }
 
   private createLocalConnectionEndpoint(

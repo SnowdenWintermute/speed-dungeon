@@ -26,6 +26,7 @@ export class IntegrationTestFixture {
   private clients = new Map<string, ClientFixture>();
   private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
+  private _gameServerPort: number = 0; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
 
   private createIncomingConnectionGateways() {
@@ -61,6 +62,7 @@ export class IntegrationTestFixture {
       gameServerPort,
     } = this.createIncomingConnectionGateways();
     this._lobbyServerPort = lobbyServerPort;
+    this._gameServerPort = gameServerPort;
 
     if (this._gameServer !== null) {
       this.previouslyCalculatedAnimationLengths = this._gameServer.assetAnalyzer.animationLengths;
@@ -94,6 +96,9 @@ export class IntegrationTestFixture {
   get lobbyServerPort() {
     return this._lobbyServerPort;
   }
+  get gameServerPort() {
+    return this._gameServerPort;
+  }
 
   get gameServer() {
     invariant(this._gameServer !== null, "no game server initialized");
@@ -111,6 +116,8 @@ export class IntegrationTestFixture {
     charactersTemplate: FixedCharacterCreationLists,
     rngOverrides: Partial<RandomNumberGenerationPolicy> = {}
   ) {
+    this.timeMachine.returnToPresent();
+
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
     const basicOverrides = {
       counterAttack: fixedRngMinRoll,

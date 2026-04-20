@@ -13,7 +13,7 @@ import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
-import { ONE_SECOND } from "../../app-consts.js";
+import { ONE_SECOND, WebSocketCloseCode } from "../../app-consts.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
@@ -258,7 +258,15 @@ export class GameServer extends SpeedDungeonServer {
 
       this.dispatchOutboxMessages(outbox);
     } catch (error) {
+      // @TODO @ARCHITECTURE - we should instead be rejecting connections without session claim tokens
+      // at the "upgrade" event on the http server, but will need to restructure to adapt to non websocket transports
+      // which have no such upgrade event
       console.error("error creating user session", error);
+      let errorMessage = "";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      connectionEndpoint.close(WebSocketCloseCode.PolicyViolation, errorMessage);
     }
   }
 

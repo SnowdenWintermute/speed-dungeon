@@ -325,3 +325,10 @@ export interface DynamicAnimationIdentifier {
 }
 
 export type TaggedAnimationName = SkeletalAnimationIdentifier | DynamicAnimationIdentifier;
+
+export const WebSocketCloseCode = {
+  NormalClosure: 1000,
+  GoingAway: 1001,
+  PolicyViolation: 1008,
+  InternalError: 1011,
+} as const;

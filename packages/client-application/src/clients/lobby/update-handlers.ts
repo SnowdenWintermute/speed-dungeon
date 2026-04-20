@@ -268,9 +268,8 @@ export function createLobbyUpdateHandlers(
         },
       });
 
-      clientApplication.topologyManager.createGameClient(url, queryParams);
-
       clientApplication.waitForReconnectionInstructions.fire();
+      clientApplication.topologyManager.createGameClient(url, queryParams);
     },
     [GameStateUpdateType.EndOfUpdateStream]: () => {
       /* handled in BaseClient */

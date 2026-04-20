@@ -188,4 +188,9 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "No game record was found by that ID",
     PARTY_RECORD_NOT_FOUND: "Expected party record was not found",
   },
+  SERVERS: {
+    SESSION_CLAIM_TOKEN_MISSING: "No token was provided when attempting to join the game server",
+    TOKEN_REPLAY_ATTACK: "Token replay attack suspected",
+    INVALID_TOKEN: "Invalid token presented",
+  },
 };

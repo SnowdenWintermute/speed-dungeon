@@ -8,6 +8,7 @@ import { SessionLifecycleController } from "../../controllers/session-lifecycle.
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameServerSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -28,7 +29,7 @@ export class GameServerSessionLifecycleController
   ): Promise<UserSession> {
     const sessionClaimTokenOption = context.encodedGameServerSessionClaimToken;
     if (sessionClaimTokenOption === undefined) {
-      throw new Error("No token was provided when attempting to join the game server");
+      throw new Error(ERROR_MESSAGES.SERVERS.SESSION_CLAIM_TOKEN_MISSING);
     }
 
     const decryptedToken =
@@ -49,7 +50,7 @@ export class GameServerSessionLifecycleController
 
     const { nonce } = decryptedToken;
     if (this.recentlyUsedNonces.has(nonce)) {
-      throw new Error("Token replay attack suspected");
+      throw new Error(ERROR_MESSAGES.SERVERS.TOKEN_REPLAY_ATTACK);
     }
     this.recentlyUsedNonces.set(nonce, decryptedToken.expirationTimestamp);
 
