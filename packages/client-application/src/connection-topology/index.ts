@@ -142,6 +142,7 @@ export class ConnectionTopology {
       const { connectionStatus } = this.clientApplication.uiStore;
       const { lobbyClientRef, gameClientRef } = this.clientApplication;
       connectionStatus.connectionStatus = ConnectionStatus.Initializing;
+
       const remoteLobbyServerAddress = this.clientApplication.lobbyServerUrl;
       const queryParams = [];
       const { guestGameReconnectionToken } = this.clientApplication.reconnectionTokenStore;
@@ -150,6 +151,9 @@ export class ConnectionTopology {
           name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
           value: guestGameReconnectionToken,
         });
+
+        // expect to receive reconnection instructions or expired token message
+        this.clientApplication.waitForReconnectionInstructions.arm();
       }
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
       connectionEndpoint.once("open", () => {
@@ -247,5 +251,12 @@ export class ConnectionTopology {
         this.runtimeMode
       )
     );
+  }
+
+  clearGameClient() {
+    if (this.clientApplication.gameClientRef.isInitialized) {
+      this.clientApplication.gameClientRef.get().close();
+      this.clientApplication.gameClientRef.clearClient();
+    }
   }
 }

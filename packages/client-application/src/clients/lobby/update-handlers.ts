@@ -34,6 +34,12 @@ export function createLobbyUpdateHandlers(
       /* handled in BaseClient */
     },
     [GameStateUpdateType.OnConnection]: (data) => {
+      if (data.expiredReconnection) {
+        console.info("token was reused or expired");
+        clientApplication.waitForReconnectionInstructions.fire();
+        clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
+      }
+      clientApplication.topologyManager.clearGameClient();
       session.setUsername(data.username);
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
@@ -262,9 +268,9 @@ export function createLobbyUpdateHandlers(
         },
       });
 
-      console.log("armed deferred");
-
       clientApplication.topologyManager.createGameClient(url, queryParams);
+
+      clientApplication.waitForReconnectionInstructions.fire();
     },
     [GameStateUpdateType.EndOfUpdateStream]: () => {
       /* handled in BaseClient */

@@ -123,6 +123,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     });
 
     const onReconnectionTimeout = async () => {
+      console.log("reconnection timed out for", session.username);
       this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
       try {
         await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(

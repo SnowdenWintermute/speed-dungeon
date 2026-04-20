@@ -119,6 +119,13 @@ export function createGameUpdateHandlers(
       const party = clientApplication.gameContext.requireParty();
       party.playerUsernamesAwaitingReconnection.add(data.username);
     },
+    [GameStateUpdateType.PlayerReconnectionTimedOut]: (data) => {
+      clientApplication.alertsService.setAlert(
+        `Reconnection opportunity for player [${data.username}] timed out`
+      );
+      const party = clientApplication.gameContext.requireParty();
+      party.playerUsernamesAwaitingReconnection.delete(data.username);
+    },
     [GameStateUpdateType.GameStarted]: (_) => {
       eventLogStore.clear();
       eventLogMessageService.postGameStarted();

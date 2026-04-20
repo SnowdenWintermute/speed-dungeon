@@ -16,6 +16,8 @@ import {
   EntityName,
   GameMode,
   GameName,
+  GameStateUpdate,
+  GameStateUpdateType,
   GameUpdateCommand,
   invariant,
   ItemId,
@@ -44,6 +46,20 @@ export class ClientTestHarness<T extends BaseClient> {
 
   resumeTransport() {
     (this.clientSingleton.get().connectionEndpoint as PausableEndpoint).resume();
+  }
+
+  awaitMessageOfType(type: GameStateUpdateType): Promise<void> {
+    return new Promise((resolve) => {
+      const endpoint = this.clientSingleton.get().connectionEndpoint;
+      const checkForExpectedType = (raw: string | ArrayBuffer) => {
+        const message = JSON.parse(raw.toString()) as GameStateUpdate;
+        if (message.type === type) {
+          endpoint.off("message", checkForExpectedType);
+          resolve();
+        }
+      };
+      endpoint.on("message", checkForExpectedType);
+    });
   }
 
   async dispatchAndAwaitReply(intent: ClientIntent) {

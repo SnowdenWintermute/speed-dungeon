@@ -18,6 +18,7 @@ import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
 import { createTestServers } from "./create-test-servers.js";
 import { getPortFromAddress } from "@/test-utils/get-port-from-address.js";
 import { TEST_GAME_NAME, TEST_PARTY_NAME } from "./consts.js";
+import { TimeMachine } from "@/test-utils/time-machine.js";
 
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
@@ -25,6 +26,7 @@ export class IntegrationTestFixture {
   private clients = new Map<string, ClientFixture>();
   private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
+  readonly timeMachine = new TimeMachine();
 
   private createIncomingConnectionGateways() {
     const lobbyWebSocketServer = new WebSocketServer({ port: 0 });

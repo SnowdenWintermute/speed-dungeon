@@ -2,6 +2,7 @@ import {
   ClientIntent,
   CONNECTION_ENDPOINT_READY_STATE_STRINGS,
   ConnectionEndpoint,
+  ConnectionEndpointReadyState,
   GameStateUpdate,
   GameStateUpdateType,
 } from "@speed-dungeon/common";
@@ -58,8 +59,14 @@ export abstract class BaseClient {
   }
 
   async close() {
+    if (this._connectionEndpoint.readyState === ConnectionEndpointReadyState.CLOSED) {
+      return console.info("connection endpoint already closed");
+    }
     await new Promise<void>((resolve) => {
-      this._connectionEndpoint.once("close", () => resolve());
+      this._connectionEndpoint.once("close", () => {
+        console.log("close event received");
+        resolve();
+      });
       this._connectionEndpoint.close();
     });
   }

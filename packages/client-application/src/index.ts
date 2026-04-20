@@ -73,6 +73,7 @@ export class ClientApplication {
   // topology
   readonly topologyManager: ConnectionTopology;
   readonly transitionToGameServer = new Deferred();
+  readonly waitForReconnectionInstructions = new Deferred();
   readonly transitionToLobbyServer = new Deferred();
 
   // reconnection

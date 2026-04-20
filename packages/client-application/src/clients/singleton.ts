@@ -19,6 +19,10 @@ export class ClientSingleton<T extends BaseClient> {
     this._client = client;
   }
 
+  clearClient() {
+    this._client = null;
+  }
+
   get isInitialized() {
     return this._client !== null;
   }
