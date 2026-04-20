@@ -209,6 +209,7 @@ export class UserSession extends ConnectionSession {
 
     if (options.requireInputsUnlocked) {
       game.requireInputUnlocked();
+      game.requireTimeStarted();
       party.requireInputUnlocked();
     }
 

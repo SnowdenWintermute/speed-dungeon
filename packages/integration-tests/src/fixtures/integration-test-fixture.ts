@@ -17,6 +17,7 @@ import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
 import { createTestServers } from "./create-test-servers.js";
 import { getPortFromAddress } from "@/test-utils/get-port-from-address.js";
+import { TEST_GAME_NAME, TEST_PARTY_NAME } from "./consts.js";
 
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
@@ -143,5 +144,34 @@ export class IntegrationTestFixture {
     await clientApplication.transitionToGameServer.waitFor();
 
     return client;
+  }
+
+  async createTwoClientsInLobbyGame() {
+    const alpha = this.createClient("client a");
+    const bravo = this.createClient("client b");
+    await Promise.all([alpha.connect(), bravo.connect()]);
+
+    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
+    await alpha.lobbyClientHarness.createParty(TEST_PARTY_NAME);
+    await alpha.lobbyClientHarness.createCharacter("a", CombatantClass.Rogue);
+
+    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+    await bravo.lobbyClientHarness.joinParty(TEST_PARTY_NAME);
+    await bravo.lobbyClientHarness.createCharacter("b", CombatantClass.Warrior);
+
+    return { alpha, bravo };
+  }
+
+  async createTwoClientsInGameServerGame() {
+    const { alpha, bravo } = await this.createTwoClientsInLobbyGame();
+    await Promise.all([
+      alpha.lobbyClientHarness.toggleReadyToStartGame(),
+      bravo.lobbyClientHarness.toggleReadyToStartGame(),
+    ]);
+    await Promise.all([
+      alpha.clientApplication.transitionToGameServer.waitFor(),
+      bravo.clientApplication.transitionToGameServer.waitFor(),
+    ]);
+    return { alpha, bravo };
   }
 }

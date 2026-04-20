@@ -116,13 +116,8 @@ export function createGameUpdateHandlers(
       party.playerUsernamesAwaitingReconnection.delete(data.username);
     },
     [GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity]: (data) => {
-      console.log(data.username, "disconnected with reconnection opportunity");
       const party = clientApplication.gameContext.requireParty();
       party.playerUsernamesAwaitingReconnection.add(data.username);
-      console.log(
-        "party.playerUsernamesAwaitingReconnection size:",
-        party.playerUsernamesAwaitingReconnection.size
-      );
     },
     [GameStateUpdateType.GameStarted]: (_) => {
       eventLogStore.clear();

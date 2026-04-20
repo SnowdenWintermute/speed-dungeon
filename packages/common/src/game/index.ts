@@ -182,7 +182,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
   requireTimeStarted() {
     if (this.timeStarted === null) {
-      throw new Error("Expected the game to have been started");
+      throw new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
     }
     return this.timeStarted;
   }

@@ -152,9 +152,10 @@ export class ConnectionTopology {
         });
       }
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
-      connectionEndpoint.on("open", () => {
+      connectionEndpoint.once("open", () => {
         resolve();
       });
+
       if (!lobbyClientRef.isInitialized) {
         lobbyClientRef.setClient(
           new LobbyClient(

@@ -23,23 +23,26 @@ export function wrapAsPausable(inner: ConnectionEndpoint): PausableEndpoint {
 
   return new Proxy(inner, {
     get(target, prop, receiver) {
-      if (prop === "pause")
+      if (prop === "pause") {
         return () => {
           paused = true;
         };
-      if (prop === "resume")
+      }
+      if (prop === "resume") {
         return () => {
           paused = false;
           const pending = buffered.splice(0);
           for (const d of pending) dispatch(d);
         };
-      if (prop === "on")
+      }
+      if (prop === "on") {
         return (event: string, listener: (...args: any[]) => void) => {
           if (event === "message") messageListeners.add(listener as MessageListener);
           else target.on(event as never, listener as never);
           return receiver;
         };
-      if (prop === "once")
+      }
+      if (prop === "once") {
         return (event: string, listener: (...args: any[]) => void) => {
           if (event === "message") {
             const wrapper: MessageListener = (d) => {
@@ -50,12 +53,14 @@ export function wrapAsPausable(inner: ConnectionEndpoint): PausableEndpoint {
           } else target.once(event as never, listener as never);
           return receiver;
         };
-      if (prop === "off")
+      }
+      if (prop === "off") {
         return (event: string, listener: (...args: any[]) => void) => {
           if (event === "message") messageListeners.delete(listener as MessageListener);
           else target.off(event, listener);
           return receiver;
         };
+      }
       const value = Reflect.get(target, prop, target);
       return typeof value === "function" ? value.bind(target) : value;
     },

@@ -42,7 +42,7 @@ export const ERROR_MESSAGES = {
   },
   GAME: {
     NOT_FOUND: "No game was found by that name",
-    NOT_STARTED: "The specified game was never started",
+    NOT_STARTED: "The game has not started",
     ALREADY_STARTED: "That game has already started",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
