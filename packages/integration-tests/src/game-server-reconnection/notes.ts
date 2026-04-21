@@ -7,8 +7,11 @@
 // -- it("session claim token reuse", async () => {});
 //
 // -- it("reconnect success", async () => {});
-// it("reconnect after all players disconnected or left", async () => {});
+// it("reconnect after all players disconnected unintentionally", async () => {});
 // it("no reconnect if leave game intentionally", async () => {});
+//
+// can make game of previously existing game name if all players intentionally left it
+// can make game of previously existing game name if it timed out all reconnection opportunities
 
 // AUTH
 // it("reconnect token reuse", async () => {});

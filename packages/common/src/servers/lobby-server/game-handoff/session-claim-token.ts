@@ -37,11 +37,11 @@ export class OpaqueEncryptionSessionClaimTokenCodec implements GameServerSession
   constructor(private readonly secret: string) {}
 
   async encode(token: GameServerSessionClaimToken): Promise<string> {
-    return SodiumHelpers.encrypt(token, this.secret);
+    return await SodiumHelpers.encrypt(token, this.secret);
   }
 
   async decode(encoded: string): Promise<GameServerSessionClaimToken> {
-    return SodiumHelpers.decrypt(encoded, this.secret);
+    return await SodiumHelpers.decrypt(encoded, this.secret);
   }
 }
 

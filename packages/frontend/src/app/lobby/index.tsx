@@ -105,6 +105,26 @@ export const Lobby = observer(() => {
             extraStyles="flex"
           >
             <HotkeyButton
+              onClick={() => clientApplication.lobbyClientRef.get().quickHost()}
+              hotkeys={[HOTKEYS.SIDE_1]}
+              className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+                          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+                          text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top mr-2
+            `}
+            >
+              QHOST
+            </HotkeyButton>
+            <HotkeyButton
+              onClick={() => clientApplication.lobbyClientRef.get().quickJoin()}
+              hotkeys={[HOTKEYS.SIDE_1]}
+              className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
+                          flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
+                          text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top mr-2
+            `}
+            >
+              QJOIN
+            </HotkeyButton>
+            <HotkeyButton
               onClick={() => clientApplication.lobbyClientRef.get().quickStartGame()}
               hotkeys={[HOTKEYS.SIDE_1]}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 

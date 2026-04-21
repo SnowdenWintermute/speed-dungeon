@@ -119,6 +119,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SerializedOf<SpeedDungeonGame> | null;
+    battle?: SerializedOf<Battle>;
   };
   [GameStateUpdateType.PlayerChangedAdventuringParty]: {
     playerName: Username;

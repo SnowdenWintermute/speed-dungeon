@@ -162,7 +162,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const gameAlreadyHandedOff = game.timeHandedOff !== null;
     if (gameAlreadyHandedOff) {
-      throw new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
     }
 
     if (game.mode === GameMode.Progression) {

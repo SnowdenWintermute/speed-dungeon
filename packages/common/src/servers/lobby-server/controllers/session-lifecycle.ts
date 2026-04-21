@@ -17,6 +17,7 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { MapUtils } from "../../../utils/map-utils.js";
+import { CharacterLifecycleController } from "./character-lifecycle.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -35,7 +36,9 @@ export class LobbySessionLifecycleController
     connectionId: ConnectionId,
     context: ConnectionIdentityResolutionContext
   ): Promise<UserSession> {
+    console.log("trying to create session for", connectionId);
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
+    console.log("authenticatedUserOption:", authenticatedUserOption);
 
     if (authenticatedUserOption === null) {
       // @TODO - enforce unique usernames for guests
@@ -51,6 +54,7 @@ export class LobbySessionLifecycleController
       if (context.clientCachedGuestReconnectionToken) {
         guestSession.setGuestReconnectionToken(context.clientCachedGuestReconnectionToken);
       }
+      console.log("created guest:", guestSession.username);
       return guestSession;
     } else {
       const { username, taggedUserId } = authenticatedUserOption;

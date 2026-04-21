@@ -91,6 +91,14 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
+
+      if (data.game?.timeStarted) {
+        console.log("game time started");
+        clientApplication.handleGameStartedOrFullUpdateReceived();
+        if (data.battle) {
+          clientApplication.handleBattleFullUpdate(data.battle);
+        }
+      }
       clientApplication.transitionToGameServer.fire();
       clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
@@ -129,26 +137,7 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.GameStarted]: (_) => {
       eventLogStore.clear();
       eventLogMessageService.postGameStarted();
-
-      actionMenu.initialize(new RootActionMenuScreen(clientApplication));
-
-      combatantFocus.focusFirstOwnedCharacter();
-
-      const { game, party } = combatantFocus.requireFocusedCharacterContext();
-
-      game.setAsStarted();
-      gameWorldView?.setDefaultCameraPositionForGame();
-      party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
-      gameWorldView?.environment.groundPlane.clear();
-
-      const { combatantManager } = party;
-
-      combatantManager.updateHomePositions();
-      combatantManager.setAllCombatantsToHomePositions();
-      sequentialEventProcessor.scheduleEvent({
-        type: ClientSequentialEventType.SynchronizeCombatantModels,
-        data: { softCleanup: true, placeInHomePositions: true },
-      });
+      clientApplication.handleGameStartedOrFullUpdateReceived();
     },
     [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: (data) => {
       const { username, explorationAction } = data;
@@ -253,31 +242,7 @@ export function createGameUpdateHandlers(
       }
     },
     [GameStateUpdateType.BattleFullUpdate]: (serializedBattleOption) => {
-      {
-        const { game, party } = combatantFocus.requireFocusedCharacterContext();
-
-        if (serializedBattleOption === null) {
-          game.battles.clear();
-          return;
-        }
-
-        const deserializedBattle = Battle.fromSerialized(serializedBattleOption);
-        party.setBattleId(deserializedBattle.id);
-        deserializedBattle.initialize(game, party);
-        deserializedBattle.makeObservable();
-        game.battles.set(deserializedBattle.id, deserializedBattle);
-
-        const currentActorIsPlayerControlled =
-          deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
-
-        const turnTracker = deserializedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
-        combatantFocus.handleBattleStart(turnTracker);
-
-        if (!currentActorIsPlayerControlled) {
-          // it is ai controlled so lock input
-          party.inputLock.lockInput();
-        }
-      }
+      clientApplication.handleBattleFullUpdate(serializedBattleOption);
     },
     [GameStateUpdateType.CharacterDroppedItem]: (data) => {
       const { characterId, itemId } = data;

@@ -1,4 +1,10 @@
-export class ReconnectionTokenStore {
+export interface ReconnectionTokenStore {
+  get guestGameReconnectionToken(): null | string;
+  set guestGameReconnectionToken(value: string);
+  clearGuestGameReconnectionToken(): void;
+}
+
+export class InMemoryReconnectionTokenStore {
   private _guestGameReconnectionToken: null | string = null;
 
   get guestGameReconnectionToken(): null | string {
@@ -11,5 +17,23 @@ export class ReconnectionTokenStore {
 
   clearGuestGameReconnectionToken() {
     this._guestGameReconnectionToken = null;
+  }
+}
+
+export class LocalStorageReconnectionTokenStore {
+  private static readonly KEY = "guestGameReconnectionToken";
+
+  get guestGameReconnectionToken(): null | string {
+    return localStorage.getItem(LocalStorageReconnectionTokenStore.KEY);
+  }
+
+  set guestGameReconnectionToken(value: string) {
+    console.log("setting reconnection token:", value);
+    localStorage.setItem(LocalStorageReconnectionTokenStore.KEY, value);
+  }
+
+  clearGuestGameReconnectionToken() {
+    console.log("clearing reconnection token:");
+    localStorage.removeItem(LocalStorageReconnectionTokenStore.KEY);
   }
 }

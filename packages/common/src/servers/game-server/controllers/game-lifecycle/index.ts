@@ -81,12 +81,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const party = game.getExpectedParty(partyName);
     session.subscribeToChannel(getPartyChannelName(game.name, party.name));
 
+    const battleOption = party.getBattleOption(game) || undefined;
+
     // if they are reconnecting their client would have lost the game information
     // could avoid sending it if this is a connection from the lobby though
     // for simplicity we'll eat the performance cost until it is measured
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
-      data: { game: game.toSerialized() },
+      data: { game: game.toSerialized(), battle: battleOption?.toSerialized() },
     });
 
     // clients should handle this differently than in the lobby

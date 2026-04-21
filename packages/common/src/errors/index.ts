@@ -36,7 +36,6 @@ export const ERROR_MESSAGES = {
     ALREADY_IN_GAME: "You are already in a game",
     USER_IN_GAME:
       "You must leave any other game (maybe in another open tab or browser) to join a Progression game",
-    GAME_ALREADY_STARTED: "That game has already started",
     ALREADY_IN_PARTY: "You must leave your current party to do that",
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
   },

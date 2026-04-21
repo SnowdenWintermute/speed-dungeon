@@ -26,7 +26,7 @@ interface StoredRecord {
 export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   private dbPromise: Promise<IDBDatabase>;
   private hydratePromise: Promise<void>;
-  private totalBytes = 0;
+  private _totalBytes = 0;
   private _combatantActionsHistory: ActionIntentAndUserId[] = [];
 
   constructor(
@@ -45,7 +45,11 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   }
 
   get logSizeBytes() {
-    return this.totalBytes;
+    return this._totalBytes;
+  }
+
+  set totalBytes(value: number) {
+    this._totalBytes = value;
   }
 
   recordCombatantActionSelected(

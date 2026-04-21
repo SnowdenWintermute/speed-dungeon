@@ -31,6 +31,7 @@ import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-server/get-logged-in-user-option.js";
+import { GAME_SERVER_NAME } from "../main.js";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
@@ -52,7 +53,7 @@ export class LobbyServerNode {
       usersIncomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
-      {},
+      { [GAME_SERVER_NAME]: "http://localhost:8090" },
       leastBusyGameServerUrlGetter,
       // DefaultCharacterCreationPolicy,
       ScriptedCharacterCreationPolicy,

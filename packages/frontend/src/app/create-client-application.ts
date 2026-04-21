@@ -7,6 +7,7 @@ import {
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import { ClientApplication } from "@/client-application";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
+import { LocalStorageReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 
 export function createClientApplication() {
   const assetCache = new IndexedDbAssetStore(indexedDB);
@@ -23,6 +24,7 @@ export function createClientApplication() {
     lobbyServerUrl,
     tickScheduler.scheduler,
     clientLogRecorder,
-    new BrowserWebsocketClientConnectionEndpointFactory()
+    new BrowserWebsocketClientConnectionEndpointFactory(),
+    new LocalStorageReconnectionTokenStore()
   );
 }

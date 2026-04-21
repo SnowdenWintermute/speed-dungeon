@@ -4,6 +4,9 @@ import {
   Deferred,
   RemoteServerAssetStore,
   ClientRemoteConnectionEndpointFactory,
+  ClientSequentialEventType,
+  SerializedOf,
+  Battle,
 } from "@speed-dungeon/common";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
@@ -31,6 +34,7 @@ import { ConnectionTopology } from "./connection-topology";
 import { GameClient } from "./clients/game";
 import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
+import { RootActionMenuScreen } from "./action-menu/screens/root";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
@@ -76,16 +80,14 @@ export class ClientApplication {
   readonly waitForReconnectionInstructions = new Deferred();
   readonly transitionToLobbyServer = new Deferred();
 
-  // reconnection
-  readonly reconnectionTokenStore = new ReconnectionTokenStore();
-
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
     assetServerUrl: string,
     public lobbyServerUrl: string,
     replayManagerTickScheduler: TickScheduler,
     clientLogRecorder: ClientLogRecorder,
-    remoteEndpointFactory: ClientRemoteConnectionEndpointFactory
+    remoteEndpointFactory: ClientRemoteConnectionEndpointFactory,
+    readonly reconnectionTokenStore: ReconnectionTokenStore
   ) {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
@@ -133,5 +135,57 @@ export class ClientApplication {
 
   get gameWorldView() {
     return this._gameWorldView;
+  }
+
+  handleGameStartedOrFullUpdateReceived() {
+    this.actionMenu.initialize(new RootActionMenuScreen(this));
+
+    this.combatantFocus.focusFirstOwnedCharacter();
+
+    const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
+
+    if (!game.getTimeStarted()) {
+      game.setAsStarted();
+    }
+
+    this.gameWorldView?.setDefaultCameraPositionForGame();
+    party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
+    this.gameWorldView?.environment.groundPlane.clear();
+
+    const { combatantManager } = party;
+
+    combatantManager.updateHomePositions();
+    combatantManager.setAllCombatantsToHomePositions();
+    this.sequentialEventProcessor.scheduleEvent({
+      type: ClientSequentialEventType.SynchronizeCombatantModels,
+      data: { softCleanup: true, placeInHomePositions: true },
+    });
+  }
+
+  handleBattleFullUpdate(serializedBattleOption: SerializedOf<Battle> | null) {
+    console.log("getting battle full update");
+    const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
+
+    if (serializedBattleOption === null) {
+      game.battles.clear();
+      return;
+    }
+
+    const deserializedBattle = Battle.fromSerialized(serializedBattleOption);
+    party.setBattleId(deserializedBattle.id);
+    deserializedBattle.initialize(game, party);
+    deserializedBattle.makeObservable();
+    game.battles.set(deserializedBattle.id, deserializedBattle);
+
+    const currentActorIsPlayerControlled =
+      deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);
+
+    const turnTracker = deserializedBattle.turnOrderManager.getFastestActorTurnOrderTracker();
+    this.combatantFocus.handleBattleStart(turnTracker);
+
+    if (!currentActorIsPlayerControlled) {
+      // it is ai controlled so lock input
+      party.inputLock.lockInput();
+    }
   }
 }

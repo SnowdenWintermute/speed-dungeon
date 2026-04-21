@@ -87,4 +87,57 @@ export class LobbyClient extends BaseClient {
       data: undefined,
     });
   }
+
+  quickHost() {
+    this.dispatchIntent({
+      type: ClientIntentType.CreateGame,
+      data: {
+        gameName: "test game" as GameName,
+        mode: GameMode.Race,
+      },
+    });
+
+    this.dispatchIntent({
+      type: ClientIntentType.CreateParty,
+      data: {
+        partyName: "test party" as PartyName,
+      },
+    });
+
+    this.dispatchIntent({
+      type: ClientIntentType.CreateCharacter,
+      data: {
+        name: "" as EntityName,
+        combatantClass: CombatantClass.Warrior,
+      },
+    });
+  }
+
+  quickJoin() {
+    this.dispatchIntent({
+      type: ClientIntentType.JoinGame,
+      data: {
+        gameName: "test game" as GameName,
+      },
+    });
+
+    this.dispatchIntent({
+      type: ClientIntentType.JoinParty,
+      data: {
+        partyName: "test party" as PartyName,
+      },
+    });
+
+    this.dispatchIntent({
+      type: ClientIntentType.CreateCharacter,
+      data: {
+        name: "" as EntityName,
+        combatantClass: CombatantClass.Warrior,
+      },
+    });
+    this.dispatchIntent({
+      type: ClientIntentType.ToggleReadyToStartGame,
+      data: undefined,
+    });
+  }
 }

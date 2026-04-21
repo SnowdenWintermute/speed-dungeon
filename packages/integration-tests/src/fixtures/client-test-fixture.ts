@@ -12,6 +12,7 @@ import { GameClient } from "@/client-application/clients/game/index.js";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
 import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
+import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -33,7 +34,8 @@ export class ClientFixture {
       clientLogRecorder,
       new PausableClientRemoteConnectionEndpointFactory(
         new BrowserWebsocketClientConnectionEndpointFactory()
-      )
+      ),
+      new InMemoryReconnectionTokenStore()
     );
 
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
