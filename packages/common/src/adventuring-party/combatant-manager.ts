@@ -13,11 +13,11 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { PartyWipes } from "../types.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
 import { invariant } from "../utils/index.js";
+import { ActionUserType } from "../action-user-context/action-user.js";
 
 export class CombatantManager
   extends AdventuringPartySubsystem
@@ -339,7 +339,7 @@ export class CombatantManager
 
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
-          type: TurnTrackerEntityType.Combatant,
+          type: ActionUserType.Combatant,
           combatantId: combatant.getEntityId(),
         },
         withDelay

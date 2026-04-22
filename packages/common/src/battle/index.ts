@@ -4,8 +4,6 @@ import { applyExperiencePointChanges } from "../combatants/experience-points/app
 import { SpeedDungeonGame } from "../game/index.js";
 import {
   ActionIntentAndUser,
-  CombatActionName,
-  Combatant,
   Consumable,
   Equipment,
   FriendOrFoe,
@@ -36,19 +34,31 @@ export class Battle implements Serializable, ReactiveNode {
   toSerialized() {
     return {
       id: this.id,
+      turnOrderManager: this.turnOrderManager.toSerialized(),
     };
   }
 
   static fromSerialized(serialized: SerializedOf<Battle>) {
-    return new Battle(serialized.id);
+    const result = new Battle(serialized.id);
+    result.turnOrderManager = TurnOrderManager.fromSerialized(serialized.turnOrderManager);
+    return result;
   }
 
+  // for initializing on server side creation
   initialize(game: SpeedDungeonGame, party: AdventuringParty) {
     this._game = game;
     this._party = party;
     party.combatantManager.refillAllCombatantActionPoints();
     game.battles.set(this.id, this);
     this.turnOrderManager.turnSchedulerManager.createSchedulers(party);
+    this.turnOrderManager.updateTrackers(game, party);
+  }
+
+  // for initializing after deserialization
+  softInitialize(game: SpeedDungeonGame, party: AdventuringParty) {
+    this._game = game;
+    this._party = party;
+    game.battles.set(this.id, this);
     this.turnOrderManager.updateTrackers(game, party);
   }
 

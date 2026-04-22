@@ -172,7 +172,11 @@ export class ClientApplication {
 
     const deserializedBattle = Battle.fromSerialized(serializedBattleOption);
     party.setBattleId(deserializedBattle.id);
-    deserializedBattle.initialize(game, party);
+    console.log(
+      "battle before initialize:",
+      deserializedBattle.turnOrderManager.turnSchedulerManager
+    );
+    deserializedBattle.softInitialize(game, party);
     deserializedBattle.makeObservable();
     game.battles.set(deserializedBattle.id, deserializedBattle);
 

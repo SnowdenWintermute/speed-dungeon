@@ -65,15 +65,34 @@ export async function testReconnectionDuringActionReplay(testFixture: Integratio
   );
   await alpha.gameClientHarness.awaitMessageOfType(GameStateUpdateType.PlayerJoinedGame);
   const reconnectionFullGameUpdate = await reconnectionFullGameUpdatePromise;
-  console.log("got full game update:", reconnectionFullGameUpdate.data.game.adventuringParties[0]);
+
+  await alpha.gameClientHarness.flushReplayTree();
+  console.log(
+    "alpha trackers",
+    alpha.clientApplication.gameContext
+      .requireParty()
+      .requireBattle(alpha.clientApplication.gameContext.requireGame()).turnOrderManager
+      .turnSchedulerManager
+  );
+  console.log(
+    "bravo reconnection trackers:",
+
+    bravo.clientApplication.gameContext
+      .requireParty()
+      .requireBattle(bravo.clientApplication.gameContext.requireGame()).turnOrderManager
+      .turnSchedulerManager
+  );
 
   // after reconnect
   const party = bravo.gameClientHarness.clientApplication.gameContext.requireParty();
   const game = bravo.gameClientHarness.clientApplication.gameContext.requireGame();
 
   party.currentRoom.requireType(DungeonRoomType.MonsterLair);
-  expect(
-    party.requireBattle(game).turnOrderManager.currentActorIsPlayerControlled(party)
-  ).toBeTruthy();
+  expect(party.requireBattle(game).turnOrderManager.getTrackers()).toStrictEqual(
+    alpha.clientApplication.gameContext
+      .requireParty()
+      .requireBattle(alpha.clientApplication.gameContext.requireGame())
+      .turnOrderManager.getTrackers()
+  );
   expect(party.inputLock.isLocked()).toBeTruthy();
 }

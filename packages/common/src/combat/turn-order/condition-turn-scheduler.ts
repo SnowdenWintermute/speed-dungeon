@@ -4,8 +4,23 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { ConditionTurnTracker } from "./turn-trackers.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
+import {
+  TaggedConditionTurnTrackerConditionAndCombatantId,
+  TaggedTurnTrackerTrackedEntityId,
+} from "./turn-tracker-tagged-tracked-entity-ids.js";
 
 export class ConditionTurnScheduler extends TurnScheduler implements ITurnScheduler {
+  actionUserType = ActionUserType.Condition;
+
+  getTaggedEntityId: () => TaggedConditionTurnTrackerConditionAndCombatantId = () => {
+    return {
+      type: ActionUserType.Condition,
+      combatantId: this.combatantId,
+      conditionId: this.conditionId,
+    };
+  };
+
   constructor(
     public readonly combatantId: EntityId,
     public readonly conditionId: EntityId

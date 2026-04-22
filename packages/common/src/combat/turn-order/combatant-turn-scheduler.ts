@@ -4,8 +4,15 @@ import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { CombatantTurnTracker } from "./turn-trackers.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
+import { TaggedCombatantTurnTrackerCombatantId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
+  actionUserType = ActionUserType.Combatant;
+  getTaggedEntityId: () => TaggedCombatantTurnTrackerCombatantId = () => {
+    return { type: ActionUserType.Combatant, combatantId: this.combatantId };
+  };
+
   constructor(public readonly combatantId: CombatantId) {
     super();
   }

@@ -1,11 +1,7 @@
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
-import {
-  CombatantTurnTracker,
-  ConditionTurnTracker,
-  TurnTrackerEntityType,
-} from "@speed-dungeon/common";
+import { ActionUserType, CombatantTurnTracker, ConditionTurnTracker } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 
@@ -28,11 +24,11 @@ export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantT
   const combatant = combatantManager.getExpectedCombatant(taggedTrackedEntityId.combatantId);
 
   const combatantIsCharacter =
-    taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
+    taggedTrackedEntityId.type === ActionUserType.Combatant &&
     combatant.combatantProperties.controlledBy.isPlayerControlled();
 
   const combatantIsPlayerPet =
-    taggedTrackedEntityId.type === TurnTrackerEntityType.Combatant &&
+    taggedTrackedEntityId.type === ActionUserType.Combatant &&
     combatant.combatantProperties.controlledBy.wasSummoned() &&
     combatantManager
       .getPartyMemberPets()

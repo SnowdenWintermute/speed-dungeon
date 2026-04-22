@@ -8,7 +8,6 @@ import {
   TaggedCombatantTurnTrackerCombatantId,
   TaggedConditionTurnTrackerConditionAndCombatantId,
   TaggedTurnTrackerTrackedEntityId,
-  TurnTrackerEntityType,
 } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -19,6 +18,7 @@ import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/
 import { Serializable } from "../../serialization/index.js";
 import { instanceToPlain } from "class-transformer";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
 
 export abstract class TurnTracker implements Serializable {
   constructor(public readonly timeOfNextMove: number) {}
@@ -38,11 +38,11 @@ export abstract class TurnTracker implements Serializable {
   getEntityId() {
     const taggedId = this.getTaggedIdOfTrackedEntity();
     switch (taggedId.type) {
-      case TurnTrackerEntityType.Combatant:
+      case ActionUserType.Combatant:
         return taggedId.combatantId;
-      case TurnTrackerEntityType.Condition:
+      case ActionUserType.Condition:
         return taggedId.conditionId;
-      case TurnTrackerEntityType.ActionEntity:
+      case ActionUserType.ActionEntity:
         return taggedId.actionEntityId;
     }
   }
@@ -63,7 +63,7 @@ export class CombatantTurnTracker extends TurnTracker {
   }
 
   getTaggedIdOfTrackedEntity(): TaggedCombatantTurnTrackerCombatantId {
-    return { type: TurnTrackerEntityType.Combatant, combatantId: this.combatantId };
+    return { type: ActionUserType.Combatant, combatantId: this.combatantId };
   }
 
   getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler {
@@ -106,7 +106,7 @@ export class ConditionTurnTracker extends TurnTracker {
 
   getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {
     return {
-      type: TurnTrackerEntityType.Condition,
+      type: ActionUserType.Condition,
       combatantId: this.combatantId,
       conditionId: this.conditionId,
     };
@@ -171,7 +171,7 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
   getTaggedIdOfTrackedEntity(): TaggedActionEntityTurnTrackerActionEntityId {
     return {
-      type: TurnTrackerEntityType.ActionEntity,
+      type: ActionUserType.ActionEntity,
       actionEntityId: this.actionEntityId,
     };
   }

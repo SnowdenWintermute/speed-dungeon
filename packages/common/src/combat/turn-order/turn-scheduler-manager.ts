@@ -8,21 +8,39 @@ import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { TurnOrderManager } from "./turn-order-manager.js";
 import { TurnSchedulerFactory } from "./turn-scheduler-factory.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
-import {
-  TaggedTurnTrackerTrackedEntityId,
-  TurnTrackerEntityType,
-} from "./turn-tracker-tagged-tracked-entity-ids.js";
+import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
+import { Serializable, SerializedOf } from "../../serialization/index.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
 
 export enum TurnTrackerSortableProperty {
   TimeOfNextMove,
   AccumulatedDelay,
 }
 
-export class TurnSchedulerManager {
+export class TurnSchedulerManager implements Serializable {
   private schedulers: ITurnScheduler[] = [];
 
   constructor(private minTurnTrackersCount: number) {}
+
+  toSerialized() {
+    const schedulers = this.schedulers.map((scheduler) => {
+      return {
+        taggedEntityId: scheduler.getTaggedEntityId(),
+        accumulatedDelay: scheduler.accumulatedDelay,
+      };
+    });
+
+    return { minTurnTrackersCount: this.minTurnTrackersCount, schedulers };
+  }
+
+  static fromSerialized(serialized: SerializedOf<TurnSchedulerManager>): TurnSchedulerManager {
+    const result = new TurnSchedulerManager(serialized.minTurnTrackersCount);
+    for (const scheduler of serialized.schedulers) {
+      result.addNewScheduler(scheduler.taggedEntityId, scheduler.accumulatedDelay);
+    }
+    return result;
+  }
 
   createSchedulers(party: AdventuringParty) {
     const { combatants, tickableConditions } =
@@ -194,7 +212,7 @@ export class TurnSchedulerManager {
 
     this.addNewScheduler(
       {
-        type: TurnTrackerEntityType.Condition,
+        type: ActionUserType.Condition,
         combatantId: condition.appliedTo,
         conditionId: condition.id,
       },

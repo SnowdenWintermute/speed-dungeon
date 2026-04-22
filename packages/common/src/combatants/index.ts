@@ -6,9 +6,7 @@ import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
-import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
@@ -28,7 +26,6 @@ import { ActionEntityProperties } from "../action-entities/action-entity-propert
 import { CombatAttribute } from "./attributes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
-import { ActionPayableResource } from "../combat/combat-actions/action-calculation-utils/action-costs.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -208,7 +205,7 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     if (battleOption !== null) {
       const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
       const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
-      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant) {
+      if (taggedTrackedEntityId.type !== ActionUserType.Combatant) {
         return { canUse: false, reasonCanNot: "Combatant is not first in the turn order" };
       }
       if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {

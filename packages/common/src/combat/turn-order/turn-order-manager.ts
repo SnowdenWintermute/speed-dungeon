@@ -2,20 +2,36 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../aliases.js";
 import { BASE_ACTION_DELAY, SPEED_DELAY_RECOVERY_WEIGHT } from "./consts.js";
-import { TurnTrackerEntityType } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
 import { makeAutoObservable } from "mobx";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { ReactiveNode } from "../../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
 
-export class TurnOrderManager implements ReactiveNode {
+export class TurnOrderManager implements Serializable, ReactiveNode {
   private minTrackersCount: number = 12;
   private turnTrackers: TurnTracker[] = [];
   turnSchedulerManager = new TurnSchedulerManager(this.minTrackersCount);
 
   makeObservable(): void {
     makeAutoObservable(this);
+  }
+
+  toSerialized() {
+    return {
+      minTrackersCount: this.minTrackersCount,
+      turnTrackers: this.turnTrackers,
+      turnSchedulerManager: this.turnSchedulerManager.toSerialized(),
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<TurnOrderManager>): TurnOrderManager {
+    const result = new TurnOrderManager();
+    result.turnSchedulerManager = TurnSchedulerManager.fromSerialized(
+      serialized.turnSchedulerManager
+    );
+    return result;
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
@@ -38,8 +54,8 @@ export class TurnOrderManager implements ReactiveNode {
     const taggedIdOfTrackedEntity = fastestTurnOrderTracker.getTaggedIdOfTrackedEntity();
 
     if (
-      taggedIdOfTrackedEntity.type === TurnTrackerEntityType.ActionEntity ||
-      taggedIdOfTrackedEntity.type === TurnTrackerEntityType.Condition
+      taggedIdOfTrackedEntity.type === ActionUserType.ActionEntity ||
+      taggedIdOfTrackedEntity.type === ActionUserType.Condition
     ) {
       return false;
     }
@@ -55,7 +71,7 @@ export class TurnOrderManager implements ReactiveNode {
     const fastest = this.getFastestActorTurnOrderTracker();
     const taggedIdOfTrackedEntity = fastest.getTaggedIdOfTrackedEntity();
     return (
-      taggedIdOfTrackedEntity.type === TurnTrackerEntityType.Combatant &&
+      taggedIdOfTrackedEntity.type === ActionUserType.Combatant &&
       taggedIdOfTrackedEntity.combatantId === combatantId
     );
   }

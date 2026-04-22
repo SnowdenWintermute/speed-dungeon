@@ -92,6 +92,11 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       type: GameStateUpdateType.GameFullUpdate,
       data: { game: game.toSerialized(), battle: battleOption?.toSerialized() },
     });
+    console.log(
+      "send full game update on connection",
+      [...game.adventuringParties][0]?.[1].getBattleOption(game)?.turnOrderManager
+        .turnSchedulerManager
+    );
 
     // clients should handle this differently than in the lobby
     // and just mark this player as connected in their client

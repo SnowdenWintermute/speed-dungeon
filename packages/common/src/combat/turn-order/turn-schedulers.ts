@@ -3,13 +3,17 @@ import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { TurnTracker } from "./turn-trackers.js";
 import { TurnOrderManager } from "./turn-order-manager.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
+import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 
 export interface ITurnScheduler {
+  actionUserType: ActionUserType;
   timeOfNextMove: number;
   accumulatedDelay: number; // when they take their turn, add to this
   addDelay: (delay: number) => void;
   getSpeed: (party: AdventuringParty) => number;
   getTurnTakerId: () => string;
+  getTaggedEntityId: () => TaggedTurnTrackerTrackedEntityId;
   isStale: (party: AdventuringParty) => boolean;
   isMatch: (otherScheduler: ITurnScheduler) => boolean;
   reset: (party: AdventuringParty) => void;
@@ -25,6 +29,8 @@ export abstract class TurnScheduler implements ITurnScheduler {
     this.accumulatedDelay += delay;
   }
 
+  abstract getTaggedEntityId: () => TaggedTurnTrackerTrackedEntityId;
+  abstract actionUserType: ActionUserType;
   abstract getSpeed(party: AdventuringParty): number;
   abstract getTurnTakerId(): string;
   abstract isStale(party: AdventuringParty): boolean;

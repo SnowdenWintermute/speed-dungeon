@@ -124,8 +124,9 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
-    console.log("unlocking input in evaluatePlayerEndTurnAndInputLock");
-    party.inputLock.unlockInput();
+    setTimeout(() => {
+      party.inputLock.unlockInput();
+    }, context.manager.sequentialActionManagerRegistry.time.ms);
   }
 
   return gameUpdateCommandOption;
