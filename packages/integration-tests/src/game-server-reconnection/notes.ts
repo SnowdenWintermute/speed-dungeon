@@ -1,33 +1,51 @@
-// GUEST
-// -- it("reconnect token reuse", async () => {});
-// -- it("reconnect after timeout", async () => {});
+// reconnect midway through action replay
+// - shows "resolving replay in progress"
+// - unlocks input after timeout
+// - can execute input
 //
-// -- it("session claim token required", async () => {});
-// -- it("invalid session claim token", async () => {});
-// -- it("session claim token reuse", async () => {});
+// reconnect midway through action replay that resolves in party wipe
+// - shows "resolving replay in progress"
+// - unlocks input after timeout
+// - shows party wiped screen
 //
-// -- it("reconnect success", async () => {});
-// it("reconnect after all players disconnected unintentionally", async () => {});
-// it("no reconnect if leave game intentionally", async () => {});
+// reconnect midway through action replay that resolves in party victory
+// - shows "resolving replay in progress"
+// - unlocks input after timeout
+// - shows loot on ground
+// - other players can loot the items (acknoweldge receipt of item on ground fires)
+//
+// create new game with cached expired token don't send bunch of error messages
+//
+// guest reconnect success
+//
+// input before game start
+// input while awaiting reconnect
+// input after reconnect
+// input after reconnect timeout
+//
+// reconnect connect even if all players disconnected, at least one unintentionally
+// don't reconnect if leave game intentionally
 //
 // can make game of previously existing game name if all players intentionally left it
 // can make game of previously existing game name if it timed out all reconnection opportunities
+//
+//
+// after login to auth, don't try to use guest reconnection token anymore (and clear it)
+//
 
 // AUTH
-// it("reconnect token reuse", async () => {});
-// it("reconnect after timeout", async () => {});
+// connect after timeout
 //
-// it("session claim token required", async () => {});
-// it("invalid session claim token", async () => {});
-// it("session claim token reuse", async () => {});
-//
-// it("reconnect success", async () => {});
-// it("reconnect after all players disconnected or left", async () => {});
-// it("no reconnect if leave game intentionally", async () => {});
+// reconnect success
+// reconnect after all players disconnected or left
+// no reconnect if leave game intentionally
 
-// NOT AUTH RELATED:
-// it("input before game start", async () => {});
-// it("input while awaiting reconnect", async () => {});
-// it("input after reconnect", async () => {});
-// it("input after reconnect timeout", async () => {});
 //
+//
+// DONE
+// guest reconnect token reuse
+// guest reconnect after timeout
+//
+// session claim token required
+// invalid session claim token
+// session claim token reuse

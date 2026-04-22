@@ -49,6 +49,7 @@ export function processCombatAction(
     NestedNodeReplayEventUtls.appendGameUpdate(rootReplayNode, initialGameUpdateOption);
   }
 
+  console.log("about to lock input at process-combat-action", actionUserContext.party.inputLock);
   actionUserContext.party.inputLock.lockInput();
 
   let safetyCounter = -1;
@@ -66,6 +67,10 @@ export function processCombatAction(
   }
 
   setTimeout(() => {
+    console.log(
+      "about to unlock input after process-combat-action timeout",
+      actionUserContext.party.inputLock
+    );
     actionUserContext.party.inputLock.unlockInput();
   }, registry.time.ms);
 

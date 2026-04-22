@@ -50,10 +50,8 @@ export abstract class IncomingConnectionGateway {
       throw new Error("no url in handshake");
     }
     const url = new URL(request.url, `http://${request.headers.host}`);
-    console.log("url for connection:", url);
     const reconnectionToken = url.searchParams.get(QUERY_PARAMS.GUEST_RECONNECTION_TOKEN);
     const sessionClaimToken = url.searchParams.get(QUERY_PARAMS.SESSION_CLAIM_TOKEN);
-    console.log("reconnectionToken", reconnectionToken);
 
     let authSessionId = "";
     const cookieHeaderOption = request.headers.cookie;

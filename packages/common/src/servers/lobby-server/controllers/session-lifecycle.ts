@@ -36,9 +36,7 @@ export class LobbySessionLifecycleController
     connectionId: ConnectionId,
     context: ConnectionIdentityResolutionContext
   ): Promise<UserSession> {
-    console.log("trying to create session for", connectionId);
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
-    console.log("authenticatedUserOption:", authenticatedUserOption);
 
     if (authenticatedUserOption === null) {
       // @TODO - enforce unique usernames for guests
@@ -54,7 +52,6 @@ export class LobbySessionLifecycleController
       if (context.clientCachedGuestReconnectionToken) {
         guestSession.setGuestReconnectionToken(context.clientCachedGuestReconnectionToken);
       }
-      console.log("created guest:", guestSession.username);
       return guestSession;
     } else {
       const { username, taggedUserId } = authenticatedUserOption;

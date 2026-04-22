@@ -242,7 +242,6 @@ export class GameServer extends SpeedDungeonServer {
 
       if (connectionContext.type === ConnectionContextType.Reconnection) {
         await connectionContext.attemptReconnectionClaim();
-        console.log("reconnection claim attempted");
       } else if (gameIsInProgress) {
         throw new Error("Tried to join a game in progress without a reconnection claim");
       }
@@ -250,6 +249,7 @@ export class GameServer extends SpeedDungeonServer {
       const outbox = await this.sessionLifecycleController.activateSession(session);
 
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
+
       outbox.pushFromOther(joinGameOutbox);
 
       const refreshedReconnectionTokenOutbox =
@@ -261,7 +261,7 @@ export class GameServer extends SpeedDungeonServer {
       // @TODO @ARCHITECTURE - we should instead be rejecting connections without session claim tokens
       // at the "upgrade" event on the http server, but will need to restructure to adapt to non websocket transports
       // which have no such upgrade event
-      console.error("error creating user session", error);
+      console.trace("error creating user session", error);
       let errorMessage = "";
       if (error instanceof Error) {
         errorMessage = error.message;

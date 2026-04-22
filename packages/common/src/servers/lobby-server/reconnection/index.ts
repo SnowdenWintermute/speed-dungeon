@@ -42,20 +42,16 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     // the game server needs to know when the reconnectionForwardingRecord expires or is claimed so it can remove the
     // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
     // reconnecting to the game server they won't be able to reconnect again if we delete it now.
-    console.log("about to get reconnectionForwardingRecordOption");
     const reconnectionForwardingRecordOption =
       await this.getGameServerReconnectionForwardingRecordOption(session);
 
     if (!reconnectionForwardingRecordOption) {
-      console.log("no forwarding record");
       return { type: ConnectionContextType.InitialConnection };
     }
 
-    console.log("try get gameStillExists");
     const gameStillExists = await this.gameSessionStoreService.getActiveGameStatus(
       reconnectionForwardingRecordOption.gameName
     );
-    console.log("gameStillExists", gameStillExists);
     if (!gameStillExists) {
       return { type: ConnectionContextType.InitialConnection };
     }
@@ -80,16 +76,14 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
       reconnectionForwardingRecord.guestUserReconnectionTokenOption || undefined
     );
 
-    console.log("about to encode token");
     let encryptedSessionClaimToken = "";
     try {
       encryptedSessionClaimToken = await this.gameServerSessionClaimTokenCodec.encode(claimToken);
     } catch (err) {
-      console.log("error encrypting token", err);
+      console.trace("error encrypting token", err);
     }
 
     const url = this.getGameServerUrlFromName(reconnectionForwardingRecord.gameServerName);
-    console.log("game server url:", url);
 
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameServerConnectionInstructions,
@@ -127,13 +121,12 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
 
   private async getGameServerReconnectionForwardingRecordOption(session: UserSession) {
     const reconnectionKey = session.getReconnectionKeyOption();
-    console.log("reconnectionKey:", reconnectionKey);
     if (reconnectionKey) {
       return await this.reconnectionForwardingStoreService.getGameServerReconnectionForwardingRecord(
         reconnectionKey
       );
     } else {
-      console.log("getGameServerReconnectionForwardingRecordOption no reconnection key");
+      // getGameServerReconnectionForwardingRecordOption no reconnection key
     }
   }
   // async evaluateAdmission(attempt: ReconnectionAttempt): Promise<LobbyAdmissionDecision>;

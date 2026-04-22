@@ -163,7 +163,6 @@ export class ClientApplication {
   }
 
   handleBattleFullUpdate(serializedBattleOption: SerializedOf<Battle> | null) {
-    console.log("getting battle full update");
     const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
 
     if (serializedBattleOption === null) {

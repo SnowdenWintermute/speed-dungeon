@@ -31,6 +31,8 @@ export class TimedLock implements Serializable, ReactiveNode {
   unlockInput() {
     this.timeLocked = null;
     this.lockDuration = null;
+    console.log("unlocked party input");
+    console.trace("unlocked party input");
   }
 
   increaseLockoutDuration(ms: number) {

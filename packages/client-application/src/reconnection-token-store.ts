@@ -28,12 +28,10 @@ export class LocalStorageReconnectionTokenStore {
   }
 
   set guestGameReconnectionToken(value: string) {
-    console.log("setting reconnection token:", value);
     localStorage.setItem(LocalStorageReconnectionTokenStore.KEY, value);
   }
 
   clearGuestGameReconnectionToken() {
-    console.log("clearing reconnection token:");
     localStorage.removeItem(LocalStorageReconnectionTokenStore.KEY);
   }
 }

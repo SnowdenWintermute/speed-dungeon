@@ -58,7 +58,6 @@ export class ClientFixture {
 
   eventually(assertion: () => void | Promise<void>, options = { timeout: 500, interval: 20 }) {
     return vi.waitFor(async () => {
-      await this.clientApplication.sequentialEventProcessor.waitUntilIdle();
       await assertion();
     }, options);
   }

@@ -248,8 +248,6 @@ export function createLobbyUpdateHandlers(
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
 
-      console.log("got connectionInstructions:", url, encryptedSessionClaimToken);
-
       const queryParams = [
         {
           name: QUERY_PARAMS.SESSION_CLAIM_TOKEN,

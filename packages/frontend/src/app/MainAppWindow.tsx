@@ -12,7 +12,6 @@ export const MainAppWindow = observer(() => {
   const { focusedCharacterOption } = clientApplication.combatantFocus;
 
   const shouldShowGame = focusedCharacterOption !== undefined && gameOption?.getTimeStarted();
-  console.log("should show game:", shouldShowGame);
 
   return shouldShowGame ? (
     <Game />

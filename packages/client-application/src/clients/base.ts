@@ -64,7 +64,6 @@ export abstract class BaseClient {
     }
     await new Promise<void>((resolve) => {
       this._connectionEndpoint.once("close", () => {
-        console.log("close event received");
         resolve();
       });
       this._connectionEndpoint.close();

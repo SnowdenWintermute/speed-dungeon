@@ -23,7 +23,6 @@ export class BrowserWebsocketClientConnectionEndpointFactory
       value: string;
     }[]
   ) {
-    console.log("websocket connecting to url:", urlWithQueryParams(url, queryParams));
     const ws = new WebSocket(urlWithQueryParams(url, queryParams));
     return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
   }

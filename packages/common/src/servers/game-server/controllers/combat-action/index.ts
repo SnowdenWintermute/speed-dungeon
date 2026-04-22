@@ -15,10 +15,7 @@ import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/c
 import { CharacterAssociatedData, GameMode } from "../../../../types.js";
 import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
 import { BattleProcessor } from "../battle-processor/index.js";
-import {
-  postActionProcessedCleanup,
-  processCombatAction,
-} from "../../../../action-processing/process-combat-action.js";
+import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
@@ -28,7 +25,7 @@ import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../../../combat/combat-actions/combat-action-names.js";
+import { SerializedOf } from "../../../../serialization/index.js";
 
 export class CombatActionController {
   constructor(
@@ -44,7 +41,7 @@ export class CombatActionController {
     session: UserSession,
     data: {
       characterId: CombatantId;
-      actionAndRankOption: ActionAndRank | null;
+      actionAndRankOption: SerializedOf<ActionAndRank> | null;
       itemIdOption?: string;
     }
   ) {
@@ -54,16 +51,19 @@ export class CombatActionController {
 
     const { abilityProperties } = character.combatantProperties;
 
+    const targetingProperties = character.getTargetingProperties();
     if (actionAndRankOption !== null) {
-      const combatActionPropertiesResult =
-        abilityProperties.getCombatActionPropertiesIfOwned(actionAndRankOption);
+      const deserializedActionAndRankOption = ActionAndRank.fromSerialized(actionAndRankOption);
+      const combatActionPropertiesResult = abilityProperties.getCombatActionPropertiesIfOwned(
+        deserializedActionAndRankOption
+      );
       if (combatActionPropertiesResult instanceof Error) {
         throw combatActionPropertiesResult;
       }
+      targetingProperties.setSelectedActionAndRank(deserializedActionAndRankOption);
+    } else {
+      targetingProperties.setSelectedActionAndRank(null);
     }
-
-    const targetingProperties = character.getTargetingProperties();
-    targetingProperties.setSelectedActionAndRank(actionAndRankOption);
 
     if (itemIdOption !== undefined) {
       // @INFO - if we want to allow selecting equipped items or unowned items

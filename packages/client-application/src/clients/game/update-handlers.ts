@@ -93,7 +93,6 @@ export function createGameUpdateHandlers(
       gameFullUpdateHandler(clientApplication, data.game);
 
       if (data.game?.timeStarted) {
-        console.log("game time started");
         clientApplication.handleGameStartedOrFullUpdateReceived();
         if (data.battle) {
           clientApplication.handleBattleFullUpdate(data.battle);
@@ -119,7 +118,6 @@ export function createGameUpdateHandlers(
       }
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
-      console.log(data.username, "joined game");
       const party = clientApplication.gameContext.requireParty();
       party.playerUsernamesAwaitingReconnection.delete(data.username);
     },

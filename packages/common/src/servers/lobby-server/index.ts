@@ -139,15 +139,12 @@ export class LobbyServer extends SpeedDungeonServer {
     this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
-    console.log("connectionContext:", connectionContext.type);
 
     if (connectionContext.type === ConnectionContextType.Reconnection) {
       const outbox = await this.userSessionLifecycleController.activateSession(session, {
         sessionWillBeForwardedToGameServer: true,
       });
-      console.log("activated session");
       const reconnectionCredentialsOutbox = await connectionContext.issueCredentials();
-      console.log("reconnectionCredentialsOutbox:", reconnectionCredentialsOutbox);
       outbox.pushFromOther(reconnectionCredentialsOutbox);
       this.dispatchOutboxMessages(outbox);
     } else {

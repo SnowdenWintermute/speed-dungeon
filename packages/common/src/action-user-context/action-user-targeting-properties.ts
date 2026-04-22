@@ -33,11 +33,11 @@ export class ActionAndRank implements Serializable, ReactiveNode {
   }
 
   toSerialized() {
-    return instanceToPlain(this);
+    return { actionName: this.actionName, rank: this.rank };
   }
 
   static fromSerialized(serialized: SerializedOf<ActionAndRank>) {
-    return plainToInstance(ActionAndRank, serialized);
+    return new ActionAndRank(serialized.actionName, serialized.rank);
   }
 }
 
