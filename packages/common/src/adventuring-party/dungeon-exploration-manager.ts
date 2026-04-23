@@ -51,9 +51,18 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
 
   allPlayersReadyToTakeAction(action: ExplorationAction, party: AdventuringParty) {
     const playersReadyToTakeAction = this.playerExplorationActionChoices[action];
+    console.log(
+      action,
+      "playersReadyToTakeAction:",
+      this.playerExplorationActionChoices[action],
+      party.playerUsernames
+    );
     for (const username of party.playerUsernames) {
       const playerIsNotReady = !playersReadyToTakeAction.includes(username);
-      if (playerIsNotReady) return false;
+      console.log("playerIsNotReady:", playerIsNotReady);
+      if (playerIsNotReady) {
+        return false;
+      }
     }
     return true;
   }

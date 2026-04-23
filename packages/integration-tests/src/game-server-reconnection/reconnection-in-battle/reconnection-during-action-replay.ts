@@ -67,21 +67,6 @@ export async function testReconnectionDuringActionReplay(testFixture: Integratio
   const reconnectionFullGameUpdate = await reconnectionFullGameUpdatePromise;
 
   await alpha.gameClientHarness.flushReplayTree();
-  console.log(
-    "alpha trackers",
-    alpha.clientApplication.gameContext
-      .requireParty()
-      .requireBattle(alpha.clientApplication.gameContext.requireGame()).turnOrderManager
-      .turnSchedulerManager
-  );
-  console.log(
-    "bravo reconnection trackers:",
-
-    bravo.clientApplication.gameContext
-      .requireParty()
-      .requireBattle(bravo.clientApplication.gameContext.requireGame()).turnOrderManager
-      .turnSchedulerManager
-  );
 
   // after reconnect
   const party = bravo.gameClientHarness.clientApplication.gameContext.requireParty();

@@ -61,6 +61,7 @@ export class DungeonExplorationController {
       ExplorationAction.Explore,
       party
     );
+    console.log("allPlayersReadyToExplore:", allPlayersReadyToExplore);
 
     if (allPlayersReadyToExplore) {
       const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);

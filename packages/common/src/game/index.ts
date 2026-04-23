@@ -108,11 +108,11 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return result;
   }
 
-  initializeBattles() {
+  initializeBattlesOnDeserialization() {
     for (const [_, party] of this.adventuringParties) {
       const battleOption = party.getBattleOption(this);
       if (battleOption) {
-        battleOption.initialize(this, party);
+        battleOption.initializeAfterDeserialization(this, party);
         console.info("initialized battle", battleOption.id);
       }
     }
@@ -268,6 +268,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
     player.partyName = null;
 
+    console.trace("removing username", username, "from party");
     ArrayUtils.removeElement(partyLeaving.playerUsernames, username);
 
     if (partyLeaving.playerUsernames.length < 1) {

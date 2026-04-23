@@ -45,7 +45,7 @@ export class Battle implements Serializable, ReactiveNode {
   }
 
   // for initializing on server side creation
-  initialize(game: SpeedDungeonGame, party: AdventuringParty) {
+  initializeOnCreation(game: SpeedDungeonGame, party: AdventuringParty) {
     this._game = game;
     this._party = party;
     party.combatantManager.refillAllCombatantActionPoints();
@@ -55,7 +55,7 @@ export class Battle implements Serializable, ReactiveNode {
   }
 
   // for initializing after deserialization
-  softInitialize(game: SpeedDungeonGame, party: AdventuringParty) {
+  initializeAfterDeserialization(game: SpeedDungeonGame, party: AdventuringParty) {
     this._game = game;
     this._party = party;
     game.battles.set(this.id, this);
@@ -74,7 +74,7 @@ export class Battle implements Serializable, ReactiveNode {
 
   static createInitialized(game: SpeedDungeonGame, party: AdventuringParty, id: EntityId) {
     const battle = new Battle(id);
-    battle.initialize(game, party);
+    battle.initializeOnCreation(game, party);
     return battle.id;
   }
 

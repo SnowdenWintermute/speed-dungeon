@@ -9,6 +9,7 @@ import { testGuestReconnectionSuccess } from "./guest-reconnection/guest-reconne
 import { testReconnectionDuringActionReplay } from "./reconnection-in-battle/reconnection-during-action-replay";
 
 describe("game server reconnection", () => {
+  // it("placeholder", () => {});
   const testFixture = new IntegrationTestFixture();
 
   afterEach(async () => {

@@ -52,7 +52,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     const deserializedGame = SpeedDungeonGame.fromSerialized(pendingGameSetupOption.game);
-    deserializedGame.initializeBattles();
+    deserializedGame.initializeBattlesOnDeserialization();
     const newGame = deserializedGame;
 
     this.gameRegistry.registerGame(newGame);
@@ -79,6 +79,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const partyName = player.getExpectedPartyName();
 
     const party = game.getExpectedParty(partyName);
+    game.putPlayerInParty(partyName, session.username);
     session.subscribeToChannel(getPartyChannelName(game.name, party.name));
 
     const battleOption = party.getBattleOption(game) || undefined;
@@ -92,11 +93,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       type: GameStateUpdateType.GameFullUpdate,
       data: { game: game.toSerialized(), battle: battleOption?.toSerialized() },
     });
-    console.log(
-      "send full game update on connection",
-      [...game.adventuringParties][0]?.[1].getBattleOption(game)?.turnOrderManager
-        .turnSchedulerManager
-    );
 
     // clients should handle this differently than in the lobby
     // and just mark this player as connected in their client
