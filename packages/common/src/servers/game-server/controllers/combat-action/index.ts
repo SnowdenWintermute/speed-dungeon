@@ -341,6 +341,7 @@ export class CombatActionController {
       data: { sequentialEvents },
     });
 
+    let aiActionsTimeSpentInInputLock = 0;
     if (battleOption) {
       const battleProcessor = new BattleProcessor(
         this.updateDispatchFactory,
@@ -356,18 +357,18 @@ export class CombatActionController {
 
       const {
         outbox: battleProcessingOutbox,
-        durationUntilInputUnlock: aiActionsTimeSpentInInputLock,
+        durationUntilInputUnlock: lockDurationFromAiActions,
       } = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
-
-      const totalTimeSpentInInputLock =
-        aiActionsTimeSpentInInputLock + initialActionReplayTreeResult.durationSpentInInputLock;
-
-      console.log("totalTimeSpentInInputLock in executeAction:", totalTimeSpentInInputLock);
-
-      party.inputLock.increaseLockoutDuration(totalTimeSpentInInputLock);
+      aiActionsTimeSpentInInputLock = lockDurationFromAiActions;
 
       outbox.pushFromOther(battleProcessingOutbox);
     }
+
+    const totalTimeSpentInInputLock =
+      aiActionsTimeSpentInInputLock + initialActionReplayTreeResult.durationSpentInInputLock;
+    console.log("totalTimeSpentInInputLock in executeAction:", totalTimeSpentInInputLock);
+
+    party.inputLock.increaseLockoutDuration(totalTimeSpentInInputLock);
 
     return outbox;
   }

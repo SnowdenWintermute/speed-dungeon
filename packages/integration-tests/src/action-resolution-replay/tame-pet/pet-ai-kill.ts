@@ -18,6 +18,7 @@ export async function testPetAiKill(testFixture: IntegrationTestFixture) {
         MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
     ])
   );
+  testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;

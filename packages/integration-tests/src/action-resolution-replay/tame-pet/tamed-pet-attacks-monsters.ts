@@ -9,6 +9,7 @@ import {
 
 export async function testTamedPetHealsAlliesAttacksMonsters(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_MANTA_TWO_WOLF, BASIC_CHARACTER_FIXTURES);
+  testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { actionHistory } = gameClientHarness;

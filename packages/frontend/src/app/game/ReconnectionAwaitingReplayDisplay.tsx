@@ -6,9 +6,8 @@ import { observer } from "mobx-react-lite";
 
 export const ReconnectionAwaitingReplayDisplay = observer(() => {
   const clientApplication = useClientApplication();
-  const { showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration } =
-    clientApplication.uiStore;
-  if (!showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration) {
+  const { replayResolutionTimeoutDuration } = clientApplication.uiStore;
+  if (!replayResolutionTimeoutDuration) {
     return null;
   }
 
@@ -22,10 +21,7 @@ export const ReconnectionAwaitingReplayDisplay = observer(() => {
         server until it completes.
       </p>
       <div className="w-full flex justify-center">
-        <CountDownDisplay
-          durationMs={showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration}
-          className={"text-xl"}
-        />
+        <CountDownDisplay durationMs={replayResolutionTimeoutDuration} className={"text-xl"} />
       </div>
     </div>
   );

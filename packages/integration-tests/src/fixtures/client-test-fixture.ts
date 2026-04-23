@@ -13,13 +13,14 @@ import { IndexedDbClientLogRecorder } from "@/client-application/client-log-reco
 import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
+import { TimeMachine } from "@/test-utils/time-machine";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
 
-  constructor(lobbyServerPort: number) {
+  constructor(lobbyServerPort: number, timeMachine: TimeMachine) {
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
     const tickScheduler = new ManualTickScheduler();
     const clientLogRecorder = new IndexedDbClientLogRecorder(
@@ -41,11 +42,13 @@ export class ClientFixture {
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
 
     this.lobbyClientHarness = new ClientTestHarness(
+      timeMachine,
       this.clientApplication,
       lobbyClientRef,
       tickScheduler
     );
     this.gameClientHarness = new ClientTestHarness(
+      timeMachine,
       this.clientApplication,
       gameClientRef,
       tickScheduler

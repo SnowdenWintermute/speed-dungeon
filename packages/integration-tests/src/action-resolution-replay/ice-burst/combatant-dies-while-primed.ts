@@ -9,6 +9,7 @@ import {
 
 export async function testCombatantDiesWhilePrimedForIceBurst(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_MID_HP_WOLVES, BASIC_CHARACTER_FIXTURES);
+  testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { actionHistory } = gameClientHarness;

@@ -110,11 +110,11 @@ export function createGameUpdateHandlers(
 
       if (data.awaitingUnresolvedReplayResolutionDuration) {
         partyOption.inputLock.lockInput();
-        clientApplication.uiStore.showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration =
+        clientApplication.uiStore.replayResolutionTimeoutDuration =
           data.awaitingUnresolvedReplayResolutionDuration;
         setTimeout(() => {
           partyOption.inputLock.unlockInput();
-          clientApplication.uiStore.showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration = 0;
+          clientApplication.uiStore.replayResolutionTimeoutDuration = 0;
         }, data.awaitingUnresolvedReplayResolutionDuration);
       }
 

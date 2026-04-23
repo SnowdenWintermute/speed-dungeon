@@ -1,8 +1,3 @@
-// reconnect midway through action replay
-// - shows "resolving replay in progress"
-// - unlocks input after timeout
-// - can execute input
-//
 // reconnect midway through action replay that resolves in party wipe
 // - shows "resolving replay in progress"
 // - unlocks input after timeout
@@ -49,3 +44,8 @@
 // session claim token required
 // invalid session claim token
 // session claim token reuse
+//
+// reconnect midway through action replay
+// - shows "resolving replay in progress"
+// - unlocks input after timeout
+// - can execute input

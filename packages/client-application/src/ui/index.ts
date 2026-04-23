@@ -25,5 +25,7 @@ export class UiStore {
   readonly assetFetchProgress = new AssetFetchProgressStore();
   readonly httpRequests = new HttpRequestStore();
 
-  public showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration: Milliseconds = 0;
+  // for users who reconnect during a replay, we show them the resolution
+  // but they should wait until input unlocks and see an explanation
+  public replayResolutionTimeoutDuration: Milliseconds = 0;
 }

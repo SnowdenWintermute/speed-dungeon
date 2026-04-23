@@ -14,6 +14,7 @@ export async function testDieFromCounterattackTriggeredExplosion(
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, LOW_HP_CHARACTER_FIXTURES, {
     counterAttack: new FixedNumberGenerator(1 - EPSILON),
   });
+  testFixture.timeMachine.start();
 
   const client = await testFixture.createSingleClientInStartedGame(
     // warriors start with swords, who's animation is fast enough to set off the explosion
@@ -31,12 +32,15 @@ export async function testDieFromCounterattackTriggeredExplosion(
   const { combatantManager } = party;
 
   await gameClientHarness.toggleReadyToExplore();
+
   const firstMover = combatantFocus.requireFocusedCharacter();
   await gameClientHarness.useCombatAction(CombatActionName.IceBoltParent);
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
+  testFixture.timeMachine.advanceTime(clientApplication.uiStore.replayResolutionTimeoutDuration);
   expect(firstMover.getCombatantProperties().isDead()).toBeTruthy();
   const secondMover = combatantFocus.requireFocusedCharacter();
   await gameClientHarness.useCombatAction(CombatActionName.IceBoltParent);
+  testFixture.timeMachine.advanceTime(clientApplication.uiStore.replayResolutionTimeoutDuration);
   expect(secondMover.getCombatantProperties().isDead()).toBeTruthy();
 
   expect(party.timeOfWipe).toBeDefined();

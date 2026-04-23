@@ -23,31 +23,31 @@ describe("game server reconnection", () => {
     await testReconnectionDuringActionReplay(testFixture);
   });
 
-  // it("session claim token reuse", async () => {
-  //   await testSessionClaimTokenReuse(testFixture);
-  // });
+  it("session claim token reuse", async () => {
+    await testSessionClaimTokenReuse(testFixture);
+  });
 
-  // it("invalid session claim token", async () => {
-  //   await testInvalidSessionClaimToken(testFixture);
-  // });
+  it("invalid session claim token", async () => {
+    await testInvalidSessionClaimToken(testFixture);
+  });
 
-  // it("session claim token required", async () => {
-  //   await testSessionClaimTokenRequired(testFixture);
-  // });
+  it("session claim token required", async () => {
+    await testSessionClaimTokenRequired(testFixture);
+  });
 
-  // it("guest reconnection timeout", async () => {
-  //   await testGuestReconnectionAfterTimeout(testFixture);
-  // });
+  it("guest reconnection timeout", async () => {
+    await testGuestReconnectionAfterTimeout(testFixture);
+  });
 
-  // it("guest reconnection token reuse", async () => {
-  //   await testGuestReconnectionTokenReuse(testFixture);
-  // });
+  it("guest reconnection token reuse", async () => {
+    await testGuestReconnectionTokenReuse(testFixture);
+  });
 
-  // it("inputs while awaiting players", async () => {
-  //   await testInputsWhileAwaitingPlayers(testFixture);
-  // });
+  it("inputs while awaiting players", async () => {
+    await testInputsWhileAwaitingPlayers(testFixture);
+  });
 
-  // it("reconnection success", async () => {
-  //   testGuestReconnectionSuccess(testFixture);
-  // });
+  it("reconnection success", async () => {
+    testGuestReconnectionSuccess(testFixture);
+  });
 });

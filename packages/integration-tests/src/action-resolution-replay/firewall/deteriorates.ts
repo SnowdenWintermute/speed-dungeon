@@ -9,6 +9,7 @@ import {
 
 export async function testFirewallDeteriorates(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+  testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
   const { gameContext } = clientApplication;

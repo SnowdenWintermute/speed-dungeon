@@ -21,6 +21,7 @@ import {
   GameUpdateCommand,
   invariant,
   ItemId,
+  Milliseconds,
   NextOrPrevious,
   PartyName,
   TaggedEquipmentSlot,
@@ -29,10 +30,12 @@ import {
 import { ClientSingleton } from "@/client-application/clients/singleton";
 import { CombatActionHistoryInspector } from "./combat-action-history-inspector.js";
 import { PausableEndpoint } from "./pausable-endpoint.js";
+import { TimeMachine } from "./time-machine.js";
 
 export class ClientTestHarness<T extends BaseClient> {
   readonly actionHistory: CombatActionHistoryInspector;
   constructor(
+    private timeMachine: TimeMachine,
     readonly clientApplication: ClientApplication,
     private clientSingleton: ClientSingleton<T>,
     readonly tickScheduler: ManualTickScheduler
@@ -69,18 +72,21 @@ export class ClientTestHarness<T extends BaseClient> {
 
   async settleIntentResult(intent: ClientIntent) {
     const intentId = await this.dispatchAndAwaitReply(intent);
-    await this.flushReplayTree();
-    return intentId;
+    const durationTicked = await this.flushReplayTree();
+    return { intentId, durationTicked };
   }
 
+  /** returns the duration ticked in ms so we can use it to
+   * advance time in the test until input would be unlocked */
   async flushReplayTree(untilMatchedStep?: {
     stoppingPoint: BeforeOrAfter;
     actionName: CombatActionName;
     step: ActionResolutionStepType;
-  }) {
+  }): Promise<Milliseconds> {
     let iterationCount = 0;
     const { replayTreeScheduler } = this.clientApplication;
     let matched = false;
+    let durationTicked = 0;
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
       throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
       iterationCount += 1;
@@ -92,20 +98,23 @@ export class ClientTestHarness<T extends BaseClient> {
         this.replayStepIsMatch(commandOption, untilMatchedStep)
       ) {
         if (untilMatchedStep.stoppingPoint === BeforeOrAfter.After) {
-          await this.tickNextStep();
+          durationTicked += await this.tickNextStep();
         }
         matched = true;
         break;
       }
 
-      await this.tickNextStep();
+      durationTicked += await this.tickNextStep();
     }
     if (untilMatchedStep && !matched) {
       throw new Error("expected to match a step but never found it");
     }
+
+    return durationTicked;
   }
 
-  private async tickNextStep() {
+  /** returns the duration ticked in ms */
+  private async tickNextStep(): Promise<Milliseconds> {
     const remaining = this.clientApplication.replayTreeScheduler.getMinRemainingDuration();
     invariant(remaining >= 0, "remaining duration should not be negative");
     this.tickScheduler.tick(remaining);
@@ -114,6 +123,7 @@ export class ClientTestHarness<T extends BaseClient> {
     // Without this, isProcessing never updates because the synchronous
     // loop starves the microtask queue.
     await Promise.resolve();
+    return remaining;
   }
 
   private replayStepIsMatch(
@@ -176,17 +186,21 @@ export class ClientTestHarness<T extends BaseClient> {
   }
 
   async toggleReadyToExplore() {
-    return this.settleIntentResult({
+    const result = await this.settleIntentResult({
       type: ClientIntentType.ToggleReadyToExplore,
       data: undefined,
     });
+    this.timeMachine.advanceTime(result.durationTicked);
+    return result;
   }
 
   async toggleReadyToDescend() {
-    return this.settleIntentResult({
+    const result = await this.settleIntentResult({
       type: ClientIntentType.ToggleReadyToDescend,
       data: undefined,
     });
+    this.timeMachine.advanceTime(result.durationTicked);
+    return result;
   }
 
   async selectCombatAction(actionName: CombatActionName, rank: number) {
@@ -207,7 +221,10 @@ export class ClientTestHarness<T extends BaseClient> {
       data: { characterId },
     });
     this.clientApplication.actionMenu.onExecuteAction();
-    return promise;
+    const result = await promise;
+    // sometimes it would unlock earlier than the server unlocked if I didn't add 1 or Math.ceil
+    this.timeMachine.advanceTime(Math.ceil(result.durationTicked));
+    return result;
   }
 
   async passTurns(count: number) {

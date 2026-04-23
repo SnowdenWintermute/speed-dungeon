@@ -106,7 +106,7 @@ export class IntegrationTestFixture {
   }
 
   createClient(id: string) {
-    const client = new ClientFixture(this.lobbyServerPort);
+    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine);
     this.clients.set(id, client);
     return client;
   }

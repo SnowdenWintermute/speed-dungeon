@@ -11,11 +11,6 @@ import {
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
 
-// reconnect during action replay
-// - shows "resolving replay in progress"
-// - unlocks input after timeout
-// - can execute input
-
 export async function testReconnectionDuringActionReplay(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, BASIC_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
@@ -82,13 +77,9 @@ export async function testReconnectionDuringActionReplay(testFixture: Integratio
   );
   expect(party.inputLock.isLocked()).toBeTruthy();
 
-  expect(
-    bravo.clientApplication.uiStore
-      .showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration > 0
-  ).toBeTruthy();
+  expect(bravo.clientApplication.uiStore.replayResolutionTimeoutDuration > 0).toBeTruthy();
   testFixture.timeMachine.advanceTime(
-    bravo.clientApplication.uiStore
-      .showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration
+    bravo.clientApplication.uiStore.replayResolutionTimeoutDuration
   );
   expect(party.inputLock.isLocked()).toBeFalsy();
 }

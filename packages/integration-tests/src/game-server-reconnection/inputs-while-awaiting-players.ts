@@ -11,6 +11,7 @@ import {
 
 export async function testInputsWhileAwaitingPlayers(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
+  testFixture.timeMachine.start();
 
   const { alpha, bravo } = await testFixture.createTwoClientsInLobbyGame();
 
