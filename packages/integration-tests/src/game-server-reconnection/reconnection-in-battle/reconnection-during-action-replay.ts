@@ -15,17 +15,7 @@ export async function testReconnectionDuringActionReplay(testFixture: Integratio
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, BASIC_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
 
-  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
-
-  const partyA = alpha.gameClientHarness.clientApplication.gameContext.requireParty();
-  const partyB = bravo.gameClientHarness.clientApplication.gameContext.requireParty();
-  expect(partyA.currentRoom.requireType(DungeonRoomType.Empty));
-  expect(partyB.currentRoom.requireType(DungeonRoomType.Empty));
-
-  await alpha.gameClientHarness.toggleReadyToExplore();
-  await bravo.gameClientHarness.toggleReadyToExplore();
-  expect(partyA.currentRoom.requireType(DungeonRoomType.MonsterLair));
-  expect(partyB.currentRoom.requireType(DungeonRoomType.MonsterLair));
+  const { alpha, bravo } = await testFixture.createTwoClientsInFirstMonsterLair();
 
   await alpha.gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
   await Promise.all([

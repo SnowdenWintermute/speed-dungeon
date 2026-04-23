@@ -1,5 +1,6 @@
 import {
   CombatantClass,
+  DungeonRoomType,
   ExplicitCombatantDungeonTemplate,
   FixedCharacterCreationLists,
   FixedNumberGenerator,
@@ -181,6 +182,20 @@ export class IntegrationTestFixture {
       alpha.clientApplication.transitionToGameServer.waitFor(),
       bravo.clientApplication.transitionToGameServer.waitFor(),
     ]);
+    return { alpha, bravo };
+  }
+
+  async createTwoClientsInFirstMonsterLair() {
+    const { alpha, bravo } = await this.createTwoClientsInGameServerGame();
+
+    const partyA = alpha.gameClientHarness.clientApplication.gameContext.requireParty();
+    const partyB = bravo.gameClientHarness.clientApplication.gameContext.requireParty();
+    expect(partyA.currentRoom.requireType(DungeonRoomType.Empty));
+    expect(partyB.currentRoom.requireType(DungeonRoomType.Empty));
+    await alpha.gameClientHarness.toggleReadyToExplore();
+    await bravo.gameClientHarness.toggleReadyToExplore();
+    expect(partyA.currentRoom.requireType(DungeonRoomType.MonsterLair));
+    expect(partyB.currentRoom.requireType(DungeonRoomType.MonsterLair));
     return { alpha, bravo };
   }
 }
