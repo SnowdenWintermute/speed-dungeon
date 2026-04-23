@@ -7,6 +7,7 @@ import {
   ClientSequentialEventType,
   SerializedOf,
   Battle,
+  CombatantId,
 } from "@speed-dungeon/common";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
@@ -162,7 +163,12 @@ export class ClientApplication {
     });
   }
 
-  handleBattleFullUpdate(serializedBattleOption: SerializedOf<Battle> | null) {
+  handleBattleFullUpdate(
+    serializedBattleOption: {
+      battle: SerializedOf<Battle>;
+      combatantActionPoints: { combatantId: CombatantId; actionPoints: number }[];
+    } | null
+  ) {
     const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
 
     if (serializedBattleOption === null) {
@@ -170,11 +176,18 @@ export class ClientApplication {
       return;
     }
 
-    const deserializedBattle = Battle.fromSerialized(serializedBattleOption);
+    const deserializedBattle = Battle.fromSerialized(serializedBattleOption.battle);
     party.setBattleId(deserializedBattle.id);
     deserializedBattle.initializeAfterDeserialization(game, party);
     deserializedBattle.makeObservable();
     game.battles.set(deserializedBattle.id, deserializedBattle);
+
+    for (const { combatantId, actionPoints } of serializedBattleOption.combatantActionPoints) {
+      party.combatantManager
+        .getExpectedCombatant(combatantId)
+        .getCombatantProperties()
+        .resources.setActionPoints(actionPoints);
+    }
 
     const currentActorIsPlayerControlled =
       deserializedBattle.turnOrderManager.currentActorIsPlayerControlled(party);

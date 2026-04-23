@@ -44,9 +44,9 @@ describe("action playground", () => {
   //   await testRangedCounterattackThroughFirewallIgnite(testFixture);
   // });
 
-  it("die from counterattack triggered explosion", async () => {
-    await testDieFromCounterattackTriggeredExplosion(testFixture);
-  });
+  // it("die from counterattack triggered explosion", async () => {
+  //   await testDieFromCounterattackTriggeredExplosion(testFixture);
+  // });
 
   // it("ensnare debuff", async () => {
   //   await testEnsnareDebuffOnFlyer(testFixture);

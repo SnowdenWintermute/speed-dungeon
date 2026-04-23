@@ -23,7 +23,7 @@ export class CombatantManager
   extends AdventuringPartySubsystem
   implements Serializable, ReactiveNode
 {
-  private combatants = new Map<EntityId, Combatant>();
+  private combatants = new Map<CombatantId, Combatant>();
 
   makeObservable(): void {
     makeAutoObservable(this);
@@ -47,7 +47,7 @@ export class CombatantManager
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {
-    return this.combatants.get(entityId);
+    return this.combatants.get(entityId as CombatantId);
   }
 
   getExpectedCombatant(combatantId: EntityId) {

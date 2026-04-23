@@ -119,7 +119,10 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SerializedOf<SpeedDungeonGame> | null;
-    battle?: SerializedOf<Battle>;
+    battle?: {
+      battle: SerializedOf<Battle>;
+      combatantActionPoints: { combatantId: CombatantId; actionPoints: number }[];
+    };
   };
   [GameStateUpdateType.PlayerChangedAdventuringParty]: {
     playerName: Username;
@@ -171,7 +174,10 @@ export interface GameStateUpdateMap {
     monsters: SerializedOf<Combatant>[];
     actionEntitiesToRemove: EntityId[];
   };
-  [GameStateUpdateType.BattleFullUpdate]: SerializedOf<Battle> | null;
+  [GameStateUpdateType.BattleFullUpdate]: {
+    battle: SerializedOf<Battle>;
+    combatantActionPoints: { combatantId: CombatantId; actionPoints: number }[];
+  } | null;
 
   [GameStateUpdateType.ClientSequentialEvents]: {
     sequentialEvents: ClientSequentialEvent[];

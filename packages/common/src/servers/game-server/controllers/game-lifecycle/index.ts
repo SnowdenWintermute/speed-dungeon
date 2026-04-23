@@ -91,7 +91,22 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     // for simplicity we'll eat the performance cost until it is measured
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
-      data: { game: game.toSerialized(), battle: battleOption?.toSerialized() },
+      data: {
+        game: game.toSerialized(),
+        battle: battleOption
+          ? {
+              battle: battleOption.toSerialized(),
+              combatantActionPoints: [...party.combatantManager.getAllCombatants()].map(
+                ([combatantId, combatant]) => {
+                  return {
+                    combatantId,
+                    actionPoints: combatant.getCombatantProperties().resources.getActionPoints(),
+                  };
+                }
+              ),
+            }
+          : undefined,
+      },
     });
 
     // clients should handle this differently than in the lobby

@@ -224,7 +224,17 @@ export class DungeonExplorationController {
 
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.BattleFullUpdate,
-      data: battle.toSerialized(),
+      data: {
+        battle: battle.toSerialized(),
+        combatantActionPoints: [...party.combatantManager.getAllCombatants()].map(
+          ([combatantId, combatant]) => {
+            return {
+              combatantId,
+              actionPoints: combatant.combatantProperties.resources.getActionPoints(),
+            };
+          }
+        ),
+      },
     });
 
     const battleProcessor = new BattleProcessor(

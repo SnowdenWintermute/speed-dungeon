@@ -18,6 +18,7 @@ import {
 
 export async function testReconnectionDuringActionReplay(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, BASIC_CHARACTER_FIXTURES);
+  testFixture.timeMachine.start();
 
   const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
 
@@ -80,4 +81,7 @@ export async function testReconnectionDuringActionReplay(testFixture: Integratio
       .turnOrderManager.getTrackers()
   );
   expect(party.inputLock.isLocked()).toBeTruthy();
+
+  testFixture.timeMachine.advanceTime(100000);
+  expect(party.inputLock.isLocked()).toBeFalsy();
 }

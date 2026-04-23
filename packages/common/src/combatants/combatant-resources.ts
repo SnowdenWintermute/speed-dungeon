@@ -73,6 +73,10 @@ export class CombatantResources extends CombatantSubsystem implements ReactiveNo
     this.actionPoints = Math.min(COMBATANT_MAX_ACTION_POINTS, newCandidateValue);
   }
 
+  setActionPoints(value: number) {
+    this.actionPoints = value;
+  }
+
   changeMana(value: number) {
     if (isNaN(value)) throw new Error("change was NaN");
     const { mana: maxMana } = this.maxResources;
