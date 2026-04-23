@@ -8,6 +8,7 @@ import { KeybindConfig } from "./keybind-config";
 import { AssetFetchProgressStore } from "./asset-fetch-progress";
 import { HttpRequestStore } from "./http-requests";
 import { makeAutoObservable } from "mobx";
+import { Milliseconds } from "@speed-dungeon/common";
 
 export class UiStore {
   constructor() {
@@ -23,4 +24,6 @@ export class UiStore {
   readonly keybinds = new KeybindConfig();
   readonly assetFetchProgress = new AssetFetchProgressStore();
   readonly httpRequests = new HttpRequestStore();
+
+  public showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration: Milliseconds = 0;
 }

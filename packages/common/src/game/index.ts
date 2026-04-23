@@ -268,7 +268,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
     player.partyName = null;
 
-    console.trace("removing username", username, "from party");
     ArrayUtils.removeElement(partyLeaving.playerUsernames, username);
 
     if (partyLeaving.playerUsernames.length < 1) {

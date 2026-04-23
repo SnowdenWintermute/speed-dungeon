@@ -82,6 +82,13 @@ export async function testReconnectionDuringActionReplay(testFixture: Integratio
   );
   expect(party.inputLock.isLocked()).toBeTruthy();
 
-  testFixture.timeMachine.advanceTime(100000);
+  expect(
+    bravo.clientApplication.uiStore
+      .showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration > 0
+  ).toBeTruthy();
+  testFixture.timeMachine.advanceTime(
+    bravo.clientApplication.uiStore
+      .showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration
+  );
   expect(party.inputLock.isLocked()).toBeFalsy();
 }

@@ -93,6 +93,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       type: GameStateUpdateType.GameFullUpdate,
       data: {
         game: game.toSerialized(),
+        awaitingUnresolvedReplayResolutionDuration: party.inputLock.remainingDuration || undefined,
         battle: battleOption
           ? {
               battle: battleOption.toSerialized(),

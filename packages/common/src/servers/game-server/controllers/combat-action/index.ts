@@ -296,7 +296,9 @@ export class CombatActionController {
 
     const sequentialEvents: ClientSequentialEvent[] = [];
 
-    const replayTreeResult = processCombatAction(
+    party.inputLock.lockInput();
+
+    const initialActionReplayTreeResult = processCombatAction(
       actionExecutionIntent,
       actionUserContext,
       this.idGenerator,
@@ -317,7 +319,7 @@ export class CombatActionController {
       type: ClientSequentialEventType.ProcessReplayTree,
       data: {
         actionUserId: character.entityProperties.id,
-        root: replayTreeResult.rootReplayNode,
+        root: initialActionReplayTreeResult.rootReplayNode,
       },
     };
 
@@ -326,10 +328,10 @@ export class CombatActionController {
     }
 
     sequentialEvents.push(replayTreePayload);
-    if (replayTreeResult.removedCombatantIds.length) {
+    if (initialActionReplayTreeResult.removedCombatantIds.length) {
       sequentialEvents.push({
         type: ClientSequentialEventType.PostReplayTreeCleanup,
-        data: { removedCombatantIds: replayTreeResult.removedCombatantIds },
+        data: { removedCombatantIds: initialActionReplayTreeResult.removedCombatantIds },
       });
     }
 
@@ -352,8 +354,18 @@ export class CombatActionController {
         this.assetAnalyzer
       );
 
-      const battleProcessingOutbox =
-        await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+      const {
+        outbox: battleProcessingOutbox,
+        durationUntilInputUnlock: aiActionsTimeSpentInInputLock,
+      } = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+
+      const totalTimeSpentInInputLock =
+        aiActionsTimeSpentInInputLock + initialActionReplayTreeResult.durationSpentInInputLock;
+
+      console.log("totalTimeSpentInInputLock in executeAction:", totalTimeSpentInInputLock);
+
+      party.inputLock.increaseLockoutDuration(totalTimeSpentInInputLock);
+
       outbox.pushFromOther(battleProcessingOutbox);
     }
 

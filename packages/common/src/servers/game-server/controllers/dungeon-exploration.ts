@@ -61,7 +61,6 @@ export class DungeonExplorationController {
       ExplorationAction.Explore,
       party
     );
-    console.log("allPlayersReadyToExplore:", allPlayersReadyToExplore);
 
     if (allPlayersReadyToExplore) {
       const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
@@ -248,7 +247,12 @@ export class DungeonExplorationController {
       this.lootGenerator,
       this.assetAnalyzer
     );
-    const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+
+    const { outbox: battleProcessingOutbox, durationUntilInputUnlock } =
+      await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+    party.inputLock.lockInput();
+    party.inputLock.increaseLockoutDuration(durationUntilInputUnlock);
+
     outbox.pushFromOther(battleProcessingOutbox);
     return outbox;
   }

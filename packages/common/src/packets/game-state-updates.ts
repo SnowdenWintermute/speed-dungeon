@@ -22,6 +22,7 @@ import {
   GameName,
   GuestSessionReconnectionToken,
   ItemId,
+  Milliseconds,
   PartyName,
   Username,
 } from "../aliases.js";
@@ -119,6 +120,10 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SerializedOf<SpeedDungeonGame> | null;
+    // for players reconnecting, they already see the resolved state of combat actions but
+    // input should still be locked until the replay plays out on other clients
+    // since server side party will still be input locked
+    awaitingUnresolvedReplayResolutionDuration?: Milliseconds;
     battle?: {
       battle: SerializedOf<Battle>;
       combatantActionPoints: { combatantId: CombatantId; actionPoints: number }[];

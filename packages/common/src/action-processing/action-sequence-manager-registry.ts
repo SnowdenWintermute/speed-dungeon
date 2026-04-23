@@ -25,6 +25,7 @@ export class ActionSequenceManagerRegistry {
   private inputBlockingActionStepsPendingReferenceCount = 0;
   private turnEnded = false;
   public time = new TimeKeeper();
+  public durationSpentInInputLock: null | Milliseconds = null;
   public battleConcludedOption: {
     conclusion: BattleConclusion;
     levelUps: Record<CombatantId, number>;

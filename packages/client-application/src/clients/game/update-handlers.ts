@@ -98,12 +98,24 @@ export function createGameUpdateHandlers(
           clientApplication.handleBattleFullUpdate(data.battle);
         }
       }
+
       clientApplication.transitionToGameServer.fire();
       clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
       const { partyOption } = clientApplication.gameContext;
+
       if (!partyOption) {
         return;
+      }
+
+      if (data.awaitingUnresolvedReplayResolutionDuration) {
+        partyOption.inputLock.lockInput();
+        clientApplication.uiStore.showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration =
+          data.awaitingUnresolvedReplayResolutionDuration;
+        setTimeout(() => {
+          partyOption.inputLock.unlockInput();
+          clientApplication.uiStore.showReconnectedUserAwaitingReplayResolutionTimeoutMessageDuration = 0;
+        }, data.awaitingUnresolvedReplayResolutionDuration);
       }
 
       if (!gameWorldView) {

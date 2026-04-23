@@ -47,6 +47,7 @@ export class BattleProcessor {
     const sequentialEvents: ClientSequentialEvent[] = [];
 
     let safetyCounter = -1;
+    let durationUntilInputUnlock = 0;
     while (party.battleId) {
       throwIfLoopLimitReached(safetyCounter, "process-battle-until-player-turn-or-conclusion");
       safetyCounter += 1;
@@ -86,9 +87,8 @@ export class BattleProcessor {
           this.lootGenerator
         );
 
-        if (replayTreeResult instanceof Error) {
-          throw replayTreeResult;
-        }
+        durationUntilInputUnlock += replayTreeResult.durationSpentInInputLock;
+
         const { rootReplayNode, battleConcludedOption } = replayTreeResult;
 
         const actionUserId = user.getEntityId();
@@ -122,7 +122,7 @@ export class BattleProcessor {
       data: { sequentialEvents },
     });
 
-    return outbox;
+    return { outbox, durationUntilInputUnlock };
   }
 
   logSelectedActionIntent(

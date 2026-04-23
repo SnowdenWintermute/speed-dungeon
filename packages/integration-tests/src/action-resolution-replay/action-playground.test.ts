@@ -25,16 +25,16 @@ import { testRangedCounterattackThroughFirewallIgnite } from "./counterattack/ra
 import { testRangedCounterattackThroughFirewallIncinerate } from "./counterattack/ranged-counterattack-through-firewall-incinerate.js";
 
 describe("action playground", () => {
-  // it("placeholder", () => {});
+  it("placeholder", () => {});
 
   const testFixture = new IntegrationTestFixture();
 
-  afterEach(async () => {
-    await Promise.all([
-      testFixture.lobbyServer.closeTransportServer(),
-      testFixture.gameServer.closeTransportServer(),
-    ]);
-  });
+  // afterEach(async () => {
+  //   await Promise.all([
+  //     testFixture.lobbyServer.closeTransportServer(),
+  //     testFixture.gameServer.closeTransportServer(),
+  //   ]);
+  // });
 
   // it("ranged counterattack through firewall incinerate", async () => {
   //   await testRangedCounterattackThroughFirewallIncinerate(testFixture);

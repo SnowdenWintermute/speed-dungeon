@@ -49,9 +49,6 @@ export function processCombatAction(
     NestedNodeReplayEventUtls.appendGameUpdate(rootReplayNode, initialGameUpdateOption);
   }
 
-  console.log("about to lock input at process-combat-action", actionUserContext.party.inputLock);
-  actionUserContext.party.inputLock.lockInput();
-
   let safetyCounter = -1;
   while (registry.isNotEmpty()) {
     safetyCounter += 1;
@@ -66,20 +63,13 @@ export function processCombatAction(
     registry.processActiveActionSequences(actionUserContext);
   }
 
-  setTimeout(() => {
-    console.log(
-      "about to unlock input after process-combat-action timeout",
-      actionUserContext.party.inputLock
-    );
-    actionUserContext.party.inputLock.unlockInput();
-  }, registry.time.ms);
-
   const endedTurn = registry.getTurnEnded();
 
   const battleJustEnded = wasInBattle && party.battleId === null;
   const removedCombatantIds = postActionProcessedCleanup(game, party, battleJustEnded);
 
   return {
+    durationSpentInInputLock: registry.durationSpentInInputLock || registry.time.ms,
     rootReplayNode,
     removedCombatantIds,
     endedTurn,

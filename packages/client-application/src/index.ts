@@ -8,6 +8,7 @@ import {
   SerializedOf,
   Battle,
   CombatantId,
+  Milliseconds,
 } from "@speed-dungeon/common";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
