@@ -21,16 +21,16 @@ import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { DatabaseProfileService } from "../game-server/services/profiles.js";
-import { DatabaseRankedLadderService } from "../game-server/services/ranked-ladder.js";
+import { DatabaseProfileService } from "../game-node/services/profiles.js";
+import { DatabaseRankedLadderService } from "../game-node/services/ranked-ladder.js";
 import {
   DatabaseSavedCharacterPersistenceStrategy,
   DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "../game-server/services/saved-characters.js";
+} from "../game-node/services/saved-characters.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { getLoggedInUserOption } from "../game-server/get-logged-in-user-option.js";
+import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
 
 export class LobbyServerNode {
@@ -61,9 +61,8 @@ export class LobbyServerNode {
       new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
     );
 
-    // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
-
-    this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
+    this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
+    // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
     // this._lobbyServer.characterCreationPolicy.setCharacters(LOW_HP_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PET_MANTAS);
     // this._lobbyServer.characterCreationPolicy.setCharacters(

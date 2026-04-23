@@ -7,6 +7,7 @@ import { testGuestReconnectionTokenReuse } from "./guest-reconnection/guest-reco
 import { testInputsWhileAwaitingPlayers } from "./inputs-while-awaiting-players";
 import { testGuestReconnectionSuccess } from "./guest-reconnection/guest-reconnection-success";
 import { testReconnectionDuringActionReplay } from "./reconnection-in-battle/reconnection-during-action-replay";
+import { testReconnectionDuringVictoryReplay } from "./reconnection-in-battle/reconnection-during-victory-replay";
 
 describe("game server reconnection", () => {
   // it("placeholder", () => {});
@@ -19,9 +20,13 @@ describe("game server reconnection", () => {
     ]);
   });
 
-  it("reconnection during action replay", async () => {
-    await testReconnectionDuringActionReplay(testFixture);
+  it("reconnection during victory replay", async () => {
+    await testReconnectionDuringVictoryReplay(testFixture);
   });
+
+  // it("reconnection during action replay", async () => {
+  //   await testReconnectionDuringActionReplay(testFixture);
+  // });
 
   // it("session claim token reuse", async () => {
   //   await testSessionClaimTokenReuse(testFixture);

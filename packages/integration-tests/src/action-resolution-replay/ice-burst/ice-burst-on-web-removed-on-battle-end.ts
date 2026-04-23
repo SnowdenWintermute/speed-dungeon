@@ -17,17 +17,16 @@ export async function testIceBurstOnWebRemovedAtBattleEnd(testFixture: Integrati
   const { durationTicked } = await gameClientHarness.useCombatAction(
     CombatActionName.SummonPetParent
   );
-  console.log("about to toggle ready explore", durationTicked);
-  testFixture.timeMachine.advanceTime(10000);
+
   await gameClientHarness.toggleReadyToExplore();
-  // await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
-  // await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
-  // await gameClientHarness.selectCombatAction(CombatActionName.Fire, 3);
-  // await gameClientHarness.cycleTargets(NextOrPrevious.Next);
-  // await gameClientHarness.useSelectedCombatAction();
-  // await gameClientHarness.selectCombatAction(CombatActionName.Fire, 3);
-  // await gameClientHarness.cycleTargetingSchemes();
-  // await gameClientHarness.cycleTargets(NextOrPrevious.Next);
-  // await gameClientHarness.useSelectedCombatAction();
-  // expect(clientApplication.errorRecordService.getErrors().length).toBe(0);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
+  await gameClientHarness.selectCombatAction(CombatActionName.Fire, 3);
+  await gameClientHarness.cycleTargets(NextOrPrevious.Next);
+  await gameClientHarness.useSelectedCombatAction();
+  await gameClientHarness.selectCombatAction(CombatActionName.Fire, 3);
+  await gameClientHarness.cycleTargetingSchemes();
+  await gameClientHarness.cycleTargets(NextOrPrevious.Next);
+  await gameClientHarness.useSelectedCombatAction();
+  expect(clientApplication.errorRecordService.getErrors().length).toBe(0);
 }

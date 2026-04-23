@@ -126,10 +126,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     gameUpdateCommandOption.unlockInput = true;
     sequentialActionManagerRegistry.durationSpentInInputLock =
       context.manager.sequentialActionManagerRegistry.time.ms;
-    console.log(
-      "shouldUnlockInput, ticked duration",
-      sequentialActionManagerRegistry.durationSpentInInputLock
-    );
   }
 
   return gameUpdateCommandOption;

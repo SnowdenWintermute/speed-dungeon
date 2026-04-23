@@ -11,8 +11,8 @@ import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
 import { loadLadderIntoKvStore } from "./kv-store/utils.js";
 import { runMigrations } from "./database/run-migrations.js";
-import { LobbyServerNode } from "./lobby-server/index.js";
-import { GameServerNode } from "./game-server/index.js";
+import { LobbyServerNode } from "./lobby-node/index.js";
+import { GameServerNode } from "./game-node/index.js";
 import { createServer } from "http";
 
 const LOBBY_PORT = 8080;

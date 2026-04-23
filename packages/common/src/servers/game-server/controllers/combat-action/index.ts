@@ -366,7 +366,6 @@ export class CombatActionController {
 
     const totalTimeSpentInInputLock =
       aiActionsTimeSpentInInputLock + initialActionReplayTreeResult.durationSpentInInputLock;
-    console.log("totalTimeSpentInInputLock in executeAction:", totalTimeSpentInInputLock);
 
     party.inputLock.increaseLockoutDuration(totalTimeSpentInInputLock);
 

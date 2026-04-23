@@ -3,12 +3,15 @@ import { BaseClient } from "@/client-application/clients/base";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import {
   AbilityTreeAbility,
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionAndRank,
   ActionRank,
   ActionResolutionStepType,
   BeforeOrAfter,
   ClientIntent,
   ClientIntentType,
+  ClientSequentialEventType,
+  COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   CombatantClass,
   CombatantId,
@@ -71,8 +74,15 @@ export class ClientTestHarness<T extends BaseClient> {
   }
 
   async settleIntentResult(intent: ClientIntent) {
+    console.log("settling intent:", intent);
     const intentId = await this.dispatchAndAwaitReply(intent);
     const durationTicked = await this.flushReplayTree();
+    await this.clientApplication.sequentialEventProcessor.waitUntilIdle();
+    console.log(
+      "sequentialEventProcessor:",
+      this.clientApplication.sequentialEventProcessor.pendingEvents,
+      this.clientApplication.sequentialEventProcessor.currentEventProcessing
+    );
     return { intentId, durationTicked };
   }
 
@@ -88,7 +98,10 @@ export class ClientTestHarness<T extends BaseClient> {
     let matched = false;
     let durationTicked = 0;
     while (this.clientApplication.sequentialEventProcessor.isProcessing) {
-      throwIfLoopLimitReached(iterationCount, "client-test-harness flushReplayTree");
+      throwIfLoopLimitReached(
+        iterationCount,
+        `client-test-harness flushReplayTree at ${JSON.stringify(this.clientApplication.sequentialEventProcessor.currentEventProcessing)}`
+      );
       iterationCount += 1;
 
       const commandOption = replayTreeScheduler.current?.nextExpectedStep?.command;
@@ -301,6 +314,14 @@ export class ClientTestHarness<T extends BaseClient> {
     return this.settleIntentResult({
       type: ClientIntentType.IncrementAttribute,
       data: { characterId, attribute },
+    });
+  }
+
+  async pickUpItem(id: ItemId) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
+    return this.settleIntentResult({
+      type: ClientIntentType.PickUpItems,
+      data: { characterId, itemIds: [id] },
     });
   }
 }

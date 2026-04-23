@@ -32,7 +32,6 @@ export async function testLeaveAndCreateNewGame(testSurface: IntegrationTestFixt
   expect(focusedCharacter.combatantProperties.resources.getHitPoints()).toBe(28);
   gameClientRef.get().leaveGame();
 
-  // await clientApplication.sequentialEventProcessor.waitUntilIdle();
   expect(gameContext.gameOption).toBe(null);
 
   await clientApplication.transitionToLobbyServer.waitFor();

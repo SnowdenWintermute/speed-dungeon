@@ -11,6 +11,7 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 
 export const MONSTER_FIXTURE_NAMES = {
+  WOLF_ONE_HP: "Test Wolf One Hp",
   WOLF_LOW_HP: "Test Wolf Low Hp",
   WOLF_MID_HP: "Test Wolf Mid Hp",
   WOLF_ZERO_SPEED: "Test Wolf Zero Speed",
@@ -178,6 +179,33 @@ export const MONSTER_FIXTURES = {
       .trait(CombatantTraitType.IsTameable, 1)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();
+    return builder;
+  },
+  WOLF_ONE_HP: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 1)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .trait(CombatantTraitType.IsTameable, 1)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
     return builder;
   },
   WOLF_LOW_HP: (

@@ -217,7 +217,7 @@ export class GameServer extends SpeedDungeonServer {
         connectionEndpoint.id,
         identityResolutionContext
       );
-      this.logUserConnected(session);
+      // this.logUserConnected(session);
 
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -284,7 +284,7 @@ export class GameServer extends SpeedDungeonServer {
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    this.logUserDisconnected(session, reason);
+    // this.logUserDisconnected(session, reason);
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);

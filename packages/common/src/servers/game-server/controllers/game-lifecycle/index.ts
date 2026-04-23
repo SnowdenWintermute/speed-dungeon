@@ -84,8 +84,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     const battleOption = party.getBattleOption(game) || undefined;
 
-    console.log("party input lock before sending full game update:", party.inputLock);
-
     // if they are reconnecting their client would have lost the game information
     // could avoid sending it if this is a connection from the lobby though
     // for simplicity we'll eat the performance cost until it is measured

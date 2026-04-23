@@ -27,7 +27,7 @@ import { testRangedCounterattackThroughFirewallIncinerate } from "./counterattac
 describe("action playground", () => {
   it("placeholder", () => {});
 
-  const testFixture = new IntegrationTestFixture();
+  // const testFixture = new IntegrationTestFixture();
 
   // afterEach(async () => {
   //   await Promise.all([

@@ -17,7 +17,7 @@ export class ClientSequentialEventProcessor implements ReactiveNode {
   // generation before executing.
   private generation: number = 0;
 
-  constructor(private clientApplication: ClientApplication) {
+  constructor(clientApplication: ClientApplication) {
     this.eventHandlers = createClientSequentialEventHandlers(clientApplication);
   }
 
