@@ -57,6 +57,8 @@ export class DungeonExplorationController {
       data: { username, explorationAction: ExplorationAction.Explore },
     });
 
+    console.log("party players in toggleReadyToExploreHandler:", party.playerUsernames);
+
     const allPlayersReadyToExplore = dungeonExplorationManager.allPlayersReadyToTakeAction(
       ExplorationAction.Explore,
       party

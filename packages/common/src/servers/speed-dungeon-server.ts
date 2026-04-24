@@ -81,6 +81,8 @@ export abstract class SpeedDungeonServer {
       this.executor.enqueue(async () => {
         const parsed = this.parseMessage(rawData);
 
+        console.log("got intent:", parsed);
+
         const handlerOption = intentHandlers[parsed.type];
 
         invariant(

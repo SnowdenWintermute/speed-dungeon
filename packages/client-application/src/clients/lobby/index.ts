@@ -108,7 +108,7 @@ export class LobbyClient extends BaseClient {
       type: ClientIntentType.CreateCharacter,
       data: {
         name: "" as EntityName,
-        combatantClass: CombatantClass.Warrior,
+        combatantClass: CombatantClass.Rogue,
       },
     });
   }

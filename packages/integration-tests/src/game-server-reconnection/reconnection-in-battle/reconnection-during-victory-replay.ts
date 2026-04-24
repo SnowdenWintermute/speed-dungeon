@@ -8,6 +8,15 @@ import {
   TEST_DUNGEON_TWO_ONE_HP_WOLVES,
 } from "@speed-dungeon/common";
 
+// submit action expected to kill last monster
+// await and advance time flush tree to midway through replay
+// reconnect
+// assert items on ground but can not be picked up
+// assert input locked while replay still playing out
+// assert items on ground / no longer in battle
+// items can be picked up by both players
+// items can be dropped by both players without incident
+
 export async function testReconnectionDuringVictoryReplay(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_ONE_HP_WOLVES, BASIC_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
@@ -39,7 +48,7 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
     GameStateUpdateType.GameFullUpdate
   );
   await alpha.gameClientHarness.awaitMessageOfType(GameStateUpdateType.PlayerJoinedGame);
-  const reconnectionFullGameUpdate = await reconnectionFullGameUpdatePromise;
+  const _reconnectionFullGameUpdate = await reconnectionFullGameUpdatePromise;
   await alpha.gameClientHarness.flushReplayTree();
 
   const alphaParty = alpha.clientApplication.gameContext.requireParty();
@@ -49,7 +58,7 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
   expect(alphaParty.currentRoom.inventory.getItems().length).toBe(2);
   const itemForBravo = bravoParty.currentRoom.inventory.getItems()[0];
   invariant(itemForBravo !== undefined);
-  //
+
   await bravo.gameClientHarness.pickUpItem(itemForBravo.getEntityId());
   expect(
     bravo.clientApplication.combatantFocus
@@ -70,15 +79,10 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
       .find((item) => item.getEntityId() === itemForAlpha.getEntityId())
   ).toBeDefined();
 
-  await bravo.gameClientHarness.dropItem(itemForBravo.getEntityId());
-  await alpha.gameClientHarness.dropItem(itemForAlpha.getEntityId());
-
-  // submit action expected to kill last monster
-  // await and advance time flush tree to midway through replay
-  // reconnect
-  // assert items on ground but can not be picked up
-  // assert input locked while replay still playing out
-  // assert items on ground / no longer in battle
-  // items can be picked up by both players
-  // items can be dropped by both players without incident
+  await Promise.all([
+    bravo.gameClientHarness.dropItem(itemForBravo.getEntityId()),
+    alpha.gameClientHarness.dropItem(itemForAlpha.getEntityId()),
+  ]);
+  expect(alphaParty.currentRoom.inventory.getItems().length).toBe(2);
+  expect(bravoParty.currentRoom.inventory.getItems().length).toBe(2);
 }

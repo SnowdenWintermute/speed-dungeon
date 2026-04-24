@@ -1,16 +1,3 @@
-// reconnect midway through action replay that resolves in party victory
-// - shows "resolving replay in progress"
-// - unlocks input after timeout
-// - shows loot on ground
-// - other players can loot the items (acknoweldge receipt of item on ground fires)
-//
-// reconnect midway through action replay that resolves in party wipe
-// - shows "resolving replay in progress"
-// - unlocks input after timeout
-// - shows party wiped screen
-//
-//
-// create new game with cached expired token don't send bunch of error messages
 //
 // reconnect connect even if all players disconnected, at least one unintentionally
 // don't reconnect if leave game intentionally
@@ -50,6 +37,9 @@
 // input after reconnect timeout
 //
 // reconnect midway through action replay
-// - shows "resolving replay in progress"
-// - unlocks input after timeout
-// - can execute input
+// reconnect midway through action replay that resolves in party victory
+// reconnect midway through action replay that resolves in party wipe
+//
+// DEFERRED
+//
+// create new game with cached expired token don't send bunch of error messages(I think this had to do with the QUICK JOIN button firing its events without being asked)

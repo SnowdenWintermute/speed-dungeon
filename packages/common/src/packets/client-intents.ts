@@ -65,7 +65,6 @@ export enum ClientIntentType {
   // item management
   DropEquippedItem,
   DropItem,
-  AcknowledgeReceiptOfItemOnGroundUpdate,
   PickUpItems,
 
   // crafting and trading
@@ -130,7 +129,6 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.DropItem]: CharacterAndItem;
   [ClientIntentType.ToggleReadyToDescend]: undefined;
-  [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: { itemId: string };
   [ClientIntentType.PickUpItems]: CharacterAndItems;
   [ClientIntentType.GetSavedCharactersList]: undefined;
   [ClientIntentType.CreateSavedCharacter]: {

@@ -104,17 +104,6 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       return outbox;
     }
 
-    const party = session.getExpectedCurrentParty(game);
-    const partyIsStillAlive = party.timeOfWipe === null;
-
-    // if their party is dead, no need to reconnect
-    const reconnectionForbidden = !partyIsStillAlive;
-    if (reconnectionForbidden) {
-      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      outbox.pushFromOther(leaveGameHandlerOutbox);
-      return outbox;
-    }
-
     game.inputLock.add(session.taggedUserId.id);
 
     outbox.pushToChannel(game.getChannelName(), {

@@ -123,6 +123,9 @@ export class ClientApplication {
 
   dispose() {
     this.unregisterReplayManagerTick();
+    if (this.lobbyClientRef.isInitialized) {
+      this.lobbyClientRef.get().close();
+    }
     this.gameWorldView?.dispose();
   }
 

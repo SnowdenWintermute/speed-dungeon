@@ -35,8 +35,6 @@ export class ItemManagementController {
       throw itemDroppedIdResult;
     }
 
-    party.itemsOnGroundNotYetReceivedByAllClients.set(itemDroppedIdResult, []);
-
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.CharacterDroppedItem,
@@ -56,49 +54,12 @@ export class ItemManagementController {
       throw itemDroppedIdResult;
     }
 
-    party.itemsOnGroundNotYetReceivedByAllClients.set(itemDroppedIdResult, []);
-
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.CharacterDroppedEquippedItem,
       data,
     });
 
-    return outbox;
-  }
-
-  acknowledgeReceiptOfItemOnGroundHandler(session: UserSession, data: { itemId: EntityId }) {
-    const { itemId } = data;
-    const { party, player } = session.requirePlayerContext();
-    console.log("player", player.username, "saw item id:", itemId);
-
-    const usersThatHaveReceivedThisItem = party.itemsOnGroundNotYetReceivedByAllClients.get(itemId);
-
-    invariant(
-      usersThatHaveReceivedThisItem !== undefined,
-      `
-      ${ERROR_MESSAGES.ITEM.ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED} ${itemId}
-      `
-    );
-
-    usersThatHaveReceivedThisItem.push(player.username);
-
-    let allUsersInPartyHaveReceivedItemUpdate = true;
-
-    for (const username of party.playerUsernames) {
-      if (!usersThatHaveReceivedThisItem.includes(username)) {
-        allUsersInPartyHaveReceivedItemUpdate = false;
-        break;
-      }
-    }
-
-    if (allUsersInPartyHaveReceivedItemUpdate) {
-      party.itemsOnGroundNotYetReceivedByAllClients.delete(itemId);
-    }
-
-    // no messages should be sent, but this is a rare case of an event handler sending no messsage
-    // and the interface of an event handler mandates that it must return an outbox
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     return outbox;
   }
 
@@ -109,16 +70,10 @@ export class ItemManagementController {
     let reachedMaxCapacity = false;
 
     const idsPickedUp: string[] = [];
+    const errors: Error[] = [];
 
     for (const itemId of itemIds) {
       console.log(session.username, "picking up item", itemId);
-      // make sure all players know about the item or else desync will occur
-      const playersWhoHaveNotYetSeenThisItem =
-        party.itemsOnGroundNotYetReceivedByAllClients.get(itemId);
-      if (playersWhoHaveNotYetSeenThisItem !== undefined) {
-        console.log(playersWhoHaveNotYetSeenThisItem);
-        throw new Error(`${ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE} ${itemId}`);
-      }
 
       // handle shard stacks uniquely
       const itemInInventory = party.currentRoom.inventory.requireItem(itemId);
@@ -130,7 +85,8 @@ export class ItemManagementController {
           party.currentRoom.inventory
         );
         if (mabyeError instanceof Error) {
-          throw mabyeError;
+          errors.push(mabyeError);
+          continue;
         }
         idsPickedUp.push(itemInInventory.entityProperties.id);
         continue;
@@ -145,7 +101,8 @@ export class ItemManagementController {
 
       const itemResult = party.currentRoom.inventory.removeItem(itemId);
       if (itemResult instanceof Error) {
-        throw itemResult;
+        errors.push(itemResult);
+        continue;
       }
 
       character.combatantProperties.inventory.insertItem(itemResult);
@@ -158,6 +115,16 @@ export class ItemManagementController {
       type: GameStateUpdateType.CharacterPickedUpItems,
       data: { characterId, itemIds: idsPickedUp },
     });
+
+    for (const error of errors) {
+      outbox.pushToConnection(session.connectionId, {
+        type: GameStateUpdateType.ErrorMessage,
+        // since we normally send one error per intent id and don't pass the intent id to handlers
+        // we don't know the id, and we don't have a way to associate multiple errors with a single
+        // intent yet, this is a stopgap measure
+        data: { message: error.message, clientIntentSequenceId: -1 },
+      });
+    }
 
     if (reachedMaxCapacity) {
       throw new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);

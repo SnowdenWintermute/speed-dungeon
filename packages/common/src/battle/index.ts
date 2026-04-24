@@ -178,9 +178,6 @@ export class Battle implements Serializable, ReactiveNode {
       if (loot) {
         const items = [...loot.consumables, ...loot.equipment];
         this.party.currentRoom.inventory.insertItems(items);
-        for (const item of items) {
-          this.party.itemsOnGroundNotYetReceivedByAllClients.set(item.getEntityId(), []);
-        }
       }
       applyExperiencePointChanges(this.party, experiencePointChanges);
       levelUps = this.calculateLevelupsOnBattleEnd();

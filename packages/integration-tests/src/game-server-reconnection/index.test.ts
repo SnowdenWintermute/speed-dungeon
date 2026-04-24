@@ -8,6 +8,7 @@ import { testInputsWhileAwaitingPlayers } from "./inputs-while-awaiting-players"
 import { testGuestReconnectionSuccess } from "./guest-reconnection/guest-reconnection-success";
 import { testReconnectionDuringActionReplay } from "./reconnection-in-battle/reconnection-during-action-replay";
 import { testReconnectionDuringVictoryReplay } from "./reconnection-in-battle/reconnection-during-victory-replay";
+import { testReconnectionDuringWipeReplay } from "./reconnection-in-battle/reconnection-during-wipe-replay";
 
 describe("game server reconnection", () => {
   // it("placeholder", () => {});
@@ -20,9 +21,13 @@ describe("game server reconnection", () => {
     ]);
   });
 
-  it("reconnection during victory replay", async () => {
-    await testReconnectionDuringVictoryReplay(testFixture);
+  it("reconnection during wipe replay", async () => {
+    await testReconnectionDuringWipeReplay(testFixture);
   });
+
+  // it("reconnection during victory replay", async () => {
+  //   await testReconnectionDuringVictoryReplay(testFixture);
+  // });
 
   // it("reconnection during action replay", async () => {
   //   await testReconnectionDuringActionReplay(testFixture);

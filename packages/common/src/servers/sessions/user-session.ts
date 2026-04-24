@@ -78,6 +78,7 @@ export class UserSession extends ConnectionSession {
   }
 
   isInGame() {
+    console.log("checking current game name:", this.currentGameName);
     return this.currentGameName !== null;
   }
 

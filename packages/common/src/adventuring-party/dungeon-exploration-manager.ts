@@ -61,10 +61,8 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
   }
 
   clearPlayerExplorationActionChoices() {
-    this.playerExplorationActionChoices = {
-      [ExplorationAction.Descend]: [],
-      [ExplorationAction.Explore]: [],
-    };
+    this.playerExplorationActionChoices[ExplorationAction.Descend].length = 0;
+    this.playerExplorationActionChoices[ExplorationAction.Explore].length = 0;
   }
 
   getPlayersChoosingAction(action: ExplorationAction) {

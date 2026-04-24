@@ -260,11 +260,6 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.CharacterDroppedItem]: (data) => {
       const { characterId, itemId } = data;
 
-      gameClientRef.get().dispatchIntent({
-        type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
-        data: { itemId },
-      });
-
       const { party, combatant } = gameContext.requireCombatantContext(characterId);
 
       combatant.combatantProperties.inventory.dropItem(party, itemId);
@@ -279,11 +274,6 @@ export function createGameUpdateHandlers(
       if (itemDroppedIdResult instanceof Error) {
         throw itemDroppedIdResult;
       }
-
-      gameClientRef.get().dispatchIntent({
-        type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
-        data: { itemId: itemDroppedIdResult },
-      });
 
       sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
@@ -526,10 +516,6 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.CharacterDroppedShards]: (data) => {
       const { characterId, shardStack } = data;
-      gameClientRef.get().dispatchIntent({
-        type: ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate,
-        data: { itemId: shardStack.entityProperties.id },
-      });
       const asClassInstance = Consumable.fromSerialized(shardStack);
       const { party, combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.inventory.changeShards(asClassInstance.usesRemaining * -1);

@@ -37,7 +37,6 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   battleId: null | EntityId = null;
   timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
-  itemsOnGroundNotYetReceivedByAllClients = new Map<EntityId, EntityId[]>();
   inputLock = new TimedLock();
 
   constructor(
@@ -69,9 +68,6 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       battleId: this.battleId,
       timeOfWipe: this.timeOfWipe,
       timeOfEscape: this.timeOfEscape,
-      itemsOnGroundNotYetReceivedByAllClients: MapUtils.serialize(
-        this.itemsOnGroundNotYetReceivedByAllClients
-      ),
       inputLock: this.inputLock.toSerialized(),
     };
   }
@@ -90,9 +86,6 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     result.battleId = serialized.battleId;
     result.timeOfWipe = serialized.timeOfWipe;
     result.timeOfEscape = serialized.timeOfEscape;
-    result.itemsOnGroundNotYetReceivedByAllClients = MapUtils.deserialize(
-      serialized.itemsOnGroundNotYetReceivedByAllClients
-    );
     result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
     result.initialize();
 

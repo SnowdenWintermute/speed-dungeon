@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { GameName } from "../../../aliases.js";
 import { ActiveGameStatus } from "./active-game-status.js";
 import { GameSessionStoreService } from "./index.js";
@@ -8,7 +9,7 @@ export class InMemoryGameSessionStoreService implements GameSessionStoreService 
   private activeGameStatusRecords = new Map<GameName, ActiveGameStatus>();
 
   async writePendingGameSetup(gameName: GameName, setup: PendingGameSetup): Promise<void> {
-    this.pendingGameSetups.set(gameName, setup);
+    this.pendingGameSetups.set(gameName, cloneDeep(setup));
   }
 
   async getPendingGameSetup(gameName: GameName): Promise<PendingGameSetup | null> {
