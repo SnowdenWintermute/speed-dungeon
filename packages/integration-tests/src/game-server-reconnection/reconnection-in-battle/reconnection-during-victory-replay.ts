@@ -49,6 +49,7 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
   expect(alphaParty.currentRoom.inventory.getItems().length).toBe(2);
   const itemForBravo = bravoParty.currentRoom.inventory.getItems()[0];
   invariant(itemForBravo !== undefined);
+  //
   await bravo.gameClientHarness.pickUpItem(itemForBravo.getEntityId());
   expect(
     bravo.clientApplication.combatantFocus
