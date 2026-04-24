@@ -1,4 +1,5 @@
 import {
+  BASIC_CHARACTER_FIXTURES,
   CombatantClass,
   DungeonRoomType,
   ExplicitCombatantDungeonTemplate,
@@ -11,6 +12,7 @@ import {
   RandomNumberGenerationPolicyFactory,
   RNG_RANGE,
   ScriptedCharacterCreationPolicy,
+  TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
 import { ClientFixture } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
@@ -113,8 +115,8 @@ export class IntegrationTestFixture {
   }
 
   async resetWithOptions(
-    dungeonTemplate: ExplicitCombatantDungeonTemplate,
-    charactersTemplate: FixedCharacterCreationLists,
+    dungeonTemplate: ExplicitCombatantDungeonTemplate = TEST_DUNGEON_TWO_WOLF_ROOMS,
+    charactersTemplate: FixedCharacterCreationLists = BASIC_CHARACTER_FIXTURES,
     rngOverrides: Partial<RandomNumberGenerationPolicy> = {}
   ) {
     this.timeMachine.returnToPresent();

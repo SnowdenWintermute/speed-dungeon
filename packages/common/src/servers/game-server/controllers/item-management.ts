@@ -29,7 +29,6 @@ export class ItemManagementController {
     const { game, party, character } = session.requireCharacterContext(characterId);
 
     const itemDroppedIdResult = character.combatantProperties.inventory.dropItem(party, itemId);
-    console.log("player dropped item:", itemDroppedIdResult);
 
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
@@ -73,8 +72,6 @@ export class ItemManagementController {
     const errors: Error[] = [];
 
     for (const itemId of itemIds) {
-      console.log(session.username, "picking up item", itemId);
-
       // handle shard stacks uniquely
       const itemInInventory = party.currentRoom.inventory.requireItem(itemId);
       const itemIsShardStack = itemInInventory.isShardStack();

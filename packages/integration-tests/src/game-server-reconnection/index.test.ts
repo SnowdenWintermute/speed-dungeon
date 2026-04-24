@@ -9,6 +9,8 @@ import { testGuestReconnectionSuccess } from "./guest-reconnection/guest-reconne
 import { testReconnectionDuringActionReplay } from "./reconnection-in-battle/reconnection-during-action-replay";
 import { testReconnectionDuringVictoryReplay } from "./reconnection-in-battle/reconnection-during-victory-replay";
 import { testReconnectionDuringWipeReplay } from "./reconnection-in-battle/reconnection-during-wipe-replay";
+import { testGuestReconnectionAfterAllPlayersDisconnected } from "./guest-reconnection/guest-reconnection-after-all-players-disconnected";
+import { testIntentionalLeaveGame } from "./intentional-leave-game";
 
 describe("game server reconnection", () => {
   // it("placeholder", () => {});
@@ -21,9 +23,17 @@ describe("game server reconnection", () => {
     ]);
   });
 
-  it("reconnection during wipe replay", async () => {
-    await testReconnectionDuringWipeReplay(testFixture);
+  it("intentional leave game", async () => {
+    await testIntentionalLeaveGame(testFixture);
   });
+
+  // it("reconnection after all players disconnect", async () => {
+  //   await testGuestReconnectionAfterAllPlayersDisconnected(testFixture);
+  // });
+
+  // it("reconnection during wipe replay", async () => {
+  //   await testReconnectionDuringWipeReplay(testFixture);
+  // });
 
   // it("reconnection during victory replay", async () => {
   //   await testReconnectionDuringVictoryReplay(testFixture);

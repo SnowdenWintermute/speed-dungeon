@@ -39,7 +39,7 @@ export async function testReconnectionDuringWipeReplay(testFixture: IntegrationT
   );
   await alpha.gameClientHarness.awaitMessageOfType(GameStateUpdateType.PlayerJoinedGame);
   const reconnectionFullGameUpdate = await reconnectionFullGameUpdatePromise;
-  console.log(reconnectionFullGameUpdate);
+
   expect(bravo.clientApplication.uiStore.replayResolutionTimeoutDuration).toBeGreaterThan(0);
   const alphaTicked = await alpha.gameClientHarness.flushReplayTree();
   await bravo.gameClientHarness.flushReplayTree();

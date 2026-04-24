@@ -179,6 +179,12 @@ export class ClientTestHarness<T extends BaseClient> {
       data: { partyName: partyName as PartyName },
     });
   }
+  async leaveGame() {
+    await this.settleIntentResult({
+      type: ClientIntentType.LeaveGame,
+      data: undefined,
+    });
+  }
   async createCharacter(characterName: string, combatantClass: CombatantClass) {
     await this.settleIntentResult({
       type: ClientIntentType.CreateCharacter,

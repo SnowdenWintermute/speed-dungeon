@@ -53,7 +53,6 @@ export class GameClient extends BaseClient {
     });
 
     targetIndicatorStore.clear();
-
     gameContext.clearGame();
     combatantFocus.clearFocusedCharacter();
 
@@ -62,6 +61,7 @@ export class GameClient extends BaseClient {
       data: undefined,
     });
     this.close();
+    this.clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
 
     sequentialEventProcessor.cancelQueued();

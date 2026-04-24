@@ -1,11 +1,9 @@
-//
-// reconnect connect even if all players disconnected, at least one unintentionally
-// don't reconnect if leave game intentionally
 // if last player leaving
 // - remove game server game
 // - remove server side valkey(or shared store) game record
 // - remove lobby forwarding records
 //
+// don't attempt reconnect if leave game intentionally
 // can make game of previously existing game name if all players intentionally left it
 // can make game of previously existing game name if it timed out all reconnection opportunities
 //
@@ -39,6 +37,8 @@
 // reconnect midway through action replay
 // reconnect midway through action replay that resolves in party victory
 // reconnect midway through action replay that resolves in party wipe
+//
+// reconnect connect even if all players disconnected
 //
 // DEFERRED
 //
