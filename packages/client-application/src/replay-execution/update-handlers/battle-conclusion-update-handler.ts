@@ -40,7 +40,13 @@ export async function battleConclusionGameUpdateHandler(
   if (command.loot) {
     const equipment = command.loot.equipment.map((item) => Equipment.fromSerialized(item));
     const consumables = command.loot.consumables.map((item) => Consumable.fromSerialized(item));
-    party.currentRoom.inventory.insertItems([...consumables, ...equipment]);
+    const items = [...consumables, ...equipment];
+    party.currentRoom.inventory.insertItems(items);
+    console.log(
+      "items on ground in client:",
+      clientApplication.gameContext.requireClientPlayer().username,
+      items.map((item) => item.getEntityId())
+    );
 
     for (const item of equipment) {
       gameWorldView?.imageGenerator.enqueueMessage({

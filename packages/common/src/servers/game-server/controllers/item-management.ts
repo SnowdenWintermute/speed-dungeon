@@ -69,6 +69,7 @@ export class ItemManagementController {
   acknowledgeReceiptOfItemOnGroundHandler(session: UserSession, data: { itemId: EntityId }) {
     const { itemId } = data;
     const { party, player } = session.requirePlayerContext();
+    console.log("player", player.username, "saw item id:", itemId);
 
     const usersThatHaveReceivedThisItem = party.itemsOnGroundNotYetReceivedByAllClients.get(itemId);
 
@@ -107,6 +108,7 @@ export class ItemManagementController {
     const idsPickedUp: string[] = [];
 
     for (const itemId of itemIds) {
+      console.log(session.username, "picking up item", itemId);
       // make sure all players know about the item or else desync will occur
       if (party.itemsOnGroundNotYetReceivedByAllClients.get(itemId) !== undefined) {
         throw new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);

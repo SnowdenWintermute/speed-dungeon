@@ -74,15 +74,9 @@ export class ClientTestHarness<T extends BaseClient> {
   }
 
   async settleIntentResult(intent: ClientIntent) {
-    console.log("settling intent:", intent);
     const intentId = await this.dispatchAndAwaitReply(intent);
     const durationTicked = await this.flushReplayTree();
     await this.clientApplication.sequentialEventProcessor.waitUntilIdle();
-    console.log(
-      "sequentialEventProcessor:",
-      this.clientApplication.sequentialEventProcessor.pendingEvents,
-      this.clientApplication.sequentialEventProcessor.currentEventProcessing
-    );
     return { intentId, durationTicked };
   }
 
@@ -322,6 +316,14 @@ export class ClientTestHarness<T extends BaseClient> {
     return this.settleIntentResult({
       type: ClientIntentType.PickUpItems,
       data: { characterId, itemIds: [id] },
+    });
+  }
+
+  async dropItem(itemId: ItemId) {
+    const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
+    return this.settleIntentResult({
+      type: ClientIntentType.DropItem,
+      data: { characterId, itemId },
     });
   }
 }

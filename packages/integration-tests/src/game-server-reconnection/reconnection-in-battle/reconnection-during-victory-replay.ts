@@ -16,7 +16,6 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
   await bravo.gameClientHarness.awaitMessageOfType(GameStateUpdateType.ClientSequentialEvents);
 
   await bravo.gameClientHarness.flushReplayTree();
-  console.log("bravo flushed after alpha attack");
   await bravo.gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
   const bravoCombatantFocus = bravo.clientApplication.combatantFocus;
   await bravo.gameClientHarness.dispatchAndAwaitReply({
@@ -25,6 +24,10 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
   });
 
   await bravo.clientApplication.gameClientRef.get().close();
+  // if browser refreshes, there would be an entirely different clientApplication
+  bravo.clientApplication.sequentialEventProcessor.cancelQueued();
+  bravo.clientApplication.sequentialEventProcessor.resetChain();
+
   await alpha.gameClientHarness.awaitMessageOfType(
     GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity
   );
@@ -38,25 +41,36 @@ export async function testReconnectionDuringVictoryReplay(testFixture: Integrati
   await alpha.gameClientHarness.awaitMessageOfType(GameStateUpdateType.PlayerJoinedGame);
   const reconnectionFullGameUpdate = await reconnectionFullGameUpdatePromise;
   await alpha.gameClientHarness.flushReplayTree();
-  console.log("alpha flushed");
-  bravo.clientApplication.sequentialEventProcessor.cancelQueued();
-  bravo.clientApplication.sequentialEventProcessor.clearCurrent();
-  await bravo.clientApplication.sequentialEventProcessor.waitUntilIdle();
 
   const alphaParty = alpha.clientApplication.gameContext.requireParty();
   const bravoParty = bravo.clientApplication.gameContext.requireParty();
   expect(bravoParty.battleId).toBeNull();
   expect(bravoParty.currentRoom.inventory.getItems().length).toBe(2);
   expect(alphaParty.currentRoom.inventory.getItems().length).toBe(2);
-  const itemIdForBravo = bravoParty.currentRoom.inventory.getItems()[0];
-  invariant(itemIdForBravo !== undefined);
-  console.log(
-    "bravo replaytree:",
-    bravo.clientApplication.replayTreeScheduler.current,
-    "pending events",
-    bravo.clientApplication.sequentialEventProcessor.pendingEvents
-  );
-  await bravo.gameClientHarness.pickUpItem(itemIdForBravo.getEntityId());
+  const itemForBravo = bravoParty.currentRoom.inventory.getItems()[0];
+  invariant(itemForBravo !== undefined);
+  await bravo.gameClientHarness.pickUpItem(itemForBravo.getEntityId());
+  expect(
+    bravo.clientApplication.combatantFocus
+      .requireFocusedCharacter()
+      .getInventoryOption()
+      ?.getItems()
+      .find((item) => item.getEntityId() === itemForBravo.getEntityId())
+  ).toBeDefined();
+
+  const itemForAlpha = alphaParty.currentRoom.inventory.getItems()[0];
+  invariant(itemForAlpha !== undefined);
+  await alpha.gameClientHarness.pickUpItem(itemForAlpha.getEntityId());
+  expect(
+    alpha.clientApplication.combatantFocus
+      .requireFocusedCharacter()
+      .getInventoryOption()
+      ?.getItems()
+      .find((item) => item.getEntityId() === itemForAlpha.getEntityId())
+  ).toBeDefined();
+
+  await bravo.gameClientHarness.dropItem(itemForBravo.getEntityId());
+  await alpha.gameClientHarness.dropItem(itemForAlpha.getEntityId());
 
   // submit action expected to kill last monster
   // await and advance time flush tree to midway through replay
