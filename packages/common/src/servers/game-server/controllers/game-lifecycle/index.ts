@@ -55,6 +55,12 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     deserializedGame.initializeBattlesOnDeserialization();
     const newGame = deserializedGame;
 
+    for (const [_, player] of newGame.players) {
+      if (player.partyName !== null) {
+        newGame.putPlayerInParty(player.partyName, player.username);
+      }
+    }
+
     this.gameRegistry.registerGame(newGame);
     this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
 
@@ -79,7 +85,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const partyName = player.getExpectedPartyName();
 
     const party = game.getExpectedParty(partyName);
-    game.putPlayerInParty(partyName, session.username);
     session.subscribeToChannel(getPartyChannelName(game.name, party.name));
 
     const battleOption = party.getBattleOption(game) || undefined;

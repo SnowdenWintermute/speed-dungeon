@@ -119,12 +119,6 @@ export class Battle implements Serializable, ReactiveNode {
     return delayOfNewSheduler;
   }
 
-  /** Returns any levelups by character id  */
-  handleVictory(
-    experiencePointChanges: Record<CombatantId, number>,
-    loot?: undefined | { equipment: Equipment[]; consumables: Consumable[] }
-  ) {}
-
   reviveCharactersOnPartyVictory() {
     const revivedCharacterIds: CombatantId[] = [];
     const { combatantManager } = this.party;
@@ -182,7 +176,11 @@ export class Battle implements Serializable, ReactiveNode {
       this.party.inputLock.unlockInput();
 
       if (loot) {
-        this.party.currentRoom.inventory.insertItems([...loot.consumables, ...loot.equipment]);
+        const items = [...loot.consumables, ...loot.equipment];
+        this.party.currentRoom.inventory.insertItems(items);
+        for (const item of items) {
+          this.party.itemsOnGroundNotYetReceivedByAllClients.set(item.getEntityId(), []);
+        }
       }
       applyExperiencePointChanges(this.party, experiencePointChanges);
       levelUps = this.calculateLevelupsOnBattleEnd();

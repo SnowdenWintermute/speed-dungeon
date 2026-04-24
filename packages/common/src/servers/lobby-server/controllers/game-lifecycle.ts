@@ -225,7 +225,9 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       outbox.pushFromOther(otherOutbox);
     }
 
-    game.removePlayer(session.username);
+    if (!game.timeHandedOff) {
+      game.removePlayer(session.username);
+    }
     session.currentGameName = null;
     session.unsubscribeFromChannel(game.getChannelName());
 

@@ -106,6 +106,7 @@ export function createLobbyUpdateHandlers(
         if (partyName === null) {
           return;
         }
+
         gameOption.putPlayerInParty(partyName, playerName);
       }
     },
@@ -243,7 +244,7 @@ export function createLobbyUpdateHandlers(
         data: { softCleanup: true, placeInHomePositions: true },
       });
     },
-    [GameStateUpdateType.GameServerConnectionInstructions]: (data) => {
+    [GameStateUpdateType.GameServerConnectionInstructions]: async (data) => {
       clientApplication.transitionToLobbyServer.fire(); // if skipping lobby and reconnecting to game
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;

@@ -29,6 +29,7 @@ export class ItemManagementController {
     const { game, party, character } = session.requireCharacterContext(characterId);
 
     const itemDroppedIdResult = character.combatantProperties.inventory.dropItem(party, itemId);
+    console.log("player dropped item:", itemDroppedIdResult);
 
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
@@ -75,7 +76,9 @@ export class ItemManagementController {
 
     invariant(
       usersThatHaveReceivedThisItem !== undefined,
-      ERROR_MESSAGES.ITEM.ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED
+      `
+      ${ERROR_MESSAGES.ITEM.ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED} ${itemId}
+      `
     );
 
     usersThatHaveReceivedThisItem.push(player.username);
@@ -110,8 +113,11 @@ export class ItemManagementController {
     for (const itemId of itemIds) {
       console.log(session.username, "picking up item", itemId);
       // make sure all players know about the item or else desync will occur
-      if (party.itemsOnGroundNotYetReceivedByAllClients.get(itemId) !== undefined) {
-        throw new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
+      const playersWhoHaveNotYetSeenThisItem =
+        party.itemsOnGroundNotYetReceivedByAllClients.get(itemId);
+      if (playersWhoHaveNotYetSeenThisItem !== undefined) {
+        console.log(playersWhoHaveNotYetSeenThisItem);
+        throw new Error(`${ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE} ${itemId}`);
       }
 
       // handle shard stacks uniquely

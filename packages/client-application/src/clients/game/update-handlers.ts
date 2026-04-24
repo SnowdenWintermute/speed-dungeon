@@ -30,7 +30,6 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
 import { ClientApplication } from "@/client-application";
-import { RootActionMenuScreen } from "@/client-application/action-menu/screens/root";
 import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
 import { ConsideringCombatActionMenuScreen } from "@/client-application/action-menu/screens/considering-combat-action";
 import { toJS } from "mobx";
@@ -83,8 +82,12 @@ export function createGameUpdateHandlers(
         gameOption.selectedStartingFloor = maxStartingFloor;
       }
     },
-    [GameStateUpdateType.OnConnection]: (data) => {
+    [GameStateUpdateType.OnConnection]: async (data) => {
       clientApplication.session.setUsername(data.username);
+
+      if (clientApplication.lobbyClientRef.isInitialized) {
+        await clientApplication.lobbyClientRef.get().close();
+      }
     },
     [GameStateUpdateType.CacheGuestSessionReconnectionToken]: (data) => {
       clientApplication.reconnectionTokenStore.guestGameReconnectionToken = data.token;
