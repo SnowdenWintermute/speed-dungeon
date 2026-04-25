@@ -4,6 +4,9 @@
 // - remove lobby forwarding records
 //
 // don't attempt reconnect if leave game intentionally
+//  - destroy client guest reconnection token
+//  - set client side auth "try reconnect" value to false
+//  - destroy server side reconnection opportunity (or just don't create one)
 // can make game of previously existing game name if all players intentionally left it
 // can make game of previously existing game name if it timed out all reconnection opportunities
 //

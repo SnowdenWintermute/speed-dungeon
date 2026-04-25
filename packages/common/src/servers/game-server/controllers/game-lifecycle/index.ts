@@ -239,13 +239,19 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     // - if there are no living parties in the game, clean up the game
     if (allPartiesWiped || noPlayersRemain) {
-      await gameModeContext.strategy.onLastPlayerLeftGame(game);
-
-      this.gameRegistry.unregisterGame(game.name);
-      await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
+      await this.cleanUpGame(game);
     }
 
     return outbox;
+  }
+
+  async cleanUpGame(game: SpeedDungeonGame) {
+    console.log("cleaning up game:", game.name);
+    const gameModeContext = this.gameModeContexts[game.mode];
+    await gameModeContext.strategy.onLastPlayerLeftGame(game);
+
+    this.gameRegistry.unregisterGame(game.name);
+    await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
   }
 
   handleAbandoningDeadPartyMembers(

@@ -225,9 +225,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       outbox.pushFromOther(otherOutbox);
     }
 
-    if (!game.timeHandedOff) {
-      game.removePlayer(session.username);
-    }
+    game.removePlayer(session.username);
     session.currentGameName = null;
     session.unsubscribeFromChannel(game.getChannelName());
 
@@ -298,16 +296,19 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   async gameExistsByName(gameName: GameName) {
     const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOption(gameName);
     if (lobbyGameExistsByThisName) {
+      console.log("lobby game exists");
       return true;
     }
     const pendingGameExistsByThisName =
       await this.gameSessionStoreService.getPendingGameSetup(gameName);
     if (pendingGameExistsByThisName) {
+      console.log("pending game exists");
       return true;
     }
     const activeGameExistsByThisName =
       await this.gameSessionStoreService.getActiveGameStatus(gameName);
     if (activeGameExistsByThisName) {
+      console.log("active game exists");
       return true;
     }
     return false;

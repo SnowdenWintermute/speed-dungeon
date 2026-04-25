@@ -30,6 +30,6 @@ export class InMemoryGameSessionStoreService implements GameSessionStoreService 
   }
 
   async deleteActiveGameStatus(gameName: GameName): Promise<void> {
-    this.activeGameStatusRecords.get(gameName);
+    this.activeGameStatusRecords.delete(gameName);
   }
 }

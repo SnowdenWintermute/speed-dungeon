@@ -4,9 +4,10 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 // if last player leaving
 // - remove game server game
 // - remove server side valkey(or shared store) game record
-// - remove lobby forwarding records
 //
 // don't attempt reconnect if leave game intentionally
+//  - destroy client guest reconnection token
+//  - destroy server side reconnection opportunity (or just don't create one)
 // can make game of previously existing game name if all players intentionally left it
 // can make game of previously existing game name if it timed out all reconnection opportunities
 
@@ -14,9 +15,13 @@ export async function testIntentionalLeaveGame(testFixture: IntegrationTestFixtu
   await testFixture.resetWithOptions();
   const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
   alpha.clientApplication.gameClientRef.get().leaveGame();
-  bravo.clientApplication.gameClientRef.get().leaveGame();
   await alpha.connect();
+  // doesn't get reconnection instructions
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
+  expect(() => alpha.clientApplication.waitForReconnectionInstructions.waitFor()).toThrow();
+  expect(() => alpha.clientApplication.transitionToGameServer.waitFor()).toThrow();
+  // create same named game after all players left
+  bravo.clientApplication.gameClientRef.get().leaveGame();
   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
 }
