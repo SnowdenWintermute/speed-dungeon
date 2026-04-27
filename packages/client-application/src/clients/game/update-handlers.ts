@@ -2,9 +2,7 @@ import { Vector3 } from "@babylonjs/core";
 import {
   ActionAndRank,
   ActionUserContext,
-  Battle,
   CleanupMode,
-  ClientIntentType,
   ClientSequentialEventType,
   COMBAT_ACTIONS,
   Combatant,

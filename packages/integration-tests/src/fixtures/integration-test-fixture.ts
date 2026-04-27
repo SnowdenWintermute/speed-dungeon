@@ -22,7 +22,6 @@ import { createTestServers } from "./create-test-servers.js";
 import { getPortFromAddress } from "@/test-utils/get-port-from-address.js";
 import { TEST_GAME_NAME, TEST_PARTY_NAME } from "./consts.js";
 import { TimeMachine } from "@/test-utils/time-machine.js";
-import { vi } from "vitest";
 
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;

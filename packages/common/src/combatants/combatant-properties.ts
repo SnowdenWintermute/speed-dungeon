@@ -107,7 +107,6 @@ export class CombatantProperties implements Serializable, ReactiveNode {
       combatantSpecies: this.combatantSpecies,
       monsterType: this.monsterType,
       controlledBy: this.controlledBy.toSerialized(),
-      mainClassType: this.classProgressionProperties.getMainClass(),
     };
 
     return removeUndefinedFields(result);
@@ -119,7 +118,7 @@ export class CombatantProperties implements Serializable, ReactiveNode {
       serialized.transformProperties
     );
     const result = new CombatantProperties(
-      serialized.mainClassType.combatantClass,
+      serialized.classProgressionProperties.mainClass.combatantClass,
       serialized.combatantSpecies,
       serialized.monsterType,
       controlledBy,

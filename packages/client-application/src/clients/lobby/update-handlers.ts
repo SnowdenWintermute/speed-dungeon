@@ -196,29 +196,32 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
       const { characterSlots } = data;
-      {
-        const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
-        for (const [slotNumberStringKey, characterOption] of Object.entries(characterSlots)) {
-          const slotNumber = parseInt(slotNumberStringKey);
-          if (characterOption === null) {
-            deserialized[slotNumber] = null;
-          } else {
-            deserialized[slotNumber] = {
-              combatant: Combatant.fromSerialized(characterOption.combatant),
-              pets: characterOption.pets.map((pet) => Combatant.fromSerialized(pet)),
-            };
-          }
+
+      const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
+      for (const [slotNumberStringKey, characterOption] of Object.entries(characterSlots)) {
+        const slotNumber = parseInt(slotNumberStringKey);
+        if (characterOption === null) {
+          deserialized[slotNumber] = null;
+        } else {
+          console.log(
+            "serializedcharacter:",
+            characterOption.combatant.combatantProperties.classProgressionProperties
+          );
+          deserialized[slotNumber] = {
+            combatant: Combatant.fromSerialized(characterOption.combatant),
+            pets: characterOption.pets.map((pet) => Combatant.fromSerialized(pet)),
+          };
         }
-
-        lobbyContext.savedCharacters.setSlots(deserialized);
-
-        gameWorldView?.environment.groundPlane.drawCharacterSlots();
-
-        clientApplication.sequentialEventProcessor.scheduleEvent({
-          type: ClientSequentialEventType.SynchronizeCombatantModels,
-          data: { softCleanup: true, placeInHomePositions: true },
-        });
       }
+
+      lobbyContext.savedCharacters.setSlots(deserialized);
+
+      gameWorldView?.environment.groundPlane.drawCharacterSlots();
+
+      clientApplication.sequentialEventProcessor.scheduleEvent({
+        type: ClientSequentialEventType.SynchronizeCombatantModels,
+        data: { softCleanup: true, placeInHomePositions: true },
+      });
     },
     [GameStateUpdateType.SavedCharacterDeleted]: (data) => {
       lobbyContext.savedCharacters.deleteSavedCharacter(data.entityId);

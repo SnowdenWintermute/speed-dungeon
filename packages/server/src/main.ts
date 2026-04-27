@@ -32,8 +32,10 @@ const gameServerNode = new GameServerNode();
 const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 const gameSessionStoreService = new InMemoryGameSessionStoreService();
 
-const testSecret = await SodiumHelpers.createSecret();
-const gameServerSessionClaimTokenCodec = new OpaqueEncryptionSessionClaimTokenCodec(testSecret);
+const sessionClaimTokenSecret = await SodiumHelpers.createSecret();
+const gameServerSessionClaimTokenCodec = new OpaqueEncryptionSessionClaimTokenCodec(
+  sessionClaimTokenSecret
+);
 
 const expressApp = createExpressApp();
 const httpServer = expressApp.listen(LOBBY_PORT, async () => {

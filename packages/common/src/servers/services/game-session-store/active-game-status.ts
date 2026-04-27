@@ -13,6 +13,7 @@ export class ActiveGameStatus {
 
   isStale() {
     const elapsed = Date.now() - this.createdAt;
-    return elapsed > GAME_RECORD_HEARTBEAT_MS;
+    const twoHeartbeatDurations = GAME_RECORD_HEARTBEAT_MS * 2;
+    return elapsed > twoHeartbeatDurations;
   }
 }

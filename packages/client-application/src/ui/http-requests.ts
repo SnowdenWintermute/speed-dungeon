@@ -36,15 +36,9 @@ export class HttpRequestStore {
     delete this.requests[url];
   }
 
-  async fetchData(key: string, url: string, options: RequestInit) {
+  fetchData = async (key: string, url: string, options: RequestInit) => {
     const tracker = new HttpRequestTracker();
     this.requests[key] = tracker;
-
-    // const fakeLatency = await new Promise((resolve) => {
-    //   setTimeout(() => {
-    //     resolve(true);
-    //   }, 2000);
-    // });
 
     const response = await fetch(url, options);
     tracker.setOk(response.ok);
@@ -59,9 +53,9 @@ export class HttpRequestStore {
       // no json in response
       console.error("No response from game server");
     }
-  }
+  };
 
-  async fetchAuthSession() {
+  fetchAuthSession = async () => {
     const getSessionRequestTrackerName = "get session";
     this.fetchData(
       getSessionRequestTrackerName,
@@ -77,5 +71,5 @@ export class HttpRequestStore {
       "should have started a response tracker when fetching auth"
     );
     return responseTracker;
-  }
+  };
 }
