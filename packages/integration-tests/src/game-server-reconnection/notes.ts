@@ -1,25 +1,10 @@
-// if last player leaving
-// - remove game server game
-// - remove server side valkey(or shared store) game record
-// - remove lobby forwarding records
-//
-// don't attempt reconnect if leave game intentionally
-//  - destroy client guest reconnection token
-//  - set client side auth "try reconnect" value to false
-//  - destroy server side reconnection opportunity (or just don't create one)
-// can make game of previously existing game name if all players intentionally left it
-// can make game of previously existing game name if it timed out all reconnection opportunities
-//
-//
-// after login to auth, don't try to use guest reconnection token anymore (and clear it)
-//
-
 // AUTH
-// connect after timeout
-//
 // reconnect success
 // reconnect after all players disconnected or left
 // no reconnect if leave game intentionally
+// after login to auth, don't try to use guest reconnection token anymore (and clear it)
+// connect after timeout
+//
 
 //
 //
@@ -42,6 +27,10 @@
 // reconnect midway through action replay that resolves in party wipe
 //
 // reconnect connect even if all players disconnected
+//
+// intentional game leaving vs disconnecting
+// can make game of previously existing game name if all players intentionally left it
+// can make game of previously existing game name if it timed out all reconnection opportunities
 //
 // DEFERRED
 //

@@ -1,4 +1,4 @@
-import { GameServerName, Milliseconds } from "../../aliases.js";
+import { GameServerName } from "../../aliases.js";
 import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
@@ -13,7 +13,7 @@ import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
-import { ONE_SECOND, WebSocketCloseCode } from "../../app-consts.js";
+import { GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
 import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
@@ -42,6 +42,7 @@ import {
   DungeonGenerationPolicyConstructor,
 } from "../../dungeon-generation/index.js";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
+import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -51,8 +52,6 @@ export interface GameServerExternalServices {
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
 }
-
-export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
 
 export class GameServer extends SpeedDungeonServer {
   private readonly gameRegistry = new GameRegistry();
@@ -151,6 +150,7 @@ export class GameServer extends SpeedDungeonServer {
       this.gameRegistry,
       this.userSessionRegistry,
       this.externalServices.gameSessionStoreService,
+      this.externalServices.reconnectionForwardingStoreService,
       this.updateDispatchFactory,
       this.partyDelayedGameMessageFactory,
       this.gameModeContexts,
@@ -289,7 +289,14 @@ export class GameServer extends SpeedDungeonServer {
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
 
-    const outbox = await this.reconnectionProtocol.onPlayerDisconnected(session, this.name);
+    const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
+    if (!session.intentionallyClosed) {
+      const reconnectionOutbox = await this.reconnectionProtocol.onPlayerDisconnected(
+        session,
+        this.name
+      );
+      outbox.pushFromOther(reconnectionOutbox);
+    }
 
     const cleanupSessionOutbox = await this.sessionLifecycleController.cleanupSession(session);
     outbox.pushFromOther(cleanupSessionOutbox);
@@ -300,11 +307,12 @@ export class GameServer extends SpeedDungeonServer {
   private startActiveGamesRecordHeartbeatTask() {
     const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
       // currently overwrites but could just update - this is simpler for now
-      for (const [gameName, game] of this.gameRegistry.games)
+      for (const [gameName, game] of this.gameRegistry.games) {
         this.externalServices.gameSessionStoreService.writeActiveGameStatus(
           gameName,
           new ActiveGameStatus(gameName, game.id)
         );
+      }
     });
 
     this.heartbeatScheduler.register(heartbeat);

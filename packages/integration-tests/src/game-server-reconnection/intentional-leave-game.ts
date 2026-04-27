@@ -1,5 +1,6 @@
 import { TEST_GAME_NAME } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { CombatActionName, GameStateUpdateType } from "@speed-dungeon/common";
 
 // if last player leaving
 // - remove game server game
@@ -16,6 +17,12 @@ export async function testIntentionalLeaveGame(testFixture: IntegrationTestFixtu
   const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
   alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.connect();
+  // bravo doesn't get input lock, doesn't see reconnecting player in list
+  expect(
+    bravo.clientApplication.gameContext.requireParty().playerUsernamesAwaitingReconnection.size
+  ).toBe(0);
+  bravo.gameClientHarness.selectCombatAction(CombatActionName.Healing, 1);
+  expect(bravo.clientApplication.errorRecordService.getLastError()).toBeUndefined();
   // doesn't get reconnection instructions
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
   expect(() => alpha.clientApplication.waitForReconnectionInstructions.waitFor()).toThrow();

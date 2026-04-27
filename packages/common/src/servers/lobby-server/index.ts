@@ -33,6 +33,8 @@ import {
   CharacterCreationPolicyConstructor,
 } from "../../character-creation/character-creation-policy.js";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
+import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
+import { LOBBY_DANGLING_RESOURCES_CLEANUP_MS } from "../../app-consts.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -51,6 +53,9 @@ export class LobbyServer extends SpeedDungeonServer {
   private readonly gameHandoffManager: GameHandoffManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
   private readonly reconnectionProtocol: LobbyReconnectionProtocol;
+  private readonly danglingResourcesHeartbeatScheduler = new HeartbeatScheduler(
+    LOBBY_DANGLING_RESOURCES_CLEANUP_MS
+  );
   // user controllers
   public readonly gameLifecycleController: LobbyGameLifecycleController;
   public readonly partySetupController: PartySetupController;
@@ -70,6 +75,8 @@ export class LobbyServer extends SpeedDungeonServer {
     private idGenerator: IdGenerator
   ) {
     super("LobbyServer", incomingConnectionGateway, rngPolicy);
+
+    this.startDanglingResourcesCleanupHeartbeat();
 
     this.gameHandoffManager = new GameHandoffManager(
       this.userSessionRegistry,
@@ -231,5 +238,28 @@ export class LobbyServer extends SpeedDungeonServer {
       characterLifecycleController,
       userSessionLifecycleController,
     };
+  }
+
+  startDanglingResourcesCleanupHeartbeat() {
+    this.danglingResourcesHeartbeatScheduler.start();
+    this.danglingResourcesHeartbeatScheduler.register(
+      new HeartbeatTask(LOBBY_DANGLING_RESOURCES_CLEANUP_MS, async () => {
+        const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
+        // @TODO - figure this out: if a read on the active games starts, then the active game is deleted by
+        // closing, then someone creates and disconnects from a game of the same name before the read finishes,
+        // we might could actually clean up a valid newly started game with the same name as a previously stale one
+        const { gameSessionStoreService, reconnectionForwardingStoreService } =
+          this.externalServices;
+        for (const activeGame of activeGames) {
+          if (activeGame.isStale()) {
+            await gameSessionStoreService.deleteActiveGameStatus(activeGame.name);
+            await gameSessionStoreService.deletePendingGameSetup(activeGame.name);
+            await reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(
+              activeGame.name
+            );
+          }
+        }
+      })
+    );
   }
 }

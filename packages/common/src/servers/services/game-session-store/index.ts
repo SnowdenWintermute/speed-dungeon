@@ -10,4 +10,7 @@ export interface GameSessionStoreService {
   writeActiveGameStatus(gameName: GameName, game: ActiveGameStatus): Promise<void>;
   getActiveGameStatus(gameName: GameName): Promise<ActiveGameStatus | null>;
   deleteActiveGameStatus(gameName: GameName): Promise<void>;
+
+  getActiveGames(): Promise<ActiveGameStatus[]>;
+  getPendingGameSetups(): Promise<PendingGameSetup[]>;
 }

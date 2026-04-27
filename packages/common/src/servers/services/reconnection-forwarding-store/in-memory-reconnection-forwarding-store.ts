@@ -1,4 +1,4 @@
-import { GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
+import { GameName, GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
 import { GameServerReconnectionForwardingRecord } from "./game-server-reconnection-forwarding-record.js";
 import {
   ReconnectionForwardingStoreService,
@@ -54,6 +54,32 @@ export class InMemoryReconnectionForwardingStoreService
       case ReconnectionKeyType.Guest:
         this.byReconnectionToken.delete(reconnectionKey.reconnectionToken);
         break;
+    }
+  }
+
+  async deleteAllReconnectionKeysForGameName(gameName: GameName): Promise<void> {
+    const tokensToDelete: GuestSessionReconnectionToken[] = [];
+
+    for (const [token, record] of this.byReconnectionToken) {
+      if (record.gameName === gameName) {
+        tokensToDelete.push(token);
+      }
+    }
+
+    for (const token of tokensToDelete) {
+      this.byReconnectionToken.delete(token);
+    }
+
+    const authIdRecordsToDelete: IdentityProviderId[] = [];
+
+    for (const [identityProviderId, record] of this.byIdentityProviderId) {
+      if (record.gameName === gameName) {
+        authIdRecordsToDelete.push(identityProviderId);
+      }
+    }
+
+    for (const identityProviderId of authIdRecordsToDelete) {
+      this.byIdentityProviderId.delete(identityProviderId);
     }
   }
 }

@@ -18,8 +18,11 @@ export function createGameServerClientIntentHandlers(
 ): Partial<GameServerClientIntentHandlers> {
   return {
     // // CONNECTIONS
-    [ClientIntentType.LeaveGame]: (_, user) =>
-      gameServer.gameLifecycleController.leaveGameHandler(user),
+    [ClientIntentType.LeaveGame]: async (_, user) => {
+      user.intentionallyClosed = true;
+      const outbox = await gameServer.gameLifecycleController.leaveGameHandler(user);
+      return outbox;
+    },
     // // ACTION SELECTION
     [ClientIntentType.SelectCombatAction]: (data, user) =>
       gameServer.combatActionController.selectCombatActionHandler(user, data),

@@ -32,4 +32,11 @@ export class InMemoryGameSessionStoreService implements GameSessionStoreService 
   async deleteActiveGameStatus(gameName: GameName): Promise<void> {
     this.activeGameStatusRecords.delete(gameName);
   }
+
+  async getActiveGames(): Promise<ActiveGameStatus[]> {
+    return [...this.activeGameStatusRecords.values()];
+  }
+  async getPendingGameSetups(): Promise<PendingGameSetup[]> {
+    return [...this.pendingGameSetups.values()];
+  }
 }

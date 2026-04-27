@@ -13,6 +13,7 @@ import { NeutralCombatantPlaques } from "./NeutralCombatantPlaques";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ReconnectionAwaitingReplayDisplay } from "./ReconnectionAwaitingReplayDisplay";
+import { AwaitingPlayersReconnectingDisplay } from "./AwaitingPlayersReconnectingDisplay";
 
 export const Game = observer(() => {
   const clientApplication = useClientApplication();
@@ -36,6 +37,7 @@ export const Game = observer(() => {
   return (
     <>
       <ReconnectionAwaitingReplayDisplay />
+      <AwaitingPlayersReconnectingDisplay />
       <main
         className={`h-screen w-screen flex justify-center relative overflow-hidden ${viewingCharacterSheet && "opacity-50"}`}
         style={{

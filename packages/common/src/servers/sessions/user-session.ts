@@ -35,6 +35,8 @@ export class UserSession extends ConnectionSession {
   // disconnection handler trying to send a user disconnected message to each other but they
   // both are no longer registered endpoints
   private _connectionState = UserSessionConnectionState.Connected;
+  // set to true when they leave game so we don't try to run reconnection logic
+  public intentionallyClosed = false;
 
   constructor(
     private _username: Username,

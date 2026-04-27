@@ -20,6 +20,7 @@ import {
   GameMessageType,
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
+import { ReconnectionForwardingStoreService } from "../../../services/reconnection-forwarding-store/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   // strategy pattern for handling certain events
@@ -28,6 +29,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
+    private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>,
@@ -175,6 +177,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
   async leaveGameHandler(session: UserSession) {
     const game = session.getCurrentGameOption();
+    console.log("session:", session.username, "left game:", game?.name);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     if (game === null) {
       return outbox;
@@ -252,6 +255,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     this.gameRegistry.unregisterGame(game.name);
     await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
+    await this.gameSessionStoreService.deletePendingGameSetup(game.name);
+    await this.reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(game.name);
   }
 
   handleAbandoningDeadPartyMembers(

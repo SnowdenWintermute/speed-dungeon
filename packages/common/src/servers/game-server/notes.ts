@@ -70,8 +70,14 @@
 // on lobby server crash
 // - have the containing node auto-restart the process
 //
-// ^^^ CURRENTLY DONE ABOVE THIS LINE ^^^
-// vvv NEXT DO THINGS BELOW THIS LINE vvv
+//
+// lobby's DanglingResourcesCleanupLoop
+// - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp
+// - if expired, clean up any dangling records in the central store:
+//   - PendingGameSetup
+//   - ActiveGame
+//   - GameServerReconnectionForwardingRecord
+//   - heartbeat
 //
 // on intentional game leave (LEAVE GAME button pressed)
 // - warn users that they will not be able to reconnect
@@ -88,12 +94,7 @@
 // user is disconnected and gets reconnection token, then game ends before
 // they connect... what happens?
 //
-// lobby's DanglingResourcesCleanupLoop
-// - read all ActiveGame records from the central store and check their last lastHeartbeatTimestamp
-// - if expired, clean up any dangling records in the central store:
-//   - PendingGameSetup
-//   - ActiveGame
-//   - GameServerReconnectionForwardingRecord
-//   - heartbeat
+// ^^^ CURRENTLY DONE ABOVE THIS LINE ^^^
+// vvv NEXT DO THINGS BELOW THIS LINE vvv
 //
 //- enforce unique usernames for guests

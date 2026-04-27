@@ -1,4 +1,4 @@
-import { GameServerName, GuestSessionReconnectionToken, Milliseconds } from "../../../aliases.js";
+import { GameServerName, GuestSessionReconnectionToken } from "../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import {
   ConnectionContextType,
@@ -12,11 +12,10 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { ReconnectionOpportunityManager } from "../reconnection-opportunity-manager.js";
 import { randomBytes } from "crypto";
 import { ReconnectionOpportunity } from "../reconnection-opportunity.js";
-import { ONE_SECOND } from "../../../app-consts.js";
 import { GameServerGameLifecycleController } from "../controllers/game-lifecycle/index.js";
 import { GameServerReconnectionForwardingRecord } from "../../services/reconnection-forwarding-store/game-server-reconnection-forwarding-record.js";
-
-export const RECONNECTION_OPPORTUNITY_TIMEOUT_MS = (ONE_SECOND * 120) as Milliseconds;
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../../../app-consts.js";
 
 interface GameServerReconnectionContext {
   type: ConnectionContextType.Reconnection;
@@ -108,28 +107,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     });
 
     const onReconnectionTimeout = async () => {
-      this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
-      try {
-        await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
-          session.requireReconnectionKey()
-        );
-      } catch (error) {
-        console.error("failed to delete reconnectionForwardingRecord:", error);
-      }
-
-      const reconnectionTimeoutOutbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-
-      reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
-        type: GameStateUpdateType.PlayerReconnectionTimedOut,
-        data: { username: session.username },
-      });
-
-      game.inputLock.remove(session.taggedUserId.id);
-
-      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
-
-      this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
+      this.cleanUpTimedOutClaim(session, game);
     };
 
     try {
@@ -156,6 +134,32 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     }
 
     return outbox;
+  }
+
+  async cleanUpTimedOutClaim(session: UserSession, game: SpeedDungeonGame) {
+    console.log("cleaned up timed out claim");
+    this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
+    try {
+      await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
+        session.requireReconnectionKey()
+      );
+    } catch (error) {
+      console.error("failed to delete reconnectionForwardingRecord:", error);
+    }
+
+    const reconnectionTimeoutOutbox = new MessageDispatchOutbox(this.updateDispatchFactory);
+
+    reconnectionTimeoutOutbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.PlayerReconnectionTimedOut,
+      data: { username: session.username },
+    });
+
+    game.inputLock.remove(session.taggedUserId.id);
+
+    const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+    reconnectionTimeoutOutbox.pushFromOther(leaveGameHandlerOutbox);
+
+    this.dispatchOutboxMessages(reconnectionTimeoutOutbox);
   }
 
   async attemptReconnectionClaim(session: UserSession): Promise<void> {

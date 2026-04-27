@@ -1,4 +1,4 @@
-import { GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
+import { GameName, GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
 import { GameServerReconnectionForwardingRecord } from "./game-server-reconnection-forwarding-record.js";
 
 export enum ReconnectionKeyType {
@@ -27,4 +27,5 @@ export interface ReconnectionForwardingStoreService {
     reconnectionKey: ReconnectionKey
   ): Promise<GameServerReconnectionForwardingRecord | null>;
   deleteGameServerReconnectionForwardingRecord(reconnectionKey: ReconnectionKey): Promise<void>;
+  deleteAllReconnectionKeysForGameName(gameName: GameName): Promise<void>;
 }

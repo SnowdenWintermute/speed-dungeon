@@ -1,20 +1,18 @@
 import { GameName } from "../../../aliases.js";
+import { GAME_RECORD_HEARTBEAT_MS } from "../../../app-consts.js";
 /** 
    used by the lobby lobby to check if this game still exists when a user reconnects to the lobby
    after disconnection from the game server
    */
 export class ActiveGameStatus {
-  private lastHeartbeatTimestamp: number = Date.now();
+  private createdAt: number = Date.now();
   constructor(
     public readonly name: GameName,
     public readonly id: string
   ) {}
 
-  onHeartbeat() {
-    this.lastHeartbeatTimestamp = Date.now();
-  }
-
   isStale() {
-    //
+    const elapsed = Date.now() - this.createdAt;
+    return elapsed > GAME_RECORD_HEARTBEAT_MS;
   }
 }
