@@ -13,7 +13,7 @@ export interface ClientRemoteConnectionEndpointFactory {
   ): ConnectionEndpoint;
 }
 
-export class BrowserWebsocketClientConnectionEndpointFactory
+export class BrowserWebSocketClientConnectionEndpointFactory
   implements ClientRemoteConnectionEndpointFactory
 {
   createRemoteEndpoint(

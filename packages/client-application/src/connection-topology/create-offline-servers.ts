@@ -5,7 +5,6 @@ import {
   GameServerName,
   GameSessionStoreService,
   IdentityProviderService,
-  IdGenerator,
   InMemoryConnectionEndpointServer,
   InMemoryConnectionEndpointServerRegistry,
   InMemoryGameSessionStoreService,

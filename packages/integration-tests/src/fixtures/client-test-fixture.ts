@@ -2,7 +2,7 @@ import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
-  BrowserWebsocketClientConnectionEndpointFactory,
+  BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   IndexedDbAssetStore,
 } from "@speed-dungeon/common";
@@ -14,6 +14,7 @@ import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 import { TimeMachine } from "@/test-utils/time-machine";
+import { NodeWebSocketClientConnectionEndpointFactory } from "@speed-dungeon/server";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -34,7 +35,8 @@ export class ClientFixture {
       tickScheduler.scheduler,
       clientLogRecorder,
       new PausableClientRemoteConnectionEndpointFactory(
-        new BrowserWebsocketClientConnectionEndpointFactory()
+        // new BrowserWebSocketClientConnectionEndpointFactory()
+        new NodeWebSocketClientConnectionEndpointFactory()
       ),
       new InMemoryReconnectionTokenStore()
     );

@@ -36,6 +36,7 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.OnConnection]: (data) => {
       if (data.expiredReconnection) {
         console.info("token was reused or expired");
+        console.log("waitForReconnectionInstructions fired");
         clientApplication.waitForReconnectionInstructions.fire();
         clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
       }
@@ -271,6 +272,7 @@ export function createLobbyUpdateHandlers(
         },
       });
 
+      console.log("waitForReconnectionInstructions fired");
       clientApplication.waitForReconnectionInstructions.fire();
       clientApplication.topologyManager.createGameClient(url, queryParams);
     },

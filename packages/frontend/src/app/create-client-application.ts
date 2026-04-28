@@ -1,5 +1,5 @@
 import {
-  BrowserWebsocketClientConnectionEndpointFactory,
+  BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   IndexedDbAssetStore,
   invariant,
@@ -24,7 +24,7 @@ export function createClientApplication() {
     lobbyServerUrl,
     tickScheduler.scheduler,
     clientLogRecorder,
-    new BrowserWebsocketClientConnectionEndpointFactory(),
+    new BrowserWebSocketClientConnectionEndpointFactory(),
     new LocalStorageReconnectionTokenStore()
   );
 }
