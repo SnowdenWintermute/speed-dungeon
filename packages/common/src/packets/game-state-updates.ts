@@ -98,7 +98,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.OnConnection]: {
     username: Username;
-    expiredReconnection?: boolean;
+    willBeReconnectedToGame?: boolean;
   };
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
     token: GuestSessionReconnectionToken;

@@ -11,10 +11,15 @@ import {
 // - shows "resolving replay in progress"
 // - shows party wiped
 
-export async function testReconnectionDuringWipeReplay(testFixture: IntegrationTestFixture) {
+export async function testReconnectionDuringWipeReplay(
+  testFixture: IntegrationTestFixture,
+  options: { useAuthenticatedUsers: boolean }
+) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS, LOW_HP_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
-  const { alpha, bravo } = await testFixture.createTwoClientsInFirstMonsterLair();
+  const { alpha, bravo } = await testFixture.createTwoClientsInFirstMonsterLair({
+    auth: options.useAuthenticatedUsers,
+  });
   await alpha.gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
   const alphaCombatantFocus = bravo.clientApplication.combatantFocus;
   await alpha.gameClientHarness.dispatchAndAwaitReply({

@@ -87,7 +87,6 @@ export class LobbySessionLifecycleController
     session: UserSession,
     options?: {
       sessionWillBeForwardedToGameServer?: boolean;
-      hadExpiredReconnectionToken?: boolean;
     }
   ) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -98,7 +97,7 @@ export class LobbySessionLifecycleController
       type: GameStateUpdateType.OnConnection,
       data: {
         username: session.username,
-        expiredReconnection: options?.hadExpiredReconnectionToken,
+        willBeReconnectedToGame: options?.sessionWillBeForwardedToGameServer,
       },
     });
 

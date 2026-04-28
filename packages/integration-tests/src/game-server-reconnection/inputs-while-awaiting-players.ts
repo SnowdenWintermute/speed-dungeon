@@ -9,11 +9,16 @@ import {
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
 } from "@speed-dungeon/common";
 
-export async function testInputsWhileAwaitingPlayers(testFixture: IntegrationTestFixture) {
+export async function testInputsWhileAwaitingPlayers(
+  testFixture: IntegrationTestFixture,
+  options: { useAuthenticatedUsers: boolean }
+) {
   await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
 
-  const { alpha, bravo } = await testFixture.createTwoClientsInLobbyGame();
+  const { alpha, bravo } = await testFixture.createTwoClientsInLobbyGame({
+    auth: options.useAuthenticatedUsers,
+  });
 
   const alphaReadiedUpPromise = alpha.lobbyClientHarness.toggleReadyToStartGame();
   const bravoReadiedUpPromise = bravo.lobbyClientHarness.toggleReadyToStartGame();

@@ -9,9 +9,14 @@ import {
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
 } from "@speed-dungeon/common";
 
-export async function testInvalidSessionClaimToken(testFixture: IntegrationTestFixture) {
+export async function testInvalidSessionClaimToken(
+  testFixture: IntegrationTestFixture,
+  options: { useAuthenticatedUsers: boolean }
+) {
   await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
-  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame({
+    auth: options.useAuthenticatedUsers,
+  });
 
   console.log("about to await close");
   await alpha.clientApplication.gameClientRef.get().close();

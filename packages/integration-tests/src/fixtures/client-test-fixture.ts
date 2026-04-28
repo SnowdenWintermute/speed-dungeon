@@ -20,6 +20,7 @@ export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
+  readonly clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
 
   constructor(lobbyServerPort: number, timeMachine: TimeMachine, testAuthId?: string) {
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
@@ -28,15 +29,18 @@ export class ClientFixture {
       fakeIndexedDB,
       CLIENT_LOG_RECORDER_MAX_BYTES
     );
+
+    this.clientEndpointFactory = new TestBrowserWebSocketClientConnectionEndpointFactory(
+      testAuthId
+    );
+
     this.clientApplication = new ClientApplication(
       assetCache,
       `http://localhost:${lobbyServerPort}`,
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder,
-      new PausableClientRemoteConnectionEndpointFactory(
-        new TestBrowserWebSocketClientConnectionEndpointFactory(testAuthId)
-      ),
+      new PausableClientRemoteConnectionEndpointFactory(this.clientEndpointFactory),
       new InMemoryReconnectionTokenStore()
     );
 

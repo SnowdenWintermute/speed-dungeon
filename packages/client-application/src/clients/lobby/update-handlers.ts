@@ -34,8 +34,8 @@ export function createLobbyUpdateHandlers(
       /* handled in BaseClient */
     },
     [GameStateUpdateType.OnConnection]: (data) => {
-      if (data.expiredReconnection) {
-        console.info("token was reused or expired");
+      if (!data.willBeReconnectedToGame) {
+        console.info("token missing, reused or expired");
         console.log("waitForReconnectionInstructions fired");
         clientApplication.waitForReconnectionInstructions.fire();
         clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();

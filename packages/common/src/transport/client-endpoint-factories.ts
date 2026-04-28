@@ -1,5 +1,6 @@
 import { ConnectionId } from "../aliases.js";
 import { QUERY_PARAMS } from "../servers/query-params.js";
+import { invariant } from "../utils/index.js";
 import { urlWithQueryParams } from "../utils/url-with-query-params.js";
 import { BrowserWebSocketConnectionEndpoint } from "./browser-websocket-connection-endpoint.js";
 import { ConnectionEndpoint } from "./connection-endpoint.js";
@@ -32,7 +33,16 @@ export class BrowserWebSocketClientConnectionEndpointFactory
 export class TestBrowserWebSocketClientConnectionEndpointFactory
   implements ClientRemoteConnectionEndpointFactory
 {
-  constructor(private testAuthId?: string) {}
+  constructor(private _testAuthId?: string) {
+    invariant(
+      process.env.NODE_ENV !== "production",
+      "Don't use query params to send id on a remote connection in production"
+    );
+  }
+
+  set testAuthId(value: string) {
+    this._testAuthId = value;
+  }
 
   createRemoteEndpoint(
     url: string,
@@ -44,7 +54,7 @@ export class TestBrowserWebSocketClientConnectionEndpointFactory
     const ws = new WebSocket(
       urlWithQueryParams(url, [
         ...queryParams,
-        { name: QUERY_PARAMS.UNTRUSTED_AUTH_SESSION_ID, value: this.testAuthId || "" },
+        { name: QUERY_PARAMS.UNTRUSTED_AUTH_SESSION_ID, value: this._testAuthId || "" },
       ])
     );
     return new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);

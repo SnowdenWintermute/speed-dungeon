@@ -12,9 +12,14 @@ import { CombatActionName, GameStateUpdateType } from "@speed-dungeon/common";
 // can make game of previously existing game name if all players intentionally left it
 // can make game of previously existing game name if it timed out all reconnection opportunities
 
-export async function testIntentionalLeaveGame(testFixture: IntegrationTestFixture) {
+export async function testIntentionalLeaveGame(
+  testFixture: IntegrationTestFixture,
+  options: { useAuthenticatedUsers: boolean }
+) {
   await testFixture.resetWithOptions();
-  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame({
+    auth: options.useAuthenticatedUsers,
+  });
   alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.connect();
   // bravo doesn't get input lock, doesn't see reconnecting player in list
@@ -25,7 +30,7 @@ export async function testIntentionalLeaveGame(testFixture: IntegrationTestFixtu
   expect(bravo.clientApplication.errorRecordService.getLastError()).toBeUndefined();
   // doesn't get reconnection instructions
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
-  expect(() => alpha.clientApplication.waitForReconnectionInstructions.waitFor()).toThrow();
+  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
   expect(() => alpha.clientApplication.transitionToGameServer.waitFor()).toThrow();
   // create same named game after all players left
   bravo.clientApplication.gameClientRef.get().leaveGame();

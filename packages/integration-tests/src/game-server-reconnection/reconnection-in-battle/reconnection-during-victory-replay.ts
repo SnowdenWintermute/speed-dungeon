@@ -17,10 +17,15 @@ import {
 // items can be picked up by both players
 // items can be dropped by both players without incident
 
-export async function testReconnectionDuringVictoryReplay(testFixture: IntegrationTestFixture) {
+export async function testReconnectionDuringVictoryReplay(
+  testFixture: IntegrationTestFixture,
+  options: { useAuthenticatedUsers: boolean }
+) {
   await testFixture.resetWithOptions(TEST_DUNGEON_TWO_ONE_HP_WOLVES, BASIC_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
-  const { alpha, bravo } = await testFixture.createTwoClientsInFirstMonsterLair();
+  const { alpha, bravo } = await testFixture.createTwoClientsInFirstMonsterLair({
+    auth: options.useAuthenticatedUsers,
+  });
   await alpha.gameClientHarness.useCombatAction(CombatActionName.Attack);
   await bravo.gameClientHarness.awaitMessageOfType(GameStateUpdateType.ClientSequentialEvents);
 

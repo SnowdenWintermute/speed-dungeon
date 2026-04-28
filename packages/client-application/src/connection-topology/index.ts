@@ -119,18 +119,7 @@ export class ConnectionTopology {
   }
 
   resetLobbyConnection() {
-    // this.connectionEndpoint.close();
-    // this.appStore.connectionStatusStore.connectionStatus = ConnectionStatus.Initializing;
-    // const remoteLobbyServerAddress = process.env.NEXT_PUBLIC_WS_SERVER_URL;
-    // // TODO - polymorphic runtime mode based reconnection
-    // getApplicationRuntimeManager().
-    // const ws = new WebSocket(remoteLobbyServerAddress || "");
-    // const connectionEndpoint = new BrowserWebSocketConnectionEndpoint(ws, "" as ConnectionId);
-    // try {
-    //   this.setEndpoint(connectionEndpoint);
-    // } catch {
-    //   return;
-    // }
+    this.enterOnline();
   }
 
   enterOnline() {
@@ -150,10 +139,10 @@ export class ConnectionTopology {
           name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
           value: guestGameReconnectionToken,
         });
-
-        // expect to receive reconnection instructions or expired token message
-        this.clientApplication.waitForReconnectionInstructions.arm();
       }
+
+      // expect to receive reconnection instructions or expired token message
+      this.clientApplication.waitForReconnectionInstructions.arm();
 
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
       connectionEndpoint.once("open", () => {

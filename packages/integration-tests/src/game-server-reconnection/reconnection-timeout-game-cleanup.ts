@@ -3,10 +3,15 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "@speed-dungeon/common";
 
 // can make game of previously existing game name if it timed out all reconnection opportunities
-export async function testReconnectionTimeoutGameCleanup(testFixture: IntegrationTestFixture) {
+export async function testReconnectionTimeoutGameCleanup(
+  testFixture: IntegrationTestFixture,
+  options: { useAuthenticatedUsers: boolean }
+) {
   await testFixture.resetWithOptions();
   testFixture.timeMachine.start();
-  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame({
+    auth: options.useAuthenticatedUsers,
+  });
   // disconnect
   await alpha.clientApplication.gameClientRef.get().close();
   await bravo.clientApplication.gameClientRef.get().close();

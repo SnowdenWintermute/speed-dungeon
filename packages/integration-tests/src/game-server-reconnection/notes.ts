@@ -1,17 +1,15 @@
-// AUTH
-// reconnect success
-// reconnect after all players disconnected or left
-// no reconnect if leave game intentionally
 // after login to auth, don't try to use guest reconnection token anymore (and clear it)
-// connect after timeout
 //
 
 //
 //
 // DONE
-// guest reconnect token reuse
-// guest reconnect after timeout
-// guest reconnect success
+// reconnect token reuse
+// reconnect after timeout
+// reconnect success
+// reconnect after all players disconnected or left
+// no reconnect if leave game intentionally
+// connect after timeout
 //
 // session claim token required
 // invalid session claim token

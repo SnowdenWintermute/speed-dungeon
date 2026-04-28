@@ -195,8 +195,8 @@ export class IntegrationTestFixture {
     return { alpha, bravo };
   }
 
-  async createTwoClientsInFirstMonsterLair() {
-    const { alpha, bravo } = await this.createTwoClientsInGameServerGame();
+  async createTwoClientsInFirstMonsterLair(options?: { auth?: boolean }) {
+    const { alpha, bravo } = await this.createTwoClientsInGameServerGame(options);
 
     const partyA = alpha.gameClientHarness.clientApplication.gameContext.requireParty();
     const partyB = bravo.gameClientHarness.clientApplication.gameContext.requireParty();
