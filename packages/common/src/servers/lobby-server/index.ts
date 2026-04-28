@@ -16,7 +16,7 @@ import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
 import { UserIdType } from "../sessions/user-ids.js";
-import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
+import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
@@ -72,7 +72,8 @@ export class LobbyServer extends SpeedDungeonServer {
     fetchLeastBusyServer: () => Promise<string>,
     characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
     rngPolicy: RandomNumberGenerationPolicy,
-    private idGenerator: IdGenerator
+    private idGenerator: IdGenerator,
+    authSessionIdParser: AuthSessionIdParser
   ) {
     super("LobbyServer", incomingConnectionGateway, rngPolicy);
 
@@ -98,7 +99,7 @@ export class LobbyServer extends SpeedDungeonServer {
           }
         });
       });
-    });
+    }, authSessionIdParser);
     this.incomingConnectionGateway.listen();
 
     const affixGenerator = new AffixGenerator(rngPolicy);
@@ -135,7 +136,7 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
-    // this.logUserConnected(session);
+    this.logUserConnected(session);
 
     if (session.taggedUserId.type === UserIdType.Auth) {
       await this.externalServices.profileService.createProfileIfUserHasNone(

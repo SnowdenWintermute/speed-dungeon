@@ -27,6 +27,7 @@ import {
   TEST_DUNGEON_TWO_MID_HP_WOLVES,
   TEST_DUNGEON_ZERO_SPEED_MANTAS,
   TEST_DUNGEON_TWO_ONE_HP_WOLVES,
+  cookieHeaderAuthSessionIdParser,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -85,7 +86,8 @@ export class GameServerNode {
       gameServerSessionClaimTokenCodec,
       ScriptedDungeonGenerationPolicy,
       rngPolicy,
-      new IdGeneratorSequential({ saveHistory: false, prefix: "gid" })
+      new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
+      cookieHeaderAuthSessionIdParser
       // RandomDungeonGenerationPolicy,
       // allRandomPolicy()
     );

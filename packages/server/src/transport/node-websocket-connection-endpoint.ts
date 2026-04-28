@@ -67,11 +67,7 @@ export class NodeWebSocketConnectionEndpoint implements ConnectionEndpoint {
     this.ws.pong(data, mask, callback);
   }
 
-  private dispatchToListener(
-    event: string,
-    listener: (...args: any[]) => void,
-    args: any[]
-  ): void {
+  private dispatchToListener(event: string, listener: (...args: any[]) => void, args: any[]): void {
     if (event === "message") {
       const data = args[0] as RawData;
       const isBinary = args[1] as boolean;
@@ -85,11 +81,7 @@ export class NodeWebSocketConnectionEndpoint implements ConnectionEndpoint {
     }
   }
 
-  private trackAdapter(
-    event: string,
-    listener: (...args: any[]) => void,
-    adapter: Adapter
-  ): void {
+  private trackAdapter(event: string, listener: (...args: any[]) => void, adapter: Adapter): void {
     let perEvent = this.listenerAdapters.get(event);
     if (!perEvent) {
       perEvent = new Map();

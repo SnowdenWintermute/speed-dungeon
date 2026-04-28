@@ -16,6 +16,7 @@ import {
   MONSTER_FIXTURES,
   CHARARCTER_FIXTURES_WITH_PET_MANTAS,
   LOW_HP_CHARACTER_FIXTURES,
+  cookieHeaderAuthSessionIdParser,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -58,7 +59,8 @@ export class LobbyServerNode {
       // DefaultCharacterCreationPolicy,
       ScriptedCharacterCreationPolicy,
       RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-      new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
+      new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
+      cookieHeaderAuthSessionIdParser
     );
 
     // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);

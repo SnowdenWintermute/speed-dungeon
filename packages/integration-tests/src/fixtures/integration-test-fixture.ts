@@ -113,8 +113,8 @@ export class IntegrationTestFixture {
     return this._gameServer;
   }
 
-  createClient(id: string) {
-    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine);
+  createClient(id: string, authId?: string) {
+    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine, authId);
     this.clients.set(id, client);
     return client;
   }
@@ -164,12 +164,14 @@ export class IntegrationTestFixture {
   }
 
   async createTwoClientsInLobbyGame(options?: { auth?: boolean }) {
-    const alpha = this.createClient("client a");
-    const bravo = this.createClient("client b");
+    let alphaAuthId = "";
+    let bravoAuthId = "";
     if (options?.auth) {
-      alpha.clientApplication.authSessionIdQueryParam = TEST_AUTH_SESSION_ID_PLAYER_1;
-      bravo.clientApplication.authSessionIdQueryParam = TEST_AUTH_SESSION_ID_PLAYER_2;
+      alphaAuthId = TEST_AUTH_SESSION_ID_PLAYER_1;
+      bravoAuthId = TEST_AUTH_SESSION_ID_PLAYER_2;
     }
+    const alpha = this.createClient("client a", alphaAuthId);
+    const bravo = this.createClient("client b", bravoAuthId);
     await Promise.all([alpha.connect(), bravo.connect()]);
 
     await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);

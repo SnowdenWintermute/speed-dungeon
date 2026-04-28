@@ -5,6 +5,7 @@ import {
   BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   IndexedDbAssetStore,
+  TestBrowserWebSocketClientConnectionEndpointFactory,
 } from "@speed-dungeon/common";
 import fakeIndexedDB from "fake-indexeddb";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
@@ -14,14 +15,13 @@ import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 import { TimeMachine } from "@/test-utils/time-machine";
-import { NodeWebSocketClientConnectionEndpointFactory } from "@speed-dungeon/server";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
 
-  constructor(lobbyServerPort: number, timeMachine: TimeMachine) {
+  constructor(lobbyServerPort: number, timeMachine: TimeMachine, testAuthId?: string) {
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
     const tickScheduler = new ManualTickScheduler();
     const clientLogRecorder = new IndexedDbClientLogRecorder(
@@ -35,8 +35,7 @@ export class ClientFixture {
       tickScheduler.scheduler,
       clientLogRecorder,
       new PausableClientRemoteConnectionEndpointFactory(
-        // new BrowserWebSocketClientConnectionEndpointFactory()
-        new NodeWebSocketClientConnectionEndpointFactory()
+        new TestBrowserWebSocketClientConnectionEndpointFactory(testAuthId)
       ),
       new InMemoryReconnectionTokenStore()
     );

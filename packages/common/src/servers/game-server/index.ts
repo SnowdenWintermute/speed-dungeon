@@ -1,5 +1,5 @@
 import { GameServerName } from "../../aliases.js";
-import { IncomingConnectionGateway } from "../incoming-connection-gateway.js";
+import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SavedCharactersService } from "../services/saved-characters.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
@@ -87,7 +87,8 @@ export class GameServer extends SpeedDungeonServer {
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
     public readonly rngPolicy: RandomNumberGenerationPolicy,
-    private readonly idGenerator: IdGenerator
+    private readonly idGenerator: IdGenerator,
+    authSessionIdParser: AuthSessionIdParser
   ) {
     super(name, incomingConnectionGateway, rngPolicy);
 
@@ -113,7 +114,7 @@ export class GameServer extends SpeedDungeonServer {
           }
         });
       });
-    });
+    }, authSessionIdParser);
     this.incomingConnectionGateway.listen();
 
     this.heartbeatScheduler.start();

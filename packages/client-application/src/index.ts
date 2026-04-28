@@ -82,8 +82,8 @@ export class ClientApplication {
   readonly waitForReconnectionInstructions = new Deferred();
   readonly transitionToLobbyServer = new Deferred();
 
-  // a fallback method for sending the auth id token if cookies are infeasible
-  public authSessionIdQueryParam = "";
+  // for saving this client's auth id for use in tests or in local servers
+  public localUntrustedAuthSessionIdQueryParam = "";
 
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)

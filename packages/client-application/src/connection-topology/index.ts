@@ -144,23 +144,15 @@ export class ConnectionTopology {
       const remoteLobbyServerAddress = this.clientApplication.lobbyServerUrl;
       const queryParams = [];
       const { guestGameReconnectionToken } = this.clientApplication.reconnectionTokenStore;
-      console.log("reconnection token:", guestGameReconnectionToken);
+
       if (guestGameReconnectionToken) {
         queryParams.push({
           name: QUERY_PARAMS.GUEST_RECONNECTION_TOKEN,
           value: guestGameReconnectionToken,
         });
 
-        console.log("armed waitForReconnectionInstructions");
         // expect to receive reconnection instructions or expired token message
         this.clientApplication.waitForReconnectionInstructions.arm();
-      }
-
-      if (this.clientApplication.authSessionIdQueryParam) {
-        queryParams.push({
-          name: QUERY_PARAMS.AUTH_SESSION_ID,
-          value: this.clientApplication.authSessionIdQueryParam,
-        });
       }
 
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);

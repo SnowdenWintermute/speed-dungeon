@@ -28,6 +28,7 @@ import {
   IdentityProviderService,
   GameServerExternalServices,
   AssetService,
+  queryParamsAuthSessionIdParser,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -87,7 +88,8 @@ export async function createTestServers(
     characterCreationPolicyConstructor,
     rngPolicy,
     // must use sequential ids for deterministic turn ordering since id is used as tiebreaker
-    new IdGeneratorSequential({ saveHistory: false, prefix: "lid" })
+    new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
+    queryParamsAuthSessionIdParser
   );
 
   const gameServer = new GameServer(
@@ -104,7 +106,8 @@ export async function createTestServers(
     codec,
     ScriptedDungeonGenerationPolicy,
     rngPolicy,
-    new IdGeneratorSequential({ saveHistory: false, prefix: "gid" })
+    new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
+    queryParamsAuthSessionIdParser
   );
 
   return { lobbyServer, gameServer };
