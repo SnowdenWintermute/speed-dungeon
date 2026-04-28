@@ -20,7 +20,12 @@ import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
 import { createTestServers } from "./create-test-servers.js";
 import { getPortFromAddress } from "@/test-utils/get-port-from-address.js";
-import { TEST_GAME_NAME, TEST_PARTY_NAME } from "./consts.js";
+import {
+  TEST_AUTH_SESSION_ID_PLAYER_1,
+  TEST_AUTH_SESSION_ID_PLAYER_2,
+  TEST_GAME_NAME,
+  TEST_PARTY_NAME,
+} from "./consts.js";
 import { TimeMachine } from "@/test-utils/time-machine.js";
 
 export class IntegrationTestFixture {
@@ -158,9 +163,13 @@ export class IntegrationTestFixture {
     return client;
   }
 
-  async createTwoClientsInLobbyGame() {
+  async createTwoClientsInLobbyGame(options?: { auth?: boolean }) {
     const alpha = this.createClient("client a");
     const bravo = this.createClient("client b");
+    if (options?.auth) {
+      alpha.clientApplication.authSessionIdQueryParam = TEST_AUTH_SESSION_ID_PLAYER_1;
+      bravo.clientApplication.authSessionIdQueryParam = TEST_AUTH_SESSION_ID_PLAYER_2;
+    }
     await Promise.all([alpha.connect(), bravo.connect()]);
 
     await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
@@ -174,8 +183,8 @@ export class IntegrationTestFixture {
     return { alpha, bravo };
   }
 
-  async createTwoClientsInGameServerGame() {
-    const { alpha, bravo } = await this.createTwoClientsInLobbyGame();
+  async createTwoClientsInGameServerGame(options?: { auth?: boolean }) {
+    const { alpha, bravo } = await this.createTwoClientsInLobbyGame(options);
     await alpha.lobbyClientHarness.toggleReadyToStartGame();
     await bravo.lobbyClientHarness.toggleReadyToStartGame();
 

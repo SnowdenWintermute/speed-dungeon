@@ -8,7 +8,7 @@ import {
 
 export async function testAuthReconnectionSuccess(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_ZERO_SPEED_WOLVES, BASIC_CHARACTER_FIXTURES);
-  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame();
+  const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame({ auth: true });
 
   // await alpha.clientApplication.gameClientRef.get().close();
 

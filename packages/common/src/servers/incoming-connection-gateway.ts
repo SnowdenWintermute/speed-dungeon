@@ -52,6 +52,8 @@ export abstract class IncomingConnectionGateway {
     const url = new URL(request.url, `http://${request.headers.host}`);
     const reconnectionToken = url.searchParams.get(QUERY_PARAMS.GUEST_RECONNECTION_TOKEN);
     const sessionClaimToken = url.searchParams.get(QUERY_PARAMS.SESSION_CLAIM_TOKEN);
+    // may not want to use the cookie or maybe we can't if it is a node ws
+    const authSessionIdQueryFallback = url.searchParams.get(QUERY_PARAMS.AUTH_SESSION_ID);
 
     let authSessionId = "";
     const cookieHeaderOption = request.headers.cookie;
@@ -59,6 +61,8 @@ export abstract class IncomingConnectionGateway {
       authSessionId = Object.fromEntries(
         cookieHeaderOption.split("; ").map((cookie) => cookie.split("=")) ?? []
       )["id"];
+    } else if (authSessionIdQueryFallback) {
+      authSessionId = authSessionIdQueryFallback;
     }
 
     return {

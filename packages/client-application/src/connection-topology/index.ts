@@ -153,6 +153,14 @@ export class ConnectionTopology {
         // expect to receive reconnection instructions or expired token message
         this.clientApplication.waitForReconnectionInstructions.arm();
       }
+
+      if (this.clientApplication.authSessionIdQueryParam) {
+        queryParams.push({
+          name: QUERY_PARAMS.AUTH_SESSION_ID,
+          value: this.clientApplication.authSessionIdQueryParam,
+        });
+      }
+
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
       connectionEndpoint.once("open", () => {
         resolve();
