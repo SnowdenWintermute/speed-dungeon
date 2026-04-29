@@ -271,18 +271,6 @@ export class GameServer extends SpeedDungeonServer {
     }
   }
 
-  private logUserConnected(session: UserSession) {
-    const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] game server`
-    );
-  }
-  private logUserDisconnected(session: UserSession, reason: TransportDisconnectReason) {
-    console.info(
-      `-- ${session.username} (${session.connectionId}) disconnected from ${this.name} game server. ${reason}`
-    );
-  }
-
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     // this.logUserDisconnected(session, reason);

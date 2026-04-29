@@ -19,6 +19,8 @@ import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
+import { SavedCharactersController } from "./saved-characters.js";
+import { SpeedDungeonProfileService } from "../../services/profiles.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
@@ -26,6 +28,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
+    private readonly profileService: SpeedDungeonProfileService,
+    private readonly savedCharactersController: SavedCharactersController,
     private readonly idGenerator: IdGenerator,
     private readonly gameHandoffManager: GameHandoffManager,
     private readonly gameSessionStoreService: GameSessionStoreService
@@ -128,10 +132,17 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return joinGameUpdateHandlerOutbox;
   }
 
-  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
+  private async requireProgressionGamePrerequisites(session: UserSession) {
     session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
-
     session.requireAuthorized();
+    const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
+    await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
+  }
+
+  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
+    console.log("trying to createProgressionGameHandler");
+    await this.requireProgressionGamePrerequisites(session);
+    console.log("after trying to createProgressionGameHandler");
 
     const game = new SpeedDungeonGame(
       this.idGenerator.generate() as GameId,
@@ -166,8 +177,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     if (game.mode === GameMode.Progression) {
-      session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
-      session.requireAuthorized();
+      await this.requireProgressionGamePrerequisites(session);
     }
 
     session.joinGame(game);

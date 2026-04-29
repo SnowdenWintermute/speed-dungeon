@@ -12,6 +12,8 @@ import { LobbyExternalServices } from "../index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
+import { CombatantManager } from "../../../adventuring-party/combatant-manager.js";
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
@@ -41,7 +43,7 @@ export class SavedCharactersController {
     return outbox;
   }
 
-  async getDefaultSavedCharacterForProgressionGame(profile: SpeedDungeonProfile) {
+  async requireDefaultSavedCharacterForProgressionGame(profile: SpeedDungeonProfile) {
     const charactersResult = await this.savedCharactersService.fetchSavedCharacters(profile.id);
 
     // only let them create/join a progression game if they have a saved character
@@ -74,8 +76,9 @@ export class SavedCharactersController {
   ) {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-
     const { name, combatantClass, slotIndex } = data;
+    // check if the slot is valid to put a new character in
+    const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
@@ -85,10 +88,13 @@ export class SavedCharactersController {
       session.username
     );
 
-    const serializedPets = pets.map((pet) => pet.toSerialized());
+    newCharacter.combatantProperties.transformProperties.autoSetHomePosition(
+      DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+      slotIndex,
+      { onCenterLine: true }
+    );
 
-    // check if the slot is valid to put a new character in
-    const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
+    const serializedPets = pets.map((pet) => pet.toSerialized());
     await this.savedCharactersService.saveCharacterInSlot(
       slot,
       newCharacter,

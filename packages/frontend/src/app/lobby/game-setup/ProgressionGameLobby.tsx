@@ -31,7 +31,7 @@ export const ProgressionGameLobby = observer(() => {
       .dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
   }, []);
 
-  const numPlayersInGame = useMemo(() => game.players.size, [game.players]);
+  const numPlayersInGame = game.players.size;
 
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
@@ -54,7 +54,7 @@ export const ProgressionGameLobby = observer(() => {
     <GameLobby>
       <div style={{ width: `${menuWidth}px` }}>
         <ul className="w-full flex flex-col">
-          {Array.from(game.players).map(([username, player], i) => (
+          {Array.from(game.players.entries()).map(([username, player], i) => (
             <PlayerDisplay playerOption={player} game={game} index={i} key={player.username} />
           ))}
           {new Array(MAX_PARTY_SIZE - numPlayersInGame).fill(null).map((_item, i) => (

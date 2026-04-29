@@ -75,7 +75,7 @@ export class LobbyServer extends SpeedDungeonServer {
     private idGenerator: IdGenerator,
     authSessionIdParser: AuthSessionIdParser
   ) {
-    super("LobbyServer", incomingConnectionGateway, rngPolicy);
+    super("Lobby", incomingConnectionGateway, rngPolicy);
 
     this.startDanglingResourcesCleanupHeartbeat();
 
@@ -170,15 +170,8 @@ export class LobbyServer extends SpeedDungeonServer {
     }
   }
 
-  private logUserConnected(session: UserSession) {
-    const { username, taggedUserId, connectionId } = session;
-    console.info(
-      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the lobby`
-    );
-  }
-
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    // console.info(`-- ${session.username} (${session.connectionId})  disconnected.`);
+    this.logUserDisconnected(session, reason);
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
@@ -208,6 +201,8 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.updateDispatchFactory,
       partySetupController,
+      this.externalServices.profileService,
+      savedCharactersController,
       idGenerator,
       this.gameHandoffManager,
       this.externalServices.gameSessionStoreService

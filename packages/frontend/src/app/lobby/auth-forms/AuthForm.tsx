@@ -39,8 +39,9 @@ export const AuthForm = observer(
         if (successAlert) alertsService.setAlert(successAlert);
         if (reauthorizeOnSuccess) {
           broadcastChannel.refetchAuthSessionInAllTabs();
-          lobbyClientRef.get().resetConnection();
           broadcastChannel.reconnectAllTabs();
+          httpRequests.fetchAuthSession();
+          lobbyClientRef.get().resetConnection();
         }
       }
     }, [responseTracker?.ok]);

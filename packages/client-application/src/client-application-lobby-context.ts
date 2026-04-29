@@ -54,6 +54,10 @@ class ClientApplicationLobbyChannel {
 class ClientApplicationSavedCharacters {
   private _slots: Record<number, { combatant: Combatant; pets: Combatant[] } | null> = {};
 
+  constructor() {
+    makeAutoObservable(this);
+  }
+
   get slots() {
     return this._slots;
   }

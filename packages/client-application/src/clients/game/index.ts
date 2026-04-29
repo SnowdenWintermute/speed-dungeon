@@ -19,7 +19,7 @@ export class GameClient extends BaseClient {
     }
   }
 
-  resetConnection(): void {
+  async resetConnection() {
     //
   }
 

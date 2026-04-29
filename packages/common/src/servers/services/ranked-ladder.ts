@@ -15,7 +15,7 @@ export const CHARACTER_LEVEL_LADDER = "character-level-ladder:";
 
 export abstract class RankedLadderService {
   abstract removeEntry(ladderName: string, entryId: EntityId): Promise<number>;
-  abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number>;
+  abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null>;
 
   abstract updateOrCreateCharacterLevelEntry(
     entryId: EntityId,
@@ -50,10 +50,10 @@ export abstract class RankedLadderService {
     return ladderDeathsUpdate;
   }
 
-  getTopRankedDeathMessagesActionCommandPayload(
+  async getTopRankedDeathMessagesActionCommandPayload(
     partyChannelToExclude: string,
     deathsAndRanks: LadderDeathsUpdate
-  ): ClientSequentialEvent {
+  ): Promise<ClientSequentialEvent> {
     const messages = Object.entries(deathsAndRanks).map(([characterName, deathAndRank]) => {
       return new GameMessage(
         GameMessageType.LadderDeath,

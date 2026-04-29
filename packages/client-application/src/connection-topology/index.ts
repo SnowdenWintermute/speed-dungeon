@@ -118,8 +118,11 @@ export class ConnectionTopology {
     return this._mode === ConnectionMode.Offline;
   }
 
-  resetLobbyConnection() {
-    this.enterOnline();
+  async resetLobbyConnection() {
+    await this.clientApplication.lobbyClientRef.get().close();
+    console.log("closed old lobby connection");
+    await this.enterOnline();
+    console.log("entered online");
   }
 
   enterOnline() {
@@ -145,7 +148,9 @@ export class ConnectionTopology {
       this.clientApplication.waitForReconnectionInstructions.arm();
 
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
+
       connectionEndpoint.once("open", () => {
+        console.log("opened connection to lobby:", connectionEndpoint.id);
         resolve();
       });
 

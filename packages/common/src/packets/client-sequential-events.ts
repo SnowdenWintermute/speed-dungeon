@@ -3,7 +3,6 @@ import { CombatantId, EntityId, Username } from "../aliases";
 import { EnvironmentEntityName } from "../environment-entities";
 import { NestedNodeReplayEvent } from "../action-processing/replay-events";
 import { GameMessage } from "./game-message";
-import { SerializedOf } from "../serialization";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent";
 
 export enum ClientSequentialEventType {

@@ -20,7 +20,7 @@ export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
-  readonly clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
+  private clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
 
   constructor(lobbyServerPort: number, timeMachine: TimeMachine, testAuthId?: string) {
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
@@ -62,6 +62,16 @@ export class ClientFixture {
 
   async connect() {
     await this.clientApplication.topologyManager.connectWithPrefferedMode();
+  }
+
+  async reconnectAsAuth(authId: string) {
+    this.clientEndpointFactory.testAuthId = authId;
+    if (this.clientApplication.gameClientRef.isInitialized) {
+      await this.clientApplication.gameClientRef.get().close();
+    }
+    console.log("about to reset connection as auth");
+    await this.clientApplication.lobbyClientRef.get().resetConnection();
+    console.log("resetConnection as auth completed");
   }
 
   eventually(assertion: () => void | Promise<void>, options = { timeout: 500, interval: 20 }) {

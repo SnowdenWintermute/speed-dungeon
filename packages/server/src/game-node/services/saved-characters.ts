@@ -3,6 +3,7 @@ import {
   Combatant,
   EntityId,
   ERROR_MESSAGES,
+  invariant,
   ProfileId,
   SavedCharacterPersistenceStrategy,
   SavedCharacterSlotsPersistenceStrategy,
@@ -64,7 +65,12 @@ export class DatabaseSavedCharacterPersistenceStrategy
   }
 
   async update(combatant: Combatant, pets: Combatant[]): Promise<SerializedPlayerCharacter> {
-    throw new Error("not implemented");
+    const expected = await this.playerCharactersRepo.findOne("id", combatant.getEntityId());
+    invariant(expected !== undefined, ERROR_MESSAGES.DATABASE.SAVING);
+    expected.combatantProperties = combatant.combatantProperties.toSerialized();
+    const saved = await this.playerCharactersRepo.update(expected, pets);
+    invariant(saved !== undefined, ERROR_MESSAGES.DATABASE.SAVING);
+    return saved;
   }
 
   async delete(id: number | string): Promise<SerializedPlayerCharacter> {

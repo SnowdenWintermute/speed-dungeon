@@ -8,12 +8,13 @@ import {
   IdentityProviderId,
   ProfileId,
 } from "../../aliases.js";
-import { APP_VERSION_NUMBER } from "../../app-consts.js";
+import { APP_VERSION_NUMBER, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../app-consts.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
 import { getProgressionGamePartyName } from "../../utils/index.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SerializedOf } from "../../serialization/index.js";
+import { CombatantManager } from "../../adventuring-party/combatant-manager.js";
 
 export interface CharacterInSlot {
   combatant: SerializedOf<Combatant>;

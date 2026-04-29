@@ -85,6 +85,7 @@ function UserMenu({ username }: { username: null | string }) {
       credentials: "include",
     });
     clientApplication.gameWorldView?.environment.groundPlane.clear();
+    clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.clearAll();
 
     if (!httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION]) {
       httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION] = new HttpRequestTracker();

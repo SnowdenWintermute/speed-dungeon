@@ -51,6 +51,10 @@ export class TestBrowserWebSocketClientConnectionEndpointFactory
       value: string;
     }[]
   ) {
+    console.log(
+      "creating TestBrowserWebSocketClientConnectionEndpointFactory with auth id:",
+      this._testAuthId
+    );
     const ws = new WebSocket(
       urlWithQueryParams(url, [
         ...queryParams,

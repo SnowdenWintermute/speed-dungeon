@@ -152,7 +152,7 @@ export abstract class BaseClient {
     }
   }
 
-  abstract resetConnection(): void;
+  abstract resetConnection(): Promise<void>;
 
   protected abstract handleMessage(message: GameStateUpdate): void;
 

@@ -100,7 +100,7 @@ export class PartySetupController {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
     const defaultSavedCharacter =
-      await this.savedCharactersController.getDefaultSavedCharacterForProgressionGame(profile);
+      await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
 
     const { combatant } = defaultSavedCharacter;
 

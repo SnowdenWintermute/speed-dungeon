@@ -22,7 +22,7 @@ export const CHARACTER_MANAGER_HOTKEY = "S";
 export const SavedCharacterManager = observer(() => {
   const [currentSlot, setCurrentSlot] = useState(1);
   const clientApplication = useClientApplication();
-  const { lobbyContext, uiStore, sequentialEventProcessor } = clientApplication;
+  const { lobbyContext, uiStore } = clientApplication;
   const savedCharacters = lobbyContext.savedCharacters.slots;
   const selectedCharacterOption = savedCharacters[currentSlot];
   const { dialogs } = uiStore;
@@ -41,11 +41,10 @@ export const SavedCharacterManager = observer(() => {
   }, [currentSlot, clientApplication.gameWorldView?.camera]);
 
   useEffect(() => {
-    sequentialEventProcessor.scheduleEvent({
-      type: ClientSequentialEventType.SynchronizeCombatantModels,
-      data: { softCleanup: false, placeInHomePositions: true },
-    });
-  }, [savedCharacters, sequentialEventProcessor]);
+    if (!showCharacterManager) {
+      setCurrentSlot(1);
+    }
+  }, [showCharacterManager]);
 
   return (
     <>

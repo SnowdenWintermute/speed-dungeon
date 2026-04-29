@@ -45,7 +45,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
     // If they're leaving a game while dead, this character should be removed from the ladder
     const deathsAndRanks = await this.rankedLadderService.removeDeadCharacters(characters);
     const deathMessagePayloads =
-      this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
+      await this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
         getPartyChannelName(game.name, party.name),
         deathsAndRanks
       );
@@ -65,7 +65,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
     const ladderDeathsUpdate = await this.rankedLadderService.removeDeadCharacters(partyCharacters);
     const deathMessagePayloads =
-      this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
+      await this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
         getPartyChannelName(game.name, party.name),
         ladderDeathsUpdate
       );

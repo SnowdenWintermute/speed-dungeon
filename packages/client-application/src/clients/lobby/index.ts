@@ -28,9 +28,9 @@ export class LobbyClient extends BaseClient {
     }
   }
 
-  resetConnection() {
+  async resetConnection() {
     console.info("reconnecting to lobby");
-    this.connectionTopology.resetLobbyConnection();
+    await this.connectionTopology.resetLobbyConnection();
   }
 
   static QUICK_START_CHARACTER_CLASSES = [

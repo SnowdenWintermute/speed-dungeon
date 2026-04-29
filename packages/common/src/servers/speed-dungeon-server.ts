@@ -54,6 +54,18 @@ export abstract class SpeedDungeonServer {
     return this.incomingConnectionGateway.close();
   }
 
+  protected logUserConnected(session: UserSession) {
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] server`
+    );
+  }
+  protected logUserDisconnected(session: UserSession, reason: TransportDisconnectReason) {
+    console.info(
+      `-- ${session.username} (${session.connectionId}) disconnected from [${this.name}] server. ${reason}`
+    );
+  }
+
   private parseMessage(rawData: string | ArrayBuffer | Buffer) {
     // Convert to string
     let messageStr: string;
@@ -96,10 +108,12 @@ export abstract class SpeedDungeonServer {
 
         // why cast as never: see README.md -> Typed Event Handler Records
         try {
+          console.log("try handle", parsed.data);
           const handlerOutbox = await handlerOption(parsed.data as never, session);
           outbox.pushFromOther(handlerOutbox);
         } catch (error) {
           if (error instanceof Error) {
+            console.log("was error instance:", error.message);
             outbox.pushToConnection(session.connectionId, {
               type: GameStateUpdateType.ErrorMessage,
               data: { message: error.message, clientIntentSequenceId: intentId },

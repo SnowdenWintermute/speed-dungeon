@@ -384,21 +384,21 @@ export class CombatantManager
     const dungeonControlledCharacters = this.getDungeonControlledCharacters();
 
     dungeonControlledCharacters.forEach((combatant, rowIndex) => {
-      CombatantManager.setCombatantHomePosition(
+      combatant.combatantProperties.transformProperties.autoSetHomePosition(
         dungeonControlledCharacters.length,
         rowIndex,
-        true,
-        combatant
+        { flipSide: true }
       );
     });
 
     const partyMemberCharacters = this.getPartyMemberCharacters();
     partyMemberCharacters.forEach((combatant, rowIndex) => {
-      CombatantManager.setCombatantHomePosition(
+      combatant.combatantProperties.transformProperties.autoSetHomePosition(
         partyMemberCharacters.length,
         rowIndex,
-        false,
-        combatant
+        {
+          flipSide: false,
+        }
       );
     });
 
@@ -455,30 +455,6 @@ export class CombatantManager
     for (const [_, combatant] of combatants) {
       combatant.combatantProperties.resources.refillActionPoints();
     }
-  }
-
-  static setCombatantHomePosition(
-    combatantsInRowCount: number,
-    rowIndex: number,
-    flipSide: boolean,
-    combatant: Combatant
-  ) {
-    const rowLength = COMBATANT_POSITION_SPACING_SIDE * (combatantsInRowCount - 1);
-    const rowStart = -rowLength / 2;
-
-    const rowPositionOffset = rowStart + rowIndex * COMBATANT_POSITION_SPACING_SIDE;
-    let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
-    if (flipSide) positionSpacing *= -1;
-
-    const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
-    const { combatantProperties } = combatant;
-    const { transformProperties } = combatantProperties;
-    transformProperties.setHomePosition(homeLocation);
-    const forward = new Vector3(0, 0, 1);
-    const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
-    const homeRotation = new Quaternion();
-    Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
-    transformProperties.homeRotation = homeRotation;
   }
 
   checkForWipes(inBattle: boolean): PartyWipes {

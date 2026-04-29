@@ -3,6 +3,7 @@ import {
   ClientSequentialEventType,
   Combatant,
   ConnectionEndpoint,
+  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   ERROR_MESSAGES,
   GameMode,
   GameStateUpdateMap,
@@ -15,6 +16,7 @@ import {
 import { ClientApplication } from "@/client-application";
 import { GAME_SERVER_TRANSITION_TIMEOUT_MS } from "@/client-application/consts";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
+import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -45,6 +47,7 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);
+      console.log("got users list:", deserialized);
       lobbyContext.channel.update(deserialized);
       clientApplication.transitionToLobbyServer.fire();
     },
@@ -55,11 +58,13 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.GameList]: (data) => lobbyContext.setGameList(data.gameList),
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
+      clientApplication.uiStore.dialogs.close(DialogElementName.GameCreation);
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const { gameOption } = gameContext;
       const player = new SpeedDungeonPlayer(data.username);
       if (gameOption) {
+        player.makeObservable();
         gameOption.addPlayer(player);
       }
     },
@@ -108,6 +113,7 @@ export function createLobbyUpdateHandlers(
           return;
         }
 
+        console.log("put player in party", partyName);
         gameOption.putPlayerInParty(partyName, playerName);
       }
     },
@@ -204,12 +210,15 @@ export function createLobbyUpdateHandlers(
         if (characterOption === null) {
           deserialized[slotNumber] = null;
         } else {
-          console.log(
-            "serializedcharacter:",
-            characterOption.combatant.combatantProperties.classProgressionProperties
+          const combatant = Combatant.fromSerialized(characterOption.combatant);
+          combatant.combatantProperties.transformProperties.autoSetHomePosition(
+            DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+            slotNumber,
+            { onCenterLine: true }
           );
+
           deserialized[slotNumber] = {
-            combatant: Combatant.fromSerialized(characterOption.combatant),
+            combatant,
             pets: characterOption.pets.map((pet) => Combatant.fromSerialized(pet)),
           };
         }

@@ -1,14 +1,13 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useClientApplication } from "@/hooks/create-client-application-context";
+import { BroadcastChannelMananger, TabMessageType } from "@/client-application/broadcast-channel";
 
 export default function GoogleOAuthLoader() {
   const searchParams = useSearchParams();
   const state = searchParams.get("state");
   const authorizationCode = searchParams.get("code");
-  const clientApplication = useClientApplication();
-  const { broadcastChannel } = clientApplication;
+  const broadcastChannel = new BroadcastChannel(BroadcastChannelMananger.CHANNEL_NAME);
 
   const [loadingTextState, setLoadingStateText] = useState("Authenticating...");
   // don't run this effect twice in development using strict mode
@@ -22,8 +21,8 @@ export default function GoogleOAuthLoader() {
     (async () => {
       await fetchToken(authorizationCode, state);
 
-      broadcastChannel.refetchAuthSessionInAllTabs();
-      broadcastChannel.reconnectAllTabs();
+      broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
+      broadcastChannel.postMessage({ type: TabMessageType.RefetchAuthSession });
 
       window.close();
     })();

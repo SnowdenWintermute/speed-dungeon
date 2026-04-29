@@ -294,6 +294,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     const player = this.getExpectedPlayer(username);
 
     if (party.playerUsernames.includes(username)) {
+      player.partyName = partyName;
       // we are patching the fact that server removes and adds back players when they
       // leave the lobby then rejoin in the game server, really we should mark some
       // users awaiting connection instead of this
@@ -302,6 +303,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
     party.playerUsernames.push(username);
     player.partyName = partyName;
+    console.log("set player party name:", partyName);
   }
 
   /** Returns true if all players are ready to start the game */

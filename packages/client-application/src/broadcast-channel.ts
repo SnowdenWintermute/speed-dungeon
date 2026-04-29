@@ -20,13 +20,17 @@ export class BroadcastChannelMananger {
   }
 
   refetchAuthSessionInAllTabs() {
-    this.broadcastChannel.postMessage({ type: TabMessageType.ReconnectSocket });
+    this.broadcastChannel.postMessage({ type: TabMessageType.RefetchAuthSession });
   }
 
   constructor(lobbyClientRef: ClientSingleton<LobbyClient>, httpRequests: HttpRequestStore) {
     this.broadcastChannel.onmessage = (message: any) => {
       if (message.data.type === TabMessageType.ReconnectSocket) {
-        lobbyClientRef.get().resetConnection();
+        try {
+          lobbyClientRef.get().resetConnection();
+        } catch {
+          console.log("No lobby client to reset in this tab");
+        }
       }
       if (message.data.type === TabMessageType.RefetchAuthSession) {
         httpRequests.fetchAuthSession();

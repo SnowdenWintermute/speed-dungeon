@@ -8,6 +8,7 @@ import {
   ActionRank,
   ActionResolutionStepType,
   BeforeOrAfter,
+  CharacterSlotIndex,
   ClientIntent,
   ClientIntentType,
   ClientSequentialEventType,
@@ -330,6 +331,17 @@ export class ClientTestHarness<T extends BaseClient> {
     return this.settleIntentResult({
       type: ClientIntentType.DropItem,
       data: { characterId, itemId },
+    });
+  }
+
+  async createSavedCharacter(name: string, combatantClass: CombatantClass, slotIndex: number) {
+    this.settleIntentResult({
+      type: ClientIntentType.CreateSavedCharacter,
+      data: {
+        name: name as EntityName,
+        combatantClass,
+        slotIndex: slotIndex as CharacterSlotIndex,
+      },
     });
   }
 }
