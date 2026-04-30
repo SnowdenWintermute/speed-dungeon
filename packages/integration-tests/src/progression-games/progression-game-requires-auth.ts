@@ -14,7 +14,10 @@ export async function testCreateProgressionGameRequiresAuth(testFixture: Integra
 
 export async function testJoinProgressionGameRequiresAuth(testFixture: IntegrationTestFixture) {
   testFixture.resetWithOptions();
-  testFixture.createSingleClientInLobbyProgressionGame("client 1", TEST_AUTH_SESSION_ID_PLAYER_1);
+  await testFixture.createSingleClientInLobbyProgressionGame(
+    "client 1",
+    TEST_AUTH_SESSION_ID_PLAYER_1
+  );
   const bravo = testFixture.createClient("client 1");
   await bravo.connect();
   await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);

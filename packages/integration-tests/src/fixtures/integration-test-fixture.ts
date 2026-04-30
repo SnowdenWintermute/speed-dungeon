@@ -7,6 +7,7 @@ import {
   FixedNumberGenerator,
   GameMode,
   GameServer,
+  GameStateUpdateType,
   invariant,
   LobbyServer,
   RandomNumberGenerationPolicy,
@@ -199,7 +200,7 @@ export class IntegrationTestFixture {
   }
 
   async createTwoClientsInLobbyProgressionGame(
-    alphaOptions: ClientTestFixtureSavedCharacterOptions,
+    alphaOptions: undefined | ClientTestFixtureSavedCharacterOptions,
     bravoOptions: undefined | ClientTestFixtureSavedCharacterOptions
   ) {
     const alpha = await this.createSingleClientInLobbyProgressionGame(
@@ -213,6 +214,7 @@ export class IntegrationTestFixture {
       bravoOptions
     );
     await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+    await alpha.lobbyClientHarness.awaitMessageOfType(GameStateUpdateType.CharacterAddedToParty);
     return { alpha, bravo };
   }
 

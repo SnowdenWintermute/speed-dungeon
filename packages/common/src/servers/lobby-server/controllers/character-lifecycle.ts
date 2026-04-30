@@ -128,6 +128,9 @@ export class CharacterLifecycleController {
       savedCharacter.pets.map((pet) => Combatant.fromSerialized(pet))
     );
 
+    game.selectedStartingFloor = Math.min(game.selectedStartingFloor, game.maxStartingFloor);
+    party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
+
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     outbox.pushToChannel(game.getChannelName(), {

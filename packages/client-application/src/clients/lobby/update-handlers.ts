@@ -173,6 +173,8 @@ export function createLobbyUpdateHandlers(
       }
 
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
+      game.selectedStartingFloor = Math.min(game.selectedStartingFloor, game.maxStartingFloor);
+      party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantModels,
@@ -182,6 +184,10 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.PlayerToggledReadyToStartGame]: (data) => {
       const game = gameContext.requireGame();
       game.togglePlayerReadyToStartGameStatus(data.username);
+    },
+    [GameStateUpdateType.DungeonFloorNumber]: (data) => {
+      const party = gameContext.requireParty();
+      party.dungeonExplorationManager.setCurrentFloor(data.floorNumber);
     },
     [GameStateUpdateType.ProgressionGameStartingFloorSelected]: (data) => {
       const { gameOption } = gameContext;
