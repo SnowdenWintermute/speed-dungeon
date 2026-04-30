@@ -11,7 +11,7 @@ import {
   Username,
   getProgressionGamePartyName,
 } from "@speed-dungeon/common";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import Divider from "@/app/components/atoms/Divider";
 import { GameLobby } from "./GameLobby";
@@ -23,7 +23,6 @@ export const ProgressionGameLobby = observer(() => {
   const { session, gameContext, lobbyClientRef } = useClientApplication();
   const username = session.requireUsername();
   const game = gameContext.requireGame();
-  if (game === null) return <div>Loading...</div>;
 
   useEffect(() => {
     lobbyClientRef
@@ -35,20 +34,16 @@ export const ProgressionGameLobby = observer(() => {
 
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
-  // potential meaning the deepest floor any character could select
-  let potentialMaxStartingFloor = 1;
-  for (const floorNumber of Object.values(game.lowestStartingFloorOptionsBySavedCharacter)) {
-    if (floorNumber > potentialMaxStartingFloor) potentialMaxStartingFloor = floorNumber;
-  }
-
+  // potential meaning the deepest floor any character could select vs
   // true max starting floor is the deepest that all selected have reached
-  const maxStartingFloor = game.getMaxStartingFloor();
+  const { potentialMaxStartingFloor, maxStartingFloor } = game;
 
-  useEffect(() => {
-    if (game.selectedStartingFloor > maxStartingFloor) {
-      game.selectedStartingFloor = maxStartingFloor;
-    }
-  }, [maxStartingFloor, game.selectedStartingFloor, game.players, game]);
+  // I don't think this is needed anymore, calculated on game.get maxStartingFloor()
+  // useEffect(() => {
+  //   if (game.selectedStartingFloor > maxStartingFloor) {
+  //     game.selectedStartingFloor = maxStartingFloor;
+  //   }
+  // }, [maxStartingFloor, game.selectedStartingFloor, game.players, game]);
 
   return (
     <GameLobby>

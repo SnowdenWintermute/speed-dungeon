@@ -140,9 +140,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   async createProgressionGameHandler(gameName: GameName, session: UserSession) {
-    console.log("trying to createProgressionGameHandler");
     await this.requireProgressionGamePrerequisites(session);
-    console.log("after trying to createProgressionGameHandler");
 
     const game = new SpeedDungeonGame(
       this.idGenerator.generate() as GameId,
@@ -262,8 +260,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       return outbox; // no one is left to notify about the player leaving so return early
     }
 
-    game.setMaxStartingFloor();
-
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerLeftGame,
       data: { username: session.username },
@@ -306,19 +302,16 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   async gameExistsByName(gameName: GameName) {
     const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOption(gameName);
     if (lobbyGameExistsByThisName) {
-      console.log("lobby game exists");
       return true;
     }
     const pendingGameExistsByThisName =
       await this.gameSessionStoreService.getPendingGameSetup(gameName);
     if (pendingGameExistsByThisName) {
-      console.log("pending game exists");
       return true;
     }
     const activeGameExistsByThisName =
       await this.gameSessionStoreService.getActiveGameStatus(gameName);
     if (activeGameExistsByThisName) {
-      console.log("active game exists");
       return true;
     }
     return false;

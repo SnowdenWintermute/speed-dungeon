@@ -87,8 +87,6 @@ export function createClientSequentialEventHandlers(
       const removedPlayer = gameOption.removePlayer(event.username);
 
       for (const character of removedPlayer.charactersRemoved) {
-        gameOption.lowestStartingFloorOptionsBySavedCharacter.delete(character.entityProperties.id);
-
         itemsToRemoveThumbnails.push(
           ...character.combatantProperties.inventory.equipment.map(
             (item) => item.entityProperties.id

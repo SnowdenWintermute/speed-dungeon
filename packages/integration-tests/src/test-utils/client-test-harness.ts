@@ -17,6 +17,7 @@ import {
   CombatantClass,
   CombatantId,
   CombatAttribute,
+  EntityId,
   EntityName,
   GameMode,
   GameName,
@@ -335,12 +336,30 @@ export class ClientTestHarness<T extends BaseClient> {
   }
 
   async createSavedCharacter(name: string, combatantClass: CombatantClass, slotIndex: number) {
-    this.settleIntentResult({
+    return this.settleIntentResult({
       type: ClientIntentType.CreateSavedCharacter,
       data: {
         name: name as EntityName,
         combatantClass,
         slotIndex: slotIndex as CharacterSlotIndex,
+      },
+    });
+  }
+
+  async selectSavedCharacterInProgressionGame(entityId: CombatantId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.SelectSavedCharacterForProgressGame,
+      data: {
+        entityId,
+      },
+    });
+  }
+
+  async selectProgressionGameStartingFloor(floorNumber: number) {
+    return this.settleIntentResult({
+      type: ClientIntentType.SelectProgressionGameStartingFloor,
+      data: {
+        floorNumber,
       },
     });
   }

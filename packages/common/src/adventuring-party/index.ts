@@ -19,7 +19,6 @@ import {
   SerializedOf,
   makePropertiesObservable,
 } from "../serialization/index.js";
-import { MapUtils } from "../utils/map-utils.js";
 import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { invariant } from "../utils/index.js";

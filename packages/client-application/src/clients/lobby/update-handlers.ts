@@ -81,7 +81,7 @@ export function createLobbyUpdateHandlers(
         return;
       }
 
-      const maxStartingFloor = gameOption.getMaxStartingFloor();
+      const { maxStartingFloor } = gameOption;
 
       if (gameOption.selectedStartingFloor > maxStartingFloor) {
         gameOption.selectedStartingFloor = maxStartingFloor;
@@ -113,7 +113,6 @@ export function createLobbyUpdateHandlers(
           return;
         }
 
-        console.log("put player in party", partyName);
         gameOption.putPlayerInParty(partyName, playerName);
       }
     },
@@ -129,6 +128,7 @@ export function createLobbyUpdateHandlers(
       }
 
       game.addCharacterToParty(party, player, deserialized, deserializedPets);
+      console.log("character added to paryt", deserialized.getEntityId());
 
       if (game.mode === GameMode.Progression) {
         clientApplication.sequentialEventProcessor.scheduleEvent({
@@ -152,11 +152,6 @@ export function createLobbyUpdateHandlers(
         pets: character.pets.map((pet) => Combatant.fromSerialized(pet)),
       };
 
-      game.lowestStartingFloorOptionsBySavedCharacter.set(
-        character.combatant.entityProperties.id,
-        character.combatant.combatantProperties.deepestFloorReached
-      );
-
       const partyName = getProgressionGamePartyName(game.name);
       const party = game.adventuringParties.get(partyName);
       if (!party) {
@@ -173,14 +168,7 @@ export function createLobbyUpdateHandlers(
 
       const previouslySelectedCharacterId = player.characterIds[0];
       if (previouslySelectedCharacterId) {
-        const removedCharacterResult = party.removeCharacter(
-          previouslySelectedCharacterId,
-          player,
-          game
-        );
-        game.lowestStartingFloorOptionsBySavedCharacter.delete(
-          removedCharacterResult.entityProperties.id
-        );
+        party.removeCharacter(previouslySelectedCharacterId, player, game);
         party.combatantManager.updateHomePositions();
       }
 

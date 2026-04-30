@@ -101,14 +101,6 @@ export class PartySetupController {
     const profile = await session.requireProfile(this.profileService);
     const defaultSavedCharacter =
       await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
-
-    const { combatant } = defaultSavedCharacter;
-
-    game.lowestStartingFloorOptionsBySavedCharacter.set(
-      combatant.getEntityId(),
-      combatant.combatantProperties.deepestFloorReached
-    );
-
     const partyName = PartySetupController.getProgressionGamePartyName(game.name);
 
     const party = game.getExpectedParty(partyName);
@@ -125,8 +117,6 @@ export class PartySetupController {
       defaultSavedCharacter.pets
     );
 
-    game.setMaxStartingFloor();
-
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.CharacterAddedToParty,
       data: {
@@ -135,6 +125,11 @@ export class PartySetupController {
         pets: defaultSavedCharacter.pets.map((pet) => pet.toSerialized()),
       },
     });
+
+    console.log(
+      "joining Progression game with defaultSavedCharacter",
+      defaultSavedCharacter.combatant.getEntityId()
+    );
 
     return outbox;
   }
@@ -173,7 +168,7 @@ export class PartySetupController {
     game.requireMode(GameMode.Progression);
 
     const { floorNumber } = data;
-    if (floorNumber > game.getMaxStartingFloor()) {
+    if (floorNumber > game.maxStartingFloor) {
       throw new Error(ERROR_MESSAGES.GAME.STARTING_FLOOR_LIMIT);
     }
 

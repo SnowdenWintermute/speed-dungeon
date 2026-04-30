@@ -200,7 +200,7 @@ export class IntegrationTestFixture {
 
   async createTwoClientsInLobbyProgressionGame(
     alphaOptions: ClientTestFixtureSavedCharacterOptions,
-    bravoOptions: ClientTestFixtureSavedCharacterOptions
+    bravoOptions: undefined | ClientTestFixtureSavedCharacterOptions
   ) {
     const alpha = await this.createSingleClientInLobbyProgressionGame(
       "client 1",

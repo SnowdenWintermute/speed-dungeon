@@ -108,12 +108,10 @@ export abstract class SpeedDungeonServer {
 
         // why cast as never: see README.md -> Typed Event Handler Records
         try {
-          console.log("try handle", parsed.data);
           const handlerOutbox = await handlerOption(parsed.data as never, session);
           outbox.pushFromOther(handlerOutbox);
         } catch (error) {
           if (error instanceof Error) {
-            console.log("was error instance:", error.message);
             outbox.pushToConnection(session.connectionId, {
               type: GameStateUpdateType.ErrorMessage,
               data: { message: error.message, clientIntentSequenceId: intentId },

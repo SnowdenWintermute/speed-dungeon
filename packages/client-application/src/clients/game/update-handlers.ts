@@ -74,7 +74,7 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      const maxStartingFloor = gameOption.getMaxStartingFloor();
+      const { maxStartingFloor } = gameOption;
 
       if (gameOption.selectedStartingFloor > maxStartingFloor) {
         gameOption.selectedStartingFloor = maxStartingFloor;

@@ -4,6 +4,7 @@ import {
   GameListEntry,
   UserChannelDisplayData,
   Username,
+  invariant,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
@@ -60,6 +61,12 @@ class ClientApplicationSavedCharacters {
 
   get slots() {
     return this._slots;
+  }
+
+  requireFilledSlot(slotIndex: number) {
+    const slotContents = this.slots[slotIndex];
+    invariant(slotContents !== null && slotContents !== undefined);
+    return slotContents;
   }
 
   setSlots(characters: Record<number, { combatant: Combatant; pets: Combatant[] } | null>) {

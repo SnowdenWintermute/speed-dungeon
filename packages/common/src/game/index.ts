@@ -36,7 +36,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   battles = new Map<EntityId, Battle>();
   private timeStarted: null | number = null;
   timeHandedOff: null | number = null;
-  lowestStartingFloorOptionsBySavedCharacter = new Map<EntityId, number>();
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
   constructor(
@@ -77,9 +76,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
       timeStarted: this.timeStarted,
       timeHandedOff: this.timeHandedOff,
-      lowestStartingFloorOptionsBySavedCharacter: MapUtils.serialize(
-        this.lowestStartingFloorOptionsBySavedCharacter
-      ),
       selectedStartingFloor: this.selectedStartingFloor,
       inputLock: this.inputLock.toSerialized(),
     };
@@ -99,9 +95,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
     result.timeStarted = serialized.timeStarted;
     result.timeHandedOff = serialized.timeHandedOff;
-    result.lowestStartingFloorOptionsBySavedCharacter = MapUtils.deserialize(
-      serialized.lowestStartingFloorOptionsBySavedCharacter
-    );
     result.selectedStartingFloor = serialized.selectedStartingFloor;
     result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
 
@@ -223,17 +216,9 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     const characterId = character.getEntityId();
 
     combatantManager.addCombatant(character, this);
+    player.characterIds.push(character.getEntityId());
 
     party.petManager.setCombatantPets(characterId, pets);
-
-    /// Could move this out of here
-    character.combatantProperties.controlledBy.controllerPlayerName = player.username;
-    player.characterIds.push(characterId);
-    this.lowestStartingFloorOptionsBySavedCharacter.set(
-      characterId,
-      character.combatantProperties.deepestFloorReached
-    );
-    ///
 
     combatantManager.updateHomePositions();
 
@@ -261,7 +246,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     Object.values(characterIds).forEach((characterId) => {
       const removedCharacter = partyLeaving.removeCharacter(characterId, player, this);
       charactersRemoved.push(removedCharacter);
-      this.lowestStartingFloorOptionsBySavedCharacter.delete(characterId);
     });
 
     battleOption?.turnOrderManager.updateTrackers(this, partyLeaving);
@@ -303,7 +287,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
     party.playerUsernames.push(username);
     player.partyName = partyName;
-    console.log("set player party name:", partyName);
   }
 
   /** Returns true if all players are ready to start the game */
@@ -390,24 +373,37 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return this.battles.get(battleIdOption);
   }
 
-  getMaxStartingFloor() {
-    let maxFloor;
-
-    for (const [_, floor] of this.lowestStartingFloorOptionsBySavedCharacter) {
-      if (!maxFloor) maxFloor = floor;
-      else if (maxFloor > floor) maxFloor = floor;
+  /** Deepest floor that each selected character in the party has reached */
+  get maxStartingFloor() {
+    const partyOption = [...this.adventuringParties.values()][0];
+    if (!partyOption) {
+      return 1;
     }
 
-    return maxFloor || 1;
+    const floors = partyOption.combatantManager
+      .getPartyMemberCharacters()
+      .map((c) => c.combatantProperties.deepestFloorReached);
+    const maxFloor = Math.min(...floors);
+
+    return maxFloor;
   }
 
-  setMaxStartingFloor() {
-    const maxStartingFloor = this.getMaxStartingFloor();
-    if (this.selectedStartingFloor > maxStartingFloor) {
-      this.selectedStartingFloor = maxStartingFloor;
+  /** Deepest floor that ANY selected character in the party has reached */
+  get potentialMaxStartingFloor() {
+    const partyOption = [...this.adventuringParties.values()][0];
+    if (!partyOption) {
+      return 1;
     }
-  }
 
+    const maxFloor = Math.max(
+      1,
+      ...partyOption.combatantManager
+        .getPartyMemberCharacters()
+        .map((c) => c.combatantProperties.deepestFloorReached)
+    );
+
+    return maxFloor;
+  }
   getExpectedParty(partyName: PartyName) {
     const result = this.adventuringParties.get(partyName);
     if (!result) {

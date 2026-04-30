@@ -119,9 +119,7 @@ export class CharacterLifecycleController {
     }
 
     const party = session.getExpectedCurrentParty(game);
-    const removedChacter = party.removeCharacter(characterIdToRemoveOption, player, game);
-
-    game.lowestStartingFloorOptionsBySavedCharacter.delete(removedChacter.getEntityId());
+    party.removeCharacter(characterIdToRemoveOption, player, game);
 
     game.addCharacterToParty(
       party,
@@ -129,8 +127,6 @@ export class CharacterLifecycleController {
       Combatant.fromSerialized(savedCharacter.combatant),
       savedCharacter.pets.map((pet) => Combatant.fromSerialized(pet))
     );
-
-    game.setMaxStartingFloor();
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
