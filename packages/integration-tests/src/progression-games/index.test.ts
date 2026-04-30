@@ -1,6 +1,13 @@
-import { TEST_AUTH_SESSION_ID_PLAYER_1, TEST_AUTH_USERNAME_PLAYER_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { CombatantClass, ERROR_MESSAGES, GameMode } from "@speed-dungeon/common";
+import {
+  testCreateProgressionGameRequiresSavedCharacter,
+  testJoinProgressionGameRequiresSavedCharacter,
+} from "./progression-game-requires-saved-character";
+import { testProgressionGameRequiresNotInOtherGame } from "./progression-game-requires-not-in-other-game";
+import {
+  testCreateProgressionGameRequiresAuth,
+  testJoinProgressionGameRequiresAuth,
+} from "./progression-game-requires-auth";
 
 describe("progression game", () => {
   const testFixture = new IntegrationTestFixture();
@@ -12,33 +19,20 @@ describe("progression game", () => {
     ]);
   });
 
-  it("auth user with saved character", async () => {
-    testFixture.resetWithOptions();
-    // connect as guest
-    const client = testFixture.createClient("client 1");
-    await client.connect();
-    // try create progression game
-    await client.lobbyClientHarness.createGame("test-game-a", GameMode.Progression);
-    // get "auth required" error
-    expect(client.clientApplication.errorRecordService.getLastError()?.message).toBe(
-      ERROR_MESSAGES.AUTH.REQUIRED
-    );
-    client.clientApplication.errorRecordService.clear();
-    // become auth
-    await client.reconnectAsAuth(TEST_AUTH_SESSION_ID_PLAYER_1);
-    // try create progression game
-    await client.lobbyClientHarness.createGame("test-game-a", GameMode.Progression);
-    // get "saved character required" error
-    expect(client.clientApplication.errorRecordService.getLastError()?.message).toBe(
-      ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS
-    );
-    client.clientApplication.errorRecordService.clear();
-    // create saved character
-    await client.lobbyClientHarness.createSavedCharacter("character 1", CombatantClass.Warrior, 0);
-    // create progression game
-    await client.lobbyClientHarness.createGame("test-game-a", GameMode.Progression);
-    expect(client.clientApplication.errorRecordService.count).toBe(0);
-    // get full game update
-    expect(client.clientApplication.gameContext.partyOption).toBeDefined();
+  it("create requires auth", async () => {
+    await testCreateProgressionGameRequiresAuth(testFixture);
+  });
+  it("join requires auth", async () => {
+    await testJoinProgressionGameRequiresAuth(testFixture);
+  });
+  it("create requires saved character", async () => {
+    await testCreateProgressionGameRequiresSavedCharacter(testFixture);
+  });
+  it("join requires saved character", async () => {
+    await testJoinProgressionGameRequiresSavedCharacter(testFixture);
+  });
+
+  it("one game per user", async () => {
+    await testProgressionGameRequiresNotInOtherGame(testFixture);
   });
 });

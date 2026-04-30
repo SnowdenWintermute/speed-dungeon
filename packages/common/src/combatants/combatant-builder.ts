@@ -58,6 +58,7 @@ export class CombatantBuilder {
   private _useExplicitAttributes: boolean = false;
   private _unspentAbilityPoints: number = 0;
   private _unspentAttributePoints: number = 0;
+  private _deepestFloorReached: number = 1;
 
   private constructor(
     private mainClass: CombatantClass,
@@ -233,6 +234,11 @@ export class CombatantBuilder {
     return this;
   }
 
+  deepestFloorReached(floor: number) {
+    this._deepestFloorReached = floor;
+    return this;
+  }
+
   appendAllActions() {
     this.ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)
@@ -340,6 +346,8 @@ export class CombatantBuilder {
     if (this._unspentAttributePoints) {
       combatantProperties.attributeProperties.changeUnspentPoints(this._unspentAttributePoints);
     }
+
+    combatantProperties.deepestFloorReached = this._deepestFloorReached;
 
     return combatant;
   }

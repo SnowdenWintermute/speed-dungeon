@@ -224,12 +224,64 @@ export const LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES = {
       .build(idGenerator),
 };
 
+export const DEEP_FLOORS_VISITED_PLAYER_CHARACTER_FIXTURES = {
+  WARRIOR: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.WARRIOR()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .deepestFloorReached(4)
+      .build(idGenerator),
+  ROGUE: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.ROGUE()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .deepestFloorReached(4)
+      .build(idGenerator),
+  MAGE: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.MAGE()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .level(10)
+      .deepestFloorReached(4)
+      .build(idGenerator),
+};
+
 export const BASIC_CHARACTER_FIXTURES: FixedCharacterCreationLists = {
   [CombatantClass.Warrior]: [
     { characterFactory: PLAYER_CHARACTER_FIXTURES.WARRIOR, petFactories: [] },
   ],
   [CombatantClass.Rogue]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE, petFactories: [] }],
   [CombatantClass.Mage]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE, petFactories: [] }],
+};
+
+export const BASIC_CHARACTER_FIXTURES_INCREASING_FLOORS_VISITED: FixedCharacterCreationLists = {
+  [CombatantClass.Warrior]: [
+    { characterFactory: PLAYER_CHARACTER_FIXTURES.WARRIOR, petFactories: [] },
+    { characterFactory: DEEP_FLOORS_VISITED_PLAYER_CHARACTER_FIXTURES.WARRIOR, petFactories: [] },
+  ],
+  [CombatantClass.Rogue]: [
+    { characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE, petFactories: [] },
+    { characterFactory: DEEP_FLOORS_VISITED_PLAYER_CHARACTER_FIXTURES.ROGUE, petFactories: [] },
+  ],
+  [CombatantClass.Mage]: [
+    { characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE, petFactories: [] },
+    { characterFactory: DEEP_FLOORS_VISITED_PLAYER_CHARACTER_FIXTURES.MAGE, petFactories: [] },
+  ],
 };
 
 export const LOW_HP_CHARACTER_FIXTURES: FixedCharacterCreationLists = {

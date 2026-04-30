@@ -12,6 +12,7 @@ import { testReconnectionAfterTimeout } from "./reconnection-after-timeout";
 import { testReconnectionAfterAllPlayersDisconnected } from "./reconnection-after-all-players-disconnected";
 import { testInputsWhileAwaitingPlayers } from "./inputs-while-awaiting-players";
 import { testGuestReconnectionTokenReuse } from "./guest-reconnection-token-reuse";
+import { testNoGuestReconnectionAfterLogin } from "./no-guest-reconnect-after-login";
 
 // describe("guest token reuse", () => {
 //   const testFixture = new IntegrationTestFixture();
@@ -25,6 +26,10 @@ import { testGuestReconnectionTokenReuse } from "./guest-reconnection-token-reus
 
 //   it("guest reconnection token reuse", async () => {
 //     await testGuestReconnectionTokenReuse(testFixture);
+//   });
+
+//   it(`no guest reconnection after login`, async () => {
+//     await testNoGuestReconnectionAfterLogin(testFixture);
 //   });
 // });
 

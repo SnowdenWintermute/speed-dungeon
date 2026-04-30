@@ -4,6 +4,7 @@ import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
   BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
+  CombatantClass,
   IndexedDbAssetStore,
   TestBrowserWebSocketClientConnectionEndpointFactory,
 } from "@speed-dungeon/common";
@@ -69,9 +70,7 @@ export class ClientFixture {
     if (this.clientApplication.gameClientRef.isInitialized) {
       await this.clientApplication.gameClientRef.get().close();
     }
-    console.log("about to reset connection as auth");
     await this.clientApplication.lobbyClientRef.get().resetConnection();
-    console.log("resetConnection as auth completed");
   }
 
   eventually(assertion: () => void | Promise<void>, options = { timeout: 500, interval: 20 }) {
@@ -79,4 +78,8 @@ export class ClientFixture {
       await assertion();
     }, options);
   }
+}
+
+export interface ClientTestFixtureSavedCharacterOptions {
+  characters: { name: string; combatantClass: CombatantClass; slotIndex: number }[];
 }

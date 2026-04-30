@@ -5,6 +5,7 @@ import {
   ExplicitCombatantDungeonTemplate,
   FixedCharacterCreationLists,
   FixedNumberGenerator,
+  GameMode,
   GameServer,
   invariant,
   LobbyServer,
@@ -14,7 +15,7 @@ import {
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
-import { ClientFixture } from "./client-test-fixture.js";
+import { ClientFixture, ClientTestFixtureSavedCharacterOptions } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
@@ -161,6 +162,58 @@ export class IntegrationTestFixture {
     await clientApplication.transitionToGameServer.waitFor();
 
     return client;
+  }
+
+  async createSingleClientWithSavedCharacters(
+    testClientId: string,
+    authId: string,
+    options?: ClientTestFixtureSavedCharacterOptions
+  ) {
+    const client = this.createClient(testClientId, authId);
+    await client.connect();
+    if (options?.characters) {
+      if (options.characters.length < 1) {
+        throw new Error("Should at least specify one character");
+      }
+      for (const { name, combatantClass, slotIndex } of options.characters) {
+        await client.lobbyClientHarness.createSavedCharacter(name, combatantClass, slotIndex);
+      }
+    } else {
+      await client.lobbyClientHarness.createSavedCharacter(
+        "character 1",
+        CombatantClass.Warrior,
+        0
+      );
+    }
+    return client;
+  }
+
+  async createSingleClientInLobbyProgressionGame(
+    testClientId: string,
+    authId: string,
+    options?: ClientTestFixtureSavedCharacterOptions
+  ) {
+    const client = await this.createSingleClientWithSavedCharacters(testClientId, authId, options);
+    await client.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Progression);
+    return client;
+  }
+
+  async createTwoClientsInLobbyProgressionGame(
+    alphaOptions: ClientTestFixtureSavedCharacterOptions,
+    bravoOptions: ClientTestFixtureSavedCharacterOptions
+  ) {
+    const alpha = await this.createSingleClientInLobbyProgressionGame(
+      "client 1",
+      TEST_AUTH_SESSION_ID_PLAYER_1,
+      alphaOptions
+    );
+    const bravo = await this.createSingleClientWithSavedCharacters(
+      "client 2",
+      TEST_AUTH_SESSION_ID_PLAYER_2,
+      bravoOptions
+    );
+    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+    return { alpha, bravo };
   }
 
   async createTwoClientsInLobbyGame(options?: { auth?: boolean }) {
