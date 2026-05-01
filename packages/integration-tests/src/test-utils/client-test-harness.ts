@@ -346,6 +346,15 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
+  async deleteSavedCharacter(entityId: CombatantId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.DeleteSavedCharacter,
+      data: {
+        entityId,
+      },
+    });
+  }
+
   async selectSavedCharacterInProgressionGame(entityId: CombatantId) {
     return this.settleIntentResult({
       type: ClientIntentType.SelectSavedCharacterForProgressGame,

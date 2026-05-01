@@ -4,7 +4,7 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 export async function testPlayerSeesOwnDefaultProgressionGameCharacter(
   testFixture: IntegrationTestFixture
 ) {
-  testFixture.resetWithOptions();
+  await testFixture.resetWithOptions();
   const alpha = await testFixture.createSingleClientInLobbyProgressionGame(
     "client 1",
     TEST_AUTH_SESSION_ID_PLAYER_1

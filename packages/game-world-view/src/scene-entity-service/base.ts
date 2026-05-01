@@ -68,6 +68,7 @@ export abstract class SceneEntityManager<T extends SceneEntity> {
   clearAll() {
     for (const [id, _sceneEntity] of this.sceneEntities) {
       this.unregister(id, CleanupMode.Immediate);
+      console.log("unregistered:", id);
     }
   }
 }

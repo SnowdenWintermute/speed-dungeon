@@ -9,7 +9,7 @@ import {
 export async function testProgressionGameStartingFloorSelection(
   testFixture: IntegrationTestFixture
 ) {
-  testFixture.resetWithOptions(undefined, BASIC_CHARACTER_FIXTURES_INCREASING_FLOORS_VISITED);
+  await testFixture.resetWithOptions(undefined, BASIC_CHARACTER_FIXTURES_INCREASING_FLOORS_VISITED);
   const { alpha, bravo } = await testFixture.createTwoClientsInLobbyProgressionGame(
     {
       characters: [

@@ -5,7 +5,7 @@ import { CombatantClass, ERROR_MESSAGES, GameMode } from "@speed-dungeon/common"
 export async function testProgressionGameRequiresNotInOtherGame(
   testFixture: IntegrationTestFixture
 ) {
-  testFixture.resetWithOptions();
+  await testFixture.resetWithOptions();
   const alpha = testFixture.createClient("client 1", TEST_AUTH_SESSION_ID_PLAYER_1);
   await alpha.connect();
   await alpha.lobbyClientHarness.createSavedCharacter("character 1", CombatantClass.Warrior, 0);

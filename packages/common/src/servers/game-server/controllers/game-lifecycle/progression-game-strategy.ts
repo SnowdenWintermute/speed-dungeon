@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { EntityId } from "../../../../aliases.js";
+import { MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD } from "../../../../app-consts.js";
 import { Combatant } from "../../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
@@ -89,7 +90,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
       const { previousRank, newRank } =
         await this.rankedLadderService.updateOrCreateCharacterLevelEntry(id, totalExp);
 
-      if (newRank === previousRank || newRank >= 10) {
+      if (newRank === previousRank || newRank >= MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD) {
         // not interesting enough to tell anyone about it
         continue;
       }

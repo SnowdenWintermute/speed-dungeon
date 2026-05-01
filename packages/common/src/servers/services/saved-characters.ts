@@ -130,7 +130,7 @@ export class SavedCharactersService {
     const slotOption = slots[slotIndex];
 
     if (slotOption === undefined) {
-      throw new Error("Expected character slot missing");
+      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
     }
 
     const slotIsFilled = slotOption.characterId !== null;
@@ -149,7 +149,7 @@ export class SavedCharactersService {
       }
     }
 
-    throw new Error("Expected character slot missing");
+    throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
   }
 
   async saveCharacterInSlot(

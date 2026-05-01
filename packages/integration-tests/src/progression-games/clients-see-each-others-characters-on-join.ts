@@ -3,7 +3,7 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 export async function testProgressionGamePlayersSeeEachOthersCharactersOnJoin(
   testFixture: IntegrationTestFixture
 ) {
-  testFixture.resetWithOptions();
+  await testFixture.resetWithOptions();
   const { alpha, bravo } = await testFixture.createTwoClientsInLobbyProgressionGame(
     undefined,
     undefined

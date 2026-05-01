@@ -1,6 +1,6 @@
 import { Scene, Engine, Vector3, ArcRotateCamera, Color4 } from "@babylonjs/core";
 import "@babylonjs/loaders";
-import { IdGenerator, IdGeneratorRandom, invariant } from "@speed-dungeon/common";
+import { IdGeneratorRandom, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
 import { MaterialManager } from "./materials/material-manager";
@@ -112,6 +112,7 @@ export class GameWorldView {
   }
 
   dispose() {
+    this.sceneEntityService.clearAll();
     this.scene.dispose();
     this.engine.dispose();
   }

@@ -14,20 +14,19 @@ export const SceneManager = observer(() => {
   const clientApplication = useClientApplication();
 
   useEffect(() => {
-    if (
-      canvasRef.current &&
-      debugRef.current !== null &&
-      !clientApplication.gameWorldView?.initialized
-    ) {
+    if (canvasRef.current && debugRef.current !== null) {
       const gameWorldView = new GameWorldView(canvasRef.current);
-      canvasRef.current.addEventListener("webglcontextlost", (e) => {
-        console.error("context lost!", e);
-      });
       clientApplication.setGameWorldView(gameWorldView);
       gameWorldView.initialize(clientApplication, debugRef);
       clientApplication.setReplayManagerTickScheduler(
         createBabylonScheduler(gameWorldView.engine, gameWorldView.scene)
       );
+
+      gameWorldView.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels({});
+
+      canvasRef.current.addEventListener("webglcontextlost", (e) => {
+        console.error("context lost!", e);
+      });
     }
     resizeHandlerRef.current = function () {
       clientApplication.gameWorldView?.engine.resize();
@@ -38,6 +37,9 @@ export const SceneManager = observer(() => {
     return () => {
       if (resizeHandlerRef.current) {
         window.removeEventListener("resize", resizeHandlerRef.current);
+      }
+      if (clientApplication.gameWorldView) {
+        clientApplication.gameWorldView.dispose();
       }
     };
   }, [clientApplication]);

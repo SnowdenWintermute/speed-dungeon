@@ -2,7 +2,7 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { CombatantClass, GameStateUpdateType } from "@speed-dungeon/common";
 
 export async function testProgressionGameSelectCharacterSync(testFixture: IntegrationTestFixture) {
-  testFixture.resetWithOptions();
+  await testFixture.resetWithOptions();
   const { alpha, bravo } = await testFixture.createTwoClientsInLobbyProgressionGame(
     {
       characters: [
