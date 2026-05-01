@@ -89,7 +89,6 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const inLobby = gameOption && gameOption.getTimeStarted() === null;
     const inGame = gameOption && gameOption.getTimeStarted() !== null;
     if (inLobby && gameOption.mode === GameMode.Progression) {
-      console.log("in lobby of progressio game");
       this.setProgressionGameLobbyCombatantPositions(gameOption);
       return this.getProgressionGameLobbyCombatants(gameOption);
     } else if (inGame) {

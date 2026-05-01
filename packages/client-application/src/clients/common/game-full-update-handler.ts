@@ -23,6 +23,20 @@ export function gameFullUpdateHandler(
     });
   }
 
+  const currentSessionHttpResponseTracker =
+    clientApplication.uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
+  const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
+  if (deserializedGame === null) {
+    clientApplication.gameContext.clearGame();
+    console.log("cleared game");
+    if (isLoggedIn) {
+      clientApplication.gameWorldView?.environment.groundPlane.drawCharacterSlots();
+    }
+  } else {
+    clientApplication.gameContext.setGame(deserializedGame);
+  }
+
+  console.log("dispatched sync");
   clientApplication.sequentialEventProcessor.scheduleEvent({
     type: ClientSequentialEventType.SynchronizeCombatantModels,
     data: { softCleanup: true, placeInHomePositions: true },
@@ -32,19 +46,6 @@ export function gameFullUpdateHandler(
     type: ImageGenerationRequestType.ClearState,
     data: undefined,
   });
-
-  const currentSessionHttpResponseTracker =
-    clientApplication.uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
-
-  if (deserializedGame === null) {
-    clientApplication.gameContext.clearGame();
-    if (isLoggedIn) {
-      clientApplication.gameWorldView?.environment.groundPlane.drawCharacterSlots();
-    }
-  } else {
-    clientApplication.gameContext.setGame(deserializedGame);
-  }
 
   clientApplication.actionMenu.clearStack();
 }

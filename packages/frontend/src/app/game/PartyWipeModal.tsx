@@ -1,6 +1,6 @@
 import React from "react";
 import ButtonBasic from "../components/atoms/ButtonBasic";
-import { AdventuringParty, ClientIntentType } from "@speed-dungeon/common";
+import { AdventuringParty } from "@speed-dungeon/common";
 import Divider from "../components/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
 import { useClientApplication } from "@/hooks/create-client-application-context";
@@ -11,12 +11,7 @@ export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) 
   const clientApplication = useClientApplication();
 
   function leaveGame() {
-    clientApplication.gameClientRef.get().dispatchIntent({
-      type: ClientIntentType.LeaveGame,
-      data: undefined,
-    });
-    clientApplication.gameContext.clearGame();
-    clientApplication.eventLogStore.clear();
+    clientApplication.gameClientRef.get().leaveGame();
   }
 
   const leaveGameHotkey = HOTKEYS.SIDE_1;
