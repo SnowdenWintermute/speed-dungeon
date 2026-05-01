@@ -86,9 +86,10 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
 
   private getCombatantsInGameWorld() {
     const { gameOption } = this.clientApplication.gameContext;
-    const inLobby = gameOption && gameOption.getTimeStarted() !== null;
+    const inLobby = gameOption && gameOption.getTimeStarted() === null;
     const inGame = gameOption && gameOption.getTimeStarted() !== null;
     if (inLobby && gameOption.mode === GameMode.Progression) {
+      console.log("in lobby of progressio game");
       this.setProgressionGameLobbyCombatantPositions(gameOption);
       return this.getProgressionGameLobbyCombatants(gameOption);
     } else if (inGame) {
@@ -108,6 +109,13 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { transformProperties } = combatant.combatantProperties;
     const homeLocation = transformProperties.getHomePosition();
     const homeRotation = transformProperties.homeRotation;
+
+    console.log(
+      "syncing",
+      combatant.getEntityId(),
+      "home position",
+      transformProperties.getHomePosition()
+    );
 
     if (!sceneEntityOption) {
       this.loadingStates.setEntityLoading(entityId);

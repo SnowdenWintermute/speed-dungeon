@@ -34,7 +34,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   playerUsernamesAwaitingReconnection = new Set<Username>();
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
-  timeOfWipe: null | number = null;
+  _timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
   inputLock = new TimedLock();
 
@@ -42,6 +42,13 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     public id: string,
     public name: PartyName
   ) {}
+
+  get timeOfWipe() {
+    return this._timeOfWipe;
+  }
+  set timeOfWipe(value: number | null) {
+    this._timeOfWipe = value;
+  }
 
   makeObservable() {
     makeAutoObservable(this);
@@ -65,7 +72,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       playerUsernames: this.playerUsernames,
       currentRoom: this.currentRoom.toSerialized(),
       battleId: this.battleId,
-      timeOfWipe: this.timeOfWipe,
+      _timeOfWipe: this._timeOfWipe,
       timeOfEscape: this.timeOfEscape,
       inputLock: this.inputLock.toSerialized(),
     };
@@ -83,7 +90,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     result.playerUsernames = serialized.playerUsernames;
     result.currentRoom = DungeonRoom.fromSerialized(serialized.currentRoom);
     result.battleId = serialized.battleId;
-    result.timeOfWipe = serialized.timeOfWipe;
+    result._timeOfWipe = serialized._timeOfWipe;
     result.timeOfEscape = serialized.timeOfEscape;
     result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
     result.initialize();

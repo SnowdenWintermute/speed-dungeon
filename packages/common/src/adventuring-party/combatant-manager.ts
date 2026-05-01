@@ -2,10 +2,6 @@ import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { CombatantId, EntityId, EntityName } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
-import {
-  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
-  COMBATANT_POSITION_SPACING_SIDE,
-} from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
@@ -399,6 +395,12 @@ export class CombatantManager
         {
           flipSide: false,
         }
+      );
+
+      console.log(
+        "set home position:",
+        combatant.combatantProperties.transformProperties.getHomePosition(),
+        combatant.getEntityId()
       );
     });
 

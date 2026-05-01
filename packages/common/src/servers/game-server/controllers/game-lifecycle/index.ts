@@ -55,6 +55,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     const deserializedGame = SpeedDungeonGame.fromSerialized(pendingGameSetupOption.game);
     deserializedGame.initializeBattlesOnDeserialization();
+    for (const [_, party] of deserializedGame.adventuringParties) {
+      party.combatantManager.updateHomePositions();
+    }
     const newGame = deserializedGame;
 
     for (const [_, player] of newGame.players) {

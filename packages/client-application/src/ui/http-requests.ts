@@ -5,11 +5,19 @@ export class HttpRequestTracker {
   constructor() {
     makeAutoObservable(this);
   }
-  data: null | string | { [key: string]: any } = null;
+  _data: null | string | { [key: string]: any } = null;
   loading: boolean = true;
   statusCode: number = 0;
   errors: null | { message: string; field?: string }[] = null;
   ok: boolean = false;
+
+  get data() {
+    return this._data;
+  }
+
+  set data(value: null | string | { [key: string]: any }) {
+    this._data = value;
+  }
 
   setStatusCode(newCode: number) {
     this.statusCode = newCode;
