@@ -14,8 +14,9 @@ export const SceneManager = observer(() => {
   const clientApplication = useClientApplication();
 
   useEffect(() => {
+    let gameWorldView: undefined | GameWorldView;
     if (canvasRef.current && debugRef.current !== null) {
-      const gameWorldView = new GameWorldView(canvasRef.current);
+      gameWorldView = new GameWorldView(canvasRef.current);
       clientApplication.setGameWorldView(gameWorldView);
       gameWorldView.initialize(clientApplication, debugRef);
       clientApplication.setReplayManagerTickScheduler(
@@ -38,8 +39,8 @@ export const SceneManager = observer(() => {
       if (resizeHandlerRef.current) {
         window.removeEventListener("resize", resizeHandlerRef.current);
       }
-      if (clientApplication.gameWorldView) {
-        clientApplication.gameWorldView.dispose();
+      if (gameWorldView) {
+        gameWorldView.dispose();
       }
     };
   }, [clientApplication]);

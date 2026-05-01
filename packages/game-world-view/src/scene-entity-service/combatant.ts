@@ -16,6 +16,7 @@ import { GameWorldView } from "..";
 import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { CHARACTER_SLOT_SPACING } from "@/game-world-view/game-world-view-consts";
 import { SceneEntityManager } from "./base";
+import { isExpectedSceneDisposedError } from "../utils/load-asset-container-into-scene";
 
 export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSceneEntity> {
   sceneEntities = new Map<EntityId, CombatantSceneEntity>();
@@ -143,11 +144,17 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       modelSpawnPromises.push(
         this.spawnOrSyncCombatantModel(combatant, {
           placeInHomePosition: options.placeInHomePositions,
+        }).catch((error) => {
+          if (!isExpectedSceneDisposedError(error)) {
+            console.error("error spawning model", error);
+          }
+          return undefined;
         })
       );
     }
 
     const spawnResults = await Promise.all(modelSpawnPromises);
+    if (this.gameWorldView.scene.isDisposed) return;
 
     for (const result of spawnResults) {
       if (result === undefined) {

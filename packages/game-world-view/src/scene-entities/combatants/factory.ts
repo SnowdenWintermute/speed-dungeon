@@ -9,7 +9,10 @@ import {
 } from "@speed-dungeon/common";
 import { GameWorldView } from "../..";
 import { CombatantSceneEntity } from ".";
-import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
+import {
+  SCENE_DISPOSED_BEFORE_ASSET_LOAD,
+  loadAssetContainerIntoScene,
+} from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ClientApplication } from "@/client-application";
 import { MONSTER_SCALING_SIZES } from "./species-scaling-sizes";
 import { AssetContainer, Color3, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
@@ -40,6 +43,9 @@ export class CombatantSceneEntityFactory {
     const skeletonPath = SKELETON_FILE_PATHS[combatantProperties.combatantSpecies] as AssetId;
 
     const skeleton = await loadAssetContainerIntoScene(this.assetService, this.scene, skeletonPath);
+    if (this.scene.isDisposed) {
+      throw new Error(SCENE_DISPOSED_BEFORE_ASSET_LOAD);
+    }
 
     const sceneEntity = new CombatantSceneEntity(
       this.gameWorldView,
@@ -49,6 +55,9 @@ export class CombatantSceneEntityFactory {
     );
 
     await this.attachModularParts(sceneEntity);
+    if (this.scene.isDisposed) {
+      throw new Error(SCENE_DISPOSED_BEFORE_ASSET_LOAD);
+    }
 
     this.setScaling(sceneEntity, combatantProperties);
 
