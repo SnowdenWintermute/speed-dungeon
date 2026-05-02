@@ -11,6 +11,7 @@ export class ExperiencePoints implements ReactiveNode, Serializable {
   private requiredForNextLevel: null | number = XP_REQUIRED_TO_REACH_LEVEL_2;
 
   makeObservable() {
+    console.log("made ExperiencePoints observable");
     makeAutoObservable(this);
   }
 

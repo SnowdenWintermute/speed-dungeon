@@ -14,84 +14,84 @@ import { testInputsWhileAwaitingPlayers } from "./inputs-while-awaiting-players"
 import { testGuestReconnectionTokenReuse } from "./guest-reconnection-token-reuse";
 import { testNoGuestReconnectionAfterLogin } from "./no-guest-reconnect-after-login";
 
-// describe("guest token reuse", () => {
-//   const testFixture = new IntegrationTestFixture();
+describe("guest token reuse", () => {
+  const testFixture = new IntegrationTestFixture();
 
-//   afterEach(async () => {
-//     await Promise.all([
-//       testFixture.lobbyServer.closeTransportServer(),
-//       testFixture.gameServer.closeTransportServer(),
-//     ]);
-//   });
+  afterEach(async () => {
+    await Promise.all([
+      testFixture.lobbyServer.closeTransportServer(),
+      testFixture.gameServer.closeTransportServer(),
+    ]);
+  });
 
-//   it("guest reconnection token reuse", async () => {
-//     await testGuestReconnectionTokenReuse(testFixture);
-//   });
+  it("guest reconnection token reuse", async () => {
+    await testGuestReconnectionTokenReuse(testFixture);
+  });
 
-//   it(`no guest reconnection after login`, async () => {
-//     await testNoGuestReconnectionAfterLogin(testFixture);
-//   });
-// });
+  it(`no guest reconnection after login`, async () => {
+    await testNoGuestReconnectionAfterLogin(testFixture);
+  });
+});
 
 describe.each([
   { useAuthenticatedUsers: true, name: "auth users" },
   { useAuthenticatedUsers: false, name: "guest users" },
 ])(`game server reconnection`, ({ useAuthenticatedUsers, name }) => {
-  it("placeholder", () => {});
-  // const testFixture = new IntegrationTestFixture();
+  // it("placeholder", () => {});
+  const testFixture = new IntegrationTestFixture();
 
-  // afterEach(async () => {
-  //   await Promise.all([
-  //     testFixture.lobbyServer.closeTransportServer(),
-  //     testFixture.gameServer.closeTransportServer(),
-  //   ]);
-  // });
+  afterEach(async () => {
+    await Promise.all([
+      testFixture.lobbyServer.closeTransportServer(),
+      testFixture.gameServer.closeTransportServer(),
+    ]);
+  });
 
-  // it(`${name} reconnection success`, async () => {
-  //   await testReconnectionSuccess(testFixture, { useAuthenticatedUsers });
-  // });
+  it(`${name} reconnection success`, async () => {
+    await testReconnectionSuccess(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("reconnection timeout game cleanup", async () => {
-  //   await testReconnectionTimeoutGameCleanup(testFixture, { useAuthenticatedUsers });
-  // });
+  it("reconnection timeout game cleanup", async () => {
+    await testReconnectionTimeoutGameCleanup(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it(`${name} intentional leave game`, async () => {
-  //   await testIntentionalLeaveGame(testFixture, { useAuthenticatedUsers });
-  // });
+  it(`${name} intentional leave game`, async () => {
+    await testIntentionalLeaveGame(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it(`${name} reconnection after all players disconnect`, async () => {
-  //   await testReconnectionAfterAllPlayersDisconnected(testFixture, { useAuthenticatedUsers });
-  // });
+  it(`${name} reconnection after all players disconnect`, async () => {
+    await testReconnectionAfterAllPlayersDisconnected(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("reconnection during wipe replay", async () => {
-  //   await testReconnectionDuringWipeReplay(testFixture, { useAuthenticatedUsers });
-  // });
+  it("reconnection during wipe replay", async () => {
+    await testReconnectionDuringWipeReplay(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("reconnection during victory replay", async () => {
-  //   await testReconnectionDuringVictoryReplay(testFixture, { useAuthenticatedUsers });
-  // });
+  it("reconnection during victory replay", async () => {
+    await testReconnectionDuringVictoryReplay(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("reconnection during action replay", async () => {
-  //   await testReconnectionDuringActionReplay(testFixture, { useAuthenticatedUsers });
-  // });
+  it("reconnection during action replay", async () => {
+    await testReconnectionDuringActionReplay(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("session claim token reuse", async () => {
-  //   await testSessionClaimTokenReuse(testFixture, { useAuthenticatedUsers });
-  // });
+  it("session claim token reuse", async () => {
+    await testSessionClaimTokenReuse(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("invalid session claim token", async () => {
-  //   await testInvalidSessionClaimToken(testFixture, { useAuthenticatedUsers });
-  // });
+  it("invalid session claim token", async () => {
+    await testInvalidSessionClaimToken(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("session claim token required", async () => {
-  //   await testSessionClaimTokenRequired(testFixture, { useAuthenticatedUsers });
-  // });
+  it("session claim token required", async () => {
+    await testSessionClaimTokenRequired(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it(`${name} reconnection timeout`, async () => {
-  //   await testReconnectionAfterTimeout(testFixture, { useAuthenticatedUsers });
-  // });
+  it(`${name} reconnection timeout`, async () => {
+    await testReconnectionAfterTimeout(testFixture, { useAuthenticatedUsers });
+  });
 
-  // it("inputs while awaiting players", async () => {
-  //   await testInputsWhileAwaitingPlayers(testFixture, { useAuthenticatedUsers });
-  // });
+  it("inputs while awaiting players", async () => {
+    await testInputsWhileAwaitingPlayers(testFixture, { useAuthenticatedUsers });
+  });
 });

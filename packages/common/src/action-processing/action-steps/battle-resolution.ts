@@ -47,8 +47,6 @@ export class BattleResolutionActionResolutionStep extends ActionResolutionStep {
           revivedCharacterIds: resolution.revivedCharacterIds,
           actionEntitiesRemoved: resolution.actionEntitiesRemoved,
         };
-
-        // collectedBranchingActions.push(...resolution.branchingActions);
       }
     }
 

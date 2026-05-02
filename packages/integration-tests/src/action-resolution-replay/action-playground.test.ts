@@ -25,113 +25,113 @@ import { testRangedCounterattackThroughFirewallIgnite } from "./counterattack/ra
 import { testRangedCounterattackThroughFirewallIncinerate } from "./counterattack/ranged-counterattack-through-firewall-incinerate.js";
 
 describe("action playground", () => {
-  it("placeholder", () => {});
+  // it("placeholder", () => {});
 
-  // const testFixture = new IntegrationTestFixture();
+  const testFixture = new IntegrationTestFixture();
 
-  // afterEach(async () => {
-  //   await Promise.all([
-  //     testFixture.lobbyServer.closeTransportServer(),
-  //     testFixture.gameServer.closeTransportServer(),
-  //   ]);
-  // });
+  afterEach(async () => {
+    await Promise.all([
+      testFixture.lobbyServer.closeTransportServer(),
+      testFixture.gameServer.closeTransportServer(),
+    ]);
+  });
 
-  // it("ranged counterattack through firewall incinerate", async () => {
-  //   await testRangedCounterattackThroughFirewallIncinerate(testFixture);
-  // });
+  it("ranged counterattack through firewall incinerate", async () => {
+    await testRangedCounterattackThroughFirewallIncinerate(testFixture);
+  });
 
-  // it("ranged counterattack through firewall ignite", async () => {
-  //   await testRangedCounterattackThroughFirewallIgnite(testFixture);
-  // });
+  it("ranged counterattack through firewall ignite", async () => {
+    await testRangedCounterattackThroughFirewallIgnite(testFixture);
+  });
 
-  // it("die from counterattack triggered explosion", async () => {
-  //   await testDieFromCounterattackTriggeredExplosion(testFixture);
-  // });
+  it("die from counterattack triggered explosion", async () => {
+    await testDieFromCounterattackTriggeredExplosion(testFixture);
+  });
 
-  // it("ensnare debuff", async () => {
-  //   await testEnsnareDebuffOnFlyer(testFixture);
-  // });
+  it("ensnare debuff", async () => {
+    await testEnsnareDebuffOnFlyer(testFixture);
+  });
 
-  // it("ice burst crossing firewall", async () => {
-  //   await testIceBurstTriggeredByFirewall(testFixture);
-  // });
+  it("ice burst crossing firewall", async () => {
+    await testIceBurstTriggeredByFirewall(testFixture);
+  });
 
-  // it("ice burst applies primed for ice burst", async () => {
-  //   await testIceBurstAppliesPrimedForIceBurst(testFixture);
-  // });
+  it("ice burst applies primed for ice burst", async () => {
+    await testIceBurstAppliesPrimedForIceBurst(testFixture);
+  });
 
-  // it("ice burst on web removed at battle end", async () => {
-  //   await testIceBurstOnWebRemovedAtBattleEnd(testFixture);
-  // });
+  it("ice burst on web removed at battle end", async () => {
+    await testIceBurstOnWebRemovedAtBattleEnd(testFixture);
+  });
 
-  // it("combatant dies while primed for ice burst", async () => {
-  //   // if killed with primed for ice burst as last monster, don't error
-  //   await testCombatantDiesWhilePrimedForIceBurst(testFixture);
-  // });
+  it("combatant dies while primed for ice burst", async () => {
+    // if killed with primed for ice burst as last monster, don't error
+    await testCombatantDiesWhilePrimedForIceBurst(testFixture);
+  });
 
-  // it("tamed pet attacks monsters", async () => {
-  //   await testTamedPetHealsAlliesAttacksMonsters(testFixture);
-  // });
+  it("tamed pet attacks monsters", async () => {
+    await testTamedPetHealsAlliesAttacksMonsters(testFixture);
+  });
 
-  // // PETS
-  // it("pet ai assist", async () => {
-  //   await testPetAiAssist(testFixture);
-  // });
+  // PETS
+  it("pet ai assist", async () => {
+    await testPetAiAssist(testFixture);
+  });
 
-  // it("pet ai kill", async () => {
-  //   await testPetAiKill(testFixture);
-  // });
+  it("pet ai kill", async () => {
+    await testPetAiKill(testFixture);
+  });
 
-  // it("tame pet slots", async () => {
-  //   await testPetSlotLimitations(testFixture);
-  // });
+  it("tame pet slots", async () => {
+    await testPetSlotLimitations(testFixture);
+  });
 
-  // it("summoned pet turn order", async () => {
-  //   await testSummonedPetTurnOrder(testFixture);
-  // });
+  it("summoned pet turn order", async () => {
+    await testSummonedPetTurnOrder(testFixture);
+  });
 
-  // it("summoned pet tickable conditions", async () => {
-  //   await testSummonedPetTickableConditions(testFixture);
-  // });
+  it("summoned pet tickable conditions", async () => {
+    await testSummonedPetTickableConditions(testFixture);
+  });
 
-  // it("dismiss pet removes web", async () => {
-  //   await testDismissPetRemovesWeb(testFixture);
-  // });
+  it("dismiss pet removes web", async () => {
+    await testDismissPetRemovesWeb(testFixture);
+  });
 
-  // it("taming removes web", async () => {
-  //   await testTamingRemovesWeb(testFixture);
-  // });
+  it("taming removes web", async () => {
+    await testTamingRemovesWeb(testFixture);
+  });
 
-  // it("only tame tameable damaged combatants", async () => {
-  //   await testOnlyTameDamagedTameableCombatants(testFixture);
-  // });
+  it("only tame tameable damaged combatants", async () => {
+    await testOnlyTameDamagedTameableCombatants(testFixture);
+  });
 
-  // // FIREWALL
-  // it("firewall ignites projectiles", async () => {
-  //   await testFirewallIgnitesProjectiles(testFixture);
-  // });
+  // FIREWALL
+  it("firewall ignites projectiles", async () => {
+    await testFirewallIgnitesProjectiles(testFixture);
+  });
 
-  // it("firewall incinerates projectiles", async () => {
-  //   await testFirewallIncineratesProjectiles(testFixture);
-  // });
+  it("firewall incinerates projectiles", async () => {
+    await testFirewallIncineratesProjectiles(testFixture);
+  });
 
-  // it("death in firewall on return", async () => {
-  //   await deathInFirewallOnMeleeReturnHome(testFixture);
-  // });
+  it("death in firewall on return", async () => {
+    await deathInFirewallOnMeleeReturnHome(testFixture);
+  });
 
-  // it("death in firewall on approach", async () => {
-  //   await deathInFirewallOnMeleeApproach(testFixture);
-  // });
+  it("death in firewall on approach", async () => {
+    await deathInFirewallOnMeleeApproach(testFixture);
+  });
 
-  // it("firewall dissipates after explore", async () => {
-  //   await testFirewallDissipateOnExplore(testFixture);
-  // });
+  it("firewall dissipates after explore", async () => {
+    await testFirewallDissipateOnExplore(testFixture);
+  });
 
-  // it("firewall deteriorates", async () => {
-  //   await testFirewallDeteriorates(testFixture);
-  // });
+  it("firewall deteriorates", async () => {
+    await testFirewallDeteriorates(testFixture);
+  });
 
-  // it("firewall stoked by recast", async () => {
-  //   await testFirewallStokedOnRecast(testFixture);
-  // });
+  it("firewall stoked by recast", async () => {
+    await testFirewallStokedOnRecast(testFixture);
+  });
 });

@@ -28,6 +28,7 @@ export class ClassProgressionProperties
 
   makeObservable() {
     makeAutoObservable(this);
+    this.experiencePoints.makeObservable();
   }
 
   toSerialized() {

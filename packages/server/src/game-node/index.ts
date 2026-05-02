@@ -29,6 +29,7 @@ import {
   TEST_DUNGEON_TWO_ONE_HP_WOLVES,
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
+  TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -70,7 +71,6 @@ export class GameServerNode {
       gameSessionStoreService
     );
 
-    // const basicRng = new BasicRandomNumberGenerator();
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
     const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
       counterAttack: fixedRngMinRoll,
@@ -79,6 +79,7 @@ export class GameServerNode {
       shieldBlock: fixedRngMinRoll,
       spellResist: fixedRngMinRoll,
     });
+    // const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
 
     this._server = new GameServer(
       name,
@@ -95,8 +96,9 @@ export class GameServerNode {
     );
 
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
-    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_ONE_HP_WOLVES);
+    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_MANTAS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL);

@@ -109,13 +109,6 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const homeLocation = transformProperties.getHomePosition();
     const homeRotation = transformProperties.homeRotation;
 
-    console.log(
-      "syncing",
-      combatant.getEntityId(),
-      "home position",
-      transformProperties.getHomePosition()
-    );
-
     if (!sceneEntityOption) {
       this.loadingStates.setEntityLoading(entityId);
       return this.factory.create(combatant, {

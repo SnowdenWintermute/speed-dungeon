@@ -14,41 +14,41 @@ import { testProgressionGameSelectCharacterSync } from "./select-character-clien
 import { testProgressionGameStartingFloorSelection } from "./starting-floor-selection";
 
 describe("progression game", () => {
-  it("placeholder", () => {});
-  // const testFixture = new IntegrationTestFixture();
+  // it("placeholder", () => {});
+  const testFixture = new IntegrationTestFixture();
 
-  // afterEach(async () => {
-  //   await Promise.all([
-  //     testFixture.lobbyServer.closeTransportServer(),
-  //     testFixture.gameServer.closeTransportServer(),
-  //   ]);
-  // });
+  afterEach(async () => {
+    await Promise.all([
+      testFixture.lobbyServer.closeTransportServer(),
+      testFixture.gameServer.closeTransportServer(),
+    ]);
+  });
 
-  // it("progression game starting floor", async () => {
-  //   await testProgressionGameStartingFloorSelection(testFixture);
-  // });
-  // it("progression game other client sees character selection", async () => {
-  //   await testProgressionGameSelectCharacterSync(testFixture);
-  // });
-  // it("players sees each other's progression game characters on player join", async () => {
-  //   await testProgressionGamePlayersSeeEachOthersCharactersOnJoin(testFixture);
-  // });
-  // it("player sees own progression game character", async () => {
-  //   await testPlayerSeesOwnDefaultProgressionGameCharacter(testFixture);
-  // });
-  // it("create requires auth", async () => {
-  //   await testCreateProgressionGameRequiresAuth(testFixture);
-  // });
-  // it("join requires auth", async () => {
-  //   await testJoinProgressionGameRequiresAuth(testFixture);
-  // });
-  // it("create requires saved character", async () => {
-  //   await testCreateProgressionGameRequiresSavedCharacter(testFixture);
-  // });
-  // it("join requires saved character", async () => {
-  //   await testJoinProgressionGameRequiresSavedCharacter(testFixture);
-  // });
-  // it("one game per user", async () => {
-  //   await testProgressionGameRequiresNotInOtherGame(testFixture);
-  // });
+  it("progression game starting floor", async () => {
+    await testProgressionGameStartingFloorSelection(testFixture);
+  });
+  it("progression game other client sees character selection", async () => {
+    await testProgressionGameSelectCharacterSync(testFixture);
+  });
+  it("players sees each other's progression game characters on player join", async () => {
+    await testProgressionGamePlayersSeeEachOthersCharactersOnJoin(testFixture);
+  });
+  it("player sees own progression game character", async () => {
+    await testPlayerSeesOwnDefaultProgressionGameCharacter(testFixture);
+  });
+  it("create requires auth", async () => {
+    await testCreateProgressionGameRequiresAuth(testFixture);
+  });
+  it("join requires auth", async () => {
+    await testJoinProgressionGameRequiresAuth(testFixture);
+  });
+  it("create requires saved character", async () => {
+    await testCreateProgressionGameRequiresSavedCharacter(testFixture);
+  });
+  it("join requires saved character", async () => {
+    await testJoinProgressionGameRequiresSavedCharacter(testFixture);
+  });
+  it("one game per user", async () => {
+    await testProgressionGameRequiresNotInOtherGame(testFixture);
+  });
 });

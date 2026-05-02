@@ -43,10 +43,10 @@ export const ValueBarsAndFocusButton = observer(
 
     const { experiencePoints } = combatantProperties.classProgressionProperties;
 
-    const experiencRequiredToLevel = experiencePoints.getRequiredForNextLevel();
-    const experienceBar = experiencRequiredToLevel ? (
+    const experienceRequiredToLevel = experiencePoints.getRequiredForNextLevel();
+    const experienceBar = experienceRequiredToLevel ? (
       <ValueBar
-        maxValue={experiencRequiredToLevel}
+        maxValue={experienceRequiredToLevel}
         currentValue={experiencePoints.getCurrent()}
         color="ffxipink"
         hideNumbers={true}

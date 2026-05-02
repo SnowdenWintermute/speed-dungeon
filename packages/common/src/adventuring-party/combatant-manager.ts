@@ -396,12 +396,6 @@ export class CombatantManager
           flipSide: false,
         }
       );
-
-      console.log(
-        "set home position:",
-        combatant.combatantProperties.transformProperties.getHomePosition(),
-        combatant.getEntityId()
-      );
     });
 
     const partyMemberPets = this.getPartyMemberPets();

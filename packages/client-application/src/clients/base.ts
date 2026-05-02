@@ -39,6 +39,9 @@ export abstract class BaseClient {
   }
 
   dispatchIntent(message: ClientIntent): number {
+    if (!this.connectionTopology.isInitialized) {
+      throw new Error("not connected to any local or remote server");
+    }
     this._intentSequenceCounter += 1;
     this.clientApplication.clientLogRecorder.recordIntentDispatched(
       this._intentSequenceCounter,
