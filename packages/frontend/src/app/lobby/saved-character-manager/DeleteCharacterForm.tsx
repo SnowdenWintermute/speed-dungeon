@@ -21,20 +21,21 @@ export default function DeleteCharacterForm({ character }: { character: Combatan
     <form className="bg-slate-700 border border-slate-400 p-2 flex flex-col pointer-events-auto">
       <div className="flex justify-between align-middle text-slate-400 mb-2">
         <span>Check the box to enable deletion</span>
-        <button
+        <HotkeyButton
           className="h-10 w-10 p-2 border border-slate-400 hover:bg-slate-950"
-          type="button"
+          hotkeys={["KeyR"]}
           onClick={() => {
             setConfirmDeletion(!confirmDeletion);
           }}
         >
           {confirmDeletion && <XShape className="fill-white" />}
-        </button>
+        </HotkeyButton>
       </div>
       <HotkeyButton
         className={`${confirmDeletion && "bg-red-800"} h-10 w-full p-2 border border-slate-400 disabled:opacity-50`}
         onClick={deleteCharacter}
         disabled={!confirmDeletion}
+        hotkeys={["KeyG"]}
       >
         {confirmDeletion && "!!! "}DELETE CHARACTER{confirmDeletion && " !!!"}
       </HotkeyButton>

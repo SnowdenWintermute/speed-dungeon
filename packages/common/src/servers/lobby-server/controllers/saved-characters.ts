@@ -13,7 +13,7 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CombatantManager } from "../../../adventuring-party/combatant-manager.js";
-import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
+import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
@@ -77,6 +77,7 @@ export class SavedCharactersController {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
     const { name, combatantClass, slotIndex } = data;
+    console.log("trying to createSavedCharacterHandler in slotIndex", slotIndex);
     // check if the slot is valid to put a new character in
     const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
 
@@ -91,7 +92,7 @@ export class SavedCharactersController {
     newCharacter.combatantProperties.transformProperties.autoSetHomePosition(
       DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
       slotIndex,
-      { onCenterLine: true }
+      { onCenterLine: true, slotSpacingOverride: CHARACTER_SLOT_SPACING }
     );
 
     const serializedPets = pets.map((pet) => pet.toSerialized());

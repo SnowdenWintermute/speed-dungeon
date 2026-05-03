@@ -1,12 +1,16 @@
 import {
   AssetService,
+  CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
   GameServerName,
   GameSessionStoreService,
+  GameStateUpdate,
   IdentityProviderService,
   InMemoryConnectionEndpointServer,
   InMemoryConnectionEndpointServerRegistry,
+  InMemoryCrossServerBroadcaster,
+  InMemoryCrossServerBroadcastBus,
   InMemoryGameSessionStoreService,
   InMemoryIdentityProviderQueryStrategy,
   InMemoryIncomingConnectionGateway,
@@ -56,6 +60,14 @@ export async function createOfflineLocalServers(assetService: AssetService) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 
+  const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate>();
+  const lobbyCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
+    crossServerBroadcastBus
+  );
+  const gameCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
+    crossServerBroadcastBus
+  );
+
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
   const savedCharactersService = new SavedCharactersService(
     characterSlotsPersistenceStrategy,
@@ -79,7 +91,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       reconnectionForwardingStoreService,
       savedCharactersService,
       rankedLadderService,
-      profileService
+      profileService,
+      lobbyCrossServerBroadcasterService
     ),
     codec,
     { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
@@ -111,7 +124,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       savedCharactersService,
       rankedLadderService,
       raceGameRecordsService,
-      assetService
+      assetService,
+      gameCrossServerBroadcasterService
     ),
     codec,
     RandomDungeonGenerationPolicy,
@@ -130,7 +144,8 @@ function createOfflineLobbyServerServices(
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
-  profileService: SpeedDungeonProfileService
+  profileService: SpeedDungeonProfileService,
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
@@ -150,6 +165,7 @@ function createOfflineLobbyServerServices(
     rankedLadderService,
     gameSessionStoreService,
     reconnectionForwardingStoreService,
+    crossServerBroadcasterService,
   };
   return externalServices;
 }
@@ -160,7 +176,8 @@ function createOfflineGameServerServices(
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
   raceGameRecordsService: RaceGameRecordsService,
-  assetService: AssetService
+  assetService: AssetService,
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
 ) {
   const externalServices: GameServerExternalServices = {
     gameSessionStoreService,
@@ -169,6 +186,7 @@ function createOfflineGameServerServices(
     rankedLadderService,
     raceGameRecordsService,
     assetService,
+    crossServerBroadcasterService,
   };
   return externalServices;
 }

@@ -26,7 +26,7 @@ export async function testCreateProgressionGameRequiresSavedCharacter(
 export async function testJoinProgressionGameRequiresSavedCharacter(
   testFixture: IntegrationTestFixture
 ) {
-  testFixture.resetWithOptions();
+  await testFixture.resetWithOptions();
   await testFixture.createSingleClientInLobbyProgressionGame(
     "client 1",
     TEST_AUTH_SESSION_ID_PLAYER_1

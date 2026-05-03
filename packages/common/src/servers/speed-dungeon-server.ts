@@ -1,3 +1,4 @@
+import { ChannelName, ConnectionId } from "../aliases.js";
 import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
@@ -7,6 +8,7 @@ import { invariant } from "../utils/index.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
 import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
 import { LobbyClientIntentHandlers } from "./lobby-server/create-lobby-client-intent-handlers.js";
+import { CrossServerBroadcasterService } from "./services/cross-server-broadcaster/index.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 import { UserSessionRegistry } from "./sessions/user-session-registry.js";
 import { UserSession } from "./sessions/user-session.js";
@@ -47,8 +49,25 @@ export abstract class SpeedDungeonServer {
   constructor(
     readonly name: string,
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
-    protected readonly rngPolicy: RandomNumberGenerationPolicy
-  ) {}
+    protected readonly rngPolicy: RandomNumberGenerationPolicy,
+    protected readonly crossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate>
+  ) {
+    this.crossServerBroadcaster.subscribe(({ channelName, payload, excludedConnectionIds }) => {
+      const excluded = new Set(excludedConnectionIds);
+      const recipientIds = this.userSessionRegistry
+        .in(channelName)
+        .filter((id) => !excluded.has(id));
+      this.outgoingMessagesGateway.submitToConnections(recipientIds, payload);
+    });
+  }
+
+  async crossServerBroadcast(
+    channelName: ChannelName,
+    payload: GameStateUpdate,
+    excludedConnectionIds: ConnectionId[] = []
+  ): Promise<void> {
+    await this.crossServerBroadcaster.publish({ channelName, payload, excludedConnectionIds });
+  }
 
   closeTransportServer() {
     return this.incomingConnectionGateway.close();

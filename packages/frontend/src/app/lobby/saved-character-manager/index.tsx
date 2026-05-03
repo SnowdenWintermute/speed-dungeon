@@ -4,6 +4,8 @@ import {
   CharacterSlotIndex,
   ClientSequentialEventType,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  NextOrPrevious,
+  getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
 import React, { useEffect, useState } from "react";
 import ArrowShape from "../../../../public/img/menu-icons/arrow-button-icon.svg";
@@ -33,7 +35,7 @@ export const SavedCharacterManager = observer(() => {
     const camera = clientApplication.gameWorldView?.camera;
     if (!camera) return;
     camera.target.copyFrom(
-      new Vector3(-CHARACTER_SLOT_SPACING + CHARACTER_SLOT_SPACING * currentSlot, 1, 0)
+      new Vector3(CHARACTER_SLOT_SPACING + -CHARACTER_SLOT_SPACING * currentSlot, 1, 0)
     );
     camera.alpha = Math.PI / 2;
     camera.beta = (Math.PI / 5) * 2;
@@ -100,12 +102,12 @@ export const SavedCharacterManager = observer(() => {
           <div className="p-4 w-full flex flex-col justify-center items-center bg-slate-700 border-slate-400 border pointer-events-auto">
             <HotkeyButton
               className="h-10 w-10 p-2 border-b border-l absolute top-0 right-0 border-slate-400"
-              hotkeys={["Escape", `Key${CHARACTER_MANAGER_HOTKEY}`]}
+              hotkeys={["Escape"]}
               onClick={() => dialogs.close(DialogElementName.SavedCharacterManager)}
             >
               <XShape className="h-full w-full fill-slate-400" />
             </HotkeyButton>
-            <h4>{!selectedCharacterOption && ` Slot ${currentSlot + 1} `}</h4>
+            <h4>{`Slot ${currentSlot}`}</h4>
             <h3>{selectedCharacterOption?.combatant.entityProperties.name || "Empty"}</h3>
             {selectedCharacterOption && (
               <div>
@@ -121,10 +123,14 @@ export const SavedCharacterManager = observer(() => {
             <HoverableTooltipWrapper tooltipText="Previous slot (W)">
               <HotkeyButton
                 className="bg-slate-700 h-10 w-10 p-2 border border-slate-400 pointer-events-auto"
-                hotkeys={["KeyW"]}
+                hotkeys={["KeyS"]}
                 onClick={() => {
-                  const newSlot =
-                    currentSlot + 1 === DEFAULT_ACCOUNT_CHARACTER_CAPACITY ? 0 : currentSlot + 1;
+                  const newSlot = getNextOrPreviousNumber(
+                    currentSlot,
+                    DEFAULT_ACCOUNT_CHARACTER_CAPACITY - 1,
+                    NextOrPrevious.Previous,
+                    { minNumber: 0 }
+                  );
                   setCurrentSlot(newSlot);
                 }}
               >
@@ -134,10 +140,14 @@ export const SavedCharacterManager = observer(() => {
             <HoverableTooltipWrapper tooltipText="Next slot (E)">
               <HotkeyButton
                 className="bg-slate-700 h-10 w-10 p-2 border border-slate-400 pointer-events-auto"
-                hotkeys={["KeyE"]}
+                hotkeys={["KeyD"]}
                 onClick={() => {
-                  const newSlot =
-                    currentSlot - 1 < 0 ? DEFAULT_ACCOUNT_CHARACTER_CAPACITY - 1 : currentSlot - 1;
+                  const newSlot = getNextOrPreviousNumber(
+                    currentSlot,
+                    DEFAULT_ACCOUNT_CHARACTER_CAPACITY - 1,
+                    NextOrPrevious.Next,
+                    { minNumber: 0 }
+                  );
                   setCurrentSlot(newSlot);
                 }}
               >

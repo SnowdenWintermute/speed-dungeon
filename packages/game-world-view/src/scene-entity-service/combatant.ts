@@ -1,4 +1,5 @@
 import {
+  CHARACTER_SLOT_SPACING,
   Combatant,
   CombatantId,
   EntityId,
@@ -14,7 +15,6 @@ import { CombatantSceneEntityFactory } from "../scene-entities/combatants/factor
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
 import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
-import { CHARACTER_SLOT_SPACING } from "@/game-world-view/game-world-view-consts";
 import { SceneEntityManager } from "./base";
 import { isExpectedSceneDisposedError } from "../utils/load-asset-container-into-scene";
 

@@ -1,6 +1,10 @@
 import { createExpressApp } from "./create-express-app.js";
 import {
+  CrossServerBroadcasterService,
   GameServerName,
+  GameStateUpdate,
+  InMemoryCrossServerBroadcaster,
+  InMemoryCrossServerBroadcastBus,
   InMemoryGameSessionStoreService,
   InMemoryReconnectionForwardingStoreService,
   OpaqueEncryptionSessionClaimTokenCodec,
@@ -32,6 +36,14 @@ const gameServerNode = new GameServerNode();
 const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 const gameSessionStoreService = new InMemoryGameSessionStoreService();
 
+// for sending ladder rank global messages from the originating game server to all clients
+// on all servers
+const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate>();
+const lobbyCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate> =
+  new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
+const gameCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate> =
+  new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
+
 const sessionClaimTokenSecret = await SodiumHelpers.createSecret();
 const gameServerSessionClaimTokenCodec = new OpaqueEncryptionSessionClaimTokenCodec(
   sessionClaimTokenSecret
@@ -45,6 +57,7 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
     httpServer,
     reconnectionForwardingStoreService,
     gameSessionStoreService,
+    lobbyCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec
   );
 });
@@ -58,6 +71,7 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     expressApp,
     reconnectionForwardingStoreService,
     gameSessionStoreService,
+    gameCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec
   );
 });

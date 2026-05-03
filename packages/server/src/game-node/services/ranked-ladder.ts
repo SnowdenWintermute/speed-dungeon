@@ -5,6 +5,7 @@ export class DatabaseRankedLadderService extends RankedLadderService {
   constructor(private valkeyManager: ValkeyManager) {
     super();
   }
+
   override async getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null> {
     const rank = await this.valkeyManager.zRevRank(ladderName, entryId);
     return rank;
@@ -14,9 +15,11 @@ export class DatabaseRankedLadderService extends RankedLadderService {
     totalExp: number
   ): Promise<{ previousRank: number | null; newRank: number }> {
     const previousRank = await this.valkeyManager.zRevRank(CHARACTER_LEVEL_LADDER, entryId);
+    console.log("previousRank:", previousRank);
     const newRank = await this.valkeyManager.zAdd(CHARACTER_LEVEL_LADDER, [
       { value: entryId, score: totalExp },
     ]);
+    console.log("newRank:", newRank);
     return { previousRank, newRank };
   }
 

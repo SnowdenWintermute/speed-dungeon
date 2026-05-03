@@ -11,8 +11,6 @@ export const ARMATURE_ROOT_BONE_NAME = "CharacterArmature";
 
 export const GLOW_LAYER_NAME = "glow";
 
-export const CHARACTER_SLOT_SPACING = 1;
-
 export const HP_COLOR = "#15803d";
 export const MAIN_TEXT_AND_BORDERS_COLOR = "#94a3b8";
 export const MAIN_BG_COLOR = "#334155";

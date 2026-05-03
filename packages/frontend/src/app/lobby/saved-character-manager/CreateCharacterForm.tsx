@@ -17,6 +17,7 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
   const { lobbyClientRef } = useClientApplication();
 
   function createCharacter() {
+    console.log("dispatched create character in slot index:", currentSlot);
     lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateSavedCharacter,
       data: {
@@ -55,7 +56,9 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
       />
       <HotkeyButton
         buttonType="submit"
+        hotkeys={["KeyF"]}
         className="bg-slate-700 h-10 w-full p-2 border border-slate-400 pointer-events-auto"
+        onClick={() => {}}
       >
         CREATE CHARACTER
       </HotkeyButton>

@@ -1,11 +1,13 @@
 import {
   AssetCache,
+  CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
   GameServerName,
   GameServerNodeAssetService,
   GameServerSessionClaimTokenCodec,
   GameSessionStoreService,
+  GameStateUpdate,
   InMemoryRaceGameRecordsPersistenceStrategy,
   RaceGameRecordsService,
   ReconnectionForwardingStoreService,
@@ -30,6 +32,7 @@ import {
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
   TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
+  CHARACTER_LEVEL_LADDER,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -57,6 +60,7 @@ export class GameServerNode {
     expressApp: Express,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     const fsAssetStore = new NodeFileSystemAssetStore("./assets");
@@ -68,7 +72,8 @@ export class GameServerNode {
     const externalServices = this.createExternalServices(
       fsAssetStore,
       reconnectionForwardingStoreService,
-      gameSessionStoreService
+      gameSessionStoreService,
+      crossServerBroadcasterService
     );
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
@@ -114,7 +119,8 @@ export class GameServerNode {
   private createExternalServices(
     assetStore: AssetCache,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
-    gameSessionStoreService: GameSessionStoreService
+    gameSessionStoreService: GameSessionStoreService,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);
 
@@ -141,6 +147,7 @@ export class GameServerNode {
       rankedLadderService,
       raceGameRecordsService,
       assetService,
+      crossServerBroadcasterService,
     };
     return result;
   }

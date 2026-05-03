@@ -17,6 +17,8 @@ import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
 import { UserIdType } from "../sessions/user-ids.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
+import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
@@ -43,6 +45,7 @@ export interface LobbyExternalServices {
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>;
 }
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
@@ -75,7 +78,12 @@ export class LobbyServer extends SpeedDungeonServer {
     private idGenerator: IdGenerator,
     authSessionIdParser: AuthSessionIdParser
   ) {
-    super("Lobby", incomingConnectionGateway, rngPolicy);
+    super(
+      "Lobby",
+      incomingConnectionGateway,
+      rngPolicy,
+      externalServices.crossServerBroadcasterService
+    );
 
     this.startDanglingResourcesCleanupHeartbeat();
 

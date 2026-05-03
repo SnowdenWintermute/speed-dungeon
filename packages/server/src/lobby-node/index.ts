@@ -3,6 +3,8 @@ import {
   LobbyExternalServices,
   IdentityProviderService,
   ConnectionIdentityResolutionContext,
+  CrossServerBroadcasterService,
+  GameStateUpdate,
   SavedCharactersService,
   ReconnectionForwardingStoreService,
   GameSessionStoreService,
@@ -18,6 +20,7 @@ import {
   LOW_HP_CHARACTER_FIXTURES,
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
+  CHARACTER_LEVEL_LADDER,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -42,13 +45,16 @@ export class LobbyServerNode {
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     const wss = new WebSocketServer({ server: httpServer });
+
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const externalServices = this.createExternalServices(
       reconnectionForwardingStoreService,
-      gameSessionStoreService
+      gameSessionStoreService,
+      crossServerBroadcasterService
     );
     const leastBusyGameServerUrlGetter = async () => "http://localhost:8090";
     this._lobbyServer = new LobbyServer(
@@ -81,7 +87,8 @@ export class LobbyServerNode {
 
   private createExternalServices(
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
-    gameSessionStoreService: GameSessionStoreService
+    gameSessionStoreService: GameSessionStoreService,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
@@ -110,6 +117,7 @@ export class LobbyServerNode {
       rankedLadderService,
       gameSessionStoreService,
       reconnectionForwardingStoreService,
+      crossServerBroadcasterService,
     };
 
     return externalServices;

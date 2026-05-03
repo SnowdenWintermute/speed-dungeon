@@ -96,6 +96,7 @@ export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is sl
 // export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.3; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;
+export const CHARACTER_SLOT_SPACING = 1;
 // export const COMBATANT_POSITION_SPACING_SIDE: Meters = 3.4;
 export const BASE_EXPLOSION_RADIUS: Meters = COMBATANT_POSITION_SPACING_SIDE + 0.2;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 5.0;

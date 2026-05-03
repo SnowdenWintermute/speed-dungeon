@@ -12,6 +12,7 @@ import {
 } from "@speed-dungeon/common";
 import { playerCharactersRepo } from "../../database/repos/player-characters.js";
 import { getUsernamesByUserIds } from "../../database/get-usernames-by-user-ids.js";
+import { ExperiencePoints } from "@speed-dungeon/common";
 
 export async function getCharacterLevelLadderPageHandler(
   req: Request,
@@ -81,6 +82,7 @@ export async function getCharacterLevelLadderPageHandler(
     const usernamesResponse = await getUsernamesByUserIds(characterOwnerIds);
     if (usernamesResponse instanceof Error) {
       console.error(usernamesResponse);
+      console.log("server generic error:", usernamesResponse.message);
       return next([new CustomError(ERROR_MESSAGES.SERVER_GENERIC, 500)]);
     }
 
@@ -95,7 +97,9 @@ export async function getCharacterLevelLadderPageHandler(
 
       const { classProgressionProperties } = character.combatantProperties;
       const level = classProgressionProperties.mainClass.level;
-      const currentExperience = classProgressionProperties.experiencePoints.getCurrent();
+      const currentExperience = ExperiencePoints.fromSerialized(
+        classProgressionProperties.experiencePoints
+      ).getCurrent();
 
       toReturn.push({
         owner: usernamesResponse[character.ownerId] || "",
@@ -110,6 +114,7 @@ export async function getCharacterLevelLadderPageHandler(
 
     res.json({ entriesOnPage: toReturn, totalNumberOfPages });
   } catch (error) {
+    console.log("unhandled server generic error:", error);
     return next([new CustomError("Something went wrong", 500)]);
   }
 }

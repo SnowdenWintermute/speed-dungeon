@@ -16,6 +16,7 @@ export default function expressErrorHandler(
       const errorToReturn: CustomErrorDetails = {
         message: customError.message,
       };
+      console.log("errorToReturn:", customError.message);
       if (customError.field) errorToReturn.field = customError.field;
       return errorToReturn;
     });

@@ -42,6 +42,8 @@ import {
 } from "../../dungeon-generation/index.js";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
 
 export interface GameServerExternalServices {
@@ -51,6 +53,7 @@ export interface GameServerExternalServices {
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>;
 }
 
 export class GameServer extends SpeedDungeonServer {
@@ -87,7 +90,7 @@ export class GameServer extends SpeedDungeonServer {
     private readonly idGenerator: IdGenerator,
     authSessionIdParser: AuthSessionIdParser
   ) {
-    super(name, incomingConnectionGateway, rngPolicy);
+    super(name, incomingConnectionGateway, rngPolicy, externalServices.crossServerBroadcasterService);
 
     const affixGenerator = new AffixGenerator(rngPolicy);
     const equipmentRandomizer = new EquipmentRandomizer(rngPolicy, affixGenerator);

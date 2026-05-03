@@ -20,6 +20,7 @@ import {
   SodiumHelpers,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicy,
+  CrossServerBroadcasterService,
   GameSessionStoreService,
   ReconnectionForwardingStoreService,
   RankedLadderService,
@@ -29,6 +30,9 @@ import {
   GameServerExternalServices,
   AssetService,
   queryParamsAuthSessionIdParser,
+  GameStateUpdate,
+  InMemoryCrossServerBroadcaster,
+  InMemoryCrossServerBroadcastBus,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -49,6 +53,14 @@ export async function createTestServers(
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
+
+  const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate>();
+  const lobbyCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
+    crossServerBroadcastBus
+  );
+  const gameCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
+    crossServerBroadcastBus
+  );
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
   const savedCharactersService = new SavedCharactersService(
@@ -80,7 +92,8 @@ export async function createTestServers(
       reconnectionForwardingStoreService,
       savedCharactersService,
       rankedLadderService,
-      profileService
+      profileService,
+      lobbyCrossServerBroadcasterService
     ),
     codec,
     { [TEST_GAME_SERVER_NAME]: localServerUrl(testGameServerPort) },
@@ -101,7 +114,8 @@ export async function createTestServers(
       savedCharactersService,
       rankedLadderService,
       raceGameRecordsService,
-      gameServerNodeAssetService
+      gameServerNodeAssetService,
+      gameCrossServerBroadcasterService
     ),
     codec,
     ScriptedDungeonGenerationPolicy,
@@ -118,7 +132,8 @@ export function createLobbyTestServices(
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
-  profileService: SpeedDungeonProfileService
+  profileService: SpeedDungeonProfileService,
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
@@ -142,6 +157,7 @@ export function createLobbyTestServices(
     idGenerator: new IdGeneratorSequential({ saveHistory: false }),
     gameSessionStoreService,
     reconnectionForwardingStoreService,
+    crossServerBroadcasterService,
   };
   return externalServices;
 }
@@ -152,7 +168,8 @@ export function createGameServerTestServices(
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
   raceGameRecordsService: RaceGameRecordsService,
-  assetService: AssetService
+  assetService: AssetService,
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
 ): GameServerExternalServices {
   const externalServices = {
     gameSessionStoreService,
@@ -161,6 +178,7 @@ export function createGameServerTestServices(
     rankedLadderService,
     raceGameRecordsService,
     assetService,
+    crossServerBroadcasterService,
   };
   return externalServices;
 }

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import {
+  CHARACTER_SLOT_SPACING,
   COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
   COMBATANT_POSITION_SPACING_SIDE,
   EntityId,
@@ -69,12 +70,16 @@ export class CombatantTransformProperties extends CombatantSubsystem implements 
   autoSetHomePosition(
     combatantsInRowCount: number,
     rowIndex: number,
-    options: { flipSide?: boolean; onCenterLine?: boolean }
+    options: { flipSide?: boolean; onCenterLine?: boolean; slotSpacingOverride?: number }
   ) {
-    const rowLength = COMBATANT_POSITION_SPACING_SIDE * (combatantsInRowCount - 1);
+    let slotSpacing = COMBATANT_POSITION_SPACING_SIDE;
+    if (options?.slotSpacingOverride) {
+      slotSpacing = CHARACTER_SLOT_SPACING;
+    }
+    const rowLength = slotSpacing * (combatantsInRowCount - 1);
     const rowStart = -rowLength / 2;
 
-    const rowPositionOffset = rowStart + rowIndex * COMBATANT_POSITION_SPACING_SIDE;
+    const rowPositionOffset = rowStart + rowIndex * slotSpacing;
     let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
     if (options.onCenterLine) {
       positionSpacing = 0;
