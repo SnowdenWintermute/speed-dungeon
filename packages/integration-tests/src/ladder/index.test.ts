@@ -1,9 +1,12 @@
-import { TEST_AUTH_SESSION_ID_PLAYER_1 } from "@/fixtures/consts";
+import { GameLogMessageStyle } from "@/client-application/event-log/game-log-messages";
+import { TEST_AUTH_SESSION_ID_PLAYER_1, TEST_CHARACTER_NAME_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   CombatActionName,
   NextOrPrevious,
   TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
+  createLevelLadderExpRankMessage,
+  createLevelLadderLevelupMessage,
 } from "@speed-dungeon/common";
 
 describe("progression game", () => {
@@ -17,7 +20,7 @@ describe("progression game", () => {
     ]);
   });
   //
-  // on ladder rank up, all connected players see message
+  // on ladder rank up, party sees message
   it("ladder rank up message", async () => {
     await testFixture.resetWithOptions(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
     testFixture.timeMachine.start();
@@ -31,13 +34,40 @@ describe("progression game", () => {
     await alpha.gameClientHarness.selectCombatAction(CombatActionName.Fire, 2);
     await alpha.gameClientHarness.cycleTargetingSchemes();
     await alpha.gameClientHarness.cycleTargets(NextOrPrevious.Next);
-    expect(alpha.clientApplication.combatantFocus.requireFocusedCharacter().getLevel()).toBe(1);
+    const focusedCharacter = alpha.clientApplication.combatantFocus.requireFocusedCharacter();
+    expect(focusedCharacter.getLevel()).toBe(1);
     await alpha.gameClientHarness.useSelectedCombatAction();
-    expect(alpha.clientApplication.combatantFocus.requireFocusedCharacter().getLevel()).toBe(2);
+    expect(focusedCharacter.getLevel()).toBe(2);
+    const expectedLadderLevelupMessage = alpha.clientApplication.eventLogStore.getMessages().at(-2);
+    expect(expectedLadderLevelupMessage?.style).toBe(GameLogMessageStyle.LadderProgress);
+    expect(expectedLadderLevelupMessage?.message?.toString()).toBe(
+      createLevelLadderLevelupMessage(
+        TEST_CHARACTER_NAME_1,
+        alpha.clientApplication.session.requireUsername(),
+        focusedCharacter.getLevel(),
+        0
+      )
+    );
+    const expectedLadderExperienceGainMessage = alpha.clientApplication.eventLogStore
+      .getMessages()
+      .at(-1);
+    expect(expectedLadderExperienceGainMessage?.style).toBe(GameLogMessageStyle.LadderProgress);
+    expect(expectedLadderExperienceGainMessage?.message?.toString()).toBe(
+      createLevelLadderExpRankMessage(
+        TEST_CHARACTER_NAME_1,
+        alpha.clientApplication.session.requireUsername(),
+        focusedCharacter.combatantProperties.classProgressionProperties.experiencePoints.getCurrent(),
+        0
+      )
+    );
+
     // two clients each in their own progression game
     // alpha client battle victory
     // alpha and bravo client see message
   });
+  // on ladder rank up, all players on all connected servers see message
+  // it("global ladder messages", async()=>{})
+  //
   // on ladder death, other players see death message
   // it("ladder death message", async () => {
   //   // two clients each in their own progression game

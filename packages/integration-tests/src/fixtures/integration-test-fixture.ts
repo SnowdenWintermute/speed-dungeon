@@ -25,6 +25,7 @@ import { getPortFromAddress } from "@/test-utils/get-port-from-address.js";
 import {
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
+  TEST_CHARACTER_NAME_1,
   TEST_GAME_NAME,
   TEST_PARTY_NAME,
 } from "./consts.js";
@@ -181,7 +182,7 @@ export class IntegrationTestFixture {
       }
     } else {
       await client.lobbyClientHarness.createSavedCharacter(
-        "character 1",
+        TEST_CHARACTER_NAME_1,
         CombatantClass.Warrior,
         0
       );

@@ -14,6 +14,9 @@ export const TEST_AUTH_SESSION_ID_PLAYER_2 = "0001";
 export const TEST_AUTH_USERNAME_PLAYER_1 = "TestUsername1" as Username;
 export const TEST_AUTH_USERNAME_PLAYER_2 = "TestUsername2" as Username;
 
+export const TEST_CHARACTER_NAME_1 = "character 1";
+export const TEST_CHARACTER_NAME_2 = "character 2";
+
 export function localServerUrl(port: number) {
   return `ws://localhost:${port}`;
 }

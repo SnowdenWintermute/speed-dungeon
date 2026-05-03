@@ -19,4 +19,8 @@ export class EventLogStore {
   getMessages() {
     return this.messages;
   }
+
+  getLast() {
+    return this.messages.at(-1);
+  }
 }
