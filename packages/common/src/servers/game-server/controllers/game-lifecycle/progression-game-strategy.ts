@@ -76,7 +76,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
     for (const [characterName, deathAndRank] of Object.entries(ladderDeathsUpdate)) {
       outbox.pushFromOther(
         this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-          game.getChannelName(),
+          LADDER_UPDATES_CHANNEL_NAME,
           GameMessageType.LadderProgress,
           createLadderDeathsMessage(
             characterName,

@@ -261,3 +261,4 @@ export * from "./testing/dungeon-generation-fixtures.js";
 export * from "./testing/monster-fixtures.js";
 export * from "./testing/player-character-fixtures.js";
 export * from "./combatants/experience-points/index.js";
+export * from "./utils/numeric-enum-utils.js";

@@ -209,7 +209,11 @@ export function createLobbyUpdateHandlers(
           combatant.combatantProperties.transformProperties.autoSetHomePosition(
             DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
             slotNumber,
-            { onCenterLine: true, slotSpacingOverride: CHARACTER_SLOT_SPACING }
+            {
+              onCenterLine: true,
+              slotSpacingOverride: CHARACTER_SLOT_SPACING,
+              reverseOrder: true,
+            }
           );
 
           deserialized[slotNumber] = {

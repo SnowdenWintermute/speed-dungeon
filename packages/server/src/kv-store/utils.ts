@@ -40,6 +40,7 @@ export async function loadLadderIntoKvStore() {
   const forValkey: { value: string; score: number }[] = [];
   for (const item of rows) {
     if (item.hitPoints <= 0) continue; // only allow living characters in the ladder
+    if (item.experiencePoints === 0) continue; // don't flood the list with 0 exp characters
     forValkey.push({
       value: item.id,
       score: calculateTotalExperience(item.level) + item.experiencePoints,

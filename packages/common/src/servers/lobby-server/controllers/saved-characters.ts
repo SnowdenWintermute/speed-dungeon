@@ -12,7 +12,6 @@ import { LobbyExternalServices } from "../index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
-import { CombatantManager } from "../../../adventuring-party/combatant-manager.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 
 export class SavedCharactersController {
@@ -92,7 +91,11 @@ export class SavedCharactersController {
     newCharacter.combatantProperties.transformProperties.autoSetHomePosition(
       DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
       slotIndex,
-      { onCenterLine: true, slotSpacingOverride: CHARACTER_SLOT_SPACING }
+      {
+        onCenterLine: true,
+        slotSpacingOverride: CHARACTER_SLOT_SPACING,
+        reverseOrder: true,
+      }
     );
 
     const serializedPets = pets.map((pet) => pet.toSerialized());

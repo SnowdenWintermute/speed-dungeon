@@ -7,7 +7,10 @@ import {
   ClientIntentType,
   CombatantClass,
   EntityName,
+  NextOrPrevious,
+  getNextOrPreviousNumber,
   iterateNumericEnum,
+  NumericEnumUtils,
 } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
@@ -28,6 +31,16 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
     });
   }
 
+  function setNextOrPreviousClass(nextOrPrevious: NextOrPrevious) {
+    const nextClass = getNextOrPreviousNumber(
+      selectedNewCharacterClass,
+      NumericEnumUtils.length(CombatantClass) - 1,
+      nextOrPrevious,
+      { minNumber: 0 }
+    );
+    setSelectedNewCharacterClass(nextClass);
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -36,6 +49,23 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
       }}
     >
       <div className="pointer-events-auto flex justify-between mb-2">
+        <HotkeyButton
+          onClick={() => {
+            setNextOrPreviousClass(NextOrPrevious.Next);
+          }}
+          children={""}
+          className="hidden"
+          hotkeys={["KeyE"]}
+        />
+        <HotkeyButton
+          onClick={() => {
+            setNextOrPreviousClass(NextOrPrevious.Previous);
+          }}
+          children={""}
+          className="hidden"
+          hotkeys={["KeyW"]}
+        />
+
         {iterateNumericEnum(CombatantClass).map((combatantClass) => (
           <button
             key={combatantClass}
@@ -55,10 +85,9 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
         value={newCharacterName}
       />
       <HotkeyButton
-        buttonType="submit"
         hotkeys={["KeyF"]}
         className="bg-slate-700 h-10 w-full p-2 border border-slate-400 pointer-events-auto"
-        onClick={() => {}}
+        onClick={createCharacter}
       >
         CREATE CHARACTER
       </HotkeyButton>

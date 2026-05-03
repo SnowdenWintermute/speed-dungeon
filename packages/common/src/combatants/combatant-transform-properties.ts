@@ -70,16 +70,22 @@ export class CombatantTransformProperties extends CombatantSubsystem implements 
   autoSetHomePosition(
     combatantsInRowCount: number,
     rowIndex: number,
-    options: { flipSide?: boolean; onCenterLine?: boolean; slotSpacingOverride?: number }
+    options: {
+      flipSide?: boolean;
+      onCenterLine?: boolean;
+      slotSpacingOverride?: number;
+      reverseOrder?: boolean;
+    }
   ) {
     let slotSpacing = COMBATANT_POSITION_SPACING_SIDE;
     if (options?.slotSpacingOverride) {
       slotSpacing = CHARACTER_SLOT_SPACING;
     }
+    const orderReverser = options.reverseOrder ? -1 : 1;
     const rowLength = slotSpacing * (combatantsInRowCount - 1);
-    const rowStart = -rowLength / 2;
+    const rowStart = (-rowLength / 2) * orderReverser;
 
-    const rowPositionOffset = rowStart + rowIndex * slotSpacing;
+    const rowPositionOffset = rowStart + rowIndex * slotSpacing * orderReverser;
     let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
     if (options.onCenterLine) {
       positionSpacing = 0;
