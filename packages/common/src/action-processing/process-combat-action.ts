@@ -15,7 +15,6 @@ import {
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantId } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../combat/combat-actions/combat-action-names.js";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,

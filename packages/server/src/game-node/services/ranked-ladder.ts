@@ -1,11 +1,4 @@
-import {
-  CHARACTER_LEVEL_LADDER,
-  ClientSequentialEvent,
-  Combatant,
-  EntityId,
-  LadderDeathsUpdate,
-  RankedLadderService,
-} from "@speed-dungeon/common";
+import { CHARACTER_LEVEL_LADDER, EntityId, RankedLadderService } from "@speed-dungeon/common";
 import { ValkeyManager } from "../../kv-store/index.js";
 
 export class DatabaseRankedLadderService extends RankedLadderService {

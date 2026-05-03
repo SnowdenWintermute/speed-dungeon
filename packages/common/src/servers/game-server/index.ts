@@ -14,7 +14,6 @@ import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
-import { PartyDelayedGameMessageFactory } from "./party-delayed-game-message-factory.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/session-claim-token.js";
@@ -43,6 +42,7 @@ import {
 } from "../../dungeon-generation/index.js";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -61,10 +61,6 @@ export class GameServer extends SpeedDungeonServer {
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
-
-  private readonly partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
-    this.updateDispatchFactory
-  );
 
   readonly assetAnalyzer: AssetAnalyzer;
 
@@ -126,19 +122,20 @@ export class GameServer extends SpeedDungeonServer {
         GameMode.Race,
         externalServices.raceGameRecordsService,
         externalServices.savedCharactersService,
-        externalServices.rankedLadderService
+        externalServices.rankedLadderService,
+        this.updateDispatchFactory
       ),
       [GameMode.Progression]: new GameModeContext(
         GameMode.Progression,
         externalServices.raceGameRecordsService,
         externalServices.savedCharactersService,
-        externalServices.rankedLadderService
+        externalServices.rankedLadderService,
+        this.updateDispatchFactory
       ),
     };
 
     this.dungeonExplorationController = new DungeonExplorationController(
       this.updateDispatchFactory,
-      this.partyDelayedGameMessageFactory,
       this.externalServices.savedCharactersService,
       this.idGenerator,
       rngPolicy,
@@ -154,7 +151,6 @@ export class GameServer extends SpeedDungeonServer {
       this.externalServices.gameSessionStoreService,
       this.externalServices.reconnectionForwardingStoreService,
       this.updateDispatchFactory,
-      this.partyDelayedGameMessageFactory,
       this.gameModeContexts,
       this.dungeonExplorationController
     );
@@ -222,6 +218,9 @@ export class GameServer extends SpeedDungeonServer {
       this.logUserConnected(session);
 
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
+
+      // all sessions can listen to global ladder updates
+      session.subscribeToChannel(LADDER_UPDATES_CHANNEL_NAME);
 
       const gameName = session.currentGameName;
       if (gameName === null) {

@@ -4,26 +4,32 @@ import { MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD } from "../../../../app-consts
 import { Combatant } from "../../../../combatants/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
-import { getPartyChannelName } from "../../../../packets/channels.js";
+import { LADDER_UPDATES_CHANNEL_NAME, getPartyChannelName } from "../../../../packets/channels.js";
 import {
-  ClientSequentialEvent,
-  ClientSequentialEventType,
-} from "../../../../packets/client-sequential-events.js";
-import {
-  GameMessage,
   GameMessageType,
+  createLadderDeathsMessage,
   createLevelLadderExpRankMessage,
   createLevelLadderLevelupMessage,
 } from "../../../../packets/game-message.js";
+import { GameStateUpdate } from "../../../../packets/game-state-updates.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
 import { SavedCharactersService } from "../../../services/saved-characters.js";
+import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
+import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
 import { GameModeStrategy } from "./game-mode-strategy.js";
 
 export class ProgressionGameStrategy implements GameModeStrategy {
+  private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
   constructor(
     private readonly savedCharactersService: SavedCharactersService,
-    private readonly rankedLadderService: RankedLadderService
-  ) {}
+    private readonly rankedLadderService: RankedLadderService,
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>
+  ) {
+    this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
+      this.updateDispatchFactory
+    );
+  }
   async onGameStart(_game: SpeedDungeonGame) {
     // we don't need to do anything unless their character changes
     return Promise.resolve();
@@ -65,22 +71,35 @@ export class ProgressionGameStrategy implements GameModeStrategy {
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
     const ladderDeathsUpdate = await this.rankedLadderService.removeDeadCharacters(partyCharacters);
-    const deathMessagePayloads =
-      await this.rankedLadderService.getTopRankedDeathMessagesActionCommandPayload(
-        getPartyChannelName(game.name, party.name),
-        ladderDeathsUpdate
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    for (const [characterName, deathAndRank] of Object.entries(ladderDeathsUpdate)) {
+      outbox.pushFromOther(
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
+          game.getChannelName(),
+          GameMessageType.LadderProgress,
+          createLadderDeathsMessage(
+            characterName,
+            deathAndRank.owner,
+            deathAndRank.level,
+            deathAndRank.rank
+          ),
+          getPartyChannelName(game.name, party.name)
+        )
       );
-    return [deathMessagePayloads];
+    }
+
+    return outbox;
   }
 
   async onPartyVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
-  ): Promise<ClientSequentialEvent[]> {
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
 
-    const messages: GameMessage[] = [];
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     for (const character of partyCharacters) {
       const { classProgressionProperties } = character.combatantProperties;
@@ -94,6 +113,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
         // not interesting enough to tell anyone about it
         continue;
       }
+      // but if they ranked up and were in the top 10 ranks, emit a message to everyone
 
       const { name } = character.entityProperties;
       const { controlledBy } = character.combatantProperties;
@@ -101,33 +121,30 @@ export class ProgressionGameStrategy implements GameModeStrategy {
 
       const levelup = levelups[id];
       if (levelup !== undefined) {
-        messages.push(
-          new GameMessage(
+        outbox.pushFromOther(
+          this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
+            LADDER_UPDATES_CHANNEL_NAME,
             GameMessageType.LadderProgress,
-            true,
-            createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank)
+            createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank),
+            getPartyChannelName(game.name, party.name)
           )
         );
       }
-
-      // but if they ranked up and were in the top 10 ranks, emit a message to everyone
-      messages.push(
-        new GameMessage(
+      outbox.pushFromOther(
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
+          LADDER_UPDATES_CHANNEL_NAME,
           GameMessageType.LadderProgress,
-          true,
-          createLevelLadderExpRankMessage(name, controllingPlayer || "", totalExp, newRank)
+          createLevelLadderExpRankMessage(
+            name,
+            controllingPlayer || "",
+            character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent(),
+            newRank
+          ),
+          getPartyChannelName(game.name, party.name)
         )
       );
     }
 
-    return [
-      {
-        type: ClientSequentialEventType.PostGameMessages,
-        data: {
-          messages,
-          partyChannelToExclude: getPartyChannelName(game.name, party.name),
-        },
-      },
-    ];
+    return outbox;
   }
 }

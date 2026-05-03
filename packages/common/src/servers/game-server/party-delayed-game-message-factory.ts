@@ -7,8 +7,8 @@ import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 export class PartyDelayedGameMessageFactory {
   constructor(private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>) {}
 
-  createMessageInGameWithOptionalDelayForParty(
-    gameChannel: ChannelName,
+  createMessageInChannelWithOptionalDelayForParty(
+    channelName: ChannelName,
     gameMessageType: GameMessageType,
     gameMessageText: string,
     partyChannelToDelayReceipt?: ChannelName
@@ -26,7 +26,7 @@ export class PartyDelayedGameMessageFactory {
     }
 
     outbox.pushToChannel(
-      gameChannel,
+      channelName,
       {
         type: GameStateUpdateType.GameMessage,
         data: { message: new GameMessage(gameMessageType, false, gameMessageText) },

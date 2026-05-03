@@ -295,6 +295,7 @@ export class CombatActionController {
     const actionUserContext = new ActionUserContext(game, party, character);
 
     const sequentialEvents: ClientSequentialEvent[] = [];
+    let ladderMessagesOutbox: MessageDispatchOutbox<GameStateUpdate> | undefined = undefined;
 
     party.inputLock.lockInput();
 
@@ -314,8 +315,8 @@ export class CombatActionController {
     });
 
     const battleOption = party.battleId ? game.battles.get(party.battleId) || null : null;
-    const { battleConcludedOption } = initialActionReplayTreeResult;
 
+    const { battleConcludedOption } = initialActionReplayTreeResult;
     console.log("battleConcludedOption:", battleConcludedOption);
     if (battleConcludedOption !== null) {
       const postConclusionEvents = await new BattleProcessor(
@@ -329,7 +330,8 @@ export class CombatActionController {
         this.lootGenerator,
         this.assetAnalyzer
       ).handlePostBattleConclusion(battleConcludedOption);
-      sequentialEvents.push(...postConclusionEvents);
+      sequentialEvents.push(...postConclusionEvents.sequentialEvents);
+      ladderMessagesOutbox = postConclusionEvents.ladderMessagesOutbox;
     }
 
     const replayTreePayload: ClientSequentialEvent = {
@@ -357,6 +359,10 @@ export class CombatActionController {
       type: GameStateUpdateType.ClientSequentialEvents,
       data: { sequentialEvents },
     });
+
+    if (ladderMessagesOutbox) {
+      outbox.pushFromOther(ladderMessagesOutbox);
+    }
 
     let aiActionsTimeSpentInInputLock = 0;
     if (battleOption) {

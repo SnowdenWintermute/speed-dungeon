@@ -23,7 +23,7 @@ import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { ReconnectionForwardingStoreService } from "../../../services/reconnection-forwarding-store/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
-  // strategy pattern for handling certain events
+  private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
 
   constructor(
     private readonly gameRegistry: GameRegistry,
@@ -31,10 +31,13 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>,
     private readonly dungeonExplorationController: DungeonExplorationController
-  ) {}
+  ) {
+    this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
+      this.updateDispatchFactory
+    );
+  }
 
   async getOrInitializeGame(gameName: GameName) {
     const existingGame = this.gameRegistry.getGameOption(gameName);
@@ -216,14 +219,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     if (partyShouldBeMarkedWiped) {
       party.timeOfWipe = Date.now();
-      const partyWipePayloads = await gameModeContext.strategy.onPartyWipe(game, party);
+      const ladderDeathMessagesOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
 
       const remainingParties = Object.values(game.adventuringParties);
       if (remainingParties.length) {
         const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
 
         const partyWipedOutbox =
-          this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+          this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
             game.getChannelName(),
             GameMessageType.PartyWipe,
             createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
@@ -232,10 +235,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
         outbox.pushFromOther(partyWipedOutbox);
       }
 
-      outbox.pushToChannel(game.getChannelName(), {
-        type: GameStateUpdateType.ClientSequentialEvents,
-        data: { sequentialEvents: partyWipePayloads },
-      });
+      outbox.pushFromOther(ladderDeathMessagesOutbox);
     }
 
     game.removePlayer(session.username);
@@ -278,7 +278,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     if (allRemainingCharactersAreDead && !party.timeOfWipe) {
       const abandonedPartyOutbox =
-        this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
           game.getChannelName(),
           GameMessageType.PartyDissolved,
           createPartyAbandonedMessage(party.name),

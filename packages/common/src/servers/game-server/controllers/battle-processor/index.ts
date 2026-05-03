@@ -41,7 +41,8 @@ export class BattleProcessor {
   ) {}
 
   async processBattleUntilPlayerTurnOrConclusion() {
-    console.log("processBattleUntilPlayerTurnOrConclusion");
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
     const { game, party, battle } = this;
     if (battle === null) {
       return {
@@ -53,6 +54,7 @@ export class BattleProcessor {
     battle.turnOrderManager.updateTrackers(game, party);
 
     const sequentialEvents: ClientSequentialEvent[] = [];
+    let ladderMessagesOutbox: MessageDispatchOutbox<GameStateUpdate> | undefined = undefined;
 
     let safetyCounter = -1;
     let durationUntilInputUnlock = 0;
@@ -64,11 +66,9 @@ export class BattleProcessor {
       const fastestTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
       if (party.battleId === null) {
-        console.log("battle id === null, breaking");
         break;
       }
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
-        console.info("stop processing - is turn of player controlled combatant", fastestTracker);
         break;
       }
 
@@ -120,19 +120,22 @@ export class BattleProcessor {
           });
         }
 
-        console.log("battleConcludedOption:", battleConcludedOption);
         if (battleConcludedOption !== null) {
           const postConclusionEvents = await this.handlePostBattleConclusion(battleConcludedOption);
-          sequentialEvents.push(...postConclusionEvents);
+          sequentialEvents.push(...postConclusionEvents.sequentialEvents);
+          ladderMessagesOutbox = postConclusionEvents.ladderMessagesOutbox;
         }
       }
     }
 
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.ClientSequentialEvents,
       data: { sequentialEvents },
     });
+
+    if (ladderMessagesOutbox) {
+      outbox.pushFromOther(ladderMessagesOutbox);
+    }
 
     return { outbox, durationUntilInputUnlock };
   }
@@ -155,6 +158,9 @@ export class BattleProcessor {
   }) {
     const { game, party } = this;
     const sequentialEvents: ClientSequentialEvent[] = [];
+    const ladderMessagesOutbox = new MessageDispatchOutbox<GameStateUpdate>(
+      this.updateDispatchFactory
+    );
 
     const gameModeContext = this.gameModeContexts[game.mode];
     await gameModeContext.strategy.onBattleResult(game, party);
@@ -177,24 +183,21 @@ export class BattleProcessor {
           },
         });
 
-        const defeatMessagePayloadResults = await gameModeContext.strategy.onPartyWipe(game, party);
-        if (defeatMessagePayloadResults instanceof Error) throw defeatMessagePayloadResults;
-        if (defeatMessagePayloadResults) sequentialEvents.push(...defeatMessagePayloadResults);
+        const ladderDeathOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
+        ladderMessagesOutbox.pushFromOther(ladderDeathOutbox);
         break;
       }
       case BattleConclusion.Victory: {
-        console.log("battle conclusion victory");
-        const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
+        const ladderVictoryOutbox = await gameModeContext.strategy.onPartyVictory(
           game,
           party,
           battleConcluded.levelUps
         );
-        if (victoryMessagePayloadResults instanceof Error) return victoryMessagePayloadResults;
-        if (victoryMessagePayloadResults) sequentialEvents.push(...victoryMessagePayloadResults);
+        ladderMessagesOutbox.pushFromOther(ladderVictoryOutbox);
         break;
       }
     }
 
-    return sequentialEvents;
+    return { sequentialEvents, ladderMessagesOutbox };
   }
 }

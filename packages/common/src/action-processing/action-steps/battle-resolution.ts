@@ -5,7 +5,6 @@ import {
   ActionResolutionStepType,
 } from "./index.js";
 import { BattleConclusionUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
-import { Battle } from "../../battle/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 
 const stepType = ActionResolutionStepType.BattleResolution;

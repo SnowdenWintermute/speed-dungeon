@@ -3,12 +3,18 @@ import { CombatantId } from "../../../../aliases.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
+import { GameStateUpdate } from "../../../../packets/game-state-updates.js";
 import { RaceGameRecordsService } from "../../../services/race-game-records.js";
+import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
+import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { GameModeStrategy } from "./game-mode-strategy.js";
 import { PartyFate } from "./record-types.js";
 
 export class RankedRaceStrategy implements GameModeStrategy {
-  constructor(private raceGameRecordsService: RaceGameRecordsService) {}
+  constructor(
+    private raceGameRecordsService: RaceGameRecordsService,
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>
+  ) {}
 
   async onBattleResult(_game: SpeedDungeonGame, _party: AdventuringParty) {
     return;
@@ -45,14 +51,15 @@ export class RankedRaceStrategy implements GameModeStrategy {
   }
 
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     if (!game.isRanked) {
-      return [];
+      return outbox;
     }
 
     const partyRecord = await this.raceGameRecordsService.getExpectedPartyRecord(party.id);
 
     if (partyRecord.partyFate !== null) {
-      return [];
+      return outbox;
     }
 
     await this.updateRaceGameCharacterRecordLevels(party);
@@ -76,7 +83,7 @@ export class RankedRaceStrategy implements GameModeStrategy {
       await this.raceGameRecordsService.markGameCompleted(game.id);
     }
 
-    return [];
+    return outbox;
 
     // @TODO - if there is only one party left, tell them they are the last ones left alive
     // but they must escape to claim victory
@@ -88,7 +95,8 @@ export class RankedRaceStrategy implements GameModeStrategy {
     _levelups: Record<CombatantId, number>
   ) {
     // we only care if they escape, die or disconnect
-    return [];
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    return outbox;
   }
 
   async onPartyEscape(game: SpeedDungeonGame, party: AdventuringParty) {

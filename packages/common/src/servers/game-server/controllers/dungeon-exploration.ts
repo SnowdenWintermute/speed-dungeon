@@ -21,9 +21,10 @@ import { BattleProcessor } from "./battle-processor/index.js";
 import { GameModeContext } from "./game-lifecycle/game-mode-context.js";
 
 export class DungeonExplorationController {
+  private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
+
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
     private readonly rngPolicy: RandomNumberGenerationPolicy,
@@ -31,7 +32,11 @@ export class DungeonExplorationController {
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>
-  ) {}
+  ) {
+    this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
+      this.updateDispatchFactory
+    );
+  }
 
   async toggleReadyToExploreHandler(
     session: UserSession
@@ -123,7 +128,7 @@ export class DungeonExplorationController {
 
     // tell other parties so they feel the pressure of other parties descending
     const descentMessageOutbox =
-      this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+      this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
         game.getChannelName(),
         GameMessageType.PartyDescent,
         `Party "${party.name}" descended to floor ${floorNumber}`
@@ -149,7 +154,7 @@ export class DungeonExplorationController {
       }
 
       const escapeMessageOutbox =
-        this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
           game.getChannelName(),
           GameMessageType.PartyEscape,
           `Party "${party.name}" escaped the dungeon at ${new Date(timeOfEscape).toLocaleString()}${hasBeenMarkedAsWinnerMessageOption}!`
