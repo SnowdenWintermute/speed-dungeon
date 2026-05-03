@@ -77,7 +77,10 @@ export class InMemorySavedCharacterPersistenceStrategy
   }
 
   async update(combatant: Combatant, pets: Combatant[]): Promise<SerializedPlayerCharacter> {
-    throw new Error("not implemented");
+    const expected = await this.fetchCharacter(combatant.getEntityId());
+    expected.combatantProperties = combatant.combatantProperties.toSerialized();
+    expected.pets = pets.map((pet) => pet.toSerialized());
+    return expected;
   }
 
   async delete(id: number | string): Promise<SerializedPlayerCharacter> {

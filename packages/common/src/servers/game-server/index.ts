@@ -219,7 +219,7 @@ export class GameServer extends SpeedDungeonServer {
         connectionEndpoint.id,
         identityResolutionContext
       );
-      // this.logUserConnected(session);
+      this.logUserConnected(session);
 
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 

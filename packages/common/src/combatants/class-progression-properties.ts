@@ -117,6 +117,7 @@ export class ClassProgressionProperties
   /** Returns the new level reached for this combatant if any */
   awardLevelups() {
     const levelupCount = this.convertExperienceToClassLevels();
+    console.log("levelup count:", levelupCount);
     if (!levelupCount) return null;
 
     const combatantProperties = this.getCombatantProperties();

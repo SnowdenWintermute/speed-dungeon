@@ -32,7 +32,7 @@ export class BattleProcessor {
     private updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
-    private battle: Battle,
+    private battle: Battle | null,
     private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
@@ -41,7 +41,15 @@ export class BattleProcessor {
   ) {}
 
   async processBattleUntilPlayerTurnOrConclusion() {
+    console.log("processBattleUntilPlayerTurnOrConclusion");
     const { game, party, battle } = this;
+    if (battle === null) {
+      return {
+        outbox: new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory),
+        durationUntilInputUnlock: 0,
+      };
+    }
+
     battle.turnOrderManager.updateTrackers(game, party);
 
     const sequentialEvents: ClientSequentialEvent[] = [];
@@ -55,9 +63,12 @@ export class BattleProcessor {
       battle.turnOrderManager.updateTrackers(game, party);
       const fastestTracker = battle.turnOrderManager.getFastestActorTurnOrderTracker();
       // battle ended (resolved by a BattleResolution step in the previous action), stop processing
-      if (party.battleId === null) break;
+      if (party.battleId === null) {
+        console.log("battle id === null, breaking");
+        break;
+      }
       if (battle.turnOrderManager.currentActorIsPlayerControlled(party)) {
-        // console.info("stop processing - is turn of player controlled combatant", fastestTracker);
+        console.info("stop processing - is turn of player controlled combatant", fastestTracker);
         break;
       }
 
@@ -109,6 +120,7 @@ export class BattleProcessor {
           });
         }
 
+        console.log("battleConcludedOption:", battleConcludedOption);
         if (battleConcludedOption !== null) {
           const postConclusionEvents = await this.handlePostBattleConclusion(battleConcludedOption);
           sequentialEvents.push(...postConclusionEvents);
@@ -171,6 +183,7 @@ export class BattleProcessor {
         break;
       }
       case BattleConclusion.Victory: {
+        console.log("battle conclusion victory");
         const victoryMessagePayloadResults = await gameModeContext.strategy.onPartyVictory(
           game,
           party,
