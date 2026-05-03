@@ -2,6 +2,7 @@ import { GameLogMessageStyle } from "@/client-application/event-log/game-log-mes
 import { TEST_AUTH_SESSION_ID_PLAYER_1, TEST_CHARACTER_NAME_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
+  CHARACTER_LEVEL_LADDER,
   CombatActionName,
   NextOrPrevious,
   TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
@@ -19,9 +20,9 @@ describe("progression game", () => {
       testFixture.gameServer.closeTransportServer(),
     ]);
   });
-  //
-  // on ladder rank up, party sees message
-  it("ladder rank up message", async () => {
+
+  // client sees own rank up message
+  it("ladder rank up message on own client", async () => {
     await testFixture.resetWithOptions(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
     testFixture.timeMachine.start();
     const alpha = await testFixture.createSingleClientInLobbyProgressionGame(
@@ -36,6 +37,13 @@ describe("progression game", () => {
     await alpha.gameClientHarness.cycleTargets(NextOrPrevious.Next);
     const focusedCharacter = alpha.clientApplication.combatantFocus.requireFocusedCharacter();
     expect(focusedCharacter.getLevel()).toBe(1);
+
+    const expectedRankBefore = await testFixture.rankedLadderService.getCurrentRank(
+      CHARACTER_LEVEL_LADDER,
+      focusedCharacter.getEntityId()
+    );
+    expect(expectedRankBefore).toBeNull();
+
     await alpha.gameClientHarness.useSelectedCombatAction();
     expect(focusedCharacter.getLevel()).toBe(2);
     const expectedLadderLevelupMessage = alpha.clientApplication.eventLogStore.getMessages().at(-2);
@@ -61,13 +69,13 @@ describe("progression game", () => {
       )
     );
 
-    // two clients each in their own progression game
-    // alpha client battle victory
-    // alpha and bravo client see message
+    const expectedRankAfter = await testFixture.rankedLadderService.getCurrentRank(
+      CHARACTER_LEVEL_LADDER,
+      focusedCharacter.getEntityId()
+    );
+    expect(expectedRankAfter).toBe(0);
   });
-  // on ladder rank up, all players on all connected servers see message
-  // it("global ladder messages", async()=>{})
-  //
+
   // on ladder death, other players see death message
   // it("ladder death message", async () => {
   //   // two clients each in their own progression game
@@ -75,6 +83,19 @@ describe("progression game", () => {
   //   // alpha party wipes
   //   // alpha and bravo client see ladder death message
   // });
+
+  // on ladder rank up, all players on all connected servers see message
+  // it("global ladder messages", async()=>{
+  // two clients each in their own progression game on separate servers
+  // alpha client battle victory
+  // alpha and bravo client see message
+  //
+  // })
+  //
+  // // on saved character delete, removes entry from ladder
+  // it("saved character deleted ladder removal", async () => {
+  // });
+  //
   // // on ladder death/rank change, ladder page request shows correct rankings
   // it("ladder page ranks", async () => {
   //   // fetch page before rank

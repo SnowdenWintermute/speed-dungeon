@@ -134,7 +134,6 @@ export class SavedCharactersService {
     if (slotOption === undefined) {
       throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
     }
-    console.log("slotindex:", slotIndex);
 
     const slotIsFilled = slotOption.characterId !== null;
     if (slotIsFilled) {

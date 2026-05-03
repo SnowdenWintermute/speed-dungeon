@@ -124,7 +124,7 @@ export async function createTestServers(
     queryParamsAuthSessionIdParser
   );
 
-  return { lobbyServer, gameServer };
+  return { lobbyServer, gameServer, rankedLadderService };
 }
 
 export function createLobbyTestServices(

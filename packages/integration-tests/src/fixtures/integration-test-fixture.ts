@@ -12,6 +12,7 @@ import {
   LobbyServer,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
+  RankedLadderService,
   RNG_RANGE,
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
@@ -39,6 +40,7 @@ export class IntegrationTestFixture {
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
   private _gameServerPort: number = 0; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
+  private _rankedLadderService: RankedLadderService;
 
   private createIncomingConnectionGateways() {
     const lobbyWebSocketServer = new WebSocketServer({ port: 0 });
@@ -87,6 +89,8 @@ export class IntegrationTestFixture {
       ScriptedCharacterCreationPolicy
     );
 
+    this._rankedLadderService = servers.rankedLadderService;
+
     this._lobbyServer = servers.lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
     this._gameServer = servers.gameServer;
@@ -97,6 +101,13 @@ export class IntegrationTestFixture {
     } else {
       this._gameServer.assetAnalyzer.animationLengths = this.previouslyCalculatedAnimationLengths;
     }
+  }
+
+  get rankedLadderService() {
+    if (!this._rankedLadderService) {
+      throw new Error("no rankedLadderService was initialized");
+    }
+    return this._rankedLadderService;
   }
 
   get lobbyServer() {

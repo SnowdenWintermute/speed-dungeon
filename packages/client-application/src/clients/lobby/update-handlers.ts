@@ -1,5 +1,6 @@
 import {
   AdventuringParty,
+  CHARACTER_SLOT_SPACING,
   ClientSequentialEventType,
   Combatant,
   ConnectionEndpoint,
@@ -208,7 +209,7 @@ export function createLobbyUpdateHandlers(
           combatant.combatantProperties.transformProperties.autoSetHomePosition(
             DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
             slotNumber,
-            { onCenterLine: true }
+            { onCenterLine: true, slotSpacingOverride: CHARACTER_SLOT_SPACING }
           );
 
           deserialized[slotNumber] = {
