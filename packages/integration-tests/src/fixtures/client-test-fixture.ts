@@ -83,4 +83,5 @@ export class ClientFixture {
 export interface ClientTestFixtureOptions {
   characters?: { name: string; combatantClass: CombatantClass; slotIndex: number }[];
   gameName?: string;
+  proceedToGameServer?: boolean;
 }

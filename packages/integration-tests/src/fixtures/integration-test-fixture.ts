@@ -1,5 +1,6 @@
 import {
   BASIC_CHARACTER_FIXTURES,
+  CombatActionName,
   CombatantClass,
   DungeonRoomType,
   ExplicitCombatantDungeonTemplate,
@@ -10,6 +11,7 @@ import {
   GameStateUpdateType,
   invariant,
   LobbyServer,
+  NextOrPrevious,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   RankedLadderService,
@@ -201,7 +203,7 @@ export class IntegrationTestFixture {
     return client;
   }
 
-  async createSingleClientInLobbyProgressionGame(
+  async createSingleClientInProgressionGame(
     testClientId: string,
     authId: string,
     options?: ClientTestFixtureOptions
@@ -209,6 +211,10 @@ export class IntegrationTestFixture {
     const client = await this.createSingleClientWithSavedCharacters(testClientId, authId, options);
     const gameName = options?.gameName ? options.gameName : TEST_GAME_NAME;
     await client.lobbyClientHarness.createGame(gameName, GameMode.Progression);
+    if (options?.proceedToGameServer) {
+      await client.lobbyClientHarness.toggleReadyToStartGame();
+      await client.clientApplication.transitionToGameServer.waitFor();
+    }
     return client;
   }
 
@@ -216,7 +222,7 @@ export class IntegrationTestFixture {
     alphaOptions: undefined | ClientTestFixtureOptions,
     bravoOptions: undefined | ClientTestFixtureOptions
   ) {
-    const alpha = await this.createSingleClientInLobbyProgressionGame(
+    const alpha = await this.createSingleClientInProgressionGame(
       "client 1",
       TEST_AUTH_SESSION_ID_PLAYER_1,
       alphaOptions

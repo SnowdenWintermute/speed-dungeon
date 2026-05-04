@@ -372,4 +372,11 @@ export class ClientTestHarness<T extends BaseClient> {
       },
     });
   }
+
+  async useFireRankTwoOnAllEnemies() {
+    await this.selectCombatAction(CombatActionName.Fire, 2);
+    await this.cycleTargetingSchemes();
+    await this.cycleTargets(NextOrPrevious.Next);
+    await this.useSelectedCombatAction();
+  }
 }
