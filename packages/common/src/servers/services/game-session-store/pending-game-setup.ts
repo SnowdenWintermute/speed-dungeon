@@ -8,4 +8,8 @@ export class PendingGameSetup {
   private createdAt: number = Date.now();
   private timeToLive: Milliseconds = ONE_SECOND * 60 * 5;
   constructor(public readonly game: SerializedOf<SpeedDungeonGame>) {}
+
+  isStale() {
+    return Date.now() - this.createdAt > this.timeToLive;
+  }
 }

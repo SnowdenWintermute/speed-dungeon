@@ -87,8 +87,6 @@ export class SavedCharactersService {
       throw new Error("No character slots found");
     }
 
-    console.log("slots:", slots);
-
     const toReturn: SavedCharacterSlots = {};
     const characterPromises: Promise<void>[] = [];
 

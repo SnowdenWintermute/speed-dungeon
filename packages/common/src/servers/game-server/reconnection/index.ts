@@ -137,7 +137,6 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
   }
 
   async cleanUpTimedOutClaim(session: UserSession, game: SpeedDungeonGame) {
-    console.log("cleaned up timed out claim");
     this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
     try {
       await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(

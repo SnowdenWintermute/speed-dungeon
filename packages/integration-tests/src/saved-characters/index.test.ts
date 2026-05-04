@@ -103,7 +103,7 @@ describe("saved characters", () => {
     await testFixture.resetWithOptions();
     testFixture.timeMachine.start();
     // alpha join a game and gain some experience points
-    const alpha = await testFixture.createSingleClientInLobbyProgressionGame(
+    const alpha = await testFixture.createSingleClientInProgressionGame(
       "alpha",
       TEST_AUTH_SESSION_ID_PLAYER_1
     );

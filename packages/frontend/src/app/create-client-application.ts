@@ -18,7 +18,6 @@ export function createClientApplication() {
   );
   const lobbyServerUrl = process.env.NEXT_PUBLIC_WS_SERVER_URL;
   invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
-  console.log("creating client application");
   return new ClientApplication(
     assetCache,
     "http://localhost:8080",

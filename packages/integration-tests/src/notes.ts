@@ -20,14 +20,10 @@
 // CHARACTER PROGRESSION
 // allocate attribute points
 // allocate ability points
+// attribute points affect derrived attributes and resources
 //
 // VENDING MACHINE
 // operate vending machine
-//
-// LADDER RANKINGS
-// on ladder death, other players see death message
-// on ladder death/rank change, ladder page request shows correct rankings
-// on ladder rank up, other players see message
 //
 // LOBBY GAME SETUP
 // guest create unranked race
@@ -37,6 +33,17 @@
 // auth user create progression game
 // get game list shows created games
 // users see other player create party, character
+//
+// -------------------------
+// --- DONE AND DEFERRED ---
+// -------------------------
+//
+// LADDER RANKINGS - DONE
+// on ladder death, other players see death message
+// on ladder rank up, other players see message
+//
+// LADDER RANKINGS - DEFERRED
+// on ladder death/rank change, ladder page request shows correct rankings
 //
 // PROGRESSION GAMES - DONE
 // can not select starting floor higher than the highest starting floor reached by any selected character

@@ -70,9 +70,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     this.gameRegistry.registerGame(newGame);
-    this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
 
-    this.gameSessionStoreService.writeActiveGameStatus(
+    await this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
+    await this.gameSessionStoreService.writeActiveGameStatus(
       newGame.name,
       new ActiveGameStatus(newGame.name, newGame.id)
     );
@@ -183,7 +183,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
   async leaveGameHandler(session: UserSession) {
     const game = session.getCurrentGameOption();
-    console.log("session:", session.username, "left game:", game?.name);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     if (game === null) {
       return outbox;
@@ -252,7 +251,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async cleanUpGame(game: SpeedDungeonGame) {
-    console.log("cleaning up game:", game.name);
     const gameModeContext = this.gameModeContexts[game.mode];
     await gameModeContext.strategy.onLastPlayerLeftGame(game);
 

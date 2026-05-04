@@ -28,7 +28,6 @@ export function gameFullUpdateHandler(
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
   if (deserializedGame === null) {
     clientApplication.gameContext.clearGame();
-    console.log("cleared game");
     if (isLoggedIn) {
       clientApplication.gameWorldView?.environment.groundPlane.drawCharacterSlots();
     }
@@ -36,7 +35,6 @@ export function gameFullUpdateHandler(
     clientApplication.gameContext.setGame(deserializedGame);
   }
 
-  console.log("dispatched sync");
   clientApplication.sequentialEventProcessor.scheduleEvent({
     type: ClientSequentialEventType.SynchronizeCombatantModels,
     data: { softCleanup: true, placeInHomePositions: true },

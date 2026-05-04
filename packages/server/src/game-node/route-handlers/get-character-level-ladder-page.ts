@@ -82,7 +82,6 @@ export async function getCharacterLevelLadderPageHandler(
     const usernamesResponse = await getUsernamesByUserIds(characterOwnerIds);
     if (usernamesResponse instanceof Error) {
       console.error(usernamesResponse);
-      console.log("server generic error:", usernamesResponse.message);
       return next([new CustomError(ERROR_MESSAGES.SERVER_GENERIC, 500)]);
     }
 
@@ -114,7 +113,7 @@ export async function getCharacterLevelLadderPageHandler(
 
     res.json({ entriesOnPage: toReturn, totalNumberOfPages });
   } catch (error) {
-    console.log("unhandled server generic error:", error);
+    console.info("unhandled server generic error:", error);
     return next([new CustomError("Something went wrong", 500)]);
   }
 }

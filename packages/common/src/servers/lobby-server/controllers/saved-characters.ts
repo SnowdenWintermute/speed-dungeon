@@ -78,7 +78,6 @@ export class SavedCharactersController {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
     const { name, combatantClass, slotIndex } = data;
-    console.log("trying to createSavedCharacterHandler in slotIndex", slotIndex);
     // check if the slot is valid to put a new character in
     const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
 
@@ -125,7 +124,7 @@ export class SavedCharactersController {
 
     session.requireAuthorized();
     try {
-      session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
+      await session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
     } catch (error) {
       throw new Error(ERROR_MESSAGES.USER.CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME);
     }

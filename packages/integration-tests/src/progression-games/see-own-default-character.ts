@@ -5,7 +5,7 @@ export async function testPlayerSeesOwnDefaultProgressionGameCharacter(
   testFixture: IntegrationTestFixture
 ) {
   await testFixture.resetWithOptions();
-  const alpha = await testFixture.createSingleClientInLobbyProgressionGame(
+  const alpha = await testFixture.createSingleClientInProgressionGame(
     "client 1",
     TEST_AUTH_SESSION_ID_PLAYER_1
   );

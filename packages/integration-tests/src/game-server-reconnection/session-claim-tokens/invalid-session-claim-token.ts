@@ -18,12 +18,9 @@ export async function testInvalidSessionClaimToken(
     auth: options.useAuthenticatedUsers,
   });
 
-  console.log("about to await close");
   await alpha.clientApplication.gameClientRef.get().close();
-  console.log("closed");
   await alpha.connect();
 
-  console.log("about to await gameConnectionInstructions");
   const gameConnectionInstructions = await alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.GameServerConnectionInstructions
   );
@@ -33,7 +30,6 @@ export async function testInvalidSessionClaimToken(
   const { encryptedSessionClaimToken } = gameConnectionInstructions.data.connectionInstructions;
   const someInvalidToken = encryptedSessionClaimToken + " ";
 
-  console.log("about to await transitionToGameServer");
   await alpha.clientApplication.transitionToGameServer.waitFor();
 
   await alpha.clientApplication.gameClientRef.get().close();
@@ -49,7 +45,6 @@ export async function testInvalidSessionClaimToken(
     localServerUrl(testFixture.gameServerPort),
     queryParams
   );
-  console.log("about to await connectionRejectedPromise");
   const connectionRejectedPromise = new Promise<void>((resolve, reject) => {
     alpha.clientApplication.gameClientRef.get().connectionEndpoint.on("close", (_code, message) => {
       expect(message).toBe(ERROR_MESSAGES.SERVERS.INVALID_TOKEN);

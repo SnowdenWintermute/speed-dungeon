@@ -39,7 +39,6 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.OnConnection]: (data) => {
       if (!data.willBeReconnectedToGame) {
         console.info("token missing, reused or expired");
-        console.log("waitForReconnectionInstructions fired");
         clientApplication.waitForReconnectionInstructions.fire();
         clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
       }
@@ -48,7 +47,6 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);
-      console.log("got users list:", deserialized);
       lobbyContext.channel.update(deserialized);
       clientApplication.transitionToLobbyServer.fire();
     },
@@ -129,7 +127,6 @@ export function createLobbyUpdateHandlers(
       }
 
       game.addCharacterToParty(party, player, deserialized, deserializedPets);
-      console.log("character added to paryt", deserialized.getEntityId());
 
       if (game.mode === GameMode.Progression) {
         clientApplication.sequentialEventProcessor.scheduleEvent({
@@ -280,7 +277,6 @@ export function createLobbyUpdateHandlers(
         },
       });
 
-      console.log("waitForReconnectionInstructions fired");
       clientApplication.waitForReconnectionInstructions.fire();
       clientApplication.topologyManager.createGameClient(url, queryParams);
     },

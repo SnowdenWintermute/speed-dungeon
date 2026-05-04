@@ -317,7 +317,6 @@ export class CombatActionController {
     const battleOption = party.battleId ? game.battles.get(party.battleId) || null : null;
 
     const { battleConcludedOption } = initialActionReplayTreeResult;
-    console.log("battleConcludedOption:", battleConcludedOption);
     if (battleConcludedOption !== null) {
       const postConclusionEvents = await new BattleProcessor(
         this.updateDispatchFactory,

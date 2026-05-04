@@ -20,7 +20,6 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
   const { lobbyClientRef } = useClientApplication();
 
   function createCharacter() {
-    console.log("dispatched create character in slot index:", currentSlot);
     lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateSavedCharacter,
       data: {

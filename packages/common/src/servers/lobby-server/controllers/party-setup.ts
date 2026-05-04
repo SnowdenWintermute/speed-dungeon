@@ -126,11 +126,6 @@ export class PartySetupController {
       },
     });
 
-    console.log(
-      "joining Progression game with defaultSavedCharacter",
-      defaultSavedCharacter.combatant.getEntityId()
-    );
-
     return outbox;
   }
 

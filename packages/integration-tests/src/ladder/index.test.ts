@@ -119,11 +119,9 @@ describe("progression game", () => {
 
     // bravo got message
     await bravo.eventually(() => {
-      console.log(bravo.clientApplication.eventLogStore.getMessages());
       gotLadderLevelUpMessage(bravo.clientApplication, alphaUsername, focusedCharacter);
       gotLadderExperienceMessage(bravo.clientApplication, alphaUsername, focusedCharacter);
     });
-    console.log(bravo.clientApplication.eventLogStore.getMessages());
 
     // character die
     await alpha.gameClientHarness.toggleReadyToExplore();
@@ -139,7 +137,6 @@ describe("progression game", () => {
     expect(expectedRankAfterDeath).toBe(null);
     // bravo got message
     await bravo.eventually(() => {
-      console.log(bravo.clientApplication.eventLogStore.getMessages());
       gotLadderDeathMessage(bravo.clientApplication, alphaUsername, focusedCharacter);
     });
   });
@@ -173,7 +170,6 @@ describe("progression game", () => {
     expect(alpha.clientApplication.gameContext.requireParty().timeOfWipe).toBeDefined();
     // bravo got message
     await bravo.eventually(() => {
-      console.log(bravo.clientApplication.eventLogStore.getMessages());
       gotLadderDeathMessage(bravo.clientApplication, alphaUsername, focusedCharacter);
     });
   });

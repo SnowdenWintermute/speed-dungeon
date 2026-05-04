@@ -29,7 +29,7 @@ export class BroadcastChannelMananger {
         try {
           lobbyClientRef.get().resetConnection();
         } catch {
-          console.log("No lobby client to reset in this tab");
+          // console.info("No lobby client to reset in this tab");
         }
       }
       if (message.data.type === TabMessageType.RefetchAuthSession) {

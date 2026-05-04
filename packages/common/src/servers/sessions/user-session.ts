@@ -130,16 +130,22 @@ export class UserSession extends ConnectionSession {
   }
 
   async requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
-    // we don't want them loading the same saved character into multiple active games,
-    // so we'll prohibit simultaneous progression games per user
+    // used to prevent loading the same saved character into multiple active games
+    // or deleting a saved character that is in a game
+
+    // check the local (lobby) for any session in a game
     const userLobbySessions = userSessionRegistry.getExpectedUserSessions(this.taggedUserId.id);
 
-    console.log("check session other games", userLobbySessions);
+    console.log("other sessions:", userLobbySessions);
     for (const otherSession of userLobbySessions) {
       if (otherSession.isInGame()) {
         throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
       }
     }
+
+    // check all pending game setups
+
+    // check all active game records
   }
 
   // be careful with this! led to longer than-needed debug sesh

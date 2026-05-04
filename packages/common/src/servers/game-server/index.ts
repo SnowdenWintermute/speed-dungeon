@@ -13,7 +13,7 @@ import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
 import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
-import { GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
+import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/session-claim-token.js";
@@ -90,7 +90,12 @@ export class GameServer extends SpeedDungeonServer {
     private readonly idGenerator: IdGenerator,
     authSessionIdParser: AuthSessionIdParser
   ) {
-    super(name, incomingConnectionGateway, rngPolicy, externalServices.crossServerBroadcasterService);
+    super(
+      name,
+      incomingConnectionGateway,
+      rngPolicy,
+      externalServices.crossServerBroadcasterService
+    );
 
     const affixGenerator = new AffixGenerator(rngPolicy);
     const equipmentRandomizer = new EquipmentRandomizer(rngPolicy, affixGenerator);
@@ -218,7 +223,10 @@ export class GameServer extends SpeedDungeonServer {
         connectionEndpoint.id,
         identityResolutionContext
       );
-      this.logUserConnected(session);
+
+      if (GAME_CONFIG.LOG_GAME_SERVER_CONNECTIONS_EVENTS) {
+        this.logUserConnected(session);
+      }
 
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
@@ -276,7 +284,9 @@ export class GameServer extends SpeedDungeonServer {
 
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
-    // this.logUserDisconnected(session, reason);
+    if (GAME_CONFIG.LOG_GAME_SERVER_CONNECTIONS_EVENTS) {
+      this.logUserDisconnected(session, reason);
+    }
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
@@ -300,6 +310,8 @@ export class GameServer extends SpeedDungeonServer {
     const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
       // currently overwrites but could just update - this is simpler for now
       for (const [gameName, game] of this.gameRegistry.games) {
+        const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
+
         this.externalServices.gameSessionStoreService.writeActiveGameStatus(
           gameName,
           new ActiveGameStatus(gameName, game.id)
