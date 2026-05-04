@@ -82,6 +82,8 @@ export const ERROR_MESSAGES = {
     CHARACTER_SLOT_FULL: "That character slot is occupied",
     CHARACTER_SLOT_NOT_FOUND: "The expected character slot was not found",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
+    CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME:
+      "Your account is in a game so we can not delete the character",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",
     GUEST_ALREADY_EXISTS: "Guest by that id already is connected",

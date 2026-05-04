@@ -98,4 +98,28 @@ describe("saved characters", () => {
       ERROR_MESSAGES.AUTH.REQUIRED
     );
   });
+
+  it("can not delete saved character while session in a game", async () => {
+    await testFixture.resetWithOptions();
+    testFixture.timeMachine.start();
+    // alpha join a game and gain some experience points
+    const alpha = await testFixture.createSingleClientInLobbyProgressionGame(
+      "alpha",
+      TEST_AUTH_SESSION_ID_PLAYER_1
+    );
+    await alpha.lobbyClientHarness.toggleReadyToStartGame();
+    await alpha.clientApplication.transitionToGameServer.waitFor();
+    const focusedCharacter = alpha.clientApplication.combatantFocus.requireFocusedCharacter();
+
+    const alphaOtherTab = testFixture.createClient(
+      "alpha other tab",
+      TEST_AUTH_SESSION_ID_PLAYER_1
+    );
+    await alphaOtherTab.connect();
+
+    await alphaOtherTab.lobbyClientHarness.deleteSavedCharacter(focusedCharacter.getEntityId());
+    expect(alphaOtherTab.clientApplication.errorRecordService.getLastError()?.message).toBe(
+      ERROR_MESSAGES.USER.CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME
+    );
+  });
 });

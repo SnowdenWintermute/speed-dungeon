@@ -7,6 +7,7 @@ export const LOCAL_LOBBY_URL = localServerUrl(LOCAL_LOBBY_SERVER_PORT);
 export const LOCAL_GAME_SERVER_URL = localServerUrl(LOCAL_GAME_SERVER_PORT);
 
 export const TEST_GAME_NAME = "test-game-a";
+export const TEST_GAME_NAME_2 = "test-game-b";
 export const TEST_PARTY_NAME = "test-party-a";
 
 export const TEST_AUTH_SESSION_ID_PLAYER_1 = "0000";

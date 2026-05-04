@@ -80,6 +80,7 @@ export class ClientFixture {
   }
 }
 
-export interface ClientTestFixtureSavedCharacterOptions {
-  characters: { name: string; combatantClass: CombatantClass; slotIndex: number }[];
+export interface ClientTestFixtureOptions {
+  characters?: { name: string; combatantClass: CombatantClass; slotIndex: number }[];
+  gameName?: string;
 }

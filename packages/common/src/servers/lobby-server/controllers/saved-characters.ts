@@ -13,11 +13,13 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
+import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
   private readonly rankedLadderService: RankedLadderService;
   constructor(
+    private readonly userSessionRegistry: UserSessionRegistry,
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     externalServices: LobbyExternalServices,
@@ -122,6 +124,12 @@ export class SavedCharactersController {
     const { entityId } = data;
 
     session.requireAuthorized();
+    try {
+      session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
+    } catch (error) {
+      throw new Error(ERROR_MESSAGES.USER.CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME);
+    }
+
     const profile = await session.requireProfile(this.profileService);
 
     // delete the character only if they own it

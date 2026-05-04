@@ -17,7 +17,7 @@ import {
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
-import { ClientFixture, ClientTestFixtureSavedCharacterOptions } from "./client-test-fixture.js";
+import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
@@ -40,7 +40,7 @@ export class IntegrationTestFixture {
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
   private _gameServerPort: number = 0; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
-  private _rankedLadderService: RankedLadderService;
+  private _rankedLadderService: RankedLadderService | null = null;
 
   private createIncomingConnectionGateways() {
     const lobbyWebSocketServer = new WebSocketServer({ port: 0 });
@@ -180,7 +180,7 @@ export class IntegrationTestFixture {
   async createSingleClientWithSavedCharacters(
     testClientId: string,
     authId: string,
-    options?: ClientTestFixtureSavedCharacterOptions
+    options?: ClientTestFixtureOptions
   ) {
     const client = this.createClient(testClientId, authId);
     await client.connect();
@@ -204,16 +204,17 @@ export class IntegrationTestFixture {
   async createSingleClientInLobbyProgressionGame(
     testClientId: string,
     authId: string,
-    options?: ClientTestFixtureSavedCharacterOptions
+    options?: ClientTestFixtureOptions
   ) {
     const client = await this.createSingleClientWithSavedCharacters(testClientId, authId, options);
-    await client.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Progression);
+    const gameName = options?.gameName ? options.gameName : TEST_GAME_NAME;
+    await client.lobbyClientHarness.createGame(gameName, GameMode.Progression);
     return client;
   }
 
   async createTwoClientsInLobbyProgressionGame(
-    alphaOptions: undefined | ClientTestFixtureSavedCharacterOptions,
-    bravoOptions: undefined | ClientTestFixtureSavedCharacterOptions
+    alphaOptions: undefined | ClientTestFixtureOptions,
+    bravoOptions: undefined | ClientTestFixtureOptions
   ) {
     const alpha = await this.createSingleClientInLobbyProgressionGame(
       "client 1",

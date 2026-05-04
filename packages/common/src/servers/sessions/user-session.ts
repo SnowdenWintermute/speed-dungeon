@@ -12,6 +12,7 @@ import { ActionValidity } from "../../primatives/index.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
+import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import {
   ReconnectionKey,
@@ -128,11 +129,13 @@ export class UserSession extends ConnectionSession {
     this.currentGameName = game.name;
   }
 
-  requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
+  async requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
     // we don't want them loading the same saved character into multiple active games,
     // so we'll prohibit simultaneous progression games per user
-    const userSessions = userSessionRegistry.getExpectedUserSessions(this.taggedUserId.id);
-    for (const otherSession of userSessions) {
+    const userLobbySessions = userSessionRegistry.getExpectedUserSessions(this.taggedUserId.id);
+
+    console.log("check session other games", userLobbySessions);
+    for (const otherSession of userLobbySessions) {
       if (otherSession.isInGame()) {
         throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
       }

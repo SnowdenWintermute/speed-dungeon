@@ -1,14 +1,28 @@
-// to create:
-// - turn order bar updates on turn end
-// - turn order bar shows conditions when tickable condition cast
-// - threat decay ticks down visibly
-// - threat added when monster hit
-// - threat added to all monsters when ally healed
-// - items can be picked up and dropped
-// - races between one client trying to pick up item before receiving update that the item
-// was already taken by another client
-// - allocate attribute and ability points
-// - operate vending machine
+// SAVED CHARACTERS
+// can not delete a saved character if auth account is in a game
+// PROGRESSION GAME
+// can not join another progression game while already in one on same account
+//
+// TURN ORDER
+// turn order bar updates on turn end
+// turn order bar shows conditions when tickable condition cast
+//
+// THREAT
+// threat decay ticks down visibly
+// threat added when monster hit
+// threat added to all monsters when ally healed
+//
+// ITEM MANAGEMENT
+// items can be picked up and dropped
+// races between clients trying to pick up same item
+// shards picked up and dropped
+//
+// CHARACTER PROGRESSION
+// allocate attribute points
+// allocate ability points
+//
+// VENDING MACHINE
+// operate vending machine
 //
 // LADDER RANKINGS
 // on ladder death, other players see death message

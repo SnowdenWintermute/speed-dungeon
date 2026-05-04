@@ -34,7 +34,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   playerUsernamesAwaitingReconnection = new Set<Username>();
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
-  _timeOfWipe: null | number = null;
+  private _timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
   inputLock = new TimedLock();
 

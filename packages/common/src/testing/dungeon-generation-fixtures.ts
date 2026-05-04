@@ -68,9 +68,6 @@ export const TEST_DUNGEON_FOUR_ONE_HP_WOLVES: ExplicitCombatantDungeonTemplate =
       ],
     },
     {
-      type: DungeonRoomType.Empty,
-    },
-    {
       type: DungeonRoomType.MonsterLair,
       combatants: [
         MONSTER_FIXTURES.WOLF_ONE_HP,
