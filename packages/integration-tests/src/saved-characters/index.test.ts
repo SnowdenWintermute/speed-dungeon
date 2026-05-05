@@ -121,5 +121,18 @@ describe("saved characters", () => {
     expect(alphaOtherTab.clientApplication.errorRecordService.getLastError()?.message).toBe(
       ERROR_MESSAGES.USER.CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME
     );
+
+    // leave game
+    await alpha.gameClientHarness.leaveGame();
+
+    // now able to delete saved character
+    alphaOtherTab.clientApplication.errorRecordService.clear();
+    await alphaOtherTab.lobbyClientHarness.deleteSavedCharacter(focusedCharacter.getEntityId());
+    expect(alphaOtherTab.clientApplication.errorRecordService.count).toBe(0);
+    expect(
+      Object.values(alphaOtherTab.clientApplication.lobbyContext.savedCharacters.slots).every(
+        (slot) => slot === null
+      )
+    ).toBeTruthy();
   });
 });

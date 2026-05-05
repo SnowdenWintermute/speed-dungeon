@@ -129,7 +129,10 @@ export class UserSession extends ConnectionSession {
     this.currentGameName = game.name;
   }
 
-  async requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
+  async requireNotInGameOnAnotherSession(
+    userSessionRegistry: UserSessionRegistry,
+    gameSessionStoreService: GameSessionStoreService
+  ) {
     // used to prevent loading the same saved character into multiple active games
     // or deleting a saved character that is in a game
 
@@ -142,10 +145,12 @@ export class UserSession extends ConnectionSession {
         throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
       }
     }
-
-    // check all pending game setups
-
-    // check all active game records
+    const isInGameServer = await gameSessionStoreService.getUserIdIsInPendingOrActiveGame(
+      this.taggedUserId
+    );
+    if (isInGameServer) {
+      throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
+    }
   }
 
   // be careful with this! led to longer than-needed debug sesh

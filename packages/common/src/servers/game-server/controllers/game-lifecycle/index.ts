@@ -74,7 +74,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     await this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
     await this.gameSessionStoreService.writeActiveGameStatus(
       newGame.name,
-      new ActiveGameStatus(newGame.name, newGame.id)
+      new ActiveGameStatus(newGame.name, newGame.id, pendingGameSetupOption.taggedUserIds)
     );
 
     return newGame;
@@ -182,11 +182,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async leaveGameHandler(session: UserSession) {
-    const game = session.getCurrentGameOption();
+    const game = session.getExpectedCurrentGame();
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    if (game === null) {
-      return outbox;
-    }
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerLeftGame,
@@ -238,6 +235,11 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     game.removePlayer(session.username);
+
+    await this.gameSessionStoreService.unregisterUserIdFromActiveGame(
+      session.taggedUserId,
+      game.name
+    );
 
     const noPlayersRemain = game.players.size === 0;
     const allPartiesWiped = game.allPartiesWiped();

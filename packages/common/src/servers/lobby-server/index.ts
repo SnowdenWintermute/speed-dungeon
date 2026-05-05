@@ -197,6 +197,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const savedCharactersController = new SavedCharactersController(
       this.userSessionRegistry,
       this.externalServices.profileService,
+      this.externalServices.gameSessionStoreService,
       this.updateDispatchFactory,
       this.externalServices,
       this.characterCreationPolicy

@@ -16,6 +16,7 @@ import { GameServerGameLifecycleController } from "../controllers/game-lifecycle
 import { GameServerReconnectionForwardingRecord } from "../../services/reconnection-forwarding-store/game-server-reconnection-forwarding-record.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../../../app-consts.js";
+import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 
 interface GameServerReconnectionContext {
   type: ConnectionContextType.Reconnection;
@@ -36,6 +37,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
+    private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly dispatchOutboxMessages: (
       outbox: MessageDispatchOutbox<GameStateUpdate>
     ) => void

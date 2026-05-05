@@ -203,6 +203,7 @@ export class GameServer extends SpeedDungeonServer {
       externalServices.reconnectionForwardingStoreService,
       this.reconnectionOpportunityManager,
       this.gameLifecycleController,
+      this.externalServices.gameSessionStoreService,
       (outbox) => this.dispatchOutboxMessages(outbox)
     );
   }
@@ -310,12 +311,7 @@ export class GameServer extends SpeedDungeonServer {
     const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
       // currently overwrites but could just update - this is simpler for now
       for (const [gameName, game] of this.gameRegistry.games) {
-        const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
-
-        this.externalServices.gameSessionStoreService.writeActiveGameStatus(
-          gameName,
-          new ActiveGameStatus(gameName, game.id)
-        );
+        this.externalServices.gameSessionStoreService.refreshActiveGameStatus(gameName);
       }
     });
 

@@ -17,7 +17,6 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { MapUtils } from "../../../utils/map-utils.js";
-import { CharacterLifecycleController } from "./character-lifecycle.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
