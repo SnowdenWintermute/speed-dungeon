@@ -5,8 +5,11 @@ import {
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
+import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { GameServerReconnectionForwardingRecord } from "../../services/reconnection-forwarding-store/game-server-reconnection-forwarding-record.js";
 import { ReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/index.js";
+import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
+import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
@@ -24,7 +27,15 @@ interface LobbyInitialConnectionContext {
   type: ConnectionContextType.InitialConnection;
 }
 
-export type LobbyConnectionContext = LobbyReconnectionContext | LobbyInitialConnectionContext;
+interface GameServerInitialConnectionRetryContext {
+  type: ConnectionContextType.InitialGameServerConnectionRetry;
+  issueCredentials: () => Promise<MessageDispatchOutbox<GameStateUpdate>>;
+}
+
+export type LobbyConnectionContext =
+  | LobbyReconnectionContext
+  | LobbyInitialConnectionContext
+  | GameServerInitialConnectionRetryContext;
 
 export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
   constructor(
@@ -32,6 +43,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     private readonly gameServerUrlRegistry: Record<GameServerName, string>
   ) {}
 
@@ -46,6 +58,24 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
       await this.getGameServerReconnectionForwardingRecordOption(session);
 
     if (!reconnectionForwardingRecordOption) {
+      // check if they are an auth user that got initial connection instructions but never made their first connection
+      if (session.taggedUserId.type === UserIdType.Auth) {
+        const globalAuthGameSessionOption = await this.globalAuthGameSessionStore.getSessionOption(
+          session.taggedUserId.id
+        );
+        if (
+          globalAuthGameSessionOption?.connectionStatus.type ===
+          GameSessionConnectionStatus.InitialConnectionPending
+        ) {
+          const token = globalAuthGameSessionOption.connectionStatus.token;
+          return {
+            type: ConnectionContextType.InitialGameServerConnectionRetry,
+            issueCredentials: async () =>
+              await this.issueInitialGameServerConnectionRetryCredential(session, token),
+          };
+        }
+      }
+
       return { type: ConnectionContextType.InitialConnection };
     }
 
@@ -68,11 +98,13 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     reconnectionForwardingRecord: GameServerReconnectionForwardingRecord
   ) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
+    const url = this.getGameServerUrlFromName(reconnectionForwardingRecord.gameServerName);
     const claimToken = new GameServerSessionClaimToken(
       reconnectionForwardingRecord.gameName,
       reconnectionForwardingRecord.partyName,
       session.username,
       reconnectionForwardingRecord.taggedUserId,
+      url,
       reconnectionForwardingRecord.guestUserReconnectionTokenOption || undefined
     );
 
@@ -83,7 +115,38 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
       console.trace("error encrypting token", err);
     }
 
-    const url = this.getGameServerUrlFromName(reconnectionForwardingRecord.gameServerName);
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.GameServerConnectionInstructions,
+      data: {
+        connectionInstructions: {
+          url,
+          encryptedSessionClaimToken,
+        },
+      },
+    });
+
+    const { username, taggedUserId, connectionId } = session;
+    // console.info(
+    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${reconnectionForwardingRecord.gameServerName} at url ${url}`
+    // );
+
+    return outbox;
+  }
+
+  async issueInitialGameServerConnectionRetryCredential(
+    session: UserSession,
+    token: GameServerSessionClaimToken
+  ) {
+    const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
+
+    let encryptedSessionClaimToken = "";
+    try {
+      encryptedSessionClaimToken = await this.gameServerSessionClaimTokenCodec.encode(token);
+    } catch (err) {
+      console.trace("error encrypting token", err);
+    }
+
+    const url = token.gameServerUrl;
 
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameServerConnectionInstructions,

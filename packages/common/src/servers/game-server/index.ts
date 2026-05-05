@@ -46,6 +46,8 @@ import { CrossServerBroadcasterService } from "../services/cross-server-broadcas
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
 import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
+import { UserIdType } from "../sessions/user-ids.js";
+import { GameSessionConnectionStatus } from "../sessions/global-auth-game-session.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -159,6 +161,7 @@ export class GameServer extends SpeedDungeonServer {
       this.gameRegistry,
       this.userSessionRegistry,
       this.externalServices.gameSessionStoreService,
+      this.externalServices.globalAuthGameSessionStore,
       this.externalServices.reconnectionForwardingStoreService,
       this.updateDispatchFactory,
       this.gameModeContexts,
@@ -205,7 +208,7 @@ export class GameServer extends SpeedDungeonServer {
       externalServices.reconnectionForwardingStoreService,
       this.reconnectionOpportunityManager,
       this.gameLifecycleController,
-      this.externalServices.gameSessionStoreService,
+      this.externalServices.globalAuthGameSessionStore,
       (outbox) => this.dispatchOutboxMessages(outbox)
     );
   }
@@ -265,6 +268,13 @@ export class GameServer extends SpeedDungeonServer {
 
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
 
+      if (session.taggedUserId.type === UserIdType.Auth) {
+        await this.externalServices.globalAuthGameSessionStore.updateSessionConnectionStatus(
+          session.taggedUserId.id,
+          { type: GameSessionConnectionStatus.ConnectedToGameServer }
+        );
+      }
+
       outbox.pushFromOther(joinGameOutbox);
 
       const refreshedReconnectionTokenOutbox =
@@ -295,7 +305,8 @@ export class GameServer extends SpeedDungeonServer {
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
 
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-    if (!session.intentionallyClosed) {
+    const shouldAllowReconnection = !session.intentionallyClosed;
+    if (shouldAllowReconnection) {
       const reconnectionOutbox = await this.reconnectionProtocol.onPlayerDisconnected(
         session,
         this.name

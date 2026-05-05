@@ -1,14 +1,15 @@
-import { ConnectionId, GameName } from "../../../aliases.js";
+import { ConnectionId, GameName, GameServerName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { invariant } from "../../../utils/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { PendingGameSetup } from "../../services/game-session-store/pending-game-setup.js";
+import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { LobbyState } from "../lobby-state.js";
 import {
   GameServerSessionClaimToken,
   GameServerSessionClaimTokenCodec,
@@ -19,7 +20,7 @@ export class GameHandoffManager {
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly lobbyState: LobbyState,
+    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
     private readonly getLeastBusyServerUrl: () => Promise<string>
   ) {}
@@ -39,7 +40,7 @@ export class GameHandoffManager {
     return result;
   }
 
-  private prepareClaimTokens(sessions: UserSession[], gameName: GameName) {
+  private prepareClaimTokens(sessions: UserSession[], gameName: GameName, gameServerUrl: string) {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
@@ -49,6 +50,7 @@ export class GameHandoffManager {
         session.currentPartyName,
         session.username,
         session.taggedUserId,
+        gameServerUrl,
         session.getGuestReconnectionTokenOption() || undefined
       );
       claimTokensByConnectionId.set(session.connectionId, claimToken);
@@ -70,11 +72,15 @@ export class GameHandoffManager {
     );
 
     const sessionsInGame = this.getPlayerSessionsInGame(game);
-    const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name);
+    const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name, leastBusyServerUrl);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
 
     for (const [connectionId, token] of claimTokens) {
+      if (token.taggedUserId.type === UserIdType.Auth) {
+        this.globalAuthGameSessionStore.registerSession(token.taggedUserId.id, token);
+      }
+
       const encryptedToken = await this.gameServerSessionClaimTokenCodec.encode(token);
       outbox.pushToConnection(connectionId, {
         type: GameStateUpdateType.GameServerConnectionInstructions,

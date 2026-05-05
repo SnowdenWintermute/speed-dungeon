@@ -93,7 +93,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
-      this.lobbyState,
+      externalServices.globalAuthGameSessionStore,
       this.gameServerSessionClaimTokenCodec,
       fetchLeastBusyServer
     );
@@ -133,6 +133,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
       externalServices.reconnectionForwardingStoreService,
+      externalServices.globalAuthGameSessionStore,
       gameServerUrlRegistry
     );
   }
@@ -266,6 +267,7 @@ export class LobbyServer extends SpeedDungeonServer {
         for (const pendingGame of pendingGames) {
           if (pendingGame.isStale()) {
             await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.name);
+            // iterate all GlobalAuthGameSessionStore entries and clear records associated with this game name
           }
         }
 
@@ -276,6 +278,7 @@ export class LobbyServer extends SpeedDungeonServer {
             await reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(
               activeGame.name
             );
+            // iterate all GlobalAuthGameSessionStore entries and clear records associated with this game name
           }
         }
       })

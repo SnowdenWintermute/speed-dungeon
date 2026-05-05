@@ -21,6 +21,8 @@ import {
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { ReconnectionForwardingStoreService } from "../../../services/reconnection-forwarding-store/index.js";
+import { UserIdType } from "../../../sessions/user-ids.js";
+import { GlobalAuthGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -29,6 +31,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
+    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>,
@@ -235,6 +238,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     game.removePlayer(session.username);
+    if (session.taggedUserId.type === UserIdType.Auth) {
+      await this.globalAuthGameSessionStore.clearSession(session.taggedUserId.id);
+    }
 
     const noPlayersRemain = game.players.size === 0;
     const allPartiesWiped = game.allPartiesWiped();

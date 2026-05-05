@@ -1,5 +1,6 @@
 import {
   GameName,
+  GameServerName,
   GuestSessionReconnectionToken,
   Milliseconds,
   PartyName,
@@ -19,6 +20,7 @@ export class GameServerSessionClaimToken {
     readonly partyName: PartyName,
     readonly username: Username,
     readonly taggedUserId: TaggedUserId,
+    readonly gameServerUrl: string,
     readonly reconnectionTokenOption?: GuestSessionReconnectionToken
   ) {}
 

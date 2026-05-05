@@ -1,13 +1,14 @@
 import { IdentityProviderId } from "../../../aliases.js";
+import { GameServerSessionClaimToken } from "../../lobby-server/game-handoff/session-claim-token.js";
 import {
-  GameSessionConnectionStatus,
   GlobalAuthGameSession,
+  TaggedGameSessionConnectionStatus,
 } from "../../sessions/global-auth-game-session.js";
 
 export abstract class GlobalAuthGameSessionStore {
   abstract registerSession(
     identityProviderId: IdentityProviderId,
-    value: GlobalAuthGameSession
+    initialGameServerSessionClaimToken: GameServerSessionClaimToken
   ): Promise<void>;
   abstract getSessionOption(
     identityProviderId: IdentityProviderId
@@ -16,7 +17,7 @@ export abstract class GlobalAuthGameSessionStore {
   abstract requireSession(identityProviderId: IdentityProviderId): Promise<GlobalAuthGameSession>;
   abstract updateSessionConnectionStatus(
     identityProviderId: IdentityProviderId,
-    value: GameSessionConnectionStatus
+    value: TaggedGameSessionConnectionStatus
   ): Promise<void>;
   abstract clearSession(identityProviderId: IdentityProviderId): Promise<void>;
 }
@@ -24,8 +25,20 @@ export abstract class GlobalAuthGameSessionStore {
 export class InMemoryGlobalAuthGameSessionStore extends GlobalAuthGameSessionStore {
   private _sessions = new Map<IdentityProviderId, GlobalAuthGameSession>();
 
-  async registerSession(identityProviderId: IdentityProviderId): Promise<void> {
-    this._sessions.set(identityProviderId, new GlobalAuthGameSession());
+  async registerSession(
+    identityProviderId: IdentityProviderId,
+    initialGameServerSessionClaimToken: GameServerSessionClaimToken
+  ): Promise<void> {
+    const sessionAlreadyExists = await this.hasExistingSession(identityProviderId);
+    if (sessionAlreadyExists) {
+      throw new Error(
+        `Tried to register a new GlobalAuthGameSession but one already existed for user id ${identityProviderId}`
+      );
+    }
+    this._sessions.set(
+      identityProviderId,
+      new GlobalAuthGameSession(initialGameServerSessionClaimToken)
+    );
   }
 
   async getSessionOption(
@@ -46,7 +59,7 @@ export class InMemoryGlobalAuthGameSessionStore extends GlobalAuthGameSessionSto
   }
   async updateSessionConnectionStatus(
     identityProviderId: IdentityProviderId,
-    value: GameSessionConnectionStatus
+    value: TaggedGameSessionConnectionStatus
   ): Promise<void> {
     const expected = await this.requireSession(identityProviderId);
     expected.connectionStatus = value;

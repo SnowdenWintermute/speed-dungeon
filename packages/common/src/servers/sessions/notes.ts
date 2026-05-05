@@ -27,40 +27,40 @@
 //   . mark global session status as "in game"
 //
 // on game server disconnection
+// - all users
+//   . save a reconnection opportunity in ReconnectionForwardingStore
+//   . start a timeout to clean up the opportunity if not used
 // - auth user
-//   . save a reconnection opportunity on their global session status
-//   . start a timeout to clean up the opportunity if not used
-// - guest user
-//   . save a reconnection opportunity in a GuestReconnectionForwardingStore
-//   . start a timeout to clean up the opportunity if not used
+//   . update status as "awaiting reconnection"
+//
 //
 // on leave game/reconnection timeout (auth user)
 // - delete their GlobalSession status
+//
 //
 // on join lobby
 // - auth user
 //   . check their global auth session for reconnection/connection instructions
 //   . if reconnection, give them new connection instructions
-//   (don't save them in global session because they can always get more while
-//   the reconnection opportunity is live)
-//   . if initial connection pending, re-issue connection instructions
+//   . if initial connection pending, re-give them their saved token stored in their GlobalSessionGameStatus
 // - guest user (guests present a reconnection token they save locally on their device)
 //   . check the guest reconnection forwarding store for an opportunity and
 //   . if exists, provide connection instructions
 //
-//
+// ====
 //
 // lobby dangling resources loop
 // for any expired active game records
 // - delete reconnection opportunities
 // - delete active game records
-// - check auth global sessions for being in that game (by game's UUID) and delete them
+// - check auth global sessions for being in that game and delete them
 // for any expired pending games
 // - delete pending game setups
 // - delete unused connection instructions stored on global sessions
-// - check auth global sessions for connection instructions for that game (by game's UUID) and delete them
+// - check auth global sessions for connection instructions for that game and delete them
 //
 //
 // TEST
 // - reconnection by a user in a game that has been initialized but
 // not all users have connected yet
+// - retry initial connection

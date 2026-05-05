@@ -3,6 +3,7 @@ import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 
 export enum ConnectionContextType {
   InitialConnection,
+  InitialGameServerConnectionRetry,
   Reconnection,
 }
 

@@ -17,6 +17,8 @@ import { GameServerReconnectionForwardingRecord } from "../../services/reconnect
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../../../app-consts.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
+import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
 
 interface GameServerReconnectionContext {
   type: ConnectionContextType.Reconnection;
@@ -37,7 +39,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
-    private readonly gameSessionStoreService: GameSessionStoreService,
+    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     private readonly dispatchOutboxMessages: (
       outbox: MessageDispatchOutbox<GameStateUpdate>
     ) => void
@@ -131,6 +133,12 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
         session.requireReconnectionKey(),
         reconnectionForwardingRecord
       );
+      if (session.taggedUserId.type === UserIdType.Auth) {
+        await this.globalAuthGameSessionStore.updateSessionConnectionStatus(
+          session.taggedUserId.id,
+          { type: GameSessionConnectionStatus.AwaitingReconnection }
+        );
+      }
     } catch (error) {
       console.error("error creating reconnection opportunity", error);
     }
@@ -140,6 +148,11 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
 
   async cleanUpTimedOutClaim(session: UserSession, game: SpeedDungeonGame) {
     this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
+
+    if (session.taggedUserId.type === UserIdType.Auth) {
+      await this.globalAuthGameSessionStore.clearSession(session.taggedUserId.id);
+    }
+
     try {
       await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
         session.requireReconnectionKey()
