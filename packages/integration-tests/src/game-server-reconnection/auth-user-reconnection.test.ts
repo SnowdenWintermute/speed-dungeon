@@ -11,7 +11,7 @@ describe("auth user reconnection", () => {
     ]);
   });
 
-  it("lost initial connection instructions", async () => {
+  it("retry initial game server connection", async () => {
     await testRetryLostInitialConnectionInstructions(testFixture);
   });
 });

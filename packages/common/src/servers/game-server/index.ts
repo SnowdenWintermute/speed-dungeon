@@ -116,7 +116,7 @@ export class GameServer extends SpeedDungeonServer {
       return new Promise<void>((resolve, reject) => {
         this.executor.enqueue(async () => {
           try {
-            await this.handleConnection(context, identityContext);
+            await this.connectionHandler(context, identityContext);
             resolve();
           } catch (error) {
             reject(error);
@@ -220,7 +220,7 @@ export class GameServer extends SpeedDungeonServer {
 
   private intentHandlers = createGameServerClientIntentHandlers(this);
 
-  async handleConnection(
+  async connectionHandler(
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {

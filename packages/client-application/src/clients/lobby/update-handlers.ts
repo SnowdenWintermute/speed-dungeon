@@ -254,6 +254,7 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.GameServerConnectionInstructions]: async (data) => {
+      console.log("got GameServerConnectionInstructions:", data);
       clientApplication.transitionToLobbyServer.fire(); // if skipping lobby and reconnecting to game
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;

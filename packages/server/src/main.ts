@@ -21,7 +21,7 @@ import { GameServerNode } from "./game-node/index.js";
 import { createServer } from "http";
 
 const LOBBY_PORT = 8080;
-export const GAME_SERVER_NAME = "Lindblum Test Server" as GameServerName;
+export const GAME_SERVER_NAME = "Lindblum Test Game Server" as GameServerName;
 const GAME_SERVER_PORT = 8090;
 
 await runMigrations();

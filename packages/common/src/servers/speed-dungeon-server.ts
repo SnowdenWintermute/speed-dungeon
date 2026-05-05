@@ -79,6 +79,7 @@ export abstract class SpeedDungeonServer {
       `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] server`
     );
   }
+
   protected logUserDisconnected(session: UserSession, reason: TransportDisconnectReason) {
     console.info(
       `-- ${session.username} (${session.connectionId}) disconnected from [${this.name}] server. ${reason}`
@@ -179,7 +180,7 @@ export abstract class SpeedDungeonServer {
     }
   }
 
-  protected abstract handleConnection(
+  protected abstract connectionHandler(
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ): Promise<void>;

@@ -7,6 +7,12 @@ export enum ConnectionContextType {
   Reconnection,
 }
 
+export const CONNECTION_CONTEXT_TYPE_STRINGS: Record<ConnectionContextType, string> = {
+  [ConnectionContextType.InitialConnection]: "InitialConnection",
+  [ConnectionContextType.InitialGameServerConnectionRetry]: "InitialGameServerConnectionRetry",
+  [ConnectionContextType.Reconnection]: "Reconnection",
+};
+
 export interface ConnectionContext {
   type: ConnectionContextType;
 }

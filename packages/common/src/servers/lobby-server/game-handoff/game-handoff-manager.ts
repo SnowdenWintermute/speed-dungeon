@@ -78,7 +78,7 @@ export class GameHandoffManager {
 
     for (const [connectionId, token] of claimTokens) {
       if (token.taggedUserId.type === UserIdType.Auth) {
-        this.globalAuthGameSessionStore.registerSession(token.taggedUserId.id, token);
+        await this.globalAuthGameSessionStore.registerSession(token.taggedUserId.id, token);
       }
 
       const encryptedToken = await this.gameServerSessionClaimTokenCodec.encode(token);

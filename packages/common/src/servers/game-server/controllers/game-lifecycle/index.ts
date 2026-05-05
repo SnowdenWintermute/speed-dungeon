@@ -261,6 +261,10 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
     await this.gameSessionStoreService.deletePendingGameSetup(game.name);
     await this.reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(game.name);
+    // even though we clear their session on leave game, it is possible that they never joined the game,
+    // the other users get bored and leave and the user that never joined would be stuck with a stale
+    // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
+    await this.globalAuthGameSessionStore.clearSessionsInGame(game.name);
   }
 
   handleAbandoningDeadPartyMembers(

@@ -27,7 +27,10 @@ import { GameServerSessionClaimTokenCodec } from "./game-handoff/session-claim-t
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { LobbyReconnectionProtocol } from "./reconnection/index.js";
-import { ConnectionContextType } from "../reconnection-protocol/index.js";
+import {
+  CONNECTION_CONTEXT_TYPE_STRINGS,
+  ConnectionContextType,
+} from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameServerName } from "../../aliases.js";
 import {
@@ -102,7 +105,7 @@ export class LobbyServer extends SpeedDungeonServer {
       return new Promise<void>((resolve, reject) => {
         this.executor.enqueue(async () => {
           try {
-            await this.handleConnection(context, identityContext);
+            await this.connectionHandler(context, identityContext);
             resolve();
           } catch (error) {
             reject(error);
@@ -138,7 +141,7 @@ export class LobbyServer extends SpeedDungeonServer {
     );
   }
 
-  async handleConnection(
+  async connectionHandler(
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ) {
@@ -161,7 +164,11 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
-    if (connectionContext.type === ConnectionContextType.Reconnection) {
+    if (
+      connectionContext.type === ConnectionContextType.Reconnection ||
+      connectionContext.type === ConnectionContextType.InitialGameServerConnectionRetry
+    ) {
+      console.log("got connection type:", CONNECTION_CONTEXT_TYPE_STRINGS[connectionContext.type]);
       const outbox = await this.userSessionLifecycleController.activateSession(session, {
         sessionWillBeForwardedToGameServer: true,
       });
