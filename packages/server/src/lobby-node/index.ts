@@ -21,6 +21,7 @@ import {
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
   CHARACTER_LEVEL_LADDER,
+  GlobalAuthGameSessionStore,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -45,6 +46,7 @@ export class LobbyServerNode {
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
+    globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
@@ -54,7 +56,8 @@ export class LobbyServerNode {
     const externalServices = this.createExternalServices(
       reconnectionForwardingStoreService,
       gameSessionStoreService,
-      crossServerBroadcasterService
+      crossServerBroadcasterService,
+      globalAuthGameSessionStore
     );
     const leastBusyGameServerUrlGetter = async () => "http://localhost:8090";
     this._lobbyServer = new LobbyServer(
@@ -88,7 +91,8 @@ export class LobbyServerNode {
   private createExternalServices(
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
-    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+    globalAuthGameSessionStore: GlobalAuthGameSessionStore
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
@@ -118,6 +122,7 @@ export class LobbyServerNode {
       gameSessionStoreService,
       reconnectionForwardingStoreService,
       crossServerBroadcasterService,
+      globalAuthGameSessionStore,
     };
 
     return externalServices;

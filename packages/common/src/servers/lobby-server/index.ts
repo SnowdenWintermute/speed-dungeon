@@ -37,6 +37,7 @@ import {
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { GAME_CONFIG, LOBBY_DANGLING_RESOURCES_CLEANUP_MS } from "../../app-consts.js";
+import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -46,6 +47,7 @@ export interface LobbyExternalServices {
   gameSessionStoreService: GameSessionStoreService;
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>;
+  globalAuthGameSessionStore: GlobalAuthGameSessionStore;
 }
 
 // lives either inside a LobbyServerNode or locally on a ClientApp

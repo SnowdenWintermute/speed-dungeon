@@ -45,6 +45,7 @@ import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
+import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -54,6 +55,7 @@ export interface GameServerExternalServices {
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>;
+  globalAuthGameSessionStore: GlobalAuthGameSessionStore;
 }
 
 export class GameServer extends SpeedDungeonServer {

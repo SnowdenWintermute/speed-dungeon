@@ -33,6 +33,8 @@ import {
   RandomNumberGenerationPolicyFactory,
   IdGeneratorRandom,
   cookieHeaderAuthSessionIdParser,
+  GlobalAuthGameSessionStore,
+  InMemoryGlobalAuthGameSessionStore,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -59,6 +61,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
 
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
+  const globalAuthGameSessionStore = new InMemoryGlobalAuthGameSessionStore();
 
   const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate>();
   const lobbyCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
@@ -92,7 +95,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       savedCharactersService,
       rankedLadderService,
       profileService,
-      lobbyCrossServerBroadcasterService
+      lobbyCrossServerBroadcasterService,
+      globalAuthGameSessionStore
     ),
     codec,
     { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
@@ -125,7 +129,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       rankedLadderService,
       raceGameRecordsService,
       assetService,
-      gameCrossServerBroadcasterService
+      gameCrossServerBroadcasterService,
+      globalAuthGameSessionStore
     ),
     codec,
     RandomDungeonGenerationPolicy,
@@ -145,7 +150,8 @@ function createOfflineLobbyServerServices(
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
   profileService: SpeedDungeonProfileService,
-  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+  globalAuthGameSessionStore: GlobalAuthGameSessionStore
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
@@ -166,6 +172,7 @@ function createOfflineLobbyServerServices(
     gameSessionStoreService,
     reconnectionForwardingStoreService,
     crossServerBroadcasterService,
+    globalAuthGameSessionStore,
   };
   return externalServices;
 }
@@ -177,7 +184,8 @@ function createOfflineGameServerServices(
   rankedLadderService: RankedLadderService,
   raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
-  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+  globalAuthGameSessionStore: GlobalAuthGameSessionStore
 ) {
   const externalServices: GameServerExternalServices = {
     gameSessionStoreService,
@@ -187,6 +195,7 @@ function createOfflineGameServerServices(
     raceGameRecordsService,
     assetService,
     crossServerBroadcasterService,
+    globalAuthGameSessionStore,
   };
   return externalServices;
 }

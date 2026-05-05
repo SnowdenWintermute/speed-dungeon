@@ -262,3 +262,5 @@ export * from "./testing/monster-fixtures.js";
 export * from "./testing/player-character-fixtures.js";
 export * from "./combatants/experience-points/index.js";
 export * from "./utils/numeric-enum-utils.js";
+export * from "./servers/services/global-auth-game-connection-session-store/index.js";
+export * from "./servers/sessions/global-auth-game-session.js";

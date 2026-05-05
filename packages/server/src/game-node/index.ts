@@ -49,6 +49,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { env } from "../validate-env.js";
+import { GlobalAuthGameSessionStore } from "@speed-dungeon/common";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -60,6 +61,7 @@ export class GameServerNode {
     expressApp: Express,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
+    globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
@@ -73,7 +75,8 @@ export class GameServerNode {
       fsAssetStore,
       reconnectionForwardingStoreService,
       gameSessionStoreService,
-      crossServerBroadcasterService
+      crossServerBroadcasterService,
+      globalAuthGameSessionStore
     );
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
@@ -120,7 +123,8 @@ export class GameServerNode {
     assetStore: AssetCache,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
-    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+    globalAuthGameSessionStore: GlobalAuthGameSessionStore
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);
 
@@ -148,6 +152,7 @@ export class GameServerNode {
       raceGameRecordsService,
       assetService,
       crossServerBroadcasterService,
+      globalAuthGameSessionStore,
     };
     return result;
   }

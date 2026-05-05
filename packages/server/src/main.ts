@@ -9,6 +9,7 @@ import {
   InMemoryReconnectionForwardingStoreService,
   OpaqueEncryptionSessionClaimTokenCodec,
   SodiumHelpers,
+  InMemoryGlobalAuthGameSessionStore,
 } from "@speed-dungeon/common";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
@@ -35,6 +36,7 @@ const gameServerNode = new GameServerNode();
 // @TODO - make valkey versions
 const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 const gameSessionStoreService = new InMemoryGameSessionStoreService();
+const globalAuthGameSessionStore = new InMemoryGlobalAuthGameSessionStore();
 
 // for sending ladder rank global messages from the originating game server to all clients
 // on all servers
@@ -57,6 +59,7 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
     httpServer,
     reconnectionForwardingStoreService,
     gameSessionStoreService,
+    globalAuthGameSessionStore,
     lobbyCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec
   );
@@ -71,6 +74,7 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     expressApp,
     reconnectionForwardingStoreService,
     gameSessionStoreService,
+    globalAuthGameSessionStore,
     gameCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec
   );
