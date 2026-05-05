@@ -14,7 +14,7 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { GameSessionStoreService } from "../../services/game-session-store/index.js";
+import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
@@ -22,7 +22,7 @@ export class SavedCharactersController {
   constructor(
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly profileService: SpeedDungeonProfileService,
-    private readonly gameSessionStoreService: GameSessionStoreService,
+    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     externalServices: LobbyExternalServices,
     private readonly characterCreationPolicy: CharacterCreationPolicy
@@ -128,7 +128,7 @@ export class SavedCharactersController {
     try {
       await session.requireNotInGameOnAnotherSession(
         this.userSessionRegistry,
-        this.gameSessionStoreService
+        this.globalAuthGameSessionStore
       );
     } catch (error) {
       throw new Error(ERROR_MESSAGES.USER.CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME);

@@ -1,5 +1,4 @@
 import { GameName } from "../../../aliases.js";
-import { TaggedUserId } from "../../sessions/user-ids.js";
 import { ActiveGameStatus } from "./active-game-status.js";
 import { PendingGameSetup } from "./pending-game-setup.js";
 
@@ -15,7 +14,4 @@ export interface GameSessionStoreService {
 
   getActiveGames(): Promise<ActiveGameStatus[]>;
   getPendingGameSetups(): Promise<PendingGameSetup[]>;
-
-  getUserIdIsInPendingOrActiveGame(userId: TaggedUserId): Promise<boolean>;
-  unregisterUserIdFromActiveGame(userId: TaggedUserId, gameName: GameName): Promise<void>;
 }

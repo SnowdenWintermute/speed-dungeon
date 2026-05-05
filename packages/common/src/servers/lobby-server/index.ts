@@ -199,7 +199,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const savedCharactersController = new SavedCharactersController(
       this.userSessionRegistry,
       this.externalServices.profileService,
-      this.externalServices.gameSessionStoreService,
+      this.externalServices.globalAuthGameSessionStore,
       this.updateDispatchFactory,
       this.externalServices,
       this.characterCreationPolicy
@@ -221,7 +221,8 @@ export class LobbyServer extends SpeedDungeonServer {
       savedCharactersController,
       idGenerator,
       this.gameHandoffManager,
-      this.externalServices.gameSessionStoreService
+      this.externalServices.gameSessionStoreService,
+      this.externalServices.globalAuthGameSessionStore
     );
 
     const characterLifecycleController = new CharacterLifecycleController(

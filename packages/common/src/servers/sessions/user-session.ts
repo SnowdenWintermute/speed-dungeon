@@ -13,6 +13,7 @@ import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
+import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import {
   ReconnectionKey,
@@ -130,25 +131,29 @@ export class UserSession extends ConnectionSession {
   }
 
   async requireNotInGameOnAnotherSession(
-    userSessionRegistry: UserSessionRegistry,
-    gameSessionStoreService: GameSessionStoreService
+    lobbyUserSessionRegistry: UserSessionRegistry,
+    globalAuthGameSessionStore: GlobalAuthGameSessionStore
   ) {
     // used to prevent loading the same saved character into multiple active games
     // or deleting a saved character that is in a game
 
     // check the local (lobby) for any session in a game
-    const userLobbySessions = userSessionRegistry.getExpectedUserSessions(this.taggedUserId.id);
+    const userLobbySessions = lobbyUserSessionRegistry.getExpectedUserSessions(
+      this.taggedUserId.id
+    );
 
-    console.log("other sessions:", userLobbySessions);
     for (const otherSession of userLobbySessions) {
       if (otherSession.isInGame()) {
         throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
       }
     }
-    const isInGameServer = await gameSessionStoreService.getUserIdIsInPendingOrActiveGame(
-      this.taggedUserId
-    );
-    if (isInGameServer) {
+
+    let hasGameConnection = false;
+    if (this.taggedUserId.type === UserIdType.Auth) {
+      hasGameConnection = await globalAuthGameSessionStore.hasExistingSession(this.taggedUserId.id);
+    }
+
+    if (hasGameConnection) {
       throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
     }
   }

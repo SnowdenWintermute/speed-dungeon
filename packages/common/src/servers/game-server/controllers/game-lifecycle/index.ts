@@ -74,7 +74,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     await this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
     await this.gameSessionStoreService.writeActiveGameStatus(
       newGame.name,
-      new ActiveGameStatus(newGame.name, newGame.id, pendingGameSetupOption.taggedUserIds)
+      new ActiveGameStatus(newGame.name, newGame.id)
     );
 
     return newGame;
@@ -235,11 +235,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     game.removePlayer(session.username);
-
-    await this.gameSessionStoreService.unregisterUserIdFromActiveGame(
-      session.taggedUserId,
-      game.name
-    );
 
     const noPlayersRemain = game.players.size === 0;
     const allPartiesWiped = game.allPartiesWiped();

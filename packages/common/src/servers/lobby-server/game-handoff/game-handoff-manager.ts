@@ -64,13 +64,12 @@ export class GameHandoffManager {
     // - getLeastBusyGameServerOrProvisionOne()
     const leastBusyServerUrl = await this.getLeastBusyServerUrl();
 
-    const sessionsInGame = this.getPlayerSessionsInGame(game);
-
     await this.gameSessionStoreService.writePendingGameSetup(
       game.name,
-      new PendingGameSetup(game.toSerialized(), sessionsInGame)
+      new PendingGameSetup(game.toSerialized())
     );
 
+    const sessionsInGame = this.getPlayerSessionsInGame(game);
     const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);

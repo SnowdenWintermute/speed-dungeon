@@ -12,6 +12,7 @@ export abstract class GlobalAuthGameSessionStore {
   abstract getSessionOption(
     identityProviderId: IdentityProviderId
   ): Promise<undefined | GlobalAuthGameSession>;
+  abstract hasExistingSession(identityProviderId: IdentityProviderId): Promise<boolean>;
   abstract requireSession(identityProviderId: IdentityProviderId): Promise<GlobalAuthGameSession>;
   abstract updateSessionConnectionStatus(
     identityProviderId: IdentityProviderId,
@@ -31,6 +32,10 @@ export class InMemoryGlobalAuthGameSessionStore extends GlobalAuthGameSessionSto
     identityProviderId: IdentityProviderId
   ): Promise<GlobalAuthGameSession | undefined> {
     return this._sessions.get(identityProviderId);
+  }
+  async hasExistingSession(identityProviderId: IdentityProviderId): Promise<boolean> {
+    const option = await this.getSessionOption(identityProviderId);
+    return !!option;
   }
   async requireSession(identityProviderId: IdentityProviderId): Promise<GlobalAuthGameSession> {
     const expected = await this.getSessionOption(identityProviderId);

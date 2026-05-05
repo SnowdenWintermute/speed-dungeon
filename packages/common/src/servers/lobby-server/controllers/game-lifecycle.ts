@@ -21,6 +21,7 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
@@ -32,7 +33,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     private readonly savedCharactersController: SavedCharactersController,
     private readonly idGenerator: IdGenerator,
     private readonly gameHandoffManager: GameHandoffManager,
-    private readonly gameSessionStoreService: GameSessionStoreService
+    private readonly gameSessionStoreService: GameSessionStoreService,
+    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -135,7 +137,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   private async requireProgressionGamePrerequisites(session: UserSession) {
     await session.requireNotInGameOnAnotherSession(
       this.userSessionRegistry,
-      this.gameSessionStoreService
+      this.globalAuthGameSessionStore
     );
     session.requireAuthorized();
     const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
