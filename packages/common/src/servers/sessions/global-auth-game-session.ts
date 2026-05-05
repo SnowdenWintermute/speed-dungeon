@@ -1,3 +1,4 @@
+import { GameName } from "../../aliases.js";
 import { GameServerSessionClaimToken } from "../lobby-server/game-handoff/session-claim-token.js";
 
 /** How we can track if a user is in a game on any of their connections as an
@@ -8,6 +9,7 @@ export class GlobalAuthGameSession {
     this._connectionStatus = {
       type: GameSessionConnectionStatus.InitialConnectionPending,
       token: initialGameServerSessionClaimToken,
+      gameName: initialGameServerSessionClaimToken.gameName,
     };
   }
   set connectionStatus(value: TaggedGameSessionConnectionStatus) {
@@ -28,14 +30,17 @@ export enum GameSessionConnectionStatus {
 export interface InitialConnectionPendingGameSessionStatus {
   type: GameSessionConnectionStatus.InitialConnectionPending;
   token: GameServerSessionClaimToken;
+  gameName: GameName;
 }
 
 export interface ConnectedToGameServerGameSessionStatus {
   type: GameSessionConnectionStatus.ConnectedToGameServer;
+  gameName: GameName;
 }
 
 export interface AwaitingReconnectionGameSessionStatus {
   type: GameSessionConnectionStatus.AwaitingReconnection;
+  gameName: GameName;
 }
 
 export type TaggedGameSessionConnectionStatus =

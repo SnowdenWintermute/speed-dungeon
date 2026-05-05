@@ -12,8 +12,10 @@ export const TEST_PARTY_NAME = "test-party-a";
 
 export const TEST_AUTH_SESSION_ID_PLAYER_1 = "0000";
 export const TEST_AUTH_SESSION_ID_PLAYER_2 = "0001";
+export const TEST_AUTH_SESSION_ID_PLAYER_3 = "0002";
 export const TEST_AUTH_USERNAME_PLAYER_1 = "TestUsername1" as Username;
 export const TEST_AUTH_USERNAME_PLAYER_2 = "TestUsername2" as Username;
+export const TEST_AUTH_USERNAME_PLAYER_3 = "TestUsername3" as Username;
 
 export const TEST_CHARACTER_NAME_1 = "character 1";
 export const TEST_CHARACTER_NAME_2 = "character 2";

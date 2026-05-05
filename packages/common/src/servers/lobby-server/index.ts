@@ -267,7 +267,9 @@ export class LobbyServer extends SpeedDungeonServer {
         for (const pendingGame of pendingGames) {
           if (pendingGame.isStale()) {
             await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.name);
-            // iterate all GlobalAuthGameSessionStore entries and clear records associated with this game name
+            await this.externalServices.globalAuthGameSessionStore.clearSessionsInGame(
+              pendingGame.game.name
+            );
           }
         }
 
@@ -278,7 +280,9 @@ export class LobbyServer extends SpeedDungeonServer {
             await reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(
               activeGame.name
             );
-            // iterate all GlobalAuthGameSessionStore entries and clear records associated with this game name
+            await this.externalServices.globalAuthGameSessionStore.clearSessionsInGame(
+              activeGame.name
+            );
           }
         }
       })

@@ -136,7 +136,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       if (session.taggedUserId.type === UserIdType.Auth) {
         await this.globalAuthGameSessionStore.updateSessionConnectionStatus(
           session.taggedUserId.id,
-          { type: GameSessionConnectionStatus.AwaitingReconnection }
+          { type: GameSessionConnectionStatus.AwaitingReconnection, gameName: game.name }
         );
       }
     } catch (error) {

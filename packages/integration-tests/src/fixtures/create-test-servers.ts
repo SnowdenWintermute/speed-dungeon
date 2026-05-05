@@ -44,6 +44,8 @@ import {
   TEST_AUTH_USERNAME_PLAYER_1,
   TEST_AUTH_USERNAME_PLAYER_2,
   localServerUrl,
+  TEST_AUTH_SESSION_ID_PLAYER_3,
+  TEST_AUTH_USERNAME_PLAYER_3,
 } from "./consts";
 
 export async function createTestServers(
@@ -151,6 +153,11 @@ export function createLobbyTestServices(
   identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
     TEST_AUTH_USERNAME_PLAYER_2,
     TEST_AUTH_SESSION_ID_PLAYER_2
+  );
+
+  identityProviderQueryStrategy.addIdentityWithPermenantAuthSession(
+    TEST_AUTH_USERNAME_PLAYER_3,
+    TEST_AUTH_SESSION_ID_PLAYER_3
   );
 
   const identityProviderService = new IdentityProviderService(identityProviderQueryStrategy);

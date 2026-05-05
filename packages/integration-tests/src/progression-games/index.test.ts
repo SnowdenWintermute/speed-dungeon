@@ -3,7 +3,6 @@ import {
   testCreateProgressionGameRequiresSavedCharacter,
   testJoinProgressionGameRequiresSavedCharacter,
 } from "./progression-game-requires-saved-character";
-import { testProgressionGameRequiresNotInOtherGame } from "./progression-game-requires-not-in-other-game";
 import {
   testCreateProgressionGameRequiresAuth,
   testJoinProgressionGameRequiresAuth,
@@ -12,6 +11,10 @@ import { testPlayerSeesOwnDefaultProgressionGameCharacter } from "./see-own-defa
 import { testProgressionGamePlayersSeeEachOthersCharactersOnJoin } from "./clients-see-each-others-characters-on-join";
 import { testProgressionGameSelectCharacterSync } from "./select-character-client-sync";
 import { testProgressionGameStartingFloorSelection } from "./starting-floor-selection";
+import {
+  testProgressionGameRequiresNotInOtherGameServerGame,
+  testProgressionGameRequiresNotInOtherLobbyGame,
+} from "./progression-game-requires-not-in-other-game";
 
 describe("progression game", () => {
   // it("placeholder", () => {});
@@ -49,6 +52,7 @@ describe("progression game", () => {
     await testJoinProgressionGameRequiresSavedCharacter(testFixture);
   });
   it("one game per user", async () => {
-    await testProgressionGameRequiresNotInOtherGame(testFixture);
+    await testProgressionGameRequiresNotInOtherLobbyGame(testFixture);
+    await testProgressionGameRequiresNotInOtherGameServerGame(testFixture);
   });
 });

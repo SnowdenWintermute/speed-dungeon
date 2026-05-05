@@ -1,4 +1,4 @@
-import { IdentityProviderId } from "../../../aliases.js";
+import { GameName, IdentityProviderId } from "../../../aliases.js";
 import { GameServerSessionClaimToken } from "../../lobby-server/game-handoff/session-claim-token.js";
 import {
   GlobalAuthGameSession,
@@ -20,6 +20,7 @@ export abstract class GlobalAuthGameSessionStore {
     value: TaggedGameSessionConnectionStatus
   ): Promise<void>;
   abstract clearSession(identityProviderId: IdentityProviderId): Promise<void>;
+  abstract clearSessionsInGame(gameName: GameName): Promise<void>;
 }
 
 export class InMemoryGlobalAuthGameSessionStore extends GlobalAuthGameSessionStore {
@@ -66,5 +67,13 @@ export class InMemoryGlobalAuthGameSessionStore extends GlobalAuthGameSessionSto
   }
   async clearSession(identityProviderId: IdentityProviderId): Promise<void> {
     this._sessions.delete(identityProviderId);
+  }
+
+  async clearSessionsInGame(gameName: GameName): Promise<void> {
+    for (const [authId, session] of this._sessions.entries()) {
+      if (session.connectionStatus.gameName === gameName) {
+        this.clearSession(authId);
+      }
+    }
   }
 }
