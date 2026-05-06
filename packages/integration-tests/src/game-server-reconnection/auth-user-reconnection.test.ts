@@ -1,5 +1,8 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { testRetryLostInitialConnectionInstructions } from "./retry-lost-initial-connection-instructions";
+import {
+  testLateJoinerToGameAfterOtherPlayersLeft,
+  testRetryLostInitialConnectionInstructions,
+} from "./retry-lost-initial-connection-instructions";
 
 describe("auth user reconnection", () => {
   const testFixture = new IntegrationTestFixture();
@@ -13,5 +16,9 @@ describe("auth user reconnection", () => {
 
   it("retry initial game server connection", async () => {
     await testRetryLostInitialConnectionInstructions(testFixture);
+  });
+
+  it("late joiner after first left", async () => {
+    await testLateJoinerToGameAfterOtherPlayersLeft(testFixture);
   });
 });
