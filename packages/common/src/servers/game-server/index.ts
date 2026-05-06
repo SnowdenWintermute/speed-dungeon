@@ -43,6 +43,7 @@ import {
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
+import { ServerCommand } from "../services/server-command/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
 import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
@@ -56,7 +57,7 @@ export interface GameServerExternalServices {
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
-  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>;
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalAuthGameSessionStore: GlobalAuthGameSessionStore;
 }
 

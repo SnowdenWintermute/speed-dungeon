@@ -8,6 +8,7 @@ import {
   InMemoryGameSessionStoreService,
   InMemoryReconnectionForwardingStoreService,
   OpaqueEncryptionSessionClaimTokenCodec,
+  ServerCommand,
   SodiumHelpers,
   InMemoryGlobalAuthGameSessionStore,
 } from "@speed-dungeon/common";
@@ -40,10 +41,10 @@ const globalAuthGameSessionStore = new InMemoryGlobalAuthGameSessionStore();
 
 // for sending ladder rank global messages from the originating game server to all clients
 // on all servers
-const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate>();
-const lobbyCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate> =
+const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate, ServerCommand>();
+const lobbyCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
   new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
-const gameCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate> =
+const gameCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
   new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
 
 const sessionClaimTokenSecret = await SodiumHelpers.createSecret();

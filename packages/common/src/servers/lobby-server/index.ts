@@ -18,6 +18,7 @@ import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item
 import { UserIdType } from "../sessions/user-ids.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
+import { ServerCommand } from "../services/server-command/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
@@ -49,7 +50,7 @@ export interface LobbyExternalServices {
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
   reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
-  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>;
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalAuthGameSessionStore: GlobalAuthGameSessionStore;
 }
 

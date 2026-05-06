@@ -14,6 +14,7 @@ import {
   SavedCharactersService,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
+  ServerCommand,
   FixedNumberGenerator,
   RNG_RANGE,
   TEST_DUNGEON_TWO_SPIDER_ROOMS,
@@ -62,7 +63,7 @@ export class GameServerNode {
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
     globalAuthGameSessionStore: GlobalAuthGameSessionStore,
-    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     const fsAssetStore = new NodeFileSystemAssetStore("./assets");
@@ -123,7 +124,7 @@ export class GameServerNode {
     assetStore: AssetCache,
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
-    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalAuthGameSessionStore: GlobalAuthGameSessionStore
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);

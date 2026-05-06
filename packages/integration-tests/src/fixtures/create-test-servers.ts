@@ -35,6 +35,7 @@ import {
   InMemoryCrossServerBroadcastBus,
   InMemoryGlobalAuthGameSessionStore,
   GlobalAuthGameSessionStore,
+  ServerCommand,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -59,7 +60,7 @@ export async function createTestServers(
   const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
   const globalAuthGameSessionStore = new InMemoryGlobalAuthGameSessionStore();
 
-  const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate>();
+  const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate, ServerCommand>();
   const lobbyCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
     crossServerBroadcastBus
   );
@@ -140,7 +141,7 @@ export function createLobbyTestServices(
   savedCharactersService: SavedCharactersService,
   rankedLadderService: RankedLadderService,
   profileService: SpeedDungeonProfileService,
-  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalAuthGameSessionStore: GlobalAuthGameSessionStore
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
@@ -183,7 +184,7 @@ export function createGameServerTestServices(
   rankedLadderService: RankedLadderService,
   raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
-  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+  crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalAuthGameSessionStore: GlobalAuthGameSessionStore
 ): GameServerExternalServices {
   const externalServices = {

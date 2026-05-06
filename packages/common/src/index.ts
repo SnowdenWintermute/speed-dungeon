@@ -234,6 +234,7 @@ export * from "./servers/services/game-session-store/in-memory-game-session-stor
 export * from "./servers/services/reconnection-forwarding-store/in-memory-reconnection-forwarding-store.js";
 export * from "./servers/services/cross-server-broadcaster/index.js";
 export * from "./servers/services/cross-server-broadcaster/in-memory-cross-server-broadcaster.js";
+export * from "./servers/services/server-command/index.js";
 export * from "./servers/services/in-memory-saved-characters-service.js";
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";

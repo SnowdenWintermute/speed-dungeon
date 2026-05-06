@@ -8,7 +8,11 @@ import { invariant } from "../utils/index.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
 import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
 import { LobbyClientIntentHandlers } from "./lobby-server/create-lobby-client-intent-handlers.js";
-import { CrossServerBroadcasterService } from "./services/cross-server-broadcaster/index.js";
+import {
+  CrossServerBroadcastType,
+  CrossServerBroadcasterService,
+} from "./services/cross-server-broadcaster/index.js";
+import { ServerCommand } from "./services/server-command/index.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 import { UserSessionRegistry } from "./sessions/user-session-registry.js";
 import { UserSession } from "./sessions/user-session.js";
@@ -50,14 +54,26 @@ export abstract class SpeedDungeonServer {
     readonly name: string,
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     protected readonly rngPolicy: RandomNumberGenerationPolicy,
-    protected readonly crossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate>
+    protected readonly crossServerBroadcaster: CrossServerBroadcasterService<
+      GameStateUpdate,
+      ServerCommand
+    >
   ) {
-    this.crossServerBroadcaster.subscribe(({ channelName, payload, excludedConnectionIds }) => {
-      const excluded = new Set(excludedConnectionIds);
-      const recipientIds = this.userSessionRegistry
-        .in(channelName)
-        .filter((id) => !excluded.has(id));
-      this.outgoingMessagesGateway.submitToConnections(recipientIds, payload);
+    this.crossServerBroadcaster.subscribe((broadcast) => {
+      switch (broadcast.type) {
+        case CrossServerBroadcastType.ChannelFanOut: {
+          const { channelName, payload, excludedConnectionIds } = broadcast;
+          const excluded = new Set(excludedConnectionIds);
+          const recipientIds = this.userSessionRegistry
+            .in(channelName)
+            .filter((id) => !excluded.has(id));
+          this.outgoingMessagesGateway.submitToConnections(recipientIds, payload);
+          break;
+        }
+        case CrossServerBroadcastType.ServerCommand:
+          this.handleServerCommand(broadcast.command);
+          break;
+      }
     });
   }
 
@@ -66,8 +82,22 @@ export abstract class SpeedDungeonServer {
     payload: GameStateUpdate,
     excludedConnectionIds: ConnectionId[] = []
   ): Promise<void> {
-    await this.crossServerBroadcaster.publish({ channelName, payload, excludedConnectionIds });
+    await this.crossServerBroadcaster.publish({
+      type: CrossServerBroadcastType.ChannelFanOut,
+      channelName,
+      payload,
+      excludedConnectionIds,
+    });
   }
+
+  async crossServerCommand(command: ServerCommand): Promise<void> {
+    await this.crossServerBroadcaster.publish({
+      type: CrossServerBroadcastType.ServerCommand,
+      command,
+    });
+  }
+
+  protected handleServerCommand(_command: ServerCommand): void {}
 
   closeTransportServer() {
     return this.incomingConnectionGateway.close();

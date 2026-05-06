@@ -5,6 +5,7 @@ import {
   ConnectionIdentityResolutionContext,
   CrossServerBroadcasterService,
   GameStateUpdate,
+  ServerCommand,
   SavedCharactersService,
   ReconnectionForwardingStoreService,
   GameSessionStoreService,
@@ -47,7 +48,7 @@ export class LobbyServerNode {
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
     globalAuthGameSessionStore: GlobalAuthGameSessionStore,
-    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
   ) {
     const wss = new WebSocketServer({ server: httpServer });
@@ -91,7 +92,7 @@ export class LobbyServerNode {
   private createExternalServices(
     reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
-    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate>,
+    crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalAuthGameSessionStore: GlobalAuthGameSessionStore
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({

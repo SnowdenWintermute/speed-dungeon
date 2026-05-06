@@ -47,8 +47,6 @@
 //   . check the guest reconnection forwarding store for an opportunity and
 //   . if exists, provide connection instructions
 //
-// ====
-//
 // lobby dangling resources loop
 // for any expired active game records
 // - delete reconnection opportunities
@@ -58,9 +56,3 @@
 // - delete pending game setups
 // - delete unused connection instructions stored on global sessions
 // - check auth global sessions for connection instructions for that game and delete them
-//
-//
-// TEST
-// - reconnection by a user in a game that has been initialized but
-// not all users have connected yet
-// - retry initial connection
