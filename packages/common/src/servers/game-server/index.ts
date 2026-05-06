@@ -272,7 +272,17 @@ export class GameServer extends SpeedDungeonServer {
       if (session.taggedUserId.type === UserIdType.Auth) {
         await this.externalServices.globalAuthGameSessionStore.updateSessionConnectionStatus(
           session.taggedUserId.id,
-          { type: GameSessionConnectionStatus.ConnectedToGameServer, gameName: gameName }
+          {
+            type: GameSessionConnectionStatus.ConnectedToGameServer,
+            gameName: gameName,
+            sessionData: {
+              gameName: session.getExpectedCurrentGame().name,
+              partyName: session.getExpectedCurrentParty(session.getExpectedCurrentGame()).name,
+              username: session.username,
+              taggedUserId: session.taggedUserId,
+              gameServerName: this.name,
+            },
+          }
         );
       }
 

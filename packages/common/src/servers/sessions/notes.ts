@@ -56,3 +56,4 @@
 // - delete pending game setups
 // - delete unused connection instructions stored on global sessions
 // - check auth global sessions for connection instructions for that game and delete them
+//

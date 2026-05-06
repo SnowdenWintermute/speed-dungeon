@@ -119,15 +119,4 @@ export class UserSessionRegistry extends SessionRegistry<UserSession> {
 
     return expectedSessionForThisPlayer;
   }
-
-  get disconnectedSessions() {
-    const result: UserSession[] = [];
-    for (const [connectionId, userSession] of this.sessions) {
-      if (userSession.connectionState === UserSessionConnectionState.Disconnected) {
-        result.push(userSession);
-      }
-    }
-
-    return result;
-  }
 }

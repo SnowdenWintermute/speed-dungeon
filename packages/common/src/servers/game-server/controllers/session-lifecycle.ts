@@ -58,6 +58,10 @@ export class GameServerSessionLifecycleController
     // while the disconnection record is live in the central store, and there would be
     // undefined behavior if a user tried to claim a session while already in a game
     if (this.userSessionRegistry.userIsAlreadyConnected(decryptedToken.taggedUserId.id)) {
+      // send the other session a message "you have been disconnected because another connection from this account was opened"
+      // disconnect the other session
+      //
+
       throw new Error("Only one connection per user is permitted on a single game server");
     }
 

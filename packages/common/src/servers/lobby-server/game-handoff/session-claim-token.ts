@@ -1,6 +1,5 @@
 import {
   GameName,
-  GameServerName,
   GuestSessionReconnectionToken,
   Milliseconds,
   PartyName,
