@@ -135,10 +135,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   private async requireProgressionGamePrerequisites(session: UserSession) {
-    await session.requireNotInGameOnAnotherSession(
-      this.userSessionRegistry,
-      this.globalAuthGameSessionStore
-    );
     session.requireAuthorized();
     const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
     await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);

@@ -150,7 +150,7 @@ export abstract class SpeedDungeonServer {
           `Server is not configured to handle this type of message: ${JSON.stringify(parsed)}`
         );
 
-        const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
+        const session = this.userSessionRegistry.requireSession(userConnectionEndpoint.id);
 
         const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
         session.incrementLastIntentHandledId();

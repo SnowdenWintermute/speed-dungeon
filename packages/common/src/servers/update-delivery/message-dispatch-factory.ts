@@ -28,7 +28,7 @@ export class MessageDispatchFactory<Sendable> {
 
   createSingle(to: ConnectionId, message: Sendable): MessageDispatchSingle<Sendable> | undefined {
     if (
-      this.userSessionRegistry.getExpectedSession(to).connectionState ===
+      this.userSessionRegistry.requireSession(to).connectionState ===
       UserSessionConnectionState.Disconnected
     ) {
       return;
@@ -58,7 +58,7 @@ export class MessageDispatchFactory<Sendable> {
       .in(inChannel) // Returns all connectionIds whose sessions are currently subscribed to the given channel. Multiple entries may belong to the same user.
       .filter(
         (id) =>
-          this.userSessionRegistry.getExpectedSession(id).connectionState !==
+          this.userSessionRegistry.requireSession(id).connectionState !==
           UserSessionConnectionState.Disconnected
       )
       .filter((id) => !excludedIds.includes(id))

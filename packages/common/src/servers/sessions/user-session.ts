@@ -12,8 +12,6 @@ import { ActionValidity } from "../../primatives/index.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
-import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import {
   ReconnectionKey,
@@ -21,7 +19,6 @@ import {
 } from "../services/reconnection-forwarding-store/index.js";
 import { ConnectionSession } from "./session-registry.js";
 import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
 
 export enum UserSessionConnectionState {
   Connected,
@@ -36,6 +33,7 @@ export class UserSession extends ConnectionSession {
   // set each one to disconnected such that we won't have an async race between each
   // disconnection handler trying to send a user disconnected message to each other but they
   // both are no longer registered endpoints
+  // // later: do we really need this if we handle disconnections in the sync queue of the servers?
   private _connectionState = UserSessionConnectionState.Connected;
   // set to true when they leave game so we don't try to run reconnection logic
   public intentionallyClosed = false;
@@ -128,34 +126,6 @@ export class UserSession extends ConnectionSession {
 
   joinGame(game: SpeedDungeonGame) {
     this.currentGameName = game.name;
-  }
-
-  async requireNotInGameOnAnotherSession(
-    lobbyUserSessionRegistry: UserSessionRegistry,
-    globalAuthGameSessionStore: GlobalAuthGameSessionStore
-  ) {
-    // used to prevent loading the same saved character into multiple active games
-    // or deleting a saved character that is in a game
-
-    // check the local (lobby) for any session in a game
-    const userLobbySessions = lobbyUserSessionRegistry.getExpectedUserSessions(
-      this.taggedUserId.id
-    );
-
-    for (const otherSession of userLobbySessions) {
-      if (otherSession.isInGame()) {
-        throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
-      }
-    }
-
-    let hasGameConnection = false;
-    if (this.taggedUserId.type === UserIdType.Auth) {
-      hasGameConnection = await globalAuthGameSessionStore.hasExistingSession(this.taggedUserId.id);
-    }
-
-    if (hasGameConnection) {
-      throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
-    }
   }
 
   // be careful with this! led to longer than-needed debug sesh

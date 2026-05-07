@@ -125,14 +125,6 @@ export class SavedCharactersController {
     const { entityId } = data;
 
     session.requireAuthorized();
-    try {
-      await session.requireNotInGameOnAnotherSession(
-        this.userSessionRegistry,
-        this.globalAuthGameSessionStore
-      );
-    } catch (error) {
-      throw new Error(ERROR_MESSAGES.USER.CANT_DELETE_SAVED_CHARACTER_WHILE_IN_GAME);
-    }
 
     const profile = await session.requireProfile(this.profileService);
 

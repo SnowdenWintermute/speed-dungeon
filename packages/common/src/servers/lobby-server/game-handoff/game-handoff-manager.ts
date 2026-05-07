@@ -1,4 +1,4 @@
-import { ConnectionId, GameName, GameServerName } from "../../../aliases.js";
+import { ConnectionId, GameName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { invariant } from "../../../utils/index.js";
@@ -29,10 +29,7 @@ export class GameHandoffManager {
     const result: UserSession[] = [];
 
     for (const [username, player] of game.getPlayers()) {
-      const session = this.userSessionRegistry.getExpectedSessionInGameByUsername(
-        username,
-        game.name
-      );
+      const session = this.userSessionRegistry.requireSessionInGameByUsername(username, game.name);
 
       result.push(session);
     }
