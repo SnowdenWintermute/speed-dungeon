@@ -8,7 +8,9 @@ export class UserSessionRegistry {
   private sessionsByConnectionId = new Map<ConnectionId, UserSession>();
 
   register(session: UserSession) {
-    const alreadyExists = this.sessionsByConnectionId.has(session.connectionId);
+    const alreadyExists =
+      this.sessionsByConnectionId.has(session.connectionId) ||
+      this.connectionIdsByUserId.has(session.taggedUserId.id);
     if (alreadyExists) {
       throw new Error("Session already exists with the provided connectionId");
     }
