@@ -1,12 +1,13 @@
 import {
+  EncryptedOpaqueToken,
   GameName,
-  GuestSessionReconnectionToken,
   Milliseconds,
   PartyName,
   Username,
 } from "../../../aliases.js";
 import { ONE_SECOND } from "../../../app-consts.js";
 import { SodiumHelpers } from "../../../cryptography/index.js";
+import { GuestSessionReconnectionToken } from "../../game-server/reconnection/guest-session-reconnection-token.js";
 import { TaggedUserId } from "../../sessions/user-ids.js";
 import crypto from "crypto";
 
@@ -29,29 +30,19 @@ export class GameServerSessionClaimToken {
   }
 }
 
-export interface GameServerSessionClaimTokenCodec {
-  encode(token: GameServerSessionClaimToken): Promise<string>;
-  decode(encoded: string): Promise<GameServerSessionClaimToken>;
+export interface TokenCodec<T> {
+  encode(token: T): Promise<EncryptedOpaqueToken>;
+  decode(encoded: string): Promise<T>;
 }
 
-export class OpaqueEncryptionSessionClaimTokenCodec implements GameServerSessionClaimTokenCodec {
+export class OpaqueEncryptionTokenCodec<T> implements TokenCodec<T> {
   constructor(private readonly secret: string) {}
 
-  async encode(token: GameServerSessionClaimToken): Promise<string> {
-    return await SodiumHelpers.encrypt(token, this.secret);
+  async encode(token: T): Promise<EncryptedOpaqueToken> {
+    return (await SodiumHelpers.encrypt(token, this.secret)) as EncryptedOpaqueToken;
   }
 
-  async decode(encoded: string): Promise<GameServerSessionClaimToken> {
+  async decode(encoded: string): Promise<T> {
     return await SodiumHelpers.decrypt(encoded, this.secret);
-  }
-}
-
-export class UntrustedLocalSessionClaimTokenCodec implements GameServerSessionClaimTokenCodec {
-  async encode(token: GameServerSessionClaimToken): Promise<string> {
-    return JSON.stringify(token);
-  }
-
-  async decode(encoded: string): Promise<GameServerSessionClaimToken> {
-    return JSON.parse(encoded) as GameServerSessionClaimToken;
   }
 }

@@ -1,24 +1,38 @@
 import { GameName, GameServerName, PartyName, Username } from "../../aliases.js";
+import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { GameServerSessionClaimToken } from "../lobby-server/game-handoff/session-claim-token.js";
+import { LobbyReconnectionProtocol } from "../lobby-server/reconnection/index.js";
 import { TaggedUserId } from "./user-ids.js";
+import { UserSession } from "./user-session.js";
 
-/** How we can track if a user is in a game on any of their connections as an
- * authenticated user, and check what phase of connection to a game they are in */
-export class GlobalAuthGameSession {
-  private _connectionStatus: TaggedGameSessionConnectionStatus;
-  constructor(initialGameServerSessionClaimToken: GameServerSessionClaimToken) {
-    this._connectionStatus = {
-      type: GameSessionConnectionStatus.InitialConnectionPending,
-      token: initialGameServerSessionClaimToken,
-      gameName: initialGameServerSessionClaimToken.gameName,
-    };
+export class GlobalGameSession {
+  private _gameSessionData: GameServerSessionData;
+  constructor(
+    session: UserSession,
+    gameServerName: GameServerName,
+    private _connectionStatus: GameSessionConnectionStatus
+  ) {
+    this._gameSessionData = GameServerSessionData.fromUserSession(session, gameServerName);
   }
-  set connectionStatus(value: TaggedGameSessionConnectionStatus) {
+
+  set connectionStatus(value: GameSessionConnectionStatus) {
     this._connectionStatus = value;
   }
 
   get connectionStatus() {
     return this._connectionStatus;
+  }
+
+  get gameName() {
+    return this._gameSessionData.gameName;
+  }
+
+  set guestSessionReconnectionToken(value: GuestSessionReconnectionToken | null) {
+    this._gameSessionData.guestUserReconnectionTokenOption = value;
+  }
+
+  createClaimToken(lobbyReconnectionProtocol: LobbyReconnectionProtocol) {
+    return this._gameSessionData.toGameServerSessionClaimToken(lobbyReconnectionProtocol);
   }
 }
 
@@ -28,34 +42,50 @@ export enum GameSessionConnectionStatus {
   AwaitingReconnection,
 }
 
-export interface GameServerSessionData {
-  gameName: GameName;
-  partyName: PartyName;
-  username: Username;
-  taggedUserId: TaggedUserId;
-  gameServerName: GameServerName;
-}
+export class GameServerSessionData {
+  constructor(
+    public readonly taggedUserId: TaggedUserId,
+    private username: Username,
+    private _gameName: GameName,
+    private _partyName: PartyName,
+    public readonly gameServerName: GameServerName,
+    public guestUserReconnectionTokenOption: null | GuestSessionReconnectionToken
+  ) {}
 
-export interface InitialConnectionPendingGameSessionStatus {
-  type: GameSessionConnectionStatus.InitialConnectionPending;
-  token: GameServerSessionClaimToken;
-  gameName: GameName;
-}
+  static fromUserSession(session: UserSession, gameServerName: GameServerName) {
+    if (session.currentGameName === null) {
+      throw new Error("Can't create game session data for user not in game");
+    }
+    if (session.currentPartyName === null) {
+      throw new Error("Can't create game session data for user not in party");
+    }
 
-export interface ConnectedToGameServerGameSessionStatus {
-  type: GameSessionConnectionStatus.ConnectedToGameServer;
-  // used to derrive info for new token if another connection is taking over
-  // this game server session
-  sessionData: GameServerSessionData;
-  gameName: GameName;
-}
+    return new GameServerSessionData(
+      session.taggedUserId,
+      session.username,
+      session.currentGameName,
+      session.currentPartyName,
+      gameServerName,
+      session.getGuestReconnectionTokenOption()
+    );
+  }
 
-export interface AwaitingReconnectionGameSessionStatus {
-  type: GameSessionConnectionStatus.AwaitingReconnection;
-  gameName: GameName;
-}
+  get gameName() {
+    return this._gameName;
+  }
 
-export type TaggedGameSessionConnectionStatus =
-  | InitialConnectionPendingGameSessionStatus
-  | ConnectedToGameServerGameSessionStatus
-  | AwaitingReconnectionGameSessionStatus;
+  get partyName() {
+    return this._partyName;
+  }
+
+  toGameServerSessionClaimToken(lobbyReconnectionProtocol: LobbyReconnectionProtocol) {
+    return new GameServerSessionClaimToken(
+      this._gameName,
+      this._partyName,
+      this.username,
+      this.taggedUserId,
+      lobbyReconnectionProtocol.getGameServerUrlFromName(this.gameServerName),
+      this.guestUserReconnectionTokenOption || undefined
+    );
+  }
+}

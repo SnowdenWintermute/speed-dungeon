@@ -23,8 +23,6 @@ import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
-import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
-import { GameServerSessionClaimTokenCodec } from "./game-handoff/session-claim-token.js";
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { LobbyReconnectionProtocol } from "./reconnection/index.js";
@@ -41,7 +39,12 @@ import {
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { GAME_CONFIG, LOBBY_DANGLING_RESOURCES_CLEANUP_MS } from "../../app-consts.js";
-import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
+import { GlobalGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
+import {
+  GameServerSessionClaimToken,
+  OpaqueEncryptionTokenCodec,
+} from "./game-handoff/session-claim-token.js";
+import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -49,9 +52,8 @@ export interface LobbyExternalServices {
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
-  reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
-  globalAuthGameSessionStore: GlobalAuthGameSessionStore;
+  globalGameSessionStore: GlobalGameSessionStore;
 }
 
 // lives either inside a LobbyServerNode or locally on a ClientApp
@@ -76,9 +78,10 @@ export class LobbyServer extends SpeedDungeonServer {
   constructor(
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: LobbyExternalServices,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
-    private readonly gameServerUrlRegistry: Record<GameServerName, string>,
-    fetchLeastBusyServer: () => Promise<string>,
+    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
+    private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    gameServerUrlRegistry: Record<GameServerName, string>,
+    fetchLeastBusyServer: () => Promise<{ name: GameServerName; url: string }>,
     characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
     rngPolicy: RandomNumberGenerationPolicy,
     private idGenerator: IdGenerator,
@@ -97,7 +100,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
-      externalServices.globalAuthGameSessionStore,
+      externalServices.globalGameSessionStore,
       this.gameServerSessionClaimTokenCodec,
       fetchLeastBusyServer
     );
@@ -136,8 +139,7 @@ export class LobbyServer extends SpeedDungeonServer {
       gameServerSessionClaimTokenCodec,
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
-      externalServices.reconnectionForwardingStoreService,
-      externalServices.globalAuthGameSessionStore,
+      externalServices.globalGameSessionStore,
       gameServerUrlRegistry
     );
   }
@@ -165,10 +167,7 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
-    if (
-      connectionContext.type === ConnectionContextType.Reconnection ||
-      connectionContext.type === ConnectionContextType.InitialGameServerConnectionRetry
-    ) {
+    if (connectionContext.type === ConnectionContextType.WillForwardToGameServer) {
       console.log("got connection type:", CONNECTION_CONTEXT_TYPE_STRINGS[connectionContext.type]);
       const outbox = await this.userSessionLifecycleController.activateSession(session, {
         sessionWillBeForwardedToGameServer: true,
@@ -206,9 +205,7 @@ export class LobbyServer extends SpeedDungeonServer {
 
   private createControllers(idGenerator: IdGenerator) {
     const savedCharactersController = new SavedCharactersController(
-      this.userSessionRegistry,
       this.externalServices.profileService,
-      this.externalServices.globalAuthGameSessionStore,
       this.updateDispatchFactory,
       this.externalServices,
       this.characterCreationPolicy
@@ -223,15 +220,13 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const gameLifecycleController = new LobbyGameLifecycleController(
       this.lobbyState,
-      this.userSessionRegistry,
       this.updateDispatchFactory,
       partySetupController,
       this.externalServices.profileService,
       savedCharactersController,
       idGenerator,
       this.gameHandoffManager,
-      this.externalServices.gameSessionStoreService,
-      this.externalServices.globalAuthGameSessionStore
+      this.externalServices.gameSessionStoreService
     );
 
     const characterLifecycleController = new CharacterLifecycleController(
@@ -248,7 +243,8 @@ export class LobbyServer extends SpeedDungeonServer {
       savedCharactersController,
       gameLifecycleController,
       this.externalServices.identityProviderService,
-      idGenerator
+      idGenerator,
+      this.guestReconnectionTokenCodec
     );
 
     return {
@@ -267,15 +263,14 @@ export class LobbyServer extends SpeedDungeonServer {
         // @TODO - figure this out: if a read on the active games starts, then the active game is deleted by
         // closing, then someone creates and disconnects from a game of the same name before the read finishes,
         // we might could actually clean up a valid newly started game with the same name as a previously stale one
-        const { gameSessionStoreService, reconnectionForwardingStoreService } =
-          this.externalServices;
+        const { gameSessionStoreService } = this.externalServices;
 
         const pendingGames =
           await this.externalServices.gameSessionStoreService.getPendingGameSetups();
         for (const pendingGame of pendingGames) {
           if (pendingGame.isStale()) {
             await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.name);
-            await this.externalServices.globalAuthGameSessionStore.clearSessionsInGame(
+            await this.externalServices.globalGameSessionStore.clearSessionsInGame(
               pendingGame.game.name
             );
           }
@@ -285,12 +280,7 @@ export class LobbyServer extends SpeedDungeonServer {
         for (const activeGame of activeGames) {
           if (activeGame.isStale()) {
             await gameSessionStoreService.deleteActiveGameStatus(activeGame.name);
-            await reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(
-              activeGame.name
-            );
-            await this.externalServices.globalAuthGameSessionStore.clearSessionsInGame(
-              activeGame.name
-            );
+            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.name);
           }
         }
       })

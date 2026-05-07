@@ -15,7 +15,7 @@ export async function testRetryLostInitialConnectionInstructions(
     type: ClientIntentType.ToggleReadyToStartGame,
     data: undefined,
   });
-  // disconnects after starting game but before getting connection instructinos
+  // disconnects after starting game but before getting connection instructions
   await alpha.clientApplication.lobbyClientRef.get().close();
   await expect(async () =>
     alpha.clientApplication.waitForReconnectionInstructions.waitFor()

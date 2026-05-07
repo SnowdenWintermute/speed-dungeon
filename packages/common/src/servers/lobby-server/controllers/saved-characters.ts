@@ -13,16 +13,12 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
-import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
-import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
   private readonly rankedLadderService: RankedLadderService;
   constructor(
-    private readonly userSessionRegistry: UserSessionRegistry,
     private readonly profileService: SpeedDungeonProfileService,
-    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     externalServices: LobbyExternalServices,
     private readonly characterCreationPolicy: CharacterCreationPolicy

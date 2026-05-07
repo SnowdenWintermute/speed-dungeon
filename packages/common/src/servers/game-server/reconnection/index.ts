@@ -1,10 +1,9 @@
-import { GameServerName, GuestSessionReconnectionToken } from "../../../aliases.js";
+import { GameServerName, GuestSingleUseReconnectionKey } from "../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import {
   ConnectionContextType,
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
-import { ReconnectionForwardingStoreService } from "../../services/reconnection-forwarding-store/index.js";
 import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -13,15 +12,15 @@ import { ReconnectionOpportunityManager } from "../reconnection-opportunity-mana
 import { randomBytes } from "crypto";
 import { ReconnectionOpportunity } from "../reconnection-opportunity.js";
 import { GameServerGameLifecycleController } from "../controllers/game-lifecycle/index.js";
-import { GameServerReconnectionForwardingRecord } from "../../services/reconnection-forwarding-store/game-server-reconnection-forwarding-record.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../../../app-consts.js";
-import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
+import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { OpaqueEncryptionTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
+import { GuestSessionReconnectionToken } from "./guest-session-reconnection-token.js";
 
 interface GameServerReconnectionContext {
-  type: ConnectionContextType.Reconnection;
+  type: ConnectionContextType.GameServerReconnection;
   attemptReconnectionClaim: () => Promise<void>;
 }
 
@@ -36,10 +35,10 @@ export type GameServerConnectionContext =
 export class GameServerReconnectionProtocol implements PlayerReconnectionProtocol {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
-    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
+    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly guestSessionReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
     private readonly dispatchOutboxMessages: (
       outbox: MessageDispatchOutbox<GameStateUpdate>
     ) => void
@@ -53,14 +52,12 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       return { type: ConnectionContextType.InitialConnection };
     } else {
       return {
-        type: ConnectionContextType.Reconnection,
+        type: ConnectionContextType.GameServerReconnection,
         attemptReconnectionClaim: async () => await this.attemptReconnectionClaim(session),
       };
     }
   }
 
-  /** After successful connection guest users will be provided a random bytes token to store on their client. 
-      When they reconnect we will use it to find their reconnection opportunity */
   async issueReconnectionCredential(
     session: UserSession
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
@@ -69,14 +66,16 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     }
 
-    const newReconnectionToken = this.generateGuestReconnectionToken();
-    session.setGuestReconnectionToken(newReconnectionToken);
+    const newReconnectionKey = this.generateGuestSingleUseReconnectionKey();
+    const newToken = new GuestSessionReconnectionToken(session.taggedUserId.id, newReconnectionKey);
+    session.setGuestReconnectionToken(newToken);
 
+    const encryptedToken = await this.guestSessionReconnectionTokenCodec.encode(newToken);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.CacheGuestSessionReconnectionToken,
       data: {
-        token: newReconnectionToken,
+        token: encryptedToken,
       },
     });
 
@@ -87,8 +86,8 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     return buffer.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
 
-  private generateGuestReconnectionToken(): GuestSessionReconnectionToken {
-    return this.encodeBase64Url(randomBytes(32)) as GuestSessionReconnectionToken;
+  private generateGuestSingleUseReconnectionKey(): GuestSingleUseReconnectionKey {
+    return this.encodeBase64Url(randomBytes(32)) as GuestSingleUseReconnectionKey;
   }
 
   async onPlayerDisconnected(
@@ -124,21 +123,10 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
         )
       );
 
-      const reconnectionForwardingRecord = GameServerReconnectionForwardingRecord.fromUserSession(
-        session,
-        gameServerName
+      await this.globalGameSessionStore.updateSessionConnectionStatus(
+        session.taggedUserId,
+        GameSessionConnectionStatus.AwaitingReconnection
       );
-
-      await this.reconnectionForwardingStoreService.writeGameServerReconnectionForwardingRecord(
-        session.requireReconnectionKey(),
-        reconnectionForwardingRecord
-      );
-      if (session.taggedUserId.type === UserIdType.Auth) {
-        await this.globalAuthGameSessionStore.updateSessionConnectionStatus(
-          session.taggedUserId.id,
-          { type: GameSessionConnectionStatus.AwaitingReconnection, gameName: game.name }
-        );
-      }
     } catch (error) {
       console.error("error creating reconnection opportunity", error);
     }
@@ -149,17 +137,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
   async cleanUpTimedOutClaim(session: UserSession, game: SpeedDungeonGame) {
     this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
 
-    if (session.taggedUserId.type === UserIdType.Auth) {
-      await this.globalAuthGameSessionStore.clearSession(session.taggedUserId.id);
-    }
-
-    try {
-      await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
-        session.requireReconnectionKey()
-      );
-    } catch (error) {
-      console.error("failed to delete reconnectionForwardingRecord:", error);
-    }
+    await this.globalGameSessionStore.clearSession(session.taggedUserId);
 
     const reconnectionTimeoutOutbox = new MessageDispatchOutbox(this.updateDispatchFactory);
 
@@ -189,8 +167,9 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     }
 
     this.reconnectionOpportunityManager.remove(session.requireReconnectionKey());
-    await this.reconnectionForwardingStoreService.deleteGameServerReconnectionForwardingRecord(
-      session.requireReconnectionKey()
+    await this.globalGameSessionStore.updateSessionConnectionStatus(
+      session.taggedUserId,
+      GameSessionConnectionStatus.ConnectedToGameServer
     );
 
     console.info(`user ${session.username} reconnecting to game ${session.currentGameName}`);

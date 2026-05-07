@@ -1,5 +1,5 @@
 import { IncomingMessage } from "node:http";
-import { ConnectionId, GuestSessionReconnectionToken } from "../aliases.js";
+import { ConnectionId, EncryptedOpaqueToken } from "../aliases.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 import { v4 as uuidv4 } from "uuid";
@@ -69,9 +69,8 @@ export abstract class IncomingConnectionGateway {
     const authSessionId = this.requireAuthSessionIdParser()(request);
 
     return {
-      clientCachedGuestReconnectionToken:
-        (reconnectionToken as GuestSessionReconnectionToken) || undefined,
-      encodedGameServerSessionClaimToken: sessionClaimToken || undefined,
+      clientCachedGuestReconnectionToken: (reconnectionToken as EncryptedOpaqueToken) || undefined,
+      encodedGameServerSessionClaimToken: (sessionClaimToken as EncryptedOpaqueToken) || undefined,
       authSessionId,
     };
   }

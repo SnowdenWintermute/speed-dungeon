@@ -17,6 +17,8 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { MapUtils } from "../../../utils/map-utils.js";
+import { GuestSessionReconnectionToken } from "../../game-server/reconnection/guest-session-reconnection-token.js";
+import { OpaqueEncryptionTokenCodec } from "../game-handoff/session-claim-token.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -28,7 +30,8 @@ export class LobbySessionLifecycleController
     private readonly savedCharactersController: SavedCharactersController,
     private readonly gameLifecycleController: LobbyGameLifecycleController,
     private readonly identityProviderService: IdentityProviderService,
-    private readonly idGenerator: IdGenerator
+    private readonly idGenerator: IdGenerator,
+    private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
   ) {}
 
   async createSession(
@@ -49,7 +52,11 @@ export class LobbySessionLifecycleController
 
       // given by game server to guests on disconnect to identify them
       if (context.clientCachedGuestReconnectionToken) {
-        guestSession.setGuestReconnectionToken(context.clientCachedGuestReconnectionToken);
+        console.log("set guest reconnection token:", context.clientCachedGuestReconnectionToken);
+        const decrypted = await this.guestReconnectionTokenCodec.decode(
+          context.clientCachedGuestReconnectionToken
+        );
+        guestSession.setGuestReconnectionToken(decrypted);
       }
       return guestSession;
     } else {

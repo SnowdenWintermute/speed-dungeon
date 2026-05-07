@@ -17,10 +17,10 @@ import {
   ChannelName,
   CharacterSlotIndex,
   CombatantId,
+  EncryptedOpaqueToken,
   EntityId,
   EntityName,
   GameName,
-  GuestSessionReconnectionToken,
   ItemId,
   Milliseconds,
   PartyName,
@@ -101,7 +101,7 @@ export interface GameStateUpdateMap {
     willBeReconnectedToGame?: boolean;
   };
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
-    token: GuestSessionReconnectionToken;
+    token: EncryptedOpaqueToken;
   };
   [GameStateUpdateType.ChannelFullUpdate]: {
     channelName: ChannelName;

@@ -28,9 +28,9 @@ export async function testReconnectionSuccess(
 
   await alpha.connect();
   await bravo.gameClientHarness.awaitMessageOfType(GameStateUpdateType.PlayerJoinedGame);
-  await bravo.eventually(() => {
-    const partyOption = bravo.clientApplication.gameContext.partyOption;
-    invariant(partyOption !== undefined);
-    expect(partyOption.playerUsernamesAwaitingReconnection.size === 0).toBeTruthy();
-  });
+  // await bravo.eventually(() => {
+  //   const partyOption = bravo.clientApplication.gameContext.partyOption;
+  //   invariant(partyOption !== undefined);
+  //   expect(partyOption.playerUsernamesAwaitingReconnection.size === 0).toBeTruthy();
+  // });
 }

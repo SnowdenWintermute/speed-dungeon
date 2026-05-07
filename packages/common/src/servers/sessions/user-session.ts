@@ -1,17 +1,11 @@
-import {
-  CombatantId,
-  ConnectionId,
-  GameName,
-  GuestSessionReconnectionToken,
-  PartyName,
-  Username,
-} from "../../aliases.js";
+import { CombatantId, ConnectionId, GameName, PartyName, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ActionValidity } from "../../primatives/index.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
+import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import {
   ReconnectionKey,
@@ -167,7 +161,7 @@ export class UserSession extends ConnectionSession {
 
         return {
           type: ReconnectionKeyType.Guest,
-          reconnectionToken: reconnectionTokenOption,
+          reconnectionToken: reconnectionTokenOption.singleUseReconnectionKey,
         };
       }
     }

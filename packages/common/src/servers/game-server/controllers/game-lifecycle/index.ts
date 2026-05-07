@@ -20,9 +20,7 @@ import {
   GameMessageType,
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
-import { ReconnectionForwardingStoreService } from "../../../services/reconnection-forwarding-store/index.js";
-import { UserIdType } from "../../../sessions/user-ids.js";
-import { GlobalAuthGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
+import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -31,8 +29,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
-    private readonly reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
+    private readonly globalGameSessionStore: GlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>,
     private readonly dungeonExplorationController: DungeonExplorationController
@@ -238,9 +235,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     game.removePlayer(session.username);
-    if (session.taggedUserId.type === UserIdType.Auth) {
-      await this.globalAuthGameSessionStore.clearSession(session.taggedUserId.id);
-    }
+    await this.globalGameSessionStore.clearSession(session.taggedUserId);
 
     const noPlayersRemain = game.players.size === 0;
     const allPartiesWiped = game.allPartiesWiped();
@@ -258,13 +253,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     await gameModeContext.strategy.onLastPlayerLeftGame(game);
 
     this.gameRegistry.unregisterGame(game.name);
-    await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
-    await this.gameSessionStoreService.deletePendingGameSetup(game.name);
-    await this.reconnectionForwardingStoreService.deleteAllReconnectionKeysForGameName(game.name);
     // even though we clear their session on leave game, it is possible that they never joined the game,
     // the other users get bored and leave and the user that never joined would be stuck with a stale
     // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
-    await this.globalAuthGameSessionStore.clearSessionsInGame(game.name);
+    // @ARCHITECTURE - I don't think it will race with a lobby game created by same name because we prohibit
+    // creation of lobby game while active or pending game status of that name exists
+    await this.globalGameSessionStore.clearSessionsInGame(game.name);
+    await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
+    await this.gameSessionStoreService.deletePendingGameSetup(game.name);
   }
 
   handleAbandoningDeadPartyMembers(

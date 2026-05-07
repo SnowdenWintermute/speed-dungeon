@@ -7,9 +7,7 @@ import {
   GameStateUpdate,
   ServerCommand,
   SavedCharactersService,
-  ReconnectionForwardingStoreService,
   GameSessionStoreService,
-  GameServerSessionClaimTokenCodec,
   RandomNumberGenerationPolicyFactory,
   ScriptedCharacterCreationPolicy,
   BASIC_CHARACTER_FIXTURES,
@@ -22,7 +20,9 @@ import {
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
   CHARACTER_LEVEL_LADDER,
-  GlobalAuthGameSessionStore,
+  GlobalGameSessionStore,
+  OpaqueEncryptionTokenCodec,
+  GameServerSessionClaimToken,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -39,32 +39,35 @@ import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocke
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
 
   async createServer(
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
-    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
-    globalAuthGameSessionStore: GlobalAuthGameSessionStore,
+    globalGameSessionStore: GlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
+    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
   ) {
     const wss = new WebSocketServer({ server: httpServer });
 
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const externalServices = this.createExternalServices(
-      reconnectionForwardingStoreService,
       gameSessionStoreService,
       crossServerBroadcasterService,
-      globalAuthGameSessionStore
+      globalGameSessionStore
     );
-    const leastBusyGameServerUrlGetter = async () => "http://localhost:8090";
+    const leastBusyGameServerUrlGetter = async () => {
+      return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
+    };
     this._lobbyServer = new LobbyServer(
       usersIncomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
+      guestReconnectionTokenCodec,
       { [GAME_SERVER_NAME]: "http://localhost:8090" },
       leastBusyGameServerUrlGetter,
       // DefaultCharacterCreationPolicy,
@@ -90,10 +93,9 @@ export class LobbyServerNode {
   }
 
   private createExternalServices(
-    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalAuthGameSessionStore: GlobalAuthGameSessionStore
+    globalGameSessionStore: GlobalGameSessionStore
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
@@ -121,9 +123,8 @@ export class LobbyServerNode {
       savedCharactersService,
       rankedLadderService,
       gameSessionStoreService,
-      reconnectionForwardingStoreService,
       crossServerBroadcasterService,
-      globalAuthGameSessionStore,
+      globalGameSessionStore,
     };
 
     return externalServices;

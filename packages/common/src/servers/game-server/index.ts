@@ -16,17 +16,14 @@ import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js
 import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
-import { GameServerSessionClaimTokenCodec } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GameServerReconnectionProtocol } from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
-import { ActiveGameStatus } from "../services/game-session-store/active-game-status.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equipment-randomizer.js";
 import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
 import { LootGenerator } from "../../items/item-creation/loot-generator.js";
-import { ReconnectionForwardingStoreService } from "../services/reconnection-forwarding-store/index.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
@@ -46,19 +43,22 @@ import { CrossServerBroadcasterService } from "../services/cross-server-broadcas
 import { ServerCommand } from "../services/server-command/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
-import { GlobalAuthGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
-import { UserIdType } from "../sessions/user-ids.js";
 import { GameSessionConnectionStatus } from "../sessions/global-auth-game-session.js";
+import { GlobalGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
+import {
+  GameServerSessionClaimToken,
+  OpaqueEncryptionTokenCodec,
+} from "../lobby-server/game-handoff/session-claim-token.js";
+import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
-  reconnectionForwardingStoreService: ReconnectionForwardingStoreService;
   savedCharactersService: SavedCharactersService;
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
-  globalAuthGameSessionStore: GlobalAuthGameSessionStore;
+  globalGameSessionStore: GlobalGameSessionStore;
 }
 
 export class GameServer extends SpeedDungeonServer {
@@ -88,7 +88,8 @@ export class GameServer extends SpeedDungeonServer {
     readonly name: GameServerName,
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
+    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
+    private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
     /** pass constructor so the class can use its own private parameters to instantiate it */
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
     public readonly rngPolicy: RandomNumberGenerationPolicy,
@@ -162,8 +163,7 @@ export class GameServer extends SpeedDungeonServer {
       this.gameRegistry,
       this.userSessionRegistry,
       this.externalServices.gameSessionStoreService,
-      this.externalServices.globalAuthGameSessionStore,
-      this.externalServices.reconnectionForwardingStoreService,
+      this.externalServices.globalGameSessionStore,
       this.updateDispatchFactory,
       this.gameModeContexts,
       this.dungeonExplorationController
@@ -173,7 +173,8 @@ export class GameServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.gameRegistry,
       this.updateDispatchFactory,
-      this.gameServerSessionClaimTokenCodec
+      this.gameServerSessionClaimTokenCodec,
+      this.guestReconnectionTokenCodec
     );
 
     this.combatActionController = new CombatActionController(
@@ -206,10 +207,10 @@ export class GameServer extends SpeedDungeonServer {
 
     this.reconnectionProtocol = new GameServerReconnectionProtocol(
       this.updateDispatchFactory,
-      externalServices.reconnectionForwardingStoreService,
       this.reconnectionOpportunityManager,
       this.gameLifecycleController,
-      this.externalServices.globalAuthGameSessionStore,
+      this.externalServices.globalGameSessionStore,
+      this.guestReconnectionTokenCodec,
       (outbox) => this.dispatchOutboxMessages(outbox)
     );
   }
@@ -259,7 +260,7 @@ export class GameServer extends SpeedDungeonServer {
         gameIsInProgress
       );
 
-      if (connectionContext.type === ConnectionContextType.Reconnection) {
+      if (connectionContext.type === ConnectionContextType.GameServerReconnection) {
         await connectionContext.attemptReconnectionClaim();
       } else if (gameIsInProgress) {
         throw new Error("Tried to join a game in progress without a reconnection claim");
@@ -269,27 +270,19 @@ export class GameServer extends SpeedDungeonServer {
 
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
 
-      if (session.taggedUserId.type === UserIdType.Auth) {
-        await this.externalServices.globalAuthGameSessionStore.updateSessionConnectionStatus(
-          session.taggedUserId.id,
-          {
-            type: GameSessionConnectionStatus.ConnectedToGameServer,
-            gameName: gameName,
-            sessionData: {
-              gameName: session.getExpectedCurrentGame().name,
-              partyName: session.getExpectedCurrentParty(session.getExpectedCurrentGame()).name,
-              username: session.username,
-              taggedUserId: session.taggedUserId,
-              gameServerName: this.name,
-            },
-          }
-        );
-      }
+      await this.externalServices.globalGameSessionStore.updateSessionConnectionStatus(
+        session.taggedUserId,
+        GameSessionConnectionStatus.ConnectedToGameServer
+      );
 
       outbox.pushFromOther(joinGameOutbox);
 
       const refreshedReconnectionTokenOutbox =
         await this.reconnectionProtocol.issueReconnectionCredential(session);
+      await this.externalServices.globalGameSessionStore.updateGuestReconnectionToken(
+        session.taggedUserId,
+        session.getGuestReconnectionTokenOption()
+      );
       outbox.pushFromOther(refreshedReconnectionTokenOutbox);
 
       this.dispatchOutboxMessages(outbox);

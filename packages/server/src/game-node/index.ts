@@ -5,12 +5,10 @@ import {
   GameServerExternalServices,
   GameServerName,
   GameServerNodeAssetService,
-  GameServerSessionClaimTokenCodec,
   GameSessionStoreService,
   GameStateUpdate,
   InMemoryRaceGameRecordsPersistenceStrategy,
   RaceGameRecordsService,
-  ReconnectionForwardingStoreService,
   SavedCharactersService,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
@@ -34,6 +32,9 @@ import {
   IdGeneratorRandom,
   TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
   CHARACTER_LEVEL_LADDER,
+  GlobalGameSessionStore,
+  OpaqueEncryptionTokenCodec,
+  GameServerSessionClaimToken,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -50,7 +51,7 @@ import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { env } from "../validate-env.js";
-import { GlobalAuthGameSessionStore } from "@speed-dungeon/common";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -60,11 +61,11 @@ export class GameServerNode {
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     expressApp: Express,
-    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
-    globalAuthGameSessionStore: GlobalAuthGameSessionStore,
+    globalGameSessionStore: GlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
+    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
   ) {
     const fsAssetStore = new NodeFileSystemAssetStore("./assets");
     this._assetServer = new AssetServer(fsAssetStore);
@@ -74,10 +75,9 @@ export class GameServerNode {
     const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const externalServices = this.createExternalServices(
       fsAssetStore,
-      reconnectionForwardingStoreService,
       gameSessionStoreService,
       crossServerBroadcasterService,
-      globalAuthGameSessionStore
+      globalGameSessionStore
     );
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
@@ -95,6 +95,7 @@ export class GameServerNode {
       incomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
+      guestReconnectionTokenCodec,
       ScriptedDungeonGenerationPolicy,
       rngPolicy,
       // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
@@ -122,10 +123,9 @@ export class GameServerNode {
 
   private createExternalServices(
     assetStore: AssetCache,
-    reconnectionForwardingStoreService: ReconnectionForwardingStoreService,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalAuthGameSessionStore: GlobalAuthGameSessionStore
+    globalGameSessionStore: GlobalGameSessionStore
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);
 
@@ -147,13 +147,12 @@ export class GameServerNode {
 
     const result: GameServerExternalServices = {
       gameSessionStoreService,
-      reconnectionForwardingStoreService,
       savedCharactersService,
       rankedLadderService,
       raceGameRecordsService,
       assetService,
       crossServerBroadcasterService,
-      globalAuthGameSessionStore,
+      globalGameSessionStore,
     };
     return result;
   }

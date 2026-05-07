@@ -6,11 +6,11 @@ import {
   InMemoryCrossServerBroadcaster,
   InMemoryCrossServerBroadcastBus,
   InMemoryGameSessionStoreService,
-  InMemoryReconnectionForwardingStoreService,
-  OpaqueEncryptionSessionClaimTokenCodec,
   ServerCommand,
   SodiumHelpers,
-  InMemoryGlobalAuthGameSessionStore,
+  InMemoryGlobalGameSessionStore,
+  OpaqueEncryptionTokenCodec,
+  GameServerSessionClaimToken,
 } from "@speed-dungeon/common";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
@@ -20,6 +20,7 @@ import { runMigrations } from "./database/run-migrations.js";
 import { LobbyServerNode } from "./lobby-node/index.js";
 import { GameServerNode } from "./game-node/index.js";
 import { createServer } from "http";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
 
 const LOBBY_PORT = 8080;
 export const GAME_SERVER_NAME = "Lindblum Test Game Server" as GameServerName;
@@ -35,21 +36,25 @@ const lobbyServerNode = new LobbyServerNode();
 const gameServerNode = new GameServerNode();
 
 // @TODO - make valkey versions
-const reconnectionForwardingStoreService = new InMemoryReconnectionForwardingStoreService();
 const gameSessionStoreService = new InMemoryGameSessionStoreService();
-const globalAuthGameSessionStore = new InMemoryGlobalAuthGameSessionStore();
+const globalGameSessionStore = new InMemoryGlobalGameSessionStore();
 
 // for sending ladder rank global messages from the originating game server to all clients
 // on all servers
-const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<GameStateUpdate, ServerCommand>();
+const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<
+  GameStateUpdate,
+  ServerCommand
+>();
 const lobbyCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
   new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
 const gameCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
   new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
 
-const sessionClaimTokenSecret = await SodiumHelpers.createSecret();
-const gameServerSessionClaimTokenCodec = new OpaqueEncryptionSessionClaimTokenCodec(
-  sessionClaimTokenSecret
+const tokensSecret = await SodiumHelpers.createSecret();
+const gameServerSessionClaimTokenCodec =
+  new OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>(tokensSecret);
+const guestReconnectionTokenCodec = new OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>(
+  tokensSecret
 );
 
 const expressApp = createExpressApp();
@@ -58,11 +63,11 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
 
   lobbyServerNode.createServer(
     httpServer,
-    reconnectionForwardingStoreService,
     gameSessionStoreService,
-    globalAuthGameSessionStore,
+    globalGameSessionStore,
     lobbyCrossServerBroadcaster,
-    gameServerSessionClaimTokenCodec
+    gameServerSessionClaimTokenCodec,
+    guestReconnectionTokenCodec
   );
 });
 
@@ -73,10 +78,10 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     GAME_SERVER_NAME,
     gameHttpServer,
     expressApp,
-    reconnectionForwardingStoreService,
     gameSessionStoreService,
-    globalAuthGameSessionStore,
+    globalGameSessionStore,
     gameCrossServerBroadcaster,
-    gameServerSessionClaimTokenCodec
+    gameServerSessionClaimTokenCodec,
+    guestReconnectionTokenCodec
   );
 });

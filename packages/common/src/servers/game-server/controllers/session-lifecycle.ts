@@ -7,8 +7,12 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { GameServerSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
+import {
+  GameServerSessionClaimToken,
+  OpaqueEncryptionTokenCodec,
+} from "../../lobby-server/game-handoff/session-claim-token.js";
+import { GuestSessionReconnectionToken } from "../reconnection/guest-session-reconnection-token.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -20,7 +24,8 @@ export class GameServerSessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
+    private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
   ) {}
 
   async createSession(
@@ -54,9 +59,6 @@ export class GameServerSessionLifecycleController
     }
     this.recentlyUsedNonces.set(nonce, decryptedToken.expirationTimestamp);
 
-    // it is possible to be given a reconnection token in two separate browser tabs
-    // while the disconnection record is live in the central store, and there would be
-    // undefined behavior if a user tried to claim a session while already in a game
     if (this.userSessionRegistry.userIsAlreadyConnected(decryptedToken.taggedUserId.id)) {
       // send the other session a message "you have been disconnected because another connection from this account was opened"
       // disconnect the other session
@@ -72,7 +74,12 @@ export class GameServerSessionLifecycleController
       this.gameRegistry
     );
 
+    console.log("reconnection token option:", decryptedToken.reconnectionTokenOption);
     if (decryptedToken.reconnectionTokenOption) {
+      console.log(
+        "settingdecryptedToken.reconnectionTokenOption",
+        decryptedToken.reconnectionTokenOption
+      );
       newSession.setGuestReconnectionToken(decryptedToken.reconnectionTokenOption);
     }
 

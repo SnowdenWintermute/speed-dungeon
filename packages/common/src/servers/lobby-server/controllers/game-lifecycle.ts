@@ -1,5 +1,4 @@
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { LobbyState } from "../lobby-state.js";
 import { PartySetupController } from "./party-setup.js";
@@ -21,20 +20,17 @@ import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
-import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
     private readonly profileService: SpeedDungeonProfileService,
     private readonly savedCharactersController: SavedCharactersController,
     private readonly idGenerator: IdGenerator,
     private readonly gameHandoffManager: GameHandoffManager,
-    private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore
+    private readonly gameSessionStoreService: GameSessionStoreService
   ) {}
 
   private generateRandomGameName(): GameName {

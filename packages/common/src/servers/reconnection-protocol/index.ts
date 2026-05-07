@@ -3,14 +3,14 @@ import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 
 export enum ConnectionContextType {
   InitialConnection,
-  InitialGameServerConnectionRetry,
-  Reconnection,
+  GameServerReconnection,
+  WillForwardToGameServer,
 }
 
 export const CONNECTION_CONTEXT_TYPE_STRINGS: Record<ConnectionContextType, string> = {
   [ConnectionContextType.InitialConnection]: "InitialConnection",
-  [ConnectionContextType.InitialGameServerConnectionRetry]: "InitialGameServerConnectionRetry",
-  [ConnectionContextType.Reconnection]: "Reconnection",
+  [ConnectionContextType.GameServerReconnection]: "GameServerReconnection",
+  [ConnectionContextType.WillForwardToGameServer]: "WillForwardToGameServer",
 };
 
 export interface ConnectionContext {
@@ -20,6 +20,6 @@ export interface ConnectionContext {
 export interface PlayerReconnectionProtocol {
   evaluateConnectionContext(...args: any[]): Promise<ConnectionContext>;
   onPlayerDisconnected(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>>;
-  issueReconnectionCredential(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>>;
+  // issueReconnectionCredential(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>>;
   attemptReconnectionClaim(...args: any[]): Promise<void>;
 }

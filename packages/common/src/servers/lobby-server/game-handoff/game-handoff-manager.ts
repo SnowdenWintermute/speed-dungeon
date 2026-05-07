@@ -1,28 +1,25 @@
-import { ConnectionId, GameName } from "../../../aliases.js";
+import { ConnectionId, GameName, GameServerName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { invariant } from "../../../utils/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { PendingGameSetup } from "../../services/game-session-store/pending-game-setup.js";
-import { GlobalAuthGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
-import { UserIdType } from "../../sessions/user-ids.js";
+import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import {
-  GameServerSessionClaimToken,
-  GameServerSessionClaimTokenCodec,
-} from "./session-claim-token.js";
+import { GameServerSessionClaimToken, OpaqueEncryptionTokenCodec } from "./session-claim-token.js";
 
 export class GameHandoffManager {
   constructor(
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalAuthGameSessionStore: GlobalAuthGameSessionStore,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec,
-    private readonly getLeastBusyServerUrl: () => Promise<string>
+    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
+    private readonly getLeastBusyGameServer: () => Promise<{ name: GameServerName; url: string }>
   ) {}
 
   private getPlayerSessionsInGame(game: SpeedDungeonGame) {
@@ -37,18 +34,23 @@ export class GameHandoffManager {
     return result;
   }
 
-  private prepareClaimTokens(sessions: UserSession[], gameName: GameName, gameServerUrl: string) {
+  private async prepareClaimTokens(
+    sessions: UserSession[],
+    gameName: GameName,
+    gameServerUrl: string
+  ) {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
       invariant(session.currentPartyName !== null);
+      const tokenOption = session.getGuestReconnectionTokenOption();
       const claimToken = new GameServerSessionClaimToken(
         gameName,
         session.currentPartyName,
         session.username,
         session.taggedUserId,
         gameServerUrl,
-        session.getGuestReconnectionTokenOption() || undefined
+        tokenOption || undefined
       );
       claimTokensByConnectionId.set(session.connectionId, claimToken);
     }
@@ -56,12 +58,8 @@ export class GameHandoffManager {
     return claimTokensByConnectionId;
   }
 
-  // on all players in lobby game ready to start game
-  // handle a handoff from Lobby to GameServer
   async initiateGameHandoff(game: SpeedDungeonGame) {
-    // @TODO - resolve to a placeholder url for a single static test server
-    // - getLeastBusyGameServerOrProvisionOne()
-    const leastBusyServerUrl = await this.getLeastBusyServerUrl();
+    const leastBusyServer = await this.getLeastBusyGameServer();
 
     await this.gameSessionStoreService.writePendingGameSetup(
       game.name,
@@ -69,21 +67,32 @@ export class GameHandoffManager {
     );
 
     const sessionsInGame = this.getPlayerSessionsInGame(game);
-    const claimTokens = this.prepareClaimTokens(sessionsInGame, game.name, leastBusyServerUrl);
+    const claimTokens = await this.prepareClaimTokens(
+      sessionsInGame,
+      game.name,
+      leastBusyServer.url
+    );
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
 
-    for (const [connectionId, token] of claimTokens) {
-      if (token.taggedUserId.type === UserIdType.Auth) {
-        await this.globalAuthGameSessionStore.registerSession(token.taggedUserId.id, token);
-      }
+    for (const session of sessionsInGame) {
+      const token = claimTokens.get(session.connectionId);
+      invariant(
+        token !== undefined,
+        "should have created a game server session claim token for this connection id"
+      );
+      await this.globalGameSessionStore.registerSession(
+        session,
+        leastBusyServer.name,
+        GameSessionConnectionStatus.InitialConnectionPending
+      );
 
       const encryptedToken = await this.gameServerSessionClaimTokenCodec.encode(token);
-      outbox.pushToConnection(connectionId, {
+      outbox.pushToConnection(session.connectionId, {
         type: GameStateUpdateType.GameServerConnectionInstructions,
         data: {
           connectionInstructions: {
-            url: leastBusyServerUrl, // game server url
+            url: leastBusyServer.url, // game server url
             encryptedSessionClaimToken: encryptedToken,
           },
         },
