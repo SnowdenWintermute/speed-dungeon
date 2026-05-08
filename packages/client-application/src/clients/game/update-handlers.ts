@@ -3,6 +3,8 @@ import {
   ActionAndRank,
   ActionUserContext,
   CleanupMode,
+  CLIENT_APP_MESSAGES,
+  ClientAppMessageType,
   ClientSequentialEventType,
   COMBAT_ACTIONS,
   Combatant,
@@ -32,6 +34,10 @@ import { ConsideringItemActionMenuScreen } from "@/client-application/action-men
 import { ConsideringCombatActionMenuScreen } from "@/client-application/action-menu/screens/considering-combat-action";
 import { toJS } from "mobx";
 import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
+import {
+  GameLogMessage,
+  GameLogMessageStyle,
+} from "@/client-application/event-log/game-log-messages";
 
 export type GameUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -432,6 +438,20 @@ export function createGameUpdateHandlers(
         });
       } else {
         eventLogMessageService.postGameMessage(message);
+      }
+    },
+    [GameStateUpdateType.ClientAppMessage]: (messageType) => {
+      const messageText = CLIENT_APP_MESSAGES[messageType];
+      clientApplication.alertsService.setAlert(messageText);
+      if (messageType === ClientAppMessageType.DisconnectedByPreemption) {
+        clientApplication.eventLogStore.postMessage(
+          new GameLogMessage(messageText, GameLogMessageStyle.PartyWipe)
+        );
+        clientApplication.topologyManager.enterOffline();
+      } else {
+        clientApplication.eventLogStore.postMessage(
+          new GameLogMessage(messageText, GameLogMessageStyle.Healing)
+        );
       }
     },
     [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]: (data) => {

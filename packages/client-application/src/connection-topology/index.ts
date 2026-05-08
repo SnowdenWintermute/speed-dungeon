@@ -176,6 +176,11 @@ export class ConnectionTopology {
     const { connectionStatus } = this.clientApplication.uiStore;
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
+    this.clientApplication.lobbyContext.savedCharacters.setSlots({});
+    this.clientApplication.gameWorldView?.sceneEntityService.clearAll();
+    this.clientApplication.replayTreeScheduler.clear();
+    this.clientApplication.sequentialEventProcessor.cancelQueued();
+    this.clientApplication.sequentialEventProcessor.clearCurrent();
 
     createOfflineLocalServers(this.clientApplication.assetService).then(
       ({ lobbyServer, gameServer }) => {

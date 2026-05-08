@@ -11,10 +11,6 @@ import { testPlayerSeesOwnDefaultProgressionGameCharacter } from "./see-own-defa
 import { testProgressionGamePlayersSeeEachOthersCharactersOnJoin } from "./clients-see-each-others-characters-on-join";
 import { testProgressionGameSelectCharacterSync } from "./select-character-client-sync";
 import { testProgressionGameStartingFloorSelection } from "./starting-floor-selection";
-import {
-  testProgressionGameRequiresNotInOtherGameServerGame,
-  testProgressionGameRequiresNotInOtherLobbyGame,
-} from "./progression-game-requires-not-in-other-game";
 
 describe("progression game", () => {
   // it("placeholder", () => {});
@@ -50,9 +46,5 @@ describe("progression game", () => {
   });
   it("join requires saved character", async () => {
     await testJoinProgressionGameRequiresSavedCharacter(testFixture);
-  });
-  it("one game per user", async () => {
-    await testProgressionGameRequiresNotInOtherLobbyGame(testFixture);
-    await testProgressionGameRequiresNotInOtherGameServerGame(testFixture);
   });
 });

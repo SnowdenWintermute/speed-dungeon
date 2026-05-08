@@ -23,6 +23,7 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { GameLog } from "../game/combat-log";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);

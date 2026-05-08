@@ -20,6 +20,10 @@ import { ClientApplication } from "@/client-application";
 import { GAME_SERVER_TRANSITION_TIMEOUT_MS } from "@/client-application/consts";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
 import { DialogElementName } from "@/client-application/ui/dialogs";
+import {
+  GameLogMessage,
+  GameLogMessageStyle,
+} from "@/client-application/event-log/game-log-messages";
 
 export type LobbyUpdateHandler<K extends keyof GameStateUpdateMap> = (
   data: GameStateUpdateMap[K]
@@ -285,9 +289,19 @@ export function createLobbyUpdateHandlers(
     },
 
     [GameStateUpdateType.ClientAppMessage]: (messageType) => {
-      clientApplication.alertsService.setAlert(CLIENT_APP_MESSAGES[messageType]);
+      const messageText = CLIENT_APP_MESSAGES[messageType];
+      clientApplication.alertsService.setAlert(messageText);
       if (messageType === ClientAppMessageType.DisconnectedByPreemption) {
+        console.log("posted dc'd");
+        clientApplication.eventLogStore.postMessage(
+          new GameLogMessage(messageText, GameLogMessageStyle.PartyWipe)
+        );
         clientApplication.topologyManager.enterOffline();
+      } else {
+        console.log("posted taken over");
+        clientApplication.eventLogStore.postMessage(
+          new GameLogMessage(messageText, GameLogMessageStyle.Healing)
+        );
       }
     },
     [GameStateUpdateType.EndOfUpdateStream]: () => {

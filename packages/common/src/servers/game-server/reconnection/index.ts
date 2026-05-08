@@ -31,6 +31,7 @@ interface GameServerInitialConnectionContext {
 
 interface GameServerConnectionPreemptionContext {
   type: ConnectionContextType.GameServerSessionPreemption;
+  oldSession: UserSession;
 }
 
 export type GameServerConnectionContext =
@@ -55,8 +56,14 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     session: UserSession,
     gameIsInProgress: boolean
   ): Promise<GameServerConnectionContext> {
-    if (this.userSessionRegistry.userIsAlreadyConnected(session.taggedUserId.id)) {
-      return { type: ConnectionContextType.GameServerSessionPreemption };
+    const existingSessionOption = this.userSessionRegistry.getSessionByUserId(
+      session.taggedUserId.id
+    );
+    if (existingSessionOption) {
+      return {
+        type: ConnectionContextType.GameServerSessionPreemption,
+        oldSession: existingSessionOption,
+      };
     }
 
     if (!gameIsInProgress) {

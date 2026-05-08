@@ -232,8 +232,6 @@ export class LobbyServer extends SpeedDungeonServer {
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     // If preemption already cleaned this session up, the registry won't have it.
-    // Skip — the eventual close event from a preempted endpoint is expected and
-    // doesn't need any further work.
     if (!this.outgoingMessagesGateway.getEndpoint(session.connectionId)) return;
 
     if (GAME_CONFIG.LOG_LOBBY_CONNECTION_EVENTS) {
