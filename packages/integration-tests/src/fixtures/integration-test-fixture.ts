@@ -262,7 +262,11 @@ export class IntegrationTestFixture {
   async createTwoClientsInGameServerGame(options?: { auth?: boolean }) {
     const { alpha, bravo } = await this.createTwoClientsInLobbyGame(options);
     await alpha.lobbyClientHarness.toggleReadyToStartGame();
+    const alphaSawBravoReadyPromise = alpha.lobbyClientHarness.awaitMessageOfType(
+      GameStateUpdateType.PlayerToggledReadyToStartGame
+    );
     await bravo.lobbyClientHarness.toggleReadyToStartGame();
+    await alphaSawBravoReadyPromise;
 
     await alpha.clientApplication.transitionToGameServer.waitFor();
     await bravo.clientApplication.transitionToGameServer.waitFor();
