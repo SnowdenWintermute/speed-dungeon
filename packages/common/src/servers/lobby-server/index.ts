@@ -114,6 +114,7 @@ export class LobbyServer extends SpeedDungeonServer {
             await this.connectionHandler(connectionEndpoint, identityContext);
             resolve();
           } catch (error) {
+            console.info(error);
             reject(error);
           }
         });
@@ -172,37 +173,52 @@ export class LobbyServer extends SpeedDungeonServer {
     const preexistingSessionOption = this.userSessionRegistry.getSessionByUserId(
       session.taggedUserId.id
     );
-    // const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory)
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const isPreemption = !!preexistingSessionOption;
+
+    this.attachIntentHandlersToSessionConnection(
+      session,
+      connectionEndpoint,
+      this.userIntentHandlers
+    );
+
     if (preexistingSessionOption) {
-      console.log("preemptExistingSession:", preexistingSessionOption);
-      const preemptionOutbox = await this.preemptExistingSession(preexistingSessionOption, session);
-      // outbox.pushFromOther(preemptionOutbox)
+      const preemptionOutbox = await this.preemptExistingSession(preexistingSessionOption);
+      outbox.pushFromOther(preemptionOutbox);
     }
 
     if (connectionContext.type === ConnectionContextType.WillForwardToGameServer) {
-      console.log("got connection type:", CONNECTION_CONTEXT_TYPE_STRINGS[connectionContext.type]);
-      const outbox = await this.userSessionLifecycleController.activateSession(session, {
-        sessionWillBeForwardedToGameServer: true,
-      });
+      const sessionActivationOutbox = await this.userSessionLifecycleController.activateSession(
+        session,
+        {
+          sessionWillBeForwardedToGameServer: true,
+        }
+      );
+      outbox.pushFromOther(sessionActivationOutbox);
       const reconnectionCredentialsOutbox = await connectionContext.issueCredentials();
       outbox.pushFromOther(reconnectionCredentialsOutbox);
-      this.dispatchOutboxMessages(outbox);
     } else {
-      this.attachIntentHandlersToSessionConnection(
+      const sessionActivationOutbox = await this.userSessionLifecycleController.activateSession(
         session,
-        connectionEndpoint,
-        this.userIntentHandlers
+        {
+          sessionWillBeForwardedToGameServer: false,
+        }
       );
-
-      const outbox = await this.userSessionLifecycleController.activateSession(session, {
-        sessionWillBeForwardedToGameServer: false,
-      });
-
-      this.dispatchOutboxMessages(outbox);
+      outbox.pushFromOther(sessionActivationOutbox);
+      if (isPreemption) {
+        // if it is a preemtion but we are sending them to the game server, game server
+        // will let them know they preempted
+        outbox.pushToConnection(session.connectionId, {
+          type: GameStateUpdateType.ClientAppMessage,
+          data: ClientAppMessageType.OtherConnectionPreempted,
+        });
+      }
     }
+
+    this.dispatchOutboxMessages(outbox);
   }
 
-  private async preemptExistingSession(oldSession: UserSession, newSession: UserSession) {
+  private async preemptExistingSession(oldSession: UserSession) {
     // disconnect with message any other session for this user in the lobby
     this.outgoingMessagesGateway.submitToConnection(oldSession.connectionId, {
       type: GameStateUpdateType.ClientAppMessage,
@@ -210,18 +226,7 @@ export class LobbyServer extends SpeedDungeonServer {
     });
     this.outgoingMessagesGateway.closeEndpoint(oldSession.connectionId);
     this.outgoingMessagesGateway.unregisterEndpoint(oldSession.connectionId);
-    console.log("about to awaituserSessionLifecycleController.cleanupSession");
     const outbox = await this.userSessionLifecycleController.cleanupSession(oldSession);
-    console.log("userSessionLifecycleController.cleanupSession ran");
-    try {
-      outbox.pushToConnection(newSession.connectionId, {
-        type: GameStateUpdateType.ClientAppMessage,
-        data: ClientAppMessageType.OtherConnectionPreempted,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-    console.log("about to return outbox");
     return outbox;
   }
 

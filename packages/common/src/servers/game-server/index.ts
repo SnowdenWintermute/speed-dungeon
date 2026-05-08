@@ -121,6 +121,7 @@ export class GameServer extends SpeedDungeonServer {
             await this.connectionHandler(context, identityContext);
             resolve();
           } catch (error) {
+            console.info(error);
             reject(error);
           }
         });
