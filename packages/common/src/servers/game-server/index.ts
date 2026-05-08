@@ -239,6 +239,12 @@ export class GameServer extends SpeedDungeonServer {
         this.logUserConnected(session);
       }
 
+      this.attachIntentHandlersToSessionConnection(
+        session,
+        connectionEndpoint,
+        this.intentHandlers
+      );
+
       this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);
 
       // all sessions can listen to global ladder updates
@@ -266,11 +272,6 @@ export class GameServer extends SpeedDungeonServer {
       }
 
       const outbox = await this.sessionLifecycleController.activateSession(session);
-      this.attachIntentHandlersToSessionConnection(
-        session,
-        connectionEndpoint,
-        this.intentHandlers
-      );
 
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
 
@@ -335,6 +336,11 @@ export class GameServer extends SpeedDungeonServer {
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
+
+    // Registry-presence guard — handles connection-dropped-before-activateSession.
+    // The endpoint was registered with the gateway but the session never made it
+    // into the registry, so there's no game-side cleanup to do.
+    if (!this.userSessionRegistry.getSessionOption(session.connectionId)) return;
 
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     const shouldAllowReconnection = !session.intentionallyClosed;

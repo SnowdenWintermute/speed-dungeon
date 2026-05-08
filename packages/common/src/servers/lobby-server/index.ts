@@ -156,6 +156,12 @@ export class LobbyServer extends SpeedDungeonServer {
       identityResolutionContext
     );
 
+    this.attachIntentHandlersToSessionConnection(
+      session,
+      connectionEndpoint,
+      this.userIntentHandlers
+    );
+
     if (GAME_CONFIG.LOG_LOBBY_CONNECTION_EVENTS) {
       this.logUserConnected(session);
     }
@@ -175,12 +181,6 @@ export class LobbyServer extends SpeedDungeonServer {
     );
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const isPreemption = !!preexistingSessionOption;
-
-    this.attachIntentHandlersToSessionConnection(
-      session,
-      connectionEndpoint,
-      this.userIntentHandlers
-    );
 
     if (preexistingSessionOption) {
       const preemptionOutbox = await this.preemptExistingSession(preexistingSessionOption);
@@ -240,6 +240,9 @@ export class LobbyServer extends SpeedDungeonServer {
 
     session.connectionState = UserSessionConnectionState.Disconnected;
     this.outgoingMessagesGateway.unregisterEndpoint(session.connectionId);
+
+    // in case this user's connection was dropped before their session was activated
+    if (!this.userSessionRegistry.getSessionOption(session.connectionId)) return;
 
     const outbox = await this.userSessionLifecycleController.cleanupSession(session);
 

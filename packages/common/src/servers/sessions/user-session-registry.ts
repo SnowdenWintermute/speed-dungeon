@@ -41,8 +41,12 @@ export class UserSessionRegistry {
       .map(([connectionId, _session]) => connectionId);
   }
 
+  getSessionOption(connectionId: ConnectionId) {
+    return this.sessionsByConnectionId.get(connectionId);
+  }
+
   requireSession(connectionId: ConnectionId) {
-    const userSessionOption = this.sessionsByConnectionId.get(connectionId);
+    const userSessionOption = this.getSessionOption(connectionId);
     if (userSessionOption === undefined) {
       throw new Error(`Expected session not found by connection id: ${connectionId}`);
     } else {
