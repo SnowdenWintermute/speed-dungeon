@@ -50,7 +50,6 @@ import {
   OpaqueEncryptionTokenCodec,
 } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
-import { TaggedUserId } from "../sessions/user-ids.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -208,6 +207,7 @@ export class GameServer extends SpeedDungeonServer {
     this.reconnectionProtocol = new GameServerReconnectionProtocol(
       this.updateDispatchFactory,
       this.reconnectionOpportunityManager,
+      this.userSessionRegistry,
       this.gameLifecycleController,
       this.externalServices.globalGameSessionStore,
       this.guestReconnectionTokenCodec,
@@ -262,7 +262,7 @@ export class GameServer extends SpeedDungeonServer {
 
       if (connectionContext.type === ConnectionContextType.GameServerReconnection) {
         await connectionContext.attemptReconnectionClaim();
-      } else if (gameIsInProgress) {
+      } else if (connectionContext.type === ConnectionContextType.GameServerSessionPreemption) {
         await this.preemptExistingSession(session);
       }
 

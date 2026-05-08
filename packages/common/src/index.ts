@@ -64,6 +64,7 @@ export * from "./primatives/timed-lock.js";
 
 export * from "./packets/channels.js";
 export * from "./packets/game-message.js";
+export * from "./packets/client-app-message.js";
 export * from "./packets/client-intents.js";
 export * from "./packets/client-sequential-events.js";
 export * from "./packets/game-state-updates.js";

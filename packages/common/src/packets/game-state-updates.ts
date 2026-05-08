@@ -33,6 +33,7 @@ import { SerializedOf } from "../serialization/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
+import { ClientAppMessageType } from "./client-app-message.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -54,6 +55,7 @@ export enum GameStateUpdateType {
   PlayerToggledReadyToStartGame,
   GameStarted,
   GameServerConnectionInstructions,
+  ClientAppMessage,
 
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
@@ -167,6 +169,7 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;
   };
+  [GameStateUpdateType.ClientAppMessage]: ClientAppMessageType;
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
     username: Username;
     explorationAction: ExplorationAction;
@@ -352,6 +355,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.PlayerToggledReadyToStartGame]: "PlayerToggledReadyToStartGame",
   [GameStateUpdateType.GameStarted]: "GameStarted",
   [GameStateUpdateType.GameServerConnectionInstructions]: "GameServerConnectionInstructions",
+  [GameStateUpdateType.ClientAppMessage]: "ClientAppMessage",
 
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]:
     "PlayerToggledReadyToDescendOrExplore",

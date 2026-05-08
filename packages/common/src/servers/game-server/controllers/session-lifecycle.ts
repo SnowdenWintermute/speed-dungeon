@@ -57,14 +57,6 @@ export class GameServerSessionLifecycleController
     }
     this.recentlyUsedNonces.set(nonce, decryptedToken.expirationTimestamp);
 
-    if (this.userSessionRegistry.userIsAlreadyConnected(decryptedToken.taggedUserId.id)) {
-      // send the other session a message "you have been disconnected because another connection from this account was opened"
-      // disconnect the other session
-      //
-
-      throw new Error("Only one connection per user is permitted on a single game server");
-    }
-
     const newSession = new UserSession(
       decryptedToken.username,
       connectionId,

@@ -18,6 +18,7 @@ import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-ses
 import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { OpaqueEncryptionTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./guest-session-reconnection-token.js";
+import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 
 interface GameServerReconnectionContext {
   type: ConnectionContextType.GameServerReconnection;
@@ -28,14 +29,20 @@ interface GameServerInitialConnectionContext {
   type: ConnectionContextType.InitialConnection;
 }
 
+interface GameServerConnectionPreemptionContext {
+  type: ConnectionContextType.GameServerSessionPreemption;
+}
+
 export type GameServerConnectionContext =
   | GameServerReconnectionContext
-  | GameServerInitialConnectionContext;
+  | GameServerInitialConnectionContext
+  | GameServerConnectionPreemptionContext;
 
 export class GameServerReconnectionProtocol implements PlayerReconnectionProtocol {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
+    private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
     private readonly globalGameSessionStore: GlobalGameSessionStore,
     private readonly guestSessionReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
@@ -48,6 +55,10 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     session: UserSession,
     gameIsInProgress: boolean
   ): Promise<GameServerConnectionContext> {
+    if (this.userSessionRegistry.userIsAlreadyConnected(session.taggedUserId.id)) {
+      return { type: ConnectionContextType.GameServerSessionPreemption };
+    }
+
     if (!gameIsInProgress) {
       return { type: ConnectionContextType.InitialConnection };
     } else {

@@ -69,6 +69,12 @@ export class UserSessionRegistry {
     return this.connectionIdsByUserId.has(userId);
   }
 
+  getSessionByUserId(userId: UserId): undefined | UserSession {
+    const connectionId = this.connectionIdsByUserId.get(userId);
+    if (!connectionId) return;
+    return this.requireSession(connectionId);
+  }
+
   getAllSessionsInGame(game: SpeedDungeonGame) {
     const result: UserSession[] = [];
     for (const [username, _player] of game.players) {

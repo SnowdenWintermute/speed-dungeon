@@ -1,6 +1,8 @@
 import {
   AdventuringParty,
   CHARACTER_SLOT_SPACING,
+  CLIENT_APP_MESSAGES,
+  ClientAppMessageType,
   ClientSequentialEventType,
   Combatant,
   ConnectionEndpoint,
@@ -280,6 +282,13 @@ export function createLobbyUpdateHandlers(
 
       clientApplication.waitForReconnectionInstructions.fire();
       clientApplication.topologyManager.createGameClient(url, queryParams);
+    },
+
+    [GameStateUpdateType.ClientAppMessage]: (messageType) => {
+      clientApplication.alertsService.setAlert(CLIENT_APP_MESSAGES[messageType]);
+      if (messageType === ClientAppMessageType.DisconnectedByPreemption) {
+        clientApplication.topologyManager.enterOffline();
+      }
     },
     [GameStateUpdateType.EndOfUpdateStream]: () => {
       /* handled in BaseClient */

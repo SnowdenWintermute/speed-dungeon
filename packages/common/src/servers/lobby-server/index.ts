@@ -19,7 +19,7 @@ import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { ServerCommand } from "../services/server-command/index.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
@@ -45,6 +45,8 @@ import {
   OpaqueEncryptionTokenCodec,
 } from "./game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
+import { ClientAppMessageType } from "../../packets/client-app-message.js";
+import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -105,11 +107,11 @@ export class LobbyServer extends SpeedDungeonServer {
       fetchLeastBusyServer
     );
 
-    this.incomingConnectionGateway.initialize((context, identityContext) => {
+    this.incomingConnectionGateway.initialize((connectionEndpoint, identityContext) => {
       return new Promise<void>((resolve, reject) => {
         this.executor.enqueue(async () => {
           try {
-            await this.connectionHandler(context, identityContext);
+            await this.connectionHandler(connectionEndpoint, identityContext);
             resolve();
           } catch (error) {
             reject(error);
@@ -167,7 +169,15 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
-    await this.preemptExistingSessionOption(session.taggedUserId);
+    const preexistingSessionOption = this.userSessionRegistry.getSessionByUserId(
+      session.taggedUserId.id
+    );
+    // const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory)
+    if (preexistingSessionOption) {
+      console.log("preemptExistingSession:", preexistingSessionOption);
+      const preemptionOutbox = await this.preemptExistingSession(preexistingSessionOption, session);
+      // outbox.pushFromOther(preemptionOutbox)
+    }
 
     if (connectionContext.type === ConnectionContextType.WillForwardToGameServer) {
       console.log("got connection type:", CONNECTION_CONTEXT_TYPE_STRINGS[connectionContext.type]);
@@ -192,12 +202,35 @@ export class LobbyServer extends SpeedDungeonServer {
     }
   }
 
-  private async preemptExistingSessionOption(taggedUserId: TaggedUserId) {
+  private async preemptExistingSession(oldSession: UserSession, newSession: UserSession) {
     // disconnect with message any other session for this user in the lobby
-    // push message to connecting user outbox "you preempted another session"
+    this.outgoingMessagesGateway.submitToConnection(oldSession.connectionId, {
+      type: GameStateUpdateType.ClientAppMessage,
+      data: ClientAppMessageType.DisconnectedByPreemption,
+    });
+    this.outgoingMessagesGateway.closeEndpoint(oldSession.connectionId);
+    this.outgoingMessagesGateway.unregisterEndpoint(oldSession.connectionId);
+    console.log("about to awaituserSessionLifecycleController.cleanupSession");
+    const outbox = await this.userSessionLifecycleController.cleanupSession(oldSession);
+    console.log("userSessionLifecycleController.cleanupSession ran");
+    try {
+      outbox.pushToConnection(newSession.connectionId, {
+        type: GameStateUpdateType.ClientAppMessage,
+        data: ClientAppMessageType.OtherConnectionPreempted,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("about to return outbox");
+    return outbox;
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
+    // If preemption already cleaned this session up, the registry won't have it.
+    // Skip — the eventual close event from a preempted endpoint is expected and
+    // doesn't need any further work.
+    if (!this.outgoingMessagesGateway.getEndpoint(session.connectionId)) return;
+
     if (GAME_CONFIG.LOG_LOBBY_CONNECTION_EVENTS) {
       this.logUserDisconnected(session, reason);
     }
