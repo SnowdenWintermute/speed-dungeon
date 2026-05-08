@@ -4,12 +4,14 @@ import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 export enum ConnectionContextType {
   InitialConnection,
   GameServerReconnection,
+  GameServerSessionPreemption,
   WillForwardToGameServer,
 }
 
 export const CONNECTION_CONTEXT_TYPE_STRINGS: Record<ConnectionContextType, string> = {
   [ConnectionContextType.InitialConnection]: "InitialConnection",
   [ConnectionContextType.GameServerReconnection]: "GameServerReconnection",
+  [ConnectionContextType.GameServerSessionPreemption]: "GameServerSessionPreemption",
   [ConnectionContextType.WillForwardToGameServer]: "WillForwardToGameServer",
 };
 

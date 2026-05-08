@@ -15,7 +15,7 @@ import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
-import { UserIdType } from "../sessions/user-ids.js";
+import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { ServerCommand } from "../services/server-command/index.js";
@@ -167,6 +167,8 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(session);
 
+    await this.preemptExistingSessionOption(session.taggedUserId);
+
     if (connectionContext.type === ConnectionContextType.WillForwardToGameServer) {
       console.log("got connection type:", CONNECTION_CONTEXT_TYPE_STRINGS[connectionContext.type]);
       const outbox = await this.userSessionLifecycleController.activateSession(session, {
@@ -188,6 +190,11 @@ export class LobbyServer extends SpeedDungeonServer {
 
       this.dispatchOutboxMessages(outbox);
     }
+  }
+
+  private async preemptExistingSessionOption(taggedUserId: TaggedUserId) {
+    // disconnect with message any other session for this user in the lobby
+    // push message to connecting user outbox "you preempted another session"
   }
 
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {

@@ -40,24 +40,28 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
   ) {}
 
   async evaluateConnectionContext(session: UserSession): Promise<LobbyConnectionContext> {
-    // we will rely on the game server to delete the reconnectionForwardingRecord when it is claimed or expires
-    // in the event that it expires after we issue the claim token and before the user presents it, we will
-    // not accept their reconnection to the game server. the reason I didn't want to delete it here is because
-    // the game server needs to know when the reconnectionForwardingRecord expires or is claimed so it can remove the
-    // input lock's RC for that user in the game. also, if they get their claim token then disconnect before
-    // reconnecting to the game server they won't be able to reconnect again if we delete it now.
-
     const globalSessionOption = await this.getGlobalGameSessionOption(session);
     if (!globalSessionOption) {
       return { type: ConnectionContextType.InitialConnection };
     }
-    const gameStillExists = await this.gameSessionStoreService.getActiveGameStatus(
+    const activeGameStatusOption = await this.gameSessionStoreService.getActiveGameStatus(
       globalSessionOption.gameName
     );
+    let gameStillExists = !!activeGameStatusOption;
+    // in the rare event that someone disconnected right after readying up and the pending game
+    // was created before they had a chance to connect
+    if (!gameStillExists) {
+      const pendingGameOption = await this.gameSessionStoreService.getPendingGameSetup(
+        globalSessionOption.gameName
+      );
+      gameStillExists = !!pendingGameOption;
+    }
+
     if (!gameStillExists) {
       return { type: ConnectionContextType.InitialConnection };
     }
     const token = globalSessionOption.createClaimToken(this);
+
     return {
       type: ConnectionContextType.WillForwardToGameServer,
       issueCredentials: async () => await this.issueGameServerConnectionCredential(session, token),
@@ -97,46 +101,6 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     }
   }
 
-  // async issueReconnectionCredential(
-  //   session: UserSession,
-  //   reconnectionForwardingRecord: GameServerReconnectionForwardingRecord
-  // ) {
-  //   const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-  //   const url = this.getGameServerUrlFromName(reconnectionForwardingRecord.gameServerName);
-  //   const claimToken = new GameServerSessionClaimToken(
-  //     reconnectionForwardingRecord.gameName,
-  //     reconnectionForwardingRecord.partyName,
-  //     session.username,
-  //     reconnectionForwardingRecord.taggedUserId,
-  //     url,
-  //     reconnectionForwardingRecord.guestUserReconnectionTokenOption || undefined
-  //   );
-
-  //   let encryptedSessionClaimToken = "";
-  //   try {
-  //     encryptedSessionClaimToken = await this.gameServerSessionClaimTokenCodec.encode(claimToken);
-  //   } catch (err) {
-  //     console.trace("error encrypting token", err);
-  //   }
-
-  //   outbox.pushToConnection(session.connectionId, {
-  //     type: GameStateUpdateType.GameServerConnectionInstructions,
-  //     data: {
-  //       connectionInstructions: {
-  //         url,
-  //         encryptedSessionClaimToken,
-  //       },
-  //     },
-  //   });
-
-  //   const { username, taggedUserId, connectionId } = session;
-  //   // console.info(
-  //   //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${reconnectionForwardingRecord.gameServerName} at url ${url}`
-  //   // );
-
-  //   return outbox;
-  // }
-
   async issueGameServerConnectionCredential(
     session: UserSession,
     token: GameServerSessionClaimToken
@@ -161,11 +125,6 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
         },
       },
     });
-
-    const { username, taggedUserId, connectionId } = session;
-    // console.info(
-    //   `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) was given instructions to reconnect to server ${reconnectionForwardingRecord.gameServerName} at url ${url}`
-    // );
 
     return outbox;
   }

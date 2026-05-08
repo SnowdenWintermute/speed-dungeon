@@ -50,6 +50,7 @@ import {
   OpaqueEncryptionTokenCodec,
 } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
+import { TaggedUserId } from "../sessions/user-ids.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -173,8 +174,7 @@ export class GameServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.gameRegistry,
       this.updateDispatchFactory,
-      this.gameServerSessionClaimTokenCodec,
-      this.guestReconnectionTokenCodec
+      this.gameServerSessionClaimTokenCodec
     );
 
     this.combatActionController = new CombatActionController(
@@ -263,7 +263,7 @@ export class GameServer extends SpeedDungeonServer {
       if (connectionContext.type === ConnectionContextType.GameServerReconnection) {
         await connectionContext.attemptReconnectionClaim();
       } else if (gameIsInProgress) {
-        throw new Error("Tried to join a game in progress without a reconnection claim");
+        await this.preemptExistingSession(session);
       }
 
       const outbox = await this.sessionLifecycleController.activateSession(session);
@@ -299,6 +299,12 @@ export class GameServer extends SpeedDungeonServer {
     }
   }
 
+  private async preemptExistingSession(session: UserSession) {
+    // disconnect with message any other session for this user
+    // transfer the existing session to this connection
+    throw new Error("not implemented");
+  }
+
   // @TODO - combine with lobby server, it is almost exact same other than disconnection session logic
   protected async disconnectionHandler(session: UserSession, reason: TransportDisconnectReason) {
     if (GAME_CONFIG.LOG_GAME_SERVER_CONNECTIONS_EVENTS) {
@@ -326,7 +332,6 @@ export class GameServer extends SpeedDungeonServer {
 
   private startActiveGamesRecordHeartbeatTask() {
     const heartbeat = new HeartbeatTask(GAME_RECORD_HEARTBEAT_MS, () => {
-      // currently overwrites but could just update - this is simpler for now
       for (const [gameName, game] of this.gameRegistry.games) {
         this.externalServices.gameSessionStoreService.refreshActiveGameStatus(gameName);
       }

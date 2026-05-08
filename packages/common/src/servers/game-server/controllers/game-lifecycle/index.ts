@@ -141,7 +141,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       outbox.pushFromOther(startGameOutbox);
     }
 
-    game.inputLock.remove(session.taggedUserId.id); // @TODO - check this lock when players submit inputs
+    game.inputLock.remove(session.taggedUserId.id);
 
     return outbox;
   }

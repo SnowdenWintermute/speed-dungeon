@@ -12,7 +12,6 @@ import {
   GameServerSessionClaimToken,
   OpaqueEncryptionTokenCodec,
 } from "../../lobby-server/game-handoff/session-claim-token.js";
-import { GuestSessionReconnectionToken } from "../reconnection/guest-session-reconnection-token.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -24,8 +23,7 @@ export class GameServerSessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
-    private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
+    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>
   ) {}
 
   async createSession(
@@ -74,12 +72,7 @@ export class GameServerSessionLifecycleController
       this.gameRegistry
     );
 
-    console.log("reconnection token option:", decryptedToken.reconnectionTokenOption);
     if (decryptedToken.reconnectionTokenOption) {
-      console.log(
-        "settingdecryptedToken.reconnectionTokenOption",
-        decryptedToken.reconnectionTokenOption
-      );
       newSession.setGuestReconnectionToken(decryptedToken.reconnectionTokenOption);
     }
 

@@ -23,10 +23,6 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
       this.gameUpdateCommandOption = gameUpdateCommandOption;
       party.combatantManager.updateHomePositionsToPointAtTopThreat();
     }
-
-    // @TODO
-    // set a timeout to unlock input equal to current action accumulated time
-    // plus all previous actions accumulated time in the current
   }
 
   protected onTick = () => {};
