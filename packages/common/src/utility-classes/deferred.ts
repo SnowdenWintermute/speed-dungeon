@@ -62,7 +62,7 @@ export class Deferred {
   private notifyReadyWaiters() {
     const waiters = this._readyWaiters;
     this._readyWaiters = [];
-    for (const w of waiters) w();
+    for (const resolver of waiters) resolver();
   }
 
   private clear() {

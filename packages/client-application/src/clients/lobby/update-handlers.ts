@@ -47,6 +47,13 @@ export function createLobbyUpdateHandlers(
         console.info("token missing, reused or expired");
         clientApplication.waitForReconnectionInstructions.fire();
         clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
+      } else {
+        clientApplication.eventLogStore.postMessage(
+          new GameLogMessage(
+            CLIENT_APP_MESSAGES[ClientAppMessageType.ReconnectingToGameServer],
+            GameLogMessageStyle.Basic
+          )
+        );
       }
       clientApplication.topologyManager.clearGameClient();
       session.setUsername(data.username);
@@ -260,7 +267,6 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.GameServerConnectionInstructions]: async (data) => {
-      console.log("got GameServerConnectionInstructions:", data);
       clientApplication.transitionToLobbyServer.fire(); // if skipping lobby and reconnecting to game
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
