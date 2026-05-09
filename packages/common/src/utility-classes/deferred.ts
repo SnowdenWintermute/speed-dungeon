@@ -6,6 +6,7 @@ export class Deferred {
   private _resolve: (() => void) | null = null;
   private _timeout: ReturnType<typeof setTimeout> | null = null;
   private _onSuccess: (() => void) | null = null;
+  private completed = false;
 
   arm(options?: { timeoutMs: number; onTimeout: () => void; onSuccess: () => void }) {
     this._promise = new Promise<void>((resolve, reject) => {
@@ -27,6 +28,11 @@ export class Deferred {
     this._resolve?.();
     this._onSuccess?.();
     this.clear();
+    this.completed = true;
+  }
+
+  isArmed() {
+    return this._promise !== null;
   }
 
   waitFor(): Promise<void> {
@@ -34,6 +40,11 @@ export class Deferred {
       throw new Error("Deferred has not been started");
     }
     return this._promise;
+  }
+
+  waitForOrCompleted(): Promise<void> {
+    if (this.completed) return Promise.resolve();
+    return this.waitFor();
   }
 
   private clear() {

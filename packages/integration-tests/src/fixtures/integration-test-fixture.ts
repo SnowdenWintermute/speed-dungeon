@@ -268,8 +268,8 @@ export class IntegrationTestFixture {
     await bravo.lobbyClientHarness.toggleReadyToStartGame();
     await alphaSawBravoReadyPromise;
 
-    await alpha.clientApplication.transitionToGameServer.waitFor();
-    await bravo.clientApplication.transitionToGameServer.waitFor();
+    await alpha.clientApplication.transitionToGameServer.waitForOrCompleted();
+    await bravo.clientApplication.transitionToGameServer.waitForOrCompleted();
     return { alpha, bravo };
   }
 

@@ -1,6 +1,6 @@
 import { TEST_AUTH_SESSION_ID_PLAYER_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { ClientIntentType } from "@speed-dungeon/common";
+import { ClientIntentType, GameStateUpdateType } from "@speed-dungeon/common";
 
 export async function testRetryLostInitialConnectionInstructions(
   testFixture: IntegrationTestFixture
@@ -49,8 +49,9 @@ export async function testLateJoinerToGameAfterOtherPlayersLeft(
   await expect(async () =>
     bravo.clientApplication.waitForReconnectionInstructions.waitFor()
   ).rejects.toThrow();
+
   // other connects to game server
-  await alpha.clientApplication.transitionToGameServer.waitFor();
+  await alpha.clientApplication.transitionToGameServer.waitForOrCompleted();
   // connected user leaves game
   await alpha.gameClientHarness.leaveGame();
   // game still exists for user to join late
