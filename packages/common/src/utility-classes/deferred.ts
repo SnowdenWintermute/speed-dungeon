@@ -1,14 +1,18 @@
 /** Enable waiting for arbitrary events. Expose a resolve so when the event is fired
  * we call resolve, and anyone with a handle to wait() knows that the event happened */
 
+import { Milliseconds } from "../aliases";
+
 export class Deferred {
   private _promise: Promise<void> | null = null;
   private _resolve: (() => void) | null = null;
   private _timeout: ReturnType<typeof setTimeout> | null = null;
   private _onSuccess: (() => void) | null = null;
   private completed = false;
+  private _readyWaiters: (() => void)[] = [];
 
   arm(options?: { timeoutMs: number; onTimeout: () => void; onSuccess: () => void }) {
+    this.completed = false;
     this._promise = new Promise<void>((resolve, reject) => {
       this._resolve = resolve;
       if (options?.onSuccess) {
@@ -22,6 +26,7 @@ export class Deferred {
         }, options.timeoutMs);
       }
     });
+    this.notifyReadyWaiters();
   }
 
   fire() {
@@ -45,6 +50,19 @@ export class Deferred {
   waitForOrCompleted(): Promise<void> {
     if (this.completed) return Promise.resolve();
     return this.waitFor();
+  }
+
+  waitForStartedOrCompleted(): Promise<void> {
+    if (this.isArmed() || this.completed) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      this._readyWaiters.push(resolve);
+    });
+  }
+
+  private notifyReadyWaiters() {
+    const waiters = this._readyWaiters;
+    this._readyWaiters = [];
+    for (const w of waiters) w();
   }
 
   private clear() {

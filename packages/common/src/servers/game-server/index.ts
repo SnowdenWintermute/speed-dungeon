@@ -274,9 +274,7 @@ export class GameServer extends SpeedDungeonServer {
       const outbox = await this.sessionLifecycleController.activateSession(session);
 
       const joinGameOutbox = await this.gameLifecycleController.joinGameHandler(gameName, session);
-      ///
-      /////
-      //
+
       await this.externalServices.globalGameSessionStore.updateSessionConnectionStatus(
         session.taggedUserId,
         GameSessionConnectionStatus.ConnectedToGameServer
