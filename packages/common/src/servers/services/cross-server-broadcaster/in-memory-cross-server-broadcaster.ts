@@ -35,8 +35,9 @@ export class InMemoryCrossServerBroadcaster<TPayload, TCommand>
   }
 
   async subscribe(handler: CrossServerBroadcastHandler<TPayload, TCommand>): Promise<void> {
-    if (this.ownHandler !== null)
+    if (this.ownHandler !== null) {
       throw new Error("CrossServerBroadcaster already has a subscriber");
+    }
     this.ownHandler = handler;
     this.bus.register(handler);
   }

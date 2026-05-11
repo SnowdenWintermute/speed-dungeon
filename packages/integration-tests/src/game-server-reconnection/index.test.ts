@@ -20,10 +20,7 @@ describe.each([
   const testFixture = new IntegrationTestFixture();
 
   afterEach(async () => {
-    await Promise.all([
-      testFixture.lobbyServer.closeTransportServer(),
-      testFixture.gameServer.closeTransportServer(),
-    ]);
+    await testFixture.closeAllServers();
   });
 
   it(`${name} reconnection success`, async () => {

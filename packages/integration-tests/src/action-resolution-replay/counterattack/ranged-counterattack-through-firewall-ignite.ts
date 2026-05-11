@@ -20,11 +20,9 @@ export async function testRangedCounterattackThroughFirewallIgnite(
   const client = await testFixture.createSingleClientInStartedGame();
 
   const { clientApplication, gameClientHarness } = client;
-  const { actionHistory } = gameClientHarness;
   const { combatantFocus } = clientApplication;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
-  const { combatantManager } = party;
 
   await gameClientHarness.selectHoldableHotswapSlot(1);
   combatantFocus.cycleFocusedCharacter(NextOrPrevious.Next);

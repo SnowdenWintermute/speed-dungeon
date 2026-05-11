@@ -1,8 +1,3 @@
-// SAVED CHARACTERS
-// can not delete a saved character if auth account is in a game
-// PROGRESSION GAME
-// can not join another progression game while already in one on same account
-//
 // TURN ORDER
 // turn order bar updates on turn end
 // turn order bar shows conditions when tickable condition cast

@@ -2,7 +2,6 @@ import {
   CharacterCreationPolicyConstructor,
   DefaultCharacterCreationPolicy,
   GameServer,
-  GameServerName,
   GameServerNodeAssetService,
   IdGeneratorSequential,
   IncomingConnectionGateway,
@@ -36,10 +35,11 @@ import {
   GameServerSessionClaimToken,
   GuestSessionReconnectionToken,
   GlobalGameSessionStore,
+  iterateNumericEnumKeyedRecord,
+  GameServerName,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
-  TEST_GAME_SERVER_NAME,
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
   TEST_AUTH_USERNAME_PLAYER_1,
@@ -47,12 +47,20 @@ import {
   localServerUrl,
   TEST_AUTH_SESSION_ID_PLAYER_3,
   TEST_AUTH_USERNAME_PLAYER_3,
+  TestGameServerName,
+  TEST_GAME_SERVER_NAME_STRINGS,
 } from "./consts";
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
-  gameServerIncomingConnectionGateway: IncomingConnectionGateway,
-  testGameServerPort: number,
+  gameServerGatewaysAndPorts: Record<
+    TestGameServerName,
+    {
+      incomingConnectionGateway: IncomingConnectionGateway;
+      port: number;
+    }
+  >,
+  leastBusyGameServerGetterRef: { getter: () => Promise<{ name: GameServerName; url: string }> },
   rngPolicy: RandomNumberGenerationPolicy,
   characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
@@ -64,9 +72,6 @@ export async function createTestServers(
     ServerCommand
   >();
   const lobbyCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
-    crossServerBroadcastBus
-  );
-  const gameCrossServerBroadcasterService = new InMemoryCrossServerBroadcaster(
     crossServerBroadcastBus
   );
 
@@ -94,8 +99,13 @@ export async function createTestServers(
     new OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>(testSecret);
 
   async function testLeastBusyServerUrlGetter() {
-    return { name: TEST_GAME_SERVER_NAME, url: localServerUrl(testGameServerPort) };
+    return {
+      name: TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Lindblum] as GameServerName,
+      url: localServerUrl(gameServerGatewaysAndPorts[TestGameServerName.Lindblum].port),
+    };
   }
+
+  leastBusyGameServerGetterRef.getter = testLeastBusyServerUrlGetter;
 
   const lobbyServer = new LobbyServer(
     lobbyIncomingConnectionGateway,
@@ -109,8 +119,17 @@ export async function createTestServers(
     ),
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
-    { [TEST_GAME_SERVER_NAME]: localServerUrl(testGameServerPort) },
-    () => testLeastBusyServerUrlGetter(),
+    {
+      [TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Lindblum]]: localServerUrl(
+        gameServerGatewaysAndPorts[TestGameServerName.Lindblum].port
+      ),
+      [TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Alexandria]]: localServerUrl(
+        gameServerGatewaysAndPorts[TestGameServerName.Alexandria].port
+      ),
+    },
+    async () => {
+      return leastBusyGameServerGetterRef.getter();
+    },
     characterCreationPolicyConstructor,
     rngPolicy,
     // must use sequential ids for deterministic turn ordering since id is used as tiebreaker
@@ -118,27 +137,34 @@ export async function createTestServers(
     queryParamsAuthSessionIdParser
   );
 
-  const gameServer = new GameServer(
-    TEST_GAME_SERVER_NAME as GameServerName,
-    gameServerIncomingConnectionGateway,
-    createGameServerTestServices(
-      gameSessionStoreService,
-      savedCharactersService,
-      rankedLadderService,
-      raceGameRecordsService,
-      gameServerNodeAssetService,
-      gameCrossServerBroadcasterService,
-      globalGameSessionStore
-    ),
-    gameServerSessionClaimCodec,
-    guestSessionReconnectionTokencodec,
-    ScriptedDungeonGenerationPolicy,
-    rngPolicy,
-    new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
-    queryParamsAuthSessionIdParser
-  );
+  const gameServers = Object.fromEntries(
+    iterateNumericEnumKeyedRecord(gameServerGatewaysAndPorts).map(
+      ([testGameServerName, { incomingConnectionGateway }]) => [
+        testGameServerName,
+        new GameServer(
+          TEST_GAME_SERVER_NAME_STRINGS[testGameServerName],
+          incomingConnectionGateway,
+          createGameServerTestServices(
+            gameSessionStoreService,
+            savedCharactersService,
+            rankedLadderService,
+            raceGameRecordsService,
+            gameServerNodeAssetService,
+            new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
+            globalGameSessionStore
+          ),
+          gameServerSessionClaimCodec,
+          guestSessionReconnectionTokencodec,
+          ScriptedDungeonGenerationPolicy,
+          rngPolicy,
+          new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
+          queryParamsAuthSessionIdParser
+        ),
+      ]
+    )
+  ) as Record<TestGameServerName, GameServer>;
 
-  return { lobbyServer, gameServer, rankedLadderService };
+  return { lobbyServer, gameServers, rankedLadderService };
 }
 
 export function createLobbyTestServices(

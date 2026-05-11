@@ -102,8 +102,8 @@ export class ClientTestHarness<T extends BaseClient> {
 
       const commandOption = replayTreeScheduler.current?.nextExpectedStep?.command;
       if (
-        untilMatchedStep &&
-        commandOption &&
+        untilMatchedStep !== undefined &&
+        commandOption !== undefined &&
         this.replayStepIsMatch(commandOption, untilMatchedStep)
       ) {
         if (untilMatchedStep.stoppingPoint === BeforeOrAfter.After) {
@@ -115,8 +115,12 @@ export class ClientTestHarness<T extends BaseClient> {
 
       durationTicked += await this.tickNextStep();
     }
+
     if (untilMatchedStep && !matched) {
-      throw new Error("expected to match a step but never found it");
+      console.log("untilMatchedStep:", untilMatchedStep);
+      throw new Error(
+        `${JSON.stringify(untilMatchedStep)} ,expected to match a step ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[untilMatchedStep.step]} in action ${COMBAT_ACTION_NAME_STRINGS[untilMatchedStep.actionName]} but never found it`
+      );
     }
 
     return durationTicked;

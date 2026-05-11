@@ -10,10 +10,7 @@ describe("saved characters", () => {
   const testFixture = new IntegrationTestFixture();
 
   afterEach(async () => {
-    await Promise.all([
-      testFixture.lobbyServer.closeTransportServer(),
-      testFixture.gameServer.closeTransportServer(),
-    ]);
+    await testFixture.closeAllServers();
   });
 
   it("delete saved characters", async () => {

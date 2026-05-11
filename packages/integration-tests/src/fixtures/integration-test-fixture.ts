@@ -1,6 +1,5 @@
 import {
   BASIC_CHARACTER_FIXTURES,
-  CombatActionName,
   CombatantClass,
   DungeonRoomType,
   ExplicitCombatantDungeonTemplate,
@@ -8,10 +7,12 @@ import {
   FixedNumberGenerator,
   GameMode,
   GameServer,
+  GameServerName,
   GameStateUpdateType,
+  IncomingConnectionGateway,
   invariant,
+  iterateNumericEnumKeyedRecord,
   LobbyServer,
-  NextOrPrevious,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   RankedLadderService,
@@ -31,38 +32,66 @@ import {
   TEST_CHARACTER_NAME_1,
   TEST_GAME_NAME,
   TEST_PARTY_NAME,
+  TestGameServerName,
 } from "./consts.js";
 import { TimeMachine } from "@/test-utils/time-machine.js";
 
+export type TestGameServersAndPorts = Record<
+  TestGameServerName,
+  {
+    incomingConnectionGateway: IncomingConnectionGateway;
+    port: number;
+  }
+>;
+
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
-  private _gameServer: GameServer | null = null;
+  private _gameServers: Record<TestGameServerName, GameServer> | null = null;
   private clients = new Map<string, ClientFixture>();
   private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
-  private _gameServerPort: number = 0; // will be assigned to some open port by the OS automatically
+  private _gameServerPorts: {
+    [TestGameServerName.Lindblum]: number;
+    [TestGameServerName.Alexandria]: number;
+  } = {
+    [TestGameServerName.Lindblum]: 0,
+    [TestGameServerName.Alexandria]: 0,
+  }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
   private _rankedLadderService: RankedLadderService | null = null;
+  /** for manipulating which server a new game should be created on in a test */
+  private _leastBusyGameServerUrlGetterRef: {
+    getter: () => Promise<{ name: GameServerName; url: string }>;
+  } = {
+    getter: async () => {
+      throw new Error("Not initialized");
+    },
+  };
 
   private createIncomingConnectionGateways() {
     const lobbyWebSocketServer = new WebSocketServer({ port: 0 });
     const lobbyServerPort = getPortFromAddress(lobbyWebSocketServer);
-
     const lobbyIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(
       lobbyWebSocketServer
     );
-    const gameServerWebSocketServer = new WebSocketServer({ port: 0 });
-    const gameServerIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(
-      gameServerWebSocketServer
-    );
-    const gameServerPort = getPortFromAddress(gameServerWebSocketServer);
+
+    const gameServerGatewaysAndPorts = {
+      [TestGameServerName.Lindblum]: this.createIncomingConnectionGateway(),
+      [TestGameServerName.Alexandria]: this.createIncomingConnectionGateway(),
+    };
 
     return {
       lobbyIncomingConnectionGateway,
-      gameServerIncomingConnectionGateway,
       lobbyServerPort,
-      gameServerPort,
+      gameServerGatewaysAndPorts,
     };
+  }
+
+  private createIncomingConnectionGateway() {
+    const webSocketServer = new WebSocketServer({ port: 0 });
+    const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(webSocketServer);
+    const port = getPortFromAddress(webSocketServer);
+    return { port, incomingConnectionGateway };
   }
 
   private async createServers(
@@ -70,23 +99,25 @@ export class IntegrationTestFixture {
     dungeonScript: ExplicitCombatantDungeonTemplate,
     characterCreationFixture: FixedCharacterCreationLists
   ) {
-    const {
-      lobbyIncomingConnectionGateway,
-      gameServerIncomingConnectionGateway,
-      lobbyServerPort,
-      gameServerPort,
-    } = this.createIncomingConnectionGateways();
-    this._lobbyServerPort = lobbyServerPort;
-    this._gameServerPort = gameServerPort;
+    const { lobbyIncomingConnectionGateway, lobbyServerPort, gameServerGatewaysAndPorts } =
+      this.createIncomingConnectionGateways();
 
-    if (this._gameServer !== null) {
-      this.previouslyCalculatedAnimationLengths = this._gameServer.assetAnalyzer.animationLengths;
+    this._lobbyServerPort = lobbyServerPort;
+    for (const [testServerName, { port }] of iterateNumericEnumKeyedRecord(
+      gameServerGatewaysAndPorts
+    )) {
+      this._gameServerPorts[testServerName] = port;
+    }
+
+    if (this._gameServers !== null) {
+      this.previouslyCalculatedAnimationLengths =
+        this._gameServers[TestGameServerName.Lindblum].assetAnalyzer.animationLengths;
     }
 
     const servers = await createTestServers(
       lobbyIncomingConnectionGateway,
-      gameServerIncomingConnectionGateway,
-      gameServerPort,
+      gameServerGatewaysAndPorts,
+      this._leastBusyGameServerUrlGetterRef,
       rngPolicy,
       ScriptedCharacterCreationPolicy
     );
@@ -95,13 +126,18 @@ export class IntegrationTestFixture {
 
     this._lobbyServer = servers.lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
-    this._gameServer = servers.gameServer;
-    this._gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
+
+    this._gameServers = servers.gameServers;
+    for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
+      gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
+    }
 
     if (!this.previouslyCalculatedAnimationLengths) {
-      await this._gameServer.analyzeAssetsForGameplayRelevantData();
+      await this._gameServers[TestGameServerName.Lindblum].analyzeAssetsForGameplayRelevantData();
     } else {
-      this._gameServer.assetAnalyzer.animationLengths = this.previouslyCalculatedAnimationLengths;
+      for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
+        gameServer.assetAnalyzer.animationLengths = this.previouslyCalculatedAnimationLengths;
+      }
     }
   }
 
@@ -120,13 +156,32 @@ export class IntegrationTestFixture {
   get lobbyServerPort() {
     return this._lobbyServerPort;
   }
-  get gameServerPort() {
-    return this._gameServerPort;
+
+  getGameServerPort(testServerName: TestGameServerName) {
+    return this._gameServerPorts[testServerName];
   }
 
-  get gameServer() {
-    invariant(this._gameServer !== null, "no game server initialized");
-    return this._gameServer;
+  getGameServer(testServerName: TestGameServerName) {
+    invariant(this._gameServers !== null, "no game servers initialized");
+    return this._gameServers[testServerName];
+  }
+
+  get gameServers() {
+    invariant(this._gameServers !== null, "no game servers initialized");
+    return this._gameServers;
+  }
+
+  setLeastBusyGameServerGetter(value: () => Promise<{ url: string; name: GameServerName }>) {
+    this._leastBusyGameServerUrlGetterRef.getter = value;
+  }
+
+  async closeAllServers() {
+    const promises: Promise<void>[] = [];
+    for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this.gameServers)) {
+      promises.push(gameServer.closeTransportServer());
+    }
+    promises.push(this.lobbyServer.closeTransportServer());
+    await Promise.all(promises);
   }
 
   createClient(id: string, authId?: string) {

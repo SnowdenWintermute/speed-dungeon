@@ -1,9 +1,12 @@
 import { ClientApplication } from "@/client-application";
 import { GameLogMessageStyle } from "@/client-application/event-log/game-log-messages";
 import {
+  localServerUrl,
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
   TEST_GAME_NAME_2,
+  TEST_GAME_SERVER_NAME_STRINGS,
+  TestGameServerName,
 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
@@ -23,10 +26,7 @@ describe("progression game", () => {
   const testFixture = new IntegrationTestFixture();
 
   afterEach(async () => {
-    await Promise.all([
-      testFixture.lobbyServer.closeTransportServer(),
-      testFixture.gameServer.closeTransportServer(),
-    ]);
+    await testFixture.closeAllServers();
   });
 
   // client sees own rank up message
@@ -104,6 +104,12 @@ describe("progression game", () => {
       { gameName: TEST_GAME_NAME_2, proceedToGameServer: true }
     );
 
+    testFixture.setLeastBusyGameServerGetter(async () => {
+      return {
+        name: TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Alexandria],
+        url: localServerUrl(testFixture.getGameServerPort(TestGameServerName.Alexandria)),
+      };
+    });
     // alpha join a game and gain some experience points
     const alpha = await testFixture.createSingleClientInProgressionGame(
       "alpha",

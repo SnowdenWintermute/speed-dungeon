@@ -1,4 +1,4 @@
-import { localServerUrl } from "@/fixtures/consts";
+import { localServerUrl, TestGameServerName } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   BASIC_CHARACTER_FIXTURES,
@@ -26,7 +26,7 @@ export async function testSessionClaimTokenRequired(
   ];
 
   alpha.clientApplication.topologyManager.createGameClient(
-    localServerUrl(testFixture.gameServerPort),
+    localServerUrl(testFixture.getGameServerPort(TestGameServerName.Lindblum)),
     queryParams
   );
   const connectionRejectedPromise = new Promise<void>((resolve, reject) => {

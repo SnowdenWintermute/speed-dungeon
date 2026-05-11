@@ -6,10 +6,7 @@ describe("guest token reuse", () => {
   const testFixture = new IntegrationTestFixture();
 
   afterEach(async () => {
-    await Promise.all([
-      testFixture.lobbyServer.closeTransportServer(),
-      testFixture.gameServer.closeTransportServer(),
-    ]);
+    await testFixture.closeAllServers();
   });
 
   it("guest reconnection token reuse", async () => {
