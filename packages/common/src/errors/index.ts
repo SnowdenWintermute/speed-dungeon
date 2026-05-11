@@ -38,6 +38,7 @@ export const ERROR_MESSAGES = {
       "You must leave any other game (maybe in another open tab or browser) to perform that action",
     ALREADY_IN_PARTY: "You must leave your current party to do that",
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
+    USERNAME_TAKEN_IN_GAME: "A player with that username is already in this game",
   },
   GAME: {
     NOT_FOUND: "No game was found by that name",

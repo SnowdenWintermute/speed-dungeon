@@ -6,14 +6,21 @@ import { SpeedDungeonGame } from "../../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../../game/player.js";
 import { LADDER_UPDATES_CHANNEL_NAME, getPartyChannelName } from "../../../../packets/channels.js";
 import {
+  GameMessage,
   GameMessageType,
   createLadderDeathsMessage,
   createLevelLadderExpRankMessage,
   createLevelLadderLevelupMessage,
 } from "../../../../packets/game-message.js";
-import { GameStateUpdate } from "../../../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
+import {
+  CrossServerBroadcasterService,
+  CrossServerBroadcastType,
+} from "../../../services/cross-server-broadcaster/index.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
 import { SavedCharactersService } from "../../../services/saved-characters.js";
+import { ServerCommand } from "../../../services/server-command/index.js";
+import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
@@ -24,7 +31,12 @@ export class ProgressionGameStrategy implements GameModeStrategy {
   constructor(
     private readonly savedCharactersService: SavedCharactersService,
     private readonly rankedLadderService: RankedLadderService,
-    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>
+    private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private readonly crossServerBroadcasterService: CrossServerBroadcasterService<
+      GameStateUpdate,
+      ServerCommand
+    >,
+    private readonly userSessionRegistry: UserSessionRegistry
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
@@ -73,20 +85,34 @@ export class ProgressionGameStrategy implements GameModeStrategy {
     const ladderDeathsUpdate = await this.rankedLadderService.removeDeadCharacters(partyCharacters);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const partyChannelName = getPartyChannelName(game.name, party.name);
     for (const [characterName, deathAndRank] of Object.entries(ladderDeathsUpdate)) {
+      const ladderDeathMessageText = createLadderDeathsMessage(
+        characterName,
+        deathAndRank.owner,
+        deathAndRank.level,
+        deathAndRank.rank
+      );
       outbox.pushFromOther(
         this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-          LADDER_UPDATES_CHANNEL_NAME,
-          GameMessageType.LadderProgress,
-          createLadderDeathsMessage(
-            characterName,
-            deathAndRank.owner,
-            deathAndRank.level,
-            deathAndRank.rank
-          ),
-          getPartyChannelName(game.name, party.name)
+          partyChannelName,
+          GameMessageType.LadderDeath,
+          ladderDeathMessageText,
+          partyChannelName
         )
       );
+
+      this.crossServerBroadcasterService.publish({
+        type: CrossServerBroadcastType.ChannelFanOut,
+        channelName: LADDER_UPDATES_CHANNEL_NAME,
+        payload: {
+          type: GameStateUpdateType.GameMessage,
+          data: {
+            message: new GameMessage(GameMessageType.LadderDeath, false, ladderDeathMessageText),
+          },
+        },
+        excludedConnectionIds: this.userSessionRegistry.in(partyChannelName),
+      });
     }
 
     return outbox;
@@ -118,31 +144,66 @@ export class ProgressionGameStrategy implements GameModeStrategy {
       const { name } = character.entityProperties;
       const { controlledBy } = character.combatantProperties;
       const controllingPlayer = controlledBy.controllerPlayerName;
+      const partyChannel = getPartyChannelName(game.name, party.name);
 
       const levelup = levelups[id];
       if (levelup !== undefined) {
+        const levelupMessageText = createLevelLadderLevelupMessage(
+          name,
+          controllingPlayer || "",
+          levelup,
+          newRank
+        );
         outbox.pushFromOther(
           this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-            LADDER_UPDATES_CHANNEL_NAME,
+            partyChannel,
             GameMessageType.LadderProgress,
-            createLevelLadderLevelupMessage(name, controllingPlayer || "", levelup, newRank),
-            getPartyChannelName(game.name, party.name)
+            levelupMessageText,
+            partyChannel
           )
         );
+        // for non party members and users on other servers
+        this.crossServerBroadcasterService.publish({
+          type: CrossServerBroadcastType.ChannelFanOut,
+          channelName: LADDER_UPDATES_CHANNEL_NAME,
+          payload: {
+            type: GameStateUpdateType.GameMessage,
+            data: {
+              message: new GameMessage(GameMessageType.LadderProgress, false, levelupMessageText),
+            },
+          },
+          excludedConnectionIds: this.userSessionRegistry.in(partyChannel),
+        });
       }
+      const experiencePointsLadderMessageText = createLevelLadderExpRankMessage(
+        name,
+        controllingPlayer || "",
+        character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent(),
+        newRank
+      );
       outbox.pushFromOther(
         this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-          LADDER_UPDATES_CHANNEL_NAME,
+          partyChannel,
           GameMessageType.LadderProgress,
-          createLevelLadderExpRankMessage(
-            name,
-            controllingPlayer || "",
-            character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent(),
-            newRank
-          ),
-          getPartyChannelName(game.name, party.name)
+          experiencePointsLadderMessageText,
+          partyChannel
         )
       );
+      this.crossServerBroadcasterService.publish({
+        type: CrossServerBroadcastType.ChannelFanOut,
+        channelName: LADDER_UPDATES_CHANNEL_NAME,
+        payload: {
+          type: GameStateUpdateType.GameMessage,
+          data: {
+            message: new GameMessage(
+              GameMessageType.LadderProgress,
+              false,
+              experiencePointsLadderMessageText
+            ),
+          },
+        },
+        excludedConnectionIds: this.userSessionRegistry.in(partyChannel),
+      });
     }
 
     return outbox;

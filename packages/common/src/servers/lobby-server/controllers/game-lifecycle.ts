@@ -171,6 +171,14 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
     }
 
+    // game.players is keyed by username — a same-named player joining would silently
+    // overwrite the existing entry and orphan their characters. Guest usernames are
+    // deduped at lobby-session creation, but enforce the invariant at the point of
+    // mutation so future regressions (or auth-vs-guest name collisions) can't slip past.
+    if (game.getPlayer(session.username) !== undefined) {
+      throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_TAKEN_IN_GAME);
+    }
+
     if (game.mode === GameMode.Progression) {
       await this.requireProgressionGamePrerequisites(session);
     }

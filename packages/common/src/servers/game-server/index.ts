@@ -140,14 +140,18 @@ export class GameServer extends SpeedDungeonServer {
         externalServices.raceGameRecordsService,
         externalServices.savedCharactersService,
         externalServices.rankedLadderService,
-        this.updateDispatchFactory
+        this.updateDispatchFactory,
+        externalServices.crossServerBroadcasterService,
+        this.userSessionRegistry
       ),
       [GameMode.Progression]: new GameModeContext(
         GameMode.Progression,
         externalServices.raceGameRecordsService,
         externalServices.savedCharactersService,
         externalServices.rankedLadderService,
-        this.updateDispatchFactory
+        this.updateDispatchFactory,
+        externalServices.crossServerBroadcasterService,
+        this.userSessionRegistry
       ),
     };
 
