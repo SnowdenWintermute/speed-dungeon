@@ -1,13 +1,13 @@
 import {
   AssetCache,
   ClientAppAssetService,
-  Deferred,
   RemoteServerAssetStore,
   ClientRemoteConnectionEndpointFactory,
   ClientSequentialEventType,
   SerializedOf,
   Battle,
   CombatantId,
+  Deferred,
 } from "@speed-dungeon/common";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
@@ -77,9 +77,6 @@ export class ClientApplication {
 
   // topology
   readonly topologyManager: ConnectionTopology;
-  readonly transitionToGameServer = new Deferred();
-  readonly waitForReconnectionInstructions = new Deferred();
-  readonly transitionToLobbyServer = new Deferred();
 
   // for saving this client's auth id for use in tests or in local servers
   public localUntrustedAuthSessionIdQueryParam = "";
@@ -114,6 +111,10 @@ export class ClientApplication {
       this.lobbyClientRef,
       this.uiStore.httpRequests
     );
+  }
+
+  makeObservable() {
+    this.topologyManager.makeObservable();
   }
 
   setReplayManagerTickScheduler(scheduler: TickScheduler) {

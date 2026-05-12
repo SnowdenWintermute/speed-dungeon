@@ -1,6 +1,7 @@
-// switching between online and offline modes
+// error states
+// - on app load, websocket connection times out
+// - on app load, asset manifest failed to fetch
 //
-// change toggler to a toggle switch style
 //
 // on app load
 // - display connection status (connecting to lobby)
@@ -18,7 +19,5 @@
 // - enter offline mode
 //
 // save preferred connection mode
-// - localStorage saved preference
+// - localStorage saved preference from user settings
 // - on app load, show "using preferred mode: offline" if offline
-// - on toggle mode, save last mode used as preferred
-//

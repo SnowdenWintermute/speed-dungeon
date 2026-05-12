@@ -106,7 +106,7 @@ export function createGameUpdateHandlers(
         }
       }
 
-      clientApplication.transitionToGameServer.fire();
+      clientApplication.topologyManager.transitionToGameServer.fire();
       clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
       const { partyOption } = clientApplication.gameContext;

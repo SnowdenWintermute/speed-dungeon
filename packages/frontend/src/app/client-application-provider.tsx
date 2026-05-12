@@ -11,7 +11,18 @@ export function ClientApplicationProvider({ children }: { children: React.ReactN
   useEffect(() => {
     const clientApplication = createClientApplication();
     clientApplicationRef.current = clientApplication;
+    clientApplication.makeObservable();
     clientApplication.topologyManager.connectWithPrefferedMode();
+    clientApplication.topologyManager.transitionToLobbyServer
+      .waitFor()
+      .then()
+      .catch((error) => {
+        if (error instanceof Error) {
+          console.info("error connecting with preferred mode");
+        }
+        clientApplication.alertsService.setAlert(new Error("Unable to make a connection"), false);
+      });
+
     setIsReady(true);
 
     return () => {
@@ -20,7 +31,9 @@ export function ClientApplicationProvider({ children }: { children: React.ReactN
   }, []);
 
   if (!clientApplicationRef.current && typeof window !== "undefined") {
-    clientApplicationRef.current = createClientApplication();
+    const value = createClientApplication();
+    value.makeObservable();
+    clientApplicationRef.current = value;
   }
 
   if (!isReady || !clientApplicationRef.current) {

@@ -11,6 +11,6 @@ export async function testNoGuestReconnectionAfterLogin(testFixture: Integration
     GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity
   );
   await alpha.reconnectAsAuth(TEST_AUTH_SESSION_ID_PLAYER_1);
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
-  expect(() => alpha.clientApplication.transitionToGameServer.waitFor()).toThrow();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  expect(() => alpha.clientApplication.topologyManager.transitionToGameServer.waitFor()).toThrow();
 }

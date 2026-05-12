@@ -1,18 +1,18 @@
 import { Quaternion, TransformNode, Vector3 } from "@babylonjs/core";
-import { Combatant } from "@speed-dungeon/common";
+import { CombatantSceneEntity } from ".";
 
 export class CombatantSceneEntityPositionControls {
   constructor(
-    private combatant: Combatant,
+    private parent: CombatantSceneEntity,
     private rootTransformNode: TransformNode
   ) {}
 
   setHomeRotation(rotation: Quaternion) {
-    this.combatant.combatantProperties.transformProperties.setHomeRotation(rotation);
+    this.parent.combatant.combatantProperties.transformProperties.setHomeRotation(rotation);
   }
 
   setHomePosition(position: Vector3) {
-    this.combatant.combatantProperties.transformProperties.setHomePosition(position);
+    this.parent.combatant.combatantProperties.transformProperties.setHomePosition(position);
   }
 
   setRotation(rotation: Quaternion) {

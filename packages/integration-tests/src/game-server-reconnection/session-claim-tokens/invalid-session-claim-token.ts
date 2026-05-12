@@ -30,7 +30,7 @@ export async function testInvalidSessionClaimToken(
   const { encryptedSessionClaimToken } = gameConnectionInstructions.data.connectionInstructions;
   const someInvalidToken = encryptedSessionClaimToken + " ";
 
-  await alpha.clientApplication.transitionToGameServer.waitFor();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
 
   await alpha.clientApplication.gameClientRef.get().close();
 

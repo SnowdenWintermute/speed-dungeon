@@ -3,6 +3,7 @@ import { makeAutoObservable } from "mobx";
 
 export class AssetFetchProgressStore {
   initialized: boolean = false;
+  private _fetchFailed: boolean = false;
   totalBytesFetching: number = 0;
   totalBytesFetched: number = 0;
   fetchCompletions = new Map<
@@ -18,6 +19,14 @@ export class AssetFetchProgressStore {
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  set fetchFailed(value: boolean) {
+    this._fetchFailed = value;
+  }
+
+  get fetchFailed() {
+    return this._fetchFailed;
   }
 
   get displayPercent() {

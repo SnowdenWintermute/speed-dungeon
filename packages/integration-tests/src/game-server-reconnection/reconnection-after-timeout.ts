@@ -29,7 +29,7 @@ export async function testReconnectionAfterTimeout(
   await alphaReconnectionTimedOutPacketReceivedPromise;
 
   await alpha.connect();
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
   expect(alpha.clientApplication.reconnectionTokenStore.guestGameReconnectionToken).toBeNull();
   expect(alpha.clientApplication.gameClientRef.isInitialized).toBeFalsy();
 }

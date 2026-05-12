@@ -1,8 +1,7 @@
+import { makeAutoObservable } from "mobx";
+
 /** Enable waiting for arbitrary events. Expose a resolve so when the event is fired
  * we call resolve, and anyone with a handle to wait() knows that the event happened */
-
-import { Milliseconds } from "../aliases";
-
 export class Deferred {
   private _promise: Promise<void> | null = null;
   private _resolve: (() => void) | null = null;
@@ -10,6 +9,12 @@ export class Deferred {
   private _onSuccess: (() => void) | null = null;
   private completed = false;
   private _readyWaiters: (() => void)[] = [];
+
+  constructor(private _name: string) {}
+
+  makeObservable() {
+    makeAutoObservable(this);
+  }
 
   arm(options?: { timeoutMs: number; onTimeout: () => void; onSuccess: () => void }) {
     this.completed = false;
@@ -22,7 +27,7 @@ export class Deferred {
         this._timeout = setTimeout(() => {
           this.clear();
           options.onTimeout();
-          reject(new Error("Deferred timed out"));
+          reject(new Error(`Deferred timed out (${this._name})`));
         }, options.timeoutMs);
       }
     });

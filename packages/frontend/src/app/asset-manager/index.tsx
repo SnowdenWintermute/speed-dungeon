@@ -8,13 +8,12 @@ import { ClickOutsideHandlerWrapper } from "../components/atoms/ClickOutsideHand
 
 export const AssetManager = observer(() => {
   const clientApplication = useClientApplication();
+  const { assetService } = clientApplication;
   const { assetFetchProgress } = clientApplication.uiStore;
 
   useEffect(() => {
     const initAssetService = async () => {
       try {
-        const { assetService } = clientApplication;
-
         const manifest = await assetService.initialize({
           // clearCache: true,
           onFetchStartedCallback: (assetId) => {
@@ -26,10 +25,21 @@ export const AssetManager = observer(() => {
           onFetchAbortCallback: (assetId) => {
             assetFetchProgress.onFetchAbort(assetId);
           },
+          onManifestFetchErrorCallback: (error) => {
+            if (error instanceof Error) {
+              clientApplication.alertsService.setAlert(error, false);
+            } else {
+              clientApplication.alertsService.setAlert(
+                new Error("Fetching asset manifest failed with unknown error type"),
+                false
+              );
+            }
+          },
         });
 
+        // assume error messages in the options above will notify user
         if (manifest === undefined) {
-          console.error("unable to obtain manifest");
+          assetFetchProgress.fetchFailed = true;
           return;
         }
 
@@ -63,7 +73,9 @@ export const AssetManager = observer(() => {
           className="bg-slate-700 border-slate-400 border m-6 p-2 max-h-full max-w-full overflow-hidden"
           onClick={handleClick}
         >
-          {initialized && isComplete ? (
+          {assetFetchProgress.fetchFailed ? (
+            <div>asset fetch failed</div>
+          ) : initialized && isComplete ? (
             <div className="flex align-middle">
               <span>up to date</span>{" "}
             </div>

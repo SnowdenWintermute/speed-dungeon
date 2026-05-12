@@ -1,4 +1,3 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";

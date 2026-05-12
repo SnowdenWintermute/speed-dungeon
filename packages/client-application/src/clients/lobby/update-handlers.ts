@@ -45,7 +45,7 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.OnConnection]: (data) => {
       if (!data.willBeReconnectedToGame) {
         console.info("token missing, reused or expired");
-        clientApplication.waitForReconnectionInstructions.fire();
+        clientApplication.topologyManager.waitForReconnectionInstructions.fire();
         clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
       } else {
         clientApplication.eventLogStore.postMessage(
@@ -61,7 +61,8 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);
       lobbyContext.channel.update(deserialized);
-      clientApplication.transitionToLobbyServer.fire();
+      console.log("fire transitionToLobbyServer");
+      clientApplication.topologyManager.transitionToLobbyServer.fire();
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
       lobbyContext.channel.handleUserJoined(data.username, data.userChannelDisplayData),
@@ -267,7 +268,7 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.GameServerConnectionInstructions]: async (data) => {
-      clientApplication.transitionToLobbyServer.fire(); // if skipping lobby and reconnecting to game
+      clientApplication.topologyManager.transitionToLobbyServer.fire(); // if skipping lobby and reconnecting to game
       const { connectionInstructions } = data;
       const { url, encryptedSessionClaimToken } = connectionInstructions;
 
@@ -278,7 +279,7 @@ export function createLobbyUpdateHandlers(
         },
       ];
 
-      clientApplication.transitionToGameServer.arm({
+      clientApplication.topologyManager.transitionToGameServer.arm({
         timeoutMs: GAME_SERVER_TRANSITION_TIMEOUT_MS,
         onSuccess: () => {
           connectionEndpoint.close();
@@ -290,7 +291,7 @@ export function createLobbyUpdateHandlers(
         },
       });
 
-      clientApplication.waitForReconnectionInstructions.fire();
+      clientApplication.topologyManager.waitForReconnectionInstructions.fire();
       clientApplication.topologyManager.createGameClient(url, queryParams);
     },
 
@@ -298,13 +299,11 @@ export function createLobbyUpdateHandlers(
       const messageText = CLIENT_APP_MESSAGES[messageType];
       clientApplication.alertsService.setAlert(messageText);
       if (messageType === ClientAppMessageType.DisconnectedByPreemption) {
-        console.log("posted dc'd");
         clientApplication.eventLogStore.postMessage(
           new GameLogMessage(messageText, GameLogMessageStyle.PartyWipe)
         );
         clientApplication.topologyManager.enterOffline();
       } else {
-        console.log("posted taken over");
         clientApplication.eventLogStore.postMessage(
           new GameLogMessage(messageText, GameLogMessageStyle.Healing)
         );

@@ -19,8 +19,8 @@ export async function testReconnectionTimeoutGameCleanup(
   testFixture.timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
   // doesn't get reconnected
   await alpha.connect();
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
-  expect(() => alpha.clientApplication.transitionToGameServer.waitFor()).toThrow();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  expect(() => alpha.clientApplication.topologyManager.transitionToGameServer.waitFor()).toThrow();
 
   // close() resolves on the client as soon as the close frame is sent, but the server's
   // disconnectionHandler (which schedules the reconnection-opportunity setTimeout) runs
@@ -30,8 +30,8 @@ export async function testReconnectionTimeoutGameCleanup(
   testFixture.timeMachine.advanceTime(RECONNECTION_OPPORTUNITY_TIMEOUT_MS);
 
   await bravo.connect();
-  await bravo.clientApplication.waitForReconnectionInstructions.waitFor();
-  expect(() => bravo.clientApplication.transitionToGameServer.waitFor()).toThrow();
+  await bravo.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  expect(() => bravo.clientApplication.topologyManager.transitionToGameServer.waitFor()).toThrow();
   // can create game of same name
   alpha.clientApplication.errorRecordService.clear();
   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);

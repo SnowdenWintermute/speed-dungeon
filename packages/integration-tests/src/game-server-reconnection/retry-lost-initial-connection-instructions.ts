@@ -18,13 +18,13 @@ export async function testRetryLostInitialConnectionInstructions(
   // disconnects after starting game but before getting connection instructions
   await alpha.clientApplication.lobbyClientRef.get().close();
   await expect(async () =>
-    alpha.clientApplication.waitForReconnectionInstructions.waitFor()
+    alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor()
   ).rejects.toThrow();
   // reconnects to lobby server
   await alpha.connect();
   // should connect to game server
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
-  await alpha.clientApplication.transitionToGameServer.waitFor();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
   alpha.clientApplication.gameContext.requireGame().requireTimeStarted();
 }
 
@@ -47,19 +47,19 @@ export async function testLateJoinerToGameAfterOtherPlayersLeft(
   // one disconnects after starting game but before getting connection instructinos
   await bravo.clientApplication.lobbyClientRef.get().close();
   await expect(async () =>
-    bravo.clientApplication.waitForReconnectionInstructions.waitFor()
+    bravo.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor()
   ).rejects.toThrow();
 
   // other connects to game server
-  await alpha.clientApplication.transitionToGameServer.waitForOrCompleted();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
   // connected user leaves game
   await alpha.gameClientHarness.leaveGame();
   // game still exists for user to join late
   // user joins late, game starts for them as only remaining user
   await bravo.connect();
   // should connect to game server
-  await bravo.clientApplication.waitForReconnectionInstructions.waitFor();
-  await bravo.clientApplication.transitionToGameServer.waitFor();
+  await bravo.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  await bravo.clientApplication.topologyManager.transitionToGameServer.waitFor();
   bravo.clientApplication.gameContext.requireGame().requireTimeStarted();
   expect(bravo.clientApplication.gameContext.requireGame().getPlayerCount()).toBe(1);
 }

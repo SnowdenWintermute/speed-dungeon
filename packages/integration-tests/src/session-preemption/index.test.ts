@@ -46,8 +46,8 @@ describe("connection preemption", () => {
       );
     });
     expect(alpha.clientApplication.topologyManager.isOnline).toBeFalsy();
-    await bravo.clientApplication.transitionToGameServer.waitForStartedOrCompleted();
-    await bravo.clientApplication.transitionToGameServer.waitForOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
     await bravo.gameClientHarness.toggleReadyToExplore(); // make sure they can issue inputs
     expect(
       bravo.clientApplication.eventLogStore
@@ -71,7 +71,7 @@ describe("connection preemption", () => {
     const bravo = testFixture.createClient("bravo");
     bravo.clientApplication.reconnectionTokenStore.guestGameReconnectionToken = reconnectionToken;
     await bravo.connect();
-    await bravo.clientApplication.waitForReconnectionInstructions.waitFor();
+    await bravo.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
     bravo.eventually(() => {
       expect(bravo.clientApplication.topologyManager.isOnline).toBeTruthy();
     });

@@ -41,15 +41,15 @@ export class CombatantSceneEntity extends SceneEntity {
   constructor(
     private gameWorldView: GameWorldView,
     clientApplication: ClientApplication,
-    private readonly _combatant: Combatant,
+    combatant: Combatant,
     skeletonAssetContainer: AssetContainer
   ) {
-    const { transformProperties } = _combatant.combatantProperties;
+    const { transformProperties } = combatant.combatantProperties;
     const homePosition = transformProperties.getHomePosition().clone();
     const homeRotation = transformProperties.homeRotation.clone();
     super(
-      _combatant.getEntityId(),
-      _combatant.entityProperties.name,
+      combatant.getEntityId(),
+      combatant.entityProperties.name,
       gameWorldView.scene,
       skeletonAssetContainer,
       clientApplication.floatingMessagesService,
@@ -66,13 +66,9 @@ export class CombatantSceneEntity extends SceneEntity {
     );
     this.animationControls = new CombatantSceneEntityAnimationControls(
       this,
-      _combatant,
       this.skeletalAnimationManager
     );
-    this.positionControls = new CombatantSceneEntityPositionControls(
-      _combatant,
-      this.rootTransformNode
-    );
+    this.positionControls = new CombatantSceneEntityPositionControls(this, this.rootTransformNode);
     this.debugView = new CombatantSceneEntityDebug(this.gameWorldView, this);
     this.modularPartsManager = new CombatantSceneEntityModularPartsManager(
       gameWorldView.clientApplication.assetService,
@@ -85,7 +81,7 @@ export class CombatantSceneEntity extends SceneEntity {
     );
     this.highlightManager = new HighlightManager(this.scene, clientApplication, this);
 
-    this.rootTransformNode.name += this._combatant.entityProperties.name;
+    this.rootTransformNode.name += combatant.entityProperties.name;
   }
 
   initRootMesh(assetContainer: AssetContainer) {
@@ -168,8 +164,13 @@ export class CombatantSceneEntity extends SceneEntity {
       hitboxCenterTopTransformNode;
   }
 
-  get combatant() {
-    return this._combatant;
+  get combatant(): Combatant {
+    const option =
+      this.gameWorldView.sceneEntityService.combatantSceneEntityManager.resolveCombatant(
+        this.entityId
+      );
+    invariant(option !== undefined, `no combatant resolvable for scene entity ${this.entityId}`);
+    return option;
   }
 
   customCleanup(): void {

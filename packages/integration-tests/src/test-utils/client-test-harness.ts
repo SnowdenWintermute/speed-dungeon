@@ -117,7 +117,6 @@ export class ClientTestHarness<T extends BaseClient> {
     }
 
     if (untilMatchedStep && !matched) {
-      console.log("untilMatchedStep:", untilMatchedStep);
       throw new Error(
         `${JSON.stringify(untilMatchedStep)} ,expected to match a step ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[untilMatchedStep.step]} in action ${COMBAT_ACTION_NAME_STRINGS[untilMatchedStep.actionName]} but never found it`
       );

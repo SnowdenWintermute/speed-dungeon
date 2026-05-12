@@ -16,21 +16,11 @@ export function createClientSequentialEventHandlers(
       return clientApplication.gameWorldView?.sceneEntityService.clearAll();
     },
     [ClientSequentialEventType.SynchronizeCombatantEquipmentModels]: async (event) => {
-      console.log(
-        "SynchronizeCombatantEquipmentModels",
-        "game world view:",
-        clientApplication.gameWorldView?.id
-      );
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantEquipmentModels(
         event.entityId
       );
     },
     [ClientSequentialEventType.SynchronizeCombatantModels]: async (event) => {
-      console.log(
-        "SynchronizeCombatantModels",
-        "game world view:",
-        clientApplication.gameWorldView?.id
-      );
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         event
       );

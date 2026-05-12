@@ -52,7 +52,6 @@ export class LobbySessionLifecycleController
 
       // given by game server to guests on disconnect to identify them
       if (context.clientCachedGuestReconnectionToken) {
-        console.log("set guest reconnection token:", context.clientCachedGuestReconnectionToken);
         const decrypted = await this.guestReconnectionTokenCodec.decode(
           context.clientCachedGuestReconnectionToken
         );
@@ -155,9 +154,7 @@ export class LobbySessionLifecycleController
   async cleanupSession(session: UserSession) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     if (session.currentGameName !== null) {
-      console.log("about to await leaveGameHandler");
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      console.log("leaveGameHandler ran");
       outbox.pushFromOther(leaveGameHandlerOutbox);
     }
 

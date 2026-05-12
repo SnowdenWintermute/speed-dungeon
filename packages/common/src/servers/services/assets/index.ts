@@ -39,6 +39,7 @@ export class ClientAppAssetService implements AssetService {
     onFetchCompleteCallback?: FetchCompletionCallback;
     onFetchAbortCallback?: FetchCompletionCallback;
     onFetchStartedCallback?: FetchCompletionCallback;
+    onManifestFetchErrorCallback?: (error: unknown) => void;
   }) {
     if (this.assetManifest !== null) {
       console.info(`asset service initialized already`);
@@ -72,7 +73,10 @@ export class ClientAppAssetService implements AssetService {
       this.assetManifest = upToDateVersionData;
       return cloneDeep(upToDateVersionData);
     } catch (error) {
-      console.error("error fetching asset manifest:", error);
+      console.info("error fetching asset manifest:", error);
+      if (options?.onManifestFetchErrorCallback) {
+        options.onManifestFetchErrorCallback(error);
+      }
     }
   }
 

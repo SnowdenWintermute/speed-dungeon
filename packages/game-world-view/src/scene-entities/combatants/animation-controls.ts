@@ -1,7 +1,6 @@
 import {
   AnimationTimingType,
   AnimationType,
-  Combatant,
   CombatantConditionName,
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
   EquipmentAnimation,
@@ -18,7 +17,6 @@ import { CombatantSceneEntity } from ".";
 export class CombatantSceneEntityAnimationControls {
   constructor(
     private sceneEntity: CombatantSceneEntity,
-    private combatant: Combatant,
     private skeletalAnimationManager: SkeletalAnimationManager
   ) {}
 
@@ -38,15 +36,15 @@ export class CombatantSceneEntityAnimationControls {
   }
 
   getIdleAnimationName() {
-    const { combatantProperties } = this.combatant;
-    const { monsterType } = this.combatant.combatantProperties;
+    const { combatantProperties } = this.sceneEntity.combatant;
+    const { monsterType } = combatantProperties;
     const isNonHumanoidMonster =
       monsterType !== null &&
       monsterType !== MonsterType.Cultist &&
       monsterType !== MonsterType.FireMage;
 
     if (isNonHumanoidMonster) {
-      const { conditionManager } = this.combatant.combatantProperties;
+      const { conditionManager } = combatantProperties;
       if (conditionManager.hasConditionName(CombatantConditionName.Flying)) {
         return SkeletalAnimationName.IdleFlying;
       }
@@ -78,7 +76,7 @@ export class CombatantSceneEntityAnimationControls {
 
   startIdleAnimation(transitionMs: number, options?: ManagedAnimationOptions) {
     transitionMs *= DEBUG_ANIMATION_SPEED_MULTIPLIER;
-    if (this.combatant.combatantProperties.isDead()) {
+    if (this.sceneEntity.combatant.combatantProperties.isDead()) {
       return;
     }
 

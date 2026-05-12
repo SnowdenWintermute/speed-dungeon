@@ -29,7 +29,7 @@ export async function testSessionClaimTokenReuse(
   const { encryptedSessionClaimToken } = gameConnectionInstructions.data.connectionInstructions;
   const tokenToAttemptReuse = encryptedSessionClaimToken;
 
-  await alpha.clientApplication.transitionToGameServer.waitFor();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
 
   await alpha.clientApplication.gameClientRef.get().close();
 

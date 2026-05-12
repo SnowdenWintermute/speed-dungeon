@@ -1,6 +1,7 @@
 import {
   Combatant,
   CombatantId,
+  EntityId,
   GameListEntry,
   UserChannelDisplayData,
   Username,
@@ -77,9 +78,9 @@ class ClientApplicationSavedCharacters {
     this.slots[slot] = characterOption;
   }
 
-  getSavedCharacterOption(combatantId: CombatantId) {
+  getSavedCharacterOption(entityId: EntityId) {
     for (const [_slotNumberString, savedCharacterSlot] of Object.entries(this.slots)) {
-      if (savedCharacterSlot?.combatant.getEntityId() === combatantId) {
+      if (savedCharacterSlot?.combatant.getEntityId() === entityId) {
         return savedCharacterSlot;
       }
     }

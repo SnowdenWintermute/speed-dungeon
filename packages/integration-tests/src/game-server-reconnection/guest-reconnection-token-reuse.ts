@@ -16,13 +16,13 @@ export async function testGuestReconnectionTokenReuse(testFixture: IntegrationTe
   invariant(tokenToAttemptReuse !== null, "expected to have a guestGameReconnectionToken");
   // a reconnect
   await alpha.connect();
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
-  await alpha.clientApplication.transitionToGameServer.waitFor();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
   await alpha.clientApplication.gameClientRef.get().close();
   // reconnect with same token
   alpha.clientApplication.reconnectionTokenStore.guestGameReconnectionToken = tokenToAttemptReuse;
   await alpha.connect();
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
 
   expect(alpha.clientApplication.reconnectionTokenStore.guestGameReconnectionToken).toBeNull();
   expect(alpha.clientApplication.gameClientRef.isInitialized).toBeFalsy();

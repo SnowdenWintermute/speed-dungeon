@@ -30,8 +30,8 @@ export async function testIntentionalLeaveGame(
   expect(bravo.clientApplication.errorRecordService.getLastError()).toBeUndefined();
   // doesn't get reconnection instructions
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
-  await alpha.clientApplication.waitForReconnectionInstructions.waitFor();
-  expect(() => alpha.clientApplication.transitionToGameServer.waitFor()).toThrow();
+  await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
+  expect(() => alpha.clientApplication.topologyManager.transitionToGameServer.waitFor()).toThrow();
   // create same named game after all players left
   bravo.clientApplication.gameClientRef.get().leaveGame();
   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);

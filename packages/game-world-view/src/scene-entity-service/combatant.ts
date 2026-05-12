@@ -28,6 +28,16 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     this.factory = new CombatantSceneEntityFactory(gameWorldView, clientApplication);
   }
 
+  resolveCombatant(entityId: EntityId): Combatant | undefined {
+    return (
+      this.clientApplication.gameContext.partyOption?.combatantManager.getCombatantOption(
+        entityId
+      ) ??
+      this.clientApplication.lobbyContext.savedCharacters.getSavedCharacterOption(entityId)
+        ?.combatant
+    );
+  }
+
   updateEntities(deltaTime: number) {
     for (const [_, combatantModel] of this.sceneEntities) {
       combatantModel.highlightManager.updateHighlight();

@@ -23,7 +23,6 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HOTKEYS } from "@/client-application/ui/keybind-config";
-import { GameLog } from "../game/combat-log";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
@@ -36,6 +35,22 @@ export const Lobby = observer(() => {
   const showSavedCharacterManager = dialogs.isOpen(DialogElementName.SavedCharacterManager);
 
   const clientConnected = connectionStatus.isConnected;
+
+  let connectionTransitionBillboard = <div />;
+  if (clientApplication.topologyManager.transitionToLobbyServer.isArmed()) {
+    connectionTransitionBillboard = (
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-slate-400 bg-slate-700 p-4 text-lg">
+        connecting to lobby
+      </div>
+    );
+  }
+  if (clientApplication.topologyManager.transitionToGameServer.isArmed()) {
+    connectionTransitionBillboard = (
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-slate-400 bg-slate-700 p-4 text-lg">
+        connecting to game
+      </div>
+    );
+  }
 
   useEffect(() => {
     if (currentSessionHttpResponseTracker?.statusCode === 200) {
@@ -58,6 +73,7 @@ export const Lobby = observer(() => {
           height: `calc(100vh - ${TOP_BAR_HEIGHT_REM}rem)`,
         }}
       >
+        {connectionTransitionBillboard}
         <div
           id="games-container"
           className="h-full border-slate-400 relative"

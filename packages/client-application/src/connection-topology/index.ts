@@ -5,8 +5,8 @@ import {
   invariant,
   LobbyServer,
   QUERY_PARAMS,
-  runIfInBrowser,
   urlWithQueryParams,
+  Deferred,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
@@ -38,6 +38,9 @@ export enum ConnectionMode {
 export class ConnectionTopology {
   private _mode = ConnectionMode.Initializing;
   private _preferredMode = ConnectionMode.Online;
+  readonly transitionToGameServer = new Deferred("transitionToGameServer");
+  readonly waitForReconnectionInstructions = new Deferred("waitForReconnectionInstructions");
+  readonly transitionToLobbyServer = new Deferred("transitionToLobbyServer");
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -50,10 +53,13 @@ export class ConnectionTopology {
   constructor(
     private clientApplication: ClientApplication,
     private remoteEndpointFactory: ClientRemoteConnectionEndpointFactory
-  ) {
-    runIfInBrowser(() => {
-      makeAutoObservable(this, {}, { autoBind: true });
-    });
+  ) {}
+
+  makeObservable() {
+    makeAutoObservable(this, {}, { autoBind: true });
+    this.transitionToLobbyServer.makeObservable();
+    this.waitForReconnectionInstructions.makeObservable();
+    this.transitionToGameServer.makeObservable();
   }
 
   private createRemoteEndpoint(
@@ -143,7 +149,7 @@ export class ConnectionTopology {
       }
 
       // expect to receive reconnection instructions or expired token message
-      this.clientApplication.waitForReconnectionInstructions.arm();
+      this.clientApplication.topologyManager.waitForReconnectionInstructions.arm();
 
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
 
@@ -218,7 +224,7 @@ export class ConnectionTopology {
   }
 
   connectWithPrefferedMode() {
-    this.clientApplication.transitionToLobbyServer.arm({
+    this.clientApplication.topologyManager.transitionToLobbyServer.arm({
       timeoutMs: GAME_SERVER_TRANSITION_TIMEOUT_MS,
       onSuccess: () => {},
       onTimeout: () => {

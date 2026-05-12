@@ -8,13 +8,14 @@ import { GameWorldView } from "@/game-world-view";
 
 export class CombatantSceneEntityDebug {
   debugMeshes: Mesh[] | null = null;
-  transformProperties: CombatantTransformProperties;
 
   constructor(
     private gameWorldView: GameWorldView,
     private parent: CombatantSceneEntity
-  ) {
-    this.transformProperties = this.parent.combatant.combatantProperties.transformProperties;
+  ) {}
+
+  get transformProperties(): CombatantTransformProperties {
+    return this.parent.combatant.combatantProperties.transformProperties;
   }
 
   setShowBones() {

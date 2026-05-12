@@ -25,7 +25,7 @@ export async function testInputsWhileAwaitingPlayers(
   bravo.lobbyClientHarness.pauseTransport();
 
   await alphaReadiedUpPromise;
-  await alpha.clientApplication.transitionToGameServer.waitFor();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
 
   await alpha.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
   expect(alpha.clientApplication.errorRecordService.getLastError()?.message).toBe(
@@ -34,7 +34,7 @@ export async function testInputsWhileAwaitingPlayers(
 
   bravo.lobbyClientHarness.resumeTransport();
   await bravoReadiedUpPromise;
-  await bravo.clientApplication.transitionToGameServer.waitFor();
+  await bravo.clientApplication.topologyManager.transitionToGameServer.waitFor();
 
   const partyA = alpha.gameClientHarness.clientApplication.gameContext.requireParty();
   const partyB = bravo.gameClientHarness.clientApplication.gameContext.requireParty();

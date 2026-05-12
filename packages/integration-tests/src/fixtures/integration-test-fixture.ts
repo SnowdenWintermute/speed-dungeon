@@ -229,7 +229,7 @@ export class IntegrationTestFixture {
     await client.lobbyClientHarness.toggleReadyToStartGame();
     const { clientApplication } = client;
     await clientApplication.sequentialEventProcessor.waitUntilIdle();
-    await clientApplication.transitionToGameServer.waitFor();
+    await clientApplication.topologyManager.transitionToGameServer.waitFor();
 
     return client;
   }
@@ -268,7 +268,7 @@ export class IntegrationTestFixture {
     await client.lobbyClientHarness.createGame(gameName, GameMode.Progression);
     if (options?.proceedToGameServer) {
       await client.lobbyClientHarness.toggleReadyToStartGame();
-      await client.clientApplication.transitionToGameServer.waitFor();
+      await client.clientApplication.topologyManager.transitionToGameServer.waitFor();
     }
     return client;
   }
@@ -319,10 +319,10 @@ export class IntegrationTestFixture {
     await alpha.lobbyClientHarness.toggleReadyToStartGame();
     await bravo.lobbyClientHarness.toggleReadyToStartGame();
 
-    await alpha.clientApplication.transitionToGameServer.waitForStartedOrCompleted();
-    await alpha.clientApplication.transitionToGameServer.waitForOrCompleted();
-    await bravo.clientApplication.transitionToGameServer.waitForStartedOrCompleted();
-    await bravo.clientApplication.transitionToGameServer.waitForOrCompleted();
+    await alpha.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
     return { alpha, bravo };
   }
 
