@@ -147,9 +147,7 @@ function UserMenu({ username }: { username: null | string }) {
           style={{ zIndex: ZIndexLayers.UserMenu }}
           ref={userMenuRef}
         >
-          <div className="h-14 flex items-center p-4 mb-[2px]" id="user-menu-spacer">
-            <span className="text-lg">User Menu</span>
-          </div>
+          <div className="h-14 flex items-center p-4 mb-[2px]" id="user-menu-spacer"></div>
           <div className="bg-slate-700 pointer-events-auto">
             <div className="p-4 text-lg">{username}</div>
             <ul id="user-menu-items" className="pointer-events-auto border-t border-slate-400">

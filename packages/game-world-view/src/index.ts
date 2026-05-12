@@ -61,6 +61,9 @@ export class GameWorldView {
     clientApplication.targetIndicatorStore.initialize(this);
 
     this._debug.uiDebugDisplayRef = uiDebugDisplayRef;
+    if (this.clientApplication.gameContext.gameOption) {
+      this.setDefaultCameraPositionForGame();
+    }
   }
 
   get initialized() {

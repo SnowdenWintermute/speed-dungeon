@@ -157,6 +157,7 @@ export class ClientApplication {
     }
 
     this.gameWorldView?.setDefaultCameraPositionForGame();
+
     party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
     this.gameWorldView?.environment.groundPlane.clear();
 

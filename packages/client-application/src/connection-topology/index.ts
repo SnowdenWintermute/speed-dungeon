@@ -7,6 +7,7 @@ import {
   QUERY_PARAMS,
   urlWithQueryParams,
   Deferred,
+  ConnectionEndpointReadyState,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
@@ -153,9 +154,6 @@ export class ConnectionTopology {
 
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
 
-      // connectionEndpoint.once("error", () => {
-      //   this._mode = ConnectionMode.Offline;
-      // });
       connectionEndpoint.once("open", () => {
         resolve();
       });

@@ -38,13 +38,6 @@ export const ProgressionGameLobby = observer(() => {
   // true max starting floor is the deepest that all selected have reached
   const { potentialMaxStartingFloor, maxStartingFloor } = game;
 
-  // I don't think this is needed anymore, calculated on game.get maxStartingFloor()
-  // useEffect(() => {
-  //   if (game.selectedStartingFloor > maxStartingFloor) {
-  //     game.selectedStartingFloor = maxStartingFloor;
-  //   }
-  // }, [maxStartingFloor, game.selectedStartingFloor, game.players, game]);
-
   return (
     <GameLobby>
       <div style={{ width: `${menuWidth}px` }}>

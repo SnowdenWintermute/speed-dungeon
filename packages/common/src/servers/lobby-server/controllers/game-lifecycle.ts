@@ -176,7 +176,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     // deduped at lobby-session creation, but enforce the invariant at the point of
     // mutation so future regressions (or auth-vs-guest name collisions) can't slip past.
     if (game.getPlayer(session.username) !== undefined) {
-      throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_TAKEN_IN_GAME);
+      throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
     }
 
     if (game.mode === GameMode.Progression) {
