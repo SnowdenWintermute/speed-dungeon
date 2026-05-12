@@ -4,7 +4,9 @@ import {
   localServerUrl,
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
+  TEST_AUTH_SESSION_ID_PLAYER_3,
   TEST_GAME_NAME_2,
+  TEST_GAME_NAME_3,
   TEST_GAME_SERVER_NAME_STRINGS,
   TestGameServerName,
 } from "@/fixtures/consts";
@@ -97,19 +99,26 @@ describe("progression game", () => {
   it("global ladder rank up messages", async () => {
     await testFixture.resetWithOptions(TEST_DUNGEON_FOUR_ONE_HP_WOLVES, LOW_HP_CHARACTER_FIXTURES);
     testFixture.timeMachine.start();
-    // have a separate client in another game so they can see if they see a global ladder message
+    // have a separate client in another game on another server so they can see if they see a global ladder message
     const bravo = await testFixture.createSingleClientInProgressionGame(
       "bravo",
       TEST_AUTH_SESSION_ID_PLAYER_2,
       { gameName: TEST_GAME_NAME_2, proceedToGameServer: true }
     );
 
+    // next two clients will make separate games on another server
     testFixture.setLeastBusyGameServerGetter(async () => {
       return {
         name: TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Alexandria],
         url: localServerUrl(testFixture.getGameServerPort(TestGameServerName.Alexandria)),
       };
     });
+    // a user to make a game on same server to see message
+    const charlie = await testFixture.createSingleClientInProgressionGame(
+      "charlie",
+      TEST_AUTH_SESSION_ID_PLAYER_3,
+      { gameName: TEST_GAME_NAME_3, proceedToGameServer: true }
+    );
     // alpha join a game and gain some experience points
     const alpha = await testFixture.createSingleClientInProgressionGame(
       "alpha",
@@ -123,10 +132,16 @@ describe("progression game", () => {
     await alpha.gameClientHarness.useFireRankTwoOnAllEnemies();
     const alphaUsername = alpha.clientApplication.session.requireUsername();
 
-    // bravo got message
+    // bravo (user on different game server) got message
     await bravo.eventually(() => {
       gotLadderLevelUpMessage(bravo.clientApplication, alphaUsername, focusedCharacter);
       gotLadderExperienceMessage(bravo.clientApplication, alphaUsername, focusedCharacter);
+    });
+
+    // charlie (user on same server) got message
+    await charlie.eventually(() => {
+      gotLadderLevelUpMessage(charlie.clientApplication, alphaUsername, focusedCharacter);
+      gotLadderExperienceMessage(charlie.clientApplication, alphaUsername, focusedCharacter);
     });
 
     // character die

@@ -22,17 +22,10 @@ export const ConnectionSelector = observer(() => {
     }
   }
 
-  // </HotkeyButton>
-
   return (
-    // <HotkeyButton
-    //   disabled={!canEnterOffline}
-    //   className="disabled:opacity-50"
-    //   onClick={() => handleClick()}
-    // >
     <div className="flex">
       <Switch
-        className="h-[25px] w-[42px] border border-slate-400 data-[state=checked]:bg-slate-950 disabled:opacity-50 mr-2"
+        className="h-[25px] w-[42px] border border-slate-400 data-[state=checked]:bg-slate-800 disabled:opacity-50 mr-2"
         checked={isOnline}
         disabled={!canEnterOffline || !isInitialized}
         onClick={() => handleClick()}

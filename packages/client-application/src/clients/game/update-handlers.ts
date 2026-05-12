@@ -493,10 +493,6 @@ export function createGameUpdateHandlers(
         }
       }
 
-      // clientApplication.sequentialEventProcessor.scheduleEvent({
-      //   type: ClientSequentialEventType.SynchronizeCombatantModels,
-      //   data: { softCleanup: true, placeInHomePositions: true },
-      // });
       sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
         data: { entityId: characterId },

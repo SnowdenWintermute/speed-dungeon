@@ -36,6 +36,7 @@ export class GameWorldView {
     this.camera = this.createMainCamera();
     this.environment = new EnvironmentView(this.scene);
     this.environment.groundPlane.clear();
+    console.log("constructed game world view with id", this.id);
 
     this.engine.runRenderLoop(() => {
       this.updateGameWorld(this.engine.getDeltaTime());
@@ -115,6 +116,7 @@ export class GameWorldView {
     this.sceneEntityService.clearAll();
     this.scene.dispose();
     this.engine.dispose();
+    console.log("disposed game world view with id", this.id);
   }
 
   updateGameWorld(deltaTime: number) {

@@ -19,6 +19,10 @@ export abstract class SceneEntityManager<T extends SceneEntity> {
 
   async register(sceneEntity: T) {
     const { entityId } = sceneEntity;
+    console.log("register scene entity:", sceneEntity);
+    if (this.sceneEntities.has(entityId)) {
+      throw new Error("already have a scene entity by that id");
+    }
     this.sceneEntities.set(entityId, sceneEntity);
     const pendingOption = this.pendingEntitySpawns.get(entityId);
 
@@ -45,6 +49,7 @@ export abstract class SceneEntityManager<T extends SceneEntity> {
   protected abstract onRegister(sceneEntity: T): Promise<void>;
 
   unregister(id: EntityId, cleanupMode: CleanupMode) {
+    console.log("unregistered:", id);
     this.sceneEntities.get(id)?.cleanup({ softCleanup: cleanupMode === CleanupMode.Soft });
     this.sceneEntities.delete(id);
   }

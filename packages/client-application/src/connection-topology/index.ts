@@ -147,9 +147,9 @@ export class ConnectionTopology {
 
       const connectionEndpoint = this.createRemoteEndpoint(remoteLobbyServerAddress, queryParams);
 
-      connectionEndpoint.once("close", () => {
-        this._mode = ConnectionMode.Offline;
-      });
+      // connectionEndpoint.once("error", () => {
+      //   this._mode = ConnectionMode.Offline;
+      // });
       connectionEndpoint.once("open", () => {
         resolve();
       });
@@ -171,6 +171,7 @@ export class ConnectionTopology {
       } else {
         lobbyClientRef.get().resetIntentSequenceCounter();
         lobbyClientRef.get().targetConnectionMode = ConnectionMode.Online;
+        // this.runtimeMode = ConnectionMode.Initializing;
         lobbyClientRef.get().setEndpoint(connectionEndpoint);
         lobbyClientRef.get().stopAwaitingReplies();
       }
