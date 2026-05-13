@@ -3,6 +3,11 @@ export enum NextOrPrevious {
   Previous,
 }
 
+export enum BeforeOrAfter {
+  Before,
+  After,
+}
+
 export interface Point {
   x: number;
   y: number;

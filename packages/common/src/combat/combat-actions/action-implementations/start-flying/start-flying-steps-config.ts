@@ -1,5 +1,6 @@
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { ActionResolutionStepsConfig } from "../../combat-action-steps-config.js";
+import { getHomeDestination } from "../common-destination-getters.js";
 
 const config = new ActionResolutionStepsConfig(
   {
@@ -10,7 +11,10 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.PostActionUseGameLogMessage]: {},
   },
   {
-    [ActionResolutionStepType.FinalPositioning]: {},
+    [ActionResolutionStepType.BattleResolution]: {},
+    [ActionResolutionStepType.FinalPositioning]: {
+      getDestination: (context) => getHomeDestination(context),
+    },
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },
   {

@@ -1,3 +1,4 @@
+import { clear } from "node:console";
 import { AbilityTreeAbility } from "../../../abilities/index.js";
 import { CombatantId } from "../../../aliases.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
@@ -15,10 +16,7 @@ export class CharacterProgressionController {
     data: { characterId: CombatantId; attribute: CombatAttribute }
   ) {
     const { characterId, attribute } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
     const { combatantProperties } = character;
 
     combatantProperties.attributeProperties.requireUnspentAttributes();
@@ -40,10 +38,7 @@ export class CharacterProgressionController {
     data: { characterId: CombatantId; ability: AbilityTreeAbility }
   ) {
     const { characterId, ability } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
     const { combatantProperties } = character;
 
     const { canAllocate, reasonCanNot } =

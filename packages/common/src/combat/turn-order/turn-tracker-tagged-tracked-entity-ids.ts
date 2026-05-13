@@ -1,24 +1,19 @@
+import { ActionUserType } from "../../action-user-context/action-user.js";
 import { CombatantId, EntityId } from "../../aliases.js";
 
-export enum TurnTrackerEntityType {
-  Combatant,
-  Condition,
-  ActionEntity,
-}
-
 export interface TaggedCombatantTurnTrackerCombatantId {
-  type: TurnTrackerEntityType.Combatant;
+  type: ActionUserType.Combatant;
   combatantId: CombatantId;
 }
 
 export interface TaggedConditionTurnTrackerConditionAndCombatantId {
-  type: TurnTrackerEntityType.Condition;
+  type: ActionUserType.Condition;
   combatantId: EntityId;
   conditionId: EntityId;
 }
 
 export interface TaggedActionEntityTurnTrackerActionEntityId {
-  type: TurnTrackerEntityType.ActionEntity;
+  type: ActionUserType.ActionEntity;
   actionEntityId: EntityId;
 }
 

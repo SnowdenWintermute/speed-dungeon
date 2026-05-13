@@ -19,6 +19,8 @@ export * from "./utils/map-utils.js";
 export * from "./utils/url-with-query-params.js";
 
 export * from "./utility-classes/randomizers.js";
+export * from "./utility-classes/random-number-generation-policy.js";
+export * from "./utility-classes/deferred.js";
 
 export * from "./aliases.js";
 export * from "./types.js";
@@ -32,7 +34,8 @@ export * from "./game/index.js";
 export * from "./game/player.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
-export * from "./monsters/monster-unarmed-weapons.js";
+export * from "./monsters/monster-generator.js";
+export * from "./monsters/monster-combat-profiles.js";
 
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
@@ -61,13 +64,16 @@ export * from "./primatives/timed-lock.js";
 
 export * from "./packets/channels.js";
 export * from "./packets/game-message.js";
+export * from "./packets/client-app-message.js";
 export * from "./packets/client-intents.js";
 export * from "./packets/client-sequential-events.js";
 export * from "./packets/game-state-updates.js";
 
 // @TODO - can remove exports after this becomes default lobby code
 
-export * from "./character-creation/index.js";
+export * from "./character-creation/character-creation-policy.js";
+export * from "./character-creation/default-creation-policy.js";
+export * from "./character-creation/scripted-character-creation-policy.js";
 export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
@@ -81,6 +87,7 @@ export * from "./servers/sessions/user-ids.js";
 export * from "./servers/incoming-connection-gateway.js";
 
 export * from "./transport/connection-endpoint.js";
+export * from "./transport/client-endpoint-factories.js";
 
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
@@ -123,6 +130,9 @@ export * from "./combat/combat-actions/combat-action-origin.js";
 
 // turn order
 export * from "./combat/turn-order/turn-trackers.js";
+export * from "./combat/turn-order/turn-schedulers.js";
+export * from "./combat/turn-order/turn-scheduler-manager.js";
+export * from "./combat/turn-order/combatant-turn-scheduler.js";
 export * from "./combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
 export * from "./combat/action-results/action-hit-outcome-calculation/hit-outcome-mitigation-calculator.js";
@@ -199,8 +209,7 @@ export * from "./conditions/condition-descriptions.js";
 export * from "./conditions/index.js";
 export * from "./conditions/condition-factory.js";
 
-export * from "./items/item-creation/index.js";
-export * from "./items/item-creation/builders/affix-generator/index.js";
+export * from "./items/item-creation/affix-generator.js";
 export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";
@@ -223,7 +232,9 @@ export * from "./servers/services/game-session-store/index.js";
 export * from "./servers/services/reconnection-forwarding-store/index.js";
 export * from "./servers/services/in-memory-identity-provider-service.js";
 export * from "./servers/services/game-session-store/in-memory-game-session-store-service.js";
-export * from "./servers/services/reconnection-forwarding-store/in-memory-reconnection-forwarding-store.js";
+export * from "./servers/services/cross-server-broadcaster/index.js";
+export * from "./servers/services/cross-server-broadcaster/in-memory-cross-server-broadcaster.js";
+export * from "./servers/services/server-command/index.js";
 export * from "./servers/services/in-memory-saved-characters-service.js";
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";
@@ -239,3 +250,19 @@ export * from "./transport/browser-websocket-connection-endpoint.js";
 export * from "./serialization/index.js";
 
 export * from "./environment-entities/index.js";
+export * from "./items/item-creation/item-builder/index.js";
+export * from "./combatants/combatant-builder.js";
+export * from "./dungeon-generation/index.js";
+export * from "./dungeon-generation/random-dungeon-generation-policy.js";
+export * from "./dungeon-generation/scripted-dungeon-generation-policy.js";
+export * from "./monsters/monster-generator.js";
+export * from "./utility-classes/random-number-generation-policy.js";
+
+export * from "./testing/dungeon-generation-fixtures.js";
+export * from "./testing/monster-fixtures.js";
+export * from "./testing/player-character-fixtures.js";
+export * from "./combatants/experience-points/index.js";
+export * from "./utils/numeric-enum-utils.js";
+export * from "./servers/services/global-auth-game-connection-session-store/index.js";
+export * from "./servers/sessions/global-auth-game-session.js";
+export * from "./servers/game-server/reconnection/guest-session-reconnection-token.js";

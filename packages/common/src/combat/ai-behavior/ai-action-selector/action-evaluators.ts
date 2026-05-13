@@ -1,5 +1,7 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
+import { BasicRandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { ActionPayableResource } from "../../combat-actions/action-calculation-utils/action-costs.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
@@ -42,7 +44,8 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
   [ActionEvaluatorTypes.RandomMaliciousAction]: function (
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
-    consideredCombatants: Combatant[]
+    consideredCombatants: Combatant[],
+    rngPolicy: RandomNumberGenerationPolicy
   ): null | CombatActionExecutionIntent {
     const { actionUser } = actionUserContext;
 
@@ -51,7 +54,7 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
       return action.targetingProperties.intent === CombatActionIntent.Malicious;
     });
 
-    ArrayUtils.shuffle(filtered);
+    ArrayUtils.shuffle(filtered, rngPolicy.monsterAiRandomAction);
 
     const chosen = filtered[0];
     return chosen || null;
@@ -59,7 +62,8 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
   [ActionEvaluatorTypes.RandomManaCostingMaliciousAction]: function (
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
-    consideredCombatants: Combatant[]
+    consideredCombatants: Combatant[],
+    rngPolicy: RandomNumberGenerationPolicy
   ): null | CombatActionExecutionIntent {
     const filtered = intents.filter((intent) => {
       const action = COMBAT_ACTIONS[intent.actionName];
@@ -68,7 +72,7 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
       return costsMana && isMalicious;
     });
 
-    ArrayUtils.shuffle(filtered);
+    ArrayUtils.shuffle(filtered, rngPolicy.monsterAiRandomAction);
 
     const chosen = filtered[0];
     return chosen || null;

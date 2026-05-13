@@ -11,6 +11,7 @@ export const MODIFY_ACTION_ENTITY_ACTION_STEPS_CONFIG = new ActionResolutionStep
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
   },
   {
+    [ActionResolutionStepType.BattleResolution]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
   },
   { getFinalSteps: (self) => self.finalSteps }

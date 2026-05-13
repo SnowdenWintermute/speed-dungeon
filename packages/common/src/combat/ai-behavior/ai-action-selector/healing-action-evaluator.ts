@@ -96,7 +96,7 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
     const bestActionIntentOption = evaluatedIntents[0]?.intent || null;
 
     if (bestActionIntentOption === null) {
-      console.info("no healing action found");
+      // console.info("no healing action found");
     }
 
     return bestActionIntentOption;

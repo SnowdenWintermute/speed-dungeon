@@ -84,6 +84,7 @@ export class IncomingResourceChangesCalculator {
       modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
 
       const rolled = this.rollIncomingResourceChangeBaseValue(modified, this.rng);
+
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);
 
       incomingResourceChangesPerTarget[actionResource] = {

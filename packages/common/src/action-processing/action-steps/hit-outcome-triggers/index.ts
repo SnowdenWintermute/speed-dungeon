@@ -78,6 +78,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           targetCombatant,
           action,
           flag,
+          context.rngPolicy.combatDurabilityTarget,
           hpChangeIsCrit
         );
 
@@ -92,19 +93,20 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
             if (!condition.removedOnDeath) continue;
             conditionManager.removeConditionById(condition.id);
 
-            const onRemovedTriggeredActions = condition.onRemoved(
-              actionUserContext,
-              targetCombatant,
-              context.idGenerator
-            );
+            const onRemovedTriggeredActions = condition.onRemoved(actionUserContext.party);
 
             this.branchingActions.push(...onRemovedTriggeredActions);
 
-            addRemovedConditionIdToUpdate(
-              condition.id,
-              gameUpdateCommand,
-              targetCombatant.entityProperties.id as CombatantId
-            );
+            const shouldRemoveCombatantOnDeath =
+              targetCombatant.combatantProperties.removeFromPartyOnDeath;
+
+            if (!shouldRemoveCombatantOnDeath) {
+              addRemovedConditionIdToUpdate(
+                condition.id,
+                gameUpdateCommand,
+                targetCombatant.entityProperties.id as CombatantId
+              );
+            }
           }
 
           // if was attached to anyone, remove their id from that list
@@ -129,31 +131,15 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
           // remove linked conditions such as when a web dies it must remove the ensnared condition
           // from corresponding target
-          const shouldRemoveAllConditionsAppliedByDyingCombatant =
-            targetCombatant.combatantProperties.onDeathProperties?.removeConditionsApplied;
+          const { onDeathProperties } = targetCombatant.combatantProperties;
+          const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
 
-          if (shouldRemoveAllConditionsAppliedByDyingCombatant) {
-            for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
-              for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
-                const wasAppliedByDyingCombatant =
-                  condition.appliedBy.entityProperties.id === targetCombatant.getEntityId();
-                if (wasAppliedByDyingCombatant) {
-                  combatant.combatantProperties.conditionManager.removeConditionById(condition.id);
-
-                  const onRemovedTriggeredActions = condition.onRemoved(
-                    actionUserContext,
-                    combatant,
-                    context.idGenerator
-                  );
-                  this.branchingActions.push(...onRemovedTriggeredActions);
-
-                  addRemovedConditionIdToUpdate(
-                    condition.id,
-                    gameUpdateCommand,
-                    combatant.entityProperties.id as CombatantId
-                  );
-                }
-              }
+          if (shouldRemoveAllConditionsAppliedBy) {
+            const { triggeredActions, conditionIdsRemoved } =
+              party.removeConditionsAppliedByCombatant(targetCombatant.getEntityId());
+            this.branchingActions.push(...triggeredActions);
+            for (const { conditionId, fromCombatantId } of conditionIdsRemoved) {
+              addRemovedConditionIdToUpdate(conditionId, gameUpdateCommand, fromCombatantId);
             }
           }
 
@@ -221,6 +207,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
       for (const { petId, tamerId } of petsTamed) {
         const petCombatant = party.combatantManager.getExpectedCombatant(petId);
 
+        // kill any webs that were on the pet
         const attachedCombatantsDeathActionIntents = getKillAttachedCombatantsActionIntents(
           petCombatant,
           party
@@ -228,7 +215,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         this.branchingActions.push(...attachedCombatantsDeathActionIntents);
 
         party.petManager.handlePetTamed(petId, tamerId, game);
-        // kill any webs that were on the pet
       }
     }
   }
@@ -243,7 +229,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
   }
 }
 
-function getKillAttachedCombatantsActionIntents(
+export function getKillAttachedCombatantsActionIntents(
   targetCombatant: Combatant,
   party: AdventuringParty
 ) {

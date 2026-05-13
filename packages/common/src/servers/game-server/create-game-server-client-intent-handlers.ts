@@ -18,8 +18,11 @@ export function createGameServerClientIntentHandlers(
 ): Partial<GameServerClientIntentHandlers> {
   return {
     // // CONNECTIONS
-    [ClientIntentType.LeaveGame]: (_, user) =>
-      gameServer.gameLifecycleController.leaveGameHandler(user),
+    [ClientIntentType.LeaveGame]: async (_, user) => {
+      user.intentionallyClosed = true;
+      const outbox = await gameServer.gameLifecycleController.leaveGameHandler(user);
+      return outbox;
+    },
     // // ACTION SELECTION
     [ClientIntentType.SelectCombatAction]: (data, user) =>
       gameServer.combatActionController.selectCombatActionHandler(user, data),
@@ -31,7 +34,7 @@ export function createGameServerClientIntentHandlers(
       gameServer.combatActionController.cycleTargetingSchemesHandler(user, data),
     [ClientIntentType.UseSelectedCombatAction]: (data, user) =>
       gameServer.combatActionController.useSelectedCombatActionHandler(user, data),
-    // // DUNGEON EXPLORATION
+    // DUNGEON EXPLORATION
     [ClientIntentType.ToggleReadyToExplore]: (_, user) =>
       gameServer.dungeonExplorationController.toggleReadyToExploreHandler(user),
     [ClientIntentType.ToggleReadyToDescend]: (_, user) =>
@@ -46,8 +49,6 @@ export function createGameServerClientIntentHandlers(
       gameServer.itemManagementController.dropItemHandler(user, data),
     [ClientIntentType.DropEquippedItem]: (data, user) =>
       gameServer.itemManagementController.dropEquippedItemHandler(user, data),
-    [ClientIntentType.AcknowledgeReceiptOfItemOnGroundUpdate]: (data, user) =>
-      gameServer.itemManagementController.acknowledgeReceiptOfItemOnGroundHandler(user, data),
     [ClientIntentType.PickUpItems]: (data, user) =>
       gameServer.itemManagementController.pickUpItemsHandler(user, data),
     // // EQUIPMENT

@@ -1,6 +1,7 @@
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionIntentAndUser,
   ActionResolutionStepContext,
   ActionResolutionStepType,
@@ -93,10 +94,13 @@ export function getProjectileMovingThroughFirewallTriggeredActions(
     speed
   );
 
-  if (timeToReachFirewallOption === null) return [];
+  if (timeToReachFirewallOption === null) {
+    return [];
+  }
 
-  if (firewallActionLevel === requiredFirewallLevelForIgnitingProjectiles)
+  if (firewallActionLevel === requiredFirewallLevelForIgnitingProjectiles) {
     return triggerIngiteProjectile(context, projectileEntity, timeToReachFirewallOption);
+  }
   if (firewallActionLevel === requiredFirewallLevelForIncineratingProjectiles)
     return triggerIncinerateProjectile(context, projectileEntity, timeToReachFirewallOption);
 

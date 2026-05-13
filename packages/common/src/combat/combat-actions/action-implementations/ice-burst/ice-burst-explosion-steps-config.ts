@@ -1,7 +1,7 @@
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { AnimationTimingType } from "../../../../action-processing/game-update-commands.js";
-import { AnimationType, DynamicAnimationName } from "../../../../app-consts.js";
+import { AnimationType, DynamicAnimationName, EXPLOSION_DURATION } from "../../../../app-consts.js";
 import {
   GenericBaseChildTransformNodeName,
   SceneEntityType,
@@ -19,7 +19,7 @@ stepOverrides[ActionResolutionStepType.OnActivationActionEntityMotion] = {
   getAnimation: () => {
     return {
       name: { type: AnimationType.Dynamic, name: DynamicAnimationName.IceBurstDelivery },
-      timing: { type: AnimationTimingType.Timed, duration: 200 },
+      timing: { type: AnimationTimingType.Timed, duration: EXPLOSION_DURATION },
       smoothTransition: false,
       // timing: { type: AnimationTimingType.Timed, duration: 1000 },
     };

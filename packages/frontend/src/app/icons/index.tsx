@@ -1,0 +1,299 @@
+import FireIcon from "../../../public/img/game-ui-icons/fire.svg";
+import Firewall from "../../../public/img/game-ui-icons/firewall.svg";
+import SwordSlashIcon from "../../../public/img/game-ui-icons/sword-slash.svg";
+import HealthCrossIcon from "../../../public/img/game-ui-icons/health-cross.svg";
+import IceIcon from "../../../public/img/game-ui-icons/ice.svg";
+import PlusSign from "../../../public/img/game-ui-icons/plus-sign.svg";
+import EyeClosed from "../../../public/img/game-ui-icons/eye-closed.svg";
+import EyeOpen from "../../../public/img/game-ui-icons/eye-open.svg";
+import EyeOpenIcon from "../../../public/img/game-ui-icons/eye-open.svg";
+import BloodWithH from "../../../public/img/game-ui-icons/blood-with-h.svg";
+import Wind from "../../../public/img/game-ui-icons/wind.svg";
+import Water from "../../../public/img/game-ui-icons/water.svg";
+import LightningBolt from "../../../public/img/game-ui-icons/lightning-bolt.svg";
+import Mountain from "../../../public/img/game-ui-icons/mountain.svg";
+import Eclipse from "../../../public/img/game-ui-icons/eclipse-icon.svg";
+import Sun from "../../../public/img/game-ui-icons/sun.svg";
+import Slashing from "../../../public/img/game-ui-icons/slashing.svg";
+import Blunt from "../../../public/img/game-ui-icons/blunt.svg";
+import Piercing from "../../../public/img/game-ui-icons/piercing.svg";
+import Clock from "../../../public/img/game-ui-icons/clock-icon.svg";
+import Hourglass from "../../../public/img/game-ui-icons/hourglass.svg";
+import Heart from "../../../public/img/game-ui-icons/heart.svg";
+import Droplet from "../../../public/img/game-ui-icons/droplet.svg";
+import Shards from "../../../public/img/game-ui-icons/shards.svg";
+import Target from "../../../public/img/game-ui-icons/target-icon.svg";
+import BombIcon from "../../../public/img/game-ui-icons/bomb.svg";
+import CrossedArrows from "../../../public/img/game-ui-icons/crossed-arrows.svg";
+import VerticalLine from "../../../public/img/game-ui-icons/vertical-line.svg";
+import CritChance from "../../../public/img/game-ui-icons/crit-chance.svg";
+import OpenHandIcon from "../../../public/img/game-ui-icons/open-hand.svg";
+import HandHoldingStick from "../../../public/img/game-ui-icons/hand-holding-stick.svg";
+import Book from "../../../public/img/game-ui-icons/book.svg";
+import Sword from "../../../public/img/equipment-icons/1h-sword-a.svg";
+import Camera from "../../../public/img/game-ui-icons/camera-1.svg";
+import XShape from "../../../public/img/basic-shapes/x-shape.svg";
+import Chevron from "../../../public/img/basic-shapes/chevron.svg";
+import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
+import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
+import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";
+import Feather from "../../../public/img/game-ui-icons/feather.svg";
+import SpiderWeb from "../../../public/img/game-ui-icons/spider-web.svg";
+import Dove from "../../../public/img/game-ui-icons/dove.svg";
+import WifiOnline from "../../../public/img/menu-icons/wifi-online.svg";
+import WifiOffline from "../../../public/img/menu-icons/wifi-offline.svg";
+import ColumnsPause from "../../../public/img/menu-icons/columns.svg";
+import CaretRightPlay from "../../../public/img/menu-icons/caret-right.svg";
+import ArrowRightToLineNext from "../../../public/img/menu-icons/arrow-right-to-line.svg";
+import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
+import DownloadDocument from "../../../public/img/menu-icons/download-document.svg";
+import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
+
+import { ReactNode } from "react";
+import {
+  ActionEntityName,
+  ActionPayableResource,
+  CombatActionName,
+  CombatantConditionName,
+  CombatantTraitType,
+  ConsumableType,
+  KineticDamageType,
+  MagicalElement,
+} from "@speed-dungeon/common";
+
+export enum IconName {
+  Fire,
+  Ice,
+  Water,
+  Wind,
+  LightningBolt,
+  Mountain,
+  Eclipse,
+  Sun,
+  CrossedArrows,
+  SwordSlash,
+  HealthCross,
+  PlusSign,
+  EyeClosed,
+  EyeOpen,
+  BloodWithH,
+  Slashing,
+  Piercing,
+  Blunt,
+  Clock,
+  Heart,
+  Droplet,
+  Shards,
+  Target,
+  Hourglass,
+  VerticalLine,
+  CritChance,
+  OpenHand,
+  HandHoldingStick,
+  Book,
+  Sword,
+  Camera,
+  XShape,
+  Chevron,
+  Model3DIcon,
+  Firewall,
+  Whistle,
+  EditPencil,
+  Feather,
+  SpiderWeb,
+  Dove,
+  WifiOnline,
+  WifiOffline,
+  ColumnsPause,
+  CaretRightPlay,
+  ArrowRightToLineNext,
+  ArrowRight,
+  DownloadDocument,
+  TrashCan,
+}
+
+export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
+  [IconName.Fire]: (className) => <FireIcon className={className} />,
+  [IconName.CrossedArrows]: (className) => <CrossedArrows className={className} />,
+  [IconName.SwordSlash]: (className) => <SwordSlashIcon className={className} />,
+  [IconName.HealthCross]: (className) => <HealthCrossIcon className={className} />,
+  [IconName.Ice]: (className) => <IceIcon className={className} />,
+  [IconName.PlusSign]: (className) => <PlusSign className={className} />,
+  [IconName.EyeClosed]: (className) => <EyeClosed className={className} />,
+  [IconName.EyeOpen]: (className) => <EyeOpen className={className} />,
+  [IconName.BloodWithH]: (className) => <BloodWithH className={className} />,
+  [IconName.Water]: (className) => <Water className={className} />,
+  [IconName.Wind]: (className) => <Wind className={className} />,
+  [IconName.LightningBolt]: (className) => <LightningBolt className={className} />,
+  [IconName.Mountain]: (className) => <Mountain className={className} />,
+  [IconName.Eclipse]: (className) => <Eclipse className={className} />,
+  [IconName.Sun]: (className) => <Sun className={className} />,
+  [IconName.Slashing]: (className) => <Slashing className={className} />,
+  [IconName.Piercing]: (className) => <Piercing className={className} />,
+  [IconName.Blunt]: (className) => <Blunt className={className} />,
+  [IconName.Heart]: (className) => <Heart className={className} />,
+  [IconName.Droplet]: (className) => <Droplet className={className} />,
+  [IconName.Clock]: (className) => <Clock className={className} />,
+  [IconName.Shards]: (className) => <Shards className={className} />,
+  [IconName.Target]: (className) => <Target className={className} />,
+  [IconName.Hourglass]: (className) => <Hourglass className={className} />,
+  [IconName.VerticalLine]: (className) => <VerticalLine className={className} />,
+  [IconName.CritChance]: (className) => <CritChance className={className} />,
+  [IconName.OpenHand]: (className) => <OpenHandIcon className={className} />,
+  [IconName.HandHoldingStick]: (className) => <HandHoldingStick className={className} />,
+  [IconName.Book]: (className) => <Book className={className} />,
+  [IconName.Sword]: (className) => <Sword className={className} />,
+  [IconName.Camera]: (className) => <Camera className={className} />,
+  [IconName.XShape]: (className) => <XShape className={className} />,
+  [IconName.Chevron]: (className) => <Chevron className={className} />,
+  [IconName.Model3DIcon]: (className) => <Model3DIcon className={className} />,
+  [IconName.Firewall]: (className) => <Firewall className={className} />,
+  [IconName.Whistle]: (className) => <Whistle className={className} />,
+  [IconName.EditPencil]: (className: string) => <EditPencil className={className} />,
+  [IconName.Feather]: (className: string) => <Feather className={className} />,
+  [IconName.SpiderWeb]: (className: string) => <SpiderWeb className={className} />,
+  [IconName.Dove]: (className: string) => <Dove className={className} />,
+  [IconName.WifiOnline]: (className: string) => <WifiOnline className={className} />,
+  [IconName.WifiOffline]: (className: string) => <WifiOffline className={className} />,
+  [IconName.ColumnsPause]: (className: string) => <ColumnsPause className={className} />,
+  [IconName.CaretRightPlay]: (className: string) => <CaretRightPlay className={className} />,
+  [IconName.ArrowRightToLineNext]: (className: string) => (
+    <ArrowRightToLineNext className={className} />
+  ),
+  [IconName.ArrowRight]: (className: string) => <ArrowRight className={className} />,
+  [IconName.DownloadDocument]: (className: string) => <DownloadDocument className={className} />,
+  [IconName.TrashCan]: (className: string) => <TrashCan className={className} />,
+};
+
+export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
+  [MagicalElement.Fire]: SVG_ICONS[IconName.Fire],
+  [MagicalElement.Ice]: SVG_ICONS[IconName.Ice],
+  [MagicalElement.Lightning]: SVG_ICONS[IconName.LightningBolt],
+  [MagicalElement.Water]: SVG_ICONS[IconName.Water],
+  [MagicalElement.Earth]: SVG_ICONS[IconName.Mountain],
+  [MagicalElement.Wind]: SVG_ICONS[IconName.Wind],
+  [MagicalElement.Dark]: SVG_ICONS[IconName.Eclipse],
+  [MagicalElement.Light]: SVG_ICONS[IconName.Sun],
+};
+
+export const KINETIC_TYPE_ICONS: Record<KineticDamageType, (className: string) => ReactNode> = {
+  [KineticDamageType.Blunt]: SVG_ICONS[IconName.Blunt],
+  [KineticDamageType.Slashing]: SVG_ICONS[IconName.Slashing],
+  [KineticDamageType.Piercing]: SVG_ICONS[IconName.Piercing],
+};
+
+export const PAYABLE_RESOURCE_ICONS: Record<
+  ActionPayableResource,
+  (className: string) => ReactNode
+> = {
+  [ActionPayableResource.HitPoints]: SVG_ICONS[IconName.Heart],
+  [ActionPayableResource.Mana]: SVG_ICONS[IconName.Droplet],
+  [ActionPayableResource.ActionPoints]: SVG_ICONS[IconName.Clock],
+  [ActionPayableResource.Shards]: SVG_ICONS[IconName.Shards],
+};
+
+export const CONDITION_INDICATOR_ICONS: Record<CombatantConditionName, ReactNode> = {
+  [CombatantConditionName.PrimedForExplosion]: <BombIcon className="fill-firered h-full" />,
+  [CombatantConditionName.PrimedForIceBurst]: <IceIcon className="fill-iceblue h-full" />,
+  [CombatantConditionName.Burning]: <FireIcon className="fill-firered h-full" />,
+  [CombatantConditionName.Blinded]: (
+    <div className="h-full bg-darknessblack">
+      <EyeOpenIcon className="fill-lightningpurple stroke-darknessblack h-full" />
+    </div>
+  ),
+  [CombatantConditionName.FollowingPetCommand]: (
+    <div className="h-full">{SVG_ICONS[IconName.Whistle]("h-full fill-zinc-300")}</div>
+  ),
+  [CombatantConditionName.Flying]: (
+    <div className="h-full">{SVG_ICONS[IconName.Feather]("h-full fill-windgreen")}</div>
+  ),
+  [CombatantConditionName.Ensnared]: (
+    <div className="h-full">{SVG_ICONS[IconName.SpiderWeb]("h-full fill-zinc-300")}</div>
+  ),
+};
+
+export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) => ReactNode)> = {
+  [CombatActionName.Attack]: null,
+  [CombatActionName.AttackMeleeMainhand]: null,
+  [CombatActionName.AttackMeleeOffhand]: null,
+  [CombatActionName.AttackRangedMainhand]: null,
+  [CombatActionName.AttackRangedMainhandProjectile]: null,
+  [CombatActionName.CounterAttackRangedMainhandProjectile]: null,
+  [CombatActionName.Counterattack]: null,
+  [CombatActionName.CounterattackMeleeMainhand]: null,
+  [CombatActionName.CounterattackRangedMainhand]: null,
+  [CombatActionName.ChainingSplitArrowParent]: null,
+  [CombatActionName.ChainingSplitArrowProjectile]: null,
+  [CombatActionName.ExplodingArrowParent]: null,
+  [CombatActionName.ExplodingArrowProjectile]: null,
+  [CombatActionName.IceBoltParent]: (className: string) => SVG_ICONS[IconName.Ice](className),
+  [CombatActionName.IceBoltProjectile]: null,
+  [CombatActionName.Fire]: (className: string) => SVG_ICONS[IconName.Fire](className),
+  [CombatActionName.BurningTick]: null,
+  [CombatActionName.Healing]: (className: string) => SVG_ICONS[IconName.HealthCross](className),
+  [CombatActionName.UseGreenAutoinjector]: null,
+  [CombatActionName.UseBlueAutoinjector]: null,
+  [CombatActionName.PassTurn]: (className: string) => SVG_ICONS[IconName.Hourglass](className),
+  [CombatActionName.ConditionPassTurn]: null,
+  [CombatActionName.Blind]: (className: string) => SVG_ICONS[IconName.EyeClosed](className),
+  [CombatActionName.PayActionPoint]: null,
+  [CombatActionName.ReadSkillBook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [CombatActionName.Firewall]: (className: string) => SVG_ICONS[IconName.Firewall](className),
+  [CombatActionName.FirewallBurn]: null,
+  [CombatActionName.FirewallPassTurn]: null,
+  [CombatActionName.SpawnExplosion]: null,
+  [CombatActionName.ExecuteExplosion]: null,
+  [CombatActionName.IceBurstParent]: null,
+  [CombatActionName.IceBurstExplosion]: null,
+  [CombatActionName.IgniteProjectile]: null,
+  [CombatActionName.IncinerateProjectile]: null,
+  [CombatActionName.SummonPetParent]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatActionName.SummonPetAppear]: null,
+  [CombatActionName.DismissPet]: (className: string) =>
+    SVG_ICONS[IconName.Whistle](`${className} -scale-x-100`),
+  [CombatActionName.TamePet]: (className: string) => SVG_ICONS[IconName.Whistle](`${className}`),
+  [CombatActionName.ReleasePet]: null,
+  [CombatActionName.PetCommand]: null,
+  [CombatActionName.FallTowardsHomePosition]: null,
+  [CombatActionName.Ensnare]: (className: string) => SVG_ICONS[IconName.SpiderWeb](`${className}`),
+  [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: (className: string) =>
+    SVG_ICONS[IconName.SpiderWeb](`${className}`),
+  [CombatActionName.StartFlying]: (className: string) => SVG_ICONS[IconName.Feather](className),
+  [CombatActionName.Death]: null,
+};
+
+export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
+  [CombatantTraitType.HpBioavailability]: (className: string) =>
+    SVG_ICONS[IconName.BloodWithH](className),
+  [CombatantTraitType.MpBioavailability]: null,
+  [CombatantTraitType.Undead]: null,
+  [CombatantTraitType.ExtraHotswapSlot]: null,
+  [CombatantTraitType.CanConvertToShardsManually]: null,
+  [CombatantTraitType.ExtraConsumablesStorage]: null,
+  [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
+  [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
+  [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
+  [CombatantTraitType.CanNotBeRestrained]: (className: string) =>
+    SVG_ICONS[IconName.Feather](className),
+};
+
+export const ACTION_ENTITY_ICONS: Record<
+  ActionEntityName,
+  null | ((className: string) => ReactNode)
+> = {
+  [ActionEntityName.Arrow]: null,
+  [ActionEntityName.IceBolt]: null,
+  [ActionEntityName.Explosion]: null,
+  [ActionEntityName.IceBurst]: null,
+  [ActionEntityName.Firewall]: (className: string) =>
+    SVG_ICONS[IconName.Firewall](className + " fill-firered"),
+};
+
+export const CONSUMABLE_ICONS: Record<ConsumableType, null | ((className: string) => ReactNode)> = {
+  [ConsumableType.HpAutoinjector]: null,
+  [ConsumableType.MpAutoinjector]: null,
+  [ConsumableType.StackOfShards]: null,
+  [ConsumableType.WarriorSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [ConsumableType.RogueSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+  [ConsumableType.MageSkillbook]: (className: string) => SVG_ICONS[IconName.Book](className),
+};

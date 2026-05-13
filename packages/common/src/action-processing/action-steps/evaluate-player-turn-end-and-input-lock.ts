@@ -1,3 +1,4 @@
+import { EntityId } from "../../aliases.js";
 import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { Combatant } from "../../combatants/index.js";
@@ -15,24 +16,13 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
   branchingActions: ActionIntentAndUser[] = [];
   constructor(context: ActionResolutionStepContext) {
     super(stepType, context, null); // this step should produce no game update unless it is unlocking input
-    const { party } = context.actionUserContext;
+    const { game, party } = context.actionUserContext;
 
     const gameUpdateCommandOption = evaluatePlayerEndTurnAndInputLock(context);
     if (gameUpdateCommandOption) {
       this.gameUpdateCommandOption = gameUpdateCommandOption;
-
-      for (const combatant of party.combatantManager.iterateAllCombatants()) {
-        if (!combatant.combatantProperties.threatManager) continue;
-        combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
-          party,
-          combatant
-        );
-      }
+      party.combatantManager.updateHomePositionsToPointAtTopThreat();
     }
-
-    // @TODO
-    // set a timeout to unlock input equal to current action accumulated time
-    // plus all previous actions accumulated time in the current
   }
 
   protected onTick = () => {};
@@ -48,58 +38,45 @@ export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends Actio
 export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepContext) {
   const { tracker } = context;
   const { sequentialActionManagerRegistry } = tracker.parentActionManager;
-
-  sequentialActionManagerRegistry.decrementInputLockReferenceCount();
-
-  const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
-
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = party.getBattleOption(game);
-
   const userIsCombatant = actionUser instanceof Combatant;
-
   const noActionPointsLeft =
     userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
-
+  const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
   const requiresTurnInThisContext = action.costProperties.requiresCombatTurnInThisContext(
     context,
     action
   );
-
   const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
-
   const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
+  const shouldEndTurn = requiredTurn && !turnAlreadyEnded && battleOption;
 
-  let shouldSendEndActiveTurnMessage = false;
+  // FOR SERVER
+  sequentialActionManagerRegistry.decrementInputLockReferenceCount();
+  // FOR BOTH
+  let tellClientDelayAdded: { delay: number; schedulerId: EntityId } | undefined = undefined;
+
+  // only decay threat for combatant turns ending
+  // not for conditions or action entities
   const threatChanges = new ThreatChanges();
+  if (actionUser instanceof Combatant) {
+    const threatCalculator = new ThreatCalculator(
+      threatChanges,
+      context.tracker.hitOutcomes,
+      context.actionUserContext.party,
+      actionUser,
+      context.tracker.actionExecutionIntent.actionName
+    );
+    threatCalculator.addVolatileThreatDecay();
+  }
 
-  if (requiredTurn && !turnAlreadyEnded && !!battleOption) {
-    // if they died on their own turn we should not end the active combatant's turn because
-    // we would have already removed their turn tracker on death
+  if (shouldEndTurn) {
     const { actionName } = tracker.actionExecutionIntent;
-
-    battleOption.turnOrderManager.updateFastestSchedulerWithExecutedActionDelay(party, actionName);
-    battleOption.turnOrderManager.updateTrackers(game, party);
-
+    const delay = actionUser.getDelayForActionUse(actionName);
+    tellClientDelayAdded = { schedulerId: actionUser.getEntityId(), delay };
+    battleOption.handleTurnEnded(actionUser, delay, threatChanges);
     sequentialActionManagerRegistry.setTurnEnded();
-    shouldSendEndActiveTurnMessage = true;
-
-    actionUser.handleTurnEnded();
-
-    // only decay threat for combatant turns ending
-    // not for conditions or action entities
-    if (context.actionUserContext.actionUser instanceof Combatant) {
-      const threatCalculator = new ThreatCalculator(
-        threatChanges,
-        context.tracker.hitOutcomes,
-        context.actionUserContext.party,
-        context.actionUserContext.actionUser,
-        context.tracker.actionExecutionIntent.actionName
-      );
-      threatCalculator.addVolatileThreatDecay();
-
-      threatChanges.applyToGame(party);
-    }
   }
 
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
@@ -109,14 +86,21 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   let shouldUnlockInput = false;
 
   if (battleOption === null) {
-    if (noBlockingActionsRemain) shouldUnlockInput = true;
+    if (noBlockingActionsRemain) {
+      shouldUnlockInput = true;
+    }
   } else if (noBlockingActionsRemain) {
     const newlyUpdatedCurrentTurnIsPlayerControlled =
       battleOption.turnOrderManager.currentActorIsPlayerControlled(party);
 
-    if (newlyUpdatedCurrentTurnIsPlayerControlled) shouldUnlockInput = true;
+    if (newlyUpdatedCurrentTurnIsPlayerControlled) {
+      shouldUnlockInput = true;
+    }
   }
-  if (!shouldUnlockInput && !requiredTurn) return;
+
+  if (!shouldUnlockInput && !requiredTurn) {
+    return;
+  }
 
   // push a game update command to unlock input
   const gameUpdateCommandOption: ActionCompletionUpdateCommand = {
@@ -126,14 +110,18 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     completionOrderId: null,
   };
 
-  if (!threatChanges.isEmpty()) gameUpdateCommandOption.threatChanges = threatChanges;
-  if (shouldSendEndActiveTurnMessage) {
-    gameUpdateCommandOption.endActiveCombatantTurn = true;
+  if (!threatChanges.isEmpty()) {
+    gameUpdateCommandOption.threatChanges = threatChanges;
+  }
+
+  if (tellClientDelayAdded) {
+    gameUpdateCommandOption.addDelayToTurnScheduler = tellClientDelayAdded;
   }
 
   if (shouldUnlockInput) {
     gameUpdateCommandOption.unlockInput = true;
-    party.inputLock.unlockInput();
+    sequentialActionManagerRegistry.durationSpentInInputLock =
+      context.manager.sequentialActionManagerRegistry.time.ms;
   }
 
   return gameUpdateCommandOption;

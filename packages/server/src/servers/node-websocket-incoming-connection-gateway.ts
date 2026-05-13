@@ -8,7 +8,12 @@ export class NodeWebSocketIncomingConnectionGateway extends IncomingConnectionGa
   }
 
   close() {
-    this.wss.close();
+    return new Promise<void>((resolve, reject) => {
+      for (const client of this.wss.clients) {
+        client.terminate();
+      }
+      this.wss.close((err) => (err ? reject(err) : resolve()));
+    });
   }
 
   listen() {

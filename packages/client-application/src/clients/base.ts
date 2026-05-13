@@ -1,0 +1,168 @@
+import {
+  ClientIntent,
+  CONNECTION_ENDPOINT_READY_STATE_STRINGS,
+  ConnectionEndpoint,
+  ConnectionEndpointReadyState,
+  GameStateUpdate,
+  GameStateUpdateType,
+} from "@speed-dungeon/common";
+import { ClientApplication } from "..";
+import { ConnectionMode, ConnectionTopology } from "../connection-topology";
+import { ConnectionStatus } from "../ui/connection-status";
+
+export abstract class BaseClient {
+  // for determining if we have received a reply stream from the server
+  // which is associated with our sent client intent
+  private _intentSequenceCounter = 0;
+  private _pendingReplies = new Map<number, () => void>();
+
+  constructor(
+    protected name: string,
+    protected _connectionEndpoint: ConnectionEndpoint,
+    protected clientApplication: ClientApplication,
+    protected connectionTopology: ConnectionTopology,
+    protected _targetConnectionMode: ConnectionMode
+  ) {
+    this.registerListeners();
+  }
+
+  set targetConnectionMode(newMode: ConnectionMode) {
+    this._targetConnectionMode = newMode;
+  }
+
+  resetIntentSequenceCounter() {
+    this._intentSequenceCounter = 0;
+  }
+
+  stopAwaitingReplies() {
+    this._pendingReplies.clear();
+  }
+
+  dispatchIntent(message: ClientIntent): number {
+    if (!this.connectionTopology.isInitialized) {
+      throw new Error("not connected to any local or remote server");
+    }
+    this._intentSequenceCounter += 1;
+    this.clientApplication.clientLogRecorder.recordIntentDispatched(
+      this._intentSequenceCounter,
+      message
+    );
+    this._connectionEndpoint.send(JSON.stringify(message));
+    return this._intentSequenceCounter;
+  }
+
+  waitForServerReply(sequenceId: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this._pendingReplies.set(sequenceId, resolve);
+    });
+  }
+
+  waitForClientProcessing(): Promise<void> {
+    return this.clientApplication.sequentialEventProcessor.waitUntilIdle();
+  }
+
+  async close() {
+    if (this._connectionEndpoint.readyState === ConnectionEndpointReadyState.CLOSED) {
+      return console.info("connection endpoint already closed");
+    }
+    await new Promise<void>((resolve) => {
+      this._connectionEndpoint.once("close", () => {
+        resolve();
+      });
+      this._connectionEndpoint.close();
+    });
+  }
+
+  setEndpoint(_connectionEndpoint: ConnectionEndpoint) {
+    const oldEndpoint = this._connectionEndpoint;
+    this._connectionEndpoint = _connectionEndpoint;
+    this.registerListeners();
+    oldEndpoint.close();
+  }
+
+  get connectionStatus() {
+    return CONNECTION_ENDPOINT_READY_STATE_STRINGS[this._connectionEndpoint.readyState];
+  }
+
+  get connectionEndpoint() {
+    return this._connectionEndpoint;
+  }
+
+  protected registerListeners() {
+    this._connectionEndpoint.on("open", () => {
+      // console.info(`connected to ${this.name}`);
+      const { gameContext, uiStore } = this.clientApplication;
+      gameContext.clearGame();
+      this.connectionTopology.runtimeMode = this._targetConnectionMode;
+      uiStore.connectionStatus.connectionStatus = ConnectionStatus.Connected;
+
+      // this.clientApplication.sequentialEventProcessor.cancelQueued();
+      // this.clientApplication.sequentialEventProcessor.scheduleEvent({
+      //   type: ClientSequentialEventType.ClearAllModels,
+      //   data: undefined,
+      // });
+      this.clientApplication.replayTreeScheduler.clear();
+
+      // this.dispatchIntent({ type: ClientIntentType.RequestsGameList, data: undefined });
+      // this.dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
+    });
+
+    this._connectionEndpoint.on("message", (untyped) => {
+      const typedMessage = this.getTypedMessage(untyped);
+      this.clientApplication.clientLogRecorder.recordUpdateReceived(typedMessage);
+      this.handleMessage(typedMessage);
+      this.handleErrorMessage(typedMessage);
+      this.handleEndOfStream(typedMessage);
+    });
+
+    this._connectionEndpoint.on("close", (reason) => {
+      // console.info(`closed connection endpoint with code ${reason}`);
+    });
+  }
+
+  private handleErrorMessage(typedMessage: GameStateUpdate) {
+    if (typedMessage.type !== GameStateUpdateType.ErrorMessage) return;
+
+    const { message, clientIntentSequenceId } = typedMessage.data;
+    const { alertsService, errorRecordService, gameContext, combatantFocus, targetIndicatorStore } =
+      this.clientApplication;
+
+    errorRecordService.record(message, clientIntentSequenceId);
+    alertsService.setAlert(message);
+
+    const { partyOption } = gameContext;
+    if (!partyOption) return;
+
+    // this is a quick and dirty fix until we have a way to associate errors
+    // with certain actions, which would also be good to associate responses with
+    // certain actions so we can show the buttons in a loading state
+    partyOption.inputLock.unlockInput();
+    const { focusedCharacterOption } = combatantFocus;
+    if (!focusedCharacterOption) return;
+
+    focusedCharacterOption.combatantProperties.targetingProperties.clear();
+    targetIndicatorStore.clearUserTargets(focusedCharacterOption.getEntityId());
+  }
+
+  private handleEndOfStream(typedMessage: GameStateUpdate) {
+    if (typedMessage.type === GameStateUpdateType.EndOfUpdateStream) {
+      const resolver = this._pendingReplies.get(typedMessage.data.clientIntentSequenceId);
+      if (resolver) {
+        this._pendingReplies.delete(typedMessage.data.clientIntentSequenceId);
+        resolver();
+      }
+      return;
+    }
+  }
+
+  abstract resetConnection(): Promise<void>;
+
+  protected abstract handleMessage(message: GameStateUpdate): void;
+
+  protected getTypedMessage(rawData: string | ArrayBuffer) {
+    const asString = rawData.toString();
+    const asJson = JSON.parse(asString);
+    const typedMessage = asJson as GameStateUpdate;
+    return typedMessage;
+  }
+}

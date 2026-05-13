@@ -2,12 +2,14 @@ import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registr
 import { NestedNodeReplayEvent, NestedNodeReplayEventUtls } from "./replay-events.js";
 import { ActionTracker } from "./action-tracker.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { ActionUserContext } from "../action-user-context/index.js";
 import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../combat/combat-actions/combat-action-names.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -20,6 +22,7 @@ export class ActionSequenceManager {
     public actionUserContext: ActionUserContext,
     public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
     private idGenerator: IdGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
@@ -63,8 +66,9 @@ export class ActionSequenceManager {
 
     const nextActionExecutionIntentOption = this.remainingActionsToExecute.pop();
 
-    if (!nextActionExecutionIntentOption)
+    if (!nextActionExecutionIntentOption) {
       throw new Error("Tried to process next action but there wasn't one");
+    }
 
     this.sequentialActionManagerRegistry.incrementInputLockReferenceCount();
 
@@ -83,7 +87,8 @@ export class ActionSequenceManager {
       this.actionUserContext.actionUser,
       previousTrackerOption || null,
       this.sequentialActionManagerRegistry.time.ms,
-      this.idGenerator
+      this.idGenerator,
+      this.rngPolicy
     );
 
     this.currentTracker = tracker;

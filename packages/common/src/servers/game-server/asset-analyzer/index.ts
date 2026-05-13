@@ -1,4 +1,5 @@
 import { Milliseconds } from "../../../aliases.js";
+import { DEBUG_ANIMATION_SPEED_MULTIPLIER } from "../../../app-consts.js";
 import { SKELETON_FILE_PATHS } from "../../../assets/skeleton-file-paths.js";
 import { CombatantSpecies } from "../../../combatants/combatant-species.js";
 import { BoundingBoxSizesBySpecies } from "../../../types.js";
@@ -32,6 +33,10 @@ export class AssetAnalyzer {
     return this._animationLengths;
   }
 
+  set animationLengths(value: SpeciesAnimationLengths) {
+    this._animationLengths = value;
+  }
+
   private async getAnimationLengths(assetId: AssetId) {
     try {
       const asset = await this.assetService.getAsset(assetId);
@@ -58,7 +63,7 @@ export class AssetAnalyzer {
             }
           }
 
-          toReturn[anim.getName()] = Math.floor(maxTime * 1000); // convert from seconds to milliseconds and truncate
+          toReturn[anim.getName()] = Math.floor(maxTime * 1000) * DEBUG_ANIMATION_SPEED_MULTIPLIER; // convert from seconds to milliseconds and truncate
         });
       return toReturn;
     } catch (error) {

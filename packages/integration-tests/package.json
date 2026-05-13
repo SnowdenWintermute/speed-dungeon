@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/lodash.clonedeep": "4.5.9",
     "@types/lodash.ismatch": "^4.4.9",
-    "fake-indexeddb": "^6.2.5"
+    "fake-indexeddb": "^6.2.5",
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }

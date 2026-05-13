@@ -1,18 +1,16 @@
 import { ExplorationAction } from "../../../adventuring-party/dungeon-exploration-manager.js";
-import { DungeonRoom, DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
+import { DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { GAME_CONFIG, NUM_MONSTERS_PER_ROOM } from "../../../app-consts.js";
 import { Battle } from "../../../battle/index.js";
-import { Combatant } from "../../../combatants/index.js";
+import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { ItemGenerator } from "../../../items/item-creation/index.js";
-import { generateMonster } from "../../../monsters/generate-monster.js";
+import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
-import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -23,16 +21,22 @@ import { BattleProcessor } from "./battle-processor/index.js";
 import { GameModeContext } from "./game-lifecycle/game-mode-context.js";
 
 export class DungeonExplorationController {
+  private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
+
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly savedCharactersService: SavedCharactersService,
     private readonly idGenerator: IdGenerator,
-    private readonly itemGenerator: ItemGenerator,
-    private readonly randomNumberGenerator: RandomNumberGenerator,
+    private readonly rngPolicy: RandomNumberGenerationPolicy,
+    private readonly lootGenerator: LootGenerator,
+    private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>
-  ) {}
+  ) {
+    this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
+      this.updateDispatchFactory
+    );
+  }
 
   async toggleReadyToExploreHandler(
     session: UserSession
@@ -111,13 +115,12 @@ export class DungeonExplorationController {
     const { dungeonExplorationManager } = party;
     dungeonExplorationManager.incrementCurrentFloor();
 
-    const floorNumber = dungeonExplorationManager.getCurrentFloor();
-
     dungeonExplorationManager.clearUnexploredRooms();
     dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const floorNumber = dungeonExplorationManager.getCurrentFloor();
 
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.DungeonFloorNumber,
       data: { floorNumber },
@@ -125,7 +128,7 @@ export class DungeonExplorationController {
 
     // tell other parties so they feel the pressure of other parties descending
     const descentMessageOutbox =
-      this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+      this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
         game.getChannelName(),
         GameMessageType.PartyDescent,
         `Party "${party.name}" descended to floor ${floorNumber}`
@@ -133,9 +136,7 @@ export class DungeonExplorationController {
 
     outbox.pushFromOther(descentMessageOutbox);
 
-    const partyEscapedTheDungeon = floorNumber === GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE;
-
-    if (partyEscapedTheDungeon) {
+    if (dungeonExplorationManager.partyEscapedDungeon()) {
       let anotherPartyAlreadyEscaped = false;
       for (const [_, party] of game.adventuringParties) {
         if (party.timeOfEscape) {
@@ -153,7 +154,7 @@ export class DungeonExplorationController {
       }
 
       const escapeMessageOutbox =
-        this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
           game.getChannelName(),
           GameMessageType.PartyEscape,
           `Party "${party.name}" escaped the dungeon at ${new Date(timeOfEscape).toLocaleString()}${hasBeenMarkedAsWinnerMessageOption}!`
@@ -187,7 +188,10 @@ export class DungeonExplorationController {
 
     const reachedEndOfFloor = !dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
     if (reachedEndOfFloor) {
-      dungeonExplorationManager.generateUnexploredRoomsQueue();
+      const newRoomTypes = this.dungeonGenerationPolicy.generateUnexploredRoomTypesOnFloor(
+        dungeonExplorationManager.getCurrentFloor()
+      );
+      dungeonExplorationManager.setUnexploredRoomTypes(newRoomTypes);
 
       const newRoomTypesListForClient = dungeonExplorationManager.getFilteredNewRoomListForClient();
 
@@ -225,7 +229,15 @@ export class DungeonExplorationController {
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.BattleFullUpdate,
       data: {
-        battle,
+        battle: battle.toSerialized(),
+        combatantActionPoints: [...party.combatantManager.getAllCombatants()].map(
+          ([combatantId, combatant]) => {
+            return {
+              combatantId,
+              actionPoints: combatant.combatantProperties.resources.getActionPoints(),
+            };
+          }
+        ),
       },
     });
 
@@ -236,11 +248,16 @@ export class DungeonExplorationController {
       battleOption,
       this.gameModeContexts,
       this.idGenerator,
-      this.itemGenerator,
-      this.randomNumberGenerator,
+      this.rngPolicy,
+      this.lootGenerator,
       this.assetAnalyzer
     );
-    const battleProcessingOutbox = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+
+    const { outbox: battleProcessingOutbox, durationUntilInputUnlock } =
+      await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+    party.inputLock.lockInput();
+    party.inputLock.increaseLockoutDuration(durationUntilInputUnlock);
+
     outbox.pushFromOther(battleProcessingOutbox);
     return outbox;
   }
@@ -253,10 +270,10 @@ export class DungeonExplorationController {
     const { dungeonExplorationManager } = party;
     const floorNumber = dungeonExplorationManager.getCurrentFloor();
 
-    const { room, monsters } = this.generateDungeonRoom(
+    const { room, monsters } = this.dungeonGenerationPolicy.generateDungeonRoom(
       floorNumber,
       roomTypeToGenerate,
-      party.dungeonExplorationManager.getCurrentRoomNumber() + 1
+      party.dungeonExplorationManager.getCurrentRoomNumber()
     );
 
     party.setCurrentRoom(room);
@@ -277,31 +294,5 @@ export class DungeonExplorationController {
     }
 
     return monsters;
-  }
-
-  private generateDungeonRoom(
-    floor: number,
-    roomType: DungeonRoomType,
-    roomIndex: number
-  ): { room: DungeonRoom; monsters: Combatant[] } {
-    const monsters: Combatant[] = [];
-
-    if (roomType === DungeonRoomType.MonsterLair) {
-      for (let i = 0; i < NUM_MONSTERS_PER_ROOM; i += 1) {
-        const newMonster = generateMonster(
-          floor,
-          roomIndex,
-          this.idGenerator,
-          this.itemGenerator,
-          this.randomNumberGenerator
-        );
-
-        monsters.push(newMonster);
-      }
-    }
-
-    const room = new DungeonRoom(roomType);
-
-    return { room, monsters };
   }
 }

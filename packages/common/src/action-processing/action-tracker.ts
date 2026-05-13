@@ -5,6 +5,7 @@ import { Consumable } from "../items/consumables/index.js";
 import { Milliseconds } from "../aliases.js";
 import { SpawnableEntity, SpawnableEntityType } from "../spawnables/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import {
@@ -40,7 +41,8 @@ export class ActionTracker {
     public user: IActionUser,
     private previousTrackerInSequenceOption: null | ActionTracker,
     private timeStarted: Milliseconds,
-    private idGenerator: IdGenerator
+    private idGenerator: IdGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy
   ) {
     const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
     this.queuedStepTypes = action.stepsConfig.getStepTypes();
@@ -57,6 +59,7 @@ export class ActionTracker {
       tracker: this,
       manager: this.parentActionManager,
       idGenerator: this.idGenerator,
+      rngPolicy: this.rngPolicy,
     };
     const stepTypes = this.queuedStepTypes;
     let stepOption = stepTypes[this.stepIndex];

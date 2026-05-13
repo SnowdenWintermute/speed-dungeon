@@ -33,6 +33,7 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
     for (const suffix of SUFFIX_TYPES) {
       switch (suffix) {
         case AffixType.Durability:
+        case AffixType.PercentArmorClass:
           break;
         case AffixType.Hp:
         case AffixType.Vitality:

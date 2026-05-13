@@ -12,8 +12,6 @@ import {
   CombatActionResource,
 } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
-import { BasicRandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
-import { randBetween } from "../../../../utils/rand-between.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import {
@@ -59,10 +57,7 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     const resourceChangeSource = new ResourceChangeSource(resourceChangeSourceConfig);
     const manaChangeProperties: CombatActionResourceChangeProperties = {
       resourceChangeSource,
-      baseValues: new NumberRange(
-        minRestored,
-        randBetween(minRestored, maxRestored, new BasicRandomNumberGenerator())
-      ),
+      baseValues: new NumberRange(minRestored, maxRestored),
     };
     return manaChangeProperties;
   },

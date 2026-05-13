@@ -14,7 +14,7 @@ export const PET_COMMAND_AI_TYPE_DESCRIPTIONS_BY_RANK: Record<number, string> = 
   [1]: "Assist",
   [2]: "Kill",
   [3]: "Heel",
-  [4]: "As you like",
+  [4]: "Free",
 };
 
 const PET_COMMAND_AI_TYPE_EXPLANATIONS_BY_RANK: Record<number, string> = {

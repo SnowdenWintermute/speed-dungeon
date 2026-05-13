@@ -126,10 +126,10 @@ export class SavedCharactersService {
 
   async requireEmptySlot(profileId: ProfileId, slotIndex: SlotIndex) {
     const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
-    const slotOption = slots[slotIndex];
+    const slotOption = slots.find((slot) => slot.slotNumber === slotIndex);
 
     if (slotOption === undefined) {
-      throw new Error("Expected character slot missing");
+      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
     }
 
     const slotIsFilled = slotOption.characterId !== null;
@@ -148,7 +148,7 @@ export class SavedCharactersService {
       }
     }
 
-    throw new Error("Expected character slot missing");
+    throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
   }
 
   async saveCharacterInSlot(

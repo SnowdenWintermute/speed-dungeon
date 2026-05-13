@@ -218,6 +218,6 @@ function applyWebMaxHp(
 ) {
   const hp = getWebMaxHp(actionUser, actionRank);
 
-  webCombatantProperties.attributeProperties.setInherentAttributeValue(CombatAttribute.Hp, hp);
+  webCombatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, hp);
   webCombatantProperties.resources.setToMax();
 }

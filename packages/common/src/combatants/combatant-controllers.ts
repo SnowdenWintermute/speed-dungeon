@@ -6,7 +6,6 @@ import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
-import { CombatantProperties } from "./combatant-properties.js";
 
 export enum CombatantControllerType {
   Player,
@@ -29,7 +28,7 @@ export class CombatantControlledBy
   constructor(
     public controllerType: CombatantControllerType,
     /** For player name, can be empty string if this is dungeon controlled */
-    public controllerPlayerName: Username
+    public controllerPlayerName: Username = "" as Username
   ) {
     super();
   }

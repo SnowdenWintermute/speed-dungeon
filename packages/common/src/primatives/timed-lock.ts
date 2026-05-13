@@ -38,6 +38,11 @@ export class TimedLock implements Serializable, ReactiveNode {
     else this.lockDuration += ms;
   }
 
+  get remainingDuration() {
+    if (this.lockDuration === null || this.timeLocked === null) return 0;
+    return Math.max(0, this.timeLocked + this.lockDuration - Date.now());
+  }
+
   isLocked() {
     const { timeLocked, lockDuration } = this;
     if (timeLocked === null) {

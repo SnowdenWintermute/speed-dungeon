@@ -20,19 +20,24 @@ import {
   GameMessageType,
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
+import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
-  // strategy pattern for handling certain events
+  private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
 
   constructor(
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
+    private readonly globalGameSessionStore: GlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     private readonly gameModeContexts: Record<GameMode, GameModeContext>,
     private readonly dungeonExplorationController: DungeonExplorationController
-  ) {}
+  ) {
+    this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
+      this.updateDispatchFactory
+    );
+  }
 
   async getOrInitializeGame(gameName: GameName) {
     const existingGame = this.gameRegistry.getGameOption(gameName);
@@ -52,13 +57,22 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     }
 
     const deserializedGame = SpeedDungeonGame.fromSerialized(pendingGameSetupOption.game);
-    deserializedGame.initializeBattles();
+    deserializedGame.initializeBattlesOnDeserialization();
+    for (const [_, party] of deserializedGame.adventuringParties) {
+      party.combatantManager.updateHomePositions();
+    }
     const newGame = deserializedGame;
 
-    this.gameRegistry.registerGame(newGame);
-    this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
+    for (const [_, player] of newGame.players) {
+      if (player.partyName !== null) {
+        newGame.putPlayerInParty(player.partyName, player.username);
+      }
+    }
 
-    this.gameSessionStoreService.writeActiveGameStatus(
+    this.gameRegistry.registerGame(newGame);
+
+    await this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
+    await this.gameSessionStoreService.writeActiveGameStatus(
       newGame.name,
       new ActiveGameStatus(newGame.name, newGame.id)
     );
@@ -81,12 +95,30 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const party = game.getExpectedParty(partyName);
     session.subscribeToChannel(getPartyChannelName(game.name, party.name));
 
+    const battleOption = party.getBattleOption(game) || undefined;
+
     // if they are reconnecting their client would have lost the game information
     // could avoid sending it if this is a connection from the lobby though
     // for simplicity we'll eat the performance cost until it is measured
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
-      data: { game: game.toSerialized() },
+      data: {
+        game: game.toSerialized(),
+        awaitingUnresolvedReplayResolutionDuration: party.inputLock.remainingDuration || undefined,
+        battle: battleOption
+          ? {
+              battle: battleOption.toSerialized(),
+              combatantActionPoints: [...party.combatantManager.getAllCombatants()].map(
+                ([combatantId, combatant]) => {
+                  return {
+                    combatantId,
+                    actionPoints: combatant.getCombatantProperties().resources.getActionPoints(),
+                  };
+                }
+              ),
+            }
+          : undefined,
+      },
     });
 
     // clients should handle this differently than in the lobby
@@ -109,7 +141,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       outbox.pushFromOther(startGameOutbox);
     }
 
-    game.inputLock.remove(session.taggedUserId.id); // @TODO - check this lock when players submit inputs
+    game.inputLock.remove(session.taggedUserId.id);
 
     return outbox;
   }
@@ -139,8 +171,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   private allPlayersAreConnectedToGame(game: SpeedDungeonGame) {
     let result = true;
     for (const [username, player] of Array.from(game.players)) {
-      const sessions = this.userSessionRegistry.getSessionsByUsername(username);
-      if (sessions.length === 0) {
+      const sessionOption = this.userSessionRegistry.getSessionByUsername(username);
+      if (!sessionOption) {
         result = false;
         break;
       }
@@ -150,11 +182,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async leaveGameHandler(session: UserSession) {
-    const game = session.getCurrentGameOption();
+    const game = session.getExpectedCurrentGame();
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    if (game === null) {
-      return outbox;
-    }
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerLeftGame,
@@ -186,14 +215,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     if (partyShouldBeMarkedWiped) {
       party.timeOfWipe = Date.now();
-      const partyWipePayloads = await gameModeContext.strategy.onPartyWipe(game, party);
+      const ladderDeathMessagesOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
 
       const remainingParties = Object.values(game.adventuringParties);
       if (remainingParties.length) {
         const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
 
         const partyWipedOutbox =
-          this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+          this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
             game.getChannelName(),
             GameMessageType.PartyWipe,
             createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
@@ -202,26 +231,36 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
         outbox.pushFromOther(partyWipedOutbox);
       }
 
-      outbox.pushToChannel(game.getChannelName(), {
-        type: GameStateUpdateType.ClientSequentialEvents,
-        data: { sequentialEvents: partyWipePayloads },
-      });
+      outbox.pushFromOther(ladderDeathMessagesOutbox);
     }
 
     game.removePlayer(session.username);
+    await this.globalGameSessionStore.clearSession(session.taggedUserId);
 
     const noPlayersRemain = game.players.size === 0;
     const allPartiesWiped = game.allPartiesWiped();
 
     // - if there are no living parties in the game, clean up the game
     if (allPartiesWiped || noPlayersRemain) {
-      await gameModeContext.strategy.onLastPlayerLeftGame(game);
-
-      this.gameRegistry.unregisterGame(game.name);
-      await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
+      await this.cleanUpGame(game);
     }
 
     return outbox;
+  }
+
+  async cleanUpGame(game: SpeedDungeonGame) {
+    const gameModeContext = this.gameModeContexts[game.mode];
+    await gameModeContext.strategy.onLastPlayerLeftGame(game);
+
+    this.gameRegistry.unregisterGame(game.name);
+    // even though we clear their session on leave game, it is possible that they never joined the game,
+    // the other users get bored and leave and the user that never joined would be stuck with a stale
+    // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
+    // @ARCHITECTURE - I don't think it will race with a lobby game created by same name because we prohibit
+    // creation of lobby game while active or pending game status of that name exists
+    await this.globalGameSessionStore.clearSessionsInGame(game.name);
+    await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
+    await this.gameSessionStoreService.deletePendingGameSetup(game.name);
   }
 
   handleAbandoningDeadPartyMembers(
@@ -240,7 +279,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     if (allRemainingCharactersAreDead && !party.timeOfWipe) {
       const abandonedPartyOutbox =
-        this.partyDelayedGameMessageFactory.createMessageInGameWithOptionalDelayForParty(
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
           game.getChannelName(),
           GameMessageType.PartyDissolved,
           createPartyAbandonedMessage(party.name),

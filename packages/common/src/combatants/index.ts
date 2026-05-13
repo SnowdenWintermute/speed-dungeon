@@ -6,9 +6,7 @@ import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
-import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import { HoldableSlotType } from "../items/equipment/slots.js";
@@ -25,6 +23,9 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
+import { CombatAttribute } from "./attributes/index.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -117,6 +118,21 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   payResourceCosts(): void {
     throw new Error("Method not implemented.");
   }
+
+  getSpeed() {
+    const combatantSpeed = this.combatantProperties.attributeProperties.getAttributeValue(
+      CombatAttribute.Speed
+    );
+    return combatantSpeed;
+  }
+
+  getDelayForActionUse(_actionName: CombatActionName) {
+    const speed = this.getSpeed();
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
+    return delay;
+  }
+
   handleTurnEnded(): void {
     // REFILL THE QUICK ACTIONS OF THE CURRENT TURN
     // this way, if we want to remove their quick actions they can be at risk
@@ -156,10 +172,6 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
   }
 
-  getNaturalUnarmedWeapons() {
-    return this.combatantProperties.equipment.getUnarmedWeapons();
-  }
-
   hasRequiredConsumablesToUseAction(actionName: CombatActionName) {
     const action = COMBAT_ACTIONS[actionName];
     const consumableCost = action.costProperties.getConsumableCost(this);
@@ -188,6 +200,18 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
         canUse: false,
         reasonCanNot: ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_USABILITY_CONTEXT,
       };
+    }
+
+    if (battleOption !== null) {
+      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
+      if (taggedTrackedEntityId.type !== ActionUserType.Combatant) {
+        return { canUse: false, reasonCanNot: "Combatant is not first in the turn order" };
+      }
+      if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {
+        const message = `actual first action user: ${JSON.stringify(fastestActor)}, you attempted to move as ${this.entityProperties.id}`;
+        return { canUse: false, reasonCanNot: message };
+      }
     }
 
     if (action.costProperties.getMeetsCustomRequirements) {
@@ -221,6 +245,7 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     const costs = action.costProperties.getResourceCosts(this, party.isInCombat(), rank);
 
     const unmetResourceTypes = this.combatantProperties.resources.getUnmetCostResourceTypes(costs);
+
     const hasRequiredResources = !unmetResourceTypes.length;
 
     if (!hasRequiredResources) {
@@ -240,42 +265,6 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     }
 
     return { canUse: true };
-  }
-
-  canUseAction(
-    actionAndRank: ActionAndRank,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): Error | void {
-    // IF IN BATTLE, ONLY USE IF FIRST IN TURN ORDER
-    let battleOption: null | Battle = null;
-    if (party.battleId !== null) {
-      const battle = game.battles.get(party.battleId);
-      if (battle !== undefined) battleOption = battle;
-      else return new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
-    }
-
-    const meetsUseRequirements = this.actionAndRankMeetsUseRequirements(
-      actionAndRank,
-      party,
-      battleOption
-    );
-
-    const { canUse, reasonCanNot } = meetsUseRequirements;
-    if (!canUse) {
-      return new Error(reasonCanNot || "unspecified reason can not use action");
-    }
-
-    if (battleOption !== null) {
-      const fastestActor = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      const taggedTrackedEntityId = fastestActor.getTaggedIdOfTrackedEntity();
-      if (taggedTrackedEntityId.type !== TurnTrackerEntityType.Combatant)
-        return new Error("expected a combatant to be first in turn order");
-      if (taggedTrackedEntityId.combatantId !== this.entityProperties.id) {
-        const message = `${ERROR_MESSAGES.COMBATANT.NOT_ACTIVE} first turn tracker ${JSON.stringify(fastestActor)}`;
-        return new Error(message);
-      }
-    }
 
     // @TODO - TARGETS ARE NOT IN A PROHIBITED STATE
     // action would only make sense if we didn't already check valid states when targeting... unless

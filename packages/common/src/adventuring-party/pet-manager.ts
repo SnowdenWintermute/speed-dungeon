@@ -2,16 +2,30 @@ import { AdventuringParty } from "./index.js";
 import { MAXIMUM_PET_SLOTS } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
 import { CombatantId, EntityId } from "../aliases.js";
-import { Battle } from "../battle/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { CombatantConditionName } from "../conditions/condition-names.js";
-import { Serializable, SerializedOf } from "../serialization/index.js";
+import {
+  makePropertiesObservable,
+  ReactiveNode,
+  Serializable,
+  SerializedOf,
+} from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import makeAutoObservable from "mobx-store-inheritance";
 
-export class PetManager extends AdventuringPartySubsystem implements Serializable {
+export class PetManager extends AdventuringPartySubsystem implements Serializable, ReactiveNode {
   private unsummonedPetsByOwnerId = new Map<EntityId, (Combatant | undefined)[]>();
+
+  makeObservable() {
+    makeAutoObservable(this);
+    for (const [_, petSlots] of this.unsummonedPetsByOwnerId) {
+      for (const petOption of petSlots) {
+        if (petOption) petOption.makeObservable();
+      }
+    }
+  }
 
   toSerialized() {
     return {
@@ -105,6 +119,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     }
   }
 
+  /** returns the dismissed pet */
   unsummonPet(petId: EntityId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const expectedPet = party.combatantManager.getExpectedCombatant(petId);
@@ -114,6 +129,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     }
     this.putPetInFirstEmptyUnsummonedSlot(summonedBy, expectedPet);
     party.combatantManager.removeCombatant(expectedPet.getEntityId(), game);
+    return expectedPet;
   }
 
   /** Moves the pet from the unsummoned pets storage to the summoned pets storage
@@ -123,7 +139,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     party: AdventuringParty,
     ownerId: EntityId,
     slotIndex: number,
-    battleOption: null | Battle
+    withDelay?: number
   ) {
     const owner = party.combatantManager.getExpectedCombatant(ownerId);
 
@@ -148,13 +164,17 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
 
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {
-      party.combatantManager.addCombatant(pet, game);
+      party.combatantManager.addCombatant(pet, game, withDelay);
     } else if (isMonsterPet) {
       throw new Error("not implemented");
     }
 
     party.combatantManager.setPetHomePositionNextTo(petOption, owner);
     petOption.combatantProperties.transformProperties.setToHomeTransform();
+
+    if (party.battleId) {
+      pet.combatantProperties.resources.refillActionPoints();
+    }
 
     return pet;
   }
@@ -171,14 +191,15 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
   handlePetTamed(petId: CombatantId, newOwnerId: CombatantId, game: SpeedDungeonGame) {
     const party = this.getParty();
     const petCombatant = party.combatantManager.removeCombatant(petId, game);
-    const { controlledBy } = petCombatant.combatantProperties;
-    controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
 
     petCombatant.combatantProperties.threatManager = undefined;
-
     party.combatantManager.updateHomePositions();
     const newOwner = party.combatantManager.getExpectedCombatant(newOwnerId);
     party.combatantManager.setPetHomePositionNextTo(petCombatant, newOwner);
+    const { controlledBy } = petCombatant.combatantProperties;
+    controlledBy.controllerType = CombatantControllerType.PlayerPetAI;
+    controlledBy.controllerPlayerName =
+      newOwner.combatantProperties.controlledBy.controllerPlayerName;
 
     this.putPetInFirstEmptyUnsummonedSlot(newOwnerId, petCombatant);
   }

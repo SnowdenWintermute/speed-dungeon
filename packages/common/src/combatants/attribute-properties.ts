@@ -14,27 +14,35 @@ export class CombatantAttributeProperties
   extends CombatantSubsystem
   implements ReactiveNode, Serializable
 {
-  private inherentAttributes: CombatantAttributeRecord = {};
   private speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
+  private _useExplicitAttributes: boolean = false;
 
   makeObservable(): void {
     makeAutoObservable(this);
   }
 
+  setUseExplicitAttributes() {
+    this._useExplicitAttributes = true;
+  }
+
+  getUseExplicitAttributes() {
+    return this._useExplicitAttributes;
+  }
+
   toSerialized() {
     return {
-      inherentAttributes: this.inherentAttributes,
       speccedAttributes: this.speccedAttributes,
       unspentAttributePoints: this.unspentAttributePoints,
+      useExplicitAttributes: this._useExplicitAttributes,
     };
   }
 
   static fromSerialized(serialized: SerializedOf<CombatantAttributeProperties>) {
     const result = new CombatantAttributeProperties();
-    result.inherentAttributes = serialized.inherentAttributes;
     result.speccedAttributes = serialized.speccedAttributes;
     result.unspentAttributePoints = serialized.unspentAttributePoints;
+    result._useExplicitAttributes = serialized.useExplicitAttributes;
 
     return result;
   }
@@ -47,8 +55,8 @@ export class CombatantAttributeProperties
     });
   }
 
-  setInherentAttributeValue(attribute: CombatAttribute, value: number) {
-    this.inherentAttributes[attribute] = value;
+  setSpeccedAttributeValue(attribute: CombatAttribute, value: number) {
+    this.speccedAttributes[attribute] = value;
   }
 
   changeUnspentPoints(value: number) {
@@ -61,7 +69,6 @@ export class CombatantAttributeProperties
 
   getNaturalAttributes() {
     const total = initializeCombatAttributeRecord();
-    addAttributesToAccumulator(this.inherentAttributes, total);
     addAttributesToAccumulator(this.speccedAttributes, total);
     return total;
   }

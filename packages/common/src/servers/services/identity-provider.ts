@@ -1,11 +1,11 @@
-import { GuestSessionReconnectionToken, IdentityProviderId, Username } from "../../aliases.js";
+import { EncryptedOpaqueToken, IdentityProviderId, Username } from "../../aliases.js";
 import { TaggedUserId } from "../sessions/user-ids.js";
 
 export interface ConnectionIdentityResolutionContext {
   readonly authSessionId?: string;
   readonly localUserId?: IdentityProviderId;
-  readonly clientCachedGuestReconnectionToken?: GuestSessionReconnectionToken;
-  readonly encodedGameServerSessionClaimToken?: string;
+  readonly clientCachedGuestReconnectionToken?: EncryptedOpaqueToken;
+  readonly encodedGameServerSessionClaimToken?: EncryptedOpaqueToken;
 }
 
 export interface IdentityProviderUserSessionQueryStrategy {

@@ -1,5 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -240,10 +241,12 @@ export class EntityMotionActionResolutionStep extends ActionResolutionStep {
   }
 
   onComplete(): Error | ActionIntentAndUser[] {
-    if (this.translationOption?.setAsNewHome) {
-      this.context.actionUserContext.actionUser
-        .getCombatantProperties()
-        .transformProperties.setHomePosition(this.translationOption.destination);
+    if (this.translationOption) {
+      if (this.translationOption.setAsNewHome) {
+        this.context.actionUserContext.actionUser
+          .getCombatantProperties()
+          .transformProperties.setHomePosition(this.translationOption.destination);
+      }
     }
 
     const { party } = this.context.actionUserContext;

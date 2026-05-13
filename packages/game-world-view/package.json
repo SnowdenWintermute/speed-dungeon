@@ -1,0 +1,17 @@
+{
+  "name": "@speed-dungeon/game-world-view",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "scripts": {
+    "compileClean": "rm -rf tsconfig.tsbuildinfo && rm -rf ./dist && npx tsc"
+  },
+  "dependencies": {
+    "@babylonjs/core": "8.3.1"
+  },
+  "devDependencies": {}
+}

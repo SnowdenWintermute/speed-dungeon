@@ -26,18 +26,13 @@ export class ItemManagementController {
 
   dropItemHandler(session: UserSession, data: CharacterAndItem) {
     const { characterId, itemId } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const itemDroppedIdResult = character.combatantProperties.inventory.dropItem(party, itemId);
 
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
     }
-
-    party.itemsOnGroundNotYetReceivedByAllClients.set(itemDroppedIdResult, []);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -50,18 +45,13 @@ export class ItemManagementController {
 
   dropEquippedItemHandler(session: UserSession, data: CharacterAndSlot) {
     const { characterId, slot } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const { inventory } = character.combatantProperties;
     const itemDroppedIdResult = inventory.dropEquippedItem(party, slot);
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
     }
-
-    party.itemsOnGroundNotYetReceivedByAllClients.set(itemDroppedIdResult, []);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -72,55 +62,16 @@ export class ItemManagementController {
     return outbox;
   }
 
-  acknowledgeReceiptOfItemOnGroundHandler(session: UserSession, data: { itemId: EntityId }) {
-    const { itemId } = data;
-    const { party, player } = session.requirePlayerContext();
-
-    const usersThatHaveReceivedThisItem = party.itemsOnGroundNotYetReceivedByAllClients.get(itemId);
-
-    invariant(
-      usersThatHaveReceivedThisItem !== undefined,
-      ERROR_MESSAGES.ITEM.ACKNOWLEDGEMENT_SENT_BEFORE_ITEM_EXISTED
-    );
-
-    usersThatHaveReceivedThisItem.push(player.username);
-
-    let allUsersInPartyHaveReceivedItemUpdate = true;
-
-    for (const username of party.playerUsernames) {
-      if (!usersThatHaveReceivedThisItem.includes(username)) {
-        allUsersInPartyHaveReceivedItemUpdate = false;
-        break;
-      }
-    }
-
-    if (allUsersInPartyHaveReceivedItemUpdate) {
-      party.itemsOnGroundNotYetReceivedByAllClients.delete(itemId);
-    }
-
-    // no messages should be sent, but this is a rare case of an event handler sending no messsage
-    // and the interface of an event handler mandates that it must return an outbox
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    return outbox;
-  }
-
   pickUpItemsHandler(session: UserSession, data: CharacterAndItems) {
     const { characterId, itemIds } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     let reachedMaxCapacity = false;
 
     const idsPickedUp: string[] = [];
+    const errors: Error[] = [];
 
     for (const itemId of itemIds) {
-      // make sure all players know about the item or else desync will occur
-      if (party.itemsOnGroundNotYetReceivedByAllClients.get(itemId) !== undefined) {
-        throw new Error(ERROR_MESSAGES.ITEM.NOT_YET_AVAILABLE);
-      }
-
       // handle shard stacks uniquely
       const itemInInventory = party.currentRoom.inventory.requireItem(itemId);
       const itemIsShardStack = itemInInventory.isShardStack();
@@ -131,7 +82,8 @@ export class ItemManagementController {
           party.currentRoom.inventory
         );
         if (mabyeError instanceof Error) {
-          throw mabyeError;
+          errors.push(mabyeError);
+          continue;
         }
         idsPickedUp.push(itemInInventory.entityProperties.id);
         continue;
@@ -146,7 +98,8 @@ export class ItemManagementController {
 
       const itemResult = party.currentRoom.inventory.removeItem(itemId);
       if (itemResult instanceof Error) {
-        throw itemResult;
+        errors.push(itemResult);
+        continue;
       }
 
       character.combatantProperties.inventory.insertItem(itemResult);
@@ -160,11 +113,18 @@ export class ItemManagementController {
       data: { characterId, itemIds: idsPickedUp },
     });
 
-    if (reachedMaxCapacity) {
-      outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+    for (const error of errors) {
+      outbox.pushToConnection(session.connectionId, {
         type: GameStateUpdateType.ErrorMessage,
-        data: { message: ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY },
+        // since we normally send one error per intent id and don't pass the intent id to handlers
+        // we don't know the id, and we don't have a way to associate multiple errors with a single
+        // intent yet, this is a stopgap measure
+        data: { message: error.message, clientIntentSequenceId: -1 },
       });
+    }
+
+    if (reachedMaxCapacity) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.MAX_INVENTORY_CAPACITY);
     }
 
     return outbox;
@@ -172,10 +132,7 @@ export class ItemManagementController {
 
   unequipSlotHandler(session: UserSession, data: CharacterAndSlot) {
     const { characterId, slot } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     character.combatantProperties.equipment.unequipSlots([slot]);
 
@@ -192,10 +149,7 @@ export class ItemManagementController {
     data: { characterId: CombatantId; slotIndex: number }
   ) {
     const { characterId, slotIndex } = data;
-    const characterContext = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const characterContext = session.requireCharacterContext(characterId);
     const { game, party, character } = characterContext;
     const { combatantProperties } = character;
 
@@ -246,10 +200,7 @@ export class ItemManagementController {
     }
   ) {
     const { characterId, itemId, equipToAlternateSlot } = data;
-    const { game, party, character } = session.requireCharacterContext(characterId, {
-      requireOwned: true,
-      requireAlive: true,
-    });
+    const { game, party, character } = session.requireCharacterContext(characterId);
 
     const equipItemResult = character.combatantProperties.equipment.equipItem(
       itemId,

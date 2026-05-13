@@ -1,0 +1,241 @@
+import React, { useEffect, useRef, useState } from "react";
+import { TargetingIndicators } from "./TargetingIndicators";
+import { UnspentAttributesButton } from "../UnspentAttributesButton";
+import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
+import { CombatantInfoButton } from "./CombatantInfoButton";
+import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
+import { Combatant, CombatantControllerType } from "@speed-dungeon/common";
+import "./floating-text-animation.css";
+import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
+import { InventoryIconButton } from "./InventoryIconButton";
+import { HotswapSlotButtons } from "./HotswapSlotButtons";
+import { CharacterModelDisplay } from "@/app/character-model-display";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
+import { ConditionIndicators } from "./condition-indicators/";
+import { ThreatPriorityList } from "./ThreatPriorityList";
+import { Portrait } from "./Portrait";
+import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
+import ClockIcon from "../../../../public/img/game-ui-icons/clock-icon.svg";
+import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DialogElementName } from "@/client-application/ui/dialogs";
+
+interface Props {
+  combatant: Combatant;
+  showExperience: boolean;
+  extraStyles?: string;
+  compactView?: boolean;
+}
+
+export const CombatantPlaque = observer(
+  ({ combatant, showExperience, extraStyles, compactView }: Props) => {
+    const clientApplication = useClientApplication();
+    const { combatantFocus, uiStore, imageStore, detailableEntityFocus } = clientApplication;
+    const { dialogs } = uiStore;
+    const showDebug = dialogs.isOpen(DialogElementName.Debug);
+
+    const portraitOption = imageStore.getCombatantPortraitOption(combatant.getEntityId());
+    const entityId = combatant.getEntityId();
+
+    const { game, party } = combatantFocus.requireFocusedCharacterContext();
+
+    const { entityProperties, combatantProperties } = combatant;
+    const battleOption = party.getBattleOption(game);
+
+    // for measuring the element so we can get the correct portrait height
+    // and getting the position so we can position the details window without going off the screen
+    const combatantPlaqueRef = useRef<HTMLDivElement>(null);
+    const nameAndBarsRef = useRef<HTMLDivElement>(null);
+    const [portraitHeight, setPortraitHeight] = useState(0);
+    useEffect(() => {
+      if (!nameAndBarsRef.current) return;
+      const height = nameAndBarsRef.current.clientHeight;
+      setPortraitHeight(height);
+    }, []);
+
+    const combatantIsDetailed = detailableEntityFocus.entityIsDetailed(entityId);
+
+    const isFocused = combatantFocus.characterIsFocused(entityId);
+
+    const { controlledBy } = combatantProperties;
+
+    const isPartyMember =
+      controlledBy.isPlayerControlled() ||
+      controlledBy.controllerType === CombatantControllerType.PlayerPetAI;
+
+    const isHovered = detailableEntityFocus.entityIsHovered(entityId);
+    const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
+
+    const lockedUiState = party.inputLock.isLocked()
+      ? "opacity-50 pointer-events-none "
+      : "pointer-events-auto ";
+
+    const equippedItems = combatantProperties.equipment.getAllEquippedItems({});
+
+    const conditionIndicators = (styles: string) => (
+      <div className={`w-full h-6 py-0.5 ${styles} flex`}>
+        <ConditionIndicators
+          conditions={combatant.combatantProperties.conditionManager.getConditions()}
+        />
+        <LowDurabilityIndicators isPlayerControlled={isPartyMember} equippedItems={equippedItems} />
+      </div>
+    );
+
+    const plaqueWidth = compactView ? "100%" : "20rem";
+
+    const combatantUiIdentifierIcon = getCombatantUiIdentifierIcon(party, combatant);
+
+    const actionPointsDisplay = (
+      <HoverableTooltipWrapper
+        extraStyles="absolute top-0 left-2/3 -translate-x-1/2 -translate-y-1/2 flex items-center"
+        tooltipText="Action Points"
+      >
+        <ul className=" flex">
+          {[1, 2].map((item) => (
+            <li
+              key={item}
+              className={`h-5 w-5 mr-1 last:mr-0 bg-slate-700 rounded-full 
+            ${item > combatantProperties.resources.getActionPoints() ? "opacity-50" : ""}`}
+            >
+              <ClockIcon className="h-full w-full fill-slate-400" />
+            </li>
+          ))}
+        </ul>
+      </HoverableTooltipWrapper>
+    );
+
+    const shouldDisplayActionPoints =
+      battleOption !== null &&
+      battleOption.turnOrderManager.combatantIsFirstInTurnOrder(combatant.entityProperties.id);
+
+    return (
+      <div className={`${extraStyles} w-full ${compactView ? "mb-2" : ""}`}>
+        <CharacterModelDisplay character={combatant}>
+          <CombatantFloatingMessagesDisplay entityId={entityId} />
+        </CharacterModelDisplay>
+        {isPartyMember && conditionIndicators("mb-2") /* otherwise put it below */}
+
+        <div className="flex w-full">
+          {!combatantProperties.isDead() && (
+            <ThreatPriorityList threatManager={combatantProperties.threatManager || null} />
+          )}
+          <div className="w-full">
+            <div
+              className={`h-fit bg-slate-700 flex p-2.5 relative box-border outline ${conditionalBorder} ${lockedUiState}
+              ${compactView && "flex flex-col justify-center items-center"}
+                `}
+              style={{
+                width: plaqueWidth,
+              }}
+              ref={combatantPlaqueRef}
+            >
+              {shouldDisplayActionPoints && actionPointsDisplay}
+              {isPartyMember && (
+                <InventoryIconButton
+                  entityId={entityId}
+                  numItemsInInventory={combatantProperties.inventory.getItemsCount()}
+                />
+              )}
+              {isPartyMember && (
+                <HotswapSlotButtons
+                  className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
+                  entityId={entityId}
+                  selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
+                  slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
+                  vertical={true}
+                  registerKeyEvents={isFocused}
+                />
+              )}
+              <TargetingIndicators party={party} entityId={entityId} />
+              <DetailedCombatantInfoCard
+                combatantId={entityId}
+                combatantPlaqueRef={combatantPlaqueRef}
+              />
+              {!compactView && (
+                <Portrait
+                  focusable={isPartyMember}
+                  portrait={portraitOption}
+                  portraitHeight={portraitHeight}
+                  combatantId={entityId}
+                  combatantLevel={
+                    combatantProperties.classProgressionProperties.getMainClass().level
+                  }
+                />
+              )}
+              <div
+                className={`
+                  ${compactView ? "flex flex-col mt-2 flex-grow w-full " : "flex-grow"}
+                `}
+                ref={nameAndBarsRef}
+              >
+                <div className="mb-1.5 max-w-full flex justify-between items-center align-middle leading-5 text-lg ">
+                  <span className="flex w-full">
+                    <span
+                      className={`${compactView ? "w-16 text-xs" : "max-w-44"} overflow-hidden whitespace-nowrap text-ellipsis`}
+                    >
+                      {entityProperties.name}
+                    </span>
+                    <span>
+                      {showDebug ? (
+                        <HoverableTooltipWrapper tooltipText={entityId}>
+                          _[{entityId.slice(0, 8)}]
+                        </HoverableTooltipWrapper>
+                      ) : (
+                        ""
+                      )}
+                    </span>
+                  </span>
+
+                  <div className="flex  max-w-full items-center h-full">
+                    {!compactView && (
+                      <HoverableTooltipWrapper tooltipText="This combatant's designation in UI elements such as the turn order bar and threat table displays">
+                        <div className="h-5 bg-slate-950 mr-2">{combatantUiIdentifierIcon}</div>
+                      </HoverableTooltipWrapper>
+                    )}
+                    <div className="ml-1">
+                      <UnspentAttributesButton
+                        combatantProperties={combatantProperties}
+                        entityId={entityId}
+                      />
+                    </div>
+                    <div className="ml-1">
+                      <CombatantInfoButton combatant={combatant} />
+                    </div>
+                  </div>
+                </div>
+                <div className="">
+                  <ValueBarsAndFocusButton
+                    combatantId={entityId}
+                    combatantProperties={combatantProperties}
+                    isFocused={isFocused}
+                    showExperience={showExperience}
+                    combactView={compactView}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex">
+              {!isPartyMember && conditionIndicators("mt-1") /* otherwise put it above */}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+function getConditionalBorder(
+  infoButtonIsHovered: boolean,
+  isFocused: boolean,
+  combatantIsDetailed: boolean
+) {
+  return infoButtonIsHovered
+    ? "outline-1 outline-white"
+    : isFocused
+      ? "outline-3 outline-slate-400"
+      : combatantIsDetailed
+        ? "outline-1 outline-yellow-400"
+        : "outline-1 outline-slate-400";
+}

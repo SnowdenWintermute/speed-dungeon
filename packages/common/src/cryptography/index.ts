@@ -1,4 +1,5 @@
 import sodium from "libsodium-wrappers";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class SodiumHelpers {
@@ -30,7 +31,8 @@ export class SodiumHelpers {
 
       return JSON.parse(Buffer.from(plaintext).toString("utf8")) as T;
     } catch (error) {
-      throw new Error(`Error decrypting: ${error}`);
+      console.info(`Error decrypting: ${error}`);
+      throw new Error(ERROR_MESSAGES.SERVERS.INVALID_TOKEN);
     }
   }
 

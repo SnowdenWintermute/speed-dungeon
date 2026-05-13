@@ -10,7 +10,7 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { CombatantId, EntityId, PartyName, Username } from "../aliases.js";
+import { CombatantId, ConditionId, EntityId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
 import {
@@ -19,7 +19,9 @@ import {
   SerializedOf,
   makePropertiesObservable,
 } from "../serialization/index.js";
-import { MapUtils } from "../utils/map-utils.js";
+import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
+import { IActionUser } from "../action-user-context/action-user.js";
+import { invariant } from "../utils/index.js";
 
 export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
@@ -29,17 +31,24 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   combatantManager = new CombatantManager();
   // other
   playerUsernames: Username[] = [];
+  playerUsernamesAwaitingReconnection = new Set<Username>();
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
-  timeOfWipe: null | number = null;
+  private _timeOfWipe: null | number = null;
   timeOfEscape: null | number = null;
-  itemsOnGroundNotYetReceivedByAllClients = new Map<EntityId, EntityId[]>();
   inputLock = new TimedLock();
 
   constructor(
     public id: string,
     public name: PartyName
   ) {}
+
+  get timeOfWipe() {
+    return this._timeOfWipe;
+  }
+  set timeOfWipe(value: number | null) {
+    this._timeOfWipe = value;
+  }
 
   makeObservable() {
     makeAutoObservable(this);
@@ -63,11 +72,8 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       playerUsernames: this.playerUsernames,
       currentRoom: this.currentRoom.toSerialized(),
       battleId: this.battleId,
-      timeOfWipe: this.timeOfWipe,
+      _timeOfWipe: this._timeOfWipe,
       timeOfEscape: this.timeOfEscape,
-      itemsOnGroundNotYetReceivedByAllClients: MapUtils.serialize(
-        this.itemsOnGroundNotYetReceivedByAllClients
-      ),
       inputLock: this.inputLock.toSerialized(),
     };
   }
@@ -84,11 +90,8 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     result.playerUsernames = serialized.playerUsernames;
     result.currentRoom = DungeonRoom.fromSerialized(serialized.currentRoom);
     result.battleId = serialized.battleId;
-    result.timeOfWipe = serialized.timeOfWipe;
+    result._timeOfWipe = serialized._timeOfWipe;
     result.timeOfEscape = serialized.timeOfEscape;
-    result.itemsOnGroundNotYetReceivedByAllClients = MapUtils.deserialize(
-      serialized.itemsOnGroundNotYetReceivedByAllClients
-    );
     result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
     result.initialize();
 
@@ -131,8 +134,22 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     return game.getExpectedBattle(battleIdOption);
   }
 
+  requireBattle(game: SpeedDungeonGame) {
+    const battleOption = this.getBattleOption(game);
+    invariant(battleOption !== null, "expected battle not found");
+    return battleOption;
+  }
+
+  allMonstersAreDead() {
+    return this.combatantManager
+      .getDungeonControlledCombatants()
+      .every((combatant) => combatant.getCombatantProperties().isDead());
+  }
+
   isInCombat() {
-    return this.combatantManager.monstersArePresent();
+    const monstersArePresent = this.combatantManager.monstersArePresent();
+    const livingMonstersRemain = !this.allMonstersAreDead();
+    return monstersArePresent && livingMonstersRemain;
   }
 
   requireNotInCombat() {
@@ -171,5 +188,84 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   requireDescentPermitted() {
     this.requireNotInCombat();
     this.currentRoom.requireType(DungeonRoomType.Staircase);
+  }
+
+  removeConditionsAppliedByCombatant(applyerId: CombatantId) {
+    const triggeredActions: ActionIntentAndUser[] = [];
+    const conditionIdsRemoved: { conditionId: ConditionId; fromCombatantId: CombatantId }[] = [];
+    for (const [_, combatant] of this.combatantManager.getAllCombatants()) {
+      for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
+        const wasAppliedByDyingCombatant = condition.appliedBy.entityProperties.id === applyerId;
+        if (!wasAppliedByDyingCombatant) continue;
+
+        combatant.combatantProperties.conditionManager.removeConditionById(condition.id);
+
+        const onRemovedTriggeredActions = condition.onRemoved(this);
+        triggeredActions.push(...onRemovedTriggeredActions);
+        conditionIdsRemoved.push({
+          conditionId: condition.getEntityId(),
+          fromCombatantId: combatant.getEntityId(),
+        });
+      }
+    }
+
+    return { triggeredActions, conditionIdsRemoved };
+  }
+
+  getActionUserById(id: EntityId): IActionUser | undefined {
+    const combatantOption = this.combatantManager.getCombatantOption(id);
+    if (combatantOption) {
+      return combatantOption;
+    }
+    for (const [actionEntityId, actionEntity] of this.actionEntityManager.getActionEntities()) {
+      if (id === actionEntityId) {
+        return actionEntity;
+      }
+    }
+    for (const [combatantId, combatant] of this.combatantManager.getAllCombatants()) {
+      const conditionOption = this.combatantManager.getConditionOptionOnCombatant(combatantId, id);
+      if (conditionOption) {
+        return conditionOption;
+      }
+    }
+  }
+
+  getBranchingActionsFromConditionsRemovedOnBattleEnd() {
+    const { combatantManager } = this;
+    const dungeonControlledCombatants = combatantManager.getDungeonControlledCombatants();
+    const neutralCombatants = combatantManager.getNeutralCombatants();
+
+    const branchingActions: ActionIntentAndUser[] = [];
+    const conditionIdsRemoved: { conditionId: EntityId; fromCombatantId: CombatantId }[] = [];
+
+    for (const combatant of [...neutralCombatants, ...dungeonControlledCombatants]) {
+      const { onDeathProperties } = combatant.combatantProperties;
+      const shouldRemoveAllConditionsAppliedBy = onDeathProperties?.removeConditionsApplied;
+
+      if (shouldRemoveAllConditionsAppliedBy) {
+        const { triggeredActions, conditionIdsRemoved: idsRemoved } =
+          this.removeConditionsAppliedByCombatant(combatant.getEntityId());
+        branchingActions.push(...triggeredActions);
+        conditionIdsRemoved.push(...idsRemoved);
+      }
+    }
+
+    return {
+      branchingActions,
+      conditionIdsRemoved,
+    };
+  }
+
+  removeCombatantsOnBattleEnd(game: SpeedDungeonGame) {
+    const { combatantManager } = this;
+    const removedDungeonControlled = combatantManager.removeDungeonControlledCombatants(game);
+    const removedNeutral = combatantManager.removeNeutralCombatants(game);
+
+    const removedCombatantIds: CombatantId[] = [
+      ...removedDungeonControlled.map((c) => c.getEntityId()),
+      ...removedNeutral.map((c) => c.getEntityId()),
+    ];
+
+    return removedCombatantIds;
   }
 }

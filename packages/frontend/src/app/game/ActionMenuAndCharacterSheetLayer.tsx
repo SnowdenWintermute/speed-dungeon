@@ -1,0 +1,68 @@
+import React from "react";
+import { ActionMenu } from "./ActionMenu";
+import { AdventuringParty } from "@speed-dungeon/common";
+import { ItemDetailsWithComparison } from "./ItemDetailsWithComparison";
+import { ItemsOnGround } from "./ItemsOnGround";
+import { CharacterSheet } from "./character-sheet";
+import { SPACING_REM } from "@/client-consts";
+import { ZIndexLayers } from "../z-index-layers";
+import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
+import { observer } from "mobx-react-lite";
+import { useClientApplication } from "@/hooks/create-client-application-context";
+
+export const ActionMenuAndCharacterSheetLayer = observer(
+  ({ party }: { party: AdventuringParty }) => {
+    const clientApplication = useClientApplication();
+    const { actionMenu } = clientApplication;
+    const viewingCharacterSheet = actionMenu.shouldShowCharacterSheet();
+    const abilityTreeOpen = actionMenu.viewingAbilityTree();
+
+    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+
+    const inputLocked = party.inputLock.isLocked();
+
+    return (
+      <section
+        style={{ zIndex: ZIndexLayers.CharacterSheetAndActionMenu, paddingTop: `calc(100vh / 14)` }}
+        className={`absolute top-0 h-screen w-screen max-h-screen max-w-screen overflow-auto
+      flex
+      ${viewingCharacterSheet && "justify-end"}
+      `}
+      >
+        <div className={`pl-4 pr-4 flex flex-col relative overflow-auto `}>
+          <div className={`flex items-end w-full`} style={{ marginBottom: `${SPACING_REM}rem` }}>
+            <div style={{ marginRight: `${SPACING_REM}rem` }} className="flex">
+              <ActionMenu inputLocked={inputLocked} />
+            </div>
+            <CharacterSheet showCharacterSheet={viewingCharacterSheet && !inputLocked} />
+          </div>
+          <div className="flex  w-full">
+            <div
+              className="min-w-[25rem] max-w-[25rem]"
+              style={{ marginRight: `${SPACING_REM}rem` }}
+            >
+              {viewingCharacterSheet && !abilityTreeOpen && (
+                <ItemsOnGround maxHeightRem={13.375} party={party} />
+              )}
+              {abilityTreeOpen && (
+                <div className=" bg-slate-700 p-2 border border-slate-400 pointer-events-auto overflow-auto">
+                  <CharacterAttributes
+                    combatant={focusedCharacter}
+                    showAttributeAssignmentButtons={true}
+                    widthOptionClass={"w-full"}
+                    hideHeader={true}
+                  />
+                </div>
+              )}
+            </div>
+            {viewingCharacterSheet && (
+              <div className="" style={{ flex: 1 }}>
+                <ItemDetailsWithComparison />
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+);

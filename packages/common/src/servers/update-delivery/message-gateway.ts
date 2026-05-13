@@ -12,6 +12,18 @@ export class OutgoingMessageGateway<Sendable> {
     this.transportEndpoints.delete(connectionId);
   }
 
+  getEndpoint(connectionId: ConnectionId) {
+    return this.transportEndpoints.get(connectionId);
+  }
+
+  closeEndpoint(connectionId: ConnectionId) {
+    const endpointOption = this.getEndpoint(connectionId);
+    if (!endpointOption) {
+      throw new Error("Expected to find a connection endpoint when closing it");
+    }
+    endpointOption.close();
+  }
+
   submitToConnection(connectionId: ConnectionId, message: Sendable): void {
     const endpoint = this.transportEndpoints.get(connectionId);
     if (!endpoint) {

@@ -1,5 +1,4 @@
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { LobbyState } from "../lobby-state.js";
 import { PartySetupController } from "./party-setup.js";
@@ -19,13 +18,16 @@ import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
+import { SavedCharactersController } from "./saved-characters.js";
+import { SpeedDungeonProfileService } from "../../services/profiles.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
-    private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
+    private readonly profileService: SpeedDungeonProfileService,
+    private readonly savedCharactersController: SavedCharactersController,
     private readonly idGenerator: IdGenerator,
     private readonly gameHandoffManager: GameHandoffManager,
     private readonly gameSessionStoreService: GameSessionStoreService
@@ -128,10 +130,14 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return joinGameUpdateHandlerOutbox;
   }
 
-  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
-    session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
-
+  private async requireProgressionGamePrerequisites(session: UserSession) {
     session.requireAuthorized();
+    const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
+    await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
+  }
+
+  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
+    await this.requireProgressionGamePrerequisites(session);
 
     const game = new SpeedDungeonGame(
       this.idGenerator.generate() as GameId,
@@ -162,12 +168,19 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const gameAlreadyHandedOff = game.timeHandedOff !== null;
     if (gameAlreadyHandedOff) {
-      throw new Error(ERROR_MESSAGES.LOBBY.GAME_ALREADY_STARTED);
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
+    }
+
+    // game.players is keyed by username — a same-named player joining would silently
+    // overwrite the existing entry and orphan their characters. Guest usernames are
+    // deduped at lobby-session creation, but enforce the invariant at the point of
+    // mutation so future regressions (or auth-vs-guest name collisions) can't slip past.
+    if (game.getPlayer(session.username) !== undefined) {
+      throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
     }
 
     if (game.mode === GameMode.Progression) {
-      session.requireNotInGameOnAnotherSession(this.userSessionRegistry);
-      session.requireAuthorized();
+      await this.requireProgressionGamePrerequisites(session);
     }
 
     session.joinGame(game);
@@ -251,8 +264,6 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
       return outbox; // no one is left to notify about the player leaving so return early
     }
-
-    game.setMaxStartingFloor();
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.PlayerLeftGame,

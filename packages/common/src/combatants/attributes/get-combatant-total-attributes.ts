@@ -19,6 +19,15 @@ export function getCombatantTotalAttributes(
 ): Record<CombatAttribute, number> {
   const { attributeProperties } = combatantProperties;
   const totalAttributes = attributeProperties.getNaturalAttributes();
+
+  if (attributeProperties.getUseExplicitAttributes()) {
+    // floor everything
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(totalAttributes)) {
+      totalAttributes[attribute] = Math.floor(value);
+    }
+    return totalAttributes;
+  }
+
   const { combatantClass, level } = combatantProperties.classProgressionProperties.getMainClass();
   const { monsterType } = combatantProperties;
   const supportClassPropertiesOption =

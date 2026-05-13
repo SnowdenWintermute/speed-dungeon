@@ -3,9 +3,9 @@ import { ActionEntity, ActionEntityName } from "../action-entities/index.js";
 import { Battle } from "../battle/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
-import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import { ActionUserType } from "../action-user-context/action-user.js";
 
 export class ActionEntityManager implements Serializable, ReactiveNode {
   private actionEntities = new Map<EntityId, ActionEntity>();
@@ -45,7 +45,7 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
       const startingDelay = turnOrderSpeedOption + fastestSchedulerDelay;
 
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
-        { type: TurnTrackerEntityType.ActionEntity, actionEntityId: entity.entityProperties.id },
+        { type: ActionUserType.ActionEntity, actionEntityId: entity.entityProperties.id },
         startingDelay
       );
     }

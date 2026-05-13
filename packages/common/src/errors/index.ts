@@ -34,15 +34,13 @@ export const ERROR_MESSAGES = {
   LOBBY: {
     GAME_EXISTS: "A game by that name already exists",
     ALREADY_IN_GAME: "You are already in a game",
-    USER_IN_GAME:
-      "You must leave any other game (maybe in another open tab or browser) to join a Progression game",
-    GAME_ALREADY_STARTED: "That game has already started",
     ALREADY_IN_PARTY: "You must leave your current party to do that",
     PARTY_NAME_EXISTS: "A party by that name already exists in the current game",
+    USERNAME_ALREADY_IN_GAME: "A player with that username is already in that game",
   },
   GAME: {
     NOT_FOUND: "No game was found by that name",
-    NOT_STARTED: "The specified game was never started",
+    NOT_STARTED: "The game has not started",
     ALREADY_STARTED: "That game has already started",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
@@ -131,6 +129,8 @@ export const ERROR_MESSAGES = {
     INVALID_ACTION_IN_CHAIN:
       "Action failed to activate because the previous action in the chain was invalid",
     MISSING_COST_BASES: "Expected action cost bases not found",
+    PET_SLOTS_FULL: (userMaxTamePetRank: number) =>
+      `You already have the maximum number of tamed pets for your Tame Pet action rank (${userMaxTamePetRank})`,
   },
   ACTION_ENTITIES: {
     NOT_FOUND: "Expected action entity was not found",
@@ -185,5 +185,10 @@ export const ERROR_MESSAGES = {
   GAME_RECORDS: {
     NOT_FOUND: "No game record was found by that ID",
     PARTY_RECORD_NOT_FOUND: "Expected party record was not found",
+  },
+  SERVERS: {
+    SESSION_CLAIM_TOKEN_MISSING: "No token was provided when attempting to join the game server",
+    TOKEN_REPLAY_ATTACK: "Token replay attack suspected",
+    INVALID_TOKEN: "Invalid token presented",
   },
 };

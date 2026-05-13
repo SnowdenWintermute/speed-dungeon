@@ -2,6 +2,7 @@ import { ActionUserContext } from "../action-user-context/index.js";
 import { CombatantSpecies } from "../combatants/combatant-species.js";
 import { EntityId, Milliseconds } from "../aliases.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { SequentialIdGenerator } from "../utils/index.js";
 import { ActionSequenceManager } from "./action-sequence-manager.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS, ActionIntentAndUser } from "./action-steps/index.js";
@@ -9,6 +10,9 @@ import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 import { BoundingBoxSizesBySpecies } from "../types.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
+import { LootGenerator } from "../items/item-creation/loot-generator.js";
+import { BattleConclusion } from "../battle/index.js";
+import { CombatantId } from "../aliases.js";
 
 export class TimeKeeper {
   ms: number = 0;
@@ -21,10 +25,17 @@ export class ActionSequenceManagerRegistry {
   private inputBlockingActionStepsPendingReferenceCount = 0;
   private turnEnded = false;
   public time = new TimeKeeper();
+  public durationSpentInInputLock: null | Milliseconds = null;
+  public battleConcludedOption: {
+    conclusion: BattleConclusion;
+    levelUps: Record<CombatantId, number>;
+  } | null = null;
   constructor(
     private idGenerator: IdGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
-    public readonly boundingBoxSizes: BoundingBoxSizesBySpecies
+    public readonly boundingBoxSizes: BoundingBoxSizesBySpecies,
+    public readonly lootGenerator: LootGenerator
   ) {}
 
   isEmpty() {
@@ -49,6 +60,7 @@ export class ActionSequenceManagerRegistry {
       actionUserContext,
       this,
       this.idGenerator,
+      this.rngPolicy,
       previousTrackerInSequenceOption
     );
     this.actionManagers[id] = manager;

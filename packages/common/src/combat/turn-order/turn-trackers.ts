@@ -8,17 +8,17 @@ import {
   TaggedCombatantTurnTrackerCombatantId,
   TaggedConditionTurnTrackerConditionAndCombatantId,
   TaggedTurnTrackerTrackedEntityId,
-  TurnTrackerEntityType,
 } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { Battle } from "../../battle/index.js";
 import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-target.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
 import { Serializable } from "../../serialization/index.js";
 import { instanceToPlain } from "class-transformer";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
+import { ActionUserType } from "../../action-user-context/action-user.js";
 
 export abstract class TurnTracker implements Serializable {
   constructor(public readonly timeOfNextMove: number) {}
@@ -32,17 +32,17 @@ export abstract class TurnTracker implements Serializable {
   abstract getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    battle: Battle
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
   ): ActionIntentOptionAndUser;
 
   getEntityId() {
     const taggedId = this.getTaggedIdOfTrackedEntity();
     switch (taggedId.type) {
-      case TurnTrackerEntityType.Combatant:
+      case ActionUserType.Combatant:
         return taggedId.combatantId;
-      case TurnTrackerEntityType.Condition:
+      case ActionUserType.Condition:
         return taggedId.conditionId;
-      case TurnTrackerEntityType.ActionEntity:
+      case ActionUserType.ActionEntity:
         return taggedId.actionEntityId;
     }
   }
@@ -63,20 +63,28 @@ export class CombatantTurnTracker extends TurnTracker {
   }
 
   getTaggedIdOfTrackedEntity(): TaggedCombatantTurnTrackerCombatantId {
-    return { type: TurnTrackerEntityType.Combatant, combatantId: this.combatantId };
+    return { type: ActionUserType.Combatant, combatantId: this.combatantId };
   }
 
-  getMatchingScheduler(schedulers: ITurnScheduler[]) {
+  getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler {
     return schedulers.find(
       (item) => item instanceof CombatantTurnScheduler && item.combatantId === this.combatantId
     );
   }
 
-  getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+  getNextActionIntentAndUser(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+  ) {
     const { combatantId } = this;
     const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
 
-    const actionExecutionIntent = AISelectActionAndTarget(game, activeCombatant);
+    const actionExecutionIntent = AISelectActionAndTarget(
+      game,
+      activeCombatant,
+      randomNumberGenerationPolicy
+    );
     if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
 
     return { actionExecutionIntent, user: activeCombatant };
@@ -98,7 +106,7 @@ export class ConditionTurnTracker extends TurnTracker {
 
   getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {
     return {
-      type: TurnTrackerEntityType.Condition,
+      type: ActionUserType.Condition,
       combatantId: this.combatantId,
       conditionId: this.conditionId,
     };
@@ -125,7 +133,11 @@ export class ConditionTurnTracker extends TurnTracker {
     );
   }
 
-  getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+  getNextActionIntentAndUser(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+  ) {
     const { combatantId, conditionId } = this;
     const condition = party.combatantManager.getExpectedConditionOnCombatant(
       combatantId,
@@ -159,7 +171,7 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
   getTaggedIdOfTrackedEntity(): TaggedActionEntityTurnTrackerActionEntityId {
     return {
-      type: TurnTrackerEntityType.ActionEntity,
+      type: ActionUserType.ActionEntity,
       actionEntityId: this.actionEntityId,
     };
   }
@@ -179,7 +191,11 @@ export class ActionEntityTurnTracker extends TurnTracker {
     );
   }
 
-  getNextActionIntentAndUser(game: SpeedDungeonGame, party: AdventuringParty, battle: Battle) {
+  getNextActionIntentAndUser(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+  ) {
     const { actionEntityId } = this;
 
     const { actionEntityManager } = party;

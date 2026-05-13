@@ -65,6 +65,7 @@ const config = new ActionResolutionStepsConfig(
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
   },
   {
+    [ActionResolutionStepType.BattleResolution]: {},
     [ActionResolutionStepType.ActionEntityDissipationMotion]: {
       getDespawnOnCompleteCleanupModeOption: () => CleanupMode.Soft,
     },

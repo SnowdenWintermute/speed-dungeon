@@ -1,3 +1,4 @@
+import { RandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ONE_THIRD_OF_ONE } from "../../../app-consts.js";
 import { DurabilityLossCondition } from "../../../combat/combat-actions/combat-action-durability-loss-condition.js";
 import { CombatActionResource } from "../../../combat/combat-actions/combat-action-hit-outcome-properties.js";
@@ -26,6 +27,7 @@ export function addHitOutcomeDurabilityChanges(
   targetCombatant: Combatant,
   action: CombatActionComponent,
   hitOutcomeType: HitOutcome,
+  combatDurabilityTargetRng: RandomNumberGenerator,
   isCrit?: boolean
 ): Error | Record<ItemId, number> | undefined {
   // healing magic shouldn't cause durability loss
@@ -44,6 +46,7 @@ export function addHitOutcomeDurabilityChanges(
   HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS[hitOutcomeType](
     durabilityChanges,
     targetCombatant,
+    combatDurabilityTargetRng,
     isCrit
   );
 
@@ -62,6 +65,7 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
   (
     durabilityChanges: DurabilityChangesByEntityId,
     targetCombatant: Combatant,
+    rng: RandomNumberGenerator,
     isCrit?: boolean
   ) => void
 > = {
@@ -97,7 +101,7 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
       extraDurabilityLoss
     );
   },
-  [HitOutcome.Hit]: (durabilityChanges, targetCombatant, isCrit) => {
+  [HitOutcome.Hit]: (durabilityChanges, targetCombatant, rng, isCrit) => {
     const { combatantProperties: targetCombatantProperties } = targetCombatant;
     const headSlot: TaggedEquipmentSlot = {
       type: EquipmentSlotType.Wearable,
@@ -119,7 +123,7 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
       equippedHelmOption &&
       !equippedHelmOption.isBroken()
     ) {
-      const whichArmorToHitRoll = Math.random();
+      const whichArmorToHitRoll = rng.roll();
       const shouldHitHeadArmor = whichArmorToHitRoll < ONE_THIRD_OF_ONE;
 
       if (shouldHitHeadArmor || isCrit) {

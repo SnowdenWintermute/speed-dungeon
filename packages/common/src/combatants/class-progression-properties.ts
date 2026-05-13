@@ -28,6 +28,7 @@ export class ClassProgressionProperties
 
   makeObservable() {
     makeAutoObservable(this);
+    this.experiencePoints.makeObservable();
   }
 
   toSerialized() {
@@ -60,6 +61,10 @@ export class ClassProgressionProperties
 
   setMainClass(combatantClass: CombatantClass) {
     this.mainClass.combatantClass = combatantClass;
+  }
+
+  setSupportClass(combatantClass: CombatantClass, level: number) {
+    this.supportClass = new CombatantClassProperties(level, combatantClass);
   }
 
   private convertExperienceToClassLevels() {

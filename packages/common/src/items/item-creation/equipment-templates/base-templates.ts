@@ -32,7 +32,6 @@ export abstract class WeaponGenerationTemplate extends EquipmentGenerationTempla
 }
 
 export abstract class ArmorGenerationTemplate extends EquipmentGenerationTemplate {
-  numDamageClassifications: number = 1;
   constructor(
     public acRange: NumberRange,
     public armorCategory: ArmorCategory,

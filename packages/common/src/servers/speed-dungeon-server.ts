@@ -1,12 +1,18 @@
+import { ChannelName, ConnectionId } from "../aliases.js";
 import { ClientIntent } from "../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../packets/game-state-updates.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { TransportDisconnectReason } from "../transport/disconnect-reasons.js";
-import { BasicRandomNumberGenerator } from "../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { invariant } from "../utils/index.js";
 import { GameServerClientIntentHandlers } from "./game-server/create-game-server-client-intent-handlers.js";
 import { IncomingConnectionGateway } from "./incoming-connection-gateway.js";
 import { LobbyClientIntentHandlers } from "./lobby-server/create-lobby-client-intent-handlers.js";
+import {
+  CrossServerBroadcastType,
+  CrossServerBroadcasterService,
+} from "./services/cross-server-broadcaster/index.js";
+import { ServerCommand } from "./services/server-command/index.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
 import { UserSessionRegistry } from "./sessions/user-session-registry.js";
 import { UserSession } from "./sessions/user-session.js";
@@ -17,7 +23,8 @@ import {
 import { OutgoingMessageGateway } from "./update-delivery/message-gateway.js";
 import { MessageDispatchOutbox } from "./update-delivery/outbox.js";
 
-/** used to ensure all client intent messages are handled in order of receipt,
+/** Ensures sequential execution of all state-mutating work: connection setup, intent handling,
+ * and disconnection cleanup.
  * @PERF - could make this per-game instead of server-wide
  * */
 class GlobalIntentExecutor {
@@ -41,17 +48,72 @@ export abstract class SpeedDungeonServer {
     this.userSessionRegistry
   );
 
-  protected readonly randomNumberGenerator = new BasicRandomNumberGenerator();
-
   protected readonly executor = new GlobalIntentExecutor();
 
   constructor(
     readonly name: string,
-    protected readonly incomingConnectionGateway: IncomingConnectionGateway
-  ) {}
+    protected readonly incomingConnectionGateway: IncomingConnectionGateway,
+    protected readonly rngPolicy: RandomNumberGenerationPolicy,
+    protected readonly crossServerBroadcaster: CrossServerBroadcasterService<
+      GameStateUpdate,
+      ServerCommand
+    >
+  ) {
+    this.crossServerBroadcaster.subscribe((broadcast) => {
+      switch (broadcast.type) {
+        case CrossServerBroadcastType.ChannelFanOut: {
+          const { channelName, payload, excludedConnectionIds } = broadcast;
+          const excluded = new Set(excludedConnectionIds);
+          const recipientIds = this.userSessionRegistry
+            .in(channelName)
+            .filter((id) => !excluded.has(id));
+          this.outgoingMessagesGateway.submitToConnections(recipientIds, payload);
+          break;
+        }
+        case CrossServerBroadcastType.ServerCommand:
+          this.handleServerCommand(broadcast.command);
+          break;
+      }
+    });
+  }
+
+  async crossServerBroadcast(
+    channelName: ChannelName,
+    payload: GameStateUpdate,
+    excludedConnectionIds: ConnectionId[] = []
+  ): Promise<void> {
+    await this.crossServerBroadcaster.publish({
+      type: CrossServerBroadcastType.ChannelFanOut,
+      channelName,
+      payload,
+      excludedConnectionIds,
+    });
+  }
+
+  async crossServerCommand(command: ServerCommand): Promise<void> {
+    await this.crossServerBroadcaster.publish({
+      type: CrossServerBroadcastType.ServerCommand,
+      command,
+    });
+  }
+
+  protected handleServerCommand(_command: ServerCommand): void {}
 
   closeTransportServer() {
-    this.incomingConnectionGateway.close();
+    return this.incomingConnectionGateway.close();
+  }
+
+  protected logUserConnected(session: UserSession) {
+    const { username, taggedUserId, connectionId } = session;
+    console.info(
+      `-- ${username} (user id: ${taggedUserId.id}, connection id: ${connectionId}) joined the [${this.name}] server`
+    );
+  }
+
+  protected logUserDisconnected(session: UserSession, reason: TransportDisconnectReason) {
+    console.info(
+      `-- ${session.username} (${session.connectionId}) disconnected from [${this.name}] server. ${reason}`
+    );
   }
 
   private parseMessage(rawData: string | ArrayBuffer | Buffer) {
@@ -88,38 +150,47 @@ export abstract class SpeedDungeonServer {
           `Server is not configured to handle this type of message: ${JSON.stringify(parsed)}`
         );
 
-        const session = this.userSessionRegistry.getExpectedSession(userConnectionEndpoint.id);
+        const session = this.userSessionRegistry.requireSession(userConnectionEndpoint.id);
+
+        const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+        session.incrementLastIntentHandledId();
+        const intentId = session.lastIntentHandledId;
 
         // why cast as never: see README.md -> Typed Event Handler Records
         try {
-          const outbox = await handlerOption(parsed.data as never, session);
-          this.dispatchOutboxMessages(outbox);
+          const handlerOutbox = await handlerOption(parsed.data as never, session);
+          outbox.pushFromOther(handlerOutbox);
         } catch (error) {
           if (error instanceof Error) {
-            const errorOutbox = new MessageDispatchOutbox<GameStateUpdate>(
-              this.updateDispatchFactory
-            );
-            errorOutbox.pushToConnection(session.connectionId, {
+            outbox.pushToConnection(session.connectionId, {
               type: GameStateUpdateType.ErrorMessage,
-              data: { message: error.message },
+              data: { message: error.message, clientIntentSequenceId: intentId },
             });
-            this.dispatchOutboxMessages(errorOutbox);
-
             console.trace(error);
           } else {
             console.trace(error);
           }
+        } finally {
+          outbox.pushToConnection(session.connectionId, {
+            type: GameStateUpdateType.EndOfUpdateStream,
+            data: {
+              clientIntentSequenceId: intentId,
+            },
+          });
+          this.dispatchOutboxMessages(outbox);
         }
       });
     });
 
-    userConnectionEndpoint.on("close", async (reason) => {
-      try {
-        await this.disconnectionHandler(session, reason);
-      } catch (error) {
-        console.info("error in disconnectionHandler", this.name);
-        console.trace(error);
-      }
+    userConnectionEndpoint.on("close", (reason) => {
+      this.executor.enqueue(async () => {
+        try {
+          await this.disconnectionHandler(session, reason);
+        } catch (error) {
+          console.info("error in disconnectionHandler", this.name);
+          console.trace(error);
+        }
+      });
     });
   }
 
@@ -139,7 +210,7 @@ export abstract class SpeedDungeonServer {
     }
   }
 
-  protected abstract handleConnection(
+  protected abstract connectionHandler(
     connectionEndpoint: ConnectionEndpoint,
     identityResolutionContext: ConnectionIdentityResolutionContext
   ): Promise<void>;

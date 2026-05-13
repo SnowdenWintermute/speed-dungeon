@@ -2,6 +2,7 @@ import { ActionResolutionStepContext } from "../../../../../action-processing/ac
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
 import { Combatant } from "../../../../../combatants/index.js";
 import { EquipmentSlotType, HoldableSlotType } from "../../../../../items/equipment/slots.js";
+import { isDefined } from "../../../../../utils/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
 import { ActionExecutionPrecondition } from "../../../combat-action-targeting-properties.js";
@@ -14,7 +15,6 @@ export enum ActionExecutionPreconditions {
   TargetsAreAlive,
   WasNotCounterattacked,
   WasNotWearing2HWeaponOnPreviousAction,
-  NaturalUnarmedIsNotTwoHanded,
   NoPetCurrentlySummoned,
   PetCurrentlySummoned,
   PetSlotNotEmpty,
@@ -29,13 +29,8 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   [ActionExecutionPreconditions.UserIsAlive]: userIsAlive,
   [ActionExecutionPreconditions.TargetsAreAlive]: targetsAreAlive,
   [ActionExecutionPreconditions.WasNotCounterattacked]: wasNotCounterattacked,
-  [ActionExecutionPreconditions.NaturalUnarmedIsNotTwoHanded]: (context) => {
-    const { actionUser } = context.actionUserContext;
-    const naturalMainhandOption = actionUser.getNaturalUnarmedWeapons()[HoldableSlotType.MainHand];
-    return !naturalMainhandOption?.equipment.isTwoHanded();
-  },
   [ActionExecutionPreconditions.WasNotWearing2HWeaponOnPreviousAction]:
-    wasWearing2HWeaponOnPreviousAction,
+    wasNotWearing2HWeaponOnPreviousAction,
   [ActionExecutionPreconditions.NoPetCurrentlySummoned]: function (
     context: ActionResolutionStepContext
   ) {
@@ -73,15 +68,16 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
   },
 };
 
-function wasWearing2HWeaponOnPreviousAction(
+function wasNotWearing2HWeaponOnPreviousAction(
   context: ActionResolutionStepContext,
   previousTrackerOption: undefined | ActionTracker,
   self: CombatActionComponent
 ) {
-  return !(
+  const preconditionPassed = !(
     previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandStab ||
     previousTrackerOption?.meleeAttackAnimationType === MeleeAttackAnimationType.TwoHandSwing
   );
+  return preconditionPassed;
 }
 
 function wasNotCounterattacked(
@@ -156,7 +152,9 @@ function targetsAreAlive(
     return false;
   }
 
-  const targetCombatants = party.combatantManager.getExpectedCombatants(targetIdsResult);
+  const targetCombatants = party.combatantManager
+    .getOptionalCombatants(targetIdsResult)
+    .filter(isDefined);
   const targetsAreAlive = !Combatant.groupIsDead(targetCombatants);
 
   return targetsAreAlive;

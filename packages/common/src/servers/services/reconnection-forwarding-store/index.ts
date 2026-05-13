@@ -1,5 +1,5 @@
-import { GuestSessionReconnectionToken, IdentityProviderId } from "../../../aliases.js";
-import { GameServerReconnectionForwardingRecord } from "./game-server-reconnection-forwarding-record.js";
+import { GuestSingleUseReconnectionKey, IdentityProviderId } from "../../../aliases.js";
+// import { GameServerReconnectionForwardingRecord } from "./game-server-reconnection-forwarding-record.js";
 
 export enum ReconnectionKeyType {
   Auth,
@@ -8,7 +8,7 @@ export enum ReconnectionKeyType {
 
 export interface GuestReconnectionKey {
   type: ReconnectionKeyType.Guest;
-  reconnectionToken: GuestSessionReconnectionToken;
+  reconnectionToken: GuestSingleUseReconnectionKey;
 }
 
 export interface AuthReconnectionKey {
@@ -18,13 +18,14 @@ export interface AuthReconnectionKey {
 
 export type ReconnectionKey = GuestReconnectionKey | AuthReconnectionKey;
 
-export interface ReconnectionForwardingStoreService {
-  writeGameServerReconnectionForwardingRecord(
-    reconnectionKey: ReconnectionKey,
-    record: GameServerReconnectionForwardingRecord
-  ): Promise<void>;
-  getGameServerReconnectionForwardingRecord(
-    reconnectionKey: ReconnectionKey
-  ): Promise<GameServerReconnectionForwardingRecord | null>;
-  deleteGameServerReconnectionForwardingRecord(reconnectionKey: ReconnectionKey): Promise<void>;
-}
+// export interface ReconnectionForwardingStoreService {
+//   writeGameServerReconnectionForwardingRecord(
+//     reconnectionKey: ReconnectionKey,
+//     record: GameServerReconnectionForwardingRecord
+//   ): Promise<void>;
+//   getGameServerReconnectionForwardingRecord(
+//     reconnectionKey: ReconnectionKey
+//   ): Promise<GameServerReconnectionForwardingRecord | null>;
+//   deleteGameServerReconnectionForwardingRecord(reconnectionKey: ReconnectionKey): Promise<void>;
+//   deleteAllReconnectionKeysForGameName(gameName: GameName): Promise<void>;
+// }

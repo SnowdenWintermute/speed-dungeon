@@ -1,24 +1,26 @@
+import { flow, override } from "mobx";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
-import { FixedNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicyFactory } from "../../../utility-classes/random-number-generation-policy.js";
+import { EPSILON } from "../../../utils/index.js";
 import { HitOutcomeCalculator } from "../../action-results/action-hit-outcome-calculation/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
+import { FixedNumberGenerator } from "../../../utility-classes/randomizers.js";
 
 export abstract class ResourceChangeActionEvaluator {
   protected static getLowestHpCombatantOption(combatants: Combatant[]) {
-    let mainTargetOption: Combatant | null = null;
+    let currentBestTargetOption: Combatant | null = null;
 
     for (const combatant of combatants) {
-      if (
-        mainTargetOption === null ||
-        combatant.combatantProperties.resources.getHitPoints() <
-          mainTargetOption.combatantProperties.resources.getHitPoints()
-      ) {
-        mainTargetOption = combatant;
+      const consideringTargetHp = combatant.combatantProperties.resources.getHitPoints();
+      const currentBestTargetHp =
+        currentBestTargetOption?.combatantProperties.resources.getHitPoints() || Infinity;
+      if (consideringTargetHp < currentBestTargetHp) {
+        currentBestTargetOption = combatant;
       }
     }
 
-    return mainTargetOption;
+    return currentBestTargetOption;
   }
 
   protected static getPredictedHitOutcomes(
@@ -28,13 +30,19 @@ export abstract class ResourceChangeActionEvaluator {
     const averageHitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       actionExecutionIntent,
-      new FixedNumberGenerator(0.5)
+      RandomNumberGenerationPolicyFactory.allFixedPolicy(0.5)
     );
 
+    const minRollRng = new FixedNumberGenerator(0);
     const maxHitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       actionExecutionIntent,
-      new FixedNumberGenerator(0.999)
+      RandomNumberGenerationPolicyFactory.allFixedPolicy(1 - EPSILON, {
+        parry: minRollRng,
+        shieldBlock: minRollRng,
+        counterAttack: minRollRng,
+        spellResist: minRollRng,
+      })
     );
 
     const averageHitOutcomes = averageHitOutcomeCalculator.calculateHitOutcomes();

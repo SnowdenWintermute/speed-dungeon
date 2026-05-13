@@ -1,6 +1,6 @@
 import { Meters, Milliseconds } from "./aliases.js";
 
-export const LOOP_SAFETY_ITERATION_LIMIT = 40;
+export const LOOP_SAFETY_ITERATION_LIMIT = 50000;
 
 // remember to update it in package.json as well!
 export const APP_VERSION_NUMBER = "0.11.0";
@@ -19,13 +19,14 @@ export const EMPTY_ROOMS_PER_FLOOR = 0;
 export const DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE = 4;
 export const GAME_CONFIG = {
   MONSTER_LAIRS_PER_FLOOR: 2,
+  MONSTERS_PER_ROOM_COUNT: 3,
   LEVEL_TO_REACH_FOR_ESCAPE: DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   MIN_RACE_GAME_PARTIES: 2,
+  LOG_LOBBY_CONNECTION_EVENTS: true,
+  LOG_GAME_SERVER_CONNECTIONS_EVENTS: true,
 };
 
 export const MAX_PARTY_SIZE = 3;
-export const NUM_MONSTERS_PER_ROOM = 3;
-// export const NUM_MONSTERS_PER_ROOM = 1;
 export const BASE_XP_PER_MONSTER = 30.0;
 // export const BASE_XP_PER_MONSTER = 100.0;
 export const BASE_XP_LEVEL_DIFF_MULTIPLIER = 0.25;
@@ -43,8 +44,14 @@ export const COMBATANT_MAX_ACTION_POINTS = 2;
 export const HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST = 1;
 export const MAX_ACTION_POINTS_COST = 2;
 
+// SERVERS
+export const RECONNECTION_OPPORTUNITY_TIMEOUT_MS = (ONE_SECOND * 120) as Milliseconds;
+export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
+export const LOBBY_DANGLING_RESOURCES_CLEANUP_MS: Milliseconds = ONE_SECOND * 10;
+
 // UI
 export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
+export const CLIENT_LOG_RECORDER_MAX_BYTES = 5 * 1024 * 1024;
 
 // EQUIPMENT
 export const DEX_TO_RANGED_ARMOR_PEN_RATIO = 1;
@@ -58,7 +65,7 @@ export const TWO_HANDED_WEAPON_BASE_BONUS_DAMAGE_MODIFIER = 2;
 export const TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER = 2;
 export const RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO = 2;
 export const RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO = 4;
-export const CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO = 0.5;
+export const CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO = 0.005;
 
 // EQUIPMENT GENERATION
 export const BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL = 0.75;
@@ -75,11 +82,11 @@ export const FOUND_ITEM_MIN_DURABILITY_MODIFIER = 0.25;
 export const MAX_ALLOCATABLE_ACTION_LEVEL = 3;
 
 // COMBAT
-export const BASE_CRIT_CHANCE = 5;
-export const MAX_CRIT_CHANCE = 95;
+export const BASE_CRIT_CHANCE = 0.05;
+export const MAX_CRIT_CHANCE = 0.95;
 export const BASE_CRIT_MULTIPLIER = 1.5;
 export const MULTI_TARGET_RESOURCE_CHANGE_BONUS = 0.15;
-export const MIN_HIT_CHANCE = 5;
+export const MIN_HIT_CHANCE = 0.5;
 export const COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER = 20;
 export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 
@@ -88,18 +95,22 @@ export const MELEE_START_ATTACK_RANGE = 0.5;
 // 3D MODELS
 export const GRAVITY = -9.81;
 export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
+// export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.3; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;
+export const CHARACTER_SLOT_SPACING = 1;
 // export const COMBATANT_POSITION_SPACING_SIDE: Meters = 3.4;
 export const BASE_EXPLOSION_RADIUS: Meters = COMBATANT_POSITION_SPACING_SIDE + 0.2;
 export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 5.0;
 // export const COMBATANT_POSITION_SPACING_BETWEEN_ROWS: Meters = 9;
 export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
-// export const COMBATANT_TIME_TO_MOVE_ONE_METER = 100;
+// export const COMBATANT_TIME_TO_MOVE_ONE_METER = 300;
 // const arrowMoveSpeedBase = 700;
 const arrowMoveSpeedBase = 130;
+const explosionMoveSpeedBase = 200;
 // export const ARROW_TIME_TO_MOVE_ONE_METER = 600;
 export const ARROW_TIME_TO_MOVE_ONE_METER = arrowMoveSpeedBase * DEBUG_ANIMATION_SPEED_MULTIPLIER;
+export const EXPLOSION_DURATION = explosionMoveSpeedBase * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 export const COMBATANT_TIME_TO_ROTATE_360 = 1000 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
 export const MISSING_ANIMATION_DEFAULT_ACTION_FALLBACK_TIME =
   1000 * DEBUG_ANIMATION_SPEED_MULTIPLIER;
@@ -109,6 +120,7 @@ export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
 export const DEFAULT_ACCOUNT_CHARACTER_CAPACITY = 3;
 export const LADDER_PAGE_SIZE = 20;
 export const RACE_GAME_RECORDS_PAGE_SIZE = 3;
+export const MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD = 10;
 
 // VALIDATION
 export const MAX_CHARACTER_NAME_LENGTH = 32;
@@ -312,13 +324,20 @@ export enum AnimationType {
   Dynamic,
 }
 
-export type SkeletalAnimationIdentifier = {
+export interface SkeletalAnimationIdentifier {
   type: AnimationType.Skeletal;
   name: SkeletalAnimationName;
-};
-export type DynamicAnimationIdentifier = {
+}
+export interface DynamicAnimationIdentifier {
   type: AnimationType.Dynamic;
   name: DynamicAnimationName;
-};
+}
 
 export type TaggedAnimationName = SkeletalAnimationIdentifier | DynamicAnimationIdentifier;
+
+export const WebSocketCloseCode = {
+  NormalClosure: 1000,
+  GoingAway: 1001,
+  PolicyViolation: 1008,
+  InternalError: 1011,
+} as const;

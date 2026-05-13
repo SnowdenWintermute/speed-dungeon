@@ -29,6 +29,7 @@ import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../base-hierarchy-propertie
 import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
 import { CombatantId } from "../../../../aliases.js";
+import { ERROR_MESSAGES } from "../../../../errors/index.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
@@ -43,7 +44,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     if (occupiedPetSlotsCount >= userMaxTamePetRank) {
       return {
         meetsRequirements: false,
-        reasonDoesNot: `You already have the maximum number of tamed pets for your Tame Pet action rank (${userMaxTamePetRank})`,
+        reasonDoesNot: ERROR_MESSAGES.COMBAT_ACTIONS.PET_SLOTS_FULL(userMaxTamePetRank),
       };
     }
 
@@ -76,11 +77,10 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const levelDifference = targetLevel - userLevel;
       const levelDifferenceMultiplier = levelDifference / COMBATANT_MAX_LEVEL;
 
-      const rawChanceToResist = (percentOfMaxHitPoints + levelDifferenceMultiplier) * 100;
-      const chanceToResist = Math.min(100, rawChanceToResist);
+      const rawChanceToResist = percentOfMaxHitPoints + levelDifferenceMultiplier;
+      const chanceToResist = Math.max(0, rawChanceToResist);
 
-      return 0;
-      // return chanceToResist;
+      return chanceToResist;
     },
 
     getHitOutcomeTriggers: (context) => {
@@ -114,7 +114,7 @@ const config: CombatActionComponentConfig = {
   getByRankDescriptions: () => {
     return {
       [1]: `One pet slot, max pet level: ${getTamePetMaxPetLevel(1)}`,
-      [2]: `Two pet slots, max pet level: ${getTamePetMaxPetLevel(2)}`,
+      [2]: `Two pet slots, max pet level: ${getTamePetMaxPetLevel(2)} \n Pet command ability`,
       [3]: `Three pet slots, max pet level: ${getTamePetMaxPetLevel(3)}`,
     };
   },

@@ -6,7 +6,7 @@ import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./cond
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionInit } from "./condition-config.js";
-import { EntityId, EntityName } from "../aliases.js";
+import { ConditionId, EntityId, EntityName } from "../aliases.js";
 import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
@@ -26,6 +26,9 @@ import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { ReactiveNode } from "../serialization/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
+import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -44,6 +47,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
 
   public abstract intent: CombatActionIntent;
   public removedOnDeath?: boolean = true;
+  public canBeAppliedToDeadCombatant?: boolean = false;
   public triggeredWhenHitBy?: CombatActionName[];
   public triggeredWhenActionUsed?: CombatActionName[];
   /** As action user, this condition's attributes */
@@ -90,12 +94,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
     return { numStacksRemoved: 0, triggeredActions: [] };
   }
 
-  onRemoved(
-    this: CombatantCondition,
-    actionUserContext: ActionUserContext,
-    targetCombatant: Combatant,
-    idGenerator: IdGenerator
-  ): ActionIntentAndUser[] {
+  onRemoved(this: CombatantCondition, party: AdventuringParty): ActionIntentAndUser[] {
     return [];
   }
 
@@ -198,7 +197,23 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
 
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
-  getEntityId = () => this.id;
+
+  getSpeed() {
+    const tickPropertiesOption = this.getTickProperties();
+    if (!tickPropertiesOption) {
+      throw new Error("expected condition to be tickable");
+    }
+    return tickPropertiesOption.getTickSpeed(this);
+  }
+
+  getDelayForActionUse(_actionName: CombatActionName) {
+    const speed = this.getSpeed();
+    // @TODO - get delay multiplier from action
+    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
+    return delay;
+  }
+
+  getEntityId = () => this.id as ConditionId;
   getLevel = () => this.rank;
   getTotalAttributes = () => this.combatAttributes || {};
   getOwnedActions = () => new Map();
@@ -212,9 +227,6 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
     throw new Error("not implemented on conditions");
   }
   getWeaponsInSlots() {
-    return {};
-  }
-  getNaturalUnarmedWeapons() {
     return {};
   }
 

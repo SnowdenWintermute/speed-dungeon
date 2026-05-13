@@ -5,7 +5,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { GameMode } from "../../../types.js";
-import { CharacterCreator } from "../../../character-creation/index.js";
+import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
@@ -17,7 +17,7 @@ export class CharacterLifecycleController {
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersService: SavedCharactersService,
-    private readonly characterCreator: CharacterCreator
+    private readonly characterCreationPolicy: CharacterCreationPolicy
   ) {}
 
   static requireValidCharacterNameLength(name: string) {
@@ -36,13 +36,11 @@ export class CharacterLifecycleController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const newCharacter = this.characterCreator.createCharacter(
+    const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
     );
-
-    const pets: Combatant[] = [];
 
     const player = game.getExpectedPlayer(session.username);
     game.addCharacterToParty(party, player, newCharacter, pets);
@@ -121,9 +119,7 @@ export class CharacterLifecycleController {
     }
 
     const party = session.getExpectedCurrentParty(game);
-    const removedChacter = party.removeCharacter(characterIdToRemoveOption, player, game);
-
-    game.lowestStartingFloorOptionsBySavedCharacter.delete(removedChacter.getEntityId());
+    party.removeCharacter(characterIdToRemoveOption, player, game);
 
     game.addCharacterToParty(
       party,
@@ -132,7 +128,8 @@ export class CharacterLifecycleController {
       savedCharacter.pets.map((pet) => Combatant.fromSerialized(pet))
     );
 
-    game.setMaxStartingFloor();
+    game.selectedStartingFloor = Math.min(game.selectedStartingFloor, game.maxStartingFloor);
+    party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 

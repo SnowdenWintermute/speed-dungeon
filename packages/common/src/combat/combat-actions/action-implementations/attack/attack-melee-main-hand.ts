@@ -46,9 +46,10 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
       return true;
     }
 
-    if (
-      !COMBAT_ACTIONS[CombatActionName.AttackMeleeOffhand].shouldExecute(context, context.tracker)
-    ) {
+    const shouldExecuteOffhandAttack = COMBAT_ACTIONS[
+      CombatActionName.AttackMeleeOffhand
+    ].shouldExecute(context, context.tracker);
+    if (!shouldExecuteOffhandAttack) {
       return true; // check if offhand should execute, otherwise if we kill an enemy with main hand
     }
 
@@ -60,7 +61,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     return false;
   },
 };
-const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_RANGED_MAIN_HAND_ATTACK;
+const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_MELEE_MAIN_HAND_ATTACK;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 export const ATTACK_MELEE_MAIN_HAND_CONFIG: CombatActionComponentConfig = {

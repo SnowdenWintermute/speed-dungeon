@@ -1,11 +1,7 @@
 import { Combatant } from "../combatants/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { CombatantId, EntityId } from "../aliases.js";
+import { CombatantId, EntityId, EntityName } from "../aliases.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
-import {
-  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
-  COMBATANT_POSITION_SPACING_SIDE,
-} from "../app-consts.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
@@ -13,16 +9,17 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { CombatantCondition, ConditionWithCombatantIdAppliedTo } from "../conditions/index.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
-import { TurnTrackerEntityType } from "../combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 import { PartyWipes } from "../types.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import { invariant } from "../utils/index.js";
+import { ActionUserType } from "../action-user-context/action-user.js";
 
 export class CombatantManager
   extends AdventuringPartySubsystem
   implements Serializable, ReactiveNode
 {
-  private combatants = new Map<EntityId, Combatant>();
+  private combatants = new Map<CombatantId, Combatant>();
 
   makeObservable(): void {
     makeAutoObservable(this);
@@ -46,7 +43,7 @@ export class CombatantManager
   }
 
   getCombatantOption(entityId: string): Combatant | undefined {
-    return this.combatants.get(entityId);
+    return this.combatants.get(entityId as CombatantId);
   }
 
   getExpectedCombatant(combatantId: EntityId) {
@@ -59,6 +56,22 @@ export class CombatantManager
 
   getAllCombatantIds() {
     return Array.from(this.combatants.keys());
+  }
+
+  /** Returns the first match. Combatant names are not enforced unique. */
+  getCombatantOptionByName(name: EntityName) {
+    for (const [id, combatant] of this.getAllCombatants()) {
+      if (combatant.getName() === name) {
+        return combatant;
+      }
+    }
+  }
+
+  /** Returns the first match. Combatant names are not enforced unique. */
+  requireCombatantByName(name: string) {
+    const option = this.getCombatantOptionByName(name as EntityName);
+    invariant(option !== undefined, "requireCombatantByName");
+    return option;
   }
 
   /** Gets entityIds of combatants in group in left to right order from the perspective of
@@ -117,6 +130,17 @@ export class CombatantManager
 
     for (const id of entityIds) {
       const combatant = this.getExpectedCombatant(id);
+      toReturn.push(combatant);
+    }
+
+    return toReturn;
+  }
+
+  getOptionalCombatants(entityIds: EntityId[]) {
+    const toReturn: (Combatant | undefined)[] = [];
+
+    for (const id of entityIds) {
+      const combatant = this.getCombatantOption(id);
       toReturn.push(combatant);
     }
 
@@ -274,7 +298,10 @@ export class CombatantManager
     const combatant = this.getExpectedCombatant(combatantId);
     this.combatants.delete(combatantId);
     const party = this.getParty();
-    party.getBattleOption(game)?.turnOrderManager.updateTrackers(game, party);
+    const battleOption = party.getBattleOption(game);
+    if (battleOption) {
+      battleOption.turnOrderManager.updateTrackers(game, party);
+    }
 
     for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
       const { threatManager } = combatant.combatantProperties;
@@ -288,7 +315,7 @@ export class CombatantManager
     return combatant;
   }
 
-  addCombatant(combatant: Combatant, game: SpeedDungeonGame) {
+  addCombatant(combatant: Combatant, game: SpeedDungeonGame, withDelay: number = 0) {
     this.combatants.set(combatant.getEntityId(), combatant);
 
     const party = this.getParty();
@@ -306,22 +333,18 @@ export class CombatantManager
 
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
-      const fastestTurnTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
-      const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
-      const delayOfNewCombatantSheduler = delayOfCurrentActor + 1;
-
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         {
-          type: TurnTrackerEntityType.Combatant,
+          type: ActionUserType.Combatant,
           combatantId: combatant.getEntityId(),
         },
-        delayOfNewCombatantSheduler
+        withDelay
       );
 
       combatant.combatantProperties.conditionManager
         .getConditions()
         .forEach((condition, conditionIndex) => {
-          const conditionStartingDelay = delayOfNewCombatantSheduler + conditionIndex;
+          const conditionStartingDelay = withDelay;
           turnSchedulerManager.addConditionToTurnOrder(party, condition, {
             withCustomStartingDelay: conditionStartingDelay,
           });
@@ -332,15 +355,21 @@ export class CombatantManager
   }
 
   removeDungeonControlledCombatants(game: SpeedDungeonGame) {
+    const removed: Combatant[] = [];
     for (const combatant of this.getDungeonControlledCombatants()) {
-      this.removeCombatant(combatant.getEntityId(), game);
+      const combatantRemoved = this.removeCombatant(combatant.getEntityId(), game);
+      removed.push(combatantRemoved);
     }
+    return removed;
   }
 
   removeNeutralCombatants(game: SpeedDungeonGame) {
+    const removed: Combatant[] = [];
     for (const combatant of this.getNeutralCombatants()) {
-      this.removeCombatant(combatant.getEntityId(), game);
+      const combatantRemoved = this.removeCombatant(combatant.getEntityId(), game);
+      removed.push(combatantRemoved);
     }
+    return removed;
   }
 
   monstersArePresent() {
@@ -351,21 +380,21 @@ export class CombatantManager
     const dungeonControlledCharacters = this.getDungeonControlledCharacters();
 
     dungeonControlledCharacters.forEach((combatant, rowIndex) => {
-      CombatantManager.setCombatantHomePosition(
+      combatant.combatantProperties.transformProperties.autoSetHomePosition(
         dungeonControlledCharacters.length,
         rowIndex,
-        true,
-        combatant
+        { flipSide: true }
       );
     });
 
     const partyMemberCharacters = this.getPartyMemberCharacters();
     partyMemberCharacters.forEach((combatant, rowIndex) => {
-      CombatantManager.setCombatantHomePosition(
+      combatant.combatantProperties.transformProperties.autoSetHomePosition(
         partyMemberCharacters.length,
         rowIndex,
-        false,
-        combatant
+        {
+          flipSide: false,
+        }
       );
     });
 
@@ -400,6 +429,17 @@ export class CombatantManager
     pet.combatantProperties.transformProperties.homeRotation = homeRotation;
   }
 
+  updateHomePositionsToPointAtTopThreat() {
+    for (const combatant of this.iterateAllCombatants()) {
+      if (!combatant.combatantProperties.threatManager) continue;
+      if (combatant.combatantProperties.isDead()) continue;
+      combatant.combatantProperties.threatManager.updateHomeRotationToPointTowardNewTopThreatTarget(
+        this.getParty(),
+        combatant
+      );
+    }
+  }
+
   setAllCombatantsToHomePositions() {
     this.combatants.forEach((combatant) => {
       combatant.combatantProperties.transformProperties.setToHomeTransform();
@@ -413,41 +453,26 @@ export class CombatantManager
     }
   }
 
-  static setCombatantHomePosition(
-    combatantsInRowCount: number,
-    rowIndex: number,
-    flipSide: boolean,
-    combatant: Combatant
-  ) {
-    const rowLength = COMBATANT_POSITION_SPACING_SIDE * (combatantsInRowCount - 1);
-    const rowStart = -rowLength / 2;
-
-    const rowPositionOffset = rowStart + rowIndex * COMBATANT_POSITION_SPACING_SIDE;
-    let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
-    if (flipSide) positionSpacing *= -1;
-
-    const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
-    const { combatantProperties } = combatant;
-    const { transformProperties } = combatantProperties;
-    transformProperties.setHomePosition(homeLocation);
-    const forward = new Vector3(0, 0, 1);
-    const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
-    const homeRotation = new Quaternion();
-    Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
-    transformProperties.homeRotation = homeRotation;
-  }
-
   checkForWipes(inBattle: boolean): PartyWipes {
     // IF NOT IN BATTLE AND SOMEHOW WIPED OWN PARTY
     if (!inBattle) {
       const partyMemberCombatants = this.getPartyMemberCombatants();
 
       const alliesDefeated = Combatant.groupIsDead(partyMemberCombatants);
-
-      return {
-        alliesDefeated,
-        opponentsDefeated: false,
-      };
+      // such as taming the last remaining monster
+      const battleEndedByMonsterRemoval = !alliesDefeated && !this.monstersArePresent();
+      if (alliesDefeated) {
+        return {
+          alliesDefeated,
+          opponentsDefeated: false,
+        };
+      } else if (battleEndedByMonsterRemoval) {
+        invariant(battleEndedByMonsterRemoval, "battleEndedByMonsterRemoval expected true");
+        return {
+          alliesDefeated: false,
+          opponentsDefeated: true,
+        };
+      }
     }
 
     // MORE LIKELY, IN BATTLE

@@ -40,6 +40,10 @@ export class CombatantConditionManager
     return this.conditions;
   }
 
+  getConditionByName(name: CombatantConditionName) {
+    return this.conditions.find((item) => item.name === name);
+  }
+
   getConditionById(conditionId: EntityId) {
     for (const condition of this.conditions) {
       if (condition.id === conditionId) return condition;

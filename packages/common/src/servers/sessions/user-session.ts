@@ -1,17 +1,11 @@
-import {
-  CombatantId,
-  ConnectionId,
-  GameName,
-  GuestSessionReconnectionToken,
-  PartyName,
-  Username,
-} from "../../aliases.js";
+import { CombatantId, ConnectionId, GameName, PartyName, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { ActionValidity } from "../../primatives/index.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
+import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import {
   ReconnectionKey,
@@ -19,7 +13,6 @@ import {
 } from "../services/reconnection-forwarding-store/index.js";
 import { ConnectionSession } from "./session-registry.js";
 import { AuthTaggedUserId, TaggedUserId, UserIdType } from "./user-ids.js";
-import { UserSessionRegistry } from "./user-session-registry.js";
 
 export enum UserSessionConnectionState {
   Connected,
@@ -34,7 +27,10 @@ export class UserSession extends ConnectionSession {
   // set each one to disconnected such that we won't have an async race between each
   // disconnection handler trying to send a user disconnected message to each other but they
   // both are no longer registered endpoints
+  // // later: do we really need this if we handle disconnections in the sync queue of the servers?
   private _connectionState = UserSessionConnectionState.Connected;
+  // set to true when they leave game so we don't try to run reconnection logic
+  public intentionallyClosed = false;
 
   constructor(
     private _username: Username,
@@ -126,17 +122,6 @@ export class UserSession extends ConnectionSession {
     this.currentGameName = game.name;
   }
 
-  requireNotInGameOnAnotherSession(userSessionRegistry: UserSessionRegistry) {
-    // we don't want them loading the same saved character into multiple active games,
-    // so we'll prohibit simultaneous progression games per user
-    const userSessions = userSessionRegistry.getExpectedUserSessions(this.taggedUserId.id);
-    for (const otherSession of userSessions) {
-      if (otherSession.isInGame()) {
-        throw new Error(ERROR_MESSAGES.LOBBY.USER_IN_GAME);
-      }
-    }
-  }
-
   // be careful with this! led to longer than-needed debug sesh
   requireAuthorized(): asserts this is { taggedUserId: AuthTaggedUserId } {
     if (this.taggedUserId.type !== UserIdType.Auth) {
@@ -176,7 +161,7 @@ export class UserSession extends ConnectionSession {
 
         return {
           type: ReconnectionKeyType.Guest,
-          reconnectionToken: reconnectionTokenOption,
+          reconnectionToken: reconnectionTokenOption.singleUseReconnectionKey,
         };
       }
     }
@@ -198,16 +183,26 @@ export class UserSession extends ConnectionSession {
 
   requireCharacterContext(
     characterId: CombatantId,
-    options?: { requireOwned?: boolean; requireAlive?: boolean }
+    options: { requireOwned?: boolean; requireAlive?: boolean; requireInputsUnlocked?: boolean } = {
+      requireOwned: true,
+      requireAlive: true,
+      requireInputsUnlocked: true,
+    }
   ): CharacterAssociatedData {
     const { game, party, player } = this.requirePlayerContext();
     const character = party.combatantManager.getExpectedCombatant(characterId);
 
-    if (options?.requireOwned) {
+    if (options.requireInputsUnlocked) {
+      game.requireInputUnlocked();
+      game.requireTimeStarted();
+      party.requireInputUnlocked();
+    }
+
+    if (options.requireOwned) {
       character.combatantProperties.controlledBy.requireOwnedBy(this.username);
     }
 
-    if (options?.requireAlive) {
+    if (options.requireAlive) {
       character.combatantProperties.requireAlive();
     }
 

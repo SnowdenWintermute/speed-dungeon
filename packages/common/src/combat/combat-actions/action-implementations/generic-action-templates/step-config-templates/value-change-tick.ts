@@ -11,6 +11,7 @@ export const VALUE_CHANGE_TICK_ACTION_STEPS_CONFIG = new ActionResolutionStepsCo
     [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: {},
   },
   {
+    [ActionResolutionStepType.BattleResolution]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.RemoveTickedConditionStacks]: {},
   },

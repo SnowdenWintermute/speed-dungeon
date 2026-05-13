@@ -10,6 +10,8 @@
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "allowJs": true,
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
       "@speed-dungeon/*": ["../packages/*"]
     }

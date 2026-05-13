@@ -1,4 +1,5 @@
 import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -13,6 +14,8 @@ import { DurabilityChangesByEntityId } from "../../durability/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { getStartFlyingActionIntentIfAble } from "../../conditions/configs/ensnared.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
+import { getKillAttachedCombatantsActionIntents } from "./hit-outcome-triggers/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -41,18 +44,13 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     Object.assign(gameUpdateCommand, onUseTriggers);
 
     const { petSlotsSummoned, petsUnsummoned, petSlotsReleased } = onUseTriggers;
-    if (petSlotsSummoned) {
-      const { petManager } = party;
-      const battleOption = party.getBattleOption(game);
+    const { petManager } = party;
+    const battleOption = party.getBattleOption(game);
 
-      for (const { ownerId, slotIndex } of petSlotsSummoned) {
-        const petOption = petManager.summonPetFromSlot(
-          game,
-          party,
-          ownerId,
-          slotIndex,
-          battleOption
-        );
+    if (petSlotsSummoned) {
+      for (const { slot, withDelay } of petSlotsSummoned) {
+        const { ownerId, slotIndex } = slot;
+        const petOption = petManager.summonPetFromSlot(game, party, ownerId, slotIndex, withDelay);
         if (petOption) {
           this.context.tracker.spawnedEntities.push({
             type: SpawnableEntityType.Combatant,
@@ -71,7 +69,9 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
 
     if (petsUnsummoned) {
       for (const petId of petsUnsummoned) {
-        party.petManager.unsummonPet(petId, game);
+        const pet = party.petManager.unsummonPet(petId, game);
+        const branchingActions = getKillAttachedCombatantsActionIntents(pet, party);
+        this.branchingActions.push(...branchingActions);
       }
     }
 

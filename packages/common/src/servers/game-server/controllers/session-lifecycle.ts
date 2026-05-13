@@ -7,7 +7,11 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { GameRegistry } from "../../game-registry.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { GameServerSessionClaimTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import {
+  GameServerSessionClaimToken,
+  OpaqueEncryptionTokenCodec,
+} from "../../lobby-server/game-handoff/session-claim-token.js";
 
 export class GameServerSessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -19,7 +23,7 @@ export class GameServerSessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameRegistry: GameRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly gameServerSessionClaimTokenCodec: GameServerSessionClaimTokenCodec
+    private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>
   ) {}
 
   async createSession(
@@ -28,7 +32,7 @@ export class GameServerSessionLifecycleController
   ): Promise<UserSession> {
     const sessionClaimTokenOption = context.encodedGameServerSessionClaimToken;
     if (sessionClaimTokenOption === undefined) {
-      throw new Error("No token was provided when attempting to join the game server");
+      throw new Error(ERROR_MESSAGES.SERVERS.SESSION_CLAIM_TOKEN_MISSING);
     }
 
     const decryptedToken =
@@ -49,16 +53,9 @@ export class GameServerSessionLifecycleController
 
     const { nonce } = decryptedToken;
     if (this.recentlyUsedNonces.has(nonce)) {
-      throw new Error("Token replay attack suspected");
+      throw new Error(ERROR_MESSAGES.SERVERS.TOKEN_REPLAY_ATTACK);
     }
     this.recentlyUsedNonces.set(nonce, decryptedToken.expirationTimestamp);
-
-    // it is possible to be given a reconnection token in two separate browser tabs
-    // while the disconnection record is live in the central store, and there would be
-    // undefined behavior if a user tried to claim a session while already in a game
-    if (this.userSessionRegistry.userIsAlreadyConnected(decryptedToken.taggedUserId.id)) {
-      throw new Error("Only one connection per user is permitted on a single game server");
-    }
 
     const newSession = new UserSession(
       decryptedToken.username,

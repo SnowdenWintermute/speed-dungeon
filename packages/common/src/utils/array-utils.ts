@@ -20,9 +20,9 @@ export class ArrayUtils {
   }
 
   /** Randomizes the order of the array in place */
-  static shuffle<T>(array: T[]) {
+  static shuffle<T>(array: T[], rng: RandomNumberGenerator) {
     for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rng.roll() * (i + 1));
       const toSwap = array[j]!;
       array[j] = array[i]!;
       array[i] = toSwap;

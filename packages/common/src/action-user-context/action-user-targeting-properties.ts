@@ -1,7 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { Option } from "../primatives/option.js";
-import { CombatActionTarget } from "../combat/targeting/combat-action-targets.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+} from "../combat/targeting/combat-action-targets.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { CombatActionTargetPreferences, SpeedDungeonPlayer } from "../game/player.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
@@ -18,6 +21,7 @@ import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index
 import { SpeedDungeonGame } from "../game/index.js";
 import { Combatant } from "../combatants/index.js";
 import { ActionUserContext } from "./index.js";
+import { invariant } from "../utils/index.js";
 
 export class ActionAndRank implements Serializable, ReactiveNode {
   constructor(
@@ -29,11 +33,11 @@ export class ActionAndRank implements Serializable, ReactiveNode {
   }
 
   toSerialized() {
-    return instanceToPlain(this);
+    return { actionName: this.actionName, rank: this.rank };
   }
 
   static fromSerialized(serialized: SerializedOf<ActionAndRank>) {
-    return plainToInstance(ActionAndRank, serialized);
+    return new ActionAndRank(serialized.actionName, serialized.rank);
   }
 }
 
@@ -81,21 +85,22 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
     }
   }
 
-  // Useful for working with immer/zustand. Allows us to use setters
-  // to modify and object and then replace the whole object so react can
-  // rerender its properties
-  clone(): ActionUserTargetingProperties {
-    const copy = new ActionUserTargetingProperties();
-    Object.assign(copy, this);
-    return copy;
-  }
-
   getSelectedActionAndRank() {
     return this.selectedActionAndRank;
   }
 
   getSelectedTarget() {
     return this.selectedTarget;
+  }
+
+  requireSelectedSingleTargetId() {
+    const selectedTarget = this.getSelectedTarget();
+    invariant(selectedTarget !== null, "no target selected");
+    invariant(
+      selectedTarget.type === CombatActionTargetType.Single,
+      "expected single target selected"
+    );
+    return selectedTarget.targetId;
   }
 
   getSelectedTargetingScheme() {

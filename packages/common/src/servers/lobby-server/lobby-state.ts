@@ -7,7 +7,6 @@ export enum UserAuthStatus {
 }
 
 export class UserChannelDisplayData {
-  sessionsInThisChannelCount: number = 1;
   constructor(public authStatus: UserAuthStatus) {}
 }
 
@@ -22,13 +21,10 @@ export class LobbyState {
   // for updating clients with the list of players not currently in games
   private usersInLobbyChannel = new Map<Username, UserChannelDisplayData>();
 
-  /**Users can have more than one session in a single channel so we'll update a reference count
-   * to avoid displaying duplicate names for example when an authorized user has multiple tabs open */
   addUser(username: Username, isAuthorized: boolean) {
     const existingUser = this.usersInLobbyChannel.get(username);
     if (existingUser) {
-      existingUser.sessionsInThisChannelCount += 1;
-      return existingUser;
+      throw new Error("User by that name already exists in the lobby");
     }
 
     const authStatus = isAuthorized ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest;
@@ -50,15 +46,7 @@ export class LobbyState {
       return false;
     }
 
-    userOption.sessionsInThisChannelCount -= 1;
-
-    if (userOption.sessionsInThisChannelCount < 0) {
-      throw new Error(`User ${username} session count went negative`);
-    }
-
-    if (userOption.sessionsInThisChannelCount === 0) {
-      this.usersInLobbyChannel.delete(username);
-    }
+    this.usersInLobbyChannel.delete(username);
     return true;
   }
 

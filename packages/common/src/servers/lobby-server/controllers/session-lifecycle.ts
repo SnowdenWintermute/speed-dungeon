@@ -17,6 +17,9 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { MapUtils } from "../../../utils/map-utils.js";
+import { GuestSessionReconnectionToken } from "../../game-server/reconnection/guest-session-reconnection-token.js";
+import { OpaqueEncryptionTokenCodec } from "../game-handoff/session-claim-token.js";
+import { throwIfLoopLimitReached } from "../../../utils/index.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -28,7 +31,8 @@ export class LobbySessionLifecycleController
     private readonly savedCharactersController: SavedCharactersController,
     private readonly gameLifecycleController: LobbyGameLifecycleController,
     private readonly identityProviderService: IdentityProviderService,
-    private readonly idGenerator: IdGenerator
+    private readonly idGenerator: IdGenerator,
+    private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
   ) {}
 
   async createSession(
@@ -38,8 +42,7 @@ export class LobbySessionLifecycleController
     const authenticatedUserOption = await this.identityProviderService.resolve(context);
 
     if (authenticatedUserOption === null) {
-      // @TODO - enforce unique usernames for guests
-      const { username, taggedUserId } = this.createGuestUser();
+      const { username, taggedUserId } = this.createGuestUser(this.userSessionRegistry);
       const guestSession = new UserSession(
         username,
         connectionId,
@@ -49,22 +52,39 @@ export class LobbySessionLifecycleController
 
       // given by game server to guests on disconnect to identify them
       if (context.clientCachedGuestReconnectionToken) {
-        guestSession.setGuestReconnectionToken(context.clientCachedGuestReconnectionToken);
+        const decrypted = await this.guestReconnectionTokenCodec.decode(
+          context.clientCachedGuestReconnectionToken
+        );
+        guestSession.setGuestReconnectionToken(decrypted);
       }
       return guestSession;
     } else {
       const { username, taggedUserId } = authenticatedUserOption;
-      return new UserSession(username, connectionId, taggedUserId, this.lobbyState.gameRegistry);
+      const result = new UserSession(
+        username,
+        connectionId,
+        taggedUserId,
+        this.lobbyState.gameRegistry
+      );
+      return result;
     }
   }
 
-  private createGuestUser() {
+  private createGuestUser(userSessionRegistry: UserSessionRegistry) {
+    const guestId = this.idGenerator.generate() as GuestUserId;
     const taggedUserId: TaggedUserId = {
       type: UserIdType.Guest,
-      id: this.idGenerator.generate() as GuestUserId,
+      id: guestId,
     };
 
-    const username = this.generateRandomUsername();
+    let username = this.generateRandomUsername();
+
+    let safetyCounter = 0;
+    while (userSessionRegistry.getSessionByUsername(username)) {
+      safetyCounter += 1;
+      throwIfLoopLimitReached(safetyCounter);
+      username = this.generateRandomUsername();
+    }
 
     return { username, taggedUserId };
   }
@@ -72,14 +92,14 @@ export class LobbySessionLifecycleController
   private generateRandomUsername() {
     const firstName = PLAYER_FIRST_NAMES[Math.floor(Math.random() * PLAYER_FIRST_NAMES.length)];
     const lastName = PLAYER_LAST_NAMES[Math.floor(Math.random() * PLAYER_LAST_NAMES.length)];
-    return `${firstName} ${lastName}` as Username;
+    const randomFourDigitNumber = Math.floor(1000 + Math.random() * 9000);
+    return `${firstName} ${lastName} [${randomFourDigitNumber}]` as Username;
   }
 
   async activateSession(
     session: UserSession,
     options?: {
       sessionWillBeForwardedToGameServer?: boolean;
-      hadExpiredReconnectionToken?: boolean;
     }
   ) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -90,7 +110,7 @@ export class LobbySessionLifecycleController
       type: GameStateUpdateType.OnConnection,
       data: {
         username: session.username,
-        expiredReconnection: options?.hadExpiredReconnectionToken,
+        willBeReconnectedToGame: options?.sessionWillBeForwardedToGameServer,
       },
     });
 

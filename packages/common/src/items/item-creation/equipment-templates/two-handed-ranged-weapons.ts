@@ -38,6 +38,7 @@ export class TwoHandedRangedWeaponGenerationTemplate extends WeaponGenerationTem
     for (const suffix of SUFFIX_TYPES) {
       switch (suffix) {
         case AffixType.Hp:
+        case AffixType.PercentArmorClass:
           break;
         case AffixType.Strength:
         case AffixType.Spirit:

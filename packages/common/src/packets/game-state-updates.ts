@@ -17,11 +17,12 @@ import {
   ChannelName,
   CharacterSlotIndex,
   CombatantId,
+  EncryptedOpaqueToken,
   EntityId,
   EntityName,
   GameName,
-  GuestSessionReconnectionToken,
   ItemId,
+  Milliseconds,
   PartyName,
   Username,
 } from "../aliases.js";
@@ -32,6 +33,7 @@ import { SerializedOf } from "../serialization/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
+import { ClientAppMessageType } from "./client-app-message.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -53,6 +55,7 @@ export enum GameStateUpdateType {
   PlayerToggledReadyToStartGame,
   GameStarted,
   GameServerConnectionInstructions,
+  ClientAppMessage,
 
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
@@ -88,6 +91,7 @@ export enum GameStateUpdateType {
   CharacterAllocatedAbilityPoint,
   CharacterTradedItemForBook,
   CharacterRenamedPet,
+  EndOfUpdateStream,
 }
 
 export interface GameStateUpdateMap {
@@ -96,10 +100,10 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.OnConnection]: {
     username: Username;
-    expiredReconnection?: boolean;
+    willBeReconnectedToGame?: boolean;
   };
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
-    token: GuestSessionReconnectionToken;
+    token: EncryptedOpaqueToken;
   };
   [GameStateUpdateType.ChannelFullUpdate]: {
     channelName: ChannelName;
@@ -114,9 +118,18 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.ErrorMessage]: {
     message: string;
+    clientIntentSequenceId: number;
   };
   [GameStateUpdateType.GameFullUpdate]: {
     game: SerializedOf<SpeedDungeonGame> | null;
+    // for players reconnecting, they already see the resolved state of combat actions but
+    // input should still be locked until the replay plays out on other clients
+    // since server side party will still be input locked
+    awaitingUnresolvedReplayResolutionDuration?: Milliseconds;
+    battle?: {
+      battle: SerializedOf<Battle>;
+      combatantActionPoints: { combatantId: CombatantId; actionPoints: number }[];
+    };
   };
   [GameStateUpdateType.PlayerChangedAdventuringParty]: {
     playerName: Username;
@@ -156,6 +169,7 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;
   };
+  [GameStateUpdateType.ClientAppMessage]: ClientAppMessageType;
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
     username: Username;
     explorationAction: ExplorationAction;
@@ -169,8 +183,10 @@ export interface GameStateUpdateMap {
     actionEntitiesToRemove: EntityId[];
   };
   [GameStateUpdateType.BattleFullUpdate]: {
-    battle: Battle | null;
-  };
+    battle: SerializedOf<Battle>;
+    combatantActionPoints: { combatantId: CombatantId; actionPoints: number }[];
+  } | null;
+
   [GameStateUpdateType.ClientSequentialEvents]: {
     sequentialEvents: ClientSequentialEvent[];
   };
@@ -265,6 +281,9 @@ export interface GameStateUpdateMap {
     petId: CombatantId;
     newName: EntityName;
   };
+  [GameStateUpdateType.EndOfUpdateStream]: {
+    clientIntentSequenceId: number;
+  };
 }
 
 export type GameStateUpdate = {
@@ -336,6 +355,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.PlayerToggledReadyToStartGame]: "PlayerToggledReadyToStartGame",
   [GameStateUpdateType.GameStarted]: "GameStarted",
   [GameStateUpdateType.GameServerConnectionInstructions]: "GameServerConnectionInstructions",
+  [GameStateUpdateType.ClientAppMessage]: "ClientAppMessage",
 
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]:
     "PlayerToggledReadyToDescendOrExplore",
@@ -375,4 +395,5 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.CharacterAllocatedAbilityPoint]: "CharacterAllocatedAbilityPoint",
   [GameStateUpdateType.CharacterTradedItemForBook]: "CharacterTradedItemForBook",
   [GameStateUpdateType.CharacterRenamedPet]: "CharacterRenamedPet",
+  [GameStateUpdateType.EndOfUpdateStream]: "EndOfUpdateStream",
 };

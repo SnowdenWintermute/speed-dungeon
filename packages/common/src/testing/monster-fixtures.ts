@@ -1,0 +1,276 @@
+import { AiType } from "../combat/ai-behavior/index.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
+import { CombatantBuilder } from "../combatants/combatant-builder.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
+import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
+import { appendMonsterEquipment } from "../monsters/append-monster-equipment.js";
+import { BASIC_AI_PRIORITY, MONSTER_COMBAT_PROFILES } from "../monsters/monster-combat-profiles.js";
+import { MonsterType } from "../monsters/monster-types.js";
+import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
+
+export const MONSTER_FIXTURE_NAMES = {
+  WOLF_ONE_HP: "Test Wolf One Hp",
+  WOLF_LOW_HP: "Test Wolf Low Hp",
+  WOLF_MID_HP: "Test Wolf Mid Hp",
+  WOLF_ZERO_SPEED: "Test Wolf Zero Speed",
+  CULTIST_ZERO_SPEED: "Test Cultist Zero Speed",
+};
+
+export const MONSTER_FIXTURES = {
+  WOLF: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name("Test Wolf")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 20)
+      .ownedAction(CombatActionName.Attack)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .trait(CombatantTraitType.IsTameable, 1)
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  MANTA_RAY: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.MantaRay)
+      .name("Test Manta")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 20)
+      .attribute(CombatAttribute.Mp, 20)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.Healing, 2)
+      .trait(CombatantTraitType.Flyer, 1)
+      .aiTypes([...MONSTER_COMBAT_PROFILES[MonsterType.MantaRay].aiTypes])
+      .trait(CombatantTraitType.IsTameable, 1)
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf, // mistake but will break some tests if changed
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+
+  ZERO_SPEED_MANTA_RAY: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.MantaRay)
+      .name("Test Manta")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 0)
+      .attribute(CombatAttribute.Mp, 20)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.IceBoltParent)
+      .ownedAction(CombatActionName.Healing, 2)
+      .trait(CombatantTraitType.Flyer, 1)
+      .aiTypes([...MONSTER_COMBAT_PROFILES[MonsterType.MantaRay].aiTypes])
+      .trait(CombatantTraitType.IsTameable, 1)
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.MantaRay,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  SPIDER: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Spider)
+      .name("Test Spider")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 12)
+      .attribute(CombatAttribute.Mp, 2)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Dexterity, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.Ensnare, 3)
+      // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Spider,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  SPIDER_SLOW_LOTS_OF_MANA: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Spider)
+      .name("Test Spider")
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Mp, 200)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Dexterity, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .ownedAction(CombatActionName.Ensnare, 3)
+      // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
+      .aiTypes([AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Spider,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  WOLF_ZERO_SPEED: () => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_ZERO_SPEED)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Speed, 0)
+      .ownedAction(CombatActionName.Attack)
+      .trait(CombatantTraitType.IsTameable, 1)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+    return builder;
+  },
+  WOLF_ONE_HP: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 1)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .trait(CombatantTraitType.IsTameable, 1)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  WOLF_LOW_HP: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 7)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .trait(CombatantTraitType.IsTameable, 1)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+
+  WOLF_MID_HP: (
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder,
+    rngPolicy: RandomNumberGenerationPolicy
+  ) => {
+    const builder = CombatantBuilder.monster(MonsterType.Wolf)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_MID_HP)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 14)
+      .attribute(CombatAttribute.Strength, 10)
+      .attribute(CombatAttribute.Accuracy, 100)
+      .attribute(CombatAttribute.Speed, 10)
+      .ownedAction(CombatActionName.Attack)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+
+    appendMonsterEquipment(
+      builder,
+      MonsterType.Wolf,
+      idGenerator,
+      itemBuilder,
+      rngPolicy.monsterEquipmentChoice
+    );
+
+    return builder;
+  },
+  CULTIST_ZERO_SPEED: () => {
+    const builder = CombatantBuilder.monster(MonsterType.Cultist)
+      .name(MONSTER_FIXTURE_NAMES.CULTIST_ZERO_SPEED)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 50)
+      .attribute(CombatAttribute.Speed, 0)
+      .ownedAction(CombatActionName.Attack)
+      .aiTypes([...BASIC_AI_PRIORITY])
+      .withThreatManager();
+    return builder;
+  },
+};

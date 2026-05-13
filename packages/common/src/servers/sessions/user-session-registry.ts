@@ -1,133 +1,98 @@
-import { ConnectionId, GameName, Username } from "../../aliases.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
+import { ChannelName, ConnectionId, GameName, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { invariant } from "../../utils/index.js";
-import { SessionRegistry } from "./session-registry.js";
 import { UserId } from "./user-ids.js";
-import { UserSession, UserSessionConnectionState } from "./user-session.js";
+import { UserSession } from "./user-session.js";
 
-export class UserSessionRegistry extends SessionRegistry<UserSession> {
-  // we have used this to ensure that when a user has a session in a progression game
-  // they can not load that same saved character in another session
-  private connectionIdsByUserId = new Map<UserId, Set<ConnectionId>>();
+export class UserSessionRegistry {
+  private connectionIdsByUserId = new Map<UserId, ConnectionId>();
+  private sessionsByConnectionId = new Map<ConnectionId, UserSession>();
 
-  onRegister(session: UserSession): void {
-    this.addConnectionIdToUserId(session);
+  register(session: UserSession) {
+    const alreadyExists =
+      this.sessionsByConnectionId.has(session.connectionId) ||
+      this.connectionIdsByUserId.has(session.taggedUserId.id);
+    if (alreadyExists) {
+      throw new Error("Session already exists with the provided connectionId");
+    }
+    this.sessionsByConnectionId.set(session.connectionId, session);
+    this.connectionIdsByUserId.set(session.taggedUserId.id, session.connectionId);
   }
-  onUnregister(session: UserSession): void {
-    this.removeConnectionIdFromUserId(session);
+
+  unregister(connectionId: ConnectionId) {
+    const session = this.requireSession(connectionId);
+    if (session === undefined) {
+      throw new Error("Tried to unregister a session that didn't exist");
+    }
+    this.sessionsByConnectionId.delete(connectionId);
+    this.connectionIdsByUserId.delete(session.taggedUserId.id);
   }
 
-  getConnectionIdsByUserId(userId: UserId) {
-    return this.connectionIdsByUserId.get(userId) || new Set<ConnectionId>();
+  /** Returns all connectionIds whose sessions are currently subscribed
+   * to the given channel. Multiple entries may belong to the same user.*/
+  in(channelName: ChannelName, options?: { excludedIds: [ConnectionId] }): ConnectionId[] {
+    const excludedIds: ConnectionId[] = [];
+    if (options?.excludedIds) {
+      excludedIds.push(...options.excludedIds);
+    }
+
+    return Array.from(this.sessionsByConnectionId.entries())
+      .filter(([_connectionId, session]) => session.isSubscribedToChannel(channelName))
+      .filter(([connectionId, _session]) => !excludedIds.includes(connectionId))
+      .map(([connectionId, _session]) => connectionId);
   }
 
-  getSessionsByUsername(username: Username) {
-    const result: UserSession[] = [];
-    for (const [_connectionId, session] of Array.from(this.sessions)) {
+  getSessionOption(connectionId: ConnectionId) {
+    return this.sessionsByConnectionId.get(connectionId);
+  }
+
+  requireSession(connectionId: ConnectionId) {
+    const userSessionOption = this.getSessionOption(connectionId);
+    if (userSessionOption === undefined) {
+      throw new Error(`Expected session not found by connection id: ${connectionId}`);
+    } else {
+      return userSessionOption;
+    }
+  }
+
+  requireConnection(userId: UserId) {
+    const option = this.connectionIdsByUserId.get(userId);
+    if (!option) {
+      throw new Error("Expected UserId to have an associated ConnectionId");
+    }
+  }
+
+  getSessionByUsername(username: Username) {
+    for (const [_, session] of this.sessionsByConnectionId) {
       if (session.username === username) {
-        result.push(session);
+        return session;
       }
     }
-    return result;
   }
 
   userIsAlreadyConnected(userId: UserId): boolean {
     return this.connectionIdsByUserId.has(userId);
   }
 
-  requireSingleConnection(userId: UserId) {
-    const connectionIds = this.getConnectionIdsByUserId(userId);
-    if (connectionIds.size !== 1) {
-      throw new Error("Expected a single connection for this user id");
-    }
-    const connectionIdOption = Array.from(connectionIds.keys())[0];
-    if (connectionIdOption === undefined) {
-      throw new Error(ERROR_MESSAGES.CHECKED_EXPECTATION_FAILED);
-    }
-
-    return connectionIdOption;
+  getSessionByUserId(userId: UserId): undefined | UserSession {
+    const connectionId = this.connectionIdsByUserId.get(userId);
+    if (!connectionId) return;
+    return this.requireSession(connectionId);
   }
 
-  private getExpectedUserConnectionIds(userId: UserId) {
-    const idsOption = this.getConnectionIdsByUserId(userId);
-    if (idsOption.size === 0) {
-      throw new Error(ERROR_MESSAGES.SERVER_GENERIC);
-    } else {
-      return Array.from(idsOption);
-    }
-  }
-
-  getExpectedUserSessions(userId: UserId) {
-    const connectionIds = this.getExpectedUserConnectionIds(userId);
-    const result: UserSession[] = [];
-    for (const id of connectionIds) {
-      const expectedSession = this.sessions.get(id);
-      if (expectedSession === undefined) {
-        throw new Error("A connection id was registered without a matching session");
-      }
-      result.push(expectedSession);
-    }
-
-    return result;
-  }
-
-  private addConnectionIdToUserId(session: UserSession) {
-    const connectionIdsForThisUser = this.connectionIdsByUserId.get(session.taggedUserId.id);
-    if (connectionIdsForThisUser) {
-      connectionIdsForThisUser.add(session.connectionId);
-    } else {
-      this.connectionIdsByUserId.set(session.taggedUserId.id, new Set([session.connectionId]));
-    }
-  }
-
-  private removeConnectionIdFromUserId(session: UserSession) {
-    const connectionIdsForThisUser = this.connectionIdsByUserId.get(session.taggedUserId.id);
-
-    if (connectionIdsForThisUser === undefined) {
-      throw new Error("Expected user id to have list of connections");
-    }
-    connectionIdsForThisUser.delete(session.connectionId);
-    if (connectionIdsForThisUser.size === 0) {
-      this.connectionIdsByUserId.delete(session.taggedUserId.id);
-    }
-  }
-
-  public getAllSessionsInGame(game: SpeedDungeonGame) {
+  getAllSessionsInGame(game: SpeedDungeonGame) {
     const result: UserSession[] = [];
     for (const [username, _player] of game.players) {
-      const session = this.getExpectedSessionInGameByUsername(username, game.name);
+      const session = this.requireSessionInGameByUsername(username, game.name);
       result.push(session);
     }
     return result;
   }
 
-  public getExpectedSessionInGameByUsername(username: Username, gameName: GameName) {
-    const existingSessionsByThisUserId = this.getSessionsByUsername(username);
-
-    const sessionsInGame = existingSessionsByThisUserId.filter(
-      (session) => session.currentGameName === gameName
-    );
-
-    const MAX_PERMITTED_USER_SESSIONS_IN_GAME = 1;
-    invariant(sessionsInGame.length <= MAX_PERMITTED_USER_SESSIONS_IN_GAME);
-
-    const expectedSessionForThisPlayer = sessionsInGame[0];
-    if (expectedSessionForThisPlayer === undefined) {
+  requireSessionInGameByUsername(username: Username, gameName: GameName) {
+    const existingSession = this.getSessionByUsername(username);
+    if (existingSession?.currentGameName !== gameName) {
       throw new Error("expected to have a user session to match the player in game");
     }
-
-    return expectedSessionForThisPlayer;
-  }
-
-  get disconnectedSessions() {
-    const result: UserSession[] = [];
-    for (const [connectionId, userSession] of this.sessions) {
-      if (userSession.connectionState === UserSessionConnectionState.Disconnected) {
-        result.push(userSession);
-      }
-    }
-
-    return result;
+    return existingSession;
   }
 }

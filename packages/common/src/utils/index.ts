@@ -23,6 +23,10 @@ export function iterateNumericEnum<T extends Record<string, string | number>>(
   return Object.values(enumType).filter((value) => !isNaN(Number(value))) as T[keyof T][];
 }
 
+export function getNumericEnumValues(enumObj: object): number[] {
+  return Object.values(enumObj).filter((v): v is number => typeof v === "number");
+}
+
 // old version - creates 3 intermediate arrays
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>
@@ -243,10 +247,12 @@ export function isDefined<T>(value: T | null | undefined): value is T {
   return value != null;
 }
 
-export function throwIfLoopLimitReached(safetyCounter: number) {
-  if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+export function throwIfLoopLimitReached(safetyCounter: number, message?: string) {
+  if (safetyCounter >= LOOP_SAFETY_ITERATION_LIMIT) {
     throw new Error(
-      ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT)
+      ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT) +
+        " " +
+        message
     );
   }
 }

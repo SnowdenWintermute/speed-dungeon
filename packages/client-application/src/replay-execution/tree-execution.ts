@@ -1,0 +1,112 @@
+import {
+  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
+  COMBAT_ACTION_NAME_STRINGS,
+  NestedNodeReplayEvent,
+  ReplayEventType,
+  invariant,
+} from "@speed-dungeon/common";
+import { ReplayBranchExecution } from "./branch-execution";
+import { ClientApplication } from "..";
+
+//   - process each active BranchExecution until none can be completed
+export class ReplayTreeExecution {
+  private activeBranches: ReplayBranchExecution[] = [];
+  private nextExpectedCompletionOrderIdListIndex: number = 0;
+  private expectedCompletionOrderIds: number[];
+
+  constructor(
+    readonly clientApplication: ClientApplication,
+    root: NestedNodeReplayEvent,
+    public onComplete: () => void
+  ) {
+    this.expectedCompletionOrderIds = this.collectCompletionOrderIds(root);
+    this.activeBranches.push(new ReplayBranchExecution(this, root, this.activeBranches));
+  }
+
+  getActiveBranches() {
+    return this.activeBranches;
+  }
+
+  isComplete() {
+    return !this.activeBranches.length;
+  }
+
+  get nextExpectedStep() {
+    const nextCompletionId = this.getNextNodeCompletionId();
+    for (const branch of this.activeBranches) {
+      const stepExecutionOption = branch.getCurrentGameUpdate();
+      const commandOption = stepExecutionOption?.command;
+      if (!commandOption) continue;
+      if (commandOption.completionOrderId === nextCompletionId) {
+        return stepExecutionOption;
+      }
+    }
+  }
+
+  get nextExpectedStepString() {
+    const nextExpectedStepOption = this.nextExpectedStep;
+    if (!nextExpectedStepOption) {
+      return undefined;
+    }
+    const commandOption = nextExpectedStepOption?.command;
+    return `${COMBAT_ACTION_NAME_STRINGS[commandOption.actionName]} ${ACTION_RESOLUTION_STEP_TYPE_STRINGS[commandOption.step]}`;
+  }
+
+  getMinRemainingDuration(): number {
+    // only consider branches whose current step still has time left to elapse.
+    // a branch with remaining <= 0 is waiting on completionOrderId, not on time —
+    // including it would pull the min to <=0 and starve other branches whose
+    // freshly-started steps still need time to advance, causing a deadlock.
+    let min = Infinity;
+    for (const branch of this.activeBranches) {
+      const remaining = branch.getStepRemainingDuration();
+      if (remaining > 0 && remaining < min) min = remaining;
+    }
+    return min === Infinity ? 0 : min;
+  }
+
+  getNextNodeCompletionId() {
+    return this.expectedCompletionOrderIds[this.nextExpectedCompletionOrderIdListIndex];
+  }
+
+  incrementNextExpectedCompletedNodeIdIndex() {
+    this.nextExpectedCompletionOrderIdListIndex += 1;
+  }
+
+  processBranches(deltaMs: number) {
+    // Iterate forwards so parent branches process before children they spawned.
+    // On the server, processActiveActionSequences snapshots the manager list,
+    // so a child registered mid-tick runs after the parent. Forward iteration
+    // preserves that ordering since children are appended to the end.
+    const length = this.activeBranches.length;
+    for (let i = 0; i < length; i++) {
+      const branch = this.activeBranches[i];
+      invariant(branch !== undefined, "checked above");
+      branch.processAllCompletableSteps(deltaMs);
+    }
+
+    for (let i = this.activeBranches.length - 1; i >= 0; i--) {
+      if (this.activeBranches[i]!.isDoneProcessing()) {
+        this.activeBranches.splice(i, 1);
+      }
+    }
+  }
+
+  private collectCompletionOrderIds(root: NestedNodeReplayEvent): number[] {
+    const ids: number[] = [];
+    for (const event of root.events) {
+      if (event.type === ReplayEventType.GameUpdate) {
+        const { completionOrderId } = event.gameUpdate;
+        if (completionOrderId === null) {
+          throw new Error("expected to only receive completed game update commands");
+        }
+
+        ids.push(completionOrderId);
+      } else {
+        const childIds = this.collectCompletionOrderIds(event);
+        ids.push(...childIds);
+      }
+    }
+    return ids.sort((a, b) => a - b);
+  }
+}

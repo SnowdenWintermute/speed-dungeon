@@ -1,6 +1,12 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
-import { EntityId, NormalizedPercentage } from "../index.js";
+import {
+  CHARACTER_SLOT_SPACING,
+  COMBATANT_POSITION_SPACING_BETWEEN_ROWS,
+  COMBATANT_POSITION_SPACING_SIDE,
+  EntityId,
+  NormalizedPercentage,
+} from "../index.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
 import { SetUtils } from "../utils/set-utils.js";
 
@@ -59,6 +65,41 @@ export class CombatantTransformProperties extends CombatantSubsystem implements 
 
   setHomeRotation(newHomeRotation: Quaternion) {
     this.homeRotation.copyFrom(newHomeRotation);
+  }
+
+  autoSetHomePosition(
+    combatantsInRowCount: number,
+    rowIndex: number,
+    options: {
+      flipSide?: boolean;
+      onCenterLine?: boolean;
+      slotSpacingOverride?: number;
+      reverseOrder?: boolean;
+    }
+  ) {
+    let slotSpacing = COMBATANT_POSITION_SPACING_SIDE;
+    if (options?.slotSpacingOverride) {
+      slotSpacing = CHARACTER_SLOT_SPACING;
+    }
+    const orderReverser = options.reverseOrder ? -1 : 1;
+    const rowLength = slotSpacing * (combatantsInRowCount - 1);
+    const rowStart = (-rowLength / 2) * orderReverser;
+
+    const rowPositionOffset = rowStart + rowIndex * slotSpacing * orderReverser;
+    let positionSpacing = -COMBATANT_POSITION_SPACING_BETWEEN_ROWS / 2;
+    if (options.onCenterLine) {
+      positionSpacing = 0;
+    } else if (options?.flipSide) {
+      positionSpacing *= -1;
+    }
+
+    const homeLocation = new Vector3(rowPositionOffset, 0, positionSpacing);
+    this.setHomePosition(homeLocation);
+    const forward = new Vector3(0, 0, 1);
+    const directionToXAxis = new Vector3(0, 0, -positionSpacing).normalize();
+    const homeRotation = new Quaternion();
+    Quaternion.FromUnitVectorsToRef(forward, directionToXAxis, homeRotation);
+    this.homeRotation = homeRotation;
   }
 
   getHomePosition() {

@@ -127,7 +127,7 @@ class AiBehaviorActionSelectorNodeFactory {
         this.behaviorContext,
         AiType.TargetPetOwnerMostRecentTarget,
         [this.recentHostileTargetOfPetOwnerFilter, this.isOpponentFilter],
-        ACTION_EVALUATORS[ActionEvaluatorTypes.RandomMaliciousAction]
+        ACTION_EVALUATORS[ActionEvaluatorTypes.RandomMaliciousAction] // so they can use web or other non-damaging actions
       ),
     };
   }

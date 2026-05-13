@@ -19,6 +19,7 @@ import { RemoveTickedConditionStacksActionResolutionStep } from "./remove-ticked
 import { WaitForDelayActionResolutionStep } from "./motion-steps/wait-for-delay.js";
 import { SpawnEntitiesActionResolutionStep } from "./spawn-entities.js";
 import { PostGameLogMessageActionResolutionStep } from "./post-game-log-message.js";
+import { BattleResolutionActionResolutionStep } from "./battle-resolution.js";
 
 // right now the idea is to have the action tracker call these creators, which in turn call
 // step class constructors. We don't call the constructors directly because this allows us
@@ -106,6 +107,8 @@ export const ACTION_STEP_CREATORS: Record<
       context,
       ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers
     ),
+  [ActionResolutionStepType.BattleResolution]: (context) =>
+    new BattleResolutionActionResolutionStep(context),
   [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: (context) =>
     new EvaluatePlayerEndTurnAndInputLockActionResolutionStep(context),
   [ActionResolutionStepType.RemoveTickedConditionStacks]: (context) =>

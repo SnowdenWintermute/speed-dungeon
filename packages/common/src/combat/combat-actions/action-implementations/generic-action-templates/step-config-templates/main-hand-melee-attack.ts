@@ -84,6 +84,7 @@ config.options.getFinalSteps = (self, context) => {
   }
 
   return {
+    [ActionResolutionStepType.BattleResolution]: {},
     [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     [ActionResolutionStepType.RecoveryMotion]:
       config.finalSteps[ActionResolutionStepType.RecoveryMotion],

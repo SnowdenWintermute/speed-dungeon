@@ -1,0 +1,62 @@
+// MONSTER AI
+// monsters heal allies
+// combatants attack highest threat target
+//
+// ABILITY TREE ALLOCATION
+// allocate point
+// can not allocate without prerequisite
+// can not allocate without required level
+//
+// DEFERRED
+// pet can not level up beyond rank limit pet level
+// counterattack + enemy countered is hit from firewall on way back from getting counterattacked doesn't unlock input early
+// ranged counterattack against monster that dies in firewall before arrow has chance to land
+// chaining split arrow sets off ice bursts in correct order
+//
+// APPLICATION FUNCTION
+// - can join another game after leave game button
+// - reconnection flow
+
+// -DONE-
+// COUNTERATTACK
+// combatant dies from ice burst set off from their own counterattack
+// ranged counterattack through firewall incinerates
+// ranged counterattack through firewall ignites projectile
+//
+// ENSNARE
+// ensnare debuff gained when ensnared
+// melee attackers hit flying when combatant ensnared
+// ensnare debuff removed when web killed
+// flying trait combatant starts flying when ensnare debuff removed
+//
+// ICE BURST
+// ice burst applies ice burst to nearby targets
+// if killed with primed for ice burst, don't error
+// ice burst triggered by firewall doesn't hit anyone
+//
+// PETS
+// monster with tameable trait is tameable
+// monster without tameable trait is not tameable
+// pet tamed removes web and ensnared condition
+// pet dismissed removes web and ensnared condition
+// pet summoned added to turn order
+// pet summoned still has conditions it had when dismissed
+// tickable conditions added to turn order bar when pet with conditions summoned in battle
+// can not tame pet if slots are full
+// release pet frees up slot
+// can not tame pet above rank limit pet level
+// battle ends if last monster is tamed
+// kill command makes pet target lowest hp enemy target (and doesn't heal it if has healing)
+// assist command makes pet target most recent owner target
+// tamed pet with no pet command heals allies
+// tamed pet with no pet command attacks monsters not player characters
+//
+//
+// FIREWALL
+// enemy dies in firewall on way to melee
+// enemy dies in firewall comming back from melee
+// arrows light on fire (deal fire damage)
+// arrows disintigrate
+// firewall deteriorates stacks/ranks
+// firewall can be stoked by recast
+// disappears on new room entered

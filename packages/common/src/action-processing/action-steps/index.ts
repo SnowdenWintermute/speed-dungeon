@@ -1,12 +1,14 @@
-import { Milliseconds } from "../../aliases.js";
+import { EntityId, Milliseconds } from "../../aliases.js";
 import { GameUpdateCommand } from "../game-update-commands.js";
 import { CombatActionExecutionIntent } from "../../combat/combat-actions/combat-action-execution-intent.js";
 import { ActionSequenceManager } from "../action-sequence-manager.js";
 import { ActionTracker } from "../action-tracker.js";
 import { IdGenerator } from "../../utility-classes/index.js";
+import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 
 export enum ActionResolutionStepType {
   PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock,
@@ -35,6 +37,7 @@ export enum ActionResolutionStepType {
   // if doing offhand attack instead of return home directly after mainhand attack
   PreFinalPositioningCheckEnvironmentalHazardTriggers,
   RemoveTickedConditionStacks,
+  BattleResolution, // on party wipe: generate loot/xp, cleanup, emit conclusion
   EvaluatePlayerEndTurnAndInputLock,
   ActionEntityDissipationMotion,
   RecoveryMotion,
@@ -65,7 +68,6 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.RollIncomingHitOutcomes]: "rollIncomingHitOutcomes",
   [ActionResolutionStepType.EvalOnHitOutcomeTriggers]: "evalOnHitOutcomeTriggers", // lifesteal traits, apply conditions
   [ActionResolutionStepType.PostOnResolutionGameLogMessage]: "postOnResolutionGameLogMessage",
-  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "evaluatePlayerEndTurnAndInputLock",
   [ActionResolutionStepType.ActionEntityDissipationMotion]: "actionEntityDissipationMotion",
   [ActionResolutionStepType.RecoveryMotion]: "recoveryMotion",
   [ActionResolutionStepType.FinalPositioning]: "finalPositioning",
@@ -74,6 +76,8 @@ export const ACTION_RESOLUTION_STEP_TYPE_STRINGS: Record<ActionResolutionStepTyp
   [ActionResolutionStepType.PreFinalPositioningCheckEnvironmentalHazardTriggers]:
     "preFinalPositioningCheckEnvironmentalHazardTriggers",
   [ActionResolutionStepType.RemoveTickedConditionStacks]: "removeTickedConditionStacks",
+  [ActionResolutionStepType.BattleResolution]: "battleResolution",
+  [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: "evaluatePlayerEndTurnAndInputLock",
 };
 
 export interface ActionResolutionStepResult {
@@ -86,6 +90,12 @@ export interface ActionResolutionStepContext {
   tracker: ActionTracker;
   manager: ActionSequenceManager;
   idGenerator: IdGenerator;
+  rngPolicy: RandomNumberGenerationPolicy;
+}
+
+export interface ActionIntentAndUserId {
+  userId: EntityId;
+  actionExecutionIntent: CombatActionExecutionIntent;
 }
 
 export interface ActionIntentAndUser {
@@ -107,6 +117,8 @@ export abstract class ActionResolutionStep {
   ) {
     const action = COMBAT_ACTIONS[this.context.tracker.actionExecutionIntent.actionName];
     const stepConfig = action.stepsConfig.getStepConfigOption(type);
+
+    // console.info("started step:", action.getStringName(), "-", this.getStringName());
 
     if (stepConfig === undefined) throw new Error("expected step config not found");
     if (gameUpdateCommandOption && stepConfig.getCosmeticEffectsToStop) {
@@ -140,8 +152,9 @@ export abstract class ActionResolutionStep {
 
   /**Mark the gameUpdateCommand's completionOrderId and get branching actions*/
   finalize(completionOrderId: number): Error | ActionIntentAndUser[] {
-    if (this.gameUpdateCommandOption)
+    if (this.gameUpdateCommandOption) {
       this.gameUpdateCommandOption.completionOrderId = completionOrderId;
+    }
     return this.onComplete();
   }
 
@@ -150,6 +163,11 @@ export abstract class ActionResolutionStep {
   }
 
   onComplete(): Error | ActionIntentAndUser[] {
+    // console.info(
+    //   "completed step:",
+    //   COMBAT_ACTION_NAME_STRINGS[this.context.tracker.actionExecutionIntent.actionName],
+    //   this.getStringName()
+    // );
     const branchingActionsResult = this.getBranchingActions();
     if (branchingActionsResult instanceof Error) return branchingActionsResult;
     return branchingActionsResult;

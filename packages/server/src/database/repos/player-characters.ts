@@ -68,9 +68,9 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
   async getAllByLevel() {
     const { rows } = await this.pgPool.query(
       `
-      SELECT id, ( combatant_properties->>'level' )::int AS level,
-      ( combatant_properties->'experiencePoints'->>'current' )::int AS experience_points,
-      combatant_properties->>'hitPoints' AS hit_points
+      SELECT id, ( combatant_properties->'classProgressionProperties'->'mainClass'->>'level' )::int AS level,
+      ( combatant_properties->'classProgressionProperties'->'experiencePoints'->>'current' )::int AS experience_points,
+      combatant_properties->'resources'->>'hitPoints' AS hit_points
       FROM player_characters;
       `
     );

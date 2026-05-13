@@ -13,3 +13,16 @@ export class FixedNumberGenerator implements RandomNumberGenerator {
   constructor(private alwaysRolls: NormalizedPercentage) {}
   roll = (): NormalizedPercentage => this.alwaysRolls;
 }
+
+export class SequentialNumberGenerator implements RandomNumberGenerator {
+  private index = 0;
+  constructor(private sequence: NormalizedPercentage[]) {}
+  roll = (): NormalizedPercentage => {
+    const value = this.sequence[this.index % this.sequence.length];
+    if (value === undefined) {
+      throw new Error("SequentialNumberGenerator has an empty sequence");
+    }
+    this.index += 1;
+    return value;
+  };
+}

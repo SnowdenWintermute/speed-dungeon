@@ -1,4 +1,4 @@
-import { GuestSessionReconnectionToken, IdentityProviderId } from "../../aliases.js";
+import { GuestSingleUseReconnectionKey, IdentityProviderId } from "../../aliases.js";
 import {
   ReconnectionKey,
   ReconnectionKeyType,
@@ -11,7 +11,7 @@ export class ReconnectionOpportunityManager {
     ReconnectionOpportunity
   >();
   private readonly guestReconnectionOpportunities = new Map<
-    GuestSessionReconnectionToken,
+    GuestSingleUseReconnectionKey,
     ReconnectionOpportunity
   >();
 

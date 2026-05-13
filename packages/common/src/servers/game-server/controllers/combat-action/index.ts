@@ -17,22 +17,23 @@ import { CombatActionTarget } from "../../../../combat/targeting/combat-action-t
 import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
-import { ItemGenerator } from "../../../../items/item-creation/index.js";
-import { RandomNumberGenerator } from "../../../../utility-classes/randomizers.js";
+import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
+import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
+import { SerializedOf } from "../../../../serialization/index.js";
 
 export class CombatActionController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private gameModeContexts: Record<GameMode, GameModeContext>,
     private idGenerator: IdGenerator,
-    private itemGenerator: ItemGenerator,
-    private rng: RandomNumberGenerator,
+    private rngPolicy: RandomNumberGenerationPolicy,
+    private lootGenerator: LootGenerator,
     private assetAnalyzer: AssetAnalyzer
   ) {}
 
@@ -40,29 +41,29 @@ export class CombatActionController {
     session: UserSession,
     data: {
       characterId: CombatantId;
-      actionAndRankOption: ActionAndRank | null;
+      actionAndRankOption: SerializedOf<ActionAndRank> | null;
       itemIdOption?: string;
     }
   ) {
     const { characterId, actionAndRankOption, itemIdOption } = data;
 
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
 
     const { abilityProperties } = character.combatantProperties;
 
+    const targetingProperties = character.getTargetingProperties();
     if (actionAndRankOption !== null) {
-      const combatActionPropertiesResult =
-        abilityProperties.getCombatActionPropertiesIfOwned(actionAndRankOption);
+      const deserializedActionAndRankOption = ActionAndRank.fromSerialized(actionAndRankOption);
+      const combatActionPropertiesResult = abilityProperties.getCombatActionPropertiesIfOwned(
+        deserializedActionAndRankOption
+      );
       if (combatActionPropertiesResult instanceof Error) {
         throw combatActionPropertiesResult;
       }
+      targetingProperties.setSelectedActionAndRank(deserializedActionAndRankOption);
+    } else {
+      targetingProperties.setSelectedActionAndRank(null);
     }
-
-    const targetingProperties = character.getTargetingProperties();
-    targetingProperties.setSelectedActionAndRank(actionAndRankOption);
 
     if (itemIdOption !== undefined) {
       // @INFO - if we want to allow selecting equipped items or unowned items
@@ -114,10 +115,7 @@ export class CombatActionController {
   ) {
     const { actionRank, characterId } = data;
 
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
     const targetingProperties = character.getTargetingProperties();
     const selectedActionAndRankOption = targetingProperties.getSelectedActionAndRank();
 
@@ -178,10 +176,7 @@ export class CombatActionController {
     data: { characterId: CombatantId; direction: NextOrPrevious }
   ) {
     const { characterId, direction } = data;
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
 
     const targetingCalculator = new TargetingCalculator(
       new ActionUserContext(game, party, character),
@@ -204,10 +199,7 @@ export class CombatActionController {
 
   cycleTargetingSchemesHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
-    const { game, party, player, character } = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
 
     const targetingCalculator = new TargetingCalculator(
       new ActionUserContext(game, party, character),
@@ -230,10 +222,7 @@ export class CombatActionController {
 
   async useSelectedCombatActionHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
-    const characterContext = session.requireCharacterContext(characterId, {
-      requireAlive: true,
-      requireOwned: true,
-    });
+    const characterContext = session.requireCharacterContext(characterId);
 
     const validTargetsAndActionNameResult = this.validateClientActionUseRequest(characterContext);
 
@@ -264,10 +253,15 @@ export class CombatActionController {
     if (selectedActionAndRankOption === null) {
       throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
     }
+    const battleOption = party.getBattleOption(game);
+    const canUseAction = character.actionAndRankMeetsUseRequirements(
+      selectedActionAndRankOption,
+      party,
+      battleOption
+    );
 
-    const maybeError = character.canUseAction(selectedActionAndRankOption, game, party);
-    if (maybeError instanceof Error) {
-      throw maybeError;
+    if (!canUseAction.canUse) {
+      throw new Error(canUseAction.reasonCanNot || "Can not use action: unspecified reason");
     }
 
     return { actionAndRank: selectedActionAndRankOption, targets };
@@ -300,25 +294,50 @@ export class CombatActionController {
     const { game, party, character } = characterContext;
     const actionUserContext = new ActionUserContext(game, party, character);
 
-    const replayTreeResult = processCombatAction(
+    const sequentialEvents: ClientSequentialEvent[] = [];
+    let ladderMessagesOutbox: MessageDispatchOutbox<GameStateUpdate> | undefined = undefined;
+
+    party.inputLock.lockInput();
+
+    const initialActionReplayTreeResult = processCombatAction(
       actionExecutionIntent,
       actionUserContext,
       this.idGenerator,
+      this.rngPolicy,
       this.assetAnalyzer.animationLengths,
-      this.assetAnalyzer.boundingBoxes
+      this.assetAnalyzer.boundingBoxes,
+      this.lootGenerator
     );
 
-    if (replayTreeResult instanceof Error) {
-      throw replayTreeResult;
-    }
+    sequentialEvents.push({
+      type: ClientSequentialEventType.RecordCombatantActionSelected,
+      data: { userId: actionUserContext.actionUser.getEntityId(), actionExecutionIntent },
+    });
 
     const battleOption = party.battleId ? game.battles.get(party.battleId) || null : null;
+
+    const { battleConcludedOption } = initialActionReplayTreeResult;
+    if (battleConcludedOption !== null) {
+      const postConclusionEvents = await new BattleProcessor(
+        this.updateDispatchFactory,
+        game,
+        party,
+        battleOption,
+        this.gameModeContexts,
+        this.idGenerator,
+        this.rngPolicy,
+        this.lootGenerator,
+        this.assetAnalyzer
+      ).handlePostBattleConclusion(battleConcludedOption);
+      sequentialEvents.push(...postConclusionEvents.sequentialEvents);
+      ladderMessagesOutbox = postConclusionEvents.ladderMessagesOutbox;
+    }
 
     const replayTreePayload: ClientSequentialEvent = {
       type: ClientSequentialEventType.ProcessReplayTree,
       data: {
         actionUserId: character.entityProperties.id,
-        root: replayTreeResult.rootReplayNode,
+        root: initialActionReplayTreeResult.rootReplayNode,
       },
     };
 
@@ -326,15 +345,25 @@ export class CombatActionController {
       replayTreePayload.data.doNotLockInput = true;
     }
 
-    const sequentialEvents: ClientSequentialEvent[] = [replayTreePayload];
+    sequentialEvents.push(replayTreePayload);
+    if (initialActionReplayTreeResult.removedCombatantIds.length) {
+      sequentialEvents.push({
+        type: ClientSequentialEventType.PostReplayTreeCleanup,
+        data: { removedCombatantIds: initialActionReplayTreeResult.removedCombatantIds },
+      });
+    }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.ClientSequentialEvents,
       data: { sequentialEvents },
     });
 
+    if (ladderMessagesOutbox) {
+      outbox.pushFromOther(ladderMessagesOutbox);
+    }
+
+    let aiActionsTimeSpentInInputLock = 0;
     if (battleOption) {
       const battleProcessor = new BattleProcessor(
         this.updateDispatchFactory,
@@ -343,15 +372,24 @@ export class CombatActionController {
         battleOption,
         this.gameModeContexts,
         this.idGenerator,
-        this.itemGenerator,
-        this.rng,
+        this.rngPolicy,
+        this.lootGenerator,
         this.assetAnalyzer
       );
 
-      const battleProcessingOutbox =
-        await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+      const {
+        outbox: battleProcessingOutbox,
+        durationUntilInputUnlock: lockDurationFromAiActions,
+      } = await battleProcessor.processBattleUntilPlayerTurnOrConclusion();
+      aiActionsTimeSpentInInputLock = lockDurationFromAiActions;
+
       outbox.pushFromOther(battleProcessingOutbox);
     }
+
+    const totalTimeSpentInInputLock =
+      aiActionsTimeSpentInInputLock + initialActionReplayTreeResult.durationSpentInInputLock;
+
+    party.inputLock.increaseLockoutDuration(totalTimeSpentInInputLock);
 
     return outbox;
   }

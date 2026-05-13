@@ -4,7 +4,6 @@ import {
   CombatActionLeaf,
 } from "../../index.js";
 import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
-import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
@@ -25,10 +24,12 @@ import {
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
-import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { invariant } from "../../../../utils/index.js";
+import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -57,7 +58,7 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
   costBases: {
-    [CombatActionResource.Mana]: {
+    [ActionPayableResource.Mana]: {
       base: 2,
       additives: {
         actionLevel: 0,
@@ -133,7 +134,9 @@ const config: CombatActionComponentConfig = {
 };
 
 ActionStepConfigUtils.removeMoveForwardSteps(stepsConfig);
-delete stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]?.getAnimation;
-stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning]!.shouldIdleOnComplete = true;
+const finalPositioningStep = stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning];
+invariant(finalPositioningStep !== undefined);
+delete finalPositioningStep.getAnimation;
+finalPositioningStep.shouldIdleOnComplete = true;
 
 export const SUMMON_PET_PARENT = new CombatActionLeaf(CombatActionName.SummonPetParent, config);

@@ -1,6 +1,11 @@
 import { iterateNumericEnumKeyedRecord } from "./index.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
 
+interface NumericEnumLike {
+  [key: string]: string | number;
+  [key: number]: string;
+}
+
 export class NumericEnumUtils {
   static serializeNumericEnumRecord<K extends number, V extends Serializable>(
     record: Partial<Record<K, V>>
@@ -29,5 +34,10 @@ export class NumericEnumUtils {
     }
 
     return result;
+  }
+
+  static length(someEnum: NumericEnumLike) {
+    const values = Object.values(someEnum).filter((v) => typeof v === "number");
+    return values.length;
   }
 }
