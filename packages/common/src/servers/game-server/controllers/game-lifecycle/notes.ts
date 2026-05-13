@@ -1,3 +1,16 @@
+// User Account Game Persistence
+// - 3 Progression Singles Character slots
+// - 1 Progression Teams character slot
+// - 3 Ironman Singles progression slots
+// - 1 Ironman Teams game slot
+//
+// User Account Ladder Data
+// - Ranked Race singles game history
+// - Ranked Race teams game history
+// - Ironman runs history
+// - Speedrun singles history
+// - Speedrun teams history
+//
 // SINGLES
 // Progression
 // - create/join game
@@ -29,27 +42,36 @@
 //   - if ranked, save a loss record
 //   - Send message to other parties
 // - On party reach designated floor,
-//   - if ranked, save a ladder record of victory in X place (1st, 2nd etc)
+//   - if ranked, save a ladder record of party victory in X place (1st, 2nd etc)
+//   - associate that ladder record with each player that was in the party
 //
 // Speedrun
 // - Single default party (like progression)
 // - Prompt players to create new characters (like fresh ironman run)
-// - On each floor descent, save a "party reached floor x in y milliseconds" record for each player's account
+// - On each floor descent, save a "party reached floor x in y milliseconds" record
+//   associated with each player's account in the "Speedrun Singles" ladder (one record referencing their account ids)
 //
 // TEAM
 // Progression
 // - create/join game
 // - placed into default auto-created party
 // - if user has no living teams, show a team creation UI
-// - if user has available teams, they can select one to add to the party
+// - if user has available teams, they can select one to add all it's characters to the party
 // - if user has open team slots, they can call up the team creation UI
 // - if the party has any characters (even a team of one is valid), the player can start the game
 // - the player may select a starting floor equal to the highest floor reached by their selected team
 // Ironman Fresh Run
 // Ironman Continue Run
+// - a user account either has a current run (auto continue it), or must create a new team
+//   and start a run
 // Unranked Race
 // Ranked Race
+// - players each create a team (one player per party, player can make multiple characters)
+// - on team creation, add a party to the game with the player and their team's characters
 // Speedrun
+// - one player per game, must create new team (player can make multiple characters)
+// - On each floor descent, save a "party reached floor x in y milliseconds" record
+//   for the player's account in the "Speedrun Teams" ladder
 //
 // LOCAL/OFFLINE (TEAM ONLY)
 // Progression
