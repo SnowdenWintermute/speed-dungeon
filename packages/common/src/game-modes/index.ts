@@ -1,6 +1,6 @@
 import { CombatantId, EntityId, IdentityProviderId, Username } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { CharacterSlot } from "../servers/services/saved-characters";
+import { CharacterSlot } from "../servers/services/saved-characters.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 
 export enum CharacterControlScheme {
@@ -15,10 +15,26 @@ export enum GameMode {
   RankedRace,
 }
 
+export interface GameModePolicy {
+  setup: GameModeLobbySetupPolicy;
+  persistence: GameModePersistencePolicy;
+  ladder: GameModeLadderUpdatePolicy;
+}
+
+export class GameModePolicyStore {
+  // policies: Record<GameMode, GameModePolicy> = {
+  //   //
+  // }
+  // getPolicies(mode: GameMode):GameModePolicy
+}
+
 export interface GameModeLobbySetupPolicy {
-  gameCanBeStarted(game: SpeedDungeonGame): void; // required number of parties, each player controls at least one character
+  gameCanBeStarted(game: SpeedDungeonGame): { canStart: boolean; reasonCanNot?: string }; // required number of parties, each player controls at least one character
   // is user authenticated if required, if it is IM run were they in that run, does user have tournament ticked if required
   userCanJoin(session: UserSession, game: SpeedDungeonGame): boolean;
+  // is user authenticated if required, if it is IM run were they in that run
+  // does user have available slots if is IM run
+  userCanCreate(session: UserSession, game: SpeedDungeonGame): boolean;
   canSelectStartingFloor(): boolean; // is starting floor selectable in this mode (only for progression)
   getMaxStartingFloor(game: SpeedDungeonGame): number;
   // for Ironman, put them in default party and assign them to their characters
@@ -34,9 +50,11 @@ export interface GameModeLobbySetupPolicy {
 }
 
 export interface UserAccountPersistentGameData {
+  // slots array length limited by user account and control scheme
   progressionCharacters: Record<CharacterControlScheme, CharacterSlot[]>;
+  // ironman runs array length limited by user account and control scheme
   ironmanRunIds: Record<CharacterControlScheme, EntityId[]>;
-  raceGameRecordIds: Record<number, EntityId[]>; // number is year + month (Epoch?)
+  raceGameRecordIds: Record<CharacterControlScheme, Record<number, EntityId[]>>; // number is year + month (Epoch?)
 }
 
 export interface SavedIronmanRun {
@@ -50,7 +68,41 @@ export interface SavedIronmanRun {
   isInProgress: boolean;
 }
 
-/** what to save and how to save it when certain events happen */
+// LadderGameRecord (for ironman/races)
+// - game name
+// - game mode
+// - control mode
+// - time started
+// - time completed
+// - References to participating PartyLadderRecords
+// - Winner derrived from party records timeOfEscape
+//    .can rank them by time escaped for 2nd, 3rd place)
+//    .only races would have a winner
+
+// PartyLadderRecord
+// - ref to LadderGameRecord
+// - partyId
+// - partyName
+// - timeOfEscape
+// - timeOfWipe
+// - references to LadderCharacterRecords
+// - references to LadderPartyFloorClearTime records
+//
+// LadderPartyFloorClearTimeRecord
+// - partyId
+// - floor number
+// - timeToReach
+// - timeToClear
+//
+// LadderCharacterRecord
+// - characterName
+// - combatantClass
+// - level
+
+/** what to save and how to save it when certain events happen
+ * will need access to persistence services, or be owned by a composing class that
+ * can pass the services to each method
+ * */
 export interface GameModePersistencePolicy {
   onFloorDescent(): Promise<void>;
   onGameStart(): Promise<void>;
@@ -62,7 +114,10 @@ export interface GameModePersistencePolicy {
   onPartyVictory(): Promise<void>;
 }
 
-/** how to update which ladder when certain events happen */
+/** how to update which ladder when certain events happen
+ * will need access to ladder services, or be owned by a composing class that
+ * can pass the services to each method
+ * */
 export interface GameModeLadderUpdatePolicy {
   onFloorDescent(): Promise<void>;
   onGameStart(): Promise<void>;

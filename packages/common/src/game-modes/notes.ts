@@ -11,7 +11,7 @@
 // - Ironman time-on-floor records (spent x ms on floor y before descending)
 // - Ironman time-to-floor records (reached floor x in y ms, derrivable from time-on-floor records?)
 //
-// SINGLE CONTROL
+// Freelancer Control Scheme
 // Progression
 // - create/join game
 // - placed into default auto-created party
@@ -49,7 +49,7 @@
 //   - if ranked, save a ladder record of party victory in X place (1st, 2nd etc)
 //   - associate that ladder record with each player that was in the party
 //
-// MULTI CONTROL
+// Captains Control Scheme
 // Progression
 // - create/join game
 // - placed into default auto-created party
@@ -68,47 +68,7 @@
 // - players each create a party (one player per party, player can make multiple characters)
 // - on team creation, add a party to the game with the player and their team's characters
 //
-// LOCAL/OFFLINE (MULTI CONTROL)
+// LOCAL/OFFLINE (user control one or more characters "Captains mode")
 // Progression
 // Ironman
 // Speedrun
-//
-//
-// export interface GameMode {
-//   persistencePolicy: GameModePersistencePolicy;
-//   ladderPolicy: GameModeLadderPolicy;
-//   setupPolicy: GameModeLobbySetupPolicy;
-//   description: string
-// }
-//
-// export interface GameModeLobbySetupPolicy {
-//   gameCanBeStarted (does each player have a required character/party selected)
-//   userCanJoin (is user authenticated if required, does user have tournament ticked if required)
-//   canSelectStartingFloor (only allowed in Progression)
-//   getSelectableTeams // list of user's selectable teams
-//   getSelectableCharacters // list of user's selectable characters
-// }
-//
-// /** what to save and how to save it when certain events happen */
-// export interface GameModePersistencePolicy {
-//   onFloorDescent
-//   onGameStart
-//   onBattleResult
-//   onGameLeave
-//   onLastPlayerLeftGame
-//   onPartyEscape
-//   onPartyWipe
-//   onPartyVictory
-// }
-//
-// /** how to update which ladder when certain events happen */
-// export interface GameModeLadderPolicy {
-//   onFloorDescent
-//   onGameStart
-//   onBattleResult
-//   onGameLeave
-//   onLastPlayerLeftGame
-//   onPartyEscape
-//   onPartyWipe
-//   onPartyVictory
-// }
