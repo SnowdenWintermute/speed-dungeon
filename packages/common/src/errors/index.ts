@@ -42,6 +42,7 @@ export const ERROR_MESSAGES = {
     NOT_FOUND: "No game was found by that name",
     NOT_STARTED: "The game has not started",
     ALREADY_STARTED: "That game has already started",
+    IS_FULL: "That game is full (has maximum number of players)",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided ID",

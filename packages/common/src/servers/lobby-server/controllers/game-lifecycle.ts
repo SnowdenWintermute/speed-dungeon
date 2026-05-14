@@ -11,7 +11,7 @@ import { GameSessionStoreService } from "../../services/game-session-store/index
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { GameId, GameName } from "../../../aliases.js";
 import { MAX_GAME_NAME_LENGTH } from "../../../app-consts.js";
-import { ActionValidity } from "../../../primatives/index.js";
+import { AllowedResult } from "../../../primatives/index.js";
 import { GAME_CHANNEL_PREFIX, LOBBY_CHANNEL } from "../../../packets/channels.js";
 import { GameMode } from "../../../types.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
@@ -41,20 +41,23 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return `${firstName} ${lastName}` as GameName;
   }
 
-  private getGameNameValidity(gameName: GameName): ActionValidity {
+  private getGameNameValidity(gameName: GameName): AllowedResult {
     if (gameName.length > MAX_GAME_NAME_LENGTH) {
-      return new ActionValidity(
-        false,
-        `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`
-      );
+      return {
+        allowed: false,
+        reason: `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`,
+      };
     }
 
     const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length);
     if (gameNamePrefix === GAME_CHANNEL_PREFIX) {
-      return new ActionValidity(false, `Game names may be not begin with "${GAME_CHANNEL_PREFIX}"`);
+      return {
+        allowed: false,
+        reason: `Game names may be not begin with "${GAME_CHANNEL_PREFIX}"`,
+      };
     }
 
-    return new ActionValidity(true);
+    return { allowed: true };
   }
 
   requestGameListHandler(session: UserSession) {
@@ -77,12 +80,12 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     let { gameName } = data;
 
     const userCanJoinNewGame = session.canJoinNewGame(isRanked);
-    if (!userCanJoinNewGame.isValid) {
+    if (!userCanJoinNewGame.allowed) {
       throw new Error(userCanJoinNewGame.reason);
     }
 
     const gameNameValidity = this.getGameNameValidity(gameName);
-    if (!gameNameValidity.isValid) {
+    if (!gameNameValidity.allowed) {
       throw new Error(gameNameValidity.reason);
     }
 
@@ -162,7 +165,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     const game = this.lobbyState.gameRegistry.requireGame(gameName);
 
     const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
-    if (!userCanJoinNewGame.isValid) {
+    if (!userCanJoinNewGame.allowed) {
       throw new Error(userCanJoinNewGame.reason);
     }
 
