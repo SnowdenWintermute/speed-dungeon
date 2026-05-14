@@ -61,10 +61,10 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
     return [deathMessagePayloads];
   }
   onLastPlayerLeftGame(): Promise<void> {
-    throw new Error("Method not implemented.");
+    return Promise.resolve();
   }
   onPartyEscape(): Promise<void> {
-    throw new Error("Method not implemented.");
+    return Promise.resolve();
   }
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
@@ -103,7 +103,7 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
 
     return outbox;
   }
-  async onPartyVictory(
+  async onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>

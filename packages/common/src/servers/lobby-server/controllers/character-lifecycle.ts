@@ -4,20 +4,22 @@ import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameMode } from "../../../types.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { GameMode } from "../../../game-modes/index.js";
+import { PartySetupController } from "./party-setup.js";
 
 export class CharacterLifecycleController {
   constructor(
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersService: SavedCharactersService,
-    private readonly characterCreationPolicy: CharacterCreationPolicy
+    private readonly characterCreationPolicy: CharacterCreationPolicy,
+    private readonly partySetupController: PartySetupController
   ) {}
 
   static requireValidCharacterNameLength(name: string) {
@@ -35,6 +37,16 @@ export class CharacterLifecycleController {
     const { name, combatantClass } = data;
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
+
+    const userWithinCharacterControlSchemeLimits =
+      this.partySetupController.userMeetsCharacterControlSchemeLimits(
+        session.username,
+        game,
+        party
+      );
+    if (!userWithinCharacterControlSchemeLimits.allowed) {
+      throw new Error(userWithinCharacterControlSchemeLimits.reason);
+    }
 
     const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
       name,

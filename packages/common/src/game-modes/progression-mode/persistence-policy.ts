@@ -28,7 +28,7 @@ export class ProgressionModePersistencePolicy implements GameModePersistencePoli
   async onPartyWipe(): Promise<void> {
     return Promise.resolve();
   }
-  onPartyVictory(): Promise<void> {
+  onPartyBattleVictory(): Promise<void> {
     return Promise.resolve();
   }
 }

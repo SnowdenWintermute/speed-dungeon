@@ -27,7 +27,6 @@ import { LootGenerator } from "../../items/item-creation/loot-generator.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
-import { GameMode } from "../../types.js";
 import { GameModeContext } from "./controllers/game-lifecycle/game-mode-context.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
@@ -50,8 +49,8 @@ import {
   OpaqueEncryptionTokenCodec,
 } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
-import { invariant } from "../../utils/index.js";
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
+import { GameMode } from "../../game-modes/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -135,8 +134,26 @@ export class GameServer extends SpeedDungeonServer {
     this.startActiveGamesRecordHeartbeatTask();
 
     this.gameModeContexts = {
-      [GameMode.Race]: new GameModeContext(
-        GameMode.Race,
+      [GameMode.UnrankedRace]: new GameModeContext(
+        GameMode.UnrankedRace,
+        externalServices.raceGameRecordsService,
+        externalServices.savedCharactersService,
+        externalServices.rankedLadderService,
+        this.updateDispatchFactory,
+        externalServices.crossServerBroadcasterService,
+        this.userSessionRegistry
+      ),
+      [GameMode.RankedRace]: new GameModeContext(
+        GameMode.RankedRace,
+        externalServices.raceGameRecordsService,
+        externalServices.savedCharactersService,
+        externalServices.rankedLadderService,
+        this.updateDispatchFactory,
+        externalServices.crossServerBroadcasterService,
+        this.userSessionRegistry
+      ),
+      [GameMode.Ironman]: new GameModeContext(
+        GameMode.Ironman,
         externalServices.raceGameRecordsService,
         externalServices.savedCharactersService,
         externalServices.rankedLadderService,

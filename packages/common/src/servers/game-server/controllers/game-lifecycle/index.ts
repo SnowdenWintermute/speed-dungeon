@@ -10,7 +10,6 @@ import { SpeedDungeonGame } from "../../../../game/index.js";
 import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { GameMode } from "../../../../types.js";
 import { GameModeContext } from "./game-mode-context.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
@@ -21,6 +20,7 @@ import {
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
+import { GameMode } from "../../../../game-modes/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;

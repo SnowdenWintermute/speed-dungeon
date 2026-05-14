@@ -4,10 +4,10 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
 import {
   ClientIntentType,
+  GAME_MODE_STRINGS,
   GameListEntry,
   GameMode,
   MAX_PARTY_SIZE,
-  formatGameMode,
 } from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
@@ -179,7 +179,7 @@ function GameListItem({ game }: GameListItemProps) {
         }}
       >
         {game.gameName} - [{game.isRanked && "Ranked "}
-        {formatGameMode(game.gameMode)}]
+        {GAME_MODE_STRINGS[game.gameMode]}]
       </div>
       <div className="h-10 w-32 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">

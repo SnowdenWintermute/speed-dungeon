@@ -1,6 +1,5 @@
-import { GameMessage } from "../../../../packets/game-message.js";
+import { GameMode } from "../../../../game-modes/index.js";
 import { GameStateUpdate } from "../../../../packets/game-state-updates.js";
-import { GameMode } from "../../../../types.js";
 import { CrossServerBroadcasterService } from "../../../services/cross-server-broadcaster/index.js";
 import { RaceGameRecordsService } from "../../../services/race-game-records.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
@@ -32,8 +31,10 @@ export class GameModeContext {
 
   private createStrategy(mode: GameMode): GameModeStrategy {
     switch (mode) {
-      case GameMode.Race:
+      case GameMode.UnrankedRace:
+      case GameMode.RankedRace:
         return new RankedRaceStrategy(this.raceGameRecordsService, this.updateDispatchFactory);
+      case GameMode.Ironman:
       case GameMode.Progression:
         return new ProgressionGameStrategy(
           this.savedCharactersLadderService,

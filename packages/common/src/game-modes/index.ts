@@ -17,6 +17,13 @@ export enum GameMode {
   RankedRace,
 }
 
+export const GAME_MODE_STRINGS: Record<GameMode, string> = {
+  [GameMode.Progression]: "Progression",
+  [GameMode.Ironman]: "Ironman",
+  [GameMode.UnrankedRace]: "Unranked Race",
+  [GameMode.RankedRace]: "Ranked Race",
+};
+
 export interface GameModePolicy {
   setup: GameModeLobbySetupPolicy;
   persistence: GameModePersistencePolicy;

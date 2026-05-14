@@ -12,7 +12,7 @@ import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
 import { NextOrPrevious } from "../../../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
-import { CharacterAssociatedData, GameMode } from "../../../../types.js";
+import { CharacterAssociatedData } from "../../../../types.js";
 import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
 import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
@@ -26,6 +26,7 @@ import {
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
 import { SerializedOf } from "../../../../serialization/index.js";
+import { GameMode } from "../../../../game-modes/index.js";
 
 export class CombatActionController {
   constructor(

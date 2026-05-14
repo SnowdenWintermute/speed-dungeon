@@ -25,7 +25,7 @@ export interface GameModeLadderUpdatePolicy {
     game: SpeedDungeonGame,
     party: AdventuringParty
   ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
-  onPartyVictory(
+  onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>

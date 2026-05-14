@@ -5,7 +5,6 @@ import { NextOrPrevious } from "../primatives/index.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
-import { GameMode } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -34,6 +33,7 @@ import { Equipment } from "../items/equipment/index.js";
 import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
+import { GameMode } from "../game-modes/index.js";
 
 export enum GameStateUpdateType {
   GameList,

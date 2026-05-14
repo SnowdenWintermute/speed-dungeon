@@ -75,6 +75,8 @@ export const ERROR_MESSAGES = {
       "The provided character is not in the list of that player's owned characters",
     MISSING_PARTY_NAME: "Player doesn't have a party name or party does not exist",
     NOT_IN_PARTY: "Player must be in a party",
+    PARTY_CHARACTER_LIMIT:
+      "You are already controlling the maximum number of characters in this game mode",
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",

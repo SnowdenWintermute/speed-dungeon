@@ -1,7 +1,6 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import { GameMode } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -27,6 +26,7 @@ import {
   makePropertiesObservable,
 } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -42,6 +42,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     public id: GameId,
     public name: GameName,
     public mode: GameMode,
+    readonly characterControlScheme: CharacterControlScheme,
     public gameCreator: string | null = null,
     public isRanked: boolean = false
   ) {
@@ -69,6 +70,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       mode: this.mode,
       gameCreator: this.gameCreator,
       isRanked: this.isRanked,
+      characterControlScheme: this.characterControlScheme,
       players: MapUtils.serialize(this.players, (v) => v.toSerialized()),
       playerCapacity: this.playerCapacity,
       playersReadied: this.playersReadied,
@@ -82,8 +84,15 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   static fromSerialized(serialized: SerializedOf<SpeedDungeonGame>) {
-    const { id, name, mode, gameCreator, isRanked } = serialized;
-    const result = new SpeedDungeonGame(id, name, mode, gameCreator, isRanked);
+    const { id, name, mode, characterControlScheme, gameCreator, isRanked } = serialized;
+    const result = new SpeedDungeonGame(
+      id,
+      name,
+      mode,
+      characterControlScheme,
+      gameCreator,
+      isRanked
+    );
     result.players = MapUtils.deserialize(serialized.players, (v) =>
       SpeedDungeonPlayer.fromSerialized(v)
     );
@@ -158,7 +167,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     this.requireNotYetStarted();
 
     let minimumNumberOfParties = 1;
-    if (this.mode === GameMode.Race && this.isRanked) {
+    if (this.mode === GameMode.RankedRace && this.isRanked) {
       minimumNumberOfParties = GAME_CONFIG.MIN_RACE_GAME_PARTIES;
     }
 

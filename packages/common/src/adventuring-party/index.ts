@@ -38,7 +38,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   timeOfEscape: null | number = null;
   inputLock = new TimedLock();
 
-  constructor(
+  private constructor(
     public id: string,
     public name: PartyName
   ) {}

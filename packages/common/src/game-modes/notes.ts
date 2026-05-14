@@ -12,15 +12,6 @@
 // - Ironman time-to-floor records (reached floor x in y ms, derrivable from time-on-floor records?)
 //
 // Freelancer Control Scheme
-// Progression
-// - create/join game
-// - placed into default auto-created party
-// - if user has no living characters, show a character creation UI
-// - if user has available characters, they can select one to add to the party
-// - if user has open character slots, they can call up the character creation UI
-// - if one or more characters is in the party and all users ready up, game starts
-// - any player with a character in the party may select a starting floor up to the highest common floor
-//   reached among all characters
 //
 // Ironman Fresh Run
 // - Same as progression except all players must use the character creation UI to make new characters
@@ -50,15 +41,6 @@
 //   - associate that ladder record with each player that was in the party
 //
 // Captains Control Scheme
-// Progression
-// - create/join game
-// - placed into default auto-created party
-// - if user has no living "multi-control-mode" characters, show a character creation UI
-// - if user has available "multi-control-mode"  characters, they can select and add to the party
-// - if user account has open character slots for "multi-control-mode"  progression, they can call
-//   up the character creation UI
-// - if the party has any characters (even a party of one is valid), the player can start the game
-// - the player may select a starting floor equal to the highest floor reached by any selected character
 // Ironman Fresh Run
 // Ironman Continue Run
 // - a user account either has a current run (auto continue it), or must create a new team
@@ -71,4 +53,3 @@
 // LOCAL/OFFLINE (user control one or more characters "Captains mode")
 // Progression
 // Ironman
-// Speedrun

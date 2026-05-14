@@ -15,6 +15,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { makeAutoObservable } from "mobx";
 import { Combatant } from "../combatants/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
   partyName: null | PartyName = null;
@@ -77,6 +78,15 @@ export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
     const characters: Combatant[] = [];
     for (const id of this.characterIds) {
       const characterResult = game.getExpectedCombatant(id);
+      characters.push(characterResult);
+    }
+    return characters;
+  }
+
+  getCharactersInParty(party: AdventuringParty) {
+    const characters: Combatant[] = [];
+    for (const id of this.characterIds) {
+      const characterResult = party.combatantManager.getExpectedCombatant(id);
       characters.push(characterResult);
     }
     return characters;

@@ -4,7 +4,6 @@ import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../../../../battle/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { GameMode } from "../../../../types.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
@@ -26,6 +25,7 @@ import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-impleme
 import { throwIfLoopLimitReached } from "../../../../utils/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
+import { GameMode } from "../../../../game-modes/index.js";
 
 export class BattleProcessor {
   constructor(

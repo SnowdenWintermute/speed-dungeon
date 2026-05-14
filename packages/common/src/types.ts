@@ -18,23 +18,9 @@ export interface PlayerAssociatedData {
   partyOption: AdventuringParty | undefined;
 }
 
-export enum GameMode {
-  Race,
-  Progression,
-}
-
 export enum CleanupMode {
   Immediate,
   Soft,
-}
-
-export function formatGameMode(gameMode: GameMode) {
-  switch (gameMode) {
-    case GameMode.Race:
-      return "Race";
-    case GameMode.Progression:
-      return "Progression";
-  }
 }
 
 export type BoundingBoxSizesBySpecies = Partial<
@@ -60,3 +46,8 @@ export type BoundingBoxSizes = Partial<
     }
   >
 >;
+
+export interface CombatantWithPets {
+  combatant: Combatant;
+  pets: Combatant[];
+}

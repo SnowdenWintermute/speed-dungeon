@@ -11,7 +11,7 @@ export function GameSetup({ gameMode }: { gameMode: GameMode }) {
       style={{ zIndex: ZIndexLayers.LobbyGameSetup }}
     >
       {gameMode === GameMode.Progression && <ProgressionGameLobby />}
-      {gameMode === GameMode.Race && <RaceGameLobby />}
+      {gameMode === GameMode.UnrankedRace && <RaceGameLobby />}
     </main>
   );
 }

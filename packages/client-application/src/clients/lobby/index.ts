@@ -46,7 +46,7 @@ export class LobbyClient extends BaseClient {
       type: ClientIntentType.CreateGame,
       data: {
         gameName: "" as GameName,
-        mode: GameMode.Race,
+        mode: GameMode.UnrankedRace,
       },
     });
 
@@ -93,7 +93,7 @@ export class LobbyClient extends BaseClient {
       type: ClientIntentType.CreateGame,
       data: {
         gameName: "test game" as GameName,
-        mode: GameMode.Race,
+        mode: GameMode.UnrankedRace,
       },
     });
 

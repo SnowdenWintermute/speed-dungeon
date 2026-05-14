@@ -13,13 +13,13 @@ import { GameId, GameName } from "../../../aliases.js";
 import { MAX_GAME_NAME_LENGTH } from "../../../app-consts.js";
 import { AllowedResult } from "../../../primatives/index.js";
 import { GAME_CHANNEL_PREFIX, LOBBY_CHANNEL } from "../../../packets/channels.js";
-import { GameMode } from "../../../types.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
@@ -122,7 +122,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       game = new SpeedDungeonGame(
         this.idGenerator.generate() as GameId,
         gameName,
-        GameMode.Race,
+        GameMode.UnrankedRace,
+        CharacterControlScheme.Captain,
         session.username,
         isRanked
       );
@@ -146,6 +147,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       this.idGenerator.generate() as GameId,
       gameName,
       GameMode.Progression,
+      CharacterControlScheme.Captain,
       session.username
     );
 

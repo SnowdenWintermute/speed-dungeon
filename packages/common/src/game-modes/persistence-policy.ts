@@ -14,5 +14,5 @@ export interface GameModePersistencePolicy {
   onLastPlayerLeftGame(): Promise<void>;
   onPartyEscape(): Promise<void>;
   onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
-  onPartyVictory(): Promise<void>;
+  onPartyBattleVictory(): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { ClientIntentType, GameMode, GameName, formatGameMode } from "@speed-dungeon/common";
+import { ClientIntentType, GAME_MODE_STRINGS, GameMode, GameName } from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
@@ -32,7 +32,7 @@ export default function HostGameForm() {
   }
 
   useEffect(() => {
-    if (!isLoggedIn) setSelectedGameMode(GameMode.Race);
+    if (!isLoggedIn) setSelectedGameMode(GameMode.UnrankedRace);
     if (!isLoggedIn) setIsRanked(false);
   }, [isLoggedIn]);
 
@@ -55,11 +55,11 @@ export default function HostGameForm() {
           />
         </div>
         <div className="flex items-center font-bold">
-          Game mode: {formatGameMode(selectedGameMode)}
+          Game mode: {GAME_MODE_STRINGS[selectedGameMode]}
         </div>
         <Divider />
         <div className="mb-4">
-          {selectedGameMode === GameMode.Race && (
+          {selectedGameMode === GameMode.UnrankedRace && (
             <p>
               Race to the bottom of the dungeon! Face off against other parties or go for a personal
               best time. This mode uses all new level 1 characters. Players can control one or more
@@ -80,11 +80,11 @@ export default function HostGameForm() {
               buttonType="button"
               hotkeys={["KeyW"]}
               onClick={() => {
-                setSelectedGameMode(GameMode.Race);
+                setSelectedGameMode(GameMode.UnrankedRace);
                 setIsRanked(false);
               }}
               className={`flex-1 h-10 border border-slate-400 
-                        ${selectedGameMode === GameMode.Race && !isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        ${selectedGameMode === GameMode.UnrankedRace && !isRanked ? "bg-slate-950" : "bg-slate-700"}
                         mr-1
                         `}
             >
@@ -121,11 +121,11 @@ export default function HostGameForm() {
                 hotkeys={["KeyD"]}
                 disabled={!isLoggedIn}
                 onClick={() => {
-                  setSelectedGameMode(GameMode.Race);
+                  setSelectedGameMode(GameMode.UnrankedRace);
                   setIsRanked(true);
                 }}
                 className={`flex-1 h-10 w-full border border-slate-400
-                        ${selectedGameMode === GameMode.Race && isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        ${selectedGameMode === GameMode.UnrankedRace && isRanked ? "bg-slate-950" : "bg-slate-700"}
                         disabled:opacity-50
                         `}
               >
