@@ -59,6 +59,8 @@ export const ERROR_MESSAGES = {
     PLAYER_NOT_IN_CONTINUED_GAME:
       "This is a continuation of a previous game that your account was not a part of",
     CONTINUED_GAME: "That action is not allowed in the setup of a game continuation",
+    MINIMUM_PARTIES: (minimumPartyCount: number) =>
+      `Game does not have the minimum number of parties (${minimumPartyCount})`,
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",

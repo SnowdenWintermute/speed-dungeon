@@ -10,24 +10,31 @@ export class ProgressionModePersistencePolicy implements GameModePersistencePoli
   onGameStart(): Promise<void> {
     return Promise.resolve();
   }
+
   async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     await this.savedCharactersService.updateAllInParty(game, party);
   }
+
   async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     await this.savedCharactersService.updateAllInParty(game, party);
   }
+
   async onGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer) {
     await this.savedCharactersService.updateCharactersOwnedByPlayerInGame(game, player);
   }
+
   onLastPlayerLeftGame(): Promise<void> {
     return Promise.resolve();
   }
+
   onPartyEscape(): Promise<void> {
     return Promise.resolve();
   }
+
   async onPartyWipe(): Promise<void> {
     return Promise.resolve();
   }
+
   onPartyBattleVictory(): Promise<void> {
     return Promise.resolve();
   }

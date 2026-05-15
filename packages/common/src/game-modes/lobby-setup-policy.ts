@@ -7,6 +7,7 @@ import { PartySetupController } from "../servers/lobby-server/controllers/party-
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
 import { SavedCharactersService } from "../servers/services/saved-characters.js";
 import { UserSession } from "../servers/sessions/user-session.js";
+import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 import { IdGenerator } from "../utility-classes/index.js";
 
@@ -14,7 +15,8 @@ export abstract class GameModeLobbySetupPolicy {
   constructor(
     protected profileService: SpeedDungeonProfileService,
     protected savedCharactersService: SavedCharactersService,
-    protected idGenerator: IdGenerator
+    protected idGenerator: IdGenerator,
+    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
 
   // required number of parties, each player controls at least one character

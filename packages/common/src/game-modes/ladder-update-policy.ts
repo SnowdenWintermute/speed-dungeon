@@ -13,7 +13,6 @@ import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 export interface GameModeLadderUpdatePolicy {
   onFloorDescent(): Promise<void>;
   onGameStart(): Promise<void>;
-  onBattleResult(): Promise<void>;
   onGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
@@ -24,10 +23,10 @@ export interface GameModeLadderUpdatePolicy {
   onPartyWipe(
     game: SpeedDungeonGame,
     party: AdventuringParty
-  ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
   onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
-  ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
 }

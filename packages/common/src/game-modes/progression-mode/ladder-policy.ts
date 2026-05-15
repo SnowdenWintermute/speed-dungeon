@@ -42,12 +42,11 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
   onFloorDescent(): Promise<void> {
     throw new Error("Method not implemented.");
   }
+
   onGameStart(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  onBattleResult(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
+
   async onGameLeave(game: SpeedDungeonGame, party: AdventuringParty, player: SpeedDungeonPlayer) {
     const characters = player.getCharactersInGame(game);
     // If they're leaving a game while dead, this character should be removed from the ladder
@@ -60,12 +59,15 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
 
     return [deathMessagePayloads];
   }
+
   onLastPlayerLeftGame(): Promise<void> {
     return Promise.resolve();
   }
+
   onPartyEscape(): Promise<void> {
     return Promise.resolve();
   }
+
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
     const ladderDeathsUpdate = await this.rankedLadderService.removeDeadCharacters(partyCharacters);
@@ -103,6 +105,7 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
 
     return outbox;
   }
+
   async onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,

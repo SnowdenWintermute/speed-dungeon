@@ -1,7 +1,3 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../aliases.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { SpeedDungeonPlayer } from "../../game/player.js";
 import { ClientSequentialEvent } from "../../packets/client-sequential-events.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { PartyDelayedGameMessageFactory } from "../../servers/game-server/party-delayed-game-message-factory.js";
@@ -10,7 +6,6 @@ import { RankedLadderService } from "../../servers/services/ranked-ladder.js";
 import { ServerCommand } from "../../servers/services/server-command/index.js";
 import { UserSessionRegistry } from "../../servers/sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../servers/update-delivery/message-dispatch-factory.js";
-import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLadderUpdatePolicy } from "../ladder-update-policy.js";
 
 export class IronmanModeLadderPolicy implements GameModeLadderUpdatePolicy {
@@ -24,6 +19,7 @@ export class IronmanModeLadderPolicy implements GameModeLadderUpdatePolicy {
       ServerCommand
     >
   ) {}
+
   async onFloorDescent(): Promise<void> {
     // - save the "ironman party ladder record" with Players and characters
     //   {name:EntityName,combatantClass: CombatantClass,experience: number }[]
@@ -33,38 +29,30 @@ export class IronmanModeLadderPolicy implements GameModeLadderUpdatePolicy {
     // - update the player's profiles to reference the "ironman ladder party record"
     throw new Error("Method not implemented.");
   }
+
   async onGameStart(): Promise<void> {
     // not worth update ladder until they complete at least one floor
     return;
   }
-  async onBattleResult(): Promise<void> {
-    return;
-  }
-  async onGameLeave(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    player: SpeedDungeonPlayer
-  ): Promise<ClientSequentialEvent[]> {
+
+  async onGameLeave(): Promise<ClientSequentialEvent[]> {
     return [];
   }
+
   async onLastPlayerLeftGame(): Promise<void> {
     return;
   }
+
   async onPartyEscape(): Promise<void> {
     // save a "run completed" ladder record with any interesting metadata
     throw new Error("Method not implemented.");
   }
-  async onPartyWipe(
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+  async onPartyWipe() {
+    return undefined;
   }
-  async onPartyBattleVictory(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    levelups: Record<EntityId, number>
-  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+  async onPartyBattleVictory() {
+    return undefined;
   }
 }
