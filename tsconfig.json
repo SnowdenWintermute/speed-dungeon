@@ -13,6 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "noUncheckedIndexedAccess": true,
+    // "noImplicitOverride": true, // @TODO - turn this on and fix errors
     "useDefineForClassFields": true // mobx requires
   }
 }

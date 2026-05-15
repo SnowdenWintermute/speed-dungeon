@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantId, GameName, PartyName } from "../../aliases.js";
+import { CombatantId } from "../../aliases.js";
 import { MAX_PARTY_SIZE } from "../../app-consts.js";
 import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -7,39 +7,31 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { PartySetupController } from "../../servers/lobby-server/controllers/party-setup.js";
-import {
-  SpeedDungeonProfile,
-  SpeedDungeonProfileService,
-} from "../../servers/services/profiles.js";
-import { SavedCharactersService } from "../../servers/services/saved-characters.js";
+import { SpeedDungeonProfile } from "../../servers/services/profiles.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { CombatantWithPets } from "../../types.js";
-import { IdGenerator } from "../../utility-classes/index.js";
 import { CharacterControlScheme, GameMode } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
-export class ProgressionGameLobbySetup implements GameModeLobbySetupPolicy {
-  constructor(
-    private profileService: SpeedDungeonProfileService,
-    private savedCharactersService: SavedCharactersService,
-    private idGenerator: IdGenerator
-  ) {}
-  modeSpecificStartRequirementsMet(): AllowedResult {
+export class ProgressionModeGameLobbySetup extends GameModeLobbySetupPolicy {
+  override modeSpecificStartRequirementsMet(): AllowedResult {
     return { allowed: true };
   }
 
-  userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult {
+  override userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult {
     if (!session.isAuth()) {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
+    // specific to this game mode because in race mode you can have more than one party's worth
+    // of players/characters
     if (game.players.size >= MAX_PARTY_SIZE) {
       return { allowed: false, reason: ERROR_MESSAGES.GAME.IS_FULL };
     }
     return { allowed: true };
   }
 
-  userCanCreate(session: UserSession): AllowedResult {
+  override userCanCreate(session: UserSession): AllowedResult {
     if (session.isAuth()) {
       return { allowed: true };
     } else {
@@ -47,20 +39,20 @@ export class ProgressionGameLobbySetup implements GameModeLobbySetupPolicy {
     }
   }
 
-  canSelectStartingFloor(): AllowedResult {
+  override canSelectStartingFloor(): AllowedResult {
     return { allowed: true };
   }
 
-  getMaxStartingFloor(game: SpeedDungeonGame): number {
+  override getMaxStartingFloor(game: SpeedDungeonGame): number {
     return game.maxStartingFloor;
   }
 
-  onCreation(game: SpeedDungeonGame) {
+  override onCreation(game: SpeedDungeonGame) {
     // progression games have only a single, automatically generated party
     this.createDefaultPartyInGame(game);
   }
 
-  async onJoin(
+  override async onJoin(
     session: UserSession,
     game: SpeedDungeonGame,
     partySetupController: PartySetupController
@@ -100,7 +92,7 @@ export class ProgressionGameLobbySetup implements GameModeLobbySetupPolicy {
     return outbox;
   }
 
-  async getSelectableCharacterIds(
+  override async getSelectableCharacterIds(
     session: UserSession,
     game: SpeedDungeonGame
   ): Promise<CombatantId[]> {
@@ -110,20 +102,7 @@ export class ProgressionGameLobbySetup implements GameModeLobbySetupPolicy {
     throw new Error("Method not implemented.");
   }
 
-  private getDefaultPartyName(gameName: GameName) {
-    return `Delvers of ${gameName}` as PartyName;
-  }
-
-  private createDefaultPartyInGame(game: SpeedDungeonGame) {
-    const defaultPartyName = this.getDefaultPartyName(game.name);
-    game.adventuringParties.set(
-      defaultPartyName,
-      AdventuringParty.createInitialized(this.idGenerator.generate(), defaultPartyName)
-    );
-    return defaultPartyName;
-  }
-
-  userCanAddCharacterToParty(
+  override userCanAddCharacterToParty(
     session: UserSession,
     game: SpeedDungeonGame,
     party: AdventuringParty

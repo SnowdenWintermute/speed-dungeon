@@ -38,6 +38,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   timeHandedOff: null | number = null;
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
+  private _isContinuedRun = false;
   constructor(
     public id: GameId,
     public name: GameName,
@@ -64,6 +65,8 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   toSerialized() {
+    // don't need to serialize _isContinuedRun because it will be set
+    // when we load new runs
     return {
       id: this.id,
       name: this.name,
@@ -118,6 +121,14 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
         console.info("initialized battle", battleOption.id);
       }
     }
+  }
+
+  // for knowing if it was an ironman run continuing
+  markAsContinuedRun() {
+    this._isContinuedRun = true;
+  }
+  get isContinuedRun() {
+    return this._isContinuedRun;
   }
 
   getPlayers() {

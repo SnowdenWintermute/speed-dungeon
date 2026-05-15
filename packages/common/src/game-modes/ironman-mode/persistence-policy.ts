@@ -4,30 +4,44 @@ import { SpeedDungeonPlayer } from "../../game/player.js";
 import { SavedCharactersService } from "../../servers/services/saved-characters.js";
 import { GameModePersistencePolicy } from "../persistence-policy.js";
 
-export class ProgressionModePersistencePolicy implements GameModePersistencePolicy {
+export class IronmanModePersistencePolicy implements GameModePersistencePolicy {
   constructor(private savedCharactersService: SavedCharactersService) {}
   onGameStart(): Promise<void> {
+    // save the run in persitence service
+    // save the run id in each account's ironman run slots
     throw new Error("Method not implemented.");
   }
-  onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+
+  async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+    return;
+  }
+
+  async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+    // save the game
     throw new Error("Method not implemented.");
   }
-  onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+
+  async onGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void> {
+    // - if any living characters remain, save the run
+    // - disconnect other remaining players
     throw new Error("Method not implemented.");
   }
-  onGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void> {
+
+  async onLastPlayerLeftGame(): Promise<void> {
+    return;
+  }
+
+  async onPartyEscape(): Promise<void> {
+    // delete the run from persistence
     throw new Error("Method not implemented.");
   }
-  onLastPlayerLeftGame(): Promise<void> {
+
+  async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+    // delete the run from persistence
     throw new Error("Method not implemented.");
   }
-  onPartyEscape(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  onPartyBattleVictory(): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async onPartyBattleVictory(): Promise<void> {
+    return;
   }
 }

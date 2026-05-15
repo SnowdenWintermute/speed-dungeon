@@ -13,7 +13,7 @@ import { MessageDispatchFactory } from "../../servers/update-delivery/message-di
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLadderUpdatePolicy } from "../ladder-update-policy.js";
 
-export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
+export class IronmanModeLadderPolicy implements GameModeLadderUpdatePolicy {
   constructor(
     private userSessionRegistry: UserSessionRegistry,
     private rankedLadderService: RankedLadderService,
@@ -24,39 +24,47 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
       ServerCommand
     >
   ) {}
-  onFloorDescent(): Promise<void> {
+  async onFloorDescent(): Promise<void> {
+    // - save the "ironman party ladder record" with Players and characters
+    //   {name:EntityName,combatantClass: CombatantClass,experience: number }[]
+    // - add an "ironman ladder floor reached" in x ms record referencing the party id
+    // - update the ironman party ladder record to reference the new "floor reached record"
+    // - create and link a similar "time spent on floor" record
+    // - update the player's profiles to reference the "ironman ladder party record"
     throw new Error("Method not implemented.");
   }
-  onGameStart(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async onGameStart(): Promise<void> {
+    // not worth update ladder until they complete at least one floor
+    return;
   }
-  onBattleResult(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async onBattleResult(): Promise<void> {
+    return;
   }
-  onGameLeave(
+  async onGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<ClientSequentialEvent[]> {
+    return [];
+  }
+  async onLastPlayerLeftGame(): Promise<void> {
+    return;
+  }
+  async onPartyEscape(): Promise<void> {
+    // save a "run completed" ladder record with any interesting metadata
     throw new Error("Method not implemented.");
   }
-  onLastPlayerLeftGame(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  onPartyEscape(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  onPartyWipe(
+  async onPartyWipe(
     game: SpeedDungeonGame,
     party: AdventuringParty
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    throw new Error("Method not implemented.");
+    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
   }
-  onPartyBattleVictory(
+  async onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    throw new Error("Method not implemented.");
+    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
   }
 }

@@ -1,66 +1,81 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantId, GameName, PartyName } from "../../aliases.js";
-import { MAX_PARTY_SIZE } from "../../app-consts.js";
-import { Combatant } from "../../combatants/index.js";
+import { CombatantId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { PartySetupController } from "../../servers/lobby-server/controllers/party-setup.js";
-import {
-  SpeedDungeonProfile,
-  SpeedDungeonProfileService,
-} from "../../servers/services/profiles.js";
-import { SavedCharactersService } from "../../servers/services/saved-characters.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
-import { CombatantWithPets } from "../../types.js";
-import { IdGenerator } from "../../utility-classes/index.js";
-import { CharacterControlScheme, GameMode } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
-export class ProgressionGameLobbySetup implements GameModeLobbySetupPolicy {
-  constructor(
-    private profileService: SpeedDungeonProfileService,
-    private savedCharactersService: SavedCharactersService,
-    private idGenerator: IdGenerator
-  ) {}
-  modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult {
+export class IronmanModeGameLobbySetup extends GameModeLobbySetupPolicy {
+  override modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult {
+    // all ironman character players in contiuned ironman game have connected
     throw new Error("Method not implemented.");
   }
-  userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult {
-    throw new Error("Method not implemented.");
+
+  override userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult {
+    if (!session.isAuth()) {
+      return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
+    }
+    if (game.isContinuedRun) {
+      const playerOption = game.getPlayer(session.username);
+      if (playerOption) {
+        return { allowed: true };
+      } else {
+        return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME };
+      }
+    }
+    return { allowed: true };
   }
-  userCanCreate(session: UserSession): AllowedResult {
-    throw new Error("Method not implemented.");
+
+  // in an explicit IronmanGameCreation client intent handler we will
+  // check user account for open ironman slot for this control mode (for new runs)
+  // or if continuing a run, do they own the run
+  override userCanCreate(session: UserSession): AllowedResult {
+    if (!session.isAuth()) {
+      return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
+    }
+    return { allowed: true };
   }
-  canSelectStartingFloor(): AllowedResult {
-    throw new Error("Method not implemented.");
+
+  override canSelectStartingFloor(): AllowedResult {
+    return { allowed: false, reason: ERROR_MESSAGES.GAME.STARTING_FLOOR_NOT_SELECTABLE };
   }
-  getMaxStartingFloor(game: SpeedDungeonGame): number {
-    throw new Error("Method not implemented.");
+
+  override getMaxStartingFloor(game: SpeedDungeonGame) {
+    return 1;
   }
-  onCreation(game: SpeedDungeonGame): void {
-    throw new Error("Method not implemented.");
+
+  override onCreation(game: SpeedDungeonGame): void {
+    this.createDefaultPartyInGame(game);
   }
-  onJoin(
+
+  override onJoin(
     session: UserSession,
     game: SpeedDungeonGame,
     partySetupController: PartySetupController
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
+    // if continued run, put the player with their previously controlled characters in the default party
     throw new Error("Method not implemented.");
   }
 
-  userCanAddCharacterToParty(
+  override userCanAddCharacterToParty(
     session: UserSession,
     game: SpeedDungeonGame,
     party: AdventuringParty
   ): AllowedResult {
-    // if this is a continuing ironman run, false
-    throw new Error("Method not implemented.");
+    if (game.isContinuedRun) {
+      return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME };
+    }
+    return { allowed: true };
   }
 
-  getSelectableCharacterIds(session: UserSession, game: SpeedDungeonGame): Promise<CombatantId[]> {
-    throw new Error("Method not implemented.");
+  override async getSelectableCharacterIds(
+    session: UserSession,
+    game: SpeedDungeonGame
+  ): Promise<CombatantId[]> {
+    return [];
   }
 }

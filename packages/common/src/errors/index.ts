@@ -50,9 +50,15 @@ export const ERROR_MESSAGES = {
     BATTLE_DOES_NOT_EXIST: "No battle found by that ID",
     MODE: "Your current game mode does not allow for that action",
     NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
+    STARTING_FLOOR_NOT_SELECTABLE: "Starting floor not selectable in this mode",
     STARTING_FLOOR_LIMIT:
       "You can't start on a deeper floor than the deepest floor reached by any character in your party",
     INPUT_IS_LOCKED: "Can't accept new inputs while waiting for a player to reconnect",
+  },
+  GAME_SETUP: {
+    PLAYER_NOT_IN_CONTINUED_GAME:
+      "This is a continuation of a previous game that your account was not a part of",
+    CONTINUED_GAME: "That action is not allowed in the setup of a game continuation",
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
