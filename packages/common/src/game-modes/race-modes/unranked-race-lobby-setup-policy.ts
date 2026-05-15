@@ -1,11 +1,9 @@
 import { CombatantId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
-import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
-export class UnrankedRaceModeGameLobbySetup extends GameModeLobbySetupPolicy {
+export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   override modeSpecificStartRequirementsMet(): AllowedResult {
     return { allowed: true };
   }
@@ -30,9 +28,8 @@ export class UnrankedRaceModeGameLobbySetup extends GameModeLobbySetupPolicy {
     return;
   }
 
-  override async onJoin(): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
-    return outbox;
+  override async onJoin() {
+    return undefined;
   }
 
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {

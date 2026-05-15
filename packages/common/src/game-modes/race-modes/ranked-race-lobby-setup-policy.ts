@@ -8,7 +8,7 @@ import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
-export class RankedRaceModeGameLobbySetup extends GameModeLobbySetupPolicy {
+export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   override modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult {
     if (game.adventuringParties.size < GAME_CONFIG.MIN_RACE_GAME_PARTIES) {
       return {

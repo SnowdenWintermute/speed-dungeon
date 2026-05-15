@@ -9,7 +9,7 @@ import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
-export class IronmanModeGameLobbySetup extends GameModeLobbySetupPolicy {
+export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
   override modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult {
     // all ironman character players in contiuned ironman game have connected
     throw new Error("Method not implemented.");
@@ -69,6 +69,7 @@ export class IronmanModeGameLobbySetup extends GameModeLobbySetupPolicy {
     if (game.isContinuedRun) {
       return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME };
     }
+
     return { allowed: true };
   }
 

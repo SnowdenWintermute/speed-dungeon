@@ -12,6 +12,16 @@
 // - 1 Captains Ironman game slot
 // - 3 Captains Ironman character slots (so they can hold enough for a full party)
 //
+// IronmanSavedGameState
+// - Serialized SpeedDungeonGame object minus the player's characters
+// - Save the "time saved" for resuming timers (time spent on current floor) when game loaded
+// - Save the player character ids that are in the game
+// - On creating a lobby setup for continued Ironman game, require that
+//   all players that were in the run join before game starts
+// - On join, follow the progression game flow of adding a saved character to the
+//   default party, but automatically select from the user account's Ironman saved
+//   characters the correct matching characters
+//
 // Ladder Record Design Notes
 // - a race game's winner can be derrived from the records
 // - a user account can derrive a winrate from the records
@@ -22,27 +32,23 @@
 //   .average character level at floor x
 //   .other data useful for balance changes
 //
-// Race Game Ladder Entries
-// - RaceGameRecord
+// Race/Ironman Game Ladder Entries
+// - LadderGameRecord
 //   .general game information
-//   .references to any participating RaceGamePartyRecord
-// - RaceGamePartyRecord
-//   .general party information
-//   .time of escape/wipe
-//   .deepest floor reached
-//   .references to RaceGameCharacterRecord
-// - RaceGameCharacterRecord
-//   .general character information
-//   .references to UserAccountId controlling
-//
-// Ironman Run Ladder Entries
-// - IronmanRunPartyRecord
+//   .references to any participating LadderPartyRecord
+// - LadderPartyRecord
 //   .general party information
 //   .time of escape/wipe
 //   .deepest floor reached
 //   .references to LadderCharacterRecord
-//   .references to PartyTimeOnFloor records
+//   .references to PartyTimeOnFloorRecords
+// - LadderPartyTimeOnFloorRecord
+//   .back reference to LadderGamePartyRecord
+//   .how long party spent on floor
 //   .can derrive "time to floor x" from TimeOnFloor records
+// - LadderCharacterRecord
+//   .general character information
+//   .references to controlling UserAccountId
 //
 // Freelancer Control Scheme
 // - One character per player
@@ -50,25 +56,21 @@
 //
 // Captains Control Scheme
 // - One or more characters per player
-// - Ironman saves, progression characters and race records in own "Freelancer" databases
+// - Ironman saves, progression characters and race records in own "Captains" databases
 //
 // Ironman Fresh Run
 // - Same as progression except all players must use the character creation UI to make new characters
 // - Floor selection disabled / hidden (all characters would only reached floor 1 anyway, no need to change floor selection rules)
-// - On game start, records the "Time floor x entered" for ranking their per-floor times and fastest times-to-floor
-// - On each floor descent, save an "ironman party reached floor x in y milliseconds" ladder record
-//   associated with each player's account (one record with a two-way ref with their account ids)
+// - On each floor descent, save a LadderPartyTimeOnFloorRecord and reset the game.timeCurrentFloorReached
+// - On game end (player leaves, party wipes or escapes) update the IronmanSavedGameState and characters
+// - Possibly save at other checkpoints to mitigate data lost on game server crash
 //
 // Ironman Continue Run
-// - Ironman run entire Game class (minus the party characters) is serialized at "checkpoints", the characters are
-//   saved in each account's "Ironman Characters" slots and hold a reference to the game id they can be used in
-// - On continue, optional game field "continue game characters" restricts which saved characters can be added to the
-//   default party. Otherwise can reuse Progression game character selection in game setup logic.
 // - Any user who had a character in the run can create a game to resume it
 // - On creation, the game acquires a lock on the "save file" preventing two games trying to continue the same run
-// - Characters which the owning player has not yet joined show greyed out until their owner joins
 // - Once all participating players joined, they can ready up and start the game
-// - On start, resume the game's "Speedrun Timer"
+// - On game start, set the game.timeCurrentFloorReached to something like it was reached at a time in the past equal to
+//   the time it had been from when it was really reached to the time the game was saved
 // - On game end, remove the lock on the saved game so it can be resumed later
 // - On any player leaving the game, save and close the game for all players
 //

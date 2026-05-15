@@ -37,7 +37,7 @@ export abstract class GameModeLobbySetupPolicy {
     session: UserSession,
     game: SpeedDungeonGame,
     partySetupController: PartySetupController
-  ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
   // read control scheme, if ironman/race they can't select must
   // create or be assigned to previously owned characters in a continued run
   abstract getSelectableCharacterIds(

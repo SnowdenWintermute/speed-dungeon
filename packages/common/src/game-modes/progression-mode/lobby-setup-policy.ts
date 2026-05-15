@@ -14,7 +14,7 @@ import { CombatantWithPets } from "../../types.js";
 import { CharacterControlScheme, GameMode } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
-export class ProgressionModeGameLobbySetup extends GameModeLobbySetupPolicy {
+export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
   override modeSpecificStartRequirementsMet(): AllowedResult {
     return { allowed: true };
   }
