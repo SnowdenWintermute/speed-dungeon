@@ -38,7 +38,8 @@
 //   .references to any participating LadderPartyRecord
 // - LadderPartyRecord
 //   .general party information
-//   .time of escape/wipe
+//   .fate (escape/wipe) | null
+//   .time of fate
 //   .deepest floor reached
 //   .references to LadderCharacterRecord
 //   .references to PartyTimeOnFloorRecords
@@ -49,6 +50,14 @@
 // - LadderCharacterRecord
 //   .general character information
 //   .references to controlling UserAccountId
+//   .references LadderCharacterReachedFloorRecords
+// - LadderCharacterReachedFloorRecord
+//   .characterPayloadSchemaVersion
+//   .recordedAt
+//   .character id
+//   .characterRecordId
+//   .floor number
+//   .entire character serialized minus their inventory
 //
 // Freelancer Control Scheme
 // - One character per player
