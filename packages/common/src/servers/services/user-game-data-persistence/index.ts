@@ -9,6 +9,10 @@ import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character
 import { SerializedPlayerCharacter } from "./serialized-player-character.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 
+// export interface SavedIronmanRunPersistenceStrategy {
+
+// }
+
 export interface SavedCharacterPersistenceStrategy {
   fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
   insert: (
@@ -30,7 +34,7 @@ export interface SavedCharacterSlotsPersistenceStrategy {
   update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
 }
 
-export class SavedCharactersService {
+export class UserGameDataPersistenceService {
   constructor(
     private readonly savedCharacterSlotsPersistenceStrategy: SavedCharacterSlotsPersistenceStrategy,
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy

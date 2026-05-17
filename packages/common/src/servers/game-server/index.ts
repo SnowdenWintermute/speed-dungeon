@@ -1,7 +1,6 @@
 import { GameServerName } from "../../aliases.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { SavedCharactersService } from "../services/saved-characters/index.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
@@ -51,10 +50,11 @@ import {
 import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
 import { GameMode } from "../../game-modes/index.js";
+import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
-  savedCharactersService: SavedCharactersService;
+  userGameDataPersistenceService: UserGameDataPersistenceService;
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
@@ -137,7 +137,7 @@ export class GameServer extends SpeedDungeonServer {
       [GameMode.UnrankedRace]: new GameModeContext(
         GameMode.UnrankedRace,
         externalServices.raceGameRecordsService,
-        externalServices.savedCharactersService,
+        externalServices.userGameDataPersistenceService,
         externalServices.rankedLadderService,
         this.updateDispatchFactory,
         externalServices.crossServerBroadcasterService,
@@ -146,7 +146,7 @@ export class GameServer extends SpeedDungeonServer {
       [GameMode.RankedRace]: new GameModeContext(
         GameMode.RankedRace,
         externalServices.raceGameRecordsService,
-        externalServices.savedCharactersService,
+        externalServices.userGameDataPersistenceService,
         externalServices.rankedLadderService,
         this.updateDispatchFactory,
         externalServices.crossServerBroadcasterService,
@@ -155,7 +155,7 @@ export class GameServer extends SpeedDungeonServer {
       [GameMode.Ironman]: new GameModeContext(
         GameMode.Ironman,
         externalServices.raceGameRecordsService,
-        externalServices.savedCharactersService,
+        externalServices.userGameDataPersistenceService,
         externalServices.rankedLadderService,
         this.updateDispatchFactory,
         externalServices.crossServerBroadcasterService,
@@ -164,7 +164,7 @@ export class GameServer extends SpeedDungeonServer {
       [GameMode.Progression]: new GameModeContext(
         GameMode.Progression,
         externalServices.raceGameRecordsService,
-        externalServices.savedCharactersService,
+        externalServices.userGameDataPersistenceService,
         externalServices.rankedLadderService,
         this.updateDispatchFactory,
         externalServices.crossServerBroadcasterService,
@@ -174,7 +174,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.dungeonExplorationController = new DungeonExplorationController(
       this.updateDispatchFactory,
-      this.externalServices.savedCharactersService,
+      this.externalServices.userGameDataPersistenceService,
       this.idGenerator,
       rngPolicy,
       this.lootGenerator,

@@ -10,12 +10,11 @@ import {
   IdentityProviderService,
 } from "../services/identity-provider.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
-import { SavedCharactersService } from "../services/saved-characters/index.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
-import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
+import { UserIdType } from "../sessions/user-ids.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { ServerCommand } from "../services/server-command/index.js";
@@ -26,10 +25,7 @@ import { UserSession, UserSessionConnectionState } from "../sessions/user-sessio
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { LobbyReconnectionProtocol } from "./reconnection/index.js";
-import {
-  CONNECTION_CONTEXT_TYPE_STRINGS,
-  ConnectionContextType,
-} from "../reconnection-protocol/index.js";
+import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameServerName } from "../../aliases.js";
 import {
@@ -47,11 +43,12 @@ import {
 import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
   profileService: SpeedDungeonProfileService;
-  savedCharactersService: SavedCharactersService;
+  userGameDataPersistenceService: UserGameDataPersistenceService;
   rankedLadderService: RankedLadderService;
   gameSessionStoreService: GameSessionStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
@@ -278,7 +275,7 @@ export class LobbyServer extends SpeedDungeonServer {
     const characterLifecycleController = new CharacterLifecycleController(
       this.externalServices.profileService,
       this.updateDispatchFactory,
-      this.externalServices.savedCharactersService,
+      this.externalServices.userGameDataPersistenceService,
       this.characterCreationPolicy,
       this.partySetupController
     );

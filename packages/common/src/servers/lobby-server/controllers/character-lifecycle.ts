@@ -5,19 +5,19 @@ import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
-import { SavedCharactersService } from "../../services/saved-characters/index.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
 import { GameMode } from "../../../game-modes/index.js";
 import { PartySetupController } from "./party-setup.js";
+import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
 
 export class CharacterLifecycleController {
   constructor(
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersService: SavedCharactersService,
+    private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
     private readonly characterCreationPolicy: CharacterCreationPolicy,
     private readonly partySetupController: PartySetupController
   ) {}
@@ -111,7 +111,7 @@ export class CharacterLifecycleController {
 
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const characters = await this.savedCharactersService.fetchSavedCharacterSlots(
+    const characters = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
       profile.id,
       game.mode,
       game.characterControlScheme
@@ -123,7 +123,7 @@ export class CharacterLifecycleController {
     }
 
     const { entityId } = data;
-    const savedCharacter = SavedCharactersService.getLivingCharacterInSlotsById(
+    const savedCharacter = UserGameDataPersistenceService.getLivingCharacterInSlotsById(
       entityId,
       characters
     );

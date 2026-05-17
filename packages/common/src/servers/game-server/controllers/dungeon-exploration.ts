@@ -11,7 +11,7 @@ import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { SavedCharactersService } from "../../services/saved-characters/index.js";
+import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
@@ -25,7 +25,7 @@ export class DungeonExplorationController {
 
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersService: SavedCharactersService,
+    private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
     private readonly idGenerator: IdGenerator,
     private readonly rngPolicy: RandomNumberGenerationPolicy,
     private readonly lootGenerator: LootGenerator,
@@ -177,7 +177,7 @@ export class DungeonExplorationController {
     if (game.mode === GameMode.Progression) {
       // @PERF - later we can consider a correct way to "fire-and-forget" this persistence
       // but since it is more complexity and might not be all that slow we'll just await for now
-      await this.savedCharactersService.updateAllInParty(game, party);
+      await this.userGameDataPersistenceService.updateAllInParty(game, party);
     }
 
     const { dungeonExplorationManager } = party;

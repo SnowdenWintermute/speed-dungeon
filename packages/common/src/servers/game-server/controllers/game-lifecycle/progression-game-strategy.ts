@@ -18,8 +18,8 @@ import {
   CrossServerBroadcastType,
 } from "../../../services/cross-server-broadcaster/index.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
-import { SavedCharactersService } from "../../../services/saved-characters/index.js";
 import { ServerCommand } from "../../../services/server-command/index.js";
+import { UserGameDataPersistenceService } from "../../../services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
@@ -29,7 +29,7 @@ import { GameModeStrategy } from "./game-mode-strategy.js";
 export class ProgressionGameStrategy implements GameModeStrategy {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
   constructor(
-    private readonly savedCharactersService: SavedCharactersService,
+    private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
     private readonly rankedLadderService: RankedLadderService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly crossServerBroadcasterService: CrossServerBroadcasterService<
@@ -48,7 +48,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
   }
 
   async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty) {
-    await this.savedCharactersService.updateAllInParty(game, party);
+    await this.userGameDataPersistenceService.updateAllInParty(game, party);
   }
 
   async onGameLeave(game: SpeedDungeonGame, party: AdventuringParty, player: SpeedDungeonPlayer) {
@@ -59,7 +59,7 @@ export class ProgressionGameStrategy implements GameModeStrategy {
       characters.push(characterResult);
     }
 
-    await this.savedCharactersService.updateAllInParty(game, party);
+    await this.userGameDataPersistenceService.updateAllInParty(game, party);
 
     // If they're leaving a game while dead, this character should be removed from the ladder
     const deathsAndRanks = await this.rankedLadderService.removeDeadCharacters(characters);

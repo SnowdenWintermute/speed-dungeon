@@ -3,7 +3,6 @@ import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
-import { SavedCharactersService } from "../../services/saved-characters/index.js";
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
@@ -14,9 +13,10 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
+import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
 
 export class SavedCharactersController {
-  private readonly savedCharactersService: SavedCharactersService;
+  private readonly userGameDataPersistenceService: UserGameDataPersistenceService;
   private readonly rankedLadderService: RankedLadderService;
   constructor(
     private readonly profileService: SpeedDungeonProfileService,
@@ -24,7 +24,7 @@ export class SavedCharactersController {
     externalServices: LobbyExternalServices,
     private readonly characterCreationPolicy: CharacterCreationPolicy
   ) {
-    this.savedCharactersService = externalServices.savedCharactersService;
+    this.userGameDataPersistenceService = externalServices.userGameDataPersistenceService;
     this.rankedLadderService = externalServices.rankedLadderService;
   }
 
@@ -38,7 +38,7 @@ export class SavedCharactersController {
     const { gameMode, controlScheme } = data;
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const characterSlots = await this.savedCharactersService.fetchSavedCharacterSlots(
+    const characterSlots = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
       profile.id,
       gameMode,
       controlScheme
@@ -60,7 +60,7 @@ export class SavedCharactersController {
     profile: SpeedDungeonProfile,
     controlScheme: CharacterControlScheme
   ) {
-    const charactersResult = await this.savedCharactersService.fetchSavedCharacterSlots(
+    const charactersResult = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
       profile.id,
       GameMode.Progression,
       controlScheme
@@ -104,7 +104,7 @@ export class SavedCharactersController {
     const profile = await session.requireProfile(this.profileService);
     const { name, combatantClass, slotIndex, gameMode, controlScheme } = data;
     // check if the slot is valid to put a new character in
-    const slot = await this.savedCharactersService.requireEmptySlot(
+    const slot = await this.userGameDataPersistenceService.requireEmptySlot(
       profile.id,
       slotIndex,
       gameMode,
@@ -130,7 +130,7 @@ export class SavedCharactersController {
     );
 
     const serializedPets = pets.map((pet) => pet.toSerialized());
-    await this.savedCharactersService.saveCharacterInSlot(
+    await this.userGameDataPersistenceService.saveCharacterInSlot(
       slot,
       newCharacter,
       pets,
@@ -160,13 +160,13 @@ export class SavedCharactersController {
     const profile = await session.requireProfile(this.profileService);
 
     // delete the character only if they own it
-    const slot = await this.savedCharactersService.requireSlotWithCharacterId(
+    const slot = await this.userGameDataPersistenceService.requireSlotWithCharacterId(
       profile.id,
       entityId,
       gameMode,
       controlScheme
     );
-    await this.savedCharactersService.deleteCharacterInSlot(entityId, slot);
+    await this.userGameDataPersistenceService.deleteCharacterInSlot(entityId, slot);
 
     // remove them from ladder
     await this.rankedLadderService.removeEntry(CHARACTER_LEVEL_LADDER, entityId);

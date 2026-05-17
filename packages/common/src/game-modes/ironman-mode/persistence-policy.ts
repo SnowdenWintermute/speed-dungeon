@@ -1,11 +1,11 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
-import { SavedCharactersService } from "../../servers/services/saved-characters/index.js";
+import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
 import { GameModePersistencePolicy } from "../persistence-policy.js";
 
 export class IronmanModePersistencePolicy implements GameModePersistencePolicy {
-  constructor(private savedCharactersService: SavedCharactersService) {}
+  constructor(private userGameDataPersistenceService: UserGameDataPersistenceService) {}
   onGameStart(): Promise<void> {
     // save the run in persitence service
     // save the run id in each account's ironman run slots

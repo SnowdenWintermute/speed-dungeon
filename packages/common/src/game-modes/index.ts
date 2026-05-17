@@ -1,6 +1,6 @@
 import { EntityId, IdentityProviderId, Username } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
-import { CharacterSlot } from "../servers/services/saved-characters/character-slots.js";
+import { CharacterSlot } from "../servers/services/user-game-data-persistence/character-slots.js";
 import { GameModeLadderUpdatePolicy } from "./ladder-update-policy.js";
 import { GameModeLobbySetupPolicy } from "./lobby-setup-policy.js";
 import { GameModePersistencePolicy } from "./persistence-policy.js";

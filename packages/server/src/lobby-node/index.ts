@@ -6,7 +6,6 @@ import {
   CrossServerBroadcasterService,
   GameStateUpdate,
   ServerCommand,
-  SavedCharactersService,
   GameSessionStoreService,
   RandomNumberGenerationPolicyFactory,
   ScriptedCharacterCreationPolicy,
@@ -23,6 +22,7 @@ import {
   GlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
+  UserGameDataPersistenceService,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -33,7 +33,7 @@ import { DatabaseRankedLadderService } from "../game-node/services/ranked-ladder
 import {
   DatabaseSavedCharacterPersistenceStrategy,
   DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "../game-node/services/saved-characters.js";
+} from "../game-node/services/user-game-data-persistence.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
@@ -111,7 +111,7 @@ export class LobbyServerNode {
 
     const savedCharacterSlotsPersistenceStrategy =
       new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
-    const savedCharactersService = new SavedCharactersService(
+    const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy
     );
@@ -120,7 +120,7 @@ export class LobbyServerNode {
     const externalServices: LobbyExternalServices = {
       identityProviderService,
       profileService,
-      savedCharactersService,
+      userGameDataPersistenceService,
       rankedLadderService,
       gameSessionStoreService,
       crossServerBroadcasterService,

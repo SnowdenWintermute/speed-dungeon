@@ -1,4 +1,4 @@
-import { EntityId, EntityName, IdentityProviderId } from "../../../aliases.js";
+import { EntityId, EntityName, GameId, IdentityProviderId } from "../../../aliases.js";
 import { APP_VERSION_NUMBER } from "../../../app-consts.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { Combatant } from "../../../combatants/index.js";
@@ -8,6 +8,7 @@ export class SerializedPlayerCharacter {
   id: EntityId;
   name: EntityName;
   ownerId: IdentityProviderId;
+  ironmanRunGameId?: GameId;
   gameVersion: string = APP_VERSION_NUMBER;
   combatantProperties: SerializedOf<CombatantProperties>;
   pets: SerializedOf<Combatant>[];

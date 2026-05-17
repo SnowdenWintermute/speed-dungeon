@@ -16,13 +16,11 @@ import {
   InMemoryIncomingConnectionGateway,
   InMemoryRaceGameRecordsPersistenceStrategy,
   InMemoryRankedLadderService,
-  InMemorySavedCharacterPersistenceStrategy,
   InMemorySavedCharacterSlotsPersistenceStrategy,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
   RaceGameRecordsService,
   RankedLadderService,
-  SavedCharactersService,
   SodiumHelpers,
   SpeedDungeonProfileService,
   RandomDungeonGenerationPolicy,
@@ -36,6 +34,8 @@ import {
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   GuestSessionReconnectionToken,
+  UserGameDataPersistenceService,
+  InMemorySavedCharacterPersistenceStrategy,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -75,7 +75,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
   );
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
-  const savedCharactersService = new SavedCharactersService(
+  const userGameDataPersistenceService = new UserGameDataPersistenceService(
     characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy()
   );
@@ -101,7 +101,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     lobbyIncomingConnectionGateway,
     createOfflineLobbyServerServices(
       gameSessionStoreService,
-      savedCharactersService,
+      userGameDataPersistenceService,
       rankedLadderService,
       profileService,
       lobbyCrossServerBroadcasterService,
@@ -134,7 +134,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     gameIncomingConnectionGateway,
     createOfflineGameServerServices(
       gameSessionStoreService,
-      savedCharactersService,
+      userGameDataPersistenceService,
       rankedLadderService,
       raceGameRecordsService,
       assetService,
@@ -156,7 +156,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
 
 function createOfflineLobbyServerServices(
   gameSessionStoreService: GameSessionStoreService,
-  savedCharactersService: SavedCharactersService,
+  userGameDataPersistenceService: UserGameDataPersistenceService,
   rankedLadderService: RankedLadderService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -176,7 +176,7 @@ function createOfflineLobbyServerServices(
   const externalServices = {
     identityProviderService,
     profileService,
-    savedCharactersService,
+    userGameDataPersistenceService,
     rankedLadderService,
     gameSessionStoreService,
     crossServerBroadcasterService,
@@ -187,7 +187,7 @@ function createOfflineLobbyServerServices(
 
 function createOfflineGameServerServices(
   gameSessionStoreService: GameSessionStoreService,
-  savedCharactersService: SavedCharactersService,
+  userGameDataPersistenceService: UserGameDataPersistenceService,
   rankedLadderService: RankedLadderService,
   raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
@@ -196,7 +196,7 @@ function createOfflineGameServerServices(
 ) {
   const externalServices: GameServerExternalServices = {
     gameSessionStoreService,
-    savedCharactersService,
+    userGameDataPersistenceService,
     rankedLadderService,
     raceGameRecordsService,
     assetService,

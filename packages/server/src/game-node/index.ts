@@ -9,7 +9,6 @@ import {
   GameStateUpdate,
   InMemoryRaceGameRecordsPersistenceStrategy,
   RaceGameRecordsService,
-  SavedCharactersService,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   ServerCommand,
@@ -35,6 +34,8 @@ import {
   GlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
+  UserGameDataPersistenceService,
+  GuestSessionReconnectionToken,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -45,13 +46,12 @@ import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocke
 import {
   DatabaseSavedCharacterPersistenceStrategy,
   DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "./services/saved-characters.js";
+} from "./services/user-game-data-persistence.js";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { env } from "../validate-env.js";
-import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -134,7 +134,7 @@ export class GameServerNode {
     );
     const savedCharacterSlotsPersistenceStrategy =
       new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
-    const savedCharactersService = new SavedCharactersService(
+    const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy
     );
@@ -147,7 +147,7 @@ export class GameServerNode {
 
     const result: GameServerExternalServices = {
       gameSessionStoreService,
-      savedCharactersService,
+      userGameDataPersistenceService,
       rankedLadderService,
       raceGameRecordsService,
       assetService,

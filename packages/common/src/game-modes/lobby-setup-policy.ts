@@ -5,7 +5,7 @@ import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { AllowedResult } from "../primatives/index.js";
 import { PartySetupController } from "../servers/lobby-server/controllers/party-setup.js";
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
-import { SavedCharactersService } from "../servers/services/saved-characters/index.js";
+import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
@@ -14,7 +14,7 @@ import { IdGenerator } from "../utility-classes/index.js";
 export abstract class GameModeLobbySetupPolicy {
   constructor(
     protected profileService: SpeedDungeonProfileService,
-    protected savedCharactersService: SavedCharactersService,
+    protected userGameDataPersistenceService: UserGameDataPersistenceService,
     protected idGenerator: IdGenerator,
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
