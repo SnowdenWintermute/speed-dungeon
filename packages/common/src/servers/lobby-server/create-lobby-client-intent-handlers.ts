@@ -23,7 +23,7 @@ export function createLobbyClientIntentHandlers(
     [ClientIntentType.CreateGame]: (data, user) =>
       lobbyServer.gameLifecycleController.createGameHandler(data, user),
     [ClientIntentType.JoinGame]: (data, user) =>
-      lobbyServer.gameLifecycleController.joinGameHandler(data.gameName, user),
+      lobbyServer.gameLifecycleController.joinGameHandler(data.gameId, user),
     [ClientIntentType.LeaveGame]: (_data, user) =>
       lobbyServer.gameLifecycleController.leaveGameHandler(user),
     [ClientIntentType.ToggleReadyToStartGame]: (_data, user) =>

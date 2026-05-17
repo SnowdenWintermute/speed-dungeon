@@ -1,4 +1,4 @@
-import { GameName } from "../../../../aliases.js";
+import { GameId } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -39,17 +39,17 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     );
   }
 
-  async getOrInitializeGame(gameName: GameName) {
-    const existingGame = this.gameRegistry.getGameOption(gameName);
+  async getOrInitializeGame(gameId: GameId) {
+    const existingGame = this.gameRegistry.getGameOption(gameId);
     if (existingGame) {
       return existingGame;
     }
-    const newGame = await this.initializeExpectedPendingGame(gameName);
+    const newGame = await this.initializeExpectedPendingGame(gameId);
     return newGame;
   }
 
-  private async initializeExpectedPendingGame(gameName: GameName) {
-    const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameName);
+  private async initializeExpectedPendingGame(gameId: GameId) {
+    const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameId);
     if (pendingGameSetupOption === null) {
       throw new Error(
         "A user presented a token with a game id that didn't match any existing game or pending game setup."
@@ -71,18 +71,18 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     this.gameRegistry.registerGame(newGame);
 
-    await this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
+    await this.gameSessionStoreService.deletePendingGameSetup(newGame.id);
     await this.gameSessionStoreService.writeActiveGameStatus(
-      newGame.name,
+      newGame.id,
       new ActiveGameStatus(newGame.name, newGame.id)
     );
 
     return newGame;
   }
 
-  async joinGameHandler(gameName: GameName, session: UserSession) {
+  async joinGameHandler(gameId: GameId, session: UserSession) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    const game = this.gameRegistry.requireGame(gameName);
+    const game = this.gameRegistry.requireGame(gameId);
 
     session.joinGame(game);
 
@@ -252,15 +252,15 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const gameModeContext = this.gameModeContexts[game.mode];
     await gameModeContext.strategy.onLastPlayerLeftGame(game);
 
-    this.gameRegistry.unregisterGame(game.name);
+    this.gameRegistry.unregisterGame(game.id);
     // even though we clear their session on leave game, it is possible that they never joined the game,
     // the other users get bored and leave and the user that never joined would be stuck with a stale
     // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
     // @ARCHITECTURE - I don't think it will race with a lobby game created by same name because we prohibit
     // creation of lobby game while active or pending game status of that name exists
-    await this.globalGameSessionStore.clearSessionsInGame(game.name);
-    await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
-    await this.gameSessionStoreService.deletePendingGameSetup(game.name);
+    await this.globalGameSessionStore.clearSessionsInGame(game.id);
+    await this.gameSessionStoreService.deleteActiveGameStatus(game.id);
+    await this.gameSessionStoreService.deletePendingGameSetup(game.id);
   }
 
   handleAbandoningDeadPartyMembers(

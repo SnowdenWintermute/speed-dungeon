@@ -109,7 +109,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       }
     }
 
-    const gameByThisNameExists = this.lobbyState.gameRegistry.getGameOption(gameName) !== undefined;
+    const gameByThisNameExists =
+      this.lobbyState.gameRegistry.getGameOptionByName(gameName) !== undefined;
     if (gameByThisNameExists) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
@@ -130,7 +131,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     this.lobbyState.gameRegistry.registerGame(game);
-    const joinGameUpdateHandlerOutbox = await this.joinGameHandler(gameName, session);
+    const joinGameUpdateHandlerOutbox = await this.joinGameHandler(game.id, session);
     return joinGameUpdateHandlerOutbox;
   }
 
@@ -161,8 +162,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return game;
   }
 
-  async joinGameHandler(gameName: GameName, session: UserSession) {
-    const game = this.lobbyState.gameRegistry.requireGame(gameName);
+  async joinGameHandler(gameId: GameId, session: UserSession) {
+    const game = this.lobbyState.gameRegistry.requireGame(gameId);
 
     const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
     if (!userCanJoinNewGame.allowed) {
@@ -242,7 +243,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     game.removePlayer(session.username);
-    session.currentGameName = null;
+    session.currentGameId = null;
     session.unsubscribeFromChannel(game.getChannelName());
 
     outbox.pushToConnection(session.connectionId, {
@@ -263,7 +264,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
     const noPlayersRemain = game.players.size === 0;
     if (noPlayersRemain) {
-      this.lobbyState.gameRegistry.unregisterGame(game.name);
+      this.lobbyState.gameRegistry.unregisterGame(game.id);
 
       return outbox; // no one is left to notify about the player leaving so return early
     }
@@ -308,17 +309,17 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
   }
 
   async gameExistsByName(gameName: GameName) {
-    const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOption(gameName);
+    const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOptionByName(gameName);
     if (lobbyGameExistsByThisName) {
       return true;
     }
     const pendingGameExistsByThisName =
-      await this.gameSessionStoreService.getPendingGameSetup(gameName);
+      await this.gameSessionStoreService.getPendingGameSetupByName(gameName);
     if (pendingGameExistsByThisName) {
       return true;
     }
     const activeGameExistsByThisName =
-      await this.gameSessionStoreService.getActiveGameStatus(gameName);
+      await this.gameSessionStoreService.getPendingGameSetupByName(gameName);
     if (activeGameExistsByThisName) {
       return true;
     }

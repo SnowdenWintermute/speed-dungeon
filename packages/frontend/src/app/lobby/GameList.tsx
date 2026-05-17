@@ -32,7 +32,7 @@ function GameListItem(props: GameListItemProps) {
   function joinGame() {
     lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.JoinGame,
-      data: { gameName: props.game.gameName },
+      data: { gameId: props.game.gameId },
     });
   }
 

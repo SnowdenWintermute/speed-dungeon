@@ -4,16 +4,18 @@ import {
   ERROR_MESSAGES,
   invariant,
   ProfileId,
-  SavedCharacterPersistenceStrategy,
-  SavedCharacterSlotsPersistenceStrategy,
   SerializedPlayerCharacter,
   CharacterSlot,
+  GameMode,
+  CharacterControlScheme,
+  SavedCharacterPersistenceStrategy,
+  CharacterSlotsPersistenceStrategy,
 } from "@speed-dungeon/common";
 import { CharacterSlotsRepo } from "../../database/repos/character-slots.js";
 import { PlayerCharacterRepo } from "../../database/repos/player-characters.js";
 
 export class DatabaseSavedCharacterSlotsPersistenceStrategy
-  implements SavedCharacterSlotsPersistenceStrategy
+  implements CharacterSlotsPersistenceStrategy
 {
   constructor(private characterSlotsRepo: CharacterSlotsRepo) {}
 
@@ -21,7 +23,11 @@ export class DatabaseSavedCharacterSlotsPersistenceStrategy
     //
   }
 
-  async fetchSlots(profileId: number): Promise<CharacterSlot[]> {
+  async fetchSlots(
+    profileId: number,
+    gameMode: GameMode,
+    controlScheme: CharacterControlScheme
+  ): Promise<CharacterSlot[]> {
     const expectedSlots = await this.characterSlotsRepo.find("profileId", profileId);
     if (expectedSlots === undefined) {
       throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);

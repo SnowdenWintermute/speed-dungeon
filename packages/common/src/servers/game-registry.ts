@@ -1,33 +1,45 @@
-import { GameName } from "../aliases.js";
+import { GameId, GameName } from "../aliases.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameListEntry } from "../packets/game-state-updates.js";
 
 export class GameRegistry {
-  private _games = new Map<GameName, SpeedDungeonGame>();
+  private _games = new Map<GameId, SpeedDungeonGame>();
+  private _gameNamesToIds = new Map<GameName, GameId>();
 
-  get games(): ReadonlyMap<GameName, SpeedDungeonGame> {
+  get games(): ReadonlyMap<GameId, SpeedDungeonGame> {
     return this._games;
   }
 
   registerGame(game: SpeedDungeonGame) {
-    const gameExists = this._games.get(game.name) !== undefined;
+    const gameExists = this._games.get(game.id) !== undefined;
     if (gameExists) {
       throw new Error("Tried to add a game to a lobby but a game by that name already existed");
     }
-    this._games.set(game.name, game);
+    this._games.set(game.id, game);
+    this._gameNamesToIds.set(game.name, game.id);
   }
 
-  unregisterGame(gameName: GameName) {
-    this._games.delete(gameName);
+  unregisterGame(gameId: GameId) {
+    const gameOption = this.getGameOption(gameId);
+    this._games.delete(gameId);
+    if (gameOption) {
+      this._gameNamesToIds.delete(gameOption.name);
+    }
   }
 
-  getGameOption(gameName: GameName) {
-    return this._games.get(gameName);
+  getGameOption(gameId: GameId) {
+    return this._games.get(gameId);
   }
 
-  requireGame(gameName: GameName) {
-    const gameOption = this.getGameOption(gameName);
+  getGameOptionByName(gameName: GameName) {
+    const gameIdOption = this._gameNamesToIds.get(gameName);
+    if (!gameIdOption) return undefined;
+    return this._games.get(gameIdOption);
+  }
+
+  requireGame(gameId: GameId) {
+    const gameOption = this.getGameOption(gameId);
     if (gameOption === undefined) {
       console.trace();
       throw new Error(ERROR_MESSAGES.GAME.NOT_FOUND);
@@ -37,9 +49,10 @@ export class GameRegistry {
   }
 
   getGamesList() {
-    return Array.from(this._games).map(([gameName, game]) => {
+    return Array.from(this._games).map(([id, game]) => {
       return new GameListEntry(
-        gameName as GameName,
+        game.name,
+        game.id,
         game.getPlayerCount(),
         game.mode,
         game.getTimeStarted(),

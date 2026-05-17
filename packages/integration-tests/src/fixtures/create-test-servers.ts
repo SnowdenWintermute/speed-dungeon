@@ -13,7 +13,6 @@ import {
   InMemorySpeedDungeonProfileService,
   LobbyServer,
   RaceGameRecordsService,
-  SavedCharactersService,
   SodiumHelpers,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicy,
@@ -37,6 +36,7 @@ import {
   GlobalGameSessionStore,
   iterateNumericEnumKeyedRecord,
   GameServerName,
+  UserGameDataPersistenceService,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -76,7 +76,7 @@ export async function createTestServers(
   );
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
-  const savedCharactersService = new SavedCharactersService(
+  const userGameDataPersistenceService = new UserGameDataPersistenceService(
     characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy()
   );
@@ -111,7 +111,7 @@ export async function createTestServers(
     lobbyIncomingConnectionGateway,
     createLobbyTestServices(
       gameSessionStoreService,
-      savedCharactersService,
+      userGameDataPersistenceService,
       rankedLadderService,
       profileService,
       lobbyCrossServerBroadcasterService,
@@ -146,7 +146,7 @@ export async function createTestServers(
           incomingConnectionGateway,
           createGameServerTestServices(
             gameSessionStoreService,
-            savedCharactersService,
+            userGameDataPersistenceService,
             rankedLadderService,
             raceGameRecordsService,
             gameServerNodeAssetService,
@@ -169,7 +169,7 @@ export async function createTestServers(
 
 export function createLobbyTestServices(
   gameSessionStoreService: GameSessionStoreService,
-  savedCharactersService: SavedCharactersService,
+  userGameDataPersistenceService: UserGameDataPersistenceService,
   rankedLadderService: RankedLadderService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -197,7 +197,7 @@ export function createLobbyTestServices(
   const externalServices = {
     identityProviderService,
     profileService,
-    savedCharactersService,
+    userGameDataPersistenceService,
     rankedLadderService,
     idGenerator: new IdGeneratorSequential({ saveHistory: false }),
     gameSessionStoreService,
@@ -209,7 +209,7 @@ export function createLobbyTestServices(
 
 export function createGameServerTestServices(
   gameSessionStoreService: GameSessionStoreService,
-  savedCharactersService: SavedCharactersService,
+  userGameDataPersistenceService: UserGameDataPersistenceService,
   rankedLadderService: RankedLadderService,
   raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
@@ -218,7 +218,7 @@ export function createGameServerTestServices(
 ): GameServerExternalServices {
   const externalServices = {
     gameSessionStoreService,
-    savedCharactersService,
+    userGameDataPersistenceService,
     rankedLadderService,
     raceGameRecordsService,
     assetService,

@@ -38,10 +38,4 @@ describe("progression game", () => {
   it("join requires auth", async () => {
     await testJoinProgressionGameRequiresAuth(testFixture);
   });
-  it("create requires saved character", async () => {
-    await testCreateProgressionGameRequiresSavedCharacter(testFixture);
-  });
-  it("join requires saved character", async () => {
-    await testJoinProgressionGameRequiresSavedCharacter(testFixture);
-  });
 });

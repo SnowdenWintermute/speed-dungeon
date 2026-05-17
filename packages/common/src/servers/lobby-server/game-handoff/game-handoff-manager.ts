@@ -1,4 +1,4 @@
-import { ConnectionId, GameName, GameServerName } from "../../../aliases.js";
+import { ConnectionId, GameId, GameName, GameServerName } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { invariant } from "../../../utils/index.js";
@@ -26,7 +26,7 @@ export class GameHandoffManager {
     const result: UserSession[] = [];
 
     for (const [username, player] of game.getPlayers()) {
-      const session = this.userSessionRegistry.requireSessionInGameByUsername(username, game.name);
+      const session = this.userSessionRegistry.requireSessionInGameByUsername(username, game.id);
 
       result.push(session);
     }
@@ -34,18 +34,14 @@ export class GameHandoffManager {
     return result;
   }
 
-  private async prepareClaimTokens(
-    sessions: UserSession[],
-    gameName: GameName,
-    gameServerUrl: string
-  ) {
+  private async prepareClaimTokens(sessions: UserSession[], gameId: GameId, gameServerUrl: string) {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
       invariant(session.currentPartyName !== null);
       const tokenOption = session.getGuestReconnectionTokenOption();
       const claimToken = new GameServerSessionClaimToken(
-        gameName,
+        gameId,
         session.currentPartyName,
         session.username,
         session.taggedUserId,
@@ -62,16 +58,12 @@ export class GameHandoffManager {
     const leastBusyServer = await this.getLeastBusyGameServer();
 
     await this.gameSessionStoreService.writePendingGameSetup(
-      game.name,
+      game.id,
       new PendingGameSetup(game.toSerialized())
     );
 
     const sessionsInGame = this.getPlayerSessionsInGame(game);
-    const claimTokens = await this.prepareClaimTokens(
-      sessionsInGame,
-      game.name,
-      leastBusyServer.url
-    );
+    const claimTokens = await this.prepareClaimTokens(sessionsInGame, game.id, leastBusyServer.url);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);
 

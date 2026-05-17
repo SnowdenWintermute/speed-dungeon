@@ -72,7 +72,6 @@ export class LobbyServer extends SpeedDungeonServer {
   public readonly userSessionLifecycleController: LobbySessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
   public readonly characterLifecycleController: CharacterLifecycleController;
-  // game server controllers
 
   constructor(
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
@@ -277,7 +276,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       this.externalServices.userGameDataPersistenceService,
       this.characterCreationPolicy,
-      this.partySetupController
+      partySetupController
     );
 
     const userSessionLifecycleController = new LobbySessionLifecycleController(
@@ -313,9 +312,9 @@ export class LobbyServer extends SpeedDungeonServer {
           await this.externalServices.gameSessionStoreService.getPendingGameSetups();
         for (const pendingGame of pendingGames) {
           if (pendingGame.isStale()) {
-            await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.name);
+            await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.id);
             await this.externalServices.globalGameSessionStore.clearSessionsInGame(
-              pendingGame.game.name
+              pendingGame.game.id
             );
           }
         }
@@ -323,8 +322,8 @@ export class LobbyServer extends SpeedDungeonServer {
         const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
         for (const activeGame of activeGames) {
           if (activeGame.isStale()) {
-            await gameSessionStoreService.deleteActiveGameStatus(activeGame.name);
-            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.name);
+            await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
+            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
           }
         }
       })

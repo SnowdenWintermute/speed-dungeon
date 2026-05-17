@@ -36,6 +36,7 @@ import {
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
+  InMemoryIronmanRunPersistenceStrategy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -136,7 +137,8 @@ export class GameServerNode {
       new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharacterSlotsPersistenceStrategy,
-      savedCharactersPersistenceStrategy
+      savedCharactersPersistenceStrategy,
+      new InMemoryIronmanRunPersistenceStrategy()
     );
 
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);

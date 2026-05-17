@@ -1,6 +1,6 @@
 import {
   EncryptedOpaqueToken,
-  GameName,
+  GameId,
   Milliseconds,
   PartyName,
   Username,
@@ -16,7 +16,7 @@ export class GameServerSessionClaimToken {
 
   readonly nonce = crypto.randomBytes(16).toString("hex");
   constructor(
-    readonly gameName: GameName,
+    readonly gameId: GameId,
     readonly partyName: PartyName,
     readonly username: Username,
     readonly taggedUserId: TaggedUserId,

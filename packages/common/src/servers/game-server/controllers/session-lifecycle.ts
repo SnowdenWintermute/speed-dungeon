@@ -68,7 +68,7 @@ export class GameServerSessionLifecycleController
       newSession.setGuestReconnectionToken(decryptedToken.reconnectionTokenOption);
     }
 
-    newSession.currentGameName = decryptedToken.gameName;
+    newSession.currentGameId = decryptedToken.gameId;
     newSession.currentPartyName = decryptedToken.partyName;
 
     return newSession;

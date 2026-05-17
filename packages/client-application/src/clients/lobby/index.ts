@@ -2,6 +2,7 @@ import {
   ClientIntentType,
   CombatantClass,
   EntityName,
+  GameId,
   GameMode,
   GameName,
   GameStateUpdate,
@@ -117,7 +118,7 @@ export class LobbyClient extends BaseClient {
     this.dispatchIntent({
       type: ClientIntentType.JoinGame,
       data: {
-        gameName: "test game" as GameName,
+        gameId: "test game" as GameId,
       },
     });
 

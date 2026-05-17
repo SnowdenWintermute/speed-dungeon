@@ -1,4 +1,4 @@
-import { CombatantId, ConnectionId, GameName, PartyName, Username } from "../../aliases.js";
+import { CombatantId, ConnectionId, GameId, PartyName, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { AllowedResult } from "../../primatives/index.js";
@@ -20,7 +20,7 @@ export enum UserSessionConnectionState {
 }
 
 export class UserSession extends ConnectionSession {
-  public currentGameName: null | GameName = null;
+  public currentGameId: null | GameId = null;
   public currentPartyName: null | PartyName = null;
   private guestReconnectionToken: null | GuestSessionReconnectionToken = null;
   // in the case of two connections disconnecting at the same time we will synchronously
@@ -59,10 +59,10 @@ export class UserSession extends ConnectionSession {
   }
 
   getCurrentGameOption() {
-    if (this.currentGameName === null) {
+    if (this.currentGameId === null) {
       return null;
     }
-    return this.gameRegistry.getGameOption(this.currentGameName) || null;
+    return this.gameRegistry.getGameOption(this.currentGameId) || null;
   }
 
   getExpectedCurrentGame() {
@@ -74,7 +74,7 @@ export class UserSession extends ConnectionSession {
   }
 
   isInGame() {
-    return this.currentGameName !== null;
+    return this.currentGameId !== null;
   }
 
   isAuth() {
@@ -119,7 +119,7 @@ export class UserSession extends ConnectionSession {
   }
 
   joinGame(game: SpeedDungeonGame) {
-    this.currentGameName = game.name;
+    this.currentGameId = game.id;
   }
 
   // be careful with this! led to longer than-needed debug sesh

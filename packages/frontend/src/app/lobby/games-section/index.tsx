@@ -167,7 +167,7 @@ function GameListItem({ game }: GameListItemProps) {
   function joinGame() {
     lobbyClientRef
       .get()
-      .dispatchIntent({ type: ClientIntentType.JoinGame, data: { gameName: game.gameName } });
+      .dispatchIntent({ type: ClientIntentType.JoinGame, data: { gameId: game.gameId } });
   }
 
   return (

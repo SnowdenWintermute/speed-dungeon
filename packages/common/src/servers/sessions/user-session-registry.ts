@@ -1,4 +1,4 @@
-import { ChannelName, ConnectionId, GameName, Username } from "../../aliases.js";
+import { ChannelName, ConnectionId, GameId, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { UserId } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
@@ -82,15 +82,15 @@ export class UserSessionRegistry {
   getAllSessionsInGame(game: SpeedDungeonGame) {
     const result: UserSession[] = [];
     for (const [username, _player] of game.players) {
-      const session = this.requireSessionInGameByUsername(username, game.name);
+      const session = this.requireSessionInGameByUsername(username, game.id);
       result.push(session);
     }
     return result;
   }
 
-  requireSessionInGameByUsername(username: Username, gameName: GameName) {
+  requireSessionInGameByUsername(username: Username, gameId: GameId) {
     const existingSession = this.getSessionByUsername(username);
-    if (existingSession?.currentGameName !== gameName) {
+    if (existingSession?.currentGameId !== gameId) {
       throw new Error("expected to have a user session to match the player in game");
     }
     return existingSession;

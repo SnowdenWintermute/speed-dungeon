@@ -19,6 +19,7 @@ import {
   EncryptedOpaqueToken,
   EntityId,
   EntityName,
+  GameId,
   GameName,
   ItemId,
   Milliseconds,
@@ -319,6 +320,7 @@ export interface CharacterAndSlot {
 export class GameListEntry {
   constructor(
     public gameName: GameName,
+    public gameId: GameId,
     public numberOfUsers: number,
     public gameMode: GameMode,
     public timeStarted: null | number,

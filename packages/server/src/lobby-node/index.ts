@@ -40,6 +40,7 @@ import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
+import { InMemoryIronmanRunPersistenceStrategy } from "@speed-dungeon/common";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
@@ -113,7 +114,8 @@ export class LobbyServerNode {
       new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharacterSlotsPersistenceStrategy,
-      savedCharactersPersistenceStrategy
+      savedCharactersPersistenceStrategy,
+      new InMemoryIronmanRunPersistenceStrategy()
     );
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
 

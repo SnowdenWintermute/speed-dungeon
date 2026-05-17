@@ -8,17 +8,17 @@ import {
   ActionRank,
   ActionResolutionStepType,
   BeforeOrAfter,
+  CharacterControlScheme,
   CharacterSlotIndex,
   ClientIntent,
   ClientIntentType,
-  ClientSequentialEventType,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   CombatantClass,
   CombatantId,
   CombatAttribute,
-  EntityId,
   EntityName,
+  GameId,
   GameMode,
   GameName,
   GameStateUpdate,
@@ -154,16 +154,16 @@ export class ClientTestHarness<T extends BaseClient> {
     }
   }
 
-  async createGame(gameName: string, mode = GameMode.Race) {
+  async createGame(gameName: string, mode = GameMode.UnrankedRace) {
     await this.settleIntentResult({
       type: ClientIntentType.CreateGame,
       data: { gameName: gameName as GameName, mode },
     });
   }
-  async joinGame(gameName: string) {
+  async joinGame(gameId: GameId) {
     await this.settleIntentResult({
       type: ClientIntentType.JoinGame,
-      data: { gameName: gameName as GameName },
+      data: { gameId: gameId as GameId },
     });
   }
   async fetchGameList() {
@@ -345,6 +345,8 @@ export class ClientTestHarness<T extends BaseClient> {
         name: name as EntityName,
         combatantClass,
         slotIndex: slotIndex as CharacterSlotIndex,
+        gameMode: GameMode.Progression,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
   }
@@ -354,6 +356,8 @@ export class ClientTestHarness<T extends BaseClient> {
       type: ClientIntentType.DeleteSavedCharacter,
       data: {
         entityId,
+        gameMode: GameMode.Progression,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
   }

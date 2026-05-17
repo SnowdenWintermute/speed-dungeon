@@ -40,12 +40,12 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   inputLock = new ReferenceCountedLock<UserId>();
   private _isContinuedRun = false;
   constructor(
-    public id: GameId,
-    public name: GameName,
-    public mode: GameMode,
+    readonly id: GameId,
+    readonly name: GameName,
+    readonly mode: GameMode,
     readonly characterControlScheme: CharacterControlScheme,
-    public gameCreator: string | null = null,
-    public isRanked: boolean = false
+    readonly gameCreator: string | null = null,
+    readonly isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
   }

@@ -271,7 +271,7 @@ export class GameServer extends SpeedDungeonServer {
       // all sessions can listen to global ladder updates
       session.subscribeToChannel(LADDER_UPDATES_CHANNEL_NAME);
 
-      const gameName = session.currentGameName;
+      const gameName = session.currentGameId;
       if (gameName === null) {
         throw new Error("should have been set from their token in createSession");
       }

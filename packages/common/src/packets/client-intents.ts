@@ -6,6 +6,7 @@ import {
   CombatantId,
   EntityId,
   EntityName,
+  GameId,
   GameName,
   ItemId,
   PartyName,
@@ -87,7 +88,7 @@ export interface ClientIntentMap {
     mode: GameMode;
     isRanked?: boolean;
   };
-  [ClientIntentType.JoinGame]: { gameName: GameName };
+  [ClientIntentType.JoinGame]: { gameId: GameId };
   [ClientIntentType.LeaveGame]: undefined;
   [ClientIntentType.CreateParty]: { partyName: PartyName };
   [ClientIntentType.JoinParty]: { partyName: PartyName };

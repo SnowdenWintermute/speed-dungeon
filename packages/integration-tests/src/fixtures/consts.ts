@@ -1,4 +1,4 @@
-import { GameServerName, Username } from "@speed-dungeon/common";
+import { GameName, GameServerName, Username } from "@speed-dungeon/common";
 
 export enum TestGameServerName {
   Lindblum,
@@ -13,8 +13,8 @@ export const LOCAL_GAME_SERVER_PORT = 8191;
 export const LOCAL_LOBBY_URL = localServerUrl(LOCAL_LOBBY_SERVER_PORT);
 export const LOCAL_GAME_SERVER_URL = localServerUrl(LOCAL_GAME_SERVER_PORT);
 
-export const TEST_GAME_NAME = "test-game-a";
-export const TEST_GAME_NAME_2 = "test-game-b";
+export const TEST_GAME_NAME = "test-game-a" as GameName;
+export const TEST_GAME_NAME_2 = "test-game-b" as GameName;
 export const TEST_GAME_NAME_3 = "test-game-c";
 export const TEST_PARTY_NAME = "test-party-a";
 

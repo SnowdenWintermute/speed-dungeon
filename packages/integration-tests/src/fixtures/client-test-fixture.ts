@@ -2,9 +2,9 @@ import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
-  BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   CombatantClass,
+  GameName,
   IndexedDbAssetStore,
   TestBrowserWebSocketClientConnectionEndpointFactory,
 } from "@speed-dungeon/common";
@@ -77,6 +77,15 @@ export class ClientFixture {
     return vi.waitFor(async () => {
       await assertion();
     }, options);
+  }
+
+  requireGameIdFromClientGameList(gameName: GameName) {
+    for (const gameListEntry of this.clientApplication.lobbyContext.gameList) {
+      if (gameListEntry.gameName === gameName) {
+        return gameListEntry.gameId;
+      }
+    }
+    throw new Error("Expected game list entry not found on client application");
   }
 }
 

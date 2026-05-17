@@ -1,11 +1,11 @@
-import { GameName } from "../../aliases.js";
+import { GameId } from "../../aliases.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { UserSession } from "../sessions/user-session.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 
 export interface GameLifecycleController {
   joinGameHandler(
-    gameName: GameName,
+    gameId: GameId,
     session: UserSession
   ): Promise<MessageDispatchOutbox<GameStateUpdate>>;
   leaveGameHandler(

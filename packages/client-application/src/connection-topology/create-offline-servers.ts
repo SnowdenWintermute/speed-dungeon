@@ -36,6 +36,7 @@ import {
   GuestSessionReconnectionToken,
   UserGameDataPersistenceService,
   InMemorySavedCharacterPersistenceStrategy,
+  InMemoryIronmanRunPersistenceStrategy,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -77,7 +78,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
   const userGameDataPersistenceService = new UserGameDataPersistenceService(
     characterSlotsPersistenceStrategy,
-    new InMemorySavedCharacterPersistenceStrategy()
+    new InMemorySavedCharacterPersistenceStrategy(),
+    new InMemoryIronmanRunPersistenceStrategy()
   );
   const rankedLadderService = new InMemoryRankedLadderService();
 

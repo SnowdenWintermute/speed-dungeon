@@ -6,38 +6,16 @@ import { SpeedDungeonPlayer } from "../../../game/player.js";
 import { getProgressionGamePartyName } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character-slots.js";
-import { SerializedPlayerCharacter } from "./serialized-player-character.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
-
-// export interface SavedIronmanRunPersistenceStrategy {
-
-// }
-
-export interface SavedCharacterPersistenceStrategy {
-  fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
-  insert: (
-    combatant: Combatant,
-    pets: Combatant[],
-    ownerId: IdentityProviderId
-  ) => Promise<SerializedPlayerCharacter>;
-  update: (combatant: Combatant, pets: Combatant[]) => Promise<SerializedPlayerCharacter>;
-  delete: (id: number | string) => Promise<SerializedPlayerCharacter>;
-}
-
-export interface SavedCharacterSlotsPersistenceStrategy {
-  fetchSlots: (
-    profileId: ProfileId,
-    gameMode: GameMode,
-    controlScheme: CharacterControlScheme
-  ) => Promise<CharacterSlot[]>;
-  createSlots: (profileId: ProfileId) => Promise<void>;
-  update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
-}
+import { IronmanRunPersistenceStrategy } from "./saved-ironman-runs.js";
+import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
+import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 
 export class UserGameDataPersistenceService {
   constructor(
-    private readonly savedCharacterSlotsPersistenceStrategy: SavedCharacterSlotsPersistenceStrategy,
-    private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy
+    private readonly characterSlotsPersistenceStrategy: CharacterSlotsPersistenceStrategy,
+    private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy,
+    private readonly savedIronmanRunPersistenceStrategy: IronmanRunPersistenceStrategy
   ) {}
 
   async fetchSavedCharacterSlots(
@@ -45,7 +23,7 @@ export class UserGameDataPersistenceService {
     gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ): Promise<SavedCharacterSlots> {
-    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(
+    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
       profileId,
       gameMode,
       controlScheme
@@ -91,7 +69,7 @@ export class UserGameDataPersistenceService {
     gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ) {
-    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(
+    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
       profileId,
       gameMode,
       controlScheme
@@ -116,7 +94,7 @@ export class UserGameDataPersistenceService {
     gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ) {
-    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(
+    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
       profileId,
       gameMode,
       controlScheme
@@ -138,7 +116,7 @@ export class UserGameDataPersistenceService {
   ) {
     await this.savedCharacterPersistenceStrategy.insert(newCharacter, pets, userId);
     slot.characterId = newCharacter.entityProperties.id;
-    await this.savedCharacterSlotsPersistenceStrategy.update(slot);
+    await this.characterSlotsPersistenceStrategy.update(slot);
   }
 
   async updateCharacter(character: Combatant, pets: Combatant[]) {
@@ -187,7 +165,7 @@ export class UserGameDataPersistenceService {
   async deleteCharacterInSlot(characterId: EntityId, slot: CharacterSlot) {
     await this.savedCharacterPersistenceStrategy.delete(characterId);
     slot.characterId = null;
-    await this.savedCharacterSlotsPersistenceStrategy.update(slot);
+    await this.characterSlotsPersistenceStrategy.update(slot);
   }
 
   static getLivingCharacterInSlotsById(entityId: EntityId, slots: SavedCharacterSlots) {

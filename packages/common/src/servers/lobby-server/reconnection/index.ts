@@ -8,7 +8,6 @@ import { GameSessionStoreService } from "../../services/game-session-store/index
 import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
 import { UserIdType } from "../../sessions/user-ids.js";
-// import { GameServerReconnectionForwardingRecord } from "../../services/reconnection-forwarding-store/game-server-reconnection-forwarding-record.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
@@ -45,14 +44,14 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
       return { type: ConnectionContextType.InitialConnection };
     }
     const activeGameStatusOption = await this.gameSessionStoreService.getActiveGameStatus(
-      globalSessionOption.gameName
+      globalSessionOption.gameId
     );
     let gameStillExists = !!activeGameStatusOption;
     // in the rare event that someone disconnected right after readying up and the pending game
     // was created before they had a chance to connect
     if (!gameStillExists) {
       const pendingGameOption = await this.gameSessionStoreService.getPendingGameSetup(
-        globalSessionOption.gameName
+        globalSessionOption.gameId
       );
       gameStillExists = !!pendingGameOption;
     }

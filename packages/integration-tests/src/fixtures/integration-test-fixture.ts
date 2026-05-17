@@ -287,7 +287,9 @@ export class IntegrationTestFixture {
       TEST_AUTH_SESSION_ID_PLAYER_2,
       bravoOptions
     );
-    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+
+    await bravo.lobbyClientHarness.fetchGameList();
+    await bravo.lobbyClientHarness.joinGame(bravo.requireGameIdFromClientGameList(TEST_GAME_NAME));
     await alpha.lobbyClientHarness.awaitMessageOfType(GameStateUpdateType.CharacterAddedToParty);
     return { alpha, bravo };
   }
@@ -307,7 +309,8 @@ export class IntegrationTestFixture {
     await alpha.lobbyClientHarness.createParty(TEST_PARTY_NAME);
     await alpha.lobbyClientHarness.createCharacter("a", CombatantClass.Rogue);
 
-    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+    await bravo.lobbyClientHarness.fetchGameList();
+    await bravo.lobbyClientHarness.joinGame(bravo.requireGameIdFromClientGameList(TEST_GAME_NAME));
     await bravo.lobbyClientHarness.joinParty(TEST_PARTY_NAME);
     await bravo.lobbyClientHarness.createCharacter("b", CombatantClass.Warrior);
 

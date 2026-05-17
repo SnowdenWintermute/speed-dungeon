@@ -158,7 +158,7 @@ export class LobbySessionLifecycleController
 
   async cleanupSession(session: UserSession) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-    if (session.currentGameName !== null) {
+    if (session.currentGameId !== null) {
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
       outbox.pushFromOther(leaveGameHandlerOutbox);
     }

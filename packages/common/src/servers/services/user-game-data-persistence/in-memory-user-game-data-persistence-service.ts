@@ -3,15 +3,13 @@ import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SequentialIdGenerator } from "../../../utils/index.js";
+import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 import { CharacterSlot } from "./character-slots.js";
-import {
-  SavedCharacterPersistenceStrategy,
-  SavedCharacterSlotsPersistenceStrategy,
-} from "./index.js";
+import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
 import { SerializedPlayerCharacter } from "./serialized-player-character.js";
 
 export class InMemorySavedCharacterSlotsPersistenceStrategy
-  implements SavedCharacterSlotsPersistenceStrategy
+  implements CharacterSlotsPersistenceStrategy
 {
   private readonly slotsByProfileId = new Map<ProfileId, CharacterSlot[]>();
   private idGenerator = new SequentialIdGenerator();
