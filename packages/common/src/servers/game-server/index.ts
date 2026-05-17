@@ -1,7 +1,7 @@
 import { GameServerName } from "../../aliases.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
+import { SavedCharactersService } from "../services/saved-characters/index.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";

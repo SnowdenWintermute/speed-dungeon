@@ -1,7 +1,7 @@
 import { IdentityProviderId, ProfileId } from "../../aliases.js";
 import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../app-consts.js";
 import { SequentialIdGenerator } from "../../utils/index.js";
-import { InMemorySavedCharacterSlotsPersistenceStrategy } from "./in-memory-saved-characters-service.js";
+import { InMemorySavedCharacterSlotsPersistenceStrategy } from "./saved-characters/in-memory-saved-characters-service.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "./profiles.js";
 
 export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileService {

@@ -1,14 +1,14 @@
-import { CharacterSlotIndex, EntityId, IdentityProviderId, ProfileId } from "../../aliases.js";
-import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../app-consts.js";
-import { Combatant } from "../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SequentialIdGenerator } from "../../utils/index.js";
+import { CharacterSlotIndex, EntityId, IdentityProviderId, ProfileId } from "../../../aliases.js";
+import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
+import { Combatant } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { SequentialIdGenerator } from "../../../utils/index.js";
 import {
   CharacterSlot,
   SavedCharacterPersistenceStrategy,
   SavedCharacterSlotsPersistenceStrategy,
   SerializedPlayerCharacter,
-} from "./saved-characters.js";
+} from "./index.js";
 
 export class InMemorySavedCharacterSlotsPersistenceStrategy
   implements SavedCharacterSlotsPersistenceStrategy

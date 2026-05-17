@@ -10,7 +10,7 @@ import {
   IdentityProviderService,
 } from "../services/identity-provider.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
+import { SavedCharactersService } from "../services/saved-characters/index.js";
 import { RankedLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";

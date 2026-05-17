@@ -3,7 +3,7 @@ import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
-import { SavedCharactersService } from "../../services/saved-characters.js";
+import { SavedCharactersService } from "../../services/saved-characters/index.js";
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";

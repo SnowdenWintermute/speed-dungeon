@@ -39,7 +39,7 @@ import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocke
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
-import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;

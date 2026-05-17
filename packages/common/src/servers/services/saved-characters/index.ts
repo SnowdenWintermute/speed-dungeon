@@ -1,19 +1,19 @@
-import { CombatantProperties } from "../../combatants/combatant-properties.js";
-import { Combatant } from "../../combatants/index.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
+import { CombatantProperties } from "../../../combatants/combatant-properties.js";
+import { Combatant } from "../../../combatants/index.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
 import {
   CharacterSlotIndex,
   EntityId,
   EntityName,
   IdentityProviderId,
   ProfileId,
-} from "../../aliases.js";
-import { APP_VERSION_NUMBER } from "../../app-consts.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { SpeedDungeonPlayer } from "../../game/player.js";
-import { getProgressionGamePartyName } from "../../utils/index.js";
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { SerializedOf } from "../../serialization/index.js";
+} from "../../../aliases.js";
+import { APP_VERSION_NUMBER } from "../../../app-consts.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { SpeedDungeonPlayer } from "../../../game/player.js";
+import { getProgressionGamePartyName } from "../../../utils/index.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { SerializedOf } from "../../../serialization/index.js";
 
 export interface CharacterInSlot {
   combatant: SerializedOf<Combatant>;

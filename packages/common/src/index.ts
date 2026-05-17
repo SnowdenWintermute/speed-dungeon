@@ -79,7 +79,7 @@ export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/services/profiles.js";
 export * from "./servers/services/assets/game-server-node-asset-service.js";
-export * from "./servers/services/saved-characters.js";
+export * from "./servers/services/saved-characters/index.js";
 export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";
@@ -235,7 +235,7 @@ export * from "./servers/services/game-session-store/in-memory-game-session-stor
 export * from "./servers/services/cross-server-broadcaster/index.js";
 export * from "./servers/services/cross-server-broadcaster/in-memory-cross-server-broadcaster.js";
 export * from "./servers/services/server-command/index.js";
-export * from "./servers/services/in-memory-saved-characters-service.js";
+export * from "./servers/services/saved-characters/in-memory-saved-characters-service.js";
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";

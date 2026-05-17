@@ -11,7 +11,7 @@ import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { SavedCharactersService } from "../../services/saved-characters.js";
+import { SavedCharactersService } from "../../services/saved-characters/index.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";

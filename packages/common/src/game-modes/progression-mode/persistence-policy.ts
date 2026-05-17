@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
-import { SavedCharactersService } from "../../servers/services/saved-characters.js";
+import { SavedCharactersService } from "../../servers/services/saved-characters/index.js";
 import { GameModePersistencePolicy } from "../persistence-policy.js";
 
 export class ProgressionModePersistencePolicy implements GameModePersistencePolicy {

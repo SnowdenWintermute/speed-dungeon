@@ -5,7 +5,7 @@ import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { AllowedResult } from "../primatives/index.js";
 import { PartySetupController } from "../servers/lobby-server/controllers/party-setup.js";
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
-import { SavedCharactersService } from "../servers/services/saved-characters.js";
+import { SavedCharactersService } from "../servers/services/saved-characters/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";

@@ -18,7 +18,7 @@ import {
   CrossServerBroadcastType,
 } from "../../../services/cross-server-broadcaster/index.js";
 import { RankedLadderService } from "../../../services/ranked-ladder.js";
-import { SavedCharactersService } from "../../../services/saved-characters.js";
+import { SavedCharactersService } from "../../../services/saved-characters/index.js";
 import { ServerCommand } from "../../../services/server-command/index.js";
 import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";

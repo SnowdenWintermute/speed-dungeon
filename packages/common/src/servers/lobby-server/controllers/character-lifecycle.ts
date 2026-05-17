@@ -5,7 +5,7 @@ import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
-import { SavedCharactersService } from "../../services/saved-characters.js";
+import { SavedCharactersService } from "../../services/saved-characters/index.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
