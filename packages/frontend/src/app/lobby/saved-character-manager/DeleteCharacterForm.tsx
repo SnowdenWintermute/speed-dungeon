@@ -1,10 +1,23 @@
 import React, { useState } from "react";
 import { HotkeyButton } from "../../components/atoms/HotkeyButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { ClientIntentType, Combatant } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  ClientIntentType,
+  Combatant,
+  GameMode,
+} from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export default function DeleteCharacterForm({ character }: { character: Combatant }) {
+export default function DeleteCharacterForm({
+  character,
+  gameMode,
+  controlScheme,
+}: {
+  character: Combatant;
+  gameMode: GameMode;
+  controlScheme: CharacterControlScheme;
+}) {
   const [confirmDeletion, setConfirmDeletion] = useState(false);
   const { lobbyClientRef } = useClientApplication();
 
@@ -13,6 +26,8 @@ export default function DeleteCharacterForm({ character }: { character: Combatan
       type: ClientIntentType.DeleteSavedCharacter,
       data: {
         entityId: character.getEntityId(),
+        gameMode,
+        controlScheme,
       },
     });
   }

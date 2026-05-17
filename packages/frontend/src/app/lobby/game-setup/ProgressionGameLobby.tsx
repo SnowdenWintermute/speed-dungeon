@@ -1,10 +1,12 @@
 import {
   BASE_SCREEN_SIZE,
   COMBATANT_CLASS_NAME_STRINGS,
+  CharacterControlScheme,
   ClientIntentType,
   Combatant,
   CombatantId,
   GOLDEN_RATIO,
+  GameMode,
   MAX_PARTY_SIZE,
   SpeedDungeonGame,
   SpeedDungeonPlayer,
@@ -27,7 +29,10 @@ export const ProgressionGameLobby = observer(() => {
   useEffect(() => {
     lobbyClientRef
       .get()
-      .dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
+      .dispatchIntent({
+        type: ClientIntentType.GetSavedCharactersList,
+        data: { gameMode: GameMode.Progression, controlScheme: CharacterControlScheme.Captain },
+      });
   }, []);
 
   const numPlayersInGame = game.players.size;

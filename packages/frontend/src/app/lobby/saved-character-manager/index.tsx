@@ -1,9 +1,10 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
 import {
+  CharacterControlScheme,
   CharacterSlotIndex,
-  ClientSequentialEventType,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  GameMode,
   NextOrPrevious,
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
@@ -157,9 +158,17 @@ export const SavedCharacterManager = observer(() => {
           </div>
           <div>
             {selectedCharacterOption ? (
-              <DeleteCharacterForm character={selectedCharacterOption.combatant} />
+              <DeleteCharacterForm
+                character={selectedCharacterOption.combatant}
+                gameMode={GameMode.Progression}
+                controlScheme={CharacterControlScheme.Captain}
+              />
             ) : (
-              <CreateCharacterForm currentSlot={currentSlot as CharacterSlotIndex} />
+              <CreateCharacterForm
+                currentSlot={currentSlot as CharacterSlotIndex}
+                gameMode={GameMode.Progression}
+                controlScheme={CharacterControlScheme.Captain}
+              />
             )}
           </div>
         </div>

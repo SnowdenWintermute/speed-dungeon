@@ -20,6 +20,7 @@ import { MapUtils } from "../../../utils/map-utils.js";
 import { GuestSessionReconnectionToken } from "../../game-server/reconnection/guest-session-reconnection-token.js";
 import { OpaqueEncryptionTokenCodec } from "../game-handoff/session-claim-token.js";
 import { throwIfLoopLimitReached } from "../../../utils/index.js";
+import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -120,9 +121,13 @@ export class LobbySessionLifecycleController
       return outbox;
     }
 
+    // @TODO - determine what default characters to send them
     if (session.isAuth()) {
       const savedCharactersOutbox =
-        await this.savedCharactersController.fetchSavedCharactersHandler(session);
+        await this.savedCharactersController.fetchSavedCharactersHandler(session, {
+          gameMode: GameMode.Progression,
+          controlScheme: CharacterControlScheme.Captain,
+        });
       outbox.pushFromOther(savedCharactersOutbox);
     }
 

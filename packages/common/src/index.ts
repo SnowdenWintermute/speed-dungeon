@@ -80,6 +80,8 @@ export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/services/profiles.js";
 export * from "./servers/services/assets/game-server-node-asset-service.js";
 export * from "./servers/services/saved-characters/index.js";
+export * from "./servers/services/saved-characters/serialized-player-character.js";
+export * from "./servers/services/saved-characters/character-slots.js";
 export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";

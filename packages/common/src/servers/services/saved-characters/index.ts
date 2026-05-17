@@ -1,61 +1,13 @@
-import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import {
-  CharacterSlotIndex,
-  EntityId,
-  EntityName,
-  IdentityProviderId,
-  ProfileId,
-} from "../../../aliases.js";
-import { APP_VERSION_NUMBER } from "../../../app-consts.js";
+import { CharacterSlotIndex, EntityId, IdentityProviderId, ProfileId } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
 import { getProgressionGamePartyName } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { SerializedOf } from "../../../serialization/index.js";
-
-export interface CharacterInSlot {
-  combatant: SerializedOf<Combatant>;
-  pets: SerializedOf<Combatant>[];
-}
-
-type SlotIndex = number;
-type SavedCharacterSlots = Record<SlotIndex, CharacterInSlot>;
-
-export class CharacterSlot {
-  characterId: null | EntityId = null;
-  createdAt: number | Date = Date.now();
-  updatedAt: number | Date = Date.now();
-
-  constructor(
-    public id: string,
-    public profileId: number,
-    public slotNumber: CharacterSlotIndex
-  ) {}
-}
-
-export class SerializedPlayerCharacter {
-  id: EntityId;
-  name: EntityName;
-  ownerId: IdentityProviderId;
-  gameVersion: string = APP_VERSION_NUMBER;
-  combatantProperties: SerializedOf<CombatantProperties>;
-  pets: SerializedOf<Combatant>[];
-  createdAt: number | Date = Date.now();
-  updatedAt: number | Date = Date.now();
-
-  constructor(combatant: Combatant, pets: Combatant[], ownerId: IdentityProviderId) {
-    const { id, name } = combatant.entityProperties;
-    const { combatantProperties } = combatant.toSerialized();
-    const serializedPets = pets.map((pet) => pet.toSerialized());
-    this.id = id;
-    this.name = name;
-    this.ownerId = ownerId;
-    this.combatantProperties = combatantProperties;
-    this.pets = serializedPets;
-  }
-}
+import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character-slots.js";
+import { SerializedPlayerCharacter } from "./serialized-player-character.js";
+import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 
 export interface SavedCharacterPersistenceStrategy {
   fetchCharacter: (characterId: EntityId) => Promise<SerializedPlayerCharacter>;
@@ -69,7 +21,11 @@ export interface SavedCharacterPersistenceStrategy {
 }
 
 export interface SavedCharacterSlotsPersistenceStrategy {
-  fetchSlots: (profileId: ProfileId) => Promise<CharacterSlot[]>;
+  fetchSlots: (
+    profileId: ProfileId,
+    gameMode: GameMode,
+    controlScheme: CharacterControlScheme
+  ) => Promise<CharacterSlot[]>;
   createSlots: (profileId: ProfileId) => Promise<void>;
   update: (characterSlot: CharacterSlot) => Promise<CharacterSlot>;
 }
@@ -80,11 +36,16 @@ export class SavedCharactersService {
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy
   ) {}
 
-  async fetchSavedCharacters(profileId: ProfileId): Promise<SavedCharacterSlots> {
-    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
-    if (slots === undefined) {
-      throw new Error("No character slots found");
-    }
+  async fetchSavedCharacterSlots(
+    profileId: ProfileId,
+    gameMode: GameMode,
+    controlScheme: CharacterControlScheme
+  ): Promise<SavedCharacterSlots> {
+    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(
+      profileId,
+      gameMode,
+      controlScheme
+    );
 
     const toReturn: SavedCharacterSlots = {};
     const characterPromises: Promise<void>[] = [];
@@ -111,10 +72,6 @@ export class SavedCharactersService {
   async fetchSavedCharacter(characterId: EntityId): Promise<CharacterInSlot> {
     const character = await this.savedCharacterPersistenceStrategy.fetchCharacter(characterId);
 
-    if (character === undefined) {
-      throw new Error("Character slot was holding an id that didn't match any character");
-    }
-
     return {
       combatant: {
         entityProperties: { id: character.id, name: character.name },
@@ -124,8 +81,17 @@ export class SavedCharactersService {
     };
   }
 
-  async requireEmptySlot(profileId: ProfileId, slotIndex: SlotIndex) {
-    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
+  async requireEmptySlot(
+    profileId: ProfileId,
+    slotIndex: CharacterSlotIndex,
+    gameMode: GameMode,
+    controlScheme: CharacterControlScheme
+  ) {
+    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(
+      profileId,
+      gameMode,
+      controlScheme
+    );
     const slotOption = slots.find((slot) => slot.slotNumber === slotIndex);
 
     if (slotOption === undefined) {
@@ -140,8 +106,17 @@ export class SavedCharactersService {
     return slotOption;
   }
 
-  async requireSlotWithCharacterId(profileId: ProfileId, characterId: EntityId) {
-    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(profileId);
+  async requireSlotWithCharacterId(
+    profileId: ProfileId,
+    characterId: EntityId,
+    gameMode: GameMode,
+    controlScheme: CharacterControlScheme
+  ) {
+    const slots = await this.savedCharacterSlotsPersistenceStrategy.fetchSlots(
+      profileId,
+      gameMode,
+      controlScheme
+    );
     for (const slot of slots) {
       if (slot.characterId === characterId) {
         return slot;

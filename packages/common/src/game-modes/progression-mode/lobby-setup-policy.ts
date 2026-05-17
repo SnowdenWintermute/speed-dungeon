@@ -117,7 +117,11 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
   ): Promise<CombatantWithPets | undefined> {
     // @TODO - check the game mode and characterControlScheme
 
-    const charactersResult = await this.savedCharactersService.fetchSavedCharacters(profile.id);
+    const charactersResult = await this.savedCharactersService.fetchSavedCharacterSlots(
+      profile.id,
+      gameMode,
+      characterControlScheme
+    );
 
     // get the first living character slot
     let defaultSavedCharacter: CombatantWithPets | undefined = undefined;

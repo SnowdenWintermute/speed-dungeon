@@ -7,12 +7,13 @@ import { SavedCharactersService } from "../../services/saved-characters/index.js
 import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
-import { CombatantId, EntityName } from "../../../aliases.js";
+import { CharacterSlotIndex, CombatantId, EntityName } from "../../../aliases.js";
 import { LobbyExternalServices } from "../index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
+import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 
 export class SavedCharactersController {
   private readonly savedCharactersService: SavedCharactersService;
@@ -27,10 +28,21 @@ export class SavedCharactersController {
     this.rankedLadderService = externalServices.rankedLadderService;
   }
 
-  async fetchSavedCharactersHandler(session: UserSession) {
+  async fetchSavedCharactersHandler(
+    session: UserSession,
+    data: {
+      gameMode: GameMode;
+      controlScheme: CharacterControlScheme;
+    }
+  ) {
+    const { gameMode, controlScheme } = data;
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const characterSlots = await this.savedCharactersService.fetchSavedCharacters(profile.id);
+    const characterSlots = await this.savedCharactersService.fetchSavedCharacterSlots(
+      profile.id,
+      gameMode,
+      controlScheme
+    );
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     // tell this session about their saved characters
@@ -42,8 +54,17 @@ export class SavedCharactersController {
     return outbox;
   }
 
-  async requireDefaultSavedCharacterForProgressionGame(profile: SpeedDungeonProfile) {
-    const charactersResult = await this.savedCharactersService.fetchSavedCharacters(profile.id);
+  // TODO - should become dead code when we start to allow joining without a default character
+  // and character management within the game lobby
+  async requireDefaultSavedCharacterForProgressionGame(
+    profile: SpeedDungeonProfile,
+    controlScheme: CharacterControlScheme
+  ) {
+    const charactersResult = await this.savedCharactersService.fetchSavedCharacterSlots(
+      profile.id,
+      GameMode.Progression,
+      controlScheme
+    );
 
     // only let them create/join a progression game if they have a saved character
     if (Object.values(charactersResult).length === 0) {
@@ -71,13 +92,24 @@ export class SavedCharactersController {
 
   async createSavedCharacterHandler(
     session: UserSession,
-    data: { name: EntityName; combatantClass: CombatantClass; slotIndex: number }
+    data: {
+      name: EntityName;
+      combatantClass: CombatantClass;
+      slotIndex: CharacterSlotIndex;
+      gameMode: GameMode;
+      controlScheme: CharacterControlScheme;
+    }
   ) {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const { name, combatantClass, slotIndex } = data;
+    const { name, combatantClass, slotIndex, gameMode, controlScheme } = data;
     // check if the slot is valid to put a new character in
-    const slot = await this.savedCharactersService.requireEmptySlot(profile.id, slotIndex);
+    const slot = await this.savedCharactersService.requireEmptySlot(
+      profile.id,
+      slotIndex,
+      gameMode,
+      controlScheme
+    );
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
@@ -117,15 +149,23 @@ export class SavedCharactersController {
     return outbox;
   }
 
-  async deleteSavedCharacterHandler(session: UserSession, data: { entityId: CombatantId }) {
-    const { entityId } = data;
+  async deleteSavedCharacterHandler(
+    session: UserSession,
+    data: { entityId: CombatantId; gameMode: GameMode; controlScheme: CharacterControlScheme }
+  ) {
+    const { entityId, gameMode, controlScheme } = data;
 
     session.requireAuthorized();
 
     const profile = await session.requireProfile(this.profileService);
 
     // delete the character only if they own it
-    const slot = await this.savedCharactersService.requireSlotWithCharacterId(profile.id, entityId);
+    const slot = await this.savedCharactersService.requireSlotWithCharacterId(
+      profile.id,
+      entityId,
+      gameMode,
+      controlScheme
+    );
     await this.savedCharactersService.deleteCharacterInSlot(entityId, slot);
 
     // remove them from ladder

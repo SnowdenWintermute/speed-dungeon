@@ -111,7 +111,11 @@ export class CharacterLifecycleController {
 
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const characters = await this.savedCharactersService.fetchSavedCharacters(profile.id);
+    const characters = await this.savedCharactersService.fetchSavedCharacterSlots(
+      profile.id,
+      game.mode,
+      game.characterControlScheme
+    );
 
     const userHasNoSavedCharacters = Object.values(characters).length === 0;
     if (userHasNoSavedCharacters) {

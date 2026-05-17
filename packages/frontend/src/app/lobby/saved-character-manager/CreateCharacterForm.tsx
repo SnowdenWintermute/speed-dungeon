@@ -11,10 +11,20 @@ import {
   getNextOrPreviousNumber,
   iterateNumericEnum,
   NumericEnumUtils,
+  GameMode,
+  CharacterControlScheme,
 } from "@speed-dungeon/common";
 import React, { useState } from "react";
 
-export default function CreateCharacterForm({ currentSlot }: { currentSlot: CharacterSlotIndex }) {
+export default function CreateCharacterForm({
+  currentSlot,
+  gameMode,
+  controlScheme,
+}: {
+  currentSlot: CharacterSlotIndex;
+  gameMode: GameMode;
+  controlScheme: CharacterControlScheme;
+}) {
   const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
   const [newCharacterName, setNewCharacterName] = useState("");
   const { lobbyClientRef } = useClientApplication();
@@ -26,6 +36,8 @@ export default function CreateCharacterForm({ currentSlot }: { currentSlot: Char
         name: newCharacterName as EntityName,
         combatantClass: selectedNewCharacterClass,
         slotIndex: currentSlot,
+        gameMode,
+        controlScheme,
       },
     });
   }

@@ -46,8 +46,8 @@ export function createLobbyClientIntentHandlers(
       lobbyServer.partySetupController.selectProgressionGameStartingFloorHandler(user, data),
 
     // SAVED CHARACTER MANAGMENT
-    [ClientIntentType.GetSavedCharactersList]: (_, user) =>
-      lobbyServer.savedCharactersController.fetchSavedCharactersHandler(user),
+    [ClientIntentType.GetSavedCharactersList]: (data, user) =>
+      lobbyServer.savedCharactersController.fetchSavedCharactersHandler(user, data),
     [ClientIntentType.CreateSavedCharacter]: (data, user) =>
       lobbyServer.savedCharactersController.createSavedCharacterHandler(user, data),
     [ClientIntentType.DeleteSavedCharacter]: (data, user) =>

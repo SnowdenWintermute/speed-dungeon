@@ -3,12 +3,12 @@ import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SequentialIdGenerator } from "../../../utils/index.js";
+import { CharacterSlot } from "./character-slots.js";
 import {
-  CharacterSlot,
   SavedCharacterPersistenceStrategy,
   SavedCharacterSlotsPersistenceStrategy,
-  SerializedPlayerCharacter,
 } from "./index.js";
+import { SerializedPlayerCharacter } from "./serialized-player-character.js";
 
 export class InMemorySavedCharacterSlotsPersistenceStrategy
   implements SavedCharacterSlotsPersistenceStrategy
@@ -19,7 +19,7 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
   async fetchSlots(profileId: ProfileId): Promise<CharacterSlot[]> {
     const expectedSlots = this.slotsByProfileId.get(profileId);
     if (expectedSlots === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
+      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOTS_NOT_INITIALIZED);
     }
     return expectedSlots;
   }

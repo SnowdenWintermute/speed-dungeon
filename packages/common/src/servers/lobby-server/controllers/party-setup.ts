@@ -114,6 +114,7 @@ export class PartySetupController {
     return outbox;
   }
 
+  // @TODO - adapt so they can join, then select a default character if they have one
   async joinProgressionGamePartyWithDefaultCharacterHandler(
     session: UserSession,
     game: SpeedDungeonGame
@@ -121,7 +122,10 @@ export class PartySetupController {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
     const defaultSavedCharacter =
-      await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
+      await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(
+        profile,
+        game.characterControlScheme
+      );
     const partyName = PartySetupController.getProgressionGamePartyName(game.name);
 
     const party = game.getExpectedParty(partyName);

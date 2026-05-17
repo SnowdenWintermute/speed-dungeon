@@ -1,5 +1,4 @@
 import {
-  CharacterSlot,
   Combatant,
   EntityId,
   ERROR_MESSAGES,
@@ -8,6 +7,7 @@ import {
   SavedCharacterPersistenceStrategy,
   SavedCharacterSlotsPersistenceStrategy,
   SerializedPlayerCharacter,
+  CharacterSlot,
 } from "@speed-dungeon/common";
 import { CharacterSlotsRepo } from "../../database/repos/character-slots.js";
 import { PlayerCharacterRepo } from "../../database/repos/player-characters.js";
