@@ -1,13 +1,19 @@
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { CharacterSlotIndex, EntityId, IdentityProviderId, ProfileId } from "../../../aliases.js";
+import {
+  CharacterSlotIndex,
+  EntityId,
+  GameId,
+  IdentityProviderId,
+  ProfileId,
+} from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
 import { getProgressionGamePartyName } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character-slots.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
-import { IronmanRunPersistenceStrategy } from "./saved-ironman-runs.js";
+import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
 import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 
@@ -17,6 +23,22 @@ export class UserGameDataPersistenceService {
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy,
     private readonly savedIronmanRunPersistenceStrategy: IronmanRunPersistenceStrategy
   ) {}
+
+  async saveIronmanRun(game: SpeedDungeonGame): Promise<void> {
+    game.requireMode(GameMode.Ironman);
+    const run = new SavedIronmanRun(game);
+    // serialize run
+    // insert/replace existing record
+    throw new Error("not implemented");
+  }
+
+  async fetchIronmanRun(gameId: GameId): Promise<SavedIronmanRun> {
+    // fetch run
+    // throw if not exist
+    // deserialize
+    // return
+    throw new Error("not implemented");
+  }
 
   async fetchSavedCharacterSlots(
     profileId: ProfileId,
