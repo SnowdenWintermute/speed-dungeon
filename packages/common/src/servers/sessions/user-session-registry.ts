@@ -1,5 +1,6 @@
 import { ChannelName, ConnectionId, GameId, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
+import { invariant } from "../../utils/index.js";
 import { UserId } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
 
@@ -94,5 +95,11 @@ export class UserSessionRegistry {
       throw new Error("expected to have a user session to match the player in game");
     }
     return existingSession;
+  }
+
+  static requireSessionInListByUsername(username: Username, sessions: UserSession[]) {
+    const session = sessions.find((session) => session.username === username);
+    invariant(session !== undefined, "Expected user session with matching username");
+    return session;
   }
 }

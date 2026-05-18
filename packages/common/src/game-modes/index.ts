@@ -32,7 +32,6 @@ export interface GameModePolicy {
 export interface UserAccountPersistentGameData {
   // slots array length limited by user account and control scheme
   progressionCharacters: Record<CharacterControlScheme, CharacterSlot[]>;
-  ironmanCharacters: Record<CharacterControlScheme, CharacterSlot[]>;
   // ironman runs array length limited by user account and control scheme
   ironmanRunIds: Record<CharacterControlScheme, EntityId[]>;
   raceGameRecordIds: Record<CharacterControlScheme, Record<number, EntityId[]>>; // number is year + month (Epoch?)

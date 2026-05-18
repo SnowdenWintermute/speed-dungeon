@@ -14,11 +14,12 @@ import {
   EntityId,
   GameId,
   GameName,
+  IdentityProviderId,
   PartyName,
   Username,
 } from "../aliases.js";
 import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
-import { UserId } from "../servers/sessions/user-ids.js";
+import { UserId, UserIdType } from "../servers/sessions/user-ids.js";
 import {
   ReactiveNode,
   Serializable,
@@ -27,6 +28,9 @@ import {
 } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
+import { invariant } from "../utils/index.js";
+import { UserSession } from "../servers/sessions/user-session.js";
+import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -153,6 +157,16 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
   addPlayer(player: SpeedDungeonPlayer) {
     this.players.set(player.username, player);
+  }
+
+  getAuthUserIdsToUsernames(sessions: UserSession[]) {
+    const result = new Map<IdentityProviderId, Username>();
+    for (const [username, player] of this.players) {
+      const session = UserSessionRegistry.requireSessionInListByUsername(username, sessions);
+      invariant(session.taggedUserId.type === UserIdType.Auth, "Only auth users expected");
+      result.set(session.taggedUserId.id, player.username);
+    }
+    return result;
   }
 
   /** Used by subscribed user sessions to receive updates about this game.
@@ -447,6 +461,13 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     }
     return expectedBattle;
+  }
+
+  requireSingleParty() {
+    invariant(this.adventuringParties.size === 1, "expected game to have a single party");
+    const partyOption = [...this.adventuringParties.values()][0];
+    invariant(partyOption !== undefined, "checked above");
+    return partyOption;
   }
 }
 

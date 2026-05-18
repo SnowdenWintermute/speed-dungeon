@@ -7,20 +7,15 @@
 // Ironman Data
 // - 2 Freelancers Ironman game slots
 //   .ref to an IronmanSavedGameState, which in turn references IronmanSavedCharacter id
-// - 2 Freelancers Ironman character slots
-//   .these can only join a game created from an IronmanSavedGameState referencing their characterIds
 // - 1 Captains Ironman game slot
-// - 3 Captains Ironman character slots (so they can hold enough for a full party)
 //
 // IronmanSavedGameState
-// - Serialized SpeedDungeonGame object minus the player's characters
+// - Serialized SpeedDungeonGame object
 // - Save the "time saved" for resuming timers (time spent on current floor) when game loaded
-// - Save the player character ids that are in the game
+// - Save a Map<IdentityProviderId, Username> to figure out what SpeedDungeonPlayer a
+//   joining user controls if they changed their account Username in between save and load
 // - On creating a lobby setup for continued Ironman game, require that
-//   all players that were in the run join before game starts
-// - On join, follow the progression game flow of adding a saved character to the
-//   default party, but automatically select from the user account's Ironman saved
-//   characters the correct matching characters
+//   all players that were in the run have a matching UserSession before game starts
 //
 // Ladder Record Design Notes
 // - a race game's winner can be derrived from the records

@@ -22,18 +22,6 @@ export class GameHandoffManager {
     private readonly getLeastBusyGameServer: () => Promise<{ name: GameServerName; url: string }>
   ) {}
 
-  private getPlayerSessionsInGame(game: SpeedDungeonGame) {
-    const result: UserSession[] = [];
-
-    for (const [username, player] of game.getPlayers()) {
-      const session = this.userSessionRegistry.requireSessionInGameByUsername(username, game.id);
-
-      result.push(session);
-    }
-
-    return result;
-  }
-
   private async prepareClaimTokens(sessions: UserSession[], gameId: GameId, gameServerUrl: string) {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
@@ -62,7 +50,7 @@ export class GameHandoffManager {
       new PendingGameSetup(game.toSerialized())
     );
 
-    const sessionsInGame = this.getPlayerSessionsInGame(game);
+    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
     const claimTokens = await this.prepareClaimTokens(sessionsInGame, game.id, leastBusyServer.url);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateFactory);

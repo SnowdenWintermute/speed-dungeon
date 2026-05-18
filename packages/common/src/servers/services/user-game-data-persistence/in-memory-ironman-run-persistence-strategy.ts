@@ -1,16 +1,15 @@
 import { GameId } from "../../../aliases.js";
-import { SpeedDungeonGame } from "../../../game/index.js";
-import { IronmanRunPersistenceStrategy } from "./saved-ironman-runs.js";
+import { SerializedOf } from "../../../serialization/index.js";
+import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 
 export class InMemoryIronmanRunPersistenceStrategy implements IronmanRunPersistenceStrategy {
-  insert(game: SpeedDungeonGame): Promise<void> {
+  save(run: SerializedOf<SavedIronmanRun>): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  update(game: SpeedDungeonGame): Promise<void> {
+  fetchRunOption(runId: GameId): Promise<SerializedOf<SavedIronmanRun> | undefined> {
     throw new Error("Method not implemented.");
   }
-  fetchRun(gameId: GameId): Promise<SpeedDungeonGame | undefined> {
+  delete(runId: GameId): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  //
 }

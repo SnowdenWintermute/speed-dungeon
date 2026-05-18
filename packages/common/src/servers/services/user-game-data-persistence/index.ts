@@ -16,6 +16,8 @@ import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
 import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
+import { UserSession } from "../../sessions/user-session.js";
+import { SerializedOf } from "../../../serialization/index.js";
 
 export class UserGameDataPersistenceService {
   constructor(
@@ -24,20 +26,20 @@ export class UserGameDataPersistenceService {
     private readonly savedIronmanRunPersistenceStrategy: IronmanRunPersistenceStrategy
   ) {}
 
-  async saveIronmanRun(game: SpeedDungeonGame): Promise<void> {
+  async saveIronmanRun(game: SpeedDungeonGame, userSessions: UserSession[]): Promise<void> {
     game.requireMode(GameMode.Ironman);
-    const run = new SavedIronmanRun(game);
-    // serialize run
-    // insert/replace existing record
-    throw new Error("not implemented");
+    const run = new SavedIronmanRun(game, game.getAuthUserIdsToUsernames(userSessions));
+    const serializedRun = run.toSerialized();
+    this.savedIronmanRunPersistenceStrategy.save(serializedRun);
   }
 
-  async fetchIronmanRun(gameId: GameId): Promise<SavedIronmanRun> {
-    // fetch run
-    // throw if not exist
-    // deserialize
-    // return
-    throw new Error("not implemented");
+  async requireSavedIronmanRun(gameId: GameId): Promise<SerializedOf<SavedIronmanRun>> {
+    const existingRunOption = await this.savedIronmanRunPersistenceStrategy.fetchRunOption(gameId);
+    if (existingRunOption) {
+      return existingRunOption;
+    }
+
+    throw new Error(ERROR_MESSAGES.GAME.NOT_FOUND);
   }
 
   async fetchSavedCharacterSlots(
