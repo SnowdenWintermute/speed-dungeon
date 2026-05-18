@@ -20,12 +20,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
     if (game.isContinuedRun) {
-      const playerOption = game.getPlayer(session.username);
-      if (playerOption) {
-        return { allowed: true };
-      } else {
-        return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME };
-      }
+      // @TODO - check if player was in the run
     }
     return { allowed: true };
   }

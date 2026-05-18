@@ -33,13 +33,16 @@ export class UserGameDataPersistenceService {
     this.savedIronmanRunPersistenceStrategy.save(serializedRun);
   }
 
-  async requireSavedIronmanRun(gameId: GameId): Promise<SerializedOf<SavedIronmanRun>> {
+  async requireIronmanRun(gameId: GameId): Promise<SerializedOf<SavedIronmanRun>> {
     const existingRunOption = await this.savedIronmanRunPersistenceStrategy.fetchRunOption(gameId);
     if (existingRunOption) {
       return existingRunOption;
     }
-
     throw new Error(ERROR_MESSAGES.GAME.NOT_FOUND);
+  }
+
+  async deleteIronmanRun(gameId: GameId): Promise<void> {
+    await this.savedIronmanRunPersistenceStrategy.delete(gameId);
   }
 
   async fetchSavedCharacterSlots(

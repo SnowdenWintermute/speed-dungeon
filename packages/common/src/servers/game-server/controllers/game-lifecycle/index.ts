@@ -127,7 +127,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       game.getChannelName(),
       {
         type: GameStateUpdateType.PlayerJoinedGame,
-        data: { username: session.username },
+        data: { username: session.username, joinOrder: player.joinOrder },
       },
       { excludedIds: [session.connectionId] }
     );

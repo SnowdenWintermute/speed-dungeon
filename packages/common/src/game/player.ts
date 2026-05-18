@@ -21,7 +21,12 @@ export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
   partyName: null | PartyName = null;
   characterIds: CombatantId[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
-  constructor(public username: Username) {}
+  awaitingControllingUserConnection: boolean = false;
+
+  constructor(
+    public username: Username,
+    readonly joinOrder: number
+  ) {}
 
   makeObservable(): void {
     makeAutoObservable(this);

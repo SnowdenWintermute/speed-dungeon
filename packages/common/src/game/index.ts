@@ -169,6 +169,26 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return result;
   }
 
+  /** If a player abandons an Ironman run to free up a slot on their account, other users may
+   * want to continue the run. In that case we can transfer the outgoing player's characters.*/
+  transferCharacterOwnership(characterId: CombatantId, from: Username, to: Username) {
+    this.requireMode(GameMode.Ironman);
+    const fromUser = this.getExpectedPlayer(from);
+    const toUser = this.getExpectedPlayer(to);
+    const fromUserParty = fromUser.getExpectedParty(this);
+    const toUserParty = fromUser.getExpectedParty(this);
+    if (fromUserParty.id !== toUserParty.id) {
+      throw new Error("Can not transfer a character to a player not a different party");
+    }
+    const characterIdOption = ArrayUtils.removeElement(fromUser.characterIds, characterId);
+    if (characterIdOption === undefined) {
+      throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+    }
+    const character = fromUserParty.combatantManager.getExpectedCombatant(characterIdOption);
+    character.combatantProperties.controlledBy.controllerPlayerName = toUser.username;
+    toUser.characterIds.push(characterIdOption);
+  }
+
   /** Used by subscribed user sessions to receive updates about this game.
    * Created by adding a standard game prefix to the game's name so as not to
    * mix up potentially identical game and party names*/
@@ -227,8 +247,8 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     this.timeStarted = Date.now();
   }
 
-  registerPlayerFromLobbyUser(username: Username) {
-    this.addPlayer(new SpeedDungeonPlayer(username));
+  registerPlayerFromLobbyUser(username: Username, joinOrder: number) {
+    this.addPlayer(new SpeedDungeonPlayer(username, joinOrder));
   }
 
   addCharacterToParty(

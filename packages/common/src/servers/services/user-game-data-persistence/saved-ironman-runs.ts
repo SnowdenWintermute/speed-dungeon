@@ -1,13 +1,17 @@
 import {
   APP_VERSION_NUMBER,
+  ERROR_MESSAGES,
   GameId,
   IdentityProviderId,
+  invariant,
   MapUtils,
   Serializable,
   SerializedOf,
   SpeedDungeonGame,
+  UserIdType,
   Username,
 } from "../../../index.js";
+import { UserSession } from "../../sessions/user-session.js";
 
 export class SavedIronmanRun implements Serializable {
   private _game: SpeedDungeonGame;
@@ -44,6 +48,24 @@ export class SavedIronmanRun implements Serializable {
 
   get game() {
     return this._game;
+  }
+
+  containsPlayerControlledByUser(session: UserSession) {
+    invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
+    const existingPlayerUsername = this.userIdsToUsernames.get(session.taggedUserId.id);
+    return existingPlayerUsername !== undefined;
+  }
+
+  // a player joining an Ironman run may have changed their username between the time
+  // of the save and load
+  updatePlayerOnJoin(session: UserSession) {
+    invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
+    const usernameAtTimeOfRunSave = this.userIdsToUsernames.get(session.taggedUserId.id);
+    if (usernameAtTimeOfRunSave === undefined) {
+      throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
+    }
+    const player = this._game.getExpectedPlayer(usernameAtTimeOfRunSave);
+    player.username = session.username;
   }
 }
 

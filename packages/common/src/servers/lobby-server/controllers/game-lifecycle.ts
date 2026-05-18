@@ -188,7 +188,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     session.joinGame(game);
-    game.registerPlayerFromLobbyUser(session.username);
+    const joinOrder = game.players.size;
+    game.registerPlayerFromLobbyUser(session.username, joinOrder);
     session.unsubscribeFromChannel(LOBBY_CHANNEL);
     session.subscribeToChannel(game.getChannelName());
 
@@ -213,7 +214,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       game.getChannelName(),
       {
         type: GameStateUpdateType.PlayerJoinedGame,
-        data: { username: session.username },
+        data: { username: session.username, joinOrder: joinOrder },
       },
       { excludedIds: [session.connectionId] }
     );

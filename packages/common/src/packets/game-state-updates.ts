@@ -147,6 +147,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.PlayerJoinedGame]: {
     username: Username;
+    joinOrder: number;
   };
   [GameStateUpdateType.PartyCreated]: {
     partyId: string;

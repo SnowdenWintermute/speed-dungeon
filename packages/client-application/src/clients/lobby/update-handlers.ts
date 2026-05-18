@@ -75,7 +75,7 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const { gameOption } = gameContext;
-      const player = new SpeedDungeonPlayer(data.username);
+      const player = new SpeedDungeonPlayer(data.username, data.joinOrder);
       if (gameOption) {
         player.makeObservable();
         gameOption.addPlayer(player);
