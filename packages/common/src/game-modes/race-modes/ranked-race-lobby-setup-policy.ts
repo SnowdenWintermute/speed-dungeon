@@ -26,12 +26,16 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override userCanCreate(session: UserSession): AllowedResult {
+  override async userCanCreate(session: UserSession): Promise<AllowedResult> {
     if (session.isAuth()) {
       return { allowed: true };
     } else {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
+  }
+
+  override async createGame(): Promise<SpeedDungeonGame> {
+    throw new Error("tbd");
   }
 
   override canSelectStartingFloor(): AllowedResult {

@@ -17,20 +17,17 @@ import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
-import { SavedCharactersController } from "./saved-characters.js";
-import { SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
+import { GameExistenceChecker } from "../game-existence-queries.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
-    private readonly profileService: SpeedDungeonProfileService,
-    private readonly savedCharactersController: SavedCharactersController,
+    private readonly gameExistenceChecker: GameExistenceChecker,
     private readonly idGenerator: IdGenerator,
-    private readonly gameHandoffManager: GameHandoffManager,
-    private readonly gameSessionStoreService: GameSessionStoreService
+    private readonly gameHandoffManager: GameHandoffManager
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -89,7 +86,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(gameNameValidity.reason);
     }
 
-    const gameNameExists = await this.gameExistsByName(gameName);
+    const gameNameExists = await this.gameExistenceChecker.gameExistsByName(gameName);
     if (gameNameExists) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
@@ -101,7 +98,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
         gameName = this.generateRandomGameName();
         // @PERF - awaiting in a loop is no bueno
-        const noGameExistsByThisName = !(await this.gameExistsByName(gameName));
+        const noGameExistsByThisName =
+          !(await this.gameExistenceChecker.gameExistsByName(gameName));
 
         if (noGameExistsByThisName) {
           break;
@@ -109,8 +107,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       }
     }
 
-    const gameByThisNameExists =
-      this.lobbyState.gameRegistry.getGameOptionByName(gameName) !== undefined;
+    const gameByThisNameExists = await this.gameExistenceChecker.gameExistsByName(gameName);
     if (gameByThisNameExists) {
       throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
     }
@@ -307,23 +304,5 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     outbox.pushFromOther(connectionInstructions);
 
     return outbox;
-  }
-
-  async gameExistsByName(gameName: GameName) {
-    const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOptionByName(gameName);
-    if (lobbyGameExistsByThisName) {
-      return true;
-    }
-    const pendingGameExistsByThisName =
-      await this.gameSessionStoreService.getPendingGameSetupByName(gameName);
-    if (pendingGameExistsByThisName) {
-      return true;
-    }
-    const activeGameExistsByThisName =
-      await this.gameSessionStoreService.getPendingGameSetupByName(gameName);
-    if (activeGameExistsByThisName) {
-      return true;
-    }
-    return false;
   }
 }

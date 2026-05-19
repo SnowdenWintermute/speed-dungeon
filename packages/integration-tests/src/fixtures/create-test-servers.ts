@@ -62,6 +62,7 @@ export async function createTestServers(
   >,
   leastBusyGameServerGetterRef: { getter: () => Promise<{ name: GameServerName; url: string }> },
   rngPolicy: RandomNumberGenerationPolicy,
+
   characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
@@ -76,16 +77,16 @@ export async function createTestServers(
   );
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
+  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
   const userGameDataPersistenceService = new UserGameDataPersistenceService(
     characterSlotsPersistenceStrategy,
-    new InMemorySavedCharacterPersistenceStrategy()
+    new InMemorySavedCharacterPersistenceStrategy(),
+    profileService
   );
   const rankedLadderService = new InMemoryRankedLadderService();
   const raceGameRecordsService = new RaceGameRecordsService(
     new InMemoryRaceGameRecordsPersistenceStrategy()
   );
-
-  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
 
   const baseAssetDirectory = "packages/server/assets/";
   const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);

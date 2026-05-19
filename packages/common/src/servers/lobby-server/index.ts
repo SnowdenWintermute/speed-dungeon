@@ -44,6 +44,7 @@ import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
+import { GameExistenceChecker } from "./game-existence-queries.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
@@ -72,6 +73,9 @@ export class LobbyServer extends SpeedDungeonServer {
   public readonly userSessionLifecycleController: LobbySessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
   public readonly characterLifecycleController: CharacterLifecycleController;
+
+  // queries
+  public readonly gameExistenceChecker: GameExistenceChecker;
 
   constructor(
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
@@ -125,6 +129,11 @@ export class LobbyServer extends SpeedDungeonServer {
       this.idGenerator,
       new ItemBuilder(equipmentRandomizer),
       this.rngPolicy
+    );
+
+    this.gameExistenceChecker = new GameExistenceChecker(
+      this.lobbyState,
+      this.externalServices.gameSessionStoreService
     );
 
     const controllers = this.createControllers(idGenerator);
@@ -264,11 +273,9 @@ export class LobbyServer extends SpeedDungeonServer {
       this.lobbyState,
       this.updateDispatchFactory,
       partySetupController,
-      this.externalServices.profileService,
-      savedCharactersController,
+      this.gameExistenceChecker,
       idGenerator,
-      this.gameHandoffManager,
-      this.externalServices.gameSessionStoreService
+      this.gameHandoffManager
     );
 
     const characterLifecycleController = new CharacterLifecycleController(

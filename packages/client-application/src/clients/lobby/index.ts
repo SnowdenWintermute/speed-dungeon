@@ -1,4 +1,5 @@
 import {
+  CharacterControlScheme,
   ClientIntentType,
   CombatantClass,
   EntityName,
@@ -48,6 +49,7 @@ export class LobbyClient extends BaseClient {
       data: {
         gameName: "" as GameName,
         mode: GameMode.UnrankedRace,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
 
@@ -80,6 +82,7 @@ export class LobbyClient extends BaseClient {
       data: {
         gameName: "" as GameName,
         mode: GameMode.Progression,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
 
@@ -95,6 +98,7 @@ export class LobbyClient extends BaseClient {
       data: {
         gameName: "test game" as GameName,
         mode: GameMode.UnrankedRace,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
 

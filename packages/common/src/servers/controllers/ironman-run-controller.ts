@@ -1,9 +1,7 @@
 import { CombatantId, GameId, IdentityProviderId, Username } from "../../aliases.js";
-import { ERROR_MESSAGES } from "../../errors/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { GameRegistry } from "../game-registry.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
-import { SavedIronmanRun } from "../services/user-game-data-persistence/saved-ironman-runs.js";
 import { UserSessionRegistry } from "../sessions/user-session-registry.js";
 import { UserSession } from "../sessions/user-session.js";
 import { MessageDispatchFactory } from "../update-delivery/message-dispatch-factory.js";
@@ -16,23 +14,6 @@ export class IronmanRunController {
     protected userSessionRegistry: UserSessionRegistry,
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
-
-  async loadRun(runId: GameId, session: UserSession) {
-    const serialized = await this.userGameDataPersistenceService.requireIronmanRun(runId);
-    const run = SavedIronmanRun.fromSerialized(serialized);
-    if (!run.containsPlayerControlledByUser(session)) {
-      throw new Error(ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME);
-    }
-
-    run.game.markAsContinuedRun();
-    run.game.timeHandedOff = null;
-
-    for (const [username, player] of run.game.players) {
-      player.awaitingControllingUserConnection = true;
-    }
-
-    return run;
-  }
 
   // for leaving the run from game server, could move to persistence game policy
   async leaveLiveRun(runId: GameId, session: UserSession) {
@@ -56,6 +37,7 @@ export class IronmanRunController {
     //   .if no players remain, delete the saved run record
     //   .else update their owned characters to be owned by the next most recently
     //    joined player (need to record join order on players then)
+    //   .remove the reference to the run in their user Profile
   }
 
   // from lobby, need bespoke ClientIntent and handler

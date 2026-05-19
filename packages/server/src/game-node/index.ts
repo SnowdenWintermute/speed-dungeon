@@ -37,6 +37,7 @@ import {
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
   InMemoryIronmanRunPersistenceStrategy,
+  SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -62,6 +63,7 @@ export class GameServerNode {
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     expressApp: Express,
+    profileService: SpeedDungeonProfileService,
     gameSessionStoreService: GameSessionStoreService,
     globalGameSessionStore: GlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -78,7 +80,8 @@ export class GameServerNode {
       fsAssetStore,
       gameSessionStoreService,
       crossServerBroadcasterService,
-      globalGameSessionStore
+      globalGameSessionStore,
+      profileService
     );
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
@@ -126,7 +129,8 @@ export class GameServerNode {
     assetStore: AssetCache,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore
+    globalGameSessionStore: GlobalGameSessionStore,
+    profileService: SpeedDungeonProfileService
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);
 
@@ -138,7 +142,8 @@ export class GameServerNode {
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy,
-      new InMemoryIronmanRunPersistenceStrategy()
+      new InMemoryIronmanRunPersistenceStrategy(),
+      profileService
     );
 
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);

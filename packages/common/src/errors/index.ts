@@ -39,7 +39,7 @@ export const ERROR_MESSAGES = {
     USERNAME_ALREADY_IN_GAME: "A player with that username is already in that game",
   },
   GAME: {
-    NOT_FOUND: "No game was found by that name",
+    NOT_FOUND: "No game was found by that id",
     NOT_STARTED: "The game has not started",
     ALREADY_STARTED: "That game has already started",
     IS_FULL: "That game is full (has maximum number of players)",
@@ -59,6 +59,9 @@ export const ERROR_MESSAGES = {
     PLAYER_NOT_IN_CONTINUED_GAME:
       "This is a continuation of a previous game that your account was not a part of",
     CONTINUED_GAME: "That action is not allowed in the setup of a game continuation",
+    CONTINUED_GAME_ALREADY_LIVE: "This continued run already has a live game",
+    CONTINUED_GAME_ID_REQUIRED: "A run ID was expected but not specified",
+    CONTINUED_GAME_NOT_FOUND: "The specified game ID was not found in the save game storage",
     MINIMUM_PARTIES: (minimumPartyCount: number) =>
       `Game does not have the minimum number of parties (${minimumPartyCount})`,
   },
@@ -89,6 +92,7 @@ export const ERROR_MESSAGES = {
   USER: {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
+    SAVED_GAME_CAPACITY: "Your account already has the maximum number of saved games",
     CHARACTER_SLOT_FULL: "That character slot is occupied",
     CHARACTER_SLOTS_NOT_INITIALIZED:
       "The user account did not have the expected character slots initialized",

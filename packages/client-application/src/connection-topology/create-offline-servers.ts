@@ -76,14 +76,14 @@ export async function createOfflineLocalServers(assetService: AssetService) {
   );
 
   const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
+  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
   const userGameDataPersistenceService = new UserGameDataPersistenceService(
     characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy(),
-    new InMemoryIronmanRunPersistenceStrategy()
+    new InMemoryIronmanRunPersistenceStrategy(),
+    profileService
   );
   const rankedLadderService = new InMemoryRankedLadderService();
-
-  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
 
   const testSecret = await SodiumHelpers.createSecret();
   const gameServerSessionClaimCodec = new OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>(

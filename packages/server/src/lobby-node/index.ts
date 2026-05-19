@@ -23,6 +23,7 @@ import {
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
+  SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { characterSlotsRepo } from "../database/repos/character-slots.js";
@@ -51,7 +52,8 @@ export class LobbyServerNode {
     globalGameSessionStore: GlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
-    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
+    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    profileService: SpeedDungeonProfileService
   ) {
     const wss = new WebSocketServer({ server: httpServer });
 
@@ -59,7 +61,8 @@ export class LobbyServerNode {
     const externalServices = this.createExternalServices(
       gameSessionStoreService,
       crossServerBroadcasterService,
-      globalGameSessionStore
+      globalGameSessionStore,
+      profileService
     );
     const leastBusyGameServerUrlGetter = async () => {
       return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
@@ -96,15 +99,14 @@ export class LobbyServerNode {
   private createExternalServices(
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore
+    globalGameSessionStore: GlobalGameSessionStore,
+    profileService: SpeedDungeonProfileService
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
         return await getLoggedInUserOption(context.authSessionId);
       },
     });
-
-    const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
 
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
@@ -115,7 +117,8 @@ export class LobbyServerNode {
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy,
-      new InMemoryIronmanRunPersistenceStrategy()
+      new InMemoryIronmanRunPersistenceStrategy(),
+      profileService
     );
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
 

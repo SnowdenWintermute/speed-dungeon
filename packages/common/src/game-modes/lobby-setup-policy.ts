@@ -1,10 +1,13 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantId, GameName, PartyName } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { GameCreationRequest } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { AllowedResult } from "../primatives/index.js";
 import { GameRegistry } from "../servers/game-registry.js";
 import { PartySetupController } from "../servers/lobby-server/controllers/party-setup.js";
+import { GameExistenceChecker } from "../servers/lobby-server/game-existence-queries.js";
+import { GameSessionStoreService } from "../servers/services/game-session-store/index.js";
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
@@ -17,6 +20,8 @@ export abstract class GameModeLobbySetupPolicy {
     protected profileService: SpeedDungeonProfileService,
     protected userGameDataPersistenceService: UserGameDataPersistenceService,
     protected gameRegistry: GameRegistry,
+    protected gameSessionStoreService: GameSessionStoreService,
+    protected gameExistenceChecker: GameExistenceChecker,
     protected idGenerator: IdGenerator,
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
@@ -28,7 +33,14 @@ export abstract class GameModeLobbySetupPolicy {
   abstract userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult>;
   // is user authenticated if required, if it is IM run were they in that run
   // does user have available slots if is IM run
-  abstract userCanCreate(session: UserSession): AllowedResult;
+  abstract userCanCreate(
+    session: UserSession,
+    gameCreationRequest: GameCreationRequest
+  ): Promise<AllowedResult>;
+  abstract createGame(
+    session: UserSession,
+    gameCreationRequest: GameCreationRequest
+  ): Promise<SpeedDungeonGame>;
   abstract canSelectStartingFloor(): AllowedResult; // is starting floor selectable in this mode (only for progression)
   abstract getMaxStartingFloor(game: SpeedDungeonGame): number;
   // @TODO - take in a "GameCreationRequest" and return a game from it

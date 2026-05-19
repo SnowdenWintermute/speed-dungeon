@@ -83,11 +83,7 @@ export enum ClientIntentType {
 // Map enum values to payload types
 export interface ClientIntentMap {
   [ClientIntentType.RequestsGameList]: undefined;
-  [ClientIntentType.CreateGame]: {
-    gameName: GameName;
-    mode: GameMode;
-    isRanked?: boolean;
-  };
+  [ClientIntentType.CreateGame]: GameCreationRequest;
   [ClientIntentType.JoinGame]: { gameId: GameId };
   [ClientIntentType.LeaveGame]: undefined;
   [ClientIntentType.CreateParty]: { partyName: PartyName };
@@ -187,3 +183,10 @@ export type ClientIntent = {
     data: ClientIntentMap[K];
   };
 }[keyof ClientIntentMap];
+
+export interface GameCreationRequest {
+  gameName: GameName;
+  mode: GameMode;
+  controlScheme: CharacterControlScheme;
+  continueGameId?: GameId;
+}

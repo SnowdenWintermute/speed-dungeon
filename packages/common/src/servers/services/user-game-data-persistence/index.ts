@@ -9,7 +9,7 @@ import {
 } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
-import { getProgressionGamePartyName } from "../../../utils/index.js";
+import { getProgressionGamePartyName, invariant } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character-slots.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
@@ -18,12 +18,15 @@ import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence
 import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { SerializedOf } from "../../../serialization/index.js";
+import { SpeedDungeonProfileService } from "../profiles.js";
+import { UserIdType } from "../../sessions/user-ids.js";
 
 export class UserGameDataPersistenceService {
   constructor(
     private readonly characterSlotsPersistenceStrategy: CharacterSlotsPersistenceStrategy,
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy,
-    private readonly savedIronmanRunPersistenceStrategy: IronmanRunPersistenceStrategy
+    private readonly savedIronmanRunPersistenceStrategy: IronmanRunPersistenceStrategy,
+    private readonly profileService: SpeedDungeonProfileService
   ) {}
 
   async saveIronmanRun(game: SpeedDungeonGame, userSessions: UserSession[]): Promise<void> {
@@ -31,6 +34,18 @@ export class UserGameDataPersistenceService {
     const run = new SavedIronmanRun(game, game.getAuthUserIdsToUsernames(userSessions));
     const serializedRun = run.toSerialized();
     this.savedIronmanRunPersistenceStrategy.save(serializedRun);
+    await this.addRunIdReferencesToUserProfiles(game.id, userSessions);
+  }
+
+  private async addRunIdReferencesToUserProfiles(runId: GameId, userSessions: UserSession[]) {
+    for (const session of userSessions) {
+      invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
+      const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
+      if (!profile.ironmanRunIds.includes(runId)) {
+        profile.ironmanRunIds.push(runId);
+        await this.profileService.update(session.taggedUserId.id, profile);
+      }
+    }
   }
 
   async requireIronmanRun(gameId: GameId): Promise<SerializedOf<SavedIronmanRun>> {
@@ -90,7 +105,7 @@ export class UserGameDataPersistenceService {
     };
   }
 
-  async requireEmptySlot(
+  async requireEmptyCharacterSlot(
     profileId: ProfileId,
     slotIndex: CharacterSlotIndex,
     gameMode: GameMode,

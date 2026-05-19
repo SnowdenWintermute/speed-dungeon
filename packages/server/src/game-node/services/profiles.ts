@@ -15,6 +15,10 @@ export class DatabaseProfileService extends SpeedDungeonProfileService {
     return speedDungeonProfileOption;
   }
 
+  update(userId: IdentityProviderId, profile: SpeedDungeonProfile): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   async createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
     console.info("creating speed dungeon profile for user");
     const expectedProfile = await this.profilesRepo.insert(userId);

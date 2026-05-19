@@ -3,7 +3,11 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY, SpeedDungeonProfile } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  SpeedDungeonProfile,
+} from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.SPEED_DUNGEON_PROFILES;
 
@@ -36,11 +40,11 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
   }
 
   async update(speedDungeonProfile: SpeedDungeonProfile) {
-    const { id, characterCapacity } = speedDungeonProfile;
+    const { id, characterCapacities, ironmanRunCapacity } = speedDungeonProfile;
     const { rows } = await this.pgPool.query(
       format(
         `UPDATE ${tableName} SET character_capacity = %L WHERE id = %L RETURNING *;`,
-        characterCapacity,
+        characterCapacities[CharacterControlScheme.Freelancer],
         id
       )
     );

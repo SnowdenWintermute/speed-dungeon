@@ -50,6 +50,19 @@ export class SavedIronmanRun implements Serializable {
     return this._game;
   }
 
+  static createGameFromSavedRun(serialized: SerializedOf<SavedIronmanRun>) {
+    const run = SavedIronmanRun.fromSerialized(serialized);
+
+    run.game.markAsContinuedRun();
+    run.game.timeHandedOff = null;
+
+    for (const [username, player] of run.game.players) {
+      player.awaitingControllingUserConnection = true;
+    }
+
+    return run.game;
+  }
+
   containsPlayerControlledByUser(session: UserSession) {
     invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
     const existingPlayerUsername = this.userIdsToUsernames.get(session.taggedUserId.id);

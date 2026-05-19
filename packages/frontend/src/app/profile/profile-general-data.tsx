@@ -1,4 +1,8 @@
-import { ProfileCharacterRanks, SanitizedProfile } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  ProfileCharacterRanks,
+  SanitizedProfile,
+} from "@speed-dungeon/common";
 import React from "react";
 import Divider from "../components/atoms/Divider";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
@@ -25,7 +29,14 @@ export default async function ProfileGeneralData({ username }: { username: strin
     <div className="">
       <div className="mb-4">
         <div>Account created {new Date(profile.createdAt).toLocaleDateString()}</div>
-        <div>Available character slots: {profile.characterCapacity}</div>
+        <div>
+          Available Freelancer character slots:{" "}
+          {profile.characterCapacities[CharacterControlScheme.Freelancer]}
+        </div>
+        <div>
+          Available Captain character slots:{" "}
+          {profile.characterCapacities[CharacterControlScheme.Captain]}
+        </div>
       </div>
       <Divider />
       <h5 className="text-lg mb-2">Saved characters by rank:</h5>

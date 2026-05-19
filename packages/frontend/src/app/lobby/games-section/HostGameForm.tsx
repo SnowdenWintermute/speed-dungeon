@@ -1,4 +1,10 @@
-import { ClientIntentType, GAME_MODE_STRINGS, GameMode, GameName } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  ClientIntentType,
+  GAME_MODE_STRINGS,
+  GameMode,
+  GameName,
+} from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
@@ -26,7 +32,7 @@ export default function HostGameForm() {
       data: {
         gameName,
         mode: selectedGameMode,
-        isRanked,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
   }

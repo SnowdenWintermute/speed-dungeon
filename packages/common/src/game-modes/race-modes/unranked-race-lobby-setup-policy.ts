@@ -1,5 +1,6 @@
 import { CombatantId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
@@ -12,8 +13,12 @@ export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override userCanCreate(): AllowedResult {
+  override async userCanCreate(): Promise<AllowedResult> {
     return { allowed: true };
+  }
+
+  override async createGame(): Promise<SpeedDungeonGame> {
+    throw new Error("tbd");
   }
 
   override canSelectStartingFloor(): AllowedResult {

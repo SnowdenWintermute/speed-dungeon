@@ -104,7 +104,7 @@ export class SavedCharactersController {
     const profile = await session.requireProfile(this.profileService);
     const { name, combatantClass, slotIndex, gameMode, controlScheme } = data;
     // check if the slot is valid to put a new character in
-    const slot = await this.userGameDataPersistenceService.requireEmptySlot(
+    const slot = await this.userGameDataPersistenceService.requireEmptyCharacterSlot(
       profile.id,
       slotIndex,
       gameMode,
