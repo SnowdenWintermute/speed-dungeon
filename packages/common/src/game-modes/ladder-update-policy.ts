@@ -13,12 +13,12 @@ import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 export interface GameModeLadderUpdatePolicy {
   onFloorDescent(): Promise<void>;
   onGameStart(): Promise<void>;
-  onGameLeave(
+  onLiveGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     player: SpeedDungeonPlayer
   ): Promise<ClientSequentialEvent[]>;
-  onLastPlayerLeftGame(): Promise<void>;
+  onLastPlayerLeftLiveGame(): Promise<void>;
   onPartyEscape(): Promise<void>;
   onPartyWipe(
     game: SpeedDungeonGame,

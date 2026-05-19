@@ -3,6 +3,7 @@ import { CombatantId, GameName, PartyName } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { AllowedResult } from "../primatives/index.js";
+import { GameRegistry } from "../servers/game-registry.js";
 import { PartySetupController } from "../servers/lobby-server/controllers/party-setup.js";
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
@@ -15,6 +16,7 @@ export abstract class GameModeLobbySetupPolicy {
   constructor(
     protected profileService: SpeedDungeonProfileService,
     protected userGameDataPersistenceService: UserGameDataPersistenceService,
+    protected gameRegistry: GameRegistry,
     protected idGenerator: IdGenerator,
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
@@ -23,12 +25,15 @@ export abstract class GameModeLobbySetupPolicy {
   // all ironman character players in contiuned ironman game have connected
   abstract modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult;
   // is user authenticated if required, if it is IM run were they in that run, does user have tournament ticked if required
-  abstract userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult;
+  abstract userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult>;
   // is user authenticated if required, if it is IM run were they in that run
   // does user have available slots if is IM run
   abstract userCanCreate(session: UserSession): AllowedResult;
   abstract canSelectStartingFloor(): AllowedResult; // is starting floor selectable in this mode (only for progression)
   abstract getMaxStartingFloor(game: SpeedDungeonGame): number;
+  // @TODO - take in a "GameCreationRequest" and return a game from it
+  // if the user is allowed to make a game with that request, like "I want to make a game
+  // to continue Ironman run of ID x", or "I want to create a progression game named y"
   abstract onCreation(game: SpeedDungeonGame): void;
   // for Ironman, put them in default party and assign them to their characters
   // for Progression, put them in default party and select one of their default characters if they have one
@@ -37,6 +42,11 @@ export abstract class GameModeLobbySetupPolicy {
     session: UserSession,
     game: SpeedDungeonGame,
     partySetupController: PartySetupController
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
+
+  abstract onLeave(
+    session: UserSession,
+    game: SpeedDungeonGame
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
   // read control scheme, if ironman/race they can't select must
   // create or be assigned to previously owned characters in a continued run

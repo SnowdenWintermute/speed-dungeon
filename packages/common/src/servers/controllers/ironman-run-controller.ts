@@ -1,6 +1,5 @@
 import { CombatantId, GameId, IdentityProviderId, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { GameRegistry } from "../game-registry.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
@@ -17,11 +16,6 @@ export class IronmanRunController {
     protected userSessionRegistry: UserSessionRegistry,
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
-
-  async saveRun(game: SpeedDungeonGame) {
-    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
-    await this.userGameDataPersistenceService.saveIronmanRun(game, sessionsInGame);
-  }
 
   async loadRun(runId: GameId, session: UserSession) {
     const serialized = await this.userGameDataPersistenceService.requireIronmanRun(runId);
@@ -40,13 +34,7 @@ export class IronmanRunController {
     return run;
   }
 
-  // for leaving a lobby game setup
-  async leaveRunSetup(runId: GameId, session: UserSession) {
-    // - if not a continued run setup, remove their characters
-    // - else, mark their player as "awaitingControllingUserConnection"
-  }
-
-  // for leaving the run from game server
+  // for leaving the run from game server, could move to persistence game policy
   async leaveLiveRun(runId: GameId, session: UserSession) {
     const game = this.gameRegistry.requireGame(runId);
     const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
@@ -56,10 +44,13 @@ export class IronmanRunController {
     }
 
     //   .save the run
-    await this.saveRun(game);
+    await this.userGameDataPersistenceService.saveIronmanRun(
+      game,
+      this.userSessionRegistry.getAllSessionsInGame(game)
+    );
   }
 
-  // from lobby
+  // from lobby, need bespoke ClientIntent and handler
   async abandonRun(runId: GameId, userId: IdentityProviderId) {
     //   .remove the player
     //   .if no players remain, delete the saved run record
@@ -67,6 +58,8 @@ export class IronmanRunController {
     //    joined player (need to record join order on players then)
   }
 
+  // from lobby, need bespoke ClientIntent and handler
+  // or automatically done on run abandonment
   transferCharacterOwnership(
     gameId: GameId,
     characterId: CombatantId,

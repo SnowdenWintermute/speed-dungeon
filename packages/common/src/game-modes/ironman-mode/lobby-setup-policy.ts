@@ -5,6 +5,7 @@ import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { PartySetupController } from "../../servers/lobby-server/controllers/party-setup.js";
+import { SavedIronmanRun } from "../../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
@@ -15,12 +16,17 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     throw new Error("Method not implemented.");
   }
 
-  override userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult {
+  override async userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult> {
     if (!session.isAuth()) {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
     if (game.isContinuedRun) {
-      // @TODO - check if player was in the run
+      const serialized = await this.userGameDataPersistenceService.requireIronmanRun(game.id);
+      const run = SavedIronmanRun.fromSerialized(serialized);
+      const userNotInRun = !run.containsPlayerControlledByUser(session);
+      if (userNotInRun) {
+        return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME };
+      }
     }
     return { allowed: true };
   }
@@ -54,6 +60,15 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     // if continued run, put the player with their previously controlled characters in the default party
     throw new Error("Method not implemented.");
+  }
+
+  override async onLeave(
+    session: UserSession,
+    game: SpeedDungeonGame
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
+    // - if not a continued run setup, remove their characters
+    // - else, mark their player as "awaitingControllingUserConnection"
+    return undefined;
   }
 
   override userCanAddCharacterToParty(

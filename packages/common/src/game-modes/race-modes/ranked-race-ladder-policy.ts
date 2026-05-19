@@ -41,7 +41,7 @@ export class RankedRaceModeLadderPolicy implements GameModeLadderUpdatePolicy {
     throw new Error("Method not implemented.");
   }
 
-  async onGameLeave(
+  async onLiveGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     player: SpeedDungeonPlayer
@@ -50,7 +50,7 @@ export class RankedRaceModeLadderPolicy implements GameModeLadderUpdatePolicy {
     throw new Error("tbd");
   }
 
-  onLastPlayerLeftGame(): Promise<void> {
+  onLastPlayerLeftLiveGame(): Promise<void> {
     // mark the race game record as "completed"
     throw new Error("tbd");
   }

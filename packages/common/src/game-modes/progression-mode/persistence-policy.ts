@@ -19,11 +19,11 @@ export class ProgressionModePersistencePolicy implements GameModePersistencePoli
     await this.userGameDataPersistenceService.updateAllInParty(game, party);
   }
 
-  async onGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer) {
+  async onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer) {
     await this.userGameDataPersistenceService.updateCharactersOwnedByPlayerInGame(game, player);
   }
 
-  onLastPlayerLeftGame(): Promise<void> {
+  onLastPlayerLeftLiveGame(): Promise<void> {
     return Promise.resolve();
   }
 

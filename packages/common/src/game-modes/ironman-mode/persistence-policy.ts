@@ -21,13 +21,13 @@ export class IronmanModePersistencePolicy implements GameModePersistencePolicy {
     throw new Error("Method not implemented.");
   }
 
-  async onGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void> {
+  async onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void> {
     // - if any living characters remain, save the run
     // - disconnect other remaining players
     throw new Error("Method not implemented.");
   }
 
-  async onLastPlayerLeftGame(): Promise<void> {
+  async onLastPlayerLeftLiveGame(): Promise<void> {
     return;
   }
 

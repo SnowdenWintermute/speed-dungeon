@@ -19,7 +19,7 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override userCanJoin(session: UserSession, game: SpeedDungeonGame): AllowedResult {
+  override async userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult> {
     if (!session.isAuth()) {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
@@ -90,6 +90,10 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     }
 
     return outbox;
+  }
+
+  override async onLeave() {
+    return undefined;
   }
 
   override async getSelectableCharacterIds(

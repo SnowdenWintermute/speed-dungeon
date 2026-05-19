@@ -13,11 +13,11 @@ export class RaceModesPersistencePolicy implements GameModePersistencePolicy {
     return;
   }
 
-  async onGameLeave() {
+  async onLiveGameLeave() {
     return;
   }
 
-  async onLastPlayerLeftGame(): Promise<void> {
+  async onLastPlayerLeftLiveGame(): Promise<void> {
     return;
   }
 

@@ -35,11 +35,11 @@ export class IronmanModeLadderPolicy implements GameModeLadderUpdatePolicy {
     return;
   }
 
-  async onGameLeave(): Promise<ClientSequentialEvent[]> {
+  async onLiveGameLeave(): Promise<ClientSequentialEvent[]> {
     return [];
   }
 
-  async onLastPlayerLeftGame(): Promise<void> {
+  async onLastPlayerLeftLiveGame(): Promise<void> {
     return;
   }
 

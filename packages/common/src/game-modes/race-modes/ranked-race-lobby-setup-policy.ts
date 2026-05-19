@@ -19,7 +19,7 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override userCanJoin(session: UserSession): AllowedResult {
+  override async userCanJoin(session: UserSession): Promise<AllowedResult> {
     if (!session.isAuth()) {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
@@ -49,6 +49,10 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   override async onJoin(): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
     return outbox;
+  }
+
+  override async onLeave(): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
+    return undefined;
   }
 
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {

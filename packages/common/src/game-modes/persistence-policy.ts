@@ -10,8 +10,8 @@ export interface GameModePersistencePolicy {
   onGameStart(): Promise<void>;
   onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
   onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
-  onGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void>;
-  onLastPlayerLeftGame(): Promise<void>;
+  onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void>;
+  onLastPlayerLeftLiveGame(): Promise<void>;
   onPartyEscape(): Promise<void>;
   onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
   onPartyBattleVictory(): Promise<void>;

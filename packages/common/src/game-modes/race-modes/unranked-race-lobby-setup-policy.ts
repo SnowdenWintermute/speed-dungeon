@@ -8,7 +8,7 @@ export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override userCanJoin(): AllowedResult {
+  override async userCanJoin(): Promise<AllowedResult> {
     return { allowed: true };
   }
 
@@ -29,6 +29,10 @@ export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   }
 
   override async onJoin() {
+    return undefined;
+  }
+
+  override async onLeave() {
     return undefined;
   }
 

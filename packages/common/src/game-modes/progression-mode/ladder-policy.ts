@@ -47,7 +47,11 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
     throw new Error("Method not implemented.");
   }
 
-  async onGameLeave(game: SpeedDungeonGame, party: AdventuringParty, player: SpeedDungeonPlayer) {
+  async onLiveGameLeave(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    player: SpeedDungeonPlayer
+  ) {
     const characters = player.getCharactersInGame(game);
     // If they're leaving a game while dead, this character should be removed from the ladder
     const deathsAndRanks = await this.rankedLadderService.removeDeadCharacters(characters);
@@ -60,7 +64,7 @@ export class ProgressionModeLadderPolicy implements GameModeLadderUpdatePolicy {
     return [deathMessagePayloads];
   }
 
-  onLastPlayerLeftGame(): Promise<void> {
+  onLastPlayerLeftLiveGame(): Promise<void> {
     return Promise.resolve();
   }
 
