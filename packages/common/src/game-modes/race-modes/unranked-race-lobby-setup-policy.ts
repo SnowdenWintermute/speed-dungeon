@@ -5,7 +5,7 @@ import { AllowedResult } from "../../primatives/index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
-  override modeSpecificStartRequirementsMet(): AllowedResult {
+  override async modeSpecificStartRequirementsMet(): Promise<AllowedResult> {
     return { allowed: true };
   }
 
@@ -34,10 +34,6 @@ export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   }
 
   override async onJoin() {
-    return undefined;
-  }
-
-  override async onLeave() {
     return undefined;
   }
 

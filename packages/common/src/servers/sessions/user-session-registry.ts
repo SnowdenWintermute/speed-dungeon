@@ -60,6 +60,7 @@ export class UserSessionRegistry {
     if (!option) {
       throw new Error("Expected UserId to have an associated ConnectionId");
     }
+    return option;
   }
 
   getSessionByUsername(username: Username) {

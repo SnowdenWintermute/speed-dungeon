@@ -1,41 +1,25 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
-import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModePersistencePolicy } from "../persistence-policy.js";
 
-export class ProgressionModePersistencePolicy implements GameModePersistencePolicy {
-  constructor(private userGameDataPersistenceService: UserGameDataPersistenceService) {}
-
-  onGameStart(): Promise<void> {
+export class ProgressionModePersistencePolicy extends GameModePersistencePolicy {
+  override onGameStart(): Promise<void> {
     return Promise.resolve();
   }
 
-  async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+  override async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     await this.userGameDataPersistenceService.updateAllInParty(game, party);
   }
 
-  async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+  override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     await this.userGameDataPersistenceService.updateAllInParty(game, party);
   }
 
-  async onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer) {
+  override async onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer) {
     await this.userGameDataPersistenceService.updateCharactersOwnedByPlayerInGame(game, player);
-  }
-
-  onLastPlayerLeftLiveGame(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  onPartyEscape(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  async onPartyWipe(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  onPartyBattleVictory(): Promise<void> {
-    return Promise.resolve();
+    return new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
   }
 }

@@ -73,6 +73,13 @@ export function createLobbyUpdateHandlers(
       gameFullUpdateHandler(clientApplication, data.game);
       clientApplication.uiStore.dialogs.close(DialogElementName.GameCreation);
     },
+    [GameStateUpdateType.PlayerUsernameUpdated]: (data) => {
+      const { gameOption } = gameContext;
+      if (gameOption) {
+        const player = gameOption.getExpectedPlayer(data.oldUsername);
+        player.username = data.newUsername;
+      }
+    },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const { gameOption } = gameContext;
       const player = new SpeedDungeonPlayer(data.username, data.joinOrder);

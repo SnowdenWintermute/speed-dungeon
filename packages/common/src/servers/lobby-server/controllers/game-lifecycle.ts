@@ -185,8 +185,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     session.joinGame(game);
-    const joinOrder = game.players.size;
-    game.registerPlayerFromLobbyUser(session.username, joinOrder);
+    game.registerPlayerFromLobbyUser(session.username);
     session.unsubscribeFromChannel(LOBBY_CHANNEL);
     session.subscribeToChannel(game.getChannelName());
 
@@ -211,7 +210,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       game.getChannelName(),
       {
         type: GameStateUpdateType.PlayerJoinedGame,
-        data: { username: session.username, joinOrder: joinOrder },
+        data: { username: session.username, joinOrder: game.playerJoinCount },
       },
       { excludedIds: [session.connectionId] }
     );
@@ -231,8 +230,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
   async leaveGameHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame();
-    const partyOption = session.getCurrentPartyOption(game);
 
+    const partyOption = session.getCurrentPartyOption(game);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     if (partyOption !== null) {
@@ -241,6 +240,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     game.removePlayer(session.username);
+
     session.currentGameId = null;
     session.unsubscribeFromChannel(game.getChannelName());
 
@@ -260,9 +260,13 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       },
     });
 
-    const noPlayersRemain = game.players.size === 0;
+    const noPlayersRemain =
+      game.players.size === 0 ||
+      // in the case of continued ironman run we don't remove players, just set them as awaiting connection
+      [...game.players.values()].every((player) => player.awaitingControllingUserConnection);
+
     if (noPlayersRemain) {
-      this.lobbyState.gameRegistry.unregisterGame(game.id);
+      await this.cleanUpGame(game);
 
       return outbox; // no one is left to notify about the player leaving so return early
     }
@@ -273,6 +277,10 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     });
 
     return outbox;
+  }
+
+  async cleanUpGame(game: SpeedDungeonGame): Promise<void> {
+    this.lobbyState.gameRegistry.unregisterGame(game.id);
   }
 
   async toggleReadyToStartGameHandler(session: UserSession) {

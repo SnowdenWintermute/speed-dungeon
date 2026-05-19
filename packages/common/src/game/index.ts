@@ -34,6 +34,7 @@ import { UserSessionRegistry } from "../servers/sessions/user-session-registry.j
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
+  playerJoinCount = 0; // for tracking player join order, used when deciding abandoned run character transfers
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
   adventuringParties = new Map<PartyName, AdventuringParty>();
@@ -79,6 +80,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       isRanked: this.isRanked,
       characterControlScheme: this.characterControlScheme,
       players: MapUtils.serialize(this.players, (v) => v.toSerialized()),
+      playerJoinCount: this.playerJoinCount,
       playerCapacity: this.playerCapacity,
       playersReadied: this.playersReadied,
       adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
@@ -103,6 +105,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     result.players = MapUtils.deserialize(serialized.players, (v) =>
       SpeedDungeonPlayer.fromSerialized(v)
     );
+    result.playerJoinCount = serialized.playerJoinCount;
     result.playerCapacity = serialized.playerCapacity;
     result.playersReadied = serialized.playersReadied;
     result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) =>
@@ -131,6 +134,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   markAsContinuedRun() {
     this._isContinuedRun = true;
   }
+
   get isContinuedRun() {
     return this._isContinuedRun;
   }
@@ -176,9 +180,9 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     const fromUser = this.getExpectedPlayer(from);
     const toUser = this.getExpectedPlayer(to);
     const fromUserParty = fromUser.getExpectedParty(this);
-    const toUserParty = fromUser.getExpectedParty(this);
+    const toUserParty = toUser.getExpectedParty(this);
     if (fromUserParty.id !== toUserParty.id) {
-      throw new Error("Can not transfer a character to a player not a different party");
+      throw new Error("Can not transfer a character to a player in a different party");
     }
     const characterIdOption = ArrayUtils.removeElement(fromUser.characterIds, characterId);
     if (characterIdOption === undefined) {
@@ -247,8 +251,9 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     this.timeStarted = Date.now();
   }
 
-  registerPlayerFromLobbyUser(username: Username, joinOrder: number) {
-    this.addPlayer(new SpeedDungeonPlayer(username, joinOrder));
+  registerPlayerFromLobbyUser(username: Username) {
+    this.playerJoinCount += 1;
+    this.addPlayer(new SpeedDungeonPlayer(username, this.playerJoinCount));
   }
 
   addCharacterToParty(

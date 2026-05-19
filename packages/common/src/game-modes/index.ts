@@ -1,5 +1,6 @@
 import { EntityId } from "../aliases.js";
 import { CharacterSlot } from "../servers/services/user-game-data-persistence/character-slots.js";
+import { GameModeGameInitializationPolicy } from "./game-initialization-policy.js";
 import { GameModeLadderUpdatePolicy } from "./ladder-update-policy.js";
 import { GameModeLobbySetupPolicy } from "./lobby-setup-policy.js";
 import { GameModePersistencePolicy } from "./persistence-policy.js";
@@ -27,6 +28,7 @@ export interface GameModePolicy {
   setup: GameModeLobbySetupPolicy;
   persistence: GameModePersistencePolicy;
   ladder: GameModeLadderUpdatePolicy;
+  gameInitialization: GameModeGameInitializationPolicy;
 }
 
 export interface UserAccountPersistentGameData {

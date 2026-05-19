@@ -1,3 +1,11 @@
+// Freelancer Control Scheme
+// - One character per player
+// - Ironman saves, progression characters and race records in own "Freelancer" databases
+//
+// Captains Control Scheme
+// - One or more characters per player
+// - Ironman saves, progression characters and race records in own "Captains" databases
+//
 // Base User Account Game Persistence (before buying/earning extra slots or subscribing)
 //
 // Progression Data
@@ -5,11 +13,7 @@
 // - 3 Captains Progression Character slots
 //
 // Ironman Data
-// - 2 Freelancers Ironman game slots
-//   .ref to an IronmanSavedGameState, which in turn references IronmanSavedCharacter id
-// - 1 Captains Ironman game slot
-//
-//
+// - 2 Ironman saved run slots (slots can hold a game of any character control scheme)
 //
 // IronmanSavedGameState
 // - Serialized SpeedDungeonGame object
@@ -56,14 +60,6 @@
 //   .floor number
 //   .entire character serialized minus their inventory
 //
-// Freelancer Control Scheme
-// - One character per player
-// - Ironman saves, progression characters and race records in own "Freelancer" databases
-//
-// Captains Control Scheme
-// - One or more characters per player
-// - Ironman saves, progression characters and race records in own "Captains" databases
-//
 // Ironman Fresh Run
 // - Same as progression except all players must use the character creation UI to make new characters
 // - Floor selection disabled / hidden (all characters would only reached floor 1 anyway, no need to change floor selection rules)
@@ -73,16 +69,14 @@
 //
 // Ironman Continue Run
 // - Any user who had a character in the run can create a game to resume it
-// - On creation, the game acquires a lock on the "save file" preventing two games trying to continue the same run
 // - Once all participating players joined, they can ready up and start the game
-// - On game start, set the game.timeCurrentFloorReached to something like it was reached at a time in the past equal to
+//   .this should prevent two users both trying to continue the same saved run
+// - On game start, set the party.timeCurrentFloorReached to something like it was reached at a time in the past equal to
 //   the time it had been from when it was really reached to the time the game was saved
-// - On game end, remove the lock on the saved game so it can be resumed later
 // - On any player leaving the game, save and close the game for all players
 //
 // Ironman Run Cleanup (on wipe or escape)
-// - delete the run's persistence record of the game-state-minus-party-characters
-// - delete saved characters on accounts associated with the game id
+// - delete the run's persistence record
 //
 // Unranked Race
 // - allows a single party since there's no need for a persisted "winner" you can just "race for fun"
@@ -99,3 +93,15 @@
 // LOCAL/OFFLINE (user control one or more characters "Captains mode")
 // Progression
 // Ironman
+//
+// TESTS
+//
+// ironman game closed before reconnection
+// - player disconnects from ironman run
+// - other player in run intentionally leaves
+// - run should be closed if any player intentionally leaves
+// - disconnected player connects to lobby
+// - lobby finds that the run they dc from no longer is in the game session store
+// - they don't try to reconnect
+//
+// ironman run other players set back to lobby on other player leave game

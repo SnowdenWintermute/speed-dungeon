@@ -28,7 +28,7 @@ export abstract class GameModeLobbySetupPolicy {
 
   // required number of parties, each player controls at least one character
   // all ironman character players in contiuned ironman game have connected
-  abstract modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult;
+  abstract modeSpecificStartRequirementsMet(game: SpeedDungeonGame): Promise<AllowedResult>;
   // is user authenticated if required, if it is IM run were they in that run, does user have tournament ticked if required
   abstract userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult>;
   // is user authenticated if required, if it is IM run were they in that run
@@ -56,10 +56,30 @@ export abstract class GameModeLobbySetupPolicy {
     partySetupController: PartySetupController
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
 
-  abstract onLeave(
+  async onLeave(
     session: UserSession,
-    game: SpeedDungeonGame
-  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
+    game: SpeedDungeonGame,
+    partySetupController: PartySetupController
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
+    return this.genericGameModePolicyOnLeave(session, game, partySetupController);
+  }
+
+  protected genericGameModePolicyOnLeave(
+    session: UserSession,
+    game: SpeedDungeonGame,
+    partySetupController: PartySetupController
+  ) {
+    const partyOption = session.getCurrentPartyOption(game);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    if (partyOption !== null) {
+      const partyLeaveOutbox = partySetupController.leavePartyHandler(session);
+      outbox.pushFromOther(partyLeaveOutbox);
+    }
+
+    game.removePlayer(session.username);
+    return outbox;
+  }
+
   // read control scheme, if ironman/race they can't select must
   // create or be assigned to previously owned characters in a continued run
   abstract getSelectableCharacterIds(

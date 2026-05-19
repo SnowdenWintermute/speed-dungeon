@@ -58,6 +58,8 @@ export const ERROR_MESSAGES = {
   GAME_SETUP: {
     PLAYER_NOT_IN_CONTINUED_GAME:
       "This is a continuation of a previous game that your account was not a part of",
+    AWAITING_PLAYER_FOR_CONTINUED_GAME:
+      "All original players in this game continuation must be connected",
     CONTINUED_GAME: "That action is not allowed in the setup of a game continuation",
     CONTINUED_GAME_ALREADY_LIVE: "This continued run already has a live game",
     CONTINUED_GAME_ID_REQUIRED: "A run ID was expected but not specified",

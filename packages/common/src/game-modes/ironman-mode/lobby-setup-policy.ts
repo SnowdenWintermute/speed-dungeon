@@ -1,9 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantId, GameId } from "../../aliases.js";
+import { CombatantId, GameId, IdentityProviderId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { GameCreationRequest } from "../../packets/client-intents.js";
-import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { PartySetupController } from "../../servers/lobby-server/controllers/party-setup.js";
 import { SavedIronmanRun } from "../../servers/services/user-game-data-persistence/saved-ironman-runs.js";
@@ -14,14 +14,19 @@ import { invariant } from "../../utils/index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
-  override modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult {
+  override async modeSpecificStartRequirementsMet(game: SpeedDungeonGame): Promise<AllowedResult> {
     if (game.isContinuedRun) {
-      // all ironman character players in contiuned ironman game have connected
-
-      throw new Error("Method not implemented.");
-    } else {
-      return { allowed: true };
+      for (const [_, player] of game.players) {
+        if (player.awaitingControllingUserConnection) {
+          return {
+            allowed: false,
+            reason: ERROR_MESSAGES.GAME_SETUP.AWAITING_PLAYER_FOR_CONTINUED_GAME,
+          };
+        }
+      }
     }
+
+    return { allowed: true };
   }
 
   override async userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult> {
@@ -48,39 +53,46 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     }
     invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
 
-    // or if continuing a run, do they control a player in the run
     const { continueGameId } = gameCreationRequest;
     if (continueGameId) {
-      const serializedRun =
-        await this.userGameDataPersistenceService.requireIronmanRun(continueGameId);
-      const run = SavedIronmanRun.fromSerialized(serializedRun);
-      const userWasInThisRun = run.containsPlayerControlledByUser(session);
-      if (!userWasInThisRun) {
-        return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME };
-      }
-
-      // and is the run not live (this seems redundant since players can't start the game)
-      // unless all are in the same game, so two players loading same instance of a game and starting it
-      // should not be possible
-      const gameAlreadyLive = await this.gameExistenceChecker.gameExistsById(continueGameId);
-      if (gameAlreadyLive) {
-        return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME_ALREADY_LIVE };
-      }
+      return await this.userCanCreateContinuedRun(session, continueGameId);
     } else {
-      // check user account for open ironman slot for this control mode (for new runs)
-      const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
-      const userAccountIsAtSavedRunCapacity =
-        profile.ironmanRunIds.length >= profile.ironmanRunCapacity;
-      if (userAccountIsAtSavedRunCapacity) {
-        return { allowed: false, reason: ERROR_MESSAGES.USER.SAVED_GAME_CAPACITY };
-      }
+      return this.userCanCreateNewRun(session.taggedUserId.id);
     }
+  }
+
+  private async userCanCreateContinuedRun(
+    session: UserSession,
+    runId: GameId
+  ): Promise<AllowedResult> {
+    const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(runId);
+    const run = SavedIronmanRun.fromSerialized(serializedRun);
+    const userWasInThisRun = run.containsPlayerControlledByUser(session);
+    if (!userWasInThisRun) {
+      return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME };
+    }
+
+    // since players can't start the game unless all are in the same game, this should not be possible
+    const gameNotAlreadyLive = !(await this.gameExistenceChecker.gameExistsById(runId));
+    invariant(gameNotAlreadyLive, ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME_ALREADY_LIVE);
 
     return { allowed: true };
   }
 
+  private async userCanCreateNewRun(userId: IdentityProviderId): Promise<AllowedResult> {
+    const profile = await this.profileService.fetchExpectedProfile(userId);
+    const { ironmanRunIds, ironmanRunCapacity } = profile;
+    const userAccountIsAtSavedRunCapacity = ironmanRunIds.length >= ironmanRunCapacity;
+
+    if (userAccountIsAtSavedRunCapacity) {
+      return { allowed: false, reason: ERROR_MESSAGES.USER.SAVED_GAME_CAPACITY };
+    } else {
+      return { allowed: true };
+    }
+  }
+
   override async createGame(
-    session: UserSession,
+    _session: UserSession,
     gameCreationRequest: GameCreationRequest
   ): Promise<SpeedDungeonGame> {
     const runIdOption = gameCreationRequest.continueGameId;
@@ -102,7 +114,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: false, reason: ERROR_MESSAGES.GAME.STARTING_FLOOR_NOT_SELECTABLE };
   }
 
-  override getMaxStartingFloor(game: SpeedDungeonGame) {
+  override getMaxStartingFloor() {
     return 1;
   }
 
@@ -118,29 +130,45 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     if (game.isContinuedRun) {
       const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(game.id);
       const run = SavedIronmanRun.fromSerialized(serializedRun);
-      run.updatePlayerOnJoin(session);
+      const playerNameUpdateOption = run.updatePlayerOnJoin(session);
+      const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+      if (playerNameUpdateOption) {
+        outbox.pushToChannel(game.getChannelName(), {
+          type: GameStateUpdateType.PlayerUsernameUpdated,
+          data: playerNameUpdateOption,
+        });
+      }
+
+      const player = game.getExpectedPlayer(session.username);
+      player.awaitingControllingUserConnection = false;
+
+      return outbox;
+    } else {
+      const defaultPartyName = this.getDefaultPartyName(game.name);
+      return partySetupController.joinPartyHandler(session, defaultPartyName);
     }
-    return new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
   }
 
   override async onLeave(
     session: UserSession,
-    game: SpeedDungeonGame
+    game: SpeedDungeonGame,
+    partySetupController: PartySetupController
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
     if (game.isContinuedRun) {
-      // - else, mark their player as "awaitingControllingUserConnection"
+      // unlike normal games, we don't want to clean up their player object and
+      // characters because when continuing a saved run we expect all the original
+      // players to be present
       const player = game.getExpectedPlayer(session.username);
       player.awaitingControllingUserConnection = true;
     } else {
-      // - if not a continued run setup, remove their characters
+      return this.genericGameModePolicyOnLeave(session, game, partySetupController);
     }
-    return undefined;
   }
 
   override userCanAddCharacterToParty(
-    session: UserSession,
+    _session: UserSession,
     game: SpeedDungeonGame,
-    party: AdventuringParty
+    _party: AdventuringParty
   ): AllowedResult {
     if (game.isContinuedRun) {
       return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME };
@@ -149,10 +177,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override async getSelectableCharacterIds(
-    session: UserSession,
-    game: SpeedDungeonGame
-  ): Promise<CombatantId[]> {
+  override async getSelectableCharacterIds(): Promise<CombatantId[]> {
     return [];
   }
 }

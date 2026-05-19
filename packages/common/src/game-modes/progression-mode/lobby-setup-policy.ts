@@ -16,7 +16,7 @@ import { CharacterControlScheme, GameMode } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
-  override modeSpecificStartRequirementsMet(): AllowedResult {
+  override async modeSpecificStartRequirementsMet(): Promise<AllowedResult> {
     return { allowed: true };
   }
 
@@ -98,10 +98,6 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     }
 
     return outbox;
-  }
-
-  override async onLeave() {
-    return undefined;
   }
 
   override async getSelectableCharacterIds(

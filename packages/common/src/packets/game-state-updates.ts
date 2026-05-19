@@ -47,6 +47,7 @@ export enum GameStateUpdateType {
   GameFullUpdate,
   PlayerChangedAdventuringParty,
   PlayerLeftGame,
+  PlayerUsernameUpdated,
   PlayerJoinedGame,
   PlayerDisconnectedWithReconnectionOpportunity,
   PlayerReconnectionTimedOut,
@@ -56,6 +57,7 @@ export enum GameStateUpdateType {
   PlayerToggledReadyToStartGame,
   GameStarted,
   GameServerConnectionInstructions,
+  GameClosed,
   ClientAppMessage,
 
   PlayerToggledReadyToDescendOrExplore,
@@ -145,6 +147,10 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.PlayerReconnectionTimedOut]: {
     username: Username;
   };
+  [GameStateUpdateType.PlayerUsernameUpdated]: {
+    oldUsername: Username;
+    newUsername: Username;
+  };
   [GameStateUpdateType.PlayerJoinedGame]: {
     username: Username;
     joinOrder: number;
@@ -170,6 +176,9 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;
+  };
+  [GameStateUpdateType.GameClosed]: {
+    reason: GameClosedReason;
   };
   [GameStateUpdateType.ClientAppMessage]: ClientAppMessageType;
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
@@ -329,6 +338,10 @@ export class GameListEntry {
   ) {}
 }
 
+export enum GameClosedReason {
+  PlayerLeftGame,
+}
+
 export class BattleReport {
   constructor(
     public conclusion: BattleConclusion,
@@ -348,6 +361,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.GameFullUpdate]: "GameFullUpdate",
   [GameStateUpdateType.PlayerChangedAdventuringParty]: "PlayerChangedAdventuringParty",
   [GameStateUpdateType.PlayerLeftGame]: "PlayerLeftGame",
+  [GameStateUpdateType.PlayerUsernameUpdated]: "PlayerUsernameUpdated",
   [GameStateUpdateType.PlayerJoinedGame]: "PlayerJoinedGame",
   [GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity]:
     "PlayerDisconnectedWithReconnectionOpportunity",
@@ -358,6 +372,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.PlayerToggledReadyToStartGame]: "PlayerToggledReadyToStartGame",
   [GameStateUpdateType.GameStarted]: "GameStarted",
   [GameStateUpdateType.GameServerConnectionInstructions]: "GameServerConnectionInstructions",
+  [GameStateUpdateType.GameClosed]: "GameClosed",
   [GameStateUpdateType.ClientAppMessage]: "ClientAppMessage",
 
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]:

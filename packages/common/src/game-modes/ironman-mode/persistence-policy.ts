@@ -1,47 +1,78 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
-import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
+import {
+  GameClosedReason,
+  GameStateUpdate,
+  GameStateUpdateType,
+} from "../../packets/game-state-updates.js";
+import { GameServerGameLifecycleController } from "../../servers/game-server/controllers/game-lifecycle/index.js";
+import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModePersistencePolicy } from "../persistence-policy.js";
 
-export class IronmanModePersistencePolicy implements GameModePersistencePolicy {
-  constructor(private userGameDataPersistenceService: UserGameDataPersistenceService) {}
-  onGameStart(): Promise<void> {
-    // save the run in persitence service
-    // save the run id in each account's ironman run slots
-    throw new Error("Method not implemented.");
+export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
+  override async onGameStart(game: SpeedDungeonGame): Promise<void> {
+    await this.userGameDataPersistenceService.saveIronmanRun(
+      game,
+      this.userSessionRegistry.getAllSessionsInGame(game)
+    );
   }
 
-  async onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+  override async onBattleResult(): Promise<void> {
     return;
   }
 
-  async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
-    // save the game
-    throw new Error("Method not implemented.");
+  override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+    await this.userGameDataPersistenceService.saveIronmanRun(
+      game,
+      this.userSessionRegistry.getAllSessionsInGame(game)
+    );
   }
 
-  async onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer): Promise<void> {
-    // - if any living characters remain, save the run
-    // - disconnect other remaining players
-    throw new Error("Method not implemented.");
+  override async onLiveGameLeave(
+    game: SpeedDungeonGame,
+    player: SpeedDungeonPlayer,
+    gameLifecycleController: GameServerGameLifecycleController
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    // tell other players "a teammate disconnected, game closed"
+    // if their client tries to do anything in the game, it wont work because it is closed
+    // a compliant client should reconnect to the lobby server
+    outbox.pushToChannel(game.getChannelName(), {
+      type: GameStateUpdateType.GameClosed,
+      data: { reason: GameClosedReason.PlayerLeftGame },
+    });
+
+    // if the game has not completed in a wipe or escape, save it
+    const defaultParty = game.requireSingleParty();
+    if (defaultParty.timeOfWipe === null && defaultParty.timeOfEscape === null) {
+      await this.userGameDataPersistenceService.saveIronmanRun(
+        game,
+        this.userSessionRegistry.getAllSessionsInGame(game)
+      );
+    }
+
+    // close the game
+    await gameLifecycleController.cleanUpGame(game);
+
+    return outbox;
   }
 
-  async onLastPlayerLeftLiveGame(): Promise<void> {
+  override async onLastPlayerLeftLiveGame(): Promise<void> {
     return;
   }
 
-  async onPartyEscape(): Promise<void> {
+  override async onPartyEscape(): Promise<void> {
     // delete the run from persistence
     throw new Error("Method not implemented.");
   }
 
-  async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+  override async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     // delete the run from persistence
     throw new Error("Method not implemented.");
   }
 
-  async onPartyBattleVictory(): Promise<void> {
+  override async onPartyBattleVictory(): Promise<void> {
     return;
   }
 }

@@ -9,7 +9,7 @@ import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
-  override modeSpecificStartRequirementsMet(game: SpeedDungeonGame): AllowedResult {
+  override async modeSpecificStartRequirementsMet(game: SpeedDungeonGame): Promise<AllowedResult> {
     if (game.adventuringParties.size < GAME_CONFIG.MIN_RACE_GAME_PARTIES) {
       return {
         allowed: false,
@@ -53,10 +53,6 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   override async onJoin(): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
     return outbox;
-  }
-
-  override async onLeave(): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
-    return undefined;
   }
 
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {
