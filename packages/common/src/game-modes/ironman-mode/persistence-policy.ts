@@ -1,4 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
 import {
@@ -7,7 +8,10 @@ import {
   GameStateUpdateType,
 } from "../../packets/game-state-updates.js";
 import { GameServerGameLifecycleController } from "../../servers/game-server/controllers/game-lifecycle/index.js";
+import { UserIdType } from "../../servers/sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
+import { ArrayUtils } from "../../utils/array-utils.js";
+import { invariant } from "../../utils/index.js";
 import { GameModePersistencePolicy } from "../persistence-policy.js";
 
 export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
@@ -62,14 +66,27 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
     return;
   }
 
-  override async onPartyEscape(): Promise<void> {
-    // delete the run from persistence
-    throw new Error("Method not implemented.");
+  override async onPartyEscape(game: SpeedDungeonGame): Promise<void> {
+    await this.cleanUpRun(game);
   }
 
   override async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+    await this.cleanUpRun(game);
+  }
+
+  private async cleanUpRun(game: SpeedDungeonGame) {
     // delete the run from persistence
-    throw new Error("Method not implemented.");
+    await this.userGameDataPersistenceService.deleteIronmanRun(game.id);
+    // delete the run id from the participating user's profiles
+    for (const user of this.userSessionRegistry.getAllSessionsInGame(game)) {
+      invariant(
+        user.taggedUserId.type === UserIdType.Auth,
+        ERROR_MESSAGES.SERVER.EXPECTED_AUTH_USER
+      );
+      const profile = await this.profileService.fetchExpectedProfile(user.taggedUserId.id);
+      ArrayUtils.removeElement(profile.ironmanRunIds, game.id);
+      await this.profileService.update(user.taggedUserId.id, profile);
+    }
   }
 
   override async onPartyBattleVictory(): Promise<void> {

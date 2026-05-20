@@ -23,7 +23,7 @@ import {
   createLevelLadderLevelupMessage,
 } from "@speed-dungeon/common";
 
-describe("progression game", () => {
+describe("ladder", () => {
   // it("placeholder", () => {});
   const testFixture = new IntegrationTestFixture();
 

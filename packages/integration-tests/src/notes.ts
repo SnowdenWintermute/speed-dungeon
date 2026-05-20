@@ -28,6 +28,8 @@
 // auth user create progression game
 // get game list shows created games
 // users see other player create party, character
+// user can only toggle ready to start if all players control a character
+// if a player deletes their character, ready to start toggles reset
 //
 // -------------------------
 // --- DONE AND DEFERRED ---
