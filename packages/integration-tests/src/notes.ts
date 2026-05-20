@@ -31,6 +31,10 @@
 // user can only toggle ready to start if all players control a character
 // if a player deletes their character, ready to start toggles reset
 //
+// SERVER CRASHES
+// - after game server crash, can continue an ironman run that was live on
+//   that server after lobby cleanup heartbeat timeout elapses
+//
 // -------------------------
 // --- DONE AND DEFERRED ---
 // -------------------------

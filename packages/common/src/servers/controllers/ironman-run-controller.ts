@@ -17,7 +17,7 @@ export class IronmanRunController {
   async abandonRun(runId: GameId, userId: IdentityProviderId) {
     //   .remove the player
     //   .if no players remain, delete the saved run record
-    //   .else update their owned characters to be owned by the next most recently
+    //   .else update their owned characters to be owned by the next least recently
     //    joined player (need to record join order on players then)
     //   .remove the reference to the run in their user Profile
   }
@@ -31,7 +31,6 @@ export class IronmanRunController {
     to: Username
   ) {
     const game = this.gameRegistry.requireGame(gameId);
-    // @TODO - ask if the implementation is good
     game.transferCharacterOwnership(characterId, from, to);
   }
 }
