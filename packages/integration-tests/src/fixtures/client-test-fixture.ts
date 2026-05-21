@@ -23,7 +23,7 @@ export class ClientFixture {
   readonly clientApplication: ClientApplication;
   private clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
 
-  constructor(lobbyServerPort: number, timeMachine: TimeMachine, testAuthId?: string) {
+  constructor(lobbyServerPort: number, timeMachine: TimeMachine, authSessionId?: string) {
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
     const tickScheduler = new ManualTickScheduler();
     const clientLogRecorder = new IndexedDbClientLogRecorder(
@@ -32,7 +32,7 @@ export class ClientFixture {
     );
 
     this.clientEndpointFactory = new TestBrowserWebSocketClientConnectionEndpointFactory(
-      testAuthId
+      authSessionId
     );
 
     this.clientApplication = new ClientApplication(

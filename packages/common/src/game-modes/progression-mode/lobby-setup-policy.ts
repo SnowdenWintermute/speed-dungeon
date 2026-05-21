@@ -4,7 +4,6 @@ import { MAX_PARTY_SIZE } from "../../app-consts.js";
 import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { GameCreationRequest } from "../../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { PartySetupController } from "../../servers/lobby-server/controllers/party-setup.js";
@@ -38,13 +37,6 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     } else {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
     }
-  }
-
-  override async createGame(
-    session: UserSession,
-    gameCreationRequest: GameCreationRequest
-  ): Promise<SpeedDungeonGame> {
-    throw new Error("tbd");
   }
 
   override canSelectStartingFloor(): AllowedResult {

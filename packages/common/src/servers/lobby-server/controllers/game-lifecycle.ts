@@ -7,18 +7,16 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameLifecycleController } from "../../controllers/game-lifecycle.js";
 import { GameHandoffManager } from "../game-handoff/game-handoff-manager.js";
-import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { IdGenerator } from "../../../utility-classes/index.js";
 import { GameId, GameName } from "../../../aliases.js";
 import { MAX_GAME_NAME_LENGTH } from "../../../app-consts.js";
 import { AllowedResult } from "../../../primatives/index.js";
 import { GAME_CHANNEL_PREFIX, LOBBY_CHANNEL } from "../../../packets/channels.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
-import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { GameExistenceChecker } from "../game-existence-queries.js";
+import { GameCreationRequest } from "../../../packets/client-intents.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
@@ -26,8 +24,8 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
     private readonly gameExistenceChecker: GameExistenceChecker,
-    private readonly idGenerator: IdGenerator,
-    private readonly gameHandoffManager: GameHandoffManager
+    private readonly gameHandoffManager: GameHandoffManager,
+    private readonly gameModePolicyStore: GameModePolicyStore
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -36,6 +34,36 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     const lastName =
       RANDOM_GAME_NAMES_LAST[Math.floor(Math.random() * RANDOM_GAME_NAMES_LAST.length)];
     return `${firstName} ${lastName}` as GameName;
+  }
+
+  private async attemptAssignRandomUniqueGameName() {
+    let gameName = "" as GameName;
+    const maxAttempts = 10;
+    for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
+      gameName = this.generateRandomGameName();
+      // @PERF - awaiting in a loop is no bueno
+      const noGameExistsByThisName = !(await this.gameExistenceChecker.gameExistsByName(gameName));
+
+      if (noGameExistsByThisName) {
+        break;
+      }
+    }
+
+    return gameName;
+  }
+
+  private requireValidGameName(gameName: GameName) {
+    const gameNameValidity = this.getGameNameValidity(gameName);
+    if (!gameNameValidity.allowed) {
+      throw new Error(gameNameValidity.reason);
+    }
+  }
+
+  private async requireUniqueGameName(gameName: GameName) {
+    const gameNameExists = await this.gameExistenceChecker.gameExistsByName(gameName);
+    if (gameNameExists) {
+      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
+    }
   }
 
   private getGameNameValidity(gameName: GameName): AllowedResult {
@@ -69,100 +97,38 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return outbox;
   }
 
-  async createGameHandler(
-    data: { gameName: GameName; mode: GameMode; isRanked?: boolean },
-    session: UserSession
-  ) {
-    const { mode, isRanked } = data;
+  async createGameHandler(data: GameCreationRequest, session: UserSession) {
+    const { mode } = data;
     let { gameName } = data;
 
-    const userCanJoinNewGame = session.canJoinNewGame(isRanked);
-    if (!userCanJoinNewGame.allowed) {
-      throw new Error(userCanJoinNewGame.reason);
-    }
-
-    const gameNameValidity = this.getGameNameValidity(gameName);
-    if (!gameNameValidity.allowed) {
-      throw new Error(gameNameValidity.reason);
-    }
-
-    const gameNameExists = await this.gameExistenceChecker.gameExistsByName(gameName);
-    if (gameNameExists) {
-      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
-    }
+    session.requireCanJoinGame();
+    this.requireValidGameName(gameName);
+    this.requireUniqueGameName(gameName);
 
     if (gameName === "") {
-      // get a random game name and make it check if this exists
-      // and try again a safe number of times before failing
-      const maxAttempts = 10;
-      for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
-        gameName = this.generateRandomGameName();
-        // @PERF - awaiting in a loop is no bueno
-        const noGameExistsByThisName =
-          !(await this.gameExistenceChecker.gameExistsByName(gameName));
-
-        if (noGameExistsByThisName) {
-          break;
-        }
-      }
+      gameName = await this.attemptAssignRandomUniqueGameName();
     }
 
-    const gameByThisNameExists = await this.gameExistenceChecker.gameExistsByName(gameName);
-    if (gameByThisNameExists) {
-      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
+    this.requireUniqueGameName(gameName);
+
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(mode);
+    const userCanCreate = await gameModePolicy.lobbySetup.userCanCreate(session, data);
+    if (!userCanCreate.allowed) {
+      throw new Error(userCanCreate.reason);
     }
 
-    let game: SpeedDungeonGame;
-
-    if (mode === GameMode.Progression) {
-      game = await this.createProgressionGameHandler(gameName, session);
-    } else {
-      game = new SpeedDungeonGame(
-        this.idGenerator.generate() as GameId,
-        gameName,
-        GameMode.UnrankedRace,
-        CharacterControlScheme.Captain,
-        session.username,
-        isRanked
-      );
-    }
+    const game = await gameModePolicy.lobbySetup.createGame(data);
+    gameModePolicy.lobbySetup.onCreation(game);
 
     this.lobbyState.gameRegistry.registerGame(game);
     const joinGameUpdateHandlerOutbox = await this.joinGameHandler(game.id, session);
     return joinGameUpdateHandlerOutbox;
   }
 
-  private async requireProgressionGamePrerequisites(session: UserSession) {
-    session.requireAuthorized();
-  }
-
-  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
-    await this.requireProgressionGamePrerequisites(session);
-
-    const game = new SpeedDungeonGame(
-      this.idGenerator.generate() as GameId,
-      gameName,
-      GameMode.Progression,
-      CharacterControlScheme.Captain,
-      session.username
-    );
-
-    // unlike race games, progression games have only a single, automatically generated
-    // adventuring party
-    const defaultPartyName = PartySetupController.getProgressionGamePartyName(game.name);
-
-    game.adventuringParties.set(
-      defaultPartyName,
-      AdventuringParty.createInitialized(this.idGenerator.generate(), defaultPartyName)
-    );
-
-    return game;
-  }
-
   async joinGameHandler(gameId: GameId, session: UserSession) {
     const game = this.lobbyState.gameRegistry.requireGame(gameId);
 
-    const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
+    const userCanJoinNewGame = session.canJoinNewGame();
     if (!userCanJoinNewGame.allowed) {
       throw new Error(userCanJoinNewGame.reason);
     }
@@ -180,8 +146,10 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
     }
 
-    if (game.mode === GameMode.Progression) {
-      await this.requireProgressionGamePrerequisites(session);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    const userCanJoin = await gameModePolicy.lobbySetup.userCanJoin(session, game);
+    if (!userCanJoin.allowed) {
+      throw new Error(userCanJoin.reason);
     }
 
     session.joinGame(game);
@@ -215,14 +183,13 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       { excludedIds: [session.connectionId] }
     );
 
-    // handle automatic party joining and character selection
-    if (game.mode === GameMode.Progression) {
-      const otherOutbox =
-        await this.partySetupController.joinProgressionGamePartyWithDefaultCharacterHandler(
-          session,
-          game
-        );
-      outbox.pushFromOther(otherOutbox);
+    const onJoinPolicyOutbox = await gameModePolicy.lobbySetup.onJoin(
+      session,
+      game,
+      this.partySetupController
+    );
+    if (onJoinPolicyOutbox) {
+      outbox.pushFromOther(onJoinPolicyOutbox);
     }
 
     return outbox;

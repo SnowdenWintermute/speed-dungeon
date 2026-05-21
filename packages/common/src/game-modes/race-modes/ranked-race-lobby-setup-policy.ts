@@ -34,10 +34,6 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
     }
   }
 
-  override async createGame(): Promise<SpeedDungeonGame> {
-    throw new Error("tbd");
-  }
-
   override canSelectStartingFloor(): AllowedResult {
     return { allowed: false, reason: ERROR_MESSAGES.GAME.MODE };
   }

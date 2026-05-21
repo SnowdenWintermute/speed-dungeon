@@ -2,7 +2,9 @@ import {
   Combatant,
   CombatantId,
   EntityId,
+  GameId,
   GameListEntry,
+  SavedIronmanRun,
   UserChannelDisplayData,
   Username,
   invariant,
@@ -12,6 +14,9 @@ import { makeAutoObservable } from "mobx";
 export class ClientApplicationLobbyContext {
   private _gameList: GameListEntry[] = [];
   readonly savedCharacters = new ClientApplicationSavedCharacters();
+  readonly savedIronmanRuns = new Map<GameId, SavedIronmanRun>();
+  public savedIronmanRunCapacity: null | number = null; // wait to hear from server your account's run capacity
+  public selectedSavedIronmanRun: null | GameId = null;
   readonly channel = new ClientApplicationLobbyChannel();
 
   constructor() {

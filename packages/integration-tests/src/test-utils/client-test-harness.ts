@@ -154,10 +154,15 @@ export class ClientTestHarness<T extends BaseClient> {
     }
   }
 
-  async createGame(gameName: string, mode = GameMode.UnrankedRace) {
+  async createGame(
+    gameName: GameName,
+    mode: GameMode = GameMode.UnrankedRace,
+    controlScheme: CharacterControlScheme = CharacterControlScheme.Captain,
+    continueGameId?: GameId
+  ) {
     await this.settleIntentResult({
       type: ClientIntentType.CreateGame,
-      data: { gameName: gameName as GameName, mode },
+      data: { gameName, mode, controlScheme, continueGameId },
     });
   }
   async joinGame(gameId: GameId) {

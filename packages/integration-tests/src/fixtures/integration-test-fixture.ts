@@ -184,8 +184,8 @@ export class IntegrationTestFixture {
     await Promise.all(promises);
   }
 
-  createClient(id: string, authId?: string) {
-    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine, authId);
+  createClient(id: string, authSessionId?: string) {
+    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine, authSessionId);
     this.clients.set(id, client);
     return client;
   }

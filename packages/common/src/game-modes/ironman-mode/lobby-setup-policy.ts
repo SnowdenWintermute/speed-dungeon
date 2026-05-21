@@ -91,10 +91,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     }
   }
 
-  override async createGame(
-    _session: UserSession,
-    gameCreationRequest: GameCreationRequest
-  ): Promise<SpeedDungeonGame> {
+  override async createGame(gameCreationRequest: GameCreationRequest): Promise<SpeedDungeonGame> {
     const runIdOption = gameCreationRequest.continueGameId;
     if (runIdOption) {
       const serialized = await this.userGameDataPersistenceService.requireIronmanRun(runIdOption);

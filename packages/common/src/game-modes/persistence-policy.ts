@@ -7,7 +7,6 @@ import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
-import { OutgoingMessageGateway } from "../servers/update-delivery/message-gateway.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 
 /** what to save and how to save it when certain events happen
@@ -19,8 +18,7 @@ export abstract class GameModePersistencePolicy {
     protected userSessionRegistry: UserSessionRegistry,
     protected profileService: SpeedDungeonProfileService,
     protected userGameDataPersistenceService: UserGameDataPersistenceService,
-    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    protected outgoingMessagesGateway: OutgoingMessageGateway<GameStateUpdate>
+    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
 
   abstract onGameStart(game: SpeedDungeonGame): Promise<void>;

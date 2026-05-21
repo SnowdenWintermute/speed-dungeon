@@ -35,6 +35,7 @@ import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
 import { GameMode } from "../game-modes/index.js";
+import { SavedIronmanRun } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -79,6 +80,7 @@ export enum GameStateUpdateType {
   DungeonFloorNumber,
   CharacterSpentAttributePoint,
   SavedCharacterList,
+  SavedIronmanRunsList,
   SavedCharacter,
   SavedCharacterDeleted,
   PlayerSelectedSavedCharacterInProgressionGame,
@@ -238,6 +240,10 @@ export interface GameStateUpdateMap {
       null | { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] }
     >;
   };
+  [GameStateUpdateType.SavedIronmanRunsList]: {
+    savedIronmanRuns: SerializedOf<SavedIronmanRun>[];
+    ironmanRunCapacity: number;
+  };
   [GameStateUpdateType.SavedCharacter]: {
     character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
     slotIndex: number;
@@ -395,6 +401,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.DungeonFloorNumber]: "DungeonFloorNumber",
   [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",
   [GameStateUpdateType.SavedCharacterList]: "SavedCharacterList",
+  [GameStateUpdateType.SavedIronmanRunsList]: "SavedIronmanRunsList",
   [GameStateUpdateType.SavedCharacter]: "SavedCharacter",
   [GameStateUpdateType.SavedCharacterDeleted]: "SavedCharacterDeleted",
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]:

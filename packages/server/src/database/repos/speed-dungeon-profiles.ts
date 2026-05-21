@@ -6,6 +6,7 @@ import { DatabaseRepository } from "./index.js";
 import {
   CharacterControlScheme,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY,
   SpeedDungeonProfile,
 } from "@speed-dungeon/common";
 
@@ -15,9 +16,10 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
   async insert(ownerId: number) {
     const { rows } = await this.pgPool.query(
       format(
-        `INSERT INTO ${tableName} (owner_id, character_capacity) VALUES (%L, %L) RETURNING *;`,
+        `INSERT INTO ${tableName} (owner_id, character_capacity, ironman_run_capacity) VALUES (%L, %L, %L) RETURNING *;`,
         ownerId,
-        DEFAULT_ACCOUNT_CHARACTER_CAPACITY
+        DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+        DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY
       )
     );
     if (!rows[0]) {
@@ -40,7 +42,7 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
   }
 
   async update(speedDungeonProfile: SpeedDungeonProfile) {
-    const { id, characterCapacities, ironmanRunCapacity } = speedDungeonProfile;
+    const { id, characterCapacities, ironmanRunIds, ironmanRunCapacity } = speedDungeonProfile;
     const { rows } = await this.pgPool.query(
       format(
         `UPDATE ${tableName} SET character_capacity = %L WHERE id = %L RETURNING *;`,

@@ -25,7 +25,7 @@ export const GAME_MODE_STRINGS: Record<GameMode, string> = {
 };
 
 export interface GameModePolicy {
-  setup: GameModeLobbySetupPolicy;
+  lobbySetup: GameModeLobbySetupPolicy;
   persistence: GameModePersistencePolicy;
   ladder: GameModeLadderUpdatePolicy;
   gameInitialization: GameModeGameInitializationPolicy;

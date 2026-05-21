@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { CombatantId, GameName, PartyName } from "../aliases.js";
+import { CombatantId, GameId, GameName, PartyName } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameCreationRequest } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
@@ -37,15 +37,17 @@ export abstract class GameModeLobbySetupPolicy {
     session: UserSession,
     gameCreationRequest: GameCreationRequest
   ): Promise<AllowedResult>;
-  abstract createGame(
-    session: UserSession,
-    gameCreationRequest: GameCreationRequest
-  ): Promise<SpeedDungeonGame>;
+  async createGame(gameCreationRequest: GameCreationRequest): Promise<SpeedDungeonGame> {
+    const { gameName, mode, controlScheme } = gameCreationRequest;
+    return new SpeedDungeonGame(
+      this.idGenerator.generate() as GameId,
+      gameName,
+      mode,
+      controlScheme
+    );
+  }
   abstract canSelectStartingFloor(): AllowedResult; // is starting floor selectable in this mode (only for progression)
   abstract getMaxStartingFloor(game: SpeedDungeonGame): number;
-  // @TODO - take in a "GameCreationRequest" and return a game from it
-  // if the user is allowed to make a game with that request, like "I want to make a game
-  // to continue Ironman run of ID x", or "I want to create a progression game named y"
   abstract onCreation(game: SpeedDungeonGame): void;
   // for Ironman, put them in default party and assign them to their characters
   // for Progression, put them in default party and select one of their default characters if they have one

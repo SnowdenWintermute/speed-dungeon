@@ -21,6 +21,7 @@ import { GuestSessionReconnectionToken } from "../../game-server/reconnection/gu
 import { OpaqueEncryptionTokenCodec } from "../game-handoff/session-claim-token.js";
 import { throwIfLoopLimitReached } from "../../../utils/index.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
+import { IronmanRunController } from "../../controllers/ironman-run-controller.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -30,6 +31,7 @@ export class LobbySessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersController: SavedCharactersController,
+    private readonly savedIronmanRunsController: IronmanRunController,
     private readonly gameLifecycleController: LobbyGameLifecycleController,
     private readonly identityProviderService: IdentityProviderService,
     private readonly idGenerator: IdGenerator,
@@ -121,14 +123,21 @@ export class LobbySessionLifecycleController
       return outbox;
     }
 
-    // @TODO - determine what default characters to send them
-    if (session.isAuth()) {
-      const savedCharactersOutbox =
+    // @TODO - determine what default (control scheme) characters to send them
+    // or send all, or just send metadata enough to render the models
+    if (session.isAuth() && session.taggedUserId.type === UserIdType.Auth) {
+      const captainsSavedCharactersOutbox =
         await this.savedCharactersController.fetchSavedCharactersHandler(session, {
           gameMode: GameMode.Progression,
           controlScheme: CharacterControlScheme.Captain,
         });
-      outbox.pushFromOther(savedCharactersOutbox);
+      // @TODO @PERF
+      // - defer sending their runs until they ask for them,
+      // - don't send the entire run, just some descriptive data
+      const ironmanRunsOutbox =
+        await this.savedIronmanRunsController.getUserSavedIronmanRunsOutbox(session);
+      outbox.pushFromOther(ironmanRunsOutbox);
+      outbox.pushFromOther(captainsSavedCharactersOutbox);
     }
 
     const userChannelDisplayData = this.lobbyState.addUser(session.username, session.isAuth());

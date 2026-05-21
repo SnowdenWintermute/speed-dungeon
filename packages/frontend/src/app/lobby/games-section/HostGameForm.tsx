@@ -12,6 +12,7 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { IronmanRunSelector } from "./IronmanRunSelector";
 
 export default function HostGameForm() {
   const clientApplication = useClientApplication();
@@ -115,6 +116,25 @@ export default function HostGameForm() {
                 PROGRESSION
               </HotkeyButton>
             </HoverableTooltipWrapper>
+            <HoverableTooltipWrapper
+              tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
+              extraStyles="flex-1 ml-1 "
+            >
+              <HotkeyButton
+                buttonType="button"
+                hotkeys={[]}
+                disabled={!isLoggedIn}
+                onClick={() => {
+                  setSelectedGameMode(GameMode.Ironman);
+                }}
+                className={`flex-1 h-10 w-full border border-slate-400
+                        ${selectedGameMode === GameMode.Ironman ? "bg-slate-950" : "bg-slate-700"}
+                        disabled:opacity-50
+                        `}
+              >
+                IRONMAN
+              </HotkeyButton>
+            </HoverableTooltipWrapper>
           </div>
           <div className="flex w-full mb-2">
             <div id="game-mode-spacer" className={`flex-1 h-10 mr-1`} />
@@ -140,6 +160,7 @@ export default function HostGameForm() {
             </HoverableTooltipWrapper>
           </div>
         </div>
+        {selectedGameMode === GameMode.Ironman ? <IronmanRunSelector /> : ""}
         <HotkeyButton
           buttonType="submit"
           hotkeys={["KeyR", "Enter"]}

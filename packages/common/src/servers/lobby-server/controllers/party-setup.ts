@@ -114,46 +114,6 @@ export class PartySetupController {
     return outbox;
   }
 
-  // @TODO - adapt so they can join, then select a default character if they have one
-  async joinProgressionGamePartyWithDefaultCharacterHandler(
-    session: UserSession,
-    game: SpeedDungeonGame
-  ) {
-    session.requireAuthorized();
-    const profile = await session.requireProfile(this.profileService);
-    const defaultSavedCharacter =
-      await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(
-        profile,
-        game.characterControlScheme
-      );
-    const partyName = PartySetupController.getProgressionGamePartyName(game.name);
-
-    const party = game.getExpectedParty(partyName);
-    const player = game.getExpectedPlayer(session.username);
-
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    const joinPartyHandlerOutbox = this.joinPartyHandler(session, partyName);
-    outbox.pushFromOther(joinPartyHandlerOutbox);
-
-    game.addCharacterToParty(
-      party,
-      player,
-      defaultSavedCharacter.combatant,
-      defaultSavedCharacter.pets
-    );
-
-    outbox.pushToChannel(game.getChannelName(), {
-      type: GameStateUpdateType.CharacterAddedToParty,
-      data: {
-        username: session.username,
-        character: defaultSavedCharacter.combatant.toSerialized(),
-        pets: defaultSavedCharacter.pets.map((pet) => pet.toSerialized()),
-      },
-    });
-
-    return outbox;
-  }
-
   leavePartyHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame();
 

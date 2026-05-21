@@ -7,7 +7,6 @@ import {
   SerializedOf,
   Battle,
   CombatantId,
-  Deferred,
 } from "@speed-dungeon/common";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";

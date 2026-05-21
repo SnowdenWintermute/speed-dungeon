@@ -105,17 +105,19 @@ export class UserSession extends ConnectionSession {
     return game.getExpectedParty(this.currentPartyName);
   }
 
-  canJoinNewGame(isRanked?: boolean): AllowedResult {
+  canJoinNewGame(): AllowedResult {
     if (this.isInGame()) {
       return { allowed: false, reason: ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME };
     }
 
-    const userIsGuest = this.taggedUserId.type === UserIdType.Guest;
-    if (isRanked && userIsGuest) {
-      return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
-    }
-
     return { allowed: true };
+  }
+
+  requireCanJoinGame() {
+    const userCanJoinNewGame = this.canJoinNewGame();
+    if (!userCanJoinNewGame.allowed) {
+      throw new Error(userCanJoinNewGame.reason);
+    }
   }
 
   joinGame(game: SpeedDungeonGame) {
