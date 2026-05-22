@@ -93,8 +93,7 @@ const PlayerDisplay = observer(
   }) => {
     const { session, lobbyContext, lobbyClientRef } = useClientApplication();
     const username = session.requireUsername();
-    const savedCharacters =
-      lobbyContext.savedCharacters.slots[game.mode][game.characterControlScheme];
+    const savedCharacters = lobbyContext.savedCharacters.slots[game.characterControlScheme];
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);

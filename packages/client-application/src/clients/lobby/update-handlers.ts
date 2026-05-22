@@ -216,7 +216,7 @@ export function createLobbyUpdateHandlers(
       }
     },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
-      const { gameMode, characterControlScheme, characterSlots } = data;
+      const { characterControlScheme, characterSlots } = data;
 
       const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
       for (const [slotNumberStringKey, characterOption] of Object.entries(characterSlots)) {
@@ -242,7 +242,7 @@ export function createLobbyUpdateHandlers(
         }
       }
 
-      lobbyContext.savedCharacters.setSlots(gameMode, characterControlScheme, deserialized);
+      lobbyContext.savedCharacters.setSlots(characterControlScheme, deserialized);
 
       gameWorldView?.environment.groundPlane.drawCharacterSlots();
 
@@ -267,13 +267,12 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.SavedCharacter]: (data) => {
-      const { gameMode, characterControlScheme, character, slotIndex } = data;
+      const { characterControlScheme, character, slotIndex } = data;
       const { combatant, pets } = character;
       const deserializedCombatant = Combatant.fromSerialized(combatant);
       const deserializedPets = pets.map((pet) => Combatant.fromSerialized(pet));
 
       lobbyContext.savedCharacters.setSlot(
-        gameMode,
         characterControlScheme,
         { combatant: deserializedCombatant, pets: deserializedPets },
         slotIndex

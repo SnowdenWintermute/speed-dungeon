@@ -6,7 +6,6 @@ import {
   ProfileId,
   SerializedPlayerCharacter,
   CharacterSlot,
-  GameMode,
   CharacterControlScheme,
   SavedCharacterPersistenceStrategy,
   CharacterSlotsPersistenceStrategy,
@@ -25,7 +24,6 @@ export class DatabaseSavedCharacterSlotsPersistenceStrategy
 
   async fetchSlots(
     profileId: number,
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ): Promise<CharacterSlot[]> {
     const expectedSlots = await this.characterSlotsRepo.find("profileId", profileId);

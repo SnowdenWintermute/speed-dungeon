@@ -235,7 +235,6 @@ export interface GameStateUpdateMap {
     attribute: CombatAttribute;
   };
   [GameStateUpdateType.SavedCharacterList]: {
-    gameMode: GameMode;
     characterControlScheme: CharacterControlScheme;
     characterSlots: Record<
       CharacterSlotIndex,
@@ -247,7 +246,6 @@ export interface GameStateUpdateMap {
     ironmanRunCapacity: number;
   };
   [GameStateUpdateType.SavedCharacter]: {
-    gameMode: GameMode;
     characterControlScheme: CharacterControlScheme;
     character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
     slotIndex: number;

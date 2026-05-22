@@ -64,11 +64,10 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     // if have an eligible character, put the character in the party
     // @TODO - else prompt to create new character
     const profile = await session.requireProfile(this.profileService);
-    const { mode, characterControlScheme } = game;
+    const { characterControlScheme } = game;
     const defaultSavedCharacter = await this.getDefaultSavedCharacterOption(
       profile,
-      characterControlScheme,
-      mode
+      characterControlScheme
     );
     const party = game.getExpectedParty(defaultPartyName);
     const player = game.getExpectedPlayer(session.username);
@@ -112,14 +111,12 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
 
   private async getDefaultSavedCharacterOption(
     profile: SpeedDungeonProfile,
-    characterControlScheme: CharacterControlScheme,
-    gameMode: GameMode
+    characterControlScheme: CharacterControlScheme
   ): Promise<CombatantWithPets | undefined> {
     // @TODO - check the game mode and characterControlScheme
 
     const charactersResult = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
       profile.id,
-      gameMode,
       characterControlScheme
     );
 

@@ -191,7 +191,6 @@ export class ConnectionTopology {
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
     // @TODO - load their local persistence slots
     this.clientApplication.lobbyContext.savedCharacters.setSlots(
-      GameMode.Progression,
       CharacterControlScheme.Freelancer,
       {}
     );

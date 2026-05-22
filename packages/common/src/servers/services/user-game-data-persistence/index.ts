@@ -62,14 +62,9 @@ export class UserGameDataPersistenceService {
 
   async fetchSavedCharacterSlots(
     profileId: ProfileId,
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ): Promise<SavedCharacterSlots> {
-    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
-      profileId,
-      gameMode,
-      controlScheme
-    );
+    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(profileId, controlScheme);
 
     const toReturn: SavedCharacterSlots = {};
     const characterPromises: Promise<void>[] = [];
@@ -108,14 +103,9 @@ export class UserGameDataPersistenceService {
   async requireEmptyCharacterSlot(
     profileId: ProfileId,
     slotIndex: CharacterSlotIndex,
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ) {
-    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
-      profileId,
-      gameMode,
-      controlScheme
-    );
+    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(profileId, controlScheme);
     const slotOption = slots.find((slot) => slot.slotNumber === slotIndex);
 
     if (slotOption === undefined) {
@@ -133,14 +123,9 @@ export class UserGameDataPersistenceService {
   async requireSlotWithCharacterId(
     profileId: ProfileId,
     characterId: EntityId,
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ) {
-    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
-      profileId,
-      gameMode,
-      controlScheme
-    );
+    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(profileId, controlScheme);
     for (const slot of slots) {
       if (slot.characterId === characterId) {
         return slot;

@@ -5,7 +5,6 @@ import {
   EntityId,
   GameId,
   GameListEntry,
-  GameMode,
   SavedIronmanRun,
   SpeedDungeonGame,
   UserChannelDisplayData,
@@ -69,29 +68,11 @@ class ClientApplicationSavedCharacters {
   private _selectedCharacterControlScheme = CharacterControlScheme.Freelancer;
 
   private _slots: Record<
-    GameMode,
-    Record<
-      CharacterControlScheme,
-      Record<number, { combatant: Combatant; pets: Combatant[] } | null>
-    >
+    CharacterControlScheme,
+    Record<number, { combatant: Combatant; pets: Combatant[] } | null>
   > = {
-    [GameMode.Progression]: {
-      [CharacterControlScheme.Freelancer]: {},
-      [CharacterControlScheme.Captain]: {},
-    },
-    [GameMode.Ironman]: {
-      [CharacterControlScheme.Freelancer]: {},
-      [CharacterControlScheme.Captain]: {},
-    },
-    [GameMode.UnrankedRace]: {
-      [CharacterControlScheme.Freelancer]: {},
-      [CharacterControlScheme.Captain]: {},
-    },
-
-    [GameMode.RankedRace]: {
-      [CharacterControlScheme.Freelancer]: {},
-      [CharacterControlScheme.Captain]: {},
-    },
+    [CharacterControlScheme.Freelancer]: {},
+    [CharacterControlScheme.Captain]: {},
   };
 
   constructor() {
@@ -110,49 +91,43 @@ class ClientApplicationSavedCharacters {
     return this._slots;
   }
 
-  requireFilledSlot(gameMode: GameMode, controlScheme: CharacterControlScheme, slotIndex: number) {
-    const slotContents = this.slots[gameMode][controlScheme][slotIndex];
+  requireFilledSlot(controlScheme: CharacterControlScheme, slotIndex: number) {
+    const slotContents = this.slots[controlScheme][slotIndex];
     invariant(slotContents !== null && slotContents !== undefined);
     return slotContents;
   }
 
   setSlots(
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme,
     characters: Record<number, { combatant: Combatant; pets: Combatant[] } | null>
   ) {
-    this._slots[gameMode][controlScheme] = characters;
+    this._slots[controlScheme] = characters;
   }
 
   setSlot(
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme,
     characterOption: { combatant: Combatant; pets: Combatant[] } | null,
     slot: number
   ) {
-    this.slots[gameMode][controlScheme][slot] = characterOption;
+    this.slots[controlScheme][slot] = characterOption;
   }
 
   getSavedCharacterOption(entityId: EntityId) {
-    for (const gameModeSlots of Object.values(this.slots)) {
-      for (const controlSchemeSlots of Object.values(gameModeSlots)) {
-        for (const savedCharacterSlot of Object.values(controlSchemeSlots)) {
-          if (savedCharacterSlot?.combatant.getEntityId() === entityId) {
-            return savedCharacterSlot;
-          }
+    for (const controlSchemeSlots of Object.values(this.slots)) {
+      for (const savedCharacterSlot of Object.values(controlSchemeSlots)) {
+        if (savedCharacterSlot?.combatant.getEntityId() === entityId) {
+          return savedCharacterSlot;
         }
       }
     }
   }
 
   deleteSavedCharacter(combatantId: CombatantId) {
-    for (const gameModeSlots of Object.values(this.slots)) {
-      for (const controlSchemeSlots of Object.values(gameModeSlots)) {
-        for (const [slotStringKey, savedCharacterSlot] of Object.entries(controlSchemeSlots)) {
-          if (savedCharacterSlot?.combatant.getEntityId() === combatantId) {
-            const slotNumber = parseInt(slotStringKey);
-            controlSchemeSlots[slotNumber] = null;
-          }
+    for (const controlSchemeSlots of Object.values(this.slots)) {
+      for (const [slotStringKey, savedCharacterSlot] of Object.entries(controlSchemeSlots)) {
+        if (savedCharacterSlot?.combatant.getEntityId() === combatantId) {
+          const slotNumber = parseInt(slotStringKey);
+          controlSchemeSlots[slotNumber] = null;
         }
       }
     }

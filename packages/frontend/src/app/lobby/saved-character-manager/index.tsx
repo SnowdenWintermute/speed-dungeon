@@ -29,9 +29,7 @@ export const SavedCharacterManager = observer(() => {
   const { lobbyContext, uiStore } = clientApplication;
 
   const savedCharacters =
-    lobbyContext.savedCharacters.slots[GameMode.Progression][
-      lobbyContext.savedCharacters.selectedCharacterControlScheme
-    ];
+    lobbyContext.savedCharacters.slots[lobbyContext.savedCharacters.selectedCharacterControlScheme];
 
   const selectedCharacterOption = savedCharacters[currentSlot];
   const { dialogs } = uiStore;

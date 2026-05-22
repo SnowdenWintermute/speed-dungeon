@@ -3,7 +3,7 @@ import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
-import { SequentialIdGenerator } from "../../../utils/index.js";
+import { iterateNumericEnum, SequentialIdGenerator } from "../../../utils/index.js";
 import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 import { CharacterSlot } from "./character-slots.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
@@ -14,16 +14,15 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
 {
   private readonly slotsByProfileId = new Map<
     ProfileId,
-    Map<GameMode, Map<CharacterControlScheme, CharacterSlot[]>>
+    Map<CharacterControlScheme, CharacterSlot[]>
   >();
   private idGenerator = new SequentialIdGenerator();
 
   async fetchSlots(
     profileId: ProfileId,
-    gameMode: GameMode,
     controlScheme: CharacterControlScheme
   ): Promise<CharacterSlot[]> {
-    const expectedSlots = this.slotsByProfileId.get(profileId)?.get(gameMode)?.get(controlScheme);
+    const expectedSlots = this.slotsByProfileId.get(profileId)?.get(controlScheme);
     if (expectedSlots === undefined) {
       throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOTS_NOT_INITIALIZED);
     }
@@ -31,10 +30,12 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
   }
 
   async update(characterSlot: CharacterSlot): Promise<CharacterSlot> {
-    for (const [profileId, profileCharacterSlots] of this.slotsByProfileId) {
-      for (const slot of profileCharacterSlots) {
-        if (slot.id === characterSlot.id) {
-          return Object.assign(slot, characterSlot);
+    for (const [profileId, slotsByControlScheme] of this.slotsByProfileId) {
+      for (const [controlScheme, slots] of slotsByControlScheme) {
+        for (const slot of slots) {
+          if (slot.id === characterSlot.id) {
+            return Object.assign(slot, characterSlot);
+          }
         }
       }
     }
@@ -47,15 +48,18 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
       throw new Error("slots already exist for profile");
     }
 
-    const slots: CharacterSlot[] = [];
-    for (let i = 0; i < DEFAULT_ACCOUNT_CHARACTER_CAPACITY; i += 1) {
-      slots[i] = new CharacterSlot(
-        this.idGenerator.getNextId(),
-        profileId,
-        i as CharacterSlotIndex
-      );
+    this.slotsByProfileId.set(profileId, new Map<CharacterControlScheme, []>());
+    for (const controlScheme of iterateNumericEnum(CharacterControlScheme)) {
+      const slots: CharacterSlot[] = [];
+      for (let i = 0; i < DEFAULT_ACCOUNT_CHARACTER_CAPACITY; i += 1) {
+        slots[i] = new CharacterSlot(
+          this.idGenerator.getNextId(),
+          profileId,
+          i as CharacterSlotIndex
+        );
+      }
+      this.slotsByProfileId.get(profileId)?.set(controlScheme, slots);
     }
-    this.slotsByProfileId.set(profileId, slots);
   }
 }
 

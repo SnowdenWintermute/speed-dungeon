@@ -128,12 +128,10 @@ export class LobbySessionLifecycleController
     if (session.isAuth() && session.taggedUserId.type === UserIdType.Auth) {
       const captainsSavedCharactersOutbox =
         await this.savedCharactersController.fetchSavedCharactersHandler(session, {
-          gameMode: GameMode.Progression,
           controlScheme: CharacterControlScheme.Captain,
         });
       const freelancersSavedCharactersOutbox =
         await this.savedCharactersController.fetchSavedCharactersHandler(session, {
-          gameMode: GameMode.Progression,
           controlScheme: CharacterControlScheme.Freelancer,
         });
       // @TODO @PERF

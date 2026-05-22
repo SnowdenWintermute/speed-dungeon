@@ -113,7 +113,6 @@ export class CharacterLifecycleController {
     const profile = await session.requireProfile(this.profileService);
     const characters = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
       profile.id,
-      game.mode,
       game.characterControlScheme
     );
 

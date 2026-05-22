@@ -1,6 +1,5 @@
 import {
   CHARACTER_SLOT_SPACING,
-  CharacterControlScheme,
   Combatant,
   CombatantId,
   EntityId,
@@ -185,7 +184,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { lobbyContext } = this.clientApplication;
     const { savedCharacters } = lobbyContext;
     const savedCharactersToDisplay =
-      savedCharacters.slots[GameMode.Progression][savedCharacters.selectedCharacterControlScheme];
+      savedCharacters.slots[savedCharacters.selectedCharacterControlScheme];
 
     for (const [_slot, character] of iterateNumericEnumKeyedRecord(savedCharactersToDisplay).filter(
       ([_slot, characterOption]) => characterOption !== null
