@@ -1,5 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { CombatantClass, GameStateUpdateType } from "@speed-dungeon/common";
+import { CharacterControlScheme, CombatantClass, GameStateUpdateType } from "@speed-dungeon/common";
 
 export async function testProgressionGameSelectCharacterSync(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions();
@@ -18,7 +18,10 @@ export async function testProgressionGameSelectCharacterSync(testFixture: Integr
   );
 
   const { savedCharacters: alphaSavedCharacters } = alpha.clientApplication.lobbyContext;
-  const alphaFirstCharacter = alphaSavedCharacters.requireFilledSlot(0);
+  const alphaFirstCharacter = alphaSavedCharacters.requireFilledSlot(
+    0,
+    CharacterControlScheme.Captain
+  );
 
   const alphaPlayerContextAsBravo = bravo.clientApplication.gameContext.requirePlayerContext(
     alpha.clientApplication.session.requireUsername()
@@ -31,7 +34,10 @@ export async function testProgressionGameSelectCharacterSync(testFixture: Integr
   ]);
 
   // other player sees selection
-  const alphaSecondCharacter = alphaSavedCharacters.requireFilledSlot(1);
+  const alphaSecondCharacter = alphaSavedCharacters.requireFilledSlot(
+    1,
+    CharacterControlScheme.Captain
+  );
   await alpha.lobbyClientHarness.selectSavedCharacterInProgressionGame(
     alphaSecondCharacter.combatant.getEntityId()
   );

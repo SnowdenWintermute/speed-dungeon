@@ -146,11 +146,8 @@ export class SavedCharactersController {
     return outbox;
   }
 
-  async deleteSavedCharacterHandler(
-    session: UserSession,
-    data: { entityId: CombatantId; controlScheme: CharacterControlScheme }
-  ) {
-    const { entityId, controlScheme } = data;
+  async deleteSavedCharacterHandler(session: UserSession, data: { entityId: CombatantId }) {
+    const { entityId } = data;
 
     session.requireAuthorized();
 
@@ -159,8 +156,7 @@ export class SavedCharactersController {
     // delete the character only if they own it
     const slot = await this.userGameDataPersistenceService.requireSlotWithCharacterId(
       profile.id,
-      entityId,
-      controlScheme
+      entityId
     );
     await this.userGameDataPersistenceService.deleteCharacterInSlot(entityId, slot);
 

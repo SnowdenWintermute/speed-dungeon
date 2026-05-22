@@ -8,7 +8,8 @@
   "license": "ISC",
   "type": "module",
   "scripts": {
-    "compileClean": "rm -rf tsconfig.tsbuildinfo && rm -rf ./dist && npx tsc"
+    "compileClean": "rm -rf tsconfig.tsbuildinfo && rm -rf ./dist && npx tsc",
+    "checkTs": "npx tsc --noEmit --watch"
   },
   "dependencies": {
     "@speed-dungeon/common": "1.0.0",

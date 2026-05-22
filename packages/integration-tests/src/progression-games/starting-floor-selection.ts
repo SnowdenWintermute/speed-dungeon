@@ -1,6 +1,7 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   BASIC_CHARACTER_FIXTURES_INCREASING_FLOORS_VISITED,
+  CharacterControlScheme,
   CombatantClass,
   ERROR_MESSAGES,
   GameStateUpdateType,
@@ -48,7 +49,11 @@ export async function testProgressionGameStartingFloorSelection(
   expect(alphaPlayerContext.game.selectedStartingFloor).toBe(1);
 
   // select second character with a greater starting floor
-  const alphaSecondCharacter = alphaSavedCharacters.requireFilledSlot(1);
+  const alphaSecondCharacter = alphaSavedCharacters.requireFilledSlot(
+    1,
+    CharacterControlScheme.Captain
+  );
+
   const bravoSawAlphaSelectDeeperFloorCharacterPromise =
     bravo.lobbyClientHarness.awaitMessageOfType(
       GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
@@ -74,7 +79,10 @@ export async function testProgressionGameStartingFloorSelection(
 
   // bravo select second character with a greater starting floor
   const { savedCharacters: bravoSavedCharacters } = bravo.clientApplication.lobbyContext;
-  const bravoSecondCharacter = bravoSavedCharacters.requireFilledSlot(1);
+  const bravoSecondCharacter = bravoSavedCharacters.requireFilledSlot(
+    1,
+    CharacterControlScheme.Captain
+  );
   const alphaSawCharacterSelectedPromise = alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
   );
@@ -97,7 +105,10 @@ export async function testProgressionGameStartingFloorSelection(
     alpha.lobbyClientHarness.awaitMessageOfType(
       GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
     );
-  const bravoFirstCharacter = bravoSavedCharacters.requireFilledSlot(0);
+  const bravoFirstCharacter = bravoSavedCharacters.requireFilledSlot(
+    0,
+    CharacterControlScheme.Captain
+  );
   await bravo.lobbyClientHarness.selectSavedCharacterInProgressionGame(
     bravoFirstCharacter.combatant.getEntityId()
   );

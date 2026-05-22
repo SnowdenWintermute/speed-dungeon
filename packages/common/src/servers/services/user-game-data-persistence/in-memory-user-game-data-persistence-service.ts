@@ -55,6 +55,7 @@ export class InMemorySavedCharacterSlotsPersistenceStrategy
         slots[i] = new CharacterSlot(
           this.idGenerator.getNextId(),
           profileId,
+          controlScheme,
           i as CharacterSlotIndex
         );
       }

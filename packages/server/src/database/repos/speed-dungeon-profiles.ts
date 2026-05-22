@@ -28,16 +28,6 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
     }
     const newProfile = toCamelCase(rows)[0] as unknown as SpeedDungeonProfile;
 
-    // ADD CHARACTER SLOTS
-
-    await this.pgPool.query(
-      format(
-        `INSERT INTO character_slots (profile_id, slot_number) SELECT %L, generate_series(0, %L);`,
-        newProfile.id,
-        DEFAULT_ACCOUNT_CHARACTER_CAPACITY - 1
-      )
-    );
-
     return newProfile;
   }
 

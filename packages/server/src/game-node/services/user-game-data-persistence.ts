@@ -1,8 +1,10 @@
 import {
   Combatant,
+  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   EntityId,
   ERROR_MESSAGES,
   invariant,
+  iterateNumericEnum,
   ProfileId,
   SerializedPlayerCharacter,
   CharacterSlot,
@@ -19,14 +21,21 @@ export class DatabaseSavedCharacterSlotsPersistenceStrategy
   constructor(private characterSlotsRepo: CharacterSlotsRepo) {}
 
   async createSlots(profileId: ProfileId): Promise<void> {
-    //
+    for (const controlScheme of iterateNumericEnum(CharacterControlScheme)) {
+      for (let i = 0; i < DEFAULT_ACCOUNT_CHARACTER_CAPACITY; i += 1) {
+        await this.characterSlotsRepo.insert(profileId, controlScheme, i, null);
+      }
+    }
   }
 
   async fetchSlots(
     profileId: number,
     controlScheme: CharacterControlScheme
   ): Promise<CharacterSlot[]> {
-    const expectedSlots = await this.characterSlotsRepo.find("profileId", profileId);
+    const expectedSlots = await this.characterSlotsRepo.findByProfileAndScheme(
+      profileId,
+      controlScheme
+    );
     if (expectedSlots === undefined) {
       throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
     }

@@ -179,15 +179,10 @@ export const SavedCharacterManager = observer(() => {
           </div>
           <div>
             {selectedCharacterOption ? (
-              <DeleteCharacterForm
-                character={selectedCharacterOption.combatant}
-                gameMode={GameMode.Progression}
-                controlScheme={lobbyContext.savedCharacters.selectedCharacterControlScheme}
-              />
+              <DeleteCharacterForm character={selectedCharacterOption.combatant} />
             ) : (
               <CreateCharacterForm
                 currentSlot={currentSlot as CharacterSlotIndex}
-                gameMode={GameMode.Progression}
                 controlScheme={lobbyContext.savedCharacters.selectedCharacterControlScheme}
               />
             )}

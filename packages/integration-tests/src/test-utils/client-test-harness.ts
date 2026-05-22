@@ -343,15 +343,19 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async createSavedCharacter(name: string, combatantClass: CombatantClass, slotIndex: number) {
+  async createSavedCharacter(
+    name: string,
+    combatantClass: CombatantClass,
+    controlScheme: CharacterControlScheme,
+    slotIndex: number
+  ) {
     return this.settleIntentResult({
       type: ClientIntentType.CreateSavedCharacter,
       data: {
         name: name as EntityName,
         combatantClass,
         slotIndex: slotIndex as CharacterSlotIndex,
-        gameMode: GameMode.Progression,
-        controlScheme: CharacterControlScheme.Captain,
+        controlScheme,
       },
     });
   }
@@ -361,8 +365,6 @@ export class ClientTestHarness<T extends BaseClient> {
       type: ClientIntentType.DeleteSavedCharacter,
       data: {
         entityId,
-        gameMode: GameMode.Progression,
-        controlScheme: CharacterControlScheme.Captain,
       },
     });
   }

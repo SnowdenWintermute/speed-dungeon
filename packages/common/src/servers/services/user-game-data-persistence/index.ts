@@ -9,7 +9,11 @@ import {
 } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
-import { getProgressionGamePartyName, invariant } from "../../../utils/index.js";
+import {
+  getProgressionGamePartyName,
+  invariant,
+  iterateNumericEnum,
+} from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character-slots.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
@@ -120,15 +124,16 @@ export class UserGameDataPersistenceService {
     return slotOption;
   }
 
-  async requireSlotWithCharacterId(
-    profileId: ProfileId,
-    characterId: EntityId,
-    controlScheme: CharacterControlScheme
-  ) {
-    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(profileId, controlScheme);
-    for (const slot of slots) {
-      if (slot.characterId === characterId) {
-        return slot;
+  async requireSlotWithCharacterId(profileId: ProfileId, characterId: EntityId) {
+    for (const controlScheme of iterateNumericEnum(CharacterControlScheme)) {
+      const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
+        profileId,
+        controlScheme
+      );
+      for (const slot of slots) {
+        if (slot.characterId === characterId) {
+          return slot;
+        }
       }
     }
 

@@ -1,5 +1,6 @@
 import { CharacterSlotIndex, EntityId } from "../../../aliases.js";
 import { Combatant } from "../../../combatants/index.js";
+import { CharacterControlScheme } from "../../../game-modes/index.js";
 import { SerializedOf } from "../../../serialization/index.js";
 
 export interface CharacterInSlot {
@@ -17,6 +18,7 @@ export class CharacterSlot {
   constructor(
     public id: string,
     public profileId: number,
+    public controlScheme: CharacterControlScheme,
     public slotNumber: CharacterSlotIndex
   ) {}
 }

@@ -1,11 +1,13 @@
 import {
   BASIC_CHARACTER_FIXTURES,
+  CharacterControlScheme,
   CombatantClass,
   DungeonRoomType,
   ExplicitCombatantDungeonTemplate,
   FixedCharacterCreationLists,
   FixedNumberGenerator,
   GameMode,
+  GameName,
   GameServer,
   GameServerName,
   GameStateUpdateType,
@@ -221,7 +223,7 @@ export class IntegrationTestFixture {
     const client = this.createClient("client 1");
     await client.connect();
 
-    await client.lobbyClientHarness.createGame("test-game-a");
+    await client.lobbyClientHarness.createGame("test-game-a" as GameName);
     await client.lobbyClientHarness.createParty("test-party-a");
     for (const { name, combatantClass } of playerCharacterClasses) {
       await client.lobbyClientHarness.createCharacter(name, combatantClass);
@@ -246,12 +248,18 @@ export class IntegrationTestFixture {
         throw new Error("Should at least specify one character");
       }
       for (const { name, combatantClass, slotIndex } of options.characters) {
-        await client.lobbyClientHarness.createSavedCharacter(name, combatantClass, slotIndex);
+        await client.lobbyClientHarness.createSavedCharacter(
+          name,
+          combatantClass,
+          slotIndex,
+          CharacterControlScheme.Captain
+        );
       }
     } else {
       await client.lobbyClientHarness.createSavedCharacter(
         TEST_CHARACTER_NAME_1,
         CombatantClass.Warrior,
+        CharacterControlScheme.Captain,
         0
       );
     }
@@ -265,7 +273,11 @@ export class IntegrationTestFixture {
   ) {
     const client = await this.createSingleClientWithSavedCharacters(testClientId, authId, options);
     const gameName = options?.gameName ? options.gameName : TEST_GAME_NAME;
-    await client.lobbyClientHarness.createGame(gameName, GameMode.Progression);
+    await client.lobbyClientHarness.createGame(
+      gameName as GameName,
+      GameMode.Progression,
+      CharacterControlScheme.Captain
+    );
     if (options?.proceedToGameServer) {
       await client.lobbyClientHarness.toggleReadyToStartGame();
       await client.clientApplication.topologyManager.transitionToGameServer.waitFor();

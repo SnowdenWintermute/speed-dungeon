@@ -1,6 +1,7 @@
 import { TEST_AUTH_SESSION_ID_PLAYER_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
+  CharacterControlScheme,
   CombatantClass,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   ERROR_MESSAGES,
@@ -21,20 +22,27 @@ describe("saved characters", () => {
       await alpha.lobbyClientHarness.createSavedCharacter(
         "character name",
         CombatantClass.Warrior,
+        CharacterControlScheme.Captain,
         slotIndex
       );
     }
     // delete the character
     const characterInFirstSlot =
-      alpha.clientApplication.lobbyContext.savedCharacters.requireFilledSlot(0);
+      alpha.clientApplication.lobbyContext.savedCharacters.requireFilledSlot(
+        CharacterControlScheme.Captain,
+        0
+      );
     await alpha.lobbyClientHarness.deleteSavedCharacter(
       characterInFirstSlot.combatant.getEntityId()
     );
     // can create in that slot now
-    expect(alpha.clientApplication.lobbyContext.savedCharacters.slots[0]).toBeNull();
+    expect(
+      alpha.clientApplication.lobbyContext.savedCharacters.slots[CharacterControlScheme.Captain][0]
+    ).toBeNull();
     await alpha.lobbyClientHarness.createSavedCharacter(
       "character name",
       CombatantClass.Warrior,
+      CharacterControlScheme.Captain,
       0
     );
     expect(alpha.clientApplication.errorRecordService.count).toBe(0);
@@ -47,12 +55,14 @@ describe("saved characters", () => {
     await alpha.lobbyClientHarness.createSavedCharacter(
       "character name",
       CombatantClass.Warrior,
+      CharacterControlScheme.Captain,
       0
     );
     expect(alpha.clientApplication.errorRecordService.count).toBe(0);
     await alpha.lobbyClientHarness.createSavedCharacter(
       "character name",
       CombatantClass.Warrior,
+      CharacterControlScheme.Captain,
       0
     );
     expect(alpha.clientApplication.errorRecordService.getLastError()?.message).toBe(
@@ -68,6 +78,7 @@ describe("saved characters", () => {
       await alpha.lobbyClientHarness.createSavedCharacter(
         "character name",
         CombatantClass.Warrior,
+        CharacterControlScheme.Captain,
         slotIndex
       );
     }
@@ -75,6 +86,7 @@ describe("saved characters", () => {
     await alpha.lobbyClientHarness.createSavedCharacter(
       "character name",
       CombatantClass.Warrior,
+      CharacterControlScheme.Captain,
       DEFAULT_ACCOUNT_CHARACTER_CAPACITY
     );
     expect(alpha.clientApplication.errorRecordService.getLastError()?.message).toBe(
@@ -89,6 +101,7 @@ describe("saved characters", () => {
     await alpha.lobbyClientHarness.createSavedCharacter(
       "character name",
       CombatantClass.Warrior,
+      CharacterControlScheme.Captain,
       0
     );
     expect(alpha.clientApplication.errorRecordService.getLastError()?.message).toBe(

@@ -37,6 +37,7 @@ import {
   iterateNumericEnumKeyedRecord,
   GameServerName,
   UserGameDataPersistenceService,
+  InMemoryIronmanRunPersistenceStrategy,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -81,6 +82,7 @@ export async function createTestServers(
   const userGameDataPersistenceService = new UserGameDataPersistenceService(
     characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy(),
+    new InMemoryIronmanRunPersistenceStrategy(),
     profileService
   );
   const rankedLadderService = new InMemoryRankedLadderService();

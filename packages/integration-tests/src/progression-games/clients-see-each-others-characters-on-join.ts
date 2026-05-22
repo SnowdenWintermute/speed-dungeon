@@ -1,4 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { CharacterControlScheme } from "@speed-dungeon/common";
 
 export async function testProgressionGamePlayersSeeEachOthersCharactersOnJoin(
   testFixture: IntegrationTestFixture
@@ -15,7 +16,10 @@ export async function testProgressionGamePlayersSeeEachOthersCharactersOnJoin(
   );
 
   const { savedCharacters: bravoSavedCharacters } = bravo.clientApplication.lobbyContext;
-  const bravoFirstCharacter = bravoSavedCharacters.requireFilledSlot(0);
+  const bravoFirstCharacter = bravoSavedCharacters.requireFilledSlot(
+    0,
+    CharacterControlScheme.Captain
+  );
   const alphaViewOfBravoPlayer = alphaViewOfBravoPlayerContext.game.players.get(
     alphaViewOfBravoPlayerContext.player.username
   );
@@ -28,7 +32,10 @@ export async function testProgressionGamePlayersSeeEachOthersCharactersOnJoin(
     alpha.clientApplication.session.requireUsername()
   );
   const { savedCharacters: alphaSavedCharacters } = alpha.clientApplication.lobbyContext;
-  const alphaFirstCharacter = alphaSavedCharacters.requireFilledSlot(0);
+  const alphaFirstCharacter = alphaSavedCharacters.requireFilledSlot(
+    0,
+    CharacterControlScheme.Captain
+  );
   const bravoViewOfAlphaPlayer = bravoViewOfAlphaPlayerContext.game.players.get(
     bravoViewOfAlphaPlayerContext.player.username
   );

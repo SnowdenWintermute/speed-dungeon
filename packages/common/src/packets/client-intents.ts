@@ -135,13 +135,10 @@ export interface ClientIntentMap {
     name: EntityName;
     combatantClass: CombatantClass;
     slotIndex: CharacterSlotIndex;
-    gameMode: GameMode;
     controlScheme: CharacterControlScheme;
   };
   [ClientIntentType.DeleteSavedCharacter]: {
     entityId: CombatantId;
-    gameMode: GameMode;
-    controlScheme: CharacterControlScheme;
   };
   [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };

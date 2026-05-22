@@ -1,5 +1,6 @@
 import { TEST_AUTH_SESSION_ID_PLAYER_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { CharacterControlScheme } from "@speed-dungeon/common";
 
 export async function testPlayerSeesOwnDefaultProgressionGameCharacter(
   testFixture: IntegrationTestFixture
@@ -14,7 +15,7 @@ export async function testPlayerSeesOwnDefaultProgressionGameCharacter(
   );
 
   const { savedCharacters } = alpha.clientApplication.lobbyContext;
-  const defaultCharacter = savedCharacters.requireFilledSlot(0);
+  const defaultCharacter = savedCharacters.requireFilledSlot(0, CharacterControlScheme.Captain);
   expect(alphaPlayerContext.player.characterIds).toStrictEqual([
     defaultCharacter.combatant.getEntityId(),
   ]);

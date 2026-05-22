@@ -104,7 +104,7 @@ export class LobbyServerNode {
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
-        return await getLoggedInUserOption(context.authSessionId);
+        return await getLoggedInUserOption(context.authSessionId, profileService);
       },
     });
 

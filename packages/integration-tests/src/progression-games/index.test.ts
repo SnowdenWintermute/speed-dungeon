@@ -1,9 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
-  testCreateProgressionGameRequiresSavedCharacter,
-  testJoinProgressionGameRequiresSavedCharacter,
-} from "./progression-game-requires-saved-character";
-import {
   testCreateProgressionGameRequiresAuth,
   testJoinProgressionGameRequiresAuth,
 } from "./progression-game-requires-auth";

@@ -23,6 +23,8 @@ import { createServer } from "http";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseProfileService } from "./game-node/services/profiles.js";
 import { speedDungeonProfilesRepo } from "./database/repos/speed-dungeon-profiles.js";
+import { DatabaseSavedCharacterSlotsPersistenceStrategy } from "./game-node/services/user-game-data-persistence.js";
+import { characterSlotsRepo } from "./database/repos/character-slots.js";
 
 const LOBBY_PORT = 8080;
 export const GAME_SERVER_NAME = "Lindblum Test Game Server" as GameServerName;
@@ -59,7 +61,13 @@ const guestReconnectionTokenCodec = new OpaqueEncryptionTokenCodec<GuestSessionR
   tokensSecret
 );
 
-const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
+const characterSlotsPersistenceStrategy = new DatabaseSavedCharacterSlotsPersistenceStrategy(
+  characterSlotsRepo
+);
+const profileService = new DatabaseProfileService(
+  speedDungeonProfilesRepo,
+  characterSlotsPersistenceStrategy
+);
 
 const expressApp = createExpressApp();
 const httpServer = expressApp.listen(LOBBY_PORT, async () => {
