@@ -46,7 +46,6 @@ import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
 import { GameExistenceChecker } from "./game-existence-queries.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
-import { PartyDelayedGameMessageFactory } from "../game-server/party-delayed-game-message-factory.js";
 import { IronmanRunController } from "../controllers/ironman-run-controller.js";
 
 export interface LobbyExternalServices {
@@ -291,12 +290,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.characterCreationPolicy
     );
 
-    const partySetupController = new PartySetupController(
-      this.updateDispatchFactory,
-      savedCharactersController,
-      this.externalServices.profileService,
-      idGenerator
-    );
+    const partySetupController = new PartySetupController(this.updateDispatchFactory, idGenerator);
 
     const gameLifecycleController = new LobbyGameLifecycleController(
       this.lobbyState,

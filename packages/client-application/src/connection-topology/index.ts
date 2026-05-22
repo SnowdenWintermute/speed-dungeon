@@ -7,7 +7,8 @@ import {
   QUERY_PARAMS,
   urlWithQueryParams,
   Deferred,
-  ConnectionEndpointReadyState,
+  GameMode,
+  CharacterControlScheme,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
@@ -188,7 +189,12 @@ export class ConnectionTopology {
     const { connectionStatus } = this.clientApplication.uiStore;
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
-    this.clientApplication.lobbyContext.savedCharacters.setSlots({});
+    // @TODO - load their local persistence slots
+    this.clientApplication.lobbyContext.savedCharacters.setSlots(
+      GameMode.Progression,
+      CharacterControlScheme.Freelancer,
+      {}
+    );
     this.clientApplication.gameWorldView?.sceneEntityService.clearAll();
     this.clientApplication.replayTreeScheduler.clear();
     this.clientApplication.sequentialEventProcessor.cancelQueued();

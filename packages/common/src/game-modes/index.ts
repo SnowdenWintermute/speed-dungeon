@@ -10,6 +10,11 @@ export enum CharacterControlScheme {
   Captain, // each player may control one or more characters
 }
 
+export const CHARACTER_CONTROL_SCHEME_STRINGS: Record<CharacterControlScheme, string> = {
+  [CharacterControlScheme.Freelancer]: "Freelancer",
+  [CharacterControlScheme.Captain]: "Captain",
+};
+
 export enum GameMode {
   Progression,
   Ironman,

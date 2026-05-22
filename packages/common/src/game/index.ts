@@ -442,6 +442,9 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     const floors = partyOption.combatantManager
       .getPartyMemberCharacters()
       .map((c) => c.combatantProperties.deepestFloorReached);
+    if (floors.length === 0) {
+      return 1;
+    }
     const maxFloor = Math.min(...floors);
 
     return maxFloor;

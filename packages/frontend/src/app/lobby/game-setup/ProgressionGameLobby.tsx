@@ -27,12 +27,10 @@ export const ProgressionGameLobby = observer(() => {
   const game = gameContext.requireGame();
 
   useEffect(() => {
-    lobbyClientRef
-      .get()
-      .dispatchIntent({
-        type: ClientIntentType.GetSavedCharactersList,
-        data: { gameMode: GameMode.Progression, controlScheme: CharacterControlScheme.Captain },
-      });
+    lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.GetSavedCharactersList,
+      data: { gameMode: GameMode.Progression, controlScheme: CharacterControlScheme.Captain },
+    });
   }, []);
 
   const numPlayersInGame = game.players.size;
@@ -55,26 +53,30 @@ export const ProgressionGameLobby = observer(() => {
           ))}
         </ul>
         <Divider />
-        <div className="text-lg mb-2 flex justify-between">
-          <span>Selected Starting floor</span>
-          <span> (max {maxStartingFloor})</span>
-        </div>
-        <SelectDropdown
-          title={"starting-floor-select"}
-          value={game.selectedStartingFloor}
-          setValue={(value: number) => {
-            lobbyClientRef.get().dispatchIntent({
-              type: ClientIntentType.SelectProgressionGameStartingFloor,
-              data: { floorNumber: value },
-            });
-          }}
-          options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
-            title: `Floor ${index + 1}`,
-            value: index + 1,
-            disabled: index + 1 > maxStartingFloor,
-          }))}
-          disabled={Array.from(game.players)[0]?.[1].username !== username}
-        />
+        {game.maxStartingFloor > 1 && (
+          <div>
+            <div className="text-lg mb-2 flex justify-between">
+              <span>Selected Starting floor</span>
+              <span> (max {maxStartingFloor})</span>
+            </div>
+            <SelectDropdown
+              title={"starting-floor-select"}
+              value={game.selectedStartingFloor}
+              setValue={(value: number) => {
+                lobbyClientRef.get().dispatchIntent({
+                  type: ClientIntentType.SelectProgressionGameStartingFloor,
+                  data: { floorNumber: value },
+                });
+              }}
+              options={Array.from({ length: potentialMaxStartingFloor }, (_, index) => ({
+                title: `Floor ${index + 1}`,
+                value: index + 1,
+                disabled: index + 1 > maxStartingFloor,
+              }))}
+              disabled={Array.from(game.players)[0]?.[1].username !== username}
+            />
+          </div>
+        )}
       </div>
     </GameLobby>
   );
@@ -91,7 +93,8 @@ const PlayerDisplay = observer(
   }) => {
     const { session, lobbyContext, lobbyClientRef } = useClientApplication();
     const username = session.requireUsername();
-    const savedCharacters = lobbyContext.savedCharacters.slots;
+    const savedCharacters =
+      lobbyContext.savedCharacters.slots[game.mode][game.characterControlScheme];
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);

@@ -20,7 +20,7 @@ import { runMigrations } from "./database/run-migrations.js";
 import { LobbyServerNode } from "./lobby-node/index.js";
 import { GameServerNode } from "./game-node/index.js";
 import { createServer } from "http";
-import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseProfileService } from "./game-node/services/profiles.js";
 import { speedDungeonProfilesRepo } from "./database/repos/speed-dungeon-profiles.js";
 

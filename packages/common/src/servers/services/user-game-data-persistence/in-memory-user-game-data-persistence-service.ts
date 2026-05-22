@@ -2,6 +2,7 @@ import { CharacterSlotIndex, EntityId, IdentityProviderId, ProfileId } from "../
 import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
+import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { SequentialIdGenerator } from "../../../utils/index.js";
 import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 import { CharacterSlot } from "./character-slots.js";
@@ -11,11 +12,18 @@ import { SerializedPlayerCharacter } from "./serialized-player-character.js";
 export class InMemorySavedCharacterSlotsPersistenceStrategy
   implements CharacterSlotsPersistenceStrategy
 {
-  private readonly slotsByProfileId = new Map<ProfileId, CharacterSlot[]>();
+  private readonly slotsByProfileId = new Map<
+    ProfileId,
+    Map<GameMode, Map<CharacterControlScheme, CharacterSlot[]>>
+  >();
   private idGenerator = new SequentialIdGenerator();
 
-  async fetchSlots(profileId: ProfileId): Promise<CharacterSlot[]> {
-    const expectedSlots = this.slotsByProfileId.get(profileId);
+  async fetchSlots(
+    profileId: ProfileId,
+    gameMode: GameMode,
+    controlScheme: CharacterControlScheme
+  ): Promise<CharacterSlot[]> {
+    const expectedSlots = this.slotsByProfileId.get(profileId)?.get(gameMode)?.get(controlScheme);
     if (expectedSlots === undefined) {
       throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOTS_NOT_INITIALIZED);
     }

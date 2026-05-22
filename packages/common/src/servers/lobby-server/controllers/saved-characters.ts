@@ -12,7 +12,11 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../../services/profiles.js";
 import { CHARACTER_SLOT_SPACING, DEFAULT_ACCOUNT_CHARACTER_CAPACITY } from "../../../app-consts.js";
-import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
+import {
+  CHARACTER_CONTROL_SCHEME_STRINGS,
+  CharacterControlScheme,
+  GameMode,
+} from "../../../game-modes/index.js";
 import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
 
 export class SavedCharactersController {
@@ -48,7 +52,7 @@ export class SavedCharactersController {
     // tell this session about their saved characters
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacterList,
-      data: { characterSlots },
+      data: { gameMode, characterControlScheme: controlScheme, characterSlots },
     });
 
     return outbox;
@@ -103,6 +107,12 @@ export class SavedCharactersController {
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
     const { name, combatantClass, slotIndex, gameMode, controlScheme } = data;
+    console.log(
+      "trying to create character in slot",
+      slotIndex,
+      "for scheme",
+      CHARACTER_CONTROL_SCHEME_STRINGS[controlScheme]
+    );
     // check if the slot is valid to put a new character in
     const slot = await this.userGameDataPersistenceService.requireEmptyCharacterSlot(
       profile.id,
@@ -141,6 +151,8 @@ export class SavedCharactersController {
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacter,
       data: {
+        gameMode,
+        characterControlScheme: controlScheme,
         character: { combatant: newCharacter.toSerialized(), pets: serializedPets },
         slotIndex,
       },

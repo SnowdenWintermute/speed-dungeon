@@ -131,6 +131,11 @@ export class LobbySessionLifecycleController
           gameMode: GameMode.Progression,
           controlScheme: CharacterControlScheme.Captain,
         });
+      const freelancersSavedCharactersOutbox =
+        await this.savedCharactersController.fetchSavedCharactersHandler(session, {
+          gameMode: GameMode.Progression,
+          controlScheme: CharacterControlScheme.Freelancer,
+        });
       // @TODO @PERF
       // - defer sending their runs until they ask for them,
       // - don't send the entire run, just some descriptive data
@@ -138,6 +143,7 @@ export class LobbySessionLifecycleController
         await this.savedIronmanRunsController.getUserSavedIronmanRunsOutbox(session);
       outbox.pushFromOther(ironmanRunsOutbox);
       outbox.pushFromOther(captainsSavedCharactersOutbox);
+      outbox.pushFromOther(freelancersSavedCharactersOutbox);
     }
 
     const userChannelDisplayData = this.lobbyState.addUser(session.username, session.isAuth());

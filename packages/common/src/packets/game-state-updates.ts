@@ -34,7 +34,7 @@ import { Equipment } from "../items/equipment/index.js";
 import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
-import { GameMode } from "../game-modes/index.js";
+import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { SavedIronmanRun } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
@@ -235,6 +235,8 @@ export interface GameStateUpdateMap {
     attribute: CombatAttribute;
   };
   [GameStateUpdateType.SavedCharacterList]: {
+    gameMode: GameMode;
+    characterControlScheme: CharacterControlScheme;
     characterSlots: Record<
       CharacterSlotIndex,
       null | { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] }
@@ -245,6 +247,8 @@ export interface GameStateUpdateMap {
     ironmanRunCapacity: number;
   };
   [GameStateUpdateType.SavedCharacter]: {
+    gameMode: GameMode;
+    characterControlScheme: CharacterControlScheme;
     character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
     slotIndex: number;
   };
