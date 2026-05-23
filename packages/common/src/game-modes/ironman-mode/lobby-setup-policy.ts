@@ -162,6 +162,10 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     }
   }
 
+  override userCanCreateCharacter(session: UserSession, game: SpeedDungeonGame): AllowedResult {
+    throw new Error("Method not implemented.");
+  }
+
   override userCanAddCharacterToParty(
     _session: UserSession,
     game: SpeedDungeonGame,

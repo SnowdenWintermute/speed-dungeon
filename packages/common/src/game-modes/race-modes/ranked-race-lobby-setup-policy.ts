@@ -54,8 +54,4 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {
     return [];
   }
-
-  override userCanAddCharacterToParty(): AllowedResult {
-    return { allowed: true };
-  }
 }

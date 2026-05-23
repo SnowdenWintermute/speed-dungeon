@@ -62,7 +62,7 @@ export class LobbyClient extends BaseClient {
 
     LobbyClient.QUICK_START_CHARACTER_CLASSES.forEach((combatantClass) => {
       this.dispatchIntent({
-        type: ClientIntentType.CreateCharacter,
+        type: ClientIntentType.CreateCharacterInGame,
         data: {
           name: "" as EntityName,
           combatantClass,
@@ -110,7 +110,7 @@ export class LobbyClient extends BaseClient {
     });
 
     this.dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: {
         name: "" as EntityName,
         combatantClass: CombatantClass.Rogue,
@@ -134,7 +134,7 @@ export class LobbyClient extends BaseClient {
     });
 
     this.dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: {
         name: "" as EntityName,
         combatantClass: CombatantClass.Warrior,

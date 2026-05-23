@@ -161,7 +161,7 @@ const CreateCharacterForm = observer(({ i }: { i: number }) => {
     e.preventDefault();
 
     lobbyClientRef.get().dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: {
         name: characterName as EntityName,
         combatantClass: combatantClassSelection,

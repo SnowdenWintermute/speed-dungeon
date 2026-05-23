@@ -11,7 +11,7 @@ import { SpeedDungeonProfile } from "../../servers/services/profiles.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { CombatantWithPets } from "../../types.js";
-import { CharacterControlScheme, GameMode } from "../index.js";
+import { CharacterControlScheme } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
@@ -101,12 +101,8 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     throw new Error("Method not implemented.");
   }
 
-  override userCanAddCharacterToParty(
-    session: UserSession,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): AllowedResult {
-    return { allowed: true };
+  override userCanCreateCharacter(session: UserSession, game: SpeedDungeonGame): AllowedResult {
+    throw new Error("Method not implemented.");
   }
 
   private async getDefaultSavedCharacterOption(

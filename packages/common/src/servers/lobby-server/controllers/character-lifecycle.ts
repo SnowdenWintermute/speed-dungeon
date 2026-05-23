@@ -12,6 +12,8 @@ import { SpeedDungeonProfileService } from "../../services/profiles.js";
 import { GameMode } from "../../../game-modes/index.js";
 import { PartySetupController } from "./party-setup.js";
 import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
+import { requireAllowed } from "../../../primatives/index.js";
 
 export class CharacterLifecycleController {
   constructor(
@@ -19,7 +21,8 @@ export class CharacterLifecycleController {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
     private readonly characterCreationPolicy: CharacterCreationPolicy,
-    private readonly partySetupController: PartySetupController
+    private readonly partySetupController: PartySetupController,
+    private readonly gameModePolicyStore: GameModePolicyStore
   ) {}
 
   static requireValidCharacterNameLength(name: string) {
@@ -28,7 +31,13 @@ export class CharacterLifecycleController {
     }
   }
 
-  createCharacterHandler(
+  // @TODO -
+  // - rename to createCharacterInGameHandler()
+  // - check against current game character creation policy
+  //   .if progression, check if enough slots and if so save the progression character
+  //   .if ironman, check if this is a continued run
+  //   .if race, nothing special
+  createCharacterInGameHandler(
     session: UserSession,
     data: { name: EntityName; combatantClass: CombatantClass }
   ) {
@@ -44,9 +53,10 @@ export class CharacterLifecycleController {
         game,
         party
       );
-    if (!userWithinCharacterControlSchemeLimits.allowed) {
-      throw new Error(userWithinCharacterControlSchemeLimits.reason);
-    }
+    requireAllowed(userWithinCharacterControlSchemeLimits);
+
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    requireAllowed(gameModePolicy.lobbySetup.userCanAddCharacterToParty(session, game, party));
 
     const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
       name,
@@ -70,7 +80,7 @@ export class CharacterLifecycleController {
     return outbox;
   }
 
-  deleteCharacterHandler(session: UserSession, data: { characterId: CombatantId }) {
+  deleteCharacterInGameHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
     const game = session.getExpectedCurrentGame();
     const player = game.getExpectedPlayer(session.username);

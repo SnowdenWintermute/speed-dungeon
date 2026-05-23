@@ -26,3 +26,8 @@ export const AXES_TO_STRING: Record<Axis, string> = {
 };
 
 export type AllowedResult = { allowed: true } | { allowed: false; reason: string };
+export function requireAllowed(result: AllowedResult): void {
+  if (!result.allowed) {
+    throw new Error(result.reason);
+  }
+}

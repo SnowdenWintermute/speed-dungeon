@@ -197,7 +197,7 @@ export class ClientTestHarness<T extends BaseClient> {
   }
   async createCharacter(characterName: string, combatantClass: CombatantClass) {
     await this.settleIntentResult({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: { name: characterName as EntityName, combatantClass },
     });
   }

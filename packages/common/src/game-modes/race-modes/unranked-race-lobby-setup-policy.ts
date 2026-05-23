@@ -1,6 +1,5 @@
 import { CombatantId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
 import { AllowedResult } from "../../primatives/index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
@@ -35,9 +34,5 @@ export class UnrankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
 
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {
     return [];
-  }
-
-  override userCanAddCharacterToParty(): AllowedResult {
-    return { allowed: true };
   }
 }

@@ -36,10 +36,10 @@ export function createLobbyClientIntentHandlers(
       lobbyServer.partySetupController.joinPartyHandler(user, data.partyName),
     [ClientIntentType.LeaveParty]: (_, user) =>
       lobbyServer.partySetupController.leavePartyHandler(user),
-    [ClientIntentType.CreateCharacter]: (data, user) =>
-      lobbyServer.characterLifecycleController.createCharacterHandler(user, data),
-    [ClientIntentType.DeleteCharacter]: (data, user) =>
-      lobbyServer.characterLifecycleController.deleteCharacterHandler(user, data),
+    [ClientIntentType.CreateCharacterInGame]: (data, user) =>
+      lobbyServer.characterLifecycleController.createCharacterInGameHandler(user, data),
+    [ClientIntentType.DeleteCharacterInGame]: (data, user) =>
+      lobbyServer.characterLifecycleController.deleteCharacterInGameHandler(user, data),
     [ClientIntentType.SelectSavedCharacterForProgressGame]: (data, user) =>
       lobbyServer.characterLifecycleController.selectProgressionGameCharacterHandler(user, data),
     [ClientIntentType.SelectProgressionGameStartingFloor]: (data, user) =>

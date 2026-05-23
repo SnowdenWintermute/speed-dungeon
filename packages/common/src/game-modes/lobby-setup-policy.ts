@@ -88,12 +88,19 @@ export abstract class GameModeLobbySetupPolicy {
     session: UserSession,
     game: SpeedDungeonGame
   ): Promise<CombatantId[]>;
+
+  userCanCreateCharacter(_session: UserSession, _game: SpeedDungeonGame): AllowedResult {
+    return { allowed: true };
+  }
+
   // if ironman mode and game is a loaded continue, this is false
-  abstract userCanAddCharacterToParty(
-    session: UserSession,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): AllowedResult;
+  userCanAddCharacterToParty(
+    _session: UserSession,
+    _game: SpeedDungeonGame,
+    _party: AdventuringParty
+  ): AllowedResult {
+    return { allowed: true };
+  }
 
   protected getDefaultPartyName(gameName: GameName) {
     return `Delvers of ${gameName}` as PartyName;

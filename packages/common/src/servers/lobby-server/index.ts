@@ -306,7 +306,8 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       this.externalServices.userGameDataPersistenceService,
       this.characterCreationPolicy,
-      partySetupController
+      partySetupController,
+      this.gameModePolicyStore
     );
 
     const userSessionLifecycleController = new LobbySessionLifecycleController(

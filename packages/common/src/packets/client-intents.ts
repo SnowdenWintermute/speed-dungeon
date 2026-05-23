@@ -34,8 +34,8 @@ export enum ClientIntentType {
   CreateParty,
   JoinParty,
   LeaveParty,
-  CreateCharacter,
-  DeleteCharacter,
+  CreateCharacterInGame,
+  DeleteCharacterInGame,
   SelectSavedCharacterForProgressGame,
   SelectProgressionGameStartingFloor,
   // saved character managment
@@ -90,11 +90,11 @@ export interface ClientIntentMap {
   [ClientIntentType.JoinParty]: { partyName: PartyName };
   [ClientIntentType.LeaveParty]: undefined;
   [ClientIntentType.ToggleReadyToStartGame]: undefined;
-  [ClientIntentType.CreateCharacter]: {
+  [ClientIntentType.CreateCharacterInGame]: {
     name: EntityName;
     combatantClass: CombatantClass;
   };
-  [ClientIntentType.DeleteCharacter]: { characterId: CombatantId };
+  [ClientIntentType.DeleteCharacterInGame]: { characterId: CombatantId };
   [ClientIntentType.SelectCombatAction]: {
     characterId: CombatantId;
     actionAndRankOption: null | SerializedOf<ActionAndRank>;

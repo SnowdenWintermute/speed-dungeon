@@ -16,7 +16,7 @@ export const CharacterCard = observer(
 
     function deleteCharacter() {
       lobbyClientRef.get().dispatchIntent({
-        type: ClientIntentType.DeleteCharacter,
+        type: ClientIntentType.DeleteCharacterInGame,
         data: {
           characterId: character.getEntityId(),
         },
