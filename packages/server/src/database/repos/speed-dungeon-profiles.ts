@@ -12,13 +12,18 @@ import {
 
 const tableName = RESOURCE_NAMES.SPEED_DUNGEON_PROFILES;
 
+const defaultCharacterCapacities: Record<CharacterControlScheme, number> = {
+  [CharacterControlScheme.Captain]: DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  [CharacterControlScheme.Freelancer]: DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+};
+
 export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
   async insert(ownerId: number) {
     const { rows } = await this.pgPool.query(
       format(
-        `INSERT INTO ${tableName} (owner_id, character_capacity, ironman_run_capacity) VALUES (%L, %L, %L) RETURNING *;`,
+        `INSERT INTO ${tableName} (owner_id, character_capacities, ironman_run_capacity) VALUES (%L, %L, %L) RETURNING *;`,
         ownerId,
-        DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+        JSON.stringify(defaultCharacterCapacities),
         DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY
       )
     );
@@ -32,11 +37,11 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
   }
 
   async update(speedDungeonProfile: SpeedDungeonProfile) {
-    const { id, characterCapacities, ironmanRunIds, ironmanRunCapacity } = speedDungeonProfile;
+    const { id, characterCapacities } = speedDungeonProfile;
     const { rows } = await this.pgPool.query(
       format(
-        `UPDATE ${tableName} SET character_capacity = %L WHERE id = %L RETURNING *;`,
-        characterCapacities[CharacterControlScheme.Freelancer],
+        `UPDATE ${tableName} SET character_capacities = %L WHERE id = %L RETURNING *;`,
+        JSON.stringify(characterCapacities),
         id
       )
     );

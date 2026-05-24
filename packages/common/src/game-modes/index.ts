@@ -15,6 +15,17 @@ export const CHARACTER_CONTROL_SCHEME_STRINGS: Record<CharacterControlScheme, st
   [CharacterControlScheme.Captain]: "Captain",
 };
 
+export function getMaxCharacterCountForControlScheme(
+  characterControlScheme: CharacterControlScheme
+) {
+  switch (characterControlScheme) {
+    case CharacterControlScheme.Freelancer:
+      return 1;
+    case CharacterControlScheme.Captain:
+      return Infinity;
+  }
+}
+
 export enum GameMode {
   Progression,
   Ironman,

@@ -11,6 +11,7 @@ import { UserIdType } from "../../servers/sessions/user-ids.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { invariant } from "../../utils/index.js";
+import { CharacterControlScheme, getMaxCharacterCountForControlScheme } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
@@ -162,8 +163,14 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     }
   }
 
-  override userCanCreateCharacter(session: UserSession, game: SpeedDungeonGame): AllowedResult {
-    throw new Error("Method not implemented.");
+  override async userCanCreateCharacter(
+    session: UserSession,
+    game: SpeedDungeonGame
+  ): Promise<AllowedResult> {
+    if (game.isContinuedRun) {
+      return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME };
+    }
+    return { allowed: true };
   }
 
   override userCanAddCharacterToParty(

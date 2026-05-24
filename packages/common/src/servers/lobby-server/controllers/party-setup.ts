@@ -10,7 +10,11 @@ import { PartyName, Username } from "../../../aliases.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
+import {
+  CharacterControlScheme,
+  GameMode,
+  getMaxCharacterCountForControlScheme,
+} from "../../../game-modes/index.js";
 import { AllowedResult } from "../../../primatives/index.js";
 
 export class PartySetupController {
@@ -66,21 +70,13 @@ export class PartySetupController {
     return outbox;
   }
 
-  userMeetsCharacterControlSchemeLimits(
-    username: Username,
-    game: SpeedDungeonGame,
-    party: AdventuringParty
-  ): AllowedResult {
+  userMeetsCharacterControlSchemeLimits(username: Username, game: SpeedDungeonGame): AllowedResult {
     const player = game.getPlayer(username);
     if (!player) {
       return { allowed: false, reason: ERROR_MESSAGES.PLAYER.NOT_IN_PARTY };
     }
-    const { characterControlScheme } = game;
-    const charactersInParty = player.getCharactersInParty(party);
-    if (
-      characterControlScheme === CharacterControlScheme.Freelancer &&
-      charactersInParty.length >= 1
-    ) {
+    const maxCharacterCount = getMaxCharacterCountForControlScheme(game.characterControlScheme);
+    if (player.characterIds.length >= maxCharacterCount) {
       return { allowed: false, reason: ERROR_MESSAGES.PLAYER.PARTY_CHARACTER_LIMIT };
     }
     return { allowed: true };

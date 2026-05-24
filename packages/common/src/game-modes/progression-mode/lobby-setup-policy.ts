@@ -8,9 +8,11 @@ import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-u
 import { AllowedResult } from "../../primatives/index.js";
 import { PartySetupController } from "../../servers/lobby-server/controllers/party-setup.js";
 import { SpeedDungeonProfile } from "../../servers/services/profiles.js";
+import { UserIdType } from "../../servers/sessions/user-ids.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { CombatantWithPets } from "../../types.js";
+import { invariant } from "../../utils/index.js";
 import { CharacterControlScheme } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
@@ -101,16 +103,31 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     throw new Error("Method not implemented.");
   }
 
-  override userCanCreateCharacter(session: UserSession, game: SpeedDungeonGame): AllowedResult {
-    throw new Error("Method not implemented.");
+  override async userCanCreateCharacter(
+    session: UserSession,
+    game: SpeedDungeonGame
+  ): Promise<AllowedResult> {
+    invariant(
+      session.taggedUserId.type === UserIdType.Auth,
+      ERROR_MESSAGES.SERVER.EXPECTED_AUTH_USER
+    );
+    const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
+    const savedCharacters = await this.userGameDataPersistenceService.fetchSavedCharacters(
+      session.taggedUserId.id,
+      game.characterControlScheme
+    );
+    console.log("character capacities", profile.characterCapacities, profile);
+    const savedCharacterCapacity = profile.characterCapacities[game.characterControlScheme];
+    if (savedCharacters.length >= savedCharacterCapacity) {
+      return { allowed: false, reason: ERROR_MESSAGES.USER.CHARACTER_CAPACITY_REACHED };
+    }
+    return { allowed: true };
   }
 
   private async getDefaultSavedCharacterOption(
     profile: SpeedDungeonProfile,
     characterControlScheme: CharacterControlScheme
   ): Promise<CombatantWithPets | undefined> {
-    // @TODO - check the game mode and characterControlScheme
-
     const charactersResult = await this.userGameDataPersistenceService.fetchSavedCharacters(
       profile.ownerId,
       characterControlScheme

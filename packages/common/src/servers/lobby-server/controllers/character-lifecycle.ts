@@ -37,7 +37,7 @@ export class CharacterLifecycleController {
   //   .if progression, check if enough slots and if so save the progression character
   //   .if ironman, check if this is a continued run
   //   .if race, nothing special
-  createCharacterInGameHandler(
+  async createCharacterInGameHandler(
     session: UserSession,
     data: { name: EntityName; combatantClass: CombatantClass }
   ) {
@@ -48,14 +48,11 @@ export class CharacterLifecycleController {
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
     const userWithinCharacterControlSchemeLimits =
-      this.partySetupController.userMeetsCharacterControlSchemeLimits(
-        session.username,
-        game,
-        party
-      );
+      this.partySetupController.userMeetsCharacterControlSchemeLimits(session.username, game);
     requireAllowed(userWithinCharacterControlSchemeLimits);
 
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    requireAllowed(await gameModePolicy.lobbySetup.userCanCreateCharacter(session, game));
     requireAllowed(gameModePolicy.lobbySetup.userCanAddCharacterToParty(session, game, party));
 
     const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(

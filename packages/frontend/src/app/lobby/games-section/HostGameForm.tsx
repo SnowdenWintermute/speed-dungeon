@@ -65,22 +65,6 @@ export default function HostGameForm() {
           Game mode: {GAME_MODE_STRINGS[selectedGameMode]}
         </div>
         <Divider />
-        <div className="mb-4">
-          {selectedGameMode === GameMode.UnrankedRace && (
-            <p>
-              Race to the bottom of the dungeon! Face off against other parties or go for a personal
-              best time. This mode uses all new level 1 characters. Players can control one or more
-              characters.
-            </p>
-          )}
-          {selectedGameMode === GameMode.Progression && (
-            <p>
-              Level up your existing characters. Try to reach deeper floors and find better
-              equipment. You may only control one character so it may be a good idea to bring some
-              friends.
-            </p>
-          )}
-        </div>
         <div className="flex flex-col mb-2">
           <div className="flex w-full mb-2">
             <HotkeyButton

@@ -89,7 +89,10 @@ export abstract class GameModeLobbySetupPolicy {
     game: SpeedDungeonGame
   ): Promise<CombatantId[]>;
 
-  userCanCreateCharacter(_session: UserSession, _game: SpeedDungeonGame): AllowedResult {
+  async userCanCreateCharacter(
+    _session: UserSession,
+    _game: SpeedDungeonGame
+  ): Promise<AllowedResult> {
     return { allowed: true };
   }
 
