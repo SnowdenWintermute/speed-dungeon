@@ -9,7 +9,6 @@ import {
   ActionResolutionStepType,
   BeforeOrAfter,
   CharacterControlScheme,
-  CharacterSlotIndex,
   ClientIntent,
   ClientIntentType,
   COMBAT_ACTION_NAME_STRINGS,
@@ -346,15 +345,13 @@ export class ClientTestHarness<T extends BaseClient> {
   async createSavedCharacter(
     name: string,
     combatantClass: CombatantClass,
-    controlScheme: CharacterControlScheme,
-    slotIndex: number
+    controlScheme: CharacterControlScheme
   ) {
     return this.settleIntentResult({
       type: ClientIntentType.CreateSavedCharacter,
       data: {
         name: name as EntityName,
         combatantClass,
-        slotIndex: slotIndex as CharacterSlotIndex,
         controlScheme,
       },
     });

@@ -2,7 +2,6 @@ import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import {
   ActionRank,
-  CharacterSlotIndex,
   CombatantId,
   EntityId,
   EntityName,
@@ -134,7 +133,6 @@ export interface ClientIntentMap {
   [ClientIntentType.CreateSavedCharacter]: {
     name: EntityName;
     combatantClass: CombatantClass;
-    slotIndex: CharacterSlotIndex;
     controlScheme: CharacterControlScheme;
   };
   [ClientIntentType.DeleteSavedCharacter]: {

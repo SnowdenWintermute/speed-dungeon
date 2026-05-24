@@ -9,9 +9,13 @@ import {
   SpeedDungeonGame,
   UserChannelDisplayData,
   Username,
-  invariant,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+
+export interface ClientSavedCharacter {
+  combatant: Combatant;
+  pets: Combatant[];
+}
 
 export class ClientApplicationLobbyContext {
   private _gameList: GameListEntry[] = [];
@@ -67,12 +71,9 @@ class ClientApplicationLobbyChannel {
 class ClientApplicationSavedCharacters {
   private _selectedCharacterControlScheme = CharacterControlScheme.Freelancer;
 
-  private _slots: Record<
-    CharacterControlScheme,
-    Record<number, { combatant: Combatant; pets: Combatant[] } | null>
-  > = {
-    [CharacterControlScheme.Freelancer]: {},
-    [CharacterControlScheme.Captain]: {},
+  private _byControlScheme: Record<CharacterControlScheme, ClientSavedCharacter[]> = {
+    [CharacterControlScheme.Freelancer]: [],
+    [CharacterControlScheme.Captain]: [],
   };
 
   constructor() {
@@ -87,48 +88,33 @@ class ClientApplicationSavedCharacters {
     this._selectedCharacterControlScheme = value;
   }
 
-  get slots() {
-    return this._slots;
+  get byControlScheme() {
+    return this._byControlScheme;
   }
 
-  requireFilledSlot(controlScheme: CharacterControlScheme, slotIndex: number) {
-    const slotContents = this.slots[controlScheme][slotIndex];
-    invariant(slotContents !== null && slotContents !== undefined);
-    return slotContents;
+  setCharacters(controlScheme: CharacterControlScheme, characters: ClientSavedCharacter[]) {
+    this._byControlScheme[controlScheme] = characters;
   }
 
-  setSlots(
-    controlScheme: CharacterControlScheme,
-    characters: Record<number, { combatant: Combatant; pets: Combatant[] } | null>
-  ) {
-    this._slots[controlScheme] = characters;
-  }
-
-  setSlot(
-    controlScheme: CharacterControlScheme,
-    characterOption: { combatant: Combatant; pets: Combatant[] } | null,
-    slot: number
-  ) {
-    this.slots[controlScheme][slot] = characterOption;
+  appendCharacter(controlScheme: CharacterControlScheme, character: ClientSavedCharacter) {
+    this._byControlScheme[controlScheme].push(character);
   }
 
   getSavedCharacterOption(entityId: EntityId) {
-    for (const controlSchemeSlots of Object.values(this.slots)) {
-      for (const savedCharacterSlot of Object.values(controlSchemeSlots)) {
-        if (savedCharacterSlot?.combatant.getEntityId() === entityId) {
-          return savedCharacterSlot;
+    for (const characters of Object.values(this._byControlScheme)) {
+      for (const character of characters) {
+        if (character.combatant.getEntityId() === entityId) {
+          return character;
         }
       }
     }
   }
 
   deleteSavedCharacter(combatantId: CombatantId) {
-    for (const controlSchemeSlots of Object.values(this.slots)) {
-      for (const [slotStringKey, savedCharacterSlot] of Object.entries(controlSchemeSlots)) {
-        if (savedCharacterSlot?.combatant.getEntityId() === combatantId) {
-          const slotNumber = parseInt(slotStringKey);
-          controlSchemeSlots[slotNumber] = null;
-        }
+    for (const characters of Object.values(this._byControlScheme)) {
+      const index = characters.findIndex((c) => c.combatant.getEntityId() === combatantId);
+      if (index !== -1) {
+        characters.splice(index, 1);
       }
     }
   }

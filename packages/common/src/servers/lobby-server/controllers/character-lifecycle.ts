@@ -121,21 +121,19 @@ export class CharacterLifecycleController {
 
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const characters = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
-      profile.id,
-      game.characterControlScheme
-    );
-
-    const userHasNoSavedCharacters = Object.values(characters).length === 0;
-    if (userHasNoSavedCharacters) {
-      throw new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
-    }
-
     const { entityId } = data;
-    const savedCharacter = UserGameDataPersistenceService.getLivingCharacterInSlotsById(
-      entityId,
-      characters
+    const ownedCharacter = await this.userGameDataPersistenceService.requireOwnedLivingCharacter(
+      profile.ownerId,
+      entityId
     );
+
+    const savedCharacter = {
+      combatant: {
+        entityProperties: { id: ownedCharacter.id, name: ownedCharacter.name },
+        combatantProperties: ownedCharacter.combatantProperties,
+      },
+      pets: ownedCharacter.pets,
+    };
 
     const player = game.getExpectedPlayer(session.username);
     const characterIdToRemoveOption = player.characterIds[0];

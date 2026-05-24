@@ -16,7 +16,6 @@ import {
   InMemoryIncomingConnectionGateway,
   InMemoryRaceGameRecordsPersistenceStrategy,
   InMemoryRankedLadderService,
-  InMemorySavedCharacterSlotsPersistenceStrategy,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
   RaceGameRecordsService,
@@ -75,10 +74,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     crossServerBroadcastBus
   );
 
-  const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
-  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
+  const profileService = new InMemorySpeedDungeonProfileService();
   const userGameDataPersistenceService = new UserGameDataPersistenceService(
-    characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy(),
     new InMemoryIronmanRunPersistenceStrategy(),
     profileService

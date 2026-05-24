@@ -6,17 +6,10 @@ import {
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import { SequentialIdGenerator } from "../../utils/index.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "./profiles.js";
-import { InMemorySavedCharacterSlotsPersistenceStrategy } from "./user-game-data-persistence/in-memory-user-game-data-persistence-service.js";
 
 export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileService {
   private profiles = new Map<IdentityProviderId, SpeedDungeonProfile>();
   private idGenerator = new SequentialIdGenerator();
-
-  constructor(
-    private characterSlotsPersistenceStrategy: InMemorySavedCharacterSlotsPersistenceStrategy
-  ) {
-    super();
-  }
 
   async fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
     const profileOption = this.profiles.get(userId);
@@ -42,8 +35,6 @@ export class InMemorySpeedDungeonProfileService extends SpeedDungeonProfileServi
       updatedAt: Date.now(),
     };
     this.profiles.set(userId, newProfile);
-
-    await this.characterSlotsPersistenceStrategy.createSlots(newProfile.id);
 
     return newProfile;
   }

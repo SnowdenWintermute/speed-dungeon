@@ -14,7 +14,6 @@ import { ActionAndRank } from "../action-user-context/action-user-targeting-prop
 import {
   ActionRank,
   ChannelName,
-  CharacterSlotIndex,
   CombatantId,
   EncryptedOpaqueToken,
   EntityId,
@@ -35,6 +34,7 @@ import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
+import { SavedCharacterListEntry } from "../servers/services/user-game-data-persistence/saved-character-list-entry.js";
 import { SavedIronmanRun } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
@@ -236,10 +236,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.SavedCharacterList]: {
     characterControlScheme: CharacterControlScheme;
-    characterSlots: Record<
-      CharacterSlotIndex,
-      null | { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] }
-    >;
+    characters: SavedCharacterListEntry[];
   };
   [GameStateUpdateType.SavedIronmanRunsList]: {
     savedIronmanRuns: SerializedOf<SavedIronmanRun>[];
@@ -247,8 +244,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.SavedCharacter]: {
     characterControlScheme: CharacterControlScheme;
-    character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
-    slotIndex: number;
+    character: SavedCharacterListEntry;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
     entityId: CombatantId;

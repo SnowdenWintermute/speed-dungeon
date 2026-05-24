@@ -111,15 +111,14 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
   ): Promise<CombatantWithPets | undefined> {
     // @TODO - check the game mode and characterControlScheme
 
-    const charactersResult = await this.userGameDataPersistenceService.fetchSavedCharacterSlots(
-      profile.id,
+    const charactersResult = await this.userGameDataPersistenceService.fetchSavedCharacters(
+      profile.ownerId,
       characterControlScheme
     );
 
-    // get the first living character slot
     let defaultSavedCharacter: CombatantWithPets | undefined = undefined;
 
-    for (const character of Object.values(charactersResult)) {
+    for (const character of charactersResult) {
       const deserialized = Combatant.fromSerialized(character.combatant);
       const deserializedPets = character.pets.map((pet) => Combatant.fromSerialized(pet));
       if (!deserialized.combatantProperties.isDead()) {

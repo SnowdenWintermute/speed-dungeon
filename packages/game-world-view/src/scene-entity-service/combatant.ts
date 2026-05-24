@@ -7,7 +7,6 @@ import {
   MapUtils,
   SpeedDungeonGame,
   invariant,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CombatantSceneEntity } from "../scene-entities/combatants";
@@ -184,12 +183,9 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { lobbyContext } = this.clientApplication;
     const { savedCharacters } = lobbyContext;
     const savedCharactersToDisplay =
-      savedCharacters.slots[savedCharacters.selectedCharacterControlScheme];
+      savedCharacters.byControlScheme[savedCharacters.selectedCharacterControlScheme];
 
-    for (const [_slot, character] of iterateNumericEnumKeyedRecord(savedCharactersToDisplay).filter(
-      ([_slot, characterOption]) => characterOption !== null
-    )) {
-      invariant(character !== null, "expected to have filtered out the null characters");
+    for (const character of savedCharactersToDisplay) {
       result.set(character.combatant.getEntityId(), character.combatant);
     }
     return result;

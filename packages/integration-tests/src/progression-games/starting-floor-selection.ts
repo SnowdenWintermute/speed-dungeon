@@ -5,6 +5,7 @@ import {
   CombatantClass,
   ERROR_MESSAGES,
   GameStateUpdateType,
+  invariant,
 } from "@speed-dungeon/common";
 
 export async function testProgressionGameStartingFloorSelection(
@@ -14,22 +15,14 @@ export async function testProgressionGameStartingFloorSelection(
   const { alpha, bravo } = await testFixture.createTwoClientsInLobbyProgressionGame(
     {
       characters: [
-        { name: "character 1", combatantClass: CombatantClass.Warrior, slotIndex: 0 },
-        {
-          name: "deeper floor character",
-          combatantClass: CombatantClass.Warrior,
-          slotIndex: 1,
-        },
+        { name: "character 1", combatantClass: CombatantClass.Warrior },
+        { name: "deeper floor character", combatantClass: CombatantClass.Warrior },
       ],
     },
     {
       characters: [
-        { name: "character 1", combatantClass: CombatantClass.Warrior, slotIndex: 0 },
-        {
-          name: "deeper floor character",
-          combatantClass: CombatantClass.Warrior,
-          slotIndex: 1,
-        },
+        { name: "character 1", combatantClass: CombatantClass.Warrior },
+        { name: "deeper floor character", combatantClass: CombatantClass.Warrior },
       ],
     }
   );
@@ -49,10 +42,9 @@ export async function testProgressionGameStartingFloorSelection(
   expect(alphaPlayerContext.game.selectedStartingFloor).toBe(1);
 
   // select second character with a greater starting floor
-  const alphaSecondCharacter = alphaSavedCharacters.requireFilledSlot(
-    1,
-    CharacterControlScheme.Captain
-  );
+  const alphaSecondCharacter =
+    alphaSavedCharacters.byControlScheme[CharacterControlScheme.Captain][1];
+  invariant(alphaSecondCharacter !== undefined, "expected alpha second saved character");
 
   const bravoSawAlphaSelectDeeperFloorCharacterPromise =
     bravo.lobbyClientHarness.awaitMessageOfType(
@@ -79,10 +71,9 @@ export async function testProgressionGameStartingFloorSelection(
 
   // bravo select second character with a greater starting floor
   const { savedCharacters: bravoSavedCharacters } = bravo.clientApplication.lobbyContext;
-  const bravoSecondCharacter = bravoSavedCharacters.requireFilledSlot(
-    1,
-    CharacterControlScheme.Captain
-  );
+  const bravoSecondCharacter =
+    bravoSavedCharacters.byControlScheme[CharacterControlScheme.Captain][1];
+  invariant(bravoSecondCharacter !== undefined, "expected bravo second saved character");
   const alphaSawCharacterSelectedPromise = alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
   );
@@ -105,10 +96,9 @@ export async function testProgressionGameStartingFloorSelection(
     alpha.lobbyClientHarness.awaitMessageOfType(
       GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
     );
-  const bravoFirstCharacter = bravoSavedCharacters.requireFilledSlot(
-    0,
-    CharacterControlScheme.Captain
-  );
+  const bravoFirstCharacter =
+    bravoSavedCharacters.byControlScheme[CharacterControlScheme.Captain][0];
+  invariant(bravoFirstCharacter !== undefined, "expected bravo first saved character");
   await bravo.lobbyClientHarness.selectSavedCharacterInProgressionGame(
     bravoFirstCharacter.combatant.getEntityId()
   );

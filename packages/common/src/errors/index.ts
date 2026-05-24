@@ -96,10 +96,8 @@ export const ERROR_MESSAGES = {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
     SAVED_GAME_CAPACITY: "Your account already has the maximum number of saved games",
-    CHARACTER_SLOT_FULL: "That character slot is occupied",
-    CHARACTER_SLOTS_NOT_INITIALIZED:
-      "The user account did not have the expected character slots initialized",
-    CHARACTER_SLOT_NOT_FOUND: "The expected character slot was not found",
+    CHARACTER_CAPACITY_REACHED: "Your account already has the maximum number of saved characters",
+    SAVED_CHARACTER_NOT_FOUND: "The expected saved character was not found",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",

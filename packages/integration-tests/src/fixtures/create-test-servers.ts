@@ -9,7 +9,6 @@ import {
   InMemoryRaceGameRecordsPersistenceStrategy,
   InMemoryRankedLadderService,
   InMemorySavedCharacterPersistenceStrategy,
-  InMemorySavedCharacterSlotsPersistenceStrategy,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
   RaceGameRecordsService,
@@ -77,10 +76,8 @@ export async function createTestServers(
     crossServerBroadcastBus
   );
 
-  const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
-  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
+  const profileService = new InMemorySpeedDungeonProfileService();
   const userGameDataPersistenceService = new UserGameDataPersistenceService(
-    characterSlotsPersistenceStrategy,
     new InMemorySavedCharacterPersistenceStrategy(),
     new InMemoryIronmanRunPersistenceStrategy(),
     profileService

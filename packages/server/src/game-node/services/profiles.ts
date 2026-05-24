@@ -1,5 +1,4 @@
 import {
-  CharacterSlotsPersistenceStrategy,
   ERROR_MESSAGES,
   IdentityProviderId,
   SpeedDungeonProfile,
@@ -8,10 +7,7 @@ import {
 import { SpeedDungeonProfileRepo } from "../../database/repos/speed-dungeon-profiles.js";
 
 export class DatabaseProfileService extends SpeedDungeonProfileService {
-  constructor(
-    private profilesRepo: SpeedDungeonProfileRepo,
-    private characterSlotsPersistenceStrategy: CharacterSlotsPersistenceStrategy
-  ) {
+  constructor(private profilesRepo: SpeedDungeonProfileRepo) {
     super();
   }
   async fetchProfileOption(userId: IdentityProviderId): Promise<undefined | SpeedDungeonProfile> {
@@ -29,7 +25,6 @@ export class DatabaseProfileService extends SpeedDungeonProfileService {
     if (expectedProfile === undefined) {
       throw new Error(`${ERROR_MESSAGES.DATABASE.SAVING}`);
     }
-    await this.characterSlotsPersistenceStrategy.createSlots(expectedProfile.id);
     return expectedProfile;
   }
 }

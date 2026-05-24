@@ -3,7 +3,6 @@ import TextInput from "@/app/components/atoms/TextInput";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
-  CharacterSlotIndex,
   ClientIntentType,
   CombatantClass,
   EntityName,
@@ -16,10 +15,8 @@ import {
 import React, { useState } from "react";
 
 export default function CreateCharacterForm({
-  currentSlot,
   controlScheme,
 }: {
-  currentSlot: CharacterSlotIndex;
   controlScheme: CharacterControlScheme;
 }) {
   const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
@@ -32,7 +29,6 @@ export default function CreateCharacterForm({
       data: {
         name: newCharacterName as EntityName,
         combatantClass: selectedNewCharacterClass,
-        slotIndex: currentSlot,
         controlScheme,
       },
     });

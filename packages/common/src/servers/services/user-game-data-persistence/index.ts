@@ -1,25 +1,14 @@
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import {
-  CharacterSlotIndex,
-  EntityId,
-  GameId,
-  IdentityProviderId,
-  ProfileId,
-} from "../../../aliases.js";
+import { EntityId, GameId, IdentityProviderId } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
-import {
-  getProgressionGamePartyName,
-  invariant,
-  iterateNumericEnum,
-} from "../../../utils/index.js";
+import { getProgressionGamePartyName, invariant } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { CharacterInSlot, CharacterSlot, SavedCharacterSlots } from "./character-slots.js";
+import { SavedCharacterListEntry } from "./saved-character-list-entry.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
-import { CharacterSlotsPersistenceStrategy } from "./character-slots-persistence-strategy.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { SerializedOf } from "../../../serialization/index.js";
 import { SpeedDungeonProfileService } from "../profiles.js";
@@ -27,7 +16,6 @@ import { UserIdType } from "../../sessions/user-ids.js";
 
 export class UserGameDataPersistenceService {
   constructor(
-    private readonly characterSlotsPersistenceStrategy: CharacterSlotsPersistenceStrategy,
     private readonly savedCharacterPersistenceStrategy: SavedCharacterPersistenceStrategy,
     private readonly savedIronmanRunPersistenceStrategy: IronmanRunPersistenceStrategy,
     private readonly profileService: SpeedDungeonProfileService
@@ -64,35 +52,25 @@ export class UserGameDataPersistenceService {
     await this.savedIronmanRunPersistenceStrategy.delete(gameId);
   }
 
-  async fetchSavedCharacterSlots(
-    profileId: ProfileId,
+  async fetchSavedCharacters(
+    ownerId: IdentityProviderId,
     controlScheme: CharacterControlScheme
-  ): Promise<SavedCharacterSlots> {
-    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(profileId, controlScheme);
+  ): Promise<SavedCharacterListEntry[]> {
+    const records = await this.savedCharacterPersistenceStrategy.findByOwnerAndControlScheme(
+      ownerId,
+      controlScheme
+    );
 
-    const toReturn: SavedCharacterSlots = {};
-    const characterPromises: Promise<void>[] = [];
-
-    for (const slot of slots) {
-      const { characterId } = slot;
-      if (characterId === null) {
-        continue;
-      }
-
-      characterPromises.push(
-        (async () => {
-          const characterInSlot = await this.fetchSavedCharacter(characterId);
-          toReturn[slot.slotNumber] = characterInSlot;
-        })()
-      );
-    }
-
-    await Promise.all(characterPromises);
-
-    return toReturn;
+    return records.map((record) => ({
+      combatant: {
+        entityProperties: { id: record.id, name: record.name },
+        combatantProperties: record.combatantProperties,
+      },
+      pets: record.pets,
+    }));
   }
 
-  async fetchSavedCharacter(characterId: EntityId): Promise<CharacterInSlot> {
+  async fetchSavedCharacter(characterId: EntityId): Promise<SavedCharacterListEntry> {
     const character = await this.savedCharacterPersistenceStrategy.fetchCharacter(characterId);
 
     return {
@@ -104,51 +82,47 @@ export class UserGameDataPersistenceService {
     };
   }
 
-  async requireEmptyCharacterSlot(
-    profileId: ProfileId,
-    slotIndex: CharacterSlotIndex,
+  async requireCapacityAvailable(
+    ownerId: IdentityProviderId,
+    controlScheme: CharacterControlScheme,
+    capacity: number
+  ) {
+    const existing = await this.savedCharacterPersistenceStrategy.findByOwnerAndControlScheme(
+      ownerId,
+      controlScheme
+    );
+    if (existing.length >= capacity) {
+      throw new Error(ERROR_MESSAGES.USER.CHARACTER_CAPACITY_REACHED);
+    }
+  }
+
+  async requireOwnedCharacter(ownerId: IdentityProviderId, characterId: EntityId) {
+    const character = await this.savedCharacterPersistenceStrategy.fetchCharacter(characterId);
+    if (character.ownerId !== ownerId) {
+      throw new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
+    }
+    return character;
+  }
+
+  async requireOwnedLivingCharacter(ownerId: IdentityProviderId, characterId: EntityId) {
+    const character = await this.requireOwnedCharacter(ownerId, characterId);
+    const deserialized = Combatant.fromSerialized({
+      entityProperties: { id: character.id, name: character.name },
+      combatantProperties: character.combatantProperties,
+    });
+    if (deserialized.combatantProperties.isDead()) {
+      throw new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
+    }
+    return character;
+  }
+
+  async saveCharacter(
+    combatant: Combatant,
+    pets: Combatant[],
+    ownerId: IdentityProviderId,
     controlScheme: CharacterControlScheme
   ) {
-    const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(profileId, controlScheme);
-    const slotOption = slots.find((slot) => slot.slotNumber === slotIndex);
-
-    if (slotOption === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
-    }
-
-    const slotIsFilled = slotOption.characterId !== null;
-    if (slotIsFilled) {
-      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_FULL);
-    }
-
-    return slotOption;
-  }
-
-  async requireSlotWithCharacterId(profileId: ProfileId, characterId: EntityId) {
-    for (const controlScheme of iterateNumericEnum(CharacterControlScheme)) {
-      const slots = await this.characterSlotsPersistenceStrategy.fetchSlots(
-        profileId,
-        controlScheme
-      );
-      for (const slot of slots) {
-        if (slot.characterId === characterId) {
-          return slot;
-        }
-      }
-    }
-
-    throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
-  }
-
-  async saveCharacterInSlot(
-    slot: CharacterSlot,
-    newCharacter: Combatant,
-    pets: Combatant[],
-    userId: IdentityProviderId
-  ) {
-    await this.savedCharacterPersistenceStrategy.insert(newCharacter, pets, userId);
-    slot.characterId = newCharacter.entityProperties.id;
-    await this.characterSlotsPersistenceStrategy.update(slot);
+    await this.savedCharacterPersistenceStrategy.insert(combatant, pets, ownerId, controlScheme);
   }
 
   async updateCharacter(character: Combatant, pets: Combatant[]) {
@@ -194,30 +168,7 @@ export class UserGameDataPersistenceService {
     await Promise.all(promises);
   }
 
-  async deleteCharacterInSlot(characterId: EntityId, slot: CharacterSlot) {
+  async deleteCharacter(characterId: EntityId) {
     await this.savedCharacterPersistenceStrategy.delete(characterId);
-    slot.characterId = null;
-    await this.characterSlotsPersistenceStrategy.update(slot);
-  }
-
-  static getLivingCharacterInSlotsById(entityId: EntityId, slots: SavedCharacterSlots) {
-    let savedCharacterOption: undefined | CharacterInSlot;
-    for (const character of Object.values(slots)) {
-      if (character.combatant.entityProperties.id === entityId) {
-        // @PERF - we deserialize entire combatant just to check if dead -> seems expensive?
-        if (Combatant.fromSerialized(character.combatant).combatantProperties.isDead()) {
-          throw new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
-        }
-
-        savedCharacterOption = character;
-        break;
-      }
-    }
-
-    if (savedCharacterOption === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_OWNED);
-    }
-
-    return savedCharacterOption;
   }
 }

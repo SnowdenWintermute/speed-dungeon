@@ -45,11 +45,7 @@ import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-sy
 import { Express } from "express";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
-import {
-  DatabaseSavedCharacterPersistenceStrategy,
-  DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "./services/user-game-data-persistence.js";
-import { characterSlotsRepo } from "../database/repos/character-slots.js";
+import { DatabaseSavedCharacterPersistenceStrategy } from "./services/user-game-data-persistence.js";
 import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -137,10 +133,7 @@ export class GameServerNode {
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
-    const savedCharacterSlotsPersistenceStrategy =
-      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
-      savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy,
       new InMemoryIronmanRunPersistenceStrategy(),
       profileService

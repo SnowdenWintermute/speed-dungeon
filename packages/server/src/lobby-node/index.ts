@@ -26,15 +26,9 @@ import {
   SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
-import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
-import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { DatabaseProfileService } from "../game-node/services/profiles.js";
 import { DatabaseRankedLadderService } from "../game-node/services/ranked-ladder.js";
-import {
-  DatabaseSavedCharacterPersistenceStrategy,
-  DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "../game-node/services/user-game-data-persistence.js";
+import { DatabaseSavedCharacterPersistenceStrategy } from "../game-node/services/user-game-data-persistence.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
@@ -112,10 +106,7 @@ export class LobbyServerNode {
       playerCharactersRepo
     );
 
-    const savedCharacterSlotsPersistenceStrategy =
-      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
-      savedCharacterSlotsPersistenceStrategy,
       savedCharactersPersistenceStrategy,
       new InMemoryIronmanRunPersistenceStrategy(),
       profileService

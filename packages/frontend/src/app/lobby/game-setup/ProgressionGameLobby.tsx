@@ -93,7 +93,7 @@ const PlayerDisplay = observer(
   }) => {
     const { session, lobbyContext, lobbyClientRef } = useClientApplication();
     const username = session.requireUsername();
-    const savedCharacters = lobbyContext.savedCharacters.slots[game.characterControlScheme];
+    const savedCharacters = lobbyContext.savedCharacters.byControlScheme[game.characterControlScheme];
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);
@@ -156,18 +156,11 @@ const PlayerDisplay = observer(
             setValue={(value: CombatantId) => {
               changeSelectedCharacterId(value);
             }}
-            options={Object.values(savedCharacters)
-              .filter((character) => !!character)
-              .map((character) => {
-                if (character === null) {
-                  throw new Error("unexpected null character");
-                }
-                return {
-                  title: formatCharacterTag(character.combatant),
-                  value: character.combatant.entityProperties.id,
-                  disabled: character.combatant.combatantProperties.isDead(),
-                };
-              })}
+            options={savedCharacters.map((character) => ({
+              title: formatCharacterTag(character.combatant),
+              value: character.combatant.entityProperties.id,
+              disabled: character.combatant.combatantProperties.isDead(),
+            }))}
             disabled={game.playersReadied.includes(username)}
           />
         ) : (

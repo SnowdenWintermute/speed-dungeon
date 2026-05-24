@@ -190,9 +190,9 @@ export class ConnectionTopology {
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
     // @TODO - load their local persistence slots
-    this.clientApplication.lobbyContext.savedCharacters.setSlots(
+    this.clientApplication.lobbyContext.savedCharacters.setCharacters(
       CharacterControlScheme.Freelancer,
-      {}
+      []
     );
     this.clientApplication.gameWorldView?.sceneEntityService.clearAll();
     this.clientApplication.replayTreeScheduler.clear();

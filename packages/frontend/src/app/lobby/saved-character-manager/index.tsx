@@ -2,7 +2,6 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
 import {
   CharacterControlScheme,
-  CharacterSlotIndex,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   GameMode,
   NextOrPrevious,
@@ -29,7 +28,9 @@ export const SavedCharacterManager = observer(() => {
   const { lobbyContext, uiStore } = clientApplication;
 
   const savedCharacters =
-    lobbyContext.savedCharacters.slots[lobbyContext.savedCharacters.selectedCharacterControlScheme];
+    lobbyContext.savedCharacters.byControlScheme[
+      lobbyContext.savedCharacters.selectedCharacterControlScheme
+    ];
 
   const selectedCharacterOption = savedCharacters[currentSlot];
   const { dialogs } = uiStore;
@@ -73,32 +74,28 @@ export const SavedCharacterManager = observer(() => {
             disabled={undefined}
           />
         </div>
-        {Object.entries(savedCharacters)
-          .filter(([_slot, characterOption]) => characterOption !== null)
-          .map(([_slot, character]) => {
-            if (character) {
-              const { combatant } = character;
+        {savedCharacters.map((character) => {
+          const { combatant } = character;
 
-              return (
-                <CharacterModelDisplay character={combatant} key={combatant.entityProperties.id}>
-                  <div className="w-full h-full flex justify-center items-center">
-                    {combatant.combatantProperties.isDead() && (
-                      <div className="relative text-2xl">
-                        <span
-                          className="text-red-600"
-                          style={{
-                            textShadow: "2px 2px 0px #000000",
-                          }}
-                        >
-                          DEAD
-                        </span>
-                      </div>
-                    )}
+          return (
+            <CharacterModelDisplay character={combatant} key={combatant.entityProperties.id}>
+              <div className="w-full h-full flex justify-center items-center">
+                {combatant.combatantProperties.isDead() && (
+                  <div className="relative text-2xl">
+                    <span
+                      className="text-red-600"
+                      style={{
+                        textShadow: "2px 2px 0px #000000",
+                      }}
+                    >
+                      DEAD
+                    </span>
                   </div>
-                </CharacterModelDisplay>
-              );
-            }
-          })}
+                )}
+              </div>
+            </CharacterModelDisplay>
+          );
+        })}
       </div>
 
       {!showCharacterManager && !showGameCreationForm && (
@@ -182,7 +179,6 @@ export const SavedCharacterManager = observer(() => {
               <DeleteCharacterForm character={selectedCharacterOption.combatant} />
             ) : (
               <CreateCharacterForm
-                currentSlot={currentSlot as CharacterSlotIndex}
                 controlScheme={lobbyContext.savedCharacters.selectedCharacterControlScheme}
               />
             )}

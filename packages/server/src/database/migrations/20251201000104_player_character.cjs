@@ -12,12 +12,16 @@ exports.up = (pgm) => {
       id UUID PRIMARY KEY,
       name VARCHAR(32) NOT NULL,
       owner_id INTEGER,
+      control_scheme SMALLINT NOT NULL,
+      display_order INTEGER,
       game_version VARCHAR(16),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       combatant_properties JSONB NOT NULL,
       pets JSONB DEFAULT '[]' -- Combatant[]
     );
+    CREATE INDEX idx_player_characters_owner_control_scheme
+      ON ${resourceName} (owner_id, control_scheme);
     `);
 };
 
@@ -26,4 +30,3 @@ exports.down = (pgm) => {
         DROP ${resourceType} ${resourceName};
     `);
 };
-

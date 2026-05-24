@@ -1,27 +1,28 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { CharacterControlScheme, CombatantClass, GameStateUpdateType } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  CombatantClass,
+  GameStateUpdateType,
+  invariant,
+} from "@speed-dungeon/common";
 
 export async function testProgressionGameSelectCharacterSync(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions();
   const { alpha, bravo } = await testFixture.createTwoClientsInLobbyProgressionGame(
     {
       characters: [
-        { name: "character 1", combatantClass: CombatantClass.Warrior, slotIndex: 0 },
-        {
-          name: "other character",
-          combatantClass: CombatantClass.Warrior,
-          slotIndex: 1,
-        },
+        { name: "character 1", combatantClass: CombatantClass.Warrior },
+        { name: "other character", combatantClass: CombatantClass.Warrior },
       ],
     },
     undefined
   );
 
   const { savedCharacters: alphaSavedCharacters } = alpha.clientApplication.lobbyContext;
-  const alphaFirstCharacter = alphaSavedCharacters.requireFilledSlot(
-    0,
-    CharacterControlScheme.Captain
-  );
+  const alphaCaptainCharacters =
+    alphaSavedCharacters.byControlScheme[CharacterControlScheme.Captain];
+  const alphaFirstCharacter = alphaCaptainCharacters[0];
+  invariant(alphaFirstCharacter !== undefined, "expected first saved character");
 
   const alphaPlayerContextAsBravo = bravo.clientApplication.gameContext.requirePlayerContext(
     alpha.clientApplication.session.requireUsername()
@@ -33,11 +34,8 @@ export async function testProgressionGameSelectCharacterSync(testFixture: Integr
     alphaFirstCharacter.combatant.getEntityId(),
   ]);
 
-  // other player sees selection
-  const alphaSecondCharacter = alphaSavedCharacters.requireFilledSlot(
-    1,
-    CharacterControlScheme.Captain
-  );
+  const alphaSecondCharacter = alphaCaptainCharacters[1];
+  invariant(alphaSecondCharacter !== undefined, "expected second saved character");
   await alpha.lobbyClientHarness.selectSavedCharacterInProgressionGame(
     alphaSecondCharacter.combatant.getEntityId()
   );

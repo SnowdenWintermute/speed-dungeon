@@ -216,33 +216,26 @@ export function createLobbyUpdateHandlers(
       }
     },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
-      const { characterControlScheme, characterSlots } = data;
+      const { characterControlScheme, characters } = data;
 
-      const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
-      for (const [slotNumberStringKey, characterOption] of Object.entries(characterSlots)) {
-        const slotNumber = parseInt(slotNumberStringKey);
-        if (characterOption === null) {
-          deserialized[slotNumber] = null;
-        } else {
-          const combatant = Combatant.fromSerialized(characterOption.combatant);
-          combatant.combatantProperties.transformProperties.autoSetHomePosition(
-            DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
-            slotNumber,
-            {
-              onCenterLine: true,
-              slotSpacingOverride: CHARACTER_SLOT_SPACING,
-              reverseOrder: true,
-            }
-          );
+      const deserialized = characters.map((entry, i) => {
+        const combatant = Combatant.fromSerialized(entry.combatant);
+        combatant.combatantProperties.transformProperties.autoSetHomePosition(
+          DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+          i,
+          {
+            onCenterLine: true,
+            slotSpacingOverride: CHARACTER_SLOT_SPACING,
+            reverseOrder: true,
+          }
+        );
+        return {
+          combatant,
+          pets: entry.pets.map((pet) => Combatant.fromSerialized(pet)),
+        };
+      });
 
-          deserialized[slotNumber] = {
-            combatant,
-            pets: characterOption.pets.map((pet) => Combatant.fromSerialized(pet)),
-          };
-        }
-      }
-
-      lobbyContext.savedCharacters.setSlots(characterControlScheme, deserialized);
+      lobbyContext.savedCharacters.setCharacters(characterControlScheme, deserialized);
 
       gameWorldView?.environment.groundPlane.drawCharacterSlots();
 
@@ -267,16 +260,26 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.SavedCharacter]: (data) => {
-      const { characterControlScheme, character, slotIndex } = data;
+      const { characterControlScheme, character } = data;
       const { combatant, pets } = character;
       const deserializedCombatant = Combatant.fromSerialized(combatant);
       const deserializedPets = pets.map((pet) => Combatant.fromSerialized(pet));
 
-      lobbyContext.savedCharacters.setSlot(
-        characterControlScheme,
-        { combatant: deserializedCombatant, pets: deserializedPets },
-        slotIndex
+      const existingCharacters = lobbyContext.savedCharacters.byControlScheme[characterControlScheme];
+      deserializedCombatant.combatantProperties.transformProperties.autoSetHomePosition(
+        DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+        existingCharacters.length,
+        {
+          onCenterLine: true,
+          slotSpacingOverride: CHARACTER_SLOT_SPACING,
+          reverseOrder: true,
+        }
       );
+
+      lobbyContext.savedCharacters.appendCharacter(characterControlScheme, {
+        combatant: deserializedCombatant,
+        pets: deserializedPets,
+      });
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantModels,

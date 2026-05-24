@@ -247,11 +247,10 @@ export class IntegrationTestFixture {
       if (options.characters.length < 1) {
         throw new Error("Should at least specify one character");
       }
-      for (const { name, combatantClass, slotIndex } of options.characters) {
+      for (const { name, combatantClass } of options.characters) {
         await client.lobbyClientHarness.createSavedCharacter(
           name,
           combatantClass,
-          slotIndex,
           CharacterControlScheme.Captain
         );
       }
@@ -259,8 +258,7 @@ export class IntegrationTestFixture {
       await client.lobbyClientHarness.createSavedCharacter(
         TEST_CHARACTER_NAME_1,
         CombatantClass.Warrior,
-        CharacterControlScheme.Captain,
-        0
+        CharacterControlScheme.Captain
       );
     }
     return client;

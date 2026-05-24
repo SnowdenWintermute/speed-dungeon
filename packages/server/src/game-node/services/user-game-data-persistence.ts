@@ -1,56 +1,14 @@
 import {
+  CharacterControlScheme,
   Combatant,
-  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   EntityId,
   ERROR_MESSAGES,
+  IdentityProviderId,
   invariant,
-  iterateNumericEnum,
-  ProfileId,
-  SerializedPlayerCharacter,
-  CharacterSlot,
-  CharacterControlScheme,
   SavedCharacterPersistenceStrategy,
-  CharacterSlotsPersistenceStrategy,
+  SerializedPlayerCharacter,
 } from "@speed-dungeon/common";
-import { CharacterSlotsRepo } from "../../database/repos/character-slots.js";
 import { PlayerCharacterRepo } from "../../database/repos/player-characters.js";
-
-export class DatabaseSavedCharacterSlotsPersistenceStrategy
-  implements CharacterSlotsPersistenceStrategy
-{
-  constructor(private characterSlotsRepo: CharacterSlotsRepo) {}
-
-  async createSlots(profileId: ProfileId): Promise<void> {
-    for (const controlScheme of iterateNumericEnum(CharacterControlScheme)) {
-      for (let i = 0; i < DEFAULT_ACCOUNT_CHARACTER_CAPACITY; i += 1) {
-        await this.characterSlotsRepo.insert(profileId, controlScheme, i, null);
-      }
-    }
-  }
-
-  async fetchSlots(
-    profileId: number,
-    controlScheme: CharacterControlScheme
-  ): Promise<CharacterSlot[]> {
-    const expectedSlots = await this.characterSlotsRepo.findByProfileAndScheme(
-      profileId,
-      controlScheme
-    );
-    if (expectedSlots === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
-    }
-    return expectedSlots;
-  }
-
-  async update(characterSlot: CharacterSlot): Promise<CharacterSlot> {
-    const expectedSlot = await this.characterSlotsRepo.update(characterSlot);
-    if (expectedSlot === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
-    }
-
-    return expectedSlot;
-  }
-}
 
 export class DatabaseSavedCharacterPersistenceStrategy
   implements SavedCharacterPersistenceStrategy
@@ -60,17 +18,30 @@ export class DatabaseSavedCharacterPersistenceStrategy
   async fetchCharacter(characterId: EntityId): Promise<SerializedPlayerCharacter> {
     const expected = await this.playerCharactersRepo.findOne("id", characterId);
     if (expected === undefined) {
-      throw new Error(ERROR_MESSAGES.USER.CHARACTER_SLOT_NOT_FOUND);
+      throw new Error(ERROR_MESSAGES.USER.SAVED_CHARACTER_NOT_FOUND);
     }
     return expected;
+  }
+
+  async findByOwnerAndControlScheme(
+    ownerId: IdentityProviderId,
+    controlScheme: CharacterControlScheme
+  ): Promise<SerializedPlayerCharacter[]> {
+    return this.playerCharactersRepo.findByOwnerAndControlScheme(ownerId, controlScheme);
   }
 
   async insert(
     combatant: Combatant,
     pets: Combatant[],
-    ownerId: number
+    ownerId: IdentityProviderId,
+    controlScheme: CharacterControlScheme
   ): Promise<SerializedPlayerCharacter> {
-    const expected = await this.playerCharactersRepo.insert(combatant, pets, ownerId);
+    const expected = await this.playerCharactersRepo.insert(
+      combatant,
+      pets,
+      ownerId,
+      controlScheme
+    );
     if (expected === undefined) {
       throw new Error(ERROR_MESSAGES.DATABASE.SAVING);
     }
