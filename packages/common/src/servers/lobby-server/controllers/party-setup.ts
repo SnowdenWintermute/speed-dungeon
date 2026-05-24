@@ -10,16 +10,14 @@ import { PartyName, Username } from "../../../aliases.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import {
-  CharacterControlScheme,
-  GameMode,
-  getMaxCharacterCountForControlScheme,
-} from "../../../game-modes/index.js";
+import { GameMode, getMaxCharacterCountForControlScheme } from "../../../game-modes/index.js";
 import { AllowedResult } from "../../../primatives/index.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 
 export class PartySetupController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly idGenerator: IdGenerator
   ) {}
 

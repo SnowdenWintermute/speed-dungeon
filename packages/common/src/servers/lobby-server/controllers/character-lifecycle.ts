@@ -55,12 +55,19 @@ export class CharacterLifecycleController {
     requireAllowed(await gameModePolicy.lobbySetup.userCanCreateCharacter(session, game));
     requireAllowed(gameModePolicy.lobbySetup.userCanAddCharacterToParty(session, game, party));
 
-    const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
+    const characterWithPets = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
     );
 
+    await gameModePolicy.persistence.onCreateCharacterInLobbySetup(
+      session,
+      game,
+      characterWithPets
+    );
+
+    const { combatant: newCharacter, pets } = characterWithPets;
     const player = game.getExpectedPlayer(session.username);
     game.addCharacterToParty(party, player, newCharacter, pets);
 
@@ -111,6 +118,7 @@ export class CharacterLifecycleController {
     return outbox;
   }
 
+  // @TODO - convert to "add saved character to progression game"
   async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
     const game = session.getExpectedCurrentGame();
 
@@ -133,13 +141,12 @@ export class CharacterLifecycleController {
     };
 
     const player = game.getExpectedPlayer(session.username);
-    const characterIdToRemoveOption = player.characterIds[0];
-    if (characterIdToRemoveOption === undefined) {
-      throw new Error("Expected to have a selected character but didn't");
-    }
-
     const party = session.getExpectedCurrentParty(game);
-    party.removeCharacter(characterIdToRemoveOption, player, game);
+
+    const characterIdToRemoveOption = player.characterIds[0];
+    if (characterIdToRemoveOption !== undefined) {
+      party.removeCharacter(characterIdToRemoveOption, player, game);
+    }
 
     game.addCharacterToParty(
       party,

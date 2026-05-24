@@ -116,7 +116,6 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
       session.taggedUserId.id,
       game.characterControlScheme
     );
-    console.log("character capacities", profile.characterCapacities, profile);
     const savedCharacterCapacity = profile.characterCapacities[game.characterControlScheme];
     if (savedCharacters.length >= savedCharacterCapacity) {
       return { allowed: false, reason: ERROR_MESSAGES.USER.CHARACTER_CAPACITY_REACHED };

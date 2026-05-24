@@ -1,5 +1,6 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantId, GameId, GameName, PartyName } from "../aliases.js";
+import { Combatant } from "../combatants/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameCreationRequest } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";

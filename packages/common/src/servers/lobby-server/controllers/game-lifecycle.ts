@@ -116,6 +116,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     if (!userCanCreate.allowed) {
       throw new Error(userCanCreate.reason);
     }
+    data.gameName = gameName;
 
     const game = await gameModePolicy.lobbySetup.createGame(data);
     gameModePolicy.lobbySetup.onCreation(game);

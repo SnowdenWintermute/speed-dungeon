@@ -6,8 +6,10 @@ import { GameServerGameLifecycleController } from "../servers/game-server/contro
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
+import { UserSession } from "../servers/sessions/user-session.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
+import { CombatantWithPets } from "../types.js";
 
 /** what to save and how to save it when certain events happen
  * will need access to persistence services, or be owned by a composing class that
@@ -21,6 +23,13 @@ export abstract class GameModePersistencePolicy {
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
 
+  async onCreateCharacterInLobbySetup(
+    _session: UserSession,
+    _game: SpeedDungeonGame,
+    _character: CombatantWithPets
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
+    return new MessageDispatchOutbox(this.messageDispatchFactory);
+  }
   abstract onGameStart(game: SpeedDungeonGame): Promise<void>;
   abstract onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
   abstract onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;

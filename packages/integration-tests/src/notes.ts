@@ -30,6 +30,8 @@
 // users see other player create party, character
 // user can only toggle ready to start if all players control a character
 // if a player deletes their character, ready to start toggles reset
+// create character in progression game setup respects account saved character limits
+// user can not individually ask to leave party unless it is a Race game, they can only "Leave Game"
 //
 // SERVER CRASHES
 // - after game server crash, can continue an ironman run that was live on

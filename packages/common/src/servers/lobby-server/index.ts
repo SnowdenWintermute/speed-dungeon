@@ -290,7 +290,11 @@ export class LobbyServer extends SpeedDungeonServer {
       this.characterCreationPolicy
     );
 
-    const partySetupController = new PartySetupController(this.updateDispatchFactory, idGenerator);
+    const partySetupController = new PartySetupController(
+      this.updateDispatchFactory,
+      this.gameModePolicyStore,
+      idGenerator
+    );
 
     const gameLifecycleController = new LobbyGameLifecycleController(
       this.lobbyState,

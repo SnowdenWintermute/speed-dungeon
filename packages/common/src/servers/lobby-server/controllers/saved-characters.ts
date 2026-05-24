@@ -69,7 +69,7 @@ export class SavedCharactersController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
+    const { combatant: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
