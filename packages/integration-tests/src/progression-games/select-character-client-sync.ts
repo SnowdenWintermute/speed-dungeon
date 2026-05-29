@@ -36,7 +36,7 @@ export async function testProgressionGameSelectCharacterSync(testFixture: Integr
 
   const alphaSecondCharacter = alphaCaptainCharacters[1];
   invariant(alphaSecondCharacter !== undefined, "expected second saved character");
-  await alpha.lobbyClientHarness.selectSavedCharacterInProgressionGame(
+  await alpha.lobbyClientHarness.addSavedCharacterToProgressionGame(
     alphaSecondCharacter.combatant.getEntityId()
   );
   await bravo.lobbyClientHarness.awaitMessageOfType(

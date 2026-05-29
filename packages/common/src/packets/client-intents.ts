@@ -35,7 +35,7 @@ export enum ClientIntentType {
   LeaveParty,
   CreateCharacterInGame,
   DeleteCharacterInGame,
-  SelectSavedCharacterForProgressGame,
+  AddSavedCharacterToProgressionGame,
   SelectProgressionGameStartingFloor,
   // saved character managment
   GetSavedCharactersList,
@@ -138,7 +138,7 @@ export interface ClientIntentMap {
   [ClientIntentType.DeleteSavedCharacter]: {
     entityId: CombatantId;
   };
-  [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: CombatantId };
+  [ClientIntentType.AddSavedCharacterToProgressionGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {
     characterId: CombatantId;

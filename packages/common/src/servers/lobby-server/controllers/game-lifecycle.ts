@@ -203,7 +203,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     if (partyOption !== null) {
-      const otherOutbox = this.partySetupController.leavePartyHandler(session);
+      const otherOutbox = this.partySetupController.removeUserFromParty(session);
       outbox.pushFromOther(otherOutbox);
     }
 

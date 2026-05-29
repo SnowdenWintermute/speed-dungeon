@@ -75,7 +75,7 @@ export abstract class GameModeLobbySetupPolicy {
     const partyOption = session.getCurrentPartyOption(game);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
     if (partyOption !== null) {
-      const partyLeaveOutbox = partySetupController.leavePartyHandler(session);
+      const partyLeaveOutbox = partySetupController.removeUserFromParty(session);
       outbox.pushFromOther(partyLeaveOutbox);
     }
 

@@ -93,7 +93,8 @@ const PlayerDisplay = observer(
   }) => {
     const { session, lobbyContext, lobbyClientRef } = useClientApplication();
     const username = session.requireUsername();
-    const savedCharacters = lobbyContext.savedCharacters.byControlScheme[game.characterControlScheme];
+    const savedCharacters =
+      lobbyContext.savedCharacters.byControlScheme[game.characterControlScheme];
     const isControlledByUser = username === playerOption?.username;
 
     const partyName = getProgressionGamePartyName(game.name);
@@ -113,7 +114,7 @@ const PlayerDisplay = observer(
 
     function changeSelectedCharacterId(entityId: CombatantId) {
       lobbyClientRef.get().dispatchIntent({
-        type: ClientIntentType.SelectSavedCharacterForProgressGame,
+        type: ClientIntentType.AddSavedCharacterToProgressionGame,
         data: { entityId },
       });
     }

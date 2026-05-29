@@ -119,13 +119,23 @@ export class CharacterLifecycleController {
   }
 
   // @TODO - convert to "add saved character to progression game"
-  async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
+  // since right now it does'nt let you add more than one character
+  async addSavedCharacterToProgressionGameHandler(
+    session: UserSession,
+    data: { entityId: string }
+  ) {
     const game = session.getExpectedCurrentGame();
-
     game.requireMode(GameMode.Progression);
-
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
+    const player = game.getExpectedPlayer(session.username);
+    const characterAlreadyInParty = player.characterIds.includes(data.entityId as CombatantId);
+
+    if (characterAlreadyInParty) {
+      throw new Error(ERROR_MESSAGES.PARTY.ALREADY_HAS_THAT_CHARACTER);
+    }
+
+    const party = session.getExpectedCurrentParty(game);
     const { entityId } = data;
     const ownedCharacter = await this.userGameDataPersistenceService.requireOwnedLivingCharacter(
       profile.ownerId,
@@ -139,14 +149,6 @@ export class CharacterLifecycleController {
       },
       pets: ownedCharacter.pets,
     };
-
-    const player = game.getExpectedPlayer(session.username);
-    const party = session.getExpectedCurrentParty(game);
-
-    const characterIdToRemoveOption = player.characterIds[0];
-    if (characterIdToRemoveOption !== undefined) {
-      party.removeCharacter(characterIdToRemoveOption, player, game);
-    }
 
     game.addCharacterToParty(
       party,

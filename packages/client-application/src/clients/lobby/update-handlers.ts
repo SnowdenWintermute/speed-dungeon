@@ -5,6 +5,7 @@ import {
   ClientAppMessageType,
   ClientSequentialEventType,
   Combatant,
+  CombatantId,
   ConnectionEndpoint,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   ERROR_MESSAGES,
@@ -167,6 +168,13 @@ export function createLobbyUpdateHandlers(
       const game = gameContext.requireGame();
 
       const { username, character } = data;
+      const player = game.getPlayer(username);
+      if (!player) {
+        return clientApplication.alertsService.setAlert(
+          new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST)
+        );
+      }
+
       const deserialized = {
         combatant: Combatant.fromSerialized(character.combatant),
         pets: character.pets.map((pet) => Combatant.fromSerialized(pet)),
@@ -178,18 +186,6 @@ export function createLobbyUpdateHandlers(
         return clientApplication.alertsService.setAlert(
           new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST)
         );
-      }
-      const player = game.getPlayer(username);
-      if (!player) {
-        return clientApplication.alertsService.setAlert(
-          new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST)
-        );
-      }
-
-      const previouslySelectedCharacterId = player.characterIds[0];
-      if (previouslySelectedCharacterId) {
-        party.removeCharacter(previouslySelectedCharacterId, player, game);
-        party.combatantManager.updateHomePositions();
       }
 
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
@@ -265,7 +261,8 @@ export function createLobbyUpdateHandlers(
       const deserializedCombatant = Combatant.fromSerialized(combatant);
       const deserializedPets = pets.map((pet) => Combatant.fromSerialized(pet));
 
-      const existingCharacters = lobbyContext.savedCharacters.byControlScheme[characterControlScheme];
+      const existingCharacters =
+        lobbyContext.savedCharacters.byControlScheme[characterControlScheme];
       deserializedCombatant.combatantProperties.transformProperties.autoSetHomePosition(
         DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
         existingCharacters.length,

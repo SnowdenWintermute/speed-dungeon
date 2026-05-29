@@ -104,7 +104,7 @@ export class PartySetupController {
     return outbox;
   }
 
-  leavePartyHandler(session: UserSession) {
+  removeUserFromParty(session: UserSession) {
     const game = session.getExpectedCurrentGame();
 
     // get the reference to the party now before we maybe remove it from the game
@@ -125,6 +125,24 @@ export class PartySetupController {
       type: GameStateUpdateType.PlayerChangedAdventuringParty,
       data: { playerName: session.username, partyName: null },
     });
+
+    return outbox;
+  }
+
+  leavePartyHandler(session: UserSession) {
+    const game = session.getExpectedCurrentGame();
+    const raceGameModes = [GameMode.RankedRace, GameMode.UnrankedRace];
+    const partyLeavingForbidden = !raceGameModes.includes(game.mode);
+    if (partyLeavingForbidden) {
+      throw new Error(ERROR_MESSAGES.GAME.MODE);
+    }
+
+    const partyOption = session.getCurrentPartyOption(game);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    if (partyOption !== null) {
+      const partyLeaveOutbox = this.removeUserFromParty(session);
+      outbox.pushFromOther(partyLeaveOutbox);
+    }
 
     return outbox;
   }

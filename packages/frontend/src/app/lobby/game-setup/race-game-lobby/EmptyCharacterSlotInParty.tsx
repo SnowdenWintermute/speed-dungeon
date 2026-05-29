@@ -71,7 +71,7 @@ export const EmptyCharacterSlot = observer(
                         return;
                       }
                       clientApplication.lobbyClientRef.get().dispatchIntent({
-                        type: ClientIntentType.SelectSavedCharacterForProgressGame,
+                        type: ClientIntentType.AddSavedCharacterToProgressionGame,
                         data: { entityId: selectedSavedCharacterId },
                       });
                     }}

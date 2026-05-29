@@ -50,7 +50,7 @@ export async function testProgressionGameStartingFloorSelection(
     bravo.lobbyClientHarness.awaitMessageOfType(
       GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
     );
-  await alpha.lobbyClientHarness.selectSavedCharacterInProgressionGame(
+  await alpha.lobbyClientHarness.addSavedCharacterToProgressionGame(
     alphaSecondCharacter.combatant.getEntityId()
   );
   // selecting player sees newly selected character
@@ -77,7 +77,7 @@ export async function testProgressionGameStartingFloorSelection(
   const alphaSawCharacterSelectedPromise = alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
   );
-  await bravo.lobbyClientHarness.selectSavedCharacterInProgressionGame(
+  await bravo.lobbyClientHarness.addSavedCharacterToProgressionGame(
     bravoSecondCharacter.combatant.getEntityId()
   );
   // alpha sees new max floor has risen
@@ -99,7 +99,7 @@ export async function testProgressionGameStartingFloorSelection(
   const bravoFirstCharacter =
     bravoSavedCharacters.byControlScheme[CharacterControlScheme.Captain][0];
   invariant(bravoFirstCharacter !== undefined, "expected bravo first saved character");
-  await bravo.lobbyClientHarness.selectSavedCharacterInProgressionGame(
+  await bravo.lobbyClientHarness.addSavedCharacterToProgressionGame(
     bravoFirstCharacter.combatant.getEntityId()
   );
   await alphaSawBravoSwitchBackToLowFloorCharacterPromise;

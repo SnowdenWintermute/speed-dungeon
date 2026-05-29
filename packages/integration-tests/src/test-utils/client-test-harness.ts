@@ -366,9 +366,9 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async selectSavedCharacterInProgressionGame(entityId: CombatantId) {
+  async addSavedCharacterToProgressionGame(entityId: CombatantId) {
     return this.settleIntentResult({
-      type: ClientIntentType.SelectSavedCharacterForProgressGame,
+      type: ClientIntentType.AddSavedCharacterToProgressionGame,
       data: {
         entityId,
       },
