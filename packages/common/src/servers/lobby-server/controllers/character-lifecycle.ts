@@ -118,8 +118,6 @@ export class CharacterLifecycleController {
     return outbox;
   }
 
-  // @TODO - convert to "add saved character to progression game"
-  // since right now it does'nt let you add more than one character
   async addSavedCharacterToProgressionGameHandler(
     session: UserSession,
     data: { entityId: string }

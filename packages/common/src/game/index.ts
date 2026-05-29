@@ -200,6 +200,11 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return `${GAME_CHANNEL_PREFIX}${this.name}` as ChannelName;
   }
 
+  isRace() {
+    const raceModes = [GameMode.UnrankedRace, GameMode.RankedRace];
+    return raceModes.includes(this.mode);
+  }
+
   requireMode(mode: GameMode) {
     if (this.mode !== mode) {
       throw new Error(ERROR_MESSAGES.GAME.MODE);

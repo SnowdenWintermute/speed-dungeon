@@ -41,7 +41,12 @@ export const PartySetupCard = observer(
 
     const characterCards = characters.map((character) => {
       return (
-        <CharacterCard character={character} username={username} key={character.getEntityId()} />
+        <CharacterCard
+          character={character}
+          username={username}
+          showLevel={!game.isRace()}
+          key={character.getEntityId()}
+        />
       );
     });
 

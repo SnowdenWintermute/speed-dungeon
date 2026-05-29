@@ -6,7 +6,15 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const CharacterCard = observer(
-  ({ character, username }: { character: Combatant; username: string }) => {
+  ({
+    character,
+    username,
+    showLevel,
+  }: {
+    character: Combatant;
+    username: string;
+    showLevel: boolean;
+  }) => {
     const { combatantClass } =
       character.combatantProperties.classProgressionProperties.getMainClass();
 
@@ -33,7 +41,11 @@ export const CharacterCard = observer(
             <h5 className="text-lg whitespace-nowrap text-ellipsis overflow-hidden">
               {character.entityProperties.name}
             </h5>
-            <p className="text-slate-400">{COMBATANT_CLASS_NAME_STRINGS[combatantClass]}</p>
+            <p className="text-slate-400">
+              {COMBATANT_CLASS_NAME_STRINGS[combatantClass]}
+              {showLevel &&
+                ` lv.${character.combatantProperties.classProgressionProperties.getMainClass().level}`}
+            </p>
           </div>
 
           <div className="flex flex-grow w-1/2 justify-end">

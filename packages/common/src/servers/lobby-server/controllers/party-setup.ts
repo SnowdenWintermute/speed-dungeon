@@ -131,8 +131,7 @@ export class PartySetupController {
 
   leavePartyHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame();
-    const raceGameModes = [GameMode.RankedRace, GameMode.UnrankedRace];
-    const partyLeavingForbidden = !raceGameModes.includes(game.mode);
+    const partyLeavingForbidden = !game.isRace();
     if (partyLeavingForbidden) {
       throw new Error(ERROR_MESSAGES.GAME.MODE);
     }
