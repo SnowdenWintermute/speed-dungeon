@@ -212,7 +212,7 @@ export function createLobbyUpdateHandlers(
       }
     },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
-      const { characterControlScheme, characters } = data;
+      const { characterControlScheme, characters, capacity } = data;
 
       const deserialized = characters.map((entry, i) => {
         const combatant = Combatant.fromSerialized(entry.combatant);
@@ -232,6 +232,7 @@ export function createLobbyUpdateHandlers(
       });
 
       lobbyContext.savedCharacters.setCharacters(characterControlScheme, deserialized);
+      lobbyContext.savedCharacters.capacities[characterControlScheme] = capacity;
 
       gameWorldView?.environment.groundPlane.drawCharacterSlots();
 

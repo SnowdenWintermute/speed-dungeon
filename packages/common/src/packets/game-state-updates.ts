@@ -237,6 +237,7 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.SavedCharacterList]: {
     characterControlScheme: CharacterControlScheme;
     characters: SavedCharacterListEntry[];
+    capacity: number;
   };
   [GameStateUpdateType.SavedIronmanRunsList]: {
     savedIronmanRuns: SerializedOf<SavedIronmanRun>[];

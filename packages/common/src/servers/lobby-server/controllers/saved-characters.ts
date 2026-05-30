@@ -43,7 +43,11 @@ export class SavedCharactersController {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacterList,
-      data: { characterControlScheme: controlScheme, characters },
+      data: {
+        characterControlScheme: controlScheme,
+        characters,
+        capacity: profile.characterCapacities[controlScheme],
+      },
     });
 
     return outbox;

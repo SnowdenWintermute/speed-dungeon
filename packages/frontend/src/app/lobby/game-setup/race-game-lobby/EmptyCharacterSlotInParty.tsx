@@ -9,10 +9,11 @@ import {
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { CreateCharacterForm } from "./CreateCharacterInPartyForm";
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import { IconName, SVG_ICONS } from "@/app/icons";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const EmptyCharacterSlot = observer(
   ({
@@ -29,10 +30,21 @@ export const EmptyCharacterSlot = observer(
     const userIsInThisParty = playerOption && party.playerUsernames.includes(playerOption.username);
     const userIsInAnotherParty = !userIsInThisParty && playerOption && playerOption.partyName;
     const clientApplication = useClientApplication();
-    const [selectedSavedCharacterId, setSelectedSavedCharacterId] = useState<CombatantId | null>(
-      null
-    );
     const [showCreateCharacterForm, setShowCreateCharacterForm] = useState(false);
+
+    const savedCharacters =
+      clientApplication.lobbyContext.savedCharacters.byControlScheme[game.characterControlScheme];
+    const savedCharactersNotInParty = savedCharacters.filter(
+      (character) =>
+        !playerOption?.characterIds.includes(character.combatant.entityProperties.id as CombatantId)
+    );
+    const [selectedSavedCharacterId, setSelectedSavedCharacterId] = useState<CombatantId | null>();
+    useEffect(() => {
+      setSelectedSavedCharacterId(savedCharactersNotInParty[0]?.combatant.getEntityId() ?? null);
+    }, [savedCharactersNotInParty.length]);
+
+    const savedCharacterCapacity =
+      clientApplication.lobbyContext.savedCharacters.capacities[game.characterControlScheme];
 
     if (i !== 0 || userIsInAnotherParty) {
       return (
@@ -44,28 +56,50 @@ export const EmptyCharacterSlot = observer(
 
     if (userIsInThisParty) {
       if (game.mode === GameMode.Progression) {
-        const savedCharacters =
-          clientApplication.lobbyContext.savedCharacters.byControlScheme[
-            game.characterControlScheme
-          ];
-        if (showCreateCharacterForm) {
-          return <CreateCharacterForm />;
+        if (showCreateCharacterForm || savedCharactersNotInParty.length === 0) {
+          return (
+            <div className="relative">
+              <CreateCharacterForm />
+              {savedCharacters.length < savedCharacterCapacity && (
+                <div className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 h-10 w-10 border border-slate-400 bg-slate-700">
+                  <HoverableTooltipWrapper
+                    extraStyles="h-full w-full"
+                    tooltipText="Select from saved characters"
+                  >
+                    <HotkeyButton
+                      className="h-full w-full pointer-events-auto"
+                      onClick={() => {
+                        setShowCreateCharacterForm(!showCreateCharacterForm);
+                      }}
+                    >
+                      {SVG_ICONS[IconName.FloppyDisc]("p-2 h-full fill-slate-400")}
+                    </HotkeyButton>
+                  </HoverableTooltipWrapper>
+                </div>
+              )}
+            </div>
+          );
         }
-        if (savedCharacters.length) {
+        if (savedCharactersNotInParty.length) {
           return (
             <PartyCardListItem>
-              <div className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 h-10 w-10 border border-slate-400 bg-slate-700">
-                <HotkeyButton
-                  className="h-full w-full pointer-events-auto"
-                  onClick={() => {
-                    setShowCreateCharacterForm(!showCreateCharacterForm);
-                  }}
-                >
-                  {SVG_ICONS[IconName.PlusSign](
-                    "border border-slate-400 p-2 h-full fill-slate-400"
-                  )}
-                </HotkeyButton>
-              </div>
+              {savedCharacterCapacity > savedCharacters.length && (
+                <div className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 h-10 w-10 border border-slate-400 bg-slate-700">
+                  <HoverableTooltipWrapper
+                    extraStyles="h-full w-full"
+                    tooltipText="Create new character"
+                  >
+                    <HotkeyButton
+                      className="h-full w-full pointer-events-auto"
+                      onClick={() => {
+                        setShowCreateCharacterForm(!showCreateCharacterForm);
+                      }}
+                    >
+                      {SVG_ICONS[IconName.PlusSign]("p-2 h-full w-full fill-slate-400")}
+                    </HotkeyButton>
+                  </HoverableTooltipWrapper>
+                </div>
+              )}
               <div className="flex h-full ">
                 <div className="mr-2">
                   <div className="text-sm">Select saved:</div>
@@ -75,7 +109,7 @@ export const EmptyCharacterSlot = observer(
                         title={"Select Character"}
                         value={selectedSavedCharacterId}
                         setValue={(id) => setSelectedSavedCharacterId(id)}
-                        options={savedCharacters.map((character) => {
+                        options={savedCharactersNotInParty.map((character) => {
                           return {
                             title: character.combatant.getName(),
                             value: character.combatant.getEntityId(),

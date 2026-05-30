@@ -114,6 +114,7 @@ export class ClientApplication {
 
   makeObservable() {
     this.topologyManager.makeObservable();
+    this.lobbyContext.makeObservable();
   }
 
   setReplayManagerTickScheduler(scheduler: TickScheduler) {

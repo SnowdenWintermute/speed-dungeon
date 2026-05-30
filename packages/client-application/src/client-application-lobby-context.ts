@@ -5,6 +5,7 @@ import {
   EntityId,
   GameId,
   GameListEntry,
+  ReactiveNode,
   SavedIronmanRun,
   SpeedDungeonGame,
   UserChannelDisplayData,
@@ -17,7 +18,7 @@ export interface ClientSavedCharacter {
   pets: Combatant[];
 }
 
-export class ClientApplicationLobbyContext {
+export class ClientApplicationLobbyContext implements ReactiveNode {
   private _gameList: GameListEntry[] = [];
   readonly savedCharacters = new ClientApplicationSavedCharacters();
   readonly savedIronmanRuns = new Map<GameId, SavedIronmanRun>();
@@ -25,8 +26,9 @@ export class ClientApplicationLobbyContext {
   public selectedSavedIronmanRun: null | GameId = null;
   readonly channel = new ClientApplicationLobbyChannel();
 
-  constructor() {
+  makeObservable() {
     makeAutoObservable(this);
+    this.savedCharacters.makeObservable();
   }
 
   setGameList(newList: GameListEntry[]) {
@@ -68,15 +70,19 @@ class ClientApplicationLobbyChannel {
   }
 }
 
-class ClientApplicationSavedCharacters {
-  private _selectedCharacterControlScheme = CharacterControlScheme.Freelancer;
+class ClientApplicationSavedCharacters implements ReactiveNode {
+  private _selectedCharacterControlScheme = CharacterControlScheme.Captain;
 
   private _byControlScheme: Record<CharacterControlScheme, ClientSavedCharacter[]> = {
-    [CharacterControlScheme.Freelancer]: [],
     [CharacterControlScheme.Captain]: [],
+    [CharacterControlScheme.Freelancer]: [],
+  };
+  public capacities: Record<CharacterControlScheme, number> = {
+    [CharacterControlScheme.Captain]: 0,
+    [CharacterControlScheme.Freelancer]: 0,
   };
 
-  constructor() {
+  makeObservable() {
     makeAutoObservable(this);
   }
 

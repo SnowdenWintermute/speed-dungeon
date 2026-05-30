@@ -48,6 +48,7 @@ import ArrowRightToLineNext from "../../../public/img/menu-icons/arrow-right-to-
 import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
 import DownloadDocument from "../../../public/img/menu-icons/download-document.svg";
 import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
+import FloppyDisc from "../../../public/img/menu-icons/floppy-disk.svg";
 
 import { ReactNode } from "react";
 import {
@@ -110,6 +111,7 @@ export enum IconName {
   ArrowRight,
   DownloadDocument,
   TrashCan,
+  FloppyDisc,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -163,6 +165,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.ArrowRight]: (className: string) => <ArrowRight className={className} />,
   [IconName.DownloadDocument]: (className: string) => <DownloadDocument className={className} />,
   [IconName.TrashCan]: (className: string) => <TrashCan className={className} />,
+  [IconName.FloppyDisc]: (className: string) => <FloppyDisc className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
