@@ -60,7 +60,7 @@ export const PartySetupCard = observer(
             <h4 className="text-xl w-full flex justify-between">
               <span>
                 {party.name}
-                {userIsInThisParty && (
+                {userIsInThisParty && game.isRace() && (
                   <HotkeyButton
                     className="border border-slate-400 text-base pl-2 pr-2 ml-2"
                     onClick={leaveParty}

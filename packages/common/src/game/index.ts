@@ -448,7 +448,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       .getPartyMemberCharacters()
       .map((c) => c.combatantProperties.deepestFloorReached);
 
-    console.log("floors:", floors);
     if (floors.length === 0) {
       return 1;
     }

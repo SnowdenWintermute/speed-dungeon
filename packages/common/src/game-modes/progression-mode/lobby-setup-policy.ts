@@ -1,4 +1,3 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantId } from "../../aliases.js";
 import { MAX_PARTY_SIZE } from "../../app-consts.js";
 import { Combatant } from "../../combatants/index.js";

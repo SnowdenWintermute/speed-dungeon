@@ -38,9 +38,15 @@ export const EmptyCharacterSlot = observer(
       (character) =>
         !playerOption?.characterIds.includes(character.combatant.entityProperties.id as CombatantId)
     );
-    const [selectedSavedCharacterId, setSelectedSavedCharacterId] = useState<CombatantId | null>();
+    const [selectedSavedCharacterId, setSelectedSavedCharacterId] = useState<CombatantId | null>(
+      null
+    );
+
     useEffect(() => {
       setSelectedSavedCharacterId(savedCharactersNotInParty[0]?.combatant.getEntityId() ?? null);
+      if (savedCharacters.length >= savedCharacterCapacity) {
+        setShowCreateCharacterForm(false);
+      }
     }, [savedCharactersNotInParty.length]);
 
     const savedCharacterCapacity =
@@ -60,23 +66,24 @@ export const EmptyCharacterSlot = observer(
           return (
             <div className="relative">
               <CreateCharacterForm />
-              {savedCharacters.length < savedCharacterCapacity && (
-                <div className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 h-10 w-10 border border-slate-400 bg-slate-700">
-                  <HoverableTooltipWrapper
-                    extraStyles="h-full w-full"
-                    tooltipText="Select from saved characters"
-                  >
-                    <HotkeyButton
-                      className="h-full w-full pointer-events-auto"
-                      onClick={() => {
-                        setShowCreateCharacterForm(!showCreateCharacterForm);
-                      }}
+              {savedCharacters.length < savedCharacterCapacity &&
+                savedCharactersNotInParty.length > 0 && (
+                  <div className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 h-10 w-10 border border-slate-400 bg-slate-700">
+                    <HoverableTooltipWrapper
+                      extraStyles="h-full w-full"
+                      tooltipText="Select from saved characters"
                     >
-                      {SVG_ICONS[IconName.FloppyDisc]("p-2 h-full fill-slate-400")}
-                    </HotkeyButton>
-                  </HoverableTooltipWrapper>
-                </div>
-              )}
+                      <HotkeyButton
+                        className="h-full w-full pointer-events-auto"
+                        onClick={() => {
+                          setShowCreateCharacterForm(!showCreateCharacterForm);
+                        }}
+                      >
+                        {SVG_ICONS[IconName.FloppyDisc]("p-2 h-full fill-slate-400")}
+                      </HotkeyButton>
+                    </HoverableTooltipWrapper>
+                  </div>
+                )}
             </div>
           );
         }

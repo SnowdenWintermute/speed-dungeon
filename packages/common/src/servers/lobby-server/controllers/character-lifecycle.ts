@@ -31,12 +31,6 @@ export class CharacterLifecycleController {
     }
   }
 
-  // @TODO -
-  // - rename to createCharacterInGameHandler()
-  // - check against current game character creation policy
-  //   .if progression, check if enough slots and if so save the progression character
-  //   .if ironman, check if this is a continued run
-  //   .if race, nothing special
   async createCharacterInGameHandler(
     session: UserSession,
     data: { name: EntityName; combatantClass: CombatantClass }
@@ -60,12 +54,16 @@ export class CharacterLifecycleController {
       combatantClass,
       session.username
     );
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
-    await gameModePolicy.persistence.onCreateCharacterInLobbySetup(
-      session,
-      game,
-      characterWithPets
-    );
+    const gameModePolicyCharacterCreationInGameOutbox =
+      await gameModePolicy.persistence.onCreateCharacterInLobbySetup(
+        session,
+        game,
+        characterWithPets
+      );
+
+    outbox.pushFromOther(gameModePolicyCharacterCreationInGameOutbox);
 
     const { combatant: newCharacter, pets } = characterWithPets;
     const player = game.getExpectedPlayer(session.username);
@@ -73,8 +71,6 @@ export class CharacterLifecycleController {
 
     const serialized = newCharacter.toSerialized();
     const serializedPets = pets.map((pet) => pet.toSerialized());
-
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.CharacterAddedToParty,
