@@ -138,7 +138,8 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       raceGameRecordsService,
       assetService,
       gameCrossServerBroadcasterService,
-      globalGameSessionStore
+      globalGameSessionStore,
+      profileService
     ),
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
@@ -191,7 +192,8 @@ function createOfflineGameServerServices(
   raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore
+  globalGameSessionStore: GlobalGameSessionStore,
+  profileService: SpeedDungeonProfileService
 ) {
   const externalServices: GameServerExternalServices = {
     gameSessionStoreService,
@@ -201,6 +203,7 @@ function createOfflineGameServerServices(
     assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,
+    profileService,
   };
   return externalServices;
 }

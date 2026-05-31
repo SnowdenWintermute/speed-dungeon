@@ -8,11 +8,13 @@ export const IronmanRunSelector = observer(() => {
   const { lobbyContext } = clientApplication;
 
   return (
-    <div>
+    <div className="">
+      <p>Select saved run</p>
+
       <SelectDropdown
         title={"Select saved Ironman run"}
         value={lobbyContext.selectedSavedIronmanRun}
-        setValue={function (value: any): void {
+        setValue={(value: any) => {
           lobbyContext.selectedSavedIronmanRun = value;
         }}
         options={[...lobbyContext.savedIronmanRuns.values()].map((value) => {

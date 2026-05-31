@@ -23,6 +23,11 @@ export default function HostGameForm() {
   const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState<GameName>("" as GameName);
+  const { savedIronmanRunCapacity, savedIronmanRuns, selectedSavedIronmanRun } =
+    clientApplication.lobbyContext;
+  const newIronmanRunAllowed =
+    savedIronmanRunCapacity !== null && savedIronmanRuns.size < savedIronmanRunCapacity;
+  console.log("savedIronmanRunCapacity:", savedIronmanRunCapacity);
 
   function createGame(
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -102,7 +107,25 @@ export default function HostGameForm() {
             </HoverableTooltipWrapper>
           </div>
           <div className="flex w-full mb-2">
-            <div id="game-mode-spacer" className={`flex-1 h-10 mr-1`} />
+            <HoverableTooltipWrapper
+              tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
+              extraStyles="flex-1 mr-1"
+            >
+              <HotkeyButton
+                buttonType="button"
+                hotkeys={[]}
+                disabled={!isLoggedIn}
+                onClick={() => {
+                  setSelectedGameMode(GameMode.Ironman);
+                }}
+                className={`flex-1 h-10 w-full border border-slate-400 px-2
+                        ${selectedGameMode === GameMode.Ironman ? "bg-slate-950" : "bg-slate-700"}
+                        disabled:opacity-50 
+                        `}
+              >
+                IRONMAN
+              </HotkeyButton>
+            </HoverableTooltipWrapper>
             <HoverableTooltipWrapper
               tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
               extraStyles="flex-1 ml-1 "
@@ -124,39 +147,29 @@ export default function HostGameForm() {
               </HotkeyButton>
             </HoverableTooltipWrapper>
           </div>
-          <div>
-            <HoverableTooltipWrapper
-              tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
-              extraStyles="flex-1 ml-1 "
-            >
-              <HotkeyButton
-                buttonType="button"
-                hotkeys={[]}
-                disabled={!isLoggedIn}
-                onClick={() => {
-                  setSelectedGameMode(GameMode.Ironman);
-                }}
-                className={`flex-1 h-10 w-full border border-slate-400
-                        ${selectedGameMode === GameMode.Ironman ? "bg-slate-950" : "bg-slate-700"}
-                        disabled:opacity-50
-                        `}
-              >
-                IRONMAN
-              </HotkeyButton>
-            </HoverableTooltipWrapper>
-          </div>
         </div>
-        {selectedGameMode === GameMode.Ironman ? <IronmanRunSelector /> : ""}
         <HotkeyButton
           buttonType="submit"
           hotkeys={["KeyR", "Enter"]}
           onClick={(e) => {
             createGame(e);
           }}
-          className="h-10 w-full border border-slate-400 bg-slate-700"
+          className="h-10 w-full border border-slate-400 bg-slate-700 disabled:opacity-50"
+          disabled={
+            selectedGameMode === GameMode.Ironman &&
+            !newIronmanRunAllowed &&
+            selectedSavedIronmanRun === null
+          }
         >
           CREATE
         </HotkeyButton>
+        <div className="mt-2">
+          {selectedGameMode === GameMode.Ironman && savedIronmanRuns.size ? (
+            <IronmanRunSelector />
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     </form>
   );

@@ -51,10 +51,15 @@ import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reco
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
 import { GameMode } from "../../game-modes/index.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
+import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
+import { SpeedDungeonProfileService } from "../services/profiles.js";
+import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js";
+import { LobbyState } from "../lobby-server/lobby-state.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
+  profileService: SpeedDungeonProfileService;
   rankedLadderService: RankedLadderService;
   raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
@@ -83,7 +88,10 @@ export class GameServer extends SpeedDungeonServer {
   public readonly craftingController: CraftingController;
   public readonly miscUtilityController: MiscUtilityController;
 
+  // @TODO change gameModeContexts to gameModePolicyStore
   private readonly gameModeContexts: Record<GameMode, GameModeContext>;
+  // game modes
+  private gameModePolicyStore: GameModePolicyStore;
 
   constructor(
     readonly name: GameServerName,
@@ -132,6 +140,20 @@ export class GameServer extends SpeedDungeonServer {
 
     this.heartbeatScheduler.start();
     this.startActiveGamesRecordHeartbeatTask();
+
+    this.gameModePolicyStore = new GameModePolicyStore(
+      this.updateDispatchFactory,
+      externalServices.crossServerBroadcasterService,
+      externalServices.profileService,
+      externalServices.rankedLadderService,
+      externalServices.userGameDataPersistenceService,
+      this.userSessionRegistry,
+      this.gameRegistry,
+      externalServices.gameSessionStoreService,
+      // GameExistenceChecker placeholder to conform to interface since it is really used by lobby setup policies
+      new GameExistenceChecker(new LobbyState(), externalServices.gameSessionStoreService),
+      this.idGenerator
+    );
 
     this.gameModeContexts = {
       [GameMode.UnrankedRace]: new GameModeContext(

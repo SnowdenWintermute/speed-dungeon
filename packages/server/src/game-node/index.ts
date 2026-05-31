@@ -153,6 +153,7 @@ export class GameServerNode {
       assetService,
       crossServerBroadcasterService,
       globalGameSessionStore,
+      profileService,
     };
     return result;
   }

@@ -151,7 +151,8 @@ export async function createTestServers(
             raceGameRecordsService,
             gameServerNodeAssetService,
             new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
-            globalGameSessionStore
+            globalGameSessionStore,
+            profileService
           ),
           gameServerSessionClaimCodec,
           guestSessionReconnectionTokencodec,
@@ -214,7 +215,8 @@ export function createGameServerTestServices(
   raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore
+  globalGameSessionStore: GlobalGameSessionStore,
+  profileService: SpeedDungeonProfileService
 ): GameServerExternalServices {
   const externalServices = {
     gameSessionStoreService,
@@ -224,6 +226,7 @@ export function createGameServerTestServices(
     assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,
+    profileService,
   };
   return externalServices;
 }

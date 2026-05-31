@@ -245,8 +245,8 @@ export function createLobbyUpdateHandlers(
       for (const serialized of data.savedIronmanRuns) {
         const run = SavedIronmanRun.fromSerialized(serialized);
         clientApplication.lobbyContext.savedIronmanRuns.set(run.game.id, run);
-        clientApplication.lobbyContext.savedIronmanRunCapacity = data.ironmanRunCapacity;
       }
+      clientApplication.lobbyContext.savedIronmanRunCapacity = data.ironmanRunCapacity;
     },
     [GameStateUpdateType.SavedCharacterDeleted]: (data) => {
       lobbyContext.savedCharacters.deleteSavedCharacter(data.entityId);
