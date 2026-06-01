@@ -3,6 +3,7 @@ import { DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { Battle } from "../../../battle/index.js";
 import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 import { GameMode } from "../../../game-modes/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
@@ -18,7 +19,6 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { AssetAnalyzer } from "../asset-analyzer/index.js";
 import { PartyDelayedGameMessageFactory } from "../party-delayed-game-message-factory.js";
 import { BattleProcessor } from "./battle-processor/index.js";
-import { GameModeContext } from "./game-lifecycle/game-mode-context.js";
 
 export class DungeonExplorationController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -31,7 +31,7 @@ export class DungeonExplorationController {
     private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
-    private readonly gameModeContexts: Record<GameMode, GameModeContext>
+    private readonly gameModePolicyStore: GameModePolicyStore
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
@@ -110,7 +110,7 @@ export class DungeonExplorationController {
   }
 
   async descendParty(game: SpeedDungeonGame, party: AdventuringParty) {
-    const gameModeContext = this.gameModeContexts[game.mode];
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
 
     const { dungeonExplorationManager } = party;
     dungeonExplorationManager.incrementCurrentFloor();
@@ -162,7 +162,8 @@ export class DungeonExplorationController {
 
       outbox.pushFromOther(escapeMessageOutbox);
 
-      await gameModeContext.strategy.onPartyEscape(game, party);
+      await gameModePolicy.persistence.onPartyEscape(game, party);
+      await gameModePolicy.ladder.onPartyEscape();
     }
 
     const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
@@ -246,7 +247,7 @@ export class DungeonExplorationController {
       game,
       party,
       battleOption,
-      this.gameModeContexts,
+      this.gameModePolicyStore,
       this.idGenerator,
       this.rngPolicy,
       this.lootGenerator,

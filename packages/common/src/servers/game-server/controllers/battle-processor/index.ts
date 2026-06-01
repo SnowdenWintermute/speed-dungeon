@@ -16,7 +16,6 @@ import {
   GameMessage,
   GameMessageType,
 } from "../../../../packets/game-message.js";
-import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 import {
   ClientSequentialEvent,
   ClientSequentialEventType,
@@ -25,7 +24,7 @@ import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-impleme
 import { throwIfLoopLimitReached } from "../../../../utils/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
-import { GameMode } from "../../../../game-modes/index.js";
+import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 
 export class BattleProcessor {
   constructor(
@@ -33,7 +32,7 @@ export class BattleProcessor {
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
     private battle: Battle | null,
-    private gameModeContexts: Record<GameMode, GameModeContext>,
+    private gameModePolicyStore: GameModePolicyStore,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
     private lootGenerator: LootGenerator,
@@ -162,8 +161,8 @@ export class BattleProcessor {
       this.updateDispatchFactory
     );
 
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onBattleResult(game, party);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    await gameModePolicy.persistence.onBattleResult(game, party);
 
     switch (battleConcluded.conclusion) {
       case BattleConclusion.Defeat: {
@@ -183,17 +182,22 @@ export class BattleProcessor {
           },
         });
 
-        const ladderDeathOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
-        ladderMessagesOutbox.pushFromOther(ladderDeathOutbox);
+        const ladderDeathOutboxOption = await gameModePolicy.ladder.onPartyWipe(game, party);
+        if (ladderDeathOutboxOption) {
+          ladderMessagesOutbox.pushFromOther(ladderDeathOutboxOption);
+        }
         break;
       }
       case BattleConclusion.Victory: {
-        const ladderVictoryOutbox = await gameModeContext.strategy.onPartyVictory(
+        const ladderVictoryOutboxOption = await gameModePolicy.ladder.onPartyBattleVictory(
           game,
           party,
           battleConcluded.levelUps
         );
-        ladderMessagesOutbox.pushFromOther(ladderVictoryOutbox);
+        if (ladderVictoryOutboxOption) {
+          ladderMessagesOutbox.pushFromOther(ladderVictoryOutboxOption);
+        }
+
         break;
       }
     }

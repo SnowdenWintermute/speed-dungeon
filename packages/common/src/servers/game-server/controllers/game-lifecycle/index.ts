@@ -10,7 +10,6 @@ import { SpeedDungeonGame } from "../../../../game/index.js";
 import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { GameModeContext } from "./game-mode-context.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
 import {
@@ -20,7 +19,7 @@ import {
 } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
-import { GameMode } from "../../../../game-modes/index.js";
+import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -31,7 +30,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly globalGameSessionStore: GlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly gameModeContexts: Record<GameMode, GameModeContext>,
+    private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly dungeonExplorationController: DungeonExplorationController
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
@@ -147,8 +146,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   private async startGame(game: SpeedDungeonGame) {
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onGameStart(game);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    await gameModePolicy.persistence.onGameStart(game);
+    await gameModePolicy.ladder.onGameStart();
 
     game.setAsStarted();
 
@@ -192,8 +192,15 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     const player = game.getExpectedPlayer(session.username);
     const party = player.getExpectedParty(game);
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onGameLeave(game, party, player);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    const playerLeftGameOutbox = await gameModePolicy.persistence.onLiveGameLeave(
+      game,
+      player,
+      this
+    );
+    outbox.pushFromOther(playerLeftGameOutbox);
+    const ladderMessages = await gameModePolicy.ladder.onLiveGameLeave(game, party, player);
+    outbox.pushFromOther(ladderMessages);
 
     const removedPlayerData = game.removePlayerFromParty(session.username);
     const { partyWasRemoved } = removedPlayerData;
@@ -215,7 +222,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     if (partyShouldBeMarkedWiped) {
       party.timeOfWipe = Date.now();
-      const ladderDeathMessagesOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
+      await gameModePolicy.persistence.onPartyWipe(game, party);
+      const ladderDeathMessagesOutbox = await gameModePolicy.ladder.onPartyWipe(game, party);
 
       const remainingParties = Object.values(game.adventuringParties);
       if (remainingParties.length) {
@@ -231,7 +239,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
         outbox.pushFromOther(partyWipedOutbox);
       }
 
-      outbox.pushFromOther(ladderDeathMessagesOutbox);
+      if (ladderDeathMessagesOutbox) {
+        outbox.pushFromOther(ladderDeathMessagesOutbox);
+      }
     }
 
     game.removePlayer(session.username);
@@ -249,8 +259,9 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async cleanUpGame(game: SpeedDungeonGame) {
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onLastPlayerLeftGame(game);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    await gameModePolicy.persistence.onLastPlayerLeftLiveGame(game);
+    await gameModePolicy.ladder.onLastPlayerLeftLiveGame();
 
     this.gameRegistry.unregisterGame(game.id);
     // even though we clear their session on leave game, it is possible that they never joined the game,

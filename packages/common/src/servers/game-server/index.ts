@@ -26,7 +26,6 @@ import { LootGenerator } from "../../items/item-creation/loot-generator.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
-import { GameModeContext } from "./controllers/game-lifecycle/game-mode-context.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
 import { CraftingController } from "./controllers/crafting/index.js";
@@ -49,7 +48,6 @@ import {
 } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
-import { GameMode } from "../../game-modes/index.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
@@ -88,8 +86,6 @@ export class GameServer extends SpeedDungeonServer {
   public readonly craftingController: CraftingController;
   public readonly miscUtilityController: MiscUtilityController;
 
-  // @TODO change gameModeContexts to gameModePolicyStore
-  private readonly gameModeContexts: Record<GameMode, GameModeContext>;
   // game modes
   private gameModePolicyStore: GameModePolicyStore;
 
@@ -155,45 +151,6 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator
     );
 
-    this.gameModeContexts = {
-      [GameMode.UnrankedRace]: new GameModeContext(
-        GameMode.UnrankedRace,
-        externalServices.raceGameRecordsService,
-        externalServices.userGameDataPersistenceService,
-        externalServices.rankedLadderService,
-        this.updateDispatchFactory,
-        externalServices.crossServerBroadcasterService,
-        this.userSessionRegistry
-      ),
-      [GameMode.RankedRace]: new GameModeContext(
-        GameMode.RankedRace,
-        externalServices.raceGameRecordsService,
-        externalServices.userGameDataPersistenceService,
-        externalServices.rankedLadderService,
-        this.updateDispatchFactory,
-        externalServices.crossServerBroadcasterService,
-        this.userSessionRegistry
-      ),
-      [GameMode.Ironman]: new GameModeContext(
-        GameMode.Ironman,
-        externalServices.raceGameRecordsService,
-        externalServices.userGameDataPersistenceService,
-        externalServices.rankedLadderService,
-        this.updateDispatchFactory,
-        externalServices.crossServerBroadcasterService,
-        this.userSessionRegistry
-      ),
-      [GameMode.Progression]: new GameModeContext(
-        GameMode.Progression,
-        externalServices.raceGameRecordsService,
-        externalServices.userGameDataPersistenceService,
-        externalServices.rankedLadderService,
-        this.updateDispatchFactory,
-        externalServices.crossServerBroadcasterService,
-        this.userSessionRegistry
-      ),
-    };
-
     this.dungeonExplorationController = new DungeonExplorationController(
       this.updateDispatchFactory,
       this.externalServices.userGameDataPersistenceService,
@@ -202,7 +159,7 @@ export class GameServer extends SpeedDungeonServer {
       this.lootGenerator,
       this.dungeonGenerationPolicy,
       this.assetAnalyzer,
-      this.gameModeContexts
+      this.gameModePolicyStore
     );
 
     this.gameLifecycleController = new GameServerGameLifecycleController(
@@ -211,7 +168,7 @@ export class GameServer extends SpeedDungeonServer {
       this.externalServices.gameSessionStoreService,
       this.externalServices.globalGameSessionStore,
       this.updateDispatchFactory,
-      this.gameModeContexts,
+      this.gameModePolicyStore,
       this.dungeonExplorationController
     );
 
@@ -224,7 +181,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.combatActionController = new CombatActionController(
       this.updateDispatchFactory,
-      this.gameModeContexts,
+      this.gameModePolicyStore,
       this.idGenerator,
       rngPolicy,
       this.lootGenerator,

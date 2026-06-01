@@ -20,18 +20,17 @@ import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
-import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
 import { SerializedOf } from "../../../../serialization/index.js";
-import { GameMode } from "../../../../game-modes/index.js";
+import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 
 export class CombatActionController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private gameModeContexts: Record<GameMode, GameModeContext>,
+    private gameModePolicyStore: GameModePolicyStore,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
     private lootGenerator: LootGenerator,
@@ -324,7 +323,7 @@ export class CombatActionController {
         game,
         party,
         battleOption,
-        this.gameModeContexts,
+        this.gameModePolicyStore,
         this.idGenerator,
         this.rngPolicy,
         this.lootGenerator,
@@ -371,7 +370,7 @@ export class CombatActionController {
         game,
         party,
         battleOption,
-        this.gameModeContexts,
+        this.gameModePolicyStore,
         this.idGenerator,
         this.rngPolicy,
         this.lootGenerator,

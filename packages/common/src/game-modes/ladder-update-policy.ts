@@ -2,31 +2,53 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { EntityId } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
-import { ClientSequentialEvent } from "../packets/client-sequential-events.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
+import { PartyDelayedGameMessageFactory } from "../servers/game-server/party-delayed-game-message-factory.js";
+import { CrossServerBroadcasterService } from "../servers/services/cross-server-broadcaster/index.js";
+import { RankedLadderService } from "../servers/services/ranked-ladder.js";
+import { ServerCommand } from "../servers/services/server-command/index.js";
+import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
+import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 
 /** how to update which ladder when certain events happen
  * will need access to ladder services, or be owned by a composing class that
  * can pass the services to each method
  * */
-export interface GameModeLadderUpdatePolicy {
-  onFloorDescent(): Promise<void>;
-  onGameStart(): Promise<void>;
-  onLiveGameLeave(
+export abstract class GameModeLadderUpdatePolicy {
+  constructor(
+    protected userSessionRegistry: UserSessionRegistry,
+    protected rankedLadderService: RankedLadderService,
+    protected updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    protected partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
+    protected crossServerBroadcasterService: CrossServerBroadcasterService<
+      GameStateUpdate,
+      ServerCommand
+    >
+  ) {}
+
+  async onFloorDescent(): Promise<void> {}
+  async onGameStart(): Promise<void> {}
+  async onLiveGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     player: SpeedDungeonPlayer
-  ): Promise<ClientSequentialEvent[]>;
-  onLastPlayerLeftLiveGame(): Promise<void>;
-  onPartyEscape(): Promise<void>;
-  onPartyWipe(
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
+    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+  }
+  async onLastPlayerLeftLiveGame(): Promise<void> {}
+  async onPartyEscape(): Promise<void> {}
+  async onPartyWipe(
     game: SpeedDungeonGame,
     party: AdventuringParty
-  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
-  onPartyBattleVictory(
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
+    return undefined;
+  }
+  async onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
-  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined>;
+  ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
+    return undefined;
+  }
 }
