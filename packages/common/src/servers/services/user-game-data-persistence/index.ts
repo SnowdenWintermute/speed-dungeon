@@ -11,7 +11,7 @@ import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { SerializedOf } from "../../../serialization/index.js";
-import { SpeedDungeonProfileService } from "../profiles.js";
+import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../profiles.js";
 import { UserIdType } from "../../sessions/user-ids.js";
 
 export class UserGameDataPersistenceService {
@@ -23,20 +23,41 @@ export class UserGameDataPersistenceService {
 
   async saveIronmanRun(game: SpeedDungeonGame, userSessions: UserSession[]): Promise<void> {
     game.requireMode(GameMode.Ironman);
+    console.log(
+      `[saveIronmanRun] gameId=${game.id} userSessions.length=${userSessions.length}`
+    );
     const run = new SavedIronmanRun(game, game.getAuthUserIdsToUsernames(userSessions));
     const serializedRun = run.toSerialized();
-    this.savedIronmanRunPersistenceStrategy.save(serializedRun);
-    await this.addRunIdReferencesToUserProfiles(game.id, userSessions);
+    try {
+      await this.savedIronmanRunPersistenceStrategy.save(serializedRun);
+      console.log(`[saveIronmanRun] run persisted, updating profiles...`);
+      await this.addRunIdReferencesToUserProfiles(game.id, userSessions);
+      console.log(`[saveIronmanRun] done`);
+    } catch (err) {
+      console.error(`[saveIronmanRun] FAILED:`, err);
+      throw err;
+    }
   }
 
   private async addRunIdReferencesToUserProfiles(runId: GameId, userSessions: UserSession[]) {
     for (const session of userSessions) {
       invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
       const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
-      if (!profile.ironmanRunIds.includes(runId)) {
-        profile.ironmanRunIds.push(runId);
-        await this.profileService.update(session.taggedUserId.id, profile);
+      console.log(
+        `[addRunIdRefs] userId=${session.taggedUserId.id} profile.id=${profile.id} existing ironmanRunIds=${JSON.stringify(profile.ironmanRunIds)}`
+      );
+      if (profile.ironmanRunIds.includes(runId)) {
+        console.log(`[addRunIdRefs] runId ${runId} already on profile, skipping`);
+        continue;
       }
+
+      const candidate: SpeedDungeonProfile = {
+        ...profile,
+        ironmanRunIds: [...profile.ironmanRunIds, runId],
+      };
+      await this.profileService.update(session.taggedUserId.id, candidate);
+      console.log(`[addRunIdRefs] profile update completed for profile.id=${profile.id}`);
+      profile.ironmanRunIds.push(runId);
     }
   }
 

@@ -15,8 +15,11 @@ export class DatabaseProfileService extends SpeedDungeonProfileService {
     return speedDungeonProfileOption;
   }
 
-  update(userId: IdentityProviderId, profile: SpeedDungeonProfile): Promise<void> {
-    throw new Error("Method not implemented.");
+  async update(userId: IdentityProviderId, profile: SpeedDungeonProfile): Promise<void> {
+    const updated = await this.profilesRepo.update(profile);
+    if (updated === undefined) {
+      throw new Error(`${ERROR_MESSAGES.DATABASE.SAVING}`);
+    }
   }
 
   async createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {

@@ -242,6 +242,7 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.SavedIronmanRunsList]: (data) => {
+      console.log("got SavedIronmanRunsList", data);
       for (const serialized of data.savedIronmanRuns) {
         const run = SavedIronmanRun.fromSerialized(serialized);
         clientApplication.lobbyContext.savedIronmanRuns.set(run.game.id, run);

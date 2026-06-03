@@ -36,7 +36,6 @@ import {
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
-  InMemoryIronmanRunPersistenceStrategy,
   SpeedDungeonProfileService,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
@@ -45,10 +44,14 @@ import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-sy
 import { Express } from "express";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
-import { DatabaseSavedCharacterPersistenceStrategy } from "./services/user-game-data-persistence.js";
+import {
+  DatabaseIronmanRunPersistenceStrategy,
+  DatabaseSavedCharacterPersistenceStrategy,
+} from "./services/user-game-data-persistence.js";
 import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
+import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
 import { env } from "../validate-env.js";
 
 export class GameServerNode {
@@ -133,9 +136,12 @@ export class GameServerNode {
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
+    const ironmanRunPersistenceStrategy = new DatabaseIronmanRunPersistenceStrategy(
+      savedIronmanRunsRepo
+    );
     const userGameDataPersistenceService = new UserGameDataPersistenceService(
       savedCharactersPersistenceStrategy,
-      new InMemoryIronmanRunPersistenceStrategy(),
+      ironmanRunPersistenceStrategy,
       profileService
     );
 

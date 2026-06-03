@@ -61,6 +61,8 @@ export class IronmanRunController {
     // in case their profile was made before the change to the structure of profiles to include ironman runs
     // handle the update based on a future "profile schema version" field
 
+    console.log("profile has run ids:", ironmanRunIds);
+
     for (const id of ironmanRunIds) {
       const run = await this.userGameDataPersistenceService.requireIronmanRun(id);
       savedIronmanRuns.push(run);

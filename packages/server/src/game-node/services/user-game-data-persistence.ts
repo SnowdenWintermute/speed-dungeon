@@ -3,12 +3,17 @@ import {
   Combatant,
   EntityId,
   ERROR_MESSAGES,
+  GameId,
   IdentityProviderId,
   invariant,
+  IronmanRunPersistenceStrategy,
   SavedCharacterPersistenceStrategy,
+  SavedIronmanRun,
+  SerializedOf,
   SerializedPlayerCharacter,
 } from "@speed-dungeon/common";
 import { PlayerCharacterRepo } from "../../database/repos/player-characters.js";
+import { SavedIronmanRunRepo } from "../../database/repos/saved-ironman-runs.js";
 
 export class DatabaseSavedCharacterPersistenceStrategy
   implements SavedCharacterPersistenceStrategy
@@ -63,5 +68,24 @@ export class DatabaseSavedCharacterPersistenceStrategy
       throw new Error(ERROR_MESSAGES.DATABASE.SAVING);
     }
     return expected;
+  }
+}
+
+export class DatabaseIronmanRunPersistenceStrategy implements IronmanRunPersistenceStrategy {
+  constructor(private savedIronmanRunsRepo: SavedIronmanRunRepo) {}
+
+  async save(run: SerializedOf<SavedIronmanRun>): Promise<void> {
+    const expected = await this.savedIronmanRunsRepo.upsert(run);
+    if (expected === undefined) {
+      throw new Error(ERROR_MESSAGES.DATABASE.SAVING);
+    }
+  }
+
+  async fetchRunOption(runId: GameId): Promise<SerializedOf<SavedIronmanRun> | undefined> {
+    return this.savedIronmanRunsRepo.fetchRunOption(runId);
+  }
+
+  async delete(runId: GameId): Promise<void> {
+    await this.savedIronmanRunsRepo.deleteById(runId);
   }
 }
