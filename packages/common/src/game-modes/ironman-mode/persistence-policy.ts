@@ -51,6 +51,11 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
     // if the game has not completed in a wipe or escape, save it
     const defaultParty = game.requireSingleParty();
     if (defaultParty.timeOfWipe === null && defaultParty.timeOfEscape === null) {
+      console.log(
+        "saving ironman run on live game leave",
+        defaultParty.name,
+        defaultParty.combatantManager.getPartyMemberCharacters()
+      );
       await this.userGameDataPersistenceService.saveIronmanRun(
         game,
         this.userSessionRegistry.getAllSessionsInGame(game)

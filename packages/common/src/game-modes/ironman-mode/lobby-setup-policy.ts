@@ -96,7 +96,13 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     const runIdOption = gameCreationRequest.continueGameId;
     if (runIdOption) {
       const serialized = await this.userGameDataPersistenceService.requireIronmanRun(runIdOption);
-      return SavedIronmanRun.createGameFromSavedRun(serialized);
+      const game = SavedIronmanRun.createGameFromSavedRun(serialized);
+      console.log(
+        "creating game from saved ironman run",
+        game.requireSingleParty().name,
+        game.requireSingleParty().combatantManager.getPartyMemberCharacters()
+      );
+      return game;
     } else {
       const { gameName, mode, controlScheme } = gameCreationRequest;
       return new SpeedDungeonGame(
@@ -117,7 +123,9 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
   }
 
   override onCreation(game: SpeedDungeonGame): void {
-    this.createDefaultPartyInGame(game);
+    if (!game.isContinuedRun) {
+      this.createDefaultPartyInGame(game);
+    }
   }
 
   override async onJoin(

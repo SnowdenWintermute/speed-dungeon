@@ -210,6 +210,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       GameMode.UnrankedRace,
       GameMode.Progression,
     ];
+
     if (gameModesWhereLeavingRemovesPlayer.includes(game.mode)) {
       const removedPlayerOutbox = await this.handlePlayerRemovalOnGameLeave(
         session,
