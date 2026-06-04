@@ -39,9 +39,6 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
   async update(speedDungeonProfile: SpeedDungeonProfile) {
     const { id, characterCapacities, ironmanRunIds } = speedDungeonProfile;
     const ironmanRunIdsLiteral = `{${ironmanRunIds.join(",")}}`;
-    console.log(
-      `[profilesRepo.update] id=${id} ironmanRunIdsLiteral=${ironmanRunIdsLiteral}`
-    );
     const { rows } = await this.pgPool.query(
       format(
         `UPDATE ${tableName}
@@ -55,7 +52,6 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
         id
       )
     );
-    console.log(`[profilesRepo.update] rows returned: ${rows.length}`);
 
     if (rows[0]) return toCamelCase(rows)[0] as unknown as SpeedDungeonProfile;
     return undefined;

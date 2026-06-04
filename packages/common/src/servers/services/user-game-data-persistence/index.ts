@@ -23,40 +23,23 @@ export class UserGameDataPersistenceService {
 
   async saveIronmanRun(game: SpeedDungeonGame, userSessions: UserSession[]): Promise<void> {
     game.requireMode(GameMode.Ironman);
-    console.log(
-      `[saveIronmanRun] gameId=${game.id} userSessions.length=${userSessions.length}`
-    );
     const run = new SavedIronmanRun(game, game.getAuthUserIdsToUsernames(userSessions));
     const serializedRun = run.toSerialized();
-    try {
-      await this.savedIronmanRunPersistenceStrategy.save(serializedRun);
-      console.log(`[saveIronmanRun] run persisted, updating profiles...`);
-      await this.addRunIdReferencesToUserProfiles(game.id, userSessions);
-      console.log(`[saveIronmanRun] done`);
-    } catch (err) {
-      console.error(`[saveIronmanRun] FAILED:`, err);
-      throw err;
-    }
+    await this.savedIronmanRunPersistenceStrategy.save(serializedRun);
+    await this.addRunIdReferencesToUserProfiles(game.id, userSessions);
   }
 
   private async addRunIdReferencesToUserProfiles(runId: GameId, userSessions: UserSession[]) {
     for (const session of userSessions) {
       invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
       const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
-      console.log(
-        `[addRunIdRefs] userId=${session.taggedUserId.id} profile.id=${profile.id} existing ironmanRunIds=${JSON.stringify(profile.ironmanRunIds)}`
-      );
-      if (profile.ironmanRunIds.includes(runId)) {
-        console.log(`[addRunIdRefs] runId ${runId} already on profile, skipping`);
-        continue;
-      }
+      if (profile.ironmanRunIds.includes(runId)) continue;
 
       const candidate: SpeedDungeonProfile = {
         ...profile,
         ironmanRunIds: [...profile.ironmanRunIds, runId],
       };
       await this.profileService.update(session.taggedUserId.id, candidate);
-      console.log(`[addRunIdRefs] profile update completed for profile.id=${profile.id}`);
       profile.ironmanRunIds.push(runId);
     }
   }

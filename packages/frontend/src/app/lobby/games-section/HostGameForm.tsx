@@ -13,8 +13,9 @@ import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { IronmanRunSelector } from "./IronmanRunSelector";
+import { observer } from "mobx-react-lite";
 
-export default function HostGameForm() {
+export const HostGameForm = observer(() => {
   const clientApplication = useClientApplication();
   const { uiStore, lobbyClientRef } = clientApplication;
   const currentSessionHttpResponseTracker =
@@ -39,6 +40,7 @@ export default function HostGameForm() {
         gameName,
         mode: selectedGameMode,
         controlScheme: CharacterControlScheme.Captain,
+        continueGameId: selectedSavedIronmanRun || undefined,
       },
     });
   }
@@ -47,6 +49,10 @@ export default function HostGameForm() {
     if (!isLoggedIn) setSelectedGameMode(GameMode.UnrankedRace);
     if (!isLoggedIn) setIsRanked(false);
   }, [isLoggedIn]);
+
+  function handleAbandonRunClick() {
+    //
+  }
 
   return (
     <form
@@ -165,7 +171,19 @@ export default function HostGameForm() {
         </HotkeyButton>
         <div className="mt-2">
           {selectedGameMode === GameMode.Ironman && savedIronmanRuns.size ? (
-            <IronmanRunSelector />
+            <div>
+              <IronmanRunSelector />
+              {selectedSavedIronmanRun !== null && (
+                <div className="pt-2">
+                  <HotkeyButton
+                    className="border border-slate-400 p-2"
+                    onClick={handleAbandonRunClick}
+                  >
+                    Abandon Run
+                  </HotkeyButton>
+                </div>
+              )}
+            </div>
           ) : (
             ""
           )}
@@ -173,4 +191,4 @@ export default function HostGameForm() {
       </div>
     </form>
   );
-}
+});

@@ -1,11 +1,20 @@
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { GameId } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React from "react";
 
 export const IronmanRunSelector = observer(() => {
   const clientApplication = useClientApplication();
   const { lobbyContext } = clientApplication;
+
+  const options: { title: string; value: GameId | null }[] = [
+    ...lobbyContext.savedIronmanRuns.values(),
+  ].map((value) => {
+    return { title: value.game.name + " " + value.savedAt, value: value.game.id };
+  });
+
+  options.push({ title: "New run", value: null });
 
   return (
     <div className="">
@@ -17,9 +26,7 @@ export const IronmanRunSelector = observer(() => {
         setValue={(value: any) => {
           lobbyContext.selectedSavedIronmanRun = value;
         }}
-        options={[...lobbyContext.savedIronmanRuns.values()].map((value) => {
-          return { title: value.game.name + " " + value.savedAt, value: value.game.id };
-        })}
+        options={options}
         disabled={undefined}
       ></SelectDropdown>
     </div>

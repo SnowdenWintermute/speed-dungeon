@@ -143,9 +143,9 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     // overwrite the existing entry and orphan their characters. Guest usernames are
     // deduped at lobby-session creation, but enforce the invariant at the point of
     // mutation so future regressions (or auth-vs-guest name collisions) can't slip past.
-    if (game.getPlayer(session.username) !== undefined) {
-      throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
-    }
+    // if (game.getPlayer(session.username) !== undefined) {
+    //   throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
+    // }
 
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
     const userCanJoin = await gameModePolicy.lobbySetup.userCanJoin(session, game);

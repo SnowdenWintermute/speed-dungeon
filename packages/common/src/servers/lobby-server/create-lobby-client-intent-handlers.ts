@@ -55,5 +55,9 @@ export function createLobbyClientIntentHandlers(
       lobbyServer.savedCharactersController.createSavedCharacterHandler(user, data),
     [ClientIntentType.DeleteSavedCharacter]: (data, user) =>
       lobbyServer.savedCharactersController.deleteSavedCharacterHandler(user, data),
+
+    // IRONMAN RUN MANAGEMENT
+    [ClientIntentType.AbandonIronmanRun]: (data, user) =>
+      lobbyServer.savedIronmanRunsController.abandonRun(user, data.runId),
   };
 }

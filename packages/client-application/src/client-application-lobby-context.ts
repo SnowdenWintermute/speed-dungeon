@@ -23,12 +23,13 @@ export class ClientApplicationLobbyContext implements ReactiveNode {
   readonly savedCharacters = new ClientApplicationSavedCharacters();
   readonly savedIronmanRuns = new Map<GameId, SavedIronmanRun>();
   public savedIronmanRunCapacity: null | number = null; // wait to hear from server your account's run capacity
-  public selectedSavedIronmanRun: null | GameId = null;
+  private _selectedSavedIronmanRun: null | GameId = null;
   readonly channel = new ClientApplicationLobbyChannel();
 
   makeObservable() {
     makeAutoObservable(this);
     this.savedCharacters.makeObservable();
+    console.log("made observable ClientApplicationLobbyContext");
   }
 
   setGameList(newList: GameListEntry[]) {
@@ -37,6 +38,14 @@ export class ClientApplicationLobbyContext implements ReactiveNode {
 
   get gameList() {
     return [...this._gameList];
+  }
+
+  get selectedSavedIronmanRun() {
+    return this._selectedSavedIronmanRun;
+  }
+
+  set selectedSavedIronmanRun(value: null | GameId) {
+    this._selectedSavedIronmanRun = value;
   }
 }
 

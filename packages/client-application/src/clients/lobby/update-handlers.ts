@@ -5,7 +5,6 @@ import {
   ClientAppMessageType,
   ClientSequentialEventType,
   Combatant,
-  CombatantId,
   ConnectionEndpoint,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   ERROR_MESSAGES,

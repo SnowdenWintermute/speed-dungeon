@@ -42,6 +42,9 @@ export enum ClientIntentType {
   CreateSavedCharacter,
   DeleteSavedCharacter,
 
+  // ironman run management
+  AbandonIronmanRun,
+
   // action selection
   SelectCombatAction,
   SelectCombatActionRank,
@@ -137,6 +140,9 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.DeleteSavedCharacter]: {
     entityId: CombatantId;
+  };
+  [ClientIntentType.AbandonIronmanRun]: {
+    runId: GameId;
   };
   [ClientIntentType.AddSavedCharacterToProgressionGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };

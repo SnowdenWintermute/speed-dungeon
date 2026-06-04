@@ -20,6 +20,7 @@ import {
 import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
+import { GameMode, GameModePolicy } from "../../../../game-modes/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -193,15 +194,42 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const player = game.getExpectedPlayer(session.username);
     const party = player.getExpectedParty(game);
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
-    const playerLeftGameOutbox = await gameModePolicy.persistence.onLiveGameLeave(
+
+    const ladderPolicyOutbox = await gameModePolicy.ladder.onLiveGameLeave(game, party, player);
+    outbox.pushFromOther(ladderPolicyOutbox);
+
+    const persistencePolicyOutbox = await gameModePolicy.persistence.onLiveGameLeave(
       game,
       player,
       this
     );
-    outbox.pushFromOther(playerLeftGameOutbox);
-    const ladderMessages = await gameModePolicy.ladder.onLiveGameLeave(game, party, player);
-    outbox.pushFromOther(ladderMessages);
+    outbox.pushFromOther(persistencePolicyOutbox);
 
+    const gameModesWhereLeavingRemovesPlayer = [
+      GameMode.RankedRace,
+      GameMode.UnrankedRace,
+      GameMode.Progression,
+    ];
+    if (gameModesWhereLeavingRemovesPlayer.includes(game.mode)) {
+      const removedPlayerOutbox = await this.handlePlayerRemovalOnGameLeave(
+        session,
+        game,
+        party,
+        gameModePolicy
+      );
+      outbox.pushFromOther(removedPlayerOutbox);
+    }
+
+    return outbox;
+  }
+
+  private async handlePlayerRemovalOnGameLeave(
+    session: UserSession,
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    gameModePolicy: GameModePolicy
+  ) {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const removedPlayerData = game.removePlayerFromParty(session.username);
     const { partyWasRemoved } = removedPlayerData;
 
@@ -214,34 +242,15 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       deadPartyMembersAbandoned = partyAbandoned;
     }
 
-    const partyHasNotYetEscaped = !party.timeOfEscape; // if they already escaped they shouldn't be marked as wiped
-    const partyHasNotYetWiped = party.timeOfWipe === null;
-    const partyIsInWipableState =
-      partyWasRemoved || (deadPartyMembersAbandoned && partyHasNotYetWiped);
-    const partyShouldBeMarkedWiped = partyHasNotYetEscaped && partyIsInWipableState;
+    const partyShouldBeMarkedWiped = this.partyShouldBeMarkedWiped(
+      party,
+      partyWasRemoved,
+      deadPartyMembersAbandoned
+    );
 
     if (partyShouldBeMarkedWiped) {
-      party.timeOfWipe = Date.now();
-      await gameModePolicy.persistence.onPartyWipe(game, party);
-      const ladderDeathMessagesOutbox = await gameModePolicy.ladder.onPartyWipe(game, party);
-
-      const remainingParties = Object.values(game.adventuringParties);
-      if (remainingParties.length) {
-        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
-
-        const partyWipedOutbox =
-          this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-            game.getChannelName(),
-            GameMessageType.PartyWipe,
-            createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
-            getPartyChannelName(game.name, party.name)
-          );
-        outbox.pushFromOther(partyWipedOutbox);
-      }
-
-      if (ladderDeathMessagesOutbox) {
-        outbox.pushFromOther(ladderDeathMessagesOutbox);
-      }
+      const partyWipedOutbox = await this.handlePartyWipe(game, party, gameModePolicy);
+      outbox.pushFromOther(partyWipedOutbox);
     }
 
     game.removePlayer(session.username);
@@ -255,6 +264,47 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       await this.cleanUpGame(game);
     }
 
+    return outbox;
+  }
+
+  private partyShouldBeMarkedWiped(
+    party: AdventuringParty,
+    partyWasRemoved: boolean,
+    deadPartyMembersAbandoned: boolean
+  ) {
+    const partyHasNotYetEscaped = !party.timeOfEscape; // if they already escaped they shouldn't be marked as wiped
+    const partyHasNotYetWiped = party.timeOfWipe === null;
+    const partyIsInWipableState =
+      partyWasRemoved || (deadPartyMembersAbandoned && partyHasNotYetWiped);
+    return partyHasNotYetEscaped && partyIsInWipableState;
+  }
+
+  private async handlePartyWipe(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    policy: GameModePolicy
+  ) {
+    party.timeOfWipe = Date.now();
+    await policy.persistence.onPartyWipe(game, party);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    const ladderDeathMessagesOutbox = await policy.ladder.onPartyWipe(game, party);
+
+    const remainingParties = Object.values(game.adventuringParties);
+    if (remainingParties.length) {
+      const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
+      const partyWipedOutbox =
+        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
+          game.getChannelName(),
+          GameMessageType.PartyWipe,
+          createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
+          getPartyChannelName(game.name, party.name)
+        );
+      outbox.pushFromOther(partyWipedOutbox);
+    }
+
+    if (ladderDeathMessagesOutbox) {
+      outbox.pushFromOther(ladderDeathMessagesOutbox);
+    }
     return outbox;
   }
 

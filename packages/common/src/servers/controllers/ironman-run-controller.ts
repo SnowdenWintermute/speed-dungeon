@@ -24,12 +24,18 @@ export class IronmanRunController {
   ) {}
 
   // from lobby, need bespoke ClientIntent and handler
-  async abandonRun(runId: GameId, userId: IdentityProviderId) {
+  async abandonRun(userSession: UserSession, runId: GameId) {
+    //   .don't allow if run is in a live game (player can leave the game first, closing the game for all players, then abandon)
     //   .remove the player
     //   .if no players remain, delete the saved run record
     //   .else update their owned characters to be owned by the next least recently
     //    joined player (need to record join order on players then)
     //   .remove the reference to the run in their user Profile
+    //   .tell the user about it
+    //   .if there is any live lobby session for this run (another player in the run waiting in a lobby game for it)
+    //   tell that other game's users that this player abandoned
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    return outbox;
   }
 
   // from lobby, need bespoke ClientIntent and handler

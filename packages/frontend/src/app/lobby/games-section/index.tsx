@@ -14,7 +14,7 @@ import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import Divider from "@/app/components/atoms/Divider";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import HostGameForm from "./HostGameForm";
+import { HostGameForm } from "./HostGameForm";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 import { observer } from "mobx-react-lite";
