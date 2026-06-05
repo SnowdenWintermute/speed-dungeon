@@ -11,10 +11,6 @@ export function gameFullUpdateHandler(
   if (game) {
     deserializedGame = SpeedDungeonGame.fromSerialized(game);
     deserializedGame.makeObservable();
-    console.log(
-      "got game full update:",
-      deserializedGame.requireSingleParty().combatantManager.getPartyMemberCharacters()
-    );
   } else {
     clientApplication.sequentialEventProcessor.scheduleEvent({
       type: ClientSequentialEventType.ClearAllModels,

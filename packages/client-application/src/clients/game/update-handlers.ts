@@ -99,7 +99,7 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
 
-      if (data.game?.timeStarted) {
+      if (data.game?.clock?.anchor != null) {
         clientApplication.handleGameStartedOrFullUpdateReceived();
         if (data.battle) {
           clientApplication.handleBattleFullUpdate(data.battle);

@@ -97,11 +97,6 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     if (runIdOption) {
       const serialized = await this.userGameDataPersistenceService.requireIronmanRun(runIdOption);
       const game = SavedIronmanRun.createGameFromSavedRun(serialized);
-      console.log(
-        "creating game from saved ironman run",
-        game.requireSingleParty().name,
-        game.requireSingleParty().combatantManager.getPartyMemberCharacters()
-      );
       return game;
     } else {
       const { gameName, mode, controlScheme } = gameCreationRequest;

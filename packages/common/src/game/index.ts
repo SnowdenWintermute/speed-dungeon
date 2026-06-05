@@ -31,6 +31,7 @@ import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { invariant } from "../utils/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
+import { GameClock } from "./game-clock.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -39,7 +40,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   playersReadied: Username[] = [];
   adventuringParties = new Map<PartyName, AdventuringParty>();
   battles = new Map<EntityId, Battle>();
-  private timeStarted: null | number = null;
+  clock = new GameClock();
   timeHandedOff: null | number = null;
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
@@ -85,7 +86,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       playersReadied: this.playersReadied,
       adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
       battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
-      timeStarted: this.timeStarted,
+      clock: this.clock.toSerialized(),
       timeHandedOff: this.timeHandedOff,
       selectedStartingFloor: this.selectedStartingFloor,
       inputLock: this.inputLock.toSerialized(),
@@ -112,7 +113,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       AdventuringParty.fromSerialized(v)
     );
     result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
-    result.timeStarted = serialized.timeStarted;
+    result.clock = GameClock.fromSerialized(serialized.clock);
     result.timeHandedOff = serialized.timeHandedOff;
     result.selectedStartingFloor = serialized.selectedStartingFloor;
     result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
@@ -211,14 +212,10 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     }
   }
 
-  requireNotYetStarted() {
-    if (this.timeStarted !== null) {
-      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
-    }
-  }
-
   requireGameStartPrerequisites() {
-    this.requireNotYetStarted();
+    if (this.clock.isLive()) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_LIVE);
+    }
 
     let minimumNumberOfParties = 1;
     if (this.mode === GameMode.RankedRace && this.isRanked) {
@@ -232,28 +229,10 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     }
   }
 
-  getTimeStarted() {
-    return this.timeStarted;
-  }
-
-  requireTimeStarted() {
-    if (this.timeStarted === null) {
-      throw new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
-    }
-    return this.timeStarted;
-  }
-
   requireInputUnlocked() {
     if (this.inputLock.isLocked) {
       throw new Error(ERROR_MESSAGES.GAME.INPUT_IS_LOCKED);
     }
-  }
-
-  setAsStarted() {
-    if (this.timeStarted !== null) {
-      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
-    }
-    this.timeStarted = Date.now();
   }
 
   registerPlayerFromLobbyUser(username: Username) {

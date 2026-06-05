@@ -31,6 +31,7 @@ export * from "./items/equipment/index.js";
 export * from "./items/consumables/index.js";
 export * from "./items/consumables/consumable-types.js";
 export * from "./game/index.js";
+export * from "./game/game-clock.js";
 export * from "./game/player.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";

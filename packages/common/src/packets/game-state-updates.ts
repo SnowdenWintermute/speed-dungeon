@@ -174,7 +174,7 @@ export interface GameStateUpdateMap {
     username: Username;
   };
   [GameStateUpdateType.GameStarted]: {
-    timeStarted: number;
+    firstStartedAt: number;
   };
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;
@@ -338,7 +338,7 @@ export class GameListEntry {
     public gameId: GameId,
     public numberOfUsers: number,
     public gameMode: GameMode,
-    public timeStarted: null | number,
+    public handedOffAt: null | number,
     public isRanked: boolean
   ) {}
 }

@@ -55,7 +55,7 @@ export class GameRegistry {
         game.id,
         game.getPlayerCount(),
         game.mode,
-        game.getTimeStarted(),
+        game.timeHandedOff,
         game.isRanked
       );
     });

@@ -28,6 +28,7 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
   }
 
   override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+    game.clock.updateAccumulatedPlayTime();
     await this.userGameDataPersistenceService.saveIronmanRun(
       game,
       this.userSessionRegistry.getAllSessionsInGame(game)
@@ -51,11 +52,7 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
     // if the game has not completed in a wipe or escape, save it
     const defaultParty = game.requireSingleParty();
     if (defaultParty.timeOfWipe === null && defaultParty.timeOfEscape === null) {
-      console.log(
-        "saving ironman run on live game leave",
-        defaultParty.name,
-        defaultParty.combatantManager.getPartyMemberCharacters()
-      );
+      game.clock.endLiveSession();
       await this.userGameDataPersistenceService.saveIronmanRun(
         game,
         this.userSessionRegistry.getAllSessionsInGame(game)

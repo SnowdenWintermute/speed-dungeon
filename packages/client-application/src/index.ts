@@ -152,8 +152,8 @@ export class ClientApplication {
 
     const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
 
-    if (!game.getTimeStarted()) {
-      game.setAsStarted();
+    if (!game.clock.isLive()) {
+      game.clock.startLiveSession();
     }
 
     this.gameWorldView?.setDefaultCameraPositionForGame();

@@ -42,7 +42,9 @@ export const ERROR_MESSAGES = {
   GAME: {
     NOT_FOUND: "No game was found by that id",
     NOT_STARTED: "The game has not started",
+    NOT_LIVE: "The game is not live",
     ALREADY_STARTED: "That game has already started",
+    ALREADY_LIVE: "That game is already live",
     IS_FULL: "That game is full (has maximum number of players)",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",

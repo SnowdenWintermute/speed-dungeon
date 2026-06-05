@@ -119,19 +119,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     data.gameName = gameName;
 
     const game = await gameModePolicy.lobbySetup.createGame(data);
-
-    console.log(
-      "created game:",
-      game.requireSingleParty().name,
-      game.requireSingleParty().combatantManager.getPartyMemberCharacters()
-    );
-
     gameModePolicy.lobbySetup.onCreation(game);
-    console.log(
-      "after policy onCreation:",
-      game.requireSingleParty().name,
-      game.requireSingleParty().combatantManager.getPartyMemberCharacters()
-    );
 
     this.lobbyState.gameRegistry.registerGame(game);
     const joinGameUpdateHandlerOutbox = await this.joinGameHandler(game.id, session);

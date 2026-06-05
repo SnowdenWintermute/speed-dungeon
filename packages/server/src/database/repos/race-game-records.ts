@@ -57,7 +57,7 @@ class RaceGameRecordRepo extends DatabaseRepository<RaceGameRecord> {
   }
 
   async insertGameRecord(game: SpeedDungeonGame) {
-    game.requireTimeStarted();
+    game.clock.requireFirstStartedAt();
     const { rows } = await this.pgPool.query(
       format(
         `INSERT INTO race_game_records

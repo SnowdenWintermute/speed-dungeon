@@ -13,7 +13,7 @@ class RaceGamePartyRecordRepo extends DatabaseRepository<RaceGamePartyRecord> {
   async insert(game: SpeedDungeonGame, party: AdventuringParty) {
     const userIdsByUsernameResult = await getUserIdsByUsername(Object.keys(game.players));
     if (userIdsByUsernameResult instanceof Error) return userIdsByUsernameResult;
-    game.requireTimeStarted();
+    game.clock.requireFirstStartedAt();
 
     const { rows } = await this.pgPool.query(
       format(

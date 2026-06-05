@@ -128,7 +128,7 @@ export function createLobbyUpdateHandlers(
       // from their party when leaving a lobby game, but it is an unhandled crash
       // to remove them from a party when still in a game
       const { playerName, partyName } = data;
-      if (gameOption.getTimeStarted() === null) {
+      if (gameOption.timeHandedOff === null) {
         gameOption.removePlayerFromParty(playerName);
         if (partyName === null) {
           return;

@@ -95,8 +95,8 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
 
   private getCombatantsInGameWorld() {
     const { gameOption } = this.clientApplication.gameContext;
-    const inLobby = gameOption && gameOption.getTimeStarted() === null;
-    const inGame = gameOption && gameOption.getTimeStarted() !== null;
+    const inLobby = gameOption && !gameOption.clock.isLive();
+    const inGame = gameOption && gameOption.clock.isLive();
     if (inLobby && gameOption.mode === GameMode.Progression) {
       this.setProgressionGameLobbyCombatantPositions(gameOption);
       return this.getProgressionGameLobbyCombatants(gameOption);

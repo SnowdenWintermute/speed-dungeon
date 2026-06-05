@@ -43,7 +43,7 @@ export class DungeonExplorationController {
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const { game, party, player } = session.requirePlayerContext();
 
-    game.requireTimeStarted();
+    game.clock.requireLive();
     game.requireInputUnlocked();
     party.requireInputUnlocked();
     party.requireNotInCombat();
@@ -78,7 +78,7 @@ export class DungeonExplorationController {
   async toggleReadyToDescendHandler(session: UserSession) {
     const { game, party, player } = session.requirePlayerContext();
 
-    game.requireTimeStarted();
+    game.clock.requireLive();
     game.requireInputUnlocked();
     party.requireInputUnlocked();
     party.requireDescentPermitted();

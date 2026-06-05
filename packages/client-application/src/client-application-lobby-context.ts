@@ -33,6 +33,7 @@ export class ClientApplicationLobbyContext implements ReactiveNode {
   }
 
   setGameList(newList: GameListEntry[]) {
+    console.log("got game list", newList);
     this._gameList = newList;
   }
 

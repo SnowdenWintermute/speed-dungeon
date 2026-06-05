@@ -55,6 +55,11 @@ export class SavedIronmanRun implements Serializable {
 
     run.game.markAsContinuedRun();
     run.game.timeHandedOff = null;
+    if (run.game.clock.isLive()) {
+      run.game.clock.discardLiveSession();
+    }
+
+    run.game.playersReadied = [];
 
     for (const [username, player] of run.game.players) {
       player.awaitingControllingUserConnection = true;
@@ -78,6 +83,7 @@ export class SavedIronmanRun implements Serializable {
       throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     }
     const player = this._game.getExpectedPlayer(usernameAtTimeOfRunSave);
+    console.log("player.characterIds", player.characterIds);
     const oldUsername = player.username;
     const usernameChangedSinceLastGameSave = oldUsername !== session.username;
     if (usernameChangedSinceLastGameSave) {

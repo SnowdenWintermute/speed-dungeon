@@ -257,7 +257,7 @@ export class GameServer extends SpeedDungeonServer {
 
       const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
 
-      const gameIsInProgress = existingGame.getTimeStarted() !== null;
+      const gameIsInProgress = existingGame.clock.isLive();
       const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
         session,
         gameIsInProgress

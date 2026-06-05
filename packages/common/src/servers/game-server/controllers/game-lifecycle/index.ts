@@ -134,9 +134,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     const allPlayersAreConnectedToGame = this.allPlayersAreConnectedToGame(game);
 
-    const gameHasNotYetStarted = game.getTimeStarted() === null;
-
-    if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {
+    if (!game.clock.isLive() && allPlayersAreConnectedToGame) {
       const startGameOutbox = await this.startGame(game);
       outbox.pushFromOther(startGameOutbox);
     }
@@ -148,15 +146,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
   private async startGame(game: SpeedDungeonGame) {
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    game.clock.startLiveSession();
     await gameModePolicy.persistence.onGameStart(game);
     await gameModePolicy.ladder.onGameStart();
-
-    game.setAsStarted();
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameStarted,
-      data: { timeStarted: game.requireTimeStarted() },
+      data: { firstStartedAt: game.clock.requireFirstStartedAt() },
     });
 
     const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);

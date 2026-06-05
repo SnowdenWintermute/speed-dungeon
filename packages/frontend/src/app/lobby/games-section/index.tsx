@@ -195,7 +195,7 @@ function GameListItem({ game }: GameListItemProps) {
       </div>
       <ButtonBasic
         onClick={joinGame}
-        disabled={typeof game.timeStarted === "number"}
+        disabled={typeof game.handedOffAt === "number"}
         extraStyles="border-0"
       >
         {"Join"}
