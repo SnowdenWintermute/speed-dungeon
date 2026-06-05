@@ -106,6 +106,10 @@ export abstract class GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
+  usersCanDeleteCharactersInGameSetup(): AllowedResult {
+    return { allowed: true };
+  }
+
   protected getDefaultPartyName(gameName: GameName) {
     return `Delvers of ${gameName}` as PartyName;
   }

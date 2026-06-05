@@ -84,18 +84,14 @@ export class UserSessionRegistry {
   getAllSessionsInGame(game: SpeedDungeonGame) {
     const result: UserSession[] = [];
     for (const [username, _player] of game.players) {
-      const session = this.requireSessionInGameByUsername(username, game.id);
-      result.push(session);
+      // it is possible a player may be in the game, but no session exists
+      // for them in the case of a continued ironman run game setup
+      const sessionOption = this.getSessionByUsername(username);
+      if (sessionOption) {
+        result.push(sessionOption);
+      }
     }
     return result;
-  }
-
-  requireSessionInGameByUsername(username: Username, gameId: GameId) {
-    const existingSession = this.getSessionByUsername(username);
-    if (existingSession?.currentGameId !== gameId) {
-      throw new Error("expected to have a user session to match the player in game");
-    }
-    return existingSession;
   }
 
   static requireSessionInListByUsername(username: Username, sessions: UserSession[]) {

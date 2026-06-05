@@ -16,6 +16,7 @@ import {
   Equipment,
   EquipmentType,
   ERROR_MESSAGES,
+  GAME_CLOSED_REASON_STRINGS,
   GameStateUpdateMap,
   GameStateUpdateType,
   getCraftingActionPrice,
@@ -97,7 +98,6 @@ export function createGameUpdateHandlers(
       clientApplication.reconnectionTokenStore.guestGameReconnectionToken = data.token;
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
-      console.log("game full update handler", data);
       gameFullUpdateHandler(clientApplication, data.game);
 
       if (data.game?.clock?.anchor != null) {
@@ -107,7 +107,6 @@ export function createGameUpdateHandlers(
       clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
       if (data.battle) {
-        console.log("got full battle update:", data.battle);
         clientApplication.handleBattleFullUpdate(data.battle);
       }
 
@@ -139,6 +138,13 @@ export function createGameUpdateHandlers(
       for (const character of combatantManager.iterateAllCombatants()) {
         gameWorldView.imageGenerator.enqueueCharacterItemsForThumbnails(character);
       }
+    },
+    [GameStateUpdateType.GameClosed]: (data) => {
+      const { reason } = data;
+      clientApplication.gameContext.clearGame();
+      clientApplication.alertsService.setAlert(
+        `Game closed: ${GAME_CLOSED_REASON_STRINGS[reason]}`
+      );
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const party = clientApplication.gameContext.requireParty();

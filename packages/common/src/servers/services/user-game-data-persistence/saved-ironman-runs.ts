@@ -83,7 +83,6 @@ export class SavedIronmanRun implements Serializable {
       throw new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST);
     }
     const player = this._game.getExpectedPlayer(usernameAtTimeOfRunSave);
-    console.log("player.characterIds", player.characterIds);
     const oldUsername = player.username;
     const usernameChangedSinceLastGameSave = oldUsername !== session.username;
     if (usernameChangedSinceLastGameSave) {

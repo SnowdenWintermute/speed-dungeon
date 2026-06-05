@@ -28,7 +28,6 @@ export const HostGameForm = observer(() => {
     clientApplication.lobbyContext;
   const newIronmanRunAllowed =
     savedIronmanRunCapacity !== null && savedIronmanRuns.size < savedIronmanRunCapacity;
-  console.log("savedIronmanRunCapacity:", savedIronmanRunCapacity);
 
   function createGame(
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -51,7 +50,15 @@ export const HostGameForm = observer(() => {
   }, [isLoggedIn]);
 
   function handleAbandonRunClick() {
-    //
+    if (!selectedSavedIronmanRun) {
+      return;
+    }
+    clientApplication.lobbyClientRef
+      .get()
+      .dispatchIntent({
+        type: ClientIntentType.AbandonIronmanRun,
+        data: { runId: selectedSavedIronmanRun },
+      });
   }
 
   return (

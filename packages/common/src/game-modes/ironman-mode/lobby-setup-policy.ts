@@ -73,9 +73,11 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
       return { allowed: false, reason: ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME };
     }
 
-    // since players can't start the game unless all are in the same game, this should not be possible
-    const gameNotAlreadyLive = !(await this.gameExistenceChecker.gameExistsById(runId));
-    invariant(gameNotAlreadyLive, ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME_ALREADY_LIVE);
+    // if two users try to host same ironman run
+    const gameAlreadyLive = await this.gameExistenceChecker.gameExistsById(runId);
+    if (gameAlreadyLive) {
+      throw new Error(ERROR_MESSAGES.GAME_SETUP.CONTINUED_GAME_ALREADY_LIVE);
+    }
 
     return { allowed: true };
   }
@@ -129,7 +131,6 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     partySetupController: PartySetupController
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     if (game.isContinuedRun) {
-      console.log("game isContinuedRun at onJoin in lobby");
       const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(game.id);
       const run = SavedIronmanRun.fromSerialized(serializedRun);
       const playerNameUpdateOption = run.updatePlayerOnJoin(session);
@@ -190,6 +191,10 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     }
 
     return { allowed: true };
+  }
+
+  override usersCanDeleteCharactersInGameSetup(): AllowedResult {
+    return { allowed: false, reason: ERROR_MESSAGES.GAME.MODE };
   }
 
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {

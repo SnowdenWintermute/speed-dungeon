@@ -51,7 +51,6 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
   override onCreation(game: SpeedDungeonGame) {
     // progression games have only a single, automatically generated party
     this.createDefaultPartyInGame(game);
-    console.log("createDefaultPartyInGame fired");
   }
 
   override async onJoin(

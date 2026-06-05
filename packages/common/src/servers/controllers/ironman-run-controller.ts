@@ -1,10 +1,14 @@
-import { CombatantId, GameId, IdentityProviderId, Username } from "../../aliases.js";
-import { DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY } from "../../app-consts.js";
+import { CombatantId, GameId, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { SpeedDungeonGame } from "../../game/index.js";
+import { SpeedDungeonPlayer } from "../../game/player.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { SerializedOf } from "../../serialization/index.js";
+import { ArrayUtils } from "../../utils/array-utils.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
+import { LobbyState } from "../lobby-server/lobby-state.js";
+import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
 import { SavedIronmanRun } from "../services/user-game-data-persistence/saved-ironman-runs.js";
@@ -19,35 +23,74 @@ export class IronmanRunController {
     protected userGameDataPersistenceService: UserGameDataPersistenceService,
     protected profilesService: SpeedDungeonProfileService,
     protected gameRegistry: GameRegistry,
+    protected gameSessionStoreService: GameSessionStoreService,
+    protected lobbyState: LobbyState,
     protected userSessionRegistry: UserSessionRegistry,
     protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
 
   // from lobby, need bespoke ClientIntent and handler
   async abandonRun(userSession: UserSession, runId: GameId) {
+    invariant(userSession.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
     //   .don't allow if run is in a live game (player can leave the game first, closing the game for all players, then abandon)
-    //   .remove the player
-    //   .if no players remain, delete the saved run record
-    //   .else update their owned characters to be owned by the next least recently
-    //    joined player (need to record join order on players then)
-    //   .remove the reference to the run in their user Profile
-    //   .tell the user about it
-    //   .if there is any live lobby session for this run (another player in the run waiting in a lobby game for it)
-    //   tell that other game's users that this player abandoned
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
-    return outbox;
-  }
+    const gameIsLive = await this.gameSessionStoreService.getActiveGameStatus(runId);
+    const gameHasPendingLiveSession = await this.gameSessionStoreService.getPendingGameSetup(runId);
+    if (gameIsLive || gameHasPendingLiveSession) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_LIVE);
+    }
 
-  // from lobby, need bespoke ClientIntent and handler
-  // or automatically done on run abandonment
-  transferCharacterOwnership(
-    gameId: GameId,
-    characterId: CombatantId,
-    from: Username,
-    to: Username
-  ) {
-    const game = this.gameRegistry.requireGame(gameId);
-    game.transferCharacterOwnership(characterId, from, to);
+    const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(runId);
+    const run = SavedIronmanRun.fromSerialized(serializedRun);
+    const { game } = run;
+    const playerCount = game.players.size;
+    console.log("player count:", playerCount);
+    const playerUsernameLeaving = run.userIdsToUsernames.get(userSession.taggedUserId.id);
+    invariant(playerUsernameLeaving !== undefined, "expected user to be in this run");
+
+    if (playerCount === 1) {
+      //   .if no players would remain after this one, delete the saved run record
+      await this.userGameDataPersistenceService.deleteIronmanRun(runId);
+    } else {
+      //   .else update their owned characters to be owned by the next least recently joined player
+      game.transferCharactersToInheritingPlayer(playerUsernameLeaving);
+    }
+
+    //   .remove the player
+    game.players.delete(playerUsernameLeaving);
+    //   .remove the reference to the run in their user Profile
+    const profileOfUserLeaving = await this.profilesService.fetchExpectedProfile(
+      userSession.taggedUserId.id
+    );
+    ArrayUtils.removeElement(profileOfUserLeaving.ironmanRunIds, runId);
+    await this.profilesService.update(userSession.taggedUserId.id, profileOfUserLeaving);
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    //   .tell the user about it
+    outbox.pushToConnection(userSession.connectionId, {
+      type: GameStateUpdateType.IronmanRunAbandoned,
+      data: { usernameAbandoning: userSession.username, runId },
+    });
+    //   .if there is any live lobby session for this run (another player in the run waiting in a lobby game for it)
+    const liveLobbyGameSessionOption = this.lobbyState.gameRegistry.getGameOption(runId);
+    if (liveLobbyGameSessionOption) {
+      liveLobbyGameSessionOption.players.delete(playerUsernameLeaving);
+      //   tell that other game's users that this player abandoned
+      for (const session of this.userSessionRegistry.getAllSessionsInGame(
+        liveLobbyGameSessionOption
+      )) {
+        outbox.pushToConnection(session.connectionId, {
+          type: GameStateUpdateType.IronmanRunAbandoned,
+          data: { usernameAbandoning: userSession.username, runId },
+        });
+      }
+    }
+
+    // @TODO - change the user sessions argument to user auth ids because there may be no sessions
+    // in a game when abandoning a run that is not live
+    const userSessionsInGame = [];
+    await this.userGameDataPersistenceService.saveIronmanRun(game, userSessionsInGame);
+
+    return outbox;
   }
 
   async getUserSavedIronmanRunsOutbox(
@@ -67,15 +110,13 @@ export class IronmanRunController {
     // in case their profile was made before the change to the structure of profiles to include ironman runs
     // handle the update based on a future "profile schema version" field
 
-    console.log("profile has run ids:", ironmanRunIds);
-
     for (const id of ironmanRunIds) {
       const run = await this.userGameDataPersistenceService.requireIronmanRun(id);
       savedIronmanRuns.push(run);
     }
 
     outbox.pushToConnection(session.connectionId, {
-      type: GameStateUpdateType.SavedIronmanRunsList,
+      type: GameStateUpdateType.IronmanRunsList,
       data: { savedIronmanRuns, ironmanRunCapacity: profile.ironmanRunCapacity },
     });
     return outbox;

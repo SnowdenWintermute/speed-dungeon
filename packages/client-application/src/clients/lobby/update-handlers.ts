@@ -62,7 +62,6 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);
       lobbyContext.channel.update(deserialized);
-      console.log("fire transitionToLobbyServer");
       clientApplication.topologyManager.transitionToLobbyServer.fire();
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
@@ -240,13 +239,28 @@ export function createLobbyUpdateHandlers(
         data: { softCleanup: true, placeInHomePositions: true },
       });
     },
-    [GameStateUpdateType.SavedIronmanRunsList]: (data) => {
-      console.log("got SavedIronmanRunsList", data);
+    [GameStateUpdateType.IronmanRunsList]: (data) => {
       for (const serialized of data.savedIronmanRuns) {
         const run = SavedIronmanRun.fromSerialized(serialized);
         clientApplication.lobbyContext.savedIronmanRuns.set(run.game.id, run);
       }
       clientApplication.lobbyContext.savedIronmanRunCapacity = data.ironmanRunCapacity;
+    },
+    [GameStateUpdateType.IronmanRunAbandoned]: (data) => {
+      const { runId, usernameAbandoning } = data;
+      const { gameOption } = clientApplication.gameContext;
+      if (gameOption) {
+        // if any other players would remain
+        const playersWillRemain = gameOption.players.size > 1;
+        if (playersWillRemain) {
+          // transfer the characters to inheriting character
+          gameOption.transferCharactersToInheritingPlayer(usernameAbandoning);
+        }
+        gameOption.players.delete(usernameAbandoning);
+      } else {
+        // delete the run id from the saved ironman runs list
+        clientApplication.lobbyContext.savedIronmanRuns.delete(runId);
+      }
     },
     [GameStateUpdateType.SavedCharacterDeleted]: (data) => {
       lobbyContext.savedCharacters.deleteSavedCharacter(data.entityId);

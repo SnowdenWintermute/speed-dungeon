@@ -29,11 +29,10 @@ export class ClientApplicationLobbyContext implements ReactiveNode {
   makeObservable() {
     makeAutoObservable(this);
     this.savedCharacters.makeObservable();
-    console.log("made observable ClientApplicationLobbyContext");
   }
 
   setGameList(newList: GameListEntry[]) {
-    console.log("got game list", newList);
+    console.log("set new game list:", newList);
     this._gameList = newList;
   }
 

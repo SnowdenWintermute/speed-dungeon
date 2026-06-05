@@ -45,13 +45,15 @@ export enum GameStateUpdateType {
   UserJoinedChannel,
   UserLeftChannel,
   ErrorMessage,
+  PlayerDisconnectedWithReconnectionOpportunity,
+  PlayerReconnectionTimedOut,
   GameFullUpdate,
+
+  // Game Setup
   PlayerChangedAdventuringParty,
   PlayerLeftGame,
   PlayerUsernameUpdated,
   PlayerJoinedGame,
-  PlayerDisconnectedWithReconnectionOpportunity,
-  PlayerReconnectionTimedOut,
   PartyCreated,
   CharacterAddedToParty,
   CharacterDeleted,
@@ -59,15 +61,16 @@ export enum GameStateUpdateType {
   GameStarted,
   GameServerConnectionInstructions,
   GameClosed,
-  ClientAppMessage,
-
+  PlayerSelectedSavedCharacterInProgressionGame,
+  ProgressionGameStartingFloorSelected,
+  //
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
   DungeonRoomUpdate,
   BattleFullUpdate,
   ClientSequentialEvents,
+  ClientAppMessage,
   GameMessage,
-  // BattleReport ,
   CharacterDroppedItem,
   CharacterDroppedEquippedItem,
   CharacterUnequippedItem,
@@ -79,12 +82,12 @@ export enum GameStateUpdateType {
   CharacterCycledTargetingSchemes,
   DungeonFloorNumber,
   CharacterSpentAttributePoint,
+  // Persistence
   SavedCharacterList,
-  SavedIronmanRunsList,
+  IronmanRunsList,
+  IronmanRunAbandoned,
   SavedCharacter,
   SavedCharacterDeleted,
-  PlayerSelectedSavedCharacterInProgressionGame,
-  ProgressionGameStartingFloorSelected,
   CharacterSelectedHoldableHotswapSlot,
   CharacterConvertedItemsToShards,
   CharacterDroppedShards,
@@ -239,9 +242,13 @@ export interface GameStateUpdateMap {
     characters: SavedCharacterListEntry[];
     capacity: number;
   };
-  [GameStateUpdateType.SavedIronmanRunsList]: {
+  [GameStateUpdateType.IronmanRunsList]: {
     savedIronmanRuns: SerializedOf<SavedIronmanRun>[];
     ironmanRunCapacity: number;
+  };
+  [GameStateUpdateType.IronmanRunAbandoned]: {
+    usernameAbandoning: Username;
+    runId: GameId;
   };
   [GameStateUpdateType.SavedCharacter]: {
     characterControlScheme: CharacterControlScheme;
@@ -347,6 +354,10 @@ export enum GameClosedReason {
   PlayerLeftGame,
 }
 
+export const GAME_CLOSED_REASON_STRINGS: Record<GameClosedReason, string> = {
+  [GameClosedReason.PlayerLeftGame]: "Other player left game",
+};
+
 export class BattleReport {
   constructor(
     public conclusion: BattleConclusion,
@@ -400,7 +411,8 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.DungeonFloorNumber]: "DungeonFloorNumber",
   [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",
   [GameStateUpdateType.SavedCharacterList]: "SavedCharacterList",
-  [GameStateUpdateType.SavedIronmanRunsList]: "SavedIronmanRunsList",
+  [GameStateUpdateType.IronmanRunsList]: "IronmanRunsList",
+  [GameStateUpdateType.IronmanRunAbandoned]: "IronmanRunAbandoned",
   [GameStateUpdateType.SavedCharacter]: "SavedCharacter",
   [GameStateUpdateType.SavedCharacterDeleted]: "SavedCharacterDeleted",
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]:

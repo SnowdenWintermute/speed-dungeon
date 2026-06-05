@@ -83,14 +83,14 @@ export class CharacterLifecycleController {
   deleteCharacterInGameHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
     const game = session.getExpectedCurrentGame();
-    const player = game.getExpectedPlayer(session.username);
 
-    console.log(
-      "try delete character id:",
-      characterId,
-      "player character ids:",
-      player.characterIds
-    );
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    const policyAllowsDeletion = gameModePolicy.lobbySetup.usersCanDeleteCharactersInGameSetup();
+    if (!policyAllowsDeletion.allowed) {
+      throw new Error(policyAllowsDeletion.reason);
+    }
+
+    const player = game.getExpectedPlayer(session.username);
 
     const playerDoesNotOwnCharacter = !player.characterIds.includes(characterId);
     if (playerDoesNotOwnCharacter) {

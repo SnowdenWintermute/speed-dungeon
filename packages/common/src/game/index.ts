@@ -176,9 +176,43 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return result;
   }
 
+  private getInheritingPlayer(game: SpeedDungeonGame, playerUsernameLeaving: Username) {
+    let inheritingPlayer: SpeedDungeonPlayer | null = null;
+    for (const [username, player] of game.getPlayers()) {
+      if (username === playerUsernameLeaving) {
+        continue;
+      }
+
+      if (inheritingPlayer === null) {
+        inheritingPlayer = player;
+      } else if (inheritingPlayer.joinOrder > player.joinOrder) {
+        inheritingPlayer = player;
+      }
+    }
+
+    return inheritingPlayer;
+  }
+
+  transferCharactersToInheritingPlayer(playerUsernameLeaving: Username) {
+    const playerLeaving = this.getExpectedPlayer(playerUsernameLeaving);
+    //   .else update their owned characters to be owned by the next least recently joined player
+    const inheritingPlayerOption = this.getInheritingPlayer(this, playerUsernameLeaving);
+    if (!inheritingPlayerOption) {
+      return;
+    }
+
+    for (const characterId of playerLeaving.characterIds) {
+      this.transferCharacterOwnership(
+        characterId,
+        playerLeaving.username,
+        inheritingPlayerOption.username
+      );
+    }
+  }
+
   /** If a player abandons an Ironman run to free up a slot on their account, other users may
    * want to continue the run. In that case we can transfer the outgoing player's characters.*/
-  transferCharacterOwnership(characterId: CombatantId, from: Username, to: Username) {
+  private transferCharacterOwnership(characterId: CombatantId, from: Username, to: Username) {
     this.requireMode(GameMode.Ironman);
     const fromUser = this.getExpectedPlayer(from);
     const toUser = this.getExpectedPlayer(to);

@@ -16,7 +16,6 @@ import { GameModePersistencePolicy } from "../persistence-policy.js";
 
 export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
   override async onGameStart(game: SpeedDungeonGame): Promise<void> {
-    console.log("saving ironman run on game start");
     await this.userGameDataPersistenceService.saveIronmanRun(
       game,
       this.userSessionRegistry.getAllSessionsInGame(game)

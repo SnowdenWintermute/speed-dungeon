@@ -279,6 +279,8 @@ export class LobbyServer extends SpeedDungeonServer {
       this.externalServices.userGameDataPersistenceService,
       this.externalServices.profileService,
       this.lobbyState.gameRegistry,
+      this.externalServices.gameSessionStoreService,
+      this.lobbyState,
       this.userSessionRegistry,
       this.updateDispatchFactory
     );

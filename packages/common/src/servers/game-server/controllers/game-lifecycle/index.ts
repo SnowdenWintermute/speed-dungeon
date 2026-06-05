@@ -156,7 +156,6 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       data: { firstStartedAt: game.clock.requireFirstStartedAt() },
     });
 
-    console.log("game is continued run:", game.isContinuedRun);
     if (!game.isContinuedRun) {
       const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
 
