@@ -2,6 +2,7 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantId, GameId, IdentityProviderId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
+import { getPartyChannelName } from "../../packets/channels.js";
 import { GameCreationRequest } from "../../packets/client-intents.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { AllowedResult } from "../../primatives/index.js";
@@ -11,7 +12,6 @@ import { UserIdType } from "../../servers/sessions/user-ids.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { invariant } from "../../utils/index.js";
-import { CharacterControlScheme, getMaxCharacterCountForControlScheme } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
 
 export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
@@ -129,6 +129,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     partySetupController: PartySetupController
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     if (game.isContinuedRun) {
+      console.log("game isContinuedRun at onJoin in lobby");
       const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(game.id);
       const run = SavedIronmanRun.fromSerialized(serializedRun);
       const playerNameUpdateOption = run.updatePlayerOnJoin(session);
@@ -141,6 +142,9 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
       }
 
       const player = game.getExpectedPlayer(session.username);
+      invariant(player.partyName !== null, "player party name not found");
+      session.currentPartyName = player.partyName;
+      session.subscribeToChannel(getPartyChannelName(game.name, player.partyName));
       player.awaitingControllingUserConnection = false;
 
       return outbox;

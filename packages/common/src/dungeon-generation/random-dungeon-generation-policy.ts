@@ -4,7 +4,11 @@ import { Combatant } from "../combatants/index.js";
 import { MonsterGenerator } from "../monsters/monster-generator.js";
 import { MonsterType } from "../monsters/monster-types.js";
 import { ArrayUtils } from "../utils/array-utils.js";
-import { DungeonGenerationPolicy, DungeonRoomWithMonsters, ExplicitCombatantDungeonTemplate } from "./index.js";
+import {
+  DungeonGenerationPolicy,
+  DungeonRoomWithMonsters,
+  ExplicitCombatantDungeonTemplate,
+} from "./index.js";
 
 export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private monsterGenerator = new MonsterGenerator(
@@ -17,7 +21,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
   }
 
   generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[] {
-    const firstRooms = [];
+    const firstRooms: DungeonRoomType[] = [];
     const mainRooms = [];
     const lastRooms = [];
 

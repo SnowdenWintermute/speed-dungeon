@@ -79,6 +79,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       mode: this.mode,
       gameCreator: this.gameCreator,
       isRanked: this.isRanked,
+      _isContinuedRun: this._isContinuedRun,
       characterControlScheme: this.characterControlScheme,
       players: MapUtils.serialize(this.players, (v) => v.toSerialized()),
       playerJoinCount: this.playerJoinCount,
@@ -114,6 +115,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     );
     result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
     result.clock = GameClock.fromSerialized(serialized.clock);
+    result._isContinuedRun = serialized._isContinuedRun;
     result.timeHandedOff = serialized.timeHandedOff;
     result.selectedStartingFloor = serialized.selectedStartingFloor;
     result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);

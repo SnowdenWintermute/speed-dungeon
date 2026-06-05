@@ -156,11 +156,15 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       data: { firstStartedAt: game.clock.requireFirstStartedAt() },
     });
 
-    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
-    for (const session of sessionsInGame) {
-      const toggleExploreOutbox =
-        await this.dungeonExplorationController.toggleReadyToExploreHandler(session);
-      outbox.pushFromOther(toggleExploreOutbox);
+    console.log("game is continued run:", game.isContinuedRun);
+    if (!game.isContinuedRun) {
+      const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
+
+      for (const session of sessionsInGame) {
+        const toggleExploreOutbox =
+          await this.dungeonExplorationController.toggleReadyToExploreHandler(session);
+        outbox.pushFromOther(toggleExploreOutbox);
+      }
     }
 
     return outbox;

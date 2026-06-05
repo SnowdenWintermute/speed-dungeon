@@ -26,7 +26,7 @@ export class GameHandoffManager {
     const claimTokensByConnectionId = new Map<ConnectionId, GameServerSessionClaimToken>();
 
     for (const session of sessions) {
-      invariant(session.currentPartyName !== null);
+      invariant(session.currentPartyName !== null, "expected session to have a party");
       const tokenOption = session.getGuestReconnectionTokenOption();
       const claimToken = new GameServerSessionClaimToken(
         gameId,

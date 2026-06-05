@@ -154,7 +154,11 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     }
 
     session.joinGame(game);
-    game.registerPlayerFromLobbyUser(session.username);
+
+    if (game.getPlayer(session.username) === undefined) {
+      game.registerPlayerFromLobbyUser(session.username);
+    }
+
     session.unsubscribeFromChannel(LOBBY_CHANNEL);
     session.subscribeToChannel(game.getChannelName());
 

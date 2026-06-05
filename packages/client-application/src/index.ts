@@ -185,6 +185,7 @@ export class ClientApplication {
     }
 
     const deserializedBattle = Battle.fromSerialized(serializedBattleOption.battle);
+    console.log("deserializedBattle:", deserializedBattle);
     party.setBattleId(deserializedBattle.id);
     deserializedBattle.initializeAfterDeserialization(game, party);
     deserializedBattle.makeObservable();
@@ -206,6 +207,8 @@ export class ClientApplication {
     if (!currentActorIsPlayerControlled) {
       // it is ai controlled so lock input
       party.inputLock.lockInput();
+    } else {
+      this.combatantFocus.updateFocusedCharacterOnNewTurnOrder(turnTracker);
     }
   }
 }

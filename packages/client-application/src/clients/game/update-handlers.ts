@@ -97,17 +97,21 @@ export function createGameUpdateHandlers(
       clientApplication.reconnectionTokenStore.guestGameReconnectionToken = data.token;
     },
     [GameStateUpdateType.GameFullUpdate]: (data) => {
+      console.log("game full update handler", data);
       gameFullUpdateHandler(clientApplication, data.game);
 
       if (data.game?.clock?.anchor != null) {
         clientApplication.handleGameStartedOrFullUpdateReceived();
-        if (data.battle) {
-          clientApplication.handleBattleFullUpdate(data.battle);
-        }
+      }
+
+      clientApplication.combatantFocus.focusFirstOwnedCharacter();
+
+      if (data.battle) {
+        console.log("got full battle update:", data.battle);
+        clientApplication.handleBattleFullUpdate(data.battle);
       }
 
       clientApplication.topologyManager.transitionToGameServer.fire();
-      clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
       const { partyOption } = clientApplication.gameContext;
 
