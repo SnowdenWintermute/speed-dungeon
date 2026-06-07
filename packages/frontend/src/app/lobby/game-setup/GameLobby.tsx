@@ -38,6 +38,7 @@ export const GameLobby = observer(({ children }: Props) => {
       data: undefined,
     });
   }
+
   function toggleReady() {
     lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.ToggleReadyToStartGame,

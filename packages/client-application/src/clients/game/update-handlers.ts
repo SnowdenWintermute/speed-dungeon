@@ -141,6 +141,7 @@ export function createGameUpdateHandlers(
     },
     [GameStateUpdateType.GameClosed]: (data) => {
       const { reason } = data;
+      clientApplication.gameWorldView?.sceneEntityService.clearAll();
       clientApplication.gameContext.clearGame();
       clientApplication.alertsService.setAlert(
         `Game closed: ${GAME_CLOSED_REASON_STRINGS[reason]}`
