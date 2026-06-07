@@ -16,10 +16,10 @@ import { GameModePersistencePolicy } from "../persistence-policy.js";
 
 export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
   override async onGameStart(game: SpeedDungeonGame): Promise<void> {
-    await this.userGameDataPersistenceService.saveIronmanRun(
-      game,
+    const userIdsToUsernames = game.getAuthUserIdsToUsernames(
       this.userSessionRegistry.getAllSessionsInGame(game)
     );
+    await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
   }
 
   override async onBattleResult(): Promise<void> {
@@ -28,10 +28,10 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
 
   override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     game.clock.updateAccumulatedPlayTime();
-    await this.userGameDataPersistenceService.saveIronmanRun(
-      game,
+    const userIdsToUsernames = game.getAuthUserIdsToUsernames(
       this.userSessionRegistry.getAllSessionsInGame(game)
     );
+    await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
   }
 
   override async onLiveGameLeave(
@@ -52,10 +52,10 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
     const defaultParty = game.requireSingleParty();
     if (defaultParty.timeOfWipe === null && defaultParty.timeOfEscape === null) {
       game.clock.endLiveSession();
-      await this.userGameDataPersistenceService.saveIronmanRun(
-        game,
+      const userIdsToUsernames = game.getAuthUserIdsToUsernames(
         this.userSessionRegistry.getAllSessionsInGame(game)
       );
+      await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
     }
 
     // close the game

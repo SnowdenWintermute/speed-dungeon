@@ -1,10 +1,13 @@
+import { instanceToPlain } from "class-transformer";
 import {
   APP_VERSION_NUMBER,
   ERROR_MESSAGES,
   GameId,
+  GameName,
   IdentityProviderId,
   invariant,
   MapUtils,
+  Milliseconds,
   Serializable,
   SerializedOf,
   SpeedDungeonGame,
@@ -44,6 +47,15 @@ export class SavedIronmanRun implements Serializable {
       serialized.schemaVersion,
       serialized.savedAt
     );
+  }
+
+  static fromSerializedToClientEntry(serialized: SerializedOf<SavedIronmanRun>) {
+    return {
+      gameId: serialized._game.id,
+      gameName: serialized._game.name,
+      schemaVersion: serialized.schemaVersion,
+      savedAt: serialized.savedAt,
+    };
   }
 
   get game() {
@@ -89,6 +101,35 @@ export class SavedIronmanRun implements Serializable {
       player.username = session.username;
       return { oldUsername, newUsername: session.username };
     }
+  }
+}
+
+export class SavedIronmanRunClientEntry implements Serializable {
+  constructor(
+    readonly gameId: GameId,
+    readonly gameName: GameName,
+    readonly schemaVersion: string,
+    public savedAt: Milliseconds
+  ) {}
+
+  toSerialized() {
+    return {
+      gameId: this.gameId,
+      gameName: this.gameName,
+      schemaVersion: this.schemaVersion,
+      savedAt: this.savedAt,
+    };
+  }
+
+  static fromSerialized(
+    serialized: SerializedOf<SavedIronmanRunClientEntry>
+  ): SavedIronmanRunClientEntry {
+    return new SavedIronmanRunClientEntry(
+      serialized.gameId,
+      serialized.gameName,
+      serialized.schemaVersion,
+      serialized.savedAt
+    );
   }
 }
 

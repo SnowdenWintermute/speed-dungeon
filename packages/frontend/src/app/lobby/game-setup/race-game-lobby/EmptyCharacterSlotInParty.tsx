@@ -30,6 +30,7 @@ export const EmptyCharacterSlot = observer(
     const userIsInThisParty = playerOption && party.playerUsernames.includes(playerOption.username);
     const userIsInAnotherParty = !userIsInThisParty && playerOption && playerOption.partyName;
     const clientApplication = useClientApplication();
+    const { lobbyClientRef } = useClientApplication();
     const [showCreateCharacterForm, setShowCreateCharacterForm] = useState(false);
 
     const savedCharacters =
@@ -148,8 +149,6 @@ export const EmptyCharacterSlot = observer(
       }
       return <CreateCharacterForm />;
     }
-
-    const { lobbyClientRef } = useClientApplication();
 
     return (
       <PartyCardListItem>

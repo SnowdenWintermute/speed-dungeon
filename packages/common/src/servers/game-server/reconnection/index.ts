@@ -115,10 +115,11 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     const game = session.getCurrentGameOption();
     if (game === null) {
-      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      outbox.pushFromOther(leaveGameHandlerOutbox);
       return outbox;
     }
+
+    // const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+    // outbox.pushFromOther(leaveGameHandlerOutbox);
 
     game.inputLock.add(session.taggedUserId.id);
 

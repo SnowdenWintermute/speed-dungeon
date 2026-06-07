@@ -11,7 +11,7 @@ export const IronmanRunSelector = observer(() => {
   const options: { title: string; value: GameId | null }[] = [
     ...lobbyContext.savedIronmanRuns.values(),
   ].map((value) => {
-    return { title: value.game.name + " " + value.savedAt, value: value.game.id };
+    return { title: value.gameName + " " + value.savedAt, value: value.gameId };
   });
 
   options.push({ title: "New run", value: null });

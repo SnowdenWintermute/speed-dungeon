@@ -35,7 +35,10 @@ import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { SavedCharacterListEntry } from "../servers/services/user-game-data-persistence/saved-character-list-entry.js";
-import { SavedIronmanRun } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
+import {
+  SavedIronmanRun,
+  SavedIronmanRunClientEntry,
+} from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -243,7 +246,7 @@ export interface GameStateUpdateMap {
     capacity: number;
   };
   [GameStateUpdateType.IronmanRunsList]: {
-    savedIronmanRuns: SerializedOf<SavedIronmanRun>[];
+    savedIronmanRuns: SerializedOf<SavedIronmanRunClientEntry>[];
     ironmanRunCapacity: number;
   };
   [GameStateUpdateType.IronmanRunAbandoned]: {

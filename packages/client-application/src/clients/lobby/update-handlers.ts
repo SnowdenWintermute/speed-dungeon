@@ -15,6 +15,7 @@ import {
   MapUtils,
   QUERY_PARAMS,
   SavedIronmanRun,
+  SavedIronmanRunClientEntry,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
@@ -241,8 +242,8 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.IronmanRunsList]: (data) => {
       for (const serialized of data.savedIronmanRuns) {
-        const run = SavedIronmanRun.fromSerialized(serialized);
-        clientApplication.lobbyContext.savedIronmanRuns.set(run.game.id, run);
+        const run = SavedIronmanRunClientEntry.fromSerialized(serialized);
+        clientApplication.lobbyContext.savedIronmanRuns.set(run.gameId, run);
       }
       clientApplication.lobbyContext.savedIronmanRunCapacity = data.ironmanRunCapacity;
     },
@@ -260,6 +261,9 @@ export function createLobbyUpdateHandlers(
       } else {
         // delete the run id from the saved ironman runs list
         clientApplication.lobbyContext.savedIronmanRuns.delete(runId);
+        if (clientApplication.lobbyContext.selectedSavedIronmanRun === runId) {
+          clientApplication.lobbyContext.selectedSavedIronmanRun = null;
+        }
       }
     },
     [GameStateUpdateType.SavedCharacterDeleted]: (data) => {

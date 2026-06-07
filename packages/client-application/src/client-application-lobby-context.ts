@@ -7,6 +7,7 @@ import {
   GameListEntry,
   ReactiveNode,
   SavedIronmanRun,
+  SavedIronmanRunClientEntry,
   SpeedDungeonGame,
   UserChannelDisplayData,
   Username,
@@ -21,7 +22,7 @@ export interface ClientSavedCharacter {
 export class ClientApplicationLobbyContext implements ReactiveNode {
   private _gameList: GameListEntry[] = [];
   readonly savedCharacters = new ClientApplicationSavedCharacters();
-  readonly savedIronmanRuns = new Map<GameId, SavedIronmanRun>();
+  readonly savedIronmanRuns = new Map<GameId, SavedIronmanRunClientEntry>();
   public savedIronmanRunCapacity: null | number = null; // wait to hear from server your account's run capacity
   private _selectedSavedIronmanRun: null | GameId = null;
   readonly channel = new ClientApplicationLobbyChannel();

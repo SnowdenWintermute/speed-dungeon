@@ -31,8 +31,20 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
   }
 
   override async userCanJoin(session: UserSession, game: SpeedDungeonGame): Promise<AllowedResult> {
-    if (!session.isAuth()) {
+    if (!(session.taggedUserId.type === UserIdType.Auth)) {
       return { allowed: false, reason: ERROR_MESSAGES.AUTH.REQUIRED };
+    }
+    if (!game.isContinuedRun) {
+      const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
+      const { ironmanRunCapacity, ironmanRunIds } = profile;
+      const userIsAtRunCapacity = ironmanRunIds.length >= ironmanRunCapacity;
+      if (userIsAtRunCapacity) {
+        return {
+          allowed: false,
+          reason:
+            "You can not join a new Ironman run because your account is at the maximum capacity for saved runs",
+        };
+      }
     }
     if (game.isContinuedRun) {
       const serialized = await this.userGameDataPersistenceService.requireIronmanRun(game.id);

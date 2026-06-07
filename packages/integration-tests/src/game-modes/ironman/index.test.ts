@@ -73,6 +73,14 @@ describe("ironman game mode", () => {
   //   // all users try to ready up - get connection instructions
   // });
 
+  // it("abandon run while other player in lobby setup", () =>{
+  // player 1 creates lobby setup for continued run
+  // player 2 abandons run
+  // player 1 sees characters transfer
+  // player 1 can ready up and start game
+  // player 1 can control inherited characters
+  // })
+
   // it("continued run can not add characters", async () => {
   //   // create continued Captains run in lobby with only two characters
   //   // users join
@@ -90,13 +98,6 @@ describe("ironman game mode", () => {
   //   // alpha and bravo receive "PlayerUsernameUpdated" message for bravo's player
   //   // users ready up
   //   // users receive game server connection instructions
-  // });
-
-  // it("continued run no create character", async () => {
-  //   // create continued run game
-  //   // try create character
-  //   // get error
-  //   // no character created
   // });
 
   // it("fresh run create character", async () => {

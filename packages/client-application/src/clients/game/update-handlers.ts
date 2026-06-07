@@ -145,6 +145,9 @@ export function createGameUpdateHandlers(
       clientApplication.alertsService.setAlert(
         `Game closed: ${GAME_CLOSED_REASON_STRINGS[reason]}`
       );
+      clientApplication.gameClientRef.get().close();
+      clientApplication.gameClientRef.clearClient();
+      clientApplication.topologyManager.connectWithPrefferedMode();
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const party = clientApplication.gameContext.requireParty();

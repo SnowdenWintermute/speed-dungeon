@@ -1,18 +1,16 @@
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { EntityId, GameId, IdentityProviderId } from "../../../aliases.js";
+import { EntityId, GameId, IdentityProviderId, Username } from "../../../aliases.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
-import { getProgressionGamePartyName, invariant } from "../../../utils/index.js";
+import { getProgressionGamePartyName } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { SavedCharacterListEntry } from "./saved-character-list-entry.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
-import { UserSession } from "../../sessions/user-session.js";
 import { SerializedOf } from "../../../serialization/index.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../profiles.js";
-import { UserIdType } from "../../sessions/user-ids.js";
 
 export class UserGameDataPersistenceService {
   constructor(
@@ -21,25 +19,27 @@ export class UserGameDataPersistenceService {
     private readonly profileService: SpeedDungeonProfileService
   ) {}
 
-  async saveIronmanRun(game: SpeedDungeonGame, userSessions: UserSession[]): Promise<void> {
+  async saveIronmanRun(
+    game: SpeedDungeonGame,
+    userIdsToUsernamesMap: Map<IdentityProviderId, Username>
+  ): Promise<void> {
     game.requireMode(GameMode.Ironman);
-    const run = new SavedIronmanRun(game, game.getAuthUserIdsToUsernames(userSessions));
+    const run = new SavedIronmanRun(game, userIdsToUsernamesMap);
     const serializedRun = run.toSerialized();
     await this.savedIronmanRunPersistenceStrategy.save(serializedRun);
-    await this.addRunIdReferencesToUserProfiles(game.id, userSessions);
+    await this.addRunIdReferencesToUserProfiles(game.id, [...userIdsToUsernamesMap.keys()]);
   }
 
-  private async addRunIdReferencesToUserProfiles(runId: GameId, userSessions: UserSession[]) {
-    for (const session of userSessions) {
-      invariant(session.taggedUserId.type === UserIdType.Auth, ERROR_MESSAGES.AUTH.REQUIRED);
-      const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
+  private async addRunIdReferencesToUserProfiles(runId: GameId, userIds: IdentityProviderId[]) {
+    for (const userId of userIds) {
+      const profile = await this.profileService.fetchExpectedProfile(userId);
       if (profile.ironmanRunIds.includes(runId)) continue;
 
       const candidate: SpeedDungeonProfile = {
         ...profile,
         ironmanRunIds: [...profile.ironmanRunIds, runId],
       };
-      await this.profileService.update(session.taggedUserId.id, candidate);
+      await this.profileService.update(userId, candidate);
       profile.ironmanRunIds.push(runId);
     }
   }

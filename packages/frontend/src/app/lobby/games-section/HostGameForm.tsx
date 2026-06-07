@@ -21,7 +21,7 @@ export const HostGameForm = observer(() => {
   const currentSessionHttpResponseTracker =
     uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
-  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
+  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Ironman);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState<GameName>("" as GameName);
   const { savedIronmanRunCapacity, savedIronmanRuns, selectedSavedIronmanRun } =
@@ -53,12 +53,10 @@ export const HostGameForm = observer(() => {
     if (!selectedSavedIronmanRun) {
       return;
     }
-    clientApplication.lobbyClientRef
-      .get()
-      .dispatchIntent({
-        type: ClientIntentType.AbandonIronmanRun,
-        data: { runId: selectedSavedIronmanRun },
-      });
+    clientApplication.lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.AbandonIronmanRun,
+      data: { runId: selectedSavedIronmanRun },
+    });
   }
 
   return (

@@ -57,6 +57,7 @@ export class IronmanRunController {
 
     //   .remove the player
     game.players.delete(playerUsernameLeaving);
+    run.userIdsToUsernames.delete(userSession.taggedUserId.id);
     //   .remove the reference to the run in their user Profile
     const profileOfUserLeaving = await this.profilesService.fetchExpectedProfile(
       userSession.taggedUserId.id
@@ -85,10 +86,11 @@ export class IronmanRunController {
       }
     }
 
-    // @TODO - change the user sessions argument to user auth ids because there may be no sessions
-    // in a game when abandoning a run that is not live
-    const userSessionsInGame = [];
-    await this.userGameDataPersistenceService.saveIronmanRun(game, userSessionsInGame);
+    // this whole "look up their username to user id" map is gymnastics made necessary by the fact
+    // that we don't want to reveal the user's identity provider ("auth") id to the clients. it does
+    // add a fair bit of complexity though
+    const userIdsToUsernames = run.userIdsToUsernames;
+    await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
 
     return outbox;
   }
@@ -117,7 +119,12 @@ export class IronmanRunController {
 
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.IronmanRunsList,
-      data: { savedIronmanRuns, ironmanRunCapacity: profile.ironmanRunCapacity },
+      data: {
+        savedIronmanRuns: savedIronmanRuns.map((run) =>
+          SavedIronmanRun.fromSerializedToClientEntry(run)
+        ),
+        ironmanRunCapacity: profile.ironmanRunCapacity,
+      },
     });
     return outbox;
   }
