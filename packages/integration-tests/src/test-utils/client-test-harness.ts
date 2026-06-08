@@ -170,6 +170,14 @@ export class ClientTestHarness<T extends BaseClient> {
       data: { gameId: gameId as GameId },
     });
   }
+  async tryJoinExpectedSingleGameInList() {
+    await this.fetchGameList();
+    expect(this.clientApplication.lobbyContext.gameList.length).toBe(1);
+    const otherGame = this.clientApplication.lobbyContext.gameList[0];
+    invariant(otherGame !== undefined, "checked above that game list had a game");
+    await this.joinGame(otherGame.gameId);
+  }
+
   async fetchGameList() {
     await this.settleIntentResult({
       type: ClientIntentType.RequestsGameList,

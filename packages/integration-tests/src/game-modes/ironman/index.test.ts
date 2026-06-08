@@ -1,19 +1,9 @@
-import {
-  TEST_AUTH_SESSION_ID_PLAYER_1,
-  TEST_CHARACTER_NAME_1,
-  TEST_GAME_NAME,
-} from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { testContinuedRunPreservesState } from "./continued-run-preserves-state";
 import {
-  CharacterControlScheme,
-  CombatActionName,
-  CombatantClass,
-  GameId,
-  GameMode,
-  invariant,
-  TEST_DUNGEON_TWO_WOLF_ROOMS,
-} from "@speed-dungeon/common";
-import isEqual from "lodash/isEqual";
+  testAccountSavedIronmanRunLimitGameCreate,
+  testAccountSavedIronmanRunLimitGameJoin,
+} from "./account-saved-run-limit";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -23,89 +13,24 @@ describe("ironman game mode", () => {
   });
 
   it("continued run preserves combatant state", async () => {
-    await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS);
-    testFixture.timeMachine.start();
-    const alpha = testFixture.createClient("alpha", TEST_AUTH_SESSION_ID_PLAYER_1);
-    await alpha.connect();
-    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
-    await alpha.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
-    await alpha.lobbyClientHarness.toggleReadyToStartGame();
-    await alpha.clientApplication.sequentialEventProcessor.waitUntilIdle();
-    await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
-
-    const game = alpha.clientApplication.gameContext.requireGame();
-    const party = alpha.clientApplication.gameContext.requireParty();
-
-    await alpha.gameClientHarness.toggleReadyToExplore();
-    await alpha.gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
-    const focusedCharacter = alpha.clientApplication.combatantFocus.requireFocusedCharacter();
-    const focusedCharacterHpBeforeAction =
-      focusedCharacter.combatantProperties.resources.getHitPoints();
-    const currentTargetId = focusedCharacter
-      .getTargetingProperties()
-      .requireSelectedSingleTargetId();
-    const targetCombatant = party.combatantManager.getExpectedCombatant(currentTargetId);
-    const targetHpBeforeAttack = targetCombatant.combatantProperties.resources.getHitPoints();
-    await alpha.gameClientHarness.useSelectedCombatAction();
-    const targetHpAfterAttack = targetCombatant.combatantProperties.resources.getHitPoints();
-    const focusedCharacterHpAfterAction =
-      focusedCharacter.combatantProperties.resources.getHitPoints();
-    expect(targetHpAfterAttack < targetHpBeforeAttack);
-    expect(focusedCharacterHpAfterAction < focusedCharacterHpBeforeAction);
-    const turnOrderBeforeLeaveGame = party.requireBattle(game).turnOrderManager.getTrackers();
-
-    alpha.clientApplication.gameClientRef.get().leaveGame();
-    await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
-    const { savedIronmanRuns } = alpha.clientApplication.lobbyContext;
-    const savedRunId = [...savedIronmanRuns.keys()][0];
-    invariant(savedRunId !== undefined, "expected a saved ironman run id");
-    await alpha.lobbyClientHarness.createGame(
-      TEST_GAME_NAME,
-      GameMode.Ironman,
-      CharacterControlScheme.Captain,
-      savedRunId as GameId
-    );
-    await alpha.lobbyClientHarness.toggleReadyToStartGame();
-    const gameAfterGameLoad = alpha.clientApplication.gameContext.requireGame();
-    const partyAfterGameLoad = alpha.clientApplication.gameContext.requireParty();
-    const targetCombatantInLoadedRun =
-      partyAfterGameLoad.combatantManager.getExpectedCombatant(currentTargetId);
-    const targetCombatantInLoadedRunHp =
-      targetCombatantInLoadedRun.combatantProperties.resources.getHitPoints();
-    expect(targetCombatantInLoadedRunHp).toEqual(targetHpAfterAttack);
-    const turnOrderInLoadedRun = partyAfterGameLoad
-      .requireBattle(gameAfterGameLoad)
-      .turnOrderManager.getTrackers();
-    const turnTrackersAreEqual = isEqual(turnOrderBeforeLeaveGame, turnOrderInLoadedRun);
-    expect(turnTrackersAreEqual).toBeTruthy();
+    await testContinuedRunPreservesState(testFixture);
   });
 
-  // it("account saved run limit", async () => {
-  //   await testFixture.resetWithOptions();
-  //   const alpha = testFixture.createClient("alpha", TEST_AUTH_SESSION_ID_PLAYER_1);
-  //   await alpha.connect();
-  //   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
-  //   // create saved runs up to the limit
-  //   // try to create fresh run - get error
-  //   // try to join a run not referenced in their account - get error
-  // });
+  it("create run at account saved run limit", async () => {
+    await testAccountSavedIronmanRunLimitGameCreate(testFixture);
+  });
 
-  // it("join/create continued run while at account limit", async () => {
-  //   // two users with saved run slots filled
-  //   // join a run hosted by another user, but included in their profile
-  //   // success
-  // });
+  it("join continued run while at account limit", async () => {
+    await testAccountSavedIronmanRunLimitGameJoin(testFixture);
+  });
+
+  // try to join a run not referenced in their account
+  // get error
+  // it("attempt join continued run not a member of",() =>{})
 
   // it("continue run from older game version", async () => {
   //   // try to load a run from older game version
   //   // error - old game version
-  // });
-
-  // it("no floor selection", async () => {
-  //   // create fresh ironman run
-  //   // try select floor
-  //   // get error
-  //   // starting floor still at 1
   // });
 
   // it("any user in run can continue", async () => {
@@ -123,6 +48,27 @@ describe("ironman game mode", () => {
   //   // gets error
   // });
 
+  // it("no floor selection", async () => {
+  //   // create fresh ironman run
+  //   // try select floor
+  //   // get error
+  //   // starting floor still at 1
+  // });
+
+  // it("continued run can not add characters", async () => {
+  //   // create continued Captains run in lobby with only two characters
+  //   // users join
+  //   // user tries to create character
+  //   // error: can not create a new character in a continued ironman run
+  // });
+
+  // it("continued run can not remove characters", async () => {
+  //   // create continued Captains run in lobby with only two characters
+  //   // users join
+  //   // user tries to create character
+  //   // error: can not create a new character in a continued ironman run
+  // });
+
   // it("continued run requires all participants", async () => {
   //   // create continued run with two participants
   //   // try to ready up - get error
@@ -137,13 +83,6 @@ describe("ironman game mode", () => {
   // player 1 can ready up and start game
   // player 1 can control inherited characters
   // })
-
-  // it("continued run can not add characters", async () => {
-  //   // create continued Captains run in lobby with only two characters
-  //   // users join
-  //   // user tries to create character
-  //   // error: can not create a new character in a continued ironman run
-  // });
 
   // it("continued run with changed username", async () => {
   //   // create a saved run with alpha and bravo users

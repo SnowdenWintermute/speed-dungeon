@@ -41,8 +41,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
       if (userIsAtRunCapacity) {
         return {
           allowed: false,
-          reason:
-            "You can not join a new Ironman run because your account is at the maximum capacity for saved runs",
+          reason: ERROR_MESSAGES.USER.SAVED_GAME_CAPACITY,
         };
       }
     }

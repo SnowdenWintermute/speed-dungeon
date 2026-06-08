@@ -43,6 +43,15 @@ export async function testProgressionGameSelectCharacterSync(testFixture: Integr
     GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
   );
   expect(bravoViewOfAlphaPlayer?.characterIds).toStrictEqual([
+    alphaFirstCharacter.combatant.getEntityId(),
+    alphaSecondCharacter.combatant.getEntityId(),
+  ]);
+
+  await alpha.lobbyClientHarness.removeSavedCharacterFromProgressionGame(
+    alphaFirstCharacter.combatant.getEntityId()
+  );
+  await bravo.lobbyClientHarness.awaitMessageOfType(GameStateUpdateType.CharacterDeleted);
+  expect(bravoViewOfAlphaPlayer?.characterIds).toStrictEqual([
     alphaSecondCharacter.combatant.getEntityId(),
   ]);
 }
