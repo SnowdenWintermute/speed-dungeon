@@ -375,6 +375,15 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
+  async removeSavedCharacterFromProgressionGame(characterId: CombatantId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.DeleteCharacterInGame,
+      data: {
+        characterId,
+      },
+    });
+  }
+
   async selectProgressionGameStartingFloor(floorNumber: number) {
     return this.settleIntentResult({
       type: ClientIntentType.SelectProgressionGameStartingFloor,

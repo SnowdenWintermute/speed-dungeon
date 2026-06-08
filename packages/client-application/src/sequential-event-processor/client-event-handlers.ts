@@ -104,7 +104,9 @@ export function createClientSequentialEventHandlers(
 
       const { gameWorldView, eventLogMessageService, combatantFocus } = clientApplication;
       eventLogMessageService.postUserLeftGame(username);
-      combatantFocus.focusFirstOwnedCharacter();
+      if (gameOption.clock.isLive()) {
+        combatantFocus.focusFirstOwnedCharacter();
+      }
 
       await gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         {

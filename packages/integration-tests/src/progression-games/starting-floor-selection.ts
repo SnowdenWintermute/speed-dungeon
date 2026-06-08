@@ -50,6 +50,13 @@ export async function testProgressionGameStartingFloorSelection(
     bravo.lobbyClientHarness.awaitMessageOfType(
       GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
     );
+
+  const alphaFirstCharacter =
+    alphaSavedCharacters.byControlScheme[CharacterControlScheme.Captain][0];
+  invariant(alphaFirstCharacter !== undefined, "expected alpha first saved character");
+  await alpha.lobbyClientHarness.removeSavedCharacterFromProgressionGame(
+    alphaFirstCharacter.combatant.getEntityId()
+  );
   await alpha.lobbyClientHarness.addSavedCharacterToProgressionGame(
     alphaSecondCharacter.combatant.getEntityId()
   );
@@ -77,11 +84,27 @@ export async function testProgressionGameStartingFloorSelection(
   const alphaSawCharacterSelectedPromise = alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
   );
+  const bravoFirstCharacter =
+    bravoSavedCharacters.byControlScheme[CharacterControlScheme.Captain][0];
+  invariant(bravoFirstCharacter !== undefined, "expected bravo client to have a first character");
+  await bravo.lobbyClientHarness.removeSavedCharacterFromProgressionGame(
+    bravoFirstCharacter.combatant.getEntityId()
+  );
   await bravo.lobbyClientHarness.addSavedCharacterToProgressionGame(
     bravoSecondCharacter.combatant.getEntityId()
   );
+  console.log(
+    "bravoSecondCharacter",
+    bravoSecondCharacter.combatant.combatantProperties.deepestFloorReached
+  );
   // alpha sees new max floor has risen
   await alphaSawCharacterSelectedPromise;
+  console.log(
+    "alpha party:",
+    [...alpha.clientApplication.gameContext.requireParty().combatantManager.getAllCombatants()].map(
+      ([_, combatant]) => combatant.combatantProperties.deepestFloorReached
+    )
+  );
 
   newMaxFloor = alphaPlayerContext.game.maxStartingFloor;
   expect(newMaxFloor).toBe(4);
@@ -96,9 +119,9 @@ export async function testProgressionGameStartingFloorSelection(
     alpha.lobbyClientHarness.awaitMessageOfType(
       GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame
     );
-  const bravoFirstCharacter =
-    bravoSavedCharacters.byControlScheme[CharacterControlScheme.Captain][0];
-  invariant(bravoFirstCharacter !== undefined, "expected bravo first saved character");
+  await bravo.lobbyClientHarness.removeSavedCharacterFromProgressionGame(
+    bravoSecondCharacter.combatant.getEntityId()
+  );
   await bravo.lobbyClientHarness.addSavedCharacterToProgressionGame(
     bravoFirstCharacter.combatant.getEntityId()
   );
