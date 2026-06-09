@@ -4,6 +4,8 @@ import {
   testAccountSavedIronmanRunLimitGameCreate,
   testAccountSavedIronmanRunLimitGameJoin,
 } from "./account-saved-run-limit";
+import { testJoinContinuedRunAsNonParticipant } from "./join-continued-run-as-non-participant";
+import { testAnyParticipantMayContinueRun } from "./any-participant-may-continue-run";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -24,25 +26,15 @@ describe("ironman game mode", () => {
     await testAccountSavedIronmanRunLimitGameJoin(testFixture);
   });
 
-  // try to join a run not referenced in their account
-  // get error
-  // it("attempt join continued run not a member of",() =>{})
+  it("attempt join continued run as non participant", async () => {
+    await testJoinContinuedRunAsNonParticipant(testFixture);
+  });
 
-  // it("continue run from older game version", async () => {
-  //   // try to load a run from older game version
-  //   // error - old game version
-  // });
+  it("any participant can continue run", async () => {
+    await testAnyParticipantMayContinueRun(testFixture);
+  });
 
-  // it("any user in run can continue", async () => {
-  //   // create fresh run
-  //   // two users, alpha and bravo, in run with characters
-  //   // users leave game
-  //   // alpha user can create lobby game for the run
-  //   // bravo user can create lobby game for the run
-  //   // charlie user can not create lobby game for the run
-  // });
-
-  // it("two users create same continued run", async () => {
+  // it("one game setup per continued run", async () => {
   //   // first user starts a continued run lobby setup
   //   // second user tries to create a game with the same run id
   //   // gets error

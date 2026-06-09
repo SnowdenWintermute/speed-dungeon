@@ -32,6 +32,7 @@ import {
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
   TEST_CHARACTER_NAME_1,
+  TEST_CHARACTER_NAME_2,
   TEST_GAME_NAME,
   TEST_PARTY_NAME,
   TestGameServerName,
@@ -351,5 +352,34 @@ export class IntegrationTestFixture {
     expect(partyA.currentRoom.requireType(DungeonRoomType.MonsterLair));
     expect(partyB.currentRoom.requireType(DungeonRoomType.MonsterLair));
     return { alpha, bravo };
+  }
+
+  async putTwoClientsInFreshIronmanRun(
+    alpha: ClientFixture,
+    bravo: ClientFixture,
+    options?: { closeGame?: boolean }
+  ) {
+    // create a run that another user is a participant of
+    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
+    await alpha.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
+    await bravo.lobbyClientHarness.tryJoinExpectedSingleGameInList();
+    await bravo.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_2, CombatantClass.Warrior);
+
+    await alpha.lobbyClientHarness.toggleReadyToStartGame();
+    await bravo.lobbyClientHarness.toggleReadyToStartGame();
+    await alpha.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+    if (options?.closeGame) {
+      alpha.clientApplication.gameClientRef.get().leaveGame();
+      const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
+        GameStateUpdateType.GameClosed
+      );
+      await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
+      // bravo should be disconnected when other player leaves ironman game
+      await bravoDisconnectedOnAlphaLeavePromise;
+      await bravo.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
+    }
   }
 }

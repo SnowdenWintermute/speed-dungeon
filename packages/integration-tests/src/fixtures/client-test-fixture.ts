@@ -4,6 +4,7 @@ import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
   CLIENT_LOG_RECORDER_MAX_BYTES,
   CombatantClass,
+  GameMode,
   GameName,
   IndexedDbAssetStore,
   TestBrowserWebSocketClientConnectionEndpointFactory,
@@ -16,6 +17,7 @@ import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 import { TimeMachine } from "@/test-utils/time-machine";
+import { TEST_CHARACTER_NAME_1, TEST_GAME_NAME } from "./consts";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -86,6 +88,18 @@ export class ClientFixture {
       }
     }
     throw new Error("Expected game list entry not found on client application");
+  }
+
+  async createSavedIronmanRun() {
+    const { lobbyClientHarness, clientApplication } = this;
+    await lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
+    await lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
+    await lobbyClientHarness.toggleReadyToStartGame();
+    await clientApplication.sequentialEventProcessor.waitUntilIdle();
+    await clientApplication.topologyManager.transitionToGameServer.waitFor();
+
+    clientApplication.gameClientRef.get().leaveGame();
+    await clientApplication.topologyManager.transitionToLobbyServer.waitFor();
   }
 }
 
