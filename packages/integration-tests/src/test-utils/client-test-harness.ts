@@ -208,6 +208,12 @@ export class ClientTestHarness<T extends BaseClient> {
       data: { name: characterName as EntityName, combatantClass },
     });
   }
+  async deleteCharacterInGame(characterId: CombatantId) {
+    await this.settleIntentResult({
+      type: ClientIntentType.DeleteCharacterInGame,
+      data: { characterId },
+    });
+  }
   async toggleReadyToStartGame() {
     await this.settleIntentResult({
       type: ClientIntentType.ToggleReadyToStartGame,

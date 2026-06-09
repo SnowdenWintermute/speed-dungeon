@@ -6,6 +6,12 @@ import {
 } from "./account-saved-run-limit";
 import { testJoinContinuedRunAsNonParticipant } from "./join-continued-run-as-non-participant";
 import { testAnyParticipantMayContinueRun } from "./any-participant-may-continue-run";
+import { testOneGameSetupPerContinuedRun } from "./one-game-setup-per-continued-run";
+import { testNoFloorSelection } from "./no-floor-selection";
+import { testContinuedRunAddCharacterForbidden } from "./continued-run-add-character-forbidden";
+import { testContinuedRunRemoveCharacterForbidden } from "./continued-run-remove-character-forbidden";
+import { testContinuedRunSetupAwaitsAllParticipants } from "./continued-run-setup-awaits-all-participants";
+import { testFreshRunCreateCharacter } from "./fresh-run-create-character";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -34,47 +40,29 @@ describe("ironman game mode", () => {
     await testAnyParticipantMayContinueRun(testFixture);
   });
 
-  // it("one game setup per continued run", async () => {
-  //   // first user starts a continued run lobby setup
-  //   // second user tries to create a game with the same run id
-  //   // gets error
-  // });
+  it("one game setup per continued run", async () => {
+    await testOneGameSetupPerContinuedRun(testFixture);
+  });
 
-  // it("no floor selection", async () => {
-  //   // create fresh ironman run
-  //   // try select floor
-  //   // get error
-  //   // starting floor still at 1
-  // });
+  it("no floor selection", async () => {
+    await testNoFloorSelection(testFixture);
+  });
 
-  // it("continued run can not add characters", async () => {
-  //   // create continued Captains run in lobby with only two characters
-  //   // users join
-  //   // user tries to create character
-  //   // error: can not create a new character in a continued ironman run
-  // });
+  it("fresh run create character", async () => {
+    await testFreshRunCreateCharacter(testFixture);
+  });
 
-  // it("continued run can not remove characters", async () => {
-  //   // create continued Captains run in lobby with only two characters
-  //   // users join
-  //   // user tries to create character
-  //   // error: can not create a new character in a continued ironman run
-  // });
+  it("continued run can not add characters", async () => {
+    await testContinuedRunAddCharacterForbidden(testFixture);
+  });
 
-  // it("continued run requires all participants", async () => {
-  //   // create continued run with two participants
-  //   // try to ready up - get error
-  //   // second participant joins
-  //   // all users try to ready up - get connection instructions
-  // });
+  it("continued run can not remove characters", async () => {
+    await testContinuedRunRemoveCharacterForbidden(testFixture);
+  });
 
-  // it("abandon run while other player in lobby setup", () =>{
-  // player 1 creates lobby setup for continued run
-  // player 2 abandons run
-  // player 1 sees characters transfer
-  // player 1 can ready up and start game
-  // player 1 can control inherited characters
-  // })
+  it("continued run requires all participants", async () => {
+    await testContinuedRunSetupAwaitsAllParticipants(testFixture);
+  });
 
   // it("continued run with changed username", async () => {
   //   // create a saved run with alpha and bravo users
@@ -88,11 +76,13 @@ describe("ironman game mode", () => {
   //   // users receive game server connection instructions
   // });
 
-  // it("fresh run create character", async () => {
-  //   // create fresh ironman game
-  //   // try create character
-  //   // character created in default party
-  // });
+  // it("abandon run while other player in lobby setup", () =>{
+  // player 1 creates lobby setup for continued run
+  // player 2 abandons run
+  // player 1 sees characters transfer
+  // player 1 can ready up and start game
+  // player 1 can control inherited characters
+  // })
 
   // it("floor descent saves records", async () => {
   //   // create fresh ironman game
