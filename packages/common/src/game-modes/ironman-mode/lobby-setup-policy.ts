@@ -147,6 +147,11 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
       const playerNameUpdateOption = run.updatePlayerOnJoin(session);
       const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
       if (playerNameUpdateOption) {
+        // this must be called on the run's saved game as well as the live lobby game setup
+        game.updatePlayerWithNewUsername(
+          playerNameUpdateOption.oldUsername,
+          playerNameUpdateOption.newUsername
+        );
         outbox.pushToChannel(game.getChannelName(), {
           type: GameStateUpdateType.PlayerUsernameUpdated,
           data: playerNameUpdateOption,

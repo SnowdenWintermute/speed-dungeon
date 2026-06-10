@@ -11,7 +11,9 @@ import {
   GameServer,
   GameServerName,
   GameStateUpdateType,
+  IdentityProviderUserSessionQueryStrategy,
   IncomingConnectionGateway,
+  InMemoryIdentityProviderQueryStrategy,
   invariant,
   iterateNumericEnumKeyedRecord,
   LobbyServer,
@@ -62,6 +64,7 @@ export class IntegrationTestFixture {
   }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
   private _rankedLadderService: RankedLadderService | null = null;
+  private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
   /** for manipulating which server a new game should be created on in a test */
   private _leastBusyGameServerUrlGetterRef: {
     getter: () => Promise<{ name: GameServerName; url: string }>;
@@ -117,20 +120,22 @@ export class IntegrationTestFixture {
         this._gameServers[TestGameServerName.Lindblum].assetAnalyzer.animationLengths;
     }
 
-    const servers = await createTestServers(
-      lobbyIncomingConnectionGateway,
-      gameServerGatewaysAndPorts,
-      this._leastBusyGameServerUrlGetterRef,
-      rngPolicy,
-      ScriptedCharacterCreationPolicy
-    );
+    const { lobbyServer, gameServers, rankedLadderService, identityProviderQueryStrategy } =
+      await createTestServers(
+        lobbyIncomingConnectionGateway,
+        gameServerGatewaysAndPorts,
+        this._leastBusyGameServerUrlGetterRef,
+        rngPolicy,
+        ScriptedCharacterCreationPolicy
+      );
 
-    this._rankedLadderService = servers.rankedLadderService;
+    this._rankedLadderService = rankedLadderService;
+    this._identityProviderQueryStrategy = identityProviderQueryStrategy;
 
-    this._lobbyServer = servers.lobbyServer;
+    this._lobbyServer = lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
 
-    this._gameServers = servers.gameServers;
+    this._gameServers = gameServers;
     for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
       gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
     }
@@ -149,6 +154,13 @@ export class IntegrationTestFixture {
       throw new Error("no rankedLadderService was initialized");
     }
     return this._rankedLadderService;
+  }
+
+  get identityProviderQueryStrategy() {
+    if (!this._identityProviderQueryStrategy) {
+      throw new Error("no identityProviderQueryStrategy was initialized");
+    }
+    return this._identityProviderQueryStrategy;
   }
 
   get lobbyServer() {

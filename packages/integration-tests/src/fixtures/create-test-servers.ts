@@ -107,8 +107,7 @@ export async function createTestServers(
 
   leastBusyGameServerGetterRef.getter = testLeastBusyServerUrlGetter;
 
-  const lobbyServer = new LobbyServer(
-    lobbyIncomingConnectionGateway,
+  const { externalServices: lobbyExternalServices, identityProviderQueryStrategy } =
     createLobbyTestServices(
       gameSessionStoreService,
       userGameDataPersistenceService,
@@ -116,7 +115,11 @@ export async function createTestServers(
       profileService,
       lobbyCrossServerBroadcasterService,
       globalGameSessionStore
-    ),
+    );
+
+  const lobbyServer = new LobbyServer(
+    lobbyIncomingConnectionGateway,
+    lobbyExternalServices,
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
     {
@@ -165,7 +168,7 @@ export async function createTestServers(
     )
   ) as Record<TestGameServerName, GameServer>;
 
-  return { lobbyServer, gameServers, rankedLadderService };
+  return { lobbyServer, gameServers, rankedLadderService, identityProviderQueryStrategy };
 }
 
 export function createLobbyTestServices(
@@ -205,7 +208,7 @@ export function createLobbyTestServices(
     crossServerBroadcasterService,
     globalGameSessionStore,
   };
-  return externalServices;
+  return { externalServices, identityProviderQueryStrategy };
 }
 
 export function createGameServerTestServices(

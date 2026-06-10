@@ -12,6 +12,7 @@ import { testContinuedRunAddCharacterForbidden } from "./continued-run-add-chara
 import { testContinuedRunRemoveCharacterForbidden } from "./continued-run-remove-character-forbidden";
 import { testContinuedRunSetupAwaitsAllParticipants } from "./continued-run-setup-awaits-all-participants";
 import { testFreshRunCreateCharacter } from "./fresh-run-create-character";
+import { testContinuedRunAfterUsernameChange } from "./continued-run-changed-username";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -64,17 +65,9 @@ describe("ironman game mode", () => {
     await testContinuedRunSetupAwaitsAllParticipants(testFixture);
   });
 
-  // it("continued run with changed username", async () => {
-  //   // create a saved run with alpha and bravo users
-  //   // alpha change username
-  //   // bravo change username
-  //   // alpha create game for continued run
-  //   // alpha receives "PlayerUsernameUpdated" message for alpha's player
-  //   // bravo join game
-  //   // alpha and bravo receive "PlayerUsernameUpdated" message for bravo's player
-  //   // users ready up
-  //   // users receive game server connection instructions
-  // });
+  it("continued run with changed username", async () => {
+    await testContinuedRunAfterUsernameChange(testFixture);
+  });
 
   // it("abandon run while other player in lobby setup", () =>{
   // player 1 creates lobby setup for continued run
@@ -97,7 +90,7 @@ describe("ironman game mode", () => {
   //   // check records for 2nd floor descent to ensure the timers are being reset
   // });
 
-  // it("floor descent in continued run", async () => {
+  // it("time spent on floor in continued run", async () => {
   //   // - create fresh ironman game
   //   // - spend some time on first floor
   //   // - create continued ironman game

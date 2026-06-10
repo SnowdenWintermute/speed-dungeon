@@ -158,6 +158,24 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return result;
   }
 
+  updatePlayerWithNewUsername(oldUsername: Username, newUsername: Username) {
+    const player = this.getExpectedPlayer(oldUsername);
+    player.username = newUsername;
+
+    if (player.partyName !== null) {
+      const party = this.getExpectedParty(player.partyName);
+      ArrayUtils.removeElement(party.playerUsernames, oldUsername);
+      party.playerUsernames.push(newUsername);
+      if (party.playerUsernamesAwaitingReconnection.has(oldUsername)) {
+        party.playerUsernamesAwaitingReconnection.delete(oldUsername);
+        party.playerUsernamesAwaitingReconnection.add(newUsername);
+      }
+    }
+
+    this.players.delete(oldUsername);
+    this.players.set(newUsername, player);
+  }
+
   getPlayerCount() {
     return this.players.size;
   }

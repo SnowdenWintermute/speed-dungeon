@@ -1,6 +1,7 @@
 import { instanceToPlain } from "class-transformer";
 import {
   APP_VERSION_NUMBER,
+  ArrayUtils,
   ERROR_MESSAGES,
   GameId,
   GameName,
@@ -98,7 +99,11 @@ export class SavedIronmanRun implements Serializable {
     const oldUsername = player.username;
     const usernameChangedSinceLastGameSave = oldUsername !== session.username;
     if (usernameChangedSinceLastGameSave) {
-      player.username = session.username;
+      this.userIdsToUsernames.set(session.taggedUserId.id, session.username);
+
+      // this must be called on the run's saved game as well as the live lobby game setup
+      this.game.updatePlayerWithNewUsername(oldUsername, session.username);
+
       return { oldUsername, newUsername: session.username };
     }
   }
