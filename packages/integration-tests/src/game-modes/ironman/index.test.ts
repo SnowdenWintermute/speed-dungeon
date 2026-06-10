@@ -13,6 +13,8 @@ import { testContinuedRunRemoveCharacterForbidden } from "./continued-run-remove
 import { testContinuedRunSetupAwaitsAllParticipants } from "./continued-run-setup-awaits-all-participants";
 import { testFreshRunCreateCharacter } from "./fresh-run-create-character";
 import { testContinuedRunAfterUsernameChange } from "./continued-run-changed-username";
+import { testAbandonRunWhileUserInGameSetup } from "./abandon-run-while-in-game-setup";
+import { testAbandonRunWhileOtherUserInLobbySetup } from "./abandon-run-while-other-user-in-game-setup";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -69,12 +71,18 @@ describe("ironman game mode", () => {
     await testContinuedRunAfterUsernameChange(testFixture);
   });
 
-  // it("abandon run while other player in lobby setup", () =>{
-  // player 1 creates lobby setup for continued run
-  // player 2 abandons run
-  // player 1 sees characters transfer
-  // player 1 can ready up and start game
-  // player 1 can control inherited characters
+  it("abandon run while other player in lobby setup", async () => {
+    await testAbandonRunWhileOtherUserInLobbySetup(testFixture);
+  });
+
+  it("abandon run user in lobby setup", async () => {
+    await testAbandonRunWhileUserInGameSetup(testFixture);
+  });
+
+  // it("last player abandoning run deletes it", () =>{
+  // create run with one player
+  // player 1 abandons run
+  // query for run returns undefined
   // })
 
   // it("floor descent saves records", async () => {

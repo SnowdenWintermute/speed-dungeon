@@ -84,6 +84,9 @@ export class UserSessionRegistry {
   getAllSessionsInGame(game: SpeedDungeonGame) {
     const result: UserSession[] = [];
     for (const [username, _player] of game.players) {
+      if (_player.awaitingControllingUserConnection) {
+        continue;
+      }
       // it is possible a player may be in the game, but no session exists
       // for them in the case of a continued ironman run game setup
       const sessionOption = this.getSessionByUsername(username);

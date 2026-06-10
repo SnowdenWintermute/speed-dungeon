@@ -258,6 +258,7 @@ export function createLobbyUpdateHandlers(
           gameOption.transferCharactersToInheritingPlayer(usernameAbandoning);
         }
         gameOption.players.delete(usernameAbandoning);
+        gameOption.playersReadied = [];
       } else {
         // delete the run id from the saved ironman runs list
         clientApplication.lobbyContext.savedIronmanRuns.delete(runId);

@@ -38,11 +38,22 @@ export class IronmanRunController {
     if (gameIsLive || gameHasPendingLiveSession) {
       throw new Error(ERROR_MESSAGES.GAME.ALREADY_LIVE);
     }
+    const liveLobbyGameSessionOption = this.lobbyState.gameRegistry.getGameOption(runId);
+
+    // don't let them abandon the run if they are in the game setup
+    if (liveLobbyGameSessionOption) {
+      const sessions = this.userSessionRegistry.getAllSessionsInGame(liveLobbyGameSessionOption);
+      const userIsInGameSetupForThisRun = sessions.some(
+        (session) => session.taggedUserId.id === userSession.taggedUserId.id
+      );
+      if (userIsInGameSetupForThisRun) {
+        throw new Error(ERROR_MESSAGES.GAME_SETUP.CANT_ABANDON_WHILE_IN_SETUP);
+      }
+    }
 
     const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(runId);
     const run = SavedIronmanRun.fromSerialized(serializedRun);
-    const { game } = run;
-    const playerCount = game.players.size;
+    const playerCount = run.game.players.size;
     console.log("player count:", playerCount);
     const playerUsernameLeaving = run.userIdsToUsernames.get(userSession.taggedUserId.id);
     invariant(playerUsernameLeaving !== undefined, "expected user to be in this run");
@@ -52,12 +63,18 @@ export class IronmanRunController {
       await this.userGameDataPersistenceService.deleteIronmanRun(runId);
     } else {
       //   .else update their owned characters to be owned by the next least recently joined player
-      game.transferCharactersToInheritingPlayer(playerUsernameLeaving);
+      run.game.transferCharactersToInheritingPlayer(playerUsernameLeaving);
+      if (liveLobbyGameSessionOption) {
+        liveLobbyGameSessionOption.transferCharactersToInheritingPlayer(playerUsernameLeaving);
+      }
     }
 
     //   .remove the player
-    game.players.delete(playerUsernameLeaving);
+    run.game.players.delete(playerUsernameLeaving);
     run.userIdsToUsernames.delete(userSession.taggedUserId.id);
+    if (liveLobbyGameSessionOption) {
+      liveLobbyGameSessionOption.playersReadied = [];
+    }
     //   .remove the reference to the run in their user Profile
     const profileOfUserLeaving = await this.profilesService.fetchExpectedProfile(
       userSession.taggedUserId.id
@@ -72,9 +89,10 @@ export class IronmanRunController {
       data: { usernameAbandoning: userSession.username, runId },
     });
     //   .if there is any live lobby session for this run (another player in the run waiting in a lobby game for it)
-    const liveLobbyGameSessionOption = this.lobbyState.gameRegistry.getGameOption(runId);
+
     if (liveLobbyGameSessionOption) {
       liveLobbyGameSessionOption.players.delete(playerUsernameLeaving);
+      run.game.playersReadied = [];
       //   tell that other game's users that this player abandoned
       for (const session of this.userSessionRegistry.getAllSessionsInGame(
         liveLobbyGameSessionOption
@@ -90,7 +108,7 @@ export class IronmanRunController {
     // that we don't want to reveal the user's identity provider ("auth") id to the clients. it does
     // add a fair bit of complexity though
     const userIdsToUsernames = run.userIdsToUsernames;
-    await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
+    await this.userGameDataPersistenceService.saveIronmanRun(run.game, userIdsToUsernames);
 
     return outbox;
   }

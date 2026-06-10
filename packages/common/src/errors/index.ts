@@ -59,6 +59,8 @@ export const ERROR_MESSAGES = {
     INPUT_IS_LOCKED: "Can't accept new inputs while waiting for a player to reconnect",
   },
   GAME_SETUP: {
+    CANT_ABANDON_WHILE_IN_SETUP:
+      "You can not abandon a run that you are currently in the lobby game setup for",
     PLAYER_NOT_IN_CONTINUED_GAME:
       "This is a continuation of a previous game that your account was not a part of",
     AWAITING_PLAYER_FOR_CONTINUED_GAME:

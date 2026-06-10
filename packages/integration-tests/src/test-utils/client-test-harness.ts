@@ -407,6 +407,15 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
+  async abandonIronmanRun(runId: GameId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.AbandonIronmanRun,
+      data: {
+        runId,
+      },
+    });
+  }
+
   async useFireRankTwoOnAllEnemies() {
     await this.selectCombatAction(CombatActionName.Fire, 2);
     await this.cycleTargetingSchemes();

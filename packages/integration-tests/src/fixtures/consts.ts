@@ -5,8 +5,8 @@ export enum TestGameServerName {
   Alexandria,
 }
 export const TEST_GAME_SERVER_NAME_STRINGS: Record<TestGameServerName, GameServerName> = {
-  [TestGameServerName.Lindblum]: "Lindblum Test Server" as GameServerName,
-  [TestGameServerName.Alexandria]: "Alexandria Test Server" as GameServerName,
+  [TestGameServerName.Lindblum]: "Lindblum Game Server" as GameServerName,
+  [TestGameServerName.Alexandria]: "Alexandria Game Server" as GameServerName,
 };
 export const LOCAL_LOBBY_SERVER_PORT = 8190;
 export const LOCAL_GAME_SERVER_PORT = 8191;

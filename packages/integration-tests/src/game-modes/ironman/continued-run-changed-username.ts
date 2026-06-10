@@ -4,11 +4,13 @@ import {
   AbilityType,
   CharacterControlScheme,
   CombatActionName,
+  CombatAttribute,
   GameMode,
   GameName,
   GameStateUpdateType,
   invariant,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
+  Username,
 } from "@speed-dungeon/common";
 
 export async function testContinuedRunAfterUsernameChange(testFixture: IntegrationTestFixture) {
@@ -22,9 +24,10 @@ export async function testContinuedRunAfterUsernameChange(testFixture: Integrati
   await testFixture.putTwoClientsInFreshIronmanRun(alpha, bravo, { closeGame: true });
 
   // alpha change username
+  const alphaNewName = "alpha new name";
   testFixture.identityProviderQueryStrategy.changeUsername(
     TEST_AUTH_SESSION_ID_PLAYER_1,
-    "alpha new name"
+    alphaNewName
   );
   await alpha.reconnectAsAuth(TEST_AUTH_SESSION_ID_PLAYER_1);
   // bravo change username
@@ -76,12 +79,21 @@ export async function testContinuedRunAfterUsernameChange(testFixture: Integrati
   await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
   await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
   // users can issue commands to characters
-  await alpha.gameClientHarness.allocateAbilityPoint({
-    type: AbilityType.Action,
-    actionName: CombatActionName.TamePet,
-  });
-  await bravo.gameClientHarness.allocateAbilityPoint({
-    type: AbilityType.Action,
-    actionName: CombatActionName.TamePet,
-  });
+  alpha.clientApplication.errorRecordService.clear();
+  const alphaPlayer = alpha.clientApplication.gameContext
+    .requireGame()
+    .getExpectedPlayer(alphaNewName as Username);
+  console.log(
+    "alpha player:",
+    alphaPlayer.characterIds,
+    "focused character id",
+    alpha.clientApplication.combatantFocus.requireFocusedCharacter().getEntityId()
+  );
+
+  await alpha.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
+  console.log(alpha.clientApplication.errorRecordService.getErrors());
+  expect(alpha.clientApplication.errorRecordService.count).toBe(0);
+  bravo.clientApplication.errorRecordService.clear();
+  await bravo.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
+  expect(bravo.clientApplication.errorRecordService.count).toBe(0);
 }

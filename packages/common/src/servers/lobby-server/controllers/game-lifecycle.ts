@@ -266,6 +266,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     player.requireHasCharacters();
 
     const allPlayersReadied = game.togglePlayerReadyToStartGameStatus(session.username);
+    console.log("togglePlayerReadyToStartGameStatus", session.username, game.playersReadied);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {

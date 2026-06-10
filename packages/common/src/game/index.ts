@@ -32,6 +32,7 @@ import { invariant } from "../utils/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { GameClock } from "./game-clock.js";
+import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -170,6 +171,11 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
         party.playerUsernamesAwaitingReconnection.delete(oldUsername);
         party.playerUsernamesAwaitingReconnection.add(newUsername);
       }
+      for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
+        if (combatant.combatantProperties.controlledBy.controllerPlayerName === oldUsername) {
+          combatant.combatantProperties.controlledBy.controllerPlayerName = newUsername;
+        }
+      }
     }
 
     this.players.delete(oldUsername);
@@ -244,6 +250,14 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
     }
     const character = fromUserParty.combatantManager.getExpectedCombatant(characterIdOption);
+    console.log(
+      "character id",
+      character.getEntityId(),
+      "changing control from",
+      character.combatantProperties.controlledBy.controllerPlayerName,
+      "to",
+      toUser.username
+    );
     character.combatantProperties.controlledBy.controllerPlayerName = toUser.username;
     toUser.characterIds.push(characterIdOption);
   }
