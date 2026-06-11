@@ -1,7 +1,5 @@
-import { CombatantId, GameId, Username } from "../../aliases.js";
+import { GameId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { SpeedDungeonPlayer } from "../../game/player.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { SerializedOf } from "../../serialization/index.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
@@ -54,11 +52,11 @@ export class IronmanRunController {
     const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(runId);
     const run = SavedIronmanRun.fromSerialized(serializedRun);
     const playerCount = run.game.players.size;
-    console.log("player count:", playerCount);
     const playerUsernameLeaving = run.userIdsToUsernames.get(userSession.taggedUserId.id);
     invariant(playerUsernameLeaving !== undefined, "expected user to be in this run");
 
-    if (playerCount === 1) {
+    const lastPlayerIsLeaving = playerCount === 1;
+    if (lastPlayerIsLeaving) {
       //   .if no players would remain after this one, delete the saved run record
       await this.userGameDataPersistenceService.deleteIronmanRun(runId);
     } else {
@@ -108,7 +106,9 @@ export class IronmanRunController {
     // that we don't want to reveal the user's identity provider ("auth") id to the clients. it does
     // add a fair bit of complexity though
     const userIdsToUsernames = run.userIdsToUsernames;
-    await this.userGameDataPersistenceService.saveIronmanRun(run.game, userIdsToUsernames);
+    if (!lastPlayerIsLeaving) {
+      await this.userGameDataPersistenceService.saveIronmanRun(run.game, userIdsToUsernames);
+    }
 
     return outbox;
   }

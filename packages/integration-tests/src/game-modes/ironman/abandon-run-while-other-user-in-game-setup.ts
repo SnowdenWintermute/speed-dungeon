@@ -48,7 +48,6 @@ export async function testAbandonRunWhileOtherUserInLobbySetup(
     GameStateUpdateType.IronmanRunAbandoned
   );
   // player 1 toggles ready before player 2 may join
-  console.log("alpha readies before bravo abandons");
   await alpha.lobbyClientHarness.toggleReadyToStartGame();
   // player 2 abandons run
   await bravo.lobbyClientHarness.abandonIronmanRun(alphaIronmanRunRef.gameId);
@@ -72,6 +71,5 @@ export async function testAbandonRunWhileOtherUserInLobbySetup(
       },
     });
   }
-  console.log(alpha.clientApplication.errorRecordService.getErrors());
   expect(alpha.clientApplication.errorRecordService.count).toBe(0);
 }

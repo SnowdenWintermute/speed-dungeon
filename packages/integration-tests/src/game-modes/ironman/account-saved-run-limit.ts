@@ -63,7 +63,6 @@ export async function testAccountSavedIronmanRunLimitGameJoin(testFixture: Integ
 
   // other client creates shared run setup
   await bravo.lobbyClientHarness.leaveGame();
-  console.log("bravo saved runs:", bravo.clientApplication.lobbyContext.savedIronmanRuns);
   // bravo should only have one saved run because their other created game never got past lobby
   // setup and thus would not have been saved, we can take the only existing run (the shared one)
   const bravoExpectedSavedRun = [

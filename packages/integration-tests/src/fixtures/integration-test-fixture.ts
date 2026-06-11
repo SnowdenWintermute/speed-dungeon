@@ -23,6 +23,7 @@ import {
   RNG_RANGE,
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
+  UserGameDataPersistenceService,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
@@ -65,6 +66,7 @@ export class IntegrationTestFixture {
   readonly timeMachine = new TimeMachine();
   private _rankedLadderService: RankedLadderService | null = null;
   private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
+  private _userGameDataPersistenceService: UserGameDataPersistenceService | null = null;
   /** for manipulating which server a new game should be created on in a test */
   private _leastBusyGameServerUrlGetterRef: {
     getter: () => Promise<{ name: GameServerName; url: string }>;
@@ -120,17 +122,23 @@ export class IntegrationTestFixture {
         this._gameServers[TestGameServerName.Lindblum].assetAnalyzer.animationLengths;
     }
 
-    const { lobbyServer, gameServers, rankedLadderService, identityProviderQueryStrategy } =
-      await createTestServers(
-        lobbyIncomingConnectionGateway,
-        gameServerGatewaysAndPorts,
-        this._leastBusyGameServerUrlGetterRef,
-        rngPolicy,
-        ScriptedCharacterCreationPolicy
-      );
+    const {
+      lobbyServer,
+      gameServers,
+      rankedLadderService,
+      identityProviderQueryStrategy,
+      userGameDataPersistenceService,
+    } = await createTestServers(
+      lobbyIncomingConnectionGateway,
+      gameServerGatewaysAndPorts,
+      this._leastBusyGameServerUrlGetterRef,
+      rngPolicy,
+      ScriptedCharacterCreationPolicy
+    );
 
     this._rankedLadderService = rankedLadderService;
     this._identityProviderQueryStrategy = identityProviderQueryStrategy;
+    this._userGameDataPersistenceService = userGameDataPersistenceService;
 
     this._lobbyServer = lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
@@ -161,6 +169,13 @@ export class IntegrationTestFixture {
       throw new Error("no identityProviderQueryStrategy was initialized");
     }
     return this._identityProviderQueryStrategy;
+  }
+
+  get userGameDataPersistenceService() {
+    if (!this._userGameDataPersistenceService) {
+      throw new Error("no userGameDataPersistenceService was initialized");
+    }
+    return this._userGameDataPersistenceService;
   }
 
   get lobbyServer() {

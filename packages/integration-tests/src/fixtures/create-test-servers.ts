@@ -168,7 +168,13 @@ export async function createTestServers(
     )
   ) as Record<TestGameServerName, GameServer>;
 
-  return { lobbyServer, gameServers, rankedLadderService, identityProviderQueryStrategy };
+  return {
+    lobbyServer,
+    gameServers,
+    rankedLadderService,
+    identityProviderQueryStrategy,
+    userGameDataPersistenceService,
+  };
 }
 
 export function createLobbyTestServices(

@@ -93,18 +93,8 @@ export async function testProgressionGameStartingFloorSelection(
   await bravo.lobbyClientHarness.addSavedCharacterToProgressionGame(
     bravoSecondCharacter.combatant.getEntityId()
   );
-  console.log(
-    "bravoSecondCharacter",
-    bravoSecondCharacter.combatant.combatantProperties.deepestFloorReached
-  );
   // alpha sees new max floor has risen
   await alphaSawCharacterSelectedPromise;
-  console.log(
-    "alpha party:",
-    [...alpha.clientApplication.gameContext.requireParty().combatantManager.getAllCombatants()].map(
-      ([_, combatant]) => combatant.combatantProperties.deepestFloorReached
-    )
-  );
 
   newMaxFloor = alphaPlayerContext.game.maxStartingFloor;
   expect(newMaxFloor).toBe(4);

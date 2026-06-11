@@ -80,18 +80,8 @@ export async function testContinuedRunAfterUsernameChange(testFixture: Integrati
   await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
   // users can issue commands to characters
   alpha.clientApplication.errorRecordService.clear();
-  const alphaPlayer = alpha.clientApplication.gameContext
-    .requireGame()
-    .getExpectedPlayer(alphaNewName as Username);
-  console.log(
-    "alpha player:",
-    alphaPlayer.characterIds,
-    "focused character id",
-    alpha.clientApplication.combatantFocus.requireFocusedCharacter().getEntityId()
-  );
 
   await alpha.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
-  console.log(alpha.clientApplication.errorRecordService.getErrors());
   expect(alpha.clientApplication.errorRecordService.count).toBe(0);
   bravo.clientApplication.errorRecordService.clear();
   await bravo.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);

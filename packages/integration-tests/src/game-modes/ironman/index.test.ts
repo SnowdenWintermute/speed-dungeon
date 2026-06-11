@@ -15,6 +15,7 @@ import { testFreshRunCreateCharacter } from "./fresh-run-create-character";
 import { testContinuedRunAfterUsernameChange } from "./continued-run-changed-username";
 import { testAbandonRunWhileUserInGameSetup } from "./abandon-run-while-in-game-setup";
 import { testAbandonRunWhileOtherUserInLobbySetup } from "./abandon-run-while-other-user-in-game-setup";
+import { testAbandonRunDeletion } from "./abandoned-run-deletion";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -79,11 +80,27 @@ describe("ironman game mode", () => {
     await testAbandonRunWhileUserInGameSetup(testFixture);
   });
 
-  // it("last player abandoning run deletes it", () =>{
-  // create run with one player
-  // player 1 abandons run
-  // query for run returns undefined
-  // })
+  it("last player abandoning run deletes it", async () => {
+    await testAbandonRunDeletion(testFixture);
+  });
+
+  // it("game start saves record", async () => {
+  //   // create fresh ironman game
+  //   // get connection instructions
+  //   // expect to NOT find record in persistence service yet
+  //   // connect to game server
+  //   // get game time started message
+  //   // expect to find saved record in persistence service m
+  // });
+
+  // it("game leave saves record", async () => {
+  //   // create fresh ironman game
+  //   // get connection instructions
+  //   // connect to game server
+  //   // get game time started message
+  //   // leave game
+  //   // expect to find saved record in persistence service matching game state at time of leave
+  // });
 
   // it("floor descent saves records", async () => {
   //   // create fresh ironman game
@@ -106,24 +123,6 @@ describe("ironman game mode", () => {
   //   // - expect time spent on floor records to reflect time spent
   //   //   in original game instance plus time spent in loaded instance
   //   //
-  // });
-
-  // it("game start saves record", async () => {
-  //   // create fresh ironman game
-  //   // get connection instructions
-  //   // expect to NOT find record in persistence service yet
-  //   // connect to game server
-  //   // get game time started message
-  //   // expect to find saved record in persistence service m
-  // });
-
-  // it("game leave saves record", async () => {
-  //   // create fresh ironman game
-  //   // get connection instructions
-  //   // connect to game server
-  //   // get game time started message
-  //   // leave game
-  //   // expect to find saved record in persistence service matching game state at time of leave
   // });
 
   // it("run wipe", async () => {

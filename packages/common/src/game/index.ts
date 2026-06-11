@@ -250,14 +250,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
     }
     const character = fromUserParty.combatantManager.getExpectedCombatant(characterIdOption);
-    console.log(
-      "character id",
-      character.getEntityId(),
-      "changing control from",
-      character.combatantProperties.controlledBy.controllerPlayerName,
-      "to",
-      toUser.username
-    );
     character.combatantProperties.controlledBy.controllerPlayerName = toUser.username;
     toUser.characterIds.push(characterIdOption);
   }
