@@ -16,6 +16,8 @@ import { testContinuedRunAfterUsernameChange } from "./continued-run-changed-use
 import { testAbandonRunWhileUserInGameSetup } from "./abandon-run-while-in-game-setup";
 import { testAbandonRunWhileOtherUserInLobbySetup } from "./abandon-run-while-other-user-in-game-setup";
 import { testAbandonRunDeletion } from "./abandoned-run-deletion";
+import { testSaveRunOnGameStart } from "./save-run-on-game-start";
+import { testSaveRunOnGameLeave } from "./save-run-on-game-leave";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -84,23 +86,13 @@ describe("ironman game mode", () => {
     await testAbandonRunDeletion(testFixture);
   });
 
-  // it("game start saves record", async () => {
-  //   // create fresh ironman game
-  //   // get connection instructions
-  //   // expect to NOT find record in persistence service yet
-  //   // connect to game server
-  //   // get game time started message
-  //   // expect to find saved record in persistence service m
-  // });
+  it("game start saves record", async () => {
+    await testSaveRunOnGameStart(testFixture);
+  });
 
-  // it("game leave saves record", async () => {
-  //   // create fresh ironman game
-  //   // get connection instructions
-  //   // connect to game server
-  //   // get game time started message
-  //   // leave game
-  //   // expect to find saved record in persistence service matching game state at time of leave
-  // });
+  it("game leave saves record", async () => {
+    await testSaveRunOnGameLeave(testFixture);
+  });
 
   // it("floor descent saves records", async () => {
   //   // create fresh ironman game

@@ -26,8 +26,7 @@ export async function testAbandonRunDeletion(testFixture: IntegrationTestFixture
   expect(runExistsAfterAlphaAbandons).toBeTruthy();
   await bravo.lobbyClientHarness.abandonIronmanRun(alphaIronmanRunRef.gameId);
 
-  expect(
-    async () =>
-      await testFixture.userGameDataPersistenceService.requireIronmanRun(alphaIronmanRunRef.gameId)
+  await expect(
+    testFixture.userGameDataPersistenceService.requireIronmanRun(alphaIronmanRunRef.gameId)
   ).rejects.toThrow();
 }

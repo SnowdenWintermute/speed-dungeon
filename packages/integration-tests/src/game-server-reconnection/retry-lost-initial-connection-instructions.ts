@@ -17,7 +17,10 @@ export async function testRetryLostInitialConnectionInstructions(
   });
   // disconnects after starting game but before getting connection instructions
   await alpha.clientApplication.lobbyClientRef.get().close();
-  await expect(async () =>
+  // await expect(async () =>
+  //   alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor()
+  // ).rejects.toThrow();
+  await expect(
     alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor()
   ).rejects.toThrow();
   // reconnects to lobby server
