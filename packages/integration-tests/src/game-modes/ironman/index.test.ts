@@ -18,6 +18,8 @@ import { testAbandonRunWhileOtherUserInLobbySetup } from "./abandon-run-while-ot
 import { testAbandonRunDeletion } from "./abandoned-run-deletion";
 import { testSaveRunOnGameStart } from "./save-run-on-game-start";
 import { testSaveRunOnGameLeave } from "./save-run-on-game-leave";
+import { testSaveRunOnFloorDescent } from "./save-run-on-floor-descent";
+import { testContinuedRunTimeSpentOnFloor } from "./continued-run-time-spent-on-floor";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -94,28 +96,13 @@ describe("ironman game mode", () => {
     await testSaveRunOnGameLeave(testFixture);
   });
 
-  // it("floor descent saves records", async () => {
-  //   // create fresh ironman game
-  //   // descend floor
-  //   // expect to find saved record in persistence service matching current game state
-  //   //
-  //   // -- the following are shared logic with RankedRace mode: move to a shared mode test suite
-  //   // expect to find saved party time spent on floor record
-  //   // expect to find saved character time spent on floor records
-  //   // expect the time on the floor time records to be correct
-  //   // descend another floor
-  //   // check records for 2nd floor descent to ensure the timers are being reset
-  // });
+  it("descend floor saves record", async () => {
+    await testSaveRunOnFloorDescent(testFixture);
+  });
 
-  // it("time spent on floor in continued run", async () => {
-  //   // - create fresh ironman game
-  //   // - spend some time on first floor
-  //   // - create continued ironman game
-  //   // - descend floor
-  //   // - expect time spent on floor records to reflect time spent
-  //   //   in original game instance plus time spent in loaded instance
-  //   //
-  // });
+  it("time spent on floor in continued run", async () => {
+    await testContinuedRunTimeSpentOnFloor(testFixture);
+  });
 
   // it("run wipe", async () => {
   //   // create run

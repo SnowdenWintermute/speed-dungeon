@@ -1,11 +1,25 @@
 import { DungeonRoomType } from "../adventuring-party/dungeon-room.js";
-import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import {
   ExplicitCombatantDungeonTemplate,
   ExplicitCombatantRoomTemplate,
 } from "../dungeon-generation/index.js";
-import { MonsterType } from "../monsters/monster-types.js";
 import { MONSTER_FIXTURES } from "./monster-fixtures.js";
+
+export const TEST_DUNGEON_EMPTY_ROOMS_WITH_STAIRCASE: ExplicitCombatantDungeonTemplate = [
+  [
+    {
+      type: DungeonRoomType.Staircase,
+    },
+  ],
+  [
+    {
+      type: DungeonRoomType.Empty,
+    },
+    {
+      type: DungeonRoomType.Staircase,
+    },
+  ],
+];
 
 const ROOM_WITH_TWO_SPIDERS: ExplicitCombatantRoomTemplate = {
   type: DungeonRoomType.MonsterLair,

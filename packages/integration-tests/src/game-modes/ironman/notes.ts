@@ -6,3 +6,12 @@
 //   // try to load a run from older game version
 //   // error - old game version
 // });
+//
+//
+//  FLOOR DESCENT RECORDS
+// -- the following are shared logic with RankedRace mode: move to a shared mode test suite
+// expect to find saved party time spent on floor record
+// expect to find saved character time spent on floor records
+// expect the time on the floor time records to be correct
+// descend another floor
+// check records for 2nd floor descent to ensure the timers are being reset
