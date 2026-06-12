@@ -10,7 +10,7 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { makeAutoObservable } from "mobx";
 import { Item } from "../items/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
-import { CombatantId, ConditionId, EntityId, PartyName, Username } from "../aliases.js";
+import { CombatantId, ConditionId, EntityId, PartyId, PartyName, Username } from "../aliases.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { TimedLock } from "../primatives/timed-lock.js";
 import {
@@ -39,7 +39,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   inputLock = new TimedLock();
 
   private constructor(
-    public id: string,
+    public id: PartyId,
     public name: PartyName
   ) {}
 
@@ -55,7 +55,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     makePropertiesObservable(this);
   }
 
-  static createInitialized(id: EntityId, name: string) {
+  static createInitialized(id: PartyId, name: string) {
     const party = new AdventuringParty(id, name as PartyName);
     party.initialize();
     return party;

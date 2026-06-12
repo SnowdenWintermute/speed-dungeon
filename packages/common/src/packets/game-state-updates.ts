@@ -22,6 +22,7 @@ import {
   GameName,
   ItemId,
   Milliseconds,
+  PartyId,
   PartyName,
   Username,
 } from "../aliases.js";
@@ -164,7 +165,7 @@ export interface GameStateUpdateMap {
     joinOrder: number;
   };
   [GameStateUpdateType.PartyCreated]: {
-    partyId: string;
+    partyId: PartyId;
     partyName: PartyName;
   };
   [GameStateUpdateType.CharacterAddedToParty]: {

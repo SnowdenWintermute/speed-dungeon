@@ -51,6 +51,7 @@
 // - LadderCharacterRecord
 //   .general character information
 //   .references to controlling UserAccountId
+//   .back reference to LadderPartyRecord
 //   .references LadderCharacterReachedFloorRecords
 // - LadderCharacterReachedFloorRecord
 //   .characterPayloadSchemaVersion

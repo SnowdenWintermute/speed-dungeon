@@ -2,8 +2,22 @@ export type Username = string & { __brand: "Username" };
 export type GameName = string & { __brand: "GameName" };
 export type GameId = string & { __brand: "GameId" };
 export type PartyName = string & { __brand: "PartyName" };
+export type PartyId = string & { __brand: "PartyId" };
 export type ChannelName = string & { __brand: "ChannelName" };
 export type EntityName = string & { __brand: "EntityName" };
+
+export type LadderParticipantRecordId = string & { __brand: "LadderParticipantRecordId" };
+export type LadderGameRecordId = string & { __brand: "LadderGameRecordId" };
+export type LadderPartyRecordId = string & { __brand: "LadderPartyRecordId" };
+export type LadderPartyFloorClearedRecordId = string & {
+  __brand: "LadderPartyFloorClearedRecordId";
+};
+export type LadderCharacterRecordId = string & {
+  __brand: "LadderCharacterRecordId";
+};
+export type LadderCharacterFloorClearedRecordId = string & {
+  __brand: "LadderCharacterRecordId";
+};
 
 export type ProfileId = number & { __brand: "ProfileId" };
 export type ConnectionId = string & { __brand: "ConnectionId" };

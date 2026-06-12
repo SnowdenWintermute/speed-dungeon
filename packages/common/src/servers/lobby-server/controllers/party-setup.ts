@@ -6,7 +6,7 @@ import { UserSession } from "../../sessions/user-session.js";
 import { RANDOM_PARTY_NAMES } from "../default-names/parties.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { PartyName, Username } from "../../../aliases.js";
+import { PartyId, PartyName, Username } from "../../../aliases.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
@@ -52,7 +52,10 @@ export class PartySetupController {
       throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
     }
 
-    const party = AdventuringParty.createInitialized(this.idGenerator.generate(), partyName);
+    const party = AdventuringParty.createInitialized(
+      this.idGenerator.generate() as PartyId,
+      partyName
+    );
     game.addParty(party);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);

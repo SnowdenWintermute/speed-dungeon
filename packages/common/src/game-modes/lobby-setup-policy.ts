@@ -1,6 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { CombatantId, GameId, GameName, PartyName } from "../aliases.js";
-import { Combatant } from "../combatants/index.js";
+import { CombatantId, GameId, GameName, PartyId, PartyName } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameCreationRequest } from "../packets/client-intents.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
@@ -118,7 +117,7 @@ export abstract class GameModeLobbySetupPolicy {
     const defaultPartyName = this.getDefaultPartyName(game.name);
     game.adventuringParties.set(
       defaultPartyName,
-      AdventuringParty.createInitialized(this.idGenerator.generate(), defaultPartyName)
+      AdventuringParty.createInitialized(this.idGenerator.generate() as PartyId, defaultPartyName)
     );
     return defaultPartyName;
   }
