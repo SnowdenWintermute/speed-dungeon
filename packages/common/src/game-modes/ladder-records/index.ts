@@ -12,8 +12,7 @@ import {
   Username,
 } from "../../aliases.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
-import { Combatant } from "../../combatants/index.js";
-import { SerializedOf } from "../../serialization/index.js";
+import { SerializedCombatantWithPets } from "../../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 import { CharacterControlScheme, GameMode } from "../index.js";
 
 // in case they delete their account we can still show the name of a player in a game record
@@ -75,8 +74,7 @@ export interface LadderCharacterRecord {
   name: string;
   mainClass: CombatantClass;
   mainClassLevel: number;
-  supportClassOption: CombatantClass | undefined;
-  supportClassOptionLevel: number;
+  supportClassOption?: { combatantClass: CombatantClass; level: number };
   controllingPlayerId: LadderParticipantRecordId;
   partyRecordId: LadderPartyRecordId;
   floorClearRecordIds: LadderCharacterFloorClearedRecordId[]; // foreign keys
@@ -84,10 +82,11 @@ export interface LadderCharacterRecord {
 
 // used for tuning each floor based on discovered meta of character builds at each floor clear
 // we will strip out the inventory to save space and focus on their equipment, attributes and abilities
+// pets are included since they are part of the build meta
 export interface LadderCharacterFloorClearedRecord {
   id: LadderCharacterFloorClearedRecordId; // primary key
   combatantSchemaVersion: string;
   partyFloorClearRecord: LadderPartyFloorClearedRecordId; // foreign key
   characterRecordRef: LadderCharacterRecordId; // foreign key to main character record
-  combatant: SerializedOf<Combatant>; // entire character serialized minus their inventory
+  combatantWithPets: SerializedCombatantWithPets; // character + pets, each minus inventory
 }

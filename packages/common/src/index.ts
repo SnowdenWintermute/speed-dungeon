@@ -83,7 +83,7 @@ export * from "./servers/services/assets/game-server-node-asset-service.js";
 export * from "./servers/services/user-game-data-persistence/index.js";
 export * from "./servers/services/user-game-data-persistence/saved-character-persistence-strategy.js";
 export * from "./servers/services/user-game-data-persistence/serialized-player-character.js";
-export * from "./servers/services/user-game-data-persistence/saved-character-list-entry.js";
+export * from "./servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 export * from "./servers/services/user-game-data-persistence/saved-ironman-runs.js";
 export * from "./servers/services/user-game-data-persistence/in-memory-ironman-run-persistence-strategy.js";
 export * from "./servers/services/ranked-ladder.js";
@@ -273,3 +273,7 @@ export * from "./servers/services/global-auth-game-connection-session-store/inde
 export * from "./servers/sessions/global-auth-game-session.js";
 export * from "./servers/game-server/reconnection/guest-session-reconnection-token.js";
 export * from "./game-modes/index.js";
+export * from "./game-modes/ladder-records/index.js";
+export * from "./game-modes/ladder-records/ladder-records-persistence-strategy.js";
+export * from "./game-modes/ladder-records/in-memory-ladder-records-persistence-strategy.js";
+export * from "./game-modes/ladder-records/ladder-records-service.js";

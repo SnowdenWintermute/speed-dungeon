@@ -61,7 +61,7 @@ export async function testSaveRunOnFloorDescent(testFixture: IntegrationTestFixt
     playerCharacterBeforeGameLeave.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Strength
     );
-  expect(strengthStatAfterAllocation > strengthStatBeforeAllocation);
+  expect(strengthStatAfterAllocation > strengthStatBeforeAllocation).toBeTruthy();
 
   // descend floor
   await alpha.gameClientHarness.toggleReadyToDescend();
@@ -73,9 +73,10 @@ export async function testSaveRunOnFloorDescent(testFixture: IntegrationTestFixt
   ).toBe(2);
 
   // expect to find saved record in persistence service matching game state at time of leave
-  const serializedRunAfterGameLeave =
+  const serializedRunAfterDescent =
     await testFixture.userGameDataPersistenceService.requireIronmanRun(gameId);
-  const run = SavedIronmanRun.fromSerialized(serializedRunAfterGameLeave);
+  const run = SavedIronmanRun.fromSerialized(serializedRunAfterDescent);
+
   const savedGameAfterLeave = run.game;
   const playerInSavedGame = savedGameAfterLeave.getExpectedPlayer(
     alpha.clientApplication.session.requireUsername()
@@ -85,9 +86,10 @@ export async function testSaveRunOnFloorDescent(testFixture: IntegrationTestFixt
     playerSingleCharacterIdInSavedGame !== undefined,
     "expected player to have a character"
   );
-  const playerCharacterInSavedGame = game
+  const playerCharacterInSavedGame = savedGameAfterLeave
     .requireSingleParty()
     .combatantManager.getExpectedCombatant(playerSingleCharacterId);
+
   expect(
     playerCharacterInSavedGame.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Strength

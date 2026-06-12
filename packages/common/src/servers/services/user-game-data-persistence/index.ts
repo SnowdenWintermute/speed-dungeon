@@ -5,7 +5,7 @@ import { SpeedDungeonGame } from "../../../game/index.js";
 import { SpeedDungeonPlayer } from "../../../game/player.js";
 import { getProgressionGamePartyName } from "../../../utils/index.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { SavedCharacterListEntry } from "./saved-character-list-entry.js";
+import { SerializedCombatantWithPets } from "./serialized-combatant-with-pets.js";
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
@@ -59,7 +59,7 @@ export class UserGameDataPersistenceService {
   async fetchSavedCharacters(
     ownerId: IdentityProviderId,
     controlScheme: CharacterControlScheme
-  ): Promise<SavedCharacterListEntry[]> {
+  ): Promise<SerializedCombatantWithPets[]> {
     const records = await this.savedCharacterPersistenceStrategy.findByOwnerAndControlScheme(
       ownerId,
       controlScheme
@@ -74,7 +74,7 @@ export class UserGameDataPersistenceService {
     }));
   }
 
-  async fetchSavedCharacter(characterId: EntityId): Promise<SavedCharacterListEntry> {
+  async fetchSavedCharacter(characterId: EntityId): Promise<SerializedCombatantWithPets> {
     const character = await this.savedCharacterPersistenceStrategy.fetchCharacter(characterId);
 
     return {

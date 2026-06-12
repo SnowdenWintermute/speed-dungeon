@@ -35,7 +35,7 @@ import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
-import { SavedCharacterListEntry } from "../servers/services/user-game-data-persistence/saved-character-list-entry.js";
+import { SerializedCombatantWithPets } from "../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 import {
   SavedIronmanRun,
   SavedIronmanRunClientEntry,
@@ -243,7 +243,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.SavedCharacterList]: {
     characterControlScheme: CharacterControlScheme;
-    characters: SavedCharacterListEntry[];
+    characters: SerializedCombatantWithPets[];
     capacity: number;
   };
   [GameStateUpdateType.IronmanRunsList]: {
@@ -256,7 +256,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.SavedCharacter]: {
     characterControlScheme: CharacterControlScheme;
-    character: SavedCharacterListEntry;
+    character: SerializedCombatantWithPets;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
     entityId: CombatantId;
