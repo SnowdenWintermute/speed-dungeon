@@ -16,7 +16,7 @@ export type LadderCharacterRecordId = string & {
   __brand: "LadderCharacterRecordId";
 };
 export type LadderCharacterFloorClearedRecordId = string & {
-  __brand: "LadderCharacterRecordId";
+  __brand: "LadderCharacterFloorClearedRecordId";
 };
 
 export type ProfileId = number & { __brand: "ProfileId" };
