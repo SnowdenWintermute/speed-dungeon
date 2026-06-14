@@ -8,7 +8,7 @@ import {
   NewLadderGameRecordSet,
 } from "./ladder-records-persistence-strategy.js";
 
-export class LadderRecordsService {
+export class LadderGameRecordsService {
   constructor(private readonly persistenceStrategy: LadderRecordsPersistenceStrategy) {}
 
   async findParticipantRecordByUserId(

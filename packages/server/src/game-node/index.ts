@@ -35,7 +35,8 @@ import {
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
   SpeedDungeonProfileService,
-  LadderRecordsService,
+  LadderGameRecordsService,
+  InMemoryLadderRecordsPersistenceStrategy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -148,10 +149,15 @@ export class GameServerNode {
       valkeyManager.context
     );
 
+    const ladderGameRecordsService = new LadderGameRecordsService(
+      new InMemoryLadderRecordsPersistenceStrategy()
+    );
+
     const result: GameServerExternalServices = {
       gameSessionStoreService,
       userGameDataPersistenceService,
       characterLevelLadderService,
+      ladderGameRecordsService,
       assetService,
       crossServerBroadcasterService,
       globalGameSessionStore,

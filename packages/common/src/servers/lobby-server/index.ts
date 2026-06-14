@@ -47,14 +47,14 @@ import { UserGameDataPersistenceService } from "../services/user-game-data-persi
 import { GameExistenceChecker } from "./game-existence-queries.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
 import { IronmanRunController } from "../controllers/ironman-run-controller.js";
-import { LadderRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
   profileService: SpeedDungeonProfileService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
   characterLevelLadderService: CharacterLevelLadderService;
-  gameRecordsLadderService: LadderRecordsService;
+  ladderGameRecordsService: LadderGameRecordsService;
   gameSessionStoreService: GameSessionStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: GlobalGameSessionStore;
@@ -149,7 +149,7 @@ export class LobbyServer extends SpeedDungeonServer {
       externalServices.crossServerBroadcasterService,
       externalServices.profileService,
       externalServices.characterLevelLadderService,
-      externalServices.gameRecordsLadderService,
+      externalServices.ladderGameRecordsService,
       externalServices.userGameDataPersistenceService,
       this.userSessionRegistry,
       this.lobbyState.gameRegistry,

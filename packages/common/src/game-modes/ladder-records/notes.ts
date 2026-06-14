@@ -1,7 +1,7 @@
 // Claude's findings before wiring ladder game record service calls:
 //
 // ● Reviewed the policies and the lifecycle wiring. The schema/repo design is sound, but there's one critical gap in the write seam and
-//   several design decisions/stale notes to resolve before the LadderRecordsService goes in.
+//   several design decisions/stale notes to resolve before the LadderGameRecordsService goes in.
 
 //   Critical: the floor-descent write seam is dead code
 
@@ -27,7 +27,7 @@
 //   Design decisions to settle
 
 //   1. LadderUpdatePolicy has no records-service dependency. Its constructor injects CharacterLevelLadderService (the XP/level leaderboard — a
-//   different concern) plus broadcaster/session deps, but not a LadderRecordsService. The base-class comment already flags this ("will
+//   different concern) plus broadcaster/session deps, but not a LadderGameRecordsService. The base-class comment already flags this ("will
 //   need access to ladder services, or be owned by a composing class that can pass the services"). We need to inject the new service
 //   here.
 
@@ -59,6 +59,6 @@
 
 //   1. Wire descendParty → onFloorDescent (both families), handling the off-by-one and terminal-floor cases.
 //   2. Decide #2 (ironman record creation / continued-run idempotency) — gates the repo ON CONFLICT choices.
-//   3. Build LadderRecordsService + strategy interface + inject it into the ladder policies.
+//   3. Build LadderGameRecordsService + strategy interface + inject it into the ladder policies.
 //   4. Implement the ironman + ranked-race ladder policy bodies against it.
 //   5. Postgres strategy + rewire the three route handlers.

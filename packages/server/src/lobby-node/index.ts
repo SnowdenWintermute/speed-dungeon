@@ -24,6 +24,8 @@ import {
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   SpeedDungeonProfileService,
+  InMemoryLadderRecordsPersistenceStrategy,
+  LadderGameRecordsService,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -120,12 +122,16 @@ export class LobbyServerNode {
     const characterLevelLadderService = new DatabaseCharacterLevelLadderService(
       valkeyManager.context
     );
+    const ladderGameRecordsService = new LadderGameRecordsService(
+      new InMemoryLadderRecordsPersistenceStrategy()
+    );
 
     const externalServices: LobbyExternalServices = {
       identityProviderService,
       profileService,
       userGameDataPersistenceService,
       characterLevelLadderService,
+      ladderGameRecordsService,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,

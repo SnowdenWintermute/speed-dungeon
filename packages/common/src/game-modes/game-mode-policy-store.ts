@@ -17,7 +17,7 @@ import { IronmanGameInitializationPolicy } from "./ironman-mode/game-initializat
 import { IronmanModeLadderPolicy } from "./ironman-mode/ladder-policy.js";
 import { IronmanModeLobbySetup } from "./ironman-mode/lobby-setup-policy.js";
 import { IronmanModePersistencePolicy } from "./ironman-mode/persistence-policy.js";
-import { LadderRecordsService } from "./ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "./ladder-records/ladder-records-service.js";
 import { ProgressionModeLadderPolicy } from "./progression-mode/ladder-policy.js";
 import { ProgressionModeLobbySetup } from "./progression-mode/lobby-setup-policy.js";
 import { ProgressionModePersistencePolicy } from "./progression-mode/persistence-policy.js";
@@ -35,7 +35,7 @@ export class GameModePolicyStore {
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     profileService: SpeedDungeonProfileService,
     characterLevelLadderService: CharacterLevelLadderService,
-    gameRecordsLadderService: LadderRecordsService,
+    ladderGameRecordsService: LadderGameRecordsService,
     userGameDataPersistenceService: UserGameDataPersistenceService,
     userSessionRegistry: UserSessionRegistry,
     gameRegistry: GameRegistry,
@@ -67,7 +67,7 @@ export class GameModePolicyStore {
         ladder: new IronmanModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
-          gameRecordsLadderService,
+          ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService
@@ -93,7 +93,7 @@ export class GameModePolicyStore {
         ladder: new ProgressionModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
-          gameRecordsLadderService,
+          ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService
@@ -119,7 +119,7 @@ export class GameModePolicyStore {
         ladder: new RankedRaceModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
-          gameRecordsLadderService,
+          ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService
@@ -145,7 +145,7 @@ export class GameModePolicyStore {
         ladder: new UnrankedRaceModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
-          gameRecordsLadderService,
+          ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService

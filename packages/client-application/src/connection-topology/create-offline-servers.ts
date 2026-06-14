@@ -34,6 +34,8 @@ import {
   UserGameDataPersistenceService,
   InMemorySavedCharacterPersistenceStrategy,
   InMemoryIronmanRunPersistenceStrategy,
+  LadderGameRecordsService,
+  InMemoryLadderRecordsPersistenceStrategy,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -78,6 +80,9 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     profileService
   );
   const characterLevelLadderService = new InMemoryCharacterLevelLadderService();
+  const ladderGameRecordsService = new LadderGameRecordsService(
+    new InMemoryLadderRecordsPersistenceStrategy()
+  );
 
   const testSecret = await SodiumHelpers.createSecret();
   const gameServerSessionClaimCodec = new OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>(
@@ -99,6 +104,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       gameSessionStoreService,
       userGameDataPersistenceService,
       characterLevelLadderService,
+      ladderGameRecordsService,
       profileService,
       lobbyCrossServerBroadcasterService,
       globalGameSessionStore
@@ -129,6 +135,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       gameSessionStoreService,
       userGameDataPersistenceService,
       characterLevelLadderService,
+      ladderGameRecordsService,
       assetService,
       gameCrossServerBroadcasterService,
       globalGameSessionStore,
@@ -151,6 +158,7 @@ function createOfflineLobbyServerServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
+  ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: GlobalGameSessionStore
@@ -171,6 +179,7 @@ function createOfflineLobbyServerServices(
     profileService,
     userGameDataPersistenceService,
     characterLevelLadderService,
+    ladderGameRecordsService,
     gameSessionStoreService,
     crossServerBroadcasterService,
     globalGameSessionStore,
@@ -182,6 +191,7 @@ function createOfflineGameServerServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
+  ladderGameRecordsService: LadderGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: GlobalGameSessionStore,
@@ -191,6 +201,7 @@ function createOfflineGameServerServices(
     gameSessionStoreService,
     userGameDataPersistenceService,
     characterLevelLadderService,
+    ladderGameRecordsService,
     assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,
