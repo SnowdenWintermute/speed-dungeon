@@ -7,8 +7,6 @@ import {
   GameServerNodeAssetService,
   GameSessionStoreService,
   GameStateUpdate,
-  InMemoryRaceGameRecordsPersistenceStrategy,
-  RaceGameRecordsService,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   ServerCommand,
@@ -147,15 +145,10 @@ export class GameServerNode {
 
     const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
 
-    // @TODO - make postgres version
-    const raceGameRecordsPersistenceStrategy = new InMemoryRaceGameRecordsPersistenceStrategy();
-    const raceGameRecordsService = new RaceGameRecordsService(raceGameRecordsPersistenceStrategy);
-
     const result: GameServerExternalServices = {
       gameSessionStoreService,
       userGameDataPersistenceService,
       rankedLadderService,
-      raceGameRecordsService,
       assetService,
       crossServerBroadcasterService,
       globalGameSessionStore,

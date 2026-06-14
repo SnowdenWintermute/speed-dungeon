@@ -14,11 +14,9 @@ import {
   InMemoryGameSessionStoreService,
   InMemoryIdentityProviderQueryStrategy,
   InMemoryIncomingConnectionGateway,
-  InMemoryRaceGameRecordsPersistenceStrategy,
   InMemoryRankedLadderService,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
-  RaceGameRecordsService,
   RankedLadderService,
   SodiumHelpers,
   SpeedDungeonProfileService,
@@ -124,9 +122,6 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     gameServerConnectionEndpointServer
   );
 
-  const raceGameRecordsPersistenceStrategy = new InMemoryRaceGameRecordsPersistenceStrategy();
-  const raceGameRecordsService = new RaceGameRecordsService(raceGameRecordsPersistenceStrategy);
-
   const gameServer = new GameServer(
     LOCAL_OFFLINE_GAME_SERVER_NAME,
     gameIncomingConnectionGateway,
@@ -134,7 +129,6 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       gameSessionStoreService,
       userGameDataPersistenceService,
       rankedLadderService,
-      raceGameRecordsService,
       assetService,
       gameCrossServerBroadcasterService,
       globalGameSessionStore,
@@ -188,7 +182,6 @@ function createOfflineGameServerServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
   rankedLadderService: RankedLadderService,
-  raceGameRecordsService: RaceGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: GlobalGameSessionStore,
@@ -198,7 +191,6 @@ function createOfflineGameServerServices(
     gameSessionStoreService,
     userGameDataPersistenceService,
     rankedLadderService,
-    raceGameRecordsService,
     assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,

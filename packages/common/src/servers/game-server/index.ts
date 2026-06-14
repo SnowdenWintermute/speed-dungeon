@@ -10,7 +10,6 @@ import { GameRegistry } from "../game-registry.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
-import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
@@ -59,7 +58,6 @@ export interface GameServerExternalServices {
   userGameDataPersistenceService: UserGameDataPersistenceService;
   profileService: SpeedDungeonProfileService;
   rankedLadderService: RankedLadderService;
-  raceGameRecordsService: RaceGameRecordsService;
   assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: GlobalGameSessionStore;
