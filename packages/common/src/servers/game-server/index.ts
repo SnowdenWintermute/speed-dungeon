@@ -1,7 +1,7 @@
 import { GameServerName } from "../../aliases.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { RankedLadderService } from "../services/ranked-ladder.js";
+import { CharacterLevelLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
@@ -52,12 +52,14 @@ import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js"
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js";
 import { LobbyState } from "../lobby-server/lobby-state.js";
+import { LadderRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
   profileService: SpeedDungeonProfileService;
-  rankedLadderService: RankedLadderService;
+  characterLevelLadderService: CharacterLevelLadderService;
+  gameRecordsLadderService: LadderRecordsService;
   assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: GlobalGameSessionStore;
@@ -139,7 +141,8 @@ export class GameServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.crossServerBroadcasterService,
       externalServices.profileService,
-      externalServices.rankedLadderService,
+      externalServices.characterLevelLadderService,
+      externalServices.gameRecordsLadderService,
       externalServices.userGameDataPersistenceService,
       this.userSessionRegistry,
       this.gameRegistry,

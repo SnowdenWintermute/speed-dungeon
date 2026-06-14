@@ -26,7 +26,7 @@
 
 //   Design decisions to settle
 
-//   1. LadderUpdatePolicy has no records-service dependency. Its constructor injects RankedLadderService (the XP/level leaderboard — a
+//   1. LadderUpdatePolicy has no records-service dependency. Its constructor injects CharacterLevelLadderService (the XP/level leaderboard — a
 //   different concern) plus broadcaster/session deps, but not a LadderRecordsService. The base-class comment already flags this ("will
 //   need access to ladder services, or be owned by a composing class that can pass the services"). We need to inject the new service
 //   here.
@@ -43,7 +43,7 @@
 //   battle — the updateClassLevels repo method supports it; just pick a consistent cadence.
 
 //   4. Control-scheme "which ladder" TODO (ranked-race-ladder-policy.ts: "switch on game control scheme"). I believe that applies to
-//   the per-scheme XP leaderboards (RankedLadderService), not the records — our records carry control_scheme as a column, so one table
+//   the per-scheme XP leaderboards (CharacterLevelLadderService), not the records — our records carry control_scheme as a column, so one table
 //   + filter covers Freelancer vs Captains. Worth confirming so we don't build separate record tables.
 
 //   Stale notes vs the finalized schema (low-risk, just cleanup)

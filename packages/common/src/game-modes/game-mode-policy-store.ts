@@ -5,7 +5,7 @@ import { GameExistenceChecker } from "../servers/lobby-server/game-existence-que
 import { CrossServerBroadcasterService } from "../servers/services/cross-server-broadcaster/index.js";
 import { GameSessionStoreService } from "../servers/services/game-session-store/index.js";
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
-import { RankedLadderService } from "../servers/services/ranked-ladder.js";
+import { CharacterLevelLadderService } from "../servers/services/ranked-ladder.js";
 import { ServerCommand } from "../servers/services/server-command/index.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
@@ -17,6 +17,7 @@ import { IronmanGameInitializationPolicy } from "./ironman-mode/game-initializat
 import { IronmanModeLadderPolicy } from "./ironman-mode/ladder-policy.js";
 import { IronmanModeLobbySetup } from "./ironman-mode/lobby-setup-policy.js";
 import { IronmanModePersistencePolicy } from "./ironman-mode/persistence-policy.js";
+import { LadderRecordsService } from "./ladder-records/ladder-records-service.js";
 import { ProgressionModeLadderPolicy } from "./progression-mode/ladder-policy.js";
 import { ProgressionModeLobbySetup } from "./progression-mode/lobby-setup-policy.js";
 import { ProgressionModePersistencePolicy } from "./progression-mode/persistence-policy.js";
@@ -33,7 +34,8 @@ export class GameModePolicyStore {
     updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     profileService: SpeedDungeonProfileService,
-    rankedLadderService: RankedLadderService,
+    characterLevelLadderService: CharacterLevelLadderService,
+    gameRecordsLadderService: LadderRecordsService,
     userGameDataPersistenceService: UserGameDataPersistenceService,
     userSessionRegistry: UserSessionRegistry,
     gameRegistry: GameRegistry,
@@ -64,7 +66,8 @@ export class GameModePolicyStore {
         ),
         ladder: new IronmanModeLadderPolicy(
           userSessionRegistry,
-          rankedLadderService,
+          characterLevelLadderService,
+          gameRecordsLadderService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService
@@ -89,7 +92,8 @@ export class GameModePolicyStore {
         ),
         ladder: new ProgressionModeLadderPolicy(
           userSessionRegistry,
-          rankedLadderService,
+          characterLevelLadderService,
+          gameRecordsLadderService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService
@@ -114,7 +118,8 @@ export class GameModePolicyStore {
         ),
         ladder: new RankedRaceModeLadderPolicy(
           userSessionRegistry,
-          rankedLadderService,
+          characterLevelLadderService,
+          gameRecordsLadderService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService
@@ -139,7 +144,8 @@ export class GameModePolicyStore {
         ),
         ladder: new UnrankedRaceModeLadderPolicy(
           userSessionRegistry,
-          rankedLadderService,
+          characterLevelLadderService,
+          gameRecordsLadderService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
           crossServerBroadcasterService

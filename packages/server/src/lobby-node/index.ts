@@ -28,7 +28,7 @@ import {
 import { WebSocketServer } from "ws";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
-import { DatabaseRankedLadderService } from "../game-node/services/ranked-ladder.js";
+import { DatabaseCharacterLevelLadderService } from "../game-node/services/ranked-ladder.js";
 import {
   DatabaseIronmanRunPersistenceStrategy,
   DatabaseSavedCharacterPersistenceStrategy,
@@ -117,13 +117,15 @@ export class LobbyServerNode {
       ironmanRunPersistenceStrategy,
       profileService
     );
-    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+    const characterLevelLadderService = new DatabaseCharacterLevelLadderService(
+      valkeyManager.context
+    );
 
     const externalServices: LobbyExternalServices = {
       identityProviderService,
       profileService,
       userGameDataPersistenceService,
-      rankedLadderService,
+      characterLevelLadderService,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,

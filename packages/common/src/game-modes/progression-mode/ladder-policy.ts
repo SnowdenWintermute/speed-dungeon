@@ -27,8 +27,9 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
   ) {
     const characters = player.getCharactersInGame(game);
     // If they're leaving a game while dead, this character should be removed from the ladder
-    const deathsAndRanks = await this.rankedLadderService.removeDeadCharacters(characters);
-    const deathMessages = await this.rankedLadderService.getTopRankedDeathMessages(deathsAndRanks);
+    const deathsAndRanks = await this.characterLevelLadderService.removeDeadCharacters(characters);
+    const deathMessages =
+      await this.characterLevelLadderService.getTopRankedDeathMessages(deathsAndRanks);
 
     const ladderDeathMessagesOutboxes = deathMessages.map((message) =>
       this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
@@ -48,7 +49,8 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
 
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
-    const ladderDeathsUpdate = await this.rankedLadderService.removeDeadCharacters(partyCharacters);
+    const ladderDeathsUpdate =
+      await this.characterLevelLadderService.removeDeadCharacters(partyCharacters);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const partyChannelName = getPartyChannelName(game.name, party.name);
@@ -99,7 +101,7 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
 
       const { id } = character.entityProperties;
       const { previousRank, newRank } =
-        await this.rankedLadderService.updateOrCreateCharacterLevelEntry(id, totalExp);
+        await this.characterLevelLadderService.updateOrCreateCharacterLevelEntry(id, totalExp);
 
       if (newRank === previousRank || newRank >= MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD) {
         // not interesting enough to tell anyone about it

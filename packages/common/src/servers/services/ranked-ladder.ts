@@ -10,7 +10,7 @@ import {
 
 export const CHARACTER_LEVEL_LADDER = "character-level-ladder:";
 
-export abstract class RankedLadderService {
+export abstract class CharacterLevelLadderService {
   abstract removeEntry(ladderName: string, entryId: EntityId): Promise<number>;
   abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null>;
 

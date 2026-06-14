@@ -35,6 +35,7 @@ import {
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
   SpeedDungeonProfileService,
+  LadderRecordsService,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -46,7 +47,7 @@ import {
   DatabaseIronmanRunPersistenceStrategy,
   DatabaseSavedCharacterPersistenceStrategy,
 } from "./services/user-game-data-persistence.js";
-import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
+import { DatabaseCharacterLevelLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
@@ -143,12 +144,14 @@ export class GameServerNode {
       profileService
     );
 
-    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+    const characterLevelLadderService = new DatabaseCharacterLevelLadderService(
+      valkeyManager.context
+    );
 
     const result: GameServerExternalServices = {
       gameSessionStoreService,
       userGameDataPersistenceService,
-      rankedLadderService,
+      characterLevelLadderService,
       assetService,
       crossServerBroadcasterService,
       globalGameSessionStore,

@@ -1,7 +1,7 @@
-import { CHARACTER_LEVEL_LADDER, EntityId, RankedLadderService } from "@speed-dungeon/common";
+import { CHARACTER_LEVEL_LADDER, EntityId, CharacterLevelLadderService } from "@speed-dungeon/common";
 import { ValkeyManager } from "../../kv-store/index.js";
 
-export class DatabaseRankedLadderService extends RankedLadderService {
+export class DatabaseCharacterLevelLadderService extends CharacterLevelLadderService {
   constructor(private valkeyManager: ValkeyManager) {
     super();
   }

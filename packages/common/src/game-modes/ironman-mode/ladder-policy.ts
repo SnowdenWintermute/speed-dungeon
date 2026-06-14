@@ -8,11 +8,9 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     // - update the ironman party ladder record to reference the new "floor reached record"
     // - create and link a similar "time spent on floor" record
     // - update the player's profiles to reference the "ironman ladder party record"
-    throw new Error("Method not implemented.");
   }
 
   override async onPartyEscape(): Promise<void> {
     // save a "run completed" ladder record with any interesting metadata
-    throw new Error("Method not implemented.");
   }
 }

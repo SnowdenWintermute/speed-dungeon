@@ -1,7 +1,10 @@
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
-import { CHARACTER_LEVEL_LADDER, RankedLadderService } from "../../services/ranked-ladder.js";
+import {
+  CHARACTER_LEVEL_LADDER,
+  CharacterLevelLadderService,
+} from "../../services/ranked-ladder.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { CombatantId, EntityName } from "../../../aliases.js";
@@ -15,7 +18,7 @@ import { UserGameDataPersistenceService } from "../../services/user-game-data-pe
 
 export class SavedCharactersController {
   private readonly userGameDataPersistenceService: UserGameDataPersistenceService;
-  private readonly rankedLadderService: RankedLadderService;
+  private readonly rankedLadderService: CharacterLevelLadderService;
   constructor(
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
@@ -23,7 +26,7 @@ export class SavedCharactersController {
     private readonly characterCreationPolicy: CharacterCreationPolicy
   ) {
     this.userGameDataPersistenceService = externalServices.userGameDataPersistenceService;
-    this.rankedLadderService = externalServices.rankedLadderService;
+    this.rankedLadderService = externalServices.characterLevelLadderService;
   }
 
   async fetchSavedCharactersHandler(

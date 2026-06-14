@@ -19,7 +19,7 @@ import {
   LobbyServer,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
-  RankedLadderService,
+  CharacterLevelLadderService,
   RNG_RANGE,
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
@@ -64,7 +64,7 @@ export class IntegrationTestFixture {
     [TestGameServerName.Alexandria]: 0,
   }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
-  private _rankedLadderService: RankedLadderService | null = null;
+  private _rankedLadderService: CharacterLevelLadderService | null = null;
   private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
   private _userGameDataPersistenceService: UserGameDataPersistenceService | null = null;
   /** for manipulating which server a new game should be created on in a test */

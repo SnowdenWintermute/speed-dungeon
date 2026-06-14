@@ -5,11 +5,12 @@ import { SpeedDungeonPlayer } from "../game/player.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { PartyDelayedGameMessageFactory } from "../servers/game-server/party-delayed-game-message-factory.js";
 import { CrossServerBroadcasterService } from "../servers/services/cross-server-broadcaster/index.js";
-import { RankedLadderService } from "../servers/services/ranked-ladder.js";
+import { CharacterLevelLadderService } from "../servers/services/ranked-ladder.js";
 import { ServerCommand } from "../servers/services/server-command/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
+import { LadderRecordsService } from "./ladder-records/ladder-records-service.js";
 
 /** how to update which ladder when certain events happen
  * will need access to ladder services, or be owned by a composing class that
@@ -18,7 +19,8 @@ import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 export abstract class GameModeLadderUpdatePolicy {
   constructor(
     protected userSessionRegistry: UserSessionRegistry,
-    protected rankedLadderService: RankedLadderService,
+    protected characterLevelLadderService: CharacterLevelLadderService,
+    protected gameRecordsLadderService: LadderRecordsService,
     protected updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     protected partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
     protected crossServerBroadcasterService: CrossServerBroadcasterService<
