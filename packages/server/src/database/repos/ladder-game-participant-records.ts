@@ -3,7 +3,7 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
-import { LadderGameRecordId, LadderParticipantRecordId } from "@speed-dungeon/common";
+import { GameId, LadderParticipantRecordId } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_GAME_PARTICIPANT_RECORDS;
 
@@ -14,7 +14,7 @@ export interface LadderGameParticipantRecordRow {
 
 class LadderGameParticipantRecordsRepo extends DatabaseRepository<LadderGameParticipantRecordRow> {
   async insert(
-    gameRecordId: LadderGameRecordId,
+    gameRecordId: GameId,
     participantRecordId: LadderParticipantRecordId,
     executor: Queryable = this.pgPool
   ) {

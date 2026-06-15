@@ -7,13 +7,8 @@ export type ChannelName = string & { __brand: "ChannelName" };
 export type EntityName = string & { __brand: "EntityName" };
 
 export type LadderParticipantRecordId = string & { __brand: "LadderParticipantRecordId" };
-export type LadderGameRecordId = string & { __brand: "LadderGameRecordId" };
-export type LadderPartyRecordId = string & { __brand: "LadderPartyRecordId" };
 export type LadderPartyFloorClearedRecordId = string & {
   __brand: "LadderPartyFloorClearedRecordId";
-};
-export type LadderCharacterRecordId = string & {
-  __brand: "LadderCharacterRecordId";
 };
 export type LadderCharacterFloorClearedRecordId = string & {
   __brand: "LadderCharacterFloorClearedRecordId";

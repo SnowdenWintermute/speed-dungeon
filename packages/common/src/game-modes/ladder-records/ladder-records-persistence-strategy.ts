@@ -1,10 +1,4 @@
-import {
-  IdentityProviderId,
-  LadderCharacterRecordId,
-  LadderGameRecordId,
-  LadderParticipantRecordId,
-  LadderPartyRecordId,
-} from "../../aliases.js";
+import { CombatantId, GameId, IdentityProviderId, PartyId } from "../../aliases.js";
 import {
   LadderCharacterFloorClearedRecord,
   LadderCharacterRecord,
@@ -28,20 +22,19 @@ export type LadderCharacterRecordInsert = Omit<LadderCharacterRecord, "floorClea
 
 export interface NewLadderGameRecordSet {
   game: LadderGameRecordInsert;
-  // participants are global per user and resolved/created ahead of time; we only link them here
-  participantRecordIds: LadderParticipantRecordId[];
+  participantRecords: LadderParticipantRecord[];
   parties: LadderPartyRecordInsert[];
   characters: LadderCharacterRecordInsert[];
 }
 
 export interface LadderCharacterLevelUpdate {
-  characterRecordId: LadderCharacterRecordId;
+  characterRecordId: CombatantId;
   mainClassLevel: number;
   supportClassLevel?: number;
 }
 
 export interface LadderPartyFloorClearWrite {
-  partyRecordId: LadderPartyRecordId;
+  partyRecordId: PartyId;
   partyFloorClear: LadderPartyFloorClearRecord;
   characterSnapshots: LadderCharacterFloorClearedRecord[];
   deepestFloorReached: number;
@@ -49,7 +42,7 @@ export interface LadderPartyFloorClearWrite {
 }
 
 export interface LadderPartyFateUpdate {
-  partyRecordId: LadderPartyRecordId;
+  partyRecordId: PartyId;
   fate: PartyFate;
   deepestFloorReached: number;
 }
@@ -86,7 +79,5 @@ export interface LadderRecordsPersistenceStrategy {
 
   updatePartyFate(update: LadderPartyFateUpdate): Promise<void>;
 
-  findGameRecordAggregateById(
-    id: LadderGameRecordId
-  ): Promise<LadderGameRecordAggregate | undefined>;
+  findGameRecordAggregateById(id: GameId): Promise<LadderGameRecordAggregate | undefined>;
 }

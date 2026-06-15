@@ -1,19 +1,14 @@
-import {
-  IdentityProviderId,
-  LadderGameRecordId,
-  LadderParticipantRecordId,
-  LadderPartyRecordId,
-  Username,
-} from "../../aliases.js";
+import { GameId, IdentityProviderId, LadderParticipantRecordId } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
-import { invariant } from "../../utils/index.js";
 import { LadderParticipantRecord } from "./index.js";
 import {
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,
   LadderPartyFloorClearWrite,
+  LadderPartyRecordInsert,
   LadderRecordsPersistenceStrategy,
+  NewLadderGameRecordSet,
 } from "./ladder-records-persistence-strategy.js";
 
 export class LadderGameRecordsService {
@@ -32,14 +27,9 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.upsertParticipantRecord(record);
   }
 
-  async recordNewGame(
-    game: SpeedDungeonGame,
-    usernamesToUserIds: Map<Username, IdentityProviderId>
-  ): Promise<void> {
+  async recordNewGame(game: SpeedDungeonGame, userIds: IdentityProviderId[]): Promise<void> {
     const participantRecords: LadderParticipantRecord[] = [];
-    for (const [username, player] of game.players) {
-      const userId = usernamesToUserIds.get(username);
-      invariant(userId !== undefined, "expected a complete Map<Username, IdentityProviderId>");
+    for (const userId of userIds) {
       const participantRecord: LadderParticipantRecord = {
         id: this.idGenerator.generate() as LadderParticipantRecordId,
         userId,
@@ -47,7 +37,31 @@ export class LadderGameRecordsService {
       participantRecords.push(participantRecord);
     }
 
-    // return this.persistenceStrategy.insertNewGameRecordSet(recordSet);
+    const newRecords: NewLadderGameRecordSet = {
+      participantRecords,
+      game: {
+        id: game.id,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        name: game.name,
+        mode: game.mode,
+        controlScheme: game.characterControlScheme,
+        timeStarted: 0,
+      },
+      parties: [...game.adventuringParties].map(([_, party]) => {
+        const recordInsert: LadderPartyRecordInsert = {
+          id: party.id,
+          name: party.name,
+          gameRecordId: game.id,
+          fateOption: undefined,
+          deepestFloorReached: 1,
+        };
+        return recordInsert;
+      }),
+      characters: [],
+    };
+
+    return this.persistenceStrategy.insertNewGameRecordSet(newRecords);
   }
 
   async recordPartyFloorClear(write: LadderPartyFloorClearWrite): Promise<void> {
@@ -58,9 +72,7 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.updatePartyFate(update);
   }
 
-  async getGameRecordAggregate(
-    id: LadderGameRecordId
-  ): Promise<LadderGameRecordAggregate | undefined> {
+  async getGameRecordAggregate(id: GameId): Promise<LadderGameRecordAggregate | undefined> {
     return this.persistenceStrategy.findGameRecordAggregateById(id);
   }
 }

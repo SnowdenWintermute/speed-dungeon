@@ -6,8 +6,8 @@ import { Queryable } from "../wrapped-pool.js";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
   CombatantClass,
+  CombatantId,
   LadderCharacterRecord,
-  LadderCharacterRecordId,
 } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_CHARACTER_RECORDS;
@@ -52,7 +52,7 @@ class LadderCharacterRecordsRepo extends DatabaseRepository<LadderCharacterRecor
   }
 
   async updateClassLevels(
-    id: LadderCharacterRecordId,
+    id: CombatantId,
     mainClassLevel: number,
     supportClassOptionLevel: number | null,
     executor: Queryable = this.pgPool

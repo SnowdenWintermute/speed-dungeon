@@ -3,7 +3,7 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
-import { LadderPartyRecord, LadderPartyRecordId, PartyFate } from "@speed-dungeon/common";
+import { LadderPartyRecord, PartyFate, PartyId } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_PARTY_RECORDS;
 
@@ -38,7 +38,7 @@ class LadderPartyRecordsRepo extends DatabaseRepository<LadderPartyRecordRow> {
   }
 
   async updateFateAndProgress(
-    id: LadderPartyRecordId,
+    id: PartyId,
     fateOption: PartyFate | undefined,
     deepestFloorReached: number,
     executor: Queryable = this.pgPool

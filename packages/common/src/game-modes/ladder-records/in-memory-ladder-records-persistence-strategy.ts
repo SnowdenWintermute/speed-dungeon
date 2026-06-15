@@ -1,12 +1,12 @@
 import cloneDeep from "lodash.clonedeep";
 import {
+  CombatantId,
+  GameId,
   IdentityProviderId,
   LadderCharacterFloorClearedRecordId,
-  LadderGameRecordId,
   LadderParticipantRecordId,
   LadderPartyFloorClearedRecordId,
-  LadderPartyRecordId,
-  LadderCharacterRecordId,
+  PartyId,
 } from "../../aliases.js";
 import {
   LadderCharacterFloorClearedRecord,
@@ -25,15 +25,18 @@ import {
 } from "./ladder-records-persistence-strategy.js";
 
 export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPersistenceStrategy {
-  private games = new Map<LadderGameRecordId, LadderGameRecordInsert>();
+  private games = new Map<GameId, LadderGameRecordInsert>();
   private participants = new Map<LadderParticipantRecordId, LadderParticipantRecord>();
   private gameParticipantLinks: {
-    gameRecordId: LadderGameRecordId;
+    gameRecordId: GameId;
     participantRecordId: LadderParticipantRecordId;
   }[] = [];
-  private parties = new Map<LadderPartyRecordId, LadderPartyRecordInsert>();
-  private characters = new Map<LadderCharacterRecordId, LadderCharacterRecordInsert>();
-  private partyFloorClears = new Map<LadderPartyFloorClearedRecordId, LadderPartyFloorClearRecord>();
+  private parties = new Map<PartyId, LadderPartyRecordInsert>();
+  private characters = new Map<CombatantId, LadderCharacterRecordInsert>();
+  private partyFloorClears = new Map<
+    LadderPartyFloorClearedRecordId,
+    LadderPartyFloorClearRecord
+  >();
   private characterFloorClearedSnapshots = new Map<
     LadderCharacterFloorClearedRecordId,
     LadderCharacterFloorClearedRecord
@@ -63,8 +66,11 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
   async insertNewGameRecordSet(set: NewLadderGameRecordSet): Promise<void> {
     const cloned = cloneDeep(set);
     this.games.set(cloned.game.id, cloned.game);
-    for (const participantRecordId of cloned.participantRecordIds) {
-      this.gameParticipantLinks.push({ gameRecordId: cloned.game.id, participantRecordId });
+    for (const participantRecord of cloned.participantRecords) {
+      this.gameParticipantLinks.push({
+        gameRecordId: cloned.game.id,
+        participantRecordId: participantRecord.id,
+      });
     }
     for (const party of cloned.parties) {
       this.parties.set(party.id, party);
@@ -88,7 +94,10 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
       const character = this.characters.get(levelUpdate.characterRecordId);
       if (character !== undefined) {
         character.mainClassLevel = levelUpdate.mainClassLevel;
-        if (levelUpdate.supportClassLevel !== undefined && character.supportClassOption !== undefined) {
+        if (
+          levelUpdate.supportClassLevel !== undefined &&
+          character.supportClassOption !== undefined
+        ) {
           character.supportClassOption.level = levelUpdate.supportClassLevel;
         }
       }
@@ -103,9 +112,7 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     }
   }
 
-  async findGameRecordAggregateById(
-    id: LadderGameRecordId
-  ): Promise<LadderGameRecordAggregate | undefined> {
+  async findGameRecordAggregateById(id: GameId): Promise<LadderGameRecordAggregate | undefined> {
     const game = this.games.get(id);
     if (game === undefined) {
       return undefined;

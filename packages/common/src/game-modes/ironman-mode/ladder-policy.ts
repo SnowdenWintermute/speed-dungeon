@@ -1,8 +1,10 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../aliases.js";
+import { EntityId, IdentityProviderId, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
+import { UserIdType } from "../../servers/sessions/user-ids.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
+import { invariant } from "../../utils/index.js";
 import { GameModeLadderUpdatePolicy } from "../ladder-update-policy.js";
 
 export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
@@ -11,7 +13,13 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
       return;
     }
 
-    await this.gameRecordsLadderService.recordNewGame(game);
+    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
+    const userIdsInGame = sessionsInGame.map((session) => {
+      invariant(session.taggedUserId.type === UserIdType.Auth, "expected auth users only");
+      return session.taggedUserId.id;
+    });
+
+    await this.gameRecordsLadderService.recordNewGame(game, userIdsInGame);
   }
   override async onLastPlayerLeftLiveGame(): Promise<void> {
     // update all game, party and character records

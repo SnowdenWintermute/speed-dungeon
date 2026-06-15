@@ -1,13 +1,13 @@
 import {
+  CombatantId,
+  GameId,
   GameName,
   IdentityProviderId,
   LadderCharacterFloorClearedRecordId,
-  LadderCharacterRecordId,
-  LadderGameRecordId,
   LadderParticipantRecordId,
   LadderPartyFloorClearedRecordId,
-  LadderPartyRecordId,
   Milliseconds,
+  PartyId,
   PartyName,
   Username,
 } from "../../aliases.js";
@@ -29,14 +29,14 @@ export interface LadderParticipantRecord {
 //    .only races would have a winner
 // - can infer time ended or "in progress" status from party fate records
 export interface LadderGameRecord {
-  id: LadderGameRecordId; // primary key
+  id: GameId; // primary key
   createdAt: Milliseconds;
   updatedAt: Milliseconds;
   name: GameName;
   mode: GameMode;
   controlScheme: CharacterControlScheme;
   timeStarted: Milliseconds;
-  partyRecordRefs: LadderPartyRecordId[];
+  partyRecordRefs: PartyId[];
   participantRecords: LadderParticipantRecordId[];
 }
 
@@ -51,32 +51,32 @@ export interface PartyFate {
 }
 
 export interface LadderPartyRecord {
-  id: LadderPartyRecordId; // primary key
-  gameRecordId: LadderGameRecordId;
+  id: PartyId; // primary key
+  gameRecordId: GameId;
   name: PartyName;
   fateOption: PartyFate | undefined;
   deepestFloorReached: number;
-  characterRecordRefs: LadderCharacterRecordId[];
+  characterRecordRefs: CombatantId[];
   partyFloorClearRecordRefs: LadderPartyFloorClearedRecordId[];
 }
 
 // can derrive "party time to reach floor x" from these
 export interface LadderPartyFloorClearRecord {
   id: LadderPartyFloorClearedRecordId;
-  partyRecordRef: LadderPartyRecordId; // foreign key
+  partyRecordRef: PartyId; // foreign key
   floor: number;
   timeSpentOnFloor: Milliseconds;
 }
 
 // denormalized last known basic data about character
 export interface LadderCharacterRecord {
-  id: LadderCharacterRecordId; // primary key
+  id: CombatantId; // primary key
   name: string;
   mainClass: CombatantClass;
   mainClassLevel: number;
   supportClassOption?: { combatantClass: CombatantClass; level: number };
   controllingPlayerId: LadderParticipantRecordId;
-  partyRecordId: LadderPartyRecordId;
+  partyRecordId: PartyId;
   floorClearRecordIds: LadderCharacterFloorClearedRecordId[]; // foreign keys
 }
 
@@ -87,6 +87,6 @@ export interface LadderCharacterFloorClearedRecord {
   id: LadderCharacterFloorClearedRecordId; // primary key
   combatantSchemaVersion: string;
   partyFloorClearRecord: LadderPartyFloorClearedRecordId; // foreign key
-  characterRecordRef: LadderCharacterRecordId; // foreign key to main character record
+  characterRecordRef: CombatantId; // foreign key to main character record
   combatantWithPets: SerializedCombatantWithPets; // character + pets, each minus inventory
 }
