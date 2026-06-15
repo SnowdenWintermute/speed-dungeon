@@ -45,7 +45,7 @@
 //   .references to LadderCharacterRecord
 //   .references to PartyTimeOnFloorRecords
 // - LadderPartyTimeOnFloorRecord
-//   .back reference to LadderGamePartyRecord
+//   .back reference to LadderPartyRecord
 //   .how long party spent on floor
 //   .can derrive "time to floor x" from TimeOnFloor records
 // - LadderCharacterRecord
@@ -75,6 +75,12 @@
 // - On game start, set the party.timeCurrentFloorReached to something like it was reached at a time in the past equal to
 //   the time it had been from when it was really reached to the time the game was saved
 // - On any player leaving the game, save and close the game for all players
+//
+// Ironman Abdandon Run
+// - record player abandoning in game.playersAbandoned
+// - when recording game records, don't record records for partially abandoned games
+// - downgrade from Freelancer to Captains control scheme
+//
 //
 // Ironman Run Cleanup (on wipe or escape)
 // - delete the run's persistence record
@@ -106,3 +112,4 @@
 // - they don't try to reconnect
 //
 // ironman run other players set back to lobby on other player leave game
+//

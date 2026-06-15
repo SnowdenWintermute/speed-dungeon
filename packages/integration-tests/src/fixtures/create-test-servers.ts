@@ -35,6 +35,8 @@ import {
   GameServerName,
   UserGameDataPersistenceService,
   InMemoryIronmanRunPersistenceStrategy,
+  LadderGameRecordsService,
+  InMemoryLadderRecordsPersistenceStrategy,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -81,6 +83,10 @@ export async function createTestServers(
     profileService
   );
   const rankedLadderService = new InMemoryCharacterLevelLadderService();
+  const ladderGameRecordsService = new LadderGameRecordsService(
+    new InMemoryLadderRecordsPersistenceStrategy(),
+    new IdGeneratorSequential({ saveHistory: false, prefix: "ladder-record-id" })
+  );
 
   const baseAssetDirectory = "packages/server/assets/";
   const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
@@ -107,6 +113,7 @@ export async function createTestServers(
       gameSessionStoreService,
       userGameDataPersistenceService,
       rankedLadderService,
+      ladderGameRecordsService,
       profileService,
       lobbyCrossServerBroadcasterService,
       globalGameSessionStore
@@ -146,6 +153,7 @@ export async function createTestServers(
             gameSessionStoreService,
             userGameDataPersistenceService,
             rankedLadderService,
+            ladderGameRecordsService,
             gameServerNodeAssetService,
             new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
             globalGameSessionStore,
@@ -175,6 +183,7 @@ export function createLobbyTestServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
+  ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: GlobalGameSessionStore
@@ -203,6 +212,7 @@ export function createLobbyTestServices(
     profileService,
     userGameDataPersistenceService,
     characterLevelLadderService,
+    ladderGameRecordsService,
     idGenerator: new IdGeneratorSequential({ saveHistory: false }),
     gameSessionStoreService,
     crossServerBroadcasterService,
@@ -215,6 +225,7 @@ export function createGameServerTestServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
+  ladderGameRecordsService: LadderGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: GlobalGameSessionStore,
@@ -224,6 +235,7 @@ export function createGameServerTestServices(
     gameSessionStoreService,
     userGameDataPersistenceService,
     characterLevelLadderService,
+    ladderGameRecordsService,
     assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,

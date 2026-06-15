@@ -148,7 +148,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
     game.clock.startLiveSession();
     await gameModePolicy.persistence.onGameStart(game);
-    await gameModePolicy.ladder.onGameStart();
+    await gameModePolicy.ladder.onGameStart(game);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {

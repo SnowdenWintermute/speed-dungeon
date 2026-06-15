@@ -105,7 +105,7 @@ export class DungeonExplorationController {
       const descentOutbox = await this.descendParty(game, party);
       outbox.pushFromOther(descentOutbox);
       this.gameModePolicyStore.getPolicy(game.mode).persistence.onFloorDescent(game, party);
-      this.gameModePolicyStore.getPolicy(game.mode).ladder.onFloorDescent();
+      this.gameModePolicyStore.getPolicy(game.mode).ladder.onFloorDescent(game, party);
     }
 
     return outbox;

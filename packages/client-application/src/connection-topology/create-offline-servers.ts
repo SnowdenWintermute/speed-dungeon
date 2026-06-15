@@ -80,8 +80,10 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     profileService
   );
   const characterLevelLadderService = new InMemoryCharacterLevelLadderService();
+  const idGenerator = new IdGeneratorRandom({ saveHistory: false });
   const ladderGameRecordsService = new LadderGameRecordsService(
-    new InMemoryLadderRecordsPersistenceStrategy()
+    new InMemoryLadderRecordsPersistenceStrategy(),
+    idGenerator
   );
 
   const testSecret = await SodiumHelpers.createSecret();
@@ -115,7 +117,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     () => testLeastBusyServerUrlGetter(),
     DefaultCharacterCreationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-    new IdGeneratorRandom({ saveHistory: false }),
+    idGenerator,
     cookieHeaderAuthSessionIdParser
   );
 
@@ -145,7 +147,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     guestSessionReconnectionTokencodec,
     RandomDungeonGenerationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-    new IdGeneratorRandom({ saveHistory: false }),
+    idGenerator,
     cookieHeaderAuthSessionIdParser
   );
 

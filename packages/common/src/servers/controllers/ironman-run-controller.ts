@@ -1,5 +1,6 @@
 import { GameId } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { CharacterControlScheme } from "../../game-modes/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { SerializedOf } from "../../serialization/index.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
@@ -65,6 +66,8 @@ export class IronmanRunController {
       if (liveLobbyGameSessionOption) {
         liveLobbyGameSessionOption.transferCharactersToInheritingPlayer(playerUsernameLeaving);
       }
+      // change the control scheme to Captains
+      run.game.characterControlScheme = CharacterControlScheme.Captain;
     }
 
     //   .remove the player
@@ -73,6 +76,8 @@ export class IronmanRunController {
     if (liveLobbyGameSessionOption) {
       liveLobbyGameSessionOption.playersReadied = [];
     }
+    // - record player abandoning in game.playersAbandoned
+    run.game.playersAbandoned.push(playerUsernameLeaving);
     //   .remove the reference to the run in their user Profile
     const profileOfUserLeaving = await this.profilesService.fetchExpectedProfile(
       userSession.taggedUserId.id

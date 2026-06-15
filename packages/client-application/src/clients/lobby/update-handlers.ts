@@ -1,6 +1,7 @@
 import {
   AdventuringParty,
   CHARACTER_SLOT_SPACING,
+  CharacterControlScheme,
   CLIENT_APP_MESSAGES,
   ClientAppMessageType,
   ClientSequentialEventType,
@@ -251,11 +252,13 @@ export function createLobbyUpdateHandlers(
       const { runId, usernameAbandoning } = data;
       const { gameOption } = clientApplication.gameContext;
       if (gameOption) {
+        gameOption.playersAbandoned.push(usernameAbandoning);
         // if any other players would remain
         const playersWillRemain = gameOption.players.size > 1;
         if (playersWillRemain) {
           // transfer the characters to inheriting character
           gameOption.transferCharactersToInheritingPlayer(usernameAbandoning);
+          gameOption.characterControlScheme = CharacterControlScheme.Captain;
         }
         gameOption.players.delete(usernameAbandoning);
         gameOption.playersReadied = [];

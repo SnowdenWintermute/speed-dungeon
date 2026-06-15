@@ -37,6 +37,7 @@ import {
   SpeedDungeonProfileService,
   LadderGameRecordsService,
   InMemoryLadderRecordsPersistenceStrategy,
+  IdGenerator,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -75,12 +76,14 @@ export class GameServerNode {
 
     const wss = new WebSocketServer({ server: httpServer });
     const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
+    const idGenerator = new IdGeneratorRandom({ saveHistory: false });
     const externalServices = this.createExternalServices(
       fsAssetStore,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,
-      profileService
+      profileService,
+      idGenerator
     );
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
@@ -102,7 +105,7 @@ export class GameServerNode {
       ScriptedDungeonGenerationPolicy,
       rngPolicy,
       // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
-      new IdGeneratorRandom({ saveHistory: false }),
+      idGenerator,
       cookieHeaderAuthSessionIdParser
       // RandomDungeonGenerationPolicy,
       // allRandomPolicy()
@@ -129,7 +132,8 @@ export class GameServerNode {
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalGameSessionStore: GlobalGameSessionStore,
-    profileService: SpeedDungeonProfileService
+    profileService: SpeedDungeonProfileService,
+    idGenerator: IdGenerator
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);
 
@@ -150,7 +154,8 @@ export class GameServerNode {
     );
 
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new InMemoryLadderRecordsPersistenceStrategy()
+      new InMemoryLadderRecordsPersistenceStrategy(),
+      idGenerator
     );
 
     const result: GameServerExternalServices = {

@@ -32,13 +32,14 @@ import { invariant } from "../utils/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { GameClock } from "./game-clock.js";
-import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
   playerJoinCount = 0; // for tracking player join order, used when deciding abandoned run character transfers
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
+  /** record players who abandoned an ironman run so we know not to record game records after that */
+  playersAbandoned: Username[] = [];
   adventuringParties = new Map<PartyName, AdventuringParty>();
   battles = new Map<EntityId, Battle>();
   clock = new GameClock();
@@ -50,7 +51,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     readonly id: GameId,
     readonly name: GameName,
     readonly mode: GameMode,
-    readonly characterControlScheme: CharacterControlScheme,
+    public characterControlScheme: CharacterControlScheme,
     readonly gameCreator: string | null = null,
     readonly isRanked: boolean = false
   ) {
@@ -86,6 +87,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       playerJoinCount: this.playerJoinCount,
       playerCapacity: this.playerCapacity,
       playersReadied: this.playersReadied,
+      playersAbandoned: this.playersAbandoned,
       adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
       battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
       clock: this.clock.toSerialized(),

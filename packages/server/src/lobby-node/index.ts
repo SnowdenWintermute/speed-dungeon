@@ -26,6 +26,7 @@ import {
   SpeedDungeonProfileService,
   InMemoryLadderRecordsPersistenceStrategy,
   LadderGameRecordsService,
+  IdGenerator,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -57,11 +58,13 @@ export class LobbyServerNode {
     const wss = new WebSocketServer({ server: httpServer });
 
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
+    const idGenerator = new IdGeneratorRandom({ saveHistory: false });
     const externalServices = this.createExternalServices(
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,
-      profileService
+      profileService,
+      idGenerator
     );
     const leastBusyGameServerUrlGetter = async () => {
       return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
@@ -77,7 +80,7 @@ export class LobbyServerNode {
       ScriptedCharacterCreationPolicy,
       RandomNumberGenerationPolicyFactory.allRandomPolicy(),
       // new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
-      new IdGeneratorRandom({ saveHistory: false }),
+      idGenerator,
       cookieHeaderAuthSessionIdParser
     );
 
@@ -99,7 +102,8 @@ export class LobbyServerNode {
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalGameSessionStore: GlobalGameSessionStore,
-    profileService: SpeedDungeonProfileService
+    profileService: SpeedDungeonProfileService,
+    idGenerator: IdGenerator
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
@@ -123,7 +127,8 @@ export class LobbyServerNode {
       valkeyManager.context
     );
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new InMemoryLadderRecordsPersistenceStrategy()
+      new InMemoryLadderRecordsPersistenceStrategy(),
+      idGenerator
     );
 
     const externalServices: LobbyExternalServices = {

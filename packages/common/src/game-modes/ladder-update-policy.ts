@@ -29,8 +29,8 @@ export abstract class GameModeLadderUpdatePolicy {
     >
   ) {}
 
-  async onFloorDescent(): Promise<void> {}
-  async onGameStart(): Promise<void> {}
+  async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {}
+  async onGameStart(game: SpeedDungeonGame): Promise<void> {}
   async onLiveGameLeave(
     game: SpeedDungeonGame,
     party: AdventuringParty,
