@@ -5,12 +5,11 @@ exports.up = (pgm) => {
     CREATE TYPE combatant_class AS ENUM ('warrior', 'rogue', 'mage');
     CREATE TYPE party_fate_type AS ENUM ('wipe', 'escape');
 
-    -- one row per user, shared across all of their games. We resolve a current
-    -- username live from the IdentityProviderId, and only fall back to the stored
-    -- name once the account is deleted.
+    -- one row per user, shared across all of their games. The primary key IS the
+    -- IdentityProviderId. We resolve a current username live from it, and only fall
+    -- back to the stored name once the account is deleted.
     CREATE TABLE ladder_participant_records (
-        id UUID PRIMARY KEY,
-        user_id INT NOT NULL UNIQUE,
+        id INT PRIMARY KEY,
         username_at_time_of_account_deletion VARCHAR(128)
     );
 
@@ -29,7 +28,7 @@ exports.up = (pgm) => {
     -- array column on either side.
     CREATE TABLE ladder_game_participant_records (
         game_record_id UUID REFERENCES ladder_game_records(id) ON DELETE CASCADE,
-        participant_record_id UUID REFERENCES ladder_participant_records(id) ON DELETE CASCADE,
+        participant_record_id INT REFERENCES ladder_participant_records(id) ON DELETE CASCADE,
         PRIMARY KEY (game_record_id, participant_record_id)
     );
 
@@ -56,7 +55,7 @@ exports.up = (pgm) => {
     CREATE TABLE ladder_character_records (
         id UUID PRIMARY KEY,
         party_record_id UUID REFERENCES ladder_party_records(id) ON DELETE CASCADE,
-        controlling_player_id UUID NOT NULL REFERENCES ladder_participant_records(id),
+        controlling_player_id INT NOT NULL REFERENCES ladder_participant_records(id),
         name VARCHAR(128) NOT NULL,
         main_class combatant_class NOT NULL,
         main_class_level INT NOT NULL,

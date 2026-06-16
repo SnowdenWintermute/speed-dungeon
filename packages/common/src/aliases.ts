@@ -6,7 +6,6 @@ export type PartyId = string & { __brand: "PartyId" };
 export type ChannelName = string & { __brand: "ChannelName" };
 export type EntityName = string & { __brand: "EntityName" };
 
-export type LadderParticipantRecordId = string & { __brand: "LadderParticipantRecordId" };
 export type LadderPartyFloorClearedRecordId = string & {
   __brand: "LadderPartyFloorClearedRecordId";
 };

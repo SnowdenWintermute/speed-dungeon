@@ -4,13 +4,12 @@ import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
 import { toCamelCase } from "../utils.js";
-import { LadderParticipantRecord } from "@speed-dungeon/common";
+import { IdentityProviderId, LadderParticipantRecord } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_PARTICIPANT_RECORDS;
 
 export interface LadderParticipantRecordRow {
-  id: string;
-  userId: number;
+  id: IdentityProviderId;
   usernameAtTimeOfAccountDeletion: string | null;
 }
 
@@ -18,23 +17,20 @@ class LadderParticipantRecordsRepo extends DatabaseRepository<LadderParticipantR
   async insert(record: LadderParticipantRecord, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
-        `INSERT INTO ${tableName} (id, user_id, username_at_time_of_account_deletion)
-         VALUES (%L, %L, %L)
-         ON CONFLICT (user_id) DO NOTHING;`,
+        `INSERT INTO ${tableName} (id, username_at_time_of_account_deletion)
+         VALUES (%L, %L)
+         ON CONFLICT (id) DO NOTHING;`,
         record.id,
-        record.userId,
         record.usernameAtTimeOfAccountDeletion ?? null
       )
     );
   }
 
-  async findByUserId(
-    userId: number,
+  async findById(
+    id: string,
     executor: Queryable = this.pgPool
   ): Promise<LadderParticipantRecordRow | undefined> {
-    const { rows } = await executor.query(
-      format(`SELECT * FROM ${tableName} WHERE user_id = %L;`, userId)
-    );
+    const { rows } = await executor.query(format(`SELECT * FROM ${tableName} WHERE id = %L;`, id));
     if (!rows[0]) {
       return undefined;
     }

@@ -12,14 +12,14 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     if (game.isContinuedRun) {
       return;
     }
-
     const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
-    const userIdsInGame = sessionsInGame.map((session) => {
-      invariant(session.taggedUserId.type === UserIdType.Auth, "expected auth users only");
-      return session.taggedUserId.id;
-    });
+    const usernamesToUserIds = new Map<Username, IdentityProviderId>();
+    for (const session of sessionsInGame) {
+      invariant(session.taggedUserId.type === UserIdType.Auth, "expected only auth users");
+      usernamesToUserIds.set(session.username, session.taggedUserId.id);
+    }
 
-    await this.gameRecordsLadderService.recordNewGame(game, userIdsInGame);
+    await this.gameRecordsLadderService.recordNewGame(game, usernamesToUserIds);
   }
   override async onLastPlayerLeftLiveGame(): Promise<void> {
     // update all game, party and character records

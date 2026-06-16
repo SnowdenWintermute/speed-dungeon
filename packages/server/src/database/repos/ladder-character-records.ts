@@ -43,8 +43,8 @@ class LadderCharacterRecordsRepo extends DatabaseRepository<LadderCharacterRecor
         record.partyRecordId,
         record.controllingPlayerId,
         record.name,
-        classToColumn(record.mainClass),
-        record.mainClassLevel,
+        classToColumn(record.mainClass.combatantClass),
+        record.mainClass.level,
         supportClassColumn,
         supportClassLevelColumn
       )

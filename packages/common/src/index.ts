@@ -9,6 +9,7 @@ export * from "./primatives/option.js";
 export * from "./primatives/entity-properties.js";
 export * from "./primatives/max-and-current.js";
 export * from "./primatives/number-range.js";
+export * from "./primatives/date-range.js";
 
 export * from "./http-headers.js";
 

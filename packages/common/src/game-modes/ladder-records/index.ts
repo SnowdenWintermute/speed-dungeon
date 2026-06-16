@@ -4,7 +4,6 @@ import {
   GameName,
   IdentityProviderId,
   LadderCharacterFloorClearedRecordId,
-  LadderParticipantRecordId,
   LadderPartyFloorClearedRecordId,
   Milliseconds,
   PartyId,
@@ -19,8 +18,7 @@ import { CharacterControlScheme, GameMode } from "../index.js";
 // if they change their username, old game records should show their updated username
 // and typically we would just query for their current name based on their IdentityProviderId
 export interface LadderParticipantRecord {
-  id: LadderParticipantRecordId; // primary key
-  userId: IdentityProviderId;
+  id: IdentityProviderId; // primary key
   usernameAtTimeOfAccountDeletion?: Username;
 }
 
@@ -36,8 +34,6 @@ export interface LadderGameRecord {
   mode: GameMode;
   controlScheme: CharacterControlScheme;
   timeStarted: Milliseconds;
-  partyRecordRefs: PartyId[];
-  participantRecords: LadderParticipantRecordId[];
 }
 
 export enum PartyFateType {
@@ -56,8 +52,6 @@ export interface LadderPartyRecord {
   name: PartyName;
   fateOption: PartyFate | undefined;
   deepestFloorReached: number;
-  characterRecordRefs: CombatantId[];
-  partyFloorClearRecordRefs: LadderPartyFloorClearedRecordId[];
 }
 
 // can derrive "party time to reach floor x" from these
@@ -72,12 +66,10 @@ export interface LadderPartyFloorClearRecord {
 export interface LadderCharacterRecord {
   id: CombatantId; // primary key
   name: string;
-  mainClass: CombatantClass;
-  mainClassLevel: number;
+  mainClass: { combatantClass: CombatantClass; level: number };
   supportClassOption?: { combatantClass: CombatantClass; level: number };
-  controllingPlayerId: LadderParticipantRecordId;
+  controllingPlayerId: IdentityProviderId;
   partyRecordId: PartyId;
-  floorClearRecordIds: LadderCharacterFloorClearedRecordId[]; // foreign keys
 }
 
 // used for tuning each floor based on discovered meta of character builds at each floor clear

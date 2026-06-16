@@ -1,4 +1,12 @@
-import { CombatantId, GameId, IdentityProviderId, PartyId } from "../../aliases.js";
+import {
+  CombatantId,
+  GameId,
+  GameName,
+  IdentityProviderId,
+  Milliseconds,
+  PartyId,
+} from "../../aliases.js";
+import { DateRange } from "../../primatives/date-range.js";
 import {
   LadderCharacterFloorClearedRecord,
   LadderCharacterRecord,
@@ -9,22 +17,11 @@ import {
   PartyFate,
 } from "./index.js";
 
-// insert shapes omit the derived "list of children" fields, which are reconstructed at read time
-export type LadderGameRecordInsert = Omit<
-  LadderGameRecord,
-  "partyRecordRefs" | "participantRecords"
->;
-export type LadderPartyRecordInsert = Omit<
-  LadderPartyRecord,
-  "characterRecordRefs" | "partyFloorClearRecordRefs"
->;
-export type LadderCharacterRecordInsert = Omit<LadderCharacterRecord, "floorClearRecordIds">;
-
 export interface NewLadderGameRecordSet {
-  game: LadderGameRecordInsert;
+  game: LadderGameRecord;
   participantRecords: LadderParticipantRecord[];
-  parties: LadderPartyRecordInsert[];
-  characters: LadderCharacterRecordInsert[];
+  parties: LadderPartyRecord[];
+  characters: LadderCharacterRecord[];
 }
 
 export interface LadderCharacterLevelUpdate {
@@ -49,25 +46,39 @@ export interface LadderPartyFateUpdate {
 
 // assembled read shape (the parent "refs" arrays expressed as nested children)
 export interface LadderCharacterRecordAggregate {
-  character: LadderCharacterRecordInsert;
+  character: LadderCharacterRecord;
   floorClearedSnapshots: LadderCharacterFloorClearedRecord[];
 }
 export interface LadderPartyRecordAggregate {
-  party: LadderPartyRecordInsert;
+  party: LadderPartyRecord;
   floorClears: LadderPartyFloorClearRecord[];
   characters: LadderCharacterRecordAggregate[];
 }
 export interface LadderGameRecordAggregate {
-  game: LadderGameRecordInsert;
+  game: LadderGameRecord;
   participants: LadderParticipantRecord[];
   parties: LadderPartyRecordAggregate[];
 }
 
+// a row in a user's paginated game-history list. fateOptionOfQueryingPlayerParty is the fate of
+// the party that the querying user's character(s) were in (undefined while the game is in progress)
+export interface UserGameHistoryEntry {
+  gameId: GameId;
+  gameName: GameName;
+  date: Milliseconds;
+  fateOptionOfQueryingPlayerParty?: PartyFate;
+}
+
 export interface LadderRecordsPersistenceStrategy {
+  getUserGameHistory(
+    userId: IdentityProviderId,
+    page: number,
+    dateRange?: DateRange
+  ): Promise<UserGameHistoryEntry[]>;
+  getUserGameRecordsCount(userId: IdentityProviderId, dateRange?: DateRange): Promise<number>;
+
   // participants are global per user; resolve before building character/game records that reference them
-  findParticipantRecordByUserId(
-    userId: IdentityProviderId
-  ): Promise<LadderParticipantRecord | undefined>;
+  findParticipantRecordById(id: IdentityProviderId): Promise<LadderParticipantRecord | undefined>;
   upsertParticipantRecord(record: LadderParticipantRecord): Promise<void>;
 
   // atomic: a game plus its parties, characters, and participant links
