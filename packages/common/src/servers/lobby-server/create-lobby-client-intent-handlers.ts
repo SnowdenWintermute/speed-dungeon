@@ -56,6 +56,12 @@ export function createLobbyClientIntentHandlers(
     [ClientIntentType.DeleteSavedCharacter]: (data, user) =>
       lobbyServer.savedCharactersController.deleteSavedCharacterHandler(user, data),
 
+    // LADDER GAME RECORDS
+    [ClientIntentType.GetUserGameHistory]: (data, user) =>
+      lobbyServer.ladderGameRecordsController.getUserGameHistoryHandler(user, data),
+    [ClientIntentType.GetUserGameRecordsCount]: (data, user) =>
+      lobbyServer.ladderGameRecordsController.getUserGameRecordsCountHandler(user, data),
+
     // IRONMAN RUN MANAGEMENT
     [ClientIntentType.AbandonIronmanRun]: (data, user) =>
       lobbyServer.savedIronmanRunsController.abandonRun(user, data.runId),

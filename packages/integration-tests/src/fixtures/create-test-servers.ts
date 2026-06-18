@@ -174,6 +174,7 @@ export async function createTestServers(
     lobbyServer,
     gameServers,
     rankedLadderService,
+    ladderGameRecordsService,
     identityProviderQueryStrategy,
     userGameDataPersistenceService,
   };

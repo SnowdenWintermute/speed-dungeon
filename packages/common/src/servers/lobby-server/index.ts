@@ -1,5 +1,6 @@
 import { CharacterLifecycleController } from "./controllers/character-lifecycle.js";
 import { SavedCharactersController } from "./controllers/saved-characters.js";
+import { LadderGameRecordsController } from "./controllers/ladder-game-records.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { LobbyGameLifecycleController } from "./controllers/game-lifecycle.js";
 import { LobbyState } from "./lobby-state.js";
@@ -77,6 +78,7 @@ export class LobbyServer extends SpeedDungeonServer {
   public readonly userSessionLifecycleController: LobbySessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
   public readonly savedIronmanRunsController: IronmanRunController;
+  public readonly ladderGameRecordsController: LadderGameRecordsController;
   public readonly characterLifecycleController: CharacterLifecycleController;
 
   // queries
@@ -164,6 +166,7 @@ export class LobbyServer extends SpeedDungeonServer {
     this.userSessionLifecycleController = controllers.userSessionLifecycleController;
     this.savedCharactersController = controllers.savedCharactersController;
     this.savedIronmanRunsController = controllers.savedIronmanRunsController;
+    this.ladderGameRecordsController = controllers.ladderGameRecordsController;
     this.characterLifecycleController = controllers.characterLifecycleController;
 
     this.reconnectionProtocol = new LobbyReconnectionProtocol(
@@ -295,6 +298,11 @@ export class LobbyServer extends SpeedDungeonServer {
       this.characterCreationPolicy
     );
 
+    const ladderGameRecordsController = new LadderGameRecordsController(
+      this.externalServices.ladderGameRecordsService,
+      this.updateDispatchFactory
+    );
+
     const partySetupController = new PartySetupController(
       this.updateDispatchFactory,
       this.gameModePolicyStore,
@@ -338,6 +346,7 @@ export class LobbyServer extends SpeedDungeonServer {
       characterLifecycleController,
       userSessionLifecycleController,
       savedIronmanRunsController,
+      ladderGameRecordsController,
     };
   }
 

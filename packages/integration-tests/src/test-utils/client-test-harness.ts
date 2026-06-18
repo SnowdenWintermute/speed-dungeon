@@ -16,6 +16,7 @@ import {
   CombatantClass,
   CombatantId,
   CombatAttribute,
+  DateRange,
   EntityName,
   GameId,
   GameMode,
@@ -413,6 +414,13 @@ export class ClientTestHarness<T extends BaseClient> {
       data: {
         runId,
       },
+    });
+  }
+
+  async requestGameHistory(page: number, dateRange?: DateRange) {
+    return this.settleIntentResult({
+      type: ClientIntentType.GetUserGameHistory,
+      data: { page, dateRange },
     });
   }
 

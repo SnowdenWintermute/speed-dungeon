@@ -11,7 +11,6 @@ import {
   GameServer,
   GameServerName,
   GameStateUpdateType,
-  IdentityProviderUserSessionQueryStrategy,
   IncomingConnectionGateway,
   InMemoryIdentityProviderQueryStrategy,
   invariant,
@@ -24,6 +23,7 @@ import {
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   UserGameDataPersistenceService,
+  LadderGameRecordsService,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
@@ -65,6 +65,7 @@ export class IntegrationTestFixture {
   }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
   private _rankedLadderService: CharacterLevelLadderService | null = null;
+  private _ladderGameRecordsService: LadderGameRecordsService | null = null;
   private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
   private _userGameDataPersistenceService: UserGameDataPersistenceService | null = null;
   /** for manipulating which server a new game should be created on in a test */
@@ -126,6 +127,7 @@ export class IntegrationTestFixture {
       lobbyServer,
       gameServers,
       rankedLadderService,
+      ladderGameRecordsService,
       identityProviderQueryStrategy,
       userGameDataPersistenceService,
     } = await createTestServers(
@@ -137,6 +139,7 @@ export class IntegrationTestFixture {
     );
 
     this._rankedLadderService = rankedLadderService;
+    this._ladderGameRecordsService = ladderGameRecordsService;
     this._identityProviderQueryStrategy = identityProviderQueryStrategy;
     this._userGameDataPersistenceService = userGameDataPersistenceService;
 
@@ -162,6 +165,13 @@ export class IntegrationTestFixture {
       throw new Error("no rankedLadderService was initialized");
     }
     return this._rankedLadderService;
+  }
+
+  get ladderGameRecordsService() {
+    if (!this._ladderGameRecordsService) {
+      throw new Error("no ladderGameRecordsService was initialized");
+    }
+    return this._ladderGameRecordsService;
   }
 
   get identityProviderQueryStrategy() {

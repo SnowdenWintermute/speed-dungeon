@@ -211,6 +211,12 @@ export function createLobbyUpdateHandlers(
         gameOption.selectedStartingFloor = data.floorNumber;
       }
     },
+    [GameStateUpdateType.UserGameHistoryPage]: (data) => {
+      clientApplication.ladderRecordsStore.setPage(data.page, data.entries);
+    },
+    [GameStateUpdateType.UserGameRecordsCount]: (data) => {
+      clientApplication.ladderRecordsStore.setTotalRecordsCount(data.count);
+    },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
       const { characterControlScheme, characters, capacity } = data;
 

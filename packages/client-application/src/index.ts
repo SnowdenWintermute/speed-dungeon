@@ -35,6 +35,7 @@ import { GameClient } from "./clients/game";
 import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
 import { RootActionMenuScreen } from "./action-menu/screens/root";
+import { LadderRecordsStore } from "./ladder-records-store";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
@@ -61,6 +62,7 @@ export class ClientApplication {
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly imageStore = new ImageStore();
   readonly uiStore = new UiStore();
+  readonly ladderRecordsStore = new LadderRecordsStore(this);
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
@@ -115,6 +117,10 @@ export class ClientApplication {
   makeObservable() {
     this.topologyManager.makeObservable();
     this.lobbyContext.makeObservable();
+    this.ladderRecordsStore.makeObservable();
+    this.targetIndicatorStore.makeObservable();
+    // @TODO - find other subsystems that are calling .makeObservable() in their constructors
+    // and move them here
   }
 
   setReplayManagerTickScheduler(scheduler: TickScheduler) {

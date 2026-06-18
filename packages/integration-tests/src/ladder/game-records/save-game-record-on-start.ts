@@ -19,28 +19,34 @@ export async function testSaveGameRecordOnGameStart(testFixture: IntegrationTest
   // create fresh ironman game
   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
   await alpha.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
-  // get connection instructions
   const gotConnectionInstructions = alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.GameServerConnectionInstructions
   );
-  const gameId = alpha.clientApplication.gameContext.requireGame().id;
-  await alpha.lobbyClientHarness.toggleReadyToStartGame();
-  // expect to NOT find record in persistence service yet
-  await gotConnectionInstructions;
-  // await expect(
-  //   testFixture.userGameDataPersistenceService.requireIronmanRun(gameId)
-  // ).rejects.toThrow();
 
-  // // connect to game server
-  // // get game time started message
-  // const gotGameStartedMessage = alpha.gameClientHarness.awaitMessageOfType(
-  //   GameStateUpdateType.GameStarted
-  // );
-  // await alpha.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
-  // await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
-  // await gotGameStartedMessage;
-  // // expect to find saved record in persistence service
-  // await expect(
-  //   testFixture.userGameDataPersistenceService.requireIronmanRun(gameId)
-  // ).resolves.toBeDefined();
+  // expect to NOT find record in persistence service yet
+  const gameId = alpha.clientApplication.gameContext.requireGame().id;
+  await alpha.lobbyClientHarness.requestGameHistory(1);
+  expect(
+    alpha.clientApplication.ladderRecordsStore
+      .getPage(1)
+      ?.some((gameRecord) => gameRecord.gameId === gameId)
+  ).toBeFalsy();
+  const gameRecordAggregateNotExpected =
+    await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
+  expect(gameRecordAggregateNotExpected).toBeUndefined();
+  await alpha.lobbyClientHarness.toggleReadyToStartGame();
+  await gotConnectionInstructions;
+
+  // connect to game server
+  // get game time started message
+  const gotGameStartedMessage = alpha.gameClientHarness.awaitMessageOfType(
+    GameStateUpdateType.GameStarted
+  );
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+  await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+  await gotGameStartedMessage;
+  // expect to find saved record in persistence service
+  const gameRecordAggregate =
+    await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
+  expect(gameRecordAggregate).toBeDefined();
 }
