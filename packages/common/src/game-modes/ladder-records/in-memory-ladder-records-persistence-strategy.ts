@@ -205,4 +205,25 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
 
     return cloneDeep({ game, participants, parties });
   }
+
+  async updateGameRecord(record: LadderGameRecord): Promise<void> {
+    invariant(this.games.has(record.id), "expected an existing game record to update");
+    this.games.set(record.id, cloneDeep(record));
+  }
+
+  async findPartyRecordById(id: PartyId): Promise<LadderPartyRecord> {
+    const party = this.parties.get(id);
+    invariant(party !== undefined, "expected an existing party record");
+    return cloneDeep(party);
+  }
+
+  async updatePartyRecord(record: LadderPartyRecord): Promise<void> {
+    invariant(this.parties.has(record.id), "expected an existing party record to update");
+    this.parties.set(record.id, cloneDeep(record));
+  }
+
+  async updateCharacterRecord(record: LadderCharacterRecord): Promise<void> {
+    invariant(this.characters.has(record.id), "expected an existing character record to update");
+    this.characters.set(record.id, cloneDeep(record));
+  }
 }

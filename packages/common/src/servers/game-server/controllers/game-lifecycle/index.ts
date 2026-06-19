@@ -21,6 +21,7 @@ import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 import { GameMode, GameModePolicy } from "../../../../game-modes/index.js";
+import { PartyFateType } from "../../../../game-modes/ladder-records/index.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -273,8 +274,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     partyWasRemoved: boolean,
     deadPartyMembersAbandoned: boolean
   ) {
-    const partyHasNotYetEscaped = !party.timeOfEscape; // if they already escaped they shouldn't be marked as wiped
-    const partyHasNotYetWiped = party.timeOfWipe === null;
+    const partyHasNotYetEscaped = !party.hasEscaped(); // if they already escaped they shouldn't be marked as wiped
+    const partyHasNotYetWiped = !party.hasWiped();
     const partyIsInWipableState =
       partyWasRemoved || (deadPartyMembersAbandoned && partyHasNotYetWiped);
     return partyHasNotYetEscaped && partyIsInWipableState;
@@ -285,7 +286,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     party: AdventuringParty,
     policy: GameModePolicy
   ) {
-    party.timeOfWipe = Date.now();
+    party.fate = { type: PartyFateType.Wipe, timestamp: Date.now() };
     await policy.persistence.onPartyWipe(game, party);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const ladderDeathMessagesOutbox = await policy.ladder.onPartyWipe(game, party);
@@ -310,9 +311,10 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   async cleanUpGame(game: SpeedDungeonGame) {
+    console.log("clean up game:", game.name);
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
     await gameModePolicy.persistence.onLastPlayerLeftLiveGame(game);
-    await gameModePolicy.ladder.onLastPlayerLeftLiveGame();
+    await gameModePolicy.ladder.onLastPlayerLeftLiveGame(game);
 
     this.gameRegistry.unregisterGame(game.id);
     // even though we clear their session on leave game, it is possible that they never joined the game,
@@ -339,7 +341,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       }
     }
 
-    if (allRemainingCharactersAreDead && !party.timeOfWipe) {
+    if (allRemainingCharactersAreDead && !party.hasWiped()) {
       const abandonedPartyOutbox =
         this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
           game.getChannelName(),

@@ -5,6 +5,7 @@ import {
   CleanupMode,
   Consumable,
   Equipment,
+  PartyFateType,
 } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ReplayStepExecution } from "../replay-step-execution";
@@ -74,7 +75,7 @@ export async function battleConclusionGameUpdateHandler(
 
   switch (command.conclusion) {
     case BattleConclusion.Defeat:
-      party.timeOfWipe = command.timestamp;
+      party.fate = { type: PartyFateType.Wipe, timestamp: command.timestamp };
       eventLogMessageService.postWipeMessage();
       break;
     case BattleConclusion.Victory:

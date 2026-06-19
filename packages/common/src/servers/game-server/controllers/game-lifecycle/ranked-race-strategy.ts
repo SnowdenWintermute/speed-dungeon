@@ -50,7 +50,7 @@
 //   await this.raceGameRecordsService.applyUpdatedPartyRecord(partyRecord);
 //   let allPartiesAreDead = true;
 //   for (const party of Object.values(game.adventuringParties)) {
-//     if (party.timeOfWipe === null) {
+//     if (party.hasWiped()) {
 //       allPartiesAreDead = false;
 //       break;
 //     }

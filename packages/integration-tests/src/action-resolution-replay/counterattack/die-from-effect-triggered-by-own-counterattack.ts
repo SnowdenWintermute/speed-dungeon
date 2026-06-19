@@ -25,11 +25,9 @@ export async function testDieFromCounterattackTriggeredExplosion(
     ]
   );
   const { clientApplication, gameClientHarness } = client;
-  const { actionHistory } = gameClientHarness;
   const { combatantFocus } = clientApplication;
   const { gameContext } = clientApplication;
   const party = gameContext.requireParty();
-  const { combatantManager } = party;
 
   await gameClientHarness.toggleReadyToExplore();
 
@@ -43,5 +41,5 @@ export async function testDieFromCounterattackTriggeredExplosion(
   testFixture.timeMachine.advanceTime(clientApplication.uiStore.replayResolutionTimeoutDuration);
   expect(secondMover.getCombatantProperties().isDead()).toBeTruthy();
 
-  expect(party.timeOfWipe).toBeDefined();
+  expect(party.hasWiped()).toBeTruthy();
 }

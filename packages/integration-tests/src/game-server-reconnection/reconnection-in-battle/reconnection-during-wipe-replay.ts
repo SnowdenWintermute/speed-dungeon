@@ -55,6 +55,6 @@ export async function testReconnectionDuringWipeReplay(
   const bravoParty = bravo.clientApplication.gameContext.requireParty();
   expect(alphaParty.battleId).toBeNull();
   expect(bravoParty.battleId).toBeNull();
-  expect(alphaParty.timeOfWipe).toBeTruthy();
-  expect(bravoParty.timeOfWipe).toBeTruthy();
+  expect(alphaParty.hasWiped()).toBeTruthy();
+  expect(bravoParty.hasWiped()).toBeTruthy();
 }

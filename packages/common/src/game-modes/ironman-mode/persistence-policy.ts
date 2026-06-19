@@ -50,7 +50,7 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
 
     // if the game has not completed in a wipe or escape, save it
     const defaultParty = game.requireSingleParty();
-    if (defaultParty.timeOfWipe === null && defaultParty.timeOfEscape === null) {
+    if (defaultParty.fate === null) {
       game.clock.endLiveSession();
       const userIdsToUsernames = game.getAuthUserIdsToUsernames(
         this.userSessionRegistry.getAllSessionsInGame(game)

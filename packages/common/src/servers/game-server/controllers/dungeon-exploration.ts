@@ -5,6 +5,7 @@ import { Battle } from "../../../battle/index.js";
 import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
 import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 import { GameMode } from "../../../game-modes/index.js";
+import { PartyFateType } from "../../../game-modes/ladder-records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
@@ -141,14 +142,14 @@ export class DungeonExplorationController {
     if (dungeonExplorationManager.partyEscapedDungeon()) {
       let anotherPartyAlreadyEscaped = false;
       for (const [_, party] of game.adventuringParties) {
-        if (party.timeOfEscape) {
+        if (party.hasEscaped()) {
           anotherPartyAlreadyEscaped = true;
           break;
         }
       }
 
       const timeOfEscape = Date.now();
-      party.timeOfEscape = timeOfEscape;
+      party.fate = { type: PartyFateType.Escape, timestamp: timeOfEscape };
 
       let hasBeenMarkedAsWinnerMessageOption = "";
       if (!anotherPartyAlreadyEscaped) {

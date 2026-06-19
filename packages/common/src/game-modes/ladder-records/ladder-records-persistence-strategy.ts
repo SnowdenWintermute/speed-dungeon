@@ -80,6 +80,10 @@ export interface LadderRecordsPersistenceStrategy {
   // participants are global per user; resolve before building character/game records that reference them
   findParticipantRecordById(id: IdentityProviderId): Promise<LadderParticipantRecord | undefined>;
   upsertParticipantRecord(record: LadderParticipantRecord): Promise<void>;
+  updateGameRecord(record: LadderGameRecord): Promise<void>;
+  findPartyRecordById(id: PartyId): Promise<LadderPartyRecord>;
+  updatePartyRecord(record: LadderPartyRecord): Promise<void>;
+  updateCharacterRecord(record: LadderCharacterRecord): Promise<void>;
 
   // atomic: a game plus its parties, characters, and participant links
   insertNewGameRecordSet(set: NewLadderGameRecordSet): Promise<void>;

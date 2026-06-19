@@ -22,6 +22,8 @@ import {
 import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { invariant } from "../utils/index.js";
+import { PartyFate, PartyFateType } from "../game-modes/ladder-records/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 export class AdventuringParty implements Serializable, ReactiveNode {
   // subsystems
@@ -34,21 +36,13 @@ export class AdventuringParty implements Serializable, ReactiveNode {
   playerUsernamesAwaitingReconnection = new Set<Username>();
   currentRoom: DungeonRoom = new DungeonRoom(DungeonRoomType.Empty);
   battleId: null | EntityId = null;
-  private _timeOfWipe: null | number = null;
-  timeOfEscape: null | number = null;
+  private _fate: null | PartyFate = null;
   inputLock = new TimedLock();
 
   private constructor(
     public id: PartyId,
     public name: PartyName
   ) {}
-
-  get timeOfWipe() {
-    return this._timeOfWipe;
-  }
-  set timeOfWipe(value: number | null) {
-    this._timeOfWipe = value;
-  }
 
   makeObservable() {
     makeAutoObservable(this);
@@ -72,8 +66,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       playerUsernames: this.playerUsernames,
       currentRoom: this.currentRoom.toSerialized(),
       battleId: this.battleId,
-      _timeOfWipe: this._timeOfWipe,
-      timeOfEscape: this.timeOfEscape,
+      _fate: this._fate,
       inputLock: this.inputLock.toSerialized(),
     };
   }
@@ -90,8 +83,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     result.playerUsernames = serialized.playerUsernames;
     result.currentRoom = DungeonRoom.fromSerialized(serialized.currentRoom);
     result.battleId = serialized.battleId;
-    result._timeOfWipe = serialized._timeOfWipe;
-    result.timeOfEscape = serialized.timeOfEscape;
+    result._fate = serialized._fate;
     result.inputLock = TimedLock.fromSerialized(serialized.inputLock);
     result.initialize();
 
@@ -104,6 +96,21 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       if (!isSubsystem) continue;
       value.initialize(this);
     }
+  }
+
+  get fate() {
+    return cloneDeep(this._fate);
+  }
+
+  set fate(value: PartyFate | null) {
+    this._fate = value;
+  }
+
+  hasWiped() {
+    return this._fate?.type === PartyFateType.Wipe;
+  }
+  hasEscaped() {
+    return this._fate?.type === PartyFateType.Escape;
   }
 
   getItem(itemId: string) {

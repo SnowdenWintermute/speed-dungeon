@@ -12,20 +12,20 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     if (game.isContinuedRun) {
       return;
     }
-    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
-    const usernamesToUserIds = new Map<Username, IdentityProviderId>();
-    for (const session of sessionsInGame) {
-      invariant(session.taggedUserId.type === UserIdType.Auth, "expected only auth users");
-      usernamesToUserIds.set(session.username, session.taggedUserId.id);
-    }
-
+    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
     await this.gameRecordsLadderService.recordNewGame(game, usernamesToUserIds);
   }
-  override async onLastPlayerLeftLiveGame(): Promise<void> {
+
+  override async onLastPlayerLeftLiveGame(game: SpeedDungeonGame): Promise<void> {
     // update all game, party and character records
+    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
+    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
   }
   override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     // update all game, party and character records
+    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
+    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+
     // create party and character timeToClearFloor records
   }
   override async onPartyEscape(): Promise<void> {

@@ -1,7 +1,7 @@
-import { ChannelName, ConnectionId, GameId, Username } from "../../aliases.js";
+import { ChannelName, ConnectionId, GameId, IdentityProviderId, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { invariant } from "../../utils/index.js";
-import { UserId } from "./user-ids.js";
+import { UserId, UserIdType } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry {
@@ -95,6 +95,17 @@ export class UserSessionRegistry {
       }
     }
     return result;
+  }
+
+  getGameUsernameToIdsMap(game: SpeedDungeonGame) {
+    const sessionsInGame = this.getAllSessionsInGame(game);
+    const usernamesToUserIds = new Map<Username, IdentityProviderId>();
+    for (const session of sessionsInGame) {
+      invariant(session.taggedUserId.type === UserIdType.Auth, "expected only auth users");
+      usernamesToUserIds.set(session.username, session.taggedUserId.id);
+    }
+
+    return usernamesToUserIds;
   }
 
   static requireSessionInListByUsername(username: Username, sessions: UserSession[]) {

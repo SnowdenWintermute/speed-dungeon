@@ -9,6 +9,7 @@ import {
   FriendOrFoe,
   IActionUser,
   invariant,
+  PartyFateType,
   ThreatChanges,
 } from "../index.js";
 import { CombatantId, EntityId } from "../aliases.js";
@@ -163,7 +164,7 @@ export class Battle implements Serializable, ReactiveNode {
 
     if (partyWipes.alliesDefeated) {
       conclusion = BattleConclusion.Defeat;
-      this.party.timeOfWipe = Date.now();
+      this.party.fate = { type: PartyFateType.Wipe, timestamp: Date.now() };
       this.game.battles.delete(this.id);
       this.party.setBattleId(null);
     } else {
