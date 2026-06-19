@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { EntityId } from "../aliases.js";
+import { EntityId, Milliseconds } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
@@ -29,7 +29,12 @@ export abstract class GameModeLadderUpdatePolicy {
     >
   ) {}
 
-  async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {}
+  async onFloorDescent(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    clearedFloor: number,
+    timeSpentOnFloorMs: Milliseconds
+  ): Promise<void> {}
   async onGameStart(game: SpeedDungeonGame): Promise<void> {}
   async onLiveGameLeave(
     game: SpeedDungeonGame,

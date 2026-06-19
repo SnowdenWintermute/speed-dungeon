@@ -7,9 +7,11 @@ import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import { Milliseconds } from "../aliases.js";
 
 export class DungeonExplorationManager implements Serializable, ReactiveNode {
   private currentFloor: number = 1;
+  private livePlayTimeAtCurrentFloorEnteredMs: Milliseconds = 0;
   private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 0 };
   private unexploredRooms: DungeonRoomType[] = [];
   private clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
@@ -115,6 +117,14 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
 
   getCurrentFloor() {
     return this.currentFloor;
+  }
+
+  markCurrentFloorEnteredTimestamp(clockLivePlayTimeMs: Milliseconds) {
+    this.livePlayTimeAtCurrentFloorEnteredMs = clockLivePlayTimeMs;
+  }
+
+  getTimeSpentOnCurrentFloor(clockLivePlayTimeMs: Milliseconds): Milliseconds {
+    return clockLivePlayTimeMs - this.livePlayTimeAtCurrentFloorEnteredMs;
   }
 
   partyEscapedDungeon() {

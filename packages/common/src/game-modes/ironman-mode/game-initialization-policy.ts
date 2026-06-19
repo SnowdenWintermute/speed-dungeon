@@ -8,9 +8,6 @@ export class IronmanGameInitializationPolicy extends GameModeGameInitializationP
     game: SpeedDungeonGame
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
-    // @TODO - if is continued game, adjust the speedrun timing clocks
-    // - On game start, set the party.timeCurrentFloorReached to something like it was reached at a time in the past equal to
-    //   the time it had been from when it was really reached to the time the game was saved
     return outbox;
   }
 }

@@ -105,8 +105,6 @@ export class DungeonExplorationController {
     if (allPlayersReadyToDescend) {
       const descentOutbox = await this.descendParty(game, party);
       outbox.pushFromOther(descentOutbox);
-      this.gameModePolicyStore.getPolicy(game.mode).persistence.onFloorDescent(game, party);
-      this.gameModePolicyStore.getPolicy(game.mode).ladder.onFloorDescent(game, party);
     }
 
     return outbox;
@@ -116,8 +114,13 @@ export class DungeonExplorationController {
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
 
     const { dungeonExplorationManager } = party;
-    dungeonExplorationManager.incrementCurrentFloor();
 
+    const clearedFloor = dungeonExplorationManager.getCurrentFloor();
+    const livePlayTimeMs = game.clock.getTotalLivePlayTimeMs();
+    const timeSpentOnFloorMs = dungeonExplorationManager.getTimeSpentOnCurrentFloor(livePlayTimeMs);
+
+    dungeonExplorationManager.incrementCurrentFloor();
+    dungeonExplorationManager.markCurrentFloorEnteredTimestamp(livePlayTimeMs);
     dungeonExplorationManager.clearUnexploredRooms();
     dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
@@ -138,6 +141,9 @@ export class DungeonExplorationController {
       );
 
     outbox.pushFromOther(descentMessageOutbox);
+
+    await gameModePolicy.persistence.onFloorDescent(game, party);
+    await gameModePolicy.ladder.onFloorDescent(game, party, clearedFloor, timeSpentOnFloorMs);
 
     if (dungeonExplorationManager.partyEscapedDungeon()) {
       let anotherPartyAlreadyEscaped = false;

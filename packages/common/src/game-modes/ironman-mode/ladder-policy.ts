@@ -1,5 +1,5 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId, IdentityProviderId, Username } from "../../aliases.js";
+import { EntityId, IdentityProviderId, Milliseconds, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { UserIdType } from "../../servers/sessions/user-ids.js";
@@ -21,12 +21,17 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
     await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
   }
-  override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
+  override async onFloorDescent(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    clearedFloor: number,
+    timeSpentOnFloorMs: Milliseconds
+  ): Promise<void> {
     // update all game, party and character records
     const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
     await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
 
-    // create party and character timeToClearFloor records
+    // create party and character timeToClearFloor records using clearedFloor + timeSpentOnFloorMs
   }
   override async onPartyEscape(): Promise<void> {
     // update all game, party and character records
