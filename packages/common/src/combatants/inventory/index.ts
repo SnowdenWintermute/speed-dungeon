@@ -155,6 +155,12 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     else return itemOption;
   }
 
+  deleteAllItems() {
+    for (const item of this.getItems()) {
+      this.removeItem(item.getEntityId());
+    }
+  }
+
   getConsumableByTypeAndLevel(consumableType: ConsumableType, level: number) {
     const itemOption = this.consumables.find(
       (item) => item.consumableType === consumableType && item.itemLevel === level

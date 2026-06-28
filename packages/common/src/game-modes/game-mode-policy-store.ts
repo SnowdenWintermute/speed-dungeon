@@ -70,7 +70,8 @@ export class GameModePolicyStore {
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
-          crossServerBroadcasterService
+          crossServerBroadcasterService,
+          idGenerator
         ),
       },
       [GameMode.Progression]: {
@@ -96,7 +97,8 @@ export class GameModePolicyStore {
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
-          crossServerBroadcasterService
+          crossServerBroadcasterService,
+          idGenerator
         ),
       },
       [GameMode.RankedRace]: {
@@ -122,7 +124,8 @@ export class GameModePolicyStore {
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
-          crossServerBroadcasterService
+          crossServerBroadcasterService,
+          idGenerator
         ),
       },
       [GameMode.UnrankedRace]: {
@@ -148,7 +151,8 @@ export class GameModePolicyStore {
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
-          crossServerBroadcasterService
+          crossServerBroadcasterService,
+          idGenerator
         ),
       },
     };

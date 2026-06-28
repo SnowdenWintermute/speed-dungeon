@@ -105,7 +105,7 @@ export abstract class GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  usersCanDeleteCharactersInGameSetup(): AllowedResult {
+  usersCanDeleteCharactersInGameSetup(game: SpeedDungeonGame): AllowedResult {
     return { allowed: true };
   }
 

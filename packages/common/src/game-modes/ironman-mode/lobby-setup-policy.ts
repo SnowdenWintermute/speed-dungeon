@@ -209,8 +209,12 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
     return { allowed: true };
   }
 
-  override usersCanDeleteCharactersInGameSetup(): AllowedResult {
-    return { allowed: false, reason: ERROR_MESSAGES.GAME.MODE };
+  override usersCanDeleteCharactersInGameSetup(game: SpeedDungeonGame): AllowedResult {
+    if (game.isContinuedRun) {
+      return { allowed: false, reason: ERROR_MESSAGES.GAME.MODE };
+    } else {
+      return { allowed: true };
+    }
   }
 
   override async getSelectableCharacterIds(): Promise<CombatantId[]> {

@@ -10,6 +10,7 @@ import { ServerCommand } from "../servers/services/server-command/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
+import { IdGenerator } from "../utility-classes/index.js";
 import { LadderGameRecordsService } from "./ladder-records/ladder-records-service.js";
 
 /** how to update which ladder when certain events happen
@@ -26,7 +27,8 @@ export abstract class GameModeLadderUpdatePolicy {
     protected crossServerBroadcasterService: CrossServerBroadcasterService<
       GameStateUpdate,
       ServerCommand
-    >
+    >,
+    protected idGenerator: IdGenerator
   ) {}
 
   async onFloorDescent(

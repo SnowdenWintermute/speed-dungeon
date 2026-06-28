@@ -85,7 +85,8 @@ export class CharacterLifecycleController {
     const game = session.getExpectedCurrentGame();
 
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
-    const policyAllowsDeletion = gameModePolicy.lobbySetup.usersCanDeleteCharactersInGameSetup();
+    const policyAllowsDeletion =
+      gameModePolicy.lobbySetup.usersCanDeleteCharactersInGameSetup(game);
     if (!policyAllowsDeletion.allowed) {
       throw new Error(policyAllowsDeletion.reason);
     }
