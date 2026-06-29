@@ -234,6 +234,12 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.findGameRecordAggregateById(id);
   }
 
+  async requireGameRecordAggregate(id: GameId): Promise<LadderGameRecordAggregate> {
+    const expected = await this.getGameRecordAggregate(id);
+    invariant(expected !== undefined, "expected game record to exist");
+    return expected;
+  }
+
   async getUserGameHistory(
     userId: IdentityProviderId,
     page: number,

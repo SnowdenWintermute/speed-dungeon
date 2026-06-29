@@ -78,6 +78,7 @@ export class IronmanRunController {
     }
     // - record player abandoning in game.playersAbandoned
     run.game.playersAbandoned.push(playerUsernameLeaving);
+
     //   .remove the reference to the run in their user Profile
     const profileOfUserLeaving = await this.profilesService.fetchExpectedProfile(
       userSession.taggedUserId.id

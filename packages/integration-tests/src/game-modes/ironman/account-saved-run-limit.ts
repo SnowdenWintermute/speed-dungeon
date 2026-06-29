@@ -10,7 +10,6 @@ import {
   ERROR_MESSAGES,
   GameMode,
   GameName,
-  GameStateUpdateType,
   invariant,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";

@@ -23,6 +23,9 @@ import { testContinuedRunTimeSpentOnFloor } from "./continued-run-time-spent-on-
 import { testIronmanRunWipe } from "./run-wipe";
 import { testIronmanRunEscape } from "./run-escape";
 import { testPlayerLeavingClosesIronmanGame } from "./player-leaving-closes-game";
+import { testAbandonLiveIronmanRun } from "./abandon-live-run";
+import { testAbandonIronmanRunFreesSlot } from "./abandon-run-frees-slot";
+import { testAbandoningIronmanRunUpdatesLadderRecords } from "./abandon-run-updates-ladder-records";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -107,12 +110,24 @@ describe("ironman game mode", () => {
     await testPlayerLeavingClosesIronmanGame(testFixture);
   });
 
+  it("abandon live run prohibited", async () => {
+    await testAbandonLiveIronmanRun(testFixture);
+  });
+
   it("abandon run while other player in lobby setup", async () => {
     await testAbandonRunWhileOtherUserInLobbySetup(testFixture);
   });
 
-  it("abandon run user in lobby setup", async () => {
+  it("host abandon run in lobby setup", async () => {
     await testAbandonRunWhileUserInGameSetup(testFixture);
+  });
+
+  it("abandoning run frees slot", async () => {
+    await testAbandonIronmanRunFreesSlot(testFixture);
+  });
+
+  it("abandoning run clears user from ladder records", async () => {
+    await testAbandoningIronmanRunUpdatesLadderRecords(testFixture);
   });
 
   it("last player abandoning run deletes it", async () => {

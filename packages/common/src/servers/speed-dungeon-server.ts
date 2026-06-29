@@ -22,6 +22,7 @@ import {
 } from "./update-delivery/message-dispatch-factory.js";
 import { OutgoingMessageGateway } from "./update-delivery/message-gateway.js";
 import { MessageDispatchOutbox } from "./update-delivery/outbox.js";
+import { ERROR_MESSAGES } from "../errors/index.js";
 
 /** Ensures sequential execution of all state-mutating work: connection setup, intent handling,
  * and disconnection cleanup.
@@ -145,11 +146,6 @@ export abstract class SpeedDungeonServer {
 
         const handlerOption = intentHandlers[parsed.type];
 
-        invariant(
-          handlerOption !== undefined,
-          `Server is not configured to handle this type of message: ${JSON.stringify(parsed)}`
-        );
-
         const session = this.userSessionRegistry.requireSession(userConnectionEndpoint.id);
 
         const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -158,6 +154,13 @@ export abstract class SpeedDungeonServer {
 
         // why cast as never: see README.md -> Typed Event Handler Records
         try {
+          if (handlerOption === undefined) {
+            console.error(
+              `Server is not configured to handle this type of message: ${JSON.stringify(parsed)}`
+            );
+            throw new Error(ERROR_MESSAGES.SERVER_GENERIC);
+          }
+
           const handlerOutbox = await handlerOption(parsed.data as never, session);
           outbox.pushFromOther(handlerOutbox);
         } catch (error) {
