@@ -137,9 +137,11 @@ export class LobbySessionLifecycleController
       // @TODO @PERF
       // - defer sending their runs until they ask for them,
       // - don't send the entire run, just some descriptive data
+
       const ironmanRunsOutbox =
         await this.savedIronmanRunsController.getUserSavedIronmanRunsOutbox(session);
       outbox.pushFromOther(ironmanRunsOutbox);
+
       outbox.pushFromOther(captainsSavedCharactersOutbox);
       outbox.pushFromOther(freelancersSavedCharactersOutbox);
     }

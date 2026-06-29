@@ -12,16 +12,12 @@ import { MessageDispatchFactory } from "../../../update-delivery/message-dispatc
 import { getPartyChannelName } from "../../../../packets/channels.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
-import {
-  createPartyAbandonedMessage,
-  createPartyWipeMessage,
-  GameMessageType,
-} from "../../../../packets/game-message.js";
+import { createPartyAbandonedMessage, GameMessageType } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 import { GameMode, GameModePolicy } from "../../../../game-modes/index.js";
-import { PartyFateType } from "../../../../game-modes/ladder-records/index.js";
+import { PartyLifecyleController } from "../party-lifecycle.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -33,7 +29,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly globalGameSessionStore: GlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameModePolicyStore: GameModePolicyStore,
-    private readonly dungeonExplorationController: DungeonExplorationController
+    private readonly dungeonExplorationController: DungeonExplorationController,
+    private readonly partyLifecycleController: PartyLifecyleController
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
@@ -251,7 +248,11 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     );
 
     if (partyShouldBeMarkedWiped) {
-      const partyWipedOutbox = await this.handlePartyWipe(game, party, gameModePolicy);
+      const partyWipedOutbox = await this.partyLifecycleController.handlePartyWipe(
+        game,
+        party,
+        gameModePolicy
+      );
       outbox.pushFromOther(partyWipedOutbox);
     }
 
@@ -281,37 +282,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     return partyHasNotYetEscaped && partyIsInWipableState;
   }
 
-  private async handlePartyWipe(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    policy: GameModePolicy
-  ) {
-    party.fate = { type: PartyFateType.Wipe, timestamp: Date.now() };
-    await policy.persistence.onPartyWipe(game, party);
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    const ladderDeathMessagesOutbox = await policy.ladder.onPartyWipe(game, party);
-
-    const remainingParties = Object.values(game.adventuringParties);
-    if (remainingParties.length) {
-      const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
-      const partyWipedOutbox =
-        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-          game.getChannelName(),
-          GameMessageType.PartyWipe,
-          createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
-          getPartyChannelName(game.name, party.name)
-        );
-      outbox.pushFromOther(partyWipedOutbox);
-    }
-
-    if (ladderDeathMessagesOutbox) {
-      outbox.pushFromOther(ladderDeathMessagesOutbox);
-    }
-    return outbox;
-  }
-
   async cleanUpGame(game: SpeedDungeonGame) {
-    console.log("clean up game:", game.name);
     const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
     await gameModePolicy.persistence.onLastPlayerLeftLiveGame(game);
     await gameModePolicy.ladder.onLastPlayerLeftLiveGame(game);

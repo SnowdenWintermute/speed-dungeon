@@ -20,6 +20,7 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { AssetAnalyzer } from "../asset-analyzer/index.js";
 import { PartyDelayedGameMessageFactory } from "../party-delayed-game-message-factory.js";
 import { BattleProcessor } from "./battle-processor/index.js";
+import { PartyLifecyleController } from "./party-lifecycle.js";
 
 export class DungeonExplorationController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -32,7 +33,8 @@ export class DungeonExplorationController {
     private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
-    private readonly gameModePolicyStore: GameModePolicyStore
+    private readonly gameModePolicyStore: GameModePolicyStore,
+    private readonly partyLifecycleController: PartyLifecyleController
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
@@ -172,7 +174,7 @@ export class DungeonExplorationController {
       outbox.pushFromOther(escapeMessageOutbox);
 
       await gameModePolicy.persistence.onPartyEscape(game, party);
-      await gameModePolicy.ladder.onPartyEscape();
+      await gameModePolicy.ladder.onPartyEscape(game);
     }
 
     const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
@@ -260,7 +262,8 @@ export class DungeonExplorationController {
       this.idGenerator,
       this.rngPolicy,
       this.lootGenerator,
-      this.assetAnalyzer
+      this.assetAnalyzer,
+      this.partyLifecycleController
     );
 
     const { outbox: battleProcessingOutbox, durationUntilInputUnlock } =

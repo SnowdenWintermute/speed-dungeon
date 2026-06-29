@@ -6,11 +6,11 @@ export type PartyId = string & { __brand: "PartyId" };
 export type ChannelName = string & { __brand: "ChannelName" };
 export type EntityName = string & { __brand: "EntityName" };
 
-export type LadderPartyFloorClearedRecordId = string & {
-  __brand: "LadderPartyFloorClearedRecordId";
+export type LadderPartyFloorClearRecordId = string & {
+  __brand: "LadderPartyFloorClearRecordId";
 };
-export type LadderCharacterFloorClearedRecordId = string & {
-  __brand: "LadderCharacterFloorClearedRecordId";
+export type LadderCharacterFloorClearRecordId = string & {
+  __brand: "LadderCharacterFloorClearRecordId";
 };
 
 export type ProfileId = number & { __brand: "ProfileId" };

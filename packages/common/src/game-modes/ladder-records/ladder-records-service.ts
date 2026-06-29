@@ -1,22 +1,35 @@
-import { GameId, IdentityProviderId, Username } from "../../aliases.js";
+import {
+  GameId,
+  IdentityProviderId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
+  Milliseconds,
+  Username,
+} from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { invariant } from "../../utils/index.js";
 import {
+  LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
-  LadderGameRecord,
   LadderParticipantRecord,
+  LadderPartyFloorClearRecord,
   LadderPartyRecord,
 } from "./index.js";
 import { DateRange } from "../../primatives/date-range.js";
 import {
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,
-  LadderPartyFloorClearWrite,
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
   UserGameHistoryEntry,
 } from "./ladder-records-persistence-strategy.js";
+import { AdventuringParty } from "../../adventuring-party/index.js";
+import cloneDeep from "lodash.clonedeep";
+import { SerializedOf } from "../../serialization/index.js";
+import { Combatant } from "../../combatants/index.js";
+import { SerializedCombatantWithPets } from "../../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
+import { APP_VERSION_NUMBER } from "../../app-consts.js";
 
 export class LadderGameRecordsService {
   constructor(
@@ -82,7 +95,6 @@ export class LadderGameRecordsService {
     game: SpeedDungeonGame,
     usernamesToAuthIds: Map<Username, IdentityProviderId>
   ) {
-    console.log("updating game record aggregate");
     await this.updateCharacterRecords(game, usernamesToAuthIds);
 
     const existingRecord = await this.persistenceStrategy.findGameRecordAggregateById(game.id);
@@ -95,12 +107,6 @@ export class LadderGameRecordsService {
     for (const [_, party] of game.adventuringParties) {
       const existingRecord = await this.persistenceStrategy.findPartyRecordById(party.id);
       invariant(existingRecord !== undefined, "expected to have existing party record");
-      console.log(
-        "party:",
-        party.name,
-        "floor:",
-        party.dungeonExplorationManager.getCurrentFloor()
-      );
       const updated: LadderPartyRecord = {
         ...existingRecord,
         fateOption: party.fate || undefined,
@@ -160,8 +166,64 @@ export class LadderGameRecordsService {
     return Promise.all(characterUpdatePromises);
   }
 
-  async recordPartyFloorClear(write: LadderPartyFloorClearWrite): Promise<void> {
-    return this.persistenceStrategy.recordPartyFloorClear(write);
+  async recordPartyFloorClear(
+    party: AdventuringParty,
+    clearedFloor: number,
+    timeSpentOnFloorMs: Milliseconds
+  ): Promise<void> {
+    const partyFloorClearRecord: LadderPartyFloorClearRecord = {
+      id: this.idGenerator.generate() as LadderPartyFloorClearRecordId,
+      partyRecordRef: party.id,
+      floor: clearedFloor,
+      timeSpentOnFloor: timeSpentOnFloorMs,
+    };
+
+    const characterFloorClearRecords = this.createCharacterFloorClearRecords(
+      party,
+      partyFloorClearRecord.id
+    );
+
+    await this.persistenceStrategy.recordPartyFloorClear(
+      partyFloorClearRecord,
+      characterFloorClearRecords
+    );
+  }
+
+  private createCharacterFloorClearRecords(
+    party: AdventuringParty,
+    floorClearRecordId: LadderPartyFloorClearRecordId
+  ) {
+    const records: LadderCharacterFloorClearRecord[] = [];
+
+    for (const character of party.combatantManager.getPartyMemberCharacters()) {
+      const combatantLessInventory = cloneDeep(character);
+      combatantLessInventory.combatantProperties.inventory.deleteAllItems();
+      const petsLessInventories: SerializedOf<Combatant>[] = [];
+      const pets = party.petManager.getAllPetsByOwnerId(character.getEntityId());
+
+      for (const pet of pets) {
+        const petLessInventory = cloneDeep(pet);
+        petLessInventory.combatantProperties.inventory.deleteAllItems();
+        petsLessInventories.push(petLessInventory.toSerialized());
+      }
+
+      const combatantWithPets: SerializedCombatantWithPets = {
+        combatant: combatantLessInventory.toSerialized(),
+        pets: petsLessInventories,
+      };
+
+      const characterFloorClearRecord: LadderCharacterFloorClearRecord = {
+        id: this.idGenerator.generate() as LadderCharacterFloorClearRecordId,
+        combatantSchemaVersion: APP_VERSION_NUMBER,
+        partyFloorClearRecord: floorClearRecordId,
+        characterRecordRef: character.getEntityId(),
+        combatantWithPets,
+      };
+
+      records.push(characterFloorClearRecord);
+    }
+
+    return records;
   }
 
   async updatePartyFate(update: LadderPartyFateUpdate): Promise<void> {

@@ -8,7 +8,7 @@ import {
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
 import {
-  LadderCharacterFloorClearedRecord,
+  LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
   LadderGameRecord,
   LadderParticipantRecord,
@@ -30,14 +30,6 @@ export interface LadderCharacterLevelUpdate {
   supportClassLevel?: number;
 }
 
-export interface LadderPartyFloorClearWrite {
-  partyRecordId: PartyId;
-  partyFloorClear: LadderPartyFloorClearRecord;
-  characterSnapshots: LadderCharacterFloorClearedRecord[];
-  deepestFloorReached: number;
-  characterLevelUpdates: LadderCharacterLevelUpdate[];
-}
-
 export interface LadderPartyFateUpdate {
   partyRecordId: PartyId;
   fate: PartyFate;
@@ -47,7 +39,7 @@ export interface LadderPartyFateUpdate {
 // assembled read shape (the parent "refs" arrays expressed as nested children)
 export interface LadderCharacterRecordAggregate {
   character: LadderCharacterRecord;
-  floorClearedSnapshots: LadderCharacterFloorClearedRecord[];
+  floorClearedSnapshots: LadderCharacterFloorClearRecord[];
 }
 export interface LadderPartyRecordAggregate {
   party: LadderPartyRecord;
@@ -88,9 +80,10 @@ export interface LadderRecordsPersistenceStrategy {
   // atomic: a game plus its parties, characters, and participant links
   insertNewGameRecordSet(set: NewLadderGameRecordSet): Promise<void>;
 
-  // atomic: a party clearing a floor — floor-clear row, character snapshots, and the
-  // denormalized deepest-floor / character-level updates that go with it
-  recordPartyFloorClear(write: LadderPartyFloorClearWrite): Promise<void>;
+  recordPartyFloorClear(
+    partyFloorClear: LadderPartyFloorClearRecord,
+    characterFloorClears: LadderCharacterFloorClearRecord[]
+  ): Promise<void>;
 
   updatePartyFate(update: LadderPartyFateUpdate): Promise<void>;
 

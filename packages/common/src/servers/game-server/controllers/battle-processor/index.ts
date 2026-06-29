@@ -25,6 +25,7 @@ import { throwIfLoopLimitReached } from "../../../../utils/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
+import { PartyLifecyleController } from "../party-lifecycle.js";
 
 export class BattleProcessor {
   constructor(
@@ -36,7 +37,8 @@ export class BattleProcessor {
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
     private lootGenerator: LootGenerator,
-    private assetAnalyzer: AssetAnalyzer
+    private assetAnalyzer: AssetAnalyzer,
+    private partyLifecycleController: PartyLifecyleController
   ) {}
 
   async processBattleUntilPlayerTurnOrConclusion() {
@@ -166,26 +168,12 @@ export class BattleProcessor {
 
     switch (battleConcluded.conclusion) {
       case BattleConclusion.Defeat: {
-        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
-
-        sequentialEvents.push({
-          type: ClientSequentialEventType.PostGameMessages,
-          data: {
-            messages: [
-              new GameMessage(
-                GameMessageType.PartyWipe,
-                true,
-                createPartyWipeMessage(party.name, floorNumber, new Date())
-              ),
-            ],
-            partyChannelToExclude: getPartyChannelName(game.name, party.name),
-          },
-        });
-
-        const ladderDeathOutboxOption = await gameModePolicy.ladder.onPartyWipe(game, party);
-        if (ladderDeathOutboxOption) {
-          ladderMessagesOutbox.pushFromOther(ladderDeathOutboxOption);
-        }
+        const outbox = await this.partyLifecycleController.handlePartyWipe(
+          game,
+          party,
+          gameModePolicy
+        );
+        ladderMessagesOutbox.pushFromOther(outbox);
         break;
       }
       case BattleConclusion.Victory: {

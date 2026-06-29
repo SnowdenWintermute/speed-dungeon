@@ -4,14 +4,14 @@ import {
   CombatantId,
   GameId,
   IdentityProviderId,
-  LadderCharacterFloorClearedRecordId,
-  LadderPartyFloorClearedRecordId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
   PartyId,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
 import { invariant } from "../../utils/index.js";
 import {
-  LadderCharacterFloorClearedRecord,
+  LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
   LadderGameRecord,
   LadderParticipantRecord,
@@ -22,7 +22,6 @@ import {
 import {
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,
-  LadderPartyFloorClearWrite,
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
   UserGameHistoryEntry,
@@ -37,13 +36,10 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
   }[] = [];
   private parties = new Map<PartyId, LadderPartyRecord>();
   private characters = new Map<CombatantId, LadderCharacterRecord>();
-  private partyFloorClears = new Map<
-    LadderPartyFloorClearedRecordId,
-    LadderPartyFloorClearRecord
-  >();
+  private partyFloorClears = new Map<LadderPartyFloorClearRecordId, LadderPartyFloorClearRecord>();
   private characterFloorClearedSnapshots = new Map<
-    LadderCharacterFloorClearedRecordId,
-    LadderCharacterFloorClearedRecord
+    LadderCharacterFloorClearRecordId,
+    LadderCharacterFloorClearRecord
   >();
 
   async getUserGameHistory(
@@ -139,27 +135,17 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     }
   }
 
-  async recordPartyFloorClear(write: LadderPartyFloorClearWrite): Promise<void> {
-    const cloned = cloneDeep(write);
-    this.partyFloorClears.set(cloned.partyFloorClear.id, cloned.partyFloorClear);
-    for (const snapshot of cloned.characterSnapshots) {
+  async recordPartyFloorClear(
+    partyFloorClear: LadderPartyFloorClearRecord,
+    characterFloorClears: LadderCharacterFloorClearRecord[]
+  ): Promise<void> {
+    const clonedPartyFloorClear = cloneDeep(partyFloorClear);
+    this.partyFloorClears.set(clonedPartyFloorClear.id, clonedPartyFloorClear);
+
+    const clonedCharacterFloorClears = cloneDeep(characterFloorClears);
+
+    for (const snapshot of clonedCharacterFloorClears) {
       this.characterFloorClearedSnapshots.set(snapshot.id, snapshot);
-    }
-    const party = this.parties.get(cloned.partyRecordId);
-    if (party) {
-      party.deepestFloorReached = cloned.deepestFloorReached;
-    }
-    for (const levelUpdate of cloned.characterLevelUpdates) {
-      const character = this.characters.get(levelUpdate.characterRecordId);
-      if (character !== undefined) {
-        character.mainClass.level = levelUpdate.mainClassLevel;
-        if (
-          levelUpdate.supportClassLevel !== undefined &&
-          character.supportClassOption !== undefined
-        ) {
-          character.supportClassOption.level = levelUpdate.supportClassLevel;
-        }
-      }
     }
   }
 

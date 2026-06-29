@@ -31,6 +31,9 @@ export async function testContinuedRunTimeSpentOnFloor(testFixture: IntegrationT
   await bravoDisconnectedOnAlphaLeavePromise;
   await bravo.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
 
+  // - spend some time outside the game
+  testFixture.timeMachine.advanceTime(ONE_SECOND);
+
   // - create continued ironman game
   const alphaIronmanRunRef = alpha.clientApplication.lobbyContext.savedIronmanRuns
     .values()
@@ -80,5 +83,10 @@ export async function testContinuedRunTimeSpentOnFloor(testFixture: IntegrationT
   invariant(gameRecordAggregate !== undefined, "expected to have recorded a game record");
   const partyRecordAggregate = gameRecordAggregate.parties[0];
   invariant(partyRecordAggregate !== undefined, "expected to have recorded a party record");
-  console.log(partyRecordAggregate);
+  const floorClearRecord = partyRecordAggregate.floorClears[0];
+  expect(floorClearRecord).toBeDefined();
+  invariant(floorClearRecord !== undefined, "checked in above expect statement");
+  expect(floorClearRecord.floor).toBe(1);
+  expect(floorClearRecord.timeSpentOnFloor).toBe(ONE_SECOND * 2);
+  expect(floorClearRecord.partyRecordRef).toBe(partyRecordAggregate.party.id);
 }

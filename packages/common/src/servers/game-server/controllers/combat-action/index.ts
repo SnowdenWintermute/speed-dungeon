@@ -26,6 +26,7 @@ import {
 } from "../../../../packets/client-sequential-events.js";
 import { SerializedOf } from "../../../../serialization/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
+import { PartyLifecyleController } from "../party-lifecycle.js";
 
 export class CombatActionController {
   constructor(
@@ -34,7 +35,8 @@ export class CombatActionController {
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
     private lootGenerator: LootGenerator,
-    private assetAnalyzer: AssetAnalyzer
+    private assetAnalyzer: AssetAnalyzer,
+    private readonly partyLifecycleController: PartyLifecyleController
   ) {}
 
   selectCombatActionHandler(
@@ -327,7 +329,8 @@ export class CombatActionController {
         this.idGenerator,
         this.rngPolicy,
         this.lootGenerator,
-        this.assetAnalyzer
+        this.assetAnalyzer,
+        this.partyLifecycleController
       ).handlePostBattleConclusion(battleConcludedOption);
       sequentialEvents.push(...postConclusionEvents.sequentialEvents);
       ladderMessagesOutbox = postConclusionEvents.ladderMessagesOutbox;
@@ -374,7 +377,8 @@ export class CombatActionController {
         this.idGenerator,
         this.rngPolicy,
         this.lootGenerator,
-        this.assetAnalyzer
+        this.assetAnalyzer,
+        this.partyLifecycleController
       );
 
       const {

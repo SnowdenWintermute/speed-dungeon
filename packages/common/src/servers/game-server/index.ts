@@ -53,6 +53,7 @@ import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js";
 import { LobbyState } from "../lobby-server/lobby-state.js";
 import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
+import { PartyLifecyleController } from "./controllers/party-lifecycle.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -79,6 +80,7 @@ export class GameServer extends SpeedDungeonServer {
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
   public readonly dungeonExplorationController: DungeonExplorationController;
+  public readonly partyLifecycleController: PartyLifecyleController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
   public readonly combatActionController: CombatActionController;
   public readonly characterProgressionController: CharacterProgressionController;
@@ -152,6 +154,8 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator
     );
 
+    this.partyLifecycleController = new PartyLifecyleController(this.updateDispatchFactory);
+
     this.dungeonExplorationController = new DungeonExplorationController(
       this.updateDispatchFactory,
       this.externalServices.userGameDataPersistenceService,
@@ -160,7 +164,8 @@ export class GameServer extends SpeedDungeonServer {
       this.lootGenerator,
       this.dungeonGenerationPolicy,
       this.assetAnalyzer,
-      this.gameModePolicyStore
+      this.gameModePolicyStore,
+      this.partyLifecycleController
     );
 
     this.gameLifecycleController = new GameServerGameLifecycleController(
@@ -170,7 +175,8 @@ export class GameServer extends SpeedDungeonServer {
       this.externalServices.globalGameSessionStore,
       this.updateDispatchFactory,
       this.gameModePolicyStore,
-      this.dungeonExplorationController
+      this.dungeonExplorationController,
+      this.partyLifecycleController
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
@@ -186,7 +192,8 @@ export class GameServer extends SpeedDungeonServer {
       this.idGenerator,
       rngPolicy,
       this.lootGenerator,
-      this.assetAnalyzer
+      this.assetAnalyzer,
+      this.partyLifecycleController
     );
 
     this.characterProgressionController = new CharacterProgressionController(

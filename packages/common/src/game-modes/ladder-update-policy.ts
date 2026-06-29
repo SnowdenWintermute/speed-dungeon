@@ -46,7 +46,7 @@ export abstract class GameModeLadderUpdatePolicy {
     return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
   }
   async onLastPlayerLeftLiveGame(game: SpeedDungeonGame): Promise<void> {}
-  async onPartyEscape(): Promise<void> {}
+  async onPartyEscape(game: SpeedDungeonGame): Promise<void> {}
   async onPartyWipe(
     game: SpeedDungeonGame,
     party: AdventuringParty

@@ -3,7 +3,10 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
-import { LadderCharacterFloorClearedRecord, SerializedCombatantWithPets } from "@speed-dungeon/common";
+import {
+  LadderCharacterFloorClearRecord,
+  SerializedCombatantWithPets,
+} from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS;
 
@@ -16,7 +19,7 @@ export interface LadderCharacterFloorClearedRecordRow {
 }
 
 class LadderCharacterFloorClearedRecordsRepo extends DatabaseRepository<LadderCharacterFloorClearedRecordRow> {
-  async insert(record: LadderCharacterFloorClearedRecord, executor: Queryable = this.pgPool) {
+  async insert(record: LadderCharacterFloorClearRecord, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
         `INSERT INTO ${tableName}

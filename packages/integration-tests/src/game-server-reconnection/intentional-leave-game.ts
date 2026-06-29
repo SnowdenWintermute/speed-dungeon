@@ -36,6 +36,7 @@ export async function testIntentionalLeaveGame(
   ).rejects.toThrow();
   // create same named game after all players left
   bravo.clientApplication.gameClientRef.get().leaveGame();
+  await bravo.clientApplication.topologyManager.transitionToLobbyServer.waitForOrCompleted();
   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
 }

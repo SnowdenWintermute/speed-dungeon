@@ -3,8 +3,8 @@ import {
   GameId,
   GameName,
   IdentityProviderId,
-  LadderCharacterFloorClearedRecordId,
-  LadderPartyFloorClearedRecordId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
   Milliseconds,
   PartyId,
   PartyName,
@@ -56,7 +56,7 @@ export interface LadderPartyRecord {
 
 // can derrive "party time to reach floor x" from these
 export interface LadderPartyFloorClearRecord {
-  id: LadderPartyFloorClearedRecordId;
+  id: LadderPartyFloorClearRecordId;
   partyRecordRef: PartyId; // foreign key
   floor: number;
   timeSpentOnFloor: Milliseconds;
@@ -75,10 +75,10 @@ export interface LadderCharacterRecord {
 // used for tuning each floor based on discovered meta of character builds at each floor clear
 // we will strip out the inventory to save space and focus on their equipment, attributes and abilities
 // pets are included since they are part of the build meta
-export interface LadderCharacterFloorClearedRecord {
-  id: LadderCharacterFloorClearedRecordId; // primary key
+export interface LadderCharacterFloorClearRecord {
+  id: LadderCharacterFloorClearRecordId; // primary key
   combatantSchemaVersion: string;
-  partyFloorClearRecord: LadderPartyFloorClearedRecordId; // foreign key
+  partyFloorClearRecord: LadderPartyFloorClearRecordId; // foreign key
   characterRecordRef: CombatantId; // foreign key to main character record
   combatantWithPets: SerializedCombatantWithPets; // character + pets, each minus inventory
 }

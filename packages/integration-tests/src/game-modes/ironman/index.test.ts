@@ -20,6 +20,9 @@ import { testSaveRunOnGameStart } from "./save-run-on-game-start";
 import { testSaveRunOnGameLeave } from "./save-run-on-game-leave";
 import { testSaveRunOnFloorDescent } from "./save-run-on-floor-descent";
 import { testContinuedRunTimeSpentOnFloor } from "./continued-run-time-spent-on-floor";
+import { testIronmanRunWipe } from "./run-wipe";
+import { testIronmanRunEscape } from "./run-escape";
+import { testPlayerLeavingClosesIronmanGame } from "./player-leaving-closes-game";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -76,18 +79,6 @@ describe("ironman game mode", () => {
     await testContinuedRunAfterUsernameChange(testFixture);
   });
 
-  it("abandon run while other player in lobby setup", async () => {
-    await testAbandonRunWhileOtherUserInLobbySetup(testFixture);
-  });
-
-  it("abandon run user in lobby setup", async () => {
-    await testAbandonRunWhileUserInGameSetup(testFixture);
-  });
-
-  it("last player abandoning run deletes it", async () => {
-    await testAbandonRunDeletion(testFixture);
-  });
-
   it("game start saves record", async () => {
     await testSaveRunOnGameStart(testFixture);
   });
@@ -104,49 +95,45 @@ describe("ironman game mode", () => {
     await testContinuedRunTimeSpentOnFloor(testFixture);
   });
 
-  // it("run wipe", async () => {
-  //   // create run
-  //   // start game
-  //   // expect users in run have the run id in their profiles
-  //   // wipe
-  //   // expect users in run no longer have the run id in their profiles
-  //   // expect the saved run to no longer exist
-  //   // expect the party fate to be "Wiped" in the party record
-  // });
+  it("run wipe", async () => {
+    await testIronmanRunWipe(testFixture);
+  });
 
-  // it("run escape", async () => {
-  //   // create run
-  //   // start game
-  //   // expect users in run have the run id in their profiles
-  //   // escape
-  //   // expect users in run no longer have the run id in their profiles
-  //   // expect the saved run to no longer exist
-  //   // expect the party fate to be "Escaped" in the party record
-  // });
+  it("run escape", async () => {
+    await testIronmanRunEscape(testFixture);
+  });
 
-  // it("player leaving closes game", async () => {
-  //   // two players in an ironman run
-  //   // one player leaves
-  //   // other player gets "player left run" message
-  //   // other player's client disconnects from game server
-  //   // other player's client connects to lobby server
-  // });
+  it("player leaving closes game", async () => {
+    await testPlayerLeavingClosesIronmanGame(testFixture);
+  });
+
+  it("abandon run while other player in lobby setup", async () => {
+    await testAbandonRunWhileOtherUserInLobbySetup(testFixture);
+  });
+
+  it("abandon run user in lobby setup", async () => {
+    await testAbandonRunWhileUserInGameSetup(testFixture);
+  });
+
+  it("last player abandoning run deletes it", async () => {
+    await testAbandonRunDeletion(testFixture);
+  });
 
   // it("abandon run with captains control scheme", async () => {
-  //   // - create run with join order alpha:first, bravo:second, charlie:third
-  //   // - user bravo sends "abondon ironman run" client intent
-  //   // - get error: can't abandon a live run
-  //   // - players leave the game
-  //   // - bravo's client sees a filled ironman run slot
-  //   // - user bravo sends "abondon ironman run" client intent
-  //   // - user bravo's client all ironman run slots empty/available
-  //   // - ironman run record shows their player no longer in the run
-  //   // - ironman run record shows all characters owned by user alpha's player
-  //   // - user alpha sends "abondon ironman run" client intent
-  //   // - ironman run record shows all characters owned by user charlie's player
-  //   // - user charlie sends "abondon ironman run" client intent
-  //   // - run record no longer exists
-  //   // - expect the party fate to be "Wiped" in the record
+  // - create run with join order alpha:first, bravo:second, charlie:third
+  // - user bravo sends "abondon ironman run" client intent
+  // - get error: can't abandon a live run
+  // - players leave the game
+  // - bravo's client sees a filled ironman run slot
+  // - user bravo sends "abondon ironman run" client intent
+  // - user bravo's client all ironman run slots empty/available
+  // - ironman run record shows their player no longer in the run
+  // - ironman run record shows all characters owned by user alpha's player
+  // - user alpha sends "abondon ironman run" client intent
+  // - ironman run record shows all characters owned by user charlie's player
+  // - user charlie sends "abondon ironman run" client intent
+  // - run record no longer exists
+  // - expect the party fate to be "Wiped" in the record
   // });
 
   // it("abandon run with freelancers control scheme", async () => {
