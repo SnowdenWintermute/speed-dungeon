@@ -16,6 +16,10 @@ export class MapUtils {
     return result.done ? undefined : result.value;
   }
 
+  static invert<K, V>(map: Map<K, V>): Map<V, K> {
+    return new Map([...map.entries()].map(([k, v]) => [v, k]));
+  }
+
   static serialize<K, V, S = V>(
     map: Map<K, V>,
     valueSerializer?: (value: V, key: K) => S

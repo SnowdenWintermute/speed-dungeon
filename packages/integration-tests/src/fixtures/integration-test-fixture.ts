@@ -230,6 +230,18 @@ export class IntegrationTestFixture {
     return client;
   }
 
+  async createConnectedClients<const T extends readonly { id: string; authSessionId?: string }[]>(
+    blueprints: T
+  ): Promise<{ [K in keyof T]: ClientFixture }> {
+    const clients = blueprints.map(({ id, authSessionId }) =>
+      this.createClient(id, authSessionId)
+    ) as { [K in keyof T]: ClientFixture };
+
+    await Promise.all(clients.map((client) => client.connect()));
+
+    return clients;
+  }
+
   async resetWithOptions(
     dungeonTemplate: ExplicitCombatantDungeonTemplate = TEST_DUNGEON_TWO_WOLF_ROOMS,
     charactersTemplate: FixedCharacterCreationLists = BASIC_CHARACTER_FIXTURES,
@@ -408,6 +420,8 @@ export class IntegrationTestFixture {
     await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
     await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
     await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+
+    // one player closing the game closes for all
     if (options?.closeGame) {
       alpha.clientApplication.gameClientRef.get().leaveGame();
       const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(

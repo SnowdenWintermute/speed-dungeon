@@ -39,8 +39,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   playerJoinCount = 0; // for tracking player join order, used when deciding abandoned run character transfers
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
-  /** record players who abandoned an ironman run so we know not to record game records after that */
-  playersAbandoned: Username[] = [];
   adventuringParties = new Map<PartyName, AdventuringParty>();
   battles = new Map<EntityId, Battle>();
   clock = new GameClock();
@@ -88,7 +86,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       playerJoinCount: this.playerJoinCount,
       playerCapacity: this.playerCapacity,
       playersReadied: this.playersReadied,
-      playersAbandoned: this.playersAbandoned,
       adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
       battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
       clock: this.clock.toSerialized(),
@@ -228,7 +225,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       return;
     }
 
-    for (const characterId of playerLeaving.characterIds) {
+    for (const characterId of [...playerLeaving.characterIds]) {
       this.transferCharacterOwnership(
         characterId,
         playerLeaving.username,

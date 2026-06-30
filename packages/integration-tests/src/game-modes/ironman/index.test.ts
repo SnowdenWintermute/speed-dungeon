@@ -26,6 +26,7 @@ import { testPlayerLeavingClosesIronmanGame } from "./player-leaving-closes-game
 import { testAbandonLiveIronmanRun } from "./abandon-live-run";
 import { testAbandonIronmanRunFreesSlot } from "./abandon-run-frees-slot";
 import { testAbandoningIronmanRunUpdatesLadderRecords } from "./abandon-run-updates-ladder-records";
+import { testCharacterTransferAfterAbandonedIronmanRun } from "./abandon-run-character-transfer";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -126,7 +127,7 @@ describe("ironman game mode", () => {
     await testAbandonIronmanRunFreesSlot(testFixture);
   });
 
-  it("abandoning run clears user from ladder records", async () => {
+  it("abandoning run updates ladder records", async () => {
     await testAbandoningIronmanRunUpdatesLadderRecords(testFixture);
   });
 
@@ -134,22 +135,9 @@ describe("ironman game mode", () => {
     await testAbandonRunDeletion(testFixture);
   });
 
-  // it("abandon run with captains control scheme", async () => {
-  // - create run with join order alpha:first, bravo:second, charlie:third
-  // - user bravo sends "abondon ironman run" client intent
-  // - get error: can't abandon a live run
-  // - players leave the game
-  // - bravo's client sees a filled ironman run slot
-  // - user bravo sends "abondon ironman run" client intent
-  // - user bravo's client all ironman run slots empty/available
-  // - ironman run record shows their player no longer in the run
-  // - ironman run record shows all characters owned by user alpha's player
-  // - user alpha sends "abondon ironman run" client intent
-  // - ironman run record shows all characters owned by user charlie's player
-  // - user charlie sends "abondon ironman run" client intent
-  // - run record no longer exists
-  // - expect the party fate to be "Wiped" in the record
-  // });
+  it("abandon run character transfer", async () => {
+    await testCharacterTransferAfterAbandonedIronmanRun(testFixture);
+  });
 
   // it("abandon run with freelancers control scheme", async () => {
   //   // convert run to captains control scheme

@@ -1,6 +1,6 @@
 import { TEST_AUTH_SESSION_ID_PLAYER_1, TEST_AUTH_SESSION_ID_PLAYER_2 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { IdentityProviderId, invariant } from "@speed-dungeon/common";
+import { invariant } from "@speed-dungeon/common";
 
 export async function testAbandoningIronmanRunUpdatesLadderRecords(
   testFixture: IntegrationTestFixture
@@ -18,21 +18,23 @@ export async function testAbandoningIronmanRunUpdatesLadderRecords(
   invariant(expectedRunId !== undefined);
 
   // ladder record shows player in run
-  const gameRecordBeforeAbandoned =
-    await testFixture.ladderGameRecordsService.requireGameRecordAggregate(expectedRunId);
+  await bravo.lobbyClientHarness.requestGameHistory(0);
+
+  const gameRecordBeforeAbandoned = bravo.clientApplication.ladderRecordsStore.getPage(0)?.[0];
+
+  expect(gameRecordBeforeAbandoned).toBeDefined();
+  invariant(gameRecordBeforeAbandoned !== undefined);
+  expect(gameRecordBeforeAbandoned.queryingPlayerAbandonedAtOption).toBeUndefined();
 
   // - user bravo sends "abondon ironman run" client intent
   await bravo.lobbyClientHarness.abandonIronmanRun(expectedRunId);
 
-  // - ironman run ladder record shows their player abandoned the run
-  const gameRecordAfterAbandoned =
-    await testFixture.ladderGameRecordsService.requireGameRecordAggregate(expectedRunId);
-  const gameHistory = await testFixture.ladderGameRecordsService.getUserGameHistory(
-    1 as IdentityProviderId,
-    0
-  );
-  //
-  console.log("game history:", gameHistory);
+  // refetch history
+  await bravo.lobbyClientHarness.requestGameHistory(0);
 
-  // expect(gameRecordAfterAbandoned.p)
+  // - ironman run ladder record shows their player abandoned the run
+  const gameRecordAfterAbandoned = bravo.clientApplication.ladderRecordsStore.getPage(0)?.[0];
+  expect(gameRecordAfterAbandoned).toBeDefined();
+  invariant(gameRecordAfterAbandoned !== undefined);
+  expect(gameRecordAfterAbandoned.queryingPlayerAbandonedAtOption).toBeDefined();
 }

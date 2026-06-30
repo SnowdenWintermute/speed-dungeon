@@ -6,6 +6,7 @@ import {
   IdentityProviderId,
   LadderCharacterFloorClearRecordId,
   LadderPartyFloorClearRecordId,
+  Milliseconds,
   PartyId,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
@@ -13,6 +14,7 @@ import { invariant } from "../../utils/index.js";
 import {
   LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
+  LadderGameParticipationRecord,
   LadderGameRecord,
   LadderParticipantRecord,
   LadderPartyFloorClearRecord,
@@ -30,10 +32,7 @@ import {
 export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPersistenceStrategy {
   private games = new Map<GameId, LadderGameRecord>();
   private participants = new Map<IdentityProviderId, LadderParticipantRecord>();
-  private gameParticipantLinks: {
-    gameRecordId: GameId;
-    participantRecordId: IdentityProviderId;
-  }[] = [];
+  private gameParticipations: LadderGameParticipationRecord[] = [];
   private parties = new Map<PartyId, LadderPartyRecord>();
   private characters = new Map<CombatantId, LadderCharacterRecord>();
   private partyFloorClears = new Map<LadderPartyFloorClearRecordId, LadderPartyFloorClearRecord>();
@@ -57,6 +56,11 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
       gameName: game.name,
       date: game.timeStarted,
       fateOptionOfQueryingPlayerParty: this.queryingPlayerPartyFate(game.id, userId),
+      queryingPlayerAbandonedAtOption: this.gameParticipations.find(
+        (participation) =>
+          participation.gameRecordId === game.id &&
+          participation.participantRecordId === userId
+      )?.abandonedAtOption,
     }));
   }
 
@@ -69,9 +73,9 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
 
   private gamesForUser(userId: IdentityProviderId, dateRange?: DateRange): LadderGameRecord[] {
     const gameIds = new Set(
-      this.gameParticipantLinks
-        .filter((link) => link.participantRecordId === userId)
-        .map((link) => link.gameRecordId)
+      this.gameParticipations
+        .filter((participation) => participation.participantRecordId === userId)
+        .map((participation) => participation.gameRecordId)
     );
     const games: LadderGameRecord[] = [];
     for (const gameId of gameIds) {
@@ -122,7 +126,7 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const cloned = cloneDeep(set);
     this.games.set(cloned.game.id, cloned.game);
     for (const participantRecord of cloned.participantRecords) {
-      this.gameParticipantLinks.push({
+      this.gameParticipations.push({
         gameRecordId: cloned.game.id,
         participantRecordId: participantRecord.id,
       });
@@ -157,16 +161,31 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     }
   }
 
+  async recordRunAbandonment(
+    gameRecordId: GameId,
+    participantRecordId: IdentityProviderId,
+    timestamp: Milliseconds
+  ): Promise<void> {
+    const participation = this.gameParticipations.find(
+      (participation) =>
+        participation.gameRecordId === gameRecordId &&
+        participation.participantRecordId === participantRecordId
+    );
+    invariant(participation !== undefined, "expected an existing game participation to abandon");
+    participation.abandonedAtOption = timestamp;
+  }
+
   async findGameRecordAggregateById(id: GameId): Promise<LadderGameRecordAggregate | undefined> {
     const game = this.games.get(id);
     if (game === undefined) {
       return undefined;
     }
 
+    const participations = this.gameParticipations.filter(
+      (participation) => participation.gameRecordId === id
+    );
     const participantIds = new Set(
-      this.gameParticipantLinks
-        .filter((link) => link.gameRecordId === id)
-        .map((link) => link.participantRecordId)
+      participations.map((participation) => participation.participantRecordId)
     );
     const participants = [...this.participants.values()].filter((participant) =>
       participantIds.has(participant.id)
@@ -189,7 +208,7 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
           })),
       }));
 
-    return cloneDeep({ game, participants, parties });
+    return cloneDeep({ game, participants, participations, parties });
   }
 
   async updateGameRecord(record: LadderGameRecord): Promise<void> {

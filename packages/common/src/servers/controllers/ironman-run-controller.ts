@@ -1,9 +1,11 @@
 import { GameId } from "../../aliases.js";
+import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { SerializedOf } from "../../serialization/index.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
+import { MapUtils } from "../../utils/map-utils.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
 import { LobbyState } from "../lobby-server/lobby-state.js";
@@ -25,7 +27,8 @@ export class IronmanRunController {
     protected gameSessionStoreService: GameSessionStoreService,
     protected lobbyState: LobbyState,
     protected userSessionRegistry: UserSessionRegistry,
-    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
+    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    protected ladderGameRecordsService: LadderGameRecordsService
   ) {}
 
   // from lobby, need bespoke ClientIntent and handler
@@ -76,8 +79,12 @@ export class IronmanRunController {
     if (liveLobbyGameSessionOption) {
       liveLobbyGameSessionOption.playersReadied = [];
     }
-    // - record player abandoning in game.playersAbandoned
-    run.game.playersAbandoned.push(playerUsernameLeaving);
+    // record the player abandoning the run in the ladder records
+    await this.ladderGameRecordsService.recordRunAbandonment(
+      runId,
+      userSession.taggedUserId.id,
+      Date.now()
+    );
 
     //   .remove the reference to the run in their user Profile
     const profileOfUserLeaving = await this.profilesService.fetchExpectedProfile(
@@ -114,6 +121,13 @@ export class IronmanRunController {
     const userIdsToUsernames = run.userIdsToUsernames;
     if (!lastPlayerIsLeaving) {
       await this.userGameDataPersistenceService.saveIronmanRun(run.game, userIdsToUsernames);
+
+      // the abandoner's characters were transferred to an inheriting player; reflect the new
+      // ownership in the ladder character records
+      await this.ladderGameRecordsService.refreshCharacterRecordOwnership(
+        run.game,
+        MapUtils.invert(userIdsToUsernames)
+      );
     }
 
     return outbox;

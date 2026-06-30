@@ -230,6 +230,21 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.updatePartyFate(update);
   }
 
+  async recordRunAbandonment(
+    gameId: GameId,
+    participantRecordId: IdentityProviderId,
+    timestamp: Milliseconds
+  ): Promise<void> {
+    return this.persistenceStrategy.recordRunAbandonment(gameId, participantRecordId, timestamp);
+  }
+
+  async refreshCharacterRecordOwnership(
+    game: SpeedDungeonGame,
+    usernamesToAuthIds: Map<Username, IdentityProviderId>
+  ): Promise<void> {
+    await this.updateCharacterRecords(game, usernamesToAuthIds);
+  }
+
   async getGameRecordAggregate(id: GameId): Promise<LadderGameRecordAggregate | undefined> {
     return this.persistenceStrategy.findGameRecordAggregateById(id);
   }

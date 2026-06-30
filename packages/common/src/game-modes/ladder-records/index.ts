@@ -22,6 +22,15 @@ export interface LadderParticipantRecord {
   usernameAtTimeOfAccountDeletion?: Username;
 }
 
+// player <-> game junction. exists for every player from game-record creation, independent of
+// character ownership (which can transfer between players on abandonment). abandonedAtOption is
+// set when the player abandons the run.
+export interface LadderGameParticipationRecord {
+  gameRecordId: GameId; // foreign key
+  participantRecordId: IdentityProviderId; // foreign key
+  abandonedAtOption?: Milliseconds;
+}
+
 // - Winner derrived from party records timeOfEscape
 //    .can rank them by time escaped for 2nd, 3rd place)
 //    .only races would have a winner

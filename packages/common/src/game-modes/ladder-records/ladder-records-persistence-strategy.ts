@@ -10,6 +10,7 @@ import { DateRange } from "../../primatives/date-range.js";
 import {
   LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
+  LadderGameParticipationRecord,
   LadderGameRecord,
   LadderParticipantRecord,
   LadderPartyFloorClearRecord,
@@ -49,6 +50,7 @@ export interface LadderPartyRecordAggregate {
 export interface LadderGameRecordAggregate {
   game: LadderGameRecord;
   participants: LadderParticipantRecord[];
+  participations: LadderGameParticipationRecord[];
   parties: LadderPartyRecordAggregate[];
 }
 
@@ -59,6 +61,7 @@ export interface UserGameHistoryEntry {
   gameName: GameName;
   date: Milliseconds;
   fateOptionOfQueryingPlayerParty?: PartyFate;
+  queryingPlayerAbandonedAtOption?: Milliseconds;
 }
 
 export interface LadderRecordsPersistenceStrategy {
@@ -86,6 +89,12 @@ export interface LadderRecordsPersistenceStrategy {
   ): Promise<void>;
 
   updatePartyFate(update: LadderPartyFateUpdate): Promise<void>;
+
+  recordRunAbandonment(
+    gameRecordId: GameId,
+    participantRecordId: IdentityProviderId,
+    timestamp: Milliseconds
+  ): Promise<void>;
 
   findGameRecordAggregateById(id: GameId): Promise<LadderGameRecordAggregate | undefined>;
 }

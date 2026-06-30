@@ -27,6 +27,7 @@ export const TEST_AUTH_USERNAME_PLAYER_3 = "TestUsername3" as Username;
 
 export const TEST_CHARACTER_NAME_1 = "character 1";
 export const TEST_CHARACTER_NAME_2 = "character 2";
+export const TEST_CHARACTER_NAME_3 = "character 3";
 
 export function localServerUrl(port: number) {
   return `ws://localhost:${port}`;

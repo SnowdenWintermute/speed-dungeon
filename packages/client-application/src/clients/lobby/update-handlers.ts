@@ -258,7 +258,6 @@ export function createLobbyUpdateHandlers(
       const { runId, usernameAbandoning } = data;
       const { gameOption } = clientApplication.gameContext;
       if (gameOption) {
-        gameOption.playersAbandoned.push(usernameAbandoning);
         // if any other players would remain
         const playersWillRemain = gameOption.players.size > 1;
         if (playersWillRemain) {
