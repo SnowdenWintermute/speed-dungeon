@@ -11,49 +11,49 @@ export const AssetManager = observer(() => {
   const { assetService } = clientApplication;
   const { assetFetchProgress } = clientApplication.uiStore;
 
-  useEffect(() => {
-    const initAssetService = async () => {
-      try {
-        const manifest = await assetService.initialize({
-          // clearCache: true,
-          onFetchStartedCallback: (assetId) => {
-            assetFetchProgress.onFetchStart(assetId);
-          },
-          onFetchCompleteCallback: (assetId) => {
-            assetFetchProgress.onFetchComplete(assetId);
-          },
-          onFetchAbortCallback: (assetId) => {
-            assetFetchProgress.onFetchAbort(assetId);
-          },
-          onManifestFetchErrorCallback: (error) => {
-            if (error instanceof Error) {
-              clientApplication.alertsService.setAlert(error, false);
-            } else {
-              clientApplication.alertsService.setAlert(
-                new Error("Fetching asset manifest failed with unknown error type"),
-                false
-              );
-            }
-          },
-        });
+  // useEffect(() => {
+  //   const initAssetService = async () => {
+  //     try {
+  //       const manifest = await assetService.initialize({
+  //         // clearCache: true,
+  //         onFetchStartedCallback: (assetId) => {
+  //           assetFetchProgress.onFetchStart(assetId);
+  //         },
+  //         onFetchCompleteCallback: (assetId) => {
+  //           assetFetchProgress.onFetchComplete(assetId);
+  //         },
+  //         onFetchAbortCallback: (assetId) => {
+  //           assetFetchProgress.onFetchAbort(assetId);
+  //         },
+  //         onManifestFetchErrorCallback: (error) => {
+  //           if (error instanceof Error) {
+  //             clientApplication.alertsService.setAlert(error, false);
+  //           } else {
+  //             clientApplication.alertsService.setAlert(
+  //               new Error("Fetching asset manifest failed with unknown error type"),
+  //               false
+  //             );
+  //           }
+  //         },
+  //       });
 
-        // assume error messages in the options above will notify user
-        if (manifest === undefined) {
-          assetFetchProgress.fetchFailed = true;
-          return;
-        }
+  //       // assume error messages in the options above will notify user
+  //       if (manifest === undefined) {
+  //         assetFetchProgress.fetchFailed = true;
+  //         return;
+  //       }
 
-        const prefetchQueue = await assetService.scheduleAssetUpdates();
-        assetFetchProgress.initialize(manifest, prefetchQueue);
-        await assetService.startAssetUpdatesPrefetch();
-      } catch (err) {
-        console.error(err);
-        clientApplication.alertsService.setAlert("couldn't fetch asset manifest");
-      }
-    };
+  //       const prefetchQueue = await assetService.scheduleAssetUpdates();
+  //       assetFetchProgress.initialize(manifest, prefetchQueue);
+  //       await assetService.startAssetUpdatesPrefetch();
+  //     } catch (err) {
+  //       console.error(err);
+  //       clientApplication.alertsService.setAlert("couldn't fetch asset manifest");
+  //     }
+  //   };
 
-    initAssetService();
-  }, []);
+  //   initAssetService();
+  // }, []);
 
   const { initialized, displayPercent, isComplete } = assetFetchProgress;
 

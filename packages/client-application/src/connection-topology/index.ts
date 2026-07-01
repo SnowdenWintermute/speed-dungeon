@@ -133,6 +133,7 @@ export class ConnectionTopology {
 
   enterOnline() {
     this._preferredMode = ConnectionMode.Online;
+
     return new Promise<void>((resolve, reject) => {
       this._mode = ConnectionMode.Initializing;
       const { connectionStatus } = this.clientApplication.uiStore;
