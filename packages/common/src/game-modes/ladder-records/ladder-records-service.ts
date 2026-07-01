@@ -25,6 +25,7 @@ import {
   UserGameHistoryEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
+import { CharacterControlScheme } from "../index.js";
 import cloneDeep from "lodash.clonedeep";
 import { SerializedOf } from "../../serialization/index.js";
 import { Combatant } from "../../combatants/index.js";
@@ -169,13 +170,15 @@ export class LadderGameRecordsService {
   async recordPartyFloorClear(
     party: AdventuringParty,
     clearedFloor: number,
-    timeSpentOnFloorMs: Milliseconds
+    timeSpentOnFloorMs: Milliseconds,
+    controlScheme: CharacterControlScheme
   ): Promise<void> {
     const partyFloorClearRecord: LadderPartyFloorClearRecord = {
       id: this.idGenerator.generate() as LadderPartyFloorClearRecordId,
       partyRecordRef: party.id,
       floor: clearedFloor,
       timeSpentOnFloor: timeSpentOnFloorMs,
+      controlScheme,
     };
 
     const characterFloorClearRecords = this.createCharacterFloorClearRecords(
@@ -243,6 +246,13 @@ export class LadderGameRecordsService {
     usernamesToAuthIds: Map<Username, IdentityProviderId>
   ): Promise<void> {
     await this.updateCharacterRecords(game, usernamesToAuthIds);
+  }
+
+  async updateGameRecordControlScheme(
+    gameId: GameId,
+    controlScheme: CharacterControlScheme
+  ): Promise<void> {
+    return this.persistenceStrategy.updateGameRecordControlScheme(gameId, controlScheme);
   }
 
   async getGameRecordAggregate(id: GameId): Promise<LadderGameRecordAggregate | undefined> {

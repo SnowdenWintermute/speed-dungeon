@@ -1,3 +1,4 @@
+import cloneDeep from "lodash.clonedeep";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -16,10 +17,11 @@ import { GameModePersistencePolicy } from "../persistence-policy.js";
 
 export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
   override async onGameStart(game: SpeedDungeonGame): Promise<void> {
-    const userIdsToUsernames = game.getAuthUserIdsToUsernames(
+    const userIdsToUsernames = game.requireAuthUserIdsToUsernames(
       this.userSessionRegistry.getAllSessionsInGame(game)
     );
     await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
+    console.log("run saved with id", game.id);
   }
 
   override async onBattleResult(): Promise<void> {
@@ -28,7 +30,7 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
 
   override async onFloorDescent(game: SpeedDungeonGame, party: AdventuringParty): Promise<void> {
     game.clock.updateAccumulatedPlayTime();
-    const userIdsToUsernames = game.getAuthUserIdsToUsernames(
+    const userIdsToUsernames = game.requireAuthUserIdsToUsernames(
       this.userSessionRegistry.getAllSessionsInGame(game)
     );
     await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
@@ -52,10 +54,12 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
     const defaultParty = game.requireSingleParty();
     if (defaultParty.fate === null) {
       game.clock.endLiveSession();
-      const userIdsToUsernames = game.getAuthUserIdsToUsernames(
-        this.userSessionRegistry.getAllSessionsInGame(game)
+
+      const updatedUserIdsToUsernames = await game.getUpdatedUserIdsToUsernamesMap(
+        this.userGameDataPersistenceService,
+        this.userSessionRegistry
       );
-      await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
+      await this.userGameDataPersistenceService.saveIronmanRun(game, updatedUserIdsToUsernames);
     }
 
     // close the game

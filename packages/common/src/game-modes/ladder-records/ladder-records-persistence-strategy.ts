@@ -7,6 +7,7 @@ import {
   PartyId,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
+import { CharacterControlScheme } from "../index.js";
 import {
   LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
@@ -76,6 +77,10 @@ export interface LadderRecordsPersistenceStrategy {
   findParticipantRecordById(id: IdentityProviderId): Promise<LadderParticipantRecord | undefined>;
   upsertParticipantRecord(record: LadderParticipantRecord): Promise<void>;
   updateGameRecord(record: LadderGameRecord): Promise<void>;
+  updateGameRecordControlScheme(
+    gameId: GameId,
+    controlScheme: CharacterControlScheme
+  ): Promise<void>;
   findPartyRecordById(id: PartyId): Promise<LadderPartyRecord>;
   updatePartyRecord(record: LadderPartyRecord): Promise<void>;
   updateCharacterRecord(record: LadderCharacterRecord): Promise<void>;

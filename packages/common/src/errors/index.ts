@@ -107,6 +107,7 @@ export const ERROR_MESSAGES = {
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",
     GUEST_ALREADY_EXISTS: "Guest by that id already is connected",
+    NOT_GAME_PARTICIPANT: "You are not a participant in that game",
   },
   COMBATANT: {
     NOT_FOUND: (id: string) => `No combatant was found with the provided ID ${id}`,

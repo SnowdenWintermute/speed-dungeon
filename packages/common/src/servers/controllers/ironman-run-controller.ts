@@ -57,7 +57,10 @@ export class IronmanRunController {
     const run = SavedIronmanRun.fromSerialized(serializedRun);
     const playerCount = run.game.players.size;
     const playerUsernameLeaving = run.userIdsToUsernames.get(userSession.taggedUserId.id);
-    invariant(playerUsernameLeaving !== undefined, "expected user to be in this run");
+
+    if (playerUsernameLeaving === undefined) {
+      throw new Error(ERROR_MESSAGES.USER.NOT_GAME_PARTICIPANT);
+    }
 
     const lastPlayerIsLeaving = playerCount === 1;
     if (lastPlayerIsLeaving) {
@@ -123,10 +126,14 @@ export class IronmanRunController {
       await this.userGameDataPersistenceService.saveIronmanRun(run.game, userIdsToUsernames);
 
       // the abandoner's characters were transferred to an inheriting player; reflect the new
-      // ownership in the ladder character records
+      // ownership and the now-degraded control scheme in the ladder records
       await this.ladderGameRecordsService.refreshCharacterRecordOwnership(
         run.game,
         MapUtils.invert(userIdsToUsernames)
+      );
+      await this.ladderGameRecordsService.updateGameRecordControlScheme(
+        runId,
+        run.game.characterControlScheme
       );
     }
 

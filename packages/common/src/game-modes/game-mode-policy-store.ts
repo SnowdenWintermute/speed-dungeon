@@ -67,6 +67,7 @@ export class GameModePolicyStore {
         ladder: new IronmanModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
+          userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
@@ -94,6 +95,7 @@ export class GameModePolicyStore {
         ladder: new ProgressionModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
+          userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
@@ -121,6 +123,7 @@ export class GameModePolicyStore {
         ladder: new RankedRaceModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
+          userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,
@@ -148,6 +151,7 @@ export class GameModePolicyStore {
         ladder: new UnrankedRaceModeLadderPolicy(
           userSessionRegistry,
           characterLevelLadderService,
+          userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
           partyDelayedGameMessageFactory,

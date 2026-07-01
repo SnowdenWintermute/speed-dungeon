@@ -69,6 +69,7 @@ export interface LadderPartyFloorClearRecord {
   partyRecordRef: PartyId; // foreign key
   floor: number;
   timeSpentOnFloor: Milliseconds;
+  controlScheme: CharacterControlScheme; // the scheme the floor was actually cleared under
 }
 
 // denormalized last known basic data about character

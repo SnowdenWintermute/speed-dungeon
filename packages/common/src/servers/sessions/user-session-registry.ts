@@ -108,8 +108,13 @@ export class UserSessionRegistry {
     return usernamesToUserIds;
   }
 
-  static requireSessionInListByUsername(username: Username, sessions: UserSession[]) {
+  static getSessionOptionInListByUsername(username: Username, sessions: UserSession[]) {
     const session = sessions.find((session) => session.username === username);
+    return session;
+  }
+
+  static requireSessionInListByUsername(username: Username, sessions: UserSession[]) {
+    const session = this.getSessionOptionInListByUsername(username, sessions);
     invariant(session !== undefined, "Expected user session with matching username");
     return session;
   }

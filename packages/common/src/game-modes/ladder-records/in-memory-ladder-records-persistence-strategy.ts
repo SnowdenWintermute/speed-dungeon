@@ -10,6 +10,7 @@ import {
   PartyId,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
+import { CharacterControlScheme } from "../index.js";
 import { invariant } from "../../utils/index.js";
 import {
   LadderCharacterFloorClearRecord,
@@ -214,6 +215,16 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
   async updateGameRecord(record: LadderGameRecord): Promise<void> {
     invariant(this.games.has(record.id), "expected an existing game record to update");
     this.games.set(record.id, cloneDeep(record));
+  }
+
+  async updateGameRecordControlScheme(
+    gameId: GameId,
+    controlScheme: CharacterControlScheme
+  ): Promise<void> {
+    const game = this.games.get(gameId);
+    invariant(game !== undefined, "expected an existing game record to update");
+    game.controlScheme = controlScheme;
+    game.updatedAt = Date.now();
   }
 
   async findPartyRecordById(id: PartyId): Promise<LadderPartyRecord> {

@@ -406,10 +406,15 @@ export class IntegrationTestFixture {
   async putTwoClientsInFreshIronmanRun(
     alpha: ClientFixture,
     bravo: ClientFixture,
-    options?: { closeGame?: boolean }
+    options?: { closeGame?: boolean; controlScheme?: CharacterControlScheme }
   ) {
     // create a run that another user is a participant of
-    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
+    let controlScheme = CharacterControlScheme.Captain;
+    if (options?.controlScheme !== undefined) {
+      controlScheme = options.controlScheme;
+    }
+
+    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman, controlScheme);
     await alpha.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
     await bravo.lobbyClientHarness.tryJoinExpectedSingleGameInList();
     await bravo.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_2, CombatantClass.Warrior);

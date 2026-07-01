@@ -27,6 +27,8 @@ import { testAbandonLiveIronmanRun } from "./abandon-live-run";
 import { testAbandonIronmanRunFreesSlot } from "./abandon-run-frees-slot";
 import { testAbandoningIronmanRunUpdatesLadderRecords } from "./abandon-run-updates-ladder-records";
 import { testCharacterTransferAfterAbandonedIronmanRun } from "./abandon-run-character-transfer";
+import { testAbandonIronmanRunDegradesControlScheme } from "./abandon-run-degrades-control-scheme";
+import { testAbandonUnownedIronmanRun } from "./abandon-unowned-run";
 
 describe("ironman game mode", () => {
   const testFixture = new IntegrationTestFixture();
@@ -139,22 +141,11 @@ describe("ironman game mode", () => {
     await testCharacterTransferAfterAbandonedIronmanRun(testFixture);
   });
 
-  // it("abandon run with freelancers control scheme", async () => {
-  //   // convert run to captains control scheme
-  //   // follow the flow of transferring characters
-  // });
+  it("abandon run degrades character control scheme", async () => {
+    await testAbandonIronmanRunDegradesControlScheme(testFixture);
+  });
 
-  // it("abandon unowned run", async () => {
-  //   // create saved run with alpha user
-  //   // bravo user tries to abandon the run
-  //   // error: you are not in that run
-  // });
-
-  // it("reconnect to closed run", async () => {
-  //   // - player disconnects from ironman run
-  //   // - other player in run intentionally leaves
-  //   // - live game no longer exists
-  //   // - disconnected player connects to lobby
-  //   // - no reconnection instructions received by player's client
-  // });
+  it("abandon unowned run", async () => {
+    await testAbandonUnownedIronmanRun(testFixture);
+  });
 });

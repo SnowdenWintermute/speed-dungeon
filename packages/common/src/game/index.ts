@@ -33,6 +33,7 @@ import { UserSession } from "../servers/sessions/user-session.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { GameClock } from "./game-clock.js";
 import { PartyFateType } from "../game-modes/ladder-records/index.js";
+import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
@@ -190,7 +191,8 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     this.players.set(player.username, player);
   }
 
-  getAuthUserIdsToUsernames(sessions: UserSession[]) {
+  /** require that all usernames have a matching session */
+  requireAuthUserIdsToUsernames(sessions: UserSession[]) {
     const result = new Map<IdentityProviderId, Username>();
     for (const [username, player] of this.players) {
       const session = UserSessionRegistry.requireSessionInListByUsername(username, sessions);
@@ -198,6 +200,42 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       result.set(session.taggedUserId.id, player.username);
     }
     return result;
+  }
+
+  /** some sessions may be absent if disconnected */
+  getAuthUserIdsToUsernamesForPresentSessions(sessions: UserSession[]) {
+    const result = new Map<IdentityProviderId, Username>();
+    for (const [username, player] of this.players) {
+      const session = UserSessionRegistry.getSessionOptionInListByUsername(username, sessions);
+      if (session === undefined) {
+        continue;
+      }
+      invariant(session.taggedUserId.type === UserIdType.Auth, "Only auth users expected");
+      result.set(session.taggedUserId.id, player.username);
+    }
+    return result;
+  }
+
+  /** In the case that a user leaves while another user is disconnected, we won't have access
+   to that disconnected user's session to build the userIdsToUsernames list, so instead of
+   replacing that list with the current userIdsToUsernames we will update it */
+  async getUpdatedUserIdsToUsernamesMap(
+    userGameDataPersistenceService: UserGameDataPersistenceService,
+    userSessionRegistry: UserSessionRegistry
+  ) {
+    // a save should already exist since we save on game start
+    console.log("checking for run with id", this.id);
+    const previousSave = await userGameDataPersistenceService.requireIronmanRun(this.id);
+    const cachedUserIdsToUsernames = new Map(cloneDeep(previousSave.userIdsToUsernames));
+    const userIdsToUsernamesForPresentSessions = this.getAuthUserIdsToUsernamesForPresentSessions(
+      userSessionRegistry.getAllSessionsInGame(this)
+    );
+
+    for (const [userId, username] of userIdsToUsernamesForPresentSessions) {
+      cachedUserIdsToUsernames.set(userId, username);
+    }
+
+    return cachedUserIdsToUsernames;
   }
 
   private getInheritingPlayer(game: SpeedDungeonGame, playerUsernameLeaving: Username) {

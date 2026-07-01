@@ -7,6 +7,7 @@ import { PartyDelayedGameMessageFactory } from "../servers/game-server/party-del
 import { CrossServerBroadcasterService } from "../servers/services/cross-server-broadcaster/index.js";
 import { CharacterLevelLadderService } from "../servers/services/ranked-ladder.js";
 import { ServerCommand } from "../servers/services/server-command/index.js";
+import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
@@ -21,6 +22,7 @@ export abstract class GameModeLadderUpdatePolicy {
   constructor(
     protected userSessionRegistry: UserSessionRegistry,
     protected characterLevelLadderService: CharacterLevelLadderService,
+    protected userGameDataPersistenceService: UserGameDataPersistenceService,
     protected gameRecordsLadderService: LadderGameRecordsService,
     protected updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     protected partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory,
