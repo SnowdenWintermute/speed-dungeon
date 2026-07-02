@@ -1,7 +1,7 @@
 import {
   AssetCache,
   ClientAppAssetService,
-  RemoteServerAssetStore,
+  RemoteAssetStore,
   ClientRemoteConnectionEndpointFactory,
   ClientSequentialEventType,
   SerializedOf,
@@ -84,16 +84,15 @@ export class ClientApplication {
 
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
-    assetServerUrl: string,
+    remoteAssetStore: RemoteAssetStore, // determined by the environment (real HTTP store, test fake, etc.)
     public lobbyServerUrl: string,
     replayManagerTickScheduler: TickScheduler,
     clientLogRecorder: ClientLogRecorder,
     remoteEndpointFactory: ClientRemoteConnectionEndpointFactory,
     readonly reconnectionTokenStore: ReconnectionTokenStore
   ) {
-    const remoteStore = new RemoteServerAssetStore(assetServerUrl);
     this.assetService = new ClientAppAssetService(
-      remoteStore,
+      remoteAssetStore,
       assetCache,
       new Map(),
       () => true,

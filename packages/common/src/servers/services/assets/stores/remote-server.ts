@@ -8,6 +8,9 @@ export class RemoteServerAssetStore implements RemoteAssetStore {
   async getAssetManifest(): Promise<AssetManifest> {
     const url = `${this.baseUrl}/asset-manifest`;
     const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`asset manifest fetch failed: ${res.status} ${res.statusText}`);
+    }
     const manifest = await res.json();
     return manifest;
   }

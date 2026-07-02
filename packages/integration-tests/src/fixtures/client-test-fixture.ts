@@ -18,6 +18,7 @@ import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/paus
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 import { TimeMachine } from "@/test-utils/time-machine";
 import { TEST_CHARACTER_NAME_1, TEST_GAME_NAME } from "./consts";
+import { InMemoryRemoteAssetStore } from "./in-memory-remote-asset-store";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -39,7 +40,7 @@ export class ClientFixture {
 
     this.clientApplication = new ClientApplication(
       assetCache,
-      `http://localhost:${lobbyServerPort}`,
+      new InMemoryRemoteAssetStore(),
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder,

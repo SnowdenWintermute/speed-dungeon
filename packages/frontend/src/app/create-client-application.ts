@@ -2,6 +2,7 @@ import {
   BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   IndexedDbAssetStore,
+  RemoteServerAssetStore,
   invariant,
 } from "@speed-dungeon/common";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
@@ -20,7 +21,7 @@ export function createClientApplication() {
   invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
   return new ClientApplication(
     assetCache,
-    "http://localhost:8080",
+    new RemoteServerAssetStore("http://localhost:8080"),
     lobbyServerUrl,
     tickScheduler.scheduler,
     clientLogRecorder,

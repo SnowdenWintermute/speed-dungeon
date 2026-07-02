@@ -68,7 +68,7 @@ export class ClientAppAssetService implements AssetService {
 
       const prefetchQueue = await this.scheduleAssetUpdates();
       this.progressTracker.initialize(this._assetManifest, prefetchQueue);
-      await this.startAssetUpdatesPrefetch();
+      this.startAssetUpdatesPrefetch();
 
       return cloneDeep(upToDateVersionData);
     } catch (error) {
@@ -227,10 +227,9 @@ export class ClientAppAssetService implements AssetService {
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
+      console.log("started prefetch");
       this.startNextPrefetch();
     }
-
-    return this.updateCompletionPromise;
   }
 
   private async getAssetIdsNeedingUpdate() {
