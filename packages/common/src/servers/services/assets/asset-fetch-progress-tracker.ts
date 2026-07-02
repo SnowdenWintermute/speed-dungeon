@@ -40,7 +40,7 @@ export class AssetFetchProgressTracker {
   }
 
   get isComplete() {
-    return this.displayPercent === 100;
+    return this.initialized && this.displayPercent === 100;
   }
 
   initialize(manifest: AssetManifest, newQueue: Map<AssetId, AssetVersionData>) {
@@ -88,6 +88,7 @@ export class AssetFetchProgressTracker {
     const entry = this.fetchCompletions.get(assetId);
     invariant(entry !== undefined, "got fetch completion for an asset not on our list");
     entry.isComplete = true;
+    console.log("completed fetching", assetId);
     this.totalBytesFetched += entry.sizeBytes;
   }
 

@@ -21,7 +21,6 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
       this.userSessionRegistry.getAllSessionsInGame(game)
     );
     await this.userGameDataPersistenceService.saveIronmanRun(game, userIdsToUsernames);
-    console.log("run saved with id", game.id);
   }
 
   override async onBattleResult(): Promise<void> {

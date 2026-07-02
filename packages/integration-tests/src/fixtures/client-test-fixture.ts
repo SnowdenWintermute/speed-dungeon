@@ -9,7 +9,7 @@ import {
   IndexedDbAssetStore,
   TestBrowserWebSocketClientConnectionEndpointFactory,
 } from "@speed-dungeon/common";
-import fakeIndexedDB from "fake-indexeddb";
+import { IDBFactory } from "fake-indexeddb";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
@@ -19,6 +19,7 @@ import { InMemoryReconnectionTokenStore } from "@/client-application/reconnectio
 import { TimeMachine } from "@/test-utils/time-machine";
 import { TEST_CHARACTER_NAME_1, TEST_GAME_NAME } from "./consts";
 import { InMemoryRemoteAssetStore } from "./in-memory-remote-asset-store";
+import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -27,6 +28,7 @@ export class ClientFixture {
   private clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
 
   constructor(lobbyServerPort: number, timeMachine: TimeMachine, authSessionId?: string) {
+    const fakeIndexedDB = new IDBFactory();
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
     const tickScheduler = new ManualTickScheduler();
     const clientLogRecorder = new IndexedDbClientLogRecorder(
@@ -38,9 +40,13 @@ export class ClientFixture {
       authSessionId
     );
 
+    const fsAssetStore = new NodeFileSystemAssetStore(
+      "./packages/integration-tests/src/asset-caching/test-assets"
+    );
+
     this.clientApplication = new ClientApplication(
       assetCache,
-      new InMemoryRemoteAssetStore(),
+      new InMemoryRemoteAssetStore(fsAssetStore),
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder,

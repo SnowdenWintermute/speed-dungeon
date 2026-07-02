@@ -224,7 +224,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     userSessionRegistry: UserSessionRegistry
   ) {
     // a save should already exist since we save on game start
-    console.log("checking for run with id", this.id);
     const previousSave = await userGameDataPersistenceService.requireIronmanRun(this.id);
     const cachedUserIdsToUsernames = new Map(cloneDeep(previousSave.userIdsToUsernames));
     const userIdsToUsernamesForPresentSessions = this.getAuthUserIdsToUsernamesForPresentSessions(

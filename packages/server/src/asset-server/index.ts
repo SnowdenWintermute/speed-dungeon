@@ -5,7 +5,7 @@ import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-sy
 import { appRoute } from "../app-route.js";
 
 export class AssetServer {
-  constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}
+  constructor(public readonly localFileSystemStore: NodeFileSystemAssetStore) {}
 
   attachRouter(expressApp: Express, options: { isProduction: boolean }) {
     const router = Router();
