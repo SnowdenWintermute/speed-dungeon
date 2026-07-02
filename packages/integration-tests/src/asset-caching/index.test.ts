@@ -1,4 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture.js";
+import { testClientReceivesAssetManifestOnConnection } from "./receive-manifest-on-connection";
 
 export const ASSET_CACHE_TEST_PORT = 8085;
 
@@ -9,7 +10,10 @@ describe("asset management", () => {
     await testFixture.closeAllServers();
   });
 
-  it("receives manifest on connection", async () => {});
+  it("receives manifest on request", async () => {
+    await testClientReceivesAssetManifestOnConnection(testFixture);
+  });
+
   // it("displays awaiting manifest while manifest receipt pending", async () => {})
   // it("on manifest receipt, displays prefetch progress", async () => {})
   // it("on manifest receipt, enable offline mode if cache contains all assets", async () => {})

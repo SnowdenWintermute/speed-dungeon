@@ -37,4 +37,8 @@ export class IndexedDbAssetStore extends AssetCache {
   async clear(): Promise<void> {
     return this.indexedDbAssetsRepo.clear();
   }
+
+  override dispose(): void {
+    this.indexedDbAssetsRepo.dispose();
+  }
 }

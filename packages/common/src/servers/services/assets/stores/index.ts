@@ -24,6 +24,9 @@ export abstract class AssetCache {
 
   abstract clear(): Promise<void>;
 
+  /** close any underlying connection/handle. no-op by default; overridden by stores that hold one */
+  dispose(): void {}
+
   async removeAssetsNotIncluded(toKeep: Set<AssetId>) {
     const allCachedAssetIds = await this.getAssetIdsCached();
 

@@ -67,6 +67,12 @@ export class ClientFixture {
     await this.clientApplication.topologyManager.connectWithPrefferedMode();
   }
 
+  async startAssetFetch(clearCache: boolean = false) {
+    return this.clientApplication.assetService.initialize({
+      clearCache,
+    });
+  }
+
   async reconnectAsAuth(authId: string) {
     this.clientEndpointFactory.testAuthId = authId;
     if (this.clientApplication.gameClientRef.isInitialized) {

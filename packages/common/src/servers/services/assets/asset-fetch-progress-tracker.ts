@@ -1,7 +1,9 @@
-import { AssetId, AssetManifest, AssetVersionData, invariant } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { AssetId } from "./index.js";
+import { AssetManifest, AssetVersionData } from "./versioned-asset.js";
+import { invariant } from "../../../utils/index.js";
 
-export class AssetFetchProgressStore {
+export class AssetFetchProgressTracker {
   initialized: boolean = false;
   private _fetchFailed: boolean = false;
   totalBytesFetching: number = 0;

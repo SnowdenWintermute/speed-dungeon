@@ -7,7 +7,6 @@ import {
   QUERY_PARAMS,
   urlWithQueryParams,
   Deferred,
-  GameMode,
   CharacterControlScheme,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
@@ -109,8 +108,8 @@ export class ConnectionTopology {
     return this.runtimeMode !== ConnectionMode.Initializing;
   }
   get canEnterOffline() {
-    const { assetFetchProgress } = this.clientApplication.uiStore;
-    const { initialized, isComplete } = assetFetchProgress;
+    const { progressTracker } = this.clientApplication.assetService;
+    const { initialized, isComplete } = progressTracker;
     return initialized && isComplete;
   }
   set runtimeMode(mode: ConnectionMode) {

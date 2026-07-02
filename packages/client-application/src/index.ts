@@ -92,7 +92,15 @@ export class ClientApplication {
     readonly reconnectionTokenStore: ReconnectionTokenStore
   ) {
     const remoteStore = new RemoteServerAssetStore(assetServerUrl);
-    this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
+    this.assetService = new ClientAppAssetService(
+      remoteStore,
+      assetCache,
+      new Map(),
+      () => true,
+      (error: Error) => {
+        this.alertsService.setAlert(error, false);
+      }
+    );
     this.clientLogRecorder = clientLogRecorder;
 
     this.topologyManager = new ConnectionTopology(this, remoteEndpointFactory);
@@ -136,6 +144,8 @@ export class ClientApplication {
       this.lobbyClientRef.get().close();
     }
     this.gameWorldView?.dispose();
+    this.clientLogRecorder.dispose();
+    this.assetService.dispose();
   }
 
   setGameWorldView(gameWorldView: GameWorldView) {
