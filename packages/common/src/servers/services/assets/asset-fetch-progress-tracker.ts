@@ -8,7 +8,7 @@ export class AssetFetchProgressTracker {
   private _fetchFailed: boolean = false;
   totalBytesFetching: number = 0;
   totalBytesFetched: number = 0;
-  fetchCompletions = new Map<
+  fetches = new Map<
     AssetId,
     {
       sizeBytes: number;
@@ -58,7 +58,7 @@ export class AssetFetchProgressTracker {
         this.totalBytesFetched += sizeBytes;
       }
 
-      this.fetchCompletions.set(assetId, {
+      this.fetches.set(assetId, {
         sizeBytes,
         started: false,
         aborted: false,
@@ -72,20 +72,20 @@ export class AssetFetchProgressTracker {
   }
 
   onFetchStart(assetId: AssetId) {
-    const entry = this.fetchCompletions.get(assetId);
+    const entry = this.fetches.get(assetId);
     invariant(entry !== undefined, "got fetch completion for an asset not on our list");
     entry.aborted = false;
     entry.started = true;
   }
 
   onFetchAbort(assetId: AssetId) {
-    const entry = this.fetchCompletions.get(assetId);
+    const entry = this.fetches.get(assetId);
     invariant(entry !== undefined, "got fetch completion for an asset not on our list");
     entry.aborted = true;
   }
 
   onFetchComplete(assetId: AssetId) {
-    const entry = this.fetchCompletions.get(assetId);
+    const entry = this.fetches.get(assetId);
     invariant(entry !== undefined, "got fetch completion for an asset not on our list");
     entry.isComplete = true;
     this.totalBytesFetched += entry.sizeBytes;

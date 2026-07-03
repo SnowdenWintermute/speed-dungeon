@@ -199,6 +199,7 @@ export class ClientAppAssetService implements AssetService {
 
     const { id, priority } = nextHighestPriorityFetch;
 
+    console.log("started prefetching", id);
     this.startManagedFetch(id, priority);
   }
 

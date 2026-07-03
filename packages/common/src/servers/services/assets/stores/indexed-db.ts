@@ -1,5 +1,5 @@
 import { AssetId } from "../index.js";
-import { VersionedAsset } from "../versioned-asset.js";
+import { AssetManifest, VersionedAsset } from "../versioned-asset.js";
 import { AssetCache } from "./index.js";
 import { IndexedDbVersionedAssetRepo } from "./indexed-db-versioned-asset-repo.js";
 
@@ -40,5 +40,13 @@ export class IndexedDbAssetStore extends AssetCache {
 
   override dispose(): void {
     this.indexedDbAssetsRepo.dispose();
+  }
+
+  async setLastCompletedManifest(manifest: AssetManifest) {
+    //
+  }
+
+  override async getLastCompletedManifestOption(): Promise<AssetManifest | undefined> {
+    return undefined;
   }
 }

@@ -43,7 +43,7 @@ export const AssetManager = observer(() => {
             <div className="overflow-auto">
               <Divider />
               <ul className="flex flex-wrap justify-between">
-                {Array.from(progressTracker.fetchCompletions).map(([assetId, data]) => {
+                {Array.from(progressTracker.fetches).map(([assetId, data]) => {
                   const { wasCached, isComplete, started, aborted } = data;
                   const textColor = (() => {
                     if (wasCached) {

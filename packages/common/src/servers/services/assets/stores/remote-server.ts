@@ -3,9 +3,12 @@ import { AssetId } from "../index.js";
 import { AssetManifest } from "../versioned-asset.js";
 import { AbortableAssetFetch, RemoteAssetStore } from "./index.js";
 
-export class RemoteServerAssetStore implements RemoteAssetStore {
-  constructor(private readonly baseUrl: string) {}
-  async getAssetManifest(): Promise<AssetManifest> {
+export class RemoteServerAssetStore extends RemoteAssetStore {
+  constructor(private readonly baseUrl: string) {
+    super();
+  }
+
+  override async getAssetManifest(): Promise<AssetManifest> {
     const url = `${this.baseUrl}/asset-manifest`;
     const res = await fetch(url);
     if (!res.ok) {
@@ -15,7 +18,7 @@ export class RemoteServerAssetStore implements RemoteAssetStore {
     return manifest;
   }
 
-  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
+  protected override async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
     const res = await fetch(`${this.baseUrl}/${assetId}`);
 
     if (!res.ok) {
@@ -34,7 +37,7 @@ export class RemoteServerAssetStore implements RemoteAssetStore {
     }
   }
 
-  getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch {
+  override getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch {
     const abortController = new AbortController();
     const url = `${this.baseUrl}/assets/${assetId}`;
 

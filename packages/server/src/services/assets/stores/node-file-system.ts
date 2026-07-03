@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { createHash } from "crypto";
-import { AssetCache, AssetId, VersionedAsset } from "@speed-dungeon/common";
+import { AssetCache, AssetId, AssetManifest, VersionedAsset } from "@speed-dungeon/common";
 
 function hashArrayBuffer(bytes: ArrayBuffer): string {
   const hash = createHash("sha256");
@@ -12,6 +12,10 @@ function hashArrayBuffer(bytes: ArrayBuffer): string {
 export class NodeFileSystemAssetStore extends AssetCache {
   constructor(private readonly baseDir: string) {
     super();
+  }
+
+  async getLastCompletedManifestOption(): Promise<AssetManifest | undefined> {
+    return undefined;
   }
 
   removeAsset(assetId: AssetId): Promise<void> {

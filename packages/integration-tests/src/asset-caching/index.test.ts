@@ -3,6 +3,7 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture.js";
 import { testClientReceivesAssetManifestOnConnection } from "./receive-manifest-on-connection";
 import { testClientShowsAwaitingManifest } from "./client-shows-awaiting-manifest";
 import { testAfterManifestShowPrefetchProgress } from "./after-manifest-show-prefetch-progress";
+import { testEnableOfflineModeIfCacheMatchesNewManifest } from "./enable-offline-mode-if-cache-matches-manifest";
 
 export const ASSET_CACHE_TEST_PORT = 8085;
 
@@ -25,10 +26,30 @@ describe("asset management", () => {
     await testAfterManifestShowPrefetchProgress(testFixture);
   });
 
-  // it("on manifest receipt, enable offline mode if cache contains all assets", async () => {})
+  it("on manifest receipt, enable offline mode if newly fetched cache contains all assets", async () => {
+    await testEnableOfflineModeIfCacheMatchesNewManifest(testFixture);
+  });
+
+  // it("on failed connection, allows offline if all assets cached and last manifest version matches game version", async () => {
+  // connect and fetch entire manifest
+  // disconnect
+  // attempt reconnect
+  // get failed to connect message
+  // don't fetch assets yet
+  // cache should show it contains all assets contained in the cached asset manifest
+  // app version number should equal the version number in the cached manifest
+  // offline mode should be enabled
+  //
+  // })
+
   // it("on prefetch complete, asset count in cache equals manifest asset count", async () => {})
-  // it("on prefetch completed, enable offline mode", async () => {})
-  // it("on failed connection, allows offline if all assets cached and last manifest version matches game version", async () => {})
+
+  // it("on prefetch completed, enable offline mode", async () => {
+  // initial connection, offline mode disabled
+  // fetch entire manifest
+  // offline mode enabled
+  // })
+
   // it("on failed connection with incomplete asset cache, displays failure message", async () => {})
 
   // it("manifest contains updated asset", async () => {

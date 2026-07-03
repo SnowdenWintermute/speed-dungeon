@@ -7,7 +7,7 @@ export interface AbortableAssetFetch {
 }
 
 export abstract class RemoteAssetStore {
-  abstract getAssetBytes(assetId: AssetId): Promise<ArrayBuffer>;
+  protected abstract getAssetBytes(assetId: AssetId): Promise<ArrayBuffer>;
   abstract getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch;
   abstract getAssetManifest(): Promise<AssetManifest>;
 }
@@ -23,6 +23,8 @@ export abstract class AssetCache {
   abstract getAssetIdsCached(): Promise<Set<AssetId>>;
 
   abstract clear(): Promise<void>;
+
+  abstract getLastCompletedManifestOption(): Promise<AssetManifest | undefined>;
 
   /** close any underlying connection/handle. no-op by default; overridden by stores that hold one */
   dispose(): void {}

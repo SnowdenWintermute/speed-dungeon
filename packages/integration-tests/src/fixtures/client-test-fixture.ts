@@ -33,6 +33,10 @@ export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
+  // allow control of asset fetch resolution from tests
+  public readonly testRemoteAssetStore = new InMemoryRemoteAssetStore(
+    new NodeFileSystemAssetStore(TEST_ASSETS_DIR)
+  );
   private clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
 
   constructor(lobbyServerPort: number, timeMachine: TimeMachine, authSessionId?: string) {
@@ -48,11 +52,9 @@ export class ClientFixture {
       authSessionId
     );
 
-    const fsAssetStore = new NodeFileSystemAssetStore(TEST_ASSETS_DIR);
-
     this.clientApplication = new ClientApplication(
       assetCache,
-      new InMemoryRemoteAssetStore(fsAssetStore),
+      this.testRemoteAssetStore,
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder,
@@ -84,6 +86,31 @@ export class ClientFixture {
     return this.clientApplication.assetService.initialize({
       clearCache,
     });
+  }
+
+  async resolveAllAssetFetches() {
+    const { assetService } = this.clientApplication;
+    const { progressTracker } = assetService;
+
+    const { fetches } = assetService.progressTracker;
+
+    const allComplete = () =>
+      [...progressTracker.fetches.values()].every((fetch) => fetch.isComplete);
+
+    while (!allComplete()) {
+      const inFlightIds = [...progressTracker.fetches.entries()]
+        .filter(([_id, fetch]) => fetch.started && !fetch.isComplete)
+        .map(([id]) => id);
+
+      for (const id of inFlightIds) {
+        await this.testRemoteAssetStore.resolveFetch(id);
+      }
+
+      // wait for onFetchComplete, which runs after the async cacheAsset
+      await this.eventually(() =>
+        expect(inFlightIds.every((id) => fetches.get(id)?.isComplete)).toBe(true)
+      );
+    }
   }
 
   async reconnectAsAuth(authId: string) {
