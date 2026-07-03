@@ -2,6 +2,7 @@ import {
   AbortableAssetFetch,
   AssetId,
   AssetManifest,
+  AssetVersionData,
   FetchAbortedError,
   invariant,
   RemoteAssetStore,
@@ -12,9 +13,9 @@ import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 // server, so we serve a canned manifest and byte set from memory. Defaults to an empty manifest,
 // which means no assets to prefetch.
 export class InMemoryRemoteAssetStore extends RemoteAssetStore {
-  private readonly manifest: AssetManifest = {};
+  private readonly manifest: AssetManifest = new Map();
   private manifestCreated = false;
-  private readonly pendingFetches = new Map<
+  readonly pendingFetches = new Map<
     AssetId,
     {
       resolve: (bytes: ArrayBuffer) => void;
@@ -38,10 +39,14 @@ export class InMemoryRemoteAssetStore extends RemoteAssetStore {
 
     for (const id of assetIds) {
       const asset = await this.localFileSystemStore.getAsset(id);
-      this.manifest[id] = asset.versionData;
+      this.manifest.set(id, asset.versionData);
     }
 
     this.manifestCreated = true;
+  }
+
+  modifyManifestAssetVersion(id: AssetId, newData: AssetVersionData) {
+    this.manifest.set(id, newData);
   }
 
   protected override async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
@@ -56,7 +61,13 @@ export class InMemoryRemoteAssetStore extends RemoteAssetStore {
     const promise = new Promise<ArrayBuffer>((resolve, reject) => {
       this.pendingFetches.set(assetId, { resolve, reject });
     });
-    return { promise, abort: () => this.abortFetch(assetId) };
+    return {
+      promise,
+      abort: () => {
+        console.log("aborted asset fetch in test asset remote store:", assetId);
+        this.abortFetch(assetId);
+      },
+    };
   }
 
   async resolveFetch(assetId: AssetId) {

@@ -99,7 +99,7 @@ export class ClientFixture {
 
     while (!allComplete()) {
       const inFlightIds = [...progressTracker.fetches.entries()]
-        .filter(([_id, fetch]) => fetch.started && !fetch.isComplete)
+        .filter(([_id, fetch]) => fetch.started && !fetch.isComplete && !fetch.aborted)
         .map(([id]) => id);
 
       for (const id of inFlightIds) {

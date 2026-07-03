@@ -4,6 +4,8 @@ import { testClientReceivesAssetManifestOnConnection } from "./receive-manifest-
 import { testClientShowsAwaitingManifest } from "./client-shows-awaiting-manifest";
 import { testAfterManifestShowPrefetchProgress } from "./after-manifest-show-prefetch-progress";
 import { testEnableOfflineModeIfCacheMatchesNewManifest } from "./enable-offline-mode-if-cache-matches-manifest";
+import { testNewAssetVersionTriggersRefetch } from "./new-asset-version-received-trigger-refetch";
+import { testUrgentFetchPreemptsLowerPriorityFetch } from "./asset-urgent-fetch-preempts-lower-priority-fetches";
 
 export const ASSET_CACHE_TEST_PORT = 8085;
 
@@ -30,47 +32,12 @@ describe("asset management", () => {
     await testEnableOfflineModeIfCacheMatchesNewManifest(testFixture);
   });
 
-  // it("manifest contains updated asset", async () => {
-  // - show indication that asset will update
-  // - expect new asset version to be visible after update completed
-  // })
+  it("manifest containing updated asset triggers refetch", async () => {
+    await testNewAssetVersionTriggersRefetch(testFixture);
+  });
 
-  // it("on request for uncached asset, preempt prefetch assets", async () => {
-  // - prefetch starts
-  // - client requests asset not yet fetched
-  // - expect the requested asset to now have an active fetch
-  // - expect the preempted fetch to be cancelled
-  // })
-
-  // it("preempted fetches complete eventually", async () => {
-  // - after full update, able to find an asset that was preempted/aborted in the cache (aborted fetches properly rescheduled)
-  // })
-
-  // it("on failed connection, allows offline if all assets cached and last manifest version matches game version", async () => {
-  // connect and fetch entire manifest
-  // disconnect
-  // attempt reconnect
-  // get failed to connect message
-  // don't fetch assets yet
-  // cache should show it contains all assets contained in the cached asset manifest
-  // app version number should equal the version number in the cached manifest
-  // offline mode should be enabled
-  //
-  // })
-
-  // it("on failed connection with incomplete asset cache, displays failure message", async () => {})
-
-  // it("disconnect with full cache after manifest received with updated asset", async () => {
-  // - show indication that asset will update
-  // - allow offline mode with old asset
-  // })
-
-  // it("on request for uncached asset, live urgent fetches remain in queue", async () => {
-  // - prefetch starts
-  // - client requests asset not yet fetched up to the target live fetches limit
-  // - expect only urgent fetches in the queue
-  // - client requests another asset
-  // - expect all previous urgent fetches to still exist
-  // - expect new fetch to exist, bringing the live fetches count beyond the "target live fetches limit"
-  // })
+  it("on request for uncached asset, preempt prefetch assets", async () => {
+    // and "preempted fetches complete eventually"
+    await testUrgentFetchPreemptsLowerPriorityFetch(testFixture);
+  });
 });

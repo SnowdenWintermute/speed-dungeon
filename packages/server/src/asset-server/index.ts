@@ -20,11 +20,11 @@ export class AssetServer {
   async createManifest() {
     const assetIds = await this.localFileSystemStore.getAssetIdsCached();
 
-    const manifest: AssetManifest = {};
+    const manifest: AssetManifest = new Map();
 
     for (const id of assetIds) {
       const asset = await this.localFileSystemStore.getAsset(id);
-      manifest[id] = asset.versionData;
+      manifest.set(id, asset.versionData);
     }
 
     return manifest;

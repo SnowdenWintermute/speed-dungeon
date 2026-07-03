@@ -120,7 +120,7 @@ export class ClientAppAssetService implements AssetService {
   }
 
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
-    const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_ASSET_FETCH_COUNT;
+    const tooManyConcurrentFetches = this.activeFetches.size >= TARGET_CONCURRENT_ASSET_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
       this.rescheduleLowPriorityFetches();
     }
@@ -184,6 +184,7 @@ export class ClientAppAssetService implements AssetService {
 
   /** abort any non-urgent fetches and add them back into pre-fetch list to get later */
   private rescheduleLowPriorityFetches() {
+    console.log("rescheduleLowPriorityFetches");
     const nonUrgentFetchIds = Array.from(this.activeFetches.entries())
       .filter(([assetId, managedFetch]) => managedFetch.isPreemptable())
       .map(([assetId, managedFetch]) => assetId);
@@ -191,6 +192,7 @@ export class ClientAppAssetService implements AssetService {
     for (const managedFetchId of nonUrgentFetchIds) {
       const managedFetch = this.activeFetches.get(managedFetchId);
       invariant(managedFetch !== undefined);
+      console.log("aborting managed fetch:", managedFetchId);
       managedFetch.abort();
       this.progressTracker.onFetchAbort(managedFetchId);
       this.activeFetches.delete(managedFetchId);
@@ -207,14 +209,13 @@ export class ClientAppAssetService implements AssetService {
 
     const { id, priority } = nextHighestPriorityFetch;
 
-    console.log("started prefetching", id);
     this.startManagedFetch(id, priority);
   }
 
   async scheduleAssetUpdates() {
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
 
-    for (const [assetId, versionData] of needsUpdate) {
+    for (const [assetId, versionData] of needsUpdate.entries()) {
       let defaultPriority = this.assetIdsByDefaultPrefetchPriority.get(assetId);
       if (defaultPriority === undefined) {
         defaultPriority = AssetFetchPriority.PrefetchLow;
@@ -244,8 +245,7 @@ export class ClientAppAssetService implements AssetService {
     const needsUpdate = new Map<AssetId, AssetVersionData>();
     const comparePromises: Promise<void>[] = [];
 
-    for (const [assetId, versionData] of Object.entries(updatedAssetList)) {
-      const typedAssetId = assetId as AssetId;
+    for (const [typedAssetId, versionData] of updatedAssetList.entries()) {
       const checkIfMissingOrStale = new Promise<void>((resolve, reject) => {
         this.cache
           .getAssetOption(typedAssetId)
@@ -290,7 +290,7 @@ export class ClientAppAssetService implements AssetService {
 
   private requireAssetManifestEntry(assetId: AssetId) {
     const assetManifest = this.requireAssetManifest();
-    const result = assetManifest[assetId];
+    const result = assetManifest.get(assetId);
     if (result === undefined) {
       throw new Error("Expected to have this asset in the version manifest");
     }
@@ -299,9 +299,7 @@ export class ClientAppAssetService implements AssetService {
 
   private async clearUnusedFromCache() {
     const updatedAssetList = this.requireAssetManifest();
-    await this.cache.removeAssetsNotIncluded(
-      new Set(Object.keys(updatedAssetList).map((key) => key as AssetId))
-    );
+    await this.cache.removeAssetsNotIncluded(new Set(updatedAssetList.keys()));
   }
 }
 

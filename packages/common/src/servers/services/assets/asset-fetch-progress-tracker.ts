@@ -53,8 +53,7 @@ export class AssetFetchProgressTracker {
     this.totalBytesFetched = 0;
 
     let totalBytesFetching = 0;
-    Object.entries(manifest).forEach(([untypedAssetId, versionData]) => {
-      const assetId = untypedAssetId as AssetId;
+    manifest.forEach((versionData, assetId) => {
       const { sizeBytes } = versionData;
       const needsUpdate = newQueue.has(assetId);
 

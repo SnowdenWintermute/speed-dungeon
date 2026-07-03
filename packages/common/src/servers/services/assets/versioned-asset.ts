@@ -1,6 +1,6 @@
 import { AssetId } from "./index.js";
 
-export type AssetManifest = Record<AssetId, AssetVersionData>;
+export type AssetManifest = Map<AssetId, AssetVersionData>;
 
 export class VersionedAsset {
   constructor(

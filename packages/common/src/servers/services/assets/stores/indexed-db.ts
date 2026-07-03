@@ -42,10 +42,6 @@ export class IndexedDbAssetStore extends AssetCache {
     this.indexedDbAssetsRepo.dispose();
   }
 
-  async setLastCompletedManifest(manifest: AssetManifest) {
-    //
-  }
-
   override async getLastCompletedManifestOption(): Promise<AssetManifest | undefined> {
     return undefined;
   }
