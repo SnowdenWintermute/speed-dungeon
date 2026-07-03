@@ -4,6 +4,7 @@ export const LOOP_SAFETY_ITERATION_LIMIT = 50000;
 
 // remember to update it in package.json as well!
 export const APP_VERSION_NUMBER = "0.11.0";
+export const TARGET_CONCURRENT_ASSET_FETCH_COUNT = 2;
 
 export const INFO_UNICODE_SYMBOL = "ⓘ";
 

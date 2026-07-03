@@ -43,6 +43,11 @@ export class AssetFetchProgressTracker {
     return this.initialized && this.displayPercent === 100;
   }
 
+  reset() {
+    this.fetches.clear();
+    this.initialized = false;
+  }
+
   initialize(manifest: AssetManifest, newQueue: Map<AssetId, AssetVersionData>) {
     this.initialized = true;
     this.totalBytesFetched = 0;

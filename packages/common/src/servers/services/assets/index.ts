@@ -1,3 +1,4 @@
+import { TARGET_CONCURRENT_ASSET_FETCH_COUNT } from "../../../app-consts.js";
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
 import { invariant } from "../../../utils/index.js";
 import { AssetFetchProgressTracker } from "./asset-fetch-progress-tracker.js";
@@ -8,8 +9,6 @@ import { AssetManifest, AssetVersionData, VersionedAsset } from "./versioned-ass
 import cloneDeep from "lodash.clonedeep";
 
 export type AssetId = string & { __brand: "AssetId" }; // models/monsters/manta-ray.glb
-
-const TARGET_CONCURRENT_FETCH_COUNT = 2;
 
 export interface AssetService {
   getAsset(assetId: AssetId): Promise<ArrayBuffer>;
@@ -38,16 +37,25 @@ export class ClientAppAssetService implements AssetService {
     return cloneDeep(this._assetManifest);
   }
 
+  get activeFetchCount() {
+    return this.activeFetches.size;
+  }
+
+  clearManifest() {
+    this._assetManifest = null;
+    this.progressTracker.reset();
+  }
+
   dispose() {
     this.cache.dispose();
+    this._assetManifest = null;
   }
 
   async initialize(options?: { clearCache?: boolean }) {
-    if (this._assetManifest !== null) {
-      console.info(`asset service initialized already`);
-      return this.assetManifest;
+    if (this.activeFetches.size) {
+      console.error("active fetches in progress when trying to initialize asset service");
+      return;
     }
-    // invariant(this.assetManifest === null, `asset service initialized already`);
 
     if (options?.clearCache) {
       await this.cache.clear();
@@ -112,7 +120,7 @@ export class ClientAppAssetService implements AssetService {
   }
 
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
-    const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
+    const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_ASSET_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
       this.rescheduleLowPriorityFetches();
     }
@@ -147,7 +155,7 @@ export class ClientAppAssetService implements AssetService {
           this.markUpdateAsCompleted();
         }
 
-        if (this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT) {
+        if (this.activeFetches.size < TARGET_CONCURRENT_ASSET_FETCH_COUNT) {
           this.startNextPrefetch();
         }
       });
@@ -223,7 +231,7 @@ export class ClientAppAssetService implements AssetService {
     this.markUpdateAsInProgress();
 
     while (
-      this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
+      this.activeFetches.size < TARGET_CONCURRENT_ASSET_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
       this.startNextPrefetch();

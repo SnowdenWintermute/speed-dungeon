@@ -30,6 +30,22 @@ describe("asset management", () => {
     await testEnableOfflineModeIfCacheMatchesNewManifest(testFixture);
   });
 
+  // it("manifest contains updated asset", async () => {
+  // - show indication that asset will update
+  // - expect new asset version to be visible after update completed
+  // })
+
+  // it("on request for uncached asset, preempt prefetch assets", async () => {
+  // - prefetch starts
+  // - client requests asset not yet fetched
+  // - expect the requested asset to now have an active fetch
+  // - expect the preempted fetch to be cancelled
+  // })
+
+  // it("preempted fetches complete eventually", async () => {
+  // - after full update, able to find an asset that was preempted/aborted in the cache (aborted fetches properly rescheduled)
+  // })
+
   // it("on failed connection, allows offline if all assets cached and last manifest version matches game version", async () => {
   // connect and fetch entire manifest
   // disconnect
@@ -42,35 +58,11 @@ describe("asset management", () => {
   //
   // })
 
-  // it("on prefetch complete, asset count in cache equals manifest asset count", async () => {})
-
-  // it("on prefetch completed, enable offline mode", async () => {
-  // initial connection, offline mode disabled
-  // fetch entire manifest
-  // offline mode enabled
-  // })
-
   // it("on failed connection with incomplete asset cache, displays failure message", async () => {})
-
-  // it("manifest contains updated asset", async () => {
-  // - show indication that asset will update
-  // - expect new asset version to be visible after update completed
-  // })
 
   // it("disconnect with full cache after manifest received with updated asset", async () => {
   // - show indication that asset will update
   // - allow offline mode with old asset
-  // })
-
-  // it("preempted fetches complete eventually", async () => {
-  // - after full update, able to find an asset that was preempted/aborted in the cache (aborted fetches properly rescheduled)
-  // })
-
-  // it("on request for uncached asset, preempt prefetch assets", async () => {
-  // - prefetch starts
-  // - client requests asset not yet fetched
-  // - expect the requested asset to now have an active fetch
-  // - expect the preempted fetch to be cancelled
   // })
 
   // it("on request for uncached asset, live urgent fetches remain in queue", async () => {
