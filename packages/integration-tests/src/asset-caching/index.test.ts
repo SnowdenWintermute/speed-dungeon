@@ -2,6 +2,7 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture.js";
 
 import { testClientReceivesAssetManifestOnConnection } from "./receive-manifest-on-connection";
 import { testClientShowsAwaitingManifest } from "./client-shows-awaiting-manifest";
+import { testAfterManifestShowPrefetchProgress } from "./after-manifest-show-prefetch-progress";
 
 export const ASSET_CACHE_TEST_PORT = 8085;
 
@@ -20,7 +21,10 @@ describe("asset management", () => {
     await testClientShowsAwaitingManifest(testFixture);
   });
 
-  // it("on manifest receipt, displays prefetch progress", async () => {})
+  it("on manifest receipt, displays prefetch progress", async () => {
+    await testAfterManifestShowPrefetchProgress(testFixture);
+  });
+
   // it("on manifest receipt, enable offline mode if cache contains all assets", async () => {})
   // it("on prefetch complete, asset count in cache equals manifest asset count", async () => {})
   // it("on prefetch completed, enable offline mode", async () => {})

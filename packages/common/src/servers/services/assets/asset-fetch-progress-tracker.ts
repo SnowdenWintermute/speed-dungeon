@@ -88,7 +88,6 @@ export class AssetFetchProgressTracker {
     const entry = this.fetchCompletions.get(assetId);
     invariant(entry !== undefined, "got fetch completion for an asset not on our list");
     entry.isComplete = true;
-    console.log("completed fetching", assetId);
     this.totalBytesFetched += entry.sizeBytes;
   }
 

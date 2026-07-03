@@ -50,8 +50,6 @@ export class ClientAppAssetService implements AssetService {
     // invariant(this.assetManifest === null, `asset service initialized already`);
 
     if (options?.clearCache) {
-      console.log("clearin cache");
-
       await this.cache.clear();
     }
 
@@ -227,7 +225,6 @@ export class ClientAppAssetService implements AssetService {
       this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
-      console.log("started prefetch");
       this.startNextPrefetch();
     }
   }

@@ -30,7 +30,6 @@ export class NodeFileSystemAssetStore extends AssetCache {
 
   private walkDirectory(directory: string, results: Set<AssetId>) {
     const entries = fs.readdirSync(directory, { withFileTypes: true });
-    console.log("ENTRIES:", entries);
 
     for (const entry of entries) {
       const fullPath = path.join(directory, entry.name);

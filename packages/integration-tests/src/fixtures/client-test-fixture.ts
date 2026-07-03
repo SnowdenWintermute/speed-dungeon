@@ -20,6 +20,14 @@ import { TimeMachine } from "@/test-utils/time-machine";
 import { TEST_CHARACTER_NAME_1, TEST_GAME_NAME } from "./consts";
 import { InMemoryRemoteAssetStore } from "./in-memory-remote-asset-store";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+// anchor to this file's location so it resolves regardless of the process cwd
+const TEST_ASSETS_DIR = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../asset-caching/test-assets"
+);
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
@@ -40,9 +48,7 @@ export class ClientFixture {
       authSessionId
     );
 
-    const fsAssetStore = new NodeFileSystemAssetStore(
-      "./packages/integration-tests/src/asset-caching/test-assets"
-    );
+    const fsAssetStore = new NodeFileSystemAssetStore(TEST_ASSETS_DIR);
 
     this.clientApplication = new ClientApplication(
       assetCache,
