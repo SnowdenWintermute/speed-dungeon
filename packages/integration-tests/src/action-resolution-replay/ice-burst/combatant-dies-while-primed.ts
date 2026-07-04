@@ -4,11 +4,11 @@ import {
   CombatActionName,
   CombatantConditionName,
   invariant,
-  TEST_DUNGEON_TWO_MID_HP_WOLVES,
+  TEST_DUNGEON_TWO_TWO_HP_WOLVES,
 } from "@speed-dungeon/common";
 
 export async function testCombatantDiesWhilePrimedForIceBurst(testFixture: IntegrationTestFixture) {
-  await testFixture.resetWithOptions(TEST_DUNGEON_TWO_MID_HP_WOLVES, BASIC_CHARACTER_FIXTURES);
+  await testFixture.resetWithOptions(TEST_DUNGEON_TWO_TWO_HP_WOLVES, BASIC_CHARACTER_FIXTURES);
   testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;

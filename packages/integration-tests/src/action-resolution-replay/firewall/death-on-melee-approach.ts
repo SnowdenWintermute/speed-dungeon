@@ -6,12 +6,12 @@ import {
   ClientIntentType,
   CombatActionName,
   MONSTER_FIXTURE_NAMES,
-  TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
+  TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL,
 } from "@speed-dungeon/common";
 
 export async function deathInFirewallOnMeleeApproach(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(
-    TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
+    TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL,
     BASIC_CHARACTER_FIXTURES
   );
   testFixture.timeMachine.start();
@@ -28,7 +28,7 @@ export async function deathInFirewallOnMeleeApproach(testFixture: IntegrationTes
     type: ClientIntentType.UseSelectedCombatAction,
     data: { characterId: combatantFocus.requireFocusedCharacterId() },
   });
-  const testWolf = party.combatantManager.requireCombatantByName(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP);
+  const testWolf = party.combatantManager.requireCombatantByName(MONSTER_FIXTURE_NAMES.WOLF_ONE_HP);
   expect(testWolf.combatantProperties.isDead()).toBeFalsy();
   await gameClientHarness.flushReplayTree({
     stoppingPoint: BeforeOrAfter.After,

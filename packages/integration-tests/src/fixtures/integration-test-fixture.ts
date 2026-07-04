@@ -25,9 +25,10 @@ import {
   UserGameDataPersistenceService,
   LadderGameRecordsService,
   ResourceChangePropertiesStrategy,
+  SpeciesAnimationLengths,
+  TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
-import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
 import { createTestServers } from "./create-test-servers.js";
@@ -42,7 +43,6 @@ import {
   TestGameServerName,
 } from "./consts.js";
 import { TimeMachine } from "@/test-utils/time-machine.js";
-import { TestResourceChangePropertiesStrategy } from "./combat-action-hit-outcome-properties-getters/index.js";
 
 export type TestGameServersAndPorts = Record<
   TestGameServerName,

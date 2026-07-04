@@ -17,12 +17,9 @@ import {
   EXPLICIT_ATTACK_TEST_DUNGEON,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
-  TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
-  TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
   TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST,
   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
   TEST_DUNGEON_MANTA_TWO_WOLF,
-  TEST_DUNGEON_TWO_MID_HP_WOLVES,
   TEST_DUNGEON_ZERO_SPEED_MANTAS,
   TEST_DUNGEON_TWO_ONE_HP_WOLVES,
   cookieHeaderAuthSessionIdParser,
@@ -39,6 +36,8 @@ import {
   InMemoryLadderRecordsPersistenceStrategy,
   IdGenerator,
   RealResourceChangePropertiesStrategy,
+  TestResourceChangePropertiesStrategy,
+  TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -105,7 +104,8 @@ export class GameServerNode {
       guestReconnectionTokenCodec,
       ScriptedDungeonGenerationPolicy,
       rngPolicy,
-      new RealResourceChangePropertiesStrategy(),
+      // new RealResourceChangePropertiesStrategy(),
+      new TestResourceChangePropertiesStrategy(),
       // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
       idGenerator,
       cookieHeaderAuthSessionIdParser
@@ -114,12 +114,15 @@ export class GameServerNode {
     );
 
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
-    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_ONE_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_MANTAS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL);
+    this._server.dungeonGenerationPolicy.setExplicitFloors(
+      TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST
+    );
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_MID_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(
     //   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA

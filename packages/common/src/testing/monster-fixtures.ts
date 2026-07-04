@@ -12,8 +12,7 @@ import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-g
 
 export const MONSTER_FIXTURE_NAMES = {
   WOLF_ONE_HP: "Test Wolf One Hp",
-  WOLF_LOW_HP: "Test Wolf Low Hp",
-  WOLF_MID_HP: "Test Wolf Mid Hp",
+  WOLF_TWO_HP: "Test Wolf Mid Hp",
   WOLF_ZERO_SPEED: "Test Wolf Zero Speed",
   CULTIST_ZERO_SPEED: "Test Cultist Zero Speed",
 };
@@ -187,7 +186,7 @@ export const MONSTER_FIXTURES = {
     rngPolicy: RandomNumberGenerationPolicy
   ) => {
     const builder = CombatantBuilder.monster(MonsterType.Wolf)
-      .name(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_ONE_HP)
       .explicitAttributes()
       .attribute(CombatAttribute.Hp, 1)
       .attribute(CombatAttribute.Strength, 10)
@@ -208,15 +207,15 @@ export const MONSTER_FIXTURES = {
 
     return builder;
   },
-  WOLF_LOW_HP: (
+  WOLF_TWO_HP: (
     idGenerator: IdGenerator,
     itemBuilder: ItemBuilder,
     rngPolicy: RandomNumberGenerationPolicy
   ) => {
     const builder = CombatantBuilder.monster(MonsterType.Wolf)
-      .name(MONSTER_FIXTURE_NAMES.WOLF_LOW_HP)
+      .name(MONSTER_FIXTURE_NAMES.WOLF_TWO_HP)
       .explicitAttributes()
-      .attribute(CombatAttribute.Hp, 7)
+      .attribute(CombatAttribute.Hp, 2)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
       .attribute(CombatAttribute.Speed, 10)
@@ -236,32 +235,6 @@ export const MONSTER_FIXTURES = {
     return builder;
   },
 
-  WOLF_MID_HP: (
-    idGenerator: IdGenerator,
-    itemBuilder: ItemBuilder,
-    rngPolicy: RandomNumberGenerationPolicy
-  ) => {
-    const builder = CombatantBuilder.monster(MonsterType.Wolf)
-      .name(MONSTER_FIXTURE_NAMES.WOLF_MID_HP)
-      .explicitAttributes()
-      .attribute(CombatAttribute.Hp, 14)
-      .attribute(CombatAttribute.Strength, 10)
-      .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 10)
-      .ownedAction(CombatActionName.Attack)
-      .aiTypes([...BASIC_AI_PRIORITY])
-      .withThreatManager();
-
-    appendMonsterEquipment(
-      builder,
-      MonsterType.Wolf,
-      idGenerator,
-      itemBuilder,
-      rngPolicy.monsterEquipmentChoice
-    );
-
-    return builder;
-  },
   CULTIST_ZERO_SPEED: () => {
     const builder = CombatantBuilder.monster(MonsterType.Cultist)
       .name(MONSTER_FIXTURE_NAMES.CULTIST_ZERO_SPEED)

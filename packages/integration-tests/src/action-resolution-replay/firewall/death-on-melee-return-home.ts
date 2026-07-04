@@ -6,13 +6,13 @@ import {
   ClientIntentType,
   CombatActionName,
   MONSTER_FIXTURE_NAMES,
-  TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
+  TEST_DUNGEON_ONE_TWO_HP_WOLF_ONE_NORMAL,
 } from "@speed-dungeon/common";
 
 /** enemy dies in firewall comming back from melee */
 export async function deathInFirewallOnMeleeReturnHome(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(
-    TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
+    TEST_DUNGEON_ONE_TWO_HP_WOLF_ONE_NORMAL,
     BASIC_CHARACTER_FIXTURES
   );
   testFixture.timeMachine.start();
@@ -29,7 +29,7 @@ export async function deathInFirewallOnMeleeReturnHome(testFixture: IntegrationT
     type: ClientIntentType.UseSelectedCombatAction,
     data: { characterId: combatantFocus.requireFocusedCharacterId() },
   });
-  const testWolf = party.combatantManager.requireCombatantByName(MONSTER_FIXTURE_NAMES.WOLF_MID_HP);
+  const testWolf = party.combatantManager.requireCombatantByName(MONSTER_FIXTURE_NAMES.WOLF_TWO_HP);
   await gameClientHarness.flushReplayTree({
     stoppingPoint: BeforeOrAfter.After,
     actionName: CombatActionName.FirewallBurn,

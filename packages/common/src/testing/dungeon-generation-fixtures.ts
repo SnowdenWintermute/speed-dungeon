@@ -92,21 +92,21 @@ export const TEST_DUNGEON_FOUR_ONE_HP_WOLVES: ExplicitCombatantDungeonTemplate =
     },
   ],
 ];
-export const TEST_DUNGEON_TWO_MID_HP_WOLVES: ExplicitCombatantDungeonTemplate = [
+export const TEST_DUNGEON_TWO_TWO_HP_WOLVES: ExplicitCombatantDungeonTemplate = [
   [
     {
       type: DungeonRoomType.Empty,
     },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF_MID_HP],
+      combatants: [MONSTER_FIXTURES.WOLF_TWO_HP, MONSTER_FIXTURES.WOLF_TWO_HP],
     },
     {
       type: DungeonRoomType.Empty,
     },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF_MID_HP],
+      combatants: [MONSTER_FIXTURES.WOLF_TWO_HP, MONSTER_FIXTURES.WOLF_TWO_HP],
     },
   ],
 ];
@@ -119,26 +119,26 @@ export const TEST_DUNGEON_ZERO_SPEED_WOLVES: ExplicitCombatantDungeonTemplate = 
   [{ type: DungeonRoomType.Empty }, ROOM_WITH_TWO_ZERO_SPEED_WOLVES],
 ];
 
-export const TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTemplate = [
+export const TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTemplate = [
   [
     {
       type: DungeonRoomType.Empty,
     },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF_LOW_HP, MONSTER_FIXTURES.WOLF],
+      combatants: [MONSTER_FIXTURES.WOLF_ONE_HP, MONSTER_FIXTURES.WOLF],
     },
   ],
 ];
 
-export const TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTemplate = [
+export const TEST_DUNGEON_ONE_TWO_HP_WOLF_ONE_NORMAL: ExplicitCombatantDungeonTemplate = [
   [
     {
       type: DungeonRoomType.Empty,
     },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF_MID_HP, MONSTER_FIXTURES.WOLF],
+      combatants: [MONSTER_FIXTURES.WOLF_TWO_HP, MONSTER_FIXTURES.WOLF],
     },
   ],
 ];
@@ -176,7 +176,7 @@ export const TEST_DUNGEON_MANTA_TWO_WOLF: ExplicitCombatantDungeonTemplate = [
     { type: DungeonRoomType.Empty },
     {
       type: DungeonRoomType.MonsterLair,
-      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF_LOW_HP, MONSTER_FIXTURES.MANTA_RAY],
+      combatants: [MONSTER_FIXTURES.WOLF, MONSTER_FIXTURES.WOLF_ONE_HP, MONSTER_FIXTURES.MANTA_RAY],
     },
   ],
 ];

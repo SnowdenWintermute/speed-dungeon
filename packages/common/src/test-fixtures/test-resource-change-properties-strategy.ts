@@ -1,14 +1,15 @@
+import { IActionUser } from "../action-user-context/action-user.js";
+import { DEATH_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS } from "../combat/combat-actions/action-implementations/death/index.js";
+import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
+import { CombatActionResource } from "../combat/combat-actions/combat-action-hit-outcome-properties.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import {
-  CombatActionName,
-  CombatActionResource,
-  IActionUser,
-  MagicalElement,
-  NumberRange,
-  ResourceChangePropertiesGetters,
-  ResourceChangePropertiesStrategy,
   ResourceChangeSource,
   ResourceChangeSourceCategory,
-} from "@speed-dungeon/common";
+} from "../combat/hp-change-source-types.js";
+import { MagicalElement } from "../combat/magical-elements.js";
+import { NumberRange } from "../primatives/number-range.js";
+import { ResourceChangePropertiesGetters } from "../types.js";
 
 export class TestResourceChangePropertiesStrategy extends ResourceChangePropertiesStrategy {
   getResourceChangePropertiesGetters(
@@ -59,6 +60,20 @@ const ONE_ELEMENTAL_MAGIC_DAMAGE = (magicalElement: MagicalElement) => {
       return {
         resourceChangeSource: new ResourceChangeSource({
           category: ResourceChangeSourceCategory.Magical,
+        }),
+        magicalElement,
+        baseValues: new NumberRange(1, 1),
+      };
+    },
+  };
+};
+
+const ONE_ELEMENTAL_KINETIC_DAMAGE = (magicalElement: MagicalElement) => {
+  return {
+    [CombatActionResource.HitPoints]: () => {
+      return {
+        resourceChangeSource: new ResourceChangeSource({
+          category: ResourceChangeSourceCategory.Physical,
         }),
         magicalElement,
         baseValues: new NumberRange(1, 1),
@@ -122,7 +137,7 @@ const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   [CombatActionName.Healing]: ONE_ELEMENTAL_MAGIC_HEALING(MagicalElement.Light),
   [CombatActionName.Blind]: {},
   [CombatActionName.Firewall]: {},
-  [CombatActionName.FirewallBurn]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Fire),
+  [CombatActionName.FirewallBurn]: ONE_ELEMENTAL_KINETIC_DAMAGE(MagicalElement.Fire),
   [CombatActionName.FirewallPassTurn]: {},
   [CombatActionName.IgniteProjectile]: {},
   [CombatActionName.IncinerateProjectile]: {},
@@ -134,14 +149,14 @@ const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   [CombatActionName.PetCommand]: {},
   [CombatActionName.Ensnare]: {},
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: {},
-  [CombatActionName.BurningTick]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Fire),
+  [CombatActionName.BurningTick]: ONE_ELEMENTAL_KINETIC_DAMAGE(MagicalElement.Fire),
   [CombatActionName.ConditionPassTurn]: {},
   [CombatActionName.UseGreenAutoinjector]: ONE_MEDICAL_HEALING,
   [CombatActionName.UseBlueAutoinjector]: ONE_MEDICAL_MANA_RESTORE,
   [CombatActionName.ReadSkillBook]: {},
   [CombatActionName.PayActionPoint]: {},
   [CombatActionName.PassTurn]: {},
-  [CombatActionName.Death]: {},
+  [CombatActionName.Death]: DEATH_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS,
   [CombatActionName.FallTowardsHomePosition]: {},
   [CombatActionName.StartFlying]: {},
 };
