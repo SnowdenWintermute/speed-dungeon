@@ -12,6 +12,7 @@ import {
 import { HitOutcome } from "../../../hit-outcome.js";
 import { ItemId } from "../../../aliases.js";
 import { CombatActionComponent } from "../../../combat/combat-actions/index.js";
+import { ResourceChangePropertiesStrategy } from "../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 import {
   EquipmentSlotType,
   HoldableSlotType,
@@ -26,13 +27,16 @@ export function addHitOutcomeDurabilityChanges(
   actionLevel: number,
   targetCombatant: Combatant,
   action: CombatActionComponent,
+  resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
   hitOutcomeType: HitOutcome,
   combatDurabilityTargetRng: RandomNumberGenerator,
   isCrit?: boolean
 ): Error | Record<ItemId, number> | undefined {
   // healing magic shouldn't cause durability loss
   const hpChangePropertiesGetter =
-    action.hitOutcomeProperties.resourceChangePropertiesGetters[CombatActionResource.HitPoints];
+    resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(action.name)[
+      CombatActionResource.HitPoints
+    ];
   if (!hpChangePropertiesGetter) return;
 
   const hpChangeProperties = hpChangePropertiesGetter(

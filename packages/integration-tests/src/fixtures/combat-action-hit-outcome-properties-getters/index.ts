@@ -1,6 +1,7 @@
 import {
   CombatActionName,
   CombatActionResource,
+  IActionUser,
   MagicalElement,
   NumberRange,
   ResourceChangePropertiesGetters,
@@ -81,6 +82,19 @@ const ONE_ELEMENTAL_MAGIC_HEALING = (magicalElement: MagicalElement) => {
   };
 };
 
+const PROJECTILE_COPY_PARENT = {
+  [CombatActionResource.HitPoints]: (user: IActionUser) => {
+    const resourceChangeProperties =
+      user.getActionEntityProperties().actionOriginData?.resourceChangeProperties?.[
+        CombatActionResource.HitPoints
+      ];
+
+    if (resourceChangeProperties === undefined)
+      throw new Error("expected projectile to have stored a resource change properties object");
+    return resourceChangeProperties;
+  },
+};
+
 const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   CombatActionName,
   ResourceChangePropertiesGetters
@@ -88,20 +102,20 @@ const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   [CombatActionName.Attack]: {},
   [CombatActionName.AttackMeleeMainhand]: ONE_PHYSICAL_DAMAGE,
   [CombatActionName.AttackMeleeOffhand]: ONE_PHYSICAL_DAMAGE,
-  [CombatActionName.AttackRangedMainhand]: {},
-  [CombatActionName.AttackRangedMainhandProjectile]: ONE_PHYSICAL_DAMAGE,
-  [CombatActionName.CounterAttackRangedMainhandProjectile]: {},
+  [CombatActionName.AttackRangedMainhand]: ONE_PHYSICAL_DAMAGE,
+  [CombatActionName.AttackRangedMainhandProjectile]: PROJECTILE_COPY_PARENT,
+  [CombatActionName.CounterAttackRangedMainhandProjectile]: PROJECTILE_COPY_PARENT,
   [CombatActionName.Counterattack]: {},
   [CombatActionName.CounterattackMeleeMainhand]: ONE_PHYSICAL_DAMAGE,
-  [CombatActionName.CounterattackRangedMainhand]: {},
-  [CombatActionName.ChainingSplitArrowParent]: {},
-  [CombatActionName.ChainingSplitArrowProjectile]: ONE_PHYSICAL_DAMAGE,
-  [CombatActionName.ExplodingArrowParent]: {},
-  [CombatActionName.ExplodingArrowProjectile]: ONE_PHYSICAL_DAMAGE,
+  [CombatActionName.CounterattackRangedMainhand]: ONE_PHYSICAL_DAMAGE,
+  [CombatActionName.ChainingSplitArrowParent]: ONE_PHYSICAL_DAMAGE,
+  [CombatActionName.ChainingSplitArrowProjectile]: PROJECTILE_COPY_PARENT,
+  [CombatActionName.ExplodingArrowParent]: ONE_PHYSICAL_DAMAGE,
+  [CombatActionName.ExplodingArrowProjectile]: PROJECTILE_COPY_PARENT,
   [CombatActionName.SpawnExplosion]: {},
   [CombatActionName.ExecuteExplosion]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Fire),
-  [CombatActionName.IceBoltParent]: {},
-  [CombatActionName.IceBoltProjectile]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Ice),
+  [CombatActionName.IceBoltParent]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Ice),
+  [CombatActionName.IceBoltProjectile]: PROJECTILE_COPY_PARENT,
   [CombatActionName.IceBurstParent]: {},
   [CombatActionName.IceBurstExplosion]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Ice),
   [CombatActionName.Fire]: ONE_ELEMENTAL_MAGIC_DAMAGE(MagicalElement.Fire),

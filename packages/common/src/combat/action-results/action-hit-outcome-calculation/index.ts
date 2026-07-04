@@ -67,7 +67,7 @@ export class HitOutcomeCalculator {
     private actionUserContext: ActionUserContext,
     private actionExecutionIntent: CombatActionExecutionIntent,
     private rngPolicy: RandomNumberGenerationPolicy,
-    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     this.targetingCalculator = new TargetingCalculator(this.actionUserContext, null);
 
@@ -124,7 +124,8 @@ export class HitOutcomeCalculator {
           actionUser,
           targetCombatant,
           incomingResourceChangesPerTarget,
-          this.rngPolicy
+          this.rngPolicy,
+          this.resourceChangePropertiesStrategy
         );
       } else {
         mitigationCalculator.setTargetCombatant(targetCombatant);
