@@ -1,9 +1,9 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat-actions/combat-action-names.js";
 import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
 import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
 
@@ -35,7 +35,8 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
   static evaluateActionIntents(
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
-    consideredCombatants: Combatant[]
+    consideredCombatants: Combatant[],
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     const mainTarget =
       ResourceChangeActionEvaluator.getLowestHpCombatantOption(consideredCombatants);
@@ -57,7 +58,8 @@ export class DamageActionEvaluator extends ResourceChangeActionEvaluator {
       const { averageHitOutcomes, maxHitOutcomes } =
         ResourceChangeActionEvaluator.getPredictedHitOutcomes(
           actionUserContext,
-          actionExecutionIntent
+          actionExecutionIntent,
+          resourceChangePropertiesStrategy
         );
       const averageHitPointChanges =
         averageHitOutcomes.resourceChanges?.[CombatActionResource.HitPoints];

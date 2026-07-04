@@ -13,6 +13,7 @@ import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-act
 import { LootGenerator } from "../items/item-creation/loot-generator.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatantId } from "../aliases.js";
+import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class TimeKeeper {
   ms: number = 0;
@@ -33,6 +34,7 @@ export class ActionSequenceManagerRegistry {
   constructor(
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     public readonly animationLengths: Record<CombatantSpecies, Record<string, Milliseconds>>,
     public readonly boundingBoxSizes: BoundingBoxSizesBySpecies,
     public readonly lootGenerator: LootGenerator
@@ -61,6 +63,7 @@ export class ActionSequenceManagerRegistry {
       this,
       this.idGenerator,
       this.rngPolicy,
+      this.resourceChangePropertiesStrategy,
       previousTrackerInSequenceOption
     );
     this.actionManagers[id] = manager;

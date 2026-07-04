@@ -27,6 +27,7 @@ import {
 import { SerializedOf } from "../../../../serialization/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 import { PartyLifecyleController } from "../party-lifecycle.js";
+import { ResourceChangePropertiesStrategy } from "../../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class CombatActionController {
   constructor(
@@ -34,6 +35,7 @@ export class CombatActionController {
     private gameModePolicyStore: GameModePolicyStore,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private lootGenerator: LootGenerator,
     private assetAnalyzer: AssetAnalyzer,
     private readonly partyLifecycleController: PartyLifecyleController
@@ -306,6 +308,7 @@ export class CombatActionController {
       actionUserContext,
       this.idGenerator,
       this.rngPolicy,
+      this.resourceChangePropertiesStrategy,
       this.assetAnalyzer.animationLengths,
       this.assetAnalyzer.boundingBoxes,
       this.lootGenerator
@@ -328,6 +331,7 @@ export class CombatActionController {
         this.gameModePolicyStore,
         this.idGenerator,
         this.rngPolicy,
+        this.resourceChangePropertiesStrategy,
         this.lootGenerator,
         this.assetAnalyzer,
         this.partyLifecycleController
@@ -376,6 +380,7 @@ export class CombatActionController {
         this.gameModePolicyStore,
         this.idGenerator,
         this.rngPolicy,
+        this.resourceChangePropertiesStrategy,
         this.lootGenerator,
         this.assetAnalyzer,
         this.partyLifecycleController

@@ -38,6 +38,7 @@ import {
   LadderGameRecordsService,
   InMemoryLadderRecordsPersistenceStrategy,
   IdGenerator,
+  RealResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -104,6 +105,7 @@ export class GameServerNode {
       guestReconnectionTokenCodec,
       ScriptedDungeonGenerationPolicy,
       rngPolicy,
+      new RealResourceChangePropertiesStrategy(),
       // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
       idGenerator,
       cookieHeaderAuthSessionIdParser

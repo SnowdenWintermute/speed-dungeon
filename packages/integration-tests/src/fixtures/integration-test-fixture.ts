@@ -24,6 +24,7 @@ import {
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   UserGameDataPersistenceService,
   LadderGameRecordsService,
+  ResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
 import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
@@ -41,6 +42,7 @@ import {
   TestGameServerName,
 } from "./consts.js";
 import { TimeMachine } from "@/test-utils/time-machine.js";
+import { TestResourceChangePropertiesStrategy } from "./combat-action-hit-outcome-properties-getters/index.js";
 
 export type TestGameServersAndPorts = Record<
   TestGameServerName,
@@ -105,6 +107,7 @@ export class IntegrationTestFixture {
 
   private async createServers(
     rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     dungeonScript: ExplicitCombatantDungeonTemplate,
     characterCreationFixture: FixedCharacterCreationLists
   ) {
@@ -135,6 +138,7 @@ export class IntegrationTestFixture {
       gameServerGatewaysAndPorts,
       this._leastBusyGameServerUrlGetterRef,
       rngPolicy,
+      resourceChangePropertiesStrategy,
       ScriptedCharacterCreationPolicy
     );
 
@@ -245,7 +249,8 @@ export class IntegrationTestFixture {
   async resetWithOptions(
     dungeonTemplate: ExplicitCombatantDungeonTemplate = TEST_DUNGEON_TWO_WOLF_ROOMS,
     charactersTemplate: FixedCharacterCreationLists = BASIC_CHARACTER_FIXTURES,
-    rngOverrides: Partial<RandomNumberGenerationPolicy> = {}
+    rngOverrides: Partial<RandomNumberGenerationPolicy> = {},
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy = new TestResourceChangePropertiesStrategy()
   ) {
     this.timeMachine.returnToPresent();
 
@@ -261,7 +266,12 @@ export class IntegrationTestFixture {
       ...basicOverrides,
       ...rngOverrides,
     });
-    await this.createServers(rngPolicy, dungeonTemplate, charactersTemplate);
+    await this.createServers(
+      rngPolicy,
+      resourceChangePropertiesStrategy,
+      dungeonTemplate,
+      charactersTemplate
+    );
   }
 
   async createSingleClientInStartedGame(

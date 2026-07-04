@@ -15,12 +15,14 @@ import {
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantId } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
   actionUserContext: ActionUserContext,
   idGenerator: IdGenerator,
   rngPolicy: RandomNumberGenerationPolicy,
+  resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
   animationLengths: AnimationLengths,
   boundingBoxSizes: BoundingBoxSizes,
   lootGenerator: LootGenerator
@@ -30,6 +32,7 @@ export function processCombatAction(
   const registry = new ActionSequenceManagerRegistry(
     idGenerator,
     rngPolicy,
+    resourceChangePropertiesStrategy,
     animationLengths,
     boundingBoxSizes,
     lootGenerator

@@ -31,7 +31,6 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
     };
 
     const baseValues = new NumberRange(4, 8);
-    // const baseValues = new NumberRange(40, 80);
     baseValues.mult(1 + spellLevelHpChangeValueModifier * (actionLevel - 1));
 
     // just get some extra damage for combatant level

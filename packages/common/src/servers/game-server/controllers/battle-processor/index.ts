@@ -12,11 +12,6 @@ import { getPartyChannelName } from "../../../../packets/channels.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import {
-  createPartyWipeMessage,
-  GameMessage,
-  GameMessageType,
-} from "../../../../packets/game-message.js";
-import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
@@ -26,6 +21,7 @@ import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/c
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 import { PartyLifecyleController } from "../party-lifecycle.js";
+import { ResourceChangePropertiesStrategy } from "../../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class BattleProcessor {
   constructor(
@@ -36,6 +32,7 @@ export class BattleProcessor {
     private gameModePolicyStore: GameModePolicyStore,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private lootGenerator: LootGenerator,
     private assetAnalyzer: AssetAnalyzer,
     private partyLifecycleController: PartyLifecyleController
@@ -76,7 +73,8 @@ export class BattleProcessor {
       const { actionExecutionIntent, user } = fastestTracker.getNextActionIntentAndUser(
         game,
         party,
-        this.rngPolicy
+        this.rngPolicy,
+        this.resourceChangePropertiesStrategy
       );
       // this.logSelectedActionIntent(user, actionExecutionIntent);
 
@@ -94,6 +92,7 @@ export class BattleProcessor {
           new ActionUserContext(game, party, user),
           this.idGenerator,
           this.rngPolicy,
+          this.resourceChangePropertiesStrategy,
           this.assetAnalyzer.animationLengths,
           this.assetAnalyzer.boundingBoxes,
           this.lootGenerator

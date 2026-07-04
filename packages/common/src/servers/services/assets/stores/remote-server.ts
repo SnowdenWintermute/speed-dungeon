@@ -1,6 +1,7 @@
 import { FetchAbortedError } from "../../../../errors/fetch-aborted.js";
 import { AssetId } from "../index.js";
-import { AssetManifest } from "../versioned-asset.js";
+import { MapUtils } from "../../../../utils/map-utils.js";
+import { AssetManifest, SerializedAssetManifest } from "../versioned-asset.js";
 import { AbortableAssetFetch, RemoteAssetStore } from "./index.js";
 
 export class RemoteServerAssetStore extends RemoteAssetStore {
@@ -14,8 +15,8 @@ export class RemoteServerAssetStore extends RemoteAssetStore {
     if (!res.ok) {
       throw new Error(`asset manifest fetch failed: ${res.status} ${res.statusText}`);
     }
-    const manifest = await res.json();
-    return manifest;
+    const serialized: SerializedAssetManifest = await res.json();
+    return MapUtils.deserialize(serialized);
   }
 
   protected override async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {

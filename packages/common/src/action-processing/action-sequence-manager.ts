@@ -9,7 +9,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { ACTION_RESOLUTION_STEP_TYPE_STRINGS } from "./action-steps/index.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../combat/combat-actions/combat-action-names.js";
+import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class ActionSequenceManager {
   private remainingActionsToExecute: CombatActionExecutionIntent[];
@@ -23,6 +23,7 @@ export class ActionSequenceManager {
     public sequentialActionManagerRegistry: ActionSequenceManagerRegistry,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private trackerThatSpawnedThisActionOption: null | ActionTracker
   ) {
     this.remainingActionsToExecute = [actionExecutionIntent];
@@ -88,7 +89,8 @@ export class ActionSequenceManager {
       previousTrackerOption || null,
       this.sequentialActionManagerRegistry.time.ms,
       this.idGenerator,
-      this.rngPolicy
+      this.rngPolicy,
+      this.resourceChangePropertiesStrategy
     );
 
     this.currentTracker = tracker;

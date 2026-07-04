@@ -17,6 +17,7 @@ import { ACTION_STEP_CREATORS } from "./action-steps/step-creators.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { CombatActionHitOutcomes } from "../combat/action-results/action-hit-outcome-calculation/index.js";
+import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class ActionTracker {
   currentStep: ActionResolutionStep;
@@ -42,7 +43,8 @@ export class ActionTracker {
     private previousTrackerInSequenceOption: null | ActionTracker,
     private timeStarted: Milliseconds,
     private idGenerator: IdGenerator,
-    private rngPolicy: RandomNumberGenerationPolicy
+    private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     const action = COMBAT_ACTIONS[this.actionExecutionIntent.actionName];
     this.queuedStepTypes = action.stepsConfig.getStepTypes();
@@ -60,6 +62,7 @@ export class ActionTracker {
       manager: this.parentActionManager,
       idGenerator: this.idGenerator,
       rngPolicy: this.rngPolicy,
+      resourceChangePropertiesStrategy: this.resourceChangePropertiesStrategy,
     };
     const stepTypes = this.queuedStepTypes;
     let stepOption = stepTypes[this.stepIndex];

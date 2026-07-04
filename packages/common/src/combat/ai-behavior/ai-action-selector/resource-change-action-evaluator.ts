@@ -1,4 +1,3 @@
-import { flow, override } from "mobx";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { RandomNumberGenerationPolicyFactory } from "../../../utility-classes/random-number-generation-policy.js";
@@ -6,6 +5,7 @@ import { EPSILON } from "../../../utils/index.js";
 import { HitOutcomeCalculator } from "../../action-results/action-hit-outcome-calculation/index.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { FixedNumberGenerator } from "../../../utility-classes/randomizers.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export abstract class ResourceChangeActionEvaluator {
   protected static getLowestHpCombatantOption(combatants: Combatant[]) {
@@ -25,12 +25,14 @@ export abstract class ResourceChangeActionEvaluator {
 
   protected static getPredictedHitOutcomes(
     actionUserContext: ActionUserContext,
-    actionExecutionIntent: CombatActionExecutionIntent
+    actionExecutionIntent: CombatActionExecutionIntent,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     const averageHitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       actionExecutionIntent,
-      RandomNumberGenerationPolicyFactory.allFixedPolicy(0.5)
+      RandomNumberGenerationPolicyFactory.allFixedPolicy(0.5),
+      resourceChangePropertiesStrategy
     );
 
     const minRollRng = new FixedNumberGenerator(0);
@@ -42,7 +44,8 @@ export abstract class ResourceChangeActionEvaluator {
         shieldBlock: minRollRng,
         counterAttack: minRollRng,
         spellResist: minRollRng,
-      })
+      }),
+      resourceChangePropertiesStrategy
     );
 
     const averageHitOutcomes = averageHitOutcomeCalculator.calculateHitOutcomes();

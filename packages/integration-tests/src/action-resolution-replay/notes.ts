@@ -1,3 +1,7 @@
+// --- how to make balance changes to damage/defense and speed without breaking action tests ? ---
+//
+//
+//
 // MONSTER AI
 // monsters heal allies
 // combatants attack highest threat target

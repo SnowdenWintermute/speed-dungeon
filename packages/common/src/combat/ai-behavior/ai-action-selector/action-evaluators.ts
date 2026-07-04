@@ -1,10 +1,10 @@
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { BasicRandomNumberGenerator } from "../../../utility-classes/randomizers.js";
 import { ArrayUtils } from "../../../utils/array-utils.js";
 import { ActionPayableResource } from "../../combat-actions/action-calculation-utils/action-costs.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import { DamageActionEvaluator } from "./damage-action-evaluator.js";
@@ -22,23 +22,30 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
   [ActionEvaluatorTypes.MostHealingOnLowestTarget]: function (
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
-    consideredCombatants: Combatant[]
+    consideredCombatants: Combatant[],
+    rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ): null | CombatActionExecutionIntent {
     return HealingActionEvaluator.evaluateActionIntents(
       intents,
       actionUserContext,
-      consideredCombatants
+      consideredCombatants,
+      rngPolicy,
+      resourceChangePropertiesStrategy
     );
   },
   [ActionEvaluatorTypes.MostDamageOnLowestHitPointTarget]: function (
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
-    consideredCombatants: Combatant[]
+    consideredCombatants: Combatant[],
+    rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ): null | CombatActionExecutionIntent {
     return DamageActionEvaluator.evaluateActionIntents(
       intents,
       actionUserContext,
-      consideredCombatants
+      consideredCombatants,
+      resourceChangePropertiesStrategy
     );
   },
   [ActionEvaluatorTypes.RandomMaliciousAction]: function (

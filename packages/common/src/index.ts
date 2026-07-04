@@ -278,3 +278,4 @@ export * from "./game-modes/ladder-records/ladder-records-persistence-strategy.j
 export * from "./game-modes/ladder-records/in-memory-ladder-records-persistence-strategy.js";
 export * from "./game-modes/ladder-records/ladder-records-service.js";
 export * from "./errors/fetch-aborted.js";
+export * from "./combat/combat-actions/action-implementations/resource-change-properties-strategy.js";

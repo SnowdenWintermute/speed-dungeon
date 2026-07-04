@@ -2,6 +2,7 @@ import { ExplorationAction } from "../../../adventuring-party/dungeon-exploratio
 import { DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { Battle } from "../../../battle/index.js";
+import { ResourceChangePropertiesStrategy } from "../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
 import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 import { GameMode } from "../../../game-modes/index.js";
@@ -30,6 +31,7 @@ export class DungeonExplorationController {
     private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
     private readonly idGenerator: IdGenerator,
     private readonly rngPolicy: RandomNumberGenerationPolicy,
+    private readonly resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
@@ -261,6 +263,7 @@ export class DungeonExplorationController {
       this.gameModePolicyStore,
       this.idGenerator,
       this.rngPolicy,
+      this.resourceChangePropertiesStrategy,
       this.lootGenerator,
       this.assetAnalyzer,
       this.partyLifecycleController

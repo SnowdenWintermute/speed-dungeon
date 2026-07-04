@@ -1,4 +1,4 @@
-import { Combatant } from "../../../index.js";
+import { Combatant, ResourceChangePropertiesStrategy } from "../../../index.js";
 import {
   FriendOrFoe,
   TargetCategories,

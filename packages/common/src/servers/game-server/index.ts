@@ -54,6 +54,7 @@ import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js"
 import { LobbyState } from "../lobby-server/lobby-state.js";
 import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
 import { PartyLifecyleController } from "./controllers/party-lifecycle.js";
+import { ResourceChangePropertiesStrategy } from "../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
@@ -100,6 +101,7 @@ export class GameServer extends SpeedDungeonServer {
     /** pass constructor so the class can use its own private parameters to instantiate it */
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
     public readonly rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private readonly idGenerator: IdGenerator,
     authSessionIdParser: AuthSessionIdParser
   ) {
@@ -161,6 +163,7 @@ export class GameServer extends SpeedDungeonServer {
       this.externalServices.userGameDataPersistenceService,
       this.idGenerator,
       rngPolicy,
+      resourceChangePropertiesStrategy,
       this.lootGenerator,
       this.dungeonGenerationPolicy,
       this.assetAnalyzer,
@@ -191,6 +194,7 @@ export class GameServer extends SpeedDungeonServer {
       this.gameModePolicyStore,
       this.idGenerator,
       rngPolicy,
+      resourceChangePropertiesStrategy,
       this.lootGenerator,
       this.assetAnalyzer,
       this.partyLifecycleController

@@ -1,4 +1,4 @@
-import { AssetId, invariant } from "@speed-dungeon/common";
+import { AssetId, invariant, MapUtils } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
@@ -32,7 +32,7 @@ export class AssetServer {
 
   private async serveManifest(req: Request, res: Response, next: NextFunction) {
     const manifest = await this.createManifest();
-    res.json(manifest);
+    res.json(MapUtils.serialize(manifest));
   }
 
   private async serveAsset(req: Request, res: Response, next: NextFunction) {

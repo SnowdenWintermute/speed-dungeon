@@ -7,6 +7,8 @@ import { CombatActionResource } from "../../combat-actions/combat-action-hit-out
 import { PotentialTotalResourceChangeEvaluation } from "./potential-total-resource-change-evaluation.js";
 import { ResourceChangeActionEvaluator } from "./resource-change-action-evaluator.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 
 export const NEEDS_HEALING_HP_NORMALIZED_PERCENTAGE: NormalizedPercentage = 0.7;
 
@@ -14,7 +16,9 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
   static evaluateActionIntents(
     intents: CombatActionExecutionIntent[],
     actionUserContext: ActionUserContext,
-    consideredCombatants: Combatant[]
+    consideredCombatants: Combatant[],
+    rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     const mainTarget =
       ResourceChangeActionEvaluator.getLowestHpCombatantOption(consideredCombatants);
@@ -36,7 +40,8 @@ export class HealingActionEvaluator extends ResourceChangeActionEvaluator {
       const { averageHitOutcomes, maxHitOutcomes } =
         ResourceChangeActionEvaluator.getPredictedHitOutcomes(
           actionUserContext,
-          actionExecutionIntent
+          actionExecutionIntent,
+          resourceChangePropertiesStrategy
         );
 
       const averageHitPointChanges =

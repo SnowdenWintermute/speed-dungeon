@@ -17,6 +17,7 @@ import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { ActionUserType } from "../../action-user-context/action-user.js";
+import { ResourceChangePropertiesStrategy } from "../../index.js";
 
 export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}
@@ -26,7 +27,8 @@ export abstract class TurnTracker {
   abstract getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ): ActionIntentOptionAndUser;
 
   getEntityId() {
@@ -69,7 +71,8 @@ export class CombatantTurnTracker extends TurnTracker {
   getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     const { combatantId } = this;
     const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
@@ -77,7 +80,8 @@ export class CombatantTurnTracker extends TurnTracker {
     const actionExecutionIntent = AISelectActionAndTarget(
       game,
       activeCombatant,
-      randomNumberGenerationPolicy
+      randomNumberGenerationPolicy,
+      resourceChangePropertiesStrategy
     );
     if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
 

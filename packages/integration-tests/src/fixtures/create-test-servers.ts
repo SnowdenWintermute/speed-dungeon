@@ -37,6 +37,7 @@ import {
   InMemoryIronmanRunPersistenceStrategy,
   LadderGameRecordsService,
   InMemoryLadderRecordsPersistenceStrategy,
+  ResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -62,7 +63,7 @@ export async function createTestServers(
   >,
   leastBusyGameServerGetterRef: { getter: () => Promise<{ name: GameServerName; url: string }> },
   rngPolicy: RandomNumberGenerationPolicy,
-
+  resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
   characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
@@ -163,6 +164,7 @@ export async function createTestServers(
           guestSessionReconnectionTokencodec,
           ScriptedDungeonGenerationPolicy,
           rngPolicy,
+          resourceChangePropertiesStrategy,
           new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
           queryParamsAuthSessionIdParser
         ),

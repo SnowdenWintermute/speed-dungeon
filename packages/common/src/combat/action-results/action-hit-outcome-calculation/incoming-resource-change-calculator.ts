@@ -16,6 +16,7 @@ import { IActionUser } from "../../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { randBetween } from "../../../utils/rand-between.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -28,7 +29,8 @@ export class IncomingResourceChangesCalculator {
     private actionExecutionIntent: CombatActionExecutionIntent,
     private targetingCalculator: TargetingCalculator,
     private targetIds: EntityId[],
-    private rng: RandomNumberGenerator
+    private rng: RandomNumberGenerator,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {}
 
   getBaseIncomingResourceChangesPerTarget() {
@@ -62,14 +64,14 @@ export class IncomingResourceChangesCalculator {
     primaryTarget: CombatantProperties,
     hitOutcomeProperties: CombatActionHitOutcomeProperties
   ) {
-    const { resourceChangePropertiesGetters } = hitOutcomeProperties;
-
     const incomingResourceChangesPerTarget: Partial<
       Record<CombatActionResource, { valuePerTarget: number; source: ResourceChangeSource }>
     > = {};
 
     for (const [actionResource, getter] of iterateNumericEnumKeyedRecord(
-      resourceChangePropertiesGetters
+      this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(
+        this.actionExecutionIntent.actionName
+      )
     )) {
       const resourceChangeProperties = getter(
         user,
@@ -77,7 +79,10 @@ export class IncomingResourceChangesCalculator {
         actionLevel,
         primaryTarget
       );
-      if (resourceChangeProperties === null) continue;
+
+      if (resourceChangeProperties === null) {
+        continue;
+      }
 
       // some actions have a base multiplier, such as offhand attack
       const modified = cloneDeep(resourceChangeProperties);

@@ -36,6 +36,7 @@ import {
   InMemoryIronmanRunPersistenceStrategy,
   LadderGameRecordsService,
   InMemoryLadderRecordsPersistenceStrategy,
+  RealResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 
 export function localServerUrl(port: number) {
@@ -147,6 +148,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     guestSessionReconnectionTokencodec,
     RandomDungeonGenerationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+    new RealResourceChangePropertiesStrategy(),
     idGenerator,
     cookieHeaderAuthSessionIdParser
   );
