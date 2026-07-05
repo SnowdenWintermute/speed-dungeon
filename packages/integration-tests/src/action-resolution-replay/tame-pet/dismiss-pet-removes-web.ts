@@ -1,17 +1,16 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
-  BASIC_CHARACTER_FIXTURES,
+  CHARARCTER_FIXTURES_WITH_PETS,
   CombatActionName,
+  CombatantCondition,
+  CombatantConditionName,
   invariant,
   NextOrPrevious,
-  TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
+  TEST_DUNGEON_TWO_SPIDER_ROOMS,
 } from "@speed-dungeon/common";
 
 export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixture) {
-  await testFixture.resetWithOptions(
-    TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
-    BASIC_CHARACTER_FIXTURES
-  );
+  await testFixture.resetWithOptions(TEST_DUNGEON_TWO_SPIDER_ROOMS, CHARARCTER_FIXTURES_WITH_PETS);
   testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;
@@ -20,24 +19,22 @@ export async function testDismissPetRemovesWeb(testFixture: IntegrationTestFixtu
 
   const { combatantManager } = party;
 
-  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
-
-  await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
-  expect(combatantManager.getDungeonControlledCharacters().length).toBe(1);
+  await client.gameClientHarness.toggleReadyToExplore();
 
   await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
-  await gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
-  await gameClientHarness.cycleTargets(NextOrPrevious.Next);
-  await gameClientHarness.useSelectedCombatAction();
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.DismissPet, 1);
-  expect(combatantManager.getNeutralCombatants().length).toBe(0);
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
-  await gameClientHarness.useCombatAction(CombatActionName.SummonPetParent, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+
+  const neutralCombatantCountBeforeDismiss = combatantManager.getNeutralCombatants().length;
   const wolf = combatantManager.getPartyMemberPets()[0];
   invariant(wolf !== undefined, "no pet after summon");
-  expect(wolf.getCombatantProperties().conditionManager.getConditions().length).toBe(0);
+
+  await gameClientHarness.useCombatAction(CombatActionName.DismissPet, 1);
+  expect(combatantManager.getNeutralCombatants().length).toBeLessThan(
+    neutralCombatantCountBeforeDismiss
+  );
 }

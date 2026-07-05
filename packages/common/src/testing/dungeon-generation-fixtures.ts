@@ -25,6 +25,7 @@ const ROOM_WITH_TWO_SPIDERS: ExplicitCombatantRoomTemplate = {
   type: DungeonRoomType.MonsterLair,
   combatants: [MONSTER_FIXTURES.SPIDER, MONSTER_FIXTURES.SPIDER],
 };
+
 export const TEST_DUNGEON_TWO_SPIDER_ROOMS: ExplicitCombatantDungeonTemplate = [
   [
     {
