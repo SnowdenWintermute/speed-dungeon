@@ -6,6 +6,10 @@ import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { appendMonsterEquipment } from "./append-monster-equipment.js";
 import { MONSTER_COMBAT_PROFILES } from "./monster-combat-profiles.js";
+import {
+  MONSTER_INHERENT_ELEMENTAL_AFFINITIES,
+  MONSTER_INHERENT_KINETIC_AFFINITIES,
+} from "./monster-inherent-affinities.js";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-traits.js";
 import { MONSTER_TYPE_STRINGS, MonsterType } from "./monster-types.js";
 
@@ -32,6 +36,15 @@ export class MonsterGenerator {
     const traits = MONSTER_INHERENT_TRAIT_GETTERS[monsterType](level);
     for (const [traitType, rank] of iterateNumericEnumKeyedRecord(traits)) {
       builder.trait(traitType, rank);
+    }
+
+    const physicalAffinities = MONSTER_INHERENT_KINETIC_AFFINITIES[monsterType];
+    for (const [kineticType, value] of iterateNumericEnumKeyedRecord(physicalAffinities)) {
+      builder.kineticAffinity(kineticType, value);
+    }
+    const elementalAffinities = MONSTER_INHERENT_ELEMENTAL_AFFINITIES[monsterType];
+    for (const [magicalElement, value] of iterateNumericEnumKeyedRecord(elementalAffinities)) {
+      builder.elementalAffinity(magicalElement, value);
     }
 
     appendMonsterEquipment(builder, monsterType, this.idGenerator, this.itemBuilder, this.rng);
