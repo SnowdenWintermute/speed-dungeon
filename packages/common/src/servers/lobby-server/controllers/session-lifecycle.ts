@@ -55,10 +55,14 @@ export class LobbySessionLifecycleController
 
       // given by game server to guests on disconnect to identify them
       if (context.clientCachedGuestReconnectionToken) {
-        const decrypted = await this.guestReconnectionTokenCodec.decode(
-          context.clientCachedGuestReconnectionToken
-        );
-        guestSession.setGuestReconnectionToken(decrypted);
+        try {
+          const decrypted = await this.guestReconnectionTokenCodec.decode(
+            context.clientCachedGuestReconnectionToken
+          );
+          guestSession.setGuestReconnectionToken(decrypted);
+        } catch (error) {
+          console.error("error decrypting guest reconnection token", error);
+        }
       }
       return guestSession;
     } else {

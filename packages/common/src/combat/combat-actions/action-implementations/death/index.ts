@@ -43,7 +43,7 @@ export const DEATH_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS: ResourceChangeProper
   },
 };
 
-export const passTurnConfig: CombatActionComponentConfig = {
+export const deathActionConfig: CombatActionComponentConfig = {
   description: "Used for killing combatants usually as a result of other events",
   targetingProperties,
   gameLogMessageProperties: new CombatActionGameLogProperties({
@@ -77,4 +77,4 @@ export const passTurnConfig: CombatActionComponentConfig = {
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };
 
-export const DEATH = new CombatActionLeaf(CombatActionName.Death, passTurnConfig);
+export const DEATH = new CombatActionLeaf(CombatActionName.Death, deathActionConfig);

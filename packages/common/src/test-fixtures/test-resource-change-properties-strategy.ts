@@ -1,4 +1,5 @@
 import { IActionUser } from "../action-user-context/action-user.js";
+import { HALF_KILL_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS } from "../combat/combat-actions/action-implementations/death/half-kill.js";
 import { DEATH_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS } from "../combat/combat-actions/action-implementations/death/index.js";
 import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { CombatActionResource } from "../combat/combat-actions/combat-action-hit-outcome-properties.js";
@@ -12,10 +13,19 @@ import { NumberRange } from "../primatives/number-range.js";
 import { ResourceChangePropertiesGetters } from "../types.js";
 
 export class TestResourceChangePropertiesStrategy extends ResourceChangePropertiesStrategy {
+  constructor(
+    private getters: Record<
+      CombatActionName,
+      ResourceChangePropertiesGetters
+    > = TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS
+  ) {
+    super();
+  }
+
   getResourceChangePropertiesGetters(
     actionName: CombatActionName
   ): ResourceChangePropertiesGetters {
-    return TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS[actionName];
+    return this.getters[actionName];
   }
 }
 
@@ -110,7 +120,7 @@ const PROJECTILE_COPY_PARENT = {
   },
 };
 
-const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
+export const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   CombatActionName,
   ResourceChangePropertiesGetters
 > = {
@@ -157,6 +167,8 @@ const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   [CombatActionName.PayActionPoint]: {},
   [CombatActionName.PassTurn]: {},
   [CombatActionName.Death]: DEATH_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS,
+  [CombatActionName.Kill]: DEATH_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS, // is copied from Death action in Kill's implementation anyway
+  [CombatActionName.HalfKill]: HALF_KILL_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS,
   [CombatActionName.FallTowardsHomePosition]: {},
   [CombatActionName.StartFlying]: {},
 };

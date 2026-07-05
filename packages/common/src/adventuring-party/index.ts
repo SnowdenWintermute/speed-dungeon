@@ -165,6 +165,12 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     }
   }
 
+  requireNotWiped() {
+    if (this.hasWiped()) {
+      throw new Error(ERROR_MESSAGES.PARTY.WIPED);
+    }
+  }
+
   removeCharacter(
     characterId: CombatantId,
     player: SpeedDungeonPlayer,

@@ -49,6 +49,7 @@ import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
 import DownloadDocument from "../../../public/img/menu-icons/download-document.svg";
 import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
 import FloppyDisc from "../../../public/img/menu-icons/floppy-disk.svg";
+import Skull from "../../../public/img/game-ui-icons/skull.svg";
 
 import { ReactNode } from "react";
 import {
@@ -112,6 +113,7 @@ export enum IconName {
   DownloadDocument,
   TrashCan,
   FloppyDisc,
+  Skull,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -166,6 +168,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.DownloadDocument]: (className: string) => <DownloadDocument className={className} />,
   [IconName.TrashCan]: (className: string) => <TrashCan className={className} />,
   [IconName.FloppyDisc]: (className: string) => <FloppyDisc className={className} />,
+  [IconName.Skull]: (className: string) => <Skull className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -262,7 +265,10 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: (className: string) =>
     SVG_ICONS[IconName.SpiderWeb](`${className}`),
   [CombatActionName.StartFlying]: (className: string) => SVG_ICONS[IconName.Feather](className),
-  [CombatActionName.Death]: null,
+  [CombatActionName.Death]: (className: string) => SVG_ICONS[IconName.Skull](className),
+  [CombatActionName.Kill]: (className: string) => SVG_ICONS[IconName.Skull](className),
+  [CombatActionName.HalfKill]: (className: string) =>
+    SVG_ICONS[IconName.Skull](className + " clip-path-[inset(0_50%_0_0)]"),
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {

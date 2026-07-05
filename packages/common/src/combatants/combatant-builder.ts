@@ -251,6 +251,8 @@ export class CombatantBuilder {
       .ownedAction(CombatActionName.TamePet)
       .ownedAction(CombatActionName.ReleasePet)
       .ownedAction(CombatActionName.Ensnare)
+      .ownedAction(CombatActionName.Kill)
+      .ownedAction(CombatActionName.HalfKill)
       .ownedAction(CombatActionName.Healing, 3)
       .ownedAction(CombatActionName.Fire, 3)
       .ownedAction(CombatActionName.Firewall, 3);

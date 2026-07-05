@@ -82,6 +82,7 @@ export const ERROR_MESSAGES = {
     INCORRECT_ROOM_TYPE: "That action is not permitted in this room",
     INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved",
     ALREADY_HAS_THAT_CHARACTER: "That character is already a member of the party",
+    WIPED: "The party has wiped and cannot complete that action",
   },
   LADDER: {
     USER_NOT_FOUND: "No record found for that user",

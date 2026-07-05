@@ -52,6 +52,7 @@ export class DungeonExplorationController {
     game.requireInputUnlocked();
     party.requireInputUnlocked();
     party.requireNotInCombat();
+    party.requireNotWiped();
 
     const { username } = player;
     const { dungeonExplorationManager } = party;
