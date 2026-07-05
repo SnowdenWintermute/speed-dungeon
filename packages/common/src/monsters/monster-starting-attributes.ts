@@ -9,8 +9,8 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   },
   [MonsterType.Wolf]: {
     [CombatAttribute.Vitality]: 1.0,
-    [CombatAttribute.ArmorClass]: 15.0,
-    [CombatAttribute.Hp]: 45,
+    [CombatAttribute.ArmorClass]: 0.0,
+    [CombatAttribute.Hp]: 2,
     [CombatAttribute.Accuracy]: 70.0,
     [CombatAttribute.Strength]: 10.0,
     [CombatAttribute.Speed]: 1.0,
@@ -23,6 +23,16 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Agility]: 2.0,
     [CombatAttribute.Accuracy]: 80.0,
     [CombatAttribute.Mp]: 2.0,
+  },
+  [MonsterType.Slime]: {
+    [CombatAttribute.Spirit]: 0.0,
+    [CombatAttribute.Dexterity]: 4.0,
+    [CombatAttribute.Strength]: 2.0,
+    [CombatAttribute.Vitality]: 1.5,
+    [CombatAttribute.Hp]: 5.0,
+    [CombatAttribute.Agility]: 2.0,
+    [CombatAttribute.Accuracy]: 80.0,
+    [CombatAttribute.Mp]: 0.0,
   },
   [MonsterType.FireMage]: {
     [CombatAttribute.Spirit]: 4.0,

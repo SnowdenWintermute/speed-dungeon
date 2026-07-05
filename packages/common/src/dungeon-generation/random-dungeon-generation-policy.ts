@@ -2,13 +2,17 @@ import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.
 import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
 import { MonsterGenerator } from "../monsters/monster-generator.js";
-import { MonsterType } from "../monsters/monster-types.js";
 import { ArrayUtils } from "../utils/array-utils.js";
 import {
   DungeonGenerationPolicy,
   DungeonRoomWithMonsters,
   ExplicitCombatantDungeonTemplate,
 } from "./index.js";
+import {
+  FALLBACK_MONSTER_SPAWN_TABLE,
+  MONSTER_SPAWN_TABLES,
+  pickWeighted,
+} from "./monster-types-by-floor.js";
 
 export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private monsterGenerator = new MonsterGenerator(
@@ -61,9 +65,10 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     }
 
     const monsters: Combatant[] = [];
-    const monsterType = roomIndex % 2 === 1 ? MonsterType.MantaRay : MonsterType.Spider;
+    const floorSpawnTable = MONSTER_SPAWN_TABLES[floorLevel];
 
     for (let i = 0; i < GAME_CONFIG.MONSTERS_PER_ROOM_COUNT; i += 1) {
+      const monsterType = pickWeighted(floorSpawnTable || FALLBACK_MONSTER_SPAWN_TABLE).monster;
       const newMonster = this.monsterGenerator.generate(monsterType, floorLevel);
       monsters.push(newMonster);
     }

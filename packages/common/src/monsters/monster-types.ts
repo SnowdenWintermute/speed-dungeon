@@ -7,6 +7,7 @@ export enum MonsterType {
   MantaRay,
   Net,
   Spider,
+  Slime,
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
@@ -16,6 +17,7 @@ export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
   [MonsterType.MantaRay]: "Manta Ray",
   [MonsterType.Net]: "Net",
   [MonsterType.Spider]: "Spider",
+  [MonsterType.Slime]: "Slime",
 };
 
 // export function selectRandomMonsterType(): MonsterType {
@@ -41,6 +43,7 @@ export function getMonsterCombatantClass(monsterType: MonsterType): CombatantCla
     case MonsterType.FireMage:
     case MonsterType.Cultist:
     case MonsterType.MantaRay:
+    case MonsterType.Slime:
       return CombatantClass.Mage;
   }
 }

@@ -25,4 +25,5 @@ export const MODEL_PORTRAIT_CAMERA_POSITIONS: Record<
   },
   [MonsterType.Net]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
   [MonsterType.Spider]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
+  [MonsterType.Slime]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
 };

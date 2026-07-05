@@ -1,9 +1,7 @@
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { Combatant } from "../combatants/index.js";
-import { AffixGenerator } from "../items/item-creation/affix-generator.js";
-import { EquipmentRandomizer, ItemBuilder } from "../items/item-creation/item-builder/index.js";
+import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { appendMonsterEquipment } from "./append-monster-equipment.js";

@@ -9,4 +9,5 @@ export const MONSTER_SCALING_SIZES: Record<MonsterType, number> = {
   [MonsterType.MantaRay]: 1,
   [MonsterType.Net]: 1,
   [MonsterType.Spider]: 0.15,
+  [MonsterType.Slime]: 0.4,
 };

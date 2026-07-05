@@ -4,4 +4,5 @@ export enum CombatantSpecies {
   Ray,
   Net,
   Spider,
+  Slime,
 }

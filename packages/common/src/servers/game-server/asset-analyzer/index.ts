@@ -16,6 +16,7 @@ export class AssetAnalyzer {
     [CombatantSpecies.Ray]: {},
     [CombatantSpecies.Net]: {},
     [CombatantSpecies.Spider]: {},
+    [CombatantSpecies.Slime]: {},
   };
 
   private _boundingBoxes: BoundingBoxSizesBySpecies = {};
