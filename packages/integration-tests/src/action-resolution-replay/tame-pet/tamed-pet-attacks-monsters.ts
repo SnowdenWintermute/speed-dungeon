@@ -2,13 +2,39 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   BASIC_CHARACTER_FIXTURES,
   CombatActionName,
+  CombatActionResource,
   invariant,
   NextOrPrevious,
+  NumberRange,
+  ResourceChangeSource,
+  ResourceChangeSourceCategory,
   TEST_DUNGEON_MANTA_TWO_WOLF,
+  TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS,
+  TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 
 export async function testTamedPetHealsAlliesAttacksMonsters(testFixture: IntegrationTestFixture) {
-  await testFixture.resetWithOptions(TEST_DUNGEON_MANTA_TWO_WOLF, BASIC_CHARACTER_FIXTURES);
+  // normally test actions do 1 damage, but we need the attack damage to be high enough to activate
+  // the healing ai's threshold for missing hp
+  await testFixture.resetWithOptions(
+    TEST_DUNGEON_MANTA_TWO_WOLF,
+    BASIC_CHARACTER_FIXTURES,
+    {},
+    new TestResourceChangePropertiesStrategy({
+      ...TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS,
+      [CombatActionName.AttackMeleeMainhand]: {
+        [CombatActionResource.HitPoints]: () => {
+          return {
+            resourceChangeSource: new ResourceChangeSource({
+              category: ResourceChangeSourceCategory.Physical,
+            }),
+            baseValues: new NumberRange(20, 20),
+          };
+        },
+      },
+    })
+  );
+
   testFixture.timeMachine.start();
   const client = await testFixture.createSingleClientInStartedGame();
   const { clientApplication, gameClientHarness } = client;

@@ -2,60 +2,15 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Divider from "../components/atoms/Divider";
 import { ClickOutsideHandlerWrapper } from "../components/atoms/ClickOutsideHandlerWrapper";
 
 export const AssetManager = observer(() => {
   const clientApplication = useClientApplication();
-  const { assetService } = clientApplication;
-  const { assetFetchProgress } = clientApplication.uiStore;
+  const { progressTracker } = clientApplication.assetService;
 
-  useEffect(() => {
-    const initAssetService = async () => {
-      try {
-        const manifest = await assetService.initialize({
-          // clearCache: true,
-          onFetchStartedCallback: (assetId) => {
-            assetFetchProgress.onFetchStart(assetId);
-          },
-          onFetchCompleteCallback: (assetId) => {
-            assetFetchProgress.onFetchComplete(assetId);
-          },
-          onFetchAbortCallback: (assetId) => {
-            assetFetchProgress.onFetchAbort(assetId);
-          },
-          onManifestFetchErrorCallback: (error) => {
-            if (error instanceof Error) {
-              clientApplication.alertsService.setAlert(error, false);
-            } else {
-              clientApplication.alertsService.setAlert(
-                new Error("Fetching asset manifest failed with unknown error type"),
-                false
-              );
-            }
-          },
-        });
-
-        // assume error messages in the options above will notify user
-        if (manifest === undefined) {
-          assetFetchProgress.fetchFailed = true;
-          return;
-        }
-
-        const prefetchQueue = await assetService.scheduleAssetUpdates();
-        assetFetchProgress.initialize(manifest, prefetchQueue);
-        await assetService.startAssetUpdatesPrefetch();
-      } catch (err) {
-        console.error(err);
-        clientApplication.alertsService.setAlert("couldn't fetch asset manifest");
-      }
-    };
-
-    initAssetService();
-  }, []);
-
-  const { initialized, displayPercent, isComplete } = assetFetchProgress;
+  const { initialized, displayPercent, isComplete } = progressTracker;
 
   const [hovered, setHovered] = useState(false);
   function handleClick() {
@@ -65,7 +20,7 @@ export const AssetManager = observer(() => {
   return (
     <div
       id="asset-manager"
-      className="absolute bottom-0 left-0 max-h-screen max-w-screen overflow-hidden pointer-events-auto"
+      className="absolute bottom-0 left-0 max-h-screen max-w-screen overflow-hidden pointer-events-auto hidden"
       style={{ zIndex: 30 }}
     >
       <ClickOutsideHandlerWrapper onClickOutside={() => setHovered(false)} isActive={hovered}>
@@ -73,7 +28,7 @@ export const AssetManager = observer(() => {
           className="bg-slate-700 border-slate-400 border m-6 p-2 max-h-full max-w-full overflow-hidden"
           onClick={handleClick}
         >
-          {assetFetchProgress.fetchFailed ? (
+          {progressTracker.fetchFailed ? (
             <div>asset fetch failed</div>
           ) : initialized && isComplete ? (
             <div className="flex align-middle">
@@ -88,7 +43,7 @@ export const AssetManager = observer(() => {
             <div className="overflow-auto">
               <Divider />
               <ul className="flex flex-wrap justify-between">
-                {Array.from(assetFetchProgress.fetchCompletions).map(([assetId, data]) => {
+                {Array.from(progressTracker.fetches).map(([assetId, data]) => {
                   const { wasCached, isComplete, started, aborted } = data;
                   const textColor = (() => {
                     if (wasCached) {

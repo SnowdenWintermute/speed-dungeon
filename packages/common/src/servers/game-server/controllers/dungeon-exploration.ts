@@ -2,36 +2,41 @@ import { ExplorationAction } from "../../../adventuring-party/dungeon-exploratio
 import { DungeonRoomType } from "../../../adventuring-party/dungeon-room.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { Battle } from "../../../battle/index.js";
+import { ResourceChangePropertiesStrategy } from "../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
+import { GameMode } from "../../../game-modes/index.js";
+import { PartyFateType } from "../../../game-modes/ladder-records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameMode } from "../../../types.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { SavedCharactersService } from "../../services/saved-characters.js";
+import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { AssetAnalyzer } from "../asset-analyzer/index.js";
 import { PartyDelayedGameMessageFactory } from "../party-delayed-game-message-factory.js";
 import { BattleProcessor } from "./battle-processor/index.js";
-import { GameModeContext } from "./game-lifecycle/game-mode-context.js";
+import { PartyLifecyleController } from "./party-lifecycle.js";
 
 export class DungeonExplorationController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
 
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersService: SavedCharactersService,
+    private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
     private readonly idGenerator: IdGenerator,
     private readonly rngPolicy: RandomNumberGenerationPolicy,
+    private readonly resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
     private readonly assetAnalyzer: AssetAnalyzer,
-    private readonly gameModeContexts: Record<GameMode, GameModeContext>
+    private readonly gameModePolicyStore: GameModePolicyStore,
+    private readonly partyLifecycleController: PartyLifecyleController
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
@@ -43,10 +48,11 @@ export class DungeonExplorationController {
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const { game, party, player } = session.requirePlayerContext();
 
-    game.requireTimeStarted();
+    game.clock.requireLive();
     game.requireInputUnlocked();
     party.requireInputUnlocked();
     party.requireNotInCombat();
+    party.requireNotWiped();
 
     const { username } = player;
     const { dungeonExplorationManager } = party;
@@ -78,7 +84,7 @@ export class DungeonExplorationController {
   async toggleReadyToDescendHandler(session: UserSession) {
     const { game, party, player } = session.requirePlayerContext();
 
-    game.requireTimeStarted();
+    game.clock.requireLive();
     game.requireInputUnlocked();
     party.requireInputUnlocked();
     party.requireDescentPermitted();
@@ -110,11 +116,16 @@ export class DungeonExplorationController {
   }
 
   async descendParty(game: SpeedDungeonGame, party: AdventuringParty) {
-    const gameModeContext = this.gameModeContexts[game.mode];
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
 
     const { dungeonExplorationManager } = party;
-    dungeonExplorationManager.incrementCurrentFloor();
 
+    const clearedFloor = dungeonExplorationManager.getCurrentFloor();
+    const livePlayTimeMs = game.clock.getTotalLivePlayTimeMs();
+    const timeSpentOnFloorMs = dungeonExplorationManager.getTimeSpentOnCurrentFloor(livePlayTimeMs);
+
+    dungeonExplorationManager.incrementCurrentFloor();
+    dungeonExplorationManager.markCurrentFloorEnteredTimestamp(livePlayTimeMs);
     dungeonExplorationManager.clearUnexploredRooms();
     dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
@@ -136,17 +147,20 @@ export class DungeonExplorationController {
 
     outbox.pushFromOther(descentMessageOutbox);
 
+    await gameModePolicy.persistence.onFloorDescent(game, party);
+    await gameModePolicy.ladder.onFloorDescent(game, party, clearedFloor, timeSpentOnFloorMs);
+
     if (dungeonExplorationManager.partyEscapedDungeon()) {
       let anotherPartyAlreadyEscaped = false;
       for (const [_, party] of game.adventuringParties) {
-        if (party.timeOfEscape) {
+        if (party.hasEscaped()) {
           anotherPartyAlreadyEscaped = true;
           break;
         }
       }
 
       const timeOfEscape = Date.now();
-      party.timeOfEscape = timeOfEscape;
+      party.fate = { type: PartyFateType.Escape, timestamp: timeOfEscape };
 
       let hasBeenMarkedAsWinnerMessageOption = "";
       if (!anotherPartyAlreadyEscaped) {
@@ -162,7 +176,8 @@ export class DungeonExplorationController {
 
       outbox.pushFromOther(escapeMessageOutbox);
 
-      await gameModeContext.strategy.onPartyEscape(game, party);
+      await gameModePolicy.persistence.onPartyEscape(game, party);
+      await gameModePolicy.ladder.onPartyEscape(game);
     }
 
     const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
@@ -177,7 +192,7 @@ export class DungeonExplorationController {
     if (game.mode === GameMode.Progression) {
       // @PERF - later we can consider a correct way to "fire-and-forget" this persistence
       // but since it is more complexity and might not be all that slow we'll just await for now
-      await this.savedCharactersService.updateAllInParty(game, party);
+      await this.userGameDataPersistenceService.updateAllInParty(game, party);
     }
 
     const { dungeonExplorationManager } = party;
@@ -246,11 +261,13 @@ export class DungeonExplorationController {
       game,
       party,
       battleOption,
-      this.gameModeContexts,
+      this.gameModePolicyStore,
       this.idGenerator,
       this.rngPolicy,
+      this.resourceChangePropertiesStrategy,
       this.lootGenerator,
-      this.assetAnalyzer
+      this.assetAnalyzer,
+      this.partyLifecycleController
     );
 
     const { outbox: battleProcessingOutbox, durationUntilInputUnlock } =

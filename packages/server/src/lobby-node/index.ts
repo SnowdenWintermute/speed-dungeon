@@ -6,7 +6,6 @@ import {
   CrossServerBroadcasterService,
   GameStateUpdate,
   ServerCommand,
-  SavedCharactersService,
   GameSessionStoreService,
   RandomNumberGenerationPolicyFactory,
   ScriptedCharacterCreationPolicy,
@@ -23,23 +22,27 @@ import {
   GlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
+  UserGameDataPersistenceService,
+  SpeedDungeonProfileService,
+  InMemoryLadderRecordsPersistenceStrategy,
+  LadderGameRecordsService,
+  IdGenerator,
+  DefaultCharacterCreationPolicy,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
-import { characterSlotsRepo } from "../database/repos/character-slots.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
-import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { DatabaseProfileService } from "../game-node/services/profiles.js";
-import { DatabaseRankedLadderService } from "../game-node/services/ranked-ladder.js";
+import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
+import { DatabaseCharacterLevelLadderService } from "../game-node/services/ranked-ladder.js";
 import {
+  DatabaseIronmanRunPersistenceStrategy,
   DatabaseSavedCharacterPersistenceStrategy,
-  DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "../game-node/services/saved-characters.js";
+} from "../game-node/services/user-game-data-persistence.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
-import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
@@ -50,15 +53,19 @@ export class LobbyServerNode {
     globalGameSessionStore: GlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
-    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
+    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    profileService: SpeedDungeonProfileService
   ) {
     const wss = new WebSocketServer({ server: httpServer });
 
     const usersIncomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
+    const idGenerator = new IdGeneratorRandom({ saveHistory: false });
     const externalServices = this.createExternalServices(
       gameSessionStoreService,
       crossServerBroadcasterService,
-      globalGameSessionStore
+      globalGameSessionStore,
+      profileService,
+      idGenerator
     );
     const leastBusyGameServerUrlGetter = async () => {
       return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
@@ -70,15 +77,15 @@ export class LobbyServerNode {
       guestReconnectionTokenCodec,
       { [GAME_SERVER_NAME]: "http://localhost:8090" },
       leastBusyGameServerUrlGetter,
-      // DefaultCharacterCreationPolicy,
-      ScriptedCharacterCreationPolicy,
+      DefaultCharacterCreationPolicy,
+      // ScriptedCharacterCreationPolicy,
       RandomNumberGenerationPolicyFactory.allRandomPolicy(),
       // new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
-      new IdGeneratorRandom({ saveHistory: false }),
+      idGenerator,
       cookieHeaderAuthSessionIdParser
     );
 
-    this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
+    // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
     // this._lobbyServer.characterCreationPolicy.setCharacters(LOW_HP_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PET_MANTAS);
@@ -95,33 +102,42 @@ export class LobbyServerNode {
   private createExternalServices(
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore
+    globalGameSessionStore: GlobalGameSessionStore,
+    profileService: SpeedDungeonProfileService,
+    idGenerator: IdGenerator
   ): LobbyExternalServices {
     const identityProviderService = new IdentityProviderService({
       execute: async (context: ConnectionIdentityResolutionContext) => {
-        return await getLoggedInUserOption(context.authSessionId);
+        return await getLoggedInUserOption(context.authSessionId, profileService);
       },
     });
-
-    const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
 
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
-
-    const savedCharacterSlotsPersistenceStrategy =
-      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
-    const savedCharactersService = new SavedCharactersService(
-      savedCharacterSlotsPersistenceStrategy,
-      savedCharactersPersistenceStrategy
+    const ironmanRunPersistenceStrategy = new DatabaseIronmanRunPersistenceStrategy(
+      savedIronmanRunsRepo
     );
-    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+
+    const userGameDataPersistenceService = new UserGameDataPersistenceService(
+      savedCharactersPersistenceStrategy,
+      ironmanRunPersistenceStrategy,
+      profileService
+    );
+    const characterLevelLadderService = new DatabaseCharacterLevelLadderService(
+      valkeyManager.context
+    );
+    const ladderGameRecordsService = new LadderGameRecordsService(
+      new InMemoryLadderRecordsPersistenceStrategy(),
+      idGenerator
+    );
 
     const externalServices: LobbyExternalServices = {
       identityProviderService,
       profileService,
-      savedCharactersService,
-      rankedLadderService,
+      userGameDataPersistenceService,
+      characterLevelLadderService,
+      ladderGameRecordsService,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,

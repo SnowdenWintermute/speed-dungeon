@@ -17,7 +17,10 @@ export async function testRetryLostInitialConnectionInstructions(
   });
   // disconnects after starting game but before getting connection instructions
   await alpha.clientApplication.lobbyClientRef.get().close();
-  await expect(async () =>
+  // await expect(async () =>
+  //   alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor()
+  // ).rejects.toThrow();
+  await expect(
     alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor()
   ).rejects.toThrow();
   // reconnects to lobby server
@@ -25,7 +28,7 @@ export async function testRetryLostInitialConnectionInstructions(
   // should connect to game server
   await alpha.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
   await alpha.clientApplication.topologyManager.transitionToGameServer.waitFor();
-  alpha.clientApplication.gameContext.requireGame().requireTimeStarted();
+  alpha.clientApplication.gameContext.requireGame().clock.requireLive();
 }
 
 export async function testLateJoinerToGameAfterOtherPlayersLeft(
@@ -60,6 +63,6 @@ export async function testLateJoinerToGameAfterOtherPlayersLeft(
   // should connect to game server
   await bravo.clientApplication.topologyManager.waitForReconnectionInstructions.waitFor();
   await bravo.clientApplication.topologyManager.transitionToGameServer.waitFor();
-  bravo.clientApplication.gameContext.requireGame().requireTimeStarted();
+  bravo.clientApplication.gameContext.requireGame().clock.requireLive();
   expect(bravo.clientApplication.gameContext.requireGame().getPlayerCount()).toBe(1);
 }

@@ -52,5 +52,5 @@ export abstract class CharacterCreationPolicy {
     name: EntityName,
     combatantClass: CombatantClass,
     controllingPlayerName: Username
-  ): { character: Combatant; pets: Combatant[] };
+  ): { combatant: Combatant; pets: Combatant[] };
 }

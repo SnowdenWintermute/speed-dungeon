@@ -93,7 +93,7 @@ export const SelectDropdown = observer((props: Props) => {
   const selectedOptionAsOpenButton = options
     .filter((option) => option.value === value)
     .map((option) => {
-      if (option.value !== value) return null;
+      if (option.value !== value) return <div>No selectable options</div>;
       return (
         <button
           onFocus={handleFocus}

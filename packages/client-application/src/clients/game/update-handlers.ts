@@ -16,6 +16,7 @@ import {
   Equipment,
   EquipmentType,
   ERROR_MESSAGES,
+  GAME_CLOSED_REASON_STRINGS,
   GameStateUpdateMap,
   GameStateUpdateType,
   getCraftingActionPrice,
@@ -99,15 +100,17 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.GameFullUpdate]: (data) => {
       gameFullUpdateHandler(clientApplication, data.game);
 
-      if (data.game?.timeStarted) {
+      if (data.game?.clock?.anchor != null) {
         clientApplication.handleGameStartedOrFullUpdateReceived();
-        if (data.battle) {
-          clientApplication.handleBattleFullUpdate(data.battle);
-        }
+      }
+
+      clientApplication.combatantFocus.focusFirstOwnedCharacter();
+
+      if (data.battle) {
+        clientApplication.handleBattleFullUpdate(data.battle);
       }
 
       clientApplication.topologyManager.transitionToGameServer.fire();
-      clientApplication.combatantFocus.focusFirstOwnedCharacter();
 
       const { partyOption } = clientApplication.gameContext;
 
@@ -135,6 +138,17 @@ export function createGameUpdateHandlers(
       for (const character of combatantManager.iterateAllCombatants()) {
         gameWorldView.imageGenerator.enqueueCharacterItemsForThumbnails(character);
       }
+    },
+    [GameStateUpdateType.GameClosed]: (data) => {
+      const { reason } = data;
+      clientApplication.gameWorldView?.sceneEntityService.clearAll();
+      clientApplication.gameContext.clearGame();
+      clientApplication.alertsService.setAlert(
+        `Game closed: ${GAME_CLOSED_REASON_STRINGS[reason]}`
+      );
+      clientApplication.gameClientRef.get().close();
+      clientApplication.gameClientRef.clearClient();
+      clientApplication.topologyManager.connectWithPrefferedMode();
     },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const party = clientApplication.gameContext.requireParty();

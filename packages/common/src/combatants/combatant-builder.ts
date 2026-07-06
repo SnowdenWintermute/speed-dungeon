@@ -26,6 +26,9 @@ import {
 } from "../items/equipment/slots.js";
 import { HoldableHotswapSlot } from "./combatant-equipment/holdable-hotswap-slot.js";
 import { ThreatManager } from "./threat-manager/index.js";
+import { KineticDamageType } from "../combat/kinetic-damage-types.js";
+import { MagicalElement } from "../combat/magical-elements.js";
+import cloneDeep from "lodash.clonedeep";
 
 interface HoldableEquipEntry {
   equipment: Equipment;
@@ -53,6 +56,8 @@ export class CombatantBuilder {
   private _shards: number = 0;
   private _abilities: CombatantActionState[] = [];
   private _traits: Partial<Record<CombatantTraitType, number>> = {};
+  private _kineticAffinities: Partial<Record<KineticDamageType, number>> = {};
+  private _elementalAffinities: Partial<Record<MagicalElement, number>> = {};
   private _aiTypes: AiType[] = [];
   private _withThreatManager: boolean = false;
   private _useExplicitAttributes: boolean = false;
@@ -224,6 +229,16 @@ export class CombatantBuilder {
     return this;
   }
 
+  kineticAffinity(kineticType: KineticDamageType, value: number): this {
+    this._kineticAffinities[kineticType] = value;
+    return this;
+  }
+
+  elementalAffinity(elementalType: MagicalElement, value: number): this {
+    this._elementalAffinities[elementalType] = value;
+    return this;
+  }
+
   unspentAbilityPoints(points: number) {
     this._unspentAbilityPoints = points;
     return this;
@@ -251,6 +266,8 @@ export class CombatantBuilder {
       .ownedAction(CombatActionName.TamePet)
       .ownedAction(CombatActionName.ReleasePet)
       .ownedAction(CombatActionName.Ensnare)
+      .ownedAction(CombatActionName.Kill)
+      .ownedAction(CombatActionName.HalfKill)
       .ownedAction(CombatActionName.Healing, 3)
       .ownedAction(CombatActionName.Fire, 3)
       .ownedAction(CombatActionName.Firewall, 3);
@@ -326,6 +343,9 @@ export class CombatantBuilder {
     for (const [traitType, rank] of iterateNumericEnumKeyedRecord(this._traits)) {
       traitProperties.inherentTraitLevels[traitType] = rank;
     }
+
+    traitProperties.inherentElementalAffinities = cloneDeep(this._elementalAffinities);
+    traitProperties.inherentKineticDamageTypeAffinities = cloneDeep(this._kineticAffinities);
 
     // this is a one-off. as far as I know, no other traits have anything so special as to
     // require anything other than an arbitrary number to represent either a value or the level

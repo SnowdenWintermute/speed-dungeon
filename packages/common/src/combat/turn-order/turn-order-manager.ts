@@ -21,7 +21,6 @@ export class TurnOrderManager implements Serializable, ReactiveNode {
   toSerialized() {
     return {
       minTrackersCount: this.minTrackersCount,
-      turnTrackers: this.turnTrackers,
       turnSchedulerManager: this.turnSchedulerManager.toSerialized(),
     };
   }

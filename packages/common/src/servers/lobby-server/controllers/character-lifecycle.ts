@@ -4,20 +4,25 @@ import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { Combatant } from "../../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
-import { GameMode } from "../../../types.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
-import { SavedCharactersService } from "../../services/saved-characters.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { GameMode } from "../../../game-modes/index.js";
+import { PartySetupController } from "./party-setup.js";
+import { UserGameDataPersistenceService } from "../../services/user-game-data-persistence/index.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
+import { requireAllowed } from "../../../primatives/index.js";
 
 export class CharacterLifecycleController {
   constructor(
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersService: SavedCharactersService,
-    private readonly characterCreationPolicy: CharacterCreationPolicy
+    private readonly userGameDataPersistenceService: UserGameDataPersistenceService,
+    private readonly characterCreationPolicy: CharacterCreationPolicy,
+    private readonly partySetupController: PartySetupController,
+    private readonly gameModePolicyStore: GameModePolicyStore
   ) {}
 
   static requireValidCharacterNameLength(name: string) {
@@ -26,7 +31,7 @@ export class CharacterLifecycleController {
     }
   }
 
-  createCharacterHandler(
+  async createCharacterInGameHandler(
     session: UserSession,
     data: { name: EntityName; combatantClass: CombatantClass }
   ) {
@@ -36,19 +41,36 @@ export class CharacterLifecycleController {
 
     CharacterLifecycleController.requireValidCharacterNameLength(name);
 
-    const { character: newCharacter, pets } = this.characterCreationPolicy.createCharacter(
+    const userWithinCharacterControlSchemeLimits =
+      this.partySetupController.userMeetsCharacterControlSchemeLimits(session.username, game);
+    requireAllowed(userWithinCharacterControlSchemeLimits);
+
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    requireAllowed(await gameModePolicy.lobbySetup.userCanCreateCharacter(session, game));
+    requireAllowed(gameModePolicy.lobbySetup.userCanAddCharacterToParty(session, game, party));
+
+    const characterWithPets = this.characterCreationPolicy.createCharacter(
       name,
       combatantClass,
       session.username
     );
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
+    const gameModePolicyCharacterCreationInGameOutbox =
+      await gameModePolicy.persistence.onCreateCharacterInLobbySetup(
+        session,
+        game,
+        characterWithPets
+      );
+
+    outbox.pushFromOther(gameModePolicyCharacterCreationInGameOutbox);
+
+    const { combatant: newCharacter, pets } = characterWithPets;
     const player = game.getExpectedPlayer(session.username);
     game.addCharacterToParty(party, player, newCharacter, pets);
 
     const serialized = newCharacter.toSerialized();
     const serializedPets = pets.map((pet) => pet.toSerialized());
-
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.CharacterAddedToParty,
@@ -58,9 +80,17 @@ export class CharacterLifecycleController {
     return outbox;
   }
 
-  deleteCharacterHandler(session: UserSession, data: { characterId: CombatantId }) {
+  deleteCharacterInGameHandler(session: UserSession, data: { characterId: CombatantId }) {
     const { characterId } = data;
     const game = session.getExpectedCurrentGame();
+
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    const policyAllowsDeletion =
+      gameModePolicy.lobbySetup.usersCanDeleteCharactersInGameSetup(game);
+    if (!policyAllowsDeletion.allowed) {
+      throw new Error(policyAllowsDeletion.reason);
+    }
+
     const player = game.getExpectedPlayer(session.username);
 
     const playerDoesNotOwnCharacter = !player.characterIds.includes(characterId);
@@ -92,34 +122,35 @@ export class CharacterLifecycleController {
     return outbox;
   }
 
-  async selectProgressionGameCharacterHandler(session: UserSession, data: { entityId: string }) {
+  async addSavedCharacterToProgressionGameHandler(
+    session: UserSession,
+    data: { entityId: string }
+  ) {
     const game = session.getExpectedCurrentGame();
-
     game.requireMode(GameMode.Progression);
-
     session.requireAuthorized();
     const profile = await session.requireProfile(this.profileService);
-    const characters = await this.savedCharactersService.fetchSavedCharacters(profile.id);
-
-    const userHasNoSavedCharacters = Object.values(characters).length === 0;
-    if (userHasNoSavedCharacters) {
-      throw new Error(ERROR_MESSAGES.GAME.NO_SAVED_CHARACTERS);
-    }
-
-    const { entityId } = data;
-    const savedCharacter = SavedCharactersService.getLivingCharacterInSlotsById(
-      entityId,
-      characters
-    );
-
     const player = game.getExpectedPlayer(session.username);
-    const characterIdToRemoveOption = player.characterIds[0];
-    if (characterIdToRemoveOption === undefined) {
-      throw new Error("Expected to have a selected character but didn't");
+    const characterAlreadyInParty = player.characterIds.includes(data.entityId as CombatantId);
+
+    if (characterAlreadyInParty) {
+      throw new Error(ERROR_MESSAGES.PARTY.ALREADY_HAS_THAT_CHARACTER);
     }
 
     const party = session.getExpectedCurrentParty(game);
-    party.removeCharacter(characterIdToRemoveOption, player, game);
+    const { entityId } = data;
+    const ownedCharacter = await this.userGameDataPersistenceService.requireOwnedLivingCharacter(
+      profile.ownerId,
+      entityId
+    );
+
+    const savedCharacter = {
+      combatant: {
+        entityProperties: { id: ownedCharacter.id, name: ownedCharacter.name },
+        combatantProperties: ownedCharacter.combatantProperties,
+      },
+      pets: ownedCharacter.pets,
+    };
 
     game.addCharacterToParty(
       party,

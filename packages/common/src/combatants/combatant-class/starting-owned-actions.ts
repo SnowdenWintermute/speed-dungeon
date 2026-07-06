@@ -23,31 +23,7 @@ const CHARACTER_STARTING_OWNED_ACTIONS: Record<
   CombatantClass,
   Partial<Record<CombatActionName, number>>
 > = {
-  [CombatantClass.Warrior]: {
-    [CombatActionName.ChainingSplitArrowParent]: 1,
-    [CombatActionName.IceBoltParent]: 1,
-    [CombatActionName.Ensnare]: 1,
-    [CombatActionName.ExplodingArrowParent]: 1,
-    [CombatActionName.Fire]: 3,
-    [CombatActionName.Healing]: 3,
-    [CombatActionName.Firewall]: 3,
-  },
-  [CombatantClass.Mage]: {
-    [CombatActionName.ChainingSplitArrowParent]: 1,
-    [CombatActionName.IceBoltParent]: 1,
-    [CombatActionName.Ensnare]: 1,
-    [CombatActionName.ExplodingArrowParent]: 1,
-    [CombatActionName.Fire]: 3,
-    [CombatActionName.Healing]: 3,
-    [CombatActionName.Firewall]: 3,
-  },
-  [CombatantClass.Rogue]: {
-    [CombatActionName.ChainingSplitArrowParent]: 1,
-    [CombatActionName.IceBoltParent]: 1,
-    [CombatActionName.Ensnare]: 1,
-    [CombatActionName.ExplodingArrowParent]: 1,
-    [CombatActionName.Fire]: 3,
-    [CombatActionName.Healing]: 3,
-    [CombatActionName.Firewall]: 3,
-  },
+  [CombatantClass.Warrior]: {},
+  [CombatantClass.Mage]: {},
+  [CombatantClass.Rogue]: {},
 };

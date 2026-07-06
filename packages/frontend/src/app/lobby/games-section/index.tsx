@@ -4,17 +4,17 @@ import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
 import {
   ClientIntentType,
+  GAME_MODE_STRINGS,
   GameListEntry,
   GameMode,
   MAX_PARTY_SIZE,
-  formatGameMode,
 } from "@speed-dungeon/common";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import Divider from "@/app/components/atoms/Divider";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import HostGameForm from "./HostGameForm";
+import { HostGameForm } from "./HostGameForm";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 import { observer } from "mobx-react-lite";
@@ -167,7 +167,7 @@ function GameListItem({ game }: GameListItemProps) {
   function joinGame() {
     lobbyClientRef
       .get()
-      .dispatchIntent({ type: ClientIntentType.JoinGame, data: { gameName: game.gameName } });
+      .dispatchIntent({ type: ClientIntentType.JoinGame, data: { gameId: game.gameId } });
   }
 
   return (
@@ -179,7 +179,7 @@ function GameListItem({ game }: GameListItemProps) {
         }}
       >
         {game.gameName} - [{game.isRanked && "Ranked "}
-        {formatGameMode(game.gameMode)}]
+        {GAME_MODE_STRINGS[game.gameMode]}]
       </div>
       <div className="h-10 w-32 flex items-center border-r border-l border-slate-400 pl-4 pr-4">
         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">
@@ -195,7 +195,7 @@ function GameListItem({ game }: GameListItemProps) {
       </div>
       <ButtonBasic
         onClick={joinGame}
-        disabled={typeof game.timeStarted === "number"}
+        disabled={typeof game.handedOffAt === "number"}
         extraStyles="border-0"
       >
         {"Join"}

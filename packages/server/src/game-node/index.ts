@@ -7,9 +7,6 @@ import {
   GameServerNodeAssetService,
   GameSessionStoreService,
   GameStateUpdate,
-  InMemoryRaceGameRecordsPersistenceStrategy,
-  RaceGameRecordsService,
-  SavedCharactersService,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   ServerCommand,
@@ -20,12 +17,9 @@ import {
   EXPLICIT_ATTACK_TEST_DUNGEON,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   TEST_DUNGEON_ZERO_SPEED_WOLVES,
-  TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL,
-  TEST_DUNGEON_ONE_MID_HP_WOLF_ONE_NORMAL,
   TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST,
   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
   TEST_DUNGEON_MANTA_TWO_WOLF,
-  TEST_DUNGEON_TWO_MID_HP_WOLVES,
   TEST_DUNGEON_ZERO_SPEED_MANTAS,
   TEST_DUNGEON_TWO_ONE_HP_WOLVES,
   cookieHeaderAuthSessionIdParser,
@@ -35,6 +29,16 @@ import {
   GlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
+  UserGameDataPersistenceService,
+  GuestSessionReconnectionToken,
+  SpeedDungeonProfileService,
+  LadderGameRecordsService,
+  InMemoryLadderRecordsPersistenceStrategy,
+  IdGenerator,
+  RealResourceChangePropertiesStrategy,
+  TestResourceChangePropertiesStrategy,
+  TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL,
+  RandomDungeonGenerationPolicy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { AssetServer } from "../asset-server/index.js";
@@ -43,15 +47,14 @@ import { Express } from "express";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import {
+  DatabaseIronmanRunPersistenceStrategy,
   DatabaseSavedCharacterPersistenceStrategy,
-  DatabaseSavedCharacterSlotsPersistenceStrategy,
-} from "./services/saved-characters.js";
-import { characterSlotsRepo } from "../database/repos/character-slots.js";
-import { DatabaseRankedLadderService } from "./services/ranked-ladder.js";
+} from "./services/user-game-data-persistence.js";
+import { DatabaseCharacterLevelLadderService } from "./services/ranked-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
+import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
 import { env } from "../validate-env.js";
-import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -61,6 +64,7 @@ export class GameServerNode {
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     expressApp: Express,
+    profileService: SpeedDungeonProfileService,
     gameSessionStoreService: GameSessionStoreService,
     globalGameSessionStore: GlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -73,22 +77,25 @@ export class GameServerNode {
 
     const wss = new WebSocketServer({ server: httpServer });
     const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
+    const idGenerator = new IdGeneratorRandom({ saveHistory: false });
     const externalServices = this.createExternalServices(
       fsAssetStore,
       gameSessionStoreService,
       crossServerBroadcasterService,
-      globalGameSessionStore
+      globalGameSessionStore,
+      profileService,
+      idGenerator
     );
 
-    const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
-    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
-      counterAttack: fixedRngMinRoll,
-      criticalStrike: fixedRngMinRoll,
-      parry: fixedRngMinRoll,
-      shieldBlock: fixedRngMinRoll,
-      spellResist: fixedRngMinRoll,
-    });
-    // const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
+    // const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
+    // const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
+    //   counterAttack: fixedRngMinRoll,
+    //   criticalStrike: fixedRngMinRoll,
+    //   parry: fixedRngMinRoll,
+    //   shieldBlock: fixedRngMinRoll,
+    //   spellResist: fixedRngMinRoll,
+    // });
+    const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
 
     this._server = new GameServer(
       name,
@@ -96,27 +103,32 @@ export class GameServerNode {
       externalServices,
       gameServerSessionClaimTokenCodec,
       guestReconnectionTokenCodec,
-      ScriptedDungeonGenerationPolicy,
+      // ScriptedDungeonGenerationPolicy,
+      RandomDungeonGenerationPolicy,
       rngPolicy,
+      new RealResourceChangePropertiesStrategy(),
+      // new TestResourceChangePropertiesStrategy(),
       // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
-      new IdGeneratorRandom({ saveHistory: false }),
+      idGenerator,
       cookieHeaderAuthSessionIdParser
-      // RandomDungeonGenerationPolicy,
-      // allRandomPolicy()
     );
 
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_ONE_HP_WOLVES);
-    this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_MANTAS);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_LOW_HP_WOLF_ONE_NORMAL);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(
+    //   TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST
+    // );
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_MID_HP_WOLVES);
     // this._server.dungeonGenerationPolicy.setExplicitFloors(
     //   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA
     // );
     // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
+    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }
@@ -125,34 +137,42 @@ export class GameServerNode {
     assetStore: AssetCache,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore
+    globalGameSessionStore: GlobalGameSessionStore,
+    profileService: SpeedDungeonProfileService,
+    idGenerator: IdGenerator
   ): GameServerExternalServices {
     const assetService = new GameServerNodeAssetService(assetStore);
 
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
-    const savedCharacterSlotsPersistenceStrategy =
-      new DatabaseSavedCharacterSlotsPersistenceStrategy(characterSlotsRepo);
-    const savedCharactersService = new SavedCharactersService(
-      savedCharacterSlotsPersistenceStrategy,
-      savedCharactersPersistenceStrategy
+    const ironmanRunPersistenceStrategy = new DatabaseIronmanRunPersistenceStrategy(
+      savedIronmanRunsRepo
+    );
+    const userGameDataPersistenceService = new UserGameDataPersistenceService(
+      savedCharactersPersistenceStrategy,
+      ironmanRunPersistenceStrategy,
+      profileService
     );
 
-    const rankedLadderService = new DatabaseRankedLadderService(valkeyManager.context);
+    const characterLevelLadderService = new DatabaseCharacterLevelLadderService(
+      valkeyManager.context
+    );
 
-    // @TODO - make postgres version
-    const raceGameRecordsPersistenceStrategy = new InMemoryRaceGameRecordsPersistenceStrategy();
-    const raceGameRecordsService = new RaceGameRecordsService(raceGameRecordsPersistenceStrategy);
+    const ladderGameRecordsService = new LadderGameRecordsService(
+      new InMemoryLadderRecordsPersistenceStrategy(),
+      idGenerator
+    );
 
     const result: GameServerExternalServices = {
       gameSessionStoreService,
-      savedCharactersService,
-      rankedLadderService,
-      raceGameRecordsService,
+      userGameDataPersistenceService,
+      characterLevelLadderService,
+      ladderGameRecordsService,
       assetService,
       crossServerBroadcasterService,
       globalGameSessionStore,
+      profileService,
     };
     return result;
   }

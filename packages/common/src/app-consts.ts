@@ -1,9 +1,10 @@
-import { Meters, Milliseconds } from "./aliases.js";
+import { GameId, Meters, Milliseconds } from "./aliases.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 50000;
 
 // remember to update it in package.json as well!
 export const APP_VERSION_NUMBER = "0.11.0";
+export const TARGET_CONCURRENT_ASSET_FETCH_COUNT = 2;
 
 export const INFO_UNICODE_SYMBOL = "ⓘ";
 
@@ -118,8 +119,10 @@ export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
 
 // ACCOUNTS AND PROFILES
 export const DEFAULT_ACCOUNT_CHARACTER_CAPACITY = 3;
+export const DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY = 2;
 export const LADDER_PAGE_SIZE = 20;
 export const RACE_GAME_RECORDS_PAGE_SIZE = 3;
+export const USER_GAME_HISTORY_PAGE_SIZE = 10;
 export const MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD = 10;
 
 // VALIDATION

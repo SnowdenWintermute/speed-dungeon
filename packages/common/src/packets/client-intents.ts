@@ -2,23 +2,24 @@ import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import {
   ActionRank,
-  CharacterSlotIndex,
   CombatantId,
   EntityId,
   EntityName,
+  GameId,
   GameName,
   ItemId,
   PartyName,
 } from "../aliases.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
+import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
+import { DateRange } from "../primatives/date-range.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { SerializedOf } from "../serialization/index.js";
-import { GameMode } from "../types.js";
 import { CharacterAndItem, CharacterAndItems } from "./game-state-updates.js";
 
 export enum ClientIntentType {
@@ -33,14 +34,21 @@ export enum ClientIntentType {
   CreateParty,
   JoinParty,
   LeaveParty,
-  CreateCharacter,
-  DeleteCharacter,
-  SelectSavedCharacterForProgressGame,
+  CreateCharacterInGame,
+  DeleteCharacterInGame,
+  AddSavedCharacterToProgressionGame,
   SelectProgressionGameStartingFloor,
   // saved character managment
   GetSavedCharactersList,
   CreateSavedCharacter,
   DeleteSavedCharacter,
+
+  // ironman run management
+  AbandonIronmanRun,
+
+  // ladder game records
+  GetUserGameHistory,
+  GetUserGameRecordsCount,
 
   // action selection
   SelectCombatAction,
@@ -82,22 +90,18 @@ export enum ClientIntentType {
 // Map enum values to payload types
 export interface ClientIntentMap {
   [ClientIntentType.RequestsGameList]: undefined;
-  [ClientIntentType.CreateGame]: {
-    gameName: GameName;
-    mode: GameMode;
-    isRanked?: boolean;
-  };
-  [ClientIntentType.JoinGame]: { gameName: GameName };
+  [ClientIntentType.CreateGame]: GameCreationRequest;
+  [ClientIntentType.JoinGame]: { gameId: GameId };
   [ClientIntentType.LeaveGame]: undefined;
   [ClientIntentType.CreateParty]: { partyName: PartyName };
   [ClientIntentType.JoinParty]: { partyName: PartyName };
   [ClientIntentType.LeaveParty]: undefined;
   [ClientIntentType.ToggleReadyToStartGame]: undefined;
-  [ClientIntentType.CreateCharacter]: {
+  [ClientIntentType.CreateCharacterInGame]: {
     name: EntityName;
     combatantClass: CombatantClass;
   };
-  [ClientIntentType.DeleteCharacter]: { characterId: CombatantId };
+  [ClientIntentType.DeleteCharacterInGame]: { characterId: CombatantId };
   [ClientIntentType.SelectCombatAction]: {
     characterId: CombatantId;
     actionAndRankOption: null | SerializedOf<ActionAndRank>;
@@ -130,14 +134,29 @@ export interface ClientIntentMap {
   [ClientIntentType.DropItem]: CharacterAndItem;
   [ClientIntentType.ToggleReadyToDescend]: undefined;
   [ClientIntentType.PickUpItems]: CharacterAndItems;
-  [ClientIntentType.GetSavedCharactersList]: undefined;
+  [ClientIntentType.GetSavedCharactersList]: {
+    gameMode: GameMode;
+    controlScheme: CharacterControlScheme;
+  };
   [ClientIntentType.CreateSavedCharacter]: {
     name: EntityName;
     combatantClass: CombatantClass;
-    slotIndex: CharacterSlotIndex;
+    controlScheme: CharacterControlScheme;
   };
-  [ClientIntentType.DeleteSavedCharacter]: { entityId: CombatantId };
-  [ClientIntentType.SelectSavedCharacterForProgressGame]: { entityId: CombatantId };
+  [ClientIntentType.DeleteSavedCharacter]: {
+    entityId: CombatantId;
+  };
+  [ClientIntentType.AbandonIronmanRun]: {
+    runId: GameId;
+  };
+  [ClientIntentType.GetUserGameHistory]: {
+    page: number;
+    dateRange?: DateRange;
+  };
+  [ClientIntentType.GetUserGameRecordsCount]: {
+    dateRange?: DateRange;
+  };
+  [ClientIntentType.AddSavedCharacterToProgressionGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {
     characterId: CombatantId;
@@ -177,3 +196,10 @@ export type ClientIntent = {
     data: ClientIntentMap[K];
   };
 }[keyof ClientIntentMap];
+
+export interface GameCreationRequest {
+  gameName: GameName;
+  mode: GameMode;
+  controlScheme: CharacterControlScheme;
+  continueGameId?: GameId;
+}

@@ -1,7 +1,9 @@
 import {
+  CharacterControlScheme,
   ClientIntentType,
   CombatantClass,
   EntityName,
+  GameId,
   GameMode,
   GameName,
   GameStateUpdate,
@@ -34,11 +36,11 @@ export class LobbyClient extends BaseClient {
   }
 
   static QUICK_START_CHARACTER_CLASSES = [
-    CombatantClass.Rogue,
     CombatantClass.Warrior,
+    CombatantClass.Rogue,
+    CombatantClass.Mage,
     // CombatantClass.Warrior,
     // CombatantClass.Rogue,
-    // CombatantClass.Mage,
   ];
 
   quickStartGame() {
@@ -46,7 +48,8 @@ export class LobbyClient extends BaseClient {
       type: ClientIntentType.CreateGame,
       data: {
         gameName: "" as GameName,
-        mode: GameMode.Race,
+        mode: GameMode.UnrankedRace,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
 
@@ -59,7 +62,7 @@ export class LobbyClient extends BaseClient {
 
     LobbyClient.QUICK_START_CHARACTER_CLASSES.forEach((combatantClass) => {
       this.dispatchIntent({
-        type: ClientIntentType.CreateCharacter,
+        type: ClientIntentType.CreateCharacterInGame,
         data: {
           name: "" as EntityName,
           combatantClass,
@@ -79,6 +82,7 @@ export class LobbyClient extends BaseClient {
       data: {
         gameName: "" as GameName,
         mode: GameMode.Progression,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
 
@@ -93,7 +97,8 @@ export class LobbyClient extends BaseClient {
       type: ClientIntentType.CreateGame,
       data: {
         gameName: "test game" as GameName,
-        mode: GameMode.Race,
+        mode: GameMode.UnrankedRace,
+        controlScheme: CharacterControlScheme.Captain,
       },
     });
 
@@ -105,7 +110,7 @@ export class LobbyClient extends BaseClient {
     });
 
     this.dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: {
         name: "" as EntityName,
         combatantClass: CombatantClass.Rogue,
@@ -117,7 +122,7 @@ export class LobbyClient extends BaseClient {
     this.dispatchIntent({
       type: ClientIntentType.JoinGame,
       data: {
-        gameName: "test game" as GameName,
+        gameId: "test game" as GameId,
       },
     });
 
@@ -129,7 +134,7 @@ export class LobbyClient extends BaseClient {
     });
 
     this.dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: {
         name: "" as EntityName,
         combatantClass: CombatantClass.Warrior,

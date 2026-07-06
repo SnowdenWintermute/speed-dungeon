@@ -7,6 +7,8 @@ export enum MonsterType {
   MantaRay,
   Net,
   Spider,
+  Slime,
+  Zombie,
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
@@ -16,31 +18,22 @@ export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
   [MonsterType.MantaRay]: "Manta Ray",
   [MonsterType.Net]: "Net",
   [MonsterType.Spider]: "Spider",
+  [MonsterType.Slime]: "Slime",
+  [MonsterType.Zombie]: "Zombie",
 };
-
-// export function selectRandomMonsterType(): MonsterType {
-//   const r = Math.floor(Math.random() * 100 + 1);
-//   if (r >= 1 && r <= 15) return MonsterType.Zombie;
-//   if (r >= 16 && r <= 30) return MonsterType.Scavenger;
-//   if (r >= 31 && r <= 45) return MonsterType.SkeletonArcher;
-//   if (r >= 46 && r <= 60) return MonsterType.Vulture;
-//   if (r >= 61 && r <= 70) return MonsterType.FireMage;
-//   if (r >= 71 && r <= 80) return MonsterType.Cultist;
-//   if (r >= 81 && r <= 85) return MonsterType.FireElemental;
-//   if (r >= 86 && r <= 90) return MonsterType.IceElemental;
-//   return MonsterType.MetallicGolem;
-// }
 
 export function getMonsterCombatantClass(monsterType: MonsterType): CombatantClass {
   switch (monsterType) {
     case MonsterType.Net:
     case MonsterType.Wolf:
+    case MonsterType.Zombie:
       return CombatantClass.Warrior;
     case MonsterType.Spider:
       return CombatantClass.Rogue;
     case MonsterType.FireMage:
     case MonsterType.Cultist:
     case MonsterType.MantaRay:
+    case MonsterType.Slime:
       return CombatantClass.Mage;
   }
 }

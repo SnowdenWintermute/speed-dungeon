@@ -19,6 +19,7 @@ export const ERROR_MESSAGES = {
     USERNAME_HAS_NO_SOCKET_IDS: "No socket IDs were found by that username",
     BROWSER_SESSION_NOT_FOUND: "No browser session was found associated with that socked ID",
     SOCKET_NOT_FOUND: "No socket by that ID was found",
+    EXPECTED_AUTH_USER: "Expected an authorized user",
   },
   USER_INPUT: { INVALID_TYPE: "Expected user input type was invalid" },
   AUTH: {
@@ -39,9 +40,12 @@ export const ERROR_MESSAGES = {
     USERNAME_ALREADY_IN_GAME: "A player with that username is already in that game",
   },
   GAME: {
-    NOT_FOUND: "No game was found by that name",
+    NOT_FOUND: "No game was found by that id",
     NOT_STARTED: "The game has not started",
+    NOT_LIVE: "The game is not live",
     ALREADY_STARTED: "That game has already started",
+    ALREADY_LIVE: "That game is already live",
+    IS_FULL: "That game is full (has maximum number of players)",
     PARTY_DOES_NOT_EXIST: "No party was found with the provided name",
     MAX_PARTY_SIZE: "Maximum party size reached",
     CHARACTER_DOES_NOT_EXIST: "No character was found by the provided ID",
@@ -49,9 +53,24 @@ export const ERROR_MESSAGES = {
     BATTLE_DOES_NOT_EXIST: "No battle found by that ID",
     MODE: "Your current game mode does not allow for that action",
     NO_SAVED_CHARACTERS: "You must create a saved character to play in that game mode",
+    STARTING_FLOOR_NOT_SELECTABLE: "Starting floor not selectable in this mode",
     STARTING_FLOOR_LIMIT:
       "You can't start on a deeper floor than the deepest floor reached by any character in your party",
     INPUT_IS_LOCKED: "Can't accept new inputs while waiting for a player to reconnect",
+  },
+  GAME_SETUP: {
+    CANT_ABANDON_WHILE_IN_SETUP:
+      "You can not abandon a run that you are currently in the lobby game setup for",
+    PLAYER_NOT_IN_CONTINUED_GAME:
+      "This is a continuation of a previous game that your account was not a part of",
+    AWAITING_PLAYER_FOR_CONTINUED_GAME:
+      "All original players in this game continuation must be connected",
+    CONTINUED_GAME: "That action is not allowed in the setup of a game continuation",
+    CONTINUED_GAME_ALREADY_LIVE: "This continued run already has a live game",
+    CONTINUED_GAME_ID_REQUIRED: "A run ID was expected but not specified",
+    CONTINUED_GAME_NOT_FOUND: "The specified game ID was not found in the save game storage",
+    MINIMUM_PARTIES: (minimumPartyCount: number) =>
+      `Game does not have the minimum number of parties (${minimumPartyCount})`,
   },
   PARTY: {
     PLAYER_NOT_FOUND: "The provided username does not belong to any player in this party",
@@ -62,6 +81,8 @@ export const ERROR_MESSAGES = {
     NOT_IN_BATTLE: "Party not in a battle",
     INCORRECT_ROOM_TYPE: "That action is not permitted in this room",
     INPUT_IS_LOCKED: "Can't accept new inputs until current events are resolved",
+    ALREADY_HAS_THAT_CHARACTER: "That character is already a member of the party",
+    WIPED: "The party has wiped and cannot complete that action",
   },
   LADDER: {
     USER_NOT_FOUND: "No record found for that user",
@@ -74,16 +95,20 @@ export const ERROR_MESSAGES = {
       "The provided character is not in the list of that player's owned characters",
     MISSING_PARTY_NAME: "Player doesn't have a party name or party does not exist",
     NOT_IN_PARTY: "Player must be in a party",
+    PARTY_CHARACTER_LIMIT:
+      "You are already controlling the maximum number of characters in this game mode",
   },
   USER: {
     NO_CURRENT_GAME: "This user has no current game",
     MISSING_PROFILE: "Failed to find expected user profile",
-    CHARACTER_SLOT_FULL: "That character slot is occupied",
-    CHARACTER_SLOT_NOT_FOUND: "The expected character slot was not found",
+    SAVED_GAME_CAPACITY: "Your account already has the maximum number of saved games",
+    CHARACTER_CAPACITY_REACHED: "Your account already has the maximum number of saved characters",
+    SAVED_CHARACTER_NOT_FOUND: "The expected saved character was not found",
     SAVED_CHARACTER_NOT_OWNED: "You do not own the character with the provided ID",
     NO_LIVING_CHARACTERS: "You have no characters that are alive",
     NOT_FOUND: "User not found",
     GUEST_ALREADY_EXISTS: "Guest by that id already is connected",
+    NOT_GAME_PARTICIPANT: "You are not a participant in that game",
   },
   COMBATANT: {
     NOT_FOUND: (id: string) => `No combatant was found with the provided ID ${id}`,

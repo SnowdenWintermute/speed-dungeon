@@ -1,0 +1,74 @@
+import {
+  TEST_AUTH_SESSION_ID_PLAYER_1,
+  TEST_AUTH_SESSION_ID_PLAYER_2,
+  TEST_AUTH_SESSION_ID_PLAYER_3,
+} from "@/fixtures/consts";
+import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import {
+  CharacterControlScheme,
+  ERROR_MESSAGES,
+  GameMode,
+  GameName,
+  invariant,
+  TEST_DUNGEON_TWO_WOLF_ROOMS,
+} from "@speed-dungeon/common";
+
+export async function testAnyParticipantMayContinueRun(testFixture: IntegrationTestFixture) {
+  await testFixture.resetWithOptions(TEST_DUNGEON_TWO_WOLF_ROOMS);
+  const alpha = testFixture.createClient("alpha", TEST_AUTH_SESSION_ID_PLAYER_1);
+  await alpha.connect();
+  const bravo = testFixture.createClient("bravo", TEST_AUTH_SESSION_ID_PLAYER_2);
+  await bravo.connect();
+
+  await testFixture.putTwoClientsInFreshIronmanRun(alpha, bravo, { closeGame: true });
+
+  const alphaIronmanRunRef = alpha.clientApplication.lobbyContext.savedIronmanRuns
+    .values()
+    .next().value;
+  invariant(
+    alphaIronmanRunRef !== undefined,
+    "expected alpha to have a reference to the shared run"
+  );
+
+  await alpha.lobbyClientHarness.createGame(
+    "shared run" as GameName,
+    GameMode.Ironman,
+    CharacterControlScheme.Captain,
+    alphaIronmanRunRef.gameId
+  );
+
+  expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();
+  expect(alpha.clientApplication.gameContext.requireGame().id).toBe(alphaIronmanRunRef.gameId);
+  await alpha.lobbyClientHarness.leaveGame();
+
+  const bravoIronmanRunRef = bravo.clientApplication.lobbyContext.savedIronmanRuns
+    .values()
+    .next().value;
+  invariant(
+    bravoIronmanRunRef !== undefined,
+    "expected bravo to have a reference to the shared run"
+  );
+  await bravo.lobbyClientHarness.createGame(
+    "shared run" as GameName,
+    GameMode.Ironman,
+    CharacterControlScheme.Captain,
+    bravoIronmanRunRef.gameId
+  );
+
+  expect(bravo.clientApplication.errorRecordService.getLastError()).toBeUndefined();
+  expect(bravo.clientApplication.gameContext.requireGame().id).toBe(bravoIronmanRunRef.gameId);
+  await bravo.lobbyClientHarness.leaveGame();
+
+  // non participant can not create the run
+  const charlie = testFixture.createClient("charlie", TEST_AUTH_SESSION_ID_PLAYER_3);
+  await charlie.connect();
+  await charlie.lobbyClientHarness.createGame(
+    "shared run" as GameName,
+    GameMode.Ironman,
+    CharacterControlScheme.Captain,
+    bravoIronmanRunRef.gameId
+  );
+  expect(charlie.clientApplication.errorRecordService.getLastError()?.message).toBe(
+    ERROR_MESSAGES.GAME_SETUP.PLAYER_NOT_IN_CONTINUED_GAME
+  );
+}

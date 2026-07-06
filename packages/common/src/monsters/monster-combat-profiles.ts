@@ -39,8 +39,16 @@ export const MONSTER_COMBAT_PROFILES: Record<MonsterType, MonsterCombatProfile> 
     ],
     aiTypes: [AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY],
   },
+  [MonsterType.Slime]: {
+    actions: [{ name: CombatActionName.Attack }, { name: CombatActionName.Fire }],
+    aiTypes: [AiType.PrefersAttackWithMana, ...BASIC_AI_PRIORITY],
+  },
   [MonsterType.Wolf]: {
     actions: [{ name: CombatActionName.Attack }, { name: CombatActionName.Healing }],
+    aiTypes: [...BASIC_AI_PRIORITY],
+  },
+  [MonsterType.Zombie]: {
+    actions: [{ name: CombatActionName.Attack }],
     aiTypes: [...BASIC_AI_PRIORITY],
   },
   [MonsterType.FireMage]: {

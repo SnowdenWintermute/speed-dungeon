@@ -28,6 +28,7 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   private hydratePromise: Promise<void>;
   private _totalBytes = 0;
   private _combatantActionsHistory: ActionIntentAndUserId[] = [];
+  private disposed = false;
 
   constructor(
     private readonly indexedDB: IDBFactory,
@@ -148,7 +149,14 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
     });
   }
 
+  dispose() {
+    this.disposed = true;
+    // nothing to close if the DB never opened; the open error is already surfaced via put()
+    this.dbPromise.then((db) => db.close()).catch(() => {});
+  }
+
   private put(entry: ClientLogEntry) {
+    if (this.disposed) return;
     const record: StoredRecord = {
       byteLength: JSON.stringify(entry).length,
       entry,

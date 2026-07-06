@@ -6,20 +6,16 @@ import {
   IdGeneratorSequential,
   IncomingConnectionGateway,
   InMemoryGameSessionStoreService,
-  InMemoryRaceGameRecordsPersistenceStrategy,
-  InMemoryRankedLadderService,
+  InMemoryCharacterLevelLadderService,
   InMemorySavedCharacterPersistenceStrategy,
-  InMemorySavedCharacterSlotsPersistenceStrategy,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
-  RaceGameRecordsService,
-  SavedCharactersService,
   SodiumHelpers,
   ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicy,
   CrossServerBroadcasterService,
   GameSessionStoreService,
-  RankedLadderService,
+  CharacterLevelLadderService,
   SpeedDungeonProfileService,
   InMemoryIdentityProviderQueryStrategy,
   IdentityProviderService,
@@ -37,6 +33,11 @@ import {
   GlobalGameSessionStore,
   iterateNumericEnumKeyedRecord,
   GameServerName,
+  UserGameDataPersistenceService,
+  InMemoryIronmanRunPersistenceStrategy,
+  LadderGameRecordsService,
+  InMemoryLadderRecordsPersistenceStrategy,
+  ResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
 import {
@@ -62,6 +63,7 @@ export async function createTestServers(
   >,
   leastBusyGameServerGetterRef: { getter: () => Promise<{ name: GameServerName; url: string }> },
   rngPolicy: RandomNumberGenerationPolicy,
+  resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
   characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
@@ -75,17 +77,17 @@ export async function createTestServers(
     crossServerBroadcastBus
   );
 
-  const characterSlotsPersistenceStrategy = new InMemorySavedCharacterSlotsPersistenceStrategy();
-  const savedCharactersService = new SavedCharactersService(
-    characterSlotsPersistenceStrategy,
-    new InMemorySavedCharacterPersistenceStrategy()
+  const profileService = new InMemorySpeedDungeonProfileService();
+  const userGameDataPersistenceService = new UserGameDataPersistenceService(
+    new InMemorySavedCharacterPersistenceStrategy(),
+    new InMemoryIronmanRunPersistenceStrategy(),
+    profileService
   );
-  const rankedLadderService = new InMemoryRankedLadderService();
-  const raceGameRecordsService = new RaceGameRecordsService(
-    new InMemoryRaceGameRecordsPersistenceStrategy()
+  const rankedLadderService = new InMemoryCharacterLevelLadderService();
+  const ladderGameRecordsService = new LadderGameRecordsService(
+    new InMemoryLadderRecordsPersistenceStrategy(),
+    new IdGeneratorSequential({ saveHistory: false, prefix: "ladder-record-id" })
   );
-
-  const profileService = new InMemorySpeedDungeonProfileService(characterSlotsPersistenceStrategy);
 
   const baseAssetDirectory = "packages/server/assets/";
   const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
@@ -107,16 +109,20 @@ export async function createTestServers(
 
   leastBusyGameServerGetterRef.getter = testLeastBusyServerUrlGetter;
 
-  const lobbyServer = new LobbyServer(
-    lobbyIncomingConnectionGateway,
+  const { externalServices: lobbyExternalServices, identityProviderQueryStrategy } =
     createLobbyTestServices(
       gameSessionStoreService,
-      savedCharactersService,
+      userGameDataPersistenceService,
       rankedLadderService,
+      ladderGameRecordsService,
       profileService,
       lobbyCrossServerBroadcasterService,
       globalGameSessionStore
-    ),
+    );
+
+  const lobbyServer = new LobbyServer(
+    lobbyIncomingConnectionGateway,
+    lobbyExternalServices,
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
     {
@@ -146,17 +152,19 @@ export async function createTestServers(
           incomingConnectionGateway,
           createGameServerTestServices(
             gameSessionStoreService,
-            savedCharactersService,
+            userGameDataPersistenceService,
             rankedLadderService,
-            raceGameRecordsService,
+            ladderGameRecordsService,
             gameServerNodeAssetService,
             new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
-            globalGameSessionStore
+            globalGameSessionStore,
+            profileService
           ),
           gameServerSessionClaimCodec,
           guestSessionReconnectionTokencodec,
           ScriptedDungeonGenerationPolicy,
           rngPolicy,
+          resourceChangePropertiesStrategy,
           new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
           queryParamsAuthSessionIdParser
         ),
@@ -164,13 +172,21 @@ export async function createTestServers(
     )
   ) as Record<TestGameServerName, GameServer>;
 
-  return { lobbyServer, gameServers, rankedLadderService };
+  return {
+    lobbyServer,
+    gameServers,
+    rankedLadderService,
+    ladderGameRecordsService,
+    identityProviderQueryStrategy,
+    userGameDataPersistenceService,
+  };
 }
 
 export function createLobbyTestServices(
   gameSessionStoreService: GameSessionStoreService,
-  savedCharactersService: SavedCharactersService,
-  rankedLadderService: RankedLadderService,
+  userGameDataPersistenceService: UserGameDataPersistenceService,
+  characterLevelLadderService: CharacterLevelLadderService,
+  ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: GlobalGameSessionStore
@@ -197,33 +213,37 @@ export function createLobbyTestServices(
   const externalServices = {
     identityProviderService,
     profileService,
-    savedCharactersService,
-    rankedLadderService,
+    userGameDataPersistenceService,
+    characterLevelLadderService,
+    ladderGameRecordsService,
     idGenerator: new IdGeneratorSequential({ saveHistory: false }),
     gameSessionStoreService,
     crossServerBroadcasterService,
     globalGameSessionStore,
   };
-  return externalServices;
+  return { externalServices, identityProviderQueryStrategy };
 }
 
 export function createGameServerTestServices(
   gameSessionStoreService: GameSessionStoreService,
-  savedCharactersService: SavedCharactersService,
-  rankedLadderService: RankedLadderService,
-  raceGameRecordsService: RaceGameRecordsService,
+  userGameDataPersistenceService: UserGameDataPersistenceService,
+  characterLevelLadderService: CharacterLevelLadderService,
+  ladderGameRecordsService: LadderGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore
+  globalGameSessionStore: GlobalGameSessionStore,
+  profileService: SpeedDungeonProfileService
 ): GameServerExternalServices {
   const externalServices = {
     gameSessionStoreService,
-    savedCharactersService,
-    rankedLadderService,
-    raceGameRecordsService,
+    userGameDataPersistenceService,
+    characterLevelLadderService,
+    ladderGameRecordsService,
     assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,
+    profileService,
   };
+
   return externalServices;
 }

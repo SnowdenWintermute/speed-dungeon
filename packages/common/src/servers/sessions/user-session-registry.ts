@@ -1,6 +1,7 @@
-import { ChannelName, ConnectionId, GameName, Username } from "../../aliases.js";
+import { ChannelName, ConnectionId, GameId, IdentityProviderId, Username } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { UserId } from "./user-ids.js";
+import { invariant } from "../../utils/index.js";
+import { UserId, UserIdType } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
 
 export class UserSessionRegistry {
@@ -59,6 +60,7 @@ export class UserSessionRegistry {
     if (!option) {
       throw new Error("Expected UserId to have an associated ConnectionId");
     }
+    return option;
   }
 
   getSessionByUsername(username: Username) {
@@ -82,17 +84,38 @@ export class UserSessionRegistry {
   getAllSessionsInGame(game: SpeedDungeonGame) {
     const result: UserSession[] = [];
     for (const [username, _player] of game.players) {
-      const session = this.requireSessionInGameByUsername(username, game.name);
-      result.push(session);
+      if (_player.awaitingControllingUserConnection) {
+        continue;
+      }
+      // it is possible a player may be in the game, but no session exists
+      // for them in the case of a continued ironman run game setup
+      const sessionOption = this.getSessionByUsername(username);
+      if (sessionOption) {
+        result.push(sessionOption);
+      }
     }
     return result;
   }
 
-  requireSessionInGameByUsername(username: Username, gameName: GameName) {
-    const existingSession = this.getSessionByUsername(username);
-    if (existingSession?.currentGameName !== gameName) {
-      throw new Error("expected to have a user session to match the player in game");
+  getGameUsernameToIdsMap(game: SpeedDungeonGame) {
+    const sessionsInGame = this.getAllSessionsInGame(game);
+    const usernamesToUserIds = new Map<Username, IdentityProviderId>();
+    for (const session of sessionsInGame) {
+      invariant(session.taggedUserId.type === UserIdType.Auth, "expected only auth users");
+      usernamesToUserIds.set(session.username, session.taggedUserId.id);
     }
-    return existingSession;
+
+    return usernamesToUserIds;
+  }
+
+  static getSessionOptionInListByUsername(username: Username, sessions: UserSession[]) {
+    const session = sessions.find((session) => session.username === username);
+    return session;
+  }
+
+  static requireSessionInListByUsername(username: Username, sessions: UserSession[]) {
+    const session = this.getSessionOptionInListByUsername(username, sessions);
+    invariant(session !== undefined, "Expected user session with matching username");
+    return session;
   }
 }

@@ -15,24 +15,20 @@ import { AISelectActionAndTarget } from "../ai-behavior/ai-select-action-and-tar
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../action-entities/index.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ActionIntentOptionAndUser } from "../../action-processing/action-steps/index.js";
-import { Serializable } from "../../serialization/index.js";
-import { instanceToPlain } from "class-transformer";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
 import { ActionUserType } from "../../action-user-context/action-user.js";
+import { ResourceChangePropertiesStrategy } from "../../index.js";
 
-export abstract class TurnTracker implements Serializable {
+export abstract class TurnTracker {
   constructor(public readonly timeOfNextMove: number) {}
-
-  toSerialized() {
-    return instanceToPlain(this);
-  }
 
   abstract getTaggedIdOfTrackedEntity(): TaggedTurnTrackerTrackedEntityId;
   abstract getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler;
   abstract getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ): ActionIntentOptionAndUser;
 
   getEntityId() {
@@ -75,7 +71,8 @@ export class CombatantTurnTracker extends TurnTracker {
   getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    randomNumberGenerationPolicy: RandomNumberGenerationPolicy
+    randomNumberGenerationPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     const { combatantId } = this;
     const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
@@ -83,7 +80,8 @@ export class CombatantTurnTracker extends TurnTracker {
     const actionExecutionIntent = AISelectActionAndTarget(
       game,
       activeCombatant,
-      randomNumberGenerationPolicy
+      randomNumberGenerationPolicy,
+      resourceChangePropertiesStrategy
     );
     if (actionExecutionIntent instanceof Error) throw actionExecutionIntent;
 
@@ -98,10 +96,6 @@ export class ConditionTurnTracker extends TurnTracker {
     public readonly timeOfNextMove: number
   ) {
     super(timeOfNextMove);
-  }
-
-  toSerialized() {
-    return instanceToPlain(this);
   }
 
   getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {

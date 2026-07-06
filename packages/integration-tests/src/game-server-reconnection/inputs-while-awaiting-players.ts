@@ -29,7 +29,7 @@ export async function testInputsWhileAwaitingPlayers(
 
   await alpha.gameClientHarness.allocateAttributePoint(CombatAttribute.Strength);
   expect(alpha.clientApplication.errorRecordService.getLastError()?.message).toBe(
-    ERROR_MESSAGES.GAME.NOT_STARTED
+    ERROR_MESSAGES.GAME.NOT_LIVE
   );
 
   bravo.lobbyClientHarness.resumeTransport();

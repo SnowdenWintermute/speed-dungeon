@@ -16,6 +16,16 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
       [CombatantTraitType.IsTameable]: 1,
     };
   },
+  [MonsterType.Slime]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.CanNotBeRestrained]: 1,
+    };
+  },
+  [MonsterType.Zombie]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.Undead]: 1,
+    };
+  },
   [MonsterType.FireMage]: (combatantLevel) => {
     return {};
   },

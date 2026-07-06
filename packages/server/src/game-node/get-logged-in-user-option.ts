@@ -1,5 +1,9 @@
-import { speedDungeonProfilesRepo } from "../database/repos/speed-dungeon-profiles.js";
-import { IdentityProviderId, TaggedUserId, Username } from "@speed-dungeon/common";
+import {
+  IdentityProviderId,
+  SpeedDungeonProfileService,
+  TaggedUserId,
+  Username,
+} from "@speed-dungeon/common";
 import { UserIdType } from "@speed-dungeon/common";
 import { env } from "../validate-env.js";
 
@@ -27,7 +31,8 @@ async function getAuthSession(
 }
 
 export async function getLoggedInUserOption(
-  authSessionId: undefined | string
+  authSessionId: undefined | string,
+  profileService: SpeedDungeonProfileService
 ): Promise<{ username: Username; taggedUserId: TaggedUserId } | null> {
   if (!authSessionId) {
     return null;
@@ -41,14 +46,7 @@ export async function getLoggedInUserOption(
 
     const { username, userId } = authenticatedUserOption;
 
-    // if they don't yet have a profile, create one
-    const speedDungeonProfileOption = await speedDungeonProfilesRepo.findOne("ownerId", userId);
-    if (speedDungeonProfileOption === undefined) {
-      console.info("creating speed dungeon profile for user");
-      await speedDungeonProfilesRepo.insert(userId);
-    } else {
-      console.info("user has an existing profile");
-    }
+    await profileService.createProfileIfUserHasNone(userId);
 
     return { username, taggedUserId: { type: UserIdType.Auth, id: userId } };
   } catch (error) {

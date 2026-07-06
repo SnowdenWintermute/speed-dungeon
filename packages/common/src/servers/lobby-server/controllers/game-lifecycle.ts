@@ -7,30 +7,25 @@ import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-f
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { GameLifecycleController } from "../../controllers/game-lifecycle.js";
 import { GameHandoffManager } from "../game-handoff/game-handoff-manager.js";
-import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { IdGenerator } from "../../../utility-classes/index.js";
 import { GameId, GameName } from "../../../aliases.js";
 import { MAX_GAME_NAME_LENGTH } from "../../../app-consts.js";
-import { ActionValidity } from "../../../primatives/index.js";
+import { AllowedResult } from "../../../primatives/index.js";
 import { GAME_CHANNEL_PREFIX, LOBBY_CHANNEL } from "../../../packets/channels.js";
-import { GameMode } from "../../../types.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { MapUtils } from "../../../utils/map-utils.js";
-import { SavedCharactersController } from "./saved-characters.js";
-import { SpeedDungeonProfileService } from "../../services/profiles.js";
+import { GameExistenceChecker } from "../game-existence-queries.js";
+import { GameCreationRequest } from "../../../packets/client-intents.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 
 export class LobbyGameLifecycleController implements GameLifecycleController {
   constructor(
     private readonly lobbyState: LobbyState,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly partySetupController: PartySetupController,
-    private readonly profileService: SpeedDungeonProfileService,
-    private readonly savedCharactersController: SavedCharactersController,
-    private readonly idGenerator: IdGenerator,
+    private readonly gameExistenceChecker: GameExistenceChecker,
     private readonly gameHandoffManager: GameHandoffManager,
-    private readonly gameSessionStoreService: GameSessionStoreService
+    private readonly gameModePolicyStore: GameModePolicyStore
   ) {}
 
   private generateRandomGameName(): GameName {
@@ -41,20 +36,53 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return `${firstName} ${lastName}` as GameName;
   }
 
-  private getGameNameValidity(gameName: GameName): ActionValidity {
+  private async attemptAssignRandomUniqueGameName() {
+    let gameName = "" as GameName;
+    const maxAttempts = 10;
+    for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
+      gameName = this.generateRandomGameName();
+      // @PERF - awaiting in a loop is no bueno
+      const noGameExistsByThisName = !(await this.gameExistenceChecker.gameExistsByName(gameName));
+
+      if (noGameExistsByThisName) {
+        break;
+      }
+    }
+
+    return gameName;
+  }
+
+  private requireValidGameName(gameName: GameName) {
+    const gameNameValidity = this.getGameNameValidity(gameName);
+    if (!gameNameValidity.allowed) {
+      throw new Error(gameNameValidity.reason);
+    }
+  }
+
+  private async requireUniqueGameName(gameName: GameName) {
+    const gameNameExists = await this.gameExistenceChecker.gameExistsByName(gameName);
+    if (gameNameExists) {
+      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
+    }
+  }
+
+  private getGameNameValidity(gameName: GameName): AllowedResult {
     if (gameName.length > MAX_GAME_NAME_LENGTH) {
-      return new ActionValidity(
-        false,
-        `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`
-      );
+      return {
+        allowed: false,
+        reason: `Game names may be no longer than ${MAX_GAME_NAME_LENGTH} characters`,
+      };
     }
 
     const gameNamePrefix = gameName.slice(0, GAME_CHANNEL_PREFIX.length);
     if (gameNamePrefix === GAME_CHANNEL_PREFIX) {
-      return new ActionValidity(false, `Game names may be not begin with "${GAME_CHANNEL_PREFIX}"`);
+      return {
+        allowed: false,
+        reason: `Game names may be not begin with "${GAME_CHANNEL_PREFIX}"`,
+      };
     }
 
-    return new ActionValidity(true);
+    return { allowed: true };
   }
 
   requestGameListHandler(session: UserSession) {
@@ -69,100 +97,40 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     return outbox;
   }
 
-  async createGameHandler(
-    data: { gameName: GameName; mode: GameMode; isRanked?: boolean },
-    session: UserSession
-  ) {
-    const { mode, isRanked } = data;
+  async createGameHandler(data: GameCreationRequest, session: UserSession) {
+    const { mode } = data;
     let { gameName } = data;
 
-    const userCanJoinNewGame = session.canJoinNewGame(isRanked);
-    if (!userCanJoinNewGame.isValid) {
-      throw new Error(userCanJoinNewGame.reason);
-    }
-
-    const gameNameValidity = this.getGameNameValidity(gameName);
-    if (!gameNameValidity.isValid) {
-      throw new Error(gameNameValidity.reason);
-    }
-
-    const gameNameExists = await this.gameExistsByName(gameName);
-    if (gameNameExists) {
-      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
-    }
+    session.requireCanJoinGame();
+    this.requireValidGameName(gameName);
+    this.requireUniqueGameName(gameName);
 
     if (gameName === "") {
-      // get a random game name and make it check if this exists
-      // and try again a safe number of times before failing
-      const maxAttempts = 10;
-      for (let attemptIndex = 0; attemptIndex < maxAttempts; attemptIndex += 1) {
-        gameName = this.generateRandomGameName();
-        // @PERF - awaiting in a loop is no bueno
-        const noGameExistsByThisName = !(await this.gameExistsByName(gameName));
-
-        if (noGameExistsByThisName) {
-          break;
-        }
-      }
+      gameName = await this.attemptAssignRandomUniqueGameName();
     }
 
-    const gameByThisNameExists = this.lobbyState.gameRegistry.getGameOption(gameName) !== undefined;
-    if (gameByThisNameExists) {
-      throw new Error(ERROR_MESSAGES.LOBBY.GAME_EXISTS);
-    }
+    this.requireUniqueGameName(gameName);
 
-    let game: SpeedDungeonGame;
-
-    if (mode === GameMode.Progression) {
-      game = await this.createProgressionGameHandler(gameName, session);
-    } else {
-      game = new SpeedDungeonGame(
-        this.idGenerator.generate() as GameId,
-        gameName,
-        GameMode.Race,
-        session.username,
-        isRanked
-      );
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(mode);
+    const userCanCreate = await gameModePolicy.lobbySetup.userCanCreate(session, data);
+    if (!userCanCreate.allowed) {
+      throw new Error(userCanCreate.reason);
     }
+    data.gameName = gameName;
+
+    const game = await gameModePolicy.lobbySetup.createGame(data);
+    gameModePolicy.lobbySetup.onCreation(game);
 
     this.lobbyState.gameRegistry.registerGame(game);
-    const joinGameUpdateHandlerOutbox = await this.joinGameHandler(gameName, session);
+    const joinGameUpdateHandlerOutbox = await this.joinGameHandler(game.id, session);
     return joinGameUpdateHandlerOutbox;
   }
 
-  private async requireProgressionGamePrerequisites(session: UserSession) {
-    session.requireAuthorized();
-    const profile = await this.profileService.fetchExpectedProfile(session.taggedUserId.id);
-    await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
-  }
+  async joinGameHandler(gameId: GameId, session: UserSession) {
+    const game = this.lobbyState.gameRegistry.requireGame(gameId);
 
-  async createProgressionGameHandler(gameName: GameName, session: UserSession) {
-    await this.requireProgressionGamePrerequisites(session);
-
-    const game = new SpeedDungeonGame(
-      this.idGenerator.generate() as GameId,
-      gameName,
-      GameMode.Progression,
-      session.username
-    );
-
-    // unlike race games, progression games have only a single, automatically generated
-    // adventuring party
-    const defaultPartyName = PartySetupController.getProgressionGamePartyName(game.name);
-
-    game.adventuringParties.set(
-      defaultPartyName,
-      AdventuringParty.createInitialized(this.idGenerator.generate(), defaultPartyName)
-    );
-
-    return game;
-  }
-
-  async joinGameHandler(gameName: GameName, session: UserSession) {
-    const game = this.lobbyState.gameRegistry.requireGame(gameName);
-
-    const userCanJoinNewGame = session.canJoinNewGame(game.isRanked);
-    if (!userCanJoinNewGame.isValid) {
+    const userCanJoinNewGame = session.canJoinNewGame();
+    if (!userCanJoinNewGame.allowed) {
       throw new Error(userCanJoinNewGame.reason);
     }
 
@@ -175,16 +143,22 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     // overwrite the existing entry and orphan their characters. Guest usernames are
     // deduped at lobby-session creation, but enforce the invariant at the point of
     // mutation so future regressions (or auth-vs-guest name collisions) can't slip past.
-    if (game.getPlayer(session.username) !== undefined) {
-      throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
-    }
+    // if (game.getPlayer(session.username) !== undefined) {
+    //   throw new Error(ERROR_MESSAGES.LOBBY.USERNAME_ALREADY_IN_GAME);
+    // }
 
-    if (game.mode === GameMode.Progression) {
-      await this.requireProgressionGamePrerequisites(session);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    const userCanJoin = await gameModePolicy.lobbySetup.userCanJoin(session, game);
+    if (!userCanJoin.allowed) {
+      throw new Error(userCanJoin.reason);
     }
 
     session.joinGame(game);
-    game.registerPlayerFromLobbyUser(session.username);
+
+    if (game.getPlayer(session.username) === undefined) {
+      game.registerPlayerFromLobbyUser(session.username);
+    }
+
     session.unsubscribeFromChannel(LOBBY_CHANNEL);
     session.subscribeToChannel(game.getChannelName());
 
@@ -209,19 +183,18 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       game.getChannelName(),
       {
         type: GameStateUpdateType.PlayerJoinedGame,
-        data: { username: session.username },
+        data: { username: session.username, joinOrder: game.playerJoinCount },
       },
       { excludedIds: [session.connectionId] }
     );
 
-    // handle automatic party joining and character selection
-    if (game.mode === GameMode.Progression) {
-      const otherOutbox =
-        await this.partySetupController.joinProgressionGamePartyWithDefaultCharacterHandler(
-          session,
-          game
-        );
-      outbox.pushFromOther(otherOutbox);
+    const onJoinPolicyOutbox = await gameModePolicy.lobbySetup.onJoin(
+      session,
+      game,
+      this.partySetupController
+    );
+    if (onJoinPolicyOutbox) {
+      outbox.pushFromOther(onJoinPolicyOutbox);
     }
 
     return outbox;
@@ -229,17 +202,18 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
 
   async leaveGameHandler(session: UserSession) {
     const game = session.getExpectedCurrentGame();
-    const partyOption = session.getCurrentPartyOption(game);
 
+    const partyOption = session.getCurrentPartyOption(game);
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
 
     if (partyOption !== null) {
-      const otherOutbox = this.partySetupController.leavePartyHandler(session);
+      const otherOutbox = this.partySetupController.removeUserFromParty(session);
       outbox.pushFromOther(otherOutbox);
     }
 
     game.removePlayer(session.username);
-    session.currentGameName = null;
+
+    session.currentGameId = null;
     session.unsubscribeFromChannel(game.getChannelName());
 
     outbox.pushToConnection(session.connectionId, {
@@ -258,9 +232,13 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
       },
     });
 
-    const noPlayersRemain = game.players.size === 0;
+    const noPlayersRemain =
+      game.players.size === 0 ||
+      // in the case of continued ironman run we don't remove players, just set them as awaiting connection
+      [...game.players.values()].every((player) => player.awaitingControllingUserConnection);
+
     if (noPlayersRemain) {
-      this.lobbyState.gameRegistry.unregisterGame(game.name);
+      await this.cleanUpGame(game);
 
       return outbox; // no one is left to notify about the player leaving so return early
     }
@@ -271,6 +249,10 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     });
 
     return outbox;
+  }
+
+  async cleanUpGame(game: SpeedDungeonGame): Promise<void> {
+    this.lobbyState.gameRegistry.unregisterGame(game.id);
   }
 
   async toggleReadyToStartGameHandler(session: UserSession) {
@@ -302,23 +284,5 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     outbox.pushFromOther(connectionInstructions);
 
     return outbox;
-  }
-
-  async gameExistsByName(gameName: GameName) {
-    const lobbyGameExistsByThisName = this.lobbyState.gameRegistry.getGameOption(gameName);
-    if (lobbyGameExistsByThisName) {
-      return true;
-    }
-    const pendingGameExistsByThisName =
-      await this.gameSessionStoreService.getPendingGameSetup(gameName);
-    if (pendingGameExistsByThisName) {
-      return true;
-    }
-    const activeGameExistsByThisName =
-      await this.gameSessionStoreService.getActiveGameStatus(gameName);
-    if (activeGameExistsByThisName) {
-      return true;
-    }
-    return false;
   }
 }

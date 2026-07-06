@@ -45,6 +45,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     return result;
   }
 
+  /** Returns mutable references to all pets, summoned or unsummoned, owned by the provided character id */
   getAllPetsByOwnerId(ownerId: EntityId) {
     const unsummoned = this.iteratePetSlots(ownerId)
       .map((petSlot) => petSlot.petOption)

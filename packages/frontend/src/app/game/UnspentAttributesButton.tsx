@@ -14,9 +14,10 @@ export const UnspentAttributesButton = observer(
     entityId: CombatantId;
     combatantProperties: CombatantProperties;
   }) => {
+    const clientApplication = useClientApplication();
+
     if (combatantProperties.attributeProperties.getUnspentPoints() < 1) return <></>;
 
-    const clientApplication = useClientApplication();
     const { gameClientRef, actionMenu, combatantFocus } = clientApplication;
 
     function handleUnspentAttributesButtonClick() {

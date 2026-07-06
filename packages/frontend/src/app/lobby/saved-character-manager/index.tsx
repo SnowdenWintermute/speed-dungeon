@@ -1,9 +1,9 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
 import {
-  CharacterSlotIndex,
-  ClientSequentialEventType,
+  CharacterControlScheme,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  GameMode,
   NextOrPrevious,
   getNextOrPreviousNumber,
 } from "@speed-dungeon/common";
@@ -18,6 +18,7 @@ import { observer } from "mobx-react-lite";
 import { CHARACTER_SLOT_SPACING } from "@/client-consts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
+import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 
 export const CHARACTER_MANAGER_HOTKEY = "S";
 
@@ -25,7 +26,12 @@ export const SavedCharacterManager = observer(() => {
   const [currentSlot, setCurrentSlot] = useState(1);
   const clientApplication = useClientApplication();
   const { lobbyContext, uiStore } = clientApplication;
-  const savedCharacters = lobbyContext.savedCharacters.slots;
+
+  const savedCharacters =
+    lobbyContext.savedCharacters.byControlScheme[
+      lobbyContext.savedCharacters.selectedCharacterControlScheme
+    ];
+
   const selectedCharacterOption = savedCharacters[currentSlot];
   const { dialogs } = uiStore;
   const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
@@ -51,32 +57,45 @@ export const SavedCharacterManager = observer(() => {
   return (
     <>
       <div className="w-full h-full absolute">
-        {Object.entries(savedCharacters)
-          .filter(([_slot, characterOption]) => characterOption !== null)
-          .map(([_slot, character]) => {
-            if (character) {
-              const { combatant } = character;
-
-              return (
-                <CharacterModelDisplay character={combatant} key={combatant.entityProperties.id}>
-                  <div className="w-full h-full flex justify-center items-center">
-                    {combatant.combatantProperties.isDead() && (
-                      <div className="relative text-2xl">
-                        <span
-                          className="text-red-600"
-                          style={{
-                            textShadow: "2px 2px 0px #000000",
-                          }}
-                        >
-                          DEAD
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </CharacterModelDisplay>
+        <div className="absolute w-32 left-1/3 -translate-x-10 top-1/2 -translate-y-1/2">
+          <SelectDropdown
+            title={"Control Scheme"}
+            value={lobbyContext.savedCharacters.selectedCharacterControlScheme}
+            setValue={(value) => {
+              lobbyContext.savedCharacters.selectedCharacterControlScheme = value;
+              clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
+                { softCleanup: false }
               );
-            }
-          })}
+            }}
+            options={[
+              { title: "Freelancer", value: CharacterControlScheme.Freelancer },
+              { title: "Captain", value: CharacterControlScheme.Captain },
+            ]}
+            disabled={undefined}
+          />
+        </div>
+        {savedCharacters.map((character) => {
+          const { combatant } = character;
+
+          return (
+            <CharacterModelDisplay character={combatant} key={combatant.entityProperties.id}>
+              <div className="w-full h-full flex justify-center items-center">
+                {combatant.combatantProperties.isDead() && (
+                  <div className="relative text-2xl">
+                    <span
+                      className="text-red-600"
+                      style={{
+                        textShadow: "2px 2px 0px #000000",
+                      }}
+                    >
+                      DEAD
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CharacterModelDisplay>
+          );
+        })}
       </div>
 
       {!showCharacterManager && !showGameCreationForm && (
@@ -159,7 +178,9 @@ export const SavedCharacterManager = observer(() => {
             {selectedCharacterOption ? (
               <DeleteCharacterForm character={selectedCharacterOption.combatant} />
             ) : (
-              <CreateCharacterForm currentSlot={currentSlot as CharacterSlotIndex} />
+              <CreateCharacterForm
+                controlScheme={lobbyContext.savedCharacters.selectedCharacterControlScheme}
+              />
             )}
           </div>
         </div>

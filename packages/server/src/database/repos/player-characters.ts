@@ -3,13 +3,22 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { Combatant, SerializedPlayerCharacter } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  Combatant,
+  SerializedPlayerCharacter,
+} from "@speed-dungeon/common";
 import { SERVER_VERSION } from "../../server-version.js";
 
 const tableName = RESOURCE_NAMES.PLAYER_CHARACTERS;
 
 export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerCharacter> {
-  async insert(combatant: Combatant, pets: Combatant[], ownerId: number) {
+  async insert(
+    combatant: Combatant,
+    pets: Combatant[],
+    ownerId: number,
+    controlScheme: CharacterControlScheme
+  ) {
     const { id, name } = combatant.entityProperties;
     const { combatantProperties } = combatant.toSerialized();
 
@@ -17,13 +26,14 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
 
     const { rows } = await this.pgPool.query(
       format(
-        `INSERT INTO ${tableName} 
-         (id, name, owner_id, combatant_properties, pets, game_version) 
-         VALUES (%L, %L, %L, %L, %L, %L) 
+        `INSERT INTO ${tableName}
+         (id, name, owner_id, control_scheme, combatant_properties, pets, game_version)
+         VALUES (%L, %L, %L, %L, %L, %L, %L)
          RETURNING *;`,
         id,
         name,
         ownerId,
+        controlScheme,
         combatantProperties,
         petsAsJSON,
         SERVER_VERSION
@@ -45,8 +55,8 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
     const petsAsJSON = JSON.stringify(pets.map((pet) => pet.toSerialized()));
     const { rows } = await this.pgPool.query(
       format(
-        `UPDATE ${tableName} 
-         SET owner_id = %L, 
+        `UPDATE ${tableName}
+         SET owner_id = %L,
          name = %L,
          game_version = %L,
          combatant_properties = %L,
@@ -63,6 +73,20 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
 
     if (rows[0]) return toCamelCase(rows)[0] as unknown as SerializedPlayerCharacter;
     return undefined;
+  }
+
+  async findByOwnerAndControlScheme(
+    ownerId: number,
+    controlScheme: CharacterControlScheme
+  ): Promise<SerializedPlayerCharacter[]> {
+    const { rows } = await this.pgPool.query(
+      format(
+        `SELECT * FROM ${tableName} WHERE owner_id = %L AND control_scheme = %L;`,
+        ownerId,
+        controlScheme
+      )
+    );
+    return toCamelCase(rows) as unknown as SerializedPlayerCharacter[];
   }
 
   async getAllByLevel() {

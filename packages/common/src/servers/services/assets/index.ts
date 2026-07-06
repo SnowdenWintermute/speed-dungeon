@@ -1,5 +1,7 @@
+import { TARGET_CONCURRENT_ASSET_FETCH_COUNT } from "../../../app-consts.js";
 import { FetchAbortedError } from "../../../errors/fetch-aborted.js";
 import { invariant } from "../../../utils/index.js";
+import { AssetFetchProgressTracker } from "./asset-fetch-progress-tracker.js";
 import { ManagedAssetFetch } from "./managed-asset-fetch.js";
 import { AssetFetchPriority, ScheduledFetchQueue } from "./scheduled-fetch-queue.js";
 import { AssetCache, RemoteAssetStore } from "./stores/index.js";
@@ -7,8 +9,6 @@ import { AssetManifest, AssetVersionData, VersionedAsset } from "./versioned-ass
 import cloneDeep from "lodash.clonedeep";
 
 export type AssetId = string & { __brand: "AssetId" }; // models/monsters/manta-ray.glb
-
-const TARGET_CONCURRENT_FETCH_COUNT = 2;
 
 export interface AssetService {
   getAsset(assetId: AssetId): Promise<ArrayBuffer>;
@@ -19,46 +19,46 @@ export type FetchCompletionCallback = (assetId: AssetId) => void;
 export class ClientAppAssetService implements AssetService {
   private prefetchQueue = new ScheduledFetchQueue();
   private activeFetches = new Map<AssetId, ManagedAssetFetch>();
-  private assetManifest: null | AssetManifest = null;
+  private _assetManifest: null | AssetManifest = null;
+  public readonly progressTracker = new AssetFetchProgressTracker();
   // track completion of full update
   private updateCompletionResolver?: () => void;
   private updateCompletionPromise?: Promise<void>;
-  private onFetchCompleteCallback?: FetchCompletionCallback | undefined = undefined;
-  private onFetchAbortCallback?: FetchCompletionCallback | undefined = undefined;
-  private onFetchStartedCallback?: FetchCompletionCallback | undefined = undefined;
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
     private readonly cache: AssetCache,
     private readonly assetIdsByDefaultPrefetchPriority: Map<AssetId, AssetFetchPriority>,
-    private readonly isOnline: () => boolean
+    private readonly isOnline: () => boolean,
+    private readonly onFetchErrorCallback: (error: Error) => void
   ) {}
 
-  async initialize(options?: {
-    clearCache?: boolean;
-    onFetchCompleteCallback?: FetchCompletionCallback;
-    onFetchAbortCallback?: FetchCompletionCallback;
-    onFetchStartedCallback?: FetchCompletionCallback;
-    onManifestFetchErrorCallback?: (error: unknown) => void;
-  }) {
-    if (this.assetManifest !== null) {
-      console.info(`asset service initialized already`);
-      return this.assetManifest;
+  get assetManifest() {
+    return cloneDeep(this._assetManifest);
+  }
+
+  get activeFetchCount() {
+    return this.activeFetches.size;
+  }
+
+  clearManifest() {
+    this._assetManifest = null;
+    this.progressTracker.reset();
+  }
+
+  dispose() {
+    this.cache.dispose();
+    this._assetManifest = null;
+  }
+
+  async initialize(options?: { clearCache?: boolean }) {
+    if (this.activeFetches.size) {
+      console.error("active fetches in progress when trying to initialize asset service");
+      return;
     }
-    // invariant(this.assetManifest === null, `asset service initialized already`);
 
     if (options?.clearCache) {
       await this.cache.clear();
-    }
-
-    if (options?.onFetchCompleteCallback) {
-      this.onFetchCompleteCallback = options.onFetchCompleteCallback;
-    }
-    if (options?.onFetchStartedCallback) {
-      this.onFetchStartedCallback = options.onFetchStartedCallback;
-    }
-    if (options?.onFetchAbortCallback) {
-      this.onFetchAbortCallback = options.onFetchAbortCallback;
     }
 
     const offline = !this.isOnline();
@@ -70,12 +70,22 @@ export class ClientAppAssetService implements AssetService {
 
     try {
       const upToDateVersionData = await this.getFreshAssetIdVersions();
-      this.assetManifest = upToDateVersionData;
+      this._assetManifest = upToDateVersionData;
+
+      const prefetchQueue = await this.scheduleAssetUpdates();
+      this.progressTracker.initialize(this._assetManifest, prefetchQueue);
+      this.startAssetUpdatesPrefetch();
+
       return cloneDeep(upToDateVersionData);
     } catch (error) {
       console.info("error fetching asset manifest:", error);
-      if (options?.onManifestFetchErrorCallback) {
-        options.onManifestFetchErrorCallback(error);
+      this.progressTracker.fetchFailed = true;
+      if (error instanceof Error) {
+        this.onFetchErrorCallback(error);
+      } else {
+        this.onFetchErrorCallback(
+          new Error("Fetching asset manifest failed with unknown error type")
+        );
       }
     }
   }
@@ -110,12 +120,12 @@ export class ClientAppAssetService implements AssetService {
   }
 
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
-    const tooManyConcurrentFetches = this.activeFetches.size > TARGET_CONCURRENT_FETCH_COUNT;
+    const tooManyConcurrentFetches = this.activeFetches.size >= TARGET_CONCURRENT_ASSET_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
       this.rescheduleLowPriorityFetches();
     }
 
-    this.onFetchStartedCallback?.(assetId);
+    this.progressTracker.onFetchStart(assetId);
     const { promise, abort } = this.remoteStore.getAssetBytesAbortable(assetId);
 
     const versionData = this.requireAssetManifestEntry(assetId);
@@ -127,7 +137,7 @@ export class ClientAppAssetService implements AssetService {
         const versionedAsset = new VersionedAsset(bytes, versionData);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
-        this.onFetchCompleteCallback?.(assetId);
+        this.progressTracker.onFetchComplete(assetId);
         return bytes;
       })
       .catch((error) => {
@@ -145,7 +155,7 @@ export class ClientAppAssetService implements AssetService {
           this.markUpdateAsCompleted();
         }
 
-        if (this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT) {
+        if (this.activeFetches.size < TARGET_CONCURRENT_ASSET_FETCH_COUNT) {
           this.startNextPrefetch();
         }
       });
@@ -174,6 +184,7 @@ export class ClientAppAssetService implements AssetService {
 
   /** abort any non-urgent fetches and add them back into pre-fetch list to get later */
   private rescheduleLowPriorityFetches() {
+    console.log("rescheduleLowPriorityFetches");
     const nonUrgentFetchIds = Array.from(this.activeFetches.entries())
       .filter(([assetId, managedFetch]) => managedFetch.isPreemptable())
       .map(([assetId, managedFetch]) => assetId);
@@ -181,8 +192,9 @@ export class ClientAppAssetService implements AssetService {
     for (const managedFetchId of nonUrgentFetchIds) {
       const managedFetch = this.activeFetches.get(managedFetchId);
       invariant(managedFetch !== undefined);
+      console.log("aborting managed fetch:", managedFetchId);
       managedFetch.abort();
-      this.onFetchAbortCallback?.(managedFetchId);
+      this.progressTracker.onFetchAbort(managedFetchId);
       this.activeFetches.delete(managedFetchId);
 
       this.prefetchQueue.add(managedFetchId, managedFetch.priority);
@@ -203,7 +215,7 @@ export class ClientAppAssetService implements AssetService {
   async scheduleAssetUpdates() {
     const needsUpdate = await this.getAssetIdsNeedingUpdate();
 
-    for (const [assetId, versionData] of needsUpdate) {
+    for (const [assetId, versionData] of needsUpdate.entries()) {
       let defaultPriority = this.assetIdsByDefaultPrefetchPriority.get(assetId);
       if (defaultPriority === undefined) {
         defaultPriority = AssetFetchPriority.PrefetchLow;
@@ -220,13 +232,11 @@ export class ClientAppAssetService implements AssetService {
     this.markUpdateAsInProgress();
 
     while (
-      this.activeFetches.size < TARGET_CONCURRENT_FETCH_COUNT &&
+      this.activeFetches.size < TARGET_CONCURRENT_ASSET_FETCH_COUNT &&
       this.prefetchQueue.hasEntries()
     ) {
       this.startNextPrefetch();
     }
-
-    return this.updateCompletionPromise;
   }
 
   private async getAssetIdsNeedingUpdate() {
@@ -235,8 +245,7 @@ export class ClientAppAssetService implements AssetService {
     const needsUpdate = new Map<AssetId, AssetVersionData>();
     const comparePromises: Promise<void>[] = [];
 
-    for (const [assetId, versionData] of Object.entries(updatedAssetList)) {
-      const typedAssetId = assetId as AssetId;
+    for (const [typedAssetId, versionData] of updatedAssetList.entries()) {
       const checkIfMissingOrStale = new Promise<void>((resolve, reject) => {
         this.cache
           .getAssetOption(typedAssetId)
@@ -281,7 +290,7 @@ export class ClientAppAssetService implements AssetService {
 
   private requireAssetManifestEntry(assetId: AssetId) {
     const assetManifest = this.requireAssetManifest();
-    const result = assetManifest[assetId];
+    const result = assetManifest.get(assetId);
     if (result === undefined) {
       throw new Error("Expected to have this asset in the version manifest");
     }
@@ -290,9 +299,7 @@ export class ClientAppAssetService implements AssetService {
 
   private async clearUnusedFromCache() {
     const updatedAssetList = this.requireAssetManifest();
-    await this.cache.removeAssetsNotIncluded(
-      new Set(Object.keys(updatedAssetList).map((key) => key as AssetId))
-    );
+    await this.cache.removeAssetsNotIncluded(new Set(updatedAssetList.keys()));
   }
 }
 

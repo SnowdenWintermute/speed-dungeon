@@ -2,6 +2,7 @@ import { EntityName, Username } from "../aliases.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { CombatantControllerType } from "../combatants/combatant-controllers.js";
 import { Combatant } from "../combatants/index.js";
+import { CombatantWithPets } from "../types.js";
 import { invariant } from "../utils/index.js";
 import {
   CharacterCreationPolicy,
@@ -24,7 +25,7 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
     name: EntityName,
     combatantClass: CombatantClass,
     controllingPlayerName: Username
-  ): { character: Combatant; pets: Combatant[] } {
+  ): CombatantWithPets {
     const queue = this.characterQueues[combatantClass];
     if (!queue || queue.length === 0) {
       throw new Error(`No scripted character factory for class ${CombatantClass[combatantClass]}`);
@@ -65,9 +66,11 @@ export class ScriptedCharacterCreationPolicy extends CharacterCreationPolicy {
       pets.push(pet);
     }
 
-    return {
-      character,
+    const combatantWithPets: CombatantWithPets = {
+      combatant: character,
       pets,
     };
+
+    return combatantWithPets;
   }
 }

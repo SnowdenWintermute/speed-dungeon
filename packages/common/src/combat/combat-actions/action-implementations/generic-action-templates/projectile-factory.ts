@@ -64,7 +64,8 @@ export class ProjectileFactory {
     const { actionName, rank } = actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
 
-    this.resourceChangeCalculators = action.hitOutcomeProperties.resourceChangePropertiesGetters;
+    this.resourceChangeCalculators =
+      context.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(actionName);
 
     this.firedByCombatantName = actionUser.getName();
 

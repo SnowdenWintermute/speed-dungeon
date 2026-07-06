@@ -20,6 +20,8 @@ import { MapUtils } from "../../../utils/map-utils.js";
 import { GuestSessionReconnectionToken } from "../../game-server/reconnection/guest-session-reconnection-token.js";
 import { OpaqueEncryptionTokenCodec } from "../game-handoff/session-claim-token.js";
 import { throwIfLoopLimitReached } from "../../../utils/index.js";
+import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
+import { IronmanRunController } from "../../controllers/ironman-run-controller.js";
 
 export class LobbySessionLifecycleController
   implements SessionLifecycleController<GameStateUpdate>
@@ -29,6 +31,7 @@ export class LobbySessionLifecycleController
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly savedCharactersController: SavedCharactersController,
+    private readonly savedIronmanRunsController: IronmanRunController,
     private readonly gameLifecycleController: LobbyGameLifecycleController,
     private readonly identityProviderService: IdentityProviderService,
     private readonly idGenerator: IdGenerator,
@@ -52,10 +55,14 @@ export class LobbySessionLifecycleController
 
       // given by game server to guests on disconnect to identify them
       if (context.clientCachedGuestReconnectionToken) {
-        const decrypted = await this.guestReconnectionTokenCodec.decode(
-          context.clientCachedGuestReconnectionToken
-        );
-        guestSession.setGuestReconnectionToken(decrypted);
+        try {
+          const decrypted = await this.guestReconnectionTokenCodec.decode(
+            context.clientCachedGuestReconnectionToken
+          );
+          guestSession.setGuestReconnectionToken(decrypted);
+        } catch (error) {
+          console.error("error decrypting guest reconnection token", error);
+        }
       }
       return guestSession;
     } else {
@@ -120,10 +127,27 @@ export class LobbySessionLifecycleController
       return outbox;
     }
 
-    if (session.isAuth()) {
-      const savedCharactersOutbox =
-        await this.savedCharactersController.fetchSavedCharactersHandler(session);
-      outbox.pushFromOther(savedCharactersOutbox);
+    // @TODO - determine what default (control scheme) characters to send them
+    // or send all, or just send metadata enough to render the models
+    if (session.isAuth() && session.taggedUserId.type === UserIdType.Auth) {
+      const captainsSavedCharactersOutbox =
+        await this.savedCharactersController.fetchSavedCharactersHandler(session, {
+          controlScheme: CharacterControlScheme.Captain,
+        });
+      const freelancersSavedCharactersOutbox =
+        await this.savedCharactersController.fetchSavedCharactersHandler(session, {
+          controlScheme: CharacterControlScheme.Freelancer,
+        });
+      // @TODO @PERF
+      // - defer sending their runs until they ask for them,
+      // - don't send the entire run, just some descriptive data
+
+      const ironmanRunsOutbox =
+        await this.savedIronmanRunsController.getUserSavedIronmanRunsOutbox(session);
+      outbox.pushFromOther(ironmanRunsOutbox);
+
+      outbox.pushFromOther(captainsSavedCharactersOutbox);
+      outbox.pushFromOther(freelancersSavedCharactersOutbox);
     }
 
     const userChannelDisplayData = this.lobbyState.addUser(session.username, session.isAuth());
@@ -153,7 +177,7 @@ export class LobbySessionLifecycleController
 
   async cleanupSession(session: UserSession) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
-    if (session.currentGameName !== null) {
+    if (session.currentGameId !== null) {
       const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
       outbox.pushFromOther(leaveGameHandlerOutbox);
     }

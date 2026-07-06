@@ -17,7 +17,8 @@ export async function testJoinProgressionGameRequiresAuth(testFixture: Integrati
   await testFixture.createSingleClientInProgressionGame("client 1", TEST_AUTH_SESSION_ID_PLAYER_1);
   const bravo = testFixture.createClient("client 1");
   await bravo.connect();
-  await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+  await bravo.lobbyClientHarness.fetchGameList();
+  await bravo.lobbyClientHarness.joinGame(bravo.requireGameIdFromClientGameList(TEST_GAME_NAME));
   expect(bravo.clientApplication.errorRecordService.getLastError()?.message).toBe(
     ERROR_MESSAGES.AUTH.REQUIRED
   );

@@ -15,6 +15,13 @@ export class DatabaseProfileService extends SpeedDungeonProfileService {
     return speedDungeonProfileOption;
   }
 
+  async update(userId: IdentityProviderId, profile: SpeedDungeonProfile): Promise<void> {
+    const updated = await this.profilesRepo.update(profile);
+    if (updated === undefined) {
+      throw new Error(`${ERROR_MESSAGES.DATABASE.SAVING}`);
+    }
+  }
+
   async createProfile(userId: IdentityProviderId): Promise<SpeedDungeonProfile> {
     console.info("creating speed dungeon profile for user");
     const expectedProfile = await this.profilesRepo.insert(userId);

@@ -1,4 +1,4 @@
-import { GameName } from "../../../../aliases.js";
+import { GameId } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -10,17 +10,14 @@ import { SpeedDungeonGame } from "../../../../game/index.js";
 import { UserSessionRegistry } from "../../../sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { GameMode } from "../../../../types.js";
-import { GameModeContext } from "./game-mode-context.js";
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
-import {
-  createPartyAbandonedMessage,
-  createPartyWipeMessage,
-  GameMessageType,
-} from "../../../../packets/game-message.js";
+import { createPartyAbandonedMessage, GameMessageType } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
 import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
+import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
+import { GameMode, GameModePolicy } from "../../../../game-modes/index.js";
+import { PartyLifecyleController } from "../party-lifecycle.js";
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -31,25 +28,26 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly globalGameSessionStore: GlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly gameModeContexts: Record<GameMode, GameModeContext>,
-    private readonly dungeonExplorationController: DungeonExplorationController
+    private readonly gameModePolicyStore: GameModePolicyStore,
+    private readonly dungeonExplorationController: DungeonExplorationController,
+    private readonly partyLifecycleController: PartyLifecyleController
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
     );
   }
 
-  async getOrInitializeGame(gameName: GameName) {
-    const existingGame = this.gameRegistry.getGameOption(gameName);
+  async getOrInitializeGame(gameId: GameId) {
+    const existingGame = this.gameRegistry.getGameOption(gameId);
     if (existingGame) {
       return existingGame;
     }
-    const newGame = await this.initializeExpectedPendingGame(gameName);
+    const newGame = await this.initializeExpectedPendingGame(gameId);
     return newGame;
   }
 
-  private async initializeExpectedPendingGame(gameName: GameName) {
-    const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameName);
+  private async initializeExpectedPendingGame(gameId: GameId) {
+    const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameId);
     if (pendingGameSetupOption === null) {
       throw new Error(
         "A user presented a token with a game id that didn't match any existing game or pending game setup."
@@ -71,18 +69,18 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     this.gameRegistry.registerGame(newGame);
 
-    await this.gameSessionStoreService.deletePendingGameSetup(newGame.name);
+    await this.gameSessionStoreService.deletePendingGameSetup(newGame.id);
     await this.gameSessionStoreService.writeActiveGameStatus(
-      newGame.name,
+      newGame.id,
       new ActiveGameStatus(newGame.name, newGame.id)
     );
 
     return newGame;
   }
 
-  async joinGameHandler(gameName: GameName, session: UserSession) {
+  async joinGameHandler(gameId: GameId, session: UserSession) {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    const game = this.gameRegistry.requireGame(gameName);
+    const game = this.gameRegistry.requireGame(gameId);
 
     session.joinGame(game);
 
@@ -127,16 +125,14 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       game.getChannelName(),
       {
         type: GameStateUpdateType.PlayerJoinedGame,
-        data: { username: session.username },
+        data: { username: session.username, joinOrder: player.joinOrder },
       },
       { excludedIds: [session.connectionId] }
     );
 
     const allPlayersAreConnectedToGame = this.allPlayersAreConnectedToGame(game);
 
-    const gameHasNotYetStarted = game.getTimeStarted() === null;
-
-    if (gameHasNotYetStarted && allPlayersAreConnectedToGame) {
+    if (!game.clock.isLive() && allPlayersAreConnectedToGame) {
       const startGameOutbox = await this.startGame(game);
       outbox.pushFromOther(startGameOutbox);
     }
@@ -147,22 +143,25 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   }
 
   private async startGame(game: SpeedDungeonGame) {
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onGameStart(game);
-
-    game.setAsStarted();
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    game.clock.startLiveSession();
+    await gameModePolicy.persistence.onGameStart(game);
+    await gameModePolicy.ladder.onGameStart(game);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(game.getChannelName(), {
       type: GameStateUpdateType.GameStarted,
-      data: { timeStarted: game.requireTimeStarted() },
+      data: { firstStartedAt: game.clock.requireFirstStartedAt() },
     });
 
-    const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
-    for (const session of sessionsInGame) {
-      const toggleExploreOutbox =
-        await this.dungeonExplorationController.toggleReadyToExploreHandler(session);
-      outbox.pushFromOther(toggleExploreOutbox);
+    if (!game.isContinuedRun) {
+      const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);
+
+      for (const session of sessionsInGame) {
+        const toggleExploreOutbox =
+          await this.dungeonExplorationController.toggleReadyToExploreHandler(session);
+        outbox.pushFromOther(toggleExploreOutbox);
+      }
     }
 
     return outbox;
@@ -192,9 +191,44 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
 
     const player = game.getExpectedPlayer(session.username);
     const party = player.getExpectedParty(game);
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onGameLeave(game, party, player);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
 
+    const ladderPolicyOutbox = await gameModePolicy.ladder.onLiveGameLeave(game, party, player);
+    outbox.pushFromOther(ladderPolicyOutbox);
+
+    const persistencePolicyOutbox = await gameModePolicy.persistence.onLiveGameLeave(
+      game,
+      player,
+      this
+    );
+    outbox.pushFromOther(persistencePolicyOutbox);
+
+    const gameModesWhereLeavingRemovesPlayer = [
+      GameMode.RankedRace,
+      GameMode.UnrankedRace,
+      GameMode.Progression,
+    ];
+
+    if (gameModesWhereLeavingRemovesPlayer.includes(game.mode)) {
+      const removedPlayerOutbox = await this.handlePlayerRemovalOnGameLeave(
+        session,
+        game,
+        party,
+        gameModePolicy
+      );
+      outbox.pushFromOther(removedPlayerOutbox);
+    }
+
+    return outbox;
+  }
+
+  private async handlePlayerRemovalOnGameLeave(
+    session: UserSession,
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    gameModePolicy: GameModePolicy
+  ) {
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const removedPlayerData = game.removePlayerFromParty(session.username);
     const { partyWasRemoved } = removedPlayerData;
 
@@ -207,31 +241,19 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       deadPartyMembersAbandoned = partyAbandoned;
     }
 
-    const partyHasNotYetEscaped = !party.timeOfEscape; // if they already escaped they shouldn't be marked as wiped
-    const partyHasNotYetWiped = party.timeOfWipe === null;
-    const partyIsInWipableState =
-      partyWasRemoved || (deadPartyMembersAbandoned && partyHasNotYetWiped);
-    const partyShouldBeMarkedWiped = partyHasNotYetEscaped && partyIsInWipableState;
+    const partyShouldBeMarkedWiped = this.partyShouldBeMarkedWiped(
+      party,
+      partyWasRemoved,
+      deadPartyMembersAbandoned
+    );
 
     if (partyShouldBeMarkedWiped) {
-      party.timeOfWipe = Date.now();
-      const ladderDeathMessagesOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
-
-      const remainingParties = Object.values(game.adventuringParties);
-      if (remainingParties.length) {
-        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
-
-        const partyWipedOutbox =
-          this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-            game.getChannelName(),
-            GameMessageType.PartyWipe,
-            createPartyWipeMessage(party.name, floorNumber, new Date(Date.now())),
-            getPartyChannelName(game.name, party.name)
-          );
-        outbox.pushFromOther(partyWipedOutbox);
-      }
-
-      outbox.pushFromOther(ladderDeathMessagesOutbox);
+      const partyWipedOutbox = await this.partyLifecycleController.handlePartyWipe(
+        game,
+        party,
+        gameModePolicy
+      );
+      outbox.pushFromOther(partyWipedOutbox);
     }
 
     game.removePlayer(session.username);
@@ -248,19 +270,32 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     return outbox;
   }
 
-  async cleanUpGame(game: SpeedDungeonGame) {
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onLastPlayerLeftGame(game);
+  private partyShouldBeMarkedWiped(
+    party: AdventuringParty,
+    partyWasRemoved: boolean,
+    deadPartyMembersAbandoned: boolean
+  ) {
+    const partyHasNotYetEscaped = !party.hasEscaped(); // if they already escaped they shouldn't be marked as wiped
+    const partyHasNotYetWiped = !party.hasWiped();
+    const partyIsInWipableState =
+      partyWasRemoved || (deadPartyMembersAbandoned && partyHasNotYetWiped);
+    return partyHasNotYetEscaped && partyIsInWipableState;
+  }
 
-    this.gameRegistry.unregisterGame(game.name);
+  async cleanUpGame(game: SpeedDungeonGame) {
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    await gameModePolicy.persistence.onLastPlayerLeftLiveGame(game);
+    await gameModePolicy.ladder.onLastPlayerLeftLiveGame(game);
+
+    this.gameRegistry.unregisterGame(game.id);
     // even though we clear their session on leave game, it is possible that they never joined the game,
     // the other users get bored and leave and the user that never joined would be stuck with a stale
     // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
     // @ARCHITECTURE - I don't think it will race with a lobby game created by same name because we prohibit
     // creation of lobby game while active or pending game status of that name exists
-    await this.globalGameSessionStore.clearSessionsInGame(game.name);
-    await this.gameSessionStoreService.deleteActiveGameStatus(game.name);
-    await this.gameSessionStoreService.deletePendingGameSetup(game.name);
+    await this.globalGameSessionStore.clearSessionsInGame(game.id);
+    await this.gameSessionStoreService.deleteActiveGameStatus(game.id);
+    await this.gameSessionStoreService.deletePendingGameSetup(game.id);
   }
 
   handleAbandoningDeadPartyMembers(
@@ -277,7 +312,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
       }
     }
 
-    if (allRemainingCharactersAreDead && !party.timeOfWipe) {
+    if (allRemainingCharactersAreDead && !party.hasWiped()) {
       const abandonedPartyOutbox =
         this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
           game.getChannelName(),

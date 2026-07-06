@@ -45,6 +45,8 @@ import { ENSNARE_WEB_TRAVEL_AND_ACTIVATE } from "./ensnare/ensnare-web-travel-an
 import { START_FLYING } from "./start-flying/index.js";
 import { DEATH } from "./death/index.js";
 import { CombatActionName } from "../combat-action-names.js";
+import { KILL } from "./death/kill.js";
+import { HALF_KILL } from "./death/half-kill.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -93,4 +95,6 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.EnsnareMoveNetTowardTargetAndActivate]: ENSNARE_WEB_TRAVEL_AND_ACTIVATE,
   [CombatActionName.StartFlying]: START_FLYING,
   [CombatActionName.Death]: DEATH,
+  [CombatActionName.Kill]: KILL,
+  [CombatActionName.HalfKill]: HALF_KILL,
 };

@@ -55,7 +55,7 @@ export async function testEnsnareDebuffOnFlyer(testFixture: IntegrationTestFixtu
       1
   ).toBeTruthy();
   const webAttacker = combatantFocus.requireFocusedCharacter().combatantProperties;
-  await gameClientHarness.selectCombatAction(CombatActionName.Fire, 3);
+  await gameClientHarness.selectCombatAction(CombatActionName.Kill, 1);
   await gameClientHarness.cycleTargets(NextOrPrevious.Previous);
   const targetWebId = webAttacker.targetingProperties.requireSelectedSingleTargetId();
   const web = combatantManager.getExpectedCombatant(targetWebId);

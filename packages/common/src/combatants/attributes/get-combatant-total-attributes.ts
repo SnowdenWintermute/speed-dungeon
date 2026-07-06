@@ -39,7 +39,7 @@ export function getCombatantTotalAttributes(
     addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
 
     const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-    for (let i = 0; i < level; i += 1) {
+    for (let i = 1; i < level; i += 1) {
       addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
     }
 
@@ -54,7 +54,8 @@ export function getCombatantTotalAttributes(
     addAttributesToAccumulator(startingAttributes, totalAttributes);
 
     const monsterAttributesByLevel = MONSTER_ATTRIBUTES_BY_LEVEL[monsterType];
-    for (let i = 0; i < level; i += 1) {
+    // don't add for level 1 monsters
+    for (let i = 1; i < level; i += 1) {
       addAttributesToAccumulator(monsterAttributesByLevel, totalAttributes);
     }
   }

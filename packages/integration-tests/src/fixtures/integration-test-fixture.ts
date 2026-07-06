@@ -1,27 +1,34 @@
 import {
   BASIC_CHARACTER_FIXTURES,
+  CharacterControlScheme,
   CombatantClass,
   DungeonRoomType,
   ExplicitCombatantDungeonTemplate,
   FixedCharacterCreationLists,
   FixedNumberGenerator,
   GameMode,
+  GameName,
   GameServer,
   GameServerName,
   GameStateUpdateType,
   IncomingConnectionGateway,
+  InMemoryIdentityProviderQueryStrategy,
   invariant,
   iterateNumericEnumKeyedRecord,
   LobbyServer,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
-  RankedLadderService,
+  CharacterLevelLadderService,
   RNG_RANGE,
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
+  UserGameDataPersistenceService,
+  LadderGameRecordsService,
+  ResourceChangePropertiesStrategy,
+  SpeciesAnimationLengths,
+  TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
-import { SpeciesAnimationLengths } from "@speed-dungeon/common/src/servers/game-server/asset-analyzer/index.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "@speed-dungeon/server";
 import { createTestServers } from "./create-test-servers.js";
@@ -30,6 +37,7 @@ import {
   TEST_AUTH_SESSION_ID_PLAYER_1,
   TEST_AUTH_SESSION_ID_PLAYER_2,
   TEST_CHARACTER_NAME_1,
+  TEST_CHARACTER_NAME_2,
   TEST_GAME_NAME,
   TEST_PARTY_NAME,
   TestGameServerName,
@@ -58,7 +66,10 @@ export class IntegrationTestFixture {
     [TestGameServerName.Alexandria]: 0,
   }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
-  private _rankedLadderService: RankedLadderService | null = null;
+  private _rankedLadderService: CharacterLevelLadderService | null = null;
+  private _ladderGameRecordsService: LadderGameRecordsService | null = null;
+  private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
+  private _userGameDataPersistenceService: UserGameDataPersistenceService | null = null;
   /** for manipulating which server a new game should be created on in a test */
   private _leastBusyGameServerUrlGetterRef: {
     getter: () => Promise<{ name: GameServerName; url: string }>;
@@ -96,6 +107,7 @@ export class IntegrationTestFixture {
 
   private async createServers(
     rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     dungeonScript: ExplicitCombatantDungeonTemplate,
     characterCreationFixture: FixedCharacterCreationLists
   ) {
@@ -114,20 +126,31 @@ export class IntegrationTestFixture {
         this._gameServers[TestGameServerName.Lindblum].assetAnalyzer.animationLengths;
     }
 
-    const servers = await createTestServers(
+    const {
+      lobbyServer,
+      gameServers,
+      rankedLadderService,
+      ladderGameRecordsService,
+      identityProviderQueryStrategy,
+      userGameDataPersistenceService,
+    } = await createTestServers(
       lobbyIncomingConnectionGateway,
       gameServerGatewaysAndPorts,
       this._leastBusyGameServerUrlGetterRef,
       rngPolicy,
+      resourceChangePropertiesStrategy,
       ScriptedCharacterCreationPolicy
     );
 
-    this._rankedLadderService = servers.rankedLadderService;
+    this._rankedLadderService = rankedLadderService;
+    this._ladderGameRecordsService = ladderGameRecordsService;
+    this._identityProviderQueryStrategy = identityProviderQueryStrategy;
+    this._userGameDataPersistenceService = userGameDataPersistenceService;
 
-    this._lobbyServer = servers.lobbyServer;
+    this._lobbyServer = lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
 
-    this._gameServers = servers.gameServers;
+    this._gameServers = gameServers;
     for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
       gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
     }
@@ -146,6 +169,27 @@ export class IntegrationTestFixture {
       throw new Error("no rankedLadderService was initialized");
     }
     return this._rankedLadderService;
+  }
+
+  get ladderGameRecordsService() {
+    if (!this._ladderGameRecordsService) {
+      throw new Error("no ladderGameRecordsService was initialized");
+    }
+    return this._ladderGameRecordsService;
+  }
+
+  get identityProviderQueryStrategy() {
+    if (!this._identityProviderQueryStrategy) {
+      throw new Error("no identityProviderQueryStrategy was initialized");
+    }
+    return this._identityProviderQueryStrategy;
+  }
+
+  get userGameDataPersistenceService() {
+    if (!this._userGameDataPersistenceService) {
+      throw new Error("no userGameDataPersistenceService was initialized");
+    }
+    return this._userGameDataPersistenceService;
   }
 
   get lobbyServer() {
@@ -184,16 +228,29 @@ export class IntegrationTestFixture {
     await Promise.all(promises);
   }
 
-  createClient(id: string, authId?: string) {
-    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine, authId);
+  createClient(id: string, authSessionId?: string) {
+    const client = new ClientFixture(this.lobbyServerPort, this.timeMachine, authSessionId);
     this.clients.set(id, client);
     return client;
+  }
+
+  async createConnectedClients<const T extends readonly { id: string; authSessionId?: string }[]>(
+    blueprints: T
+  ): Promise<{ [K in keyof T]: ClientFixture }> {
+    const clients = blueprints.map(({ id, authSessionId }) =>
+      this.createClient(id, authSessionId)
+    ) as { [K in keyof T]: ClientFixture };
+
+    await Promise.all(clients.map((client) => client.connect()));
+
+    return clients;
   }
 
   async resetWithOptions(
     dungeonTemplate: ExplicitCombatantDungeonTemplate = TEST_DUNGEON_TWO_WOLF_ROOMS,
     charactersTemplate: FixedCharacterCreationLists = BASIC_CHARACTER_FIXTURES,
-    rngOverrides: Partial<RandomNumberGenerationPolicy> = {}
+    rngOverrides: Partial<RandomNumberGenerationPolicy> = {},
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy = new TestResourceChangePropertiesStrategy()
   ) {
     this.timeMachine.returnToPresent();
 
@@ -209,7 +266,12 @@ export class IntegrationTestFixture {
       ...basicOverrides,
       ...rngOverrides,
     });
-    await this.createServers(rngPolicy, dungeonTemplate, charactersTemplate);
+    await this.createServers(
+      rngPolicy,
+      resourceChangePropertiesStrategy,
+      dungeonTemplate,
+      charactersTemplate
+    );
   }
 
   async createSingleClientInStartedGame(
@@ -221,7 +283,7 @@ export class IntegrationTestFixture {
     const client = this.createClient("client 1");
     await client.connect();
 
-    await client.lobbyClientHarness.createGame("test-game-a");
+    await client.lobbyClientHarness.createGame("test-game-a" as GameName);
     await client.lobbyClientHarness.createParty("test-party-a");
     for (const { name, combatantClass } of playerCharacterClasses) {
       await client.lobbyClientHarness.createCharacter(name, combatantClass);
@@ -245,14 +307,18 @@ export class IntegrationTestFixture {
       if (options.characters.length < 1) {
         throw new Error("Should at least specify one character");
       }
-      for (const { name, combatantClass, slotIndex } of options.characters) {
-        await client.lobbyClientHarness.createSavedCharacter(name, combatantClass, slotIndex);
+      for (const { name, combatantClass } of options.characters) {
+        await client.lobbyClientHarness.createSavedCharacter(
+          name,
+          combatantClass,
+          CharacterControlScheme.Captain
+        );
       }
     } else {
       await client.lobbyClientHarness.createSavedCharacter(
         TEST_CHARACTER_NAME_1,
         CombatantClass.Warrior,
-        0
+        CharacterControlScheme.Captain
       );
     }
     return client;
@@ -265,7 +331,11 @@ export class IntegrationTestFixture {
   ) {
     const client = await this.createSingleClientWithSavedCharacters(testClientId, authId, options);
     const gameName = options?.gameName ? options.gameName : TEST_GAME_NAME;
-    await client.lobbyClientHarness.createGame(gameName, GameMode.Progression);
+    await client.lobbyClientHarness.createGame(
+      gameName as GameName,
+      GameMode.Progression,
+      CharacterControlScheme.Captain
+    );
     if (options?.proceedToGameServer) {
       await client.lobbyClientHarness.toggleReadyToStartGame();
       await client.clientApplication.topologyManager.transitionToGameServer.waitFor();
@@ -287,7 +357,9 @@ export class IntegrationTestFixture {
       TEST_AUTH_SESSION_ID_PLAYER_2,
       bravoOptions
     );
-    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+
+    await bravo.lobbyClientHarness.fetchGameList();
+    await bravo.lobbyClientHarness.joinGame(bravo.requireGameIdFromClientGameList(TEST_GAME_NAME));
     await alpha.lobbyClientHarness.awaitMessageOfType(GameStateUpdateType.CharacterAddedToParty);
     return { alpha, bravo };
   }
@@ -307,7 +379,8 @@ export class IntegrationTestFixture {
     await alpha.lobbyClientHarness.createParty(TEST_PARTY_NAME);
     await alpha.lobbyClientHarness.createCharacter("a", CombatantClass.Rogue);
 
-    await bravo.lobbyClientHarness.joinGame(TEST_GAME_NAME);
+    await bravo.lobbyClientHarness.fetchGameList();
+    await bravo.lobbyClientHarness.joinGame(bravo.requireGameIdFromClientGameList(TEST_GAME_NAME));
     await bravo.lobbyClientHarness.joinParty(TEST_PARTY_NAME);
     await bravo.lobbyClientHarness.createCharacter("b", CombatantClass.Warrior);
 
@@ -338,5 +411,41 @@ export class IntegrationTestFixture {
     expect(partyA.currentRoom.requireType(DungeonRoomType.MonsterLair));
     expect(partyB.currentRoom.requireType(DungeonRoomType.MonsterLair));
     return { alpha, bravo };
+  }
+
+  async putTwoClientsInFreshIronmanRun(
+    alpha: ClientFixture,
+    bravo: ClientFixture,
+    options?: { closeGame?: boolean; controlScheme?: CharacterControlScheme }
+  ) {
+    // create a run that another user is a participant of
+    let controlScheme = CharacterControlScheme.Captain;
+    if (options?.controlScheme !== undefined) {
+      controlScheme = options.controlScheme;
+    }
+
+    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman, controlScheme);
+    await alpha.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
+    await bravo.lobbyClientHarness.tryJoinExpectedSingleGameInList();
+    await bravo.lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_2, CombatantClass.Warrior);
+
+    await alpha.lobbyClientHarness.toggleReadyToStartGame();
+    await bravo.lobbyClientHarness.toggleReadyToStartGame();
+    await alpha.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+
+    // one player closing the game closes for all
+    if (options?.closeGame) {
+      alpha.clientApplication.gameClientRef.get().leaveGame();
+      const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
+        GameStateUpdateType.GameClosed
+      );
+      await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
+      // bravo should be disconnected when other player leaves ironman game
+      await bravoDisconnectedOnAlphaLeavePromise;
+      await bravo.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
+    }
   }
 }

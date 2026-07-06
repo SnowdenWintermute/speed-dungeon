@@ -1,11 +1,11 @@
-import { AssetId, invariant } from "@speed-dungeon/common";
+import { AssetId, invariant, MapUtils } from "@speed-dungeon/common";
 import { AssetManifest } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
 import { appRoute } from "../app-route.js";
 
 export class AssetServer {
-  constructor(private localFileSystemStore: NodeFileSystemAssetStore) {}
+  constructor(public readonly localFileSystemStore: NodeFileSystemAssetStore) {}
 
   attachRouter(expressApp: Express, options: { isProduction: boolean }) {
     const router = Router();
@@ -20,11 +20,11 @@ export class AssetServer {
   async createManifest() {
     const assetIds = await this.localFileSystemStore.getAssetIdsCached();
 
-    const manifest: AssetManifest = {};
+    const manifest: AssetManifest = new Map();
 
     for (const id of assetIds) {
       const asset = await this.localFileSystemStore.getAsset(id);
-      manifest[id] = asset.versionData;
+      manifest.set(id, asset.versionData);
     }
 
     return manifest;
@@ -32,7 +32,7 @@ export class AssetServer {
 
   private async serveManifest(req: Request, res: Response, next: NextFunction) {
     const manifest = await this.createManifest();
-    res.json(manifest);
+    res.json(MapUtils.serialize(manifest));
   }
 
   private async serveAsset(req: Request, res: Response, next: NextFunction) {

@@ -9,6 +9,7 @@ export * from "./primatives/option.js";
 export * from "./primatives/entity-properties.js";
 export * from "./primatives/max-and-current.js";
 export * from "./primatives/number-range.js";
+export * from "./primatives/date-range.js";
 
 export * from "./http-headers.js";
 
@@ -31,6 +32,7 @@ export * from "./items/equipment/index.js";
 export * from "./items/consumables/index.js";
 export * from "./items/consumables/consumable-types.js";
 export * from "./game/index.js";
+export * from "./game/game-clock.js";
 export * from "./game/player.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
@@ -79,7 +81,12 @@ export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/services/profiles.js";
 export * from "./servers/services/assets/game-server-node-asset-service.js";
-export * from "./servers/services/saved-characters.js";
+export * from "./servers/services/user-game-data-persistence/index.js";
+export * from "./servers/services/user-game-data-persistence/saved-character-persistence-strategy.js";
+export * from "./servers/services/user-game-data-persistence/serialized-player-character.js";
+export * from "./servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
+export * from "./servers/services/user-game-data-persistence/saved-ironman-runs.js";
+export * from "./servers/services/user-game-data-persistence/in-memory-ironman-run-persistence-strategy.js";
 export * from "./servers/services/ranked-ladder.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";
@@ -218,7 +225,6 @@ export * from "./combat/magical-elements.js";
 export * from "./combat/kinetic-damage-types.js";
 
 export * from "./servers/services/race-game-records.js";
-export * from "./servers/game-server/controllers/game-lifecycle/record-types.js";
 export * from "./servers/query-params.js";
 
 export * from "./cryptography/index.js";
@@ -235,7 +241,7 @@ export * from "./servers/services/game-session-store/in-memory-game-session-stor
 export * from "./servers/services/cross-server-broadcaster/index.js";
 export * from "./servers/services/cross-server-broadcaster/in-memory-cross-server-broadcaster.js";
 export * from "./servers/services/server-command/index.js";
-export * from "./servers/services/in-memory-saved-characters-service.js";
+export * from "./servers/services/user-game-data-persistence/in-memory-user-game-data-persistence-service.js";
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";
@@ -266,3 +272,13 @@ export * from "./utils/numeric-enum-utils.js";
 export * from "./servers/services/global-auth-game-connection-session-store/index.js";
 export * from "./servers/sessions/global-auth-game-session.js";
 export * from "./servers/game-server/reconnection/guest-session-reconnection-token.js";
+export * from "./game-modes/index.js";
+export * from "./game-modes/ladder-records/index.js";
+export * from "./game-modes/ladder-records/ladder-records-persistence-strategy.js";
+export * from "./game-modes/ladder-records/in-memory-ladder-records-persistence-strategy.js";
+export * from "./game-modes/ladder-records/ladder-records-service.js";
+export * from "./errors/fetch-aborted.js";
+export * from "./combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
+
+export * from "./servers/game-server/asset-analyzer/index.js";
+export * from "./test-fixtures/test-resource-change-properties-strategy.js";

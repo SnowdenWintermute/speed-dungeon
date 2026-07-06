@@ -1,7 +1,6 @@
 import { ActionEntity, ActionEntityName } from "../../../action-entities/index.js";
 import { ShapeType3D } from "../../../utils/shape-utils.js";
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionIntentAndUser,
   ActionResolutionStepContext,
   ActionResolutionStepType,

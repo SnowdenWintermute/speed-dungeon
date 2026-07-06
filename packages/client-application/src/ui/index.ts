@@ -5,7 +5,6 @@ import { DialogStore } from "./dialogs";
 import { TooltipStore } from "./tooltips";
 import { InputStore } from "./inputs";
 import { KeybindConfig } from "./keybind-config";
-import { AssetFetchProgressStore } from "./asset-fetch-progress";
 import { HttpRequestStore } from "./http-requests";
 import { makeAutoObservable } from "mobx";
 import { Milliseconds } from "@speed-dungeon/common";
@@ -22,7 +21,6 @@ export class UiStore {
   readonly tooltips = new TooltipStore();
   readonly inputs = new InputStore();
   readonly keybinds = new KeybindConfig();
-  readonly assetFetchProgress = new AssetFetchProgressStore();
   readonly httpRequests = new HttpRequestStore();
 
   // for users who reconnect during a replay, we show them the resolution

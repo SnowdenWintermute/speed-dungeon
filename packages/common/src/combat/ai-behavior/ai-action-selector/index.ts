@@ -14,12 +14,14 @@ import { ActionRank, EntityId } from "../../../aliases.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { AIBehaviorContext } from "../ai-context.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export type AiActionEvaluator = (
   intents: CombatActionExecutionIntent[],
   actionUserContext: ActionUserContext,
   consideredCombatants: Combatant[],
-  rngPolicy: RandomNumberGenerationPolicy
+  rngPolicy: RandomNumberGenerationPolicy,
+  resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
 ) => null | CombatActionExecutionIntent;
 
 export class AiActionSelector {
@@ -181,7 +183,8 @@ export class AiActionSelector {
       actionIntentsThatCanTargetDesiredTargets,
       this.actionUserContext,
       consideredTargetCombatants,
-      this.behaviorContext.randomNumberGenerationPolicy
+      this.behaviorContext.randomNumberGenerationPolicy,
+      this.behaviorContext.resourceChangePropertiesStrategy
     );
 
     return bestIntentOption;

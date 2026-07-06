@@ -1,4 +1,10 @@
-import { ClientIntentType, GameMode, GameName, formatGameMode } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  ClientIntentType,
+  GAME_MODE_STRINGS,
+  GameMode,
+  GameName,
+} from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
@@ -6,16 +12,22 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { IronmanRunSelector } from "./IronmanRunSelector";
+import { observer } from "mobx-react-lite";
 
-export default function HostGameForm() {
+export const HostGameForm = observer(() => {
   const clientApplication = useClientApplication();
   const { uiStore, lobbyClientRef } = clientApplication;
   const currentSessionHttpResponseTracker =
     uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
-  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Progression);
+  const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Ironman);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState<GameName>("" as GameName);
+  const { savedIronmanRunCapacity, savedIronmanRuns, selectedSavedIronmanRun } =
+    clientApplication.lobbyContext;
+  const newIronmanRunAllowed =
+    savedIronmanRunCapacity !== null && savedIronmanRuns.size < savedIronmanRunCapacity;
 
   function createGame(
     event: FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -26,15 +38,27 @@ export default function HostGameForm() {
       data: {
         gameName,
         mode: selectedGameMode,
-        isRanked,
+        controlScheme: CharacterControlScheme.Captain,
+        continueGameId: selectedSavedIronmanRun || undefined,
       },
     });
   }
 
   useEffect(() => {
-    if (!isLoggedIn) setSelectedGameMode(GameMode.Race);
+    if (!isLoggedIn) setSelectedGameMode(GameMode.UnrankedRace);
     if (!isLoggedIn) setIsRanked(false);
   }, [isLoggedIn]);
+
+  function handleAbandonRunClick() {
+    if (!selectedSavedIronmanRun) {
+      return;
+    }
+    clientApplication.lobbyClientRef.get().dispatchIntent({
+      type: ClientIntentType.AbandonIronmanRun,
+      data: { runId: selectedSavedIronmanRun },
+    });
+    
+  }
 
   return (
     <form
@@ -55,36 +79,20 @@ export default function HostGameForm() {
           />
         </div>
         <div className="flex items-center font-bold">
-          Game mode: {formatGameMode(selectedGameMode)}
+          Game mode: {GAME_MODE_STRINGS[selectedGameMode]}
         </div>
         <Divider />
-        <div className="mb-4">
-          {selectedGameMode === GameMode.Race && (
-            <p>
-              Race to the bottom of the dungeon! Face off against other parties or go for a personal
-              best time. This mode uses all new level 1 characters. Players can control one or more
-              characters.
-            </p>
-          )}
-          {selectedGameMode === GameMode.Progression && (
-            <p>
-              Level up your existing characters. Try to reach deeper floors and find better
-              equipment. You may only control one character so it may be a good idea to bring some
-              friends.
-            </p>
-          )}
-        </div>
         <div className="flex flex-col mb-2">
           <div className="flex w-full mb-2">
             <HotkeyButton
               buttonType="button"
               hotkeys={["KeyW"]}
               onClick={() => {
-                setSelectedGameMode(GameMode.Race);
+                setSelectedGameMode(GameMode.UnrankedRace);
                 setIsRanked(false);
               }}
               className={`flex-1 h-10 border border-slate-400 
-                        ${selectedGameMode === GameMode.Race && !isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        ${selectedGameMode === GameMode.UnrankedRace && !isRanked ? "bg-slate-950" : "bg-slate-700"}
                         mr-1
                         `}
             >
@@ -111,7 +119,25 @@ export default function HostGameForm() {
             </HoverableTooltipWrapper>
           </div>
           <div className="flex w-full mb-2">
-            <div id="game-mode-spacer" className={`flex-1 h-10 mr-1`} />
+            <HoverableTooltipWrapper
+              tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
+              extraStyles="flex-1 mr-1"
+            >
+              <HotkeyButton
+                buttonType="button"
+                hotkeys={[]}
+                disabled={!isLoggedIn}
+                onClick={() => {
+                  setSelectedGameMode(GameMode.Ironman);
+                }}
+                className={`flex-1 h-10 w-full border border-slate-400 px-2
+                        ${selectedGameMode === GameMode.Ironman ? "bg-slate-950" : "bg-slate-700"}
+                        disabled:opacity-50 
+                        `}
+              >
+                IRONMAN
+              </HotkeyButton>
+            </HoverableTooltipWrapper>
             <HoverableTooltipWrapper
               tooltipText={isLoggedIn ? undefined : "You must be logged in to select this"}
               extraStyles="flex-1 ml-1 "
@@ -121,11 +147,11 @@ export default function HostGameForm() {
                 hotkeys={["KeyD"]}
                 disabled={!isLoggedIn}
                 onClick={() => {
-                  setSelectedGameMode(GameMode.Race);
+                  setSelectedGameMode(GameMode.UnrankedRace);
                   setIsRanked(true);
                 }}
                 className={`flex-1 h-10 w-full border border-slate-400
-                        ${selectedGameMode === GameMode.Race && isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        ${selectedGameMode === GameMode.UnrankedRace && isRanked ? "bg-slate-950" : "bg-slate-700"}
                         disabled:opacity-50
                         `}
               >
@@ -140,11 +166,35 @@ export default function HostGameForm() {
           onClick={(e) => {
             createGame(e);
           }}
-          className="h-10 w-full border border-slate-400 bg-slate-700"
+          className="h-10 w-full border border-slate-400 bg-slate-700 disabled:opacity-50"
+          disabled={
+            selectedGameMode === GameMode.Ironman &&
+            !newIronmanRunAllowed &&
+            selectedSavedIronmanRun === null
+          }
         >
           CREATE
         </HotkeyButton>
+        <div className="mt-2">
+          {selectedGameMode === GameMode.Ironman && savedIronmanRuns.size ? (
+            <div>
+              <IronmanRunSelector />
+              {selectedSavedIronmanRun !== null && (
+                <div className="pt-2">
+                  <HotkeyButton
+                    className="border border-slate-400 p-2"
+                    onClick={handleAbandonRunClick}
+                  >
+                    Abandon Run
+                  </HotkeyButton>
+                </div>
+              )}
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     </form>
   );
-}
+});

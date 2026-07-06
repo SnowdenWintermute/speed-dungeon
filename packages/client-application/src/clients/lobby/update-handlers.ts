@@ -1,6 +1,7 @@
 import {
   AdventuringParty,
   CHARACTER_SLOT_SPACING,
+  CharacterControlScheme,
   CLIENT_APP_MESSAGES,
   ClientAppMessageType,
   ClientSequentialEventType,
@@ -14,6 +15,8 @@ import {
   getProgressionGamePartyName,
   MapUtils,
   QUERY_PARAMS,
+  SavedIronmanRun,
+  SavedIronmanRunClientEntry,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
@@ -61,7 +64,6 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);
       lobbyContext.channel.update(deserialized);
-      console.log("fire transitionToLobbyServer");
       clientApplication.topologyManager.transitionToLobbyServer.fire();
     },
     [GameStateUpdateType.UserJoinedChannel]: (data) =>
@@ -73,9 +75,16 @@ export function createLobbyUpdateHandlers(
       gameFullUpdateHandler(clientApplication, data.game);
       clientApplication.uiStore.dialogs.close(DialogElementName.GameCreation);
     },
+    [GameStateUpdateType.PlayerUsernameUpdated]: (data) => {
+      const { gameOption } = gameContext;
+      if (gameOption) {
+        const player = gameOption.getExpectedPlayer(data.oldUsername);
+        player.username = data.newUsername;
+      }
+    },
     [GameStateUpdateType.PlayerJoinedGame]: (data) => {
       const { gameOption } = gameContext;
-      const player = new SpeedDungeonPlayer(data.username);
+      const player = new SpeedDungeonPlayer(data.username, data.joinOrder);
       if (gameOption) {
         player.makeObservable();
         gameOption.addPlayer(player);
@@ -120,7 +129,7 @@ export function createLobbyUpdateHandlers(
       // from their party when leaving a lobby game, but it is an unhandled crash
       // to remove them from a party when still in a game
       const { playerName, partyName } = data;
-      if (gameOption.getTimeStarted() === null) {
+      if (gameOption.timeHandedOff === null) {
         gameOption.removePlayerFromParty(playerName);
         if (partyName === null) {
           return;
@@ -159,6 +168,13 @@ export function createLobbyUpdateHandlers(
       const game = gameContext.requireGame();
 
       const { username, character } = data;
+      const player = game.getPlayer(username);
+      if (!player) {
+        return clientApplication.alertsService.setAlert(
+          new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST)
+        );
+      }
+
       const deserialized = {
         combatant: Combatant.fromSerialized(character.combatant),
         pets: character.pets.map((pet) => Combatant.fromSerialized(pet)),
@@ -170,18 +186,6 @@ export function createLobbyUpdateHandlers(
         return clientApplication.alertsService.setAlert(
           new Error(ERROR_MESSAGES.GAME.PARTY_DOES_NOT_EXIST)
         );
-      }
-      const player = game.getPlayer(username);
-      if (!player) {
-        return clientApplication.alertsService.setAlert(
-          new Error(ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST)
-        );
-      }
-
-      const previouslySelectedCharacterId = player.characterIds[0];
-      if (previouslySelectedCharacterId) {
-        party.removeCharacter(previouslySelectedCharacterId, player, game);
-        party.combatantManager.updateHomePositions();
       }
 
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
@@ -207,34 +211,34 @@ export function createLobbyUpdateHandlers(
         gameOption.selectedStartingFloor = data.floorNumber;
       }
     },
+    [GameStateUpdateType.UserGameHistoryPage]: (data) => {
+      clientApplication.ladderRecordsStore.setPage(data.page, data.entries);
+    },
+    [GameStateUpdateType.UserGameRecordsCount]: (data) => {
+      clientApplication.ladderRecordsStore.setTotalRecordsCount(data.count);
+    },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
-      const { characterSlots } = data;
+      const { characterControlScheme, characters, capacity } = data;
 
-      const deserialized: Record<number, null | { combatant: Combatant; pets: Combatant[] }> = {};
-      for (const [slotNumberStringKey, characterOption] of Object.entries(characterSlots)) {
-        const slotNumber = parseInt(slotNumberStringKey);
-        if (characterOption === null) {
-          deserialized[slotNumber] = null;
-        } else {
-          const combatant = Combatant.fromSerialized(characterOption.combatant);
-          combatant.combatantProperties.transformProperties.autoSetHomePosition(
-            DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
-            slotNumber,
-            {
-              onCenterLine: true,
-              slotSpacingOverride: CHARACTER_SLOT_SPACING,
-              reverseOrder: true,
-            }
-          );
+      const deserialized = characters.map((entry, i) => {
+        const combatant = Combatant.fromSerialized(entry.combatant);
+        combatant.combatantProperties.transformProperties.autoSetHomePosition(
+          DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+          i,
+          {
+            onCenterLine: true,
+            slotSpacingOverride: CHARACTER_SLOT_SPACING,
+            reverseOrder: true,
+          }
+        );
+        return {
+          combatant,
+          pets: entry.pets.map((pet) => Combatant.fromSerialized(pet)),
+        };
+      });
 
-          deserialized[slotNumber] = {
-            combatant,
-            pets: characterOption.pets.map((pet) => Combatant.fromSerialized(pet)),
-          };
-        }
-      }
-
-      lobbyContext.savedCharacters.setSlots(deserialized);
+      lobbyContext.savedCharacters.setCharacters(characterControlScheme, deserialized);
+      lobbyContext.savedCharacters.capacities[characterControlScheme] = capacity;
 
       gameWorldView?.environment.groundPlane.drawCharacterSlots();
 
@@ -242,6 +246,34 @@ export function createLobbyUpdateHandlers(
         type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
+    },
+    [GameStateUpdateType.IronmanRunsList]: (data) => {
+      for (const serialized of data.savedIronmanRuns) {
+        const run = SavedIronmanRunClientEntry.fromSerialized(serialized);
+        clientApplication.lobbyContext.savedIronmanRuns.set(run.gameId, run);
+      }
+      clientApplication.lobbyContext.savedIronmanRunCapacity = data.ironmanRunCapacity;
+    },
+    [GameStateUpdateType.IronmanRunAbandoned]: (data) => {
+      const { runId, usernameAbandoning } = data;
+      const { gameOption } = clientApplication.gameContext;
+      if (gameOption) {
+        // if any other players would remain
+        const playersWillRemain = gameOption.players.size > 1;
+        if (playersWillRemain) {
+          // transfer the characters to inheriting character
+          gameOption.transferCharactersToInheritingPlayer(usernameAbandoning);
+          gameOption.characterControlScheme = CharacterControlScheme.Captain;
+        }
+        gameOption.players.delete(usernameAbandoning);
+        gameOption.playersReadied = [];
+      } else {
+        // delete the run id from the saved ironman runs list
+        clientApplication.lobbyContext.savedIronmanRuns.delete(runId);
+        if (clientApplication.lobbyContext.selectedSavedIronmanRun === runId) {
+          clientApplication.lobbyContext.selectedSavedIronmanRun = null;
+        }
+      }
     },
     [GameStateUpdateType.SavedCharacterDeleted]: (data) => {
       lobbyContext.savedCharacters.deleteSavedCharacter(data.entityId);
@@ -252,15 +284,27 @@ export function createLobbyUpdateHandlers(
       });
     },
     [GameStateUpdateType.SavedCharacter]: (data) => {
-      const { character, slotIndex } = data;
+      const { characterControlScheme, character } = data;
       const { combatant, pets } = character;
       const deserializedCombatant = Combatant.fromSerialized(combatant);
       const deserializedPets = pets.map((pet) => Combatant.fromSerialized(pet));
 
-      lobbyContext.savedCharacters.setSlot(
-        { combatant: deserializedCombatant, pets: deserializedPets },
-        slotIndex
+      const existingCharacters =
+        lobbyContext.savedCharacters.byControlScheme[characterControlScheme];
+      deserializedCombatant.combatantProperties.transformProperties.autoSetHomePosition(
+        DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+        existingCharacters.length,
+        {
+          onCenterLine: true,
+          slotSpacingOverride: CHARACTER_SLOT_SPACING,
+          reverseOrder: true,
+        }
       );
+
+      lobbyContext.savedCharacters.appendCharacter(characterControlScheme, {
+        combatant: deserializedCombatant,
+        pets: deserializedPets,
+      });
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantModels,

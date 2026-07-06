@@ -3,17 +3,28 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { toCamelCase } from "../utils.js";
 import { DatabaseRepository } from "./index.js";
-import { DEFAULT_ACCOUNT_CHARACTER_CAPACITY, SpeedDungeonProfile } from "@speed-dungeon/common";
+import {
+  CharacterControlScheme,
+  DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY,
+  SpeedDungeonProfile,
+} from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.SPEED_DUNGEON_PROFILES;
+
+const defaultCharacterCapacities: Record<CharacterControlScheme, number> = {
+  [CharacterControlScheme.Captain]: DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+  [CharacterControlScheme.Freelancer]: DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
+};
 
 export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProfile> {
   async insert(ownerId: number) {
     const { rows } = await this.pgPool.query(
       format(
-        `INSERT INTO ${tableName} (owner_id, character_capacity) VALUES (%L, %L) RETURNING *;`,
+        `INSERT INTO ${tableName} (owner_id, character_capacities, ironman_run_capacity) VALUES (%L, %L, %L) RETURNING *;`,
         ownerId,
-        DEFAULT_ACCOUNT_CHARACTER_CAPACITY
+        JSON.stringify(defaultCharacterCapacities),
+        DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY
       )
     );
     if (!rows[0]) {
@@ -22,25 +33,22 @@ export class SpeedDungeonProfileRepo extends DatabaseRepository<SpeedDungeonProf
     }
     const newProfile = toCamelCase(rows)[0] as unknown as SpeedDungeonProfile;
 
-    // ADD CHARACTER SLOTS
-
-    await this.pgPool.query(
-      format(
-        `INSERT INTO character_slots (profile_id, slot_number) SELECT %L, generate_series(0, %L);`,
-        newProfile.id,
-        DEFAULT_ACCOUNT_CHARACTER_CAPACITY - 1
-      )
-    );
-
     return newProfile;
   }
 
   async update(speedDungeonProfile: SpeedDungeonProfile) {
-    const { id, characterCapacity } = speedDungeonProfile;
+    const { id, characterCapacities, ironmanRunIds } = speedDungeonProfile;
+    const ironmanRunIdsLiteral = `{${ironmanRunIds.join(",")}}`;
     const { rows } = await this.pgPool.query(
       format(
-        `UPDATE ${tableName} SET character_capacity = %L WHERE id = %L RETURNING *;`,
-        characterCapacity,
+        `UPDATE ${tableName}
+         SET character_capacities = %L,
+             ironman_run_ids = %L::uuid[],
+             updated_at = now()
+         WHERE id = %L
+         RETURNING *;`,
+        JSON.stringify(characterCapacities),
+        ironmanRunIdsLiteral,
         id
       )
     );

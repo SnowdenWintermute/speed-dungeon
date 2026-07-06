@@ -39,7 +39,7 @@ export const AlertManager = observer(() => {
                 <span className="max-h-10 h-10 pt-3 pb-3 mr-2 flex items-center">
                   {ALERT_ICONS_BY_TYPE[alert.alertType]}
                 </span>
-                {alert.message}
+                <div className="">{alert.message}</div>
               </button>
             </li>
           );

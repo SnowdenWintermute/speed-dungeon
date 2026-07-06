@@ -35,7 +35,7 @@ export class GameClient extends BaseClient {
     } = this.clientApplication;
 
     const { dialogs, connectionStatus } = uiStore;
-    const { party } = combatantFocus.requireFocusedCharacterContext();
+    const party = this.clientApplication.gameContext.requireParty();
 
     dialogs.close(DialogElementName.LeaveGame);
 

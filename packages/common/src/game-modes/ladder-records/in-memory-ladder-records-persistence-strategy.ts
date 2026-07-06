@@ -1,0 +1,245 @@
+import cloneDeep from "lodash.clonedeep";
+import { USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
+import {
+  CombatantId,
+  GameId,
+  IdentityProviderId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
+  Milliseconds,
+  PartyId,
+} from "../../aliases.js";
+import { DateRange } from "../../primatives/date-range.js";
+import { CharacterControlScheme } from "../index.js";
+import { invariant } from "../../utils/index.js";
+import {
+  LadderCharacterFloorClearRecord,
+  LadderCharacterRecord,
+  LadderGameParticipationRecord,
+  LadderGameRecord,
+  LadderParticipantRecord,
+  LadderPartyFloorClearRecord,
+  LadderPartyRecord,
+  PartyFate,
+} from "./index.js";
+import {
+  LadderGameRecordAggregate,
+  LadderPartyFateUpdate,
+  LadderRecordsPersistenceStrategy,
+  NewLadderGameRecordSet,
+  UserGameHistoryEntry,
+} from "./ladder-records-persistence-strategy.js";
+
+export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPersistenceStrategy {
+  private games = new Map<GameId, LadderGameRecord>();
+  private participants = new Map<IdentityProviderId, LadderParticipantRecord>();
+  private gameParticipations: LadderGameParticipationRecord[] = [];
+  private parties = new Map<PartyId, LadderPartyRecord>();
+  private characters = new Map<CombatantId, LadderCharacterRecord>();
+  private partyFloorClears = new Map<LadderPartyFloorClearRecordId, LadderPartyFloorClearRecord>();
+  private characterFloorClearedSnapshots = new Map<
+    LadderCharacterFloorClearRecordId,
+    LadderCharacterFloorClearRecord
+  >();
+
+  async getUserGameHistory(
+    userId: IdentityProviderId,
+    page: number,
+    dateRange?: DateRange
+  ): Promise<UserGameHistoryEntry[]> {
+    const games = this.gamesForUser(userId, dateRange).sort(
+      (a, b) => b.timeStarted - a.timeStarted
+    );
+    const pageStart = page * USER_GAME_HISTORY_PAGE_SIZE;
+    const pageOfGames = games.slice(pageStart, pageStart + USER_GAME_HISTORY_PAGE_SIZE);
+    return pageOfGames.map((game) => ({
+      gameId: game.id,
+      gameName: game.name,
+      date: game.timeStarted,
+      fateOptionOfQueryingPlayerParty: this.queryingPlayerPartyFate(game.id, userId),
+      queryingPlayerAbandonedAtOption: this.gameParticipations.find(
+        (participation) =>
+          participation.gameRecordId === game.id &&
+          participation.participantRecordId === userId
+      )?.abandonedAtOption,
+    }));
+  }
+
+  async getUserGameRecordsCount(
+    userId: IdentityProviderId,
+    dateRange?: DateRange
+  ): Promise<number> {
+    return this.gamesForUser(userId, dateRange).length;
+  }
+
+  private gamesForUser(userId: IdentityProviderId, dateRange?: DateRange): LadderGameRecord[] {
+    const gameIds = new Set(
+      this.gameParticipations
+        .filter((participation) => participation.participantRecordId === userId)
+        .map((participation) => participation.gameRecordId)
+    );
+    const games: LadderGameRecord[] = [];
+    for (const gameId of gameIds) {
+      const game = this.games.get(gameId);
+      invariant(game !== undefined, "expected a game record for a participant link's gameId");
+      if (dateRange !== undefined) {
+        const inRange = game.timeStarted >= dateRange.start && game.timeStarted <= dateRange.end;
+        if (!inRange) {
+          continue;
+        }
+      }
+      games.push(game);
+    }
+    return games;
+  }
+
+  private queryingPlayerPartyFate(
+    gameId: GameId,
+    userId: IdentityProviderId
+  ): PartyFate | undefined {
+    for (const character of this.characters.values()) {
+      if (character.controllingPlayerId !== userId) {
+        continue;
+      }
+      const party = this.parties.get(character.partyRecordId);
+      if (party !== undefined && party.gameRecordId === gameId) {
+        return party.fateOption;
+      }
+    }
+    return undefined;
+  }
+
+  async findParticipantRecordById(
+    id: IdentityProviderId
+  ): Promise<LadderParticipantRecord | undefined> {
+    const participant = this.participants.get(id);
+    return participant === undefined ? undefined : cloneDeep(participant);
+  }
+
+  async upsertParticipantRecord(record: LadderParticipantRecord): Promise<void> {
+    // global per user, like ON CONFLICT (id) DO NOTHING
+    if (!this.participants.has(record.id)) {
+      this.participants.set(record.id, cloneDeep(record));
+    }
+  }
+
+  async insertNewGameRecordSet(set: NewLadderGameRecordSet): Promise<void> {
+    const cloned = cloneDeep(set);
+    this.games.set(cloned.game.id, cloned.game);
+    for (const participantRecord of cloned.participantRecords) {
+      this.gameParticipations.push({
+        gameRecordId: cloned.game.id,
+        participantRecordId: participantRecord.id,
+      });
+    }
+    for (const party of cloned.parties) {
+      this.parties.set(party.id, party);
+    }
+    for (const character of cloned.characters) {
+      this.characters.set(character.id, character);
+    }
+  }
+
+  async recordPartyFloorClear(
+    partyFloorClear: LadderPartyFloorClearRecord,
+    characterFloorClears: LadderCharacterFloorClearRecord[]
+  ): Promise<void> {
+    const clonedPartyFloorClear = cloneDeep(partyFloorClear);
+    this.partyFloorClears.set(clonedPartyFloorClear.id, clonedPartyFloorClear);
+
+    const clonedCharacterFloorClears = cloneDeep(characterFloorClears);
+
+    for (const snapshot of clonedCharacterFloorClears) {
+      this.characterFloorClearedSnapshots.set(snapshot.id, snapshot);
+    }
+  }
+
+  async updatePartyFate(update: LadderPartyFateUpdate): Promise<void> {
+    const party = this.parties.get(update.partyRecordId);
+    if (party) {
+      party.fateOption = cloneDeep(update.fate);
+      party.deepestFloorReached = update.deepestFloorReached;
+    }
+  }
+
+  async recordRunAbandonment(
+    gameRecordId: GameId,
+    participantRecordId: IdentityProviderId,
+    timestamp: Milliseconds
+  ): Promise<void> {
+    const participation = this.gameParticipations.find(
+      (participation) =>
+        participation.gameRecordId === gameRecordId &&
+        participation.participantRecordId === participantRecordId
+    );
+    invariant(participation !== undefined, "expected an existing game participation to abandon");
+    participation.abandonedAtOption = timestamp;
+  }
+
+  async findGameRecordAggregateById(id: GameId): Promise<LadderGameRecordAggregate | undefined> {
+    const game = this.games.get(id);
+    if (game === undefined) {
+      return undefined;
+    }
+
+    const participations = this.gameParticipations.filter(
+      (participation) => participation.gameRecordId === id
+    );
+    const participantIds = new Set(
+      participations.map((participation) => participation.participantRecordId)
+    );
+    const participants = [...this.participants.values()].filter((participant) =>
+      participantIds.has(participant.id)
+    );
+
+    const parties = [...this.parties.values()]
+      .filter((party) => party.gameRecordId === id)
+      .map((party) => ({
+        party,
+        floorClears: [...this.partyFloorClears.values()].filter(
+          (floorClear) => floorClear.partyRecordRef === party.id
+        ),
+        characters: [...this.characters.values()]
+          .filter((character) => character.partyRecordId === party.id)
+          .map((character) => ({
+            character,
+            floorClearedSnapshots: [...this.characterFloorClearedSnapshots.values()].filter(
+              (snapshot) => snapshot.characterRecordRef === character.id
+            ),
+          })),
+      }));
+
+    return cloneDeep({ game, participants, participations, parties });
+  }
+
+  async updateGameRecord(record: LadderGameRecord): Promise<void> {
+    invariant(this.games.has(record.id), "expected an existing game record to update");
+    this.games.set(record.id, cloneDeep(record));
+  }
+
+  async updateGameRecordControlScheme(
+    gameId: GameId,
+    controlScheme: CharacterControlScheme
+  ): Promise<void> {
+    const game = this.games.get(gameId);
+    invariant(game !== undefined, "expected an existing game record to update");
+    game.controlScheme = controlScheme;
+    game.updatedAt = Date.now();
+  }
+
+  async findPartyRecordById(id: PartyId): Promise<LadderPartyRecord> {
+    const party = this.parties.get(id);
+    invariant(party !== undefined, "expected an existing party record");
+    return cloneDeep(party);
+  }
+
+  async updatePartyRecord(record: LadderPartyRecord): Promise<void> {
+    invariant(this.parties.has(record.id), "expected an existing party record to update");
+    this.parties.set(record.id, cloneDeep(record));
+  }
+
+  async updateCharacterRecord(record: LadderCharacterRecord): Promise<void> {
+    invariant(this.characters.has(record.id), "expected an existing character record to update");
+    this.characters.set(record.id, cloneDeep(record));
+  }
+}

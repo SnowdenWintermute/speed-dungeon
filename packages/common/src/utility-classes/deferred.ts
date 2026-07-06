@@ -46,9 +46,13 @@ export class Deferred {
   }
 
   waitFor(): Promise<void> {
+    // if (!this._promise) {
+    //   throw new Error("Deferred has not been started");
+    // }
     if (!this._promise) {
-      throw new Error("Deferred has not been started");
+      return Promise.reject(new Error("Deferred has not been started"));
     }
+
     return this._promise;
   }
 

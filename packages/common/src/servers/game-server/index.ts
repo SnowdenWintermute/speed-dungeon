@@ -1,8 +1,7 @@
 import { GameServerName } from "../../aliases.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
-import { RankedLadderService } from "../services/ranked-ladder.js";
+import { CharacterLevelLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
@@ -11,7 +10,6 @@ import { GameRegistry } from "../game-registry.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { GameServerGameLifecycleController } from "./controllers/game-lifecycle/index.js";
-import { RaceGameRecordsService } from "../services/race-game-records.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
 import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
@@ -27,8 +25,6 @@ import { LootGenerator } from "../../items/item-creation/loot-generator.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
-import { GameMode } from "../../types.js";
-import { GameModeContext } from "./controllers/game-lifecycle/game-mode-context.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
 import { CraftingController } from "./controllers/crafting/index.js";
@@ -50,14 +46,22 @@ import {
   OpaqueEncryptionTokenCodec,
 } from "../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./reconnection/guest-session-reconnection-token.js";
-import { invariant } from "../../utils/index.js";
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
+import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
+import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
+import { SpeedDungeonProfileService } from "../services/profiles.js";
+import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js";
+import { LobbyState } from "../lobby-server/lobby-state.js";
+import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
+import { PartyLifecyleController } from "./controllers/party-lifecycle.js";
+import { ResourceChangePropertiesStrategy } from "../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
-  savedCharactersService: SavedCharactersService;
-  rankedLadderService: RankedLadderService;
-  raceGameRecordsService: RaceGameRecordsService;
+  userGameDataPersistenceService: UserGameDataPersistenceService;
+  profileService: SpeedDungeonProfileService;
+  characterLevelLadderService: CharacterLevelLadderService;
+  ladderGameRecordsService: LadderGameRecordsService;
   assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: GlobalGameSessionStore;
@@ -77,6 +81,7 @@ export class GameServer extends SpeedDungeonServer {
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
   public readonly dungeonExplorationController: DungeonExplorationController;
+  public readonly partyLifecycleController: PartyLifecyleController;
   public readonly sessionLifecycleController: GameServerSessionLifecycleController;
   public readonly combatActionController: CombatActionController;
   public readonly characterProgressionController: CharacterProgressionController;
@@ -84,7 +89,8 @@ export class GameServer extends SpeedDungeonServer {
   public readonly craftingController: CraftingController;
   public readonly miscUtilityController: MiscUtilityController;
 
-  private readonly gameModeContexts: Record<GameMode, GameModeContext>;
+  // game modes
+  private gameModePolicyStore: GameModePolicyStore;
 
   constructor(
     readonly name: GameServerName,
@@ -95,6 +101,7 @@ export class GameServer extends SpeedDungeonServer {
     /** pass constructor so the class can use its own private parameters to instantiate it */
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
     public readonly rngPolicy: RandomNumberGenerationPolicy,
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private readonly idGenerator: IdGenerator,
     authSessionIdParser: AuthSessionIdParser
   ) {
@@ -134,36 +141,34 @@ export class GameServer extends SpeedDungeonServer {
     this.heartbeatScheduler.start();
     this.startActiveGamesRecordHeartbeatTask();
 
-    this.gameModeContexts = {
-      [GameMode.Race]: new GameModeContext(
-        GameMode.Race,
-        externalServices.raceGameRecordsService,
-        externalServices.savedCharactersService,
-        externalServices.rankedLadderService,
-        this.updateDispatchFactory,
-        externalServices.crossServerBroadcasterService,
-        this.userSessionRegistry
-      ),
-      [GameMode.Progression]: new GameModeContext(
-        GameMode.Progression,
-        externalServices.raceGameRecordsService,
-        externalServices.savedCharactersService,
-        externalServices.rankedLadderService,
-        this.updateDispatchFactory,
-        externalServices.crossServerBroadcasterService,
-        this.userSessionRegistry
-      ),
-    };
+    this.gameModePolicyStore = new GameModePolicyStore(
+      this.updateDispatchFactory,
+      externalServices.crossServerBroadcasterService,
+      externalServices.profileService,
+      externalServices.characterLevelLadderService,
+      externalServices.ladderGameRecordsService,
+      externalServices.userGameDataPersistenceService,
+      this.userSessionRegistry,
+      this.gameRegistry,
+      externalServices.gameSessionStoreService,
+      // GameExistenceChecker placeholder to conform to interface since it is really used by lobby setup policies
+      new GameExistenceChecker(new LobbyState(), externalServices.gameSessionStoreService),
+      this.idGenerator
+    );
+
+    this.partyLifecycleController = new PartyLifecyleController(this.updateDispatchFactory);
 
     this.dungeonExplorationController = new DungeonExplorationController(
       this.updateDispatchFactory,
-      this.externalServices.savedCharactersService,
+      this.externalServices.userGameDataPersistenceService,
       this.idGenerator,
       rngPolicy,
+      resourceChangePropertiesStrategy,
       this.lootGenerator,
       this.dungeonGenerationPolicy,
       this.assetAnalyzer,
-      this.gameModeContexts
+      this.gameModePolicyStore,
+      this.partyLifecycleController
     );
 
     this.gameLifecycleController = new GameServerGameLifecycleController(
@@ -172,8 +177,9 @@ export class GameServer extends SpeedDungeonServer {
       this.externalServices.gameSessionStoreService,
       this.externalServices.globalGameSessionStore,
       this.updateDispatchFactory,
-      this.gameModeContexts,
-      this.dungeonExplorationController
+      this.gameModePolicyStore,
+      this.dungeonExplorationController,
+      this.partyLifecycleController
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
@@ -185,11 +191,13 @@ export class GameServer extends SpeedDungeonServer {
 
     this.combatActionController = new CombatActionController(
       this.updateDispatchFactory,
-      this.gameModeContexts,
+      this.gameModePolicyStore,
       this.idGenerator,
       rngPolicy,
+      resourceChangePropertiesStrategy,
       this.lootGenerator,
-      this.assetAnalyzer
+      this.assetAnalyzer,
+      this.partyLifecycleController
     );
 
     this.characterProgressionController = new CharacterProgressionController(
@@ -254,14 +262,14 @@ export class GameServer extends SpeedDungeonServer {
       // all sessions can listen to global ladder updates
       session.subscribeToChannel(LADDER_UPDATES_CHANNEL_NAME);
 
-      const gameName = session.currentGameName;
+      const gameName = session.currentGameId;
       if (gameName === null) {
         throw new Error("should have been set from their token in createSession");
       }
 
       const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
 
-      const gameIsInProgress = existingGame.getTimeStarted() !== null;
+      const gameIsInProgress = existingGame.clock.isLive();
       const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
         session,
         gameIsInProgress

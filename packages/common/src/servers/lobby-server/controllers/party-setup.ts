@@ -3,22 +3,21 @@ import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { UserSession } from "../../sessions/user-session.js";
-import { SavedCharactersController } from "./saved-characters.js";
 import { RANDOM_PARTY_NAMES } from "../default-names/parties.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { SpeedDungeonProfileService } from "../../services/profiles.js";
-import { PartyName } from "../../../aliases.js";
+import { PartyId, PartyName, Username } from "../../../aliases.js";
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { GameMode } from "../../../types.js";
+import { GameMode, getMaxCharacterCountForControlScheme } from "../../../game-modes/index.js";
+import { AllowedResult } from "../../../primatives/index.js";
+import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 
 export class PartySetupController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private readonly savedCharactersController: SavedCharactersController,
-    private readonly profileService: SpeedDungeonProfileService,
+    private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly idGenerator: IdGenerator
   ) {}
 
@@ -53,7 +52,10 @@ export class PartySetupController {
       throw new Error(ERROR_MESSAGES.LOBBY.PARTY_NAME_EXISTS);
     }
 
-    const party = AdventuringParty.createInitialized(this.idGenerator.generate(), partyName);
+    const party = AdventuringParty.createInitialized(
+      this.idGenerator.generate() as PartyId,
+      partyName
+    );
     game.addParty(party);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -67,6 +69,18 @@ export class PartySetupController {
     outbox.pushFromOther(joinPartyHandlerOutbox);
 
     return outbox;
+  }
+
+  userMeetsCharacterControlSchemeLimits(username: Username, game: SpeedDungeonGame): AllowedResult {
+    const player = game.getPlayer(username);
+    if (!player) {
+      return { allowed: false, reason: ERROR_MESSAGES.PLAYER.NOT_IN_PARTY };
+    }
+    const maxCharacterCount = getMaxCharacterCountForControlScheme(game.characterControlScheme);
+    if (player.characterIds.length >= maxCharacterCount) {
+      return { allowed: false, reason: ERROR_MESSAGES.PLAYER.PARTY_CHARACTER_LIMIT };
+    }
+    return { allowed: true };
   }
 
   joinPartyHandler(session: UserSession, partyName: PartyName) {
@@ -93,43 +107,7 @@ export class PartySetupController {
     return outbox;
   }
 
-  async joinProgressionGamePartyWithDefaultCharacterHandler(
-    session: UserSession,
-    game: SpeedDungeonGame
-  ) {
-    session.requireAuthorized();
-    const profile = await session.requireProfile(this.profileService);
-    const defaultSavedCharacter =
-      await this.savedCharactersController.requireDefaultSavedCharacterForProgressionGame(profile);
-    const partyName = PartySetupController.getProgressionGamePartyName(game.name);
-
-    const party = game.getExpectedParty(partyName);
-    const player = game.getExpectedPlayer(session.username);
-
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
-    const joinPartyHandlerOutbox = this.joinPartyHandler(session, partyName);
-    outbox.pushFromOther(joinPartyHandlerOutbox);
-
-    game.addCharacterToParty(
-      party,
-      player,
-      defaultSavedCharacter.combatant,
-      defaultSavedCharacter.pets
-    );
-
-    outbox.pushToChannel(game.getChannelName(), {
-      type: GameStateUpdateType.CharacterAddedToParty,
-      data: {
-        username: session.username,
-        character: defaultSavedCharacter.combatant.toSerialized(),
-        pets: defaultSavedCharacter.pets.map((pet) => pet.toSerialized()),
-      },
-    });
-
-    return outbox;
-  }
-
-  leavePartyHandler(session: UserSession) {
+  removeUserFromParty(session: UserSession) {
     const game = session.getExpectedCurrentGame();
 
     // get the reference to the party now before we maybe remove it from the game
@@ -150,6 +128,23 @@ export class PartySetupController {
       type: GameStateUpdateType.PlayerChangedAdventuringParty,
       data: { playerName: session.username, partyName: null },
     });
+
+    return outbox;
+  }
+
+  leavePartyHandler(session: UserSession) {
+    const game = session.getExpectedCurrentGame();
+    const partyLeavingForbidden = !game.isRace();
+    if (partyLeavingForbidden) {
+      throw new Error(ERROR_MESSAGES.GAME.MODE);
+    }
+
+    const partyOption = session.getCurrentPartyOption(game);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    if (partyOption !== null) {
+      const partyLeaveOutbox = this.removeUserFromParty(session);
+      outbox.pushFromOther(partyLeaveOutbox);
+    }
 
     return outbox;
   }

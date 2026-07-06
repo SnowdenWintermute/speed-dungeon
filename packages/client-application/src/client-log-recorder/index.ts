@@ -44,6 +44,7 @@ export interface ClientLogRecorder {
   getAllEntries(): Promise<ClientLogEntry[]>;
   exportAsJson(): Promise<string>;
   clear(): Promise<void>;
+  dispose(): void;
   logSizeBytes: number;
   recordCombatantActionSelected(
     userId: EntityId,

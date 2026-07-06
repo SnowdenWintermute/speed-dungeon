@@ -1,5 +1,5 @@
 import { GameWorldView } from "@/game-world-view";
-import { CombatActionName, EntityId } from "@speed-dungeon/common";
+import { CombatActionName, EntityId, ReactiveNode } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 
 export class TargetIndicator {
@@ -14,10 +14,11 @@ export class TargetIndicator {
   }
 }
 
-export class TargetIndicatorStore {
+export class TargetIndicatorStore implements ReactiveNode {
   private indicators: TargetIndicator[] = [];
   _gameWorldView: GameWorldView | null = null; // we'd like it to be private but then we can't mark it as "not observable"
-  constructor() {
+
+  makeObservable(): void {
     makeAutoObservable(this, { _gameWorldView: false });
   }
 

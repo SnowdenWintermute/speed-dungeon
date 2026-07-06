@@ -1,34 +1,27 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import {
-  ClientIntentType,
-  COMBATANT_CLASS_NAME_STRINGS,
-  EntityName,
-  iterateNumericEnum,
-} from "@speed-dungeon/common";
+import { ClientIntentType, SpeedDungeonGame } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
-import TextInput from "@/app/components/atoms/TextInput";
 import {
   AdventuringParty,
   BASE_SCREEN_SIZE,
-  CombatantClass,
-  ERROR_MESSAGES,
   GOLDEN_RATIO,
   MAX_PARTY_SIZE,
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
-import { FormEvent, ReactNode, useState } from "react";
 import { CharacterCard } from "./CharacterCard";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { EmptyCharacterSlot } from "./EmptyCharacterSlotInParty";
 
 export const PartySetupCard = observer(
   ({
+    game,
     party,
     playerOption,
   }: {
+    game: SpeedDungeonGame;
     party: AdventuringParty;
-    playerOption: null | undefined | SpeedDungeonPlayer;
+    playerOption: undefined | SpeedDungeonPlayer;
   }) => {
     const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
     const characters = party.combatantManager.getPartyMemberCharacters();
@@ -48,7 +41,12 @@ export const PartySetupCard = observer(
 
     const characterCards = characters.map((character) => {
       return (
-        <CharacterCard character={character} username={username} key={character.getEntityId()} />
+        <CharacterCard
+          character={character}
+          username={username}
+          showLevel={!game.isRace()}
+          key={character.getEntityId()}
+        />
       );
     });
 
@@ -62,7 +60,7 @@ export const PartySetupCard = observer(
             <h4 className="text-xl w-full flex justify-between">
               <span>
                 {party.name}
-                {userIsInThisParty && (
+                {userIsInThisParty && game.isRace() && (
                   <HotkeyButton
                     className="border border-slate-400 text-base pl-2 pr-2 ml-2"
                     onClick={leaveParty}
@@ -79,7 +77,13 @@ export const PartySetupCard = observer(
           <ul className="p-2">
             {characterCards}
             {new Array(MAX_PARTY_SIZE - characterCount).fill(null).map((item, i) => (
-              <EmptyCharacterSlot key={i} i={i} party={party} playerOption={playerOption} />
+              <EmptyCharacterSlot
+                key={i}
+                i={i}
+                game={game}
+                party={party}
+                playerOption={playerOption}
+              />
             ))}
           </ul>
         </div>
@@ -100,111 +104,3 @@ export const PartySetupCard = observer(
     );
   }
 );
-
-const EmptyCharacterSlot = observer(
-  ({
-    i,
-    party,
-    playerOption,
-  }: {
-    i: number;
-    party: AdventuringParty;
-    playerOption: null | undefined | SpeedDungeonPlayer;
-  }) => {
-    if (!playerOption) return <div>{ERROR_MESSAGES.GAME.PLAYER_DOES_NOT_EXIST}</div>;
-
-    const userIsInThisParty = party.playerUsernames.includes(playerOption.username);
-    const userIsInAnotherParty = !userIsInThisParty && playerOption.partyName;
-
-    if (i !== 0 || userIsInAnotherParty)
-      return (
-        <PartyCardListItem key={i}>
-          <span>Empty slot</span>
-        </PartyCardListItem>
-      );
-
-    if (userIsInThisParty) return <CreateCharacterForm i={i} />;
-
-    const { lobbyClientRef } = useClientApplication();
-    return (
-      <PartyCardListItem key={i}>
-        <HotkeyButton
-          className="h-full w-full"
-          onClick={() => {
-            lobbyClientRef.get().dispatchIntent({
-              type: ClientIntentType.JoinParty,
-              data: { partyName: party.name },
-            });
-          }}
-        >
-          JOIN PARTY
-        </HotkeyButton>
-      </PartyCardListItem>
-    );
-  }
-);
-
-const PartyCardListItem = observer(({ children }: { children: ReactNode }) => {
-  return (
-    <li className="h-20 p-2 border border-slate-400 mb-2 last:mb-0 flex items-center text-lg">
-      {children}
-    </li>
-  );
-});
-
-const CreateCharacterForm = observer(({ i }: { i: number }) => {
-  const [combatantClassSelection, setCombatantClassSelection] = useState(CombatantClass.Warrior);
-  const [characterName, setCharacterName] = useState("");
-  const { lobbyClientRef } = useClientApplication();
-
-  function handleCreateCharacter(e: FormEvent<HTMLElement>) {
-    e.preventDefault();
-
-    lobbyClientRef.get().dispatchIntent({
-      type: ClientIntentType.CreateCharacter,
-      data: {
-        name: characterName as EntityName,
-        combatantClass: combatantClassSelection,
-      },
-    });
-  }
-
-  return (
-    <li key={i}>
-      <form
-        onSubmit={handleCreateCharacter}
-        className="h-20 mb-2 last:mb-0 flex items-center text-lg relative"
-      >
-        <div className="absolute top-0 text-sm">New Character:</div>
-        <TextInput
-          className="h-10 w-48 flex-grow border border-slate-400 bg-transparent pl-2 mr-2"
-          value={characterName}
-          placeholder={"Character name..."}
-          name={"Character Name"}
-          onChange={(e) => setCharacterName(e.target.value)}
-        />
-        <SelectDropdown
-          extraStyles="flex-grow mr-2"
-          title={"Select Combatant Class"}
-          value={combatantClassSelection}
-          setValue={setCombatantClassSelection}
-          options={iterateNumericEnum(CombatantClass).map((combatantClass) => {
-            return {
-              title: COMBATANT_CLASS_NAME_STRINGS[combatantClass],
-              value: combatantClass,
-            };
-          })}
-          disabled={false}
-        />
-        <HotkeyButton
-          hotkeys={[]}
-          buttonType="button"
-          onClick={handleCreateCharacter}
-          className="h-10 pr-4 pl-4 border border-slate-400"
-        >
-          CREATE
-        </HotkeyButton>
-      </form>
-    </li>
-  );
-});

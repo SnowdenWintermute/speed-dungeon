@@ -1,13 +1,12 @@
 import {
   AssetCache,
   ClientAppAssetService,
-  RemoteServerAssetStore,
+  RemoteAssetStore,
   ClientRemoteConnectionEndpointFactory,
   ClientSequentialEventType,
   SerializedOf,
   Battle,
   CombatantId,
-  Deferred,
 } from "@speed-dungeon/common";
 import { ActionMenu } from "./action-menu";
 import { ClientApplicationSession } from "./client-application-session";
@@ -36,6 +35,7 @@ import { GameClient } from "./clients/game";
 import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
 import { RootActionMenuScreen } from "./action-menu/screens/root";
+import { LadderRecordsStore } from "./ladder-records-store";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
@@ -62,6 +62,7 @@ export class ClientApplication {
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly imageStore = new ImageStore();
   readonly uiStore = new UiStore();
+  readonly ladderRecordsStore = new LadderRecordsStore(this);
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
@@ -83,15 +84,22 @@ export class ClientApplication {
 
   constructor(
     assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
-    assetServerUrl: string,
+    remoteAssetStore: RemoteAssetStore, // determined by the environment (real HTTP store, test fake, etc.)
     public lobbyServerUrl: string,
     replayManagerTickScheduler: TickScheduler,
     clientLogRecorder: ClientLogRecorder,
     remoteEndpointFactory: ClientRemoteConnectionEndpointFactory,
     readonly reconnectionTokenStore: ReconnectionTokenStore
   ) {
-    const remoteStore = new RemoteServerAssetStore(assetServerUrl);
-    this.assetService = new ClientAppAssetService(remoteStore, assetCache, new Map(), () => true);
+    this.assetService = new ClientAppAssetService(
+      remoteAssetStore,
+      assetCache,
+      new Map(),
+      () => true,
+      (error: Error) => {
+        this.alertsService.setAlert(error, false);
+      }
+    );
     this.clientLogRecorder = clientLogRecorder;
 
     this.topologyManager = new ConnectionTopology(this, remoteEndpointFactory);
@@ -115,6 +123,11 @@ export class ClientApplication {
 
   makeObservable() {
     this.topologyManager.makeObservable();
+    this.lobbyContext.makeObservable();
+    this.ladderRecordsStore.makeObservable();
+    this.targetIndicatorStore.makeObservable();
+    // @TODO - find other subsystems that are calling .makeObservable() in their constructors
+    // and move them here
   }
 
   setReplayManagerTickScheduler(scheduler: TickScheduler) {
@@ -130,6 +143,8 @@ export class ClientApplication {
       this.lobbyClientRef.get().close();
     }
     this.gameWorldView?.dispose();
+    this.clientLogRecorder.dispose();
+    this.assetService.dispose();
   }
 
   setGameWorldView(gameWorldView: GameWorldView) {
@@ -152,8 +167,8 @@ export class ClientApplication {
 
     const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
 
-    if (!game.getTimeStarted()) {
-      game.setAsStarted();
+    if (!game.clock.isLive()) {
+      game.clock.startLiveSession();
     }
 
     this.gameWorldView?.setDefaultCameraPositionForGame();

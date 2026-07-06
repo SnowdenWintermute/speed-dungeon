@@ -14,12 +14,19 @@ import { SpeedDungeonGame } from "./index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { makeAutoObservable } from "mobx";
+import { Combatant } from "../combatants/index.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 
 export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
   partyName: null | PartyName = null;
   characterIds: CombatantId[] = [];
   targetPreferences: CombatActionTargetPreferences = new CombatActionTargetPreferences();
-  constructor(public username: Username) {}
+  awaitingControllingUserConnection: boolean = false;
+
+  constructor(
+    public username: Username,
+    readonly joinOrder: number
+  ) {}
 
   makeObservable(): void {
     makeAutoObservable(this);
@@ -70,6 +77,24 @@ export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
     if (playerHasNoCharacters) {
       throw new Error("You must control at least one character");
     }
+  }
+
+  getCharactersInGame(game: SpeedDungeonGame) {
+    const characters: Combatant[] = [];
+    for (const id of this.characterIds) {
+      const characterResult = game.getExpectedCombatant(id);
+      characters.push(characterResult);
+    }
+    return characters;
+  }
+
+  getCharactersInParty(party: AdventuringParty) {
+    const characters: Combatant[] = [];
+    for (const id of this.characterIds) {
+      const characterResult = party.combatantManager.getExpectedCombatant(id);
+      characters.push(characterResult);
+    }
+    return characters;
   }
 }
 

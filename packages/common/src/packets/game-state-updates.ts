@@ -2,10 +2,10 @@ import { Battle, BattleConclusion } from "../battle/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
+import { UserGameHistoryEntry } from "../game-modes/ladder-records/ladder-records-persistence-strategy.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
-import { GameMode } from "../types.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -15,14 +15,15 @@ import { ActionAndRank } from "../action-user-context/action-user-targeting-prop
 import {
   ActionRank,
   ChannelName,
-  CharacterSlotIndex,
   CombatantId,
   EncryptedOpaqueToken,
   EntityId,
   EntityName,
+  GameId,
   GameName,
   ItemId,
   Milliseconds,
+  PartyId,
   PartyName,
   Username,
 } from "../aliases.js";
@@ -34,6 +35,12 @@ import { Equipment } from "../items/equipment/index.js";
 import { SerializedMap } from "../utils/map-utils.js";
 import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
+import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
+import { SerializedCombatantWithPets } from "../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
+import {
+  SavedIronmanRun,
+  SavedIronmanRunClientEntry,
+} from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -43,27 +50,32 @@ export enum GameStateUpdateType {
   UserJoinedChannel,
   UserLeftChannel,
   ErrorMessage,
-  GameFullUpdate,
-  PlayerChangedAdventuringParty,
-  PlayerLeftGame,
-  PlayerJoinedGame,
   PlayerDisconnectedWithReconnectionOpportunity,
   PlayerReconnectionTimedOut,
+  GameFullUpdate,
+
+  // Game Setup
+  PlayerChangedAdventuringParty,
+  PlayerLeftGame,
+  PlayerUsernameUpdated,
+  PlayerJoinedGame,
   PartyCreated,
   CharacterAddedToParty,
   CharacterDeleted,
   PlayerToggledReadyToStartGame,
   GameStarted,
   GameServerConnectionInstructions,
-  ClientAppMessage,
-
+  GameClosed,
+  PlayerSelectedSavedCharacterInProgressionGame,
+  ProgressionGameStartingFloorSelected,
+  //
   PlayerToggledReadyToDescendOrExplore,
   DungeonRoomTypesOnCurrentFloor,
   DungeonRoomUpdate,
   BattleFullUpdate,
   ClientSequentialEvents,
+  ClientAppMessage,
   GameMessage,
-  // BattleReport ,
   CharacterDroppedItem,
   CharacterDroppedEquippedItem,
   CharacterUnequippedItem,
@@ -75,11 +87,15 @@ export enum GameStateUpdateType {
   CharacterCycledTargetingSchemes,
   DungeonFloorNumber,
   CharacterSpentAttributePoint,
+  // Persistence
   SavedCharacterList,
+  IronmanRunsList,
+  IronmanRunAbandoned,
   SavedCharacter,
+  // ladder game records
+  UserGameHistoryPage,
+  UserGameRecordsCount,
   SavedCharacterDeleted,
-  PlayerSelectedSavedCharacterInProgressionGame,
-  ProgressionGameStartingFloorSelected,
   CharacterSelectedHoldableHotswapSlot,
   CharacterConvertedItemsToShards,
   CharacterDroppedShards,
@@ -144,11 +160,16 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.PlayerReconnectionTimedOut]: {
     username: Username;
   };
+  [GameStateUpdateType.PlayerUsernameUpdated]: {
+    oldUsername: Username;
+    newUsername: Username;
+  };
   [GameStateUpdateType.PlayerJoinedGame]: {
     username: Username;
+    joinOrder: number;
   };
   [GameStateUpdateType.PartyCreated]: {
-    partyId: string;
+    partyId: PartyId;
     partyName: PartyName;
   };
   [GameStateUpdateType.CharacterAddedToParty]: {
@@ -164,10 +185,13 @@ export interface GameStateUpdateMap {
     username: Username;
   };
   [GameStateUpdateType.GameStarted]: {
-    timeStarted: number;
+    firstStartedAt: number;
   };
   [GameStateUpdateType.GameServerConnectionInstructions]: {
     connectionInstructions: GameServerConnectionInstructions;
+  };
+  [GameStateUpdateType.GameClosed]: {
+    reason: GameClosedReason;
   };
   [GameStateUpdateType.ClientAppMessage]: ClientAppMessageType;
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]: {
@@ -222,14 +246,28 @@ export interface GameStateUpdateMap {
     attribute: CombatAttribute;
   };
   [GameStateUpdateType.SavedCharacterList]: {
-    characterSlots: Record<
-      CharacterSlotIndex,
-      null | { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] }
-    >;
+    characterControlScheme: CharacterControlScheme;
+    characters: SerializedCombatantWithPets[];
+    capacity: number;
+  };
+  [GameStateUpdateType.IronmanRunsList]: {
+    savedIronmanRuns: SerializedOf<SavedIronmanRunClientEntry>[];
+    ironmanRunCapacity: number;
+  };
+  [GameStateUpdateType.UserGameHistoryPage]: {
+    page: number;
+    entries: UserGameHistoryEntry[];
+  };
+  [GameStateUpdateType.UserGameRecordsCount]: {
+    count: number;
+  };
+  [GameStateUpdateType.IronmanRunAbandoned]: {
+    usernameAbandoning: Username;
+    runId: GameId;
   };
   [GameStateUpdateType.SavedCharacter]: {
-    character: { combatant: SerializedOf<Combatant>; pets: SerializedOf<Combatant>[] };
-    slotIndex: number;
+    characterControlScheme: CharacterControlScheme;
+    character: SerializedCombatantWithPets;
   };
   [GameStateUpdateType.SavedCharacterDeleted]: {
     entityId: CombatantId;
@@ -319,12 +357,21 @@ export interface CharacterAndSlot {
 export class GameListEntry {
   constructor(
     public gameName: GameName,
+    public gameId: GameId,
     public numberOfUsers: number,
     public gameMode: GameMode,
-    public timeStarted: null | number,
+    public handedOffAt: null | number,
     public isRanked: boolean
   ) {}
 }
+
+export enum GameClosedReason {
+  PlayerLeftGame,
+}
+
+export const GAME_CLOSED_REASON_STRINGS: Record<GameClosedReason, string> = {
+  [GameClosedReason.PlayerLeftGame]: "Other player left game",
+};
 
 export class BattleReport {
   constructor(
@@ -345,6 +392,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.GameFullUpdate]: "GameFullUpdate",
   [GameStateUpdateType.PlayerChangedAdventuringParty]: "PlayerChangedAdventuringParty",
   [GameStateUpdateType.PlayerLeftGame]: "PlayerLeftGame",
+  [GameStateUpdateType.PlayerUsernameUpdated]: "PlayerUsernameUpdated",
   [GameStateUpdateType.PlayerJoinedGame]: "PlayerJoinedGame",
   [GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity]:
     "PlayerDisconnectedWithReconnectionOpportunity",
@@ -355,6 +403,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.PlayerToggledReadyToStartGame]: "PlayerToggledReadyToStartGame",
   [GameStateUpdateType.GameStarted]: "GameStarted",
   [GameStateUpdateType.GameServerConnectionInstructions]: "GameServerConnectionInstructions",
+  [GameStateUpdateType.GameClosed]: "GameClosed",
   [GameStateUpdateType.ClientAppMessage]: "ClientAppMessage",
 
   [GameStateUpdateType.PlayerToggledReadyToDescendOrExplore]:
@@ -377,6 +426,10 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.DungeonFloorNumber]: "DungeonFloorNumber",
   [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",
   [GameStateUpdateType.SavedCharacterList]: "SavedCharacterList",
+  [GameStateUpdateType.IronmanRunsList]: "IronmanRunsList",
+  [GameStateUpdateType.UserGameHistoryPage]: "UserGameHistoryPage",
+  [GameStateUpdateType.UserGameRecordsCount]: "UserGameRecordsCount",
+  [GameStateUpdateType.IronmanRunAbandoned]: "IronmanRunAbandoned",
   [GameStateUpdateType.SavedCharacter]: "SavedCharacter",
   [GameStateUpdateType.SavedCharacterDeleted]: "SavedCharacterDeleted",
   [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]:

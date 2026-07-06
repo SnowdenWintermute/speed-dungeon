@@ -23,7 +23,7 @@ import {
   createLevelLadderLevelupMessage,
 } from "@speed-dungeon/common";
 
-describe("progression game", () => {
+describe("ladder", () => {
   // it("placeholder", () => {});
   const testFixture = new IntegrationTestFixture();
 
@@ -84,7 +84,7 @@ describe("progression game", () => {
     // character die
     await alpha.gameClientHarness.toggleReadyToExplore();
     await alpha.gameClientHarness.useCombatAction(CombatActionName.PassTurn);
-    expect(alpha.clientApplication.gameContext.requireParty().timeOfWipe).toBeDefined();
+    expect(alpha.clientApplication.gameContext.requireParty().hasWiped()).toBeTruthy();
     // got own death message
     gotLadderDeathMessage(alpha.clientApplication, alphaUsername, focusedCharacter);
     // no longer in rankings
@@ -147,7 +147,7 @@ describe("progression game", () => {
     // character die
     await alpha.gameClientHarness.toggleReadyToExplore();
     await alpha.gameClientHarness.useCombatAction(CombatActionName.PassTurn);
-    expect(alpha.clientApplication.gameContext.requireParty().timeOfWipe).toBeDefined();
+    expect(alpha.clientApplication.gameContext.requireParty().hasWiped()).toBeTruthy();
     // got own death message
     gotLadderDeathMessage(alpha.clientApplication, alphaUsername, focusedCharacter);
     // no longer in rankings
@@ -188,7 +188,7 @@ describe("progression game", () => {
     // character die
     await alpha.gameClientHarness.toggleReadyToExplore();
     await alpha.gameClientHarness.useCombatAction(CombatActionName.PassTurn);
-    expect(alpha.clientApplication.gameContext.requireParty().timeOfWipe).toBeDefined();
+    expect(alpha.clientApplication.gameContext.requireParty().hasWiped()).toBeTruthy();
     // bravo got message
     await bravo.eventually(() => {
       gotLadderDeathMessage(bravo.clientApplication, alphaUsername, focusedCharacter);

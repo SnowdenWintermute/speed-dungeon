@@ -1,10 +1,7 @@
 import { LadderDeathsUpdate } from "../../action-processing/index.js";
 import { EntityId, Username } from "../../aliases.js";
 import { Combatant } from "../../combatants/index.js";
-import {
-  ClientSequentialEvent,
-  ClientSequentialEventType,
-} from "../../packets/client-sequential-events.js";
+import { ClientSequentialEvent } from "../../packets/client-sequential-events.js";
 import {
   GameMessage,
   GameMessageType,
@@ -13,7 +10,7 @@ import {
 
 export const CHARACTER_LEVEL_LADDER = "character-level-ladder:";
 
-export abstract class RankedLadderService {
+export abstract class CharacterLevelLadderService {
   abstract removeEntry(ladderName: string, entryId: EntityId): Promise<number>;
   abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null>;
 
@@ -50,10 +47,7 @@ export abstract class RankedLadderService {
     return ladderDeathsUpdate;
   }
 
-  async getTopRankedDeathMessagesActionCommandPayload(
-    partyChannelToExclude: string,
-    deathsAndRanks: LadderDeathsUpdate
-  ): Promise<ClientSequentialEvent> {
+  async getTopRankedDeathMessages(deathsAndRanks: LadderDeathsUpdate): Promise<GameMessage[]> {
     const messages = Object.entries(deathsAndRanks).map(([characterName, deathAndRank]) => {
       return new GameMessage(
         GameMessageType.LadderDeath,
@@ -67,9 +61,6 @@ export abstract class RankedLadderService {
       );
     });
 
-    return {
-      type: ClientSequentialEventType.PostGameMessages,
-      data: { messages, partyChannelToExclude },
-    };
+    return messages;
   }
 }

@@ -49,7 +49,8 @@ export function determineMeleeAttackAnimationType(
     actionExecutionIntent,
     targetingCalculator,
     targetIds,
-    new FixedNumberGenerator(0.5)
+    new FixedNumberGenerator(0.5),
+    context.resourceChangePropertiesStrategy
   );
 
   // we need to see what type of damage we want to do to determine the correct animation

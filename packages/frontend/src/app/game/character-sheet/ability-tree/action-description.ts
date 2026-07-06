@@ -18,6 +18,7 @@ import {
   EntityName,
   IActionUser,
   iterateNumericEnumKeyedRecord,
+  RealResourceChangePropertiesStrategy,
   Username,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
@@ -33,6 +34,8 @@ export const TARGET_DUMMY_COMBATANT = Combatant.createInitialized(
     Vector3.Zero()
   )
 );
+
+const DISPLAY_RESOURCE_CHANGE_PROPERTIES_STRATEGY = new RealResourceChangePropertiesStrategy();
 
 export enum ActionDescriptionComponent {
   TargetingSchemes,
@@ -146,7 +149,9 @@ export class ActionDescription {
       ),
       [ActionDescriptionComponent.IsResistable]: hitOutcomeProperties.getResistChance !== undefined,
       [ActionDescriptionComponent.ResourceChanges]: iterateNumericEnumKeyedRecord(
-        hitOutcomeProperties.resourceChangePropertiesGetters
+        DISPLAY_RESOURCE_CHANGE_PROPERTIES_STRATEGY.getResourceChangePropertiesGetters(
+          this.combatAction.name
+        )
       ).map(([resource, resourceChangePropertiesGetter]) => {
         const changeProperties = cloneDeep(
           resourceChangePropertiesGetter(

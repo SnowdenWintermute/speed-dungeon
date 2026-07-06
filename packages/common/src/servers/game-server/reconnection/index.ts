@@ -115,10 +115,11 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     const game = session.getCurrentGameOption();
     if (game === null) {
-      const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
-      outbox.pushFromOther(leaveGameHandlerOutbox);
       return outbox;
     }
+
+    // const leaveGameHandlerOutbox = await this.gameLifecycleController.leaveGameHandler(session);
+    // outbox.pushFromOther(leaveGameHandlerOutbox);
 
     game.inputLock.add(session.taggedUserId.id);
 
@@ -190,7 +191,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
       GameSessionConnectionStatus.ConnectedToGameServer
     );
 
-    console.info(`user ${session.username} reconnecting to game ${session.currentGameName}`);
+    console.info(`user ${session.username} reconnecting to game ${session.currentGameId}`);
 
     // give them a username that matches their old one if they are a guest since guest would have
     // some randomly assigned name and we need to give them the name they had when they disconnected

@@ -12,7 +12,7 @@ import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-implementations/index.js";
 import { NextOrPrevious } from "../../../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
-import { CharacterAssociatedData, GameMode } from "../../../../types.js";
+import { CharacterAssociatedData } from "../../../../types.js";
 import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
 import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
@@ -20,21 +20,25 @@ import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
-import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
 import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
 import { SerializedOf } from "../../../../serialization/index.js";
+import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
+import { PartyLifecyleController } from "../party-lifecycle.js";
+import { ResourceChangePropertiesStrategy } from "../../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class CombatActionController {
   constructor(
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    private gameModeContexts: Record<GameMode, GameModeContext>,
+    private gameModePolicyStore: GameModePolicyStore,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private lootGenerator: LootGenerator,
-    private assetAnalyzer: AssetAnalyzer
+    private assetAnalyzer: AssetAnalyzer,
+    private readonly partyLifecycleController: PartyLifecyleController
   ) {}
 
   selectCombatActionHandler(
@@ -304,6 +308,7 @@ export class CombatActionController {
       actionUserContext,
       this.idGenerator,
       this.rngPolicy,
+      this.resourceChangePropertiesStrategy,
       this.assetAnalyzer.animationLengths,
       this.assetAnalyzer.boundingBoxes,
       this.lootGenerator
@@ -323,11 +328,13 @@ export class CombatActionController {
         game,
         party,
         battleOption,
-        this.gameModeContexts,
+        this.gameModePolicyStore,
         this.idGenerator,
         this.rngPolicy,
+        this.resourceChangePropertiesStrategy,
         this.lootGenerator,
-        this.assetAnalyzer
+        this.assetAnalyzer,
+        this.partyLifecycleController
       ).handlePostBattleConclusion(battleConcludedOption);
       sequentialEvents.push(...postConclusionEvents.sequentialEvents);
       ladderMessagesOutbox = postConclusionEvents.ladderMessagesOutbox;
@@ -370,11 +377,13 @@ export class CombatActionController {
         game,
         party,
         battleOption,
-        this.gameModeContexts,
+        this.gameModePolicyStore,
         this.idGenerator,
         this.rngPolicy,
+        this.resourceChangePropertiesStrategy,
         this.lootGenerator,
-        this.assetAnalyzer
+        this.assetAnalyzer,
+        this.partyLifecycleController
       );
 
       const {

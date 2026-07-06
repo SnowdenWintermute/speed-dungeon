@@ -35,7 +35,11 @@ export const PrerequisiteArrows = observer((props: Props) => {
     const measurePositions = () => {
       const newPositions = new Map<string, DOMRect>();
 
-      for (const [abilityString, { element, prerequisites }] of Object.entries(cellRefs.current)) {
+      for (const [abilityString, { element }] of Object.entries(cellRefs.current)) {
+        if (!element.isConnected) {
+          delete cellRefs.current[abilityString];
+          continue;
+        }
         newPositions.set(abilityString, element.getBoundingClientRect());
       }
 

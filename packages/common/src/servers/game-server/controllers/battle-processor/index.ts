@@ -4,7 +4,6 @@ import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { Battle, BattleConclusion } from "../../../../battle/index.js";
 import { SpeedDungeonGame } from "../../../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
-import { GameMode } from "../../../../types.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
@@ -13,12 +12,6 @@ import { getPartyChannelName } from "../../../../packets/channels.js";
 import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import {
-  createPartyWipeMessage,
-  GameMessage,
-  GameMessageType,
-} from "../../../../packets/game-message.js";
-import { GameModeContext } from "../game-lifecycle/game-mode-context.js";
-import {
   ClientSequentialEvent,
   ClientSequentialEventType,
 } from "../../../../packets/client-sequential-events.js";
@@ -26,6 +19,9 @@ import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-impleme
 import { throwIfLoopLimitReached } from "../../../../utils/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { IActionUser } from "../../../../action-user-context/action-user.js";
+import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
+import { PartyLifecyleController } from "../party-lifecycle.js";
+import { ResourceChangePropertiesStrategy } from "../../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class BattleProcessor {
   constructor(
@@ -33,11 +29,13 @@ export class BattleProcessor {
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
     private battle: Battle | null,
-    private gameModeContexts: Record<GameMode, GameModeContext>,
+    private gameModePolicyStore: GameModePolicyStore,
     private idGenerator: IdGenerator,
     private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private lootGenerator: LootGenerator,
-    private assetAnalyzer: AssetAnalyzer
+    private assetAnalyzer: AssetAnalyzer,
+    private partyLifecycleController: PartyLifecyleController
   ) {}
 
   async processBattleUntilPlayerTurnOrConclusion() {
@@ -75,7 +73,8 @@ export class BattleProcessor {
       const { actionExecutionIntent, user } = fastestTracker.getNextActionIntentAndUser(
         game,
         party,
-        this.rngPolicy
+        this.rngPolicy,
+        this.resourceChangePropertiesStrategy
       );
       // this.logSelectedActionIntent(user, actionExecutionIntent);
 
@@ -93,6 +92,7 @@ export class BattleProcessor {
           new ActionUserContext(game, party, user),
           this.idGenerator,
           this.rngPolicy,
+          this.resourceChangePropertiesStrategy,
           this.assetAnalyzer.animationLengths,
           this.assetAnalyzer.boundingBoxes,
           this.lootGenerator
@@ -162,38 +162,29 @@ export class BattleProcessor {
       this.updateDispatchFactory
     );
 
-    const gameModeContext = this.gameModeContexts[game.mode];
-    await gameModeContext.strategy.onBattleResult(game, party);
+    const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+    await gameModePolicy.persistence.onBattleResult(game, party);
 
     switch (battleConcluded.conclusion) {
       case BattleConclusion.Defeat: {
-        const floorNumber = party.dungeonExplorationManager.getCurrentFloor();
-
-        sequentialEvents.push({
-          type: ClientSequentialEventType.PostGameMessages,
-          data: {
-            messages: [
-              new GameMessage(
-                GameMessageType.PartyWipe,
-                true,
-                createPartyWipeMessage(party.name, floorNumber, new Date())
-              ),
-            ],
-            partyChannelToExclude: getPartyChannelName(game.name, party.name),
-          },
-        });
-
-        const ladderDeathOutbox = await gameModeContext.strategy.onPartyWipe(game, party);
-        ladderMessagesOutbox.pushFromOther(ladderDeathOutbox);
+        const outbox = await this.partyLifecycleController.handlePartyWipe(
+          game,
+          party,
+          gameModePolicy
+        );
+        ladderMessagesOutbox.pushFromOther(outbox);
         break;
       }
       case BattleConclusion.Victory: {
-        const ladderVictoryOutbox = await gameModeContext.strategy.onPartyVictory(
+        const ladderVictoryOutboxOption = await gameModePolicy.ladder.onPartyBattleVictory(
           game,
           party,
           battleConcluded.levelUps
         );
-        ladderMessagesOutbox.pushFromOther(ladderVictoryOutbox);
+        if (ladderVictoryOutboxOption) {
+          ladderMessagesOutbox.pushFromOther(ladderVictoryOutboxOption);
+        }
+
         break;
       }
     }

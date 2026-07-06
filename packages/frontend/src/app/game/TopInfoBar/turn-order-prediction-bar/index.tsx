@@ -46,7 +46,8 @@ export const TurnOrderPredictionBar = observer(({ trackers }: Props) => {
       listWithAggregatedSequentialConditionTrackers.push(sequentialConditionTurnTrackers);
       currentTracker = nextTracker;
     } else {
-      throw new Error("infinite loop stopped");
+      console.error(new Error("infinite loop stopped"));
+      break;
     }
   }
 

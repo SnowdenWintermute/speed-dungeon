@@ -20,7 +20,9 @@ import { runMigrations } from "./database/run-migrations.js";
 import { LobbyServerNode } from "./lobby-node/index.js";
 import { GameServerNode } from "./game-node/index.js";
 import { createServer } from "http";
-import { GuestSessionReconnectionToken } from "@speed-dungeon/common/src/servers/game-server/reconnection/guest-session-reconnection-token.js";
+import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
+import { DatabaseProfileService } from "./game-node/services/profiles.js";
+import { speedDungeonProfilesRepo } from "./database/repos/speed-dungeon-profiles.js";
 
 const LOBBY_PORT = 8080;
 export const GAME_SERVER_NAME = "Lindblum Test Game Server" as GameServerName;
@@ -57,6 +59,8 @@ const guestReconnectionTokenCodec = new OpaqueEncryptionTokenCodec<GuestSessionR
   tokensSecret
 );
 
+const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
+
 const expressApp = createExpressApp();
 const httpServer = expressApp.listen(LOBBY_PORT, async () => {
   console.info(`lobby server on port ${LOBBY_PORT}`);
@@ -67,7 +71,8 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
     globalGameSessionStore,
     lobbyCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec,
-    guestReconnectionTokenCodec
+    guestReconnectionTokenCodec,
+    profileService
   );
 });
 
@@ -78,6 +83,7 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     GAME_SERVER_NAME,
     gameHttpServer,
     expressApp,
+    profileService,
     gameSessionStoreService,
     globalGameSessionStore,
     gameCrossServerBroadcaster,

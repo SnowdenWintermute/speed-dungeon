@@ -18,12 +18,13 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
     const { actionName } = context.tracker.actionExecutionIntent;
     const action = COMBAT_ACTIONS[actionName];
 
-    const { actionUserContext, tracker, rngPolicy } = context;
+    const { actionUserContext, tracker, rngPolicy, resourceChangePropertiesStrategy } = context;
 
     const hitOutcomeCalculator = new HitOutcomeCalculator(
       actionUserContext,
       tracker.actionExecutionIntent,
-      rngPolicy
+      rngPolicy,
+      resourceChangePropertiesStrategy
     );
 
     const hitOutcomesResult = hitOutcomeCalculator.calculateHitOutcomes();

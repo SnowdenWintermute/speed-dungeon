@@ -1,4 +1,4 @@
-import { GameName, GameServerName, GuestUserId, IdentityProviderId } from "../../../aliases.js";
+import { GameId, GameServerName, GuestUserId, IdentityProviderId } from "../../../aliases.js";
 import { GuestSessionReconnectionToken } from "../../game-server/reconnection/guest-session-reconnection-token.js";
 import {
   GameSessionConnectionStatus,
@@ -26,7 +26,7 @@ export abstract class GlobalGameSessionStore {
   ): Promise<void>;
 
   abstract clearSession(taggedUserId: TaggedUserId): Promise<void>;
-  abstract clearSessionsInGame(gameName: GameName): Promise<void>;
+  abstract clearSessionsInGame(gameId: GameId): Promise<void>;
 }
 
 export class InMemoryGlobalGameSessionStore extends GlobalGameSessionStore {
@@ -105,14 +105,14 @@ export class InMemoryGlobalGameSessionStore extends GlobalGameSessionStore {
     }
   }
 
-  async clearSessionsInGame(gameName: GameName): Promise<void> {
+  async clearSessionsInGame(gameId: GameId): Promise<void> {
     for (const [authId, session] of this._authSessions.entries()) {
-      if (session.gameName === gameName) {
+      if (session.gameId === gameId) {
         this._authSessions.delete(authId);
       }
     }
     for (const [guestId, session] of this._guestSessions.entries()) {
-      if (session.gameName === gameName) {
+      if (session.gameId === gameId) {
         this._guestSessions.delete(guestId);
       }
     }

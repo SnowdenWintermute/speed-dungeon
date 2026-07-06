@@ -2,13 +2,14 @@ import { ClientApplication } from "@/client-application";
 import { ManualTickScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
-  BrowserWebSocketClientConnectionEndpointFactory,
   CLIENT_LOG_RECORDER_MAX_BYTES,
   CombatantClass,
+  GameMode,
+  GameName,
   IndexedDbAssetStore,
   TestBrowserWebSocketClientConnectionEndpointFactory,
 } from "@speed-dungeon/common";
-import fakeIndexedDB from "fake-indexeddb";
+import { IDBFactory } from "fake-indexeddb";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
@@ -16,14 +17,30 @@ import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
 import { TimeMachine } from "@/test-utils/time-machine";
+import { TEST_CHARACTER_NAME_1, TEST_GAME_NAME } from "./consts";
+import { InMemoryRemoteAssetStore } from "./in-memory-remote-asset-store";
+import { NodeFileSystemAssetStore } from "@speed-dungeon/server";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+// anchor to this file's location so it resolves regardless of the process cwd
+const TEST_ASSETS_DIR = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../asset-caching/test-assets"
+);
 
 export class ClientFixture {
   readonly gameClientHarness: ClientTestHarness<GameClient>;
   readonly lobbyClientHarness: ClientTestHarness<LobbyClient>;
   readonly clientApplication: ClientApplication;
+  // allow control of asset fetch resolution from tests
+  public readonly testRemoteAssetStore = new InMemoryRemoteAssetStore(
+    new NodeFileSystemAssetStore(TEST_ASSETS_DIR)
+  );
   private clientEndpointFactory: TestBrowserWebSocketClientConnectionEndpointFactory;
 
-  constructor(lobbyServerPort: number, timeMachine: TimeMachine, testAuthId?: string) {
+  constructor(lobbyServerPort: number, timeMachine: TimeMachine, authSessionId?: string) {
+    const fakeIndexedDB = new IDBFactory();
     const assetCache = new IndexedDbAssetStore(fakeIndexedDB);
     const tickScheduler = new ManualTickScheduler();
     const clientLogRecorder = new IndexedDbClientLogRecorder(
@@ -32,12 +49,12 @@ export class ClientFixture {
     );
 
     this.clientEndpointFactory = new TestBrowserWebSocketClientConnectionEndpointFactory(
-      testAuthId
+      authSessionId
     );
 
     this.clientApplication = new ClientApplication(
       assetCache,
-      `http://localhost:${lobbyServerPort}`,
+      this.testRemoteAssetStore,
       `http://localhost:${lobbyServerPort}`,
       tickScheduler.scheduler,
       clientLogRecorder,
@@ -65,6 +82,37 @@ export class ClientFixture {
     await this.clientApplication.topologyManager.connectWithPrefferedMode();
   }
 
+  async startAssetFetch(clearCache: boolean = false) {
+    return this.clientApplication.assetService.initialize({
+      clearCache,
+    });
+  }
+
+  async resolveAllAssetFetches() {
+    const { assetService } = this.clientApplication;
+    const { progressTracker } = assetService;
+
+    const { fetches } = assetService.progressTracker;
+
+    const allComplete = () =>
+      [...progressTracker.fetches.values()].every((fetch) => fetch.isComplete);
+
+    while (!allComplete()) {
+      const inFlightIds = [...progressTracker.fetches.entries()]
+        .filter(([_id, fetch]) => fetch.started && !fetch.isComplete && !fetch.aborted)
+        .map(([id]) => id);
+
+      for (const id of inFlightIds) {
+        await this.testRemoteAssetStore.resolveFetch(id);
+      }
+
+      // wait for onFetchComplete, which runs after the async cacheAsset
+      await this.eventually(() =>
+        expect(inFlightIds.every((id) => fetches.get(id)?.isComplete)).toBe(true)
+      );
+    }
+  }
+
   async reconnectAsAuth(authId: string) {
     this.clientEndpointFactory.testAuthId = authId;
     if (this.clientApplication.gameClientRef.isInitialized) {
@@ -78,10 +126,31 @@ export class ClientFixture {
       await assertion();
     }, options);
   }
+
+  requireGameIdFromClientGameList(gameName: GameName) {
+    for (const gameListEntry of this.clientApplication.lobbyContext.gameList) {
+      if (gameListEntry.gameName === gameName) {
+        return gameListEntry.gameId;
+      }
+    }
+    throw new Error("Expected game list entry not found on client application");
+  }
+
+  async createSavedIronmanRun() {
+    const { lobbyClientHarness, clientApplication } = this;
+    await lobbyClientHarness.createGame(TEST_GAME_NAME, GameMode.Ironman);
+    await lobbyClientHarness.createCharacter(TEST_CHARACTER_NAME_1, CombatantClass.Warrior);
+    await lobbyClientHarness.toggleReadyToStartGame();
+    await clientApplication.sequentialEventProcessor.waitUntilIdle();
+    await clientApplication.topologyManager.transitionToGameServer.waitFor();
+
+    clientApplication.gameClientRef.get().leaveGame();
+    await clientApplication.topologyManager.transitionToLobbyServer.waitFor();
+  }
 }
 
 export interface ClientTestFixtureOptions {
-  characters?: { name: string; combatantClass: CombatantClass; slotIndex: number }[];
+  characters?: { name: string; combatantClass: CombatantClass }[];
   gameName?: string;
   proceedToGameServer?: boolean;
 }

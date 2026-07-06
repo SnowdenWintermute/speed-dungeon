@@ -16,7 +16,7 @@ export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) 
 
   const leaveGameHotkey = HOTKEYS.SIDE_1;
 
-  if (party.timeOfWipe === null) return <></>;
+  if (!party.hasWiped()) return <></>;
   return (
     <div
       id="party-wipe-modal"
@@ -25,7 +25,9 @@ export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) 
       style={{ zIndex: ZIndexLayers.GameModal }}
     >
       <div className="text-lg">{party.name} was defeated</div>
-      <span className="text-lg mb-2">at {new Date(party.timeOfWipe).toLocaleString()}</span>
+      <span className="text-lg mb-2">
+        at {new Date(party.fate?.timestamp || 0).toLocaleString()}
+      </span>
       <Divider extraStyles="mb-4" />
       <ButtonBasic extraStyles="w-full bg-slate-950" onClick={leaveGame} hotkey={leaveGameHotkey}>
         Leave Game ({letterFromKeyCode(leaveGameHotkey)})

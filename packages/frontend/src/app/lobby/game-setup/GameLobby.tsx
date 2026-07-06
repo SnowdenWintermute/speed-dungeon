@@ -1,5 +1,5 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { ClientIntentType, SpeedDungeonPlayer, formatGameMode } from "@speed-dungeon/common";
+import { ClientIntentType, GAME_MODE_STRINGS, SpeedDungeonPlayer } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { SPACING_REM_LARGE } from "@/client-consts";
@@ -38,6 +38,7 @@ export const GameLobby = observer(({ children }: Props) => {
       data: undefined,
     });
   }
+
   function toggleReady() {
     lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.ToggleReadyToStartGame,
@@ -58,7 +59,7 @@ export const GameLobby = observer(({ children }: Props) => {
       >
         <div className="mr-4">
           <h2 className="text-xl">{gameOption.name}</h2>
-          <h4 className="text-slate-400">{formatGameMode(gameOption.mode) + " game"}</h4>
+          <h4 className="text-slate-400">{GAME_MODE_STRINGS[gameOption.mode] + " game"}</h4>
         </div>
         <div className="w-[1px] h-full bg-slate-400 mr-4" />
         <ul className="flex items-center">

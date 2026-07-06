@@ -7,7 +7,7 @@ import {
   QUERY_PARAMS,
   urlWithQueryParams,
   Deferred,
-  ConnectionEndpointReadyState,
+  CharacterControlScheme,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
@@ -108,8 +108,8 @@ export class ConnectionTopology {
     return this.runtimeMode !== ConnectionMode.Initializing;
   }
   get canEnterOffline() {
-    const { assetFetchProgress } = this.clientApplication.uiStore;
-    const { initialized, isComplete } = assetFetchProgress;
+    const { progressTracker } = this.clientApplication.assetService;
+    const { initialized, isComplete } = progressTracker;
     return initialized && isComplete;
   }
   set runtimeMode(mode: ConnectionMode) {
@@ -132,6 +132,7 @@ export class ConnectionTopology {
 
   enterOnline() {
     this._preferredMode = ConnectionMode.Online;
+
     return new Promise<void>((resolve, reject) => {
       this._mode = ConnectionMode.Initializing;
       const { connectionStatus } = this.clientApplication.uiStore;
@@ -188,7 +189,11 @@ export class ConnectionTopology {
     const { connectionStatus } = this.clientApplication.uiStore;
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
-    this.clientApplication.lobbyContext.savedCharacters.setSlots({});
+    // @TODO - load their local persistence slots
+    this.clientApplication.lobbyContext.savedCharacters.setCharacters(
+      CharacterControlScheme.Freelancer,
+      []
+    );
     this.clientApplication.gameWorldView?.sceneEntityService.clearAll();
     this.clientApplication.replayTreeScheduler.clear();
     this.clientApplication.sequentialEventProcessor.cancelQueued();

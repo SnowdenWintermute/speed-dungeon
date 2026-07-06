@@ -7,7 +7,6 @@ import {
   MapUtils,
   SpeedDungeonGame,
   invariant,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { CombatantSceneEntity } from "../scene-entities/combatants";
@@ -96,8 +95,8 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
 
   private getCombatantsInGameWorld() {
     const { gameOption } = this.clientApplication.gameContext;
-    const inLobby = gameOption && gameOption.getTimeStarted() === null;
-    const inGame = gameOption && gameOption.getTimeStarted() !== null;
+    const inLobby = gameOption && !gameOption.clock.isLive();
+    const inGame = gameOption && gameOption.clock.isLive();
     if (inLobby && gameOption.mode === GameMode.Progression) {
       this.setProgressionGameLobbyCombatantPositions(gameOption);
       return this.getProgressionGameLobbyCombatants(gameOption);
@@ -181,11 +180,12 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
 
   private getSavedCharacterSlotsCombatants() {
     const result = new Map<CombatantId, Combatant>();
-    const savedCharacters = this.clientApplication.lobbyContext.savedCharacters.slots;
-    for (const [_slot, character] of iterateNumericEnumKeyedRecord(savedCharacters).filter(
-      ([_slot, characterOption]) => characterOption !== null
-    )) {
-      invariant(character !== null, "expected to have filtered out the null characters");
+    const { lobbyContext } = this.clientApplication;
+    const { savedCharacters } = lobbyContext;
+    const savedCharactersToDisplay =
+      savedCharacters.byControlScheme[savedCharacters.selectedCharacterControlScheme];
+
+    for (const character of savedCharactersToDisplay) {
       result.set(character.combatant.getEntityId(), character.combatant);
     }
     return result;

@@ -15,28 +15,23 @@ interface IndexedDbAssetRecord {
 export class IndexedDbVersionedAssetRepo {
   private dbPromise: Promise<IDBDatabase>;
   private db?: IDBDatabase;
+  private disposed = false;
 
   constructor(private readonly indexedDB: IDBFactory) {
     this.dbPromise = this.open();
   }
 
+  dispose() {
+    this.disposed = true;
+    this.dbPromise.then((db) => db.close()).catch(() => {});
+  }
+
   async clear() {
+    if (this.disposed) return;
     const db = await this.dbPromise;
     db.close();
     this.db = undefined;
-
-    const databases = await this.indexedDB.databases();
-
-    await Promise.all(
-      databases
-        .filter((db) => db.name)
-        .map(async (db) => {
-          if (db.name !== undefined) {
-            return this.deleteDatabaseAsync(db.name);
-          }
-        })
-    );
-
+    await this.deleteDatabaseAsync(DB_NAME);
     this.dbPromise = this.open();
   }
 
@@ -120,6 +115,7 @@ export class IndexedDbVersionedAssetRepo {
   }
 
   async insert(id: string, asset: VersionedAsset): Promise<void> {
+    if (this.disposed) return;
     const db = await this.dbPromise;
 
     return new Promise((resolve, reject) => {
@@ -142,6 +138,7 @@ export class IndexedDbVersionedAssetRepo {
   }
 
   async delete(id: string): Promise<void> {
+    if (this.disposed) return;
     const db = await this.dbPromise;
 
     return new Promise<void>((resolve, reject) => {

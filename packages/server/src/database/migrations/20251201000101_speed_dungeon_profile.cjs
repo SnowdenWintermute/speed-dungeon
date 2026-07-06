@@ -13,7 +13,9 @@ exports.up = (pgm) => {
       owner_id INTEGER,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      character_capacity INTEGER
+      character_capacities JSONB NOT NULL,
+      ironman_run_capacity INTEGER,
+      ironman_run_ids UUID[] NOT NULL DEFAULT '{}'
     );
     `);
 };

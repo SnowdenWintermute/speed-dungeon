@@ -8,4 +8,6 @@ export const MONSTER_SPECIES: Record<MonsterType, CombatantSpecies> = {
   [MonsterType.MantaRay]: CombatantSpecies.Ray,
   [MonsterType.Net]: CombatantSpecies.Net,
   [MonsterType.Spider]: CombatantSpecies.Spider,
+  [MonsterType.Slime]: CombatantSpecies.Slime,
+  [MonsterType.Zombie]: CombatantSpecies.Zombie,
 };

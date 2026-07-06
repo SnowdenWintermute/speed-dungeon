@@ -17,25 +17,25 @@ export async function getUserProfileHandler(_req: Request, res: Response, next: 
 
     const sanitized = new SanitizedProfile(profile);
 
-    const characterSlotsResult = await fetchSavedCharacters(profile.id);
-    if (characterSlotsResult instanceof Error) {
-      return next(new CustomError(characterSlotsResult.message, 500));
-    }
+    // const characterSlotsResult = await fetchSavedCharacters(profile.id);
+    // if (characterSlotsResult instanceof Error) {
+    //   return next(new CustomError(characterSlotsResult.message, 500));
+    // }
 
     const characterRanks: ProfileCharacterRanks = {};
-    for (const character of Object.values(characterSlotsResult)) {
-      const rank = await valkeyManager.context.zRevRank(
-        CHARACTER_LEVEL_LADDER,
-        character.combatant.entityProperties.id
-      );
-      const { combatantProperties, entityProperties } = character.combatant;
-      characterRanks[entityProperties.id] = {
-        name: entityProperties.name,
-        rank,
-        level: combatantProperties.classProgressionProperties.getMainClass().level,
-        class: combatantProperties.classProgressionProperties.getMainClass().combatantClass,
-      };
-    }
+    // for (const character of Object.values(characterSlotsResult)) {
+    //   const rank = await valkeyManager.context.zRevRank(
+    //     CHARACTER_LEVEL_LADDER,
+    //     character.combatant.entityProperties.id
+    //   );
+    //   const { combatantProperties, entityProperties } = character.combatant;
+    //   characterRanks[entityProperties.id] = {
+    //     name: entityProperties.name,
+    //     rank,
+    //     level: combatantProperties.classProgressionProperties.getMainClass().level,
+    //     class: combatantProperties.classProgressionProperties.getMainClass().combatantClass,
+    //   };
+    // }
 
     res.json({ profile: sanitized, characterRanks });
   } catch (error) {

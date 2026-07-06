@@ -1,18 +1,25 @@
 import { FetchAbortedError } from "../../../../errors/fetch-aborted.js";
 import { AssetId } from "../index.js";
-import { AssetManifest } from "../versioned-asset.js";
+import { MapUtils } from "../../../../utils/map-utils.js";
+import { AssetManifest, SerializedAssetManifest } from "../versioned-asset.js";
 import { AbortableAssetFetch, RemoteAssetStore } from "./index.js";
 
-export class RemoteServerAssetStore implements RemoteAssetStore {
-  constructor(private readonly baseUrl: string) {}
-  async getAssetManifest(): Promise<AssetManifest> {
-    const url = `${this.baseUrl}/asset-manifest`;
-    const res = await fetch(url);
-    const manifest = await res.json();
-    return manifest;
+export class RemoteServerAssetStore extends RemoteAssetStore {
+  constructor(private readonly baseUrl: string) {
+    super();
   }
 
-  async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
+  override async getAssetManifest(): Promise<AssetManifest> {
+    const url = `${this.baseUrl}/asset-manifest`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`asset manifest fetch failed: ${res.status} ${res.statusText}`);
+    }
+    const serialized: SerializedAssetManifest = await res.json();
+    return MapUtils.deserialize(serialized);
+  }
+
+  protected override async getAssetBytes(assetId: AssetId): Promise<ArrayBuffer> {
     const res = await fetch(`${this.baseUrl}/${assetId}`);
 
     if (!res.ok) {
@@ -31,7 +38,7 @@ export class RemoteServerAssetStore implements RemoteAssetStore {
     }
   }
 
-  getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch {
+  override getAssetBytesAbortable(assetId: AssetId): AbortableAssetFetch {
     const abortController = new AbortController();
     const url = `${this.baseUrl}/assets/${assetId}`;
 

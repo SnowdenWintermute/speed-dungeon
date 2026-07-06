@@ -21,7 +21,7 @@ export const RaceGameLobby = observer(() => {
         <ul>
           {[...game.adventuringParties].map(([partyName, party]) => (
             <li key={party.name}>
-              <PartySetupCard party={party} playerOption={playerOption} />
+              <PartySetupCard game={game} party={party} playerOption={playerOption} />
             </li>
           ))}
           {!playerOption?.partyName && (

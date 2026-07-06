@@ -23,7 +23,7 @@ export function createLobbyClientIntentHandlers(
     [ClientIntentType.CreateGame]: (data, user) =>
       lobbyServer.gameLifecycleController.createGameHandler(data, user),
     [ClientIntentType.JoinGame]: (data, user) =>
-      lobbyServer.gameLifecycleController.joinGameHandler(data.gameName, user),
+      lobbyServer.gameLifecycleController.joinGameHandler(data.gameId, user),
     [ClientIntentType.LeaveGame]: (_data, user) =>
       lobbyServer.gameLifecycleController.leaveGameHandler(user),
     [ClientIntentType.ToggleReadyToStartGame]: (_data, user) =>
@@ -36,21 +36,34 @@ export function createLobbyClientIntentHandlers(
       lobbyServer.partySetupController.joinPartyHandler(user, data.partyName),
     [ClientIntentType.LeaveParty]: (_, user) =>
       lobbyServer.partySetupController.leavePartyHandler(user),
-    [ClientIntentType.CreateCharacter]: (data, user) =>
-      lobbyServer.characterLifecycleController.createCharacterHandler(user, data),
-    [ClientIntentType.DeleteCharacter]: (data, user) =>
-      lobbyServer.characterLifecycleController.deleteCharacterHandler(user, data),
-    [ClientIntentType.SelectSavedCharacterForProgressGame]: (data, user) =>
-      lobbyServer.characterLifecycleController.selectProgressionGameCharacterHandler(user, data),
+    [ClientIntentType.CreateCharacterInGame]: (data, user) =>
+      lobbyServer.characterLifecycleController.createCharacterInGameHandler(user, data),
+    [ClientIntentType.DeleteCharacterInGame]: (data, user) =>
+      lobbyServer.characterLifecycleController.deleteCharacterInGameHandler(user, data),
+    [ClientIntentType.AddSavedCharacterToProgressionGame]: (data, user) =>
+      lobbyServer.characterLifecycleController.addSavedCharacterToProgressionGameHandler(
+        user,
+        data
+      ),
     [ClientIntentType.SelectProgressionGameStartingFloor]: (data, user) =>
       lobbyServer.partySetupController.selectProgressionGameStartingFloorHandler(user, data),
 
     // SAVED CHARACTER MANAGMENT
-    [ClientIntentType.GetSavedCharactersList]: (_, user) =>
-      lobbyServer.savedCharactersController.fetchSavedCharactersHandler(user),
+    [ClientIntentType.GetSavedCharactersList]: (data, user) =>
+      lobbyServer.savedCharactersController.fetchSavedCharactersHandler(user, data),
     [ClientIntentType.CreateSavedCharacter]: (data, user) =>
       lobbyServer.savedCharactersController.createSavedCharacterHandler(user, data),
     [ClientIntentType.DeleteSavedCharacter]: (data, user) =>
       lobbyServer.savedCharactersController.deleteSavedCharacterHandler(user, data),
+
+    // LADDER GAME RECORDS
+    [ClientIntentType.GetUserGameHistory]: (data, user) =>
+      lobbyServer.ladderGameRecordsController.getUserGameHistoryHandler(user, data),
+    [ClientIntentType.GetUserGameRecordsCount]: (data, user) =>
+      lobbyServer.ladderGameRecordsController.getUserGameRecordsCountHandler(user, data),
+
+    // IRONMAN RUN MANAGEMENT
+    [ClientIntentType.AbandonIronmanRun]: (data, user) =>
+      lobbyServer.savedIronmanRunsController.abandonRun(user, data.runId),
   };
 }

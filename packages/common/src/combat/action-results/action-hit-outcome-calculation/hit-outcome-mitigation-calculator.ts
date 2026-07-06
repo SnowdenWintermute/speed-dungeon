@@ -7,6 +7,7 @@ import { NormalizedPercentage } from "../../../aliases.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
 import { ResourceChangeSource } from "../../hp-change-source-types.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
@@ -40,7 +41,8 @@ export class HitOutcomeMitigationCalculator {
         }
       >
     >,
-    private rngPolicy: RandomNumberGenerationPolicy
+    private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     //
   }
@@ -161,7 +163,7 @@ export class HitOutcomeMitigationCalculator {
   targetWillAttemptMitigation() {
     const targetCombatantProperties = this.targetCombatant.combatantProperties;
     const hpChangePropertiesGetterOption =
-      this.action.hitOutcomeProperties.resourceChangePropertiesGetters[
+      this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(this.action.name)[
         CombatActionResource.HitPoints
       ];
     const hpChangePropertiesOption = hpChangePropertiesGetterOption

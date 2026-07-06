@@ -66,7 +66,7 @@ describe("action playground", () => {
     await testCombatantDiesWhilePrimedForIceBurst(testFixture);
   });
 
-  it("tamed pet attacks monsters", async () => {
+  it("tamed pet heals allies attacks monsters", async () => {
     await testTamedPetHealsAlliesAttacksMonsters(testFixture);
   });
 

@@ -21,6 +21,7 @@ import { ResourceChangeModifier } from "./resource-change-modifier.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { rollNormalized } from "../../../utils/rand-between.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
+import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;
@@ -65,7 +66,8 @@ export class HitOutcomeCalculator {
   constructor(
     private actionUserContext: ActionUserContext,
     private actionExecutionIntent: CombatActionExecutionIntent,
-    private rngPolicy: RandomNumberGenerationPolicy
+    private rngPolicy: RandomNumberGenerationPolicy,
+    private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
     this.targetingCalculator = new TargetingCalculator(this.actionUserContext, null);
 
@@ -80,7 +82,8 @@ export class HitOutcomeCalculator {
       actionExecutionIntent,
       this.targetingCalculator,
       this.targetIds,
-      rngPolicy.combatResourceChange
+      rngPolicy.combatResourceChange,
+      resourceChangePropertiesStrategy
     );
   }
 
@@ -121,7 +124,8 @@ export class HitOutcomeCalculator {
           actionUser,
           targetCombatant,
           incomingResourceChangesPerTarget,
-          this.rngPolicy
+          this.rngPolicy,
+          this.resourceChangePropertiesStrategy
         );
       } else {
         mitigationCalculator.setTargetCombatant(targetCombatant);

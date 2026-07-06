@@ -1,5 +1,5 @@
 import { IdentityProviderId, Username } from "../../aliases.js";
-import { SequentialIdGenerator } from "../../utils/index.js";
+import { invariant, SequentialIdGenerator } from "../../utils/index.js";
 import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
 import {
   ConnectionIdentityResolutionContext,
@@ -21,6 +21,14 @@ export class InMemoryIdentityProviderQueryStrategy
     const id = this.getNextUserId();
     this.identities.set(id, username);
     this.authSessions.set(authSessionId, id);
+  }
+
+  changeUsername(authSessionId: string, value: string) {
+    const authId = this.authSessions.get(authSessionId);
+    invariant(authId !== undefined, "expected an auth session");
+    const identity = this.identities.get(authId);
+    invariant(identity !== undefined, "expected to find an identity");
+    this.identities.set(authId, value as Username);
   }
 
   async execute(

@@ -1,5 +1,4 @@
 import {
-  ACTION_RESOLUTION_STEP_TYPE_STRINGS,
   ActionIntentAndUser,
   ActionResolutionStep,
   ActionResolutionStepContext,
@@ -14,7 +13,6 @@ import { DurabilityChangesByEntityId } from "../../durability/index.js";
 import { SpawnableEntityType } from "../../spawnables/index.js";
 import { getStartFlyingActionIntentIfAble } from "../../conditions/configs/ensnared.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { getKillAttachedCombatantsActionIntents } from "./hit-outcome-triggers/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;

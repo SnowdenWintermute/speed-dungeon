@@ -12,7 +12,13 @@ export function ClientApplicationProvider({ children }: { children: React.ReactN
     const clientApplication = createClientApplication();
     clientApplicationRef.current = clientApplication;
     clientApplication.makeObservable();
+
+    clientApplication.assetService.initialize({
+      clearCache: true,
+    });
+
     clientApplication.topologyManager.connectWithPrefferedMode();
+
     clientApplication.topologyManager.transitionToLobbyServer
       .waitFor()
       .then()
@@ -29,12 +35,6 @@ export function ClientApplicationProvider({ children }: { children: React.ReactN
       clientApplication.dispose();
     };
   }, []);
-
-  if (!clientApplicationRef.current && typeof window !== "undefined") {
-    const value = createClientApplication();
-    value.makeObservable();
-    clientApplicationRef.current = value;
-  }
 
   if (!isReady || !clientApplicationRef.current) {
     return null;

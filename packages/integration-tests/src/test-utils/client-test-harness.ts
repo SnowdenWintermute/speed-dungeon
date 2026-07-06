@@ -8,17 +8,17 @@ import {
   ActionRank,
   ActionResolutionStepType,
   BeforeOrAfter,
-  CharacterSlotIndex,
+  CharacterControlScheme,
   ClientIntent,
   ClientIntentType,
-  ClientSequentialEventType,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionName,
   CombatantClass,
   CombatantId,
   CombatAttribute,
-  EntityId,
+  DateRange,
   EntityName,
+  GameId,
   GameMode,
   GameName,
   GameStateUpdate,
@@ -154,18 +154,31 @@ export class ClientTestHarness<T extends BaseClient> {
     }
   }
 
-  async createGame(gameName: string, mode = GameMode.Race) {
+  async createGame(
+    gameName: GameName,
+    mode: GameMode = GameMode.UnrankedRace,
+    controlScheme: CharacterControlScheme = CharacterControlScheme.Captain,
+    continueGameId?: GameId
+  ) {
     await this.settleIntentResult({
       type: ClientIntentType.CreateGame,
-      data: { gameName: gameName as GameName, mode },
+      data: { gameName, mode, controlScheme, continueGameId },
     });
   }
-  async joinGame(gameName: string) {
+  async joinGame(gameId: GameId) {
     await this.settleIntentResult({
       type: ClientIntentType.JoinGame,
-      data: { gameName: gameName as GameName },
+      data: { gameId: gameId as GameId },
     });
   }
+  async tryJoinExpectedSingleGameInList() {
+    await this.fetchGameList();
+    expect(this.clientApplication.lobbyContext.gameList.length).toBe(1);
+    const otherGame = this.clientApplication.lobbyContext.gameList[0];
+    invariant(otherGame !== undefined, "checked above that game list had a game");
+    await this.joinGame(otherGame.gameId);
+  }
+
   async fetchGameList() {
     await this.settleIntentResult({
       type: ClientIntentType.RequestsGameList,
@@ -192,8 +205,14 @@ export class ClientTestHarness<T extends BaseClient> {
   }
   async createCharacter(characterName: string, combatantClass: CombatantClass) {
     await this.settleIntentResult({
-      type: ClientIntentType.CreateCharacter,
+      type: ClientIntentType.CreateCharacterInGame,
       data: { name: characterName as EntityName, combatantClass },
+    });
+  }
+  async deleteCharacterInGame(characterId: CombatantId) {
+    await this.settleIntentResult({
+      type: ClientIntentType.DeleteCharacterInGame,
+      data: { characterId },
     });
   }
   async toggleReadyToStartGame() {
@@ -338,13 +357,17 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async createSavedCharacter(name: string, combatantClass: CombatantClass, slotIndex: number) {
+  async createSavedCharacter(
+    name: string,
+    combatantClass: CombatantClass,
+    controlScheme: CharacterControlScheme
+  ) {
     return this.settleIntentResult({
       type: ClientIntentType.CreateSavedCharacter,
       data: {
         name: name as EntityName,
         combatantClass,
-        slotIndex: slotIndex as CharacterSlotIndex,
+        controlScheme,
       },
     });
   }
@@ -358,11 +381,20 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async selectSavedCharacterInProgressionGame(entityId: CombatantId) {
+  async addSavedCharacterToProgressionGame(entityId: CombatantId) {
     return this.settleIntentResult({
-      type: ClientIntentType.SelectSavedCharacterForProgressGame,
+      type: ClientIntentType.AddSavedCharacterToProgressionGame,
       data: {
         entityId,
+      },
+    });
+  }
+
+  async removeSavedCharacterFromProgressionGame(characterId: CombatantId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.DeleteCharacterInGame,
+      data: {
+        characterId,
       },
     });
   }
@@ -373,6 +405,22 @@ export class ClientTestHarness<T extends BaseClient> {
       data: {
         floorNumber,
       },
+    });
+  }
+
+  async abandonIronmanRun(runId: GameId) {
+    return this.settleIntentResult({
+      type: ClientIntentType.AbandonIronmanRun,
+      data: {
+        runId,
+      },
+    });
+  }
+
+  async requestGameHistory(page: number, dateRange?: DateRange) {
+    return this.settleIntentResult({
+      type: ClientIntentType.GetUserGameHistory,
+      data: { page, dateRange },
     });
   }
 

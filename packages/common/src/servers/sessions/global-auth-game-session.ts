@@ -1,4 +1,4 @@
-import { GameName, GameServerName, PartyName, Username } from "../../aliases.js";
+import { GameId, GameServerName, PartyName, Username } from "../../aliases.js";
 import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { GameServerSessionClaimToken } from "../lobby-server/game-handoff/session-claim-token.js";
 import { LobbyReconnectionProtocol } from "../lobby-server/reconnection/index.js";
@@ -23,8 +23,8 @@ export class GlobalGameSession {
     return this._connectionStatus;
   }
 
-  get gameName() {
-    return this._gameSessionData.gameName;
+  get gameId() {
+    return this._gameSessionData.gameId;
   }
 
   set guestSessionReconnectionToken(value: GuestSessionReconnectionToken | null) {
@@ -46,14 +46,14 @@ export class GameServerSessionData {
   constructor(
     public readonly taggedUserId: TaggedUserId,
     private username: Username,
-    private _gameName: GameName,
+    private _gameId: GameId,
     private _partyName: PartyName,
     public readonly gameServerName: GameServerName,
     public guestUserReconnectionTokenOption: null | GuestSessionReconnectionToken
   ) {}
 
   static fromUserSession(session: UserSession, gameServerName: GameServerName) {
-    if (session.currentGameName === null) {
+    if (session.currentGameId === null) {
       throw new Error("Can't create game session data for user not in game");
     }
     if (session.currentPartyName === null) {
@@ -63,15 +63,15 @@ export class GameServerSessionData {
     return new GameServerSessionData(
       session.taggedUserId,
       session.username,
-      session.currentGameName,
+      session.currentGameId,
       session.currentPartyName,
       gameServerName,
       session.getGuestReconnectionTokenOption()
     );
   }
 
-  get gameName() {
-    return this._gameName;
+  get gameId() {
+    return this._gameId;
   }
 
   get partyName() {
@@ -80,7 +80,7 @@ export class GameServerSessionData {
 
   toGameServerSessionClaimToken(lobbyReconnectionProtocol: LobbyReconnectionProtocol) {
     return new GameServerSessionClaimToken(
-      this._gameName,
+      this._gameId,
       this._partyName,
       this.username,
       this.taggedUserId,

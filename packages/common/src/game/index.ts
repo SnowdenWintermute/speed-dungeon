@@ -1,7 +1,6 @@
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { SpeedDungeonPlayer } from "./player.js";
-import { GameMode } from "../types.js";
 import { GAME_CONFIG, MAX_PARTY_SIZE } from "../app-consts.js";
 import { makeAutoObservable } from "mobx";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -15,11 +14,12 @@ import {
   EntityId,
   GameId,
   GameName,
+  IdentityProviderId,
   PartyName,
   Username,
 } from "../aliases.js";
 import { ReferenceCountedLock } from "../primatives/reference-counted-lock.js";
-import { UserId } from "../servers/sessions/user-ids.js";
+import { UserId, UserIdType } from "../servers/sessions/user-ids.js";
 import {
   ReactiveNode,
   Serializable,
@@ -27,23 +27,33 @@ import {
   makePropertiesObservable,
 } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
+import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
+import { invariant } from "../utils/index.js";
+import { UserSession } from "../servers/sessions/user-session.js";
+import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
+import { GameClock } from "./game-clock.js";
+import { PartyFateType } from "../game-modes/ladder-records/index.js";
+import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {
   players = new Map<Username, SpeedDungeonPlayer>();
+  playerJoinCount = 0; // for tracking player join order, used when deciding abandoned run character transfers
   playerCapacity: number | null = null;
   playersReadied: Username[] = [];
   adventuringParties = new Map<PartyName, AdventuringParty>();
   battles = new Map<EntityId, Battle>();
-  private timeStarted: null | number = null;
+  clock = new GameClock();
   timeHandedOff: null | number = null;
   selectedStartingFloor: number = 1;
   inputLock = new ReferenceCountedLock<UserId>();
+  private _isContinuedRun = false;
   constructor(
-    public id: GameId,
-    public name: GameName,
-    public mode: GameMode,
-    public gameCreator: string | null = null,
-    public isRanked: boolean = false
+    readonly id: GameId,
+    readonly name: GameName,
+    readonly mode: GameMode,
+    public characterControlScheme: CharacterControlScheme,
+    readonly gameCreator: string | null = null,
+    readonly isRanked: boolean = false
   ) {
     if (mode === GameMode.Progression) this.playerCapacity = MAX_PARTY_SIZE;
   }
@@ -63,18 +73,23 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   toSerialized() {
+    // don't need to serialize _isContinuedRun because it will be set
+    // when we load new runs
     return {
       id: this.id,
       name: this.name,
       mode: this.mode,
       gameCreator: this.gameCreator,
       isRanked: this.isRanked,
+      _isContinuedRun: this._isContinuedRun,
+      characterControlScheme: this.characterControlScheme,
       players: MapUtils.serialize(this.players, (v) => v.toSerialized()),
+      playerJoinCount: this.playerJoinCount,
       playerCapacity: this.playerCapacity,
       playersReadied: this.playersReadied,
       adventuringParties: MapUtils.serialize(this.adventuringParties, (v) => v.toSerialized()),
       battles: MapUtils.serialize(this.battles, (v) => v.toSerialized()),
-      timeStarted: this.timeStarted,
+      clock: this.clock.toSerialized(),
       timeHandedOff: this.timeHandedOff,
       selectedStartingFloor: this.selectedStartingFloor,
       inputLock: this.inputLock.toSerialized(),
@@ -82,18 +97,27 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
   }
 
   static fromSerialized(serialized: SerializedOf<SpeedDungeonGame>) {
-    const { id, name, mode, gameCreator, isRanked } = serialized;
-    const result = new SpeedDungeonGame(id, name, mode, gameCreator, isRanked);
+    const { id, name, mode, characterControlScheme, gameCreator, isRanked } = serialized;
+    const result = new SpeedDungeonGame(
+      id,
+      name,
+      mode,
+      characterControlScheme,
+      gameCreator,
+      isRanked
+    );
     result.players = MapUtils.deserialize(serialized.players, (v) =>
       SpeedDungeonPlayer.fromSerialized(v)
     );
+    result.playerJoinCount = serialized.playerJoinCount;
     result.playerCapacity = serialized.playerCapacity;
     result.playersReadied = serialized.playersReadied;
     result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) =>
       AdventuringParty.fromSerialized(v)
     );
     result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
-    result.timeStarted = serialized.timeStarted;
+    result.clock = GameClock.fromSerialized(serialized.clock);
+    result._isContinuedRun = serialized._isContinuedRun;
     result.timeHandedOff = serialized.timeHandedOff;
     result.selectedStartingFloor = serialized.selectedStartingFloor;
     result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
@@ -109,6 +133,15 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
         console.info("initialized battle", battleOption.id);
       }
     }
+  }
+
+  // for knowing if it was an ironman run continuing
+  markAsContinuedRun() {
+    this._isContinuedRun = true;
+  }
+
+  get isContinuedRun() {
+    return this._isContinuedRun;
   }
 
   getPlayers() {
@@ -127,12 +160,135 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return result;
   }
 
+  updatePlayerWithNewUsername(oldUsername: Username, newUsername: Username) {
+    const player = this.getExpectedPlayer(oldUsername);
+    player.username = newUsername;
+
+    if (player.partyName !== null) {
+      const party = this.getExpectedParty(player.partyName);
+      ArrayUtils.removeElement(party.playerUsernames, oldUsername);
+      party.playerUsernames.push(newUsername);
+      if (party.playerUsernamesAwaitingReconnection.has(oldUsername)) {
+        party.playerUsernamesAwaitingReconnection.delete(oldUsername);
+        party.playerUsernamesAwaitingReconnection.add(newUsername);
+      }
+      for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
+        if (combatant.combatantProperties.controlledBy.controllerPlayerName === oldUsername) {
+          combatant.combatantProperties.controlledBy.controllerPlayerName = newUsername;
+        }
+      }
+    }
+
+    this.players.delete(oldUsername);
+    this.players.set(newUsername, player);
+  }
+
   getPlayerCount() {
     return this.players.size;
   }
 
   addPlayer(player: SpeedDungeonPlayer) {
     this.players.set(player.username, player);
+  }
+
+  /** require that all usernames have a matching session */
+  requireAuthUserIdsToUsernames(sessions: UserSession[]) {
+    const result = new Map<IdentityProviderId, Username>();
+    for (const [username, player] of this.players) {
+      const session = UserSessionRegistry.requireSessionInListByUsername(username, sessions);
+      invariant(session.taggedUserId.type === UserIdType.Auth, "Only auth users expected");
+      result.set(session.taggedUserId.id, player.username);
+    }
+    return result;
+  }
+
+  /** some sessions may be absent if disconnected */
+  getAuthUserIdsToUsernamesForPresentSessions(sessions: UserSession[]) {
+    const result = new Map<IdentityProviderId, Username>();
+    for (const [username, player] of this.players) {
+      const session = UserSessionRegistry.getSessionOptionInListByUsername(username, sessions);
+      if (session === undefined) {
+        continue;
+      }
+      invariant(session.taggedUserId.type === UserIdType.Auth, "Only auth users expected");
+      result.set(session.taggedUserId.id, player.username);
+    }
+    return result;
+  }
+
+  /** In the case that a user leaves while another user is disconnected, we won't have access
+   to that disconnected user's session to build the userIdsToUsernames list, so instead of
+   replacing that list with the current userIdsToUsernames we will update it */
+  async getUpdatedUserIdsToUsernamesMap(
+    userGameDataPersistenceService: UserGameDataPersistenceService,
+    userSessionRegistry: UserSessionRegistry
+  ) {
+    // a save should already exist since we save on game start
+    const previousSave = await userGameDataPersistenceService.requireIronmanRun(this.id);
+    const cachedUserIdsToUsernames = new Map(cloneDeep(previousSave.userIdsToUsernames));
+    const userIdsToUsernamesForPresentSessions = this.getAuthUserIdsToUsernamesForPresentSessions(
+      userSessionRegistry.getAllSessionsInGame(this)
+    );
+
+    for (const [userId, username] of userIdsToUsernamesForPresentSessions) {
+      cachedUserIdsToUsernames.set(userId, username);
+    }
+
+    return cachedUserIdsToUsernames;
+  }
+
+  private getInheritingPlayer(game: SpeedDungeonGame, playerUsernameLeaving: Username) {
+    let inheritingPlayer: SpeedDungeonPlayer | null = null;
+    for (const [username, player] of game.getPlayers()) {
+      if (username === playerUsernameLeaving) {
+        continue;
+      }
+
+      if (inheritingPlayer === null) {
+        inheritingPlayer = player;
+      } else if (inheritingPlayer.joinOrder > player.joinOrder) {
+        inheritingPlayer = player;
+      }
+    }
+
+    return inheritingPlayer;
+  }
+
+  transferCharactersToInheritingPlayer(playerUsernameLeaving: Username) {
+    const playerLeaving = this.getExpectedPlayer(playerUsernameLeaving);
+    //   .else update their owned characters to be owned by the next least recently joined player
+    const inheritingPlayerOption = this.getInheritingPlayer(this, playerUsernameLeaving);
+    if (!inheritingPlayerOption) {
+      return;
+    }
+
+    for (const characterId of [...playerLeaving.characterIds]) {
+      this.transferCharacterOwnership(
+        characterId,
+        playerLeaving.username,
+        inheritingPlayerOption.username
+      );
+    }
+  }
+
+  /** If a player abandons an Ironman run to free up a slot on their account, other users may
+   * want to continue the run. In that case we can transfer the outgoing player's characters.*/
+  private transferCharacterOwnership(characterId: CombatantId, from: Username, to: Username) {
+    this.requireMode(GameMode.Ironman);
+    const fromUser = this.getExpectedPlayer(from);
+    const toUser = this.getExpectedPlayer(to);
+    const fromUserParty = fromUser.getExpectedParty(this);
+    const toUserParty = toUser.getExpectedParty(this);
+    if (fromUserParty.id !== toUserParty.id) {
+      throw new Error("Can not transfer a character to a player in a different party");
+    }
+    const characterIdOption = ArrayUtils.removeElement(fromUser.characterIds, characterId);
+    if (characterIdOption === undefined) {
+      throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
+    }
+    const character = fromUserParty.combatantManager.getExpectedCombatant(characterIdOption);
+    character.combatantProperties.controlledBy.controllerPlayerName = toUser.username;
+    toUser.characterIds.push(characterIdOption);
   }
 
   /** Used by subscribed user sessions to receive updates about this game.
@@ -142,23 +298,24 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return `${GAME_CHANNEL_PREFIX}${this.name}` as ChannelName;
   }
 
+  isRace() {
+    const raceModes = [GameMode.UnrankedRace, GameMode.RankedRace];
+    return raceModes.includes(this.mode);
+  }
+
   requireMode(mode: GameMode) {
     if (this.mode !== mode) {
       throw new Error(ERROR_MESSAGES.GAME.MODE);
     }
   }
 
-  requireNotYetStarted() {
-    if (this.timeStarted !== null) {
-      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
-    }
-  }
-
   requireGameStartPrerequisites() {
-    this.requireNotYetStarted();
+    if (this.clock.isLive()) {
+      throw new Error(ERROR_MESSAGES.GAME.ALREADY_LIVE);
+    }
 
     let minimumNumberOfParties = 1;
-    if (this.mode === GameMode.Race && this.isRanked) {
+    if (this.mode === GameMode.RankedRace && this.isRanked) {
       minimumNumberOfParties = GAME_CONFIG.MIN_RACE_GAME_PARTIES;
     }
 
@@ -169,32 +326,15 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     }
   }
 
-  getTimeStarted() {
-    return this.timeStarted;
-  }
-
-  requireTimeStarted() {
-    if (this.timeStarted === null) {
-      throw new Error(ERROR_MESSAGES.GAME.NOT_STARTED);
-    }
-    return this.timeStarted;
-  }
-
   requireInputUnlocked() {
     if (this.inputLock.isLocked) {
       throw new Error(ERROR_MESSAGES.GAME.INPUT_IS_LOCKED);
     }
   }
 
-  setAsStarted() {
-    if (this.timeStarted !== null) {
-      throw new Error(ERROR_MESSAGES.GAME.ALREADY_STARTED);
-    }
-    this.timeStarted = Date.now();
-  }
-
   registerPlayerFromLobbyUser(username: Username) {
-    this.addPlayer(new SpeedDungeonPlayer(username));
+    this.playerJoinCount += 1;
+    this.addPlayer(new SpeedDungeonPlayer(username, this.playerJoinCount));
   }
 
   addCharacterToParty(
@@ -383,6 +523,10 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     const floors = partyOption.combatantManager
       .getPartyMemberCharacters()
       .map((c) => c.combatantProperties.deepestFloorReached);
+
+    if (floors.length === 0) {
+      return 1;
+    }
     const maxFloor = Math.min(...floors);
 
     return maxFloor;
@@ -414,7 +558,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
 
   allPartiesWiped() {
     for (const [_, party] of this.adventuringParties) {
-      if (party.timeOfWipe === null) {
+      if (party.fate?.type !== PartyFateType.Wipe) {
         return false;
       }
     }
@@ -427,6 +571,13 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       throw new Error(ERROR_MESSAGES.GAME.BATTLE_DOES_NOT_EXIST);
     }
     return expectedBattle;
+  }
+
+  requireSingleParty() {
+    invariant(this.adventuringParties.size === 1, "expected game to have a single party");
+    const partyOption = [...this.adventuringParties.values()][0];
+    invariant(partyOption !== undefined, "checked above");
+    return partyOption;
   }
 }
 

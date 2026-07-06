@@ -2,8 +2,16 @@ export type Username = string & { __brand: "Username" };
 export type GameName = string & { __brand: "GameName" };
 export type GameId = string & { __brand: "GameId" };
 export type PartyName = string & { __brand: "PartyName" };
+export type PartyId = string & { __brand: "PartyId" };
 export type ChannelName = string & { __brand: "ChannelName" };
 export type EntityName = string & { __brand: "EntityName" };
+
+export type LadderPartyFloorClearRecordId = string & {
+  __brand: "LadderPartyFloorClearRecordId";
+};
+export type LadderCharacterFloorClearRecordId = string & {
+  __brand: "LadderCharacterFloorClearRecordId";
+};
 
 export type ProfileId = number & { __brand: "ProfileId" };
 export type ConnectionId = string & { __brand: "ConnectionId" };
@@ -17,7 +25,6 @@ export type ItemId = string & { __brand: "ItemId" };
 export type CombatantId = string & { __brand: "CombatantId" };
 export type ConditionId = string & { __brand: "ConditionId" };
 export type ActionRank = number & { __brand: "ActionRank" };
-export type CharacterSlotIndex = number & { __brand: "CharacterSlotIndex" };
 
 export type GameServerId = string & { __brand: "GameServerId" };
 export type GameServerName = string & { __brand: "GameServerName" };

@@ -1,5 +1,6 @@
 import { CharacterLifecycleController } from "./controllers/character-lifecycle.js";
 import { SavedCharactersController } from "./controllers/saved-characters.js";
+import { LadderGameRecordsController } from "./controllers/ladder-game-records.js";
 import { createLobbyClientIntentHandlers } from "./create-lobby-client-intent-handlers.js";
 import { LobbyGameLifecycleController } from "./controllers/game-lifecycle.js";
 import { LobbyState } from "./lobby-state.js";
@@ -10,12 +11,11 @@ import {
   IdentityProviderService,
 } from "../services/identity-provider.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
-import { SavedCharactersService } from "../services/saved-characters.js";
-import { RankedLadderService } from "../services/ranked-ladder.js";
+import { CharacterLevelLadderService } from "../services/ranked-ladder.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
-import { TaggedUserId, UserIdType } from "../sessions/user-ids.js";
+import { UserIdType } from "../sessions/user-ids.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { ServerCommand } from "../services/server-command/index.js";
@@ -26,10 +26,7 @@ import { UserSession, UserSessionConnectionState } from "../sessions/user-sessio
 import { GameHandoffManager } from "./game-handoff/game-handoff-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import { LobbyReconnectionProtocol } from "./reconnection/index.js";
-import {
-  CONNECTION_CONTEXT_TYPE_STRINGS,
-  ConnectionContextType,
-} from "../reconnection-protocol/index.js";
+import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { GameServerName } from "../../aliases.js";
 import {
@@ -47,12 +44,18 @@ import {
 import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { ClientAppMessageType } from "../../packets/client-app-message.js";
 import { MessageDispatchOutbox } from "../update-delivery/outbox.js";
+import { UserGameDataPersistenceService } from "../services/user-game-data-persistence/index.js";
+import { GameExistenceChecker } from "./game-existence-queries.js";
+import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
+import { IronmanRunController } from "../controllers/ironman-run-controller.js";
+import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
   profileService: SpeedDungeonProfileService;
-  savedCharactersService: SavedCharactersService;
-  rankedLadderService: RankedLadderService;
+  userGameDataPersistenceService: UserGameDataPersistenceService;
+  characterLevelLadderService: CharacterLevelLadderService;
+  ladderGameRecordsService: LadderGameRecordsService;
   gameSessionStoreService: GameSessionStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: GlobalGameSessionStore;
@@ -74,8 +77,15 @@ export class LobbyServer extends SpeedDungeonServer {
   public readonly partySetupController: PartySetupController;
   public readonly userSessionLifecycleController: LobbySessionLifecycleController;
   public readonly savedCharactersController: SavedCharactersController;
+  public readonly savedIronmanRunsController: IronmanRunController;
+  public readonly ladderGameRecordsController: LadderGameRecordsController;
   public readonly characterLifecycleController: CharacterLifecycleController;
-  // game server controllers
+
+  // queries
+  public readonly gameExistenceChecker: GameExistenceChecker;
+
+  // game modes
+  private gameModePolicyStore: GameModePolicyStore;
 
   constructor(
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
@@ -131,11 +141,32 @@ export class LobbyServer extends SpeedDungeonServer {
       this.rngPolicy
     );
 
+    this.gameExistenceChecker = new GameExistenceChecker(
+      this.lobbyState,
+      this.externalServices.gameSessionStoreService
+    );
+
+    this.gameModePolicyStore = new GameModePolicyStore(
+      this.updateDispatchFactory,
+      externalServices.crossServerBroadcasterService,
+      externalServices.profileService,
+      externalServices.characterLevelLadderService,
+      externalServices.ladderGameRecordsService,
+      externalServices.userGameDataPersistenceService,
+      this.userSessionRegistry,
+      this.lobbyState.gameRegistry,
+      externalServices.gameSessionStoreService,
+      this.gameExistenceChecker,
+      this.idGenerator
+    );
+
     const controllers = this.createControllers(idGenerator);
     this.gameLifecycleController = controllers.gameLifecycleController;
     this.partySetupController = controllers.partySetupController;
     this.userSessionLifecycleController = controllers.userSessionLifecycleController;
     this.savedCharactersController = controllers.savedCharactersController;
+    this.savedIronmanRunsController = controllers.savedIronmanRunsController;
+    this.ladderGameRecordsController = controllers.ladderGameRecordsController;
     this.characterLifecycleController = controllers.characterLifecycleController;
 
     this.reconnectionProtocol = new LobbyReconnectionProtocol(
@@ -250,6 +281,17 @@ export class LobbyServer extends SpeedDungeonServer {
   }
 
   private createControllers(idGenerator: IdGenerator) {
+    const savedIronmanRunsController = new IronmanRunController(
+      this.externalServices.userGameDataPersistenceService,
+      this.externalServices.profileService,
+      this.lobbyState.gameRegistry,
+      this.externalServices.gameSessionStoreService,
+      this.lobbyState,
+      this.userSessionRegistry,
+      this.updateDispatchFactory,
+      this.externalServices.ladderGameRecordsService
+    );
+
     const savedCharactersController = new SavedCharactersController(
       this.externalServices.profileService,
       this.updateDispatchFactory,
@@ -257,10 +299,14 @@ export class LobbyServer extends SpeedDungeonServer {
       this.characterCreationPolicy
     );
 
+    const ladderGameRecordsController = new LadderGameRecordsController(
+      this.externalServices.ladderGameRecordsService,
+      this.updateDispatchFactory
+    );
+
     const partySetupController = new PartySetupController(
       this.updateDispatchFactory,
-      savedCharactersController,
-      this.externalServices.profileService,
+      this.gameModePolicyStore,
       idGenerator
     );
 
@@ -268,18 +314,18 @@ export class LobbyServer extends SpeedDungeonServer {
       this.lobbyState,
       this.updateDispatchFactory,
       partySetupController,
-      this.externalServices.profileService,
-      savedCharactersController,
-      idGenerator,
+      this.gameExistenceChecker,
       this.gameHandoffManager,
-      this.externalServices.gameSessionStoreService
+      this.gameModePolicyStore
     );
 
     const characterLifecycleController = new CharacterLifecycleController(
       this.externalServices.profileService,
       this.updateDispatchFactory,
-      this.externalServices.savedCharactersService,
-      this.characterCreationPolicy
+      this.externalServices.userGameDataPersistenceService,
+      this.characterCreationPolicy,
+      partySetupController,
+      this.gameModePolicyStore
     );
 
     const userSessionLifecycleController = new LobbySessionLifecycleController(
@@ -287,6 +333,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.userSessionRegistry,
       this.updateDispatchFactory,
       savedCharactersController,
+      savedIronmanRunsController,
       gameLifecycleController,
       this.externalServices.identityProviderService,
       idGenerator,
@@ -299,6 +346,8 @@ export class LobbyServer extends SpeedDungeonServer {
       gameLifecycleController,
       characterLifecycleController,
       userSessionLifecycleController,
+      savedIronmanRunsController,
+      ladderGameRecordsController,
     };
   }
 
@@ -315,9 +364,9 @@ export class LobbyServer extends SpeedDungeonServer {
           await this.externalServices.gameSessionStoreService.getPendingGameSetups();
         for (const pendingGame of pendingGames) {
           if (pendingGame.isStale()) {
-            await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.name);
+            await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.id);
             await this.externalServices.globalGameSessionStore.clearSessionsInGame(
-              pendingGame.game.name
+              pendingGame.game.id
             );
           }
         }
@@ -325,8 +374,8 @@ export class LobbyServer extends SpeedDungeonServer {
         const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
         for (const activeGame of activeGames) {
           if (activeGame.isStale()) {
-            await gameSessionStoreService.deleteActiveGameStatus(activeGame.name);
-            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.name);
+            await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
+            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
           }
         }
       })

@@ -1,7 +1,7 @@
-import { CombatantId, ConnectionId, GameName, PartyName, Username } from "../../aliases.js";
+import { CombatantId, ConnectionId, GameId, PartyName, Username } from "../../aliases.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { ActionValidity } from "../../primatives/index.js";
+import { AllowedResult } from "../../primatives/index.js";
 import { CharacterAssociatedData } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { GameRegistry } from "../game-registry.js";
@@ -20,7 +20,7 @@ export enum UserSessionConnectionState {
 }
 
 export class UserSession extends ConnectionSession {
-  public currentGameName: null | GameName = null;
+  public currentGameId: null | GameId = null;
   public currentPartyName: null | PartyName = null;
   private guestReconnectionToken: null | GuestSessionReconnectionToken = null;
   // in the case of two connections disconnecting at the same time we will synchronously
@@ -59,10 +59,10 @@ export class UserSession extends ConnectionSession {
   }
 
   getCurrentGameOption() {
-    if (this.currentGameName === null) {
+    if (this.currentGameId === null) {
       return null;
     }
-    return this.gameRegistry.getGameOption(this.currentGameName) || null;
+    return this.gameRegistry.getGameOption(this.currentGameId) || null;
   }
 
   getExpectedCurrentGame() {
@@ -74,7 +74,7 @@ export class UserSession extends ConnectionSession {
   }
 
   isInGame() {
-    return this.currentGameName !== null;
+    return this.currentGameId !== null;
   }
 
   isAuth() {
@@ -105,21 +105,23 @@ export class UserSession extends ConnectionSession {
     return game.getExpectedParty(this.currentPartyName);
   }
 
-  canJoinNewGame(isRanked?: boolean): ActionValidity {
+  canJoinNewGame(): AllowedResult {
     if (this.isInGame()) {
-      return new ActionValidity(false, ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME);
+      return { allowed: false, reason: ERROR_MESSAGES.LOBBY.ALREADY_IN_GAME };
     }
 
-    const userIsGuest = this.taggedUserId.type === UserIdType.Guest;
-    if (isRanked && userIsGuest) {
-      return new ActionValidity(false, ERROR_MESSAGES.AUTH.REQUIRED);
-    }
+    return { allowed: true };
+  }
 
-    return new ActionValidity(true);
+  requireCanJoinGame() {
+    const userCanJoinNewGame = this.canJoinNewGame();
+    if (!userCanJoinNewGame.allowed) {
+      throw new Error(userCanJoinNewGame.reason);
+    }
   }
 
   joinGame(game: SpeedDungeonGame) {
-    this.currentGameName = game.name;
+    this.currentGameId = game.id;
   }
 
   // be careful with this! led to longer than-needed debug sesh
@@ -194,7 +196,7 @@ export class UserSession extends ConnectionSession {
 
     if (options.requireInputsUnlocked) {
       game.requireInputUnlocked();
-      game.requireTimeStarted();
+      game.clock.requireLive();
       party.requireInputUnlocked();
     }
 
