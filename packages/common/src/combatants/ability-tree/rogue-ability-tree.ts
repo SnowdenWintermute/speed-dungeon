@@ -10,11 +10,24 @@ export function setUpRogueAbilityTree() {
     actionName: CombatActionName.Blind,
   });
 
-  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.Ensnare });
+  tree.assign(2, 1, {
+    type: AbilityType.Action,
+    actionName: CombatActionName.ExplodingArrowParent,
+  });
+  tree.assign(2, 3, {
+    type: AbilityType.Action,
+    actionName: CombatActionName.ChainingSplitArrowParent,
+  });
+
   tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
+
   tree.assign(4, 0, {
     type: AbilityType.Trait,
     traitType: CombatantTraitType.HpBioavailability,
+  });
+  tree.assign(4, 1, {
+    type: AbilityType.Trait,
+    traitType: CombatantTraitType.MpBioavailability,
   });
   tree.assign(3, 0, {
     type: AbilityType.Trait,

@@ -14,8 +14,8 @@ import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-p
 import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
 
-const HP_INJECTOR_COUNT = 2;
-const MP_INJECTOR_COUNT = 3;
+const HP_INJECTOR_COUNT = 1;
+const MP_INJECTOR_COUNT = 1;
 
 export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
   override setCharacters() {
@@ -42,8 +42,8 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
 
     const result = builder.build(this.idGenerator);
 
-    setPlaytestingCombatantProperties(result.combatantProperties);
-    givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
+    // setPlaytestingCombatantProperties(result.combatantProperties);
+    // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
     const character: CombatantWithPets = { combatant: result, pets: [] };
 
@@ -69,8 +69,11 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
       }
       case CombatantClass.Rogue: {
         builder.equipMainHand(
-          itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator)
+          itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ButterKnife).build(idGenerator)
         );
+        // builder.equipOffHand(
+        //   itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ButterKnife).build(idGenerator)
+        // );
       }
     }
 

@@ -92,6 +92,10 @@ export class CombatantAbilityProperties
     return COMBAT_ACTIONS[actionName];
   }
 
+  hasAbility(ability: AbilityTreeAbility) {
+    return this.getAbilityRank(ability) < 1;
+  }
+
   getAbilityRank(ability: AbilityTreeAbility) {
     switch (ability.type) {
       case AbilityType.Action:
@@ -129,7 +133,7 @@ export class CombatantAbilityProperties
 
   private hasPrerequisiteAbilities(ability: AbilityTreeAbility) {
     for (const prerequisite of AbilityUtils.getPrerequisites(ability)) {
-      if (this.getAbilityRank(prerequisite) < 1) return false;
+      if (this.hasAbility(prerequisite)) return false;
     }
     return true;
   }

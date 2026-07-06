@@ -119,7 +119,7 @@ export const ActionDescriptionDisplay = observer(
             >
               <div className={`flex justify-between text-lg `}>
                 <div className=" underline-offset-4 underline">Rank {index + 1}</div>
-                {classAndLevelRequirements && (
+                {classAndLevelRequirements && !ownedAbilityLevel && (
                   <div
                     className={
                       user.combatantProperties.classProgressionProperties.meetsCombatantClassAndLevelRequirements(

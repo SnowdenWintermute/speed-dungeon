@@ -87,15 +87,15 @@ export class GameServerNode {
       idGenerator
     );
 
-    const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
-    const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
-      counterAttack: fixedRngMinRoll,
-      criticalStrike: fixedRngMinRoll,
-      parry: fixedRngMinRoll,
-      shieldBlock: fixedRngMinRoll,
-      spellResist: fixedRngMinRoll,
-    });
-    // const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
+    // const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
+    // const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
+    //   counterAttack: fixedRngMinRoll,
+    //   criticalStrike: fixedRngMinRoll,
+    //   parry: fixedRngMinRoll,
+    //   shieldBlock: fixedRngMinRoll,
+    //   spellResist: fixedRngMinRoll,
+    // });
+    const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
 
     this._server = new GameServer(
       name,

@@ -25,8 +25,8 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.Vitality]: 0.5,
     [CombatAttribute.Hp]: 3.5,
     [CombatAttribute.Mp]: 0.0,
-    [CombatAttribute.Agility]: 2.0,
-    [CombatAttribute.ArmorClass]: 7.5,
+    [CombatAttribute.Agility]: 1,
+    [CombatAttribute.ArmorClass]: 2,
     [CombatAttribute.Evasion]: 6.0,
   },
   [MonsterType.FireMage]: {

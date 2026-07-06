@@ -8,6 +8,7 @@ import EyeClosed from "../../../public/img/game-ui-icons/eye-closed.svg";
 import EyeOpen from "../../../public/img/game-ui-icons/eye-open.svg";
 import EyeOpenIcon from "../../../public/img/game-ui-icons/eye-open.svg";
 import BloodWithH from "../../../public/img/game-ui-icons/blood-with-h.svg";
+import BloodWithM from "../../../public/img/game-ui-icons/blood-with-m.svg";
 import Wind from "../../../public/img/game-ui-icons/wind.svg";
 import Water from "../../../public/img/game-ui-icons/water.svg";
 import LightningBolt from "../../../public/img/game-ui-icons/lightning-bolt.svg";
@@ -50,6 +51,7 @@ import DownloadDocument from "../../../public/img/menu-icons/download-document.s
 import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
 import FloppyDisc from "../../../public/img/menu-icons/floppy-disk.svg";
 import Skull from "../../../public/img/game-ui-icons/skull.svg";
+import SplitArrow from "../../../public/img/game-ui-icons/split-arrow.svg";
 
 import { ReactNode } from "react";
 import {
@@ -79,6 +81,7 @@ export enum IconName {
   EyeClosed,
   EyeOpen,
   BloodWithH,
+  BloodWithM,
   Slashing,
   Piercing,
   Blunt,
@@ -114,6 +117,8 @@ export enum IconName {
   TrashCan,
   FloppyDisc,
   Skull,
+  Bomb,
+  SplitArrow,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -126,6 +131,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.EyeClosed]: (className) => <EyeClosed className={className} />,
   [IconName.EyeOpen]: (className) => <EyeOpen className={className} />,
   [IconName.BloodWithH]: (className) => <BloodWithH className={className} />,
+  [IconName.BloodWithM]: (className) => <BloodWithM className={className} />,
   [IconName.Water]: (className) => <Water className={className} />,
   [IconName.Wind]: (className) => <Wind className={className} />,
   [IconName.LightningBolt]: (className) => <LightningBolt className={className} />,
@@ -169,6 +175,8 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.TrashCan]: (className: string) => <TrashCan className={className} />,
   [IconName.FloppyDisc]: (className: string) => <FloppyDisc className={className} />,
   [IconName.Skull]: (className: string) => <Skull className={className} />,
+  [IconName.Bomb]: (className: string) => <BombIcon className={className} />,
+  [IconName.SplitArrow]: (className: string) => <SplitArrow className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -228,9 +236,11 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Counterattack]: null,
   [CombatActionName.CounterattackMeleeMainhand]: null,
   [CombatActionName.CounterattackRangedMainhand]: null,
-  [CombatActionName.ChainingSplitArrowParent]: null,
+  [CombatActionName.ChainingSplitArrowParent]: (className: string) =>
+    SVG_ICONS[IconName.SplitArrow](className),
   [CombatActionName.ChainingSplitArrowProjectile]: null,
-  [CombatActionName.ExplodingArrowParent]: null,
+  [CombatActionName.ExplodingArrowParent]: (className: string) =>
+    SVG_ICONS[IconName.Bomb](className),
   [CombatActionName.ExplodingArrowProjectile]: null,
   [CombatActionName.IceBoltParent]: (className: string) => SVG_ICONS[IconName.Ice](className),
   [CombatActionName.IceBoltProjectile]: null,
@@ -274,10 +284,13 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
   [CombatantTraitType.HpBioavailability]: (className: string) =>
     SVG_ICONS[IconName.BloodWithH](className),
-  [CombatantTraitType.MpBioavailability]: null,
+  [CombatantTraitType.MpBioavailability]: (className: string) =>
+    SVG_ICONS[IconName.BloodWithM](className),
   [CombatantTraitType.Undead]: null,
-  [CombatantTraitType.ExtraHotswapSlot]: null,
-  [CombatantTraitType.CanConvertToShardsManually]: null,
+  [CombatantTraitType.ExtraHotswapSlot]: (className: string) =>
+    SVG_ICONS[IconName.Sword](className),
+  [CombatantTraitType.CanConvertToShardsManually]: (className: string) =>
+    SVG_ICONS[IconName.Shards](className),
   [CombatantTraitType.ExtraConsumablesStorage]: null,
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
   [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
