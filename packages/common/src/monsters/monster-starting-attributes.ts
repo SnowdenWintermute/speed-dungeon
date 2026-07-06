@@ -10,7 +10,7 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.Wolf]: {
     [CombatAttribute.Vitality]: 1.0,
     [CombatAttribute.ArmorClass]: 0.0,
-    [CombatAttribute.Hp]: 2,
+    [CombatAttribute.Hp]: 4,
     [CombatAttribute.Accuracy]: 70.0,
     [CombatAttribute.Strength]: 10.0,
     [CombatAttribute.Speed]: 2.0,

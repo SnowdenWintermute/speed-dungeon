@@ -19,7 +19,7 @@ import { CombatActionName } from "../../combat-action-names.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   // ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(),
-  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_FRIENDLY(),
+  ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
   getTargetingSchemes: (actionLevel) => {
     const toReturn = [TargetingScheme.Single];
     if (actionLevel > 1) toReturn.push(TargetingScheme.Area);
