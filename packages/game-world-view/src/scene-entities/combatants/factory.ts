@@ -128,8 +128,9 @@ export class CombatantSceneEntityFactory {
 
     if (combatantProperties.monsterType !== null) {
       const defaultScalingModifier = MONSTER_SCALING_SIZES[combatantProperties.monsterType];
-      sceneEntity.rootTransformNode.scaling =
-        sceneEntity.rootTransformNode.scaling.scale(defaultScalingModifier);
+      sceneEntity.rootTransformNode.scaling = sceneEntity.rootTransformNode.scaling.scale(
+        defaultScalingModifier || 1
+      );
     }
   }
 

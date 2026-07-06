@@ -27,7 +27,7 @@ import {
   ImageGenerationRequestHandlers,
   ImageGenerationRequestType,
 } from "./image-generator-requests";
-import { MODEL_PORTRAIT_CAMERA_POSITIONS } from "./portrait-camera-positions";
+import { ArcRotateParams, MODEL_PORTRAIT_CAMERA_POSITIONS } from "./portrait-camera-positions";
 import { GameWorldView } from "..";
 import { ClientApplication } from "@/client-application";
 import { LAYER_MASK_1, LAYER_MASK_ALL } from "../game-world-view-consts";
@@ -253,7 +253,10 @@ export class ImageGenerator {
 
     const { monsterType } = combatantModelOption.combatant.combatantProperties;
     if (monsterType !== null) {
-      const { arcRotate, position } = MODEL_PORTRAIT_CAMERA_POSITIONS[monsterType];
+      const { arcRotate, position } = MODEL_PORTRAIT_CAMERA_POSITIONS[monsterType] || {
+        arcRotate: new ArcRotateParams(),
+        position: Vector3.Zero(),
+      };
       const { alpha, beta, radius } = arcRotate;
       portraitCamera.alpha += alpha;
       portraitCamera.beta += beta;

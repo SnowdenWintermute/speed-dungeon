@@ -1,7 +1,7 @@
 import { Vector3 } from "@babylonjs/core";
 import { MonsterType } from "@speed-dungeon/common";
 
-class ArcRotateParams {
+export class ArcRotateParams {
   constructor(
     public alpha: number = 0,
     public beta: number = 0,
@@ -9,9 +9,8 @@ class ArcRotateParams {
   ) {}
 }
 
-export const MODEL_PORTRAIT_CAMERA_POSITIONS: Record<
-  MonsterType,
-  { arcRotate: ArcRotateParams; position: Vector3 }
+export const MODEL_PORTRAIT_CAMERA_POSITIONS: Partial<
+  Record<MonsterType, { arcRotate: ArcRotateParams; position: Vector3 }>
 > = {
   [MonsterType.FireMage]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },
   [MonsterType.Cultist]: { arcRotate: new ArcRotateParams(), position: Vector3.Zero() },

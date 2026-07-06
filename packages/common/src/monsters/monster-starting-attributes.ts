@@ -13,7 +13,7 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Hp]: 2,
     [CombatAttribute.Accuracy]: 70.0,
     [CombatAttribute.Strength]: 10.0,
-    [CombatAttribute.Speed]: 1.0,
+    [CombatAttribute.Speed]: 2.0,
   },
   [MonsterType.Spider]: {
     [CombatAttribute.Dexterity]: 7.0,
@@ -23,6 +23,7 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Agility]: 2.0,
     [CombatAttribute.Accuracy]: 80.0,
     [CombatAttribute.Mp]: 2.0,
+    [CombatAttribute.Speed]: 2.0,
   },
   [MonsterType.Slime]: {
     [CombatAttribute.Spirit]: 0.0,
@@ -33,6 +34,15 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Agility]: 0,
     [CombatAttribute.Accuracy]: 80.0,
     [CombatAttribute.Mp]: 0.0,
+    [CombatAttribute.Speed]: 1.0,
+  },
+  [MonsterType.Zombie]: {
+    [CombatAttribute.Vitality]: 2.0,
+    [CombatAttribute.ArmorClass]: 0.0,
+    [CombatAttribute.Hp]: 3,
+    [CombatAttribute.Accuracy]: 55.0,
+    [CombatAttribute.Strength]: 13.0,
+    [CombatAttribute.Speed]: 1,
   },
   [MonsterType.FireMage]: {
     [CombatAttribute.Spirit]: 4.0,

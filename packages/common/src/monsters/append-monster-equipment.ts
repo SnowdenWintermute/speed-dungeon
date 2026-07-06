@@ -123,6 +123,23 @@ export function appendMonsterEquipment(
       builder.equipMainHand(mainhandClaw);
       break;
     }
+    case MonsterType.Zombie: {
+      const clawsBuilder = itemBuilder
+        .twoHandedMeleeWeapon(TwoHandedMeleeWeapon.Maul)
+        .indestructible();
+      const mainhandClaw = clawsBuilder.build(idGenerator);
+      mainhandClaw.requireWeaponProperties().damage = new NumberRange(6, 8);
+      mainhandClaw.requireWeaponProperties().damageClassification = [
+        new ResourceChangeSource({
+          category: ResourceChangeSourceCategory.Physical,
+          kineticDamageTypeOption: KineticDamageType.Blunt,
+        }),
+      ];
+      mainhandClaw.requirements = {};
+
+      builder.equipMainHand(mainhandClaw);
+      break;
+    }
     case MonsterType.Net:
       break;
   }
