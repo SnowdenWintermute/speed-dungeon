@@ -70,6 +70,20 @@ export class LobbyServerNode {
     const leastBusyGameServerUrlGetter = async () => {
       return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
     };
+    // TO MATCH TEST SETUP
+    // this._lobbyServer = new LobbyServer(
+    //   usersIncomingConnectionGateway,
+    //   externalServices,
+    //   gameServerSessionClaimTokenCodec,
+    //   guestReconnectionTokenCodec,
+    //   { [GAME_SERVER_NAME]: "http://localhost:8090" },
+    //   leastBusyGameServerUrlGetter,
+    //   ScriptedCharacterCreationPolicy,
+    //   RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+    //   new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
+    //   cookieHeaderAuthSessionIdParser
+    // );
+
     this._lobbyServer = new LobbyServer(
       usersIncomingConnectionGateway,
       externalServices,
@@ -78,9 +92,7 @@ export class LobbyServerNode {
       { [GAME_SERVER_NAME]: "http://localhost:8090" },
       leastBusyGameServerUrlGetter,
       DefaultCharacterCreationPolicy,
-      // ScriptedCharacterCreationPolicy,
       RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-      // new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
       idGenerator,
       cookieHeaderAuthSessionIdParser
     );

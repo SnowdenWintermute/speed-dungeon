@@ -6,6 +6,18 @@ import { CombatantTraitType } from "./trait-types.js";
 export const BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL: Percentage = 50;
 export const EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL = 20;
 
+export const PARRY_TRAIT_CHANCE_BY_RANK = new Map<number, number>([
+  [1, 0.04],
+  [2, 0.08],
+  [3, 0.12],
+]);
+
+export const COUNTERATTACK_TRAIT_CHANCE_BY_RANK = new Map<number, number>([
+  [1, 0.03],
+  [2, 0.06],
+  [3, 0.09],
+]);
+
 export class CombatantTraitDescription {
   public readonly descriptionsByLevel: string[];
   public readonly name: string;
@@ -116,5 +128,29 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     isAllocatable: false,
     summary: "Can not be the target of restrait actions such as Ensnare",
     createDescriptionsByLevel: (self) => [],
+  }),
+  [CombatantTraitType.Parry]: new CombatantTraitDescription({
+    name: "Parrying",
+    maxLevel: 3,
+    isAllocatable: true,
+    summary: "Sometimes deflect attacks while weilding a melee weapon in the main hand.",
+    createDescriptionsByLevel: (self) => {
+      const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
+        (level) => `Base chance ${(PARRY_TRAIT_CHANCE_BY_RANK.get(level) || 0) * 100}%`
+      );
+      return toReturn;
+    },
+  }),
+  [CombatantTraitType.Counterattack]: new CombatantTraitDescription({
+    name: "Counterattacks",
+    maxLevel: 3,
+    isAllocatable: true,
+    summary: "Sometimes avoid an attack and strike back with your own",
+    createDescriptionsByLevel: (self) => {
+      const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
+        (level) => `Base chance ${(COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(level) || 0) * 100}%`
+      );
+      return toReturn;
+    },
   }),
 };

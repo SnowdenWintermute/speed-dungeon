@@ -87,6 +87,7 @@ export class GameServerNode {
       idGenerator
     );
 
+    // TO MATCH TESTS
     // const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
     // const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
     //   counterAttack: fixedRngMinRoll,
@@ -95,20 +96,30 @@ export class GameServerNode {
     //   shieldBlock: fixedRngMinRoll,
     //   spellResist: fixedRngMinRoll,
     // });
-    const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
 
+    // this._server = new GameServer(
+    //   name,
+    //   incomingConnectionGateway,
+    //   externalServices,
+    //   gameServerSessionClaimTokenCodec,
+    //   guestReconnectionTokenCodec,
+    //   ScriptedDungeonGenerationPolicy,
+    //   rngPolicy,
+    //   new TestResourceChangePropertiesStrategy(),
+    //   new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
+    //   cookieHeaderAuthSessionIdParser
+    // );
+
+    const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
     this._server = new GameServer(
       name,
       incomingConnectionGateway,
       externalServices,
       gameServerSessionClaimTokenCodec,
       guestReconnectionTokenCodec,
-      // ScriptedDungeonGenerationPolicy,
       RandomDungeonGenerationPolicy,
       rngPolicy,
       new RealResourceChangePropertiesStrategy(),
-      // new TestResourceChangePropertiesStrategy(),
-      // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
       idGenerator,
       cookieHeaderAuthSessionIdParser
     );

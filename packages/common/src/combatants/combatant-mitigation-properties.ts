@@ -31,6 +31,15 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
     }
 
     const combatantProperties = this.getCombatantProperties();
+
+    const hasParryTrait = combatantProperties.abilityProperties
+      .getTraitProperties()
+      .hasTraitType(CombatantTraitType.Parry);
+
+    if (!hasParryTrait) {
+      return false;
+    }
+
     const holdables = combatantProperties.equipment.getActiveHoldableSlot();
     if (!holdables) {
       return false;
@@ -44,6 +53,9 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
         equipmentType === EquipmentType.OneHandedMeleeWeapon ||
         equipmentType === EquipmentType.TwoHandedMeleeWeapon
       ) {
+        if (equipment.isBroken()) {
+          return false;
+        }
         return true;
       }
     }

@@ -10,6 +10,10 @@ export function setUpWarriorAbilityTree() {
   // traits
   tree.assign(3, 0, {
     type: AbilityType.Trait,
+    traitType: CombatantTraitType.Parry,
+  });
+  tree.assign(3, 1, {
+    type: AbilityType.Trait,
     traitType: CombatantTraitType.HpBioavailability,
   });
   tree.assign(4, 0, { type: AbilityType.Trait, traitType: CombatantTraitType.ExtraHotswapSlot });

@@ -2,6 +2,7 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   AbilityType,
   CombatActionName,
+  CombatantClass,
   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
   invariant,
   MONSTER_FIXTURES,
@@ -18,7 +19,11 @@ export async function testPetAiAssist(testFixture: IntegrationTestFixture) {
     ])
   );
   testFixture.timeMachine.start();
-  const client = await testFixture.createSingleClientInStartedGame();
+  const client = await testFixture.createSingleClientInStartedGame([
+    { name: "a", combatantClass: CombatantClass.Rogue },
+    { name: "b", combatantClass: CombatantClass.Rogue },
+  ]);
+
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;
   const { actionHistory } = gameClientHarness;
@@ -46,24 +51,20 @@ export async function testPetAiAssist(testFixture: IntegrationTestFixture) {
 
   await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
   expect(combatantFocus.requireFocusedCharacter().getEntityId()).toBe(petOwner.getEntityId());
-  await gameClientHarness.selectCombatAction(CombatActionName.Attack, 1);
-  await gameClientHarness.cycleTargets(NextOrPrevious.Next);
-  await gameClientHarness.useSelectedCombatAction();
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
+  await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
 
   expect(
     actionHistory.actionUsersHadSameSingleTarget(petOwner.getEntityId(), mantaRay.getEntityId())
   ).toBeTruthy();
   // ensure pet could have still targeted their previous target
   expect(actionHistory.lastTargetedSingleStillAlive(mantaRay.getEntityId())).toBe(true);
+
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
   // choose a different target with pet owner
   expect(combatantFocus.requireFocusedCharacterId()).toBe(petOwner.getEntityId());
-  await gameClientHarness.selectCombatAction(CombatActionName.Healing, 1);
-  await gameClientHarness.cycleTargets(NextOrPrevious.Previous);
-  await gameClientHarness.cycleTargets(NextOrPrevious.Previous);
-  await gameClientHarness.cycleTargets(NextOrPrevious.Previous);
+  await gameClientHarness.selectCombatAction(CombatActionName.IceBoltParent, 1);
+  await gameClientHarness.cycleTargets(NextOrPrevious.Next);
   await gameClientHarness.useSelectedCombatAction();
-  await gameClientHarness.useCombatAction(CombatActionName.PassTurn);
 
   expect(
     gameClientHarness.actionHistory.actionUsersHadSameSingleTarget(

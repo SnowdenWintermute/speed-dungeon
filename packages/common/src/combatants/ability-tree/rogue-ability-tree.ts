@@ -10,6 +10,11 @@ export function setUpRogueAbilityTree() {
     actionName: CombatActionName.Blind,
   });
 
+  tree.assign(0, 1, {
+    type: AbilityType.Trait,
+    traitType: CombatantTraitType.Counterattack,
+  });
+
   tree.assign(2, 1, {
     type: AbilityType.Action,
     actionName: CombatActionName.ExplodingArrowParent,

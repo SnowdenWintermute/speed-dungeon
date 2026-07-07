@@ -52,6 +52,8 @@ import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
 import FloppyDisc from "../../../public/img/menu-icons/floppy-disk.svg";
 import Skull from "../../../public/img/game-ui-icons/skull.svg";
 import SplitArrow from "../../../public/img/game-ui-icons/split-arrow.svg";
+import Parry from "../../../public/img/game-ui-icons/parry.svg";
+import Counterattack from "../../../public/img/game-ui-icons/counterattack.svg";
 
 import { ReactNode } from "react";
 import {
@@ -119,6 +121,8 @@ export enum IconName {
   Skull,
   Bomb,
   SplitArrow,
+  Parry,
+  Counterattack,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -177,6 +181,8 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Skull]: (className: string) => <Skull className={className} />,
   [IconName.Bomb]: (className: string) => <BombIcon className={className} />,
   [IconName.SplitArrow]: (className: string) => <SplitArrow className={className} />,
+  [IconName.Parry]: (className: string) => <Parry className={className} />,
+  [IconName.Counterattack]: (className: string) => <Counterattack className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -297,6 +303,9 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
   [CombatantTraitType.CanNotBeRestrained]: (className: string) =>
     SVG_ICONS[IconName.Feather](className),
+  [CombatantTraitType.Parry]: (className: string) => SVG_ICONS[IconName.Parry](className),
+  [CombatantTraitType.Counterattack]: (className: string) =>
+    SVG_ICONS[IconName.Counterattack](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

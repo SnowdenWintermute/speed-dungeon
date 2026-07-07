@@ -9,4 +9,6 @@ export enum CombatantTraitType {
   Flyer,
   Passive,
   CanNotBeRestrained,
+  Parry,
+  Counterattack,
 }
