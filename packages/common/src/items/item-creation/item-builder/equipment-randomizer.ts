@@ -53,7 +53,7 @@ export class EquipmentRandomizer {
     return randBetween(
       Math.floor(maxDurability * FOUND_ITEM_MIN_DURABILITY_MODIFIER),
       Math.floor(maxDurability * FOUND_ITEM_MAX_DURABILITY_MODIFIER),
-      this.rngPolicy.equipmentDurability
+      this.rngPolicy.equipmentGenerationDurability
     );
   }
 

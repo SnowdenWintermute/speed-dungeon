@@ -16,7 +16,6 @@ export const ToggleViewingEquipmentButton = observer(() => {
       hotkeys={viewEquipmentHotkeys}
       handleClick={() => {
         detailableEntityFocus.detailables.clear();
-        actionMenu.clearStack();
         actionMenu.pushFromPool(ActionMenuScreenType.ViewingEquipedItems);
       }}
     >

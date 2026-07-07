@@ -26,6 +26,8 @@ import {
   CombatActionName,
   CombatActionTargetType,
   CombatantId,
+  DURABILITY_LOSS_CHANCE,
+  rollIsSuccess,
   ThreatChanges,
 } from "../../../index.js";
 
@@ -71,17 +73,25 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           return !!hpChanges.getRecord(combatantId)?.isCrit;
         })();
 
-        addHitOutcomeDurabilityChanges(
-          durabilityChanges,
-          actionUser,
-          actionExecutionIntent.rank,
-          targetCombatant,
-          action,
-          context.resourceChangePropertiesStrategy,
-          flag,
-          context.rngPolicy.combatDurabilityTarget,
-          hpChangeIsCrit
-        );
+        const roll = this.context.rngPolicy.durabilityLossOnHitOutcome.roll();
+        const shouldReduceDurability = rollIsSuccess({
+          roll,
+          successChance: DURABILITY_LOSS_CHANCE,
+        });
+
+        if (shouldReduceDurability) {
+          addHitOutcomeDurabilityChanges(
+            durabilityChanges,
+            actionUser,
+            actionExecutionIntent.rank,
+            targetCombatant,
+            action,
+            context.resourceChangePropertiesStrategy,
+            flag,
+            context.rngPolicy.combatDurabilityTarget,
+            hpChangeIsCrit
+          );
+        }
 
         if (flag === HitOutcome.Hit) {
           const branchingActionsFromHit = handleHit(context, targetCombatant, gameUpdateCommand);

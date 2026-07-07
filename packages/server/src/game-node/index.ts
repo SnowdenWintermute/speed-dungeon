@@ -96,7 +96,6 @@ export class GameServerNode {
     //   shieldBlock: fixedRngMinRoll,
     //   spellResist: fixedRngMinRoll,
     // });
-
     // this._server = new GameServer(
     //   name,
     //   incomingConnectionGateway,

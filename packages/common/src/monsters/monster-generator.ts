@@ -2,14 +2,19 @@ import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { Combatant } from "../combatants/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
+import {
+  NormalDistributionNumberGenerator,
+  RandomNumberGenerator,
+} from "../utility-classes/randomizers.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import { randBetween, rollNormalized } from "../utils/rand-between.js";
 import { appendMonsterEquipment } from "./append-monster-equipment.js";
 import { MONSTER_COMBAT_PROFILES } from "./monster-combat-profiles.js";
 import {
   MONSTER_INHERENT_ELEMENTAL_AFFINITIES,
   MONSTER_INHERENT_KINETIC_AFFINITIES,
 } from "./monster-inherent-affinities.js";
+import { MONSTER_ATTRIBUTES_BY_LEVEL } from "./monster-per-level-attributes.js";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-traits.js";
 import { MONSTER_TYPE_STRINGS, MonsterType } from "./monster-types.js";
 
@@ -48,7 +53,30 @@ export class MonsterGenerator {
     }
 
     appendMonsterEquipment(builder, monsterType, this.idGenerator, this.itemBuilder, this.rng);
+    const monster = builder.build(this.idGenerator);
 
-    return builder.build(this.idGenerator);
+    this.addRandomAttributes(monster);
+    monster.combatantProperties.resources.setToMax();
+
+    return monster;
+  }
+
+  addRandomAttributes(monster: Combatant) {
+    const { attributeProperties } = monster.getCombatantProperties();
+
+    const rng = new NormalDistributionNumberGenerator(this.rng, 3);
+
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(
+      attributeProperties.getNaturalAttributes()
+    )) {
+      const spreadRangePercentage = 0.2;
+      const spreadRange = value * spreadRangePercentage;
+      const min = Math.floor(value - spreadRange);
+      const max = Math.floor(value + spreadRange);
+
+      const rolledValue = randBetween(min, max, rng);
+      const floored = Math.floor(rolledValue);
+      attributeProperties.setSpeccedAttributeValue(attribute, floored);
+    }
   }
 }

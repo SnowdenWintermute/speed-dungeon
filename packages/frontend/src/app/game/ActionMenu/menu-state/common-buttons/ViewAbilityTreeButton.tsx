@@ -23,7 +23,6 @@ export const ViewAbilityTreeButton = observer(() => {
       handleClick={() => {
         detailableEntityFocus.combatantAbilities.clear();
         detailableEntityFocus.detailables.clearHovered();
-        actionMenu.clearStack();
         actionMenu.pushFromPool(ActionMenuScreenType.ViewingAbilityTree);
       }}
     >

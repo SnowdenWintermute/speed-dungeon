@@ -32,7 +32,7 @@ export interface RandomNumberGenerationPolicy {
   consumableTypeFallback: RandomNumberGenerator;
   // Equipment base properties
   equipmentBaseProperties: RandomNumberGenerator;
-  equipmentDurability: RandomNumberGenerator;
+  equipmentGenerationDurability: RandomNumberGenerator;
   // Magical & affix system
   magicalDetermination: RandomNumberGenerator;
   affixSlotDistribution: RandomNumberGenerator;
@@ -47,6 +47,8 @@ export interface RandomNumberGenerationPolicy {
   shieldBlock: RandomNumberGenerator;
   spellResist: RandomNumberGenerator;
   combatResourceChange: RandomNumberGenerator;
+  durabilityLossOnHitOutcome: RandomNumberGenerator;
+  durabilityLossOnUse: RandomNumberGenerator;
   combatDurabilityTarget: RandomNumberGenerator;
   bouncingProjectileTargetSelection: RandomNumberGenerator;
   // Monsters
@@ -68,7 +70,7 @@ export class RandomNumberGenerationPolicyFactory {
       lootTableSelection: basic,
       consumableTypeFallback: basic,
       equipmentBaseProperties: basic,
-      equipmentDurability: basic,
+      equipmentGenerationDurability: basic,
       magicalDetermination: basic,
       affixSlotDistribution: basic,
       affixTypeSelection: basic,
@@ -82,6 +84,8 @@ export class RandomNumberGenerationPolicyFactory {
       spellResist: basic,
       combatResourceChange: basic,
       combatDurabilityTarget: basic,
+      durabilityLossOnHitOutcome: basic,
+      durabilityLossOnUse: basic,
       bouncingProjectileTargetSelection: basic,
       monsterAiRandomAction: basic,
       monsterEquipmentChoice: basic,
@@ -101,7 +105,7 @@ export class RandomNumberGenerationPolicyFactory {
       lootTableSelection: fixed,
       consumableTypeFallback: fixed,
       equipmentBaseProperties: fixed,
-      equipmentDurability: fixed,
+      equipmentGenerationDurability: fixed,
       magicalDetermination: fixed,
       affixSlotDistribution: fixed,
       affixTypeSelection: fixed,
@@ -115,6 +119,8 @@ export class RandomNumberGenerationPolicyFactory {
       spellResist: fixed,
       combatResourceChange: fixed,
       combatDurabilityTarget: fixed,
+      durabilityLossOnHitOutcome: fixed,
+      durabilityLossOnUse: fixed,
       bouncingProjectileTargetSelection: fixed,
       monsterAiRandomAction: fixed,
       monsterEquipmentChoice: fixed,

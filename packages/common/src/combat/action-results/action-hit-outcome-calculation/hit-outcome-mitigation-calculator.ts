@@ -23,7 +23,10 @@ import {
   RandomNumberGenerationPolicy,
   rollIsSuccess,
 } from "../../../utility-classes/random-number-generation-policy.js";
-import { PARRY_TRAIT_CHANCE_BY_RANK } from "../../../combatants/combatant-traits/index.js";
+import {
+  COUNTERATTACK_TRAIT_CHANCE_BY_RANK,
+  PARRY_TRAIT_CHANCE_BY_RANK,
+} from "../../../combatants/combatant-traits/index.js";
 
 const BASE_PARRY_CHANCE: NormalizedPercentage = 0.05;
 
@@ -285,7 +288,10 @@ export class HitOutcomeMitigationCalculator {
     if (!defender.combatantProperties.mitigationProperties.canCounterattack()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
-    return BASE_PARRY_CHANCE;
+    const counterattackTraitRank = defender.combatantProperties.abilityProperties
+      .getTraitProperties()
+      .getTraitRank(CombatantTraitType.Counterattack);
+    return COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(counterattackTraitRank) || 0;
   }
 
   static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {

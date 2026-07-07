@@ -74,28 +74,28 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(1, 3);
         template.damage = new NumberRange(2, 7);
         template.requirements[CombatAttribute.Dexterity] = 2;
-        template.maxDurability = 4;
+        template.maxDurability = 11;
         break;
       case TwoHandedRangedWeapon.RecurveBow:
         template.levelRange = new NumberRange(3, 5);
         template.damage = new NumberRange(5, 10);
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Strength] = 3;
-        template.maxDurability = 9;
+        template.maxDurability = 16;
         break;
       case TwoHandedRangedWeapon.CompositeBow:
         template.levelRange = new NumberRange(5, 8);
         template.damage = new NumberRange(8, 16);
         template.requirements[CombatAttribute.Dexterity] = 13;
         template.requirements[CombatAttribute.Strength] = 7;
-        template.maxDurability = 13;
+        template.maxDurability = 19;
         break;
       case TwoHandedRangedWeapon.MilitaryBow:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(12, 26);
         template.requirements[CombatAttribute.Dexterity] = 25;
         template.requirements[CombatAttribute.Strength] = 13;
-        template.maxDurability = 22;
+        template.maxDurability = 28;
         break;
       case TwoHandedRangedWeapon.EtherBow:
         template.levelRange = new NumberRange(7, 10);
@@ -103,7 +103,7 @@ export const TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Spirit] = 13;
         mainDamageClassification.category = ResourceChangeSourceCategory.Magical;
-        template.maxDurability = 7;
+        template.maxDurability = 9;
         break;
     }
 

@@ -39,6 +39,7 @@ export class LobbyClient extends BaseClient {
     // CombatantClass.Rogue,
     // CombatantClass.Rogue,
     CombatantClass.Warrior,
+    CombatantClass.Warrior,
     // CombatantClass.Rogue,
     // CombatantClass.Mage,
   ];

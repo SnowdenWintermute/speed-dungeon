@@ -28,6 +28,7 @@ import {
   LadderGameRecordsService,
   IdGenerator,
   DefaultCharacterCreationPolicy,
+  CREATE_SET_HP_CHARACTER_FIXTURES,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -70,7 +71,9 @@ export class LobbyServerNode {
     const leastBusyGameServerUrlGetter = async () => {
       return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
     };
+
     // TO MATCH TEST SETUP
+
     // this._lobbyServer = new LobbyServer(
     //   usersIncomingConnectionGateway,
     //   externalServices,
@@ -99,6 +102,8 @@ export class LobbyServerNode {
 
     // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
+
+    // this._lobbyServer.characterCreationPolicy.setCharacters(CREATE_SET_HP_CHARACTER_FIXTURES(1));
     // this._lobbyServer.characterCreationPolicy.setCharacters(LOW_HP_CHARACTER_FIXTURES);
     // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PET_MANTAS);
     // this._lobbyServer.characterCreationPolicy.setCharacters(

@@ -108,7 +108,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case BodyArmor.Rags:
         template.levelRange = new NumberRange(1, 3);
         template.acRange = new NumberRange(2, 6);
-        template.maxDurability = 6;
+        template.maxDurability = 8;
         break;
       case BodyArmor.Cape:
         template.levelRange = new NumberRange(2, 4);
@@ -131,7 +131,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 10);
         template.acRange = new NumberRange(30, 40);
         template.requirements[CombatAttribute.Spirit] = 19;
-        template.maxDurability = 40;
+        template.maxDurability = 36;
         break;
       case BodyArmor.LeatherArmor:
         template.levelRange = new NumberRange(3, 5);
@@ -155,7 +155,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 10);
         template.acRange = new NumberRange(55, 65);
         template.requirements[CombatAttribute.Dexterity] = 19;
-        template.maxDurability = 52;
+        template.maxDurability = 41;
         break;
       case BodyArmor.RingMail:
         template.levelRange = new NumberRange(3, 5);
@@ -192,7 +192,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.requirements[CombatAttribute.Dexterity] = 15;
         template.requirements[CombatAttribute.Strength] = 15;
         template.requirements[CombatAttribute.Spirit] = 7;
-        template.maxDurability = 70;
+        template.maxDurability = 52;
         break;
       case BodyArmor.BreastPlate:
         template.levelRange = new NumberRange(2, 4);
@@ -216,13 +216,13 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 9);
         template.acRange = new NumberRange(60, 75);
         template.requirements[CombatAttribute.Strength] = 25;
-        template.maxDurability = 80;
+        template.maxDurability = 62;
         break;
       case BodyArmor.ShardPlate:
         template.levelRange = new NumberRange(10, 10);
         template.acRange = new NumberRange(80, 100);
         template.requirements[CombatAttribute.Strength] = 35;
-        template.maxDurability = 100;
+        template.maxDurability = 70;
         break;
     }
 
