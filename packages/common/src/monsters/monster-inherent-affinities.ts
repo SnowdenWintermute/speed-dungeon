@@ -22,7 +22,11 @@ export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
   MonsterType,
   Partial<Record<KineticDamageType, number>>
 > = {
-  [MonsterType.Wolf]: {},
+  [MonsterType.Wolf]: {
+    [KineticDamageType.Blunt]: 25,
+    [KineticDamageType.Piercing]: 0,
+    [KineticDamageType.Slashing]: -25,
+  },
   [MonsterType.FireMage]: {},
   [MonsterType.Cultist]: {},
   [MonsterType.MantaRay]: {},

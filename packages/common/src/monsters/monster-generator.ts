@@ -1,3 +1,4 @@
+import { COMBAT_ATTRIBUTE_STRINGS, CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { Combatant } from "../combatants/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
@@ -64,19 +65,20 @@ export class MonsterGenerator {
   addRandomAttributes(monster: Combatant) {
     const { attributeProperties } = monster.getCombatantProperties();
 
-    const rng = new NormalDistributionNumberGenerator(this.rng, 3);
+    const rng = new NormalDistributionNumberGenerator(this.rng, 2);
 
-    for (const [attribute, value] of iterateNumericEnumKeyedRecord(
-      attributeProperties.getNaturalAttributes()
-    )) {
-      const spreadRangePercentage = 0.2;
-      const spreadRange = value * spreadRangePercentage;
-      const min = Math.floor(value - spreadRange);
-      const max = Math.floor(value + spreadRange);
+    const hp = attributeProperties.getTotalAttributes()[CombatAttribute.Hp];
 
-      const rolledValue = randBetween(min, max, rng);
-      const floored = Math.floor(rolledValue);
-      attributeProperties.setSpeccedAttributeValue(attribute, floored);
-    }
+    const spreadRangePercentage = 0.2;
+    const spreadRange = hp * spreadRangePercentage;
+    const min = Math.floor(hp - spreadRange);
+    const max = Math.floor(hp + spreadRange);
+
+    const rolledValue = randBetween(min, max, rng);
+    const floored = Math.ceil(rolledValue);
+
+    console.log(hp, floored - hp);
+
+    attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, floored - (hp - 1));
   }
 }

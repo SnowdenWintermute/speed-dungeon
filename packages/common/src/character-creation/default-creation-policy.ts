@@ -13,6 +13,7 @@ import { CharacterCreationPolicy } from "./character-creation-policy.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
 import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 
 const HP_INJECTOR_COUNT = 1;
 const MP_INJECTOR_COUNT = 1;
@@ -39,6 +40,8 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     this.appendStartingActions(builder, combatantClass);
     this.appendStartingEquipment(combatantClass, builder);
     this.appendStartingConsumables(builder);
+
+    builder.ownedAction(CombatActionName.Blind);
 
     const result = builder.build(this.idGenerator);
 
