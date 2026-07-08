@@ -1,7 +1,8 @@
-import { clear } from "node:console";
 import { AbilityTreeAbility } from "../../../abilities/index.js";
 import { CombatantId } from "../../../aliases.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { ABILITY_ALLOCATION_PROHIBITED_REASON_STRINGS } from "../../../combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";
+import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -44,7 +45,11 @@ export class CharacterProgressionController {
     const { canAllocate, reasonCanNot } =
       combatantProperties.abilityProperties.canAllocateAbilityPoint(ability);
     if (!canAllocate) {
-      throw new Error(reasonCanNot);
+      if (reasonCanNot) {
+        throw new Error(ABILITY_ALLOCATION_PROHIBITED_REASON_STRINGS[reasonCanNot]);
+      } else {
+        throw new Error("Unexpected prohibited allocation - no reason given");
+      }
     }
 
     combatantProperties.abilityProperties.allocateAbilityPoint(ability);

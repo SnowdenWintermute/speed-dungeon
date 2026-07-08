@@ -47,6 +47,7 @@ import { DEATH } from "./death/index.js";
 import { CombatActionName } from "../combat-action-names.js";
 import { KILL } from "./death/kill.js";
 import { HALF_KILL } from "./death/half-kill.js";
+import { PROVOKE } from "./provoke/index.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -97,4 +98,5 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Death]: DEATH,
   [CombatActionName.Kill]: KILL,
   [CombatActionName.HalfKill]: HALF_KILL,
+  [CombatActionName.Provoke]: PROVOKE,
 };

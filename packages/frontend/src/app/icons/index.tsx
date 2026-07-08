@@ -54,6 +54,8 @@ import Skull from "../../../public/img/game-ui-icons/skull.svg";
 import SplitArrow from "../../../public/img/game-ui-icons/split-arrow.svg";
 import Parry from "../../../public/img/game-ui-icons/parry.svg";
 import Counterattack from "../../../public/img/game-ui-icons/counterattack.svg";
+import AngryYellFace from "../../../public/img/game-ui-icons/angry-yell-face.svg";
+import Bag from "../../../public/img/game-ui-icons/bag.svg";
 
 import { ReactNode } from "react";
 import {
@@ -123,6 +125,8 @@ export enum IconName {
   SplitArrow,
   Parry,
   Counterattack,
+  AngryYellFace,
+  Bag,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -183,6 +187,8 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.SplitArrow]: (className: string) => <SplitArrow className={className} />,
   [IconName.Parry]: (className: string) => <Parry className={className} />,
   [IconName.Counterattack]: (className: string) => <Counterattack className={className} />,
+  [IconName.AngryYellFace]: (className: string) => <AngryYellFace className={className} />,
+  [IconName.Bag]: (className: string) => <Bag className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -285,6 +291,7 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Kill]: (className: string) => SVG_ICONS[IconName.Skull](className),
   [CombatActionName.HalfKill]: (className: string) =>
     SVG_ICONS[IconName.Skull](className + " clip-path-[inset(0_50%_0_0)]"),
+  [CombatActionName.Provoke]: (className: string) => SVG_ICONS[IconName.AngryYellFace](className),
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
@@ -297,7 +304,6 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
     SVG_ICONS[IconName.Sword](className),
   [CombatantTraitType.CanConvertToShardsManually]: (className: string) =>
     SVG_ICONS[IconName.Shards](className),
-  [CombatantTraitType.ExtraConsumablesStorage]: null,
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
   [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
   [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
@@ -306,6 +312,8 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
   [CombatantTraitType.Parry]: (className: string) => SVG_ICONS[IconName.Parry](className),
   [CombatantTraitType.Counterattack]: (className: string) =>
     SVG_ICONS[IconName.Counterattack](className),
+  [CombatantTraitType.ExtraConsumablesStorage]: (className: string) =>
+    SVG_ICONS[IconName.Bag](className),
 };
 
 export const ACTION_ENTITY_ICONS: Record<

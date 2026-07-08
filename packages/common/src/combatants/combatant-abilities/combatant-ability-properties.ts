@@ -27,6 +27,7 @@ import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { MapUtils } from "../../utils/map-utils.js";
 import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/get-tame-pet-max-level.js";
+import { AllocationProhibitedReason } from "./ability-allocation-prohibited-reasons.js";
 
 export class CombatantAbilityProperties
   extends CombatantSubsystem
@@ -140,7 +141,7 @@ export class CombatantAbilityProperties
 
   canAllocateAbilityPoint(ability: AbilityTreeAbility): {
     canAllocate: boolean;
-    reasonCanNot?: string;
+    reasonCanNot?: AllocationProhibitedReason;
   } {
     const combatantProperties = this.getCombatantProperties();
     const { classProgressionProperties, abilityProperties } = combatantProperties;
@@ -160,7 +161,7 @@ export class CombatantAbilityProperties
     if (!isSupportClassAbility && !isMainClassAbility) {
       return {
         canAllocate: false,
-        reasonCanNot: "That ability is not in any of that combatant's ability trees",
+        reasonCanNot: AllocationProhibitedReason.NotInTree,
       };
     }
 
@@ -170,18 +171,18 @@ export class CombatantAbilityProperties
     ) {
       return {
         canAllocate: false,
-        reasonCanNot: "That trait is inherent to the combatant and can not be allocated to",
+        reasonCanNot: AllocationProhibitedReason.InherentTrait,
       };
     }
 
     // has unspent points
     if (abilityProperties.getUnspentPointsCount() <= 0) {
-      return { canAllocate: false, reasonCanNot: "No unspent ability points" };
+      return { canAllocate: false, reasonCanNot: AllocationProhibitedReason.NoUnspentPoints };
     }
 
     // ability is max level
     if (abilityProperties.ownedAbilityIsAtMaxAllocatableRank(ability)) {
-      return { canAllocate: false, reasonCanNot: "That ability is at its maximum level" };
+      return { canAllocate: false, reasonCanNot: AllocationProhibitedReason.MaximumRank };
     }
 
     // is required character level
@@ -196,7 +197,7 @@ export class CombatantAbilityProperties
     if (!isAtRequiredCharacterLevel) {
       return {
         canAllocate: false,
-        reasonCanNot: "That character is too low level to allocate to this ability",
+        reasonCanNot: AllocationProhibitedReason.CombatantTooLowLevel,
       };
     }
 
@@ -205,7 +206,7 @@ export class CombatantAbilityProperties
     if (!hasPrerequisiteAbilities) {
       return {
         canAllocate: false,
-        reasonCanNot: "Requires prerequisite",
+        reasonCanNot: AllocationProhibitedReason.PrerequisitesNotMet,
       };
     }
 

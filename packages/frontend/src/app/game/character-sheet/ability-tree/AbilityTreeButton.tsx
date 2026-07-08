@@ -3,6 +3,7 @@ import {
   ABILITY_TREES,
   AbilityTreeAbility,
   AbilityUtils,
+  AllocationProhibitedReason,
   ClientIntentType,
   EMPTY_ABILITY_TREE,
 } from "@speed-dungeon/common";
@@ -16,7 +17,7 @@ interface Props {
   ability: AbilityTreeAbility;
   abilityLevel: number;
   buttonContent: ReactNode;
-  isAllocatable: { canAllocate: boolean; reasonCanNot?: string };
+  isAllocatable: { canAllocate: boolean; reasonCanNot?: AllocationProhibitedReason };
   isDetailed: boolean;
 }
 
@@ -33,6 +34,7 @@ export const AbilityTreeButton = observer((props: Props) => {
       <HotkeyButton
         className={`
         h-20 w-20 border border-slate-400 bg-slate-700  relative flex items-center justify-center
+        ${isAllocatable.reasonCanNot === AllocationProhibitedReason.InherentTrait ? "bg-slate-800" : ""}
         ${disabled && "opacity-50 cursor-auto"} ${!isAllocatable.canAllocate ? "cursor-auto hover:border-white" : !isDetailed ? "cursor-pointer" : "cursor-cell hover:bg-slate-950"}
         `}
         onClick={() => {

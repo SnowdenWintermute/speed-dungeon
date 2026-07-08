@@ -11,7 +11,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Strength, 30);
   combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Spirit, 30);
   combatantProperties.abilityProperties.setOwnedAction(
-    new CombatantActionState(CombatActionName.Fire, 3)
+    new CombatantActionState(CombatActionName.Provoke, 3)
   );
   combatantProperties.attributeProperties.changeUnspentPoints(30);
 }

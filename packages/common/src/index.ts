@@ -282,3 +282,4 @@ export * from "./combat/combat-actions/action-implementations/resource-change-pr
 
 export * from "./servers/game-server/asset-analyzer/index.js";
 export * from "./test-fixtures/test-resource-change-properties-strategy.js";
+export * from "./combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";

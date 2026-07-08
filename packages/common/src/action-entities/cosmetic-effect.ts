@@ -18,6 +18,8 @@ export enum CosmeticEffectNames {
   SmokeParticleStream,
   SmokePuff,
   HeartParticles,
+  RedParticleAccumulation,
+  ProvokeCast,
 }
 
 export const COSMETIC_EFFECT_NAME_STRINGS: Record<CosmeticEffectNames, string> = {
@@ -37,6 +39,8 @@ export const COSMETIC_EFFECT_NAME_STRINGS: Record<CosmeticEffectNames, string> =
   [CosmeticEffectNames.SmokeParticleStream]: "SmokeParticleStream",
   [CosmeticEffectNames.SmokePuff]: "SmokePuff",
   [CosmeticEffectNames.HeartParticles]: "HeartParticles",
+  [CosmeticEffectNames.RedParticleAccumulation]: "RedParticleAccumulation",
+  [CosmeticEffectNames.ProvokeCast]: "ProvokeCast",
 };
 
 export abstract class CosmeticEffect {
