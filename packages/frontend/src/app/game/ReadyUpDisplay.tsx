@@ -4,7 +4,7 @@ import {
   DungeonRoomType,
   ExplorationAction,
 } from "@speed-dungeon/common";
-import React, { MouseEventHandler } from "react";
+import React, { MouseEventHandler, useRef } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
@@ -21,11 +21,24 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
     clientApplication;
   const username = session.requireUsername();
   const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
+  const awaitingClickResolution = useRef<boolean>(false);
 
+  // we don't want to go to next room until sequentialEventProcessor queue is done
+  // and we don't want to send more than one request to go to the next room if they
+  // spam click it while waiting for the queue to finish. Would be nice to make the queue
+  // observable and not show button until it clears but was having trouble with that.
   function handleExploreClick() {
-    gameClientRef.get().dispatchIntent({
-      type: ClientIntentType.ToggleReadyToExplore,
-      data: undefined,
+    if (awaitingClickResolution.current === true) {
+      return;
+    }
+
+    awaitingClickResolution.current = true;
+    clientApplication.sequentialEventProcessor.waitUntilIdle().then(() => {
+      awaitingClickResolution.current = false;
+      gameClientRef.get().dispatchIntent({
+        type: ClientIntentType.ToggleReadyToExplore,
+        data: undefined,
+      });
     });
     actionMenu.clearStack();
   }
@@ -82,11 +95,19 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
-  const allowedToDescend = !inStaircaseRoom || party.combatantManager.monstersArePresent();
+  console.log("party in combat:", party.isInCombat());
+  console.log("event queue procesing:", clientApplication.sequentialEventProcessor.isProcessing);
+
+  const allowedToExplore = !party.isInCombat();
+  console.log("allowedToExplore:", allowedToExplore);
+
+  if (!allowedToExplore) {
+    return <></>;
+  }
 
   return (
     <>
-      {allowedToDescend && (
+      {
         <div
           className="absolute top-12 -translate-y-[1px] min-w-[500px] text-center left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
           style={{ opacity: shouldDim ? "0%" : "100%" }}
@@ -129,7 +150,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
             )}
           </div>
         </div>
-      )}
+      }
       {inStaircaseRoom && (
         <div className="absolute top-10 -translate-y-[1px] left-1/2 -translate-x-1/2 border border-t-0 border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto">
           <h3 className="text-xl mb-2">You have found the staircase to the next floor</h3>

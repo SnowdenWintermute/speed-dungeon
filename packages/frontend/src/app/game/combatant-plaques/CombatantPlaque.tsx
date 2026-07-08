@@ -111,9 +111,6 @@ export const CombatantPlaque = observer(
 
     return (
       <div className={`${extraStyles} w-full ${compactView ? "mb-2" : ""}`}>
-        <CharacterModelDisplay character={combatant}>
-          <CombatantFloatingMessagesDisplay entityId={entityId} />
-        </CharacterModelDisplay>
         {isPartyMember && conditionIndicators("mb-2") /* otherwise put it below */}
 
         <div className="flex w-full">
@@ -148,10 +145,6 @@ export const CombatantPlaque = observer(
                 />
               )}
               <TargetingIndicators party={party} entityId={entityId} />
-              <DetailedCombatantInfoCard
-                combatantId={entityId}
-                combatantPlaqueRef={combatantPlaqueRef}
-              />
               {!compactView && (
                 <Portrait
                   focusable={isPartyMember}

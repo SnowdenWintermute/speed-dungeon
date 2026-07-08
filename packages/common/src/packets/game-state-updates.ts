@@ -37,10 +37,7 @@ import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { SerializedCombatantWithPets } from "../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
-import {
-  SavedIronmanRun,
-  SavedIronmanRunClientEntry,
-} from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
+import { SavedIronmanRunClientEntry } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
   GameList,

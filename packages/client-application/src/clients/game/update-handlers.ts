@@ -226,6 +226,13 @@ export function createGameUpdateHandlers(
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();
 
+      console.log(
+        "monster home positions",
+        [...combatantManager.getDungeonControlledCombatants()].map((c) =>
+          c.combatantProperties.transformProperties.getHomePosition()
+        )
+      );
+
       dungeonExplorationManager.incrementExploredRoomsTrackers();
 
       const indexOfRoomTypeToReveal = dungeonExplorationManager.getCurrentRoomNumber() - 1;

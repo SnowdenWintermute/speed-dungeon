@@ -63,7 +63,7 @@ function giveHotswapSlotEquipment(
   itemBuilder: ItemBuilder
 ) {
   const mh = itemBuilder
-    .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+    .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Mace)
     .durability(100)
     .build(idGenerator);
 

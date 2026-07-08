@@ -41,15 +41,15 @@ export class CombatantSceneEntity extends SceneEntity {
   constructor(
     private gameWorldView: GameWorldView,
     clientApplication: ClientApplication,
-    combatant: Combatant,
+    private _combatant: Combatant,
     skeletonAssetContainer: AssetContainer
   ) {
-    const { transformProperties } = combatant.combatantProperties;
+    const { transformProperties } = _combatant.combatantProperties;
     const homePosition = transformProperties.getHomePosition().clone();
     const homeRotation = transformProperties.homeRotation.clone();
     super(
-      combatant.getEntityId(),
-      combatant.entityProperties.name,
+      _combatant.getEntityId(),
+      _combatant.entityProperties.name,
       gameWorldView.scene,
       skeletonAssetContainer,
       clientApplication.floatingMessagesService,
@@ -81,7 +81,7 @@ export class CombatantSceneEntity extends SceneEntity {
     );
     this.highlightManager = new HighlightManager(this.scene, clientApplication, this);
 
-    this.rootTransformNode.name += combatant.entityProperties.name;
+    this.rootTransformNode.name += _combatant.entityProperties.name;
   }
 
   initRootMesh(assetContainer: AssetContainer) {
@@ -165,12 +165,7 @@ export class CombatantSceneEntity extends SceneEntity {
   }
 
   get combatant(): Combatant {
-    const option =
-      this.gameWorldView.sceneEntityService.combatantSceneEntityManager.resolveCombatant(
-        this.entityId
-      );
-    invariant(option !== undefined, `no combatant resolvable for scene entity ${this.entityId}`);
-    return option;
+    return this._combatant;
   }
 
   customCleanup(): void {

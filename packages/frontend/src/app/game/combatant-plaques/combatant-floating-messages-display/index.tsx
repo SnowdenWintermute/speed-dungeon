@@ -1,12 +1,6 @@
 import React from "react";
 import { FloatingMessageText } from "./FloatingMessageText";
-import PiercingIcon from "../../../../../public/img/hp-change-source-icons/piercing.svg";
-import SlashingIcon from "../../../../../public/img/hp-change-source-icons/slashing.svg";
-import {
-  KINETIC_DAMAGE_TYPE_STRINGS,
-  KineticDamageType,
-  MAGICAL_ELEMENT_STRINGS,
-} from "@speed-dungeon/common";
+import { KINETIC_DAMAGE_TYPE_STRINGS, MAGICAL_ELEMENT_STRINGS } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
@@ -67,14 +61,3 @@ export const CombatantFloatingMessagesDisplay = observer(({ entityId }: { entity
     </div>
   );
 });
-
-function getPhysicalDamageTypeIcon(damageType: KineticDamageType) {
-  switch (damageType) {
-    case KineticDamageType.Blunt:
-      return "Blunt";
-    case KineticDamageType.Slashing:
-      return <SlashingIcon className="h-10 w-10" />;
-    case KineticDamageType.Piercing:
-      return <PiercingIcon className="h-10 w-10" />;
-  }
-}

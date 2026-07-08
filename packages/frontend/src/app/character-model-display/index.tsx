@@ -1,13 +1,12 @@
-import { Combatant } from "@speed-dungeon/common";
+import { CombatantId } from "@speed-dungeon/common";
 import { ReactNode, useEffect } from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 
 export const CharacterModelDisplay = observer(
-  ({ character, children }: { character: Combatant; children?: ReactNode }) => {
-    const { entityProperties } = character;
-    const entityId = entityProperties.id;
+  ({ combatantId, children }: { combatantId: CombatantId; children?: ReactNode }) => {
+    const entityId = combatantId;
     const clientApplication = useClientApplication();
     const { uiStore, gameWorldView } = clientApplication;
     const combatantSceneEntityManager =
@@ -33,7 +32,7 @@ export const CharacterModelDisplay = observer(
     }, [modelIsLoading]);
 
     return (
-      <div id={`${entityId}-position-div`} className={`absolute ${modelIsLoading && "opacity-0"} `}>
+      <div id={`${entityId}-position-div`} className={`absolute ${modelIsLoading && "opacity-0"}`}>
         <div id={`${entityId}-debug-div`} className={showDebug ? "" : "hidden"}></div>
         {children}
       </div>

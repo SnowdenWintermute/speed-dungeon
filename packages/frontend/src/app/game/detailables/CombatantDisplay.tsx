@@ -6,6 +6,8 @@ import { CharacterAttributes } from "../character-sheet/CharacterAttributes";
 import CombatantTraitsDisplay from "./CombatantTraitsDisplay";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
+import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 interface Props {
   combatant: Combatant;
@@ -14,10 +16,17 @@ interface Props {
 export const CombatantDisplay = observer(({ combatant }: Props) => {
   const { combatantProperties } = combatant;
   const clientApplication = useClientApplication();
-  const { detailableEntityFocus } = clientApplication;
+  const { detailableEntityFocus, actionMenu, uiStore } = clientApplication;
 
   function closeDisplay() {
     detailableEntityFocus.detailables.clear();
+  }
+
+  function closeIfNotInMenu() {
+    console.log("heard");
+    if (!actionMenu.hasStackedMenus()) {
+      closeDisplay();
+    }
   }
 
   return (
@@ -26,6 +35,12 @@ export const CombatantDisplay = observer(({ combatant }: Props) => {
       <div className="h-full pl-4 w-1/2">
         <div className="w-full flex justify-end">
           <ButtonBasic onClick={closeDisplay}>{"Close"}</ButtonBasic>
+          <HotkeyButton
+            onClick={closeIfNotInMenu}
+            hotkeys={uiStore.keybinds.getKeybind(HotkeyButtonTypes.Cancel)}
+            className="hidden"
+            children={""}
+          />
         </div>
         <div className="flex justify-between">
           <span>{"Traits "}</span>

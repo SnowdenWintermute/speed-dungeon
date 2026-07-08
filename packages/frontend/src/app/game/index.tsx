@@ -14,6 +14,8 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ReconnectionAwaitingReplayDisplay } from "./ReconnectionAwaitingReplayDisplay";
 import { AwaitingPlayersReconnectingDisplay } from "./AwaitingPlayersReconnectingDisplay";
+import { DetailedCombatantInfoCard } from "./combatant-plaques/DetailedCombatantInfoCard";
+import CombatantModelPositionedUi from "../character-model-display/CombatantModelDisplays";
 
 export const Game = observer(() => {
   const clientApplication = useClientApplication();
@@ -79,6 +81,7 @@ export const Game = observer(() => {
               </div>
             </div>
           </div>
+          <CombatantModelPositionedUi />
         </div>
       </main>
       <ActionMenuAndCharacterSheetLayer party={party} />

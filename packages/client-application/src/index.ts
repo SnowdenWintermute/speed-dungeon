@@ -126,6 +126,7 @@ export class ClientApplication {
     this.lobbyContext.makeObservable();
     this.ladderRecordsStore.makeObservable();
     this.targetIndicatorStore.makeObservable();
+    // this.sequentialEventProcessor.makeObservable();
     // @TODO - find other subsystems that are calling .makeObservable() in their constructors
     // and move them here
   }

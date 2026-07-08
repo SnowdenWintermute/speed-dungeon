@@ -129,7 +129,7 @@ const PlayerDisplay = observer(
       <div className="w-full mb-2 flex flex-col">
         {selectedCharacterOption && (
           <CharacterModelDisplay
-            character={selectedCharacterOption}
+            combatantId={selectedCharacterOption.getEntityId()}
             key={selectedCharacterOption.entityProperties.id}
           >
             <div className="h-full w-full flex flex-col items-center justify-end text-lg ">

@@ -9,6 +9,7 @@ import { ZIndexLayers } from "../z-index-layers";
 import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { DetailedCombatantInfoCard } from "./combatant-plaques/DetailedCombatantInfoCard";
 
 export const ActionMenuAndCharacterSheetLayer = observer(
   ({ party }: { party: AdventuringParty }) => {
@@ -29,6 +30,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
       ${viewingCharacterSheet && "justify-end"}
       `}
       >
+        <DetailedCombatantInfoCard />
         <div className={`pl-4 pr-4 flex flex-col relative overflow-auto `}>
           <div className={`flex items-end w-full`} style={{ marginBottom: `${SPACING_REM}rem` }}>
             <div style={{ marginRight: `${SPACING_REM}rem` }} className="flex">
