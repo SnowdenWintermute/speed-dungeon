@@ -12,10 +12,12 @@ import { ActionPayableResource } from "../../action-calculation-utils/action-cos
 import {
   CombatActionGameLogProperties,
   createGenericSpellCastMessageProperties,
+  getSpellCastGameLogMessage,
 } from "../../combat-action-combat-log-properties.js";
-import { CombatActionName } from "../../combat-action-names.js";
+import { COMBAT_ACTION_NAME_STRINGS, CombatActionName } from "../../combat-action-names.js";
 import { PROVOKE_HIT_OUTCOME_PROPERTIES } from "./provoke-hit-outcome-properties.js";
 import { PROVOKE_STEPS_CONFIG } from "./provoke-steps-config.js";
+import { CombatActionOrigin } from "../../combat-action-origin.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.SINGLE_HOSTILE(),
@@ -41,8 +43,16 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_SPELL;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
-const gameLogMessageProperties: CombatActionGameLogProperties =
-  createGenericSpellCastMessageProperties(CombatActionName.Blind);
+const gameLogMessageProperties: CombatActionGameLogProperties = new CombatActionGameLogProperties({
+  origin: CombatActionOrigin.SpellCast,
+  getOnUseMessage: (data) => {
+    if (data.actionLevel === 1) {
+      return `${data.nameOfActionUser} casts ${COMBAT_ACTION_NAME_STRINGS[CombatActionName.Provoke]} on ${data.nameOfTarget}`;
+    } else {
+      return getSpellCastGameLogMessage(data, COMBAT_ACTION_NAME_STRINGS[CombatActionName.Provoke]);
+    }
+  },
+});
 
 const config: CombatActionComponentConfig = {
   description: "Generate a high level of threat on targets",
