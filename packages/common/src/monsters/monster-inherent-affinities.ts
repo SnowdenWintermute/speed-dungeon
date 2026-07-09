@@ -2,6 +2,11 @@ import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { MonsterType } from "./monster-types.js";
 
+const UNDEAD_ELEMENTAL_AFFINITIES = {
+  [MagicalElement.Light]: -25,
+  [MagicalElement.Fire]: -25,
+};
+
 export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
   MonsterType,
   Partial<Record<MagicalElement, number>>
@@ -15,8 +20,15 @@ export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
   [MonsterType.Slime]: {
     [MagicalElement.Fire]: 50,
   },
-  [MonsterType.Zombie]: { [MagicalElement.Light]: -50, [MagicalElement.Fire]: -25 },
-  [MonsterType.SkeletonWarrior]: { [MagicalElement.Light]: -50, [MagicalElement.Fire]: -25 },
+  [MonsterType.Zombie]: UNDEAD_ELEMENTAL_AFFINITIES,
+  [MonsterType.SkeletonWarrior]: UNDEAD_ELEMENTAL_AFFINITIES,
+  [MonsterType.SkeletonCaptain]: UNDEAD_ELEMENTAL_AFFINITIES,
+};
+
+const UNDEAD_KINETIC_AFFINITIES = {
+  [KineticDamageType.Blunt]: -25,
+  [KineticDamageType.Piercing]: 25,
+  [KineticDamageType.Slashing]: 25,
 };
 
 export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
@@ -38,14 +50,7 @@ export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
     [KineticDamageType.Piercing]: 75,
     [KineticDamageType.Slashing]: 75,
   },
-  [MonsterType.Zombie]: {
-    [KineticDamageType.Blunt]: -50,
-    [KineticDamageType.Piercing]: 50,
-    [KineticDamageType.Slashing]: 50,
-  },
-  [MonsterType.SkeletonWarrior]: {
-    [KineticDamageType.Blunt]: -50,
-    [KineticDamageType.Piercing]: 50,
-    [KineticDamageType.Slashing]: 50,
-  },
+  [MonsterType.Zombie]: UNDEAD_KINETIC_AFFINITIES,
+  [MonsterType.SkeletonWarrior]: UNDEAD_KINETIC_AFFINITIES,
+  [MonsterType.SkeletonCaptain]: UNDEAD_KINETIC_AFFINITIES,
 };

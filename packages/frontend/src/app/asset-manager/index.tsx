@@ -20,7 +20,7 @@ export const AssetManager = observer(() => {
   return (
     <div
       id="asset-manager"
-      className="absolute bottom-0 left-0 max-h-screen max-w-screen overflow-hidden pointer-events-auto hidden"
+      className="absolute bottom-0 left-0 max-h-screen max-w-screen overflow-hidden pointer-events-auto "
       style={{ zIndex: 30 }}
     >
       <ClickOutsideHandlerWrapper onClickOutside={() => setHovered(false)} isActive={hovered}>

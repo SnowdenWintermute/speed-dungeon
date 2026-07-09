@@ -44,6 +44,7 @@ import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
+import { DatabaseLadderRecordsPersistenceStrategy } from "../game-node/services/database-ladder-records-persistence-strategy.js";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
@@ -145,7 +146,7 @@ export class LobbyServerNode {
       valkeyManager.context
     );
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new InMemoryLadderRecordsPersistenceStrategy(),
+      new DatabaseLadderRecordsPersistenceStrategy(),
       idGenerator
     );
 

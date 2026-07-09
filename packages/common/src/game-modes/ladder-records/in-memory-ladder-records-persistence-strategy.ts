@@ -59,8 +59,7 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
       fateOptionOfQueryingPlayerParty: this.queryingPlayerPartyFate(game.id, userId),
       queryingPlayerAbandonedAtOption: this.gameParticipations.find(
         (participation) =>
-          participation.gameRecordId === game.id &&
-          participation.participantRecordId === userId
+          participation.gameRecordId === game.id && participation.participantRecordId === userId
       )?.abandonedAtOption,
     }));
   }
@@ -172,6 +171,9 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
         participation.gameRecordId === gameRecordId &&
         participation.participantRecordId === participantRecordId
     );
+    if (!participation) {
+      return console.info("expected an existing game participation to abandon but didn't find one");
+    }
     invariant(participation !== undefined, "expected an existing game participation to abandon");
     participation.abandonedAtOption = timestamp;
   }

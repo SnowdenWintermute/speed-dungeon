@@ -4,6 +4,8 @@ exports.up = (pgm) => {
   pgm.sql(`
     CREATE TYPE combatant_class AS ENUM ('warrior', 'rogue', 'mage');
     CREATE TYPE party_fate_type AS ENUM ('wipe', 'escape');
+    CREATE TYPE game_mode AS ENUM ('Progression', 'Ironman', 'Unranked Race', 'Ranked Race');
+    CREATE TYPE character_control_scheme AS ENUM ('Freelancer', 'Captain');
 
     -- one row per user, shared across all of their games. The primary key IS the
     -- IdentityProviderId. We resolve a current username live from it, and only fall
@@ -18,17 +20,18 @@ exports.up = (pgm) => {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         name VARCHAR(128) NOT NULL,
-        mode VARCHAR(32) NOT NULL,
-        control_scheme VARCHAR(32) NOT NULL,
+        mode game_mode NOT NULL,
+        control_scheme character_control_scheme NOT NULL,
         time_started TIMESTAMP WITH TIME ZONE
     );
 
-    -- game <-> participant is many-to-many (a game has several participants, a
-    -- participant appears in many games), so it gets a join table rather than an
-    -- array column on either side.
-    CREATE TABLE ladder_game_participant_records (
+    -- a participation is one user's involvement in one game. game <-> participant is
+    -- many-to-many (a game has several participants, a participant appears in many games),
+    -- so it gets a join table rather than an array column on either side.
+    CREATE TABLE ladder_game_participation_records (
         game_record_id UUID REFERENCES ladder_game_records(id) ON DELETE CASCADE,
         participant_record_id INT REFERENCES ladder_participant_records(id) ON DELETE CASCADE,
+        abandoned_at TIMESTAMP WITH TIME ZONE,
         PRIMARY KEY (game_record_id, participant_record_id)
     );
 
@@ -47,6 +50,7 @@ exports.up = (pgm) => {
         party_record_ref UUID REFERENCES ladder_party_records(id) ON DELETE CASCADE,
         floor INT NOT NULL,
         time_spent_on_floor BIGINT NOT NULL,
+        control_scheme character_control_scheme NOT NULL,
         UNIQUE (party_record_ref, floor)
     );
 
@@ -72,7 +76,7 @@ exports.up = (pgm) => {
         combatant_with_pets JSONB NOT NULL
     );
 
-    CREATE INDEX idx_ladder_game_participant_records_participant ON ladder_game_participant_records (participant_record_id);
+    CREATE INDEX idx_ladder_game_participation_records_participant ON ladder_game_participation_records (participant_record_id);
     CREATE INDEX idx_ladder_party_records_game_record_id ON ladder_party_records (game_record_id);
     -- "best clear times on floor N" leaderboard; also covers lookups by party_record_ref
     -- alone? No - that is already served by the UNIQUE (party_record_ref, floor) index.
@@ -87,14 +91,18 @@ exports.up = (pgm) => {
 
 exports.down = (pgm) => {
   pgm.sql(`
-    DROP TABLE ladder_character_floor_cleared_records;
-    DROP TABLE ladder_character_records;
-    DROP TABLE ladder_party_floor_clear_records;
-    DROP TABLE ladder_party_records;
-    DROP TABLE ladder_game_participant_records;
-    DROP TABLE ladder_game_records;
-    DROP TABLE ladder_participant_records;
-    DROP TYPE party_fate_type;
-    DROP TYPE combatant_class;
+    DROP TABLE IF EXISTS ladder_character_floor_cleared_records;
+    DROP TABLE IF EXISTS ladder_character_records;
+    DROP TABLE IF EXISTS ladder_party_floor_clear_records;
+    DROP TABLE IF EXISTS ladder_party_records;
+    DROP TABLE IF EXISTS ladder_game_participation_records;
+    -- pre-rename name, dropped in case an older applied version of this migration created it
+    DROP TABLE IF EXISTS ladder_game_participant_records;
+    DROP TABLE IF EXISTS ladder_game_records;
+    DROP TABLE IF EXISTS ladder_participant_records;
+    DROP TYPE IF EXISTS character_control_scheme;
+    DROP TYPE IF EXISTS game_mode;
+    DROP TYPE IF EXISTS party_fate_type;
+    DROP TYPE IF EXISTS combatant_class;
   `);
 };

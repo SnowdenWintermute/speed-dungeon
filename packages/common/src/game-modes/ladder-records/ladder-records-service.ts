@@ -89,6 +89,12 @@ export class LadderGameRecordsService {
       characters,
     };
 
+    // participant records are global per user; ensure they exist before inserting the game records
+    // that reference them (the database enforces this with a foreign key)
+    for (const participantRecord of participantRecords) {
+      await this.persistenceStrategy.upsertParticipantRecord(participantRecord);
+    }
+
     return this.persistenceStrategy.insertNewGameRecordSet(newRecords);
   }
 

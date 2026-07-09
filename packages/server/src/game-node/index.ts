@@ -55,6 +55,7 @@ import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
 import { env } from "../validate-env.js";
+import { DatabaseLadderRecordsPersistenceStrategy } from "./services/database-ladder-records-persistence-strategy.js";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -170,7 +171,7 @@ export class GameServerNode {
     );
 
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new InMemoryLadderRecordsPersistenceStrategy(),
+      new DatabaseLadderRecordsPersistenceStrategy(),
       idGenerator
     );
 

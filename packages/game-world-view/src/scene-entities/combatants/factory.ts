@@ -17,6 +17,8 @@ import { ClientApplication } from "@/client-application";
 import { MONSTER_SCALING_SIZES } from "./species-scaling-sizes";
 import { AssetContainer, Color3, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { getCombatantSceneEntityPartCategoriesAndAssetPaths } from "./modular-parts-manager/asset-paths";
+import { MaterialCategory, MaterialShade } from "@/game-world-view/materials/material-colors";
+import cloneDeep from "lodash.clonedeep";
 
 export class CombatantSceneEntityFactory {
   private scene: Scene;

@@ -10,6 +10,7 @@ export enum MonsterType {
   Slime,
   Zombie,
   SkeletonWarrior,
+  SkeletonCaptain,
 }
 
 export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
@@ -22,6 +23,7 @@ export const MONSTER_TYPE_STRINGS: Record<MonsterType, string> = {
   [MonsterType.Slime]: "Slime",
   [MonsterType.Zombie]: "Zombie",
   [MonsterType.SkeletonWarrior]: "Skeleton Warrior",
+  [MonsterType.SkeletonCaptain]: "Skeleton Captain",
 };
 
 export function getMonsterCombatantClass(monsterType: MonsterType): CombatantClass {
@@ -30,6 +32,7 @@ export function getMonsterCombatantClass(monsterType: MonsterType): CombatantCla
     case MonsterType.Wolf:
     case MonsterType.Zombie:
     case MonsterType.SkeletonWarrior:
+    case MonsterType.SkeletonCaptain:
       return CombatantClass.Warrior;
     case MonsterType.Spider:
       return CombatantClass.Rogue;

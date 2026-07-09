@@ -13,6 +13,7 @@ import { NumberRange } from "../primatives/number-range.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { ArrayUtils } from "../utils/array-utils.js";
+import { invariant } from "../utils/index.js";
 import { MonsterType } from "./monster-types.js";
 
 export function appendMonsterEquipment(
@@ -60,10 +61,10 @@ export function appendMonsterEquipment(
         .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSpear)
         .indestructible();
       const mainhandClaw = clawsBuilder.build(idGenerator);
-      mainhandClaw.requireWeaponProperties().damage = new NumberRange(2, 4);
+      mainhandClaw.requireWeaponProperties().damage = new NumberRange(1, 3);
       mainhandClaw.requirements = {};
       const offhandClaw = clawsBuilder.build(idGenerator);
-      offhandClaw.requireWeaponProperties().damage = new NumberRange(2, 4);
+      offhandClaw.requireWeaponProperties().damage = new NumberRange(1, 3);
       offhandClaw.requirements = {};
 
       builder.equipMainHand(mainhandClaw);
@@ -129,7 +130,7 @@ export function appendMonsterEquipment(
         .twoHandedMeleeWeapon(TwoHandedMeleeWeapon.Maul)
         .indestructible();
       const mainhandClaw = clawsBuilder.build(idGenerator);
-      mainhandClaw.requireWeaponProperties().damage = new NumberRange(6, 8);
+      mainhandClaw.requireWeaponProperties().damage = new NumberRange(4, 6);
       mainhandClaw.requireWeaponProperties().damageClassification = [
         new ResourceChangeSource({
           category: ResourceChangeSourceCategory.Physical,
@@ -150,6 +151,29 @@ export function appendMonsterEquipment(
       mainhandWeapon.requireWeaponProperties().damage = new NumberRange(1, 4);
       const offhandEquipmentBuilder = itemBuilder
         .shield(Shield.Heater)
+        .indestructible()
+        .armorClass(0);
+      const offhandEquipment = offhandEquipmentBuilder.build(idGenerator);
+      offhandEquipment.requirements = {};
+
+      builder.equipMainHand(mainhandWeapon);
+      builder.equipOffHand(offhandEquipment);
+      break;
+    }
+    case MonsterType.SkeletonCaptain: {
+      const equipmentChoices = [
+        OneHandedMeleeWeapon.IceBlade,
+        OneHandedMeleeWeapon.Mace,
+        OneHandedMeleeWeapon.Blade,
+      ];
+      const weaponType = ArrayUtils.chooseRandom(equipmentChoices, rng);
+      invariant(!(weaponType instanceof Error));
+      const mainHandWeaponBuilder = itemBuilder.oneHandedMeleeWeapon(weaponType).indestructible();
+      const mainhandWeapon = mainHandWeaponBuilder.build(idGenerator);
+      mainhandWeapon.requirements = {};
+      // mainhandWeapon.requireWeaponProperties().damage = new NumberRange(1, 4);
+      const offhandEquipmentBuilder = itemBuilder
+        .shield(Shield.KiteShield)
         .indestructible()
         .armorClass(0);
       const offhandEquipment = offhandEquipmentBuilder.build(idGenerator);

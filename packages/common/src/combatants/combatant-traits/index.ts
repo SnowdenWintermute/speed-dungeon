@@ -14,6 +14,7 @@ export const PARRY_TRAIT_CHANCE_BY_RANK = new Map<number, number>([
 ]);
 
 export const COUNTERATTACK_TRAIT_CHANCE_BY_RANK = new Map<number, number>([
+  // [1, 1.03],
   [1, 0.03],
   [2, 0.06],
   [3, 0.09],
@@ -134,7 +135,7 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     name: "Parrying",
     maxLevel: 3,
     isAllocatable: true,
-    summary: "Sometimes deflect attacks while weilding a melee weapon in the main hand.",
+    summary: "Sometimes deflects attacks while weilding a melee weapon in the main hand",
     createDescriptionsByLevel: (self) => {
       const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
         (level) => `Base chance ${(PARRY_TRAIT_CHANCE_BY_RANK.get(level) || 0) * 100}%`
@@ -146,7 +147,7 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     name: "Counterattacks",
     maxLevel: 3,
     isAllocatable: true,
-    summary: "Sometimes avoid an attack and strike back with your own",
+    summary: "Sometimes avoids attacks and strikes back",
     createDescriptionsByLevel: (self) => {
       const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
         (level) => `Base chance ${(COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(level) || 0) * 100}%`

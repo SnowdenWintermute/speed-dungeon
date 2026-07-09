@@ -30,7 +30,7 @@ export const CombatantDisplay = observer(({ combatant }: Props) => {
   }
 
   return (
-    <div className="flex justify-between ">
+    <div className="flex justify-between pointer-events-auto">
       <CharacterAttributes combatant={combatant} showAttributeAssignmentButtons={false} />
       <div className="h-full pl-4 w-1/2">
         <div className="w-full flex justify-end">
