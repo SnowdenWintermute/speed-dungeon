@@ -181,7 +181,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                         {SVG_ICONS[IconName.Target]("h-full fill-slate-400 stroke-slate-400 ")}
                       </div>
                     }{" "}
-                    <div className="">{Math.floor(percentChanceToHit.afterEvasion)}%</div>
+                    <div className="">{Math.floor(percentChanceToHit.afterEvasion * 100)}%</div>
                   </div>
                 )}
                 {isResistable && percentChanceToResist && (

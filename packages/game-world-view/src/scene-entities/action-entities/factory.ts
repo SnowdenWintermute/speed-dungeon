@@ -121,5 +121,16 @@ export class ActionEntitySceneEntityFactory {
       assetContainer.meshes = [mesh];
       return assetContainer;
     },
+    [ActionEntityName.Pebble]: async (position: Vector3) => {
+      const mesh = MeshBuilder.CreateSphere("pebble sphere", { diameter: 0.1 }, this.scene);
+      const material = new StandardMaterial("", this.scene);
+      material.diffuseColor = new Color3(0.5, 0.5, 0.5);
+
+      mesh.material = material;
+      mesh.position.copyFrom(position);
+      const assetContainer = new AssetContainer(this.scene);
+      assetContainer.meshes = [mesh];
+      return assetContainer;
+    },
   };
 }

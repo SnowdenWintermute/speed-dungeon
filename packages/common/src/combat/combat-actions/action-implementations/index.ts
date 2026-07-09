@@ -48,6 +48,8 @@ import { CombatActionName } from "../combat-action-names.js";
 import { KILL } from "./death/kill.js";
 import { HALF_KILL } from "./death/half-kill.js";
 import { PROVOKE } from "./provoke/index.js";
+import { THROW_PEBBLE_PARENT } from "./throw-pebble/throw-pebble-parent.js";
+import { THROW_PEBBLE_PROJECTILE } from "./throw-pebble/throw-pebble-projectile.js";
 
 export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Attack]: ATTACK,
@@ -99,4 +101,6 @@ export const COMBAT_ACTIONS: Record<CombatActionName, CombatActionComponent> = {
   [CombatActionName.Kill]: KILL,
   [CombatActionName.HalfKill]: HALF_KILL,
   [CombatActionName.Provoke]: PROVOKE,
+  [CombatActionName.ThrowPebbleParent]: THROW_PEBBLE_PARENT,
+  [CombatActionName.ThrowPebbleProjectile]: THROW_PEBBLE_PROJECTILE,
 };

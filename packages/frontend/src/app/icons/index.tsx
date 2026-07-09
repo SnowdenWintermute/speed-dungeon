@@ -56,6 +56,7 @@ import Parry from "../../../public/img/game-ui-icons/parry.svg";
 import Counterattack from "../../../public/img/game-ui-icons/counterattack.svg";
 import AngryYellFace from "../../../public/img/game-ui-icons/angry-yell-face.svg";
 import Bag from "../../../public/img/game-ui-icons/bag.svg";
+import ThrowPebble from "../../../public/img/game-ui-icons/throw-pebble.svg";
 
 import { ReactNode } from "react";
 import {
@@ -127,6 +128,7 @@ export enum IconName {
   Counterattack,
   AngryYellFace,
   Bag,
+  ThrowPebble,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -189,6 +191,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Counterattack]: (className: string) => <Counterattack className={className} />,
   [IconName.AngryYellFace]: (className: string) => <AngryYellFace className={className} />,
   [IconName.Bag]: (className: string) => <Bag className={className} />,
+  [IconName.ThrowPebble]: (className: string) => <ThrowPebble className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -292,6 +295,9 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.HalfKill]: (className: string) =>
     SVG_ICONS[IconName.Skull](className + " clip-path-[inset(0_50%_0_0)]"),
   [CombatActionName.Provoke]: (className: string) => SVG_ICONS[IconName.AngryYellFace](className),
+  [CombatActionName.ThrowPebbleParent]: (className: string) =>
+    SVG_ICONS[IconName.ThrowPebble](className),
+  [CombatActionName.ThrowPebbleProjectile]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
@@ -324,6 +330,7 @@ export const ACTION_ENTITY_ICONS: Record<
   [ActionEntityName.IceBolt]: null,
   [ActionEntityName.Explosion]: null,
   [ActionEntityName.IceBurst]: null,
+  [ActionEntityName.Pebble]: null,
   [ActionEntityName.Firewall]: (className: string) =>
     SVG_ICONS[IconName.Firewall](className + " fill-firered"),
 };

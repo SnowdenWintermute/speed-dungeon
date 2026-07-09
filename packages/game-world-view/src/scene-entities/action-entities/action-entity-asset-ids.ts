@@ -6,4 +6,5 @@ export const ACTION_ENTITY_NAME_TO_ASSET_ID: Record<ActionEntityName, string> = 
   [ActionEntityName.Explosion]: "",
   [ActionEntityName.IceBurst]: "",
   [ActionEntityName.Firewall]: "",
+  [ActionEntityName.Pebble]: "",
 };

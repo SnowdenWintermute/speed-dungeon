@@ -26,6 +26,9 @@ export enum CombatActionName {
   FirewallPassTurn,
   IgniteProjectile,
   IncinerateProjectile,
+  // PROJECTILE
+  ThrowPebbleParent,
+  ThrowPebbleProjectile,
   // THREAT
   Provoke,
   // SUMMON PETS
@@ -116,4 +119,6 @@ export const COMBAT_ACTION_NAME_STRINGS: Record<CombatActionName, string> = {
   [CombatActionName.Kill]: "Kill",
   [CombatActionName.HalfKill]: "HalfKill",
   [CombatActionName.Provoke]: "Provoke",
+  [CombatActionName.ThrowPebbleParent]: "Throw Pebble",
+  [CombatActionName.ThrowPebbleProjectile]: "ThrowPebbleProjectile",
 };

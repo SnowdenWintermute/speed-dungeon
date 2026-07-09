@@ -8,7 +8,6 @@ import { RandomNumberGenerationPolicy } from "../../utility-classes/random-numbe
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
-import { COMBAT_ACTION_NAME_STRINGS } from "../../combat/combat-actions/combat-action-names.js";
 import { ResourceChangePropertiesStrategy } from "../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
 export enum ActionResolutionStepType {

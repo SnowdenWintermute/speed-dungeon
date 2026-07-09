@@ -20,7 +20,7 @@ export function getAttackResourceChangeProperties(
   actionLevel: number,
   primaryTarget: CombatantProperties,
   scalingAttribute: CombatAttribute,
-  options = { usableWeaponsOnly: true }
+  options = { usableWeaponsOnly: true, forceUnarmed: false }
 ) {
   const weaponSlot = hitOutcomeProperties.addsPropertiesFromHoldableSlot;
 
@@ -58,7 +58,7 @@ export function getAttackResourceChangeProperties(
 
   const weaponOption = weaponSlot !== null ? equippedUsableWeapons[weaponSlot] : null;
 
-  if (weaponOption) {
+  if (weaponOption && !options.forceUnarmed) {
     applyWeaponPropertiesToResourceChangeProperties(
       hitOutcomeProperties,
       weaponOption,
