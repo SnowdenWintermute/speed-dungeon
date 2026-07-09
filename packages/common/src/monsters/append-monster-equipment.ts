@@ -6,6 +6,7 @@ import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { Shield } from "../items/equipment/equipment-types/shield.js";
 import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { NumberRange } from "../primatives/number-range.js";
@@ -138,6 +139,21 @@ export function appendMonsterEquipment(
       mainhandClaw.requirements = {};
 
       builder.equipMainHand(mainhandClaw);
+      break;
+    }
+    case MonsterType.SkeletonWarrior: {
+      const mainHandWeaponBuilder = itemBuilder
+        .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+        .indestructible();
+      const mainhandWeapon = mainHandWeaponBuilder.build(idGenerator);
+      mainhandWeapon.requirements = {};
+      mainhandWeapon.requireWeaponProperties().damage = new NumberRange(1, 4);
+      const offhandEquipmentBuilder = itemBuilder.shield(Shield.Heater).indestructible();
+      const offhandEquipment = offhandEquipmentBuilder.build(idGenerator);
+      offhandEquipment.requirements = {};
+
+      builder.equipMainHand(mainhandWeapon);
+      builder.equipOffHand(offhandEquipment);
       break;
     }
     case MonsterType.Net:

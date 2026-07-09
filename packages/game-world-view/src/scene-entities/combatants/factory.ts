@@ -63,7 +63,10 @@ export class CombatantSceneEntityFactory {
 
     sceneEntity.initChildTransformNodes();
 
-    const shouldSyncEquipment = combatantProperties.combatantSpecies === CombatantSpecies.Humanoid;
+    const speciesWithWeaponModels = [CombatantSpecies.Humanoid, CombatantSpecies.Skeleton];
+    const shouldSyncEquipment = speciesWithWeaponModels.includes(
+      combatantProperties.combatantSpecies
+    );
     if (shouldSyncEquipment) {
       sceneEntity.equipmentManager.synchronizeCombatantEquipmentModels();
     }

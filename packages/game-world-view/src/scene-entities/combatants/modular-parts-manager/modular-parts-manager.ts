@@ -34,7 +34,7 @@ export class CombatantSceneEntityModularPartsManager {
     const { assetContainer } = this.sceneEntity;
     const part = await loadAssetContainerIntoScene(this.assetService, scene, assetId);
     if (!assetContainer.skeletons[0]) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE + assetId);
     }
     for (const mesh of part.meshes) {
       // attach part

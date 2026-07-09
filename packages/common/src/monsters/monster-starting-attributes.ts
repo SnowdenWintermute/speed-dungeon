@@ -44,6 +44,14 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Strength]: 13.0,
     [CombatAttribute.Speed]: 1,
   },
+  [MonsterType.SkeletonWarrior]: {
+    [CombatAttribute.Vitality]: 2.0,
+    [CombatAttribute.ArmorClass]: 0.0,
+    [CombatAttribute.Hp]: 1,
+    [CombatAttribute.Accuracy]: 70.0,
+    [CombatAttribute.Strength]: 4.0,
+    [CombatAttribute.Speed]: 1,
+  },
   [MonsterType.FireMage]: {
     [CombatAttribute.Spirit]: 4.0,
     [CombatAttribute.Vitality]: 1.5,

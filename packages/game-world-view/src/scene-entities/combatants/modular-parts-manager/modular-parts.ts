@@ -48,4 +48,5 @@ export const MONSTER_FULL_SKINS: Record<MonsterType, string> = {
   [MonsterType.FireMage]: "",
   [MonsterType.Cultist]: "",
   [MonsterType.Zombie]: "monsters/zombie-full.glb",
+  [MonsterType.SkeletonWarrior]: "monsters/skeleton-full.glb",
 };

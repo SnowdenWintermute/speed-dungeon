@@ -39,6 +39,16 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.ArmorClass]: 4.5,
     [CombatAttribute.Evasion]: 2.0,
   },
+  [MonsterType.SkeletonWarrior]: {
+    [CombatAttribute.Dexterity]: 4.0,
+    [CombatAttribute.Strength]: 4.0,
+    [CombatAttribute.Vitality]: 2,
+    [CombatAttribute.Hp]: 3.5,
+    [CombatAttribute.Mp]: 0.0,
+    [CombatAttribute.Agility]: 2.0,
+    [CombatAttribute.ArmorClass]: 7.5,
+    [CombatAttribute.Evasion]: 2.0,
+  },
   [MonsterType.FireMage]: {
     [CombatAttribute.Spirit]: 10.0,
     [CombatAttribute.Vitality]: 1.5,

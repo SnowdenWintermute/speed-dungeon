@@ -26,6 +26,12 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
       [CombatantTraitType.Undead]: 1,
     };
   },
+  [MonsterType.SkeletonWarrior]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.Undead]: 1,
+      [CombatantTraitType.Parry]: 1,
+    };
+  },
   [MonsterType.FireMage]: (combatantLevel) => {
     return {};
   },

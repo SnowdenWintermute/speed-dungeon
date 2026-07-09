@@ -27,6 +27,6 @@ export const BASE_STARTING_ATTRIBUTES: Record<
     [CombatAttribute.Hp]: 18,
     [CombatAttribute.Mp]: 3,
     [CombatAttribute.Accuracy]: 85,
-    [CombatAttribute.Speed]: 2,
+    [CombatAttribute.Speed]: 3,
   },
 };

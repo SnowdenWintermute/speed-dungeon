@@ -16,6 +16,7 @@ export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
     [MagicalElement.Fire]: 50,
   },
   [MonsterType.Zombie]: { [MagicalElement.Light]: -50, [MagicalElement.Fire]: -25 },
+  [MonsterType.SkeletonWarrior]: { [MagicalElement.Light]: -50, [MagicalElement.Fire]: -25 },
 };
 
 export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
@@ -38,6 +39,11 @@ export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
     [KineticDamageType.Slashing]: 75,
   },
   [MonsterType.Zombie]: {
+    [KineticDamageType.Blunt]: -50,
+    [KineticDamageType.Piercing]: 50,
+    [KineticDamageType.Slashing]: 50,
+  },
+  [MonsterType.SkeletonWarrior]: {
     [KineticDamageType.Blunt]: -50,
     [KineticDamageType.Piercing]: 50,
     [KineticDamageType.Slashing]: 50,

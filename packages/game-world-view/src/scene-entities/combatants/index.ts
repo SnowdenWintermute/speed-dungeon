@@ -105,6 +105,15 @@ export class CombatantSceneEntity extends SceneEntity {
   }
 
   initChildTransformNodes(): void {
+    const shieldNodeOption = this.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-shield-node`,
+      "Shield"
+    );
+    if (shieldNodeOption) {
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.Shield] = shieldNodeOption;
+    }
+
     const mainHandEquipmentNode = this.createTransformNodeChildOfBone(
       this.rootMesh,
       `${this.entityId}-mh-equipment`,

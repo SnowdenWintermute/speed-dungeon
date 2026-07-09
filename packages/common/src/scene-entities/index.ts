@@ -61,6 +61,7 @@ export interface SceneEntityChildTransformNodeIdentifierWithDuration {
 export enum CombatantBaseChildTransformNodeName {
   MainHandEquipment,
   OffhandEquipment,
+  Shield,
   EntityRoot,
   HitboxCenter,
   HitboxCenterTop,
@@ -73,6 +74,7 @@ export const COMBATANT_BASE_TRANSFORM_NODE_NAME_STRINGS: Record<
 > = {
   [CombatantBaseChildTransformNodeName.MainHandEquipment]: "MainHandEquipment",
   [CombatantBaseChildTransformNodeName.OffhandEquipment]: "OffhandEquipment",
+  [CombatantBaseChildTransformNodeName.Shield]: "Shield",
   [CombatantBaseChildTransformNodeName.EntityRoot]: "EntityRoot",
   [CombatantBaseChildTransformNodeName.HitboxCenter]: "HitboxCenter",
   [CombatantBaseChildTransformNodeName.Head]: "HitboxCenter",

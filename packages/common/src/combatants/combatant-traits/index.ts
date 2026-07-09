@@ -7,6 +7,7 @@ export const BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL: Percentage = 50;
 export const EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL = 20;
 
 export const PARRY_TRAIT_CHANCE_BY_RANK = new Map<number, number>([
+  // [1, 1.04],
   [1, 0.04],
   [2, 0.08],
   [3, 0.12],

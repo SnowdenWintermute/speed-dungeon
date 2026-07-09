@@ -7,8 +7,10 @@ export interface MonsterSpawnEntry {
 }
 
 export const FALLBACK_MONSTER_SPAWN_TABLE = [
-  { monster: MonsterType.Wolf, weight: 40 },
-  { monster: MonsterType.Zombie, weight: 60 },
+  // { monster: MonsterType.Wolf, weight: 40 },
+  // { monster: MonsterType.Zombie, weight: 60 },
+  // { monster: MonsterType.Wolf, weight: 40 },
+  { monster: MonsterType.SkeletonWarrior, weight: 100 },
 ];
 
 export const MONSTER_SPAWN_TABLES: Record<number, MonsterSpawnEntry[]> = {
