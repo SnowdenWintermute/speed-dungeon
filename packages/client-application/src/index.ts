@@ -165,8 +165,12 @@ export class ClientApplication {
     this.actionMenu.initialize(new RootActionMenuScreen(this));
 
     this.combatantFocus.focusFirstOwnedCharacter();
-
     const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
+    const battleOption = game.battles.get(party.battleId || "");
+    if (battleOption) {
+      const firstTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      this.combatantFocus.handleBattleStart(firstTracker);
+    }
 
     if (!game.clock.isLive()) {
       game.clock.startLiveSession();

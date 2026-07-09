@@ -71,7 +71,6 @@ export class GameClient extends BaseClient {
     sequentialEventProcessor.resetChain();
 
     gameWorldView?.environment.groundPlane.drawCharacterSlots();
-
     this.clientApplication.topologyManager.connectWithPrefferedMode();
   }
 }
