@@ -128,6 +128,6 @@ export class IncomingResourceChangesCalculator {
   ): number {
     const multiTargetBonus = 1 + (targetsCount - 1) * bonus;
     const valueWithBonus = resourceChangeValue * multiTargetBonus;
-    return valueWithBonus / targetsCount;
+    return Math.max(1, valueWithBonus / targetsCount);
   }
 }

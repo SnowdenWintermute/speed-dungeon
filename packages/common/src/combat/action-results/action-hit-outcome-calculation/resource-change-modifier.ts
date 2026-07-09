@@ -1,6 +1,7 @@
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 import { Percentage } from "../../../aliases.js";
+import { EPSILON } from "../../../utils/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
@@ -42,7 +43,9 @@ export class ResourceChangeModifier {
     );
     resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
 
-    this.resourceChange.value = Math.floor(resourceChange.value);
+    // this.resourceChange.value = Math.floor(resourceChange.value);
+    // comment the line above and uncomment below to test magnitude-based flooring:
+    this.resourceChange.value = floorSignedMagnitude(resourceChange.value);
   }
 
   private applyCritMultiplier(actionLevel: number) {
@@ -123,4 +126,11 @@ export class ResourceChangeModifier {
 
     if (!shouldKeepSign) resourceChange.value *= -1;
   }
+}
+
+// floors the magnitude of a signed value rather than the signed value itself. for damage (negative
+// at this point) Math.floor rounds away from zero and inflates the number; this rounds the magnitude
+// down instead. EPSILON absorbs float drift so a value like -3.0000001 doesn't tip to -4. 0 is allowed.
+function floorSignedMagnitude(value: number): number {
+  return Math.sign(value) * Math.floor(Math.abs(value) + EPSILON);
 }

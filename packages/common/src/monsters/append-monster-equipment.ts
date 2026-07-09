@@ -148,7 +148,10 @@ export function appendMonsterEquipment(
       const mainhandWeapon = mainHandWeaponBuilder.build(idGenerator);
       mainhandWeapon.requirements = {};
       mainhandWeapon.requireWeaponProperties().damage = new NumberRange(1, 4);
-      const offhandEquipmentBuilder = itemBuilder.shield(Shield.Heater).indestructible();
+      const offhandEquipmentBuilder = itemBuilder
+        .shield(Shield.Heater)
+        .indestructible()
+        .armorClass(0);
       const offhandEquipment = offhandEquipmentBuilder.build(idGenerator);
       offhandEquipment.requirements = {};
 

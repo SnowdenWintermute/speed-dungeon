@@ -122,7 +122,11 @@ export class ActionEntitySceneEntityFactory {
       return assetContainer;
     },
     [ActionEntityName.Pebble]: async (position: Vector3) => {
-      const mesh = MeshBuilder.CreateSphere("pebble sphere", { diameter: 0.1 }, this.scene);
+      const mesh = MeshBuilder.CreateSphere(
+        "pebble sphere",
+        { diameter: 0.1, segments: 5 },
+        this.scene
+      );
       const material = new StandardMaterial("", this.scene);
       material.diffuseColor = new Color3(0.5, 0.5, 0.5);
 
