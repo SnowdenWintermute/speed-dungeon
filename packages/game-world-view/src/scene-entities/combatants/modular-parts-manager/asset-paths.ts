@@ -30,7 +30,6 @@ export function getCombatantSceneEntityPartCategoriesAndAssetPaths(
       });
     }
   } else {
-    console.log("getting full skin for monster");
     const mainClass = combatantProperties.classProgressionProperties.getMainClass().combatantClass;
     // is humanoid
     const headPath = CHARACTER_PARTS[mainClass][CharacterModelPartCategory.Head];

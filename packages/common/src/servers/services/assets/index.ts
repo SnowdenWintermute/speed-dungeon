@@ -184,7 +184,6 @@ export class ClientAppAssetService implements AssetService {
 
   /** abort any non-urgent fetches and add them back into pre-fetch list to get later */
   private rescheduleLowPriorityFetches() {
-    console.log("rescheduleLowPriorityFetches");
     const nonUrgentFetchIds = Array.from(this.activeFetches.entries())
       .filter(([assetId, managedFetch]) => managedFetch.isPreemptable())
       .map(([assetId, managedFetch]) => assetId);
@@ -192,7 +191,6 @@ export class ClientAppAssetService implements AssetService {
     for (const managedFetchId of nonUrgentFetchIds) {
       const managedFetch = this.activeFetches.get(managedFetchId);
       invariant(managedFetch !== undefined);
-      console.log("aborting managed fetch:", managedFetchId);
       managedFetch.abort();
       this.progressTracker.onFetchAbort(managedFetchId);
       this.activeFetches.delete(managedFetchId);

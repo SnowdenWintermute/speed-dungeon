@@ -244,8 +244,6 @@ export function getKillAttachedCombatantsActionIntents(
   targetCombatant: Combatant,
   party: AdventuringParty
 ) {
-  console.log("trying to getKillAttachedCombatantsActionIntents");
-
   const intents: ActionIntentAndUser[] = [];
   for (const attachedId of targetCombatant.combatantProperties.transformProperties
     .attachedCombatants) {
@@ -264,8 +262,6 @@ export function getKillAttachedCombatantsActionIntents(
       });
     }
   }
-
-  console.log("intents:", intents);
 
   return intents;
 }

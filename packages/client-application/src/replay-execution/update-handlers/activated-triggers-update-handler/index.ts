@@ -99,7 +99,6 @@ export class ActionEffectsApplyerCommand {
         const { conditionManager } = combatantResult.combatantProperties;
         const conditionRemovedOption = conditionManager.removeStacks(conditionId, numStacks);
 
-        console.log("conditionRemovedOption in stack removal:", conditionRemovedOption);
         if (!gameWorldView) {
           continue;
         }
@@ -116,7 +115,6 @@ export class ActionEffectsApplyerCommand {
     }
 
     if (this.battleOption) {
-      console.log("update trackers after stacks removed");
       this.battleOption.turnOrderManager.updateTrackers(this.game, this.party);
     }
   }
@@ -130,8 +128,6 @@ export class ActionEffectsApplyerCommand {
 
   private applyConditionsRemoved(removedConditionIds?: Record<string, string[]>) {
     if (!removedConditionIds) return;
-
-    console.log("removedConditionIds:", removedConditionIds);
 
     const { gameWorldView } = this.clientApplication;
     for (const [entityId, conditionIdsRemoved] of Object.entries(removedConditionIds)) {

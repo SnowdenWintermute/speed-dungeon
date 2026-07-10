@@ -95,11 +95,7 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
   const exploreHotkey = HOTKEYS.SIDE_1;
   const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
 
-  console.log("party in combat:", party.isInCombat());
-  console.log("event queue procesing:", clientApplication.sequentialEventProcessor.isProcessing);
-
   const allowedToExplore = !party.isInCombat();
-  console.log("allowedToExplore:", allowedToExplore);
 
   if (!allowedToExplore) {
     return <></>;

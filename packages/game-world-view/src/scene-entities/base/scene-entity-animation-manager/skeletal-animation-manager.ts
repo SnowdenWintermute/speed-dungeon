@@ -116,8 +116,9 @@ export class SkeletalAnimationManager implements SceneEntityAnimationManager<Ani
     if (newAnimationGroup === undefined) {
       const fallbackName = this.getFallbackAnimationName(name);
 
-      if (fallbackName !== undefined)
+      if (fallbackName !== undefined) {
         newAnimationGroup = this.getAnimationGroupByName(fallbackName);
+      }
     }
 
     if (newAnimationGroup === undefined) return undefined;
@@ -174,6 +175,10 @@ export class SkeletalAnimationManager implements SceneEntityAnimationManager<Ani
       return SkeletalAnimationName.MoveForwardLoop;
     }
 
+    if (animationName === SkeletalAnimationName.Falling) {
+      return SkeletalAnimationName.IdleFlying;
+    }
+
     const idleAnimationNames = [
       SkeletalAnimationName.IdleUnarmed,
       SkeletalAnimationName.IdleFlying,
@@ -183,6 +188,9 @@ export class SkeletalAnimationManager implements SceneEntityAnimationManager<Ani
       SkeletalAnimationName.IdleMainHand,
     ];
     if (idleAnimationNames.includes(animationName)) {
+      if (animationName === SkeletalAnimationName.IdleUnarmed) {
+        return SkeletalAnimationName.IdleFlying;
+      }
       return SkeletalAnimationName.IdleUnarmed;
     }
 

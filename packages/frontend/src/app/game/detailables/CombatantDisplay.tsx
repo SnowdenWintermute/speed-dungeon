@@ -23,7 +23,6 @@ export const CombatantDisplay = observer(({ combatant }: Props) => {
   }
 
   function closeIfNotInMenu() {
-    console.log("heard");
     if (!actionMenu.hasStackedMenus()) {
       closeDisplay();
     }

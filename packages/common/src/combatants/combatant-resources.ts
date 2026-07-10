@@ -103,7 +103,6 @@ export class CombatantResources extends CombatantSubsystem implements ReactiveNo
         case ActionPayableResource.Shards:
           break;
         case ActionPayableResource.ActionPoints:
-          console.log("changeActionPoints:", cost);
           this.changeActionPoints(cost);
           break;
       }

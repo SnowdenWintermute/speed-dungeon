@@ -27,7 +27,6 @@ export class PayResourceCostsActionResolutionStep extends ActionResolutionStep {
     const inCombat = party.isInCombat();
 
     const costsOption = action.costProperties.getResourceCosts(actionUser, inCombat, actionRank);
-    console.log("costsOption:", costsOption, action.getStringName());
 
     const consumableTypeAndLevelToConsumeOption = action.costProperties.getConsumableCost
       ? action.costProperties.getConsumableCost(actionUser)

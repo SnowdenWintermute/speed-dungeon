@@ -77,8 +77,6 @@ export class MonsterGenerator {
     const rolledValue = randBetween(min, max, rng);
     const floored = Math.ceil(rolledValue);
 
-    console.log(hp, floored - hp);
-
-    attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, floored - (hp - 1));
+    attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, floored - (hp - 2));
   }
 }

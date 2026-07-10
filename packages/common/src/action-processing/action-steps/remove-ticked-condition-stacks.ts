@@ -38,7 +38,6 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
 
     const tickPropertiesOption = actionUser.getConditionTickPropertiesOption();
 
-    console.log("tickPropertiesOption:", tickPropertiesOption);
     if (tickPropertiesOption) {
       const onTick = tickPropertiesOption.onTick(context.actionUserContext);
       const { numStacksRemoved } = onTick;
@@ -54,7 +53,6 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
       const { conditionManager } = hostEntity.combatantProperties;
       conditionManager.removeStacks(condition.getEntityId(), numStacksRemoved);
 
-      console.log("removed stacks:", numStacksRemoved);
       addRemovedConditionStacksToUpdate(
         condition.getEntityId(),
         numStacksRemoved,
