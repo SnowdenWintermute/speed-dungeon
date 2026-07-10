@@ -8,6 +8,7 @@ import { CombatAttribute } from "./attributes/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { NormalizedPercentage } from "../aliases.js";
+import { crypto_generichash } from "libsodium-wrappers";
 
 export class CombatantResources extends CombatantSubsystem implements ReactiveNode, Serializable {
   private hitPoints: number = 1;
@@ -102,6 +103,7 @@ export class CombatantResources extends CombatantSubsystem implements ReactiveNo
         case ActionPayableResource.Shards:
           break;
         case ActionPayableResource.ActionPoints:
+          console.log("changeActionPoints:", cost);
           this.changeActionPoints(cost);
           break;
       }
