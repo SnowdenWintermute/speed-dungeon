@@ -7,4 +7,5 @@ export enum CombatantSpecies {
   Slime,
   Zombie,
   Skeleton,
+  Bat,
 }

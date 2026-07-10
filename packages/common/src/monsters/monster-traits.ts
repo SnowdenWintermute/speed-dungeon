@@ -39,6 +39,12 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
       [CombatantTraitType.Counterattack]: 1,
     };
   },
+  [MonsterType.VampireBat]: () => {
+    return {
+      [CombatantTraitType.Flyer]: 1,
+      [CombatantTraitType.MeleeLifesteal]: 3,
+    };
+  },
   [MonsterType.FireMage]: (combatantLevel) => {
     return {};
   },

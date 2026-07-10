@@ -183,6 +183,17 @@ export function appendMonsterEquipment(
       builder.equipOffHand(offhandEquipment);
       break;
     }
+    case MonsterType.VampireBat: {
+      const mainHandWeaponBuilder = itemBuilder
+        .twoHandedMeleeWeapon(TwoHandedMeleeWeapon.Spear)
+        .indestructible();
+      const mainhandWeapon = mainHandWeaponBuilder.build(idGenerator);
+      mainhandWeapon.requirements = {};
+      mainhandWeapon.requireWeaponProperties().damage = new NumberRange(0, 3);
+
+      builder.equipMainHand(mainhandWeapon);
+      break;
+    }
     case MonsterType.Net:
       break;
   }

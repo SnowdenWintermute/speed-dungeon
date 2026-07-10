@@ -23,6 +23,11 @@ export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
   [MonsterType.Zombie]: UNDEAD_ELEMENTAL_AFFINITIES,
   [MonsterType.SkeletonWarrior]: UNDEAD_ELEMENTAL_AFFINITIES,
   [MonsterType.SkeletonCaptain]: UNDEAD_ELEMENTAL_AFFINITIES,
+  [MonsterType.VampireBat]: {
+    [MagicalElement.Wind]: -50,
+    [MagicalElement.Earth]: 50,
+    [MagicalElement.Lightning]: -25,
+  },
 };
 
 const UNDEAD_KINETIC_AFFINITIES = {
@@ -53,4 +58,7 @@ export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
   [MonsterType.Zombie]: UNDEAD_KINETIC_AFFINITIES,
   [MonsterType.SkeletonWarrior]: UNDEAD_KINETIC_AFFINITIES,
   [MonsterType.SkeletonCaptain]: UNDEAD_KINETIC_AFFINITIES,
+  [MonsterType.VampireBat]: {
+    [KineticDamageType.Piercing]: -25,
+  },
 };

@@ -52,6 +52,15 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Strength]: 2.0,
     [CombatAttribute.Speed]: 1,
   },
+  [MonsterType.VampireBat]: {
+    [CombatAttribute.Vitality]: 1.0,
+    [CombatAttribute.ArmorClass]: 0.0,
+    [CombatAttribute.Hp]: 1,
+    [CombatAttribute.Accuracy]: 75.0,
+    [CombatAttribute.Strength]: 1.0,
+    [CombatAttribute.Dexterity]: 2.0,
+    [CombatAttribute.Speed]: 2,
+  },
   [MonsterType.SkeletonCaptain]: {
     [CombatAttribute.Vitality]: 2.0,
     [CombatAttribute.ArmorClass]: 0.0,

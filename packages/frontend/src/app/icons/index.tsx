@@ -320,6 +320,7 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
     SVG_ICONS[IconName.Counterattack](className),
   [CombatantTraitType.ExtraConsumablesStorage]: (className: string) =>
     SVG_ICONS[IconName.Bag](className),
+  [CombatantTraitType.MeleeLifesteal]: null,
 };
 
 export const ACTION_ENTITY_ICONS: Record<

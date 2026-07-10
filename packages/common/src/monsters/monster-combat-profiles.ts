@@ -59,6 +59,10 @@ export const MONSTER_COMBAT_PROFILES: Record<MonsterType, MonsterCombatProfile> 
     actions: [{ name: CombatActionName.Attack }],
     aiTypes: [...BASIC_AI_PRIORITY],
   },
+  [MonsterType.VampireBat]: {
+    actions: [{ name: CombatActionName.Attack }],
+    aiTypes: [...BASIC_AI_PRIORITY],
+  },
   [MonsterType.FireMage]: {
     actions: [{ name: CombatActionName.Attack }, { name: CombatActionName.Healing }],
     aiTypes: [...BASIC_AI_PRIORITY],

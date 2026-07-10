@@ -20,6 +20,13 @@ export const COUNTERATTACK_TRAIT_CHANCE_BY_RANK = new Map<number, number>([
   [3, 0.09],
 ]);
 
+export const MELEE_LIFESTEAL_TRAIT_PERCENTAGE_BY_RANK = new Map<number, number>([
+  // [1, 1.03],
+  [1, 50],
+  [2, 75],
+  [3, 100],
+]);
+
 export class CombatantTraitDescription {
   public readonly descriptionsByLevel: string[];
   public readonly name: string;
@@ -148,6 +155,18 @@ export const COMBATANT_TRAIT_DESCRIPTIONS: Record<CombatantTraitType, CombatantT
     maxLevel: 3,
     isAllocatable: true,
     summary: "Sometimes avoids attacks and strikes back",
+    createDescriptionsByLevel: (self) => {
+      const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
+        (level) => `Base chance ${(COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(level) || 0) * 100}%`
+      );
+      return toReturn;
+    },
+  }),
+  [CombatantTraitType.MeleeLifesteal]: new CombatantTraitDescription({
+    name: "Vampirism",
+    maxLevel: 3,
+    isAllocatable: true,
+    summary: "Heals for a portion of melee attack damage dealt",
     createDescriptionsByLevel: (self) => {
       const toReturn = ArrayUtils.createFilledWithSequentialNumbers(self.maxLevel, 1).map(
         (level) => `Base chance ${(COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(level) || 0) * 100}%`

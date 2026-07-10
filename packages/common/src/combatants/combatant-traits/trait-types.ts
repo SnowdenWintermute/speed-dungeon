@@ -11,4 +11,5 @@ export enum CombatantTraitType {
   CanNotBeRestrained,
   Parry,
   Counterattack,
+  MeleeLifesteal,
 }
