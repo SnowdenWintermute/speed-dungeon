@@ -28,6 +28,7 @@ import { CombatantClass } from "../../../../combatants/combatant-class/classes.j
 import { CombatantTraitProperties } from "../../../../combatants/combatant-traits/combatant-trait-properties.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
 import { EntityName, Username } from "../../../../aliases.js";
+import { MONSTER_SCALING_SIZES } from "../../../../monsters/scaling-sizes.js";
 
 const config = cloneDeep(BASIC_SPELL_STEPS_CONFIG);
 ActionStepConfigUtils.removeMoveForwardSteps(config);
@@ -91,10 +92,21 @@ config.steps[ActionResolutionStepType.PostPrepSpawnEntity] = {
 
     // looks good on humanoid, wolf and manta ray when based off their skeleton's bounding box volume
     const BOUNDING_BOX_VOLUME_TO_WEB_SIZE_MULTIPLIER = 0.25;
+    let monsterTargetScaledSize = 1;
+    const monsterTypeOption = primaryTargetResult.getCombatantProperties().monsterType;
+
+    if (monsterTypeOption !== null) {
+      const speciesScalingOption = MONSTER_SCALING_SIZES[monsterTypeOption];
+      if (speciesScalingOption) {
+        monsterTargetScaledSize = speciesScalingOption;
+      }
+    }
 
     if (primaryTargetBoundingBoxSize !== undefined) {
       web.combatantProperties.transformProperties.scaleModifier =
-        primaryTargetBoundingBoxSize * BOUNDING_BOX_VOLUME_TO_WEB_SIZE_MULTIPLIER;
+        primaryTargetBoundingBoxSize *
+        BOUNDING_BOX_VOLUME_TO_WEB_SIZE_MULTIPLIER *
+        monsterTargetScaledSize;
     }
 
     // testing if we can kill this if the thing it is attached to dies first:

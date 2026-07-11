@@ -20,6 +20,7 @@ export class AssetAnalyzer {
     [CombatantSpecies.Zombie]: {},
     [CombatantSpecies.Skeleton]: {},
     [CombatantSpecies.Bat]: {},
+    [CombatantSpecies.TRex]: {},
   };
 
   private _boundingBoxes: BoundingBoxSizesBySpecies = {};

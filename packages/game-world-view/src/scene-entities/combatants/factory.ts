@@ -6,6 +6,7 @@ import {
   CombatantSpecies,
   MonsterType,
   SKELETON_FILE_PATHS,
+  MONSTER_SCALING_SIZES,
 } from "@speed-dungeon/common";
 import { GameWorldView } from "../..";
 import { CombatantSceneEntity } from ".";
@@ -14,11 +15,8 @@ import {
   loadAssetContainerIntoScene,
 } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ClientApplication } from "@/client-application";
-import { MONSTER_SCALING_SIZES } from "./species-scaling-sizes";
 import { AssetContainer, Color3, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { getCombatantSceneEntityPartCategoriesAndAssetPaths } from "./modular-parts-manager/asset-paths";
-import { MaterialCategory, MaterialShade } from "@/game-world-view/materials/material-colors";
-import cloneDeep from "lodash.clonedeep";
 
 export class CombatantSceneEntityFactory {
   private scene: Scene;

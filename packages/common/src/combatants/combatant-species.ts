@@ -8,4 +8,5 @@ export enum CombatantSpecies {
   Zombie,
   Skeleton,
   Bat,
+  TRex,
 }

@@ -71,6 +71,17 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<
     [CombatAttribute.ArmorClass]: 1.5,
     [CombatAttribute.Evasion]: 3.0,
   },
+  [MonsterType.TyrantRex]: {
+    [CombatAttribute.Dexterity]: 5.0,
+    [CombatAttribute.Strength]: 5.0,
+    [CombatAttribute.Spirit]: 0.0,
+    [CombatAttribute.Vitality]: 3,
+    [CombatAttribute.Hp]: 3.5,
+    [CombatAttribute.Mp]: 0.0,
+    [CombatAttribute.Agility]: 2.0,
+    [CombatAttribute.ArmorClass]: 1.5,
+    [CombatAttribute.Evasion]: 3.0,
+  },
   [MonsterType.FireMage]: {
     [CombatAttribute.Spirit]: 10.0,
     [CombatAttribute.Vitality]: 1.5,

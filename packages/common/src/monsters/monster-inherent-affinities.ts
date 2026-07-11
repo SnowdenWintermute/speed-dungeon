@@ -28,6 +28,10 @@ export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
     [MagicalElement.Earth]: 50,
     [MagicalElement.Lightning]: -25,
   },
+  [MonsterType.TyrantRex]: {
+    [MagicalElement.Ice]: -150,
+    [MagicalElement.Dark]: 50,
+  },
 };
 
 const UNDEAD_KINETIC_AFFINITIES = {
@@ -60,5 +64,9 @@ export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
   [MonsterType.SkeletonCaptain]: UNDEAD_KINETIC_AFFINITIES,
   [MonsterType.VampireBat]: {
     [KineticDamageType.Piercing]: -25,
+  },
+  [MonsterType.TyrantRex]: {
+    [KineticDamageType.Piercing]: -25,
+    [KineticDamageType.Slashing]: -25,
   },
 };

@@ -45,6 +45,9 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
       [CombatantTraitType.MeleeLifesteal]: 3,
     };
   },
+  [MonsterType.TyrantRex]: () => {
+    return {};
+  },
   [MonsterType.FireMage]: (combatantLevel) => {
     return {};
   },

@@ -15,8 +15,8 @@ import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 
-const HP_INJECTOR_COUNT = 1;
-const MP_INJECTOR_COUNT = 1;
+const HP_INJECTOR_COUNT = 2;
+const MP_INJECTOR_COUNT = 0;
 
 export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
   override setCharacters() {

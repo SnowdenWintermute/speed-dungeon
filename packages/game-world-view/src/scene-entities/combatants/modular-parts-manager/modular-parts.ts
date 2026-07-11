@@ -51,4 +51,5 @@ export const MONSTER_FULL_SKINS: Record<MonsterType, string> = {
   [MonsterType.SkeletonWarrior]: "monsters/skeleton-full.glb",
   [MonsterType.SkeletonCaptain]: "monsters/skeleton-captain-full.glb",
   [MonsterType.VampireBat]: "monsters/bat-full.glb",
+  [MonsterType.TyrantRex]: "monsters/t-rex-full.glb",
 };

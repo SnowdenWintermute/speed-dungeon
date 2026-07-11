@@ -13,4 +13,5 @@ export const MONSTER_SPECIES: Record<MonsterType, CombatantSpecies> = {
   [MonsterType.SkeletonWarrior]: CombatantSpecies.Skeleton,
   [MonsterType.SkeletonCaptain]: CombatantSpecies.Skeleton,
   [MonsterType.VampireBat]: CombatantSpecies.Bat,
+  [MonsterType.TyrantRex]: CombatantSpecies.TRex,
 };

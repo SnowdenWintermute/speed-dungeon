@@ -194,6 +194,17 @@ export function appendMonsterEquipment(
       builder.equipMainHand(mainhandWeapon);
       break;
     }
+    case MonsterType.TyrantRex: {
+      const mainHandWeaponBuilder = itemBuilder
+        .twoHandedMeleeWeapon(TwoHandedMeleeWeapon.Spear)
+        .indestructible();
+      const mainhandWeapon = mainHandWeaponBuilder.build(idGenerator);
+      mainhandWeapon.requirements = {};
+      mainhandWeapon.requireWeaponProperties().damage = new NumberRange(10, 16);
+
+      builder.equipMainHand(mainhandWeapon);
+      break;
+    }
     case MonsterType.Net:
       break;
   }

@@ -10,4 +10,5 @@ export const SKELETON_FILE_PATHS: Record<CombatantSpecies, string> = {
   [CombatantSpecies.Zombie]: "monsters/zombie-main-skeleton.glb",
   [CombatantSpecies.Skeleton]: "monsters/skeleton-main-skeleton.glb",
   [CombatantSpecies.Bat]: "monsters/bat-main-skeleton.glb",
+  [CombatantSpecies.TRex]: "monsters/t-rex-main-skeleton.glb",
 };
