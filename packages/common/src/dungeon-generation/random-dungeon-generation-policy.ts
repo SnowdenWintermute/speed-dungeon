@@ -49,7 +49,7 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     // reverse because we pop from the end when getting next room to generate
     const result = [...firstRooms, ...mainRooms, ...lastRooms].reverse();
 
-    // result.push(DungeonRoomType.VendingMachine); // TESTING
+    result.push(DungeonRoomType.VendingMachine); // TESTING
     return result;
   }
 

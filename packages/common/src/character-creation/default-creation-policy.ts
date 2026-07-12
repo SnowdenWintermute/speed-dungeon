@@ -14,6 +14,8 @@ import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-p
 import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { AffixType, SUFFIX_TYPES } from "../items/equipment/affixes.js";
+import { EquipmentTraitType } from "../items/equipment/equipment-traits/index.js";
 
 const HP_INJECTOR_COUNT = 2;
 const MP_INJECTOR_COUNT = 0;
@@ -59,7 +61,17 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
       case CombatantClass.Warrior: {
         builder
           .equipMainHand(
-            itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator)
+            itemBuilder
+              .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick)
+              .durability(1)
+              .suffix(AffixType.Durability, {
+                tier: 1,
+                combatAttributes: {},
+                equipmentTraits: [
+                  { equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive, value: 1 },
+                ],
+              })
+              .build(idGenerator)
           )
           .equipOffHand(itemBuilder.shield(Shield.PotLid).build(idGenerator));
         break;
