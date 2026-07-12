@@ -2,17 +2,39 @@ import { GameId, GameServerName, PartyName, Username } from "../../aliases.js";
 import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { GameServerSessionClaimToken } from "../lobby-server/game-handoff/session-claim-token.js";
 import { LobbyReconnectionProtocol } from "../lobby-server/reconnection/index.js";
+import { Serializable, SerializedOf } from "../../serialization/index.js";
 import { TaggedUserId } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
 
-export class GlobalGameSession {
-  private _gameSessionData: GameServerSessionData;
+export class GlobalGameSession implements Serializable {
   constructor(
+    private _gameSessionData: GameServerSessionData,
+    private _connectionStatus: GameSessionConnectionStatus
+  ) {}
+
+  static fromUserSession(
     session: UserSession,
     gameServerName: GameServerName,
-    private _connectionStatus: GameSessionConnectionStatus
+    connectionStatus: GameSessionConnectionStatus
   ) {
-    this._gameSessionData = GameServerSessionData.fromUserSession(session, gameServerName);
+    return new GlobalGameSession(
+      GameServerSessionData.fromUserSession(session, gameServerName),
+      connectionStatus
+    );
+  }
+
+  toSerialized() {
+    return {
+      gameSessionData: this._gameSessionData.toSerialized(),
+      connectionStatus: this._connectionStatus,
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<GlobalGameSession>) {
+    return new GlobalGameSession(
+      GameServerSessionData.fromSerialized(serialized.gameSessionData),
+      serialized.connectionStatus
+    );
   }
 
   set connectionStatus(value: GameSessionConnectionStatus) {
@@ -42,7 +64,7 @@ export enum GameSessionConnectionStatus {
   AwaitingReconnection,
 }
 
-export class GameServerSessionData {
+export class GameServerSessionData implements Serializable {
   constructor(
     public readonly taggedUserId: TaggedUserId,
     private username: Username,
@@ -51,6 +73,32 @@ export class GameServerSessionData {
     public readonly gameServerName: GameServerName,
     public guestUserReconnectionTokenOption: null | GuestSessionReconnectionToken
   ) {}
+
+  toSerialized() {
+    return {
+      taggedUserId: this.taggedUserId,
+      username: this.username,
+      gameId: this._gameId,
+      partyName: this._partyName,
+      gameServerName: this.gameServerName,
+      guestUserReconnectionTokenOption: this.guestUserReconnectionTokenOption
+        ? this.guestUserReconnectionTokenOption.toSerialized()
+        : null,
+    };
+  }
+
+  static fromSerialized(serialized: SerializedOf<GameServerSessionData>) {
+    return new GameServerSessionData(
+      serialized.taggedUserId,
+      serialized.username,
+      serialized.gameId,
+      serialized.partyName,
+      serialized.gameServerName,
+      serialized.guestUserReconnectionTokenOption
+        ? GuestSessionReconnectionToken.fromSerialized(serialized.guestUserReconnectionTokenOption)
+        : null
+    );
+  }
 
   static fromUserSession(session: UserSession, gameServerName: GameServerName) {
     if (session.currentGameId === null) {

@@ -14,7 +14,7 @@ import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
 import { createPartyAbandonedMessage, GameMessageType } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
-import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
+import { UserGlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 import { GameMode, GameModePolicy } from "../../../../game-modes/index.js";
 import { PartyLifecyleController } from "../party-lifecycle.js";
@@ -26,7 +26,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly globalGameSessionStore: UserGlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly dungeonExplorationController: DungeonExplorationController,

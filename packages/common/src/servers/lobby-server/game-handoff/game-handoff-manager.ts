@@ -4,7 +4,7 @@ import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-stat
 import { invariant } from "../../../utils/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { PendingGameSetup } from "../../services/game-session-store/pending-game-setup.js";
-import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { UserGlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -17,7 +17,7 @@ export class GameHandoffManager {
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly updateFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly globalGameSessionStore: UserGlobalGameSessionStore,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly getLeastBusyGameServer: () => Promise<{ name: GameServerName; url: string }>
   ) {}

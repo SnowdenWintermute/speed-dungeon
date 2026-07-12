@@ -3,15 +3,13 @@ import {
   CrossServerBroadcasterService,
   GameServerName,
   GameStateUpdate,
-  InMemoryCrossServerBroadcaster,
-  InMemoryCrossServerBroadcastBus,
-  InMemoryGameSessionStoreService,
   ServerCommand,
   SodiumHelpers,
-  InMemoryGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
 } from "@speed-dungeon/common";
+import { ValkeyUserGlobalGameSessionStore } from "./services/valkey-user-global-game-session-store.js";
+import { ValkeyCrossServerBroadcaster } from "./services/valkey-cross-server-broadcaster.js";
 import { pgPool } from "./singletons/pg-pool.js";
 import { pgOptions } from "./database/config.js";
 import { valkeyManager } from "./kv-store/index.js";
@@ -23,6 +21,7 @@ import { createServer } from "http";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseProfileService } from "./game-node/services/profiles.js";
 import { speedDungeonProfilesRepo } from "./database/repos/speed-dungeon-profiles.js";
+import { ValkeyGameSessionStoreService } from "./services/valkey-game-session-store-service.js";
 
 const LOBBY_PORT = 8080;
 export const GAME_SERVER_NAME = "Lindblum Test Game Server" as GameServerName;
@@ -37,20 +36,16 @@ await loadLadderIntoKvStore();
 const lobbyServerNode = new LobbyServerNode();
 const gameServerNode = new GameServerNode();
 
-// @TODO - make valkey versions
-const gameSessionStoreService = new InMemoryGameSessionStoreService();
-const globalGameSessionStore = new InMemoryGlobalGameSessionStore();
+const gameSessionStoreService = new ValkeyGameSessionStoreService(valkeyManager.context);
+
+const userGlobalGameSessionStore = new ValkeyUserGlobalGameSessionStore(valkeyManager.context);
 
 // for sending ladder rank global messages from the originating game server to all clients
 // on all servers
-const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<
-  GameStateUpdate,
-  ServerCommand
->();
 const lobbyCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
-  new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
+  new ValkeyCrossServerBroadcaster(valkeyManager.context.client);
 const gameCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
-  new InMemoryCrossServerBroadcaster(crossServerBroadcastBus);
+  new ValkeyCrossServerBroadcaster(valkeyManager.context.client);
 
 const tokensSecret = await SodiumHelpers.createSecret();
 const gameServerSessionClaimTokenCodec =
@@ -68,7 +63,7 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
   lobbyServerNode.createServer(
     httpServer,
     gameSessionStoreService,
-    globalGameSessionStore,
+    userGlobalGameSessionStore,
     lobbyCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec,
     guestReconnectionTokenCodec,
@@ -85,7 +80,7 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     expressApp,
     profileService,
     gameSessionStoreService,
-    globalGameSessionStore,
+    userGlobalGameSessionStore,
     gameCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec,
     guestReconnectionTokenCodec

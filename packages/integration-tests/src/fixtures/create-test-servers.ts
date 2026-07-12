@@ -26,11 +26,11 @@ import {
   InMemoryCrossServerBroadcaster,
   InMemoryCrossServerBroadcastBus,
   ServerCommand,
-  InMemoryGlobalGameSessionStore,
+  InMemoryUserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   GuestSessionReconnectionToken,
-  GlobalGameSessionStore,
+  UserGlobalGameSessionStore,
   iterateNumericEnumKeyedRecord,
   GameServerName,
   UserGameDataPersistenceService,
@@ -67,7 +67,7 @@ export async function createTestServers(
   characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
-  const globalGameSessionStore = new InMemoryGlobalGameSessionStore();
+  const globalGameSessionStore = new InMemoryUserGlobalGameSessionStore();
 
   const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<
     GameStateUpdate,
@@ -189,7 +189,7 @@ export function createLobbyTestServices(
   ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore
+  globalGameSessionStore: UserGlobalGameSessionStore
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
@@ -231,7 +231,7 @@ export function createGameServerTestServices(
   ladderGameRecordsService: LadderGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore,
+  globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
 ): GameServerExternalServices {
   const externalServices = {

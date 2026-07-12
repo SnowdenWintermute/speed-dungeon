@@ -26,7 +26,7 @@ import {
   IdGeneratorRandom,
   TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
   CHARACTER_LEVEL_LADDER,
-  GlobalGameSessionStore,
+  UserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
@@ -67,7 +67,7 @@ export class GameServerNode {
     expressApp: Express,
     profileService: SpeedDungeonProfileService,
     gameSessionStoreService: GameSessionStoreService,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
@@ -148,7 +148,7 @@ export class GameServerNode {
     assetStore: AssetCache,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
     idGenerator: IdGenerator
   ): GameServerExternalServices {

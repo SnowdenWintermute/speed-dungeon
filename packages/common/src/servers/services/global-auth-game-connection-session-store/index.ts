@@ -29,7 +29,7 @@ export abstract class UserGlobalGameSessionStore {
   abstract clearSessionsInGame(gameId: GameId): Promise<void>;
 }
 
-export class InMemoryGlobalGameSessionStore extends UserGlobalGameSessionStore {
+export class InMemoryUserGlobalGameSessionStore extends UserGlobalGameSessionStore {
   private _authSessions = new Map<IdentityProviderId, GlobalGameSession>();
   private _guestSessions = new Map<GuestUserId, GlobalGameSession>();
 
@@ -45,7 +45,7 @@ export class InMemoryGlobalGameSessionStore extends UserGlobalGameSessionStore {
         `Tried to register a new GlobalAuthGameSession but one already existed for user id ${taggedUserId}`
       );
     }
-    const newGlobalSession = new GlobalGameSession(
+    const newGlobalSession = GlobalGameSession.fromUserSession(
       localUserSession,
       gameServerName,
       connectionStatus

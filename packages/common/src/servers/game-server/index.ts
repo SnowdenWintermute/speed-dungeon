@@ -40,7 +40,7 @@ import { ServerCommand } from "../services/server-command/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
 import { LADDER_UPDATES_CHANNEL_NAME } from "../../packets/channels.js";
 import { GameSessionConnectionStatus } from "../sessions/global-auth-game-session.js";
-import { GlobalGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
+import { UserGlobalGameSessionStore } from "../services/global-auth-game-connection-session-store/index.js";
 import {
   GameServerSessionClaimToken,
   OpaqueEncryptionTokenCodec,
@@ -64,7 +64,7 @@ export interface GameServerExternalServices {
   ladderGameRecordsService: LadderGameRecordsService;
   assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
-  globalGameSessionStore: GlobalGameSessionStore;
+  globalGameSessionStore: UserGlobalGameSessionStore;
 }
 
 export class GameServer extends SpeedDungeonServer {

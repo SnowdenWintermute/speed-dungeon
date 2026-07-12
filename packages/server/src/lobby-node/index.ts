@@ -19,7 +19,7 @@ import {
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
   CHARACTER_LEVEL_LADDER,
-  GlobalGameSessionStore,
+  UserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
@@ -52,7 +52,7 @@ export class LobbyServerNode {
   async createServer(
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     gameSessionStoreService: GameSessionStoreService,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
@@ -120,7 +120,7 @@ export class LobbyServerNode {
   private createExternalServices(
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
     idGenerator: IdGenerator
   ): LobbyExternalServices {
