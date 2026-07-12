@@ -20,7 +20,7 @@ export async function testIntentionalLeaveGame(
   const { alpha, bravo } = await testFixture.createTwoClientsInGameServerGame({
     auth: options.useAuthenticatedUsers,
   });
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.connect();
   // bravo doesn't get input lock, doesn't see reconnecting player in list
   expect(
@@ -35,7 +35,7 @@ export async function testIntentionalLeaveGame(
     alpha.clientApplication.topologyManager.transitionToGameServer.waitFor()
   ).rejects.toThrow();
   // create same named game after all players left
-  bravo.clientApplication.gameClientRef.get().leaveGame();
+  await bravo.clientApplication.gameClientRef.get().leaveGame();
   await bravo.clientApplication.topologyManager.transitionToLobbyServer.waitForOrCompleted();
   await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
   expect(alpha.clientApplication.errorRecordService.getLastError()).toBeUndefined();

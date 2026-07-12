@@ -369,7 +369,7 @@ export enum GameClosedReason {
 }
 
 export const GAME_CLOSED_REASON_STRINGS: Record<GameClosedReason, string> = {
-  [GameClosedReason.PlayerLeftGame]: "Other player left game",
+  [GameClosedReason.PlayerLeftGame]: "Player left game",
 };
 
 export class BattleReport {

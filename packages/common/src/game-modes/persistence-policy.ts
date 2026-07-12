@@ -1,3 +1,4 @@
+import { ConnectionId } from "../aliases.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { SpeedDungeonPlayer } from "../game/player.js";
@@ -36,7 +37,8 @@ export abstract class GameModePersistencePolicy {
   async onLiveGameLeave(
     _game: SpeedDungeonGame,
     _player: SpeedDungeonPlayer,
-    _gameLifecycleController: GameServerGameLifecycleController
+    _gameLifecycleController: GameServerGameLifecycleController,
+    _leavingConnectionId: ConnectionId
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     return new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
   }

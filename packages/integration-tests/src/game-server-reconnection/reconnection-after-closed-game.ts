@@ -17,7 +17,7 @@ export async function testReconnectToClosedIronmanGame(testFixture: IntegrationT
     GameStateUpdateType.PlayerDisconnectedWithReconnectionOpportunity
   );
   //  other player in run intentionally leaves
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
   await alpha.lobbyClientHarness.fetchGameList();
   //  live game no longer exists

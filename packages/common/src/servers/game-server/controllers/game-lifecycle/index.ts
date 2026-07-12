@@ -199,7 +199,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const persistencePolicyOutbox = await gameModePolicy.persistence.onLiveGameLeave(
       game,
       player,
-      this
+      this,
+      session.connectionId
     );
     outbox.pushFromOther(persistencePolicyOutbox);
 

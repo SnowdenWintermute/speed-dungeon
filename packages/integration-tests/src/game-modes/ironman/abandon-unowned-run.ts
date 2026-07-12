@@ -20,7 +20,9 @@ export async function testAbandonUnownedIronmanRun(testFixture: IntegrationTestF
   await alpha.lobbyClientHarness.toggleReadyToStartGame();
   await alpha.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
   await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  console.log("leave game started");
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
+  console.log("leave game completed");
   await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
   const gameId = alpha.clientApplication.lobbyContext.savedIronmanRuns.values().next()
     .value?.gameId;

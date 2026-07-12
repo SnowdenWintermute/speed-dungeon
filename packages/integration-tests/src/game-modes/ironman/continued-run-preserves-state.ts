@@ -45,7 +45,7 @@ export async function testContinuedRunPreservesState(testFixture: IntegrationTes
   expect(focusedCharacterHpAfterAction < focusedCharacterHpBeforeAction);
   const turnOrderBeforeLeaveGame = party.requireBattle(game).turnOrderManager.getTrackers();
 
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
   const { savedIronmanRuns } = alpha.clientApplication.lobbyContext;
   const savedRunId = [...savedIronmanRuns.keys()][0];

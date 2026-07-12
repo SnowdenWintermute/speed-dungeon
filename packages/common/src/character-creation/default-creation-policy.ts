@@ -2,7 +2,6 @@ import { EntityName, Username } from "../aliases.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
-import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
 import { Shield } from "../items/equipment/equipment-types/shield.js";
 import { STARTING_COMBATANT_TRAITS } from "../combatants/combatant-class/starting-traits.js";
@@ -14,7 +13,7 @@ import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-p
 import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
-import { AffixType, SUFFIX_TYPES } from "../items/equipment/affixes.js";
+import { AffixType } from "../items/equipment/affixes.js";
 import { EquipmentTraitType } from "../items/equipment/equipment-traits/index.js";
 
 const HP_INJECTOR_COUNT = 2;
@@ -43,7 +42,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     this.appendStartingEquipment(combatantClass, builder);
     this.appendStartingConsumables(builder);
 
-    builder.ownedAction(CombatActionName.Ensnare);
+    // builder.ownedAction(CombatActionName.Ensnare);
 
     const result = builder.build(this.idGenerator);
 

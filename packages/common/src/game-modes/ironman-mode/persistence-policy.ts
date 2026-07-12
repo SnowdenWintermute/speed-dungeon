@@ -1,4 +1,5 @@
 import cloneDeep from "lodash.clonedeep";
+import { ConnectionId } from "../../aliases.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
@@ -38,16 +39,24 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
   override async onLiveGameLeave(
     game: SpeedDungeonGame,
     player: SpeedDungeonPlayer,
-    gameLifecycleController: GameServerGameLifecycleController
+    gameLifecycleController: GameServerGameLifecycleController,
+    leavingConnectionId: ConnectionId
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
     // tell other players "a teammate disconnected, game closed"
     // if their client tries to do anything in the game, it wont work because it is closed
-    // a compliant client should reconnect to the lobby server
-    outbox.pushToChannel(game.getChannelName(), {
-      type: GameStateUpdateType.GameClosed,
-      data: { reason: GameClosedReason.PlayerLeftGame },
-    });
+    // a compliant client should reconnect to the lobby server.
+    // the leaving player is excluded: their own awaitable leaveGame flow drives their
+    // teardown and reconnect, and receiving GameClosed would race it and tear down the
+    // connection before the leave confirmation is delivered
+    outbox.pushToChannel(
+      game.getChannelName(),
+      {
+        type: GameStateUpdateType.GameClosed,
+        data: { reason: GameClosedReason.PlayerLeftGame },
+      },
+      { excludedIds: [leavingConnectionId] }
+    );
 
     // if the game has not completed in a wipe or escape, save it
     const defaultParty = game.requireSingleParty();

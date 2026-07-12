@@ -30,7 +30,7 @@ export async function testAbandonIronmanRunDegradesControlScheme(
   );
 
   // { close game
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
     GameStateUpdateType.GameClosed
   );

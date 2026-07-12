@@ -49,7 +49,7 @@ export async function testIronmanRunWipe(testFixture: IntegrationTestFixture) {
   await alpha.gameClientHarness.flushReplayTree();
   expect(alpha.clientApplication.gameContext.requireParty().hasWiped()).toBeTruthy();
 
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   const gotIronmanRunsList = alpha.lobbyClientHarness.awaitMessageOfType(
     GameStateUpdateType.IronmanRunsList
   );

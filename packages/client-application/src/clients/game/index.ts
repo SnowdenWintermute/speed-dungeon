@@ -23,7 +23,7 @@ export class GameClient extends BaseClient {
     //
   }
 
-  leaveGame() {
+  async leaveGame() {
     const {
       combatantFocus,
       uiStore,
@@ -56,11 +56,12 @@ export class GameClient extends BaseClient {
     gameContext.clearGame();
     combatantFocus.clearFocusedCharacter();
 
-    this.dispatchIntent({
+    const leaveGameIntentId = this.dispatchIntent({
       type: ClientIntentType.LeaveGame,
       data: undefined,
     });
-    this.close();
+    console.log("leaveGameIntentId:", leaveGameIntentId);
+    const gotLeftGameConfirmation = this.waitForServerReply(leaveGameIntentId);
     this.clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
 
@@ -71,6 +72,10 @@ export class GameClient extends BaseClient {
     sequentialEventProcessor.resetChain();
 
     gameWorldView?.environment.groundPlane.drawCharacterSlots();
+
+    console.log("awaiting gotLeftGameConfirmation:");
+    await gotLeftGameConfirmation;
+    this.close();
     this.clientApplication.topologyManager.connectWithPrefferedMode();
   }
 }

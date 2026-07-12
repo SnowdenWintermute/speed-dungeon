@@ -7,7 +7,7 @@ import {
 import { TaggedUserId, UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
 
-export abstract class GlobalGameSessionStore {
+export abstract class UserGlobalGameSessionStore {
   abstract registerSession(
     localUserSession: UserSession,
     gameServerName: GameServerName,
@@ -29,7 +29,7 @@ export abstract class GlobalGameSessionStore {
   abstract clearSessionsInGame(gameId: GameId): Promise<void>;
 }
 
-export class InMemoryGlobalGameSessionStore extends GlobalGameSessionStore {
+export class InMemoryGlobalGameSessionStore extends UserGlobalGameSessionStore {
   private _authSessions = new Map<IdentityProviderId, GlobalGameSession>();
   private _guestSessions = new Map<GuestUserId, GlobalGameSession>();
 
