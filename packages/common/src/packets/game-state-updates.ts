@@ -1,5 +1,6 @@
 import { Battle, BattleConclusion } from "../battle/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { ShardPayment } from "../game/player-shard-pool.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { UserGameHistoryEntry } from "../game-modes/ladder-records/ladder-records-persistence-strategy.js";
@@ -288,12 +289,13 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterPurchasedItem]: {
     characterId: CombatantId;
     item: SerializedOf<Consumable>;
-    price: number;
+    payments: ShardPayment[];
   };
   [GameStateUpdateType.CharacterPerformedCraftingAction]: {
     characterId: CombatantId;
     item: SerializedOf<Equipment>;
     craftingAction: CraftingAction;
+    payments: ShardPayment[];
   };
   [GameStateUpdateType.PlayerPostedItemLink]: {
     username: Username;

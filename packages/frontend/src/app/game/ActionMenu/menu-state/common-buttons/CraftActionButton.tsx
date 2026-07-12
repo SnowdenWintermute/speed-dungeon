@@ -6,6 +6,7 @@ import {
   CraftingAction,
   Equipment,
   INFO_UNICODE_SYMBOL,
+  PlayerShardPool,
   getCraftingActionPrice,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
@@ -29,12 +30,16 @@ export const CraftActionButton = observer((props: Props) => {
 
   const focusedCharacterResult = combatantFocus.requireFocusedCharacter();
   const party = gameContext.requireParty();
+  const shardPool = PlayerShardPool.forCharacter(
+    gameContext.requireGame(),
+    party,
+    focusedCharacterResult
+  );
 
   const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
   const actionPrice = getCraftingActionPrice(craftingAction, equipment);
-  const { inventory } = focusedCharacterResult.combatantProperties;
-  const canNotAfford = !inventory.canAffordShardPrice(actionPrice);
+  const canNotAfford = !shardPool.canAffordShardPrice(actionPrice);
   const actionDisabledOnItem = CRAFTING_ACTION_DISABLED_CONDITIONS[craftingAction](
     equipment,
     party.dungeonExplorationManager.getCurrentFloor()

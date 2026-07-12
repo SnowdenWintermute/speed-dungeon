@@ -11,6 +11,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HOTKEYS } from "@/client-application/ui/keybind-config";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { PlayerShardPool } from "@speed-dungeon/common";
 
 export const PaperDollAndAttributes = observer(() => {
   const clientApplication = useClientApplication();
@@ -19,7 +20,11 @@ export const PaperDollAndAttributes = observer(() => {
   const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
   const currentMenu = actionMenu.getCurrentMenu();
 
-  const { combatant } = combatantFocus.requireFocusedCharacterContext();
+  const { game, party, combatant } = combatantFocus.requireFocusedCharacterContext();
+  const shardPool = PlayerShardPool.forCharacter(game, party, combatant);
+  const playerTotalShards = shardPool.isSharedAmongCharacters()
+    ? shardPool.getTotalShards()
+    : undefined;
 
   return (
     <div className="flex">
@@ -37,7 +42,10 @@ export const PaperDollAndAttributes = observer(() => {
                   dialogs.toggle(DialogElementName.DropShards);
                 }}
               >
-                <ShardsDisplay numShards={combatant.combatantProperties.inventory.shards} />
+                <ShardsDisplay
+                  numShards={combatant.combatantProperties.inventory.shards}
+                  playerTotalShards={playerTotalShards}
+                />
               </HotkeyButton>
             </HoverableTooltipWrapper>
             {viewingDropShardsModal === true && actionMenu.shouldShowCharacterSheet() && (

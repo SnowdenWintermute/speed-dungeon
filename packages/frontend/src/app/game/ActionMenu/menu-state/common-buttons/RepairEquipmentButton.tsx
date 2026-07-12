@@ -3,6 +3,7 @@ import {
   ClientIntentType,
   CraftingAction,
   Equipment,
+  PlayerShardPool,
   getCraftingActionPrice,
 } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
@@ -19,8 +20,13 @@ interface Props {
 export const RepairEquipmentButton = observer((props: Props) => {
   const { equipment, listIndex } = props;
   const clientApplication = useClientApplication();
-  const { gameClientRef } = clientApplication;
+  const { gameClientRef, gameContext } = clientApplication;
   const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+  const shardPool = PlayerShardPool.forCharacter(
+    gameContext.requireGame(),
+    gameContext.requireParty(),
+    focusedCharacter
+  );
 
   const price = getCraftingActionPrice(CraftingAction.Repair, equipment);
   const durability = equipment.getDurability();
@@ -59,7 +65,7 @@ export const RepairEquipmentButton = observer((props: Props) => {
         <PriceDisplay
           extraStyles="mr-0"
           price={price}
-          shardsOwned={focusedCharacter.combatantProperties.inventory.shards}
+          shardsOwned={shardPool.getTotalShards()}
         />
       </div>
     </ItemButton>

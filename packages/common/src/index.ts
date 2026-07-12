@@ -34,6 +34,7 @@ export * from "./items/consumables/consumable-types.js";
 export * from "./game/index.js";
 export * from "./game/game-clock.js";
 export * from "./game/player.js";
+export * from "./game/player-shard-pool.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
 export * from "./monsters/monster-generator.js";

@@ -19,7 +19,7 @@ import {
   GAME_CLOSED_REASON_STRINGS,
   GameStateUpdateMap,
   GameStateUpdateType,
-  getCraftingActionPrice,
+  PlayerShardPool,
   getSkillBookName,
   Item,
   iterateNumericEnumKeyedRecord,
@@ -550,17 +550,16 @@ export function createGameUpdateHandlers(
       party.currentRoom.inventory.insertItem(asClassInstance);
     },
     [GameStateUpdateType.CharacterPurchasedItem]: (data) => {
-      const { item, characterId, price } = data;
-      const { combatant } = gameContext.requireCombatantContext(characterId);
+      const { item, characterId, payments } = data;
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
       const asClassInstance = Consumable.fromSerialized(item);
-      const { inventory } = combatant.combatantProperties;
-      inventory.changeShards(price * -1);
-      inventory.insertItem(asClassInstance);
+      PlayerShardPool.applyPayments(party, payments);
+      combatant.combatantProperties.inventory.insertItem(asClassInstance);
       alertsService.setAlert(`Purchased ${item.entityProperties.name}`, true);
     },
     [GameStateUpdateType.CharacterPerformedCraftingAction]: (data) => {
-      const { characterId, item, craftingAction } = data;
-      const { combatant } = gameContext.requireCombatantContext(characterId);
+      const { characterId, item, craftingAction, payments } = data;
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
 
       // used to show loading state so players don't get confused when
       // their craft action produces exact same item as already was
@@ -582,7 +581,6 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
       const itemBeforeModification = cloneDeep(toJS(itemResult));
       // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
       // combat log
@@ -621,7 +619,7 @@ export function createGameUpdateHandlers(
       }
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
-      combatantProperties.inventory.changeShards(actionPrice * -1);
+      PlayerShardPool.applyPayments(party, payments);
 
       eventLogMessageService.postCraftActionResult(
         combatant.getName(),
