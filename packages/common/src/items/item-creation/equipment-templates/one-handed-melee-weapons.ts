@@ -80,25 +80,25 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.Club:
         template.levelRange = new NumberRange(1, 3);
         template.damage = new NumberRange(1, 4);
-        template.maxDurability = 10;
+        template.maxDurability = 14;
         break;
       case OneHandedMeleeWeapon.Mace:
         template.levelRange = new NumberRange(2, 5);
         template.damage = new NumberRange(1, 8);
         template.requirements[CombatAttribute.Strength] = 10;
-        template.maxDurability = 12;
+        template.maxDurability = 22;
         break;
       case OneHandedMeleeWeapon.Morningstar:
         template.levelRange = new NumberRange(4, 8);
         template.damage = new NumberRange(2, 12);
         template.requirements[CombatAttribute.Strength] = 14;
-        template.maxDurability = 14;
+        template.maxDurability = 18;
         break;
       case OneHandedMeleeWeapon.WarHammer:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(4, 16);
         template.requirements[CombatAttribute.Strength] = 24;
-        template.maxDurability = 22;
+        template.maxDurability = 20;
         break;
       case OneHandedMeleeWeapon.ButterKnife:
         template.levelRange = new NumberRange(0, 0);
@@ -111,7 +111,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.damage = new NumberRange(2, 6);
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 5;
-        template.maxDurability = 11;
+        template.maxDurability = 15;
         break;
       case OneHandedMeleeWeapon.Blade:
         template.levelRange = new NumberRange(3, 5);
@@ -119,7 +119,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 7;
         template.requirements[CombatAttribute.Dexterity] = 7;
-        template.maxDurability = 15;
+        template.maxDurability = 17;
         break;
       case OneHandedMeleeWeapon.BroadSword:
         template.levelRange = new NumberRange(6, 8);
@@ -127,7 +127,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Slashing;
         template.requirements[CombatAttribute.Strength] = 17;
         template.requirements[CombatAttribute.Dexterity] = 7;
-        template.maxDurability = 18;
+        template.maxDurability = 24;
         break;
       case OneHandedMeleeWeapon.BastardSword:
         template.levelRange = new NumberRange(8, 10);
@@ -179,7 +179,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         mainDamageClassification.kineticDamageTypeOption = KineticDamageType.Piercing;
         template.requirements[CombatAttribute.Dexterity] = 14;
         template.requirements[CombatAttribute.Strength] = 7;
-        template.maxDurability = 21;
+        template.maxDurability = 25;
         break;
       case OneHandedMeleeWeapon.RuneSword:
         template.levelRange = new NumberRange(5, 10);
@@ -199,7 +199,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.requirements[CombatAttribute.Strength] = 18;
         template.requirements[CombatAttribute.Dexterity] = 7;
         template.requirements[CombatAttribute.Spirit] = 3;
-        template.maxDurability = 18;
+        template.maxDurability = 20;
         break;
       case OneHandedMeleeWeapon.EtherBlade:
         template.levelRange = new NumberRange(5, 8);

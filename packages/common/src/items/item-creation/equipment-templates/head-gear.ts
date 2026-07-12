@@ -71,13 +71,13 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case HeadGear.Cap:
         template.levelRange = new NumberRange(1, 3);
         template.acRange = new NumberRange(1, 3);
-        template.maxDurability = 8;
+        template.maxDurability = 12;
         break;
       case HeadGear.Bandana:
         template.levelRange = new NumberRange(2, 4);
         template.acRange = new NumberRange(2, 4);
         template.requirements[CombatAttribute.Spirit] = 3;
-        template.maxDurability = 10;
+        template.maxDurability = 14;
         break;
       case HeadGear.PaddedCap:
         template.levelRange = new NumberRange(3, 6);
@@ -88,10 +88,10 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case HeadGear.Ribbon:
         template.levelRange = new NumberRange(5, 10);
         template.acRange = new NumberRange(1, 1);
-        delete template.possibleAffixes.suffix[AffixType.Strength];
-        delete template.possibleAffixes.suffix[AffixType.Dexterity];
-        delete template.possibleAffixes.suffix[AffixType.Vitality];
-        delete template.possibleAffixes.suffix[AffixType.Spirit];
+        // delete template.possibleAffixes.suffix[AffixType.Strength];
+        // delete template.possibleAffixes.suffix[AffixType.Dexterity];
+        // delete template.possibleAffixes.suffix[AffixType.Vitality];
+        // delete template.possibleAffixes.suffix[AffixType.Spirit];
         // template.possibleAffixes.suffix[AffixType.AllBase] = 5;
         template.maxDurability = 8;
         break;
@@ -105,19 +105,19 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(1, 3);
         template.acRange = new NumberRange(2, 5);
         template.requirements[CombatAttribute.Dexterity] = 2;
-        template.maxDurability = 10;
+        template.maxDurability = 14;
         break;
       case HeadGear.LeatherHat:
         template.levelRange = new NumberRange(3, 5);
         template.acRange = new NumberRange(5, 8);
         template.requirements[CombatAttribute.Dexterity] = 5;
-        template.maxDurability = 12;
+        template.maxDurability = 16;
         break;
       case HeadGear.LeatherHelm:
         template.levelRange = new NumberRange(4, 8);
         template.acRange = new NumberRange(9, 15);
         template.requirements[CombatAttribute.Dexterity] = 7;
-        template.maxDurability = 16;
+        template.maxDurability = 18;
         break;
       case HeadGear.DemonsaurHelm:
         template.levelRange = new NumberRange(9, 10);
@@ -136,7 +136,7 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.acRange = new NumberRange(8, 16);
         template.requirements[CombatAttribute.Strength] = 7;
         template.requirements[CombatAttribute.Dexterity] = 7;
-        template.maxDurability = 14;
+        template.maxDurability = 18;
         break;
       case HeadGear.Coif:
         template.levelRange = new NumberRange(5, 8);
@@ -157,25 +157,25 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case HeadGear.Circlet:
         template.levelRange = new NumberRange(2, 4);
         template.acRange = new NumberRange(5, 10);
-        template.maxDurability = 12;
+        template.maxDurability = 18;
         break;
       case HeadGear.Crown:
         template.levelRange = new NumberRange(4, 6);
         template.acRange = new NumberRange(10, 20);
         template.requirements[CombatAttribute.Strength] = 7;
-        template.maxDurability = 18;
+        template.maxDurability = 16;
         break;
       case HeadGear.FullHelm:
         template.levelRange = new NumberRange(6, 9);
         template.acRange = new NumberRange(22, 30);
         template.requirements[CombatAttribute.Strength] = 11;
-        template.maxDurability = 40;
+        template.maxDurability = 31;
         break;
       case HeadGear.GreatHelm:
         template.levelRange = new NumberRange(9, 10);
         template.acRange = new NumberRange(32, 40);
         template.requirements[CombatAttribute.Strength] = 19;
-        template.maxDurability = 51;
+        template.maxDurability = 50;
         break;
     }
 

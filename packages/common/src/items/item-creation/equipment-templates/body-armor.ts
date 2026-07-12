@@ -108,36 +108,36 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case BodyArmor.Rags:
         template.levelRange = new NumberRange(1, 3);
         template.acRange = new NumberRange(2, 6);
-        template.maxDurability = 8;
+        template.maxDurability = 12;
         break;
       case BodyArmor.Cape:
         template.levelRange = new NumberRange(2, 4);
         template.acRange = new NumberRange(5, 10);
-        template.maxDurability = 10;
+        template.maxDurability = 14;
         break;
       case BodyArmor.Cloak:
         template.levelRange = new NumberRange(3, 7);
         template.acRange = new NumberRange(10, 14);
         template.requirements[CombatAttribute.Spirit] = 5;
-        template.maxDurability = 16;
+        template.maxDurability = 20;
         break;
       case BodyArmor.Robe:
         template.levelRange = new NumberRange(6, 9);
         template.acRange = new NumberRange(18, 22);
         template.requirements[CombatAttribute.Spirit] = 9;
-        template.maxDurability = 20;
+        template.maxDurability = 22;
         break;
       case BodyArmor.Kevlar:
         template.levelRange = new NumberRange(8, 10);
         template.acRange = new NumberRange(30, 40);
         template.requirements[CombatAttribute.Spirit] = 19;
-        template.maxDurability = 36;
+        template.maxDurability = 28;
         break;
       case BodyArmor.LeatherArmor:
         template.levelRange = new NumberRange(3, 5);
         template.acRange = new NumberRange(15, 22);
         template.requirements[CombatAttribute.Dexterity] = 5;
-        template.maxDurability = 12;
+        template.maxDurability = 16;
         break;
       case BodyArmor.HardLeatherArmor:
         template.levelRange = new NumberRange(5, 7);
@@ -155,14 +155,14 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 10);
         template.acRange = new NumberRange(55, 65);
         template.requirements[CombatAttribute.Dexterity] = 19;
-        template.maxDurability = 41;
+        template.maxDurability = 36;
         break;
       case BodyArmor.RingMail:
         template.levelRange = new NumberRange(3, 5);
         template.acRange = new NumberRange(20, 24);
         template.requirements[CombatAttribute.Dexterity] = 3;
         template.requirements[CombatAttribute.Strength] = 3;
-        template.maxDurability = 17;
+        template.maxDurability = 19;
         break;
       case BodyArmor.ChainMail:
         template.levelRange = new NumberRange(4, 6);
@@ -204,25 +204,25 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(4, 6);
         template.acRange = new NumberRange(40, 45);
         template.requirements[CombatAttribute.Strength] = 15;
-        template.maxDurability = 28;
+        template.maxDurability = 24;
         break;
       case BodyArmor.GothicPlate:
         template.levelRange = new NumberRange(5, 8);
         template.acRange = new NumberRange(50, 60);
         template.requirements[CombatAttribute.Strength] = 19;
-        template.maxDurability = 44;
+        template.maxDurability = 34;
         break;
       case BodyArmor.FullPlate:
         template.levelRange = new NumberRange(8, 9);
         template.acRange = new NumberRange(60, 75);
         template.requirements[CombatAttribute.Strength] = 25;
-        template.maxDurability = 62;
+        template.maxDurability = 42;
         break;
       case BodyArmor.ShardPlate:
         template.levelRange = new NumberRange(10, 10);
         template.acRange = new NumberRange(80, 100);
         template.requirements[CombatAttribute.Strength] = 35;
-        template.maxDurability = 70;
+        template.maxDurability = 50;
         break;
     }
 
