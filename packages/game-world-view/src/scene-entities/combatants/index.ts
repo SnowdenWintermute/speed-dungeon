@@ -174,7 +174,24 @@ export class CombatantSceneEntity extends SceneEntity {
   }
 
   get combatant(): Combatant {
-    return this._combatant;
+    // resolve the live combatant by id rather than the instance snapshotted at spawn: a
+    // GameFullUpdate re-deserializes the game (new combatant instances) without respawning
+    // scene entities, so the snapshot goes stale and equipment/state reads stop reflecting
+    // changes (e.g. hotswap cycling or breakage not updating models in progression mode).
+    // _combatant is a last-known fallback for when the combatant has left the party (see
+    // setCombatant) and resolveCombatant can no longer find it during cleanup/death.
+    return (
+      this.gameWorldView.sceneEntityService.combatantSceneEntityManager.resolveCombatant(
+        this.entityId
+      ) ?? this._combatant
+    );
+  }
+
+  /** Re-point the fallback reference at the instance this entity now represents. Called when an
+   * existing scene entity is re-synced to a (possibly new) combatant instance for the same id,
+   * so the fallback is the live in-party instance rather than the one snapshotted at spawn. */
+  setCombatant(combatant: Combatant) {
+    this._combatant = combatant;
   }
 
   customCleanup(): void {

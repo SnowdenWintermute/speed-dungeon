@@ -124,6 +124,9 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
         spawnInDeadPose: combatant.combatantProperties.isDead(),
       });
     } else {
+      // this entity now represents `combatant`, which may be a fresh instance (same id) after a
+      // GameFullUpdate re-deserialized the game; keep the fallback reference pointed at it
+      sceneEntityOption.setCombatant(combatant);
       return new Promise<undefined>((resolve) => {
         const { transformProperties } = sceneEntityOption.combatant.combatantProperties;
         transformProperties.setHomeRotation(homeRotation.clone());
