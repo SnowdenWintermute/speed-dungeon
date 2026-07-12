@@ -143,6 +143,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     onComplete?: () => void;
   }) {
     const modelsAndPositions = this.getCombatantsInGameWorld();
+    console.log("modelsAndPositions", [...modelsAndPositions.keys()]);
     this.despawnCombatantModelsExclusive(new Set(modelsAndPositions.keys()), {
       softCleanup: !!options.softCleanup,
     });
