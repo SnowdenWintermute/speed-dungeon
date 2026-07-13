@@ -10,7 +10,6 @@ import { GameWorldViewDebug } from "./debug";
 import { LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
 import { SceneEntityService } from "./scene-entity-service/index";
-import { CombatantMeshPickingManager } from "./combatant-mesh-picking-manager";
 
 export class GameWorldView {
   readonly engine: Engine;
@@ -24,7 +23,6 @@ export class GameWorldView {
 
   private _clientApplication: ClientApplication | null = null;
   private _sceneEntityService: SceneEntityService | null = null;
-  private _meshPickingManager: CombatantMeshPickingManager | null = null;
   private _imageGenerator: ImageGenerator | null = null;
   private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
   private _debug: GameWorldViewDebug | null = null;
@@ -59,7 +57,6 @@ export class GameWorldView {
     this._imageGenerator = new ImageGenerator(clientApplication, this);
 
     this._sceneEntityService = new SceneEntityService(clientApplication, this);
-    this._meshPickingManager = new CombatantMeshPickingManager(this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
     clientApplication.targetIndicatorStore.initialize(this);
 
@@ -104,10 +101,6 @@ export class GameWorldView {
     invariant(this._sceneEntityService !== null, GameWorldView.NOT_INITIALIZED);
     return this._sceneEntityService;
   }
-  get meshPickingManager() {
-    invariant(this._meshPickingManager !== null, GameWorldView.NOT_INITIALIZED);
-    return this._meshPickingManager;
-  }
   get itemSceneEntityFactory() {
     invariant(this._itemSceneEntityFactory !== null, GameWorldView.NOT_INITIALIZED);
     return this._itemSceneEntityFactory;
@@ -122,7 +115,6 @@ export class GameWorldView {
   }
 
   dispose() {
-    this._meshPickingManager?.cleanup();
     this.sceneEntityService.clearAll();
     this.scene.dispose();
     this.engine.dispose();
