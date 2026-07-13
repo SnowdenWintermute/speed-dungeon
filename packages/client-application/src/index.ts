@@ -13,6 +13,7 @@ import { ClientApplicationSession } from "./client-application-session";
 import { ClientApplicationGameContext } from "./client-application-game-context";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { CombatantFocus } from "./combatant-focus";
+import { CombatantClickHandler } from "./combatant-click-handler";
 import { ClientApplicationLobbyContext } from "./client-application-lobby-context";
 import { TargetIndicatorStore } from "./target-indicator-store";
 import { EventLogStore } from "./event-log/event-log-store";
@@ -57,6 +58,7 @@ export class ClientApplication {
 
   // ui state
   readonly actionMenu = new ActionMenu(this);
+  readonly combatantClickHandler = new CombatantClickHandler(this);
   readonly combatantFocus: CombatantFocus;
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;

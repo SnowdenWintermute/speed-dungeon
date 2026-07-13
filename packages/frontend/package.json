@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@babylonjs/core": "8.3.1",
+    "@babylonjs/gui": "^9.16.1",
     "@babylonjs/loaders": "8.3.1",
     "@radix-ui/react-switch": "^1.2.6",
     "@redux-devtools/extension": "3.3.0",

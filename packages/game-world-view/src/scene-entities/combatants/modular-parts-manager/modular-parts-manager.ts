@@ -42,6 +42,8 @@ export class CombatantSceneEntityModularPartsManager {
         mesh.skeleton.dispose();
         mesh.skeleton = assetContainer.skeletons[0];
       }
+      // the pointer resolves to the entity's SceneEntityPickerDisc, not the character mesh
+      mesh.isPickable = false;
       mesh.visibility = this.sceneEntity.getVisibility();
       invariant(parent !== undefined);
       mesh.parent = this.armatureRoot;

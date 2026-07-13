@@ -47,6 +47,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       combatantModel.updateDomRefPosition();
 
       combatantModel.targetingIndicatorManager.updateBillboardPositions();
+      combatantModel.pickerDisc.update(deltaTime);
     }
   }
 

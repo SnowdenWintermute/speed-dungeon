@@ -1,4 +1,4 @@
-import { AssetContainer, TransformNode } from "@babylonjs/core";
+import { AssetContainer, TransformNode, Vector3 } from "@babylonjs/core";
 import {
   SkeletalAnimationName,
   ERROR_MESSAGES,
@@ -20,6 +20,7 @@ import { ClientApplication } from "@/client-application";
 import { HighlightManager } from "./highlight-manager/index";
 import { CombatantSceneEntityEquipmentManager } from "./equipment-manager";
 import { TargetIndicatorBillboardManager } from "./target-indicators";
+import { SceneEntityPickerDisc } from "../scene-entity-picker-disc";
 
 export class CombatantSceneEntity extends SceneEntity {
   readonly childTransformNodes: Partial<
@@ -34,6 +35,7 @@ export class CombatantSceneEntity extends SceneEntity {
   readonly equipmentManager: CombatantSceneEntityEquipmentManager;
   readonly highlightManager: HighlightManager;
   readonly targetingIndicatorManager: TargetIndicatorBillboardManager;
+  readonly pickerDisc: SceneEntityPickerDisc;
 
   public debugElement: HTMLDivElement | null = null;
   public modelDomPositionElement: HTMLDivElement | null = null;
@@ -80,8 +82,27 @@ export class CombatantSceneEntity extends SceneEntity {
       gameWorldView.itemSceneEntityFactory
     );
     this.highlightManager = new HighlightManager(this.scene, clientApplication, this);
+    this.pickerDisc = new SceneEntityPickerDisc(
+      gameWorldView,
+      this.entityId,
+      () => this.getPickerDiscWorldPosition(),
+      () =>
+        gameWorldView.clientApplication.combatantClickHandler.combatantClicked(
+          this.combatant.getEntityId()
+        ),
+      () =>
+        gameWorldView.clientApplication.combatantClickHandler.shouldShowReticle(
+          this.combatant.getEntityId()
+        )
+    );
 
     this.rootTransformNode.name += _combatant.entityProperties.name;
+  }
+
+  private getPickerDiscWorldPosition(): Vector3 {
+    const hitboxCenter =
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter];
+    return (hitboxCenter ?? this.rootTransformNode).getAbsolutePosition();
   }
 
   initRootMesh(assetContainer: AssetContainer) {
@@ -200,6 +221,7 @@ export class CombatantSceneEntity extends SceneEntity {
     }
     this.equipmentManager.cleanup();
     this.modularPartsManager.cleanup();
+    this.pickerDisc.cleanup();
   }
 
   setVisibility(value: NormalizedPercentage) {

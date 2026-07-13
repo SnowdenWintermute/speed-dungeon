@@ -1,24 +1,26 @@
 import React from "react";
+import { observer } from "mobx-react-lite";
 import { CharacterModelDisplay } from ".";
 import { CombatantFloatingMessagesDisplay } from "../game/combatant-plaques/combatant-floating-messages-display";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export default function CombatantModelPositionedUi() {
-  const { gameWorldView } = useClientApplication();
-  if (!gameWorldView) {
+// driven off the observable combatant manager (not the non-reactive scene-entity list) so a
+// display exists for each combatant as soon as it's in the party, rather than only after the
+// parent re-renders on a room change
+export default observer(function CombatantModelPositionedUi() {
+  const { gameWorldView, gameContext } = useClientApplication();
+  const combatantManager = gameContext.partyOption?.combatantManager;
+  if (!gameWorldView || !combatantManager) {
     return <div />;
   }
 
   return (
     <div className="absolute">
-      {gameWorldView.sceneEntityService.combatantSceneEntityManager.getAll().map((sceneEntity) => (
-        <CharacterModelDisplay
-          combatantId={sceneEntity.combatant.getEntityId()}
-          key={sceneEntity.combatant.getEntityId()}
-        >
-          <CombatantFloatingMessagesDisplay entityId={sceneEntity.combatant.getEntityId()} />
+      {[...combatantManager.getAllCombatants()].map(([entityId]) => (
+        <CharacterModelDisplay combatantId={entityId} key={entityId}>
+          <CombatantFloatingMessagesDisplay entityId={entityId} />
         </CharacterModelDisplay>
       ))}
     </div>
   );
-}
+});
