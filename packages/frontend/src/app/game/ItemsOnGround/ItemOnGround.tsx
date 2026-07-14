@@ -1,5 +1,5 @@
 import React from "react";
-import { ClientIntentType, Item } from "@speed-dungeon/common";
+import { Item } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
@@ -11,17 +11,11 @@ interface Props {
 }
 
 export function takeItem(clientApplication: ClientApplication, item: Item) {
-  const { gameClientRef, detailableEntityFocus, combatantFocus } = clientApplication;
+  const { itemCommands, detailableEntityFocus, combatantFocus } = clientApplication;
 
   detailableEntityFocus.detailables.clear();
 
-  gameClientRef.get().dispatchIntent({
-    type: ClientIntentType.PickUpItems,
-    data: {
-      characterId: combatantFocus.requireFocusedCharacterId(),
-      itemIds: [item.entityProperties.id],
-    },
-  });
+  itemCommands.pickUpItems(combatantFocus.requireFocusedCharacterId(), [item.getEntityId()]);
 }
 
 export const ItemOnGround = observer((props: Props) => {

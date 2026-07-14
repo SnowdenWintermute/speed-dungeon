@@ -132,7 +132,10 @@ export class CombatantAbilityProperties
 
     let actionName = CombatActionName.Attack;
     if (meleeCanNotReachTarget && !CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(self)) {
-      actionName = CombatActionName.ThrowPebbleParent;
+      const ownsThrowPebble = !!this.getOwnedActionOption(CombatActionName.ThrowPebbleParent);
+      if (ownsThrowPebble) {
+        actionName = CombatActionName.ThrowPebbleParent;
+      }
     }
 
     const ownedActionOption = this.getOwnedActionOption(actionName);

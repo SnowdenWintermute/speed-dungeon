@@ -78,31 +78,18 @@ function getUseItemClickHandler(
   const isEquipped = slotItemIsEquippedTo !== null;
   const isConsumable = item instanceof Consumable;
 
-  const { combatantFocus, gameClientRef, uiStore, alertsService } = clientApplication;
+  const { combatantFocus, gameClientRef, uiStore, alertsService, itemCommands } = clientApplication;
   const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const characterId = focusedCharacter.getEntityId();
 
   if (isEquipment && isEquipped) {
     return () => {
-      gameClientRef.get().dispatchIntent({
-        type: ClientIntentType.UnequipSlot,
-        data: {
-          characterId,
-          slot: slotItemIsEquippedTo,
-        },
-      });
+      itemCommands.unequipSlot(characterId, slotItemIsEquippedTo);
     };
   } else if (isEquipment) {
     return () => {
       const modKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.Mod);
-      gameClientRef.get().dispatchIntent({
-        type: ClientIntentType.EquipInventoryItem,
-        data: {
-          characterId,
-          itemId: item.getEntityId(),
-          equipToAlternateSlot: modKeyHeld,
-        },
-      });
+      itemCommands.equipItem(characterId, item.getEntityId(), { alternate: modKeyHeld });
     };
   } else if (isConsumable) {
     const actionName = item.getActionName();

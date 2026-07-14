@@ -1,4 +1,3 @@
-import { ClientIntentType } from "@speed-dungeon/common";
 import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "../../";
@@ -41,11 +40,8 @@ export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
           onClick: () => {
             const focusedCharacterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
             const party = this.clientApplication.gameContext.requireParty();
-            const itemIds = party.currentRoom.inventory.getItems().map((item) => item.entityProperties.id);
-            this.clientApplication.gameClientRef.get().dispatchIntent({
-              type: ClientIntentType.PickUpItems,
-              data: { characterId: focusedCharacterId, itemIds },
-            });
+            const itemIds = party.currentRoom.inventory.getItems().map((item) => item.getEntityId());
+            this.clientApplication.itemCommands.pickUpItems(focusedCharacterId, itemIds);
             this.clientApplication.actionMenu.popStack();
           },
         },
@@ -62,13 +58,10 @@ export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
       itemsOnGround,
       (item) => {
         this.clientApplication.detailableEntityFocus.detailables.clear();
-        this.clientApplication.gameClientRef.get().dispatchIntent({
-          type: ClientIntentType.PickUpItems,
-          data: {
-            characterId: this.clientApplication.combatantFocus.requireFocusedCharacterId(),
-            itemIds: [item.entityProperties.id],
-          },
-        });
+        this.clientApplication.itemCommands.pickUpItems(
+          this.clientApplication.combatantFocus.requireFocusedCharacterId(),
+          [item.getEntityId()]
+        );
       },
       () => !ownsFocusedCharacter
     );

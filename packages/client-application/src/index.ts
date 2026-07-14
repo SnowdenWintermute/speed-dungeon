@@ -37,6 +37,8 @@ import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
 import { RootActionMenuScreen } from "./action-menu/screens/root";
 import { LadderRecordsStore } from "./ladder-records-store";
+import { ItemCommands } from "./item-commands";
+import { ItemDragService } from "./item-drag/drag-service";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
@@ -65,6 +67,8 @@ export class ClientApplication {
   readonly imageStore = new ImageStore();
   readonly uiStore = new UiStore();
   readonly ladderRecordsStore = new LadderRecordsStore(this);
+  readonly itemCommands = new ItemCommands(this);
+  readonly dragService = new ItemDragService(this);
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
