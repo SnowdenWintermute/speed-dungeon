@@ -40,6 +40,20 @@ export class CombatantClickHandler {
     return computed;
   }
 
+  // the CSS cursor to show while hovering a combatant's reticle: crosshair when a click would
+  // execute the selected action (the combatant is among the current targets — a single target or a
+  // member of a targeted group), pointer otherwise (a click that focuses / selects / switches)
+  reticleCursor(combatantId: CombatantId): string {
+    const targetingCalculator = this.getFocusedCharacterTargetingCalculator();
+    if (
+      targetingCalculator !== null &&
+      targetingCalculator.combatantIsAmongSelectedTargets(combatantId)
+    ) {
+      return "crosshair";
+    }
+    return "pointer";
+  }
+
   // recompute every combatant's clickability from scratch; called on the state changes that affect
   // it, and drops entries for combatants that no longer exist
   synchronizeReticleClickability() {

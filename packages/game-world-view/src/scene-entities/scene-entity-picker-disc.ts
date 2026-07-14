@@ -52,7 +52,8 @@ export class SceneEntityPickerDisc {
     entityId: EntityId,
     private getWorldPosition: () => Vector3,
     onClick: () => void,
-    private shouldShow: () => boolean
+    private shouldShow: () => boolean,
+    private getCursor: () => string
   ) {
     const { scene } = gameWorldView;
 
@@ -136,6 +137,14 @@ export class SceneEntityPickerDisc {
       SCALE_LERP_PER_MS * deltaTime
     );
     this.plane.scaling.setAll(scale);
+
+    // while the pointer is directly over this (pickable) reticle, drive the cursor from getCursor()
+    // each frame — this overrides babylon's static hoverCursor and updates even when the pointer
+    // hasn't moved but the meaning of a click changed (e.g. it just became the current target)
+    const { scene, canvas } = this.gameWorldView;
+    if (scene.getPointerOverMesh() === this.plane) {
+      canvas.style.cursor = this.getCursor();
+    }
   }
 
   private pointerIsWithinHoverThreshold(worldCenter: Vector3): boolean {

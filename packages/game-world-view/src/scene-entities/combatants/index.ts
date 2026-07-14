@@ -93,6 +93,10 @@ export class CombatantSceneEntity extends SceneEntity {
       () =>
         gameWorldView.clientApplication.combatantClickHandler.reticleIsClickable(
           this.combatant.getEntityId()
+        ),
+      () =>
+        gameWorldView.clientApplication.combatantClickHandler.reticleCursor(
+          this.combatant.getEntityId()
         )
     );
 
