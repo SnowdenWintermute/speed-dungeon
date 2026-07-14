@@ -7,6 +7,7 @@ import {
   ClientAppMessageType,
   ClientSequentialEventType,
   COMBAT_ACTIONS,
+  CombatActionTarget,
   Combatant,
   Consumable,
   DungeonRoom,
@@ -387,6 +388,8 @@ export function createGameUpdateHandlers(
       const { game, party, combatant } = gameContext.requireCombatantContext(data.characterId);
       const targetingProperties = combatant.getTargetingProperties();
       const { itemIdOption, actionAndRankOption, characterId } = data;
+
+      targetingProperties.setSelectedActionWasAutoSelected(data.autoSelected ?? false);
       const deserializedActionAndRankOption = actionAndRankOption
         ? ActionAndRank.fromSerialized(actionAndRankOption)
         : null;
@@ -409,17 +412,27 @@ export function createGameUpdateHandlers(
         playerOption
       );
 
-      const newTargetsResult =
-        targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
-      if (newTargetsResult instanceof Error) {
-        throw newTargetsResult;
+      let selectedTarget: CombatActionTarget | null;
+      if (data.targetingSelectionOption !== undefined && deserializedActionAndRankOption !== null) {
+        targetingProperties.setSelectedTargetingScheme(
+          data.targetingSelectionOption.targetingScheme
+        );
+        targetingProperties.setSelectedTarget(data.targetingSelectionOption.target);
+        selectedTarget = data.targetingSelectionOption.target;
+      } else {
+        const newTargetsResult =
+          targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
+        if (newTargetsResult instanceof Error) {
+          throw newTargetsResult;
+        }
+        selectedTarget = newTargetsResult;
       }
 
       let targetIds: null | EntityId[] = null;
-      if (combatActionOption !== null && newTargetsResult) {
+      if (combatActionOption !== null && selectedTarget) {
         const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
           combatActionOption,
-          newTargetsResult
+          selectedTarget
         );
         if (targetIdsResult instanceof Error) {
           throw targetIdsResult;
@@ -441,7 +454,7 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      actionMenu.pushStack(new ConsideringCombatActionMenuScreen(clientApplication, actionName));
+      actionMenu.replaceStack([new ConsideringCombatActionMenuScreen(clientApplication, actionName)]);
     },
     [GameStateUpdateType.GameMessage]: (data) => {
       const { message } = data;
@@ -721,6 +734,40 @@ export function createGameUpdateHandlers(
       const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
         COMBAT_ACTIONS[actionName],
         combatActionTarget
+      );
+      if (targetIdsResult instanceof Error) {
+        throw targetIdsResult;
+      }
+
+      targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIdsResult || []);
+    },
+    [GameStateUpdateType.CharacterSetCombatActionTarget]: (data) => {
+      const { characterId, targetingSelection } = data;
+      const { targetingScheme, target } = targetingSelection;
+      const { game, party, combatant } = gameContext.requireCombatantContext(characterId);
+      const username = combatant.getCombatantProperties().controlledBy.controllerPlayerName;
+      const player = game.getExpectedPlayer(username);
+
+      const targetingCalculator = new TargetingCalculator(
+        new ActionUserContext(game, party, combatant),
+        player
+      );
+
+      const targetingProperties = combatant.getTargetingProperties();
+
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      if (selectedActionAndRank === null) {
+        throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+      }
+
+      targetingProperties.setSelectedTargetingScheme(targetingScheme);
+      targetingProperties.setSelectedTarget(target);
+
+      const { actionName } = selectedActionAndRank;
+
+      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+        COMBAT_ACTIONS[actionName],
+        target
       );
       if (targetIdsResult instanceof Error) {
         throw targetIdsResult;

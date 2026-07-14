@@ -13,6 +13,7 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { TargetingSelection } from "../combat/targeting/combat-action-targets.js";
 import {
   ActionRank,
   ChannelName,
@@ -82,6 +83,7 @@ export enum GameStateUpdateType {
   // RawActionResults ,
   CharacterSelectedCombatAction,
   CharacterCycledTargets,
+  CharacterSetCombatActionTarget,
   CharacterCycledTargetingSchemes,
   DungeonFloorNumber,
   CharacterSpentAttributePoint,
@@ -228,10 +230,16 @@ export interface GameStateUpdateMap {
     characterId: CombatantId;
     actionAndRankOption: SerializedOf<ActionAndRank> | null;
     itemIdOption?: string | null;
+    targetingSelectionOption?: TargetingSelection;
+    autoSelected?: boolean;
   };
   [GameStateUpdateType.CharacterCycledTargets]: {
     characterId: CombatantId;
     direction: NextOrPrevious;
+  };
+  [GameStateUpdateType.CharacterSetCombatActionTarget]: {
+    characterId: CombatantId;
+    targetingSelection: TargetingSelection;
   };
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: {
     characterId: CombatantId;
@@ -421,6 +429,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   // RawActionResults ,
   [GameStateUpdateType.CharacterSelectedCombatAction]: "CharacterSelectedCombatAction",
   [GameStateUpdateType.CharacterCycledTargets]: "CharacterCycledTargets",
+  [GameStateUpdateType.CharacterSetCombatActionTarget]: "CharacterSetCombatActionTarget",
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: "CharacterCycledTargetingSchemes",
   [GameStateUpdateType.DungeonFloorNumber]: "DungeonFloorNumber",
   [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",

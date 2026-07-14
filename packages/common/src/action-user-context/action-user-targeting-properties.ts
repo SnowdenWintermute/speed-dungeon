@@ -50,6 +50,10 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
   private targetPreferences = new CombatActionTargetPreferences();
   private selectedTargetingScheme: Option<TargetingScheme> = null;
   private selectedItemId: Option<EntityId> = null;
+  // true when the selected action was auto-selected as the default for a clicked target rather than
+  // chosen deliberately by the player; lets the click handler re-evaluate the default when switching
+  // targets without overriding a deliberate choice
+  private selectedActionWasAutoSelected: boolean = false;
 
   makeObservable() {
     makeAutoObservable(this);
@@ -80,6 +84,7 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
     this.selectedTarget = null;
     this.selectedTargetingScheme = null;
     this.selectedItemId = null;
+    this.selectedActionWasAutoSelected = false;
     if (options?.clearTargetingPreferences) {
       this.targetPreferences.clear();
     }
@@ -111,6 +116,10 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
     return this.selectedItemId;
   }
 
+  getSelectedActionWasAutoSelected() {
+    return this.selectedActionWasAutoSelected;
+  }
+
   getTargetPreferences() {
     return this.targetPreferences;
   }
@@ -127,6 +136,9 @@ export class ActionUserTargetingProperties implements Serializable, ReactiveNode
   }
   setSelectedItemId(itemIdOption: Option<EntityId>) {
     this.selectedItemId = itemIdOption;
+  }
+  setSelectedActionWasAutoSelected(wasAutoSelected: boolean) {
+    this.selectedActionWasAutoSelected = wasAutoSelected;
   }
 
   updatePreferences(

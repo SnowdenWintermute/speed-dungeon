@@ -1,5 +1,8 @@
 import { EntityId } from "../../aliases.js";
-import { FriendOrFoe } from "../combat-actions/targeting-schemes-and-categories.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 
 export enum CombatActionTargetType {
   Single,
@@ -47,6 +50,11 @@ export type CombatActionTarget =
   | CombatActionTargetAll
   | CombatActionTargetSingleAndSides
   | CombatActionTargetSides;
+
+export interface TargetingSelection {
+  targetingScheme: TargetingScheme;
+  target: CombatActionTarget;
+}
 
 export function combatActionTargetsAreEqual(a: CombatActionTarget, b: CombatActionTarget): boolean {
   if (a.type !== b.type) return false;

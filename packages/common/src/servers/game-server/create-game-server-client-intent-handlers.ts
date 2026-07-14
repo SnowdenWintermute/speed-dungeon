@@ -30,6 +30,8 @@ export function createGameServerClientIntentHandlers(
       gameServer.combatActionController.selectCombatActionRankHandler(user, data),
     [ClientIntentType.CycleCombatActionTargets]: (data, user) =>
       gameServer.combatActionController.cycleTargetsHandler(user, data),
+    [ClientIntentType.SetCombatActionTarget]: (data, user) =>
+      gameServer.combatActionController.setCombatActionTargetHandler(user, data),
     [ClientIntentType.CycleTargetingSchemes]: (data, user) =>
       gameServer.combatActionController.cycleTargetingSchemesHandler(user, data),
     [ClientIntentType.UseSelectedCombatAction]: (data, user) =>

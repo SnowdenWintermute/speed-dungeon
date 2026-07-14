@@ -35,7 +35,7 @@ export function getActionTargetsIfSchemeIsValid(
       });
       return targetIds as EntityId[];
     }
-    case CombatActionTargetType.SingleAndSides:
+    case CombatActionTargetType.SingleAndSides: {
       const targetIds = [actionTarget.targetId as EntityId];
       allyIds.forEach((id, i) => {
         if (id === actionTarget.targetId) {
@@ -54,14 +54,17 @@ export function getActionTargetsIfSchemeIsValid(
         }
       });
       return targetIds as EntityId[];
+    }
 
-    case CombatActionTargetType.Group:
+    case CombatActionTargetType.Group: {
       if (actionTarget.friendOrFoe === FriendOrFoe.Friendly) return [...allyIds, ...neutralIds];
       else if (actionTarget.friendOrFoe === FriendOrFoe.Hostile)
         return [...opponentIds, ...neutralIds];
-      else neutralIds;
-    case CombatActionTargetType.All:
+      else return neutralIds;
+    }
+    case CombatActionTargetType.All: {
       const allCombatantIds: EntityId[] = allyIds.concat(opponentIds).concat(neutralIds);
       return allCombatantIds;
+    }
   }
 }

@@ -59,7 +59,7 @@ export class TargetFilterer {
   ) {
     const filteredIds = [];
 
-    for (let targetId of potentialIds) {
+    for (const targetId of potentialIds) {
       const combatantResult = party.combatantManager.getExpectedCombatant(targetId);
       let targetIsInProhibitedState = false;
 

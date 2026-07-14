@@ -6,6 +6,7 @@ import {
   ACTION_FORCED_RANKS,
 } from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { ActionRank } from "../../aliases.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -18,6 +19,7 @@ import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant } from "../index.js";
+import { CombatantEquipment } from "../combatant-equipment/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
@@ -121,6 +123,24 @@ export class CombatantAbilityProperties
 
   getOwnedActionOption(actionName: CombatActionName) {
     return this.ownedActions.get(actionName);
+  }
+
+  getDefaultActionOnTarget(self: Combatant, targetCombatant: Combatant): ActionAndRank {
+    const meleeCanNotReachTarget = self.targetFlyingConditionPreventsReachingMeleeRange(
+      targetCombatant.combatantProperties
+    );
+
+    let actionName = CombatActionName.Attack;
+    if (meleeCanNotReachTarget && !CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(self)) {
+      actionName = CombatActionName.ThrowPebbleParent;
+    }
+
+    const ownedActionOption = this.getOwnedActionOption(actionName);
+    if (ownedActionOption === undefined) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+    }
+
+    return new ActionAndRank(actionName, ownedActionOption.level as ActionRank);
   }
 
   // POINT ALLOCATION

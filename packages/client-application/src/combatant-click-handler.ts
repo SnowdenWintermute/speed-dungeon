@@ -1,4 +1,15 @@
-import { AdventuringParty, CombatantId, Username } from "@speed-dungeon/common";
+import {
+  ActionAndRank,
+  ActionUserContext,
+  AdventuringParty,
+  ClientIntentType,
+  CombatActionTargetType,
+  CombatantId,
+  TargetingCalculator,
+  TargetingScheme,
+  TargetingSelection,
+  Username,
+} from "@speed-dungeon/common";
 import { ClientApplication } from ".";
 
 export class CombatantClickHandler {
@@ -22,9 +33,8 @@ export class CombatantClickHandler {
       return combatantFocus.focusedCharacterIdOption !== combatantId;
     }
 
-    // @TODO - an action is selected: only show the reticle for combatants that are targetable
-    // with it (untargetable combatants aren't clickable and shouldn't show a reticle)
-    return true;
+    // an action is selected: only combatants that are a valid target to switch to are clickable
+    return this.getTargetingSelectionForClick(combatantId) !== null;
   }
 
   combatantClicked(combatantId: CombatantId) {
@@ -36,21 +46,63 @@ export class CombatantClickHandler {
     }
 
     const focusedCharacter = combatantFocus.focusedCharacterOption;
-    const hasActionSelected =
-      focusedCharacter?.combatantProperties.targetingProperties.getSelectedActionAndRank() != null;
+    const selectedActionAndRank =
+      focusedCharacter?.combatantProperties.targetingProperties.getSelectedActionAndRank() ?? null;
 
-    if (!hasActionSelected) {
+    if (focusedCharacter === undefined || selectedActionAndRank === null) {
       this.handleClickWithNoActionSelected(combatantId, partyOption, session.requireUsername());
       return;
     }
 
-    // @TODO - an action is selected on the focused character:
-    // - clicking the combatant already targeted executes the action (UseSelectedCombatAction);
-    //   while hovering that target the cursor should indicate a confirm (crosshair)
-    // - clicking a different valid target switches the target to it — needs a direct set-target
-    //   intent; today only CycleCombatActionTargets exists
-    // - combatants not targetable with the selected action are not clickable and shouldn't show
-    //   their reticle at all
+    // an action is selected on the focused character: clicking a valid target switches to it
+    const targetingSelection = this.getTargetingSelectionForClick(combatantId);
+    if (targetingSelection === null) {
+      return;
+    }
+
+    const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
+    const { targetingProperties, abilityProperties } = focusedCharacter.combatantProperties;
+
+    // when the action was auto-selected for the player by clicking (not chosen in the menu),
+    // re-evaluate the best default for the newly clicked target and switch to it if it differs; a
+    // deliberately chosen action is respected and only its target changes
+    const targetCombatant = partyOption.combatantManager.getCombatantOption(combatantId);
+    if (targetingProperties.getSelectedActionWasAutoSelected() && targetCombatant !== undefined) {
+      const defaultActionAndRank = abilityProperties.getDefaultActionOnTarget(
+        focusedCharacter,
+        targetCombatant
+      );
+      if (defaultActionAndRank.actionName !== selectedActionAndRank.actionName) {
+        this.selectDefaultActionOnTarget(focusedCharacterId, defaultActionAndRank, targetingSelection);
+        return;
+      }
+    }
+
+    // @TODO - clicking the combatant already targeted should instead execute the action
+    // (UseSelectedCombatAction); while hovering that target the cursor should indicate a confirm
+    this.clientApplication.gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.SetCombatActionTarget,
+      data: {
+        characterId: focusedCharacterId,
+        targetingSelection,
+      },
+    });
+  }
+
+  private getTargetingSelectionForClick(combatantId: CombatantId): TargetingSelection | null {
+    const { gameContext, combatantFocus } = this.clientApplication;
+    const focusedCharacterId = combatantFocus.focusedCharacterIdOption;
+    if (focusedCharacterId === null) {
+      return null;
+    }
+
+    const { game, party, combatant } = gameContext.requireCombatantContext(focusedCharacterId);
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, party, combatant),
+      null
+    );
+
+    return targetingCalculator.getTargetingSelectionForClickedCombatant(combatantId);
   }
 
   private handleClickWithNoActionSelected(
@@ -64,12 +116,49 @@ export class CombatantClickHandler {
       return;
     }
 
-    // @TODO - clicked a combatant that isn't one of the player's characters (e.g. an enemy in a
-    // battle): have the focused character select a default action targeting it. The default is
-    // the attack action if owned, but should be context-dependent — if the target has the flying
-    // condition and the focused character isn't wielding a ranged weapon, pick a ranged default
-    // (e.g. throw pebble), since melee always misses fliers. This wants a shared
-    // determineDefaultAction(focusedCharacter, target) used only once we've decided the click
-    // should select an action at all.
+    // clicked a combatant that isn't one of the player's characters (e.g. an enemy): the focused
+    // character selects its default action against that target
+    const { combatantFocus } = this.clientApplication;
+    const focusedCharacter = combatantFocus.focusedCharacterOption;
+    if (focusedCharacter === undefined) {
+      return;
+    }
+    const targetCombatant = party.combatantManager.getCombatantOption(combatantId);
+    if (targetCombatant === undefined) {
+      return;
+    }
+
+    const defaultActionAndRank =
+      focusedCharacter.combatantProperties.abilityProperties.getDefaultActionOnTarget(
+        focusedCharacter,
+        targetCombatant
+      );
+
+    const targetingSelection: TargetingSelection = {
+      targetingScheme: TargetingScheme.Single,
+      target: { type: CombatActionTargetType.Single, targetId: combatantId },
+    };
+
+    this.selectDefaultActionOnTarget(
+      combatantFocus.requireFocusedCharacterId(),
+      defaultActionAndRank,
+      targetingSelection
+    );
+  }
+
+  private selectDefaultActionOnTarget(
+    characterId: CombatantId,
+    defaultActionAndRank: ActionAndRank,
+    targetingSelection: TargetingSelection
+  ) {
+    this.clientApplication.gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.SelectCombatAction,
+      data: {
+        characterId,
+        actionAndRankOption: defaultActionAndRank.toSerialized(),
+        targetingSelectionOption: targetingSelection,
+        autoSelected: true,
+      },
+    });
   }
 }
