@@ -42,7 +42,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     this.appendStartingEquipment(combatantClass, builder);
     this.appendStartingConsumables(builder);
 
-    // builder.ownedAction(CombatActionName.Ensnare);
+    builder.ownedAction(CombatActionName.Fire, 2);
 
     const result = builder.build(this.idGenerator);
 

@@ -4,6 +4,7 @@ import {
   AdventuringParty,
   ClientIntentType,
   CombatActionTargetType,
+  Combatant,
   CombatantId,
   TargetingCalculator,
   TargetingScheme,
@@ -20,6 +21,14 @@ export class CombatantClickHandler {
   private reticleClickabilityByCombatantId = new Map<CombatantId, boolean>();
 
   reticleIsClickable(combatantId: CombatantId): boolean {
+    // no reticles while input is locked (e.g. right after executing an action, during its replay).
+    // Checked at read time rather than baked into the cache so lock/unlock is reflected immediately
+    // without needing a synchronize call.
+    const { partyOption } = this.clientApplication.gameContext;
+    if (partyOption === undefined || partyOption.inputLock.isLocked()) {
+      return false;
+    }
+
     // lazily compute on a cache miss so a combatant that appeared without a synchronize call (e.g.
     // a spawn path we don't explicitly hook) is still correct on its first render
     const cached = this.reticleClickabilityByCombatantId.get(combatantId);
@@ -46,8 +55,17 @@ export class CombatantClickHandler {
 
   // whether clicking a combatant's reticle would do anything meaningful in the current context
   private computeReticleIsClickable(combatantId: CombatantId): boolean {
-    const { gameContext, combatantFocus } = this.clientApplication;
-    if (!gameContext.partyOption) {
+    const { gameContext, combatantFocus, session } = this.clientApplication;
+    const { partyOption } = gameContext;
+    if (!partyOption) {
+      return false;
+    }
+
+    // the combatant may have been removed from the manager (e.g. a monster at end of battle) while
+    // its scene entity + disc still exist in the scene and keep polling this per frame until they
+    // are disposed; guard so we don't query a combatant that no longer exists
+    const combatant = partyOption.combatantManager.getCombatantOption(combatantId);
+    if (combatant === undefined) {
       return false;
     }
 
@@ -55,14 +73,43 @@ export class CombatantClickHandler {
     const hasActionSelected =
       focusedCharacter?.combatantProperties.targetingProperties.getSelectedActionAndRank() != null;
 
-    if (!hasActionSelected) {
-      // clicking re-focuses party members or (against an enemy) selects a default action, but
-      // clicking the character that is already focused does nothing
+    if (hasActionSelected) {
+      // an action is selected: only combatants that are a valid target to switch to are clickable
+      return this.getTargetingSelectionForClick(combatantId) !== null;
+    }
+
+    // no action selected: clicking an owned party member focuses it (even a dead one — you may want
+    // to focus a downed ally), except the one already focused
+    if (partyOption.combatantManager.playerOwnsCharacter(session.requireUsername(), combatantId)) {
       return combatantFocus.focusedCharacterIdOption !== combatantId;
     }
 
-    // an action is selected: only combatants that are a valid target to switch to are clickable
-    return this.getTargetingSelectionForClick(combatantId) !== null;
+    // an enemy is only clickable if the focused character's default action can actually target it,
+    // so e.g. a dead monster (no valid default-action target) shows no reticle
+    if (focusedCharacter === undefined) {
+      return false;
+    }
+    return this.defaultActionCanTargetCombatant(focusedCharacter, combatant);
+  }
+
+  private defaultActionCanTargetCombatant(
+    focusedCharacter: Combatant,
+    targetCombatant: Combatant
+  ): boolean {
+    const targetingCalculator = this.getFocusedCharacterTargetingCalculator();
+    if (targetingCalculator === null) {
+      return false;
+    }
+
+    const defaultActionAndRank =
+      focusedCharacter.combatantProperties.abilityProperties.getDefaultActionOnTarget(
+        focusedCharacter,
+        targetCombatant
+      );
+    const validIdsByDisposition =
+      targetingCalculator.getFilteredPotentialTargetIdsForAction(defaultActionAndRank);
+    const targetId = targetCombatant.getEntityId();
+    return Object.values(validIdsByDisposition).some((ids) => ids.includes(targetId));
   }
 
   combatantClicked(combatantId: CombatantId) {
