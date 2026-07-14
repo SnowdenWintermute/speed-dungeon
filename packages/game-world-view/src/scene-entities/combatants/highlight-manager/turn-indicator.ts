@@ -58,6 +58,8 @@ export class TurnIndicator {
 
     this.mesh.material = material;
     this.mesh.visibility = 0.75;
+    // visual-only indicator; non-pickable so it can't intercept taps meant for the reticle
+    this.mesh.isPickable = false;
   }
 
   attachToCombatantEntity(sceneEntity: CombatantSceneEntity) {

@@ -142,11 +142,15 @@ export class ActionMenu {
   onExecuteAction() {
     this.clearStack(); // don't just pop because could have used item from inventory
     this.getCurrentMenu().goToFirstPage();
-    const { detailableEntityFocus, gameContext, combatantFocus } = this.clientApplication;
+    const { detailableEntityFocus, gameContext, combatantFocus, combatantClickHandler } =
+      this.clientApplication;
     detailableEntityFocus.detailables.clear();
     const party = gameContext.requireParty();
     const focusedCharacter = combatantFocus.requireFocusedCharacter();
     focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);
+    // deselecting the action changes which combatants are valid targets; recompute reticle
+    // clickability since this local deselect doesn't go through the update handlers that do
+    combatantClickHandler.synchronizeReticleClickability();
     party.inputLock.lockInput();
   }
 }

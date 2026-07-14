@@ -15,9 +15,37 @@ import { ClientApplication } from ".";
 export class CombatantClickHandler {
   constructor(private clientApplication: ClientApplication) {}
 
-  // whether a combatant's clickable reticle should be shown — i.e. whether clicking it would do
-  // anything meaningful in the current context
-  shouldShowReticle(combatantId: CombatantId): boolean {
+  // cached per-combatant reticle clickability, recomputed by synchronizeReticleClickability() only
+  // on the state changes that affect it, so the per-frame disc render just reads the cached value
+  private reticleClickabilityByCombatantId = new Map<CombatantId, boolean>();
+
+  reticleIsClickable(combatantId: CombatantId): boolean {
+    // lazily compute on a cache miss so a combatant that appeared without a synchronize call (e.g.
+    // a spawn path we don't explicitly hook) is still correct on its first render
+    const cached = this.reticleClickabilityByCombatantId.get(combatantId);
+    if (cached !== undefined) {
+      return cached;
+    }
+    const computed = this.computeReticleIsClickable(combatantId);
+    this.reticleClickabilityByCombatantId.set(combatantId, computed);
+    return computed;
+  }
+
+  // recompute every combatant's clickability from scratch; called on the state changes that affect
+  // it, and drops entries for combatants that no longer exist
+  synchronizeReticleClickability() {
+    const updated = new Map<CombatantId, boolean>();
+    const { partyOption } = this.clientApplication.gameContext;
+    if (partyOption !== undefined) {
+      for (const [combatantId] of partyOption.combatantManager.getAllCombatants()) {
+        updated.set(combatantId, this.computeReticleIsClickable(combatantId));
+      }
+    }
+    this.reticleClickabilityByCombatantId = updated;
+  }
+
+  // whether clicking a combatant's reticle would do anything meaningful in the current context
+  private computeReticleIsClickable(combatantId: CombatantId): boolean {
     const { gameContext, combatantFocus } = this.clientApplication;
     if (!gameContext.partyOption) {
       return false;
@@ -54,18 +82,40 @@ export class CombatantClickHandler {
       return;
     }
 
-    // an action is selected on the focused character: clicking a valid target switches to it
-    const targetingSelection = this.getTargetingSelectionForClick(combatantId);
-    if (targetingSelection === null) {
+    // an action is selected on the focused character
+    const targetingCalculator = this.getFocusedCharacterTargetingCalculator();
+    if (targetingCalculator === null) {
       return;
     }
 
     const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
-    const { targetingProperties, abilityProperties } = focusedCharacter.combatantProperties;
+
+    // clicking a combatant already among the selected targets (a single target, or any member of a
+    // targeted group) executes the selected action
+    if (targetingCalculator.combatantIsAmongSelectedTargets(combatantId)) {
+      this.clientApplication.gameClientRef.get().dispatchIntent({
+        type: ClientIntentType.UseSelectedCombatAction,
+        data: { characterId: focusedCharacterId },
+      });
+      // run the same post-execute cleanup as the menu's Execute button: clears the considering-menu
+      // stack (so updateFocusedCharacterOnNewTurnOrder can refocus the next active combatant) and
+      // deselects the action (so a later click re-enters the select→confirm flow instead of
+      // immediately re-executing a leftover selection)
+      this.clientApplication.actionMenu.onExecuteAction();
+      return;
+    }
+
+    // otherwise the click switches to that target, if it is a valid one to switch to
+    const targetingSelection =
+      targetingCalculator.getTargetingSelectionForClickedCombatant(combatantId);
+    if (targetingSelection === null) {
+      return;
+    }
 
     // when the action was auto-selected for the player by clicking (not chosen in the menu),
     // re-evaluate the best default for the newly clicked target and switch to it if it differs; a
     // deliberately chosen action is respected and only its target changes
+    const { targetingProperties, abilityProperties } = focusedCharacter.combatantProperties;
     const targetCombatant = partyOption.combatantManager.getCombatantOption(combatantId);
     if (targetingProperties.getSelectedActionWasAutoSelected() && targetCombatant !== undefined) {
       const defaultActionAndRank = abilityProperties.getDefaultActionOnTarget(
@@ -78,8 +128,6 @@ export class CombatantClickHandler {
       }
     }
 
-    // @TODO - clicking the combatant already targeted should instead execute the action
-    // (UseSelectedCombatAction); while hovering that target the cursor should indicate a confirm
     this.clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.SetCombatActionTarget,
       data: {
@@ -90,6 +138,14 @@ export class CombatantClickHandler {
   }
 
   private getTargetingSelectionForClick(combatantId: CombatantId): TargetingSelection | null {
+    return (
+      this.getFocusedCharacterTargetingCalculator()?.getTargetingSelectionForClickedCombatant(
+        combatantId
+      ) ?? null
+    );
+  }
+
+  private getFocusedCharacterTargetingCalculator(): TargetingCalculator | null {
     const { gameContext, combatantFocus } = this.clientApplication;
     const focusedCharacterId = combatantFocus.focusedCharacterIdOption;
     if (focusedCharacterId === null) {
@@ -97,12 +153,7 @@ export class CombatantClickHandler {
     }
 
     const { game, party, combatant } = gameContext.requireCombatantContext(focusedCharacterId);
-    const targetingCalculator = new TargetingCalculator(
-      new ActionUserContext(game, party, combatant),
-      null
-    );
-
-    return targetingCalculator.getTargetingSelectionForClickedCombatant(combatantId);
+    return new TargetingCalculator(new ActionUserContext(game, party, combatant), null);
   }
 
   private handleClickWithNoActionSelected(

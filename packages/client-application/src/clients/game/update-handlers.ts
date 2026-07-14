@@ -119,6 +119,8 @@ export function createGameUpdateHandlers(
         return;
       }
 
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
+
       if (data.awaitingUnresolvedReplayResolutionDuration) {
         partyOption.inputLock.lockInput();
         clientApplication.uiStore.replayResolutionTimeoutDuration =
@@ -226,6 +228,8 @@ export function createGameUpdateHandlers(
 
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
 
       dungeonExplorationManager.incrementExploredRoomsTrackers();
 
@@ -444,6 +448,8 @@ export function createGameUpdateHandlers(
         actionAndRankOption?.actionName === undefined ? null : actionAndRankOption.actionName;
 
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIds || []);
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
 
       const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
         clientApplication.session.requireUsername(),
@@ -680,6 +686,8 @@ export function createGameUpdateHandlers(
       );
       const newTargetsResult = targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel();
 
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
+
       const action = COMBAT_ACTIONS[actionName];
 
       if (newTargetsResult instanceof Error) {
@@ -774,6 +782,8 @@ export function createGameUpdateHandlers(
       }
 
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIdsResult || []);
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
     },
     [GameStateUpdateType.CharacterCycledTargetingSchemes]: (data) => {
       const { characterId } = data;
@@ -805,6 +815,8 @@ export function createGameUpdateHandlers(
       }
 
       targetIndicatorStore.synchronize(actionNameOption, combatant.getEntityId(), targetIdsResult);
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
     },
     [GameStateUpdateType.DungeonFloorNumber]: (data) => {
       const party = gameContext.requireParty();

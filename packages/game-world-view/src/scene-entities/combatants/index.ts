@@ -91,7 +91,7 @@ export class CombatantSceneEntity extends SceneEntity {
           this.combatant.getEntityId()
         ),
       () =>
-        gameWorldView.clientApplication.combatantClickHandler.shouldShowReticle(
+        gameWorldView.clientApplication.combatantClickHandler.reticleIsClickable(
           this.combatant.getEntityId()
         )
     );

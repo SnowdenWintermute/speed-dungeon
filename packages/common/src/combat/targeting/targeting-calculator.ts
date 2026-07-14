@@ -168,6 +168,25 @@ export class TargetingCalculator {
     return null;
   }
 
+  combatantIsAmongSelectedTargets(combatantId: EntityId): boolean {
+    const targetingProperties = this.context.actionUser.getTargetingProperties();
+    const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+    const selectedTarget = targetingProperties.getSelectedTarget();
+    if (selectedActionAndRank === null || selectedTarget === null) {
+      return false;
+    }
+
+    const targetIdsResult = this.getCombatActionTargetIds(
+      COMBAT_ACTIONS[selectedActionAndRank.actionName],
+      selectedTarget
+    );
+    if (targetIdsResult instanceof Error) {
+      return false;
+    }
+
+    return targetIdsResult.includes(combatantId);
+  }
+
   getPreferredOrDefaultActionTargets(actionAndRank: ActionAndRank) {
     const filteredIds = this.getFilteredPotentialTargetIdsForAction(actionAndRank);
     const newTargetsResult = getValidPreferredOrDefaultActionTargets(
