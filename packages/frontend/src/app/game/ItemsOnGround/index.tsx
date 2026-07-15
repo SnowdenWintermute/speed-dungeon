@@ -38,7 +38,7 @@ export const ItemsOnGround = observer(({ party, maxHeightRem }: Props) => {
     }
     return (
       <div
-        className={`w-full border-2 border-dashed pointer-events-auto flex items-center justify-center text-center text-slate-300 ${droppableBorder} ${droppableBg}`}
+        className={`w-full border pointer-events-auto flex items-center justify-center text-center text-slate-300 ${droppableBorder} ${droppableBg}`}
         style={{ height: `${maxHeightRem}rem` }}
         onPointerEnter={groundDrop.onPointerEnter}
         onPointerLeave={groundDrop.onPointerLeave}

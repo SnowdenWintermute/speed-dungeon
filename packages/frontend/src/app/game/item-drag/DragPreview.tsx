@@ -3,7 +3,9 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DragSourceType } from "@/client-application/item-drag/types";
 import { ZIndexLayers } from "@/app/z-index-layers";
-import { Equipment } from "@speed-dungeon/common";
+import { Consumable, Equipment } from "@speed-dungeon/common";
+import { EQUIPMENT_ICONS } from "@/app/game/detailables/EquipmentDetails/equipment-icons";
+import { CONSUMABLE_ICONS } from "@/app/icons";
 
 const PREVIEW_SIZE_PX = 64;
 
@@ -33,6 +35,21 @@ export const DragPreview = observer(() => {
   const rotation = startsSideways && !uprighted ? -90 : 0;
 
   const thumbnail = imageStore.getItemButtonThumbnail(item);
+
+  // when the image hasn't loaded, fall back to the same placeholder SVG the item button uses
+  let svgIcon;
+  if (!thumbnail && item instanceof Equipment) {
+    svgIcon = EQUIPMENT_ICONS[item.equipmentBaseItemProperties.equipmentType](
+      "h-full fill-slate-400",
+      {}
+    );
+  } else if (!thumbnail && item instanceof Consumable) {
+    const consumableSvgGetter = CONSUMABLE_ICONS[item.consumableType];
+    if (consumableSvgGetter !== null) {
+      svgIcon = consumableSvgGetter("h-full fill-slate-400");
+    }
+  }
+
   const isMagical = item instanceof Equipment && item.isMagical();
 
   const { x, y } = dragService.pointerPosition;
@@ -43,8 +60,8 @@ export const DragPreview = observer(() => {
       style={{
         left: x,
         top: y,
-        width: PREVIEW_SIZE_PX,
-        height: PREVIEW_SIZE_PX,
+        // width: PREVIEW_SIZE_PX,
+        // height: PREVIEW_SIZE_PX,
         transform: "translate(-50%, -50%)",
         zIndex: ZIndexLayers.Tooltip,
       }}
@@ -54,10 +71,12 @@ export const DragPreview = observer(() => {
         style={{ transform: `rotate(${rotation}deg)` }}
       >
         {thumbnail ? (
-          <img src={thumbnail} className="max-h-full max-w-full object-contain" />
+          <img src={thumbnail} className="max-h-full max-w-full object-contain" draggable={false} />
+        ) : svgIcon ? (
+          <div style={{ width: PREVIEW_SIZE_PX, height: PREVIEW_SIZE_PX }}>{svgIcon}</div>
         ) : (
           <div
-            className={`px-1 py-0.5 text-xs text-center bg-slate-800 border border-slate-400 ${
+            className={`flex items-center px-2 text-s text-center bg-slate-800 h-10 border border-slate-400 ${
               isMagical ? "text-blue-300" : "text-zinc-200"
             }`}
           >

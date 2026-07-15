@@ -13,6 +13,7 @@ import {
   Vector3,
 } from "@babylonjs/core";
 import {
+  AdventuringParty,
   CONSUMABLE_TYPE_STRINGS,
   Combatant,
   Consumable,
@@ -291,6 +292,13 @@ export class ImageGenerator {
     }
 
     return image;
+  }
+
+  enqueueThumbnailsForParty(party: AdventuringParty) {
+    this.enqueueConsumableGenericThumbnailCreation();
+    for (const character of party.combatantManager.iterateAllCombatants()) {
+      this.enqueueCharacterItemsForThumbnails(character);
+    }
   }
 
   enqueueCharacterItemsForThumbnails(character: Combatant) {

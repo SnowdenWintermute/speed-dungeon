@@ -73,6 +73,13 @@ export class GameWorldView {
     if (this.clientApplication.gameContext.gameOption) {
       this.setDefaultCameraPositionForGame();
     }
+
+    // on reconnection the GameFullUpdate can arrive before this view exists, in which case
+    // its handler couldn't enqueue thumbnails and we catch up on the already received state
+    const { partyOption } = clientApplication.gameContext;
+    if (partyOption) {
+      this.imageGenerator.enqueueThumbnailsForParty(partyOption);
+    }
   }
 
   get initialized() {

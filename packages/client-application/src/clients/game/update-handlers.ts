@@ -62,10 +62,8 @@ export function createGameUpdateHandlers(
     sequentialEventProcessor,
     alertsService,
     detailableEntityFocus,
-    gameWorldView,
     gameClientRef,
   } = clientApplication;
-  const sceneEntityService = gameWorldView?.sceneEntityService;
 
   return {
     [GameStateUpdateType.ErrorMessage]: () => {
@@ -131,16 +129,8 @@ export function createGameUpdateHandlers(
         }, data.awaitingUnresolvedReplayResolutionDuration);
       }
 
-      if (!gameWorldView) {
-        // console.info("couldn't make images because no game world view");
-        return;
-      }
-
-      gameWorldView.imageGenerator.enqueueConsumableGenericThumbnailCreation();
-      const { combatantManager } = partyOption;
-      for (const character of combatantManager.iterateAllCombatants()) {
-        gameWorldView.imageGenerator.enqueueCharacterItemsForThumbnails(character);
-      }
+      // if the world view doesn't exist yet, GameWorldView.initialize() enqueues these instead
+      clientApplication.gameWorldView?.imageGenerator.enqueueThumbnailsForParty(partyOption);
     },
     [GameStateUpdateType.GameClosed]: (data) => {
       const { reason } = data;
@@ -197,7 +187,10 @@ export function createGameUpdateHandlers(
       const { actionEntityManager } = party;
       for (const actionEntityId of actionEntitiesToRemove) {
         actionEntityManager.unregisterActionEntity(actionEntityId);
-        sceneEntityService?.actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
+        clientApplication.gameWorldView?.sceneEntityService.actionEntityManager.unregister(
+          actionEntityId,
+          CleanupMode.Soft
+        );
       }
 
       itemIdsOnGroundInPreviousRoom.push(
@@ -263,7 +256,7 @@ export function createGameUpdateHandlers(
       });
 
       // clean up unused screenshots for items left behind
-      gameWorldView?.imageGenerator.enqueueMessage({
+      clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
         type: ImageGenerationRequestType.ItemDeletion,
         data: { itemIds: itemIdsOnGroundInPreviousRoom },
       });
@@ -271,7 +264,7 @@ export function createGameUpdateHandlers(
       for (const item of newItemsOnGround) {
         if (item instanceof Consumable) continue;
 
-        gameWorldView?.imageGenerator.enqueueMessage({
+        clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
           type: ImageGenerationRequestType.ItemCreation,
           data: { item },
         });
@@ -631,7 +624,7 @@ export function createGameUpdateHandlers(
       }
 
       if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        gameWorldView?.imageGenerator.enqueueMessage({
+        clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
           type: ImageGenerationRequestType.ItemCreation,
           data: { item: itemResult },
         });

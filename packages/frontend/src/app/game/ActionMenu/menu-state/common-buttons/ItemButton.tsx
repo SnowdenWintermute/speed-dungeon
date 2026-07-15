@@ -43,11 +43,17 @@ export const ItemButton = observer((props: Props) => {
   const dragHandlers = useDragSource(() => props.dragSource ?? null);
   const onPointerDown = props.dragSource ? dragHandlers.onPointerDown : undefined;
 
+  const isDragging = dragService.isDragging();
   const current = dragService.current;
   const isBeingDragged =
     current !== null &&
-    current.type === DragSourceType.InventoryItem &&
+    (current.type === DragSourceType.InventoryItem ||
+      current.type === DragSourceType.GroundItem) &&
     current.item.entityProperties.id === props.item.entityProperties.id;
+
+  // no hover feedback while a drag is in progress — the pointer is dropping into a container, not
+  // clicking this button
+  const effectiveHovered = isDragging ? false : isHovered;
 
   const { item, text, hotkeyLabel, hotkeys, children, disabled } = props;
 
@@ -76,11 +82,14 @@ export const ItemButton = observer((props: Props) => {
 
   const { mainContainerStyles, imageContainerStyles } = getItemButtonConditionalStyles(
     item,
-    isHovered,
+    effectiveHovered,
     alternateClickKeyHeld
   );
 
   function focusHandler() {
+    if (dragService.isDragging()) {
+      return;
+    }
     detailableEntityFocus.detailables.setHovered(item);
     setIsHovered(true);
   }
@@ -102,11 +111,8 @@ export const ItemButton = observer((props: Props) => {
 
   return (
     <ActionMenuNumberedButton
-      extraStyles={
-        mainContainerStyles +
-        " relative overflow-hidden" +
-        (isBeingDragged ? " " + DRAG_SOURCE_DRAGGING_OPACITY : "")
-      }
+      extraStyles={mainContainerStyles + " relative overflow-hidden"}
+      style={isBeingDragged ? { opacity: DRAG_SOURCE_DRAGGING_OPACITY } : undefined}
       hotkeys={hotkeys}
       focusHandler={focusHandler}
       blurHandler={blurHandler}
@@ -114,20 +120,21 @@ export const ItemButton = observer((props: Props) => {
       hotkeyLabel={hotkeyLabel}
       disabled={disabled}
       onPointerDown={onPointerDown}
+      pointerEventsDisabled={isDragging}
     >
       <div className={`absolute right-0 w-7/12 h-full`} style={{ background }} />
 
       <div className={`${textColor} flex justify-between h-full w-full pr-2`}>
-        {thumbnailOption && (
+        {!isBeingDragged && thumbnailOption && (
           <div
             className={`absolute right-0 h-full w-fit -rotate-90 transition-transform ${imageContainerStyles}`}
           >
-            <img src={thumbnailOption} className="h-full object-fill " />
+            <img src={thumbnailOption} className="h-full object-fill " draggable={false} />
           </div>
         )}
-        {svgIconOption && (
+        {!isBeingDragged && svgIconOption && (
           <div
-            className={`absolute right-0 w-1 top-1/2 -translate-x-1/2 h-full flex justify-center  transition-transform ${isHovered ? "-translate-x-[50px]" : ""}`}
+            className={`absolute right-0 w-1 top-1/2 -translate-x-1/2 h-full flex justify-center  transition-transform ${effectiveHovered ? "-translate-x-[50px]" : ""}`}
           >
             <div className="w-10 h-10 p-1 -translate-y-1/2 ">{svgIconOption}</div>
           </div>

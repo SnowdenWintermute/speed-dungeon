@@ -69,7 +69,7 @@ export const PaperDollSlot = observer(
     }
 
     const itemDisplay = thumbnailOption ? (
-      <img src={thumbnailOption} className={"max-h-full"} />
+      <img src={thumbnailOption} className={"max-h-full"} draggable={false} />
     ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Ring ? (
       <RingIcon className="h-full fill-slate-400 " />
     ) : itemOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Amulet ? (
@@ -141,7 +141,8 @@ export const PaperDollSlot = observer(
 
     return (
       <button
-        className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${dragBorderStyle ?? highlightStyle} ${bgStyle} ${disabledStyle} ${isBeingDragged ? DRAG_SOURCE_DRAGGING_OPACITY : ""}`}
+        className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${dragBorderStyle ?? highlightStyle} ${bgStyle} ${disabledStyle}`}
+        style={isBeingDragged ? { opacity: DRAG_SOURCE_DRAGGING_OPACITY } : undefined}
         onMouseEnter={handleFocus}
         onMouseLeave={handleBlur}
         onFocus={handleFocus}

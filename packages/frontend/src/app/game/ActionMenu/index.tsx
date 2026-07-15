@@ -56,7 +56,7 @@ import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 import { DragSourceType, DropTargetType } from "@/client-application/item-drag/types";
 import { useDropTarget } from "@/app/game/item-drag/use-drop-target";
-import { dropTargetBgClass } from "@/app/game/item-drag/highlight-styles";
+import { dropTargetBgClass, dropTargetBorderClass } from "@/app/game/item-drag/highlight-styles";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const clientApplication = useClientApplication();
@@ -102,7 +102,13 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
               {topItems.map((item, i) => {
                 switch (item.type) {
                   case ActionMenuTopSectionItemType.GoBack:
-                    return <GoBackButton key={i} extraHotkeys={item.data.extraHotkeys} extraFn={item.data.extraFn} />;
+                    return (
+                      <GoBackButton
+                        key={i}
+                        extraHotkeys={item.data.extraHotkeys}
+                        extraFn={item.data.extraFn}
+                      />
+                    );
                   case ActionMenuTopSectionItemType.ToggleInventory:
                     return <ToggleInventoryButton key={i} />;
                   case ActionMenuTopSectionItemType.ViewAbilityTree:
@@ -120,7 +126,13 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                   case ActionMenuTopSectionItemType.CycleTargetingSchemes:
                     return <CycleTargetingSchemesButtons key={i} />;
                   case ActionMenuTopSectionItemType.ConfirmShardConversion:
-                    return <ConfirmShardConversionButton key={i} item={item.data.item} screenType={item.data.screenType} />;
+                    return (
+                      <ConfirmShardConversionButton
+                        key={i}
+                        item={item.data.item}
+                        screenType={item.data.screenType}
+                      />
+                    );
                   case ActionMenuTopSectionItemType.UseItem:
                     return <UseItemButton key={i} item={item.data.item} />;
                   case ActionMenuTopSectionItemType.EquipToAltSlot:
@@ -158,7 +170,7 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
             </ul>
           </div>
           <div
-            className={`mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400 ${
+            className={`mb-3 flex flex-col min-w-[25rem] max-w-[25rem] ${inventoryDrop.isDragging ? "bg-slate-700 border " + dropTargetBorderClass(inventoryDrop.resolution, inventoryDrop.isHovered) : "border-t"} border-slate-400 ${
               inventoryDrop.isDragging ? "pointer-events-auto" : ""
             } ${dropTargetBgClass(inventoryDrop.resolution, inventoryDrop.isHovered)}`}
             style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
@@ -245,11 +257,19 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                   );
                 case ActionMenuNumberedButtonType.PurchaseConsumable:
                   return (
-                    <PurchaseItemButton key={btn.data.listIndex} item={btn.data.item} listIndex={btn.data.listIndex} />
+                    <PurchaseItemButton
+                      key={btn.data.listIndex}
+                      item={btn.data.item}
+                      listIndex={btn.data.listIndex}
+                    />
                   );
                 case ActionMenuNumberedButtonType.RepairEquipment:
                   return (
-                    <RepairEquipmentButton key={btn.data.listIndex} equipment={btn.data.equipment} listIndex={btn.data.listIndex} />
+                    <RepairEquipmentButton
+                      key={btn.data.listIndex}
+                      equipment={btn.data.equipment}
+                      listIndex={btn.data.listIndex}
+                    />
                   );
                 case ActionMenuNumberedButtonType.VendingMachineOption:
                   return (
@@ -260,7 +280,9 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                       clickHandler={btn.data.onClick}
                       disabled={btn.data.disabled}
                     >
-                      <div className={`flex w-full items-center px-2 ${btn.data.disabled ? "opacity-50" : ""}`}>
+                      <div
+                        className={`flex w-full items-center px-2 ${btn.data.disabled ? "opacity-50" : ""}`}
+                      >
                         {btn.data.title}
                       </div>
                     </ActionMenuNumberedButton>
@@ -274,7 +296,9 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                       disabled={btn.data.disabled}
                       clickHandler={btn.data.onClick}
                     >
-                      <div className={`h-full flex items-center px-2 ${btn.data.disabled ? "opacity-50" : ""}`}>
+                      <div
+                        className={`h-full flex items-center px-2 ${btn.data.disabled ? "opacity-50" : ""}`}
+                      >
                         {btn.data.label}
                       </div>
                     </ActionMenuNumberedButton>
@@ -282,35 +306,44 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
               }
             })}
             {numberedButtons.length === 0 && centralSection === null && <EmptyItemsList />}
-            {centralSection !== null && centralSection && (() => {
-              switch (centralSection.type) {
-                case ActionMenuCentralSectionType.ConsideringItem:
-                  return <ConsideringItemDisplay />;
-                case ActionMenuCentralSectionType.ConfirmShardConversion:
-                  return <ConfirmShardConversionDisplay />;
-                case ActionMenuCentralSectionType.CombatActionDetail:
-                  return (
-                    <div
-                      className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
-                      style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
-                    >
-                      <ActionSelectedDetails actionName={centralSection.data.actionName} />
-                    </div>
-                  );
-                case ActionMenuCentralSectionType.AbilityDetail:
-                  return <AbilityDetailDisplay ability={centralSection.data.ability} column={centralSection.data.column} />;
-                case ActionMenuCentralSectionType.TradeForBookConfirmation:
-                  return (
-                    <TradeForBookConfirmationDisplay
-                      item={centralSection.data.item}
-                      bookType={centralSection.data.bookType}
-                      onClick={centralSection.data.onClick}
-                    />
-                  );
-                case ActionMenuCentralSectionType.TradeForBookRequirements:
-                  return <TradeForBookRequirementsDisplay bookType={centralSection.data.bookType} />;
-              }
-            })()}
+            {centralSection !== null &&
+              centralSection &&
+              (() => {
+                switch (centralSection.type) {
+                  case ActionMenuCentralSectionType.ConsideringItem:
+                    return <ConsideringItemDisplay />;
+                  case ActionMenuCentralSectionType.ConfirmShardConversion:
+                    return <ConfirmShardConversionDisplay />;
+                  case ActionMenuCentralSectionType.CombatActionDetail:
+                    return (
+                      <div
+                        className="border border-slate-400 bg-slate-700 min-w-[25rem] max-w-[25rem] p-2 flex"
+                        style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
+                      >
+                        <ActionSelectedDetails actionName={centralSection.data.actionName} />
+                      </div>
+                    );
+                  case ActionMenuCentralSectionType.AbilityDetail:
+                    return (
+                      <AbilityDetailDisplay
+                        ability={centralSection.data.ability}
+                        column={centralSection.data.column}
+                      />
+                    );
+                  case ActionMenuCentralSectionType.TradeForBookConfirmation:
+                    return (
+                      <TradeForBookConfirmationDisplay
+                        item={centralSection.data.item}
+                        bookType={centralSection.data.bookType}
+                        onClick={centralSection.data.onClick}
+                      />
+                    );
+                  case ActionMenuCentralSectionType.TradeForBookRequirements:
+                    return (
+                      <TradeForBookRequirementsDisplay bookType={centralSection.data.bookType} />
+                    );
+                }
+              })()}
           </div>
           <div className="min-w-[25rem] max-w-[25rem]">
             {(() => {
@@ -320,7 +353,11 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                 case ActionMenuBottomSectionType.CycleCombatActionTargets:
                   return <CycleCombatActionTargetsButtons />;
                 case ActionMenuBottomSectionType.CycleConsideredAbilityInTreeColumn:
-                  return <CycleConsideredAbilityInTreeColumnButtons menuState={bottomSection.data.screen} />;
+                  return (
+                    <CycleConsideredAbilityInTreeColumnButtons
+                      menuState={bottomSection.data.screen}
+                    />
+                  );
               }
             })()}
           </div>
