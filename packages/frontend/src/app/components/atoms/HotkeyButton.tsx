@@ -1,7 +1,7 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
+import { FocusEventHandler, MouseEventHandler, PointerEventHandler, useEffect, useRef } from "react";
 
 interface Props {
   className?: string;
@@ -18,6 +18,7 @@ interface Props {
   onBlur?: FocusEventHandler<HTMLButtonElement>;
   onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
   onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
+  onPointerDown?: PointerEventHandler<HTMLButtonElement>;
   keyUp?: boolean;
 }
 
@@ -62,6 +63,7 @@ export const HotkeyButton = observer((props: Props) => {
       aria-label={props.ariaLabel}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
+      onPointerDown={props.onPointerDown}
       style={props.style}
     >
       {props.children}

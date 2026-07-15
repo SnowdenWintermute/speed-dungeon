@@ -53,10 +53,19 @@ import AbilityDetailDisplay from "./AbilityDetailDisplay";
 import TradeForBookConfirmationDisplay from "./TradeForBookConfirmationDisplay";
 import TradeForBookRequirementsDisplay from "./TradeForBookRequirementsDisplay";
 import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
+import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { DragSourceType, DropTargetType } from "@/client-application/item-drag/types";
+import { useDropTarget } from "@/app/game/item-drag/use-drop-target";
+import { dropTargetBgClass } from "@/app/game/item-drag/highlight-styles";
 
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const clientApplication = useClientApplication();
-  const { actionMenu, detailableEntityFocus } = clientApplication;
+  const { actionMenu, detailableEntityFocus, combatantFocus } = clientApplication;
+
+  const inventoryDrop = useDropTarget({ type: DropTargetType.Inventory });
+  const inventoryDragEnabled =
+    actionMenu.currentMenuIsType(ActionMenuScreenType.InventoryItems) &&
+    combatantFocus.clientUserControlsFocusedCombatant();
 
   const currentMenu = actionMenu.getCurrentMenu();
   const topItems = currentMenu.getTopSection();
@@ -149,8 +158,12 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
             </ul>
           </div>
           <div
-            className={`mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400`}
+            className={`mb-3 flex flex-col min-w-[25rem] max-w-[25rem] border-t border-slate-400 ${
+              inventoryDrop.isDragging ? "pointer-events-auto" : ""
+            } ${dropTargetBgClass(inventoryDrop.resolution, inventoryDrop.isHovered)}`}
             style={{ height: `${ACTION_MENU_CENTRAL_SECTION_HEIGHT}rem` }}
+            onPointerEnter={inventoryDrop.onPointerEnter}
+            onPointerLeave={inventoryDrop.onPointerLeave}
           >
             {numberedButtons.map((btn, i) => {
               switch (btn.type) {
@@ -174,6 +187,11 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                       hotkeyLabel={btn.data.hotkeyLabel}
                       hotkeys={btn.data.hotkeys}
                       clickHandler={btn.data.onClick}
+                      dragSource={
+                        inventoryDragEnabled
+                          ? { type: DragSourceType.InventoryItem, item: btn.data.item }
+                          : undefined
+                      }
                     >
                       {btn.data.showEquippedStatus && (
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex">

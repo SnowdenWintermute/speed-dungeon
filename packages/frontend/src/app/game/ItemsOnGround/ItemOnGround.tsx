@@ -4,6 +4,9 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
 import { ClientApplication } from "@/client-application";
+import { DragSourceType } from "@/client-application/item-drag/types";
+import { useDragSource } from "@/app/game/item-drag/use-drag-source";
+import { DRAG_SOURCE_DRAGGING_OPACITY } from "@/client-consts";
 
 interface Props {
   item: Item;
@@ -20,9 +23,21 @@ export function takeItem(clientApplication: ClientApplication, item: Item) {
 
 export const ItemOnGround = observer((props: Props) => {
   const clientApplication = useClientApplication();
-  const { detailableEntityFocus } = clientApplication;
+  const { detailableEntityFocus, dragService } = clientApplication;
 
   const { item } = props;
+
+  const dragHandlers = useDragSource(() =>
+    props.disabled ? null : { type: DragSourceType.GroundItem, item }
+  );
+  const onPointerDown = props.disabled ? undefined : dragHandlers.onPointerDown;
+
+  const current = dragService.current;
+  const isBeingDragged =
+    current !== null &&
+    current.type === DragSourceType.GroundItem &&
+    current.item.entityProperties.id === item.entityProperties.id;
+
   function mouseEnterHandler() {
     detailableEntityFocus.detailables.setHovered(item);
   }
@@ -46,9 +61,10 @@ export const ItemOnGround = observer((props: Props) => {
     <li
       className={`h-10 w-full max-w-full flex border-r border-l border-b border-slate-400 first:border-t
                       box-border
-                      whitespace-nowrap text-ellipsis overflow-hidden cursor-default ${conditionalClassNames}`}
+                      whitespace-nowrap text-ellipsis overflow-hidden cursor-default ${conditionalClassNames} ${isBeingDragged ? DRAG_SOURCE_DRAGGING_OPACITY : ""}`}
       onMouseEnter={mouseEnterHandler}
       onMouseLeave={mouseLeaveHandler}
+      onPointerDown={onPointerDown}
     >
       <button
         className="cursor-pointer pr-4 pl-4 box-border

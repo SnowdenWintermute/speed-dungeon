@@ -29,7 +29,9 @@ export interface PointerPosition {
 }
 
 export function dropTargetsEqual(a: DropTarget, b: DropTarget) {
-  if (a.type !== b.type) return false;
+  if (a.type !== b.type) {
+    return false;
+  }
   if (a.type === DropTargetType.EquipmentSlot && b.type === DropTargetType.EquipmentSlot) {
     return a.slot.type === b.slot.type && a.slot.slot === b.slot.slot;
   }

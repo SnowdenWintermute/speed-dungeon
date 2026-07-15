@@ -18,6 +18,9 @@ import { ReactNode, useState } from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import { CONSUMABLE_ICONS } from "@/app/icons";
 import { ModifierKey } from "@/client-application/ui/inputs";
+import { DragSource, DragSourceType } from "@/client-application/item-drag/types";
+import { useDragSource } from "@/app/game/item-drag/use-drag-source";
+import { DRAG_SOURCE_DRAGGING_OPACITY } from "@/client-consts";
 
 interface Props {
   item: Item;
@@ -27,13 +30,24 @@ interface Props {
   clickHandler: (item: Item) => void;
   disabled: boolean;
   children?: ReactNode;
+  dragSource?: DragSource;
 }
 
 export const ItemButton = observer((props: Props) => {
   const [isHovered, setIsHovered] = useState(false);
   const clientApplication = useClientApplication();
-  const { uiStore, detailableEntityFocus, imageStore, eventLogMessageService } = clientApplication;
+  const { uiStore, detailableEntityFocus, imageStore, eventLogMessageService, dragService } =
+    clientApplication;
   const alternateClickKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.AlternateClick);
+
+  const dragHandlers = useDragSource(() => props.dragSource ?? null);
+  const onPointerDown = props.dragSource ? dragHandlers.onPointerDown : undefined;
+
+  const current = dragService.current;
+  const isBeingDragged =
+    current !== null &&
+    current.type === DragSourceType.InventoryItem &&
+    current.item.entityProperties.id === props.item.entityProperties.id;
 
   const { item, text, hotkeyLabel, hotkeys, children, disabled } = props;
 
@@ -88,13 +102,18 @@ export const ItemButton = observer((props: Props) => {
 
   return (
     <ActionMenuNumberedButton
-      extraStyles={mainContainerStyles + " relative overflow-hidden"}
+      extraStyles={
+        mainContainerStyles +
+        " relative overflow-hidden" +
+        (isBeingDragged ? " " + DRAG_SOURCE_DRAGGING_OPACITY : "")
+      }
       hotkeys={hotkeys}
       focusHandler={focusHandler}
       blurHandler={blurHandler}
       clickHandler={clickHandler}
       hotkeyLabel={hotkeyLabel}
       disabled={disabled}
+      onPointerDown={onPointerDown}
     >
       <div className={`absolute right-0 w-7/12 h-full`} style={{ background }} />
 

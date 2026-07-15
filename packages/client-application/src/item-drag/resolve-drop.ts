@@ -54,16 +54,22 @@ function resolveInventoryItemDrop(
 ): DropResolution {
   switch (target.type) {
     case DropTargetType.EquipmentSlot: {
-      if (!(item instanceof Equipment)) return INCOMPATIBLE;
+      if (!(item instanceof Equipment)) {
+        return INCOMPATIBLE;
+      }
 
       const alternate = equipToAlternateForSlot(
         item.equipmentBaseItemProperties.equipmentType,
         target.slot
       );
-      if (alternate === null) return INCOMPATIBLE;
+      if (alternate === null) {
+        return INCOMPATIBLE;
+      }
 
       const totalAttributes = character.combatantProperties.attributeProperties.getTotalAttributes();
-      if (!Item.requirementsMet(item, totalAttributes) || item.isBroken()) return BLOCKED;
+      if (!Item.requirementsMet(item, totalAttributes) || item.isBroken()) {
+        return BLOCKED;
+      }
 
       return {
         type: DropResolutionType.Valid,
@@ -111,7 +117,9 @@ function resolveGroundItemDrop(
   characterId: CombatantId,
   itemCommands: ItemCommands
 ): DropResolution {
-  if (target.type !== DropTargetType.Inventory) return INCOMPATIBLE;
+  if (target.type !== DropTargetType.Inventory) {
+    return INCOMPATIBLE;
+  }
   return {
     type: DropResolutionType.Valid,
     execute: () => itemCommands.pickUpItems(characterId, [item.getEntityId()]),
@@ -124,8 +132,12 @@ function equipToAlternateForSlot(
   targetSlot: TaggedEquipmentSlot
 ): boolean | null {
   const slots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
-  if (taggedSlotsEqual(slots.main, targetSlot)) return false;
-  if (slots.alternate !== null && taggedSlotsEqual(slots.alternate, targetSlot)) return true;
+  if (taggedSlotsEqual(slots.main, targetSlot)) {
+    return false;
+  }
+  if (slots.alternate !== null && taggedSlotsEqual(slots.alternate, targetSlot)) {
+    return true;
+  }
   return null;
 }
 

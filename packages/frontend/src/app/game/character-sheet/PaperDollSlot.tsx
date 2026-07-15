@@ -12,6 +12,11 @@ import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
+import { DragSourceType, DropTargetType } from "@/client-application/item-drag/types";
+import { useDragSource } from "@/app/game/item-drag/use-drag-source";
+import { useDropTarget } from "@/app/game/item-drag/use-drop-target";
+import { dropTargetBorderClass } from "@/app/game/item-drag/highlight-styles";
+import { DRAG_SOURCE_DRAGGING_OPACITY } from "@/client-consts";
 
 interface Props {
   itemOption: null | Equipment;
@@ -26,7 +31,8 @@ const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 export const PaperDollSlot = observer(
   ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
     const clientApplication = useClientApplication();
-    const { detailableEntityFocus, imageStore, combatantFocus, actionMenu } = clientApplication;
+    const { detailableEntityFocus, imageStore, combatantFocus, actionMenu, dragService } =
+      clientApplication;
 
     const { detailedItem, hoveredItem } = detailableEntityFocus.getFocusedItems();
     const { comparedSlot } = detailableEntityFocus.getItemComparison();
@@ -35,6 +41,25 @@ export const PaperDollSlot = observer(
       detailableEntityFocus.getSelectedItemUnmetRequirements();
 
     const playerOwnsCharacter = combatantFocus.clientUserControlsFocusedCombatant();
+
+    const canDragFromHere = itemOption !== null && playerOwnsCharacter;
+    const dragHandlers = useDragSource(() =>
+      canDragFromHere ? { type: DragSourceType.EquippedItem, slot } : null
+    );
+    const onPointerDown = canDragFromHere ? dragHandlers.onPointerDown : undefined;
+
+    const dropTarget = useDropTarget({ type: DropTargetType.EquipmentSlot, slot });
+
+    const current = dragService.current;
+    const isBeingDragged =
+      current !== null &&
+      current.type === DragSourceType.EquippedItem &&
+      current.slot.type === slot.type &&
+      current.slot.slot === slot.slot;
+
+    const dragBorderStyle = dropTarget.isDragging
+      ? dropTargetBorderClass(dropTarget.resolution, dropTarget.isHovered)
+      : null;
 
     const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
 
@@ -116,12 +141,15 @@ export const PaperDollSlot = observer(
 
     return (
       <button
-        className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${highlightStyle} ${bgStyle} ${disabledStyle}`}
+        className={`overflow-ellipsis overflow-hidden border flex items-center justify-center p-2 ${tailwindClasses} ${dragBorderStyle ?? highlightStyle} ${bgStyle} ${disabledStyle} ${isBeingDragged ? DRAG_SOURCE_DRAGGING_OPACITY : ""}`}
         onMouseEnter={handleFocus}
         onMouseLeave={handleBlur}
         onFocus={handleFocus}
         onBlur={handleBlur}
         onClick={handleClick}
+        onPointerDown={onPointerDown}
+        onPointerEnter={dropTarget.onPointerEnter}
+        onPointerLeave={dropTarget.onPointerLeave}
       >
         {itemDisplay}
       </button>

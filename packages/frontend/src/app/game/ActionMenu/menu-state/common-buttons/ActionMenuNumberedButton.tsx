@@ -1,7 +1,7 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { BUTTON_HEIGHT } from "@/client-consts";
 import { observer } from "mobx-react-lite";
-import React, { ReactNode } from "react";
+import React, { PointerEventHandler, ReactNode } from "react";
 import NumberedButtonHotkeyLabel from "./NumberedButtonHotkeyLabel";
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   clickHandler: () => void;
   focusHandler?: () => void;
   blurHandler?: () => void;
+  onPointerDown?: PointerEventHandler<HTMLButtonElement>;
 }
 
 export const ActionMenuNumberedButton = observer((props: Props) => {
@@ -26,6 +27,7 @@ export const ActionMenuNumberedButton = observer((props: Props) => {
       onMouseLeave={blurHandler}
       ariaDisabled={disabled ? true : undefined}
       hotkeys={hotkeys}
+      onPointerDown={props.onPointerDown}
       className={`${props.extraStyles} w-full flex bg-slate-700 hover:bg-slate-950 border-b border-l border-r border-slate-400 pointer-events-auto `}
       style={{ height: `${BUTTON_HEIGHT}rem` }}
       onClick={() => {

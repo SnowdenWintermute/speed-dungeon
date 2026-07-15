@@ -10,6 +10,7 @@ import { CharacterAttributes } from "./character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DetailedCombatantInfoCard } from "./combatant-plaques/DetailedCombatantInfoCard";
+import { DragLayer } from "./item-drag/DragLayer";
 
 export const ActionMenuAndCharacterSheetLayer = observer(
   ({ party }: { party: AdventuringParty }) => {
@@ -30,6 +31,7 @@ export const ActionMenuAndCharacterSheetLayer = observer(
       ${viewingCharacterSheet && "justify-end"}
       `}
       >
+        <DragLayer />
         <DetailedCombatantInfoCard />
         <div className={`pl-4 pr-4 flex flex-col relative overflow-auto `}>
           <div className={`flex items-end w-full`} style={{ marginBottom: `${SPACING_REM}rem` }}>

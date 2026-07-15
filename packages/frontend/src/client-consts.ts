@@ -15,6 +15,19 @@ export const TOP_BAR_HEIGHT_REM = 3.75;
 
 export const COMBATANT_PLAQUE_RESOURCE_BAR_HEIGHT = "h-3.5";
 
+// pointer travel (px) before a press on an item becomes a drag rather than a click
+export const DRAG_START_THRESHOLD_PX = 5;
+
+// item drag-and-drop highlight styles (keep these class strings in tailwind.config safelist —
+// this file is outside the tailwind content globs)
+export const DRAG_VALID_BORDER = "border-green-500";
+export const DRAG_VALID_BORDER_HOVERED = "border-green-300";
+export const DRAG_BLOCKED_BORDER = "border-red-500";
+export const DRAG_BLOCKED_BORDER_HOVERED = "border-red-400";
+export const DRAG_VALID_BG = "bg-green-900/20";
+export const DRAG_VALID_BG_HOVERED = "bg-green-800/40";
+export const DRAG_SOURCE_DRAGGING_OPACITY = "opacity-40";
+
 export const UNMET_REQUIREMENT_TEXT_COLOR = "text-red-400";
 export const UNMET_REQUIREMENT_COLOR = "#f87171";
 export const WARNING_COLOR = "#facc15";
