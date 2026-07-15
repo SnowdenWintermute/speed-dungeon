@@ -47,6 +47,7 @@ export class ImageGenerator {
   // portraits
   private portraitEngine: Engine;
   private portraitCamera: ArcRotateCamera;
+  private portraitCaptureChain: Promise<unknown> = Promise.resolve();
 
   // public
   readonly queue: ImageGenerationRequest[] = [];
@@ -218,6 +219,14 @@ export class ImageGenerator {
   }
 
   async createCombatantPortrait(combatantId: string) {
+    // captures share one camera, engine and render target, so overlapping calls would each
+    // reframe the camera and stop the other's render loop mid-screenshot
+    const capture = this.portraitCaptureChain.then(() => this.capturePortrait(combatantId));
+    this.portraitCaptureChain = capture.catch(() => undefined);
+    return capture;
+  }
+
+  private async capturePortrait(combatantId: string) {
     const world = this.gameWorldView;
     const combatantModelOption =
       world.sceneEntityService.combatantSceneEntityManager.getOptional(combatantId);
@@ -275,23 +284,26 @@ export class ImageGenerator {
     this.portraitEngine.runRenderLoop(() => {
       //
     });
-    const image = await CreateScreenshotUsingRenderTargetAsync(
-      // using this engine instead of the main engine somehow works
-      // and avoids the flash of low resolution rendering to the main canvas
-      this.portraitEngine,
-      portraitCamera,
-      { width: 100, height: 100 },
-      "image/png"
-    );
 
-    // @TODO - stopping this affects item screenshot creation, fix it
-    this.portraitEngine.stopRenderLoop();
+    try {
+      return await CreateScreenshotUsingRenderTargetAsync(
+        // using this engine instead of the main engine somehow works
+        // and avoids the flash of low resolution rendering to the main canvas
+        this.portraitEngine,
+        portraitCamera,
+        { width: 100, height: 100 },
+        "image/png"
+      );
+    } finally {
+      // a failed capture must still restore the layer mask or the model stays hidden
+      // from the main camera
+      // @TODO - stopping this affects item screenshot creation, fix it
+      this.portraitEngine.stopRenderLoop();
 
-    for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
-      mesh.layerMask = LAYER_MASK_ALL;
+      for (const mesh of combatantModelOption.rootMesh.getChildMeshes()) {
+        mesh.layerMask = LAYER_MASK_ALL;
+      }
     }
-
-    return image;
   }
 
   enqueueThumbnailsForParty(party: AdventuringParty) {

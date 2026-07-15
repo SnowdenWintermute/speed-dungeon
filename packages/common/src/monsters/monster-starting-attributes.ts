@@ -37,9 +37,9 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Speed]: 1.0,
   },
   [MonsterType.Zombie]: {
-    [CombatAttribute.Vitality]: 2.0,
+    [CombatAttribute.Vitality]: 0.0,
     [CombatAttribute.ArmorClass]: 0.0,
-    [CombatAttribute.Hp]: 3,
+    [CombatAttribute.Hp]: 7,
     [CombatAttribute.Accuracy]: 55.0,
     [CombatAttribute.Strength]: 5.0,
     [CombatAttribute.Speed]: 1,

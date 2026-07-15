@@ -13,14 +13,12 @@ import { CombatantSceneEntity } from "../scene-entities/combatants";
 import { CombatantSceneEntityFactory } from "../scene-entities/combatants/factory";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
-import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { SceneEntityManager } from "./base";
 import { isExpectedSceneDisposedError } from "../utils/load-asset-container-into-scene";
 
 export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSceneEntity> {
   sceneEntities = new Map<EntityId, CombatantSceneEntity>();
   factory: CombatantSceneEntityFactory;
-  readonly loadingStates = new SceneEntityLoadingStateTracker();
 
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
     super(clientApplication, gameWorldView);
@@ -70,10 +68,10 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       if (portraitOption) {
         this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);
       }
-
-      this.loadingStates.setEntityIsLoaded(entityId);
     } catch (error) {
       console.info("some error taking portrait: ", error);
+    } finally {
+      this.loadingStates.setEntityIsLoaded(entityId);
     }
   }
 

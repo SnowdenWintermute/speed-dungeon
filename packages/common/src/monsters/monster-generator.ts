@@ -65,18 +65,18 @@ export class MonsterGenerator {
   addRandomAttributes(monster: Combatant) {
     const { attributeProperties } = monster.getCombatantProperties();
 
-    const rng = new NormalDistributionNumberGenerator(this.rng, 2);
+    const rng = new NormalDistributionNumberGenerator(this.rng, 3);
 
     const hp = attributeProperties.getTotalAttributes()[CombatAttribute.Hp];
 
-    const spreadRangePercentage = 0.2;
+    const spreadRangePercentage = 0.3;
     const spreadRange = hp * spreadRangePercentage;
-    const min = Math.floor(hp - spreadRange);
-    const max = Math.floor(hp + spreadRange);
+    const min = Math.round(hp - spreadRange);
+    const max = Math.round(hp + spreadRange);
 
     const rolledValue = randBetween(min, max, rng);
     const floored = Math.ceil(rolledValue);
 
-    attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, floored - (hp - 2));
+    attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, floored - hp);
   }
 }

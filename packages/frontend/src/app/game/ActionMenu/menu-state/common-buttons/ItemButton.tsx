@@ -47,8 +47,7 @@ export const ItemButton = observer((props: Props) => {
   const current = dragService.current;
   const isBeingDragged =
     current !== null &&
-    (current.type === DragSourceType.InventoryItem ||
-      current.type === DragSourceType.GroundItem) &&
+    (current.type === DragSourceType.InventoryItem || current.type === DragSourceType.GroundItem) &&
     current.item.entityProperties.id === props.item.entityProperties.id;
 
   // no hover feedback while a drag is in progress — the pointer is dropping into a container, not
@@ -134,7 +133,7 @@ export const ItemButton = observer((props: Props) => {
         )}
         {!isBeingDragged && svgIconOption && (
           <div
-            className={`absolute right-0 w-1 top-1/2 -translate-x-1/2 h-full flex justify-center  transition-transform ${effectiveHovered ? "-translate-x-[50px]" : ""}`}
+            className={`absolute right-0 -rotate-90 w-1 top-1/2 -translate-y-1/2 h-full flex justify-center  transition-transform ${effectiveHovered ? "-translate-x-[50px]" : ""}`}
           >
             <div className="w-10 h-10 p-1 -translate-y-1/2 ">{svgIconOption}</div>
           </div>

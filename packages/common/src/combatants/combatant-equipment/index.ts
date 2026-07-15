@@ -19,6 +19,7 @@ import { WeaponProperties } from "../../items/equipment/equipment-properties/wea
 import { HoldableHotswapSlot } from "./holdable-hotswap-slot.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { NumericEnumUtils } from "../../utils/numeric-enum-utils.js";
+import { Inventory } from "../inventory/index.js";
 
 export class CombatantEquipment extends CombatantSubsystem implements Serializable, ReactiveNode {
   private wearables: Partial<Record<WearableSlotType, Equipment>> = {};
@@ -194,8 +195,19 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return null;
   }
 
-  /** 
-  returns list of item ids unequipped 
+  canEquip(equipment: Equipment): Error | void {
+    const combatantProperties = this.getCombatantProperties();
+
+    if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+    }
+    if (equipment.isBroken()) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+    }
+  }
+
+  /**
+  returns list of item ids unequipped
   */
   equipItem(
     itemId: string,
@@ -207,10 +219,41 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
     const equipment = equipmentResult;
 
-    if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
-      return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
-    }
-    if (equipment.isBroken()) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+    const maybeError = this.canEquip(equipment);
+    if (maybeError instanceof Error) return maybeError;
+
+    const removedResult = combatantProperties.inventory.removeEquipment(itemId);
+    if (removedResult instanceof Error) return removedResult;
+
+    return this.putEquipmentInSlotUnequippingConflicts(removedResult, equipToAltSlot);
+  }
+
+  /** Equips an item lying in the room, never routing it through the inventory. Anything already in
+  the destination slot is unequipped into the inventory as usual. */
+  equipItemFromGround(
+    itemId: string,
+    groundInventory: Inventory,
+    equipToAltSlot: boolean
+  ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+    const equipmentResult = groundInventory.getEquipmentById(itemId);
+    if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    const equipment = equipmentResult;
+
+    const maybeError = this.canEquip(equipment);
+    if (maybeError instanceof Error) return maybeError;
+
+    const removedResult = groundInventory.removeEquipment(itemId);
+    if (removedResult instanceof Error) return removedResult;
+
+    return this.putEquipmentInSlotUnequippingConflicts(removedResult, equipToAltSlot);
+  }
+
+  /** Expects the equipment to already have been removed from wherever it came from. */
+  private putEquipmentInSlotUnequippingConflicts(
+    equipment: Equipment,
+    equipToAltSlot: boolean
+  ): { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+    const combatantProperties = this.getCombatantProperties();
 
     const idsOfUnequippedItems: EntityId[] = [];
     const slotsToUnequip: TaggedEquipmentSlot[] = [];
@@ -263,17 +306,11 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
         }
       })();
 
-      if (slotsToUnequipResult instanceof Error) return slotsToUnequipResult;
       slotsToUnequip.push(...slotsToUnequipResult);
 
       idsOfUnequippedItems.push(...combatantProperties.equipment.unequipSlots(slotsToUnequip));
 
-      const itemToEquipResult = combatantProperties.inventory.removeEquipment(
-        equipment.entityProperties.id
-      );
-      if (itemToEquipResult instanceof Error) return itemToEquipResult;
-
-      combatantProperties.equipment.putEquipmentInSlot(itemToEquipResult, slot);
+      combatantProperties.equipment.putEquipmentInSlot(equipment, slot);
     });
 
     return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };

@@ -60,6 +60,8 @@ export function createGameServerClientIntentHandlers(
       gameServer.itemManagementController.selectHoldableHotswapSlotHandler(user, data),
     [ClientIntentType.EquipInventoryItem]: (data, user) =>
       gameServer.itemManagementController.equipItemHandler(user, data),
+    [ClientIntentType.EquipItemFromGround]: (data, user) =>
+      gameServer.itemManagementController.equipItemFromGroundHandler(user, data),
     // // CRAFTING AND TRADING
     [ClientIntentType.ConvertItemsToShards]: (data, user) =>
       gameServer.craftingController.convertItemsToShardsHandler(user, data),

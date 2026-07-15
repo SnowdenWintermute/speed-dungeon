@@ -358,6 +358,30 @@ export function createGameUpdateHandlers(
         detailableEntityFocus.detailables.setDetailed(itemToSelectOption);
       }
     },
+    [GameStateUpdateType.CharacterEquippedItemFromGround]: (data) => {
+      const { itemId, equipToAlternateSlot, characterId } = data;
+      const { combatant, party } = gameContext.requireCombatantContext(characterId);
+      const { equipment } = combatant.combatantProperties;
+
+      const equipResult = equipment.equipItemFromGround(
+        itemId,
+        party.currentRoom.inventory,
+        equipToAlternateSlot
+      );
+      if (equipResult instanceof Error) {
+        throw equipResult;
+      }
+
+      // the item just vanished from under the pointer, so a mouseleave will never arrive to unhover it
+      if (detailableEntityFocus.entityIsHovered(itemId)) {
+        detailableEntityFocus.detailables.clearHovered();
+      }
+
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
+      });
+    },
     [GameStateUpdateType.CharacterPickedUpItems]: (data) => {
       const { combatant, party } = gameContext.requireCombatantContext(data.characterId);
       for (const itemId of data.itemIds) {

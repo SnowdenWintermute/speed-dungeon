@@ -11,6 +11,13 @@ export class ItemCommands {
     });
   }
 
+  equipItemFromGround(characterId: CombatantId, itemId: ItemId, options: { alternate: boolean }) {
+    this.clientApplication.gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.EquipItemFromGround,
+      data: { characterId, itemId, equipToAlternateSlot: options.alternate },
+    });
+  }
+
   unequipSlot(characterId: CombatantId, slot: TaggedEquipmentSlot) {
     this.clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.UnequipSlot,

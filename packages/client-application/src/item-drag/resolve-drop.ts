@@ -41,7 +41,7 @@ export function resolveDrop(
     case DragSourceType.EquippedItem:
       return resolveEquippedItemDrop(source.slot, target, characterId, itemCommands);
     case DragSourceType.GroundItem:
-      return resolveGroundItemDrop(source.item, target, characterId, itemCommands);
+      return resolveGroundItemDrop(source.item, target, character, characterId, itemCommands);
   }
 }
 
@@ -53,29 +53,10 @@ function resolveInventoryItemDrop(
   itemCommands: ItemCommands
 ): DropResolution {
   switch (target.type) {
-    case DropTargetType.EquipmentSlot: {
-      if (!(item instanceof Equipment)) {
-        return INCOMPATIBLE;
-      }
-
-      const alternate = equipToAlternateForSlot(
-        item.equipmentBaseItemProperties.equipmentType,
-        target.slot
+    case DropTargetType.EquipmentSlot:
+      return resolveEquipToSlot(item, target.slot, character, (equipment, alternate) =>
+        itemCommands.equipItem(characterId, equipment.getEntityId(), { alternate })
       );
-      if (alternate === null) {
-        return INCOMPATIBLE;
-      }
-
-      const totalAttributes = character.combatantProperties.attributeProperties.getTotalAttributes();
-      if (!Item.requirementsMet(item, totalAttributes) || item.isBroken()) {
-        return BLOCKED;
-      }
-
-      return {
-        type: DropResolutionType.Valid,
-        execute: () => itemCommands.equipItem(characterId, item.getEntityId(), { alternate }),
-      };
-    }
     case DropTargetType.Ground:
       return {
         type: DropResolutionType.Valid,
@@ -114,15 +95,50 @@ function resolveEquippedItemDrop(
 function resolveGroundItemDrop(
   item: Item,
   target: DropTarget,
+  character: Combatant,
   characterId: CombatantId,
   itemCommands: ItemCommands
 ): DropResolution {
-  if (target.type !== DropTargetType.Inventory) {
+  switch (target.type) {
+    case DropTargetType.Inventory:
+      return {
+        type: DropResolutionType.Valid,
+        execute: () => itemCommands.pickUpItems(characterId, [item.getEntityId()]),
+      };
+    case DropTargetType.EquipmentSlot:
+      return resolveEquipToSlot(item, target.slot, character, (equipment, alternate) =>
+        itemCommands.equipItemFromGround(characterId, equipment.getEntityId(), { alternate })
+      );
+    case DropTargetType.Ground:
+      // already on the ground
+      return INCOMPATIBLE;
+  }
+}
+
+// Shared by the inventory and ground sources: an equipment slot accepts an item on identical terms
+// no matter where the item is coming from; only the dispatched command differs.
+function resolveEquipToSlot(
+  item: Item,
+  slot: TaggedEquipmentSlot,
+  character: Combatant,
+  equip: (equipment: Equipment, alternate: boolean) => void
+): DropResolution {
+  if (!(item instanceof Equipment)) {
     return INCOMPATIBLE;
   }
+
+  const alternate = equipToAlternateForSlot(item.equipmentBaseItemProperties.equipmentType, slot);
+  if (alternate === null) {
+    return INCOMPATIBLE;
+  }
+
+  if (character.combatantProperties.equipment.canEquip(item) instanceof Error) {
+    return BLOCKED;
+  }
+
   return {
     type: DropResolutionType.Valid,
-    execute: () => itemCommands.pickUpItems(characterId, [item.getEntityId()]),
+    execute: () => equip(item, alternate),
   };
 }
 

@@ -218,4 +218,33 @@ export class ItemManagementController {
 
     return outbox;
   }
+
+  equipItemFromGroundHandler(
+    session: UserSession,
+    data: {
+      characterId: CombatantId;
+      itemId: ItemId;
+      equipToAlternateSlot: boolean;
+    }
+  ) {
+    const { characterId, itemId, equipToAlternateSlot } = data;
+    const { game, party, character } = session.requireCharacterContext(characterId);
+
+    const equipItemResult = character.combatantProperties.equipment.equipItemFromGround(
+      itemId,
+      party.currentRoom.inventory,
+      equipToAlternateSlot
+    );
+    if (equipItemResult instanceof Error) {
+      throw equipItemResult;
+    }
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.CharacterEquippedItemFromGround,
+      data,
+    });
+
+    return outbox;
+  }
 }
