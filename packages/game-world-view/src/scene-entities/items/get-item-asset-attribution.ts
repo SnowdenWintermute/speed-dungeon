@@ -6,7 +6,7 @@ import {
   TWO_HANDED_RANGED_WEAPON_MODELS,
 } from "./equipment-base-item-to-asset-id";
 import { CONSUMABLE_MODELS } from "./consumable-models";
-import { ARTISTS } from "./artists";
+import { ARTISTS } from "../artists";
 
 export function getModelAttribution(item: Item) {
   if (item instanceof Equipment) {

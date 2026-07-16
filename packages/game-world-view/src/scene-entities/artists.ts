@@ -20,6 +20,7 @@ export enum Artist {
   Djonvincent,
   P0ss,
   PublicDomain,
+  GuieA_7,
 }
 
 export const ARTISTS: Record<Artist, Attribution> = {
@@ -86,5 +87,9 @@ export const ARTISTS: Record<Artist, Attribution> = {
   [Artist.PublicDomain]: {
     name: "Public Domain",
     link: "https://en.wikipedia.org/wiki/Public_domain",
+  },
+  [Artist.GuieA_7]: {
+    name: "GuieA_7",
+    link: "https://opengameart.org/users/guiea7",
   },
 };

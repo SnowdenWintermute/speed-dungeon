@@ -60,17 +60,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
       case CombatantClass.Warrior: {
         builder
           .equipMainHand(
-            itemBuilder
-              .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick)
-              .durability(1)
-              .suffix(AffixType.Durability, {
-                tier: 1,
-                combatAttributes: {},
-                equipmentTraits: [
-                  { equipmentTraitType: EquipmentTraitType.FlatDurabilityAdditive, value: 1 },
-                ],
-              })
-              .build(idGenerator)
+            itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator)
           )
           .equipOffHand(itemBuilder.shield(Shield.PotLid).build(idGenerator));
         break;

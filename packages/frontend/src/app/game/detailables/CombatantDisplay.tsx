@@ -8,6 +8,9 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { IconName, SVG_ICONS } from "@/app/icons";
+import { getCombatantModelAttributions } from "@/game-world-view/scene-entities/combatants/get-combatant-asset-attribution";
 
 interface Props {
   combatant: Combatant;
@@ -28,10 +31,12 @@ export const CombatantDisplay = observer(({ combatant }: Props) => {
     }
   }
 
+  const modelAttributions = getCombatantModelAttributions(combatantProperties);
+
   return (
     <div className="flex justify-between pointer-events-auto">
       <CharacterAttributes combatant={combatant} showAttributeAssignmentButtons={false} />
-      <div className="h-full pl-4 w-1/2">
+      <div className="pl-4 w-1/2 flex flex-col">
         <div className="w-full flex justify-end">
           <ButtonBasic onClick={closeDisplay}>{"Close"}</ButtonBasic>
           <HotkeyButton
@@ -46,10 +51,31 @@ export const CombatantDisplay = observer(({ combatant }: Props) => {
           <span> </span>
         </div>
         <Divider />
-        <ul>
+        <ul className="relative flex-1">
           <CombatantTraitsDisplay
             traitProperties={combatantProperties.abilityProperties.getTraitProperties()}
           />
+          {modelAttributions.length > 0 && (
+            <div className="absolute bottom-0 right-0 flex flex-col items-end">
+              {modelAttributions.map((attribution) => (
+                <HoverableTooltipWrapper
+                  key={attribution.name}
+                  tooltipText={`3D model by ${attribution.name}`}
+                >
+                  <a
+                    href={attribution.link}
+                    target="_blank"
+                    className="text-gray-400 text-sm w-fit text-center align-middle"
+                  >
+                    {SVG_ICONS[IconName.Model3DIcon](
+                      "inline stroke-gray-400 h-4 w-4 mr-1 align-middle"
+                    )}
+                    <span className="align-middle">{attribution.name}</span>
+                  </a>
+                </HoverableTooltipWrapper>
+              ))}
+            </div>
+          )}
         </ul>
       </div>
     </div>

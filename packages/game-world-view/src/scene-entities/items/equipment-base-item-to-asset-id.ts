@@ -7,7 +7,7 @@ import {
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
-import { Artist } from "./artists";
+import { Artist } from "../artists";
 
 export function equipmentBaseItemToAssetId(baseItem: EquipmentBaseItem) {
   let filePath;
