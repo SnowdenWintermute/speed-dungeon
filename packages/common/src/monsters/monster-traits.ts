@@ -19,6 +19,7 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Slime]: (combatantLevel) => {
     return {
       [CombatantTraitType.CanNotBeRestrained]: 1,
+      [CombatantTraitType.IsTameable]: 1,
     };
   },
   [MonsterType.Zombie]: (combatantLevel) => {
@@ -43,6 +44,7 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
     return {
       [CombatantTraitType.Flyer]: 1,
       [CombatantTraitType.MeleeLifesteal]: 3,
+      [CombatantTraitType.IsTameable]: 1,
     };
   },
   [MonsterType.TyrantRex]: () => {
@@ -57,11 +59,11 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Wolf]: function (
     combatantLevel: number
   ): Partial<Record<CombatantTraitType, number>> {
-    return { [CombatantTraitType.IsTameable]: 0 };
+    return { [CombatantTraitType.IsTameable]: 1 };
   },
   [MonsterType.MantaRay]: function (
     combatantLevel: number
   ): Partial<Record<CombatantTraitType, number>> {
-    return { [CombatantTraitType.IsTameable]: 0, [CombatantTraitType.Flyer]: 0 };
+    return { [CombatantTraitType.IsTameable]: 1, [CombatantTraitType.Flyer]: 1 };
   },
 };

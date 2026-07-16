@@ -10,6 +10,7 @@ import KineticAffinitiesDisplay from "./KineticAffinitiesDisplay";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CharacterSheetHeader } from "./CharacterSheetHeader";
+import { ParryAndCounterattackChanceDisplay } from "./ParryAndCounterattackChanceDisplay";
 
 interface Props {
   combatant: Combatant;
@@ -91,7 +92,11 @@ export const CharacterAttributes = observer(
           </ul>
         </div>
         <Divider extraStyles={"mr-2 ml-2 "} />
-        <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
+        <div className="flex w-full mb-1">
+          <HpAndMp combatantProperties={combatantProperties} totalAttributes={totalAttributes} />
+          <ParryAndCounterattackChanceDisplay combatantProperties={combatant.combatantProperties} />
+        </div>
+
         <CharacterSheetWeaponDamage combatant={combatant} />
         <Divider extraStyles={"mr-2 ml-2 "} />
         <ElementalAffinitiesDisplay

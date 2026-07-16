@@ -275,23 +275,13 @@ export class HitOutcomeMitigationCalculator {
   static getParryChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs (like combatActionProperties.getChanceToBeParried())
-    if (!defender.combatantProperties.mitigationProperties.canParry()) return 0;
-
-    const parryTraitRank = defender.combatantProperties.abilityProperties
-      .getTraitProperties()
-      .getTraitRank(CombatantTraitType.Parry);
-    return PARRY_TRAIT_CHANCE_BY_RANK.get(parryTraitRank) || 0;
+    return defender.getCombatantProperties().mitigationProperties.getParryChance();
   }
 
   static getCounterattackChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
-    if (defender.combatantProperties.isDead()) return 0;
-    if (!defender.combatantProperties.mitigationProperties.canCounterattack()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
-    const counterattackTraitRank = defender.combatantProperties.abilityProperties
-      .getTraitProperties()
-      .getTraitRank(CombatantTraitType.Counterattack);
-    return COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(counterattackTraitRank) || 0;
+    return defender.getCombatantProperties().mitigationProperties.getCounterattackChance();
   }
 
   static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {

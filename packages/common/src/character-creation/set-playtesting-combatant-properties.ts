@@ -5,13 +5,13 @@ import { CombatantActionState } from "../combatants/owned-actions/combatant-acti
 
 export function setPlaytestingCombatantProperties(combatantProperties: CombatantProperties) {
   const { classProgressionProperties } = combatantProperties;
-  classProgressionProperties.experiencePoints.changeExperience(400);
+  classProgressionProperties.experiencePoints.changeExperience(2000);
   classProgressionProperties.awardLevelups();
 
-  combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Strength, 30);
-  combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Spirit, 30);
+  // combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Strength, 30);
+  // combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Spirit, 30);
   combatantProperties.abilityProperties.setOwnedAction(
     new CombatantActionState(CombatActionName.IceBoltParent, 3)
   );
-  combatantProperties.attributeProperties.changeUnspentPoints(30);
+  // combatantProperties.attributeProperties.changeUnspentPoints(30);
 }

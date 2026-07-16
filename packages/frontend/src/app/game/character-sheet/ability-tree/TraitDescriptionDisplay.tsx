@@ -7,69 +7,72 @@ import {
   CombatantTraitDescription,
   CombatantTraitType,
 } from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
 
-export default function TraitDescriptionDisplay({
-  traitType,
-  description,
-  user,
-}: {
-  traitType: CombatantTraitType;
-  description: CombatantTraitDescription;
-  user: Combatant;
-}) {
-  const { abilityProperties } = user.combatantProperties;
-  const ownedAbilityLevel = abilityProperties.getAbilityRank({
-    type: AbilityType.Trait,
+export const TraitDescriptionDisplay = observer(
+  ({
     traitType,
-  });
+    description,
+    user,
+  }: {
+    traitType: CombatantTraitType;
+    description: CombatantTraitDescription;
+    user: Combatant;
+  }) => {
+    const { abilityProperties } = user.combatantProperties;
+    const ownedAbilityLevel = abilityProperties.getAbilityRank({
+      type: AbilityType.Trait,
+      traitType,
+    });
 
-  return (
-    <div>
-      <div className="mb-2">{description.summary}</div>
-      {!description.isAllocatable && (
-        <div className="mb-2">
-          This trait is inherent to this class and ability points can not be allocated to it
-        </div>
-      )}
+    return (
       <div>
-        {description.descriptionsByLevel.map((description, index) => {
-          const rank = index + 1;
-          const thisRankOwned = ownedAbilityLevel >= rank;
+        <div className="mb-2">{description.summary}</div>
+        {!description.isAllocatable && (
+          <div className="mb-2">
+            This trait is inherent to this class and ability points can not be allocated to it
+          </div>
+        )}
+        <div>
+          {description.descriptionsByLevel.map((description, index) => {
+            const rank = index + 1;
+            const thisRankOwned = ownedAbilityLevel >= rank;
 
-          const classAndLevelRequirements = AbilityUtils.getClassAndLevelRequirements(
-            { type: AbilityType.Trait, traitType },
-            rank
-          );
+            const classAndLevelRequirements = AbilityUtils.getClassAndLevelRequirements(
+              { type: AbilityType.Trait, traitType },
+              rank
+            );
 
-          return (
-            <div
-              key={"description-" + index}
-              className={`mb-2 ${thisRankOwned ? "" : "text-gray-400"}`}
-            >
-              <div className={`flex justify-between text-lg `}>
-                <div className=" underline-offset-4 underline">Rank {rank}</div>
-                {classAndLevelRequirements && !ownedAbilityLevel && (
-                  <div
-                    className={
-                      user.combatantProperties.classProgressionProperties.meetsCombatantClassAndLevelRequirements(
-                        classAndLevelRequirements.combatantClass,
-                        classAndLevelRequirements.level
-                      )
-                        ? ""
-                        : UNMET_REQUIREMENT_TEXT_COLOR
-                    }
-                  >
-                    ({COMBATANT_CLASS_NAME_STRINGS[classAndLevelRequirements.combatantClass]}
-                    {" level "}
-                    {classAndLevelRequirements?.level})
-                  </div>
-                )}
+            return (
+              <div
+                key={"description-" + index}
+                className={`mb-2 ${thisRankOwned ? "" : "text-gray-400"}`}
+              >
+                <div className={`flex justify-between text-lg `}>
+                  <div className=" underline-offset-4 underline">Rank {rank}</div>
+                  {classAndLevelRequirements && !ownedAbilityLevel && (
+                    <div
+                      className={
+                        user.combatantProperties.classProgressionProperties.meetsCombatantClassAndLevelRequirements(
+                          classAndLevelRequirements.combatantClass,
+                          classAndLevelRequirements.level
+                        )
+                          ? ""
+                          : UNMET_REQUIREMENT_TEXT_COLOR
+                      }
+                    >
+                      ({COMBATANT_CLASS_NAME_STRINGS[classAndLevelRequirements.combatantClass]}
+                      {" level "}
+                      {classAndLevelRequirements?.level})
+                    </div>
+                  )}
+                </div>
+                <div>{description}</div>
               </div>
-              <div>{description}</div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);

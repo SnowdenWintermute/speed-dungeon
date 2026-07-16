@@ -1,5 +1,8 @@
 import { instanceToPlain, plainToInstance } from "class-transformer";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
+import {
+  calculateBalancedAttributeSynergy,
+  iterateNumericEnumKeyedRecord,
+} from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
@@ -11,6 +14,11 @@ import {
   SHIELD_SIZE_BLOCK_RATE,
   SHIELD_SIZE_DAMAGE_REDUCTION,
 } from "../items/equipment/equipment-properties/shield-properties.js";
+import {
+  COUNTERATTACK_TRAIT_CHANCE_BY_RANK,
+  PARRY_TRAIT_CHANCE_BY_RANK,
+} from "./combatant-traits/index.js";
+import { CombatAttribute } from "./attributes/index.js";
 
 export class MitigationProperties extends CombatantSubsystem implements Serializable {
   toSerialized() {
@@ -102,7 +110,20 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
       return 0;
     }
 
-    return SHIELD_SIZE_BLOCK_RATE[shieldProperties.size];
+    const baseChance = SHIELD_SIZE_BLOCK_RATE[shieldProperties.size];
+
+    const strength = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Strength
+    );
+    const dexterity = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Dexterity
+    );
+
+    const attributeBonusDivisor = 700;
+    const attributeBonus = calculateBalancedAttributeSynergy(strength, dexterity);
+    const final = baseChance + attributeBonus / attributeBonusDivisor;
+
+    return final;
   }
 
   getBlockReduction() {
@@ -122,6 +143,56 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
       return undefined;
     }
     return { blockChance, blockReduction };
+  }
+
+  getParryChance() {
+    if (!this.canParry()) return 0;
+
+    const parryTraitRank = this.getCombatantProperties()
+      .abilityProperties.getTraitProperties()
+      .getTraitRank(CombatantTraitType.Parry);
+    const baseChance = PARRY_TRAIT_CHANCE_BY_RANK.get(parryTraitRank);
+    if (baseChance === undefined) {
+      return 0;
+    }
+    const strength = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Strength
+    );
+    const dexterity = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Dexterity
+    );
+    const attributeBonusDivisor = 1400;
+    const attributeBonus = calculateBalancedAttributeSynergy(strength, dexterity);
+    const final = baseChance + attributeBonus / attributeBonusDivisor;
+
+    return final;
+  }
+
+  getCounterattackChance() {
+    const combatantProperties = this.getCombatantProperties();
+    if (combatantProperties.isDead()) return 0;
+    if (!this.canCounterattack()) return 0;
+
+    const counterattackTraitRank = combatantProperties.abilityProperties
+      .getTraitProperties()
+      .getTraitRank(CombatantTraitType.Counterattack);
+
+    const baseChance = COUNTERATTACK_TRAIT_CHANCE_BY_RANK.get(counterattackTraitRank);
+    if (baseChance === undefined) {
+      return 0;
+    }
+
+    const strength = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Strength
+    );
+    const agility = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Agility
+    );
+    const attributeBonusDivisor = 1400;
+    const attributeBonus = calculateBalancedAttributeSynergy(strength, agility);
+    const final = baseChance + attributeBonus / attributeBonusDivisor;
+
+    return final;
   }
 
   getElementalAffinities(): Partial<Record<MagicalElement, number>> {

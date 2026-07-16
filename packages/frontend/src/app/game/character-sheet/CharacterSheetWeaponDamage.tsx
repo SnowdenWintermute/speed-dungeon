@@ -80,13 +80,10 @@ export const CharacterSheetWeaponDamage = observer(
           paddingClass="pr-1"
         />
         {blockPropertiesOption ? (
-          <div className="flex pl-1 justify-between w-1/2">
-            <div className="flex ">
+          <div className="flex pl-1 w-1/2">
+            <div className="flex w-1/2">
               <HoverableTooltipWrapper tooltipText="Block chance">
                 <div className="h-6 mr-1 relative">
-                  <div className="absolute leading-none text-slate-700 font-bold pointer-events-none h-full w-full">
-                    %
-                  </div>
                   {SVG_ICONS[IconName.Shield]("h-full fill-slate-400")}
                 </div>
               </HoverableTooltipWrapper>
@@ -143,10 +140,10 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 
   return (
     <div className={`w-1/2 min-w-1/2 ${props.paddingClass} ${props.showDisabled && "opacity-50"}`}>
-      <div className="w-full flex justify-between">
-        <span className="flex">
+      <div className="w-full flex justify-start">
+        <span className="flex w-1/2">
           {SVG_ICONS[IconName.OpenHand](
-            `h-5 fill-slate-400 mr-1 ${props.isOffHand && "-scale-x-100"} `
+            `h-5 w-6 fill-slate-400 mr-1 ${props.isOffHand && "-scale-x-100"} `
           )}
           {`${hpChangeRange.min.toFixed(0)}-${hpChangeRange.max.toFixed(0)}`}
         </span>
@@ -157,10 +154,10 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
           {(hitChance.afterEvasion * 100).toFixed(0)}%
         </span>
       </div>
-      <div className="flex justify-between ">
-        <span className=" flex">
+      <div className="flex ">
+        <span className=" flex w-1/2">
           <HoverableTooltipWrapper tooltipText="Critical strike chance">
-            {SVG_ICONS[IconName.CritChance]("h-6 fill-slate-400 mr-1")}{" "}
+            {SVG_ICONS[IconName.CritChance]("h-6 w-6 fill-slate-400 mr-1")}{" "}
           </HoverableTooltipWrapper>
           {(critChance * 100).toFixed(0)}%
         </span>
@@ -169,7 +166,7 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
             tooltipText="Critical strike multiplier"
             extraStyles="cursor-default"
           >
-            ↟
+            <div className="w-6 flex justify-center text-center">↟</div>
           </HoverableTooltipWrapper>
           {((critMultiplierOption || 0) * 100).toFixed(0)}%
         </span>

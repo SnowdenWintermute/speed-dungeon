@@ -31,7 +31,7 @@ export default function ElementalAffinitiesDisplay({
           />
         ))}
       </ul>
-      <ul className="flex ">
+      <ul className="flex">
         {bottom.map((element) => (
           <ElementAffinityDisplay
             key={element}
