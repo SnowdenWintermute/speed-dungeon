@@ -22,6 +22,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
 import { WeaponProperties } from "./equipment-properties/weapon-properties.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { ShieldProperties } from "./equipment-properties/shield-properties.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -85,6 +86,11 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   isShield() {
     const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
     return equipmentType === EquipmentType.Shield;
+  }
+
+  getShieldProperties() {
+    if (!this.isShield()) return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    return this.equipmentBaseItemProperties as ShieldProperties;
   }
 
   getAffixAttributeValue(affixTypeToFind: AffixType, attributeToFind: CombatAttribute) {

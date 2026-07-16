@@ -52,7 +52,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
   const disableOh = inCombat && combatantProperties.resources.getActionPoints() < 2;
   if (actionName === CombatActionName.Attack) {
     return (
-      <div className="w-full flex flex-col">
+      <div className="w-full flex flex-col pointer-events-auto">
         <div className="mb-2">
           Attack with equipped weapons. Accuracy and crit chance are updated below based on your
           target's defenses.

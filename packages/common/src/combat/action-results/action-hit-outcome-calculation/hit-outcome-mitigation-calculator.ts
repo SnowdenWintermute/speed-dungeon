@@ -295,13 +295,7 @@ export class HitOutcomeMitigationCalculator {
   }
 
   static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
-    const shieldPropertiesOption = defender.getEquipmentOption().getEquippedShieldProperties();
-    if (!shieldPropertiesOption) return 0;
-
-    const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size];
-
-    return baseBlockRate;
-
+    return defender.getCombatantProperties().mitigationProperties.getBlockChance();
     // note:
     // FFXI formula: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
   }

@@ -57,6 +57,7 @@ import Counterattack from "../../../public/img/game-ui-icons/counterattack.svg";
 import AngryYellFace from "../../../public/img/game-ui-icons/angry-yell-face.svg";
 import Bag from "../../../public/img/game-ui-icons/bag.svg";
 import ThrowPebble from "../../../public/img/game-ui-icons/throw-pebble.svg";
+import Shield from "../../../public/img/equipment-icons/shield.svg";
 
 import { ReactNode } from "react";
 import {
@@ -129,6 +130,7 @@ export enum IconName {
   AngryYellFace,
   Bag,
   ThrowPebble,
+  Shield,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -192,6 +194,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.AngryYellFace]: (className: string) => <AngryYellFace className={className} />,
   [IconName.Bag]: (className: string) => <Bag className={className} />,
   [IconName.ThrowPebble]: (className: string) => <ThrowPebble className={className} />,
+  [IconName.Shield]: (className: string) => <Shield className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
