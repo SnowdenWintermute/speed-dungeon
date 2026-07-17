@@ -256,20 +256,41 @@ export class HitOutcomeMitigationCalculator {
     actionLevel: number,
     user: IActionUser,
     target: CombatantProperties,
-    targetWillAttemptMitigation: boolean
+    targetWillAttemptMitigation: boolean,
+    resourceType: CombatActionResource,
+    resourceChangeSource: ResourceChangeSource
   ) {
     const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
-    const targetAvoidaceAttributeValue = target.attributeProperties.getAttributeValue(
-      CombatAttribute.Spirit
-    );
+    const critIsAvoidable =
+      targetWillAttemptMitigation &&
+      HitOutcomeMitigationCalculator.resourceChangeIsKineticDamageToHitPoints(
+        resourceType,
+        resourceChangeSource
+      );
 
-    const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
-    const normalizedCritAvoidance = targetCritAvoidance / 100;
-    const finalUnroundedCritChance = (actionBaseCritChance || 0) - normalizedCritAvoidance;
+    const targetCritAvoidance = critIsAvoidable
+      ? target.mitigationProperties.getKineticCritEvasion()
+      : 0;
+
+    const finalUnroundedCritChance = (actionBaseCritChance || 0) - targetCritAvoidance;
     const bounded = Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance));
 
     return bounded;
+  }
+
+  static resourceChangeIsKineticDamageToHitPoints(
+    resourceType: CombatActionResource,
+    resourceChangeSource: ResourceChangeSource
+  ) {
+    if (resourceType !== CombatActionResource.HitPoints) {
+      return false;
+    }
+    if (resourceChangeSource.isHealing) {
+      return false;
+    }
+
+    return resourceChangeSource.kineticDamageTypeOption !== undefined;
   }
 
   static getParryChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {

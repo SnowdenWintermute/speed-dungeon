@@ -222,21 +222,19 @@ export function cloneObservable<T>(cls: new (...args: any[]) => T, obj: T): T {
 /** The idea is that two attributes contribute well if they are balanced, otherwise there is a penalty but they
  * still contribute */
 export function calculateBalancedAttributeSynergy(attributeA: number, attributeB: number): number {
-  // Base value is additive when stats are equal
-  const base = attributeA + attributeB;
+  const balanced = Math.min(attributeA, attributeB);
+  const excess = Math.abs(attributeA - attributeB);
 
-  // Calculate imbalance
-  const diff = Math.abs(attributeA - attributeB);
+  // The balanced portion contributes fully from both attributes
+  const base = balanced * 2;
 
-  // Tunable penalty coefficient (higher = stronger punishment)
-  const penaltyCoefficient = 4.5;
+  // Must stay below 2 / ln(2), otherwise raising the lower attribute loses more
+  // excess bonus than it gains base and the function stops being monotonic
+  const excessCoefficient = 2;
 
-  // Apply logarithmic reduction scaled by coefficient
-  const imbalancePenalty = Math.log1p(diff) * penaltyCoefficient;
+  const excessContribution = Math.log1p(excess) * excessCoefficient;
 
-  const total = base - imbalancePenalty;
-
-  return Math.max(1, Math.round(total));
+  return Math.max(1, Math.round(base + excessContribution));
 }
 
 export function removeUndefinedFields<T extends object>(obj: T): T {

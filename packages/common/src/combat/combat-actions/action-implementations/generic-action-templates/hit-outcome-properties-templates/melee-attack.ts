@@ -21,7 +21,7 @@ import { BASIC_ATTACK_HIT_OUTCOME_PROPERTIES } from "./basic-attack.js";
 export const MELEE_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   ...BASIC_ATTACK_HIT_OUTCOME_PROPERTIES,
   getUnmodifiedCritChance: function (user: IActionUser): number {
-    return getStandardActionCritChance(user, CombatAttribute.Strength);
+    return getStandardActionCritChance(user, [CombatAttribute.Strength, CombatAttribute.Dexterity]);
   },
   getCritMultiplier: function (user: IActionUser): number {
     return getStandardActionCritMultiplier(user, CombatAttribute.Strength);

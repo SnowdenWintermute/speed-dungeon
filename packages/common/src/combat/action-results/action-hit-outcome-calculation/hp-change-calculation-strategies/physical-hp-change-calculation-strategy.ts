@@ -25,7 +25,7 @@ export class PhysicalResourceChangeCalculationStrategy
       hitOutcomeProperties
     );
   }
-  applyResilience(_hpChange: ResourceChange, user: IActionUser, _target: CombatantProperties) {
+  applySpirit(_hpChange: ResourceChange, user: IActionUser, _target: CombatantProperties) {
     return;
   }
 }

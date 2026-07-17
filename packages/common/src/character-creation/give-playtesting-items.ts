@@ -40,7 +40,9 @@ export function givePlaytestingItems(
 
   inventory.equipment.push(tradeableItem);
 
-  inventory.equipment.push(itemBuilder.shield(Shield.LanternShield).build(idGenerator));
+  inventory.equipment.push(itemBuilder.shield(Shield.GothicShield).build(idGenerator));
+  inventory.equipment.push(itemBuilder.shield(Shield.AncientBuckler).build(idGenerator));
+  inventory.equipment.push(itemBuilder.shield(Shield.TowerShield).build(idGenerator));
   inventory.equipment.push(
     itemBuilder
       .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)

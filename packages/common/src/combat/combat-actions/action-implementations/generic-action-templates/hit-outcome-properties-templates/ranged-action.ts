@@ -13,7 +13,7 @@ export const RANGED_ACTION_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomePropert
   ...cloneDeep(BASIC_ATTACK_HIT_OUTCOME_PROPERTIES),
   accuracyModifier: 0.9,
   getUnmodifiedCritChance: function (user: IActionUser): number {
-    return getStandardActionCritChance(user, CombatAttribute.Dexterity);
+    return getStandardActionCritChance(user, [CombatAttribute.Dexterity]);
   },
   getCritMultiplier: function (user: IActionUser): number {
     return getStandardActionCritMultiplier(user, null);

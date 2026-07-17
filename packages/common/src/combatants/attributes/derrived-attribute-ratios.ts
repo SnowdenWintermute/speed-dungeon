@@ -13,8 +13,8 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
     [CombatAttribute.Evasion]: 2,
     [CombatAttribute.Speed]: 1,
   },
-  [CombatAttribute.Vitality]: {
-    [CombatAttribute.Hp]: 2,
-    [CombatAttribute.ArmorClass]: 1.5,
-  },
+  // [CombatAttribute.Vitality]: {
+  //   [CombatAttribute.Hp]: 2,
+  //   [CombatAttribute.ArmorClass]: 1.5,
+  // },
 };

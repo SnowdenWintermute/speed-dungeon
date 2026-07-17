@@ -19,6 +19,16 @@ import {
   PARRY_TRAIT_CHANCE_BY_RANK,
 } from "./combatant-traits/index.js";
 import { CombatAttribute } from "./attributes/index.js";
+import {
+  MAX_BLOCK_CHANCE,
+  MAX_BLOCK_REDUCTION,
+  AGILITY_TO_KINETIC_CRIT_EVASION_RATIO,
+  MAX_CRIT_DAMAGE_REDUCTION,
+  SPIRIT_TO_CRIT_DAMAGE_REDUCTION_RATIO,
+  SPIRIT_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
+  SPIRIT_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
+} from "../app-consts.js";
+import { NormalizedPercentage } from "../aliases.js";
 
 export class MitigationProperties extends CombatantSubsystem implements Serializable {
   toSerialized() {
@@ -123,7 +133,7 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
     const attributeBonus = calculateBalancedAttributeSynergy(strength, dexterity);
     const final = baseChance + attributeBonus / attributeBonusDivisor;
 
-    return final;
+    return Math.min(MAX_BLOCK_CHANCE, final);
   }
 
   getBlockReduction() {
@@ -132,8 +142,20 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
     if (!shieldPropertiesOption) return 0;
 
     const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];
+    const withShieldArmorClassBonus = baseDamageReduction + shieldPropertiesOption.armorClass / 300;
 
-    return baseDamageReduction + shieldPropertiesOption.armorClass / 200;
+    const strength = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Strength
+    );
+    const agility = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Agility
+    );
+    const attributeBonusDivisor = 700;
+    const attributeBonus = calculateBalancedAttributeSynergy(strength, agility);
+
+    const final = withShieldArmorClassBonus + attributeBonus / attributeBonusDivisor;
+
+    return Math.min(MAX_BLOCK_REDUCTION, final);
   }
 
   getShieldBlockProperties() {
@@ -203,5 +225,38 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
   getKineticImpactTypeAffinities(): Partial<Record<KineticDamageType, number>> {
     const { abilityProperties } = this.getCombatantProperties();
     return abilityProperties.getTraitProperties().inherentKineticDamageTypeAffinities;
+  }
+
+  getKineticCritEvasion(): NormalizedPercentage {
+    const agility = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Agility
+    );
+
+    return agility * AGILITY_TO_KINETIC_CRIT_EVASION_RATIO;
+  }
+
+  getCritDamageReduction(): NormalizedPercentage {
+    const spirit = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Spirit
+    );
+
+    return Math.min(MAX_CRIT_DAMAGE_REDUCTION, spirit * SPIRIT_TO_CRIT_DAMAGE_REDUCTION_RATIO);
+  }
+
+  getMagicalDamageReduction(): NormalizedPercentage {
+    const spirit = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Spirit
+    );
+    const percentReduction = spirit * SPIRIT_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO;
+
+    return Math.min(1, percentReduction / 100);
+  }
+
+  getMagicalHealingIncrease(): NormalizedPercentage {
+    const spirit = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Spirit
+    );
+
+    return (spirit / 100) * SPIRIT_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO;
   }
 }

@@ -236,7 +236,9 @@ function getAttackActionDamageAndAccuracy(
     1,
     combatant,
     target,
-    !usingDummy
+    !usingDummy,
+    CombatActionResource.HitPoints,
+    hpChangeProperties.resourceChangeSource
   );
 
   return { hpChangeRange, hitChance, critChance, critMultiplierOption };

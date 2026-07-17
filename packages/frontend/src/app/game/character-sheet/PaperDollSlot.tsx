@@ -80,7 +80,7 @@ export const PaperDollSlot = observer(
       </div>
     );
 
-    const bgStyle = useMemo(() => {
+    const bgStyle = (() => {
       if (isEqual(comparedSlot, slot)) {
         if (consideredItemUnmetRequirements.size) {
           return UNUSABLE_ITEM_BG_STYLES;
@@ -97,7 +97,7 @@ export const PaperDollSlot = observer(
       ) {
         return UNUSABLE_ITEM_BG_STYLES;
       }
-    }, [itemOption, characterAttributes, consideredItemUnmetRequirements, comparedSlot]);
+    })();
 
     const highlightStyle = useMemo(() => {
       if (itemOption === null) return `border-slate-400`;
