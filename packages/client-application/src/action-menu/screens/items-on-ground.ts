@@ -55,6 +55,7 @@ export class ItemsOnGroundActionMenuScreen extends ActionMenuScreen {
     const ownsFocusedCharacter = this.clientApplication.combatantFocus.clientUserControlsFocusedCombatant({ includePets: true });
 
     return ActionMenuScreen.getItemButtonsFromList(
+      this.clientApplication.uiStore.keybinds,
       itemsOnGround,
       (item) => {
         this.clientApplication.detailableEntityFocus.detailables.clear();

@@ -9,14 +9,14 @@ import { CharacterAttributes } from "./CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
-import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 import { PlayerShardPool } from "@speed-dungeon/common";
 
 export const PaperDollAndAttributes = observer(() => {
   const clientApplication = useClientApplication();
   const { uiStore, actionMenu, combatantFocus } = clientApplication;
-  const { dialogs } = uiStore;
+  const { dialogs, keybinds } = uiStore;
   const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
   const currentMenu = actionMenu.getCurrentMenu();
 
@@ -36,7 +36,7 @@ export const PaperDollAndAttributes = observer(() => {
             <HoverableTooltipWrapper tooltipText="Drop shards (A)">
               <HotkeyButton
                 className="disabled:opacity-50"
-                hotkeys={[HOTKEYS.MAIN_2]}
+                hotkeys={keybinds.getKeybind(HotkeyButtonTypes.ToggleDropShardsMenu)}
                 disabled={currentMenu.type !== ActionMenuScreenType.InventoryItems}
                 onClick={() => {
                   dialogs.toggle(DialogElementName.DropShards);

@@ -37,6 +37,11 @@ export class EquippedItemsActionMenuScreen extends ActionMenuScreen {
       actionMenu.pushStack(new ConsideringItemActionMenuScreen(clientApplication, item));
     }
 
-    return ActionMenuScreen.getItemButtonsFromList(itemsEquipped, itemButtonClickHandler, () => false);
+    return ActionMenuScreen.getItemButtonsFromList(
+      this.clientApplication.uiStore.keybinds,
+      itemsEquipped,
+      itemButtonClickHandler,
+      () => false
+    );
   }
 }

@@ -23,7 +23,7 @@ import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { getModelAttribution } from "@/game-world-view/scene-entities/items/get-item-asset-attribution";
-import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 
 interface Props {
@@ -84,6 +84,7 @@ export const ItemDetails = observer(
 
     const clientApplication = useClientApplication();
     const { detailableEntityFocus, imageStore } = clientApplication;
+    const { keybinds } = clientApplication.uiStore;
     const unmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements();
     let BG_COLOR = "bg-slate-800";
 
@@ -167,7 +168,7 @@ export const ItemDetails = observer(
           <div className="absolute z-20 -right-1 -top-1 flex flex-col">
             <HotkeyButton
               className="z-10 h-6 w-6 p-1 border border-slate-400 bg-slate-700"
-              hotkeys={[HOTKEYS.CANCEL]}
+              hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Cancel)}
               onClick={() => {
                 detailableEntityFocus.detailables.clearDetailed();
               }}

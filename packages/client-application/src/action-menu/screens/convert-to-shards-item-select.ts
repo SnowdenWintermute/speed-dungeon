@@ -44,6 +44,7 @@ export class ConvertToShardItemSelectionActionMenuScreen extends ActionMenuScree
     }
 
     return ActionMenuScreen.getItemButtonsFromList(
+      this.clientApplication.uiStore.keybinds,
       allOwnedItems,
       clickHandler,
       () => false,

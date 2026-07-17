@@ -1,5 +1,9 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
+  getActionMenuSlotHotkeys,
+  getActionMenuSlotLabel,
+} from "@/client-application/action-menu/slot-keybinds";
+import {
   CONSUMABLE_TYPE_STRINGS,
   ClientIntentType,
   Consumable,
@@ -26,6 +30,7 @@ export const PurchaseItemButton = observer((props: Props) => {
 
   const clientApplication = useClientApplication();
   const { gameContext, combatantFocus, gameClientRef } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
   const party = gameContext.requireParty();
   const focusedCharacter = combatantFocus.requireFocusedCharacter();
   const shardPool = PlayerShardPool.forCharacter(gameContext.requireGame(), party, focusedCharacter);
@@ -44,8 +49,8 @@ export const PurchaseItemButton = observer((props: Props) => {
     <ItemButton
       item={item}
       text={CONSUMABLE_TYPE_STRINGS[consumableType]}
-      hotkeyLabel={(listIndex + 1).toString()}
-      hotkeys={[`Digit${listIndex + 1}`]}
+      hotkeyLabel={getActionMenuSlotLabel(keybinds, listIndex + 1)}
+      hotkeys={getActionMenuSlotHotkeys(keybinds, listIndex + 1)}
       clickHandler={() => {
         gameClientRef.get().dispatchIntent({
           type: ClientIntentType.PurchaseItem,

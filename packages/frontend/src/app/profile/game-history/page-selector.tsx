@@ -1,5 +1,6 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import {
   NextOrPrevious,
   RACE_GAME_RECORDS_PAGE_SIZE,
@@ -18,7 +19,7 @@ export default function PageSelector({ username }: { username: string }) {
   const { replace } = useRouter();
   const numRecordsHttpRequestTrackerName = HTTP_REQUEST_NAMES.GET_USER_NUM_GAMES_PLAYED;
   const clientApplication = useClientApplication();
-  const { httpRequests } = clientApplication.uiStore;
+  const { httpRequests, keybinds } = clientApplication.uiStore;
   const numGamesResponseTracker = httpRequests.requests[numRecordsHttpRequestTrackerName];
   const fetchData = httpRequests.fetchData;
 
@@ -48,7 +49,7 @@ export default function PageSelector({ username }: { username: string }) {
     <div className="w-full flex justify-center">
       <div className="flex pointer-events-auto items-center">
         <HotkeyButton
-          hotkeys={["KeyW"]}
+          hotkeys={keybinds.getKeybind(HotkeyButtonTypes.CycleBack)}
           className="h-10 p-2 border border-slate-400 flex justify-center items-center w-10"
           onClick={() => {
             setNewPage(NextOrPrevious.Previous);
@@ -62,7 +63,7 @@ export default function PageSelector({ username }: { username: string }) {
           </div>
         }
         <HotkeyButton
-          hotkeys={["KeyE"]}
+          hotkeys={keybinds.getKeybind(HotkeyButtonTypes.CycleForward)}
           className="h-10 p-2 border border-slate-400 flex justify-center items-center w-10"
           onClick={() => {
             setNewPage(NextOrPrevious.Next);

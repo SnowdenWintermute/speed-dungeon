@@ -22,13 +22,13 @@ import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
-import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const Lobby = observer(() => {
   const usersContainerWidthMultiplier = Math.pow(GOLDEN_RATIO, 4);
   const usersContainerWidth = Math.floor(BASE_SCREEN_SIZE * usersContainerWidthMultiplier);
   const clientApplication = useClientApplication();
-  const { httpRequests, dialogs, connectionStatus } = clientApplication.uiStore;
+  const { httpRequests, dialogs, connectionStatus, keybinds } = clientApplication.uiStore;
   const currentSessionHttpResponseTracker = httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
   const showAuthForm = dialogs.isOpen(DialogElementName.Credentials);
@@ -123,7 +123,7 @@ export const Lobby = observer(() => {
           >
             <HotkeyButton
               onClick={() => clientApplication.lobbyClientRef.get().quickStartGame()}
-              hotkeys={[HOTKEYS.SIDE_1]}
+              hotkeys={keybinds.getKeybind(HotkeyButtonTypes.QuickStartRace)}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
                           text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top mr-2
@@ -133,7 +133,7 @@ export const Lobby = observer(() => {
             </HotkeyButton>
             <HotkeyButton
               onClick={() => clientApplication.lobbyClientRef.get().quickStartGameProgression()}
-              hotkeys={[HOTKEYS.MAIN_1]}
+              hotkeys={keybinds.getKeybind(HotkeyButtonTypes.QuickStartProgression)}
               className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                           flex justify-center items-center disabled:opacity-50 pointer-events-auto disabled:cursor-auto
                           text-xl bg-slate-950 text-slate-400 animate-slide-appear-from-top 

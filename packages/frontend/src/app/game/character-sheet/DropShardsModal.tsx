@@ -8,13 +8,13 @@ import { ClickOutsideHandlerWrapper } from "@/app/components/atoms/ClickOutsideH
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
-import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {
     const clientApplication = useClientApplication();
     const { gameClientRef } = clientApplication;
-    const { dialogs, inputs } = clientApplication.uiStore;
+    const { dialogs, inputs, keybinds } = clientApplication.uiStore;
     const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<number>(0);
@@ -70,7 +70,7 @@ export const DropShardsModal = observer(
               className="absolute top-0 right-0 p-2 border border-t-0 border-r-0 border-slate-400 cursor-pointer bg-slate-700"
               style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
               aria-label="close drop shards modal"
-              hotkeys={[HOTKEYS.MAIN_2, HOTKEYS.CANCEL]}
+              hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Cancel)}
               alwaysEnabled={true}
               onClick={() => {
                 dialogs.close(DialogElementName.DropShards);
@@ -95,7 +95,7 @@ export const DropShardsModal = observer(
               />
               <HotkeyButton
                 buttonType="submit"
-                hotkeys={[HOTKEYS.MAIN_1]}
+                hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Confirm)}
                 alwaysEnabled={true}
                 onClick={() => {
                   handleSubmit();

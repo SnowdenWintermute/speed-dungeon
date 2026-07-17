@@ -1,4 +1,5 @@
 import { ClientApplication } from "../../";
+import { getActionMenuSlotHotkeys, getActionMenuSlotLabel } from "../slot-keybinds";
 import { ActionMenuScreen } from ".";
 import {
   BookConsumableType,
@@ -49,6 +50,7 @@ export class SelectBookToTradeForActionMenuScreen extends ActionMenuScreen {
       this.clientApplication.combatantFocus.clientUserControlsFocusedCombatant();
     const disabled = !userControlsThisCharacter;
 
+    const keybinds = this.clientApplication.uiStore.keybinds;
     return SKILL_BOOK_SHOP_LIST.map((book, i) => {
       const buttonNumber = i + 1;
       return {
@@ -56,8 +58,8 @@ export class SelectBookToTradeForActionMenuScreen extends ActionMenuScreen {
         data: {
           item: book,
           text: book.entityProperties.name,
-          hotkeyLabel: `${buttonNumber}`,
-          hotkeys: [`Digit${buttonNumber}`],
+          hotkeyLabel: getActionMenuSlotLabel(keybinds, buttonNumber),
+          hotkeys: getActionMenuSlotHotkeys(keybinds, buttonNumber),
           onClick: () => {
             this.clientApplication.actionMenu.pushStack(
               new SelectItemToTradeForBookActionMenuScreen(

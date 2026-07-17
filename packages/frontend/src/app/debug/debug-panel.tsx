@@ -8,6 +8,7 @@ import DownloadDebugLogButton from "./download-debug-log-button";
 import ClearDebugLogButton from "./clear-debug-log-button";
 import { formatThousandsAsK } from "@speed-dungeon/common";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
+import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
 
 export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
@@ -44,7 +45,7 @@ export const DebugPanel = observer(
 
     useEffect(() => {
       keydownListenerRef.current = function (e: KeyboardEvent) {
-        if (e.code !== "KeyP" || hotkeysDisabled) return;
+        if (normalizeKeyValue(e.key) !== "p" || hotkeysDisabled) return;
 
         dialogs.toggle(DialogElementName.Debug);
         const showDebug = dialogs.isOpen(DialogElementName.Debug);

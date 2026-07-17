@@ -1,5 +1,9 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
+  getActionMenuSlotHotkeys,
+  getActionMenuSlotLabel,
+} from "@/client-application/action-menu/slot-keybinds";
+import {
   ClientIntentType,
   CraftingAction,
   Equipment,
@@ -21,6 +25,7 @@ export const RepairEquipmentButton = observer((props: Props) => {
   const { equipment, listIndex } = props;
   const clientApplication = useClientApplication();
   const { gameClientRef, gameContext } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
   const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
   const shardPool = PlayerShardPool.forCharacter(
     gameContext.requireGame(),
@@ -49,8 +54,8 @@ export const RepairEquipmentButton = observer((props: Props) => {
     <ItemButton
       item={equipment}
       text={equipment.entityProperties.name}
-      hotkeyLabel={(listIndex + 1).toString()}
-      hotkeys={[`Digit${listIndex + 1}`]}
+      hotkeyLabel={getActionMenuSlotLabel(keybinds, listIndex + 1)}
+      hotkeys={getActionMenuSlotHotkeys(keybinds, listIndex + 1)}
       clickHandler={clickHandler}
       disabled={false}
     >

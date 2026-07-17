@@ -2,6 +2,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { FocusEventHandler, MouseEventHandler, PointerEventHandler, useEffect, useRef } from "react";
+import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
 
 interface Props {
   className?: string;
@@ -34,7 +35,11 @@ export const HotkeyButton = observer((props: Props) => {
     if (props.hotkeys !== undefined) {
       keydownListenerRef.current = (e: KeyboardEvent) => {
         for (const hotkey of props.hotkeys!) {
-          if (e.code === hotkey && !disabled && !props.ariaDisabled) {
+          if (
+            normalizeKeyValue(e.key) === normalizeKeyValue(hotkey) &&
+            !disabled &&
+            !props.ariaDisabled
+          ) {
             //@ts-ignore
             props.onClick(new MouseEvent("mouseup"));
           }

@@ -1,29 +1,12 @@
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { makeAutoObservable } from "mobx";
-
-export const HOTKEYS = {
-  CANCEL: "Escape",
-  MAIN_1: "KeyF",
-  MAIN_2: "KeyA",
-  ALT_1: "KeyR",
-  ALT_2: "KeyQ",
-  SIDE_1: "KeyG",
-  SIDE_2: "KeyT",
-  RIGHT_MAIN: "KeyD",
-  LEFT_MAIN: "KeyS",
-  RIGHT_ALT: "KeyE",
-  LEFT_ALT: "KeyW",
-  BOTTOM_LEFT: "KeyX",
-  BOTTOM_RIGHT: "KeyC",
-  BOTTOM_ALT: "KeyV",
-};
-
-export function letterFromKeyCode(keycode: string) {
-  return keycode.slice(3);
-}
-
-export const VIEW_EQUIPMENT_HOTKEY = HOTKEYS.ALT_1;
+import {
+  KeyboardLayout,
+  keyValueForCode,
+  keyValueToDisplayString,
+  normalizeKeyValue,
+} from "./keyboard-layouts";
 
 export enum HotkeyButtonTypes {
   ToggleInventory,
@@ -43,7 +26,38 @@ export enum HotkeyButtonTypes {
   ToggleAssignAttributesMenu,
   OpenConfirmConvertToShardMenu,
   CycleTargetingSchemes,
+  QuickStartRace,
+  QuickStartProgression,
+  RefreshGameList,
+  OpenCharacterManager,
+  ToggleReady,
+  ToggleCombatLog,
+  ToggleDropShardsMenu,
+  Explore,
+  Descend,
+  OperateVendingMachine,
+  LeaveGame,
+  CycleHotswapSlotBack,
+  CycleHotswapSlotForward,
+  ToggleDeletionConfirmation,
+  ActionMenuSlot1,
+  ActionMenuSlot2,
+  ActionMenuSlot3,
+  ActionMenuSlot4,
+  ActionMenuSlot5,
+  ActionMenuSlot6,
 }
+
+// action-menu numbered slots, one per position on a page. Kept in sync with
+// ACTION_MENU_PAGE_SIZE (asserted in action-menu/slot-keybinds.ts).
+export const ACTION_MENU_SLOT_HOTKEY_BUTTON_TYPES: HotkeyButtonTypes[] = [
+  HotkeyButtonTypes.ActionMenuSlot1,
+  HotkeyButtonTypes.ActionMenuSlot2,
+  HotkeyButtonTypes.ActionMenuSlot3,
+  HotkeyButtonTypes.ActionMenuSlot4,
+  HotkeyButtonTypes.ActionMenuSlot5,
+  HotkeyButtonTypes.ActionMenuSlot6,
+];
 
 export const HOTKEY_BUTTON_TYPE_STRINGS: Record<HotkeyButtonTypes, string> = {
   [HotkeyButtonTypes.ToggleInventory]: "Toggle inventory",
@@ -63,80 +77,141 @@ export const HOTKEY_BUTTON_TYPE_STRINGS: Record<HotkeyButtonTypes, string> = {
   [HotkeyButtonTypes.ToggleAssignAttributesMenu]: "Toggle assign attributes menu",
   [HotkeyButtonTypes.OpenConfirmConvertToShardMenu]: "Convert to shards",
   [HotkeyButtonTypes.CycleTargetingSchemes]: "Cycle targeting schemes",
+  [HotkeyButtonTypes.QuickStartRace]: "Quick start race",
+  [HotkeyButtonTypes.QuickStartProgression]: "Quick start progression",
+  [HotkeyButtonTypes.RefreshGameList]: "Refresh game list",
+  [HotkeyButtonTypes.OpenCharacterManager]: "Open character manager",
+  [HotkeyButtonTypes.ToggleReady]: "Toggle ready",
+  [HotkeyButtonTypes.ToggleCombatLog]: "Toggle combat log",
+  [HotkeyButtonTypes.ToggleDropShardsMenu]: "Toggle drop-shards menu",
+  [HotkeyButtonTypes.Explore]: "Explore next room / vote to stay",
+  [HotkeyButtonTypes.Descend]: "Vote to descend",
+  [HotkeyButtonTypes.OperateVendingMachine]: "Operate vending machine",
+  [HotkeyButtonTypes.LeaveGame]: "Leave game",
+  [HotkeyButtonTypes.CycleHotswapSlotBack]: "Cycle hotswap slot back",
+  [HotkeyButtonTypes.CycleHotswapSlotForward]: "Cycle hotswap slot forward",
+  [HotkeyButtonTypes.ToggleDeletionConfirmation]: "Toggle deletion confirmation",
+  [HotkeyButtonTypes.ActionMenuSlot1]: "Action menu slot 1",
+  [HotkeyButtonTypes.ActionMenuSlot2]: "Action menu slot 2",
+  [HotkeyButtonTypes.ActionMenuSlot3]: "Action menu slot 3",
+  [HotkeyButtonTypes.ActionMenuSlot4]: "Action menu slot 4",
+  [HotkeyButtonTypes.ActionMenuSlot5]: "Action menu slot 5",
+  [HotkeyButtonTypes.ActionMenuSlot6]: "Action menu slot 6",
 };
 
 export type KeyCode = string;
 
-export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
-  [HotkeyButtonTypes.ToggleInventory]: [HOTKEYS.MAIN_1, "KeyI"],
-  [HotkeyButtonTypes.ToggleViewEquipment]: [HOTKEYS.ALT_1],
-  [HotkeyButtonTypes.EquipAltSlot]: [HOTKEYS.ALT_1],
-  [HotkeyButtonTypes.DropItem]: [HOTKEYS.MAIN_2],
-  [HotkeyButtonTypes.ToggleViewingAbilityTree]: [HOTKEYS.BOTTOM_ALT],
-  [HotkeyButtonTypes.AllocateAbilityPoint]: [HOTKEYS.MAIN_1],
-  [HotkeyButtonTypes.CycleBack]: [HOTKEYS.LEFT_MAIN],
-  [HotkeyButtonTypes.CycleForward]: [HOTKEYS.RIGHT_MAIN],
-  [HotkeyButtonTypes.Confirm]: [HOTKEYS.MAIN_1],
-  [HotkeyButtonTypes.Cancel]: [HOTKEYS.CANCEL],
-  [HotkeyButtonTypes.TakeAllItems]: [HOTKEYS.MAIN_2],
-  [HotkeyButtonTypes.ViewItemsOnGround]: [HOTKEYS.ALT_1],
-  [HotkeyButtonTypes.ToggleAssignAttributesMenu]: [HOTKEYS.MAIN_2],
-  [HotkeyButtonTypes.CycleBackAlternate]: [HOTKEYS.LEFT_ALT],
-  [HotkeyButtonTypes.CycleForwardAlternate]: [HOTKEYS.RIGHT_ALT],
-  [HotkeyButtonTypes.OpenConfirmConvertToShardMenu]: [HOTKEYS.SIDE_2],
-  [HotkeyButtonTypes.CycleTargetingSchemes]: [HOTKEYS.MAIN_2],
+// physical codes whose per-layout produced values seed the suggested defaults
+export const DEFAULT_KEYBIND_CODES: Record<HotkeyButtonTypes, KeyCode[]> = {
+  [HotkeyButtonTypes.ToggleInventory]: ["KeyF", "KeyI"],
+  [HotkeyButtonTypes.ToggleViewEquipment]: ["KeyR"],
+  [HotkeyButtonTypes.EquipAltSlot]: ["KeyR"],
+  [HotkeyButtonTypes.DropItem]: ["KeyA"],
+  [HotkeyButtonTypes.ToggleViewingAbilityTree]: ["KeyV"],
+  [HotkeyButtonTypes.AllocateAbilityPoint]: ["KeyF"],
+  [HotkeyButtonTypes.CycleBack]: ["KeyS"],
+  [HotkeyButtonTypes.CycleForward]: ["KeyD"],
+  [HotkeyButtonTypes.Confirm]: ["KeyF"],
+  [HotkeyButtonTypes.Cancel]: ["Escape"],
+  [HotkeyButtonTypes.TakeAllItems]: ["KeyA"],
+  [HotkeyButtonTypes.ViewItemsOnGround]: ["KeyR"],
+  [HotkeyButtonTypes.ToggleAssignAttributesMenu]: ["KeyA"],
+  [HotkeyButtonTypes.CycleBackAlternate]: ["KeyW"],
+  [HotkeyButtonTypes.CycleForwardAlternate]: ["KeyE"],
+  [HotkeyButtonTypes.OpenConfirmConvertToShardMenu]: ["KeyT"],
+  [HotkeyButtonTypes.CycleTargetingSchemes]: ["KeyA"],
+  [HotkeyButtonTypes.QuickStartRace]: ["KeyG"],
+  [HotkeyButtonTypes.QuickStartProgression]: ["KeyF"],
+  [HotkeyButtonTypes.RefreshGameList]: ["KeyR"],
+  [HotkeyButtonTypes.OpenCharacterManager]: ["KeyS"],
+  [HotkeyButtonTypes.ToggleReady]: ["KeyG"],
+  [HotkeyButtonTypes.ToggleCombatLog]: ["KeyL"],
+  [HotkeyButtonTypes.ToggleDropShardsMenu]: ["KeyA"],
+  [HotkeyButtonTypes.Explore]: ["KeyG"],
+  [HotkeyButtonTypes.Descend]: ["KeyT"],
+  [HotkeyButtonTypes.OperateVendingMachine]: ["KeyT"],
+  [HotkeyButtonTypes.LeaveGame]: ["KeyG"],
+  [HotkeyButtonTypes.CycleHotswapSlotBack]: ["KeyX"],
+  [HotkeyButtonTypes.CycleHotswapSlotForward]: ["KeyC"],
+  [HotkeyButtonTypes.ToggleDeletionConfirmation]: ["KeyR"],
+  [HotkeyButtonTypes.ActionMenuSlot1]: ["Digit1"],
+  [HotkeyButtonTypes.ActionMenuSlot2]: ["Digit2"],
+  [HotkeyButtonTypes.ActionMenuSlot3]: ["Digit3"],
+  [HotkeyButtonTypes.ActionMenuSlot4]: ["Digit4"],
+  [HotkeyButtonTypes.ActionMenuSlot5]: ["Digit5"],
+  [HotkeyButtonTypes.ActionMenuSlot6]: ["Digit6"],
 };
 
+const KEYBINDS_STORAGE_KEY = "keybinds";
+const KEYBIND_LAYOUT_STORAGE_KEY = "keybindLayout";
+
 export class KeybindConfig {
-  private hotkeys = cloneDeep(DEFAULT_KEYBINDS);
+  private selectedLayout: KeyboardLayout = KeyboardLayout.Qwerty;
+  private hotkeys: Record<HotkeyButtonTypes, string[]>;
 
   constructor() {
+    this.hotkeys = this.deriveDefaults(this.selectedLayout);
     makeAutoObservable(this);
     this.loadUserPreferences();
   }
 
-  getKeybind(button: HotkeyButtonTypes): KeyCode[] {
+  private deriveDefaults(layout: KeyboardLayout): Record<HotkeyButtonTypes, string[]> {
+    const result = cloneDeep(DEFAULT_KEYBIND_CODES);
+    for (const [button, codes] of iterateNumericEnumKeyedRecord(DEFAULT_KEYBIND_CODES)) {
+      result[button] = codes.map((code) => keyValueForCode(code, layout));
+    }
+    return result;
+  }
+
+  getSelectedLayout(): KeyboardLayout {
+    return this.selectedLayout;
+  }
+
+  setLayout(layout: KeyboardLayout) {
+    this.selectedLayout = layout;
+    this.hotkeys = this.deriveDefaults(layout);
+    this.persistUserPreferences();
+  }
+
+  getKeybind(button: HotkeyButtonTypes): string[] {
     return this.hotkeys[button];
   }
 
-  getKeybindString(button: HotkeyButtonTypes) {
-    const hotkeys = this.getKeybind(button);
-    if (hotkeys.length === 0) return "";
-    return hotkeys.map((keycode) => letterFromKeyCode(keycode)).join(", ");
+  getKeybindDisplayStrings(button: HotkeyButtonTypes): string[] {
+    return this.getKeybind(button).map(keyValueToDisplayString);
   }
 
-  addKeybind(button: HotkeyButtonTypes, keycode: KeyCode) {
+  getKeybindString(button: HotkeyButtonTypes): string {
+    return this.getKeybindDisplayStrings(button).join(", ");
+  }
+
+  addKeybind(button: HotkeyButtonTypes, key: string) {
+    const value = normalizeKeyValue(key);
     const keys = this.hotkeys[button];
-    if (!keys.includes(keycode)) {
-      this.hotkeys[button] = [...keys, keycode];
+    if (!keys.includes(value)) {
+      this.hotkeys[button] = [...keys, value];
       this.persistUserPreferences();
     }
   }
 
-  setKeybind(button: HotkeyButtonTypes, keycode: KeyCode) {
-    this.hotkeys[button] = [keycode];
-
+  setKeybind(button: HotkeyButtonTypes, key: string) {
+    this.hotkeys[button] = [normalizeKeyValue(key)];
     this.persistUserPreferences();
   }
 
-  removeKeybind(button: HotkeyButtonTypes, keycode: KeyCode) {
-    const keys = this.hotkeys[button].filter((k) => k !== keycode);
-    this.hotkeys[button] = keys;
+  removeKeybind(button: HotkeyButtonTypes, key: string) {
+    const value = normalizeKeyValue(key);
+    this.hotkeys[button] = this.hotkeys[button].filter((k) => k !== value);
     this.persistUserPreferences();
   }
 
   resetKeybind(button: HotkeyButtonTypes) {
-    this.hotkeys[button] = cloneDeep(DEFAULT_KEYBINDS[button]);
-
+    this.hotkeys[button] = this.deriveDefaults(this.selectedLayout)[button];
     this.persistUserPreferences();
   }
 
   resetDefaults() {
-    const clonedDefaults = cloneDeep(DEFAULT_KEYBINDS);
-    for (const [key, value] of iterateNumericEnumKeyedRecord(clonedDefaults)) {
-      this.hotkeys[key] = value;
-    }
-
+    this.hotkeys = this.deriveDefaults(this.selectedLayout);
     this.persistUserPreferences();
   }
 
@@ -147,7 +222,8 @@ export class KeybindConfig {
 
   private saveToLocalStorage() {
     if (typeof window === "undefined") return;
-    localStorage.setItem("keybinds", JSON.stringify(this.hotkeys));
+    localStorage.setItem(KEYBINDS_STORAGE_KEY, JSON.stringify(this.hotkeys));
+    localStorage.setItem(KEYBIND_LAYOUT_STORAGE_KEY, JSON.stringify(this.selectedLayout));
   }
 
   loadUserPreferences() {
@@ -156,11 +232,22 @@ export class KeybindConfig {
 
   private loadFromLocalStorage() {
     if (typeof window === "undefined") return;
-    const data = localStorage.getItem("keybinds");
+
+    const layoutData = localStorage.getItem(KEYBIND_LAYOUT_STORAGE_KEY);
+    if (layoutData) {
+      try {
+        this.selectedLayout = JSON.parse(layoutData) as KeyboardLayout;
+        this.hotkeys = this.deriveDefaults(this.selectedLayout);
+      } catch (e) {
+        console.error("failed to parse keybind layout", e);
+      }
+    }
+
+    const data = localStorage.getItem(KEYBINDS_STORAGE_KEY);
     if (!data) return console.info("no keybinds to load");
 
     try {
-      const loaded = JSON.parse(data) as Record<HotkeyButtonTypes, KeyCode[]>;
+      const loaded = JSON.parse(data) as Record<HotkeyButtonTypes, string[]>;
       for (const [key, value] of iterateNumericEnumKeyedRecord(loaded)) {
         this.hotkeys[key] = value;
       }

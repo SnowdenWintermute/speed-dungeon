@@ -1,6 +1,7 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { GameClient } from "@/client-application/clients/game";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { getActionMenuSlotHotkeys } from "@/client-application/action-menu/slot-keybinds";
 import {
   ActionRank,
   ArrayUtils,
@@ -42,7 +43,9 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
   const selectedLevelOption = actionStateAndSelectedLevel?.selectedLevelOption;
   const action = COMBAT_ACTIONS[actionName];
 
-  const { gameClientRef, combatantFocus } = useClientApplication();
+  const clientApplication = useClientApplication();
+  const { gameClientRef, combatantFocus } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
   const { combatant, party } = combatantFocus.requireFocusedCharacterContext();
 
   const inBattle = party.combatantManager.monstersArePresent();
@@ -73,7 +76,7 @@ export const ActionDetailsTitleBar = observer((props: Props) => {
                     return (
                       <li key={actionName + rank} className="mr-1 last:mr-0">
                         <HotkeyButton
-                          hotkeys={[`Digit${rank.toString()}`, `Numpad${rank.toString()}`]}
+                          hotkeys={getActionMenuSlotHotkeys(keybinds, rank)}
                           disabled={selectedLevelOption === null || !!unmet.length}
                           onClick={() =>
                             handleSelectActionLevel(

@@ -15,6 +15,10 @@ import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import {
+  getActionMenuSlotHotkeys,
+  getActionMenuSlotLabel,
+} from "@/client-application/action-menu/slot-keybinds";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 
 interface Props {
@@ -27,6 +31,7 @@ export const CraftActionButton = observer((props: Props) => {
   const { equipment, craftingAction, listIndex } = props;
   const clientApplication = useClientApplication();
   const { gameClientRef, gameContext, actionMenu, combatantFocus } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
 
   const focusedCharacterResult = combatantFocus.requireFocusedCharacter();
   const party = gameContext.requireParty();
@@ -62,8 +67,8 @@ export const CraftActionButton = observer((props: Props) => {
   return (
     <ActionMenuNumberedButton
       disabled={shouldBeDisabled}
-      hotkeys={[`Digit${buttonNumber}`]}
-      hotkeyLabel={buttonNumber.toString()}
+      hotkeys={getActionMenuSlotHotkeys(keybinds, buttonNumber)}
+      hotkeyLabel={getActionMenuSlotLabel(keybinds, buttonNumber)}
       clickHandler={() => {
         actionMenu.setCharacterIsCrafting(focusedCharacterResult.getEntityId());
         gameClientRef.get().dispatchIntent({

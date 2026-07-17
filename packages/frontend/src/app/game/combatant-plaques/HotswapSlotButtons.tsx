@@ -9,7 +9,8 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { HOTKEYS } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
 import { ClientSingleton } from "@/client-application/clients/singleton";
 import { GameClient } from "@/client-application/clients/game";
 
@@ -69,8 +70,15 @@ export const HotswapSlotButtons = observer(
 
       listenerRef.current = (e: KeyboardEvent) => {
         if (uiStore.inputs.getHotkeysDisabled()) return;
-        if (e.code === HOTKEYS.BOTTOM_LEFT) selectNextOrPrevious(NextOrPrevious.Previous);
-        if (e.code === HOTKEYS.BOTTOM_RIGHT) selectNextOrPrevious(NextOrPrevious.Next);
+        const pressed = normalizeKeyValue(e.key);
+        if (uiStore.keybinds.getKeybind(HotkeyButtonTypes.CycleHotswapSlotBack).includes(pressed)) {
+          selectNextOrPrevious(NextOrPrevious.Previous);
+        }
+        if (
+          uiStore.keybinds.getKeybind(HotkeyButtonTypes.CycleHotswapSlotForward).includes(pressed)
+        ) {
+          selectNextOrPrevious(NextOrPrevious.Next);
+        }
       };
 
       window.addEventListener("keydown", listenerRef.current);

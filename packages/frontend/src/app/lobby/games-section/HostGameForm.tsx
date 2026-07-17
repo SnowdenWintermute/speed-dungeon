@@ -14,10 +14,13 @@ import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { IronmanRunSelector } from "./IronmanRunSelector";
 import { observer } from "mobx-react-lite";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { numberKeyValue } from "@/client-application/ui/keyboard-layouts";
 
 export const HostGameForm = observer(() => {
   const clientApplication = useClientApplication();
   const { uiStore, lobbyClientRef } = clientApplication;
+  const { keybinds } = uiStore;
   const currentSessionHttpResponseTracker =
     uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
   const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
@@ -86,7 +89,7 @@ export const HostGameForm = observer(() => {
           <div className="flex w-full mb-2">
             <HotkeyButton
               buttonType="button"
-              hotkeys={["KeyW"]}
+              hotkeys={[numberKeyValue(1)]}
               onClick={() => {
                 setSelectedGameMode(GameMode.UnrankedRace);
                 setIsRanked(false);
@@ -104,7 +107,7 @@ export const HostGameForm = observer(() => {
             >
               <HotkeyButton
                 buttonType="button"
-                hotkeys={["KeyE"]}
+                hotkeys={[numberKeyValue(2)]}
                 disabled={!isLoggedIn}
                 onClick={() => {
                   setSelectedGameMode(GameMode.Progression);
@@ -125,7 +128,7 @@ export const HostGameForm = observer(() => {
             >
               <HotkeyButton
                 buttonType="button"
-                hotkeys={[]}
+                hotkeys={[numberKeyValue(3)]}
                 disabled={!isLoggedIn}
                 onClick={() => {
                   setSelectedGameMode(GameMode.Ironman);
@@ -144,7 +147,7 @@ export const HostGameForm = observer(() => {
             >
               <HotkeyButton
                 buttonType="button"
-                hotkeys={["KeyD"]}
+                hotkeys={[numberKeyValue(4)]}
                 disabled={!isLoggedIn}
                 onClick={() => {
                   setSelectedGameMode(GameMode.UnrankedRace);
@@ -162,7 +165,7 @@ export const HostGameForm = observer(() => {
         </div>
         <HotkeyButton
           buttonType="submit"
-          hotkeys={["KeyR", "Enter"]}
+          hotkeys={[...keybinds.getKeybind(HotkeyButtonTypes.Confirm), "Enter"]}
           onClick={(e) => {
             createGame(e);
           }}

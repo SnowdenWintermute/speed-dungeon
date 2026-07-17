@@ -3,10 +3,12 @@ import { HotkeyButton } from "../../components/atoms/HotkeyButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { ClientIntentType, Combatant } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export default function DeleteCharacterForm({ character }: { character: Combatant }) {
   const [confirmDeletion, setConfirmDeletion] = useState(false);
-  const { lobbyClientRef } = useClientApplication();
+  const { lobbyClientRef, uiStore } = useClientApplication();
+  const { keybinds } = uiStore;
 
   function deleteCharacter() {
     lobbyClientRef.get().dispatchIntent({
@@ -23,7 +25,7 @@ export default function DeleteCharacterForm({ character }: { character: Combatan
         <span>Check the box to enable deletion</span>
         <HotkeyButton
           className="h-10 w-10 p-2 border border-slate-400 hover:bg-slate-950"
-          hotkeys={["KeyR"]}
+          hotkeys={keybinds.getKeybind(HotkeyButtonTypes.ToggleDeletionConfirmation)}
           onClick={() => {
             setConfirmDeletion(!confirmDeletion);
           }}
@@ -35,7 +37,7 @@ export default function DeleteCharacterForm({ character }: { character: Combatan
         className={`${confirmDeletion && "bg-red-800"} h-10 w-full p-2 border border-slate-400 disabled:opacity-50`}
         onClick={deleteCharacter}
         disabled={!confirmDeletion}
-        hotkeys={["KeyG"]}
+        hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Confirm)}
       >
         {confirmDeletion && "!!! "}DELETE CHARACTER{confirmDeletion && " !!!"}
       </HotkeyButton>

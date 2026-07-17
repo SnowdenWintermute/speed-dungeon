@@ -11,6 +11,8 @@ import {
 } from "@speed-dungeon/common";
 import { ActionMenuScreenType, MENU_STATE_TYPE_STRINGS } from "../screen-types";
 import { ACTION_MENU_PAGE_SIZE } from "../consts";
+import { getActionMenuSlotHotkeys, getActionMenuSlotLabel } from "../slot-keybinds";
+import { KeybindConfig } from "../../ui/keybind-config";
 import {
   ActionMenuBottomSection,
   ActionMenuBottomSectionType,
@@ -97,6 +99,7 @@ export abstract class ActionMenuScreen {
   }
 
   static getItemButtonsFromList(
+    keybinds: KeybindConfig,
     items: Item[],
     clickHandler: (item: Item) => void,
     itemDisabledFunction: (item: Item) => boolean,
@@ -142,8 +145,8 @@ export abstract class ActionMenuScreen {
           item,
           text: buttonText,
           disabled: itemDisabledFunction(item),
-          hotkeys: [`Digit${buttonNumber}`],
-          hotkeyLabel: buttonNumber.toString(),
+          hotkeys: getActionMenuSlotHotkeys(keybinds, buttonNumber),
+          hotkeyLabel: getActionMenuSlotLabel(keybinds, buttonNumber),
           onClick: clickHandler,
           showEquippedStatus: options?.getShowEquippedStatus?.(item),
           price: options?.getPrice?.(item),

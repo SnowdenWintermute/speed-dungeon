@@ -1,5 +1,6 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   COMBATANT_CLASS_NAME_STRINGS,
@@ -21,7 +22,8 @@ export default function CreateCharacterForm({
 }) {
   const [selectedNewCharacterClass, setSelectedNewCharacterClass] = useState(CombatantClass.Mage);
   const [newCharacterName, setNewCharacterName] = useState("");
-  const { lobbyClientRef } = useClientApplication();
+  const { lobbyClientRef, uiStore } = useClientApplication();
+  const { keybinds } = uiStore;
 
   function createCharacter() {
     lobbyClientRef.get().dispatchIntent({
@@ -58,7 +60,7 @@ export default function CreateCharacterForm({
           }}
           children={""}
           className="hidden"
-          hotkeys={["KeyE"]}
+          hotkeys={keybinds.getKeybind(HotkeyButtonTypes.CycleForwardAlternate)}
         />
         <HotkeyButton
           onClick={() => {
@@ -66,7 +68,7 @@ export default function CreateCharacterForm({
           }}
           children={""}
           className="hidden"
-          hotkeys={["KeyW"]}
+          hotkeys={keybinds.getKeybind(HotkeyButtonTypes.CycleBackAlternate)}
         />
 
         {iterateNumericEnum(CombatantClass).map((combatantClass) => (
@@ -88,7 +90,7 @@ export default function CreateCharacterForm({
         value={newCharacterName}
       />
       <HotkeyButton
-        hotkeys={["KeyF"]}
+        hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Confirm)}
         className="bg-slate-700 h-10 w-full p-2 border border-slate-400 pointer-events-auto"
         onClick={createCharacter}
       >

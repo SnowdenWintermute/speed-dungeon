@@ -4,6 +4,7 @@ import { ActionMenuScreen } from ".";
 import { ClientApplication } from "../../";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ACTION_MENU_PAGE_SIZE } from "../consts";
+import { getActionMenuSlotHotkeys, getActionMenuSlotLabel } from "../slot-keybinds";
 import {
   ActionMenuTopSectionItem,
   ActionMenuTopSectionItemType,
@@ -38,6 +39,7 @@ export class RootActionMenuScreen extends ActionMenuScreen {
     const { combatantProperties } = focusedCharacter;
     const ownedActions = combatantProperties.abilityProperties.getOwnedActions();
 
+    const keybinds = this.clientApplication.uiStore.keybinds;
     return [...ownedActions]
       .filter(([actionName, _]) => !ACTION_NAMES_TO_HIDE_IN_MENU.includes(actionName))
       .map(([actionName, _], i) => {
@@ -47,8 +49,8 @@ export class RootActionMenuScreen extends ActionMenuScreen {
           data: {
             actionName,
             user: focusedCharacter,
-            hotkeys: [`Digit${buttonNumber}`],
-            hotkeyLabel: buttonNumber.toString(),
+            hotkeys: getActionMenuSlotHotkeys(keybinds, buttonNumber),
+            hotkeyLabel: getActionMenuSlotLabel(keybinds, buttonNumber),
           },
         };
       });

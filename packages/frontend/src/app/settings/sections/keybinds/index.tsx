@@ -3,7 +3,7 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { DEFAULT_KEYBINDS, HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { DEFAULT_KEYBIND_CODES, HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { KeybindRow } from "./KeybindRow";
 import { useKeybindCapture } from "./use-keybind-capture";
 
@@ -15,7 +15,7 @@ export const KeybindsSection = observer(() => {
   return (
     <div className="flex flex-col" style={{ width: `450px` }}>
       <ul className="">
-        {iterateNumericEnumKeyedRecord(DEFAULT_KEYBINDS)
+        {iterateNumericEnumKeyedRecord(DEFAULT_KEYBIND_CODES)
           .filter((element) => element[0] !== HotkeyButtonTypes.Cancel)
           .map(([buttonType]) => (
             <KeybindRow

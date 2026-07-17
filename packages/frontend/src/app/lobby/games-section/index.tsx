@@ -1,5 +1,6 @@
 // @refresh reset
 "use client";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -28,7 +29,7 @@ export const GamesSection = observer(() => {
   const { gameList } = lobbyContext;
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
-  const { dialogs } = clientApplication.uiStore;
+  const { dialogs, keybinds } = clientApplication.uiStore;
   const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
   const gameFormHolderRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +88,7 @@ export const GamesSection = observer(() => {
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
           <HotkeyButton
-            hotkeys={["KeyR"]}
+            hotkeys={keybinds.getKeybind(HotkeyButtonTypes.RefreshGameList)}
             className="border-l border-slate-400 p-2 h-full"
             onClick={refreshGameList}
           >
@@ -128,7 +129,7 @@ export const GamesSection = observer(() => {
           className={`bg-slate-700 w-full h-10 border border-slate-400 flex justify-between items-center pointer-events-auto`}
         >
           <HotkeyButton
-            hotkeys={["KeyA"]}
+            hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Confirm)}
             className="w-full h-full disabled:opacity-10"
             disabled={!lobbyClientRef.isInitialized}
             onClick={() => {

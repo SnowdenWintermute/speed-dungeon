@@ -2,6 +2,10 @@ import React, { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
+  getActionMenuSlotHotkeys,
+  getActionMenuSlotLabel,
+} from "@/client-application/action-menu/slot-keybinds";
+import {
   ACTION_MENU_CENTRAL_SECTION_HEIGHT,
   BUTTON_HEIGHT,
   SPACING_REM_SMALL,
@@ -61,6 +65,7 @@ import { dropTargetBgClass, dropTargetBorderClass } from "@/app/game/item-drag/h
 export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) => {
   const clientApplication = useClientApplication();
   const { actionMenu, detailableEntityFocus, combatantFocus } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
 
   const inventoryDrop = useDropTarget({ type: DropTargetType.Inventory });
   const inventoryDragEnabled =
@@ -244,8 +249,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                   return (
                     <ActionMenuNumberedButton
                       key={btn.data.columnNumber}
-                      hotkeys={[`Digit${btn.data.columnNumber}`]}
-                      hotkeyLabel={btn.data.columnNumber.toString()}
+                      hotkeys={getActionMenuSlotHotkeys(keybinds, btn.data.columnNumber)}
+                      hotkeyLabel={getActionMenuSlotLabel(keybinds, btn.data.columnNumber)}
                       clickHandler={btn.data.onClick}
                     >
                       <div className="flex justify-between h-full w-full px-2">
@@ -275,8 +280,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                   return (
                     <ActionMenuNumberedButton
                       key={btn.data.title}
-                      hotkeys={[`Digit${i + 1}`]}
-                      hotkeyLabel={(i + 1).toString()}
+                      hotkeys={getActionMenuSlotHotkeys(keybinds, i + 1)}
+                      hotkeyLabel={getActionMenuSlotLabel(keybinds, i + 1)}
                       clickHandler={btn.data.onClick}
                       disabled={btn.data.disabled}
                     >
@@ -291,8 +296,8 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                   return (
                     <ActionMenuNumberedButton
                       key={btn.data.attribute}
-                      hotkeys={[`Digit${i + 1}`]}
-                      hotkeyLabel={(i + 1).toString()}
+                      hotkeys={getActionMenuSlotHotkeys(keybinds, i + 1)}
+                      hotkeyLabel={getActionMenuSlotLabel(keybinds, i + 1)}
                       disabled={btn.data.disabled}
                       clickHandler={btn.data.onClick}
                     >
