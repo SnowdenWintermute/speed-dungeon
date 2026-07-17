@@ -50,6 +50,7 @@ import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
 import DownloadDocument from "../../../public/img/menu-icons/download-document.svg";
 import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
 import FloppyDisc from "../../../public/img/menu-icons/floppy-disk.svg";
+import SettingsGear from "../../../public/img/menu-icons/settings-icon.svg";
 import Skull from "../../../public/img/game-ui-icons/skull.svg";
 import SplitArrow from "../../../public/img/game-ui-icons/split-arrow.svg";
 import Parry from "../../../public/img/game-ui-icons/parry.svg";
@@ -131,6 +132,7 @@ export enum IconName {
   Bag,
   ThrowPebble,
   Shield,
+  Settings,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -195,6 +197,7 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Bag]: (className: string) => <Bag className={className} />,
   [IconName.ThrowPebble]: (className: string) => <ThrowPebble className={className} />,
   [IconName.Shield]: (className: string) => <Shield className={className} />,
+  [IconName.Settings]: (className: string) => <SettingsGear className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {

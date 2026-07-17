@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
 import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
@@ -9,12 +8,11 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HttpRequestTracker } from "@/client-application/ui/http-requests";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
 export const UserMenuContainer = observer(() => {
   const clientApplication = useClientApplication();
-  const { dialogs, httpRequests } = clientApplication.uiStore;
-  const showAuthForm = dialogs.isOpen(DialogElementName.Credentials);
-  const router = useRouter();
+  const { httpRequests } = clientApplication.uiStore;
   const getSessionRequestTrackerName = "get session";
   const responseTracker = httpRequests.requests[getSessionRequestTrackerName];
 
@@ -35,42 +33,22 @@ export const UserMenuContainer = observer(() => {
     }
   }, [responseTracker?.data]);
 
-  function flashHighlightAuthForm() {
-    dialogs.highlightAuthForm = true;
-    setTimeout(() => {
-      dialogs.highlightAuthForm = false;
-    }, 300);
+  if (!responseTracker || responseTracker.loading) {
+    return (
+      <div className="h-10 w-10">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
-  return !responseTracker || responseTracker?.loading ? (
-    <div className="h-10 w-10">
-      <LoadingSpinner />
-    </div>
-  ) : responseTracker?.statusCode === 200 && usernameOption ? (
-    <UserMenu username={usernameOption} />
-  ) : (
-    <ButtonBasic
-      onClick={() => {
-        router.push("/");
-        // so we don't see any old error messages
-        httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS);
-
-        if (showAuthForm) {
-          flashHighlightAuthForm();
-        } else {
-          dialogs.open(DialogElementName.Credentials);
-        }
-      }}
-    >
-      LOG IN
-    </ButtonBasic>
-  );
+  return <UserMenu username={usernameOption} />;
 });
 
 function UserMenu({ username }: { username: null | string }) {
   const clientApplication = useClientApplication();
   const { dialogs, httpRequests } = clientApplication.uiStore;
   const { session, lobbyClientRef, broadcastChannel } = clientApplication;
+  const isLoggedIn = username !== null;
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -110,6 +88,23 @@ function UserMenu({ username }: { username: null | string }) {
     setShowUserDropdown(false);
   }
 
+  function login() {
+    router.push("/");
+    // so we don't see any old error messages
+    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.SIGN_UP_WITH_CREDENTIALS);
+
+    if (dialogs.isOpen(DialogElementName.Credentials)) {
+      dialogs.highlightAuthForm = true;
+      setTimeout(() => {
+        dialogs.highlightAuthForm = false;
+      }, 300);
+    } else {
+      dialogs.open(DialogElementName.Credentials);
+    }
+
+    setShowUserDropdown(false);
+  }
+
   function closeUserMenu() {
     setShowUserDropdown(false);
   }
@@ -138,6 +133,7 @@ function UserMenu({ username }: { username: null | string }) {
       <UserMenuToggleButton
         showUserDropdown={showUserDropdown}
         setShowUserDropdown={setShowUserDropdown}
+        isLoggedIn={isLoggedIn}
         firstLetterOfUsername={firstLetterOfUsername}
       />
 
@@ -149,8 +145,11 @@ function UserMenu({ username }: { username: null | string }) {
         >
           <div className="h-14 flex items-center p-4 mb-[2px]" id="user-menu-spacer"></div>
           <div className="bg-slate-700 pointer-events-auto">
-            <div className="p-4 text-lg">{username}</div>
-            <ul id="user-menu-items" className="pointer-events-auto border-t border-slate-400">
+            {isLoggedIn && <div className="p-4 text-lg">{username}</div>}
+            <ul
+              id="user-menu-items"
+              className={`pointer-events-auto ${isLoggedIn ? "border-t border-slate-400" : ""}`}
+            >
               <UserMenuItem>
                 <button
                   className="h-full w-full flex items-center p-4"
@@ -162,22 +161,32 @@ function UserMenu({ username }: { username: null | string }) {
                   Settings
                 </button>
               </UserMenuItem>
-              <UserMenuItem>
-                <button
-                  className="h-full w-full flex items-center p-4"
-                  onClick={() => {
-                    router.push(`/profile/${username}?page=1`);
-                    setShowUserDropdown(false);
-                  }}
-                >
-                  Profile
-                </button>
-              </UserMenuItem>
-              <UserMenuItem>
-                <button className="h-full w-full flex items-center p-4" onClick={logout}>
-                  Log out
-                </button>
-              </UserMenuItem>
+              {isLoggedIn ? (
+                <>
+                  <UserMenuItem>
+                    <button
+                      className="h-full w-full flex items-center p-4"
+                      onClick={() => {
+                        router.push(`/profile/${username}?page=1`);
+                        setShowUserDropdown(false);
+                      }}
+                    >
+                      Profile
+                    </button>
+                  </UserMenuItem>
+                  <UserMenuItem>
+                    <button className="h-full w-full flex items-center p-4" onClick={logout}>
+                      Log out
+                    </button>
+                  </UserMenuItem>
+                </>
+              ) : (
+                <UserMenuItem>
+                  <button className="h-full w-full flex items-center p-4" onClick={login}>
+                    Log in
+                  </button>
+                </UserMenuItem>
+              )}
             </ul>
           </div>
         </div>
@@ -197,10 +206,12 @@ function UserMenuItem({ children }: { children: ReactNode }) {
 function UserMenuToggleButton({
   setShowUserDropdown,
   showUserDropdown,
+  isLoggedIn,
   firstLetterOfUsername,
 }: {
   setShowUserDropdown: React.Dispatch<React.SetStateAction<boolean>>;
   showUserDropdown: boolean;
+  isLoggedIn: boolean;
   firstLetterOfUsername: string;
 }) {
   return (
@@ -215,9 +226,13 @@ function UserMenuToggleButton({
         setShowUserDropdown(!showUserDropdown);
       }}
     >
-      <span className="text-lg font-bold pointer-events-none">
-        {firstLetterOfUsername.toUpperCase()}
-      </span>
+      {isLoggedIn ? (
+        <span className="text-lg font-bold pointer-events-none">
+          {firstLetterOfUsername.toUpperCase()}
+        </span>
+      ) : (
+        SVG_ICONS[IconName.Settings]("h-6 w-6 fill-slate-400 pointer-events-none")
+      )}
     </button>
   );
 }

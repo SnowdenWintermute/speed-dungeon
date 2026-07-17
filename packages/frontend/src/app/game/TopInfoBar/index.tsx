@@ -11,6 +11,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ReplayStepper } from "@/app/debug/replay-stepper";
+import { IconName, SVG_ICONS } from "@/app/icons";
 
 export const TopInfoBar = observer(() => {
   const clientApplication = useClientApplication();
@@ -49,6 +50,15 @@ export const TopInfoBar = observer(() => {
         <RoomExplorationTracker />
       )}
       <div className="absolute right-0 h-full w-fit border-slate-400 flex items-center justify-center">
+        <button
+          className="border-l border-slate-400 h-full bg-slate-700 hover:bg-slate-950 flex items-center justify-center px-3"
+          aria-label="open settings"
+          onClick={() => {
+            dialogs.toggle(DialogElementName.AppSettings);
+          }}
+        >
+          {SVG_ICONS[IconName.Settings]("h-6 w-6 fill-slate-400")}
+        </button>
         <HotkeyButton
           className="border-l border-slate-400 h-full w-full bg-slate-700 hover:bg-slate-950 pr-4 pl-4 "
           onClick={() => {

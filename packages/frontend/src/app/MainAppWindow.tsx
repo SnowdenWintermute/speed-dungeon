@@ -4,6 +4,7 @@ import React from "react";
 import { Game } from "./game";
 import { GameSetup } from "./lobby/game-setup";
 import { Lobby } from "./lobby";
+import { Settings } from "./settings";
 
 export const MainAppWindow = observer(() => {
   const clientApplication = useClientApplication();
@@ -13,11 +14,16 @@ export const MainAppWindow = observer(() => {
 
   const shouldShowGame = focusedCharacterOption !== undefined && gameOption?.clock.isLive();
 
-  return shouldShowGame ? (
-    <Game />
-  ) : gameOption ? (
-    <GameSetup gameMode={gameOption.mode} />
-  ) : (
-    <Lobby />
+  return (
+    <>
+      <Settings />
+      {shouldShowGame ? (
+        <Game />
+      ) : gameOption ? (
+        <GameSetup gameMode={gameOption.mode} />
+      ) : (
+        <Lobby />
+      )}
+    </>
   );
 });

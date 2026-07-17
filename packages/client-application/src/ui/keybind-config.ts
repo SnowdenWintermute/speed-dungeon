@@ -45,6 +45,26 @@ export enum HotkeyButtonTypes {
   CycleTargetingSchemes,
 }
 
+export const HOTKEY_BUTTON_TYPE_STRINGS: Record<HotkeyButtonTypes, string> = {
+  [HotkeyButtonTypes.ToggleInventory]: "Toggle inventory",
+  [HotkeyButtonTypes.ToggleViewEquipment]: "Toggle equipment view",
+  [HotkeyButtonTypes.EquipAltSlot]: "Equip alternate slot",
+  [HotkeyButtonTypes.DropItem]: "Drop item",
+  [HotkeyButtonTypes.ToggleViewingAbilityTree]: "Toggle ability tree",
+  [HotkeyButtonTypes.AllocateAbilityPoint]: "Allocate ability point",
+  [HotkeyButtonTypes.CycleBack]: "Cycle back",
+  [HotkeyButtonTypes.CycleForward]: "Cycle forward",
+  [HotkeyButtonTypes.CycleBackAlternate]: "Cycle back (alternate)",
+  [HotkeyButtonTypes.CycleForwardAlternate]: "Cycle forward (alternate)",
+  [HotkeyButtonTypes.Confirm]: "Confirm",
+  [HotkeyButtonTypes.Cancel]: "Cancel",
+  [HotkeyButtonTypes.TakeAllItems]: "Take all items",
+  [HotkeyButtonTypes.ViewItemsOnGround]: "View items on ground",
+  [HotkeyButtonTypes.ToggleAssignAttributesMenu]: "Toggle assign attributes menu",
+  [HotkeyButtonTypes.OpenConfirmConvertToShardMenu]: "Convert to shards",
+  [HotkeyButtonTypes.CycleTargetingSchemes]: "Cycle targeting schemes",
+};
+
 export type KeyCode = string;
 
 export const DEFAULT_KEYBINDS: Record<HotkeyButtonTypes, KeyCode[]> = {
