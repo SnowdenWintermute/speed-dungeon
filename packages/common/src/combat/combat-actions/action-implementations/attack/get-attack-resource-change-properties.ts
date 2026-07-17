@@ -72,19 +72,9 @@ export function getAttackResourceChangeProperties(
     hpChangeProperties.resourceChangeSource.kineticDamageTypeOption = KineticDamageType.Blunt;
   }
 
-  // lifesteal on the swung weapon is handled per-weapon above; here we add lifesteal granted by the
-  // wearer's other equipment (jewelry, armor, shield) so it applies to every attack they make
   const equipmentOption = user.getEquipmentOption();
   if (equipmentOption) {
-    for (const equippedItem of equipmentOption.getAllEquippedItems({
-      includeUnselectedHotswapSlots: false,
-    })) {
-      if (equippedItem.isWeapon()) continue;
-      const maybeError = equippedItem.applyTraitsToResourceChangeSource(
-        hpChangeProperties.resourceChangeSource
-      );
-      if (maybeError instanceof Error) console.error(maybeError);
-    }
+    baseValues.add(equipmentOption.getEquippedNonWeaponFlatDamageBonus());
   }
 
   baseValues.floor(1);

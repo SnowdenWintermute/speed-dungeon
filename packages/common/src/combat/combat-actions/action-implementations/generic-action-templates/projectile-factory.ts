@@ -120,6 +120,8 @@ export class ProjectileFactory {
     );
     actionEntityProperties.actionOriginData.userCombatantAttributes =
       actionUser.getTotalAttributes();
+    actionEntityProperties.actionOriginData.userEquipmentLifestealPercentage =
+      actionUser.getEquipmentLifestealPercentage();
     actionEntityProperties.actionOriginData.resourceChangeProperties =
       this.resourceChangeProperties;
 
@@ -160,6 +162,7 @@ export class ProjectileFactory {
     };
     const actionOriginData = new ActionEntityActionOriginData(actionUser.getEntityProperties());
     actionOriginData.userCombatantAttributes = actionUser.getTotalAttributes();
+    actionOriginData.userEquipmentLifestealPercentage = actionUser.getEquipmentLifestealPercentage();
     actionOriginData.resourceChangeProperties = this.resourceChangeProperties;
 
     actionEntityProperties.actionOriginData = actionOriginData;
@@ -197,6 +200,8 @@ export class ProjectileFactory {
     );
     actionEntityProperties.actionOriginData.userCombatantAttributes =
       actionUser.getTotalAttributes();
+    actionEntityProperties.actionOriginData.userEquipmentLifestealPercentage =
+      actionUser.getEquipmentLifestealPercentage();
     actionEntityProperties.actionOriginData.resourceChangeProperties =
       this.resourceChangeProperties;
 

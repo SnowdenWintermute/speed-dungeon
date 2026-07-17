@@ -53,6 +53,7 @@ export class ActionEntityActionOriginData {
   turnOrderSpeed?: number;
   stacks?: MaxAndCurrent;
   userCombatantAttributes?: CombatantAttributeRecord;
+  userEquipmentLifestealPercentage?: number;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
   resourceChangeProperties?: Partial<
@@ -97,6 +98,7 @@ export class ActionEntityActionOriginData {
       result.stacks = MaxAndCurrent.fromSerialized(serialized.stacks);
     }
     result.userCombatantAttributes = serialized.userCombatantAttributes;
+    result.userEquipmentLifestealPercentage = serialized.userEquipmentLifestealPercentage;
     result.userElementalAffinities = serialized.userElementalAffinities;
     result.userKineticAffinities = serialized.userKineticAffinities;
     result.resourceChangeProperties = serialized.resourceChangeProperties;
@@ -196,6 +198,8 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
     throw new Error("Method not implemented.");
   }
   getEquipmentOption = () => null;
+  getEquipmentLifestealPercentage = () =>
+    this.actionEntityProperties.actionOriginData?.userEquipmentLifestealPercentage ?? 0;
   getInventoryOption = () => null;
 
   getTargetingProperties(): ActionUserTargetingProperties {

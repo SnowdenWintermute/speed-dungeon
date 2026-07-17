@@ -66,6 +66,27 @@ export function givePlaytestingItems(
       })
       .build(idGenerator)
   );
+  inventory.equipment.push(
+    itemBuilder
+      .ring()
+      .suffix(AffixType.FlatDamage, {
+        combatAttributes: {},
+        tier: 1,
+        equipmentTraits: {
+          [EquipmentTraitType.FlatDamageAdditive]: {
+            equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
+            value: 10,
+          },
+        },
+      })
+      .build(idGenerator)
+  );
+
+  for (let i = 0; i < 20; i += 1) {
+    inventory.equipment.push(
+      itemBuilder.shield(Shield.LanternShield).itemLevel(7).randomizeAffixes().build(idGenerator)
+    );
+  }
   inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));
 
   const item = itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator);

@@ -35,12 +35,12 @@ export class JewelryGenerationTemplate extends EquipmentGenerationTemplate {
         case AffixType.Durability:
         case AffixType.PercentArmorClass:
           break;
+        case AffixType.FlatDamage:
         case AffixType.Hp:
         case AffixType.Vitality:
         case AffixType.Strength:
         case AffixType.Spirit:
         case AffixType.Dexterity:
-        case AffixType.FlatDamage:
           this.possibleAffixes.suffix[suffix] = 5;
       }
     }

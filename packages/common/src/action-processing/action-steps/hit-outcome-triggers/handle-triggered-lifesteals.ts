@@ -52,9 +52,15 @@ export function handleTriggeredLifesteals(
 
   const idToCreditLifesteal = actionUser.getIdOfEntityToCreditWithThreat();
 
+  // the crediting combatant may have died between dealing the hit and it resolving (ex: a projectile
+  // in flight). don't apply lifesteal to a dead or departed combatant, since healing would revive them
+  const combatantToCreditOption = party.combatantManager.getCombatantOption(idToCreditLifesteal);
+  const combatantToCreditIsAlive =
+    combatantToCreditOption !== undefined && !combatantToCreditOption.combatantProperties.isDead();
+
   // @TODO - change triggered hp changes to an array since the same action might damage the user
   // but also result in a separate lifesteal on the user
-  if (accumulatedLifeStolenResourceChange) {
+  if (accumulatedLifeStolenResourceChange && combatantToCreditIsAlive) {
     accumulatedLifeStolenResourceChange.value = Math.floor(
       accumulatedLifeStolenResourceChange.value
     );

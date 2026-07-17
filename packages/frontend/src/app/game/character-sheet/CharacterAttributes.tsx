@@ -156,6 +156,10 @@ export const CharacterAttributes = observer(
                   %
                 </div>
               </li>
+              <li className="flex justify-between">
+                <div>Lifesteal:</div>
+                <div>{combatantProperties.equipment.getEquippedLifestealPercentage()}%</div>
+              </li>
             </ul>
           </div>
         )}

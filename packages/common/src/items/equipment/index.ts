@@ -16,7 +16,6 @@ import { EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { ResourceChangeSource } from "../../combat/hp-change-source-types.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
@@ -156,21 +155,26 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     return Equipment.isTwoHandedWeaponType(equipmentType);
   }
 
-  applyTraitsToResourceChangeSource(hpChangeSource: ResourceChangeSource) {
+  getLifestealPercentage(): number {
     const lifestealAffixOption = this.affixes[AffixCategory.Prefix]?.[AffixType.LifeSteal];
+    if (!lifestealAffixOption) return 0;
 
-    if (lifestealAffixOption) {
-      const lifestealPercentageTrait =
-        lifestealAffixOption.equipmentTraits[EquipmentTraitType.LifeSteal];
-      if (!lifestealPercentageTrait)
-        return new Error(ERROR_MESSAGES.EQUIPMENT.EXPECTED_TRAIT_MISSING);
+    const lifestealPercentageTrait =
+      lifestealAffixOption.equipmentTraits[EquipmentTraitType.LifeSteal];
+    if (!lifestealPercentageTrait) return 0;
 
-      if (hpChangeSource.lifestealPercentage) {
-        hpChangeSource.lifestealPercentage += lifestealPercentageTrait.value;
-      } else {
-        hpChangeSource.lifestealPercentage = lifestealPercentageTrait.value;
-      }
-    }
+    return lifestealPercentageTrait.value;
+  }
+
+  getFlatDamageBonus(): number {
+    const flatDamageAffixOption = this.affixes[AffixCategory.Suffix]?.[AffixType.FlatDamage];
+    if (!flatDamageAffixOption) return 0;
+
+    const flatDamageTrait =
+      flatDamageAffixOption.equipmentTraits[EquipmentTraitType.FlatDamageAdditive];
+    if (!flatDamageTrait) return 0;
+
+    return flatDamageTrait.value;
   }
 
   getWeaponProperties(): Error | WeaponProperties {

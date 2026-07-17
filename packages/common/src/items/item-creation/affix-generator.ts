@@ -91,6 +91,7 @@ export class AffixGenerator {
         min = 5 * tier;
         max = 10 * tier;
       }
+
       // flat damage handled uniquely
       if (affixType === AffixType.FlatDamage) {
         const range = this.getAffixValueRange(affixType, tier, rangeMultiplier);
@@ -98,7 +99,14 @@ export class AffixGenerator {
         max = range.max;
       }
 
-      const value = randBetween((tier - 1) * 10 + 1, tier * 10, this.rngPolicy.affixValue);
+      // lifesteal handled uniquely: tier 1 lands around 5-10%, the highest tier (5) around 15-20%.
+      // two-handed weapons get the doubled rangeMultiplier so they aren't overshadowed by dual wielding
+      if (traitTypeOption === EquipmentTraitType.LifeSteal) {
+        min = Math.round(2.5 * (tier + 1) * rangeMultiplier);
+        max = Math.round(2.5 * (tier + 3) * rangeMultiplier);
+      }
+
+      const value = randBetween(min, max, this.rngPolicy.affixValue);
 
       affix.equipmentTraits[traitTypeOption] = {
         equipmentTraitType: traitTypeOption,
@@ -114,7 +122,10 @@ export class AffixGenerator {
     const possiblePrefixes = Object.keys(template.possibleAffixes.prefix).map(
       (item) => parseInt(item) as PrefixType
     );
-    const shuffledPrefixes = ArrayUtils.shuffle(possiblePrefixes, this.rngPolicy.affixTypeSelection);
+    const shuffledPrefixes = ArrayUtils.shuffle(
+      possiblePrefixes,
+      this.rngPolicy.affixTypeSelection
+    );
     for (let i = 0; i < numToCreate; i += 1) {
       const randomPrefixOption = shuffledPrefixes.pop();
       if (randomPrefixOption !== undefined) toReturn.push(randomPrefixOption);
@@ -127,7 +138,10 @@ export class AffixGenerator {
     const possibleSuffixes = Object.keys(template.possibleAffixes.suffix).map(
       (item) => parseInt(item) as SuffixType
     );
-    const shuffledSuffixes = ArrayUtils.shuffle(possibleSuffixes, this.rngPolicy.affixTypeSelection);
+    const shuffledSuffixes = ArrayUtils.shuffle(
+      possibleSuffixes,
+      this.rngPolicy.affixTypeSelection
+    );
     for (let i = 0; i < numToCreate; i += 1) {
       const randomSuffixOption = shuffledSuffixes.pop();
       if (randomSuffixOption !== undefined) toReturn.push(randomSuffixOption);

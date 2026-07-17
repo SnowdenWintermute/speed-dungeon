@@ -13,5 +13,11 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   combatantProperties.abilityProperties.setOwnedAction(
     new CombatantActionState(CombatActionName.IceBoltParent, 3)
   );
+  combatantProperties.abilityProperties.setOwnedAction(
+    new CombatantActionState(CombatActionName.ChainingSplitArrowParent, 3)
+  );
+  combatantProperties.abilityProperties.setOwnedAction(
+    new CombatantActionState(CombatActionName.Fire, 3)
+  );
   // combatantProperties.attributeProperties.changeUnspentPoints(30);
 }

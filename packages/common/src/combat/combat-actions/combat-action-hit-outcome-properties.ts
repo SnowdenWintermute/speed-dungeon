@@ -25,6 +25,8 @@ export interface CombatActionHitOutcomeProperties {
   // used for determining melee attack animation types at start of action
   // @TODO - could be used for generically adding weapon damage and kinetic types to hit outcomes
   addsPropertiesFromHoldableSlot: null | HoldableSlotType;
+  // when true, the wearer's aggregated equipment lifesteal is applied to this action's hit point damage
+  addsLifestealFromEquipment?: boolean;
   getUnmodifiedAccuracy: (user: IActionUser, actionLevel: number) => ActionAccuracy;
   getUnmodifiedCritChance: (user: IActionUser, actionLevel: number) => NormalizedPercentage | null;
   getCritMultiplier: (user: IActionUser, actionLevel: number) => NormalizedPercentage | null;

@@ -84,6 +84,18 @@ export class IncomingResourceChangesCalculator {
         continue;
       }
 
+      if (
+        hitOutcomeProperties.addsLifestealFromEquipment &&
+        actionResource === CombatActionResource.HitPoints
+      ) {
+        const equippedLifestealPercentage = user.getEquipmentLifestealPercentage();
+        if (equippedLifestealPercentage) {
+          const { resourceChangeSource } = resourceChangeProperties;
+          resourceChangeSource.lifestealPercentage =
+            (resourceChangeSource.lifestealPercentage ?? 0) + equippedLifestealPercentage;
+        }
+      }
+
       // some actions have a base multiplier, such as offhand attack
       const modified = cloneDeep(resourceChangeProperties);
       modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);

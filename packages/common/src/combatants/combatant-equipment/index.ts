@@ -171,6 +171,27 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return toReturn;
   }
 
+  getEquippedLifestealPercentage(): number {
+    let total = 0;
+    for (const equippedItem of this.getAllEquippedItems({ includeUnselectedHotswapSlots: false })) {
+      total += equippedItem.getLifestealPercentage();
+    }
+    return total;
+  }
+
+  getEquippedNonWeaponFlatDamageBonus(): number {
+    let total = 0;
+    for (const equippedItem of this.getAllEquippedItems({ includeUnselectedHotswapSlots: false })) {
+      // a weapon's own flat damage is applied per-weapon with its percent-damage modifier, so only
+      // non-weapon items (ex: the lantern shield's flat damage suffix) are aggregated here
+      if (equippedItem.isWeapon()) {
+        continue;
+      }
+      total += equippedItem.getFlatDamageBonus();
+    }
+    return total;
+  }
+
   getEquipmentInSlot(taggedSlot: TaggedEquipmentSlot) {
     switch (taggedSlot.type) {
       case EquipmentSlotType.Holdable:

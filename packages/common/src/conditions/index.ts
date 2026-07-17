@@ -218,6 +218,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   getTotalAttributes = () => this.combatAttributes || {};
   getOwnedActions = () => new Map();
   getEquipmentOption = () => null;
+  getEquipmentLifestealPercentage = () => 0;
   getInventoryOption = () => null;
   getIdOfEntityToCreditWithThreat = () => this.appliedBy.entityProperties.id;
   hasRequiredAttributesToUseItem = () => true;
