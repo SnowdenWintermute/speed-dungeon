@@ -2,7 +2,9 @@ import {
   AffixType,
   CombatantProperties,
   CombatAttribute,
+  EquipmentTraitType,
   OneHandedMeleeWeapon,
+  PREFIX_TYPES,
   Shield,
   TwoHandedRangedWeapon,
 } from "../index.js";
@@ -49,7 +51,21 @@ export function givePlaytestingItems(
       // .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
       .build(idGenerator)
   );
-  inventory.equipment.push(itemBuilder.ring().randomizeAffixes().build(idGenerator));
+  inventory.equipment.push(
+    itemBuilder
+      .ring()
+      .prefix(AffixType.LifeSteal, {
+        combatAttributes: {},
+        tier: 1,
+        equipmentTraits: {
+          [EquipmentTraitType.LifeSteal]: {
+            equipmentTraitType: EquipmentTraitType.LifeSteal,
+            value: 10,
+          },
+        },
+      })
+      .build(idGenerator)
+  );
   inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));
 
   const item = itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator);
