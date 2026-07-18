@@ -18,7 +18,12 @@ import {
   createOfflineLocalServers,
 } from "./create-offline-servers";
 import { GameClient } from "../clients/game";
-import { GAME_SERVER_TRANSITION_TIMEOUT_MS } from "../consts";
+import {
+  GAME_SERVER_TRANSITION_TIMEOUT_MS,
+  RECONNECT_ATTEMPT_TIMEOUT_MS,
+  RECONNECT_BASE_DELAY_MS,
+  RECONNECT_MAX_ATTEMPTS,
+} from "../consts";
 
 export enum ConnectionMode {
   Initializing,
@@ -42,6 +47,7 @@ export class ConnectionTopology {
   readonly transitionToGameServer = new Deferred("transitionToGameServer");
   readonly waitForReconnectionInstructions = new Deferred("waitForReconnectionInstructions");
   readonly transitionToLobbyServer = new Deferred("transitionToLobbyServer");
+  private reconnecting = false;
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -248,6 +254,70 @@ export class ConnectionTopology {
     if (this._preferredMode === ConnectionMode.Online) {
       return this.enterOnline();
     }
+  }
+
+  // Called by a client when an established connection drops abnormally (the server went away). Retries
+  // the lobby connection with exponential backoff; the lobby re-forwards to the game if it still exists.
+  handleUnexpectedDisconnect() {
+    if (this.reconnecting) {
+      return;
+    }
+    if (this._preferredMode !== ConnectionMode.Online) {
+      return;
+    }
+    this.reconnecting = true;
+    void this.runReconnectLoop();
+  }
+
+  private async runReconnectLoop() {
+    const { connectionStatus } = this.clientApplication.uiStore;
+    connectionStatus.connectionStatus = ConnectionStatus.Disconnected;
+
+    for (let attempt = 1; attempt <= RECONNECT_MAX_ATTEMPTS; attempt += 1) {
+      this.clientApplication.alertsService.setAlert(
+        `Connection lost — reconnecting (attempt ${attempt} of ${RECONNECT_MAX_ATTEMPTS})…`
+      );
+
+      const reconnected = await this.attemptReconnectOnce();
+      if (reconnected) {
+        this.reconnecting = false;
+        this.clientApplication.alertsService.setAlert("Reconnected to server");
+        return;
+      }
+
+      if (attempt < RECONNECT_MAX_ATTEMPTS) {
+        await new Promise<void>((resolve) =>
+          setTimeout(resolve, RECONNECT_BASE_DELAY_MS * 2 ** (attempt - 1))
+        );
+      }
+    }
+
+    this.reconnecting = false;
+    if (this.canEnterOffline) {
+      this.clientApplication.alertsService.setAlert("Could not reconnect — entering offline mode");
+      this.enterOffline();
+    } else {
+      this.clientApplication.alertsService.setAlert(new Error("Could not reconnect to the server"));
+    }
+  }
+
+  private attemptReconnectOnce(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      let settled = false;
+      const settle = (result: boolean) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        clearTimeout(timeout);
+        resolve(result);
+      };
+
+      const timeout = setTimeout(() => settle(false), RECONNECT_ATTEMPT_TIMEOUT_MS);
+      this.enterOnline()
+        .then(() => settle(true))
+        .catch(() => settle(false));
+    });
   }
 
   createGameClient(

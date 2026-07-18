@@ -351,4 +351,7 @@ export const WebSocketCloseCode = {
   GoingAway: 1001,
   PolicyViolation: 1008,
   InternalError: 1011,
+  // receive-only: the browser sets this on an abnormal drop with no close frame (e.g. the server
+  // process died). Cannot be sent — never pass it to ws.close(). Used only for detecting drops.
+  AbnormalClosure: 1006,
 } as const;

@@ -1,5 +1,9 @@
 export const GAME_SERVER_TRANSITION_TIMEOUT_MS = 10_000;
 
+export const RECONNECT_MAX_ATTEMPTS = 3;
+export const RECONNECT_BASE_DELAY_MS = 1_000;
+export const RECONNECT_ATTEMPT_TIMEOUT_MS = 5_000;
+
 export const HTTP_REQUEST_NAMES = {
   GET_SESSION: "get session",
   LOGIN_WITH_CREDENTIALS: "login with credentials",

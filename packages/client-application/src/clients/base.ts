@@ -5,6 +5,7 @@ import {
   ConnectionEndpointReadyState,
   GameStateUpdate,
   GameStateUpdateType,
+  WebSocketCloseCode,
 } from "@speed-dungeon/common";
 import { ClientApplication } from "..";
 import { ConnectionMode, ConnectionTopology } from "../connection-topology";
@@ -15,6 +16,7 @@ export abstract class BaseClient {
   // which is associated with our sent client intent
   private _intentSequenceCounter = 0;
   private _pendingReplies = new Map<number, () => void>();
+  private _hasOpened = false;
 
   constructor(
     protected name: string,
@@ -89,12 +91,15 @@ export abstract class BaseClient {
   }
 
   protected registerListeners() {
-    this._connectionEndpoint.on("open", () => {
+    const endpoint = this._connectionEndpoint;
+
+    endpoint.on("open", () => {
       // console.info(`connected to ${this.name}`);
       const { gameContext, uiStore } = this.clientApplication;
       gameContext.clearGame();
       this.connectionTopology.runtimeMode = this._targetConnectionMode;
       uiStore.connectionStatus.connectionStatus = ConnectionStatus.Connected;
+      this._hasOpened = true;
 
       // this.clientApplication.sequentialEventProcessor.cancelQueued();
       // this.clientApplication.sequentialEventProcessor.scheduleEvent({
@@ -107,7 +112,7 @@ export abstract class BaseClient {
       // this.dispatchIntent({ type: ClientIntentType.GetSavedCharactersList, data: undefined });
     });
 
-    this._connectionEndpoint.on("message", (untyped) => {
+    endpoint.on("message", (untyped) => {
       const typedMessage = this.getTypedMessage(untyped);
       this.clientApplication.clientLogRecorder.recordUpdateReceived(typedMessage);
       this.handleMessage(typedMessage);
@@ -115,8 +120,17 @@ export abstract class BaseClient {
       this.handleEndOfStream(typedMessage);
     });
 
-    this._connectionEndpoint.on("close", (reason) => {
-      // console.info(`closed connection endpoint with code ${reason}`);
+    endpoint.on("close", (code) => {
+      // Ignore closes from a superseded endpoint (we swap endpoints when reconnecting) and closes of a
+      // connection that never opened (initial-connect failures are handled by the connect flow itself).
+      if (endpoint !== this._connectionEndpoint || !this._hasOpened) {
+        return;
+      }
+      const serverDropped =
+        code === WebSocketCloseCode.AbnormalClosure || code === WebSocketCloseCode.GoingAway;
+      if (serverDropped) {
+        this.connectionTopology.handleUnexpectedDisconnect();
+      }
     });
   }
 
