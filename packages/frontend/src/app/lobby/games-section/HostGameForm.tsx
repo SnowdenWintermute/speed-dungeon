@@ -1,5 +1,4 @@
 import {
-  CharacterControlScheme,
   ClientIntentType,
   GAME_MODE_STRINGS,
   GameMode,
@@ -41,7 +40,7 @@ export const HostGameForm = observer(() => {
       data: {
         gameName,
         mode: selectedGameMode,
-        controlScheme: CharacterControlScheme.Captain,
+        controlScheme: clientApplication.lobbyContext.selectedControlScheme,
         continueGameId: selectedSavedIronmanRun || undefined,
       },
     });

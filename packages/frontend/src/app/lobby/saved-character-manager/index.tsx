@@ -1,7 +1,6 @@
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { Vector3 } from "@babylonjs/core";
 import {
-  CharacterControlScheme,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   GameMode,
   NextOrPrevious,
@@ -18,7 +17,6 @@ import { observer } from "mobx-react-lite";
 import { CHARACTER_SLOT_SPACING } from "@/client-consts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { keyValueToDisplayString } from "@/client-application/ui/keyboard-layouts";
 
@@ -29,9 +27,7 @@ export const SavedCharacterManager = observer(() => {
   const { lobbyContext, uiStore } = clientApplication;
 
   const savedCharacters =
-    lobbyContext.savedCharacters.byControlScheme[
-      lobbyContext.savedCharacters.selectedCharacterControlScheme
-    ];
+    lobbyContext.savedCharacters.byControlScheme[lobbyContext.selectedControlScheme];
 
   const selectedCharacterOption = savedCharacters[currentSlot];
   const { dialogs, keybinds } = uiStore;
@@ -60,23 +56,6 @@ export const SavedCharacterManager = observer(() => {
   return (
     <>
       <div className="w-full h-full absolute">
-        <div className="absolute w-32 left-1/3 -translate-x-10 top-1/2 -translate-y-1/2">
-          <SelectDropdown
-            title={"Control Scheme"}
-            value={lobbyContext.savedCharacters.selectedCharacterControlScheme}
-            setValue={(value) => {
-              lobbyContext.savedCharacters.selectedCharacterControlScheme = value;
-              clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
-                { softCleanup: false }
-              );
-            }}
-            options={[
-              { title: "Freelancer", value: CharacterControlScheme.Freelancer },
-              { title: "Captain", value: CharacterControlScheme.Captain },
-            ]}
-            disabled={undefined}
-          />
-        </div>
         {savedCharacters.map((character) => {
           const { combatant } = character;
 
@@ -185,7 +164,7 @@ export const SavedCharacterManager = observer(() => {
               <DeleteCharacterForm character={selectedCharacterOption.combatant} />
             ) : (
               <CreateCharacterForm
-                controlScheme={lobbyContext.savedCharacters.selectedCharacterControlScheme}
+                controlScheme={lobbyContext.selectedControlScheme}
               />
             )}
           </div>

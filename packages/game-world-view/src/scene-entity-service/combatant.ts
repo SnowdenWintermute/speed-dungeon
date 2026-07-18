@@ -186,7 +186,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { lobbyContext } = this.clientApplication;
     const { savedCharacters } = lobbyContext;
     const savedCharactersToDisplay =
-      savedCharacters.byControlScheme[savedCharacters.selectedCharacterControlScheme];
+      savedCharacters.byControlScheme[lobbyContext.selectedControlScheme];
 
     for (const character of savedCharactersToDisplay) {
       result.set(character.combatant.getEntityId(), character.combatant);
