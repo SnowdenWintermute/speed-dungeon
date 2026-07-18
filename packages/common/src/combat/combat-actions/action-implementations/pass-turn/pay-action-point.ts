@@ -33,7 +33,6 @@ const config: CombatActionComponentConfig = {
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},
       [ActionResolutionStepType.PayResourceCosts]: {},
-      [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},
     },
     {
       [ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock]: {},

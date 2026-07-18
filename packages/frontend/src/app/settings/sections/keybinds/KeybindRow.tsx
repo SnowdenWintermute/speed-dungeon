@@ -49,16 +49,10 @@ export const KeybindRow = observer(({ buttonType, isCapturing, onAssign, onAdd }
             ))
           )}
         </div>
-        <button
-          className="px-2 border-l border-slate-400 hover:bg-slate-950"
-          onClick={onAdd}
-        >
+        <button className="px-2 border-l border-slate-400 hover:bg-slate-950" onClick={onAdd}>
           Add
         </button>
-        <button
-          className="px-2 border-l border-slate-400 hover:bg-slate-950"
-          onClick={onAssign}
-        >
+        <button className="px-2 border-l border-slate-400 hover:bg-slate-950" onClick={onAssign}>
           Assign
         </button>
         <button

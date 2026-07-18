@@ -4,10 +4,7 @@ import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { DEFAULT_KEYBIND_CODES, HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import {
-  KEYBOARD_LAYOUT_STRINGS,
-  KeyboardLayout,
-} from "@/client-application/ui/keyboard-layouts";
+import { KEYBOARD_LAYOUT_STRINGS, KeyboardLayout } from "@/client-application/ui/keyboard-layouts";
 import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
 import { KeybindRow } from "./KeybindRow";
 import { KeybindCaptureMode, useKeybindCapture } from "./use-keybind-capture";
@@ -24,23 +21,8 @@ export const KeybindsSection = observer(() => {
   );
 
   return (
-    <div className="flex flex-col" style={{ width: `450px` }}>
-      <div className="flex items-center justify-between mb-2 h-10">
-        <span>Keyboard layout (sets default suggestions)</span>
-        <SelectDropdown
-          key={`${keybinds.getSelectedLayout()}-${pendingLayout ?? "none"}`}
-          title="keyboard layout"
-          value={keybinds.getSelectedLayout()}
-          setValue={(layout) => {
-            if (layout !== keybinds.getSelectedLayout()) {
-              setPendingLayout(layout as KeyboardLayout);
-            }
-          }}
-          options={layoutOptions}
-          disabled={false}
-        />
-      </div>
-      <ul className="">
+    <div className="flex w-full h-full max-w-full">
+      <ul className="max-w-[720px] min-w-[600px] flex-1 overflow-y-auto mr-4">
         {iterateNumericEnumKeyedRecord(DEFAULT_KEYBIND_CODES)
           .filter((element) => element[0] !== HotkeyButtonTypes.Cancel)
           .map(([buttonType]) => (
@@ -57,14 +39,31 @@ export const KeybindsSection = observer(() => {
             />
           ))}
       </ul>
-      <button
-        className="h-10 mt-2 border border-slate-400 self-end px-4 hover:bg-slate-950"
-        onClick={() => {
-          keybinds.resetDefaults();
-        }}
-      >
-        Reset all to defaults
-      </button>
+      <div className="min-w-[360px]">
+        <div className="flex flex-col justify-between mb-2 ">
+          <div className="mb-2">Keyboard layout (sets default suggestions)</div>
+          <SelectDropdown
+            key={`${keybinds.getSelectedLayout()}-${pendingLayout ?? "none"}`}
+            title="keyboard layout"
+            value={keybinds.getSelectedLayout()}
+            setValue={(layout) => {
+              if (layout !== keybinds.getSelectedLayout()) {
+                setPendingLayout(layout as KeyboardLayout);
+              }
+            }}
+            options={layoutOptions}
+            disabled={false}
+          />
+        </div>
+        <button
+          className="h-10 mt-2 border border-slate-400 self-end px-4 hover:bg-slate-950"
+          onClick={() => {
+            keybinds.resetDefaults();
+          }}
+        >
+          Reset all to defaults
+        </button>
+      </div>
 
       {pendingLayout !== null && (
         <LayoutChangeConfirmationModal

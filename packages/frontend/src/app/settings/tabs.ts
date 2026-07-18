@@ -1,6 +1,6 @@
 export enum SettingsTab {
-  Account,
   Keybinds,
+  Account,
 }
 
 export const SETTINGS_TAB_STRINGS: Record<SettingsTab, string> = {

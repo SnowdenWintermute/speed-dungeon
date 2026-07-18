@@ -4,11 +4,11 @@ import { CombatActionCostPropertiesConfig } from "../../../combat-action-cost-pr
 export const BASE_SPELL_MANA_COST_BASES = {
   base: 0.25,
   multipliers: {
-    actionLevel: 1.1,
-    userCombatantLevel: 0.75,
+    actionLevel: 1.2,
+    userCombatantLevel: 1,
   },
   additives: {
-    actionLevel: 2,
+    actionLevel: 1,
     userCombatantLevel: 0,
   },
 };
