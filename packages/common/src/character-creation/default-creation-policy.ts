@@ -42,12 +42,12 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     this.appendStartingEquipment(combatantClass, builder);
     this.appendStartingConsumables(builder);
 
-    builder.ownedAction(CombatActionName.Fire, 2);
+    // builder.ownedAction(CombatActionName.Fire, 2);
 
     const result = builder.build(this.idGenerator);
 
-    setPlaytestingCombatantProperties(result.combatantProperties);
-    givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
+    // setPlaytestingCombatantProperties(result.combatantProperties);
+    // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
     const character: CombatantWithPets = { combatant: result, pets: [] };
 

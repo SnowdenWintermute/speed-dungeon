@@ -40,6 +40,9 @@ export const HotkeyButton = observer((props: Props) => {
             !disabled &&
             !props.ariaDisabled
           ) {
+            // consume the keystroke so it can't also be typed into an input that this
+            // action focuses (e.g. opening a modal whose field auto-focuses)
+            e.preventDefault();
             //@ts-ignore
             props.onClick(new MouseEvent("mouseup"));
           }

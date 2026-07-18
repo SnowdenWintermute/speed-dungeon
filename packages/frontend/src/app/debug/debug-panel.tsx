@@ -9,12 +9,13 @@ import ClearDebugLogButton from "./clear-debug-log-button";
 import { formatThousandsAsK } from "@speed-dungeon/common";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
     const clientApplication = useClientApplication();
     const { uiStore, gameWorldView, imageStore, clientLogRecorder } = clientApplication;
-    const { dialogs, inputs } = uiStore;
+    const { dialogs, inputs, keybinds } = uiStore;
     const itemThumbnails = imageStore.getItemThumbnails();
     const showDebug = dialogs.isOpen(DialogElementName.Debug);
     const hotkeysDisabled = inputs.getHotkeysDisabled();
@@ -45,7 +46,8 @@ export const DebugPanel = observer(
 
     useEffect(() => {
       keydownListenerRef.current = function (e: KeyboardEvent) {
-        if (normalizeKeyValue(e.key) !== "p" || hotkeysDisabled) return;
+        const debugToggleKeys = keybinds.getKeybind(HotkeyButtonTypes.ToggleDebugMenu);
+        if (!debugToggleKeys.includes(normalizeKeyValue(e.key)) || hotkeysDisabled) return;
 
         dialogs.toggle(DialogElementName.Debug);
         const showDebug = dialogs.isOpen(DialogElementName.Debug);

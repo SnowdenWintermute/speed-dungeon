@@ -1,14 +1,25 @@
 import { useEffect, useState } from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
+
+export enum KeybindCaptureMode {
+  Assign,
+  Add,
+}
+
+interface CaptureState {
+  buttonType: HotkeyButtonTypes;
+  mode: KeybindCaptureMode;
+}
 
 export function useKeybindCapture() {
   const clientApplication = useClientApplication();
   const { keybinds, inputs } = clientApplication.uiStore;
-  const [capturingFor, setCapturingFor] = useState<HotkeyButtonTypes | null>(null);
+  const [capturing, setCapturing] = useState<CaptureState | null>(null);
 
   useEffect(() => {
-    if (capturingFor === null) {
+    if (capturing === null) {
       return;
     }
     const previousHotkeysDisabled = inputs.getHotkeysDisabled();
@@ -16,10 +27,14 @@ export function useKeybindCapture() {
 
     const listener = (e: KeyboardEvent) => {
       e.preventDefault();
-      if (e.code !== "Escape") {
-        keybinds.setKeybind(capturingFor, e.code);
+      if (normalizeKeyValue(e.key) !== "escape") {
+        if (capturing.mode === KeybindCaptureMode.Assign) {
+          keybinds.setKeybind(capturing.buttonType, e.key);
+        } else {
+          keybinds.addKeybind(capturing.buttonType, e.key);
+        }
       }
-      setCapturingFor(null);
+      setCapturing(null);
     };
     window.addEventListener("keydown", listener, { capture: true });
 
@@ -27,11 +42,15 @@ export function useKeybindCapture() {
       window.removeEventListener("keydown", listener, { capture: true });
       inputs.setHotkeysDisabled(previousHotkeysDisabled);
     };
-  }, [capturingFor, inputs, keybinds]);
+  }, [capturing, inputs, keybinds]);
 
-  function toggleCapture(buttonType: HotkeyButtonTypes) {
-    setCapturingFor((current) => (current === buttonType ? null : buttonType));
+  function startCapture(buttonType: HotkeyButtonTypes, mode: KeybindCaptureMode) {
+    setCapturing((current) =>
+      current !== null && current.buttonType === buttonType && current.mode === mode
+        ? null
+        : { buttonType, mode }
+    );
   }
 
-  return { capturingFor, toggleCapture };
+  return { capturingButtonType: capturing?.buttonType ?? null, startCapture };
 }

@@ -29,7 +29,7 @@ export const Settings = observer(() => {
     .filter(([, requiresAuth]) => isLoggedIn || !requiresAuth)
     .map(([tab]) => tab);
 
-  const defaultTab = isLoggedIn ? SettingsTab.Account : SettingsTab.Keybinds;
+  const defaultTab = SettingsTab.Keybinds;
   const selectedTab =
     selectedTabState !== null && visibleTabs.includes(selectedTabState)
       ? selectedTabState
@@ -38,7 +38,7 @@ export const Settings = observer(() => {
   return (
     <section
       aria-label="settings menu"
-      className={`fixed inset-0 bg-slate-700 pointer-events-auto`}
+      className={`fixed inset-0 bg-slate-700 pointer-events-auto flex flex-col`}
       style={{ zIndex: ZIndexLayers.SettingsMenu }}
     >
       <div
@@ -59,7 +59,10 @@ export const Settings = observer(() => {
         </HotkeyButton>
       </div>
       <SettingsTabBar tabs={visibleTabs} selectedTab={selectedTab} onSelectTab={setSelectedTab} />
-      <div className="flex flex-col" style={{ padding: `${SPACING_REM_SMALL}rem` }}>
+      <div
+        className="flex flex-col flex-1 min-h-0 overflow-y-auto"
+        style={{ padding: `${SPACING_REM_SMALL}rem` }}
+      >
         {selectedTab === SettingsTab.Account && <AccountSection />}
         {selectedTab === SettingsTab.Keybinds && <KeybindsSection />}
       </div>
