@@ -21,7 +21,6 @@ import { AbilityType } from "../../../../abilities/ability-types.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { COMBATANT_MAX_LEVEL } from "../../../../app-consts.js";
 import { CombatActionName } from "../../combat-action-names.js";
-import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionComponentConfig } from "../../index.js";
@@ -30,8 +29,25 @@ import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
 import { CombatantId } from "../../../../aliases.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { invariant } from "../../../../utils/index.js";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 2 },
+    [2]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 1 },
+  },
+
+  getResourceCosts: (user, inCombat, actionRank, self) => {
+    const userOwnedRank = user.getCombatantProperties().abilityProperties.getAbilityRank({
+      type: AbilityType.Action,
+      actionName: CombatActionName.SummonPetParent,
+    });
+    const value = self.costProperties.costsByRank[userOwnedRank];
+    invariant(value !== undefined);
+    return value;
+  },
   requiresCombatTurnInThisContext: () => false,
   getMeetsCustomRequirements: (user, party) => {
     const occupiedPetSlotsCount = party.petManager.getOwnerOccupiedPetSlotsCount(
@@ -49,15 +65,6 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     }
 
     return { meetsRequirements: true };
-  },
-  costBases: {
-    [CombatActionResource.Mana]: {
-      base: 2,
-      additives: {
-        actionLevel: 0,
-        userCombatantLevel: 0,
-      },
-    },
   },
 };
 

@@ -26,9 +26,16 @@ import { getEnsnaredEvasionChange } from "../../../../conditions/configs/ensnare
 import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
-const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 2, [ActionPayableResource.ActionPoints]: 1 },
+    [2]: { [ActionPayableResource.Mana]: 4, [ActionPayableResource.ActionPoints]: 1 },
+    [3]: { [ActionPayableResource.Mana]: 6, [ActionPayableResource.ActionPoints]: 1 },
+  },
+};
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 const hitOutcomeProperties = createHitOutcomeProperties(

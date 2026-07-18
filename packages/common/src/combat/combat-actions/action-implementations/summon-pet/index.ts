@@ -30,6 +30,7 @@ import { CombatActionExecutionIntent } from "../../combat-action-execution-inten
 import { invariant } from "../../../../utils/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { AbilityType } from "../../../../abilities/ability-types.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -57,15 +58,6 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
-  costBases: {
-    [ActionPayableResource.Mana]: {
-      base: 2,
-      additives: {
-        actionLevel: 0,
-        userCombatantLevel: 0,
-      },
-    },
-  },
   getMeetsCustomRequirements: (user, party) => {
     const { combatantManager } = party;
     for (const combatant of combatantManager.getPartyMemberPets()) {
@@ -75,6 +67,21 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     }
 
     return { meetsRequirements: true };
+  },
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 2 },
+    [2]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 1 },
+  },
+
+  getResourceCosts: (user, inCombat, actionRank, self) => {
+    const userOwnedRank = user.getCombatantProperties().abilityProperties.getAbilityRank({
+      type: AbilityType.Action,
+      actionName: CombatActionName.SummonPetParent,
+    });
+    const value = self.costProperties.costsByRank[userOwnedRank];
+    invariant(value !== undefined);
+    return value;
   },
 };
 

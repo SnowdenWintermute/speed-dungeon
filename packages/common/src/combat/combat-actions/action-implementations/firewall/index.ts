@@ -2,7 +2,10 @@ import cloneDeep from "lodash.clonedeep";
 import { AbilityType } from "../../../../abilities/ability-types.js";
 import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
-import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
 import { createHitOutcomeProperties } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { FIREWALL_BURN_HIT_OUTCOME_PROPERTIES } from "./firewall-burn-hit-outcome-properties.js";
@@ -17,6 +20,7 @@ import {
   createGenericSpellCastMessageProperties,
 } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 // clone burn hit outcomes for the action description
 // and add an on use trigger to change the stacks/level of an existing firewall
@@ -92,7 +96,13 @@ const config: CombatActionComponentConfig = {
   }),
 
   hitOutcomeProperties,
-  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(),
+  costProperties: createCostPropertiesConfig(() => COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL(), {
+    costsByRank: {
+      [1]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 1 },
+      [2]: { [ActionPayableResource.Mana]: 7, [ActionPayableResource.ActionPoints]: 2 },
+      [3]: { [ActionPayableResource.Mana]: 13, [ActionPayableResource.ActionPoints]: 2 },
+    },
+  }),
   stepsConfig: FIREWALL_STEPS_CONFIG,
   hierarchyProperties: BASE_ACTION_HIERARCHY_PROPERTIES,
 };

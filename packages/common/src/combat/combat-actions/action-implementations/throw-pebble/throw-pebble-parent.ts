@@ -30,11 +30,12 @@ import {
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { ActionRank } from "../../../../aliases.js";
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  costBases: {
-    [ActionPayableResource.ActionPoints]: { base: 2 },
+  costsByRank: {
+    [1 as ActionRank]: { [ActionPayableResource.ActionPoints]: 2 },
   },
 };
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);

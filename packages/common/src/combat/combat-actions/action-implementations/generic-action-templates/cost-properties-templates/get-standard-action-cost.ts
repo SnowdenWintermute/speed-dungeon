@@ -1,48 +1,36 @@
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
-import { MAX_ACTION_POINTS_COST } from "../../../../../app-consts.js";
 import { iterateNumericEnumKeyedRecord } from "../../../../../utils/index.js";
-import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
+import { ActionPayableResource, ActionResourceCosts } from "../../../action-calculation-utils/action-costs.js";
 import { CombatActionComponent } from "../../../index.js";
+import { ActionRank } from "../../../../../aliases.js";
 
 export function getStandardActionCost(
-  user: IActionUser,
+  _user: IActionUser,
   inCombat: boolean,
-  actionLevel: number,
+  actionRank: ActionRank,
   self: CombatActionComponent
-) {
+): ActionResourceCosts | null {
   // we may need to check costs of actions they don't technically own,
   // such as "attack melee offhand" which is a triggered child action but
   // not actually an action they can "own" or ask to use independantly
 
-  let toReturn: Partial<Record<ActionPayableResource, number>> | null = {};
-  const { costBases } = self.costProperties;
-
-  for (const [payableResourceType, costBase] of iterateNumericEnumKeyedRecord(costBases)) {
-    if (payableResourceType === ActionPayableResource.ActionPoints && !inCombat) continue;
-    let cost = costBase.base;
-
-    if (costBase.multipliers) {
-      if (costBase.multipliers.actionLevel) cost *= costBase.multipliers.actionLevel * actionLevel;
-      if (costBase.multipliers.userCombatantLevel)
-        cost *= costBase.multipliers.userCombatantLevel * user.getLevel();
-    }
-
-    if (costBase.additives) {
-      if (costBase.additives.actionLevel) cost += costBase.additives.actionLevel * actionLevel;
-      if (costBase.additives.userCombatantLevel)
-        cost += costBase.additives.userCombatantLevel * user.getLevel();
-    }
-
-    cost = Math.floor(cost);
-    if (payableResourceType === ActionPayableResource.ActionPoints) {
-      cost = Math.min(cost, MAX_ACTION_POINTS_COST);
-    }
-    cost *= -1;
-
-    toReturn[payableResourceType] = cost;
+  const costsForRank = self.costProperties.costsByRank[actionRank];
+  if (costsForRank === undefined) {
+    return null;
   }
 
-  if (Object.keys(toReturn).length === 0) toReturn = null;
+  const toReturn: ActionResourceCosts = {};
+
+  for (const [payableResourceType, cost] of iterateNumericEnumKeyedRecord(costsForRank)) {
+    if (payableResourceType === ActionPayableResource.ActionPoints && !inCombat) {
+      continue;
+    }
+    toReturn[payableResourceType] = cost * -1;
+  }
+
+  if (Object.keys(toReturn).length === 0) {
+    return null;
+  }
 
   return toReturn;
 }

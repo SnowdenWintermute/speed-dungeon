@@ -44,9 +44,9 @@ export function createCostPropertiesConfig(
         ...overrides.incursDurabilityLoss?.[EquipmentSlotType.Holdable],
       },
     },
-    costBases: {
-      ...base.costBases,
-      ...overrides.costBases,
+    costsByRank: {
+      ...base.costsByRank,
+      ...overrides.costsByRank,
     },
   };
 }

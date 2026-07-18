@@ -29,14 +29,10 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 };
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  getResourceCosts: (user, inCombat, selectedActionLevel, self) => {
-    if (selectedActionLevel === 1) {
-      return { [ActionPayableResource.Mana]: -1, [ActionPayableResource.ActionPoints]: -1 };
-    } else if (selectedActionLevel === 2) {
-      return { [ActionPayableResource.Mana]: -3, [ActionPayableResource.ActionPoints]: -2 };
-    } else {
-      return { [ActionPayableResource.Mana]: -5, [ActionPayableResource.ActionPoints]: -1 };
-    }
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 1, [ActionPayableResource.ActionPoints]: 1 },
+    [2]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 1 },
   },
 };
 

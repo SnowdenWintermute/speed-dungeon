@@ -20,6 +20,7 @@ import { ActionResolutionStepType } from "../../../../action-processing/action-s
 import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.PROJECTILE_SPELL();
 
@@ -61,7 +62,13 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;
-const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 4, [ActionPayableResource.ActionPoints]: 2 },
+    [2]: { [ActionPayableResource.Mana]: 9, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 15, [ActionPayableResource.ActionPoints]: 2 },
+  },
+};
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 
 const config: CombatActionComponentConfig = {

@@ -10,7 +10,6 @@ import {
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { TargetingScheme } from "../../targeting-schemes-and-categories.js";
-import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 import {
   CombatActionGameLogProperties,
   createGenericSpellCastMessageProperties,
@@ -27,9 +26,7 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   },
 };
 
-const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  costBases: { [ActionPayableResource.Mana]: { base: 1 } },
-};
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_SPELL;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 

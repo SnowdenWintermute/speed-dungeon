@@ -46,8 +46,8 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
 
     const result = builder.build(this.idGenerator);
 
-    // setPlaytestingCombatantProperties(result.combatantProperties);
-    // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
+    setPlaytestingCombatantProperties(result.combatantProperties);
+    givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
     const character: CombatantWithPets = { combatant: result, pets: [] };
 

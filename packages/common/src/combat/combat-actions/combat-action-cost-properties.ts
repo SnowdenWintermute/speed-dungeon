@@ -8,7 +8,7 @@ import {
   WearableSlotType,
 } from "../../items/equipment/slots.js";
 import {
-  ActionResourceCostBases,
+  ActionCostsByRank,
   ActionResourceCosts,
 } from "./action-calculation-utils/action-costs.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
@@ -20,7 +20,7 @@ export interface CombatActionCostPropertiesConfig {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  costBases: ActionResourceCostBases;
+  costsByRank: ActionCostsByRank;
   getResourceCosts: (
     user: IActionUser,
     inCombat: boolean,

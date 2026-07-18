@@ -1,13 +1,3 @@
-export interface CombatActionCostBase {
-  base: number;
-  multipliers?: CombatActionCostModifiers;
-  additives?: CombatActionCostModifiers;
-}
-export interface CombatActionCostModifiers {
-  actionLevel?: number;
-  userCombatantLevel?: number;
-}
-
 export enum ActionPayableResource {
   HitPoints,
   Mana,
@@ -22,6 +12,6 @@ export const ACTION_PAYABLE_RESOURCE_STRINGS: Record<ActionPayableResource, stri
   [ActionPayableResource.ActionPoints]: "Action Points",
 };
 
-export type ActionResourceCostBases = Partial<Record<ActionPayableResource, CombatActionCostBase>>;
-
 export type ActionResourceCosts = Partial<Record<ActionPayableResource, number>>;
+
+export type ActionCostsByRank = Partial<Record<number, ActionResourceCosts>>;

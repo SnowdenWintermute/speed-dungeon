@@ -11,12 +11,17 @@ import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionComponentConfig } from "../../index.js";
 import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { ActionRank } from "../../../../aliases.js";
 
 const clonedConfig = cloneDeep(passTurnConfig);
 
 const costProperties = createCostPropertiesConfig(COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION, {
   requiresCombatTurnInThisContext: () => false,
   getEndsTurnOnUse: () => false,
+  costsByRank: {
+    [1 as ActionRank]: { [ActionPayableResource.ActionPoints]: 1 },
+  },
 });
 
 const config: CombatActionComponentConfig = {

@@ -26,7 +26,6 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { ActionStepConfigUtils } from "../generic-action-templates/step-config-templates/utils.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
-import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
@@ -57,15 +56,6 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
-  costBases: {
-    [CombatActionResource.Mana]: {
-      base: 0,
-      additives: {
-        actionLevel: 0,
-        userCombatantLevel: 0,
-      },
-    },
-  },
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;

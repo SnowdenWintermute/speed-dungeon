@@ -117,7 +117,7 @@ export const MONSTER_FIXTURES = {
       .name("Test Spider")
       .explicitAttributes()
       .attribute(CombatAttribute.Hp, 12)
-      .attribute(CombatAttribute.Mp, 2)
+      .attribute(CombatAttribute.Mp, 4)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Dexterity, 10)
       .attribute(CombatAttribute.Accuracy, 100)

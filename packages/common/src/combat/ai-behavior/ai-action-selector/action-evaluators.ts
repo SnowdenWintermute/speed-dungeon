@@ -75,7 +75,9 @@ export const ACTION_EVALUATORS: Record<ActionEvaluatorTypes, AiActionEvaluator> 
     const filtered = intents.filter((intent) => {
       const action = COMBAT_ACTIONS[intent.actionName];
       const isMalicious = action.targetingProperties.intent === CombatActionIntent.Malicious;
-      const costsMana = action.costProperties.costBases[ActionPayableResource.Mana] !== undefined;
+      const costsMana = Object.values(action.costProperties.costsByRank).some(
+        (costsForRank) => costsForRank?.[ActionPayableResource.Mana] !== undefined
+      );
       return costsMana && isMalicious;
     });
 

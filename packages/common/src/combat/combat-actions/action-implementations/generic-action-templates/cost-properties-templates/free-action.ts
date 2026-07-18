@@ -2,7 +2,7 @@ import { CombatActionCostPropertiesConfig } from "../../../combat-action-cost-pr
 
 export const FREE_ACTION_COST_PROPERTIES_CONFIG: CombatActionCostPropertiesConfig = {
   incursDurabilityLoss: {},
-  costBases: {},
+  costsByRank: {},
   getResourceCosts: () => null,
   getConsumableCost: () => null,
   getEndsTurnOnUse: () => false,
