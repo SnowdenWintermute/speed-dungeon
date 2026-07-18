@@ -139,7 +139,24 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     }
   }
 
+  // in-flight spawns only enter `sceneEntities` after their assets load and they register, so
+  // overlapping syncs can't see each other's models to despawn them. Chain runs so each one
+  // starts against the fully-registered result of the previous one.
+  private synchronizeChain: Promise<void> = Promise.resolve();
+
   async synchronizeCombatantModels(options: {
+    softCleanup?: boolean;
+    placeInHomePositions?: boolean;
+    onComplete?: () => void;
+  }) {
+    const run = this.synchronizeChain.then(() =>
+      this.runSynchronizeCombatantModels(options)
+    );
+    this.synchronizeChain = run.catch(() => {});
+    return run;
+  }
+
+  private async runSynchronizeCombatantModels(options: {
     softCleanup?: boolean;
     placeInHomePositions?: boolean;
     onComplete?: () => void;
