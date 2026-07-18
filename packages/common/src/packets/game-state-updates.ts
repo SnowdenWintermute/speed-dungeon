@@ -380,10 +380,12 @@ export class GameListEntry {
 
 export enum GameClosedReason {
   PlayerLeftGame,
+  GameNoLongerExists,
 }
 
 export const GAME_CLOSED_REASON_STRINGS: Record<GameClosedReason, string> = {
   [GameClosedReason.PlayerLeftGame]: "Player left game",
+  [GameClosedReason.GameNoLongerExists]: "Game no longer exists",
 };
 
 export class BattleReport {

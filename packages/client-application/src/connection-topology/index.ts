@@ -227,6 +227,9 @@ export class ConnectionTopology {
   }
 
   connectWithPrefferedMode() {
+    // if we were mid-transition to a game server (e.g. the game no longer exists), abandon it so the
+    // "connecting to game" billboard doesn't stay up over the lobby we're returning to
+    this.clientApplication.topologyManager.transitionToGameServer.disarm();
     this.clientApplication.topologyManager.transitionToLobbyServer.arm({
       timeoutMs: GAME_SERVER_TRANSITION_TIMEOUT_MS,
       onSuccess: () => {},
