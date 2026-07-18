@@ -16,12 +16,13 @@ import {
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
-import { CombatantCondition, CombatantConditionName } from "../../../../index.js";
+import { CombatantCondition, CombatantConditionName, CombatAttribute } from "../../../../index.js";
+import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 hitOutcomeOverrides.getArmorPenetration = (user, actionLevel, self) => 15;
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
-  [CombatActionResource.HitPoints]: (user) => {
+  [CombatActionResource.HitPoints]: (user, hitOutomeProperties, actionLevel) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {
       category: ResourceChangeSourceCategory.Physical,
       kineticDamageTypeOption: KineticDamageType.Piercing,
@@ -30,14 +31,26 @@ hitOutcomeOverrides.resourceChangePropertiesGetters = {
       lifestealPercentage: null,
     };
 
+    const baseValues = new NumberRange(2, 5);
+
     let stacks = 1;
     if (user instanceof CombatantCondition) {
       stacks = user.stacksOption?.current || 1;
     }
 
-    const userLevel = user.getLevel();
+    baseValues.min *= stacks;
+    baseValues.max *= stacks;
 
-    const baseValues = new NumberRange(userLevel * stacks, userLevel * stacks * 10);
+    const userTotalAttributes = user.getTotalAttributes();
+    addCombatantLevelScaledAttributeToRange({
+      range: baseValues,
+      userTotalAttributes,
+      userLevel: actionLevel,
+      attribute: CombatAttribute.Spirit,
+      normalizedAttributeScalingByCombatantLevel: 1,
+    });
+
+    baseValues.floor(1);
 
     const resourceChangeSource = new ResourceChangeSource(hpChangeSourceConfig);
     const hpChangeProperties: CombatActionResourceChangeProperties = {

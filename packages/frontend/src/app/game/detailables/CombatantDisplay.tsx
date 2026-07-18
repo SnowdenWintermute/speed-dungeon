@@ -56,7 +56,7 @@ export const CombatantDisplay = observer(({ combatant }: Props) => {
             traitProperties={combatantProperties.abilityProperties.getTraitProperties()}
           />
           {modelAttributions.length > 0 && (
-            <div className="absolute bottom-0 right-0 flex flex-col items-end">
+            <div className="absolute bottom-0 left-0 flex flex-col items-end">
               {modelAttributions.map((attribution) => (
                 <HoverableTooltipWrapper
                   key={attribution.name}

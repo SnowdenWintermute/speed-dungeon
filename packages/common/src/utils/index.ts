@@ -83,7 +83,10 @@ export function stringIsValidNumber(str: string) {
 
 export function createDummyConsumable(consumableType: ConsumableType) {
   return new Consumable(
-    { name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName, id: "" as EntityId },
+    {
+      name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName,
+      id: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityId,
+    },
     0,
     {},
     consumableType,
@@ -222,19 +225,21 @@ export function cloneObservable<T>(cls: new (...args: any[]) => T, obj: T): T {
 /** The idea is that two attributes contribute well if they are balanced, otherwise there is a penalty but they
  * still contribute */
 export function calculateBalancedAttributeSynergy(attributeA: number, attributeB: number): number {
-  const balanced = Math.min(attributeA, attributeB);
-  const excess = Math.abs(attributeA - attributeB);
+  // Base value is additive when stats are equal
+  const base = attributeA + attributeB;
 
-  // The balanced portion contributes fully from both attributes
-  const base = balanced * 2;
+  // Calculate imbalance
+  const diff = Math.abs(attributeA - attributeB);
 
-  // Must stay below 2 / ln(2), otherwise raising the lower attribute loses more
-  // excess bonus than it gains base and the function stops being monotonic
-  const excessCoefficient = 2;
+  // Tunable penalty coefficient (higher = stronger punishment)
+  const penaltyCoefficient = 4.5;
 
-  const excessContribution = Math.log1p(excess) * excessCoefficient;
+  // Apply logarithmic reduction scaled by coefficient
+  const imbalancePenalty = Math.log1p(diff) * penaltyCoefficient;
 
-  return Math.max(1, Math.round(base + excessContribution));
+  const total = base - imbalancePenalty;
+
+  return Math.max(1, Math.round(total));
 }
 
 export function removeUndefinedFields<T extends object>(obj: T): T {

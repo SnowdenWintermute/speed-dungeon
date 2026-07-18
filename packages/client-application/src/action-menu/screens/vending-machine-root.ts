@@ -52,9 +52,10 @@ export class OperatingVendingMachineActionMenuScreen extends ActionMenuScreen {
         title: "Trade for Books",
         onClick: () => actionMenu.pushFromPool(ActionMenuScreenType.SelectingBookType),
         disabledCondition: () => {
-          const party = this.clientApplication.gameContext.requireParty();
-          const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
-          return Math.floor(vendingMachineLevel / 2) < 1;
+          return false;
+          // const party = this.clientApplication.gameContext.requireParty();
+          // const vendingMachineLevel = party.dungeonExplorationManager.getCurrentFloor();
+          // return Math.floor(vendingMachineLevel / 2) < 1;
         },
       },
     ];

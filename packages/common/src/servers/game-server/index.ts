@@ -14,7 +14,10 @@ import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js
 import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
-import { GameServerReconnectionProtocol } from "./reconnection/index.js";
+import {
+  GameServerConnectionContext,
+  GameServerReconnectionProtocol,
+} from "./reconnection/index.js";
 import { ConnectionContextType } from "../reconnection-protocol/index.js";
 import { ConnectionEndpoint } from "../../transport/connection-endpoint.js";
 import { DungeonExplorationController } from "./controllers/dungeon-exploration.js";
@@ -267,13 +270,24 @@ export class GameServer extends SpeedDungeonServer {
         throw new Error("should have been set from their token in createSession");
       }
 
-      const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
+      let connectionContext: GameServerConnectionContext = {
+        type: ConnectionContextType.InitialConnection,
+      };
 
-      const gameIsInProgress = existingGame.clock.isLive();
-      const connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
-        session,
-        gameIsInProgress
-      );
+      try {
+        const existingGame = await this.gameLifecycleController.getOrInitializeGame(gameName);
+        const gameIsInProgress = existingGame.clock.isLive();
+        connectionContext = await this.reconnectionProtocol.evaluateConnectionContext(
+          session,
+          gameIsInProgress
+        );
+      } catch (err) {
+        console.info(
+          "Error getting connection context, setting to InitialConnection and setting session current game to null",
+          err
+        );
+        session.currentGameId = null;
+      }
 
       let isPreemption = false;
       if (connectionContext.type === ConnectionContextType.GameServerReconnection) {

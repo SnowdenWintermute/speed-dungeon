@@ -19,6 +19,7 @@ export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
   [MonsterType.Spider]: {},
   [MonsterType.Slime]: {
     [MagicalElement.Fire]: 50,
+    [MagicalElement.Ice]: -25,
   },
   [MonsterType.Zombie]: UNDEAD_ELEMENTAL_AFFINITIES,
   [MonsterType.SkeletonWarrior]: UNDEAD_ELEMENTAL_AFFINITIES,

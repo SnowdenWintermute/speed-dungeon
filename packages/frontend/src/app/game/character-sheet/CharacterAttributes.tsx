@@ -122,7 +122,9 @@ export const CharacterAttributes = observer(
               <li className="flex justify-between">
                 <div>Kinetic crit evasion:</div>
                 <div>
-                  {Math.floor(combatantProperties.mitigationProperties.getKineticCritEvasion() * 100)}
+                  {Math.floor(
+                    combatantProperties.mitigationProperties.getKineticCritEvasion() * 100
+                  )}
                   %
                 </div>
               </li>
@@ -163,7 +165,7 @@ export const CharacterAttributes = observer(
             </ul>
           </div>
         )}
-        <div className="absolute bottom-2 right-2">
+        <div className="absolute bottom-2 right-2 z-10">
           <HotkeyButton
             className="border px-2 border-slate-400"
             onClick={() => setViewingOtherPage(!viewingOtherPage)}

@@ -86,7 +86,8 @@ export class IncomingResourceChangesCalculator {
 
       if (
         hitOutcomeProperties.addsLifestealFromEquipment &&
-        actionResource === CombatActionResource.HitPoints
+        actionResource === CombatActionResource.HitPoints &&
+        !resourceChangeProperties.resourceChangeSource.isHealing
       ) {
         const equippedLifestealPercentage = user.getEquipmentLifestealPercentage();
         if (equippedLifestealPercentage) {

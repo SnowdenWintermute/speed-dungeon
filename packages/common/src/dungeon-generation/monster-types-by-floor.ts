@@ -17,9 +17,9 @@ export const FALLBACK_MONSTER_SPAWN_TABLE = [
 export const MONSTER_SPAWN_TABLES: Record<number, MonsterSpawnEntry[]> = {
   1: FALLBACK_MONSTER_SPAWN_TABLE,
   2: [
-    { monster: MonsterType.Slime, weight: 20 },
+    { monster: MonsterType.Slime, weight: 10 },
     { monster: MonsterType.Zombie, weight: 30 },
-    { monster: MonsterType.SkeletonWarrior, weight: 10 },
+    { monster: MonsterType.SkeletonWarrior, weight: 20 },
     { monster: MonsterType.Wolf, weight: 40 },
   ],
   3: [
