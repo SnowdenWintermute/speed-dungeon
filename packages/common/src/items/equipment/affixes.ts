@@ -6,6 +6,16 @@ export enum AffixCategory {
   Suffix,
 }
 
+export interface WeightedAffixCategory {
+  affixCategory: AffixCategory;
+  weight: number;
+}
+
+export interface GuaranteedAffixes {
+  slots: number;
+  weightedCategories: WeightedAffixCategory[];
+}
+
 export enum AffixType {
   Mp,
   FlatArmorClass,

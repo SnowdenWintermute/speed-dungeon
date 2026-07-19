@@ -5,6 +5,7 @@ import {
   Affix,
   AffixCategory,
   EquipmentAffixes,
+  GuaranteedAffixes,
   PrefixType,
   SuffixType,
 } from "../../equipment/affixes.js";
@@ -67,11 +68,12 @@ export abstract class EquipmentBuilder {
     return this;
   }
 
-  randomizeAffixes(): this {
+  randomizeAffixes(guaranteedAffixes?: GuaranteedAffixes): this {
     this._affixes = this.randomizer.rollAffixes(
       this.template,
       this._itemLevel,
-      this.baseEquipment.equipmentType
+      this.baseEquipment.equipmentType,
+      { guaranteedAffixes }
     );
     return this;
   }

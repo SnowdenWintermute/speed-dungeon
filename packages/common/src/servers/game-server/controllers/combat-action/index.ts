@@ -25,7 +25,7 @@ import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
-import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../../../../items/loot-generation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import {
   ClientSequentialEvent,

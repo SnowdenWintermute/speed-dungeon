@@ -6,7 +6,7 @@ import { AnimationLengths, BoundingBoxSizes } from "../types.js";
 import { IdGenerator } from "../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../utility-classes/random-number-generation-policy.js";
 import { ActionSequenceManagerRegistry } from "./action-sequence-manager-registry.js";
-import { LootGenerator } from "../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../items/loot-generation/loot-generator.js";
 import {
   NestedNodeReplayEvent,
   NestedNodeReplayEventUtls,

@@ -27,7 +27,7 @@ import { DungeonExplorationController } from "./controllers/dungeon-exploration.
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equipment-randomizer.js";
 import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
-import { LootGenerator } from "../../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../../items/loot-generation/loot-generator.js";
 import { AssetService } from "../services/assets/index.js";
 import { AssetAnalyzer } from "./asset-analyzer/index.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";

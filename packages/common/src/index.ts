@@ -39,6 +39,7 @@ export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
 export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
+export * from "./monsters/monster-reward-profiles.js";
 
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
@@ -219,6 +220,8 @@ export * from "./conditions/index.js";
 export * from "./conditions/condition-factory.js";
 
 export * from "./items/item-creation/affix-generator.js";
+export * from "./items/loot-generation/loot-generator.js";
+export * from "./items/loot-generation/reward-profile.js";
 export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";

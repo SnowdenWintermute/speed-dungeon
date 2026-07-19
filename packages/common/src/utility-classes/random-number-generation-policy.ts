@@ -28,8 +28,11 @@ export function rollIsSuccess(props: {
 
 export interface RandomNumberGenerationPolicy {
   // Item/Loot generation
-  lootTableSelection: RandomNumberGenerator;
   consumableTypeFallback: RandomNumberGenerator;
+  lootDropRuleChance: RandomNumberGenerator;
+  lootDropQuantity: RandomNumberGenerator;
+  lootItemLevelRoll: RandomNumberGenerator;
+  lootItemSelection: RandomNumberGenerator;
   // Equipment base properties
   equipmentBaseProperties: RandomNumberGenerator;
   equipmentGenerationDurability: RandomNumberGenerator;
@@ -39,6 +42,7 @@ export interface RandomNumberGenerationPolicy {
   affixTypeSelection: RandomNumberGenerator;
   affixTier: RandomNumberGenerator;
   affixValue: RandomNumberGenerator;
+  guaranteedAffixCategoryDraw: RandomNumberGenerator;
   // Combat
   hitChance: RandomNumberGenerator;
   criticalStrike: RandomNumberGenerator;
@@ -59,6 +63,7 @@ export interface RandomNumberGenerationPolicy {
   // World generation
   dungeonLayout: RandomNumberGenerator;
   monsterEquipment: RandomNumberGenerator;
+  monsterGenerationTypeSelection: RandomNumberGenerator;
 }
 
 export class RandomNumberGenerationPolicyFactory {
@@ -67,8 +72,11 @@ export class RandomNumberGenerationPolicyFactory {
   ): RandomNumberGenerationPolicy {
     const basic = new BasicRandomNumberGenerator();
     return {
-      lootTableSelection: basic,
       consumableTypeFallback: basic,
+      lootDropRuleChance: basic,
+      lootDropQuantity: basic,
+      lootItemLevelRoll: basic,
+      lootItemSelection: basic,
       equipmentBaseProperties: basic,
       equipmentGenerationDurability: basic,
       magicalDetermination: basic,
@@ -76,6 +84,7 @@ export class RandomNumberGenerationPolicyFactory {
       affixTypeSelection: basic,
       affixTier: basic,
       affixValue: basic,
+      guaranteedAffixCategoryDraw: basic,
       hitChance: basic,
       criticalStrike: basic,
       parry: basic,
@@ -92,6 +101,7 @@ export class RandomNumberGenerationPolicyFactory {
       consumableEffect: basic,
       dungeonLayout: basic,
       monsterEquipment: basic,
+      monsterGenerationTypeSelection: basic,
       ...overrides,
     };
   }
@@ -102,8 +112,11 @@ export class RandomNumberGenerationPolicyFactory {
   ): RandomNumberGenerationPolicy {
     const fixed = new FixedNumberGenerator(value);
     return {
-      lootTableSelection: fixed,
       consumableTypeFallback: fixed,
+      lootDropRuleChance: fixed,
+      lootDropQuantity: fixed,
+      lootItemLevelRoll: fixed,
+      lootItemSelection: fixed,
       equipmentBaseProperties: fixed,
       equipmentGenerationDurability: fixed,
       magicalDetermination: fixed,
@@ -111,6 +124,7 @@ export class RandomNumberGenerationPolicyFactory {
       affixTypeSelection: fixed,
       affixTier: fixed,
       affixValue: fixed,
+      guaranteedAffixCategoryDraw: fixed,
       hitChance: fixed,
       criticalStrike: fixed,
       parry: fixed,
@@ -127,6 +141,7 @@ export class RandomNumberGenerationPolicyFactory {
       consumableEffect: fixed,
       dungeonLayout: fixed,
       monsterEquipment: fixed,
+      monsterGenerationTypeSelection: fixed,
       ...overrides,
     };
   }

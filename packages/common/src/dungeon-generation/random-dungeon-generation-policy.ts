@@ -3,16 +3,13 @@ import { EMPTY_ROOMS_PER_FLOOR, GAME_CONFIG } from "../app-consts.js";
 import { Combatant } from "../combatants/index.js";
 import { MonsterGenerator } from "../monsters/monster-generator.js";
 import { ArrayUtils } from "../utils/array-utils.js";
+import { invariant } from "../utils/index.js";
 import {
   DungeonGenerationPolicy,
   DungeonRoomWithMonsters,
   ExplicitCombatantDungeonTemplate,
 } from "./index.js";
-import {
-  FALLBACK_MONSTER_SPAWN_TABLE,
-  MONSTER_SPAWN_TABLES,
-  pickWeighted,
-} from "./monster-types-by-floor.js";
+import { FALLBACK_MONSTER_SPAWN_TABLE, MONSTER_SPAWN_TABLES } from "./monster-types-by-floor.js";
 
 export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private monsterGenerator = new MonsterGenerator(
@@ -68,7 +65,12 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     const floorSpawnTable = MONSTER_SPAWN_TABLES[floorLevel];
 
     for (let i = 0; i < GAME_CONFIG.MONSTERS_PER_ROOM_COUNT; i += 1) {
-      const monsterType = pickWeighted(floorSpawnTable || FALLBACK_MONSTER_SPAWN_TABLE).monster;
+      const spawnEntry = ArrayUtils.chooseWeighted(
+        floorSpawnTable || FALLBACK_MONSTER_SPAWN_TABLE,
+        this.rngPolicy.monsterGenerationTypeSelection
+      );
+      invariant(spawnEntry !== undefined);
+      const monsterType = spawnEntry.monster;
       const newMonster = this.monsterGenerator.generate(monsterType, floorLevel);
       monsters.push(newMonster);
     }

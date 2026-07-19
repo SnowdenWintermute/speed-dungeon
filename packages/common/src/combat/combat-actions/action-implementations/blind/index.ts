@@ -15,6 +15,7 @@ import {
   createGenericSpellCastMessageProperties,
 } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   // ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(),
@@ -26,7 +27,13 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
   },
 };
 
-const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {};
+const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 2, [ActionPayableResource.ActionPoints]: 1 },
+    [2]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 10, [ActionPayableResource.ActionPoints]: 1 },
+  },
+};
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_SPELL;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
 

@@ -1,5 +1,4 @@
 import { MonsterType } from "../monsters/monster-types.js";
-import { invariant } from "../utils/index.js";
 
 export interface MonsterSpawnEntry {
   monster: MonsterType;
@@ -7,11 +6,11 @@ export interface MonsterSpawnEntry {
 }
 
 export const FALLBACK_MONSTER_SPAWN_TABLE = [
-  { monster: MonsterType.Wolf, weight: 35 },
-  { monster: MonsterType.Zombie, weight: 35 },
-  // { monster: MonsterType.SkeletonWarrior, weight: 10 },
-  { monster: MonsterType.VampireBat, weight: 30 },
-  // { monster: MonsterType.Zombie, weight: 100 },
+  // { monster: MonsterType.Wolf, weight: 35 },
+  // { monster: MonsterType.Zombie, weight: 35 },
+  // // { monster: MonsterType.SkeletonWarrior, weight: 10 },
+  // { monster: MonsterType.VampireBat, weight: 30 },
+  { monster: MonsterType.TyrantRex, weight: 100 },
 ];
 
 export const MONSTER_SPAWN_TABLES: Record<number, MonsterSpawnEntry[]> = {
@@ -31,25 +30,6 @@ export const MONSTER_SPAWN_TABLES: Record<number, MonsterSpawnEntry[]> = {
     { monster: MonsterType.SkeletonCaptain, weight: 10 },
   ],
 };
-
-// could move this to utils
-export function pickWeighted<T extends { weight: number }>(items: readonly T[]): T {
-  const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
-
-  let roll = Math.random() * totalWeight;
-
-  for (const item of items) {
-    roll -= item.weight;
-    if (roll < 0) {
-      return item;
-    }
-  }
-
-  const value = items[items.length - 1];
-  invariant(value !== undefined);
-
-  return value;
-}
 
 function validateMonsterTables(tables: Record<number, readonly MonsterSpawnEntry[]>): void {
   for (const [floor, entries] of Object.entries(tables)) {

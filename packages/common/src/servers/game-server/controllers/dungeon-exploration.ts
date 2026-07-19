@@ -8,7 +8,7 @@ import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.
 import { GameMode } from "../../../game-modes/index.js";
 import { PartyFateType } from "../../../game-modes/ladder-records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../../../items/loot-generation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";

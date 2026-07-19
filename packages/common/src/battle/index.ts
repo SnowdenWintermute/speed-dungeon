@@ -15,7 +15,8 @@ import {
 import { CombatantId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
-import { LootGenerator } from "../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../items/loot-generation/loot-generator.js";
+import { getMonsterRewardProfile } from "../monsters/monster-reward-profiles.js";
 import { PartyWipes } from "../types.js";
 import { generateExperiencePoints } from "../servers/game-server/controllers/battle-processor/generate-experience-points.js";
 
@@ -169,32 +170,13 @@ export class Battle implements Serializable, ReactiveNode {
       this.party.setBattleId(null);
     } else {
       conclusion = BattleConclusion.Victory;
-      loot = lootGenerator.generateLoot(
-        this.party.combatantManager.getDungeonControlledCombatants().length,
-        this.party.dungeonExplorationManager.getCurrentFloor()
-      );
-      experiencePointChanges = generateExperiencePoints(this.party);
-      this.party.inputLock.unlockInput();
-
-      if (loot) {
-        const items = [...loot.consumables, ...loot.equipment];
-        this.party.currentRoom.inventory.insertItems(items);
-      }
-      applyExperiencePointChanges(this.party, experiencePointChanges);
-      levelUps = this.calculateLevelupsOnBattleEnd();
-      // until revive spell/consumables are added, res dead characters to 1 hp
-      revivedCharacterIds = this.reviveCharactersOnPartyVictory();
-      const conditionRemovalsAndTriggeredActions =
-        this.party.getBranchingActionsFromConditionsRemovedOnBattleEnd();
-      const { conditionIdsRemoved, branchingActions } = conditionRemovalsAndTriggeredActions;
-      removedConditionIds = conditionIdsRemoved;
-      branchingActionsResult.push(...branchingActions);
-
-      const battleIdToRemoveOption = this.party.battleId;
-      this.party.setBattleId(null);
-      if (battleIdToRemoveOption !== null) {
-        this.game.battles.delete(battleIdToRemoveOption);
-      }
+      const victory = this.handleBattleVictory(lootGenerator);
+      loot = victory.loot;
+      experiencePointChanges = victory.experiencePointChanges;
+      levelUps = victory.levelUps;
+      revivedCharacterIds = victory.revivedCharacterIds;
+      removedConditionIds = victory.removedConditionIds;
+      branchingActionsResult.push(...victory.branchingActions);
     }
 
     const actionEntitiesRemoved =
@@ -211,6 +193,67 @@ export class Battle implements Serializable, ReactiveNode {
       levelUps,
       timestamp: Date.now(),
     };
+  }
+
+  private handleBattleVictory(lootGenerator: LootGenerator): {
+    loot: { equipment: Equipment[]; consumables: Consumable[] };
+    experiencePointChanges: Record<CombatantId, number>;
+    levelUps: Record<EntityId, number>;
+    revivedCharacterIds: CombatantId[];
+    removedConditionIds: { conditionId: EntityId; fromCombatantId: CombatantId }[];
+    branchingActions: ActionIntentAndUser[];
+  } {
+    const loot = this.generateVictoryLoot(lootGenerator);
+    const experiencePointChanges = generateExperiencePoints(this.party);
+    this.party.inputLock.unlockInput();
+
+    const items = [...loot.consumables, ...loot.equipment];
+    this.party.currentRoom.inventory.insertItems(items);
+
+    applyExperiencePointChanges(this.party, experiencePointChanges);
+    const levelUps = this.calculateLevelupsOnBattleEnd();
+    // until revive spell/consumables are added, res dead characters to 1 hp
+    const revivedCharacterIds = this.reviveCharactersOnPartyVictory();
+    const { conditionIdsRemoved, branchingActions } =
+      this.party.getBranchingActionsFromConditionsRemovedOnBattleEnd();
+
+    const battleIdToRemoveOption = this.party.battleId;
+    this.party.setBattleId(null);
+    if (battleIdToRemoveOption !== null) {
+      this.game.battles.delete(battleIdToRemoveOption);
+    }
+
+    return {
+      loot,
+      experiencePointChanges,
+      levelUps,
+      revivedCharacterIds,
+      removedConditionIds: conditionIdsRemoved,
+      branchingActions,
+    };
+  }
+
+  private generateVictoryLoot(lootGenerator: LootGenerator): {
+    equipment: Equipment[];
+    consumables: Consumable[];
+  } {
+    const floorLevel = this.party.dungeonExplorationManager.getCurrentFloor();
+    const defeatedMonsters = this.party.combatantManager.getDungeonControlledCombatants();
+    const equipment: Equipment[] = [];
+    const consumables: Consumable[] = [];
+
+    for (const monster of defeatedMonsters) {
+      const { monsterType } = monster.combatantProperties;
+      if (monsterType === null) {
+        continue;
+      }
+      const rewardProfile = getMonsterRewardProfile(monsterType);
+      const monsterLoot = lootGenerator.generateLootFromProfile(rewardProfile, floorLevel);
+      equipment.push(...monsterLoot.equipment);
+      consumables.push(...monsterLoot.consumables);
+    }
+
+    return { equipment, consumables };
   }
 }
 

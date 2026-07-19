@@ -26,7 +26,7 @@ import {
 } from "@speed-dungeon/common";
 import { GAME_SERVER_NAME } from "./main.js";
 
-export const MANUAL_TEST_MODE = true;
+export const MANUAL_TEST_MODE = false;
 
 const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
 export function setGameServerNodeManualTestProperties(
