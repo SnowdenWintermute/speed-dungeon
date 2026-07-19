@@ -3,6 +3,7 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
   getResourceCostsBasedOnOwnedRank,
+  getResourceCostsByRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -43,6 +44,10 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 
   getResourceCosts: (user, inCombat, actionRank, self) => {
     return getResourceCostsBasedOnOwnedRank(user, self.name, self, inCombat);
+  },
+
+  getDescriptionResourceCosts: (user, actionLevel, self) => {
+    return getResourceCostsByRank(actionLevel, self, true);
   },
   requiresCombatTurnInThisContext: () => false,
   getMeetsCustomRequirements: (user, party) => {

@@ -102,6 +102,13 @@ export abstract class CombatActionComponent {
       ...config.costProperties,
       getResourceCosts: (user: IActionUser, inCombat: boolean, actionLevel: ActionRank) =>
         config.costProperties.getResourceCosts(user, inCombat, actionLevel, this),
+      getDescriptionResourceCosts: config.costProperties.getDescriptionResourceCosts
+        ? (user: IActionUser, actionLevel: ActionRank) => {
+            return (
+              config.costProperties.getDescriptionResourceCosts?.(user, actionLevel, this) || null
+            );
+          }
+        : undefined,
     };
 
     this.stepsConfig = config.stepsConfig;

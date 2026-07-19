@@ -15,8 +15,8 @@ import { CombatActionName } from "../../../combat-action-names.js";
 import { AbilityType } from "../../../../../abilities/ability-types.js";
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { CombatActionComponent } from "../../../index.js";
-import { invariant } from "../../../../../utils/index.js";
 import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
+import { ActionRank } from "../../../../../aliases.js";
 
 export const COST_PROPERTIES_TEMPLATE_GETTERS = {
   BASIC_ACTION: () => cloneDeep(BASIC_ACTION_COST_PROPERTIES_CONFIG),
@@ -68,6 +68,22 @@ export function getResourceCostsBasedOnOwnedRank(
     actionName,
   });
   let value = cloneDeep(actionComponent.costProperties.costsByRank[userOwnedRank]);
+  if (value === undefined) {
+    value = {};
+  }
+
+  if (!inCombat) {
+    delete value[ActionPayableResource.ActionPoints];
+  }
+  return value;
+}
+
+export function getResourceCostsByRank(
+  rank: ActionRank,
+  actionComponent: CombatActionComponent,
+  inCombat: boolean
+) {
+  let value = cloneDeep(actionComponent.costProperties.costsByRank[rank]);
   if (value === undefined) {
     value = {};
   }

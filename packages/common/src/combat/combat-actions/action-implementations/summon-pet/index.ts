@@ -9,6 +9,7 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
   getResourceCostsBasedOnOwnedRank,
+  getResourceCostsByRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,

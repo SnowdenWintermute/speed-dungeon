@@ -94,10 +94,13 @@ export class ActionDescription {
   }
 
   getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionRank: ActionRank) {
-    const { combatantProperties } = user;
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 
-    const resourceCosts = costProperties.getResourceCosts(user, true, actionRank);
+    let resourceCosts = costProperties.getDescriptionResourceCosts?.(user, actionRank);
+    console.log("resourceCosts:", resourceCosts, "for", this.getName());
+    if (resourceCosts === undefined) {
+      resourceCosts = costProperties.getResourceCosts(user, true, actionRank);
+    }
 
     const critChanceOption = this.combatAction.getCritChance(user, actionRank);
     const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(user, actionRank);
