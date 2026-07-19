@@ -97,7 +97,6 @@ export class ActionDescription {
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 
     let resourceCosts = costProperties.getDescriptionResourceCosts?.(user, actionRank);
-    console.log("resourceCosts:", resourceCosts, "for", this.getName());
     if (resourceCosts === undefined) {
       resourceCosts = costProperties.getResourceCosts(user, true, actionRank);
     }

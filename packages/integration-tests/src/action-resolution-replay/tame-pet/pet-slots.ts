@@ -28,7 +28,9 @@ export async function testPetSlotLimitations(testFixture: IntegrationTestFixture
   const { gameContext, combatantFocus } = clientApplication;
   const party = gameContext.requireParty();
   const game = gameContext.requireGame();
+
   await gameClientHarness.toggleReadyToExplore();
+
   const battle = party.getBattleOption(game);
   invariant(battle !== null, "no battle");
 
@@ -39,13 +41,19 @@ export async function testPetSlotLimitations(testFixture: IntegrationTestFixture
     ERROR_MESSAGES.COMBAT_ACTIONS.PET_SLOTS_FULL(1)
   );
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+
   const petTamer = combatantFocus.requireFocusedCharacter();
+  console.log("pet tamer id:", petTamer.getEntityId());
+
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(1);
   await gameClientHarness.useCombatAction(CombatActionName.ReleasePet, 1);
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(0);
   await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+
   await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
   // higher rank allows taming additional slot
   expect(clientApplication.errorRecordService.getLastError()?.message).toBe(

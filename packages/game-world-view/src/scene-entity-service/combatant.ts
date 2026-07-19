@@ -149,9 +149,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     placeInHomePositions?: boolean;
     onComplete?: () => void;
   }) {
-    const run = this.synchronizeChain.then(() =>
-      this.runSynchronizeCombatantModels(options)
-    );
+    const run = this.synchronizeChain.then(() => this.runSynchronizeCombatantModels(options));
     this.synchronizeChain = run.catch(() => {});
     return run;
   }
@@ -162,7 +160,6 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     onComplete?: () => void;
   }) {
     const modelsAndPositions = this.getCombatantsInGameWorld();
-    console.log("modelsAndPositions", [...modelsAndPositions.keys()]);
     this.despawnCombatantModelsExclusive(new Set(modelsAndPositions.keys()), {
       softCleanup: !!options.softCleanup,
     });

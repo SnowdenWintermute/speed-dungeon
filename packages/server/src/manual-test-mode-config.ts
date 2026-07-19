@@ -21,6 +21,7 @@ import {
   ScriptedDungeonGenerationPolicy,
   TEST_DUNGEON_MANTA_TWO_WOLF,
   TEST_DUNGEON_TWO_SPIDER_ROOMS,
+  TEST_DUNGEON_TWO_WOLF_ROOMS,
   TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { GAME_SERVER_NAME } from "./main.js";
@@ -57,7 +58,7 @@ export function setGameServerNodeManualTestProperties(
   );
 
   // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
-  // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
+  server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
   // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_ONE_HP_WOLVES);
   // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
   // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_MANTAS);
@@ -70,7 +71,7 @@ export function setGameServerNodeManualTestProperties(
   // server.dungeonGenerationPolicy.setExplicitFloors(
   //   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA
   // );
-  server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
+  // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
   // server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
   return server;
 }

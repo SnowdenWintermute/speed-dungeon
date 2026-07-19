@@ -65,7 +65,7 @@ export class ClientApplication {
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly imageStore = new ImageStore();
-  readonly uiStore = new UiStore();
+  readonly uiStore = new UiStore(this);
   readonly ladderRecordsStore = new LadderRecordsStore(this);
   readonly itemCommands = new ItemCommands(this);
   readonly dragService = new ItemDragService(this);

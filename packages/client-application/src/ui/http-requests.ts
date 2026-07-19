@@ -1,5 +1,7 @@
-import { invariant } from "@speed-dungeon/common";
+import { ERROR_MESSAGES, invariant } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
+import { ClientApplication } from "..";
+import { GameLogMessage, GameLogMessageStyle } from "../event-log/game-log-messages";
 
 export class HttpRequestTracker {
   constructor() {
@@ -35,7 +37,7 @@ export class HttpRequestTracker {
 /** We are acting under the assumption that requests made with this store
 will send responses that conform to our own custom error responses */
 export class HttpRequestStore {
-  constructor() {
+  constructor(private clientApplication: ClientApplication) {
     makeAutoObservable(this);
   }
   requests: { [url: string]: HttpRequestTracker } = {};
@@ -44,11 +46,33 @@ export class HttpRequestStore {
     delete this.requests[url];
   }
 
+  handleNetworkError(error: Error) {
+    console.error(error);
+    this.clientApplication.alertsService.setAlert(
+      new Error(ERROR_MESSAGES.CLIENT.NETWORK_REQUEST_FAILED),
+      false
+    );
+    this.clientApplication.eventLogStore.postMessage(
+      new GameLogMessage(ERROR_MESSAGES.CLIENT.NETWORK_REQUEST_FAILED, GameLogMessageStyle.Basic)
+    );
+  }
+
   fetchData = async (key: string, url: string, options: RequestInit) => {
     const tracker = new HttpRequestTracker();
     this.requests[key] = tracker;
 
-    const response = await fetch(url, options);
+    let response: Response;
+    try {
+      response = await fetch(url, options);
+    } catch (caught) {
+      const error = caught instanceof Error ? caught : new Error(ERROR_MESSAGES.CLIENT.NETWORK_REQUEST_FAILED);
+      tracker.setLoading(false);
+      tracker.setOk(false);
+      tracker.errors = [{ message: ERROR_MESSAGES.CLIENT.NETWORK_REQUEST_FAILED }];
+      this.handleNetworkError(error);
+      return;
+    }
+
     tracker.setOk(response.ok);
     tracker.setLoading(false);
     tracker.setStatusCode(response.status);

@@ -26,6 +26,7 @@ export const ERROR_MESSAGES = {
     REQUIRED: "Only a logged in user may perform that action",
   },
   CLIENT: {
+    NETWORK_REQUEST_FAILED: "A network request failed. The server may be temporarily unavailable.",
     NO_CURRENT_GAME: "This client has no current game",
     NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
     NO_USERNAME: "Client doesn't know it's own username",

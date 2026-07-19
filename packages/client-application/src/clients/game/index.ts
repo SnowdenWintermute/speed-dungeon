@@ -60,7 +60,6 @@ export class GameClient extends BaseClient {
       type: ClientIntentType.LeaveGame,
       data: undefined,
     });
-    console.log("leaveGameIntentId:", leaveGameIntentId);
     const gotLeftGameConfirmation = this.waitForServerReply(leaveGameIntentId);
     this.clientApplication.reconnectionTokenStore.clearGuestGameReconnectionToken();
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
@@ -73,7 +72,6 @@ export class GameClient extends BaseClient {
 
     gameWorldView?.environment.groundPlane.drawCharacterSlots();
 
-    console.log("awaiting gotLeftGameConfirmation:");
     await gotLeftGameConfirmation;
     this.close();
     this.clientApplication.topologyManager.connectWithPrefferedMode();
