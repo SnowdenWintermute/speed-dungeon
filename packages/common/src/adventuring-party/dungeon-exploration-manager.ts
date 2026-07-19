@@ -7,6 +7,8 @@ import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { Milliseconds } from "../aliases.js";
+import type { MonsterSpawnEntry } from "../dungeon-generation/monster-types-by-floor.js";
+import type { MonsterType } from "../monsters/monster-types.js";
 
 export class DungeonExplorationManager implements Serializable, ReactiveNode {
   private currentFloor: number = 1;
@@ -14,6 +16,8 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
   private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 0 };
   private unexploredRooms: DungeonRoomType[] = [];
   private clientCurrentFloorRoomsList: (null | DungeonRoomType)[] = [];
+  private currentFloorPalette: MonsterSpawnEntry[] = [];
+  private currentFloorBoss: MonsterType | null = null;
   private playerExplorationActionChoices: Record<ExplorationAction, string[]> = {
     [ExplorationAction.Descend]: [],
     [ExplorationAction.Explore]: [],
@@ -30,6 +34,8 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
       roomsExplored: { ...this.roomsExplored },
       unexploredRooms: [...this.unexploredRooms],
       clientCurrentFloorRoomsList: [...this.clientCurrentFloorRoomsList],
+      currentFloorPalette: this.currentFloorPalette.map((entry) => ({ ...entry })),
+      currentFloorBoss: this.currentFloorBoss,
       playerExplorationActionChoices: {
         [ExplorationAction.Explore]: [
           ...this.playerExplorationActionChoices[ExplorationAction.Explore],
@@ -41,10 +47,13 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
     };
   }
 
-  // unexploredRooms is server-only hidden info: players are meant to discover a floor's
-  // rooms by exploring, so it must never be sent to clients.
   toSerializedForClient(): SerializedOf<DungeonExplorationManager> {
-    return { ...this.toSerialized(), unexploredRooms: [] };
+    return {
+      ...this.toSerialized(),
+      unexploredRooms: [],
+      currentFloorPalette: [],
+      currentFloorBoss: null,
+    };
   }
 
   static fromSerialized(serialized: SerializedOf<DungeonExplorationManager>) {
@@ -54,6 +63,8 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
     result.roomsExplored = { ...serialized.roomsExplored };
     result.unexploredRooms = [...serialized.unexploredRooms];
     result.clientCurrentFloorRoomsList = [...serialized.clientCurrentFloorRoomsList];
+    result.currentFloorPalette = serialized.currentFloorPalette.map((entry) => ({ ...entry }));
+    result.currentFloorBoss = serialized.currentFloorBoss;
     result.playerExplorationActionChoices = {
       [ExplorationAction.Explore]: [
         ...serialized.playerExplorationActionChoices[ExplorationAction.Explore],
@@ -109,17 +120,37 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
     this.unexploredRooms.push(...value);
   }
 
-  /** We only want the client to know about the monster lairs. They will discover other room types as they enter them. */
+  /** The client only learns about combat rooms up front (so it can show a boss is coming). Other
+   * room types stay hidden until entered. */
   getFilteredNewRoomListForClient() {
     const newRoomTypesListForClientOption: (DungeonRoomType | null)[] = this.unexploredRooms.map(
       (roomType) => {
-        if (roomType === DungeonRoomType.MonsterLair) return roomType;
-        else return null;
+        if (roomType === DungeonRoomType.MonsterLair || roomType === DungeonRoomType.BossLair) {
+          return roomType;
+        } else {
+          return null;
+        }
       }
     );
 
     newRoomTypesListForClientOption.reverse();
     return newRoomTypesListForClientOption;
+  }
+
+  getCurrentFloorPalette() {
+    return this.currentFloorPalette;
+  }
+
+  setCurrentFloorPalette(palette: MonsterSpawnEntry[]) {
+    this.currentFloorPalette = palette;
+  }
+
+  getCurrentFloorBoss() {
+    return this.currentFloorBoss;
+  }
+
+  setCurrentFloorBoss(boss: MonsterType | null) {
+    this.currentFloorBoss = boss;
   }
 
   popNextUnexploredRoomType() {

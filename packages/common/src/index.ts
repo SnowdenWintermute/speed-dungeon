@@ -268,6 +268,8 @@ export * from "./combatants/combatant-builder.js";
 export * from "./dungeon-generation/index.js";
 export * from "./dungeon-generation/random-dungeon-generation-policy.js";
 export * from "./dungeon-generation/scripted-dungeon-generation-policy.js";
+export * from "./dungeon-generation/monster-types-by-floor.js";
+export * from "./dungeon-generation/budget-draw.js";
 export * from "./monsters/monster-generator.js";
 export * from "./utility-classes/random-number-generation-policy.js";
 
@@ -292,3 +294,4 @@ export * from "./servers/game-server/asset-analyzer/index.js";
 export * from "./test-fixtures/test-resource-change-properties-strategy.js";
 export * from "./combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";
 export * from "./monsters/scaling-sizes.js";
+export * from "./monsters/monster-spawn-sizing.js";

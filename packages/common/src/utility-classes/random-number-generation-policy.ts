@@ -64,6 +64,9 @@ export interface RandomNumberGenerationPolicy {
   dungeonLayout: RandomNumberGenerator;
   monsterEquipment: RandomNumberGenerator;
   monsterGenerationTypeSelection: RandomNumberGenerator;
+  floorPaletteSelection: RandomNumberGenerator;
+  roomFillSelection: RandomNumberGenerator;
+  bossSelection: RandomNumberGenerator;
 }
 
 export class RandomNumberGenerationPolicyFactory {
@@ -102,6 +105,9 @@ export class RandomNumberGenerationPolicyFactory {
       dungeonLayout: basic,
       monsterEquipment: basic,
       monsterGenerationTypeSelection: basic,
+      floorPaletteSelection: basic,
+      roomFillSelection: basic,
+      bossSelection: basic,
       ...overrides,
     };
   }
@@ -142,6 +148,9 @@ export class RandomNumberGenerationPolicyFactory {
       dungeonLayout: fixed,
       monsterEquipment: fixed,
       monsterGenerationTypeSelection: fixed,
+      floorPaletteSelection: fixed,
+      roomFillSelection: fixed,
+      bossSelection: fixed,
       ...overrides,
     };
   }
