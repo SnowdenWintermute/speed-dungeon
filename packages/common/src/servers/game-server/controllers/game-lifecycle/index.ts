@@ -106,7 +106,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
       data: {
-        game: game.toSerialized(),
+        game: game.toSerializedForClient(),
         awaitingUnresolvedReplayResolutionDuration: party.inputLock.remainingDuration || undefined,
         battle: battleOption
           ? {

@@ -71,6 +71,13 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     };
   }
 
+  toSerializedForClient(): SerializedOf<AdventuringParty> {
+    return {
+      ...this.toSerialized(),
+      dungeonExplorationManager: this.dungeonExplorationManager.toSerializedForClient(),
+    };
+  }
+
   static fromSerialized(serialized: SerializedOf<AdventuringParty>) {
     const result = new AdventuringParty(serialized.id, serialized.name);
 

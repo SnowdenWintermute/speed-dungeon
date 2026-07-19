@@ -5,7 +5,6 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { DungeonRoomType } from "./dungeon-room.js";
 import { AdventuringParty } from "./index.js";
-import { instanceToPlain, plainToInstance } from "class-transformer";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { Milliseconds } from "../aliases.js";
 
@@ -25,11 +24,45 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
   }
 
   toSerialized() {
-    return instanceToPlain(this);
+    return {
+      currentFloor: this.currentFloor,
+      livePlayTimeAtCurrentFloorEnteredMs: this.livePlayTimeAtCurrentFloorEnteredMs,
+      roomsExplored: { ...this.roomsExplored },
+      unexploredRooms: [...this.unexploredRooms],
+      clientCurrentFloorRoomsList: [...this.clientCurrentFloorRoomsList],
+      playerExplorationActionChoices: {
+        [ExplorationAction.Explore]: [
+          ...this.playerExplorationActionChoices[ExplorationAction.Explore],
+        ],
+        [ExplorationAction.Descend]: [
+          ...this.playerExplorationActionChoices[ExplorationAction.Descend],
+        ],
+      },
+    };
+  }
+
+  // unexploredRooms is server-only hidden info: players are meant to discover a floor's
+  // rooms by exploring, so it must never be sent to clients.
+  toSerializedForClient(): SerializedOf<DungeonExplorationManager> {
+    return { ...this.toSerialized(), unexploredRooms: [] };
   }
 
   static fromSerialized(serialized: SerializedOf<DungeonExplorationManager>) {
-    return plainToInstance(DungeonExplorationManager, serialized);
+    const result = new DungeonExplorationManager();
+    result.currentFloor = serialized.currentFloor;
+    result.livePlayTimeAtCurrentFloorEnteredMs = serialized.livePlayTimeAtCurrentFloorEnteredMs;
+    result.roomsExplored = { ...serialized.roomsExplored };
+    result.unexploredRooms = [...serialized.unexploredRooms];
+    result.clientCurrentFloorRoomsList = [...serialized.clientCurrentFloorRoomsList];
+    result.playerExplorationActionChoices = {
+      [ExplorationAction.Explore]: [
+        ...serialized.playerExplorationActionChoices[ExplorationAction.Explore],
+      ],
+      [ExplorationAction.Descend]: [
+        ...serialized.playerExplorationActionChoices[ExplorationAction.Descend],
+      ],
+    };
+    return result;
   }
 
   unexploredRoomsExistOnCurrentFloor() {

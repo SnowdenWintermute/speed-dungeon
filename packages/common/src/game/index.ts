@@ -96,6 +96,15 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     };
   }
 
+  toSerializedForClient(): SerializedOf<SpeedDungeonGame> {
+    return {
+      ...this.toSerialized(),
+      adventuringParties: MapUtils.serialize(this.adventuringParties, (v) =>
+        v.toSerializedForClient()
+      ),
+    };
+  }
+
   static fromSerialized(serialized: SerializedOf<SpeedDungeonGame>) {
     const { id, name, mode, characterControlScheme, gameCreator, isRanked } = serialized;
     const result = new SpeedDungeonGame(

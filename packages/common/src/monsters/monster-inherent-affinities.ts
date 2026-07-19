@@ -14,9 +14,13 @@ export const MONSTER_INHERENT_ELEMENTAL_AFFINITIES: Record<
   [MonsterType.Wolf]: {},
   [MonsterType.FireMage]: {},
   [MonsterType.Cultist]: {},
-  [MonsterType.MantaRay]: {},
+  [MonsterType.MantaRay]: {
+    [MagicalElement.Fire]: -25,
+  },
   [MonsterType.Net]: {},
-  [MonsterType.Spider]: {},
+  [MonsterType.Spider]: {
+    [MagicalElement.Fire]: -25,
+  },
   [MonsterType.Slime]: {
     [MagicalElement.Fire]: 50,
     [MagicalElement.Ice]: -25,
@@ -52,7 +56,9 @@ export const MONSTER_INHERENT_KINETIC_AFFINITIES: Record<
   },
   [MonsterType.FireMage]: {},
   [MonsterType.Cultist]: {},
-  [MonsterType.MantaRay]: {},
+  [MonsterType.MantaRay]: {
+    [KineticDamageType.Piercing]: -25,
+  },
   [MonsterType.Net]: {},
   [MonsterType.Spider]: {},
   [MonsterType.Slime]: {
