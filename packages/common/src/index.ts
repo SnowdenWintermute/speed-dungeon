@@ -157,6 +157,7 @@ export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-
 export * from "./combat/targeting/targeting-calculator.js";
 export * from "./action-user-context/index.js";
 export * from "./action-entities/index.js";
+export * from "./action-entities/action-entity-persistent-cosmetic-effects.js";
 export * from "./action-entities/cosmetic-effect.js";
 export * from "./action-entities/cosmetic-effect-constructors.js";
 export * from "./spawnables/index.js";

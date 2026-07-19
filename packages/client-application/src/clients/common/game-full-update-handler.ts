@@ -41,6 +41,13 @@ export function gameFullUpdateHandler(
     data: { softCleanup: true, placeInHomePositions: true },
   });
 
+  // a GameFullUpdate (e.g. reconnection) re-deserializes persistent action entities like a firewall
+  // into the party but leaves the scene without their models, so respawn any that are missing
+  clientApplication.sequentialEventProcessor.scheduleEvent({
+    type: ClientSequentialEventType.SynchronizeActionEntityModels,
+    data: undefined,
+  });
+
   clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
     type: ImageGenerationRequestType.ClearState,
     data: undefined,

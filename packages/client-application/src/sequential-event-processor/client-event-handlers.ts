@@ -7,6 +7,7 @@ import {
 import { ActionMenuScreenType } from "../action-menu/screen-types";
 import { ClientApplication } from "..";
 import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
+import { synchronizeActionEntityModels } from "../replay-execution/update-handlers/spawn-entities-update-handler";
 
 export function createClientSequentialEventHandlers(
   clientApplication: ClientApplication
@@ -24,6 +25,9 @@ export function createClientSequentialEventHandlers(
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         event
       );
+    },
+    [ClientSequentialEventType.SynchronizeActionEntityModels]: async () => {
+      await synchronizeActionEntityModels(clientApplication);
     },
     [ClientSequentialEventType.SpawnEnvironmentModel]: (event) => {
       return clientApplication.gameWorldView?.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
