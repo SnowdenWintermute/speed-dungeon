@@ -4,6 +4,7 @@ import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
+  getResourceCostsBasedOnOwnedRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { PET_COMMAND_HIT_OUTCOME_PROPERTIES } from "./pet-command-hit-outcome-properties.js";
@@ -15,8 +16,6 @@ import {
 } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
-import { invariant } from "../../../../utils/index.js";
-import { AbilityType } from "../../../../abilities/ability-types.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.PET_OF_USER(),
@@ -30,13 +29,7 @@ const costProperties = createCostPropertiesConfig(costPropertiesBase, {
     [3]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 0 },
   },
   getResourceCosts: (user, inCombat, actionRank, self) => {
-    const userOwnedRank = user.getCombatantProperties().abilityProperties.getAbilityRank({
-      type: AbilityType.Action,
-      actionName: CombatActionName.SummonPetParent,
-    });
-    const value = self.costProperties.costsByRank[userOwnedRank];
-    invariant(value !== undefined);
-    return value;
+    return getResourceCostsBasedOnOwnedRank(user, CombatActionName.PetCommand, self, inCombat);
   },
   getMeetsCustomRequirements: (user, party) => {
     const { combatantManager } = party;

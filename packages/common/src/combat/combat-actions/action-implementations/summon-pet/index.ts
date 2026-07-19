@@ -8,6 +8,7 @@ import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-template
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
+  getResourceCostsBasedOnOwnedRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -31,6 +32,7 @@ import { invariant } from "../../../../utils/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 import { AbilityType } from "../../../../abilities/ability-types.js";
+import cloneDeep from "lodash.clonedeep";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -75,13 +77,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   },
 
   getResourceCosts: (user, inCombat, actionRank, self) => {
-    const userOwnedRank = user.getCombatantProperties().abilityProperties.getAbilityRank({
-      type: AbilityType.Action,
-      actionName: CombatActionName.SummonPetParent,
-    });
-    const value = self.costProperties.costsByRank[userOwnedRank];
-    invariant(value !== undefined);
-    return value;
+    return getResourceCostsBasedOnOwnedRank(user, self.name, self, inCombat);
   },
 };
 

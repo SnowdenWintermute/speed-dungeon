@@ -8,27 +8,16 @@ import {
   ServerCommand,
   GameSessionStoreService,
   RandomNumberGenerationPolicyFactory,
-  ScriptedCharacterCreationPolicy,
-  BASIC_CHARACTER_FIXTURES,
-  IdGeneratorSequential,
-  CHARARCTER_FIXTURES_WITH_PETS,
-  HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
-  MONSTER_FIXTURES,
-  CHARARCTER_FIXTURES_WITH_PET_MANTAS,
-  LOW_HP_CHARACTER_FIXTURES,
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
-  CHARACTER_LEVEL_LADDER,
   UserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   SpeedDungeonProfileService,
-  InMemoryLadderRecordsPersistenceStrategy,
   LadderGameRecordsService,
   IdGenerator,
   DefaultCharacterCreationPolicy,
-  CREATE_SET_HP_CHARACTER_FIXTURES,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -45,6 +34,10 @@ import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js
 import { GAME_SERVER_NAME } from "../main.js";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseLadderRecordsPersistenceStrategy } from "../game-node/services/database-ladder-records-persistence-strategy.js";
+import {
+  MANUAL_TEST_MODE,
+  setLobbyServerNodeManualTestProperties,
+} from "../manual-test-mode-config.js";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
@@ -75,44 +68,29 @@ export class LobbyServerNode {
 
     // TO MATCH TEST SETUP
 
-    // this._lobbyServer = new LobbyServer(
-    //   usersIncomingConnectionGateway,
-    //   externalServices,
-    //   gameServerSessionClaimTokenCodec,
-    //   guestReconnectionTokenCodec,
-    //   { [GAME_SERVER_NAME]: "http://localhost:8090" },
-    //   leastBusyGameServerUrlGetter,
-    //   ScriptedCharacterCreationPolicy,
-    //   RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-    //   new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
-    //   cookieHeaderAuthSessionIdParser
-    // );
-
-    this._lobbyServer = new LobbyServer(
-      usersIncomingConnectionGateway,
-      externalServices,
-      gameServerSessionClaimTokenCodec,
-      guestReconnectionTokenCodec,
-      { [GAME_SERVER_NAME]: "http://localhost:8090" },
-      leastBusyGameServerUrlGetter,
-      DefaultCharacterCreationPolicy,
-      RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-      idGenerator,
-      cookieHeaderAuthSessionIdParser
-    );
-
-    // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
-
-    // this._lobbyServer.characterCreationPolicy.setCharacters(CREATE_SET_HP_CHARACTER_FIXTURES(1));
-    // this._lobbyServer.characterCreationPolicy.setCharacters(LOW_HP_CHARACTER_FIXTURES);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PET_MANTAS);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(
-    //   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS([
-    //     (idGenerator, itemBuilder, rngPolicy, name) =>
-    //       MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
-    //   ])
-    // );
+    if (MANUAL_TEST_MODE) {
+      this._lobbyServer = setLobbyServerNodeManualTestProperties(
+        usersIncomingConnectionGateway,
+        externalServices,
+        gameServerSessionClaimTokenCodec,
+        guestReconnectionTokenCodec,
+        leastBusyGameServerUrlGetter,
+        cookieHeaderAuthSessionIdParser
+      );
+    } else {
+      this._lobbyServer = new LobbyServer(
+        usersIncomingConnectionGateway,
+        externalServices,
+        gameServerSessionClaimTokenCodec,
+        guestReconnectionTokenCodec,
+        { [GAME_SERVER_NAME]: "http://localhost:8090" },
+        leastBusyGameServerUrlGetter,
+        DefaultCharacterCreationPolicy,
+        RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+        idGenerator,
+        cookieHeaderAuthSessionIdParser
+      );
+    }
 
     console.info("lobby server node created");
   }

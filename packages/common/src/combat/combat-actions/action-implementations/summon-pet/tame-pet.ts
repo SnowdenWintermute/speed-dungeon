@@ -2,6 +2,7 @@ import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-prope
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
+  getResourceCostsBasedOnOwnedRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -31,6 +32,7 @@ import { CombatantId } from "../../../../aliases.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 import { invariant } from "../../../../utils/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   costsByRank: {
@@ -40,13 +42,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   },
 
   getResourceCosts: (user, inCombat, actionRank, self) => {
-    const userOwnedRank = user.getCombatantProperties().abilityProperties.getAbilityRank({
-      type: AbilityType.Action,
-      actionName: CombatActionName.SummonPetParent,
-    });
-    const value = self.costProperties.costsByRank[userOwnedRank];
-    invariant(value !== undefined);
-    return value;
+    return getResourceCostsBasedOnOwnedRank(user, self.name, self, inCombat);
   },
   requiresCombatTurnInThisContext: () => false,
   getMeetsCustomRequirements: (user, party) => {
