@@ -7,37 +7,19 @@ import {
   GameServerNodeAssetService,
   GameSessionStoreService,
   GameStateUpdate,
-  ScriptedDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   ServerCommand,
-  FixedNumberGenerator,
-  RNG_RANGE,
-  TEST_DUNGEON_TWO_SPIDER_ROOMS,
-  IdGeneratorSequential,
-  EXPLICIT_ATTACK_TEST_DUNGEON,
-  TEST_DUNGEON_TWO_WOLF_ROOMS,
-  TEST_DUNGEON_ZERO_SPEED_WOLVES,
-  TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST,
-  TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA,
-  TEST_DUNGEON_MANTA_TWO_WOLF,
-  TEST_DUNGEON_ZERO_SPEED_MANTAS,
-  TEST_DUNGEON_TWO_ONE_HP_WOLVES,
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
-  TEST_DUNGEON_FOUR_ONE_HP_WOLVES,
-  CHARACTER_LEVEL_LADDER,
-  GlobalGameSessionStore,
+  UserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
   SpeedDungeonProfileService,
   LadderGameRecordsService,
-  InMemoryLadderRecordsPersistenceStrategy,
   IdGenerator,
   RealResourceChangePropertiesStrategy,
-  TestResourceChangePropertiesStrategy,
-  TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL,
   RandomDungeonGenerationPolicy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
@@ -55,6 +37,11 @@ import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
 import { env } from "../validate-env.js";
+import { DatabaseLadderRecordsPersistenceStrategy } from "./services/database-ladder-records-persistence-strategy.js";
+import {
+  MANUAL_TEST_MODE,
+  setGameServerNodeManualTestProperties,
+} from "../manual-test-mode-config.js";
 
 export class GameServerNode {
   private _server: GameServer | null = null;
@@ -66,7 +53,7 @@ export class GameServerNode {
     expressApp: Express,
     profileService: SpeedDungeonProfileService,
     gameSessionStoreService: GameSessionStoreService,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
@@ -87,48 +74,31 @@ export class GameServerNode {
       idGenerator
     );
 
-    // const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
-    // const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
-    //   counterAttack: fixedRngMinRoll,
-    //   criticalStrike: fixedRngMinRoll,
-    //   parry: fixedRngMinRoll,
-    //   shieldBlock: fixedRngMinRoll,
-    //   spellResist: fixedRngMinRoll,
-    // });
-    const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
-
-    this._server = new GameServer(
-      name,
-      incomingConnectionGateway,
-      externalServices,
-      gameServerSessionClaimTokenCodec,
-      guestReconnectionTokenCodec,
-      // ScriptedDungeonGenerationPolicy,
-      RandomDungeonGenerationPolicy,
-      rngPolicy,
-      new RealResourceChangePropertiesStrategy(),
-      // new TestResourceChangePropertiesStrategy(),
-      // new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
-      idGenerator,
-      cookieHeaderAuthSessionIdParser
-    );
-
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_WOLF_ROOMS);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_ONE_HP_WOLVES);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_FOUR_ONE_HP_WOLVES);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_MANTAS);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ZERO_SPEED_WOLVES);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_ONE_ONE_HP_WOLF_ONE_NORMAL);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(
-    //   TEST_DUNGEON_ZERO_SPEED_WOLF_AND_CULTIST
-    // );
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_MID_HP_WOLVES);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(
-    //   TEST_DUNGEON_WOLF_AND_SLOW_SPIDER_LOTS_OF_MANA
-    // );
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_MANTA_TWO_WOLF);
-    // this._server.dungeonGenerationPolicy.setExplicitFloors(TEST_DUNGEON_TWO_SPIDER_ROOMS);
+    // TO MATCH TESTS
+    if (MANUAL_TEST_MODE) {
+      this._server = setGameServerNodeManualTestProperties(
+        name,
+        gameServerSessionClaimTokenCodec,
+        guestReconnectionTokenCodec,
+        incomingConnectionGateway,
+        externalServices,
+        cookieHeaderAuthSessionIdParser
+      );
+    } else {
+      const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
+      this._server = new GameServer(
+        name,
+        incomingConnectionGateway,
+        externalServices,
+        gameServerSessionClaimTokenCodec,
+        guestReconnectionTokenCodec,
+        RandomDungeonGenerationPolicy,
+        rngPolicy,
+        new RealResourceChangePropertiesStrategy(),
+        idGenerator,
+        cookieHeaderAuthSessionIdParser
+      );
+    }
 
     await this._server.analyzeAssetsForGameplayRelevantData();
   }
@@ -137,7 +107,7 @@ export class GameServerNode {
     assetStore: AssetCache,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
     idGenerator: IdGenerator
   ): GameServerExternalServices {
@@ -160,7 +130,7 @@ export class GameServerNode {
     );
 
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new InMemoryLadderRecordsPersistenceStrategy(),
+      new DatabaseLadderRecordsPersistenceStrategy(),
       idGenerator
     );
 

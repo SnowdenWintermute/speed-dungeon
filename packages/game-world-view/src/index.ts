@@ -10,6 +10,7 @@ import { GameWorldViewDebug } from "./debug";
 import { LAYER_MASK_ALL } from "./game-world-view-consts";
 import { EnvironmentView } from "./environment";
 import { SceneEntityService } from "./scene-entity-service/index";
+import { SCENE_ENTITY_PICKER_DISC_RENDERING_GROUP_ID } from "./scene-entities/scene-entity-picker-disc";
 
 export class GameWorldView {
   readonly engine: Engine;
@@ -31,6 +32,14 @@ export class GameWorldView {
     this.engine = new Engine(canvas, true);
     this.scene = new Scene(this.engine);
     this.scene.clearColor = new Color4(0, 0, 0, 0);
+    // clear depth before the picker-disc rendering group so those discs draw on top of the
+    // character meshes rather than clipping through them
+    this.scene.setRenderingAutoClearDepthStencil(
+      SCENE_ENTITY_PICKER_DISC_RENDERING_GROUP_ID,
+      true,
+      true,
+      true
+    );
     this.materialManager = new MaterialManager(this.scene);
     this.textureManager = new TextureManager(this.scene);
     this.camera = this.createMainCamera();
@@ -63,6 +72,13 @@ export class GameWorldView {
     this._debug.uiDebugDisplayRef = uiDebugDisplayRef;
     if (this.clientApplication.gameContext.gameOption) {
       this.setDefaultCameraPositionForGame();
+    }
+
+    // on reconnection the GameFullUpdate can arrive before this view exists, in which case
+    // its handler couldn't enqueue thumbnails and we catch up on the already received state
+    const { partyOption } = clientApplication.gameContext;
+    if (partyOption) {
+      this.imageGenerator.enqueueThumbnailsForParty(partyOption);
     }
   }
 

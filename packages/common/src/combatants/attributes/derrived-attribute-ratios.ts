@@ -7,7 +7,7 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
     [CombatAttribute.Accuracy]: 2,
   },
   [CombatAttribute.Spirit]: {
-    [CombatAttribute.Mp]: 2,
+    [CombatAttribute.Mp]: 1,
   },
   [CombatAttribute.Agility]: {
     [CombatAttribute.Evasion]: 2,
@@ -15,6 +15,6 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
   },
   [CombatAttribute.Vitality]: {
     [CombatAttribute.Hp]: 2,
-    [CombatAttribute.ArmorClass]: 1.5,
+    // [CombatAttribute.ArmorClass]: 1.5,
   },
 };

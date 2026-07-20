@@ -34,7 +34,7 @@ export class CombatantSceneEntityModularPartsManager {
     const { assetContainer } = this.sceneEntity;
     const part = await loadAssetContainerIntoScene(this.assetService, scene, assetId);
     if (!assetContainer.skeletons[0]) {
-      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE);
+      throw new Error(ERROR_MESSAGES.GAME_WORLD.INCOMPLETE_SKELETON_FILE + assetId);
     }
     for (const mesh of part.meshes) {
       // attach part
@@ -42,6 +42,8 @@ export class CombatantSceneEntityModularPartsManager {
         mesh.skeleton.dispose();
         mesh.skeleton = assetContainer.skeletons[0];
       }
+      // the pointer resolves to the entity's SceneEntityPickerDisc, not the character mesh
+      mesh.isPickable = false;
       mesh.visibility = this.sceneEntity.getVisibility();
       invariant(parent !== undefined);
       mesh.parent = this.armatureRoot;

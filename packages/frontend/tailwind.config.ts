@@ -8,6 +8,10 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   safelist: [
+    "border-green-500",
+    "border-green-300",
+    "border-red-500",
+    "border-red-400",
     "scale-[1.25]",
     "animate-crit-text",
     "-scale-x-100",

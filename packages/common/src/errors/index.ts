@@ -26,6 +26,7 @@ export const ERROR_MESSAGES = {
     REQUIRED: "Only a logged in user may perform that action",
   },
   CLIENT: {
+    NETWORK_REQUEST_FAILED: "A network request failed. The server may be temporarily unavailable.",
     NO_CURRENT_GAME: "This client has no current game",
     NO_CURRENT_PARTY: "Expected this client to have a party but couldn't find it",
     NO_USERNAME: "Client doesn't know it's own username",
@@ -139,6 +140,7 @@ export const ERROR_MESSAGES = {
     ONLY_ONE_TARGETING_SCHEME_AVAILABLE:
       "There is only one targeting scheme available for that action",
     NO_TARGETING_SCHEMES: "That ability has no targeting schemes",
+    TARGETING_SCHEME_NOT_AVAILABLE: "That targeting scheme is not available for the selected action",
     INVALID_TARGETS_SELECTED: "The selected action can not be used on the provided targets",
     MISSING_HP_CHANGE_PROPERTIES:
       "The provided combat action doesn't specify any Hp change properties",
@@ -175,6 +177,8 @@ export const ERROR_MESSAGES = {
     IS_BROKEN: "That equipment is broken",
     INVALID_TYPE: "Invalid equipment type was provided",
     NO_ITEM_EQUIPPED: "No item is equipped in that slot",
+    CANNOT_GO_IN_SLOT: "That equipment can't go in that slot",
+    ALREADY_IN_SLOT: "That equipment is already in that slot",
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",
     EXPECTED_TRAIT_MISSING: "Expected to find an equipment trait but didn't",
     NO_SELECTED_HOTSWAP_SLOT: "The combatant has no slots to equip holdable items",

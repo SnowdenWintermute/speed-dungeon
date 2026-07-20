@@ -42,7 +42,7 @@ export class CombatantResourceChangeUpdateHandlerCommand {
     this.dispatchEventLogMessage();
     if (combatantProperties.isDead()) {
       this.handleDeath();
-    } else if (this.resourceChange.value < 0 && this.shouldAnimate) {
+    } else if ((this.resourceChange.value < 0 || this.wasBlocked) && this.shouldAnimate) {
       this.targetSceneEntity?.animationControls.startHitRecoveryAnimation(
         this.wasBlocked,
         this.resourceChange.isCrit

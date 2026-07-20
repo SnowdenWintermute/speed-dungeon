@@ -19,12 +19,20 @@ export const DEEPEST_FLOOR = 10;
 export const EMPTY_ROOMS_PER_FLOOR = 0;
 export const DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE = 4;
 export const GAME_CONFIG = {
-  MONSTER_LAIRS_PER_FLOOR: 2,
-  MONSTERS_PER_ROOM_COUNT: 3,
+  MONSTER_LAIRS_PER_FLOOR: 4,
+  // MONSTERS_PER_ROOM_COUNT: 3,
+  MONSTERS_PER_ROOM_COUNT: 1,
   LEVEL_TO_REACH_FOR_ESCAPE: DEFAULT_LEVEL_TO_REACH_FOR_ESCAPE,
   MIN_RACE_GAME_PARTIES: 2,
   LOG_LOBBY_CONNECTION_EVENTS: true,
   LOG_GAME_SERVER_CONNECTIONS_EVENTS: true,
+};
+
+export const DUNGEON_GENERATION_CONFIG = {
+  ROOM_FILL_BUDGET: 1,
+  FLOOR_PALETTE_BUDGET: 4,
+  BUDGET_STOP_FRACTION: 0.95,
+  BUDGET_OVERFLOW_FRACTION: 1.2,
 };
 
 export const MAX_PARTY_SIZE = 3;
@@ -43,7 +51,6 @@ export const MAXIMUM_PET_SLOTS = COMBAT_ACTION_MAX_LEVEL;
 export const BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS = 10;
 export const COMBATANT_MAX_ACTION_POINTS = 2;
 export const HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST = 1;
-export const MAX_ACTION_POINTS_COST = 2;
 
 // SERVERS
 export const RECONNECTION_OPPORTUNITY_TIMEOUT_MS = (ONE_SECOND * 120) as Milliseconds;
@@ -55,8 +62,7 @@ export const FLOATING_MESSAGE_DURATION: Milliseconds = 2000;
 export const CLIENT_LOG_RECORDER_MAX_BYTES = 5 * 1024 * 1024;
 
 // EQUIPMENT
-export const DEX_TO_RANGED_ARMOR_PEN_RATIO = 1;
-export const STR_TO_MELEE_ARMOR_PEN_RATIO = 1;
+export const STR_TO_MELEE_ARMOR_PEN_RATIO = 0.5;
 export const FOCUS_TO_CRIT_CHANCE_RATIO = 0.5;
 // export const VIT_TO_PERCENT_PHYSICAL_DAMAGE_REDUCTION_RATIO = 0.75;
 export const OFF_HAND_ACCURACY_MODIFIER = 0.75;
@@ -64,9 +70,12 @@ export const OFF_HAND_DAMAGE_MODIFIER = 0.6;
 export const OFF_HAND_CRIT_CHANCE_MODIFIER = 0.6;
 export const TWO_HANDED_WEAPON_BASE_BONUS_DAMAGE_MODIFIER = 2;
 export const TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER = 2;
-export const RESILIENCE_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO = 2;
-export const RESILIENCE_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO = 4;
-export const CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO = 0.005;
+export const SPIRIT_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO = 0.5;
+export const SPIRIT_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO = 1;
+export const CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO = 0.0025;
+export const AGILITY_TO_KINETIC_CRIT_EVASION_RATIO = 0.01;
+export const SPIRIT_TO_CRIT_DAMAGE_REDUCTION_RATIO = 0.005;
+export const MAX_CRIT_DAMAGE_REDUCTION = 1;
 
 // EQUIPMENT GENERATION
 export const BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL = 0.75;
@@ -91,11 +100,16 @@ export const MIN_HIT_CHANCE = 0.5;
 export const COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER = 20;
 export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 
+export const DURABILITY_LOSS_CHANCE = 0.6;
+
 export const MELEE_START_ATTACK_RANGE = 0.5;
+
+export const MAX_BLOCK_CHANCE = 1;
+export const MAX_BLOCK_REDUCTION = 1;
 
 // 3D MODELS
 export const GRAVITY = -9.81;
-export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
+export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.8; // default is 1, higher is slower;
 // export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.3; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;
@@ -343,4 +357,7 @@ export const WebSocketCloseCode = {
   GoingAway: 1001,
   PolicyViolation: 1008,
   InternalError: 1011,
+  // receive-only: the browser sets this on an abnormal drop with no close frame (e.g. the server
+  // process died). Cannot be sent — never pass it to ws.close(). Used only for detecting drops.
+  AbnormalClosure: 1006,
 } as const;

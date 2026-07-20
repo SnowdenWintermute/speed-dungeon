@@ -1,5 +1,5 @@
 import { AssetId, ConsumableType } from "@speed-dungeon/common";
-import { Artist } from "./artists";
+import { Artist } from "../artists";
 
 export function consumableItemToAssetId(consumableType: ConsumableType) {
   const folderPath = "consumables/";

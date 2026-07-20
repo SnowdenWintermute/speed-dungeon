@@ -10,7 +10,7 @@ import { ActionTracker } from "./action-tracker.js";
 import { NestedNodeReplayEvent, ReplayEventType } from "./replay-events.js";
 import { BoundingBoxSizesBySpecies } from "../types.js";
 import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-action-execution-intent.js";
-import { LootGenerator } from "../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../items/loot-generation/loot-generator.js";
 import { BattleConclusion } from "../battle/index.js";
 import { CombatantId } from "../aliases.js";
 import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";

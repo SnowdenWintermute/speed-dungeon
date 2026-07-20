@@ -14,13 +14,16 @@ import { IdGenerator } from "../utility-classes/index.js";
 import { GameModeGameInitializationPolicy } from "./game-initialization-policy.js";
 import { GameMode, GameModePolicy } from "./index.js";
 import { IronmanGameInitializationPolicy } from "./ironman-mode/game-initialization-policy.js";
+import { IronmanModeInGameDecisionsPolicy } from "./ironman-mode/in-game-decisions-policy.js";
 import { IronmanModeLadderPolicy } from "./ironman-mode/ladder-policy.js";
 import { IronmanModeLobbySetup } from "./ironman-mode/lobby-setup-policy.js";
 import { IronmanModePersistencePolicy } from "./ironman-mode/persistence-policy.js";
 import { LadderGameRecordsService } from "./ladder-records/ladder-records-service.js";
+import { ProgressionModeInGameDecisionsPolicy } from "./progression-mode/in-game-decisions-policy.js";
 import { ProgressionModeLadderPolicy } from "./progression-mode/ladder-policy.js";
 import { ProgressionModeLobbySetup } from "./progression-mode/lobby-setup-policy.js";
 import { ProgressionModePersistencePolicy } from "./progression-mode/persistence-policy.js";
+import { RaceModesInGameDecisionsPolicy } from "./race-modes/in-game-decisions-policy.js";
 import { RaceModesPersistencePolicy } from "./race-modes/persistence-policy.js";
 import { RankedRaceModeLadderPolicy } from "./race-modes/ranked-race-ladder-policy.js";
 import { RankedRaceModeLobbySetup } from "./race-modes/ranked-race-lobby-setup-policy.js";
@@ -48,6 +51,7 @@ export class GameModePolicyStore {
     );
     this.policies = {
       [GameMode.Ironman]: {
+        inGameDecisions: new IronmanModeInGameDecisionsPolicy(),
         gameInitialization: new IronmanGameInitializationPolicy(updateDispatchFactory),
         lobbySetup: new IronmanModeLobbySetup(
           profileService,
@@ -76,6 +80,7 @@ export class GameModePolicyStore {
         ),
       },
       [GameMode.Progression]: {
+        inGameDecisions: new ProgressionModeInGameDecisionsPolicy(),
         gameInitialization: new GameModeGameInitializationPolicy(updateDispatchFactory),
         lobbySetup: new ProgressionModeLobbySetup(
           profileService,
@@ -104,6 +109,7 @@ export class GameModePolicyStore {
         ),
       },
       [GameMode.RankedRace]: {
+        inGameDecisions: new RaceModesInGameDecisionsPolicy(),
         gameInitialization: new GameModeGameInitializationPolicy(updateDispatchFactory),
         lobbySetup: new RankedRaceModeLobbySetup(
           profileService,
@@ -132,6 +138,7 @@ export class GameModePolicyStore {
         ),
       },
       [GameMode.UnrankedRace]: {
+        inGameDecisions: new RaceModesInGameDecisionsPolicy(),
         gameInitialization: new GameModeGameInitializationPolicy(updateDispatchFactory),
         lobbySetup: new UnrankedRaceModeLobbySetup(
           profileService,

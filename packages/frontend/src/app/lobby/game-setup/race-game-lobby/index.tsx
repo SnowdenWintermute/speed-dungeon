@@ -1,5 +1,6 @@
 import { BASE_SCREEN_SIZE, ClientIntentType, GOLDEN_RATIO, PartyName } from "@speed-dungeon/common";
 import React from "react";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { GameLobby } from "../GameLobby";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { PartySetupCard } from "./AdventuringPartySetupCard";
@@ -38,7 +39,8 @@ export const RaceGameLobby = observer(() => {
 function CreatePartyCard() {
   const menuWidth = Math.floor(BASE_SCREEN_SIZE * Math.pow(GOLDEN_RATIO, 3));
 
-  const { lobbyClientRef } = useClientApplication();
+  const { lobbyClientRef, uiStore } = useClientApplication();
+  const { keybinds } = uiStore;
   function createParty() {
     lobbyClientRef.get().dispatchIntent({
       type: ClientIntentType.CreateParty,
@@ -53,7 +55,11 @@ function CreatePartyCard() {
       className="h-32 border border-slate-400 bg-slate-700 flex items-center justify-center pointer-events-auto mb-4"
       style={{ width: `${menuWidth}px` }}
     >
-      <HotkeyButton hotkeys={["KeyA"]} className="h-full w-full text-lg" onClick={createParty}>
+      <HotkeyButton
+        hotkeys={keybinds.getKeybind(HotkeyButtonTypes.Confirm)}
+        className="h-full w-full text-lg"
+        onClick={createParty}
+      >
         CREATE PARTY
       </HotkeyButton>
     </section>

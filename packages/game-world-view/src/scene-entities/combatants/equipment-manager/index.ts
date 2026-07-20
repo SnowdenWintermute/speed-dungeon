@@ -87,13 +87,41 @@ export class CombatantSceneEntityEquipmentManager {
     return option;
   }
 
+  // like the combatant model sync, freshly spawned equipment models only land in
+  // `holdableHotswapSlots` once `applyNewState` runs after the load await. Overlapping syncs (or a
+  // combatant despawn mid-load) can't see the in-flight models, so they get attached to a gone
+  // combatant and orphaned. Chain runs so each starts against the fully-applied previous result.
+  private synchronizeChain: Promise<void> = Promise.resolve();
+
   async synchronizeCombatantEquipmentModels() {
+    const run = this.synchronizeChain.then(() => this.runSynchronizeCombatantEquipmentModels());
+    this.synchronizeChain = run.catch(() => {});
+    return run;
+  }
+
+  private async runSynchronizeCombatantEquipmentModels() {
+    if (this.combatantSceneEntity.isCleanedUp) return;
+
     // get the combatant equipment state
     const { combatant } = this.combatantSceneEntity;
     const { combatantProperties } = combatant;
 
     const newState = this.syncExistingValidModelsWithNewState(combatantProperties);
     await this.spawnNewModelsForNewState(newState, combatantProperties);
+
+    // the combatant may have despawned while we were loading; dispose what we spawned rather than
+    // attaching it to a combatant whose transform nodes are gone
+    if (this.combatantSceneEntity.isCleanedUp) {
+      for (const hotswapSlot of newState) {
+        for (const equipmentModel of Object.values(hotswapSlot)) {
+          if (equipmentModel && !equipmentModel.isCleanedUp) {
+            equipmentModel.cleanup({ softCleanup: false });
+          }
+        }
+      }
+      return;
+    }
+
     this.applyNewState(newState, combatantProperties);
   }
 

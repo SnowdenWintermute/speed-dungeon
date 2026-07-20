@@ -1,9 +1,11 @@
 import React from "react";
-import { ClientIntentType, Item } from "@speed-dungeon/common";
+import { Item } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { ItemButton } from "../ActionMenu/menu-state/common-buttons/ItemButton";
 import { ClientApplication } from "@/client-application";
+import { DragSourceType } from "@/client-application/item-drag/types";
+import { useDragSource } from "@/app/game/item-drag/use-drag-source";
 
 interface Props {
   item: Item;
@@ -11,24 +13,25 @@ interface Props {
 }
 
 export function takeItem(clientApplication: ClientApplication, item: Item) {
-  const { gameClientRef, detailableEntityFocus, combatantFocus } = clientApplication;
+  const { itemCommands, detailableEntityFocus, combatantFocus } = clientApplication;
 
   detailableEntityFocus.detailables.clear();
 
-  gameClientRef.get().dispatchIntent({
-    type: ClientIntentType.PickUpItems,
-    data: {
-      characterId: combatantFocus.requireFocusedCharacterId(),
-      itemIds: [item.entityProperties.id],
-    },
-  });
+  itemCommands.pickUpItems(combatantFocus.requireFocusedCharacterId(), [item.getEntityId()]);
 }
 
 export const ItemOnGround = observer((props: Props) => {
   const clientApplication = useClientApplication();
-  const { detailableEntityFocus } = clientApplication;
+  const { detailableEntityFocus, dragService } = clientApplication;
 
   const { item } = props;
+  const isDragging = dragService.isDragging();
+
+  const dragHandlers = useDragSource(() =>
+    props.disabled ? null : { type: DragSourceType.GroundItem, item }
+  );
+  const onPointerDown = props.disabled ? undefined : dragHandlers.onPointerDown;
+
   function mouseEnterHandler() {
     detailableEntityFocus.detailables.setHovered(item);
   }
@@ -52,9 +55,10 @@ export const ItemOnGround = observer((props: Props) => {
     <li
       className={`h-10 w-full max-w-full flex border-r border-l border-b border-slate-400 first:border-t
                       box-border
-                      whitespace-nowrap text-ellipsis overflow-hidden cursor-default ${conditionalClassNames}`}
+                      whitespace-nowrap text-ellipsis overflow-hidden cursor-default ${conditionalClassNames} ${isDragging ? "pointer-events-none" : ""}`}
       onMouseEnter={mouseEnterHandler}
       onMouseLeave={mouseLeaveHandler}
+      onPointerDown={onPointerDown}
     >
       <button
         className="cursor-pointer pr-4 pl-4 box-border

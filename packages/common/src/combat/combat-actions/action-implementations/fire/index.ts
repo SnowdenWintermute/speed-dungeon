@@ -10,9 +10,9 @@ import {
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { TargetingScheme } from "../../targeting-schemes-and-categories.js";
-import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const targetingProperties: CombatActionTargetingPropertiesConfig = {
   // ...TARGETING_PROPERTIES_TEMPLATE_GETTERS.AREA_HOSTILE(), @ TODO - put this back
@@ -25,8 +25,10 @@ const targetingProperties: CombatActionTargetingPropertiesConfig = {
 };
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  costBases: {
-    [ActionPayableResource.ActionPoints]: { base: 0, additives: { actionLevel: 1 } },
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 7, [ActionPayableResource.ActionPoints]: 2 },
+    [2]: { [ActionPayableResource.Mana]: 11, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 18, [ActionPayableResource.ActionPoints]: 2 },
   },
 };
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;

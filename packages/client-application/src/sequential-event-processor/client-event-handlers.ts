@@ -7,6 +7,7 @@ import {
 import { ActionMenuScreenType } from "../action-menu/screen-types";
 import { ClientApplication } from "..";
 import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
+import { synchronizeActionEntityModels } from "../replay-execution/update-handlers/spawn-entities-update-handler";
 
 export function createClientSequentialEventHandlers(
   clientApplication: ClientApplication
@@ -24,6 +25,9 @@ export function createClientSequentialEventHandlers(
       return clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels(
         event
       );
+    },
+    [ClientSequentialEventType.SynchronizeActionEntityModels]: async () => {
+      await synchronizeActionEntityModels(clientApplication);
     },
     [ClientSequentialEventType.SpawnEnvironmentModel]: (event) => {
       return clientApplication.gameWorldView?.sceneEntityService.environmentEntityManager.spawnEnvironmentEntity(
@@ -128,10 +132,21 @@ export function createClientSequentialEventHandlers(
     },
     [ClientSequentialEventType.PostReplayTreeCleanup]: async (data) => {
       if (data.removedCombatantIds) {
+        const party = clientApplication.gameContext.requireParty();
+        const game = clientApplication.gameContext.requireGame();
+        const combatantSceneEntityManager =
+          clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
         for (const id of data.removedCombatantIds) {
-          clientApplication.gameContext
-            .requireParty()
-            .combatantManager.removeCombatant(id, clientApplication.gameContext.requireGame());
+          // combatants flagged removeFromPartyOnDeath (e.g. an ensnare web) die mid-battle; despawn
+          // their model now that its death animation has played. ordinary defeated combatants keep
+          // their models until the next room, so we leave those in place.
+          const removeModelNow =
+            party.combatantManager.getCombatantOption(id)?.combatantProperties
+              .removeFromPartyOnDeath ?? false;
+          party.combatantManager.removeCombatant(id, game);
+          if (removeModelNow) {
+            combatantSceneEntityManager?.unregister(id, CleanupMode.Immediate);
+          }
         }
       }
     },

@@ -24,10 +24,13 @@ export async function actionCompletionGameUpdateHandler(
       command.addDelayToTurnScheduler.delay,
       deserializedThreatChangesOption
     );
+    // a turn ended, so the tracker list must be rebuilt even when handleTurnEnded could not
+    // resolve a scheduler to apply the delta to (e.g. a removed condition, or an effect-less
+    // PayActionPoint from a weapon swap that emits no hit/resource updates to re-sort elsewhere)
+    battleOption.turnOrderManager.updateTrackers(game, party);
   }
 
   if (battleOption) {
-    // battleOption.turnOrderManager.updateTrackers(game, party);
     const newlyActiveTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
     combatantFocus.updateFocusedCharacterOnNewTurnOrder(newlyActiveTracker);
   }

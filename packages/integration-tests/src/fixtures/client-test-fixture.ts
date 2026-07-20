@@ -144,7 +144,7 @@ export class ClientFixture {
     await clientApplication.sequentialEventProcessor.waitUntilIdle();
     await clientApplication.topologyManager.transitionToGameServer.waitFor();
 
-    clientApplication.gameClientRef.get().leaveGame();
+    await clientApplication.gameClientRef.get().leaveGame();
     await clientApplication.topologyManager.transitionToLobbyServer.waitFor();
   }
 }

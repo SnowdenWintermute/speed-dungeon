@@ -1,5 +1,5 @@
 import { AdventuringParty, SpeedDungeonGame } from "@speed-dungeon/common";
-import React from "react";
+import React, { useEffect } from "react";
 import CombatantPlaqueGroup from "./combatant-plaques/CombatantPlaqueGroup";
 import { observer } from "mobx-react-lite";
 

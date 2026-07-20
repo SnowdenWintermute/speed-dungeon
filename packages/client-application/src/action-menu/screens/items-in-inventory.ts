@@ -39,6 +39,11 @@ export class InventoryItemsActionMenuScreen extends ActionMenuScreen {
       actionMenu.pushStack(new ConsideringItemActionMenuScreen(clientApplication, item));
     }
 
-    return ActionMenuScreen.getItemButtonsFromList(itemsInInventory, itemButtonClickHandler, () => false);
+    return ActionMenuScreen.getItemButtonsFromList(
+      this.clientApplication.uiStore.keybinds,
+      itemsInInventory,
+      itemButtonClickHandler,
+      () => false
+    );
   }
 }

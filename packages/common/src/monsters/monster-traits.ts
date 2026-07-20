@@ -19,12 +19,36 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Slime]: (combatantLevel) => {
     return {
       [CombatantTraitType.CanNotBeRestrained]: 1,
+      [CombatantTraitType.IsTameable]: 1,
     };
   },
   [MonsterType.Zombie]: (combatantLevel) => {
     return {
       [CombatantTraitType.Undead]: 1,
     };
+  },
+  [MonsterType.SkeletonWarrior]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.Undead]: 1,
+      [CombatantTraitType.Parry]: 1,
+    };
+  },
+  [MonsterType.SkeletonCaptain]: (combatantLevel) => {
+    return {
+      [CombatantTraitType.Undead]: 1,
+      [CombatantTraitType.Parry]: 1,
+      [CombatantTraitType.Counterattack]: 1,
+    };
+  },
+  [MonsterType.VampireBat]: () => {
+    return {
+      [CombatantTraitType.Flyer]: 1,
+      [CombatantTraitType.MeleeLifesteal]: 3,
+      [CombatantTraitType.IsTameable]: 1,
+    };
+  },
+  [MonsterType.TyrantRex]: () => {
+    return {};
   },
   [MonsterType.FireMage]: (combatantLevel) => {
     return {};
@@ -35,11 +59,11 @@ export const MONSTER_INHERENT_TRAIT_GETTERS: Record<
   [MonsterType.Wolf]: function (
     combatantLevel: number
   ): Partial<Record<CombatantTraitType, number>> {
-    return { [CombatantTraitType.IsTameable]: 0 };
+    return { [CombatantTraitType.IsTameable]: 1 };
   },
   [MonsterType.MantaRay]: function (
     combatantLevel: number
   ): Partial<Record<CombatantTraitType, number>> {
-    return { [CombatantTraitType.IsTameable]: 0, [CombatantTraitType.Flyer]: 0 };
+    return { [CombatantTraitType.IsTameable]: 1, [CombatantTraitType.Flyer]: 1 };
   },
 };

@@ -9,6 +9,7 @@ import type {
   Item,
   Consumable,
   Combatant,
+  MaxAndCurrent,
 } from "@speed-dungeon/common";
 import type { KeyCode } from "../ui/keybind-config";
 import type { ActionMenuScreen } from "./screens";
@@ -86,7 +87,6 @@ export enum ActionMenuNumberedButtonType {
   AbilityTreeAbility,
   AbilityTreeColumn,
   PurchaseConsumable,
-  RepairEquipment,
   VendingMachineOption,
   AssignAttributePoint,
 }
@@ -107,6 +107,8 @@ export interface ActionMenuNumberedButtonMap {
     onClick: (item: Item) => void;
     showEquippedStatus?: boolean;
     price?: number | null;
+    shardsOwned?: number | null;
+    durability?: MaxAndCurrent | null;
   };
   [ActionMenuNumberedButtonType.CraftAction]: {
     equipment: Equipment;
@@ -124,10 +126,6 @@ export interface ActionMenuNumberedButtonMap {
   };
   [ActionMenuNumberedButtonType.PurchaseConsumable]: {
     item: Consumable;
-    listIndex: number;
-  };
-  [ActionMenuNumberedButtonType.RepairEquipment]: {
-    equipment: Equipment;
     listIndex: number;
   };
   [ActionMenuNumberedButtonType.VendingMachineOption]: {

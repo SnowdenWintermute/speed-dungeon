@@ -26,8 +26,8 @@ import {
   IdGeneratorRandom,
   cookieHeaderAuthSessionIdParser,
   ServerCommand,
-  GlobalGameSessionStore,
-  InMemoryGlobalGameSessionStore,
+  UserGlobalGameSessionStore,
+  InMemoryUserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   GuestSessionReconnectionToken,
@@ -61,7 +61,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
   );
 
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
-  const globalGameSessionStore = new InMemoryGlobalGameSessionStore();
+  const globalGameSessionStore = new InMemoryUserGlobalGameSessionStore();
 
   const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<
     GameStateUpdate,
@@ -165,7 +165,7 @@ function createOfflineLobbyServerServices(
   ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore
+  globalGameSessionStore: UserGlobalGameSessionStore
 ) {
   const identityProviderQueryStrategy = new InMemoryIdentityProviderQueryStrategy();
 
@@ -198,7 +198,7 @@ function createOfflineGameServerServices(
   ladderGameRecordsService: LadderGameRecordsService,
   assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-  globalGameSessionStore: GlobalGameSessionStore,
+  globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
 ) {
   const externalServices: GameServerExternalServices = {

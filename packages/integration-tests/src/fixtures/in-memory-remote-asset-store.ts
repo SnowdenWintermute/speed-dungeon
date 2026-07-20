@@ -64,7 +64,6 @@ export class InMemoryRemoteAssetStore extends RemoteAssetStore {
     return {
       promise,
       abort: () => {
-        console.log("aborted asset fetch in test asset remote store:", assetId);
         this.abortFetch(assetId);
       },
     };

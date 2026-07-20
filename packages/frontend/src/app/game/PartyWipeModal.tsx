@@ -5,7 +5,8 @@ import Divider from "../components/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { HOTKEYS, letterFromKeyCode } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { keyValueToDisplayString } from "@/client-application/ui/keyboard-layouts";
 
 export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) => {
   const clientApplication = useClientApplication();
@@ -14,7 +15,8 @@ export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) 
     clientApplication.gameClientRef.get().leaveGame();
   }
 
-  const leaveGameHotkey = HOTKEYS.SIDE_1;
+  const leaveGameHotkey =
+    clientApplication.uiStore.keybinds.getKeybind(HotkeyButtonTypes.LeaveGame)[0] ?? "";
 
   if (!party.hasWiped()) return <></>;
   return (
@@ -30,7 +32,7 @@ export const PartyWipeModal = observer(({ party }: { party: AdventuringParty }) 
       </span>
       <Divider extraStyles="mb-4" />
       <ButtonBasic extraStyles="w-full bg-slate-950" onClick={leaveGame} hotkey={leaveGameHotkey}>
-        Leave Game ({letterFromKeyCode(leaveGameHotkey)})
+        Leave Game ({keyValueToDisplayString(leaveGameHotkey)})
       </ButtonBasic>
     </div>
   );

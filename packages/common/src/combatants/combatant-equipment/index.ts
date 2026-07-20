@@ -1,7 +1,9 @@
 import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
+  equipmentTypeCanGoInSlot,
   HoldableSlotType,
+  taggedEquipmentSlotsAreEqual,
   TaggedEquipmentSlot,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
@@ -19,6 +21,7 @@ import { WeaponProperties } from "../../items/equipment/equipment-properties/wea
 import { HoldableHotswapSlot } from "./holdable-hotswap-slot.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { NumericEnumUtils } from "../../utils/numeric-enum-utils.js";
+import { Inventory } from "../inventory/index.js";
 
 export class CombatantEquipment extends CombatantSubsystem implements Serializable, ReactiveNode {
   private wearables: Partial<Record<WearableSlotType, Equipment>> = {};
@@ -170,6 +173,27 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return toReturn;
   }
 
+  getEquippedLifestealPercentage(): number {
+    let total = 0;
+    for (const equippedItem of this.getAllEquippedItems({ includeUnselectedHotswapSlots: false })) {
+      total += equippedItem.getLifestealPercentage();
+    }
+    return total;
+  }
+
+  getEquippedNonWeaponFlatDamageBonus(): number {
+    let total = 0;
+    for (const equippedItem of this.getAllEquippedItems({ includeUnselectedHotswapSlots: false })) {
+      // a weapon's own flat damage is applied per-weapon with its percent-damage modifier, so only
+      // non-weapon items (ex: the lantern shield's flat damage suffix) are aggregated here
+      if (equippedItem.isWeapon()) {
+        continue;
+      }
+      total += equippedItem.getFlatDamageBonus();
+    }
+    return total;
+  }
+
   getEquipmentInSlot(taggedSlot: TaggedEquipmentSlot) {
     switch (taggedSlot.type) {
       case EquipmentSlotType.Holdable:
@@ -194,8 +218,19 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return null;
   }
 
-  /** 
-  returns list of item ids unequipped 
+  canEquip(equipment: Equipment): Error | void {
+    const combatantProperties = this.getCombatantProperties();
+
+    if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
+    }
+    if (equipment.isBroken()) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+    }
+  }
+
+  /**
+  returns list of item ids unequipped
   */
   equipItem(
     itemId: string,
@@ -207,10 +242,41 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
     const equipment = equipmentResult;
 
-    if (!combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(equipment)) {
-      return new Error(ERROR_MESSAGES.EQUIPMENT.REQUIREMENTS_NOT_MET);
-    }
-    if (equipment.isBroken()) return new Error(ERROR_MESSAGES.EQUIPMENT.IS_BROKEN);
+    const maybeError = this.canEquip(equipment);
+    if (maybeError instanceof Error) return maybeError;
+
+    const removedResult = combatantProperties.inventory.removeEquipment(itemId);
+    if (removedResult instanceof Error) return removedResult;
+
+    return this.putEquipmentInSlotUnequippingConflicts(removedResult, equipToAltSlot);
+  }
+
+  /** Equips an item lying in the room, never routing it through the inventory. Anything already in
+  the destination slot is unequipped into the inventory as usual. */
+  equipItemFromGround(
+    itemId: string,
+    groundInventory: Inventory,
+    equipToAltSlot: boolean
+  ): Error | { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+    const equipmentResult = groundInventory.getEquipmentById(itemId);
+    if (equipmentResult instanceof Error) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    const equipment = equipmentResult;
+
+    const maybeError = this.canEquip(equipment);
+    if (maybeError instanceof Error) return maybeError;
+
+    const removedResult = groundInventory.removeEquipment(itemId);
+    if (removedResult instanceof Error) return removedResult;
+
+    return this.putEquipmentInSlotUnequippingConflicts(removedResult, equipToAltSlot);
+  }
+
+  /** Expects the equipment to already have been removed from wherever it came from. */
+  private putEquipmentInSlotUnequippingConflicts(
+    equipment: Equipment,
+    equipToAltSlot: boolean
+  ): { idsOfUnequippedItems: EntityId[]; unequippedSlots: TaggedEquipmentSlot[] } {
+    const combatantProperties = this.getCombatantProperties();
 
     const idsOfUnequippedItems: EntityId[] = [];
     const slotsToUnequip: TaggedEquipmentSlot[] = [];
@@ -263,20 +329,63 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
         }
       })();
 
-      if (slotsToUnequipResult instanceof Error) return slotsToUnequipResult;
       slotsToUnequip.push(...slotsToUnequipResult);
 
       idsOfUnequippedItems.push(...combatantProperties.equipment.unequipSlots(slotsToUnequip));
 
-      const itemToEquipResult = combatantProperties.inventory.removeEquipment(
-        equipment.entityProperties.id
-      );
-      if (itemToEquipResult instanceof Error) return itemToEquipResult;
-
-      combatantProperties.equipment.putEquipmentInSlot(itemToEquipResult, slot);
+      combatantProperties.equipment.putEquipmentInSlot(equipment, slot);
     });
 
     return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
+  }
+
+  /** Moves an already equipped item to another of its legal slots. Whatever occupies the
+  destination trades places with it if it can legally go in the vacated slot, otherwise it is
+  unequipped into the inventory. */
+  moveEquippedItemToSlot(
+    sourceSlot: TaggedEquipmentSlot,
+    destinationSlot: TaggedEquipmentSlot
+  ): Error | { idsOfUnequippedItems: EntityId[] } {
+    if (taggedEquipmentSlotsAreEqual(sourceSlot, destinationSlot)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.ALREADY_IN_SLOT);
+    }
+
+    const item = this.getEquipmentInSlot(sourceSlot);
+    if (item === undefined) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
+    }
+
+    const { equipmentType } = item.equipmentBaseItemProperties;
+    if (!equipmentTypeCanGoInSlot(equipmentType, destinationSlot)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.CANNOT_GO_IN_SLOT);
+    }
+
+    const combatantProperties = this.getCombatantProperties();
+    const idsOfUnequippedItems: EntityId[] = [];
+
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      const displacedOption = this.getEquipmentInSlot(destinationSlot);
+
+      this.removeEquipmentInSlots([sourceSlot, destinationSlot]);
+
+      if (displacedOption !== undefined) {
+        const displacedCanSwap = equipmentTypeCanGoInSlot(
+          displacedOption.equipmentBaseItemProperties.equipmentType,
+          sourceSlot
+        );
+
+        if (displacedCanSwap) {
+          this.putEquipmentInSlot(displacedOption, sourceSlot);
+        } else {
+          combatantProperties.inventory.insertItem(displacedOption);
+          idsOfUnequippedItems.push(displacedOption.entityProperties.id);
+        }
+      }
+
+      this.putEquipmentInSlot(item, destinationSlot);
+    });
+
+    return { idsOfUnequippedItems };
   }
 
   changeSelectedHotswapSlot(slotIndex: number) {

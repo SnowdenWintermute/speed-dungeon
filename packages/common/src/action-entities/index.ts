@@ -31,6 +31,7 @@ import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export enum ActionEntityName {
   Arrow,
+  Pebble,
   IceBolt,
   Explosion,
   IceBurst,
@@ -39,6 +40,7 @@ export enum ActionEntityName {
 
 export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
   [ActionEntityName.Arrow]: "Arrow",
+  [ActionEntityName.Pebble]: "Arrow",
   [ActionEntityName.IceBolt]: "Ice Bolt",
   [ActionEntityName.Explosion]: "Explosion",
   [ActionEntityName.IceBurst]: "Ice Burst",
@@ -51,6 +53,7 @@ export class ActionEntityActionOriginData {
   turnOrderSpeed?: number;
   stacks?: MaxAndCurrent;
   userCombatantAttributes?: CombatantAttributeRecord;
+  userEquipmentLifestealPercentage?: number;
   userElementalAffinities?: Partial<Record<MagicalElement, number>>;
   userKineticAffinities?: Partial<Record<KineticDamageType, number>>;
   resourceChangeProperties?: Partial<
@@ -95,6 +98,7 @@ export class ActionEntityActionOriginData {
       result.stacks = MaxAndCurrent.fromSerialized(serialized.stacks);
     }
     result.userCombatantAttributes = serialized.userCombatantAttributes;
+    result.userEquipmentLifestealPercentage = serialized.userEquipmentLifestealPercentage;
     result.userElementalAffinities = serialized.userElementalAffinities;
     result.userKineticAffinities = serialized.userKineticAffinities;
     result.resourceChangeProperties = serialized.resourceChangeProperties;
@@ -131,7 +135,7 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
 
   getType = () => ActionUserType.ActionEntity;
   getMovementSpeedOption(): null | number {
-    return ARROW_TIME_TO_MOVE_ONE_METER;
+    return this.actionEntityProperties.movementSpeed || ARROW_TIME_TO_MOVE_ONE_METER;
   }
   getActionEntityProperties(): ActionEntityProperties {
     return this.actionEntityProperties;
@@ -194,6 +198,8 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
     throw new Error("Method not implemented.");
   }
   getEquipmentOption = () => null;
+  getEquipmentLifestealPercentage = () =>
+    this.actionEntityProperties.actionOriginData?.userEquipmentLifestealPercentage ?? 0;
   getInventoryOption = () => null;
 
   getTargetingProperties(): ActionUserTargetingProperties {

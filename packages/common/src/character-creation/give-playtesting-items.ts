@@ -2,7 +2,9 @@ import {
   AffixType,
   CombatantProperties,
   CombatAttribute,
+  EquipmentTraitType,
   OneHandedMeleeWeapon,
+  PREFIX_TYPES,
   Shield,
   TwoHandedRangedWeapon,
 } from "../index.js";
@@ -40,14 +42,51 @@ export function givePlaytestingItems(
 
   inventory.equipment.push(tradeableItem);
 
-  inventory.equipment.push(itemBuilder.shield(Shield.LanternShield).build(idGenerator));
+  inventory.equipment.push(itemBuilder.shield(Shield.GothicShield).build(idGenerator));
+  inventory.equipment.push(itemBuilder.shield(Shield.AncientBuckler).build(idGenerator));
+  inventory.equipment.push(itemBuilder.shield(Shield.TowerShield).build(idGenerator));
   inventory.equipment.push(
     itemBuilder
       .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
       // .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
       .build(idGenerator)
   );
-  inventory.equipment.push(itemBuilder.ring().randomizeAffixes().build(idGenerator));
+  inventory.equipment.push(
+    itemBuilder
+      .ring()
+      .prefix(AffixType.LifeSteal, {
+        combatAttributes: {},
+        tier: 1,
+        equipmentTraits: {
+          [EquipmentTraitType.LifeSteal]: {
+            equipmentTraitType: EquipmentTraitType.LifeSteal,
+            value: 10,
+          },
+        },
+      })
+      .build(idGenerator)
+  );
+  inventory.equipment.push(
+    itemBuilder
+      .ring()
+      .suffix(AffixType.FlatDamage, {
+        combatAttributes: {},
+        tier: 1,
+        equipmentTraits: {
+          [EquipmentTraitType.FlatDamageAdditive]: {
+            equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
+            value: 10,
+          },
+        },
+      })
+      .build(idGenerator)
+  );
+
+  for (let i = 0; i < 20; i += 1) {
+    inventory.equipment.push(
+      itemBuilder.shield(Shield.LanternShield).itemLevel(7).randomizeAffixes().build(idGenerator)
+    );
+  }
   inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));
 
   const item = itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator);
@@ -63,8 +102,8 @@ function giveHotswapSlotEquipment(
   itemBuilder: ItemBuilder
 ) {
   const mh = itemBuilder
-    .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
-    .durability(100)
+    .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Mace)
+    .durability(3)
     .build(idGenerator);
 
   combatantProperties.inventory.insertItem(mh);

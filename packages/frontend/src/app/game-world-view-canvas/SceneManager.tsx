@@ -5,6 +5,7 @@ import { GameWorldView } from "@/game-world-view";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { createBabylonScheduler } from "@/client-application/replay-execution/replay-tree-tick-schedulers";
+import { synchronizeActionEntityModels } from "@/client-application/replay-execution/update-handlers/spawn-entities-update-handler";
 import { DebugPanel } from "../debug/debug-panel";
 
 export const SceneManager = observer(() => {
@@ -24,6 +25,9 @@ export const SceneManager = observer(() => {
       );
 
       gameWorldView.sceneEntityService.combatantSceneEntityManager.synchronizeCombatantModels({});
+      // on reconnection/refresh the GameFullUpdate arrives before this scene exists, so respawn
+      // persistent action entities (e.g. a firewall) and their cosmetic effects now that it does
+      void synchronizeActionEntityModels(clientApplication);
 
       canvasRef.current.addEventListener("webglcontextlost", (e) => {
         console.error("context lost!", e);

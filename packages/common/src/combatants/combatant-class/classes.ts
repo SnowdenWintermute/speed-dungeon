@@ -1,7 +1,7 @@
 export enum CombatantClass {
   Warrior,
-  Mage,
   Rogue,
+  Mage,
 }
 
 export const COMBATANT_CLASS_NAME_STRINGS: Record<CombatantClass, string> = {

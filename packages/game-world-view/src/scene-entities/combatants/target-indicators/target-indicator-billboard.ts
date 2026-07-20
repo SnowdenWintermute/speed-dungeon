@@ -22,6 +22,9 @@ export class TargetIndicatorBillboard {
     const name = `target-indicator-[${targetIndicator.targetId}]`;
     this.plane = MeshBuilder.CreatePlane(name, { size: 0.25 }, scene);
     this.plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
+    // non-pickable so a tap on a targeted combatant resolves to its reticle plane, not this
+    // indicator (which sits in front of the reticle, toward the camera)
+    this.plane.isPickable = false;
     // Optional: ensure it's not affected by scene lighting
     this.material = new StandardMaterial(`${name}-material`, scene);
     this.material.diffuseTexture = texture;

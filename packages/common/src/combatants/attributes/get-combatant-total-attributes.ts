@@ -1,4 +1,4 @@
-import { DEX_TO_RANGED_ARMOR_PEN_RATIO, STR_TO_MELEE_ARMOR_PEN_RATIO } from "../../app-consts.js";
+import { STR_TO_MELEE_ARMOR_PEN_RATIO } from "../../app-consts.js";
 import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
@@ -39,7 +39,7 @@ export function getCombatantTotalAttributes(
     addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
 
     const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-    for (let i = 1; i < level; i += 1) {
+    for (let i = 0; i < level + 1; i += 1) {
       addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
     }
 
@@ -94,11 +94,12 @@ export function getCombatantTotalAttributes(
       }
     }
     const baseArmorClass = item.getBaseArmorClass();
-    if (totalAttributes[CombatAttribute.ArmorClass])
+    if (totalAttributes[CombatAttribute.ArmorClass]) {
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
         totalAttributes[CombatAttribute.ArmorClass] - baseArmorClass,
         0
       );
+    }
   }
 
   // CONDITIONS
@@ -108,6 +109,7 @@ export function getCombatantTotalAttributes(
     addAttributesToAccumulator(attributesFromCondition, totalAttributes);
   }
 
+  // DERRIVED
   for (const [mainAttribute, attributeRatios] of iterateNumericEnumKeyedRecord(
     DERIVED_ATTRIBUTE_RATIOS
   )) {
@@ -135,24 +137,14 @@ function getArmorPenDerivedBonus(
 ): number {
   const mhWeaponOption = combatantProperties.equipment.getEquippedWeapon(HoldableSlotType.MainHand);
   if (mhWeaponOption instanceof Error) return 0;
-  let attributeToDeriveFrom = CombatAttribute.Strength;
-  if (mhWeaponOption) {
-    const weaponProperties = mhWeaponOption;
-    if (
-      weaponProperties.taggedBaseEquipment.equipmentType === EquipmentType.TwoHandedRangedWeapon
-    ) {
-      attributeToDeriveFrom = CombatAttribute.Dexterity;
-    }
+
+  if (mhWeaponOption?.equipmentType === EquipmentType.TwoHandedRangedWeapon) {
+    return 0;
   }
 
-  const attributeQuantity = totalAttributesLessArmorPenBonus[attributeToDeriveFrom] || 0;
+  const attributeQuantity = totalAttributesLessArmorPenBonus[CombatAttribute.Strength] || 0;
 
-  switch (attributeToDeriveFrom) {
-    case CombatAttribute.Strength:
-      return attributeQuantity * STR_TO_MELEE_ARMOR_PEN_RATIO;
-    case CombatAttribute.Dexterity:
-      return attributeQuantity * DEX_TO_RANGED_ARMOR_PEN_RATIO;
-  }
+  return attributeQuantity * STR_TO_MELEE_ARMOR_PEN_RATIO;
 }
 
 function calculateAndAddDerivedAttribute(

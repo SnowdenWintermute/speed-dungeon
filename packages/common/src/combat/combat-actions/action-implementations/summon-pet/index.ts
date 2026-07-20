@@ -8,6 +8,8 @@ import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-template
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
+  getResourceCostsBasedOnOwnedRank,
+  getResourceCostsByRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -30,6 +32,8 @@ import { CombatActionExecutionIntent } from "../../combat-action-execution-inten
 import { invariant } from "../../../../utils/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { AbilityType } from "../../../../abilities/ability-types.js";
+import cloneDeep from "lodash.clonedeep";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 
@@ -57,15 +61,6 @@ stepsConfig.finalSteps[ActionResolutionStepType.FinalPositioning] = {
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
-  costBases: {
-    [ActionPayableResource.Mana]: {
-      base: 2,
-      additives: {
-        actionLevel: 0,
-        userCombatantLevel: 0,
-      },
-    },
-  },
   getMeetsCustomRequirements: (user, party) => {
     const { combatantManager } = party;
     for (const combatant of combatantManager.getPartyMemberPets()) {
@@ -75,6 +70,15 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     }
 
     return { meetsRequirements: true };
+  },
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 2 },
+    [2]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 1 },
+  },
+
+  getResourceCosts: (user, inCombat, actionRank, self) => {
+    return getResourceCostsBasedOnOwnedRank(user, self.name, self, inCombat);
   },
 };
 

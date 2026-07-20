@@ -8,6 +8,7 @@ import {
   CombatActionResource,
   HitOutcomeMitigationCalculator,
   SpeedDungeonGame,
+  invariant,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -18,6 +19,7 @@ import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const CharacterSheetWeaponDamage = observer(
   ({ combatant, disableOh }: { combatant: Combatant; disableOh?: boolean }) => {
@@ -60,10 +62,15 @@ export const CharacterSheetWeaponDamage = observer(
       );
     }
 
-    if (mhDamageAndAccuracyResult instanceof Error)
+    if (mhDamageAndAccuracyResult instanceof Error) {
       return <div>{mhDamageAndAccuracyResult.message}</div>;
-    if (ohDamageAndAccuracyResult instanceof Error)
+    }
+    if (ohDamageAndAccuracyResult instanceof Error) {
       return <div>{ohDamageAndAccuracyResult.message}</div>;
+    }
+
+    const blockPropertiesOption =
+      combatantProperties.mitigationProperties.getShieldBlockProperties();
 
     return (
       <div className="flex w-full">
@@ -72,13 +79,37 @@ export const CharacterSheetWeaponDamage = observer(
           label="Main Hand"
           paddingClass="pr-1"
         />
-        <WeaponDamageEntry
-          damageAndAccuracyOption={ohDamageAndAccuracyResult}
-          label="Off Hand"
-          paddingClass="pl-1"
-          isOffHand={true}
-          showDisabled={disableOh}
-        />
+        {blockPropertiesOption ? (
+          <div className="flex pl-1 w-1/2">
+            <div className="flex w-1/2">
+              <HoverableTooltipWrapper tooltipText="Block chance">
+                <div className="h-6 mr-1 relative">
+                  {SVG_ICONS[IconName.Shield]("h-full fill-slate-400")}
+                </div>
+              </HoverableTooltipWrapper>
+              <div>{Math.floor(blockPropertiesOption.blockChance * 100)}%</div>
+            </div>
+            <div className="flex ">
+              <HoverableTooltipWrapper tooltipText="Blocked damage reduction">
+                <div className="h-6 mr-1 relative">
+                  <div className="absolute leading-none text-slate-700 font-bold pointer-events-none text-center text-lg h-full w-full">
+                    ↡
+                  </div>
+                  {SVG_ICONS[IconName.Shield]("h-full fill-slate-400")}
+                </div>
+              </HoverableTooltipWrapper>
+              <div>{Math.floor(blockPropertiesOption.blockReduction * 100)}%</div>
+            </div>
+          </div>
+        ) : (
+          <WeaponDamageEntry
+            damageAndAccuracyOption={ohDamageAndAccuracyResult}
+            label="Off Hand"
+            paddingClass="pl-1"
+            isOffHand={true}
+            showDisabled={disableOh}
+          />
+        )}
       </div>
     );
   }
@@ -109,24 +140,36 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 
   return (
     <div className={`w-1/2 min-w-1/2 ${props.paddingClass} ${props.showDisabled && "opacity-50"}`}>
-      <div className="w-full flex justify-between">
-        <span className="flex">
+      <div className="w-full flex justify-start">
+        <span className="flex w-1/2">
           {SVG_ICONS[IconName.OpenHand](
-            `h-5 fill-slate-400 mr-1 ${props.isOffHand && "-scale-x-100"} `
+            `h-5 w-6 fill-slate-400 mr-1 ${props.isOffHand && "-scale-x-100"} `
           )}
           {`${hpChangeRange.min.toFixed(0)}-${hpChangeRange.max.toFixed(0)}`}
         </span>
         <span className="flex">
-          {SVG_ICONS[IconName.Target]("h-6 fill-slate-400 mr-1")}{" "}
+          <HoverableTooltipWrapper tooltipText="Hit chance">
+            {SVG_ICONS[IconName.Target]("h-6 fill-slate-400 mr-1")}{" "}
+          </HoverableTooltipWrapper>
           {(hitChance.afterEvasion * 100).toFixed(0)}%
         </span>
       </div>
-      <div className="flex justify-between ">
-        <span className=" flex">
-          {SVG_ICONS[IconName.CritChance]("h-6 fill-slate-400 mr-1")}{" "}
+      <div className="flex ">
+        <span className=" flex w-1/2">
+          <HoverableTooltipWrapper tooltipText="Critical strike chance">
+            {SVG_ICONS[IconName.CritChance]("h-6 w-6 fill-slate-400 mr-1")}{" "}
+          </HoverableTooltipWrapper>
           {(critChance * 100).toFixed(0)}%
         </span>
-        <span>↟{((critMultiplierOption || 0) * 100).toFixed(0)}%</span>
+        <span className="flex">
+          <HoverableTooltipWrapper
+            tooltipText="Critical strike multiplier"
+            extraStyles="cursor-default"
+          >
+            <div className="w-6 flex justify-center text-center">↟</div>
+          </HoverableTooltipWrapper>
+          {((critMultiplierOption || 0) * 100).toFixed(0)}%
+        </span>
       </div>
     </div>
   );
@@ -193,7 +236,9 @@ function getAttackActionDamageAndAccuracy(
     1,
     combatant,
     target,
-    !usingDummy
+    !usingDummy,
+    CombatActionResource.HitPoints,
+    hpChangeProperties.resourceChangeSource
   );
 
   return { hpChangeRange, hitChance, critChance, critMultiplierOption };

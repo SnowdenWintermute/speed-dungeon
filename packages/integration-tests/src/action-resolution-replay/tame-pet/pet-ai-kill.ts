@@ -7,6 +7,7 @@ import {
   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
   invariant,
   MONSTER_FIXTURES,
+  NextOrPrevious,
   TEST_DUNGEON_MANTA_TWO_WOLF,
 } from "@speed-dungeon/common";
 
@@ -25,6 +26,8 @@ export async function testPetAiKill(testFixture: IntegrationTestFixture) {
   const party = gameContext.requireParty();
   const { combatantManager } = party;
   const game = gameContext.requireGame();
+
+  combatantFocus.cycleFocusedCharacter(NextOrPrevious.Next);
 
   // need rank 2 tame pet to issue pet command
   await gameClientHarness.allocateAbilityPoint({

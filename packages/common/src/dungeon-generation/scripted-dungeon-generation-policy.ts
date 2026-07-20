@@ -1,11 +1,14 @@
 import { DungeonRoom, DungeonRoomType } from "../adventuring-party/dungeon-room.js";
+import { MonsterType } from "../monsters/monster-types.js";
 import { invariant } from "../utils/index.js";
 import {
   DungeonGenerationPolicy,
   DungeonRoomWithMonsters,
   ExplicitCombatantDungeonTemplate,
   ExplicitCombatantRoomTemplate,
+  FloorPaletteSelection,
 } from "./index.js";
+import { MonsterSpawnEntry } from "./monster-types-by-floor.js";
 
 export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
   private floors: ExplicitCombatantRoomTemplate[][] = [];
@@ -14,20 +17,29 @@ export class ScriptedDungeonGenerationPolicy extends DungeonGenerationPolicy {
     this.floors = floors;
   }
 
-  generateUnexploredRoomTypesOnFloor(floorLevel: number): DungeonRoomType[] {
+  generateUnexploredRoomTypesOnFloor(
+    floorLevel: number,
+    _includeBossRoom: boolean
+  ): DungeonRoomType[] {
     const floorRooms = this.getFloorRooms(floorLevel);
     // reverse because the exploration manager pops from the end
     return floorRooms.map((r) => r.type).reverse();
   }
 
+  generateFloorPalette(_floorLevel: number): FloorPaletteSelection {
+    return { palette: [], boss: null };
+  }
+
   generateDungeonRoom(
     floorLevel: number,
     roomType: DungeonRoomType,
-    roomIndex: number
+    roomIndex: number,
+    _palette: MonsterSpawnEntry[],
+    _boss: MonsterType | null
   ): DungeonRoomWithMonsters {
     const room = new DungeonRoom(roomType);
 
-    if (roomType !== DungeonRoomType.MonsterLair) {
+    if (roomType !== DungeonRoomType.MonsterLair && roomType !== DungeonRoomType.BossLair) {
       return { room, monsters: [] };
     }
 

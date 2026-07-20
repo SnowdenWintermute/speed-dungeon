@@ -5,6 +5,7 @@ import {
 import { ActionMenuScreen } from ".";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ClientApplication } from "../../";
+import { getActionMenuSlotHotkeys, getActionMenuSlotLabel } from "../slot-keybinds";
 import { ActionMenuScreenType } from "../screen-types";
 import { ConfirmTradeForBookActionMenuScreen } from "./trade-for-book-confirm";
 import {
@@ -36,6 +37,7 @@ export class SelectItemToTradeForBookActionMenuScreen extends ActionMenuScreen {
     const focusedCharacter = this.clientApplication.combatantFocus.requireFocusedCharacter();
     const { combatantProperties } = focusedCharacter;
 
+    const keybinds = this.clientApplication.uiStore.keybinds;
     return getOwnedAcceptedItemsForBookTrade(combatantProperties, this.bookType).map((item, i) => {
       const buttonNumber = i + 1;
       return {
@@ -43,8 +45,8 @@ export class SelectItemToTradeForBookActionMenuScreen extends ActionMenuScreen {
         data: {
           item,
           text: item.entityProperties.name,
-          hotkeyLabel: `${buttonNumber}`,
-          hotkeys: [`Digit${buttonNumber}`],
+          hotkeyLabel: getActionMenuSlotLabel(keybinds, buttonNumber),
+          hotkeys: getActionMenuSlotHotkeys(keybinds, buttonNumber),
           onClick: () => {
             this.clientApplication.detailableEntityFocus.selectItem(item);
             this.clientApplication.actionMenu.pushStack(

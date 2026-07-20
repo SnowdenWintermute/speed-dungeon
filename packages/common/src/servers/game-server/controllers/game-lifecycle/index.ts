@@ -14,10 +14,17 @@ import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { PartyDelayedGameMessageFactory } from "../../party-delayed-game-message-factory.js";
 import { createPartyAbandonedMessage, GameMessageType } from "../../../../packets/game-message.js";
 import { DungeonExplorationController } from "../dungeon-exploration.js";
-import { GlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
+import { UserGlobalGameSessionStore } from "../../../services/global-auth-game-connection-session-store/index.js";
 import { GameModePolicyStore } from "../../../../game-modes/game-mode-policy-store.js";
 import { GameMode, GameModePolicy } from "../../../../game-modes/index.js";
 import { PartyLifecyleController } from "../party-lifecycle.js";
+
+export class GameNoLongerExistsError extends Error {
+  constructor(public readonly gameId: GameId) {
+    super(`No active game or pending game setup exists for game id ${gameId}`);
+    this.name = "GameNoLongerExistsError";
+  }
+}
 
 export class GameServerGameLifecycleController implements GameLifecycleController {
   private readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
@@ -26,7 +33,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly gameRegistry: GameRegistry,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly globalGameSessionStore: UserGlobalGameSessionStore,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly dungeonExplorationController: DungeonExplorationController,
@@ -49,9 +56,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
   private async initializeExpectedPendingGame(gameId: GameId) {
     const pendingGameSetupOption = await this.gameSessionStoreService.getPendingGameSetup(gameId);
     if (pendingGameSetupOption === null) {
-      throw new Error(
-        "A user presented a token with a game id that didn't match any existing game or pending game setup."
-      );
+      throw new GameNoLongerExistsError(gameId);
     }
 
     const deserializedGame = SpeedDungeonGame.fromSerialized(pendingGameSetupOption.game);
@@ -101,7 +106,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
       data: {
-        game: game.toSerialized(),
+        game: game.toSerializedForClient(),
         awaitingUnresolvedReplayResolutionDuration: party.inputLock.remainingDuration || undefined,
         battle: battleOption
           ? {
@@ -199,7 +204,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     const persistencePolicyOutbox = await gameModePolicy.persistence.onLiveGameLeave(
       game,
       player,
-      this
+      this,
+      session.connectionId
     );
     outbox.pushFromOther(persistencePolicyOutbox);
 
@@ -288,14 +294,18 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     await gameModePolicy.ladder.onLastPlayerLeftLiveGame(game);
 
     this.gameRegistry.unregisterGame(game.id);
-    // even though we clear their session on leave game, it is possible that they never joined the game,
-    // the other users get bored and leave and the user that never joined would be stuck with a stale
-    // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
-    // @ARCHITECTURE - I don't think it will race with a lobby game created by same name because we prohibit
-    // creation of lobby game while active or pending game status of that name exists
-    await this.globalGameSessionStore.clearSessionsInGame(game.id);
-    await this.gameSessionStoreService.deleteActiveGameStatus(game.id);
-    await this.gameSessionStoreService.deletePendingGameSetup(game.id);
+    await this.purgeGameSessionRecords(game.id);
+  }
+
+  // even though we clear their session on leave game, it is possible that they never joined the game,
+  // the other users get bored and leave and the user that never joined would be stuck with a stale
+  // session awaiting initial connection with no way to clear it, so we'll clean them all here in case of that
+  // @ARCHITECTURE - I don't think it will race with a lobby game created by same name because we prohibit
+  // creation of lobby game while active or pending game status of that name exists
+  async purgeGameSessionRecords(gameId: GameId) {
+    await this.globalGameSessionStore.clearSessionsInGame(gameId);
+    await this.gameSessionStoreService.deleteActiveGameStatus(gameId);
+    await this.gameSessionStoreService.deletePendingGameSetup(gameId);
   }
 
   handleAbandoningDeadPartyMembers(

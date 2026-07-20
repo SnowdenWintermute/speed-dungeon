@@ -20,7 +20,6 @@ import {
 import { ActivatedTriggersGameUpdateCommand } from "../../../../action-processing/game-update-commands.js";
 import { createGenericSpellCastMessageProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionName } from "../../combat-action-names.js";
-import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.SUMMON_COMBATANT, {
   steps: {},
@@ -28,7 +27,6 @@ const stepsConfig = createStepsConfig(ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.SUMMO
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   requiresCombatTurnInThisContext: () => false,
-  costBases: { [ActionPayableResource.ActionPoints]: { base: 0 } },
 };
 
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_SPELL;

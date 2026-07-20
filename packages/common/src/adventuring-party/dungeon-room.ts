@@ -34,6 +34,7 @@ export enum DungeonRoomType {
   Staircase,
   Empty,
   VendingMachine,
+  BossLair,
 }
 
 export const DUNGEON_ROOM_TYPE_STRINGS: Record<DungeonRoomType, string> = {
@@ -41,4 +42,5 @@ export const DUNGEON_ROOM_TYPE_STRINGS: Record<DungeonRoomType, string> = {
   [DungeonRoomType.Staircase]: "Staircase",
   [DungeonRoomType.Empty]: "Empty",
   [DungeonRoomType.VendingMachine]: "Vending Machine",
+  [DungeonRoomType.BossLair]: "Boss Lair",
 };

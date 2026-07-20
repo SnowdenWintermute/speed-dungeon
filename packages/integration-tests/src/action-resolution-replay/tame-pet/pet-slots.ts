@@ -2,10 +2,12 @@ import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   AbilityType,
   CombatActionName,
+  CombatantClass,
   ERROR_MESSAGES,
   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
   invariant,
   MONSTER_FIXTURES,
+  NextOrPrevious,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
 } from "@speed-dungeon/common";
 
@@ -18,27 +20,40 @@ export async function testPetSlotLimitations(testFixture: IntegrationTestFixture
     ])
   );
   testFixture.timeMachine.start();
-  const client = await testFixture.createSingleClientInStartedGame();
+  const client = await testFixture.createSingleClientInStartedGame([
+    { name: "a", combatantClass: CombatantClass.Rogue },
+    { name: "b", combatantClass: CombatantClass.Rogue },
+  ]);
   const { clientApplication, gameClientHarness } = client;
   const { gameContext, combatantFocus } = clientApplication;
   const party = gameContext.requireParty();
   const game = gameContext.requireGame();
+
   await gameClientHarness.toggleReadyToExplore();
+
   const battle = party.getBattleOption(game);
   invariant(battle !== null, "no battle");
+
+  // clientApplication.combatantFocus.cycleFocusedCharacter(NextOrPrevious.Next);
 
   await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
   expect(clientApplication.errorRecordService.getLastError()?.message).toBe(
     ERROR_MESSAGES.COMBAT_ACTIONS.PET_SLOTS_FULL(1)
   );
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+
   const petTamer = combatantFocus.requireFocusedCharacter();
+  console.log("pet tamer id:", petTamer.getEntityId());
+
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(1);
   await gameClientHarness.useCombatAction(CombatActionName.ReleasePet, 1);
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(0);
   await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(1);
+  await gameClientHarness.useCombatAction(CombatActionName.PassTurn, 1);
+
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
+
   await gameClientHarness.useCombatAction(CombatActionName.TamePet, 1);
   // higher rank allows taming additional slot
   expect(clientApplication.errorRecordService.getLastError()?.message).toBe(

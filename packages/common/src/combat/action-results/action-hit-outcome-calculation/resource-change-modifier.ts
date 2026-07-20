@@ -1,6 +1,7 @@
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 import { Percentage } from "../../../aliases.js";
+import { EPSILON } from "../../../utils/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
@@ -40,9 +41,11 @@ export class ResourceChangeModifier {
       actionLevel,
       target
     );
-    resourceChangeCalculationContext.applyResilience(resourceChange, user, target);
+    resourceChangeCalculationContext.applySpirit(resourceChange, user, target);
 
-    this.resourceChange.value = Math.floor(resourceChange.value);
+    // this.resourceChange.value = Math.floor(resourceChange.value);
+    // comment the line above and uncomment below to test magnitude-based flooring:
+    this.resourceChange.value = floorSignedMagnitude(resourceChange.value);
   }
 
   private applyCritMultiplier(actionLevel: number) {
@@ -50,7 +53,17 @@ export class ResourceChangeModifier {
     let critMultiplier = this.hitOutcomeProperties.getCritMultiplier(this.user, actionLevel);
     if (critMultiplier === null) critMultiplier = 1;
 
-    this.resourceChange.value *= critMultiplier;
+    this.resourceChange.value *= this.getCritMultiplierAfterTargetReduction(critMultiplier);
+  }
+
+  private getCritMultiplierAfterTargetReduction(critMultiplier: number) {
+    if (!this.targetWillAttemptMitigation) return critMultiplier;
+
+    const reduction = this.target.mitigationProperties.getCritDamageReduction();
+    // only the portion above a normal hit is reduced, so a fully mitigated crit still lands as a normal hit
+    const critBonusMultiplier = critMultiplier - 1;
+
+    return 1 + critBonusMultiplier * (1 - reduction);
   }
 
   private applyShieldBlock() {
@@ -123,4 +136,11 @@ export class ResourceChangeModifier {
 
     if (!shouldKeepSign) resourceChange.value *= -1;
   }
+}
+
+// floors the magnitude of a signed value rather than the signed value itself. for damage (negative
+// at this point) Math.floor rounds away from zero and inflates the number; this rounds the magnitude
+// down instead. EPSILON absorbs float drift so a value like -3.0000001 doesn't tip to -4. 0 is allowed.
+function floorSignedMagnitude(value: number): number {
+  return Math.sign(value) * Math.floor(Math.abs(value) + EPSILON);
 }

@@ -4,12 +4,13 @@ import {
   DungeonRoomType,
   ExplorationAction,
 } from "@speed-dungeon/common";
-import React, { MouseEventHandler } from "react";
+import React, { MouseEventHandler, useRef } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
-import { HOTKEYS, letterFromKeyCode } from "@/client-application/ui/keybind-config";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { keyValueToDisplayString } from "@/client-application/ui/keyboard-layouts";
 
 interface Props {
   party: AdventuringParty;
@@ -17,15 +18,29 @@ interface Props {
 
 export const ReadyUpDisplay = observer(({ party }: Props) => {
   const clientApplication = useClientApplication();
-  const { session, combatantFocus, actionMenu, gameClientRef, detailableEntityFocus } =
+  const { session, combatantFocus, actionMenu, gameClientRef, detailableEntityFocus, uiStore } =
     clientApplication;
+  const { keybinds } = uiStore;
   const username = session.requireUsername();
   const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
+  const awaitingClickResolution = useRef<boolean>(false);
 
+  // we don't want to go to next room until sequentialEventProcessor queue is done
+  // and we don't want to send more than one request to go to the next room if they
+  // spam click it while waiting for the queue to finish. Would be nice to make the queue
+  // observable and not show button until it clears but was having trouble with that.
   function handleExploreClick() {
-    gameClientRef.get().dispatchIntent({
-      type: ClientIntentType.ToggleReadyToExplore,
-      data: undefined,
+    if (awaitingClickResolution.current === true) {
+      return;
+    }
+
+    awaitingClickResolution.current = true;
+    clientApplication.sequentialEventProcessor.waitUntilIdle().then(() => {
+      awaitingClickResolution.current = false;
+      gameClientRef.get().dispatchIntent({
+        type: ClientIntentType.ToggleReadyToExplore,
+        data: undefined,
+      });
     });
     actionMenu.clearStack();
   }
@@ -78,15 +93,22 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
     hoveredEntity ||
     actionMenu.shouldShowCharacterSheet() ||
     currentMenu.type !== ActionMenuScreenType.Root;
-  const descendHotkey = HOTKEYS.SIDE_2;
-  const exploreHotkey = HOTKEYS.SIDE_1;
-  const operateVendingMachineHotkey = HOTKEYS.SIDE_2;
+  const descendHotkeys = keybinds.getKeybind(HotkeyButtonTypes.Descend);
+  const exploreHotkeys = keybinds.getKeybind(HotkeyButtonTypes.Explore);
+  const operateVendingMachineHotkeys = keybinds.getKeybind(HotkeyButtonTypes.OperateVendingMachine);
+  const exploreLabel = keyValueToDisplayString(exploreHotkeys[0] ?? "");
+  const descendLabel = keyValueToDisplayString(descendHotkeys[0] ?? "");
+  const operateLabel = keyValueToDisplayString(operateVendingMachineHotkeys[0] ?? "");
 
-  const allowedToDescend = !inStaircaseRoom || party.combatantManager.monstersArePresent();
+  const allowedToExplore = !party.isInCombat();
+
+  if (!allowedToExplore) {
+    return <></>;
+  }
 
   return (
     <>
-      {allowedToDescend && (
+      {
         <div
           className="absolute top-12 -translate-y-[1px] min-w-[500px] text-center left-1/2 -translate-x-1/2 border border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto"
           style={{ opacity: shouldDim ? "0%" : "100%" }}
@@ -99,16 +121,16 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
           <div className="flex justify-between w-full">
             <HotkeyButton
               className={`h-10 pr-2 pl-2 ${!isVendingMachine ? "bg-slate-800 w-full" : "w-1/2 mr-1 "} border border-white text-center hover:bg-slate-950`}
-              hotkeys={["KeyG"]}
+              hotkeys={exploreHotkeys}
               disabled={actionMenu.operatingVendingMachine()}
               onClick={handleExploreClick}
             >
-              Explore next room (G)
+              Explore next room ({exploreLabel})
             </HotkeyButton>
             {party.currentRoom.roomType === DungeonRoomType.VendingMachine && (
               <HotkeyButton
                 className={`h-10 pr-2 pl-2 bg-slate-800 ml-1 w-1/2 border border-white text-center hover:bg-slate-950 disabled:opacity-50`}
-                hotkeys={["KeyT"]}
+                hotkeys={operateVendingMachineHotkeys}
                 disabled={
                   !party.combatantManager.playerOwnsCharacter(username, focusedCharacterId) ||
                   (currentMenu.type !== ActionMenuScreenType.Root &&
@@ -124,29 +146,29 @@ export const ReadyUpDisplay = observer(({ party }: Props) => {
                   }
                 }}
               >
-                Operate machine ({letterFromKeyCode(operateVendingMachineHotkey)})
+                Operate machine ({operateLabel})
               </HotkeyButton>
             )}
           </div>
         </div>
-      )}
+      }
       {inStaircaseRoom && (
         <div className="absolute top-10 -translate-y-[1px] left-1/2 -translate-x-1/2 border border-t-0 border-slate-400 bg-slate-700 p-4 flex flex-col pointer-events-auto">
           <h3 className="text-xl mb-2">You have found the staircase to the next floor</h3>
           <div className="flex justify-between">
             <HotkeyButton
               className="h-10 pr-2 pl-2 border border-slate-400 w-1/2 text-center hover:bg-slate-950 mr-1"
-              hotkeys={[exploreHotkey]}
+              hotkeys={exploreHotkeys}
               onClick={handleExploreClick}
             >
-              Vote to stay ({letterFromKeyCode(exploreHotkey)})
+              Vote to stay ({exploreLabel})
             </HotkeyButton>
             <HotkeyButton
               className="h-10 pr-2 pl-2 border border-slate-400 w-1/2 text-center hover:bg-slate-950 ml-1"
-              hotkeys={[descendHotkey]}
+              hotkeys={descendHotkeys}
               onClick={handleDescendClick}
             >
-              Vote to descend ({letterFromKeyCode(descendHotkey)})
+              Vote to descend ({descendLabel})
             </HotkeyButton>
           </div>
         </div>

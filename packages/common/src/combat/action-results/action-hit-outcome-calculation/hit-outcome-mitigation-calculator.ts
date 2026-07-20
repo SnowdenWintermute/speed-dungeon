@@ -23,6 +23,10 @@ import {
   RandomNumberGenerationPolicy,
   rollIsSuccess,
 } from "../../../utility-classes/random-number-generation-policy.js";
+import {
+  COUNTERATTACK_TRAIT_CHANCE_BY_RANK,
+  PARRY_TRAIT_CHANCE_BY_RANK,
+} from "../../../combatants/combatant-traits/index.js";
 
 const BASE_PARRY_CHANCE: NormalizedPercentage = 0.05;
 
@@ -252,45 +256,57 @@ export class HitOutcomeMitigationCalculator {
     actionLevel: number,
     user: IActionUser,
     target: CombatantProperties,
-    targetWillAttemptMitigation: boolean
+    targetWillAttemptMitigation: boolean,
+    resourceType: CombatActionResource,
+    resourceChangeSource: ResourceChangeSource
   ) {
     const actionBaseCritChance = action.getCritChance(user, actionLevel);
 
-    const targetAvoidaceAttributeValue = target.attributeProperties.getAttributeValue(
-      CombatAttribute.Spirit
-    );
+    const critIsAvoidable =
+      targetWillAttemptMitigation &&
+      HitOutcomeMitigationCalculator.resourceChangeIsKineticDamageToHitPoints(
+        resourceType,
+        resourceChangeSource
+      );
 
-    const targetCritAvoidance = targetWillAttemptMitigation ? targetAvoidaceAttributeValue : 0;
-    const normalizedCritAvoidance = targetCritAvoidance / 100;
-    const finalUnroundedCritChance = (actionBaseCritChance || 0) - normalizedCritAvoidance;
+    const targetCritAvoidance = critIsAvoidable
+      ? target.mitigationProperties.getKineticCritEvasion()
+      : 0;
+
+    const finalUnroundedCritChance = (actionBaseCritChance || 0) - targetCritAvoidance;
     const bounded = Math.max(0, Math.min(MAX_CRIT_CHANCE, finalUnroundedCritChance));
 
     return bounded;
   }
 
+  static resourceChangeIsKineticDamageToHitPoints(
+    resourceType: CombatActionResource,
+    resourceChangeSource: ResourceChangeSource
+  ) {
+    if (resourceType !== CombatActionResource.HitPoints) {
+      return false;
+    }
+    if (resourceChangeSource.isHealing) {
+      return false;
+    }
+
+    return resourceChangeSource.kineticDamageTypeOption !== undefined;
+  }
+
   static getParryChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
-    // and probably put it on the action configs
-    if (!defender.combatantProperties.mitigationProperties.canParry()) return 0;
-    return BASE_PARRY_CHANCE;
+    // and probably put it on the action configs (like combatActionProperties.getChanceToBeParried())
+    return defender.getCombatantProperties().mitigationProperties.getParryChance();
   }
 
   static getCounterattackChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
-    if (defender.combatantProperties.isDead()) return 0;
-    if (!defender.combatantProperties.mitigationProperties.canCounterattack()) return 0;
     // derive this from attributes (focus?), traits (parryBonus) and conditions (parryStance)
     // and probably put it on the action configs
-    return BASE_PARRY_CHANCE;
+    return defender.getCombatantProperties().mitigationProperties.getCounterattackChance();
   }
 
   static getShieldBlockChance(aggressor: IActionUser, defender: Combatant): NormalizedPercentage {
-    const shieldPropertiesOption = defender.getEquipmentOption().getEquippedShieldProperties();
-    if (!shieldPropertiesOption) return 0;
-
-    const baseBlockRate = SHIELD_SIZE_BLOCK_RATE[shieldPropertiesOption.size];
-
-    return baseBlockRate;
-
+    return defender.getCombatantProperties().mitigationProperties.getBlockChance();
     // note:
     // FFXI formula: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
   }

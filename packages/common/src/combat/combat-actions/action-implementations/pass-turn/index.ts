@@ -1,6 +1,9 @@
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { COST_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/cost-properties-templates/index.js";
+import {
+  COST_PROPERTIES_TEMPLATE_GETTERS,
+  createCostPropertiesConfig,
+} from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   createTargetingPropertiesConfig,
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -12,6 +15,7 @@ import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { CombatActionName } from "../../combat-action-names.js";
 import { CombatActionComponentConfig } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const targetingProperties = createTargetingPropertiesConfig(
   TARGETING_PROPERTIES_TEMPLATE_GETTERS.SELF_IN_COMBAT,
@@ -29,7 +33,10 @@ export const passTurnConfig: CombatActionComponentConfig = {
   }),
 
   hitOutcomeProperties: HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.THREATLESS_ACTION(),
-  costProperties: COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION(),
+  costProperties: createCostPropertiesConfig(
+    () => COST_PROPERTIES_TEMPLATE_GETTERS.BASIC_ACTION(),
+    {}
+  ),
   stepsConfig: new ActionResolutionStepsConfig(
     {
       [ActionResolutionStepType.PreInitialPositioningDetermineShouldExecuteOrReleaseTurnLock]: {},

@@ -1,5 +1,6 @@
 // @refresh reset
 "use client";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -9,6 +10,7 @@ import {
   GameMode,
   MAX_PARTY_SIZE,
 } from "@speed-dungeon/common";
+import { ControlSchemeSelector } from "./ControlSchemeSelector";
 import ButtonBasic from "../../components/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import Divider from "@/app/components/atoms/Divider";
@@ -28,7 +30,7 @@ export const GamesSection = observer(() => {
   const { gameList } = lobbyContext;
   const gameListRef = useRef(null);
   const gameListIsOverflowing = useElementIsOverflowing(gameListRef.current);
-  const { dialogs } = clientApplication.uiStore;
+  const { dialogs, keybinds } = clientApplication.uiStore;
   const showGameCreationForm = dialogs.isOpen(DialogElementName.GameCreation);
   const gameFormHolderRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +89,7 @@ export const GamesSection = observer(() => {
         >
           <div>{gameList.length ? "Current games" : "No current games..."}</div>
           <HotkeyButton
-            hotkeys={["KeyR"]}
+            hotkeys={keybinds.getKeybind(HotkeyButtonTypes.RefreshGameList)}
             className="border-l border-slate-400 p-2 h-full"
             onClick={refreshGameList}
           >
@@ -115,20 +117,25 @@ export const GamesSection = observer(() => {
         id="game-form-holder"
         ref={gameFormHolderRef}
       >
-        <div className="mb-2">
-          Host a custom game{" "}
-          <HoverableTooltipWrapper
-            extraStyles="inline"
-            tooltipText="Choose from Race or Progression mode and enter the dungeon in a single or multiplayer game (A)"
-          >
-            ⓘ{" "}
-          </HoverableTooltipWrapper>
+        <div className="mb-2 flex items-center justify-between">
+          <div>
+            Host a custom game{" "}
+            <HoverableTooltipWrapper
+              extraStyles="inline"
+              tooltipText="Choose from Race or Progression mode and enter the dungeon in a single or multiplayer game (A)"
+            >
+              ⓘ{" "}
+            </HoverableTooltipWrapper>
+          </div>
+          <div className="absolute left-full top-1 pl-4">
+            <ControlSchemeSelector />
+          </div>
         </div>
         <div
           className={`bg-slate-700 w-full h-10 border border-slate-400 flex justify-between items-center pointer-events-auto`}
         >
           <HotkeyButton
-            hotkeys={["KeyA"]}
+            hotkeys={keybinds.getKeybind(HotkeyButtonTypes.ToggleGameCreationForm)}
             className="w-full h-full disabled:opacity-10"
             disabled={!lobbyClientRef.isInitialized}
             onClick={() => {

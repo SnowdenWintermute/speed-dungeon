@@ -21,7 +21,10 @@ import {
 
 const spellLevelHpChangeValueModifier = 0.5;
 
-const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
+const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {
+  addsLifestealFromEquipment: true,
+};
+
 hitOutcomeOverrides.resourceChangePropertiesGetters = {
   [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, _primaryTarget) => {
     const hpChangeSourceConfig: ResourceChangeSourceConfig = {

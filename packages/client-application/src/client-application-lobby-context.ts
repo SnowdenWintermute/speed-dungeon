@@ -25,6 +25,7 @@ export class ClientApplicationLobbyContext implements ReactiveNode {
   readonly savedIronmanRuns = new Map<GameId, SavedIronmanRunClientEntry>();
   public savedIronmanRunCapacity: null | number = null; // wait to hear from server your account's run capacity
   private _selectedSavedIronmanRun: null | GameId = null;
+  private _selectedControlScheme = CharacterControlScheme.Captain;
   readonly channel = new ClientApplicationLobbyChannel();
 
   makeObservable() {
@@ -46,6 +47,14 @@ export class ClientApplicationLobbyContext implements ReactiveNode {
 
   set selectedSavedIronmanRun(value: null | GameId) {
     this._selectedSavedIronmanRun = value;
+  }
+
+  get selectedControlScheme() {
+    return this._selectedControlScheme;
+  }
+
+  set selectedControlScheme(value: CharacterControlScheme) {
+    this._selectedControlScheme = value;
   }
 }
 
@@ -80,8 +89,6 @@ class ClientApplicationLobbyChannel {
 }
 
 class ClientApplicationSavedCharacters implements ReactiveNode {
-  private _selectedCharacterControlScheme = CharacterControlScheme.Captain;
-
   private _byControlScheme: Record<CharacterControlScheme, ClientSavedCharacter[]> = {
     [CharacterControlScheme.Captain]: [],
     [CharacterControlScheme.Freelancer]: [],
@@ -93,14 +100,6 @@ class ClientApplicationSavedCharacters implements ReactiveNode {
 
   makeObservable() {
     makeAutoObservable(this);
-  }
-
-  get selectedCharacterControlScheme() {
-    return this._selectedCharacterControlScheme;
-  }
-
-  set selectedCharacterControlScheme(value: CharacterControlScheme) {
-    this._selectedCharacterControlScheme = value;
   }
 
   get byControlScheme() {

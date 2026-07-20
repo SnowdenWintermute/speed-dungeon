@@ -6,6 +6,7 @@ import {
   CombatantSpecies,
   MonsterType,
   SKELETON_FILE_PATHS,
+  MONSTER_SCALING_SIZES,
 } from "@speed-dungeon/common";
 import { GameWorldView } from "../..";
 import { CombatantSceneEntity } from ".";
@@ -14,7 +15,6 @@ import {
   loadAssetContainerIntoScene,
 } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ClientApplication } from "@/client-application";
-import { MONSTER_SCALING_SIZES } from "./species-scaling-sizes";
 import { AssetContainer, Color3, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { getCombatantSceneEntityPartCategoriesAndAssetPaths } from "./modular-parts-manager/asset-paths";
 
@@ -63,7 +63,10 @@ export class CombatantSceneEntityFactory {
 
     sceneEntity.initChildTransformNodes();
 
-    const shouldSyncEquipment = combatantProperties.combatantSpecies === CombatantSpecies.Humanoid;
+    const speciesWithWeaponModels = [CombatantSpecies.Humanoid, CombatantSpecies.Skeleton];
+    const shouldSyncEquipment = speciesWithWeaponModels.includes(
+      combatantProperties.combatantSpecies
+    );
     if (shouldSyncEquipment) {
       sceneEntity.equipmentManager.synchronizeCombatantEquipmentModels();
     }

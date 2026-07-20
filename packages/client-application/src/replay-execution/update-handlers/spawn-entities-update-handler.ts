@@ -1,6 +1,7 @@
 import {
   ActionEntity,
   Combatant,
+  getActionEntityPersistentCosmeticEffects,
   SerializedSpawnedCombatant,
   SpawnableEntityType,
   SpawnEntitiesGameUpdateCommand,
@@ -8,6 +9,7 @@ import {
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "@/game-world-view";
+import { isExpectedSceneDisposedError } from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ReplayStepExecution } from "../replay-step-execution";
 
 export async function spawnEntitiesGameUpdateHandler(
@@ -82,7 +84,56 @@ async function handleNewSpawnableCombatant(
   applyUpdatesQueuedWhileSpawning();
 }
 
-async function handleNewSpawnableActionEntity(
+// respawn scene models for persistent action entities (e.g. a firewall) that already live in party
+// state. a GameFullUpdate (reconnection/refresh) re-deserializes them but leaves the scene without
+// their models and without the cosmetic effects (like the firewall's particles) that live play would
+// have started via a replay command we won't receive again. safe to call whenever the scene mounts or
+// a full update lands; entities that already have a model are skipped.
+export async function synchronizeActionEntityModels(clientApplication: ClientApplication) {
+  const { gameWorldView } = clientApplication;
+  if (!gameWorldView || gameWorldView.scene.isDisposed) {
+    return;
+  }
+  const { partyOption } = clientApplication.gameContext;
+  if (!partyOption) {
+    return;
+  }
+
+  const { sceneEntityService } = gameWorldView;
+  const { actionEntityManager } = sceneEntityService;
+
+  const promises: Promise<void>[] = [];
+  for (const [entityId, actionEntity] of partyOption.actionEntityManager.getActionEntities()) {
+    // skip entities that already have a model or are mid-spawn so overlapping syncs (scene mount
+    // plus the scheduled full-update event) don't try to spawn the same one twice
+    if (
+      actionEntityManager.getOptional(entityId) !== undefined ||
+      actionEntityManager.pendingEntitySpawns.has(entityId)
+    ) {
+      continue;
+    }
+    promises.push(
+      handleNewSpawnableActionEntity(gameWorldView, actionEntity)
+        .then(() => {
+          if (gameWorldView.scene.isDisposed) {
+            return;
+          }
+          sceneEntityService.queueCosmeticEffectsStart(
+            getActionEntityPersistentCosmeticEffects(actionEntity)
+          );
+        })
+        .catch((error) => {
+          if (!isExpectedSceneDisposedError(error)) {
+            console.error("error spawning action entity model", error);
+          }
+        })
+    );
+  }
+
+  await Promise.all(promises);
+}
+
+export async function handleNewSpawnableActionEntity(
   gameWorldView: GameWorldView,
   actionEntity: ActionEntity
 ) {

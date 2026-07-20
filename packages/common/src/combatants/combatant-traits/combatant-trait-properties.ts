@@ -38,4 +38,20 @@ export class CombatantTraitProperties implements Serializable, ReactiveNode {
       iterateNumericEnumKeyedRecord(this.speccedTraitLevels),
     ];
   }
+
+  getTraitRank(traitType: CombatantTraitType) {
+    let value = 0;
+    for (const [type, rank] of iterateNumericEnumKeyedRecord(this.inherentTraitLevels)) {
+      if (type === traitType) {
+        value += rank;
+      }
+    }
+    for (const [type, rank] of iterateNumericEnumKeyedRecord(this.speccedTraitLevels)) {
+      if (type === traitType) {
+        value += rank;
+      }
+    }
+
+    return value;
+  }
 }

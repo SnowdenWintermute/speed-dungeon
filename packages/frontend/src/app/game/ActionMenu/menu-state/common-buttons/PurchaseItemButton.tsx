@@ -1,9 +1,14 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
+  getActionMenuSlotHotkeys,
+  getActionMenuSlotLabel,
+} from "@/client-application/action-menu/slot-keybinds";
+import {
   CONSUMABLE_TYPE_STRINGS,
   ClientIntentType,
   Consumable,
   Item,
+  PlayerShardPool,
   getConsumableShardPrice,
 } from "@speed-dungeon/common";
 import React from "react";
@@ -25,8 +30,10 @@ export const PurchaseItemButton = observer((props: Props) => {
 
   const clientApplication = useClientApplication();
   const { gameContext, combatantFocus, gameClientRef } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
   const party = gameContext.requireParty();
   const focusedCharacter = combatantFocus.requireFocusedCharacter();
+  const shardPool = PlayerShardPool.forCharacter(gameContext.requireGame(), party, focusedCharacter);
 
   const userControlsThisCharacter = combatantFocus.clientUserControlsFocusedCombatant();
 
@@ -35,15 +42,15 @@ export const PurchaseItemButton = observer((props: Props) => {
     party.dungeonExplorationManager.getCurrentFloor(),
     consumableType
   );
-  const notEnoughShards = focusedCharacter.combatantProperties.inventory.shards < (price || 0);
+  const notEnoughShards = !shardPool.canAffordShardPrice(price || 0);
   const shouldBeDisabled = !userControlsThisCharacter || notEnoughShards;
 
   return (
     <ItemButton
       item={item}
       text={CONSUMABLE_TYPE_STRINGS[consumableType]}
-      hotkeyLabel={(listIndex + 1).toString()}
-      hotkeys={[`Digit${listIndex + 1}`]}
+      hotkeyLabel={getActionMenuSlotLabel(keybinds, listIndex + 1)}
+      hotkeys={getActionMenuSlotHotkeys(keybinds, listIndex + 1)}
       clickHandler={() => {
         gameClientRef.get().dispatchIntent({
           type: ClientIntentType.PurchaseItem,
@@ -58,7 +65,7 @@ export const PurchaseItemButton = observer((props: Props) => {
       <PriceDisplay
         extraStyles="absolute right-2 top-1/2 -translate-y-1/2"
         price={price}
-        shardsOwned={focusedCharacter.combatantProperties.inventory.shards}
+        shardsOwned={shardPool.getTotalShards()}
       />
     </ItemButton>
   );

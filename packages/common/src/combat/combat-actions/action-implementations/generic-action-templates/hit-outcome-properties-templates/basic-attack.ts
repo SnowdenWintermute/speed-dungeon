@@ -9,6 +9,7 @@ export const BASIC_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
   critChanceModifier: 1,
   resourceChangeValuesModifier: 1,
   addsPropertiesFromHoldableSlot: null,
+  addsLifestealFromEquipment: true,
   getUnmodifiedAccuracy: (user) => {
     const userCombatAttributes = user.getTotalAttributes();
     return {

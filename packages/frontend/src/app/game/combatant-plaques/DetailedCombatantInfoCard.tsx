@@ -1,42 +1,30 @@
-import React, { useEffect, useRef, useState } from "react";
-import { SPACING_REM_SMALL } from "@/client-consts";
+import React, { useRef } from "react";
 import { Combatant } from "@speed-dungeon/common";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { CombatantDisplay } from "../detailables/CombatantDisplay";
 
-interface Props {
-  combatantId: string;
-  combatantPlaqueRef: React.RefObject<HTMLDivElement | null>;
-}
-
-export const DetailedCombatantInfoCard = observer((props: Props) => {
+export const DetailedCombatantInfoCard = observer(() => {
   const clientApplication = useClientApplication();
-  const { detailableEntityFocus } = clientApplication;
+  const { detailableEntityFocus, actionMenu } = clientApplication;
   const { detailed: detailedEntity, hovered: hoveredEntity } =
     detailableEntityFocus.detailables.getIfInstanceOf(Combatant);
 
   const detailedInfoContainerRef = useRef<HTMLDivElement>(null);
-  const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({
-    opacity: "0",
-    left: "-1000px",
-  });
-  // const [cardPositionStyle, setCardPositionStyle] = useState<{ [key: string]: string }>({});
   let infoButtonHoveredStyles: { [key: string]: string | number } = {};
 
   let combatantOption: Combatant | undefined;
-  if (
-    hoveredEntity instanceof Combatant &&
-    hoveredEntity.entityProperties.id === props.combatantId
-  ) {
+  infoButtonHoveredStyles = { zIndex: ZIndexLayers.CombatantInfoCard };
+  if (hoveredEntity instanceof Combatant) {
     combatantOption = hoveredEntity;
-    infoButtonHoveredStyles = { zIndex: ZIndexLayers.CombatantInfoCard };
-  } else if (
-    detailedEntity instanceof Combatant &&
-    detailedEntity.entityProperties.id === props.combatantId
-  )
+  } else if (detailedEntity instanceof Combatant) {
     combatantOption = detailedEntity;
+  }
+
+  if (actionMenu.shouldShowCharacterSheet()) {
+    infoButtonHoveredStyles = { zIndex: "" };
+  }
 
   const detailedInfoCard = combatantOption ? (
     <div className="border border-slate-400 bg-slate-700 p-2.5 w-[650px]">
@@ -46,41 +34,10 @@ export const DetailedCombatantInfoCard = observer((props: Props) => {
     <div />
   );
 
-  const showingCard = combatantOption !== undefined;
-
-  useEffect(() => {
-    const plaqueOption = props.combatantPlaqueRef.current;
-    const detailedInfoContainer = detailedInfoContainerRef.current;
-    if (!(plaqueOption && detailedInfoContainer)) return;
-
-    const windowWidth = window.innerWidth;
-    const detailedInfoWidth = detailedInfoContainer.clientWidth;
-    const detailedInfoHeight = detailedInfoContainer.clientHeight;
-    const plaqueX = plaqueOption.getBoundingClientRect().x;
-    const plaqueY = plaqueOption.getBoundingClientRect().y;
-
-    if (!detailedInfoHeight || !detailedInfoWidth) return;
-    const style: { [key: string]: string } = {};
-    let transformStyle = "";
-
-    if (plaqueY - detailedInfoHeight < 0)
-      style["bottom"] = `calc(${-detailedInfoHeight}px - ${SPACING_REM_SMALL}rem)`;
-    else style["top"] = `calc(${-detailedInfoHeight}px - ${SPACING_REM_SMALL}rem)`;
-
-    if (plaqueX + detailedInfoWidth > windowWidth) {
-      style["right"] = "-1px";
-      transformStyle = transformStyle.concat(`translateX(-100%)`);
-    } else style["left"] = "-1px";
-
-    style["transform"] = transformStyle;
-
-    setCardPositionStyle(style);
-  }, [showingCard]);
-
   return (
     <div
-      className={`absolute box-border ${infoButtonHoveredStyles}`}
-      style={{ ...cardPositionStyle, ...infoButtonHoveredStyles }}
+      className={`absolute box-border ${infoButtonHoveredStyles} right-0 mr-14 top-1/2 -translate-y-1/2`}
+      style={{ ...infoButtonHoveredStyles }}
       ref={detailedInfoContainerRef}
     >
       {detailedInfoCard}

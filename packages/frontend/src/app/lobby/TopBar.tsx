@@ -2,7 +2,6 @@
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client-consts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings } from "@/app/settings";
 import { APP_VERSION_NUMBER } from "@speed-dungeon/common";
 import { UserMenuContainer } from "./user-menu";
 import { ConnectionSelector } from "./connection-selector";
@@ -12,7 +11,6 @@ export default function TopBar() {
 
   return (
     <>
-      <Settings />
       <section
         className={`bg-slate-700 w-full border-b border-b-slate-400 pt-[0.625rem] pb-[0.625rem]
         pointer-events-auto flex justify-between`}

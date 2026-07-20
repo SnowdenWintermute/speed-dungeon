@@ -27,6 +27,7 @@ import { ActionResolutionStepContext } from "../../../../action-processing/actio
 import { EntityName } from "../../../../aliases.js";
 import { COMBAT_ACTIONS } from "../index.js";
 import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
+import { ARROW_TIME_TO_MOVE_ONE_METER } from "../../../../app-consts.js";
 
 export class ProjectileFactory {
   private resourceChangeProperties: Partial<
@@ -119,6 +120,8 @@ export class ProjectileFactory {
     );
     actionEntityProperties.actionOriginData.userCombatantAttributes =
       actionUser.getTotalAttributes();
+    actionEntityProperties.actionOriginData.userEquipmentLifestealPercentage =
+      actionUser.getEquipmentLifestealPercentage();
     actionEntityProperties.actionOriginData.resourceChangeProperties =
       this.resourceChangeProperties;
 
@@ -159,6 +162,7 @@ export class ProjectileFactory {
     };
     const actionOriginData = new ActionEntityActionOriginData(actionUser.getEntityProperties());
     actionOriginData.userCombatantAttributes = actionUser.getTotalAttributes();
+    actionOriginData.userEquipmentLifestealPercentage = actionUser.getEquipmentLifestealPercentage();
     actionOriginData.resourceChangeProperties = this.resourceChangeProperties;
 
     actionEntityProperties.actionOriginData = actionOriginData;
@@ -172,5 +176,46 @@ export class ProjectileFactory {
     );
 
     return actionEntity;
+  }
+
+  createPebbleInHand(): SpawnableEntity {
+    const { actionUserContext } = this.context;
+    const { actionUser } = actionUserContext;
+
+    const actionEntityProperties = new ActionEntityProperties(
+      ActionEntityName.Pebble,
+      this.startPosition
+    );
+
+    actionEntityProperties.initialRotation = new Vector3(Math.PI / 2, 0, 0);
+    actionEntityProperties.parentOption = {
+      sceneEntityIdentifier: {
+        type: SceneEntityType.CharacterModel,
+        entityId: actionUser.getEntityId(),
+      },
+      transformNodeName: CombatantBaseChildTransformNodeName.MainHandEquipment,
+    };
+    actionEntityProperties.actionOriginData = new ActionEntityActionOriginData(
+      actionUser.getEntityProperties()
+    );
+    actionEntityProperties.actionOriginData.userCombatantAttributes =
+      actionUser.getTotalAttributes();
+    actionEntityProperties.actionOriginData.userEquipmentLifestealPercentage =
+      actionUser.getEquipmentLifestealPercentage();
+    actionEntityProperties.actionOriginData.resourceChangeProperties =
+      this.resourceChangeProperties;
+
+    actionEntityProperties.movementSpeed = ARROW_TIME_TO_MOVE_ONE_METER / 2;
+
+    return {
+      type: SpawnableEntityType.ActionEntity,
+      actionEntity: new ActionEntity(
+        {
+          id: this.context.idGenerator.generate(),
+          name: `${nameToPossessive(this.firedByCombatantName)} pebble` as EntityName,
+        },
+        actionEntityProperties
+      ),
+    };
   }
 }

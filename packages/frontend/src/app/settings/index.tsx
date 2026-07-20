@@ -1,16 +1,17 @@
 "use client";
 import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client-consts";
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
 import XShape from "../../../public/img/basic-shapes/x-shape.svg";
-import { PasswordResetEmailForm } from "../lobby/auth-forms/password-reset-email-form";
-import Divider from "../components/atoms/Divider";
-import { DeleteAccountForm } from "../lobby/auth-forms/delete-account-form";
-import { ChangeUsernameForm } from "../lobby/auth-forms/change-username-form";
 import { ZIndexLayers } from "../z-index-layers";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
+import { SETTINGS_TAB_REQUIRES_AUTH, SettingsTab } from "./tabs";
+import { SettingsTabBar } from "./SettingsTabBar";
+import { AccountSection } from "./sections/account";
+import { KeybindsSection } from "./sections/keybinds";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 
 export const Settings = observer(() => {
   const clientApplication = useClientApplication();
@@ -18,19 +19,26 @@ export const Settings = observer(() => {
   const { dialogs, httpRequests } = clientApplication.uiStore;
   const settingsIsOpen = dialogs.isOpen(DialogElementName.AppSettings);
   const { usernameOption } = session;
+  const isLoggedIn = usernameOption !== null;
 
-  useEffect(() => {
-    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.DELETE_ACCOUNT);
-    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.CHANGE_USERNAME);
-    httpRequests.clearRequestTracker(HTTP_REQUEST_NAMES.PASSWORD_RESET_EMAIL);
-  }, [settingsIsOpen, httpRequests]);
+  const [selectedTabState, setSelectedTab] = useState<SettingsTab | null>(null);
 
   if (!settingsIsOpen) return <></>;
+
+  const visibleTabs = iterateNumericEnumKeyedRecord(SETTINGS_TAB_REQUIRES_AUTH)
+    .filter(([, requiresAuth]) => isLoggedIn || !requiresAuth)
+    .map(([tab]) => tab);
+
+  const defaultTab = SettingsTab.Keybinds;
+  const selectedTab =
+    selectedTabState !== null && visibleTabs.includes(selectedTabState)
+      ? selectedTabState
+      : defaultTab;
 
   return (
     <section
       aria-label="settings menu"
-      className={`absolute h-full w-full bg-slate-700 pointer-events-auto`}
+      className={`fixed inset-0 bg-slate-700 pointer-events-auto flex flex-col`}
       style={{ zIndex: ZIndexLayers.SettingsMenu }}
     >
       <div
@@ -50,22 +58,13 @@ export const Settings = observer(() => {
           <XShape className="h-full w-full fill-slate-400" />
         </HotkeyButton>
       </div>
-      <div className="flex flex-col" style={{ padding: `${SPACING_REM_SMALL}rem` }}>
-        <h3 className="self-end">
-          Logged in as <span className="italic">{usernameOption}</span>
-        </h3>
-        <Divider />
-        <div style={{ width: `450px` }}>
-          <PasswordResetEmailForm />
-          <Divider />
-        </div>
-        <div style={{ width: `450px` }}>
-          <DeleteAccountForm />
-          <Divider />
-        </div>
-        <div style={{ width: `450px` }}>
-          <ChangeUsernameForm />
-        </div>
+      <SettingsTabBar tabs={visibleTabs} selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+      <div
+        className="flex flex-col flex-1 min-h-0 overflow-y-auto"
+        style={{ padding: `${SPACING_REM_SMALL}rem` }}
+      >
+        {selectedTab === SettingsTab.Account && <AccountSection />}
+        {selectedTab === SettingsTab.Keybinds && <KeybindsSection />}
       </div>
     </section>
   );

@@ -15,6 +15,7 @@ import { ActionMenuScreenType } from "./action-menu/screen-types";
 import { ClientSingleton } from "./clients/singleton";
 import { ClientApplication } from ".";
 import { GameClient } from "./clients/game";
+import { CombatantClickHandler } from "./combatant-click-handler";
 import { makeAutoObservable } from "mobx";
 
 export class CombatantFocus {
@@ -25,6 +26,7 @@ export class CombatantFocus {
   private gameContext: ClientApplicationGameContext;
   private actionMenu: ActionMenu;
   private detailableEntityFocus: DetailableEntityFocus;
+  private combatantClickHandler: CombatantClickHandler;
 
   constructor(clientApplication: ClientApplication) {
     this.gameClientRef = clientApplication.gameClientRef;
@@ -32,6 +34,7 @@ export class CombatantFocus {
     this.gameContext = clientApplication.gameContext;
     this.actionMenu = clientApplication.actionMenu;
     this.detailableEntityFocus = clientApplication.detailableEntityFocus;
+    this.combatantClickHandler = clientApplication.combatantClickHandler;
     makeAutoObservable(this);
   }
 
@@ -41,6 +44,7 @@ export class CombatantFocus {
 
   clearFocusedCharacter() {
     this.focusedCharacterId = null;
+    this.combatantClickHandler.synchronizeReticleClickability();
   }
 
   setFocusedCharacter(combatantId: CombatantId) {
@@ -71,9 +75,9 @@ export class CombatantFocus {
       this.actionMenu.popStack();
     }
 
-    const staleItemCraftingMenuInStack =
-      this.actionMenu.shouldShowCharacterSheet() &&
-      this.actionMenu.stackedMenusIncludeType(ActionMenuScreenType.CraftingActionSelection);
+    const staleItemCraftingMenuInStack = this.actionMenu.stackedMenusIncludeType(
+      ActionMenuScreenType.CraftingActionSelection
+    );
 
     // otherwise you'll end up looking at crafting action selection on an unowned item
     if (staleItemCraftingMenuInStack) {
@@ -84,6 +88,8 @@ export class CombatantFocus {
       const currentMenu = this.actionMenu.getCurrentMenu();
       currentMenu.goToFirstPage();
     }
+
+    this.combatantClickHandler.synchronizeReticleClickability();
   }
 
   cycleFocusedCharacter(direction: NextOrPrevious) {

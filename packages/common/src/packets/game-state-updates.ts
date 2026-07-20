@@ -1,5 +1,6 @@
 import { Battle, BattleConclusion } from "../battle/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
+import { ShardPayment } from "../game/player-shard-pool.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { UserGameHistoryEntry } from "../game-modes/ladder-records/ladder-records-persistence-strategy.js";
@@ -12,6 +13,7 @@ import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
+import { TargetingSelection } from "../combat/targeting/combat-action-targets.js";
 import {
   ActionRank,
   ChannelName,
@@ -37,10 +39,7 @@ import { ClientSequentialEvent } from "./client-sequential-events.js";
 import { ClientAppMessageType } from "./client-app-message.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { SerializedCombatantWithPets } from "../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
-import {
-  SavedIronmanRun,
-  SavedIronmanRunClientEntry,
-} from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
+import { SavedIronmanRunClientEntry } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -80,10 +79,13 @@ export enum GameStateUpdateType {
   CharacterDroppedEquippedItem,
   CharacterUnequippedItem,
   CharacterEquippedItem,
+  CharacterEquippedItemFromGround,
+  CharacterMovedEquippedItemToSlot,
   CharacterPickedUpItems,
   // RawActionResults ,
   CharacterSelectedCombatAction,
   CharacterCycledTargets,
+  CharacterSetCombatActionTarget,
   CharacterCycledTargetingSchemes,
   DungeonFloorNumber,
   CharacterSpentAttributePoint,
@@ -225,15 +227,31 @@ export interface GameStateUpdateMap {
     equipToAlternateSlot: boolean;
     characterId: CombatantId;
   };
+  [GameStateUpdateType.CharacterEquippedItemFromGround]: {
+    itemId: ItemId;
+    equipToAlternateSlot: boolean;
+    characterId: CombatantId;
+  };
+  [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: {
+    characterId: CombatantId;
+    sourceSlot: TaggedEquipmentSlot;
+    destinationSlot: TaggedEquipmentSlot;
+  };
   [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
     characterId: CombatantId;
     actionAndRankOption: SerializedOf<ActionAndRank> | null;
     itemIdOption?: string | null;
+    targetingSelectionOption?: TargetingSelection;
+    autoSelected?: boolean;
   };
   [GameStateUpdateType.CharacterCycledTargets]: {
     characterId: CombatantId;
     direction: NextOrPrevious;
+  };
+  [GameStateUpdateType.CharacterSetCombatActionTarget]: {
+    characterId: CombatantId;
+    targetingSelection: TargetingSelection;
   };
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: {
     characterId: CombatantId;
@@ -291,12 +309,13 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.CharacterPurchasedItem]: {
     characterId: CombatantId;
     item: SerializedOf<Consumable>;
-    price: number;
+    payments: ShardPayment[];
   };
   [GameStateUpdateType.CharacterPerformedCraftingAction]: {
     characterId: CombatantId;
     item: SerializedOf<Equipment>;
     craftingAction: CraftingAction;
+    payments: ShardPayment[];
   };
   [GameStateUpdateType.PlayerPostedItemLink]: {
     username: Username;
@@ -367,10 +386,12 @@ export class GameListEntry {
 
 export enum GameClosedReason {
   PlayerLeftGame,
+  GameNoLongerExists,
 }
 
 export const GAME_CLOSED_REASON_STRINGS: Record<GameClosedReason, string> = {
-  [GameClosedReason.PlayerLeftGame]: "Other player left game",
+  [GameClosedReason.PlayerLeftGame]: "Player left game",
+  [GameClosedReason.GameNoLongerExists]: "Game no longer exists",
 };
 
 export class BattleReport {
@@ -418,10 +439,13 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.CharacterDroppedEquippedItem]: "CharacterDroppedEquippedItem",
   [GameStateUpdateType.CharacterUnequippedItem]: "CharacterUnequippedItem",
   [GameStateUpdateType.CharacterEquippedItem]: "CharacterEquippedItem",
+  [GameStateUpdateType.CharacterEquippedItemFromGround]: "CharacterEquippedItemFromGround",
+  [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: "CharacterMovedEquippedItemToSlot",
   [GameStateUpdateType.CharacterPickedUpItems]: "CharacterPickedUpItems",
   // RawActionResults ,
   [GameStateUpdateType.CharacterSelectedCombatAction]: "CharacterSelectedCombatAction",
   [GameStateUpdateType.CharacterCycledTargets]: "CharacterCycledTargets",
+  [GameStateUpdateType.CharacterSetCombatActionTarget]: "CharacterSetCombatActionTarget",
   [GameStateUpdateType.CharacterCycledTargetingSchemes]: "CharacterCycledTargetingSchemes",
   [GameStateUpdateType.DungeonFloorNumber]: "DungeonFloorNumber",
   [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",

@@ -8,9 +8,13 @@ import { KeybindConfig } from "./keybind-config";
 import { HttpRequestStore } from "./http-requests";
 import { makeAutoObservable } from "mobx";
 import { Milliseconds } from "@speed-dungeon/common";
+import { ClientApplication } from "..";
 
 export class UiStore {
-  constructor() {
+  readonly httpRequests: HttpRequestStore;
+
+  constructor(clientApplication: ClientApplication) {
+    this.httpRequests = new HttpRequestStore(clientApplication);
     makeAutoObservable(this);
   }
 
@@ -21,7 +25,6 @@ export class UiStore {
   readonly tooltips = new TooltipStore();
   readonly inputs = new InputStore();
   readonly keybinds = new KeybindConfig();
-  readonly httpRequests = new HttpRequestStore();
 
   // for users who reconnect during a replay, we show them the resolution
   // but they should wait until input unlocks and see an explanation

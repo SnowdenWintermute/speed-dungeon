@@ -42,6 +42,9 @@ export interface IActionUser {
   getTotalAttributes(): CombatantAttributeRecord;
   getOwnedActions(): Map<CombatActionName, CombatantActionState>;
   getEquipmentOption: () => null | CombatantEquipment;
+  // aggregated lifesteal % from equipment. projectiles snapshot the shooter's value at spawn so it
+  // resolves the same whether the action user is a combatant or an action entity delivering the hit
+  getEquipmentLifestealPercentage(): number;
   getInventoryOption(): null | Inventory;
   getTargetingProperties(): ActionUserTargetingProperties;
   getAllyAndOpponentIds(

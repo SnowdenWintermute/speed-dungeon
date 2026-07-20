@@ -30,6 +30,8 @@ export function createGameServerClientIntentHandlers(
       gameServer.combatActionController.selectCombatActionRankHandler(user, data),
     [ClientIntentType.CycleCombatActionTargets]: (data, user) =>
       gameServer.combatActionController.cycleTargetsHandler(user, data),
+    [ClientIntentType.SetCombatActionTarget]: (data, user) =>
+      gameServer.combatActionController.setCombatActionTargetHandler(user, data),
     [ClientIntentType.CycleTargetingSchemes]: (data, user) =>
       gameServer.combatActionController.cycleTargetingSchemesHandler(user, data),
     [ClientIntentType.UseSelectedCombatAction]: (data, user) =>
@@ -58,6 +60,10 @@ export function createGameServerClientIntentHandlers(
       gameServer.itemManagementController.selectHoldableHotswapSlotHandler(user, data),
     [ClientIntentType.EquipInventoryItem]: (data, user) =>
       gameServer.itemManagementController.equipItemHandler(user, data),
+    [ClientIntentType.EquipItemFromGround]: (data, user) =>
+      gameServer.itemManagementController.equipItemFromGroundHandler(user, data),
+    [ClientIntentType.MoveEquippedItemToSlot]: (data, user) =>
+      gameServer.itemManagementController.moveEquippedItemToSlotHandler(user, data),
     // // CRAFTING AND TRADING
     [ClientIntentType.ConvertItemsToShards]: (data, user) =>
       gameServer.craftingController.convertItemsToShardsHandler(user, data),

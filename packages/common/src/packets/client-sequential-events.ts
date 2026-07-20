@@ -9,6 +9,7 @@ export enum ClientSequentialEventType {
   ClearAllModels,
   SynchronizeCombatantEquipmentModels,
   SynchronizeCombatantModels,
+  SynchronizeActionEntityModels,
   SpawnEnvironmentModel,
   DespawnEnvironmentModel,
   ProcessReplayTree,
@@ -22,6 +23,7 @@ export const CLIENT_EVENT_TYPE_STRINGS: Record<ClientSequentialEventType, string
   [ClientSequentialEventType.SynchronizeCombatantEquipmentModels]:
     "Synchronize Combatant Equipment Models",
   [ClientSequentialEventType.SynchronizeCombatantModels]: "Synchronize Combatant Models",
+  [ClientSequentialEventType.SynchronizeActionEntityModels]: "Synchronize Action Entity Models",
   [ClientSequentialEventType.SpawnEnvironmentModel]: "Spawn Environment Model",
   [ClientSequentialEventType.DespawnEnvironmentModel]: "Despawn Environment Model",
   [ClientSequentialEventType.ClearAllModels]: "Clear All Models",
@@ -39,6 +41,7 @@ export interface ClientSequentialEventMap {
     placeInHomePositions?: boolean;
     onComplete?: () => void;
   };
+  [ClientSequentialEventType.SynchronizeActionEntityModels]: undefined;
   [ClientSequentialEventType.SpawnEnvironmentModel]: {
     id: string;
     modelType: EnvironmentEntityName;

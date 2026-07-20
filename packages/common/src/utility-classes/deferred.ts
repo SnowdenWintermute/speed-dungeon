@@ -45,6 +45,12 @@ export class Deferred {
     return this._promise !== null;
   }
 
+  // abandon a pending wait without treating it as success (does not call onSuccess)
+  disarm() {
+    this.clear();
+    this.completed = false;
+  }
+
   waitFor(): Promise<void> {
     // if (!this._promise) {
     //   throw new Error("Deferred has not been started");

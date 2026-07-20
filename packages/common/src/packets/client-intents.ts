@@ -10,6 +10,7 @@ import {
   ItemId,
   PartyName,
 } from "../aliases.js";
+import { TargetingSelection } from "../combat/targeting/combat-action-targets.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
@@ -54,6 +55,7 @@ export enum ClientIntentType {
   SelectCombatAction,
   SelectCombatActionRank,
   CycleCombatActionTargets,
+  SetCombatActionTarget,
   CycleTargetingSchemes,
   UseSelectedCombatAction,
 
@@ -69,6 +71,8 @@ export enum ClientIntentType {
   UnequipSlot,
   SelectHoldableHotswapSlot,
   EquipInventoryItem,
+  EquipItemFromGround,
+  MoveEquippedItemToSlot,
 
   // item management
   DropEquippedItem,
@@ -106,6 +110,10 @@ export interface ClientIntentMap {
     characterId: CombatantId;
     actionAndRankOption: null | SerializedOf<ActionAndRank>;
     itemIdOption?: EntityId;
+    targetingSelectionOption?: TargetingSelection;
+    // true when the client auto-selected this as the default action for a clicked target, rather
+    // than the player choosing it deliberately in the menu
+    autoSelected?: boolean;
   };
   [ClientIntentType.IncrementAttribute]: {
     characterId: CombatantId;
@@ -121,9 +129,23 @@ export interface ClientIntentMap {
     itemId: ItemId;
     equipToAlternateSlot: boolean;
   };
+  [ClientIntentType.EquipItemFromGround]: {
+    characterId: CombatantId;
+    itemId: ItemId;
+    equipToAlternateSlot: boolean;
+  };
+  [ClientIntentType.MoveEquippedItemToSlot]: {
+    characterId: CombatantId;
+    sourceSlot: TaggedEquipmentSlot;
+    destinationSlot: TaggedEquipmentSlot;
+  };
   [ClientIntentType.CycleCombatActionTargets]: {
     characterId: CombatantId;
     direction: NextOrPrevious;
+  };
+  [ClientIntentType.SetCombatActionTarget]: {
+    characterId: CombatantId;
+    targetingSelection: TargetingSelection;
   };
   [ClientIntentType.CycleTargetingSchemes]: { characterId: CombatantId };
   [ClientIntentType.UseSelectedCombatAction]: { characterId: CombatantId };

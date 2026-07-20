@@ -13,14 +13,12 @@ import { CombatantSceneEntity } from "../scene-entities/combatants";
 import { CombatantSceneEntityFactory } from "../scene-entities/combatants/factory";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
-import { SceneEntityLoadingStateTracker } from "./loading-state-tracker";
 import { SceneEntityManager } from "./base";
 import { isExpectedSceneDisposedError } from "../utils/load-asset-container-into-scene";
 
 export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSceneEntity> {
   sceneEntities = new Map<EntityId, CombatantSceneEntity>();
   factory: CombatantSceneEntityFactory;
-  readonly loadingStates = new SceneEntityLoadingStateTracker();
 
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
     super(clientApplication, gameWorldView);
@@ -47,6 +45,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       combatantModel.updateDomRefPosition();
 
       combatantModel.targetingIndicatorManager.updateBillboardPositions();
+      combatantModel.pickerDisc.update(deltaTime);
     }
   }
 
@@ -69,10 +68,10 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
       if (portraitOption) {
         this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);
       }
-
-      this.loadingStates.setEntityIsLoaded(entityId);
     } catch (error) {
       console.info("some error taking portrait: ", error);
+    } finally {
+      this.loadingStates.setEntityIsLoaded(entityId);
     }
   }
 
@@ -124,6 +123,9 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
         spawnInDeadPose: combatant.combatantProperties.isDead(),
       });
     } else {
+      // this entity now represents `combatant`, which may be a fresh instance (same id) after a
+      // GameFullUpdate re-deserialized the game; keep the fallback reference pointed at it
+      sceneEntityOption.setCombatant(combatant);
       return new Promise<undefined>((resolve) => {
         const { transformProperties } = sceneEntityOption.combatant.combatantProperties;
         transformProperties.setHomeRotation(homeRotation.clone());
@@ -137,7 +139,22 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     }
   }
 
+  // in-flight spawns only enter `sceneEntities` after their assets load and they register, so
+  // overlapping syncs can't see each other's models to despawn them. Chain runs so each one
+  // starts against the fully-registered result of the previous one.
+  private synchronizeChain: Promise<void> = Promise.resolve();
+
   async synchronizeCombatantModels(options: {
+    softCleanup?: boolean;
+    placeInHomePositions?: boolean;
+    onComplete?: () => void;
+  }) {
+    const run = this.synchronizeChain.then(() => this.runSynchronizeCombatantModels(options));
+    this.synchronizeChain = run.catch(() => {});
+    return run;
+  }
+
+  private async runSynchronizeCombatantModels(options: {
     softCleanup?: boolean;
     placeInHomePositions?: boolean;
     onComplete?: () => void;
@@ -183,7 +200,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { lobbyContext } = this.clientApplication;
     const { savedCharacters } = lobbyContext;
     const savedCharactersToDisplay =
-      savedCharacters.byControlScheme[savedCharacters.selectedCharacterControlScheme];
+      savedCharacters.byControlScheme[lobbyContext.selectedControlScheme];
 
     for (const character of savedCharactersToDisplay) {
       result.set(character.combatant.getEntityId(), character.combatant);

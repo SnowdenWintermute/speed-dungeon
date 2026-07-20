@@ -7,13 +7,15 @@ import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrap
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 interface Props {
   children: ReactNode;
 }
 
 export const GameLobby = observer(({ children }: Props) => {
-  const { session, gameContext, lobbyClientRef } = useClientApplication();
+  const { session, gameContext, lobbyClientRef, uiStore } = useClientApplication();
+  const { keybinds } = uiStore;
   const { gameOption } = gameContext;
   if (gameOption === null) return <div>Loading...</div>;
   const titleRef = useRef<HTMLDivElement>(null);
@@ -93,7 +95,7 @@ export const GameLobby = observer(({ children }: Props) => {
         style={{ zIndex: ZIndexLayers.ReadyButton }}
       >
         <HotkeyButton
-          hotkeys={["KeyG"]}
+          hotkeys={keybinds.getKeybind(HotkeyButtonTypes.ToggleReady)}
           onClick={toggleReady}
           className={`border border-slate-400 h-20 cursor-pointer pr-10 pl-10 
                         flex justify-center items-center disabled:opacity-50 pointer-events-auto 

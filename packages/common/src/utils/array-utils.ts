@@ -38,6 +38,26 @@ export class ArrayUtils {
     return randomMember;
   }
 
+  static chooseWeighted<T extends { weight: number }>(
+    items: readonly T[],
+    rng: RandomNumberGenerator
+  ): T | undefined {
+    const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+    if (totalWeight <= 0) {
+      return undefined;
+    }
+
+    let roll = rng.roll() * totalWeight;
+    for (const item of items) {
+      roll -= item.weight;
+      if (roll < 0) {
+        return item;
+      }
+    }
+
+    return items[items.length - 1];
+  }
+
   static createFilledWithSequentialNumbers(length: number, start: number) {
     return Array.from({ length: length || 0 }, (_, i) => i + start);
   }

@@ -12,7 +12,7 @@ export async function testPlayerLeavingClosesIronmanGame(testFixture: Integratio
 
   await testFixture.putTwoClientsInFreshIronmanRun(alpha, bravo, { closeGame: false });
   // one player leaves
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   // other player gets "player left run" message
   const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
     GameStateUpdateType.GameClosed

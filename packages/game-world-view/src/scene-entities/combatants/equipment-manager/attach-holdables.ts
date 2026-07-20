@@ -1,8 +1,10 @@
 import { AbstractMesh } from "@babylonjs/core";
 import {
   CombatantBaseChildTransformNodeName,
+  CombatantSpecies,
   EquipmentType,
   HoldableSlotType,
+  MonsterType,
   OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { CombatantSceneEntity } from "..";
@@ -34,6 +36,13 @@ export class HoldableAttacher {
     itemTransformNode.setParent(attachmentPoint);
     setTransformNodePositionAndRotationToZero(itemTransformNode);
 
+    const isHumanSkeleton =
+      this.combatantSceneEntity.combatant.combatantProperties.combatantSpecies ===
+      CombatantSpecies.Humanoid;
+    if (!isHumanSkeleton && equipmentSceneEntity.equipment.isShield()) {
+      return;
+    }
+
     this.adjustWieldedPosition(equipmentSceneEntity, slot);
   }
 
@@ -43,6 +52,13 @@ export class HoldableAttacher {
   ) {
     const { equipment } = equipmentSceneEntity;
     const { childTransformNodes } = this.combatantSceneEntity;
+
+    if (
+      equipment.isShield() &&
+      childTransformNodes[CombatantBaseChildTransformNodeName.Shield] !== undefined
+    ) {
+      return childTransformNodes[CombatantBaseChildTransformNodeName.Shield];
+    }
 
     if (slot === HoldableSlotType.OffHand) {
       return childTransformNodes[CombatantBaseChildTransformNodeName.OffhandEquipment];

@@ -254,6 +254,11 @@ export class CombatantBuilder {
     return this;
   }
 
+  appendAllTraits() {
+    this.trait(CombatantTraitType.Counterattack);
+    return this;
+  }
+
   appendAllActions() {
     this.ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.PassTurn)

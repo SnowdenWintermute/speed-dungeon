@@ -50,8 +50,15 @@ import ArrowRight from "../../../public/img/menu-icons/arrow-right.svg";
 import DownloadDocument from "../../../public/img/menu-icons/download-document.svg";
 import TrashCan from "../../../public/img/menu-icons/trashcan.svg";
 import FloppyDisc from "../../../public/img/menu-icons/floppy-disk.svg";
+import SettingsGear from "../../../public/img/menu-icons/settings-icon.svg";
 import Skull from "../../../public/img/game-ui-icons/skull.svg";
 import SplitArrow from "../../../public/img/game-ui-icons/split-arrow.svg";
+import Parry from "../../../public/img/game-ui-icons/parry.svg";
+import Counterattack from "../../../public/img/game-ui-icons/counterattack.svg";
+import AngryYellFace from "../../../public/img/game-ui-icons/angry-yell-face.svg";
+import Bag from "../../../public/img/game-ui-icons/bag.svg";
+import ThrowPebble from "../../../public/img/game-ui-icons/throw-pebble.svg";
+import Shield from "../../../public/img/equipment-icons/shield.svg";
 
 import { ReactNode } from "react";
 import {
@@ -119,6 +126,13 @@ export enum IconName {
   Skull,
   Bomb,
   SplitArrow,
+  Parry,
+  Counterattack,
+  AngryYellFace,
+  Bag,
+  ThrowPebble,
+  Shield,
+  Settings,
 }
 
 export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
@@ -177,6 +191,13 @@ export const SVG_ICONS: Record<IconName, (className: string) => ReactNode> = {
   [IconName.Skull]: (className: string) => <Skull className={className} />,
   [IconName.Bomb]: (className: string) => <BombIcon className={className} />,
   [IconName.SplitArrow]: (className: string) => <SplitArrow className={className} />,
+  [IconName.Parry]: (className: string) => <Parry className={className} />,
+  [IconName.Counterattack]: (className: string) => <Counterattack className={className} />,
+  [IconName.AngryYellFace]: (className: string) => <AngryYellFace className={className} />,
+  [IconName.Bag]: (className: string) => <Bag className={className} />,
+  [IconName.ThrowPebble]: (className: string) => <ThrowPebble className={className} />,
+  [IconName.Shield]: (className: string) => <Shield className={className} />,
+  [IconName.Settings]: (className: string) => <SettingsGear className={className} />,
 };
 
 export const MAGICAL_ELEMENT_ICONS: Record<MagicalElement, (className: string) => ReactNode> = {
@@ -279,6 +300,10 @@ export const ACTION_ICONS: Record<CombatActionName, null | ((className: string) 
   [CombatActionName.Kill]: (className: string) => SVG_ICONS[IconName.Skull](className),
   [CombatActionName.HalfKill]: (className: string) =>
     SVG_ICONS[IconName.Skull](className + " clip-path-[inset(0_50%_0_0)]"),
+  [CombatActionName.Provoke]: (className: string) => SVG_ICONS[IconName.AngryYellFace](className),
+  [CombatActionName.ThrowPebbleParent]: (className: string) =>
+    SVG_ICONS[IconName.ThrowPebble](className),
+  [CombatActionName.ThrowPebbleProjectile]: null,
 };
 
 export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string) => ReactNode)> = {
@@ -291,12 +316,17 @@ export const TRAIT_ICONS: Record<CombatantTraitType, null | ((className: string)
     SVG_ICONS[IconName.Sword](className),
   [CombatantTraitType.CanConvertToShardsManually]: (className: string) =>
     SVG_ICONS[IconName.Shards](className),
-  [CombatantTraitType.ExtraConsumablesStorage]: null,
   [CombatantTraitType.IsTameable]: (className: string) => SVG_ICONS[IconName.Whistle](className),
   [CombatantTraitType.Flyer]: (className: string) => SVG_ICONS[IconName.Feather](className),
   [CombatantTraitType.Passive]: (className: string) => SVG_ICONS[IconName.Dove](className),
   [CombatantTraitType.CanNotBeRestrained]: (className: string) =>
     SVG_ICONS[IconName.Feather](className),
+  [CombatantTraitType.Parry]: (className: string) => SVG_ICONS[IconName.Parry](className),
+  [CombatantTraitType.Counterattack]: (className: string) =>
+    SVG_ICONS[IconName.Counterattack](className),
+  [CombatantTraitType.ExtraConsumablesStorage]: (className: string) =>
+    SVG_ICONS[IconName.Bag](className),
+  [CombatantTraitType.MeleeLifesteal]: null,
 };
 
 export const ACTION_ENTITY_ICONS: Record<
@@ -307,6 +337,7 @@ export const ACTION_ENTITY_ICONS: Record<
   [ActionEntityName.IceBolt]: null,
   [ActionEntityName.Explosion]: null,
   [ActionEntityName.IceBurst]: null,
+  [ActionEntityName.Pebble]: null,
   [ActionEntityName.Firewall]: (className: string) =>
     SVG_ICONS[IconName.Firewall](className + " fill-firered"),
 };

@@ -7,10 +7,7 @@ import {
   HoldableSlotType,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
-import {
-  ActionResourceCostBases,
-  ActionResourceCosts,
-} from "./action-calculation-utils/action-costs.js";
+import { ActionCostsByRank, ActionResourceCosts } from "./action-calculation-utils/action-costs.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
 import { ActionRank } from "../../aliases.js";
@@ -20,11 +17,17 @@ export interface CombatActionCostPropertiesConfig {
     [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
     [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
   };
-  costBases: ActionResourceCostBases;
+  costsByRank: ActionCostsByRank;
   getResourceCosts: (
     user: IActionUser,
     inCombat: boolean,
     selectedActionLevel: ActionRank,
+    self: CombatActionComponent
+  ) => null | ActionResourceCosts;
+
+  getDescriptionResourceCosts?: (
+    user: IActionUser,
+    actionLevel: ActionRank,
     self: CombatActionComponent
   ) => null | ActionResourceCosts;
   getCooldownTurns: (user: IActionUser, selectedActionLevel: number) => null | number;
@@ -46,6 +49,12 @@ export interface CombatActionCostProperties extends CombatActionCostPropertiesCo
   getResourceCosts: (
     user: IActionUser,
     inCombat: boolean,
+    actionLevel: ActionRank
+  ) => null | ActionResourceCosts;
+  // some actions may separate cost display in the description like if
+  // the cost is based on the user's owned action rank instead of selected rank
+  getDescriptionResourceCosts?: (
+    user: IActionUser,
     actionLevel: ActionRank
   ) => null | ActionResourceCosts;
 }

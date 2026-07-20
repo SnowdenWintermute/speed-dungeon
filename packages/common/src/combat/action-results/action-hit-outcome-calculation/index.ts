@@ -161,7 +161,9 @@ export class HitOutcomeCalculator {
           actionLevel,
           actionUser,
           target,
-          targetWillAttemptMitigation
+          targetWillAttemptMitigation,
+          resourceType,
+          resourceChange.source
         );
 
         const critRoll = rollNormalized(this.rngPolicy.criticalStrike);

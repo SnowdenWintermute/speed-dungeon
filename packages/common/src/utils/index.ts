@@ -83,7 +83,10 @@ export function stringIsValidNumber(str: string) {
 
 export function createDummyConsumable(consumableType: ConsumableType) {
   return new Consumable(
-    { name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName, id: "" as EntityId },
+    {
+      name: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityName,
+      id: CONSUMABLE_TYPE_STRINGS[consumableType] as EntityId,
+    },
     0,
     {},
     consumableType,

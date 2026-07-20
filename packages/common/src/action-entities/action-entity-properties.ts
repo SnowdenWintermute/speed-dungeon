@@ -17,6 +17,8 @@ export class ActionEntityProperties {
   public initialPointToward?: SceneEntityChildTransformNodeIdentifier;
   public initialLockRotationToFace?: SceneEntityChildTransformNodeIdentifierWithDuration;
   public actionOriginData?: ActionEntityActionOriginData;
+  public movementSpeed?: number;
+
   constructor(
     public name: ActionEntityName,
     public position: Vector3

@@ -10,10 +10,6 @@ import {
   ActionEntityName,
 } from "../../../../action-entities/index.js";
 import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
-import {
-  GenericBaseChildTransformNodeName,
-  SceneEntityType,
-} from "../../../../scene-entities/index.js";
 import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import {
@@ -21,8 +17,11 @@ import {
   COMBAT_ACTION_MAX_LEVEL,
 } from "../../../../app-consts.js";
 import { ActionUserTargetingProperties } from "../../../../action-user-context/action-user-targeting-properties.js";
-import { CosmeticEffectNames } from "../../../../action-entities/cosmetic-effect.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import {
+  getFirewallCosmeticEffectsToStart,
+  getFirewallCosmeticEffectsToStop,
+} from "./firewall-cosmetic-effects.js";
 import { EntityName } from "../../../../aliases.js";
 import { ActionEntityProperties } from "../../../../action-entities/action-entity-properties.js";
 
@@ -106,41 +105,11 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
 finalStepOverrides[ActionResolutionStepType.RecoveryMotion] = {
   getCosmeticEffectsToStop(context) {
     const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
-
-    return [
-      {
-        name: CosmeticEffectNames.FirewallParticles,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.ActionEntityModel,
-            entityId: expectedFirewallEntity.actionEntity.entityProperties.id,
-          },
-          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
-        },
-      },
-    ];
+    return getFirewallCosmeticEffectsToStop(expectedFirewallEntity.actionEntity);
   },
   getCosmeticEffectsToStart: (context) => {
     const expectedFirewallEntity = context.tracker.getFirstExpectedSpawnedActionEntity();
-
-    const rankOption =
-      expectedFirewallEntity.actionEntity.actionEntityProperties.actionOriginData?.actionLevel
-        ?.current;
-    if (rankOption === undefined) throw new Error("expected firewall to have a rank");
-
-    return [
-      {
-        name: CosmeticEffectNames.FirewallParticles,
-        rankOption,
-        parent: {
-          sceneEntityIdentifier: {
-            type: SceneEntityType.ActionEntityModel,
-            entityId: expectedFirewallEntity.actionEntity.entityProperties.id,
-          },
-          transformNodeName: GenericBaseChildTransformNodeName.EntityRoot,
-        },
-      },
-    ];
+    return getFirewallCosmeticEffectsToStart(expectedFirewallEntity.actionEntity);
   },
 };
 

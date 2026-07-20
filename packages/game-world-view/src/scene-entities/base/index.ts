@@ -32,6 +32,11 @@ export abstract class SceneEntity {
   public rootMesh: AbstractMesh;
   public rootTransformNode: TransformNode;
 
+  private cleanedUp = false;
+  get isCleanedUp() {
+    return this.cleanedUp;
+  }
+
   protected visibility: NormalizedPercentage = 0;
 
   constructor(
@@ -166,6 +171,7 @@ export abstract class SceneEntity {
   }
 
   cleanup(options: { softCleanup: boolean }) {
+    this.cleanedUp = true;
     if (options.softCleanup) {
       this.softCleanup();
     } else {

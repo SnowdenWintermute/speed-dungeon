@@ -51,7 +51,7 @@ export async function testCharacterTransferAfterAbandonedIronmanRun(
   await charlie.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
 
   // close the game
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
     GameStateUpdateType.GameClosed
   );

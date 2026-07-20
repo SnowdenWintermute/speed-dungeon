@@ -1,5 +1,8 @@
 import cloneDeep from "lodash.clonedeep";
-import { ActionAndRank } from "../../../../action-user-context/action-user-targeting-properties.js";
+import {
+  ActionAndRank,
+  ActionUserTargetingProperties,
+} from "../../../../action-user-context/action-user-targeting-properties.js";
 import { ActionUserContext } from "../../../../action-user-context/index.js";
 import { ActionRank, CombatantId } from "../../../../aliases.js";
 import { TargetingCalculator } from "../../../../combat/targeting/targeting-calculator.js";
@@ -13,12 +16,16 @@ import { COMBAT_ACTIONS } from "../../../../combat/combat-actions/action-impleme
 import { NextOrPrevious } from "../../../../primatives/index.js";
 import { CombatActionExecutionIntent } from "../../../../combat/combat-actions/combat-action-execution-intent.js";
 import { CharacterAssociatedData } from "../../../../types.js";
-import { CombatActionTarget } from "../../../../combat/targeting/combat-action-targets.js";
+import {
+  CombatActionTarget,
+  combatActionTargetsAreEqual,
+  TargetingSelection,
+} from "../../../../combat/targeting/combat-action-targets.js";
 import { BattleProcessor } from "../battle-processor/index.js";
 import { processCombatAction } from "../../../../action-processing/process-combat-action.js";
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
-import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../../../../items/loot-generation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import {
   ClientSequentialEvent,
@@ -47,9 +54,12 @@ export class CombatActionController {
       characterId: CombatantId;
       actionAndRankOption: SerializedOf<ActionAndRank> | null;
       itemIdOption?: string;
+      targetingSelectionOption?: TargetingSelection;
+      autoSelected?: boolean;
     }
   ) {
-    const { characterId, actionAndRankOption, itemIdOption } = data;
+    const { characterId, actionAndRankOption, itemIdOption, targetingSelectionOption, autoSelected } =
+      data;
 
     const { game, party, player, character } = session.requireCharacterContext(characterId);
 
@@ -68,6 +78,8 @@ export class CombatActionController {
     } else {
       targetingProperties.setSelectedActionAndRank(null);
     }
+
+    targetingProperties.setSelectedActionWasAutoSelected(autoSelected ?? false);
 
     if (itemIdOption !== undefined) {
       // @INFO - if we want to allow selecting equipped items or unowned items
@@ -88,12 +100,24 @@ export class CombatActionController {
       player
     );
 
-    const initialTargetsResult =
-      targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
+    if (targetingSelectionOption !== undefined && actionAndRankOption !== null) {
+      const applyResult = this.applyTargetingSelectionIfValid(
+        targetingProperties,
+        targetingCalculator,
+        targetingSelectionOption
+      );
+      if (applyResult instanceof Error) {
+        targetingProperties.clear();
+        throw applyResult;
+      }
+    } else {
+      const initialTargetsResult =
+        targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
 
-    if (initialTargetsResult instanceof Error) {
-      targetingProperties.clear();
-      throw initialTargetsResult;
+      if (initialTargetsResult instanceof Error) {
+        targetingProperties.clear();
+        throw initialTargetsResult;
+      }
     }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -104,6 +128,8 @@ export class CombatActionController {
         characterId,
         actionAndRankOption,
         itemIdOption,
+        targetingSelectionOption,
+        autoSelected,
       },
     });
 
@@ -199,6 +225,69 @@ export class CombatActionController {
     });
 
     return outbox;
+  }
+
+  setCombatActionTargetHandler(
+    session: UserSession,
+    data: { characterId: CombatantId; targetingSelection: TargetingSelection }
+  ) {
+    const { characterId, targetingSelection } = data;
+    const { game, party, player, character } = session.requireCharacterContext(characterId);
+
+    const targetingCalculator = new TargetingCalculator(
+      new ActionUserContext(game, party, character),
+      player
+    );
+
+    const targetingProperties = character.getTargetingProperties();
+    const applyResult = this.applyTargetingSelectionIfValid(
+      targetingProperties,
+      targetingCalculator,
+      targetingSelection
+    );
+    if (applyResult instanceof Error) {
+      throw applyResult;
+    }
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.CharacterSetCombatActionTarget,
+      data: { characterId, targetingSelection },
+    });
+
+    return outbox;
+  }
+
+  private applyTargetingSelectionIfValid(
+    targetingProperties: ActionUserTargetingProperties,
+    targetingCalculator: TargetingCalculator,
+    targetingSelection: TargetingSelection
+  ): Error | void {
+    const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+    if (selectedActionAndRank === null) {
+      return new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+    }
+
+    const { targetingScheme, target } = targetingSelection;
+
+    const validTargetsResult = targetingCalculator.getValidTargetsForScheme(
+      selectedActionAndRank,
+      targetingScheme
+    );
+    if (validTargetsResult instanceof Error) {
+      return validTargetsResult;
+    }
+
+    const targetIsValid = validTargetsResult.some((validTarget) =>
+      combatActionTargetsAreEqual(validTarget, target)
+    );
+    if (!targetIsValid) {
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TARGETS_SELECTED);
+    }
+
+    targetingProperties.setSelectedTargetingScheme(targetingScheme);
+    targetingProperties.setSelectedTarget(target);
   }
 
   cycleTargetingSchemesHandler(session: UserSession, data: { characterId: CombatantId }) {

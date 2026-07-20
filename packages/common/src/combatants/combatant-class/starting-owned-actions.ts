@@ -17,6 +17,7 @@ const genericActions = [
   CombatActionName.UseGreenAutoinjector,
   CombatActionName.UseBlueAutoinjector,
   CombatActionName.PassTurn,
+  CombatActionName.ThrowPebbleParent,
 ];
 
 const CHARACTER_STARTING_OWNED_ACTIONS: Record<

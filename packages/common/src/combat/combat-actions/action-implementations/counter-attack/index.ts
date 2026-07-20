@@ -28,7 +28,7 @@ const config: CombatActionComponentConfig = {
     },
   },
   description: "Cancel an incoming attack and respond with one of your own",
-  costProperties: { ...clonedConfig.costProperties, costBases: {} },
+  costProperties: { ...clonedConfig.costProperties, costsByRank: {} },
   hierarchyProperties: {
     ...clonedConfig.hierarchyProperties,
     getChildren: function (context: ActionResolutionStepContext) {

@@ -1,6 +1,10 @@
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CombatActionComponent } from "../combat-actions/index.js";
-import { CombatActionTarget, CombatActionTargetType } from "./combat-action-targets.js";
+import {
+  CombatActionTarget,
+  CombatActionTargetType,
+  TargetingSelection,
+} from "./combat-action-targets.js";
 import { getValidPreferredOrDefaultActionTargets } from "./get-valid-preferred-or-default-action-targets.js";
 import { EntityId } from "../../aliases.js";
 import { getActionTargetsIfSchemeIsValid } from "./get-targets-if-scheme-is-valid.js";
@@ -10,6 +14,10 @@ import { TargetFilterer } from "./filtering.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
 import { ActionUserContext } from "../../action-user-context/index.js";
 import { ProhibitedTargetCombatantStates } from "../combat-actions/prohibited-target-combatant-states.js";
+import {
+  FriendOrFoe,
+  TargetingScheme,
+} from "../combat-actions/targeting-schemes-and-categories.js";
 import { SpeedDungeonPlayer } from "../../game/player.js";
 import { CombatActionExecutionIntent } from "../combat-actions/combat-action-execution-intent.js";
 
@@ -83,6 +91,100 @@ export class TargetingCalculator {
     );
 
     return filtered;
+  }
+
+  getValidTargetsForScheme(
+    actionAndRank: ActionAndRank,
+    targetingScheme: TargetingScheme
+  ): Error | CombatActionTarget[] {
+    const { actionName, rank } = actionAndRank;
+    const action = COMBAT_ACTIONS[actionName];
+    if (!action.targetingProperties.getTargetingSchemes(rank).includes(targetingScheme)) {
+      return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.TARGETING_SCHEME_NOT_AVAILABLE);
+    }
+
+    const idsByDisposition = this.getFilteredPotentialTargetIdsForAction(actionAndRank);
+    const allyIds = idsByDisposition[FriendOrFoe.Friendly];
+    const opponentIds = idsByDisposition[FriendOrFoe.Hostile];
+    const neutralIds = idsByDisposition[FriendOrFoe.Neutral];
+
+    switch (targetingScheme) {
+      case TargetingScheme.Single:
+        return [...allyIds, ...opponentIds, ...neutralIds].map((targetId) => ({
+          type: CombatActionTargetType.Single,
+          targetId,
+        }));
+      case TargetingScheme.Area: {
+        const groupTargets: CombatActionTarget[] = [];
+        if (allyIds.length > 0) {
+          groupTargets.push({
+            type: CombatActionTargetType.Group,
+            friendOrFoe: FriendOrFoe.Friendly,
+          });
+        }
+        if (opponentIds.length > 0) {
+          groupTargets.push({
+            type: CombatActionTargetType.Group,
+            friendOrFoe: FriendOrFoe.Hostile,
+          });
+        }
+        if (neutralIds.length > 0) {
+          groupTargets.push({
+            type: CombatActionTargetType.Group,
+            friendOrFoe: FriendOrFoe.Neutral,
+          });
+        }
+        return groupTargets;
+      }
+      case TargetingScheme.All:
+        return [{ type: CombatActionTargetType.All }];
+    }
+  }
+
+  getTargetingSelectionForClickedCombatant(clickedCombatantId: EntityId): TargetingSelection | null {
+    const targetingProperties = this.context.actionUser.getTargetingProperties();
+    const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+    const selectedScheme = targetingProperties.getSelectedTargetingScheme();
+    if (selectedActionAndRank === null || selectedScheme === null) {
+      return null;
+    }
+
+    const validTargetsResult = this.getValidTargetsForScheme(selectedActionAndRank, selectedScheme);
+    if (validTargetsResult instanceof Error) {
+      return null;
+    }
+
+    const action = COMBAT_ACTIONS[selectedActionAndRank.actionName];
+    for (const validTarget of validTargetsResult) {
+      const targetIdsResult = this.getCombatActionTargetIds(action, validTarget);
+      if (targetIdsResult instanceof Error) {
+        continue;
+      }
+      if (targetIdsResult.includes(clickedCombatantId)) {
+        return { targetingScheme: selectedScheme, target: validTarget };
+      }
+    }
+
+    return null;
+  }
+
+  combatantIsAmongSelectedTargets(combatantId: EntityId): boolean {
+    const targetingProperties = this.context.actionUser.getTargetingProperties();
+    const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+    const selectedTarget = targetingProperties.getSelectedTarget();
+    if (selectedActionAndRank === null || selectedTarget === null) {
+      return false;
+    }
+
+    const targetIdsResult = this.getCombatActionTargetIds(
+      COMBAT_ACTIONS[selectedActionAndRank.actionName],
+      selectedTarget
+    );
+    if (targetIdsResult instanceof Error) {
+      return false;
+    }
+
+    return targetIdsResult.includes(combatantId);
   }
 
   getPreferredOrDefaultActionTargets(actionAndRank: ActionAndRank) {

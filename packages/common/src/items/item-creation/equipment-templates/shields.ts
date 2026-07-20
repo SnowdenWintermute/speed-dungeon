@@ -65,26 +65,26 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.levelRange = new NumberRange(0, 0);
           template.acRange = new NumberRange(2, 2);
           template.size = ShieldSize.Small;
-          template.maxDurability = 4;
+          template.maxDurability = 8;
           break;
         case Shield.CabinetDoor:
           template.levelRange = new NumberRange(1, 3);
           template.acRange = new NumberRange(2, 6);
           template.size = ShieldSize.Small;
-          template.maxDurability = 6;
+          template.maxDurability = 16;
           break;
         case Shield.Heater:
           template.levelRange = new NumberRange(2, 4);
           template.acRange = new NumberRange(10, 18);
           template.size = ShieldSize.Medium;
-          template.maxDurability = 8;
+          template.maxDurability = 22;
           template.requirements[CombatAttribute.Strength] = 3;
           break;
         case Shield.Buckler:
           template.levelRange = new NumberRange(3, 5);
           template.acRange = new NumberRange(20, 32);
           template.size = ShieldSize.Small;
-          template.maxDurability = 9;
+          template.maxDurability = 18;
           template.requirements[CombatAttribute.Strength] = 3;
           template.requirements[CombatAttribute.Dexterity] = 2;
           break;
@@ -92,7 +92,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.levelRange = new NumberRange(4, 6);
           template.acRange = new NumberRange(32, 41);
           template.size = ShieldSize.Large;
-          template.maxDurability = 12;
+          template.maxDurability = 20;
           template.requirements[CombatAttribute.Strength] = 7;
           template.requirements[CombatAttribute.Dexterity] = 3;
           break;
@@ -100,7 +100,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.levelRange = new NumberRange(5, 7);
           template.acRange = new NumberRange(40, 48);
           template.size = ShieldSize.Medium;
-          template.maxDurability = 14;
+          template.maxDurability = 18;
           template.requirements[CombatAttribute.Strength] = 7;
           template.requirements[CombatAttribute.Dexterity] = 7;
           break;
@@ -117,7 +117,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.levelRange = new NumberRange(6, 8);
           template.acRange = new NumberRange(60, 75);
           template.size = ShieldSize.Medium;
-          template.maxDurability = 20;
+          template.maxDurability = 24;
           template.requirements[CombatAttribute.Strength] = 14;
           template.requirements[CombatAttribute.Dexterity] = 7;
           break;
@@ -140,7 +140,7 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
           template.levelRange = new NumberRange(8, 10);
           template.acRange = new NumberRange(85, 110);
           template.size = ShieldSize.Medium;
-          template.maxDurability = 30;
+          template.maxDurability = 28;
           template.requirements[CombatAttribute.Strength] = 29;
           template.requirements[CombatAttribute.Dexterity] = 7;
           break;

@@ -1,4 +1,4 @@
-import { AssetContainer, TransformNode } from "@babylonjs/core";
+import { AssetContainer, TransformNode, Vector3 } from "@babylonjs/core";
 import {
   SkeletalAnimationName,
   ERROR_MESSAGES,
@@ -20,6 +20,7 @@ import { ClientApplication } from "@/client-application";
 import { HighlightManager } from "./highlight-manager/index";
 import { CombatantSceneEntityEquipmentManager } from "./equipment-manager";
 import { TargetIndicatorBillboardManager } from "./target-indicators";
+import { SceneEntityPickerDisc } from "../scene-entity-picker-disc";
 
 export class CombatantSceneEntity extends SceneEntity {
   readonly childTransformNodes: Partial<
@@ -34,6 +35,7 @@ export class CombatantSceneEntity extends SceneEntity {
   readonly equipmentManager: CombatantSceneEntityEquipmentManager;
   readonly highlightManager: HighlightManager;
   readonly targetingIndicatorManager: TargetIndicatorBillboardManager;
+  readonly pickerDisc: SceneEntityPickerDisc;
 
   public debugElement: HTMLDivElement | null = null;
   public modelDomPositionElement: HTMLDivElement | null = null;
@@ -41,15 +43,15 @@ export class CombatantSceneEntity extends SceneEntity {
   constructor(
     private gameWorldView: GameWorldView,
     clientApplication: ClientApplication,
-    combatant: Combatant,
+    private _combatant: Combatant,
     skeletonAssetContainer: AssetContainer
   ) {
-    const { transformProperties } = combatant.combatantProperties;
+    const { transformProperties } = _combatant.combatantProperties;
     const homePosition = transformProperties.getHomePosition().clone();
     const homeRotation = transformProperties.homeRotation.clone();
     super(
-      combatant.getEntityId(),
-      combatant.entityProperties.name,
+      _combatant.getEntityId(),
+      _combatant.entityProperties.name,
       gameWorldView.scene,
       skeletonAssetContainer,
       clientApplication.floatingMessagesService,
@@ -80,8 +82,31 @@ export class CombatantSceneEntity extends SceneEntity {
       gameWorldView.itemSceneEntityFactory
     );
     this.highlightManager = new HighlightManager(this.scene, clientApplication, this);
+    this.pickerDisc = new SceneEntityPickerDisc(
+      gameWorldView,
+      this.entityId,
+      () => this.getPickerDiscWorldPosition(),
+      () =>
+        gameWorldView.clientApplication.combatantClickHandler.combatantClicked(
+          this.combatant.getEntityId()
+        ),
+      () =>
+        gameWorldView.clientApplication.combatantClickHandler.reticleIsClickable(
+          this.combatant.getEntityId()
+        ),
+      () =>
+        gameWorldView.clientApplication.combatantClickHandler.reticleCursor(
+          this.combatant.getEntityId()
+        )
+    );
 
-    this.rootTransformNode.name += combatant.entityProperties.name;
+    this.rootTransformNode.name += _combatant.entityProperties.name;
+  }
+
+  private getPickerDiscWorldPosition(): Vector3 {
+    const hitboxCenter =
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.HitboxCenter];
+    return (hitboxCenter ?? this.rootTransformNode).getAbsolutePosition();
   }
 
   initRootMesh(assetContainer: AssetContainer) {
@@ -105,6 +130,15 @@ export class CombatantSceneEntity extends SceneEntity {
   }
 
   initChildTransformNodes(): void {
+    const shieldNodeOption = this.createTransformNodeChildOfBone(
+      this.rootMesh,
+      `${this.entityId}-shield-node`,
+      "Shield"
+    );
+    if (shieldNodeOption) {
+      this.childTransformNodes[CombatantBaseChildTransformNodeName.Shield] = shieldNodeOption;
+    }
+
     const mainHandEquipmentNode = this.createTransformNodeChildOfBone(
       this.rootMesh,
       `${this.entityId}-mh-equipment`,
@@ -165,12 +199,24 @@ export class CombatantSceneEntity extends SceneEntity {
   }
 
   get combatant(): Combatant {
-    const option =
+    // resolve the live combatant by id rather than the instance snapshotted at spawn: a
+    // GameFullUpdate re-deserializes the game (new combatant instances) without respawning
+    // scene entities, so the snapshot goes stale and equipment/state reads stop reflecting
+    // changes (e.g. hotswap cycling or breakage not updating models in progression mode).
+    // _combatant is a last-known fallback for when the combatant has left the party (see
+    // setCombatant) and resolveCombatant can no longer find it during cleanup/death.
+    return (
       this.gameWorldView.sceneEntityService.combatantSceneEntityManager.resolveCombatant(
         this.entityId
-      );
-    invariant(option !== undefined, `no combatant resolvable for scene entity ${this.entityId}`);
-    return option;
+      ) ?? this._combatant
+    );
+  }
+
+  /** Re-point the fallback reference at the instance this entity now represents. Called when an
+   * existing scene entity is re-synced to a (possibly new) combatant instance for the same id,
+   * so the fallback is the live in-party instance rather than the one snapshotted at spawn. */
+  setCombatant(combatant: Combatant) {
+    this._combatant = combatant;
   }
 
   customCleanup(): void {
@@ -179,6 +225,7 @@ export class CombatantSceneEntity extends SceneEntity {
     }
     this.equipmentManager.cleanup();
     this.modularPartsManager.cleanup();
+    this.pickerDisc.cleanup();
   }
 
   setVisibility(value: NormalizedPercentage) {

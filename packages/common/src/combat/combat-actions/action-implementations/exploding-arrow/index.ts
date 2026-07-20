@@ -12,6 +12,7 @@ import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 import { CombatActionComponentConfig, CombatActionComposite } from "../../index.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 // the purpose of projectile parent hit outcome properties is to show a description
 // we'll clone the projectile's hit outcome properties so we can show the applied effects
@@ -38,6 +39,14 @@ const config: CombatActionComponentConfig = {
       return `${data.nameOfActionUser} uses Exploding Arrow (level ${data.actionLevel})`;
     },
   }),
+  costProperties: {
+    ...cloneDeep(ATTACK_RANGED_MAIN_HAND.costProperties),
+    costsByRank: {
+      [1]: { [ActionPayableResource.Mana]: 2, [ActionPayableResource.ActionPoints]: 1 },
+      [2]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 1 },
+      [3]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 1 },
+    },
+  },
 
   hierarchyProperties: {
     ...ATTACK_RANGED_MAIN_HAND.hierarchyProperties,

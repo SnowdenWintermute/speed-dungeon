@@ -6,6 +6,7 @@ import { Durability } from "./Durability";
 import { CombatAttributesAndTraits } from "./CombatAttributesAndTraits";
 import { ItemRequirements } from "../ItemRequirements";
 import { observer } from "mobx-react-lite";
+import ShieldInfoDisplay from "./ShieldInfoDisplay";
 
 interface Props {
   equipment: Equipment;
@@ -25,6 +26,7 @@ export const EquipmentDetails = observer(({ equipment }: Props) => {
       <ItemRequirements attributeRequirements={equipment.requirements} />
       <ArmorClassText equipment={equipment} />
       <WeaponDamage equipment={equipment} />
+      <ShieldInfoDisplay equipment={equipment} />
       <CombatAttributesAndTraits equipment={equipment} />
     </div>
   );

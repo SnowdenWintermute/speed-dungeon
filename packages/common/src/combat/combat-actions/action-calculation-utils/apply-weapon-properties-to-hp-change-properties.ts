@@ -24,7 +24,9 @@ export function applyWeaponPropertiesToResourceChangeProperties(
   const { baseValues } = hpChangeProperties;
 
   addWeaponsDamageToRange([weapon], baseValues);
+  // lifesteal is aggregated across all equipped items in CombatantEquipment, not copied per-weapon here
   const weaponModifiersToCopy = new Set(iterateNumericEnum(ResourceChangeSourceModifiers));
+  weaponModifiersToCopy.delete(ResourceChangeSourceModifiers.Lifesteal);
 
   const averageRoll = baseValues.getAverage();
   const mostEffectiveAvailableResourceChangeSourceOnWeapon =
@@ -44,10 +46,6 @@ export function applyWeaponPropertiesToResourceChangeProperties(
 
   // if we ever add another trait besides lifesteal which might affect damage, put those traits
   // before the testing for best hp change source modifiers
-  const maybeError = weapon.equipment.applyTraitsToResourceChangeSource(
-    mostEffectiveAvailableResourceChangeSourceOnWeapon
-  );
-  if (maybeError instanceof Error) console.error(maybeError);
 
   copySelectedModifiersFromResourceChangeSource(
     hpChangeProperties.resourceChangeSource,

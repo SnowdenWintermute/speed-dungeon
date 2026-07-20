@@ -6,9 +6,14 @@ import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 export function setUpWarriorAbilityTree() {
   const tree = new AbilityTree();
   tree.assign(0, 0, { type: AbilityType.Action, actionName: CombatActionName.Ensnare });
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.Provoke });
 
   // traits
   tree.assign(3, 0, {
+    type: AbilityType.Trait,
+    traitType: CombatantTraitType.Parry,
+  });
+  tree.assign(3, 1, {
     type: AbilityType.Trait,
     traitType: CombatantTraitType.HpBioavailability,
   });

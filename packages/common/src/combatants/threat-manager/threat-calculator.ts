@@ -2,7 +2,6 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
-import { IActionUser } from "../../action-user-context/action-user.js";
 import { HitOutcome } from "../../hit-outcome.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Combatant } from "../index.js";

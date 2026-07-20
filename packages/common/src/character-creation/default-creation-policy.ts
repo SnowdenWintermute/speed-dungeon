@@ -2,7 +2,6 @@ import { EntityName, Username } from "../aliases.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
-import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
 import { Shield } from "../items/equipment/equipment-types/shield.js";
 import { STARTING_COMBATANT_TRAITS } from "../combatants/combatant-class/starting-traits.js";
@@ -13,9 +12,12 @@ import { CharacterCreationPolicy } from "./character-creation-policy.js";
 import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
 import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
+import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { AffixType } from "../items/equipment/affixes.js";
+import { EquipmentTraitType } from "../items/equipment/equipment-traits/index.js";
 
-const HP_INJECTOR_COUNT = 1;
-const MP_INJECTOR_COUNT = 1;
+const HP_INJECTOR_COUNT = 2;
+const MP_INJECTOR_COUNT = 0;
 
 export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
   override setCharacters() {
@@ -40,8 +42,11 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
     this.appendStartingEquipment(combatantClass, builder);
     this.appendStartingConsumables(builder);
 
+    // builder.ownedAction(CombatActionName.Fire, 2);
+
     const result = builder.build(this.idGenerator);
 
+    result.combatantProperties.inventory.changeShards(400);
     // setPlaytestingCombatantProperties(result.combatantProperties);
     // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 

@@ -67,7 +67,7 @@ export async function testSaveRunOnGameLeave(testFixture: IntegrationTestFixture
   expect(strengthStatAfterAllocation > strengthStatBeforeAllocation);
 
   // leave game
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
 
   // expect to find saved record in persistence service matching game state at time of leave

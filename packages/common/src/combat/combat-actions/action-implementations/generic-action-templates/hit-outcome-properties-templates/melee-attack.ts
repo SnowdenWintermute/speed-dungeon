@@ -1,5 +1,7 @@
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../../../combatants/attributes/index.js";
+import { MELEE_LIFESTEAL_TRAIT_PERCENTAGE_BY_RANK } from "../../../../../combatants/combatant-traits/index.js";
+import { CombatantTraitType } from "../../../../../combatants/combatant-traits/trait-types.js";
 import {
   getStandardActionArmorPenetration,
   getStandardActionCritChance,
@@ -19,7 +21,7 @@ import { BASIC_ATTACK_HIT_OUTCOME_PROPERTIES } from "./basic-attack.js";
 export const MELEE_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperties = {
   ...BASIC_ATTACK_HIT_OUTCOME_PROPERTIES,
   getUnmodifiedCritChance: function (user: IActionUser): number {
-    return getStandardActionCritChance(user, CombatAttribute.Strength);
+    return getStandardActionCritChance(user, [CombatAttribute.Strength, CombatAttribute.Dexterity]);
   },
   getCritMultiplier: function (user: IActionUser): number {
     return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
@@ -27,6 +29,7 @@ export const MELEE_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
   getArmorPenetration: function (user: IActionUser): number {
     return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
   },
+
   resourceChangePropertiesGetters: {
     [CombatActionResource.HitPoints]: (user, hitOutcomeProperties, actionLevel, primaryTarget) => {
       const hpChangeProperties = getAttackResourceChangeProperties(
@@ -36,6 +39,20 @@ export const MELEE_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
         primaryTarget,
         CombatAttribute.Strength
       );
+      const meleeLifestealTraitRankOption = user
+        .getCombatantProperties()
+        .abilityProperties.getTraitProperties()
+        .getTraitRank(CombatantTraitType.MeleeLifesteal);
+      if (meleeLifestealTraitRankOption) {
+        if (hpChangeProperties.resourceChangeSource.lifestealPercentage) {
+          hpChangeProperties.resourceChangeSource.lifestealPercentage +=
+            MELEE_LIFESTEAL_TRAIT_PERCENTAGE_BY_RANK.get(meleeLifestealTraitRankOption) || 0;
+        } else {
+          hpChangeProperties.resourceChangeSource.lifestealPercentage =
+            MELEE_LIFESTEAL_TRAIT_PERCENTAGE_BY_RANK.get(meleeLifestealTraitRankOption) || 0;
+        }
+      }
+
       if (hpChangeProperties instanceof Error) return hpChangeProperties;
       return hpChangeProperties;
     },

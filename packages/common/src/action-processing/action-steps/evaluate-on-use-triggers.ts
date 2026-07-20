@@ -14,6 +14,8 @@ import { SpawnableEntityType } from "../../spawnables/index.js";
 import { getStartFlyingActionIntentIfAble } from "../../conditions/configs/ensnared.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { getKillAttachedCombatantsActionIntents } from "./hit-outcome-triggers/index.js";
+import { rollIsSuccess } from "../../utility-classes/random-number-generation-policy.js";
+import { DURABILITY_LOSS_CHANCE } from "../../app-consts.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -80,11 +82,20 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
     }
 
     const durabilityChanges = new DurabilityChangesByEntityId();
-    durabilityChanges.updateConditionalChangesOnUser(
-      actionUser,
-      action,
-      DurabilityLossCondition.OnUse
-    );
+
+    const roll = this.context.rngPolicy.durabilityLossOnUse.roll();
+    const shouldReduceDurability = rollIsSuccess({
+      roll,
+      successChance: DURABILITY_LOSS_CHANCE,
+    });
+
+    if (shouldReduceDurability) {
+      durabilityChanges.updateConditionalChangesOnUser(
+        actionUser,
+        action,
+        DurabilityLossCondition.OnUse
+      );
+    }
 
     if (!durabilityChanges.isEmpty()) {
       gameUpdateCommand.durabilityChanges = durabilityChanges;

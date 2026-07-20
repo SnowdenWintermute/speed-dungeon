@@ -8,7 +8,7 @@ import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.
 import { GameMode } from "../../../game-modes/index.js";
 import { PartyFateType } from "../../../game-modes/ladder-records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
-import { LootGenerator } from "../../../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../../../items/loot-generation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { GameMessageType } from "../../../packets/game-message.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
@@ -74,7 +74,7 @@ export class DungeonExplorationController {
     );
 
     if (allPlayersReadyToExplore) {
-      const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
+      const exploreNextRoomOutbox = await this.exploreNextRoom(game, party, { isDescending: false });
       outbox.pushFromOther(exploreNextRoomOutbox);
     }
 
@@ -180,15 +180,17 @@ export class DungeonExplorationController {
       await gameModePolicy.ladder.onPartyEscape(game);
     }
 
-    const exploreNextRoomOutbox = await this.exploreNextRoom(game, party);
+    const exploreNextRoomOutbox = await this.exploreNextRoom(game, party, { isDescending: true });
     outbox.pushFromOther(exploreNextRoomOutbox);
     return outbox;
   }
 
   private async exploreNextRoom(
     game: SpeedDungeonGame,
-    party: AdventuringParty
+    party: AdventuringParty,
+    options: { isDescending: boolean }
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
+    const { isDescending } = options;
     if (game.mode === GameMode.Progression) {
       // @PERF - later we can consider a correct way to "fire-and-forget" this persistence
       // but since it is more complexity and might not be all that slow we'll just await for now
@@ -203,8 +205,28 @@ export class DungeonExplorationController {
 
     const reachedEndOfFloor = !dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
     if (reachedEndOfFloor) {
+      // staying on a floor keeps its palette; descending (or entering the first floor, which has
+      // no palette yet) rolls a new one
+      const enteringNewFloor =
+        isDescending || dungeonExplorationManager.getCurrentFloorPalette().length === 0;
+
+      if (enteringNewFloor) {
+        const { palette, boss } = this.dungeonGenerationPolicy.generateFloorPalette(
+          dungeonExplorationManager.getCurrentFloor()
+        );
+        dungeonExplorationManager.setCurrentFloorPalette(palette);
+        dungeonExplorationManager.setCurrentFloorBoss(boss);
+      }
+
+      const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
+      const floorHasBoss = dungeonExplorationManager.getCurrentFloorBoss() !== null;
+      const includeBossRoom =
+        floorHasBoss &&
+        (enteringNewFloor || gameModePolicy.inGameDecisions.bossRoomRepeatsOnFloorRefill());
+
       const newRoomTypes = this.dungeonGenerationPolicy.generateUnexploredRoomTypesOnFloor(
-        dungeonExplorationManager.getCurrentFloor()
+        dungeonExplorationManager.getCurrentFloor(),
+        includeBossRoom
       );
       dungeonExplorationManager.setUnexploredRoomTypes(newRoomTypes);
 
@@ -290,7 +312,9 @@ export class DungeonExplorationController {
     const { room, monsters } = this.dungeonGenerationPolicy.generateDungeonRoom(
       floorNumber,
       roomTypeToGenerate,
-      party.dungeonExplorationManager.getCurrentRoomNumber()
+      party.dungeonExplorationManager.getCurrentRoomNumber(),
+      dungeonExplorationManager.getCurrentFloorPalette(),
+      dungeonExplorationManager.getCurrentFloorBoss()
     );
 
     party.setCurrentRoom(room);

@@ -158,8 +158,16 @@ export class IronmanRunController {
     // handle the update based on a future "profile schema version" field
 
     for (const id of ironmanRunIds) {
-      const run = await this.userGameDataPersistenceService.requireIronmanRun(id);
-      savedIronmanRuns.push(run);
+      try {
+        const run = await this.userGameDataPersistenceService.requireIronmanRun(id);
+        savedIronmanRuns.push(run);
+      } catch (error) {
+        console.info(
+          "error retreiving supposed ironman run in user profile - removing profile's reference to that run id"
+        );
+        ArrayUtils.removeElement(profile.ironmanRunIds, id);
+        await this.profilesService.update(userId, profile);
+      }
     }
 
     outbox.pushToConnection(session.connectionId, {

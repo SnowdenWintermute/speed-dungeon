@@ -113,6 +113,10 @@ export class ActionEffectsApplyerCommand {
         }
       }
     }
+
+    if (this.battleOption) {
+      this.battleOption.turnOrderManager.updateTrackers(this.game, this.party);
+    }
   }
 
   private applyCombatantsRemoved(combatantIds?: CombatantId[]) {
@@ -146,6 +150,10 @@ export class ActionEffectsApplyerCommand {
           );
         }
       }
+    }
+
+    if (this.battleOption) {
+      this.battleOption.turnOrderManager.updateTrackers(this.game, this.party);
     }
   }
 

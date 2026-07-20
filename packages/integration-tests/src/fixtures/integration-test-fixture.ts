@@ -438,7 +438,7 @@ export class IntegrationTestFixture {
 
     // one player closing the game closes for all
     if (options?.closeGame) {
-      alpha.clientApplication.gameClientRef.get().leaveGame();
+      await alpha.clientApplication.gameClientRef.get().leaveGame();
       const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
         GameStateUpdateType.GameClosed
       );

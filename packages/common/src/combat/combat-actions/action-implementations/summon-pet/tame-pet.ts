@@ -2,6 +2,8 @@ import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-prope
 import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
+  getResourceCostsBasedOnOwnedRank,
+  getResourceCostsByRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -21,7 +23,6 @@ import { AbilityType } from "../../../../abilities/ability-types.js";
 import { ProhibitedTargetCombatantStates } from "../../prohibited-target-combatant-states.js";
 import { COMBATANT_MAX_LEVEL } from "../../../../app-consts.js";
 import { CombatActionName } from "../../combat-action-names.js";
-import { CombatActionResource } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionComponentConfig } from "../../index.js";
@@ -30,8 +31,24 @@ import { CombatActionLeaf } from "../../combat-action-leaf.js";
 import { getTamePetMaxPetLevel } from "./get-tame-pet-max-level.js";
 import { CombatantId } from "../../../../aliases.js";
 import { ERROR_MESSAGES } from "../../../../errors/index.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
+import { invariant } from "../../../../utils/index.js";
+import cloneDeep from "lodash.clonedeep";
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
+  costsByRank: {
+    [1]: { [ActionPayableResource.Mana]: 5, [ActionPayableResource.ActionPoints]: 2 },
+    [2]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 2 },
+    [3]: { [ActionPayableResource.Mana]: 3, [ActionPayableResource.ActionPoints]: 1 },
+  },
+
+  getResourceCosts: (user, inCombat, actionRank, self) => {
+    return getResourceCostsBasedOnOwnedRank(user, self.name, self, inCombat);
+  },
+
+  getDescriptionResourceCosts: (user, actionLevel, self) => {
+    return getResourceCostsByRank(actionLevel, self, true);
+  },
   requiresCombatTurnInThisContext: () => false,
   getMeetsCustomRequirements: (user, party) => {
     const occupiedPetSlotsCount = party.petManager.getOwnerOccupiedPetSlotsCount(
@@ -49,15 +66,6 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     }
 
     return { meetsRequirements: true };
-  },
-  costBases: {
-    [CombatActionResource.Mana]: {
-      base: 2,
-      additives: {
-        actionLevel: 0,
-        userCombatantLevel: 0,
-      },
-    },
   },
 };
 

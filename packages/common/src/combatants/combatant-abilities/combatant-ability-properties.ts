@@ -6,6 +6,7 @@ import {
   ACTION_FORCED_RANKS,
 } from "../../abilities/index.js";
 import { ActionAndRank } from "../../action-user-context/action-user-targeting-properties.js";
+import { ActionRank } from "../../aliases.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { CombatActionComponent } from "../../combat/combat-actions/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -18,6 +19,7 @@ import { ABILITY_TREES } from "../ability-tree/set-up-ability-trees.js";
 import { COMBATANT_TRAIT_DESCRIPTIONS } from "../combatant-traits/index.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { Combatant } from "../index.js";
+import { CombatantEquipment } from "../combatant-equipment/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 import { CombatantConditionFactory } from "../../conditions/condition-factory.js";
@@ -27,6 +29,7 @@ import { DungeonRoomType } from "../../adventuring-party/dungeon-room.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { MapUtils } from "../../utils/map-utils.js";
 import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/get-tame-pet-max-level.js";
+import { AllocationProhibitedReason } from "./ability-allocation-prohibited-reasons.js";
 
 export class CombatantAbilityProperties
   extends CombatantSubsystem
@@ -122,6 +125,27 @@ export class CombatantAbilityProperties
     return this.ownedActions.get(actionName);
   }
 
+  getDefaultActionOnTarget(self: Combatant, targetCombatant: Combatant): ActionAndRank {
+    const meleeCanNotReachTarget = self.targetFlyingConditionPreventsReachingMeleeRange(
+      targetCombatant.combatantProperties
+    );
+
+    let actionName = CombatActionName.Attack;
+    if (meleeCanNotReachTarget && !CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(self)) {
+      const ownsThrowPebble = !!this.getOwnedActionOption(CombatActionName.ThrowPebbleParent);
+      if (ownsThrowPebble) {
+        actionName = CombatActionName.ThrowPebbleParent;
+      }
+    }
+
+    const ownedActionOption = this.getOwnedActionOption(actionName);
+    if (ownedActionOption === undefined) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_OWNED);
+    }
+
+    return new ActionAndRank(actionName, ownedActionOption.level as ActionRank);
+  }
+
   // POINT ALLOCATION
 
   private ownedAbilityIsAtMaxAllocatableRank(ability: AbilityTreeAbility) {
@@ -140,7 +164,7 @@ export class CombatantAbilityProperties
 
   canAllocateAbilityPoint(ability: AbilityTreeAbility): {
     canAllocate: boolean;
-    reasonCanNot?: string;
+    reasonCanNot?: AllocationProhibitedReason;
   } {
     const combatantProperties = this.getCombatantProperties();
     const { classProgressionProperties, abilityProperties } = combatantProperties;
@@ -160,7 +184,7 @@ export class CombatantAbilityProperties
     if (!isSupportClassAbility && !isMainClassAbility) {
       return {
         canAllocate: false,
-        reasonCanNot: "That ability is not in any of that combatant's ability trees",
+        reasonCanNot: AllocationProhibitedReason.NotInTree,
       };
     }
 
@@ -170,18 +194,18 @@ export class CombatantAbilityProperties
     ) {
       return {
         canAllocate: false,
-        reasonCanNot: "That trait is inherent to the combatant and can not be allocated to",
+        reasonCanNot: AllocationProhibitedReason.InherentTrait,
       };
     }
 
     // has unspent points
     if (abilityProperties.getUnspentPointsCount() <= 0) {
-      return { canAllocate: false, reasonCanNot: "No unspent ability points" };
+      return { canAllocate: false, reasonCanNot: AllocationProhibitedReason.NoUnspentPoints };
     }
 
     // ability is max level
     if (abilityProperties.ownedAbilityIsAtMaxAllocatableRank(ability)) {
-      return { canAllocate: false, reasonCanNot: "That ability is at its maximum level" };
+      return { canAllocate: false, reasonCanNot: AllocationProhibitedReason.MaximumRank };
     }
 
     // is required character level
@@ -196,7 +220,7 @@ export class CombatantAbilityProperties
     if (!isAtRequiredCharacterLevel) {
       return {
         canAllocate: false,
-        reasonCanNot: "That character is too low level to allocate to this ability",
+        reasonCanNot: AllocationProhibitedReason.CombatantTooLowLevel,
       };
     }
 
@@ -205,7 +229,7 @@ export class CombatantAbilityProperties
     if (!hasPrerequisiteAbilities) {
       return {
         canAllocate: false,
-        reasonCanNot: "Requires prerequisite",
+        reasonCanNot: AllocationProhibitedReason.PrerequisitesNotMet,
       };
     }
 

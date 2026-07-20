@@ -1,5 +1,6 @@
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
 import { HotkeyButton } from "./HotkeyButton";
+import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
 
 interface Props {
   extraStyles?: string;
@@ -20,8 +21,9 @@ export default function ButtonBasic(props: Props) {
 
   useEffect(() => {
     if (props.hotkey !== undefined) {
+      const hotkey = props.hotkey;
       keypressListenerRef.current = (e: KeyboardEvent) => {
-        if (e.code === props.hotkey) {
+        if (normalizeKeyValue(e.key) === normalizeKeyValue(hotkey)) {
           // @ts-ignore
           onClick(new MouseEvent("mouseup"));
         }

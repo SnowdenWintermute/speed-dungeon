@@ -175,7 +175,7 @@ export class LobbyGameLifecycleController implements GameLifecycleController {
     // give the client the game information of the game they joined
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.GameFullUpdate,
-      data: { game: game.toSerialized() },
+      data: { game: game.toSerializedForClient() },
     });
 
     // tell clients already in the game that someone joined

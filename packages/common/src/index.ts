@@ -34,10 +34,12 @@ export * from "./items/consumables/consumable-types.js";
 export * from "./game/index.js";
 export * from "./game/game-clock.js";
 export * from "./game/player.js";
+export * from "./game/player-shard-pool.js";
 export * from "./monsters/monster-types.js";
 export * from "./monsters/get-monster-combatant-species.js";
 export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
+export * from "./monsters/monster-reward-profiles.js";
 
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
@@ -156,6 +158,7 @@ export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-
 export * from "./combat/targeting/targeting-calculator.js";
 export * from "./action-user-context/index.js";
 export * from "./action-entities/index.js";
+export * from "./action-entities/action-entity-persistent-cosmetic-effects.js";
 export * from "./action-entities/cosmetic-effect.js";
 export * from "./action-entities/cosmetic-effect-constructors.js";
 export * from "./spawnables/index.js";
@@ -217,6 +220,8 @@ export * from "./conditions/index.js";
 export * from "./conditions/condition-factory.js";
 
 export * from "./items/item-creation/affix-generator.js";
+export * from "./items/loot-generation/loot-generator.js";
+export * from "./items/loot-generation/reward-profile.js";
 export * from "./combat/ai-behavior/index.js";
 export * from "./combat/targeting/combat-action-targets.js";
 export * from "./combat/ai-behavior/ai-select-action-and-target.js";
@@ -235,6 +240,8 @@ export * from "./servers/services/assets/stores/indexed-db.js";
 export * from "./servers/services/assets/stores/remote-server.js";
 export * from "./servers/services/assets/versioned-asset.js";
 export * from "./servers/services/game-session-store/index.js";
+export * from "./servers/services/game-session-store/active-game-status.js";
+export * from "./servers/services/game-session-store/pending-game-setup.js";
 export * from "./servers/services/reconnection-forwarding-store/index.js";
 export * from "./servers/services/in-memory-identity-provider-service.js";
 export * from "./servers/services/game-session-store/in-memory-game-session-store-service.js";
@@ -261,6 +268,8 @@ export * from "./combatants/combatant-builder.js";
 export * from "./dungeon-generation/index.js";
 export * from "./dungeon-generation/random-dungeon-generation-policy.js";
 export * from "./dungeon-generation/scripted-dungeon-generation-policy.js";
+export * from "./dungeon-generation/monster-types-by-floor.js";
+export * from "./dungeon-generation/budget-draw.js";
 export * from "./monsters/monster-generator.js";
 export * from "./utility-classes/random-number-generation-policy.js";
 
@@ -270,6 +279,7 @@ export * from "./testing/player-character-fixtures.js";
 export * from "./combatants/experience-points/index.js";
 export * from "./utils/numeric-enum-utils.js";
 export * from "./servers/services/global-auth-game-connection-session-store/index.js";
+export * from "./servers/sessions/user-session.js";
 export * from "./servers/sessions/global-auth-game-session.js";
 export * from "./servers/game-server/reconnection/guest-session-reconnection-token.js";
 export * from "./game-modes/index.js";
@@ -282,3 +292,6 @@ export * from "./combat/combat-actions/action-implementations/resource-change-pr
 
 export * from "./servers/game-server/asset-analyzer/index.js";
 export * from "./test-fixtures/test-resource-change-properties-strategy.js";
+export * from "./combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";
+export * from "./monsters/scaling-sizes.js";
+export * from "./monsters/monster-spawn-sizing.js";

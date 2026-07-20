@@ -1,19 +1,19 @@
 export enum CombatAttribute {
-  Strength, // damage with melee attacks, melee crit multiplier, melee armor pen
-  Dexterity, // ranged damage, accuracy, physical crit chance, armor ranged armor pen
-  Spirit, // mp, magic ability damage
-  Vitality, // hp, and debuff duration
+  Strength,
+  Dexterity,
+  Spirit,
+  Vitality,
 
-  Agility, // movement speed, evasion, physical crit chance reduction
+  Agility,
 
-  Speed, // determines turn order
-  ArmorClass, // compared with final damage of physical attack, reduces damage on a curve
-  ArmorPenetration, // subtracted from target's armor class
-  Accuracy, // after target's evasion subtracted, the chance for an evadable actions to hit its target
-  Evasion, // reduces the chance to be hit by evadable actions
+  Speed,
+  ArmorClass,
+  ArmorPenetration,
+  Accuracy,
+  Evasion,
 
-  Hp, // if 0 or below, a combatant can no longer take actions
-  Mp, // a resource for ability use
+  Hp,
+  Mp,
 }
 
 export const CORE_ATTRIBUTES = [
@@ -48,19 +48,19 @@ export const COMBAT_ATTRIBUTE_STRINGS: Record<CombatAttribute, string> = {
 };
 
 export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
-  [CombatAttribute.ArmorPenetration]: "Negates a target's armor class",
-  [CombatAttribute.Accuracy]:
-    "Chance to hit a target with an evadable attack. Targets that wish to evade will subtract their evasion from this number.",
-  [CombatAttribute.ArmorClass]: "Reduces physical damage",
-  [CombatAttribute.Evasion]: "Chance to avoid being hit",
-  [CombatAttribute.Hp]: "If reduced to zero the combatant can no longer take actions",
-  [CombatAttribute.Speed]: "Determines turn order",
-  [CombatAttribute.Mp]: "The primary resource for using abilities",
+  [CombatAttribute.ArmorPenetration]: "Negates a target's armor class.",
+  [CombatAttribute.Accuracy]: "Chance to hit with melee and projectile abilities.",
+  [CombatAttribute.ArmorClass]: "Reduces physical damage.",
+  [CombatAttribute.Evasion]: "Chance to avoid being hit.",
+  [CombatAttribute.Hp]: "If reduced to zero the combatant can no longer take actions.",
+  [CombatAttribute.Speed]: "Determines turn order.",
+  [CombatAttribute.Mp]: "The primary resource for using abilities.",
   [CombatAttribute.Dexterity]:
-    "Increases accuracy, crit chance with physical attacks, ranged attack damage and ranged attack armor penetration",
-  [CombatAttribute.Spirit]: "Increases mana and spell damage",
+    "Increases accuracy, crit chance of melee and projectile attacks, kinetic projectile damage, block and parry chance.",
+  [CombatAttribute.Spirit]:
+    "Increases mana, spell damage and magical healing received. Reduces incoming crit damage from all sources. Reduces magical damage received.",
   [CombatAttribute.Strength]:
-    "Increases attack damage, crit multiplier and armor penetration for melee attacks",
-  [CombatAttribute.Vitality]: "Increases hit points and armor class",
-  [CombatAttribute.Agility]: `Increases evasion and speed`,
+    "Increases damage, crit chance, crit multiplier and armor penetration for melee attacks. Increases block chance, damage reduced on block, parry and counterattack chance.",
+  [CombatAttribute.Vitality]: "Increases hit points.",
+  [CombatAttribute.Agility]: `Increases evasion, speed, chance to avoid being crit, damage reduced on block and counterattack chance.`,
 };

@@ -7,6 +7,7 @@ import {
   ClientAppMessageType,
   ClientSequentialEventType,
   COMBAT_ACTIONS,
+  CombatActionTarget,
   Combatant,
   Consumable,
   DungeonRoom,
@@ -19,7 +20,7 @@ import {
   GAME_CLOSED_REASON_STRINGS,
   GameStateUpdateMap,
   GameStateUpdateType,
-  getCraftingActionPrice,
+  PlayerShardPool,
   getSkillBookName,
   Item,
   iterateNumericEnumKeyedRecord,
@@ -61,10 +62,8 @@ export function createGameUpdateHandlers(
     sequentialEventProcessor,
     alertsService,
     detailableEntityFocus,
-    gameWorldView,
     gameClientRef,
   } = clientApplication;
-  const sceneEntityService = gameWorldView?.sceneEntityService;
 
   return {
     [GameStateUpdateType.ErrorMessage]: () => {
@@ -118,6 +117,8 @@ export function createGameUpdateHandlers(
         return;
       }
 
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
+
       if (data.awaitingUnresolvedReplayResolutionDuration) {
         partyOption.inputLock.lockInput();
         clientApplication.uiStore.replayResolutionTimeoutDuration =
@@ -128,16 +129,8 @@ export function createGameUpdateHandlers(
         }, data.awaitingUnresolvedReplayResolutionDuration);
       }
 
-      if (!gameWorldView) {
-        // console.info("couldn't make images because no game world view");
-        return;
-      }
-
-      gameWorldView.imageGenerator.enqueueConsumableGenericThumbnailCreation();
-      const { combatantManager } = partyOption;
-      for (const character of combatantManager.iterateAllCombatants()) {
-        gameWorldView.imageGenerator.enqueueCharacterItemsForThumbnails(character);
-      }
+      // if the world view doesn't exist yet, GameWorldView.initialize() enqueues these instead
+      clientApplication.gameWorldView?.imageGenerator.enqueueThumbnailsForParty(partyOption);
     },
     [GameStateUpdateType.GameClosed]: (data) => {
       const { reason } = data;
@@ -194,7 +187,10 @@ export function createGameUpdateHandlers(
       const { actionEntityManager } = party;
       for (const actionEntityId of actionEntitiesToRemove) {
         actionEntityManager.unregisterActionEntity(actionEntityId);
-        sceneEntityService?.actionEntityManager.unregister(actionEntityId, CleanupMode.Soft);
+        clientApplication.gameWorldView?.sceneEntityService.actionEntityManager.unregister(
+          actionEntityId,
+          CleanupMode.Soft
+        );
       }
 
       itemIdsOnGroundInPreviousRoom.push(
@@ -225,6 +221,8 @@ export function createGameUpdateHandlers(
 
       combatantManager.updateHomePositions();
       combatantManager.setAllCombatantsToHomePositions();
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
 
       dungeonExplorationManager.incrementExploredRoomsTrackers();
 
@@ -258,7 +256,7 @@ export function createGameUpdateHandlers(
       });
 
       // clean up unused screenshots for items left behind
-      gameWorldView?.imageGenerator.enqueueMessage({
+      clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
         type: ImageGenerationRequestType.ItemDeletion,
         data: { itemIds: itemIdsOnGroundInPreviousRoom },
       });
@@ -266,7 +264,7 @@ export function createGameUpdateHandlers(
       for (const item of newItemsOnGround) {
         if (item instanceof Consumable) continue;
 
-        gameWorldView?.imageGenerator.enqueueMessage({
+        clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
           type: ImageGenerationRequestType.ItemCreation,
           data: { item },
         });
@@ -360,6 +358,47 @@ export function createGameUpdateHandlers(
         detailableEntityFocus.detailables.setDetailed(itemToSelectOption);
       }
     },
+    [GameStateUpdateType.CharacterEquippedItemFromGround]: (data) => {
+      const { itemId, equipToAlternateSlot, characterId } = data;
+      const { combatant, party } = gameContext.requireCombatantContext(characterId);
+      const { equipment } = combatant.combatantProperties;
+
+      const equipResult = equipment.equipItemFromGround(
+        itemId,
+        party.currentRoom.inventory,
+        equipToAlternateSlot
+      );
+      if (equipResult instanceof Error) {
+        throw equipResult;
+      }
+
+      // the item just vanished from under the pointer, so a mouseleave will never arrive to unhover it
+      if (detailableEntityFocus.entityIsHovered(itemId)) {
+        detailableEntityFocus.detailables.clearHovered();
+      }
+
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
+      });
+    },
+    [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: (data) => {
+      const { characterId, sourceSlot, destinationSlot } = data;
+      const { combatant } = gameContext.requireCombatantContext(characterId);
+
+      const moveResult = combatant.combatantProperties.equipment.moveEquippedItemToSlot(
+        sourceSlot,
+        destinationSlot
+      );
+      if (moveResult instanceof Error) {
+        throw moveResult;
+      }
+
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
+      });
+    },
     [GameStateUpdateType.CharacterPickedUpItems]: (data) => {
       const { combatant, party } = gameContext.requireCombatantContext(data.characterId);
       for (const itemId of data.itemIds) {
@@ -387,6 +426,8 @@ export function createGameUpdateHandlers(
       const { game, party, combatant } = gameContext.requireCombatantContext(data.characterId);
       const targetingProperties = combatant.getTargetingProperties();
       const { itemIdOption, actionAndRankOption, characterId } = data;
+
+      targetingProperties.setSelectedActionWasAutoSelected(data.autoSelected ?? false);
       const deserializedActionAndRankOption = actionAndRankOption
         ? ActionAndRank.fromSerialized(actionAndRankOption)
         : null;
@@ -409,17 +450,27 @@ export function createGameUpdateHandlers(
         playerOption
       );
 
-      const newTargetsResult =
-        targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
-      if (newTargetsResult instanceof Error) {
-        throw newTargetsResult;
+      let selectedTarget: CombatActionTarget | null;
+      if (data.targetingSelectionOption !== undefined && deserializedActionAndRankOption !== null) {
+        targetingProperties.setSelectedTargetingScheme(
+          data.targetingSelectionOption.targetingScheme
+        );
+        targetingProperties.setSelectedTarget(data.targetingSelectionOption.target);
+        selectedTarget = data.targetingSelectionOption.target;
+      } else {
+        const newTargetsResult =
+          targetingProperties.assignInitialTargetsForSelectedAction(targetingCalculator);
+        if (newTargetsResult instanceof Error) {
+          throw newTargetsResult;
+        }
+        selectedTarget = newTargetsResult;
       }
 
       let targetIds: null | EntityId[] = null;
-      if (combatActionOption !== null && newTargetsResult) {
+      if (combatActionOption !== null && selectedTarget) {
         const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
           combatActionOption,
-          newTargetsResult
+          selectedTarget
         );
         if (targetIdsResult instanceof Error) {
           throw targetIdsResult;
@@ -432,6 +483,8 @@ export function createGameUpdateHandlers(
 
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIds || []);
 
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
+
       const playerOwnsCharacter = party.combatantManager.playerOwnsCharacter(
         clientApplication.session.requireUsername(),
         characterId
@@ -441,7 +494,7 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      actionMenu.pushStack(new ConsideringCombatActionMenuScreen(clientApplication, actionName));
+      actionMenu.replaceStack([new ConsideringCombatActionMenuScreen(clientApplication, actionName)]);
     },
     [GameStateUpdateType.GameMessage]: (data) => {
       const { message } = data;
@@ -545,22 +598,23 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.CharacterDroppedShards]: (data) => {
       const { characterId, shardStack } = data;
       const asClassInstance = Consumable.fromSerialized(shardStack);
+      asClassInstance.makeObservable();
       const { party, combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.inventory.changeShards(asClassInstance.usesRemaining * -1);
       party.currentRoom.inventory.insertItem(asClassInstance);
     },
     [GameStateUpdateType.CharacterPurchasedItem]: (data) => {
-      const { item, characterId, price } = data;
-      const { combatant } = gameContext.requireCombatantContext(characterId);
+      const { item, characterId, payments } = data;
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
       const asClassInstance = Consumable.fromSerialized(item);
-      const { inventory } = combatant.combatantProperties;
-      inventory.changeShards(price * -1);
-      inventory.insertItem(asClassInstance);
+      asClassInstance.makeObservable();
+      PlayerShardPool.applyPayments(party, payments);
+      combatant.combatantProperties.inventory.insertItem(asClassInstance);
       alertsService.setAlert(`Purchased ${item.entityProperties.name}`, true);
     },
     [GameStateUpdateType.CharacterPerformedCraftingAction]: (data) => {
-      const { characterId, item, craftingAction } = data;
-      const { combatant } = gameContext.requireCombatantContext(characterId);
+      const { characterId, item, craftingAction, payments } = data;
+      const { party, combatant } = gameContext.requireCombatantContext(characterId);
 
       // used to show loading state so players don't get confused when
       // their craft action produces exact same item as already was
@@ -582,7 +636,6 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      const actionPrice = getCraftingActionPrice(craftingAction, itemResult);
       const itemBeforeModification = cloneDeep(toJS(itemResult));
       // distinguish between the crafted and pre-crafted item. used for selecting the item links in the
       // combat log
@@ -614,14 +667,14 @@ export function createGameUpdateHandlers(
       }
 
       if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        gameWorldView?.imageGenerator.enqueueMessage({
+        clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
           type: ImageGenerationRequestType.ItemCreation,
           data: { item: itemResult },
         });
       }
 
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
-      combatantProperties.inventory.changeShards(actionPrice * -1);
+      PlayerShardPool.applyPayments(party, payments);
 
       eventLogMessageService.postCraftActionResult(
         combatant.getName(),
@@ -668,6 +721,8 @@ export function createGameUpdateHandlers(
         playerOption
       );
       const newTargetsResult = targetingCalculator.updateTargetingSchemeAfterSelectingActionLevel();
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
 
       const action = COMBAT_ACTIONS[actionName];
 
@@ -730,6 +785,42 @@ export function createGameUpdateHandlers(
 
       targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIdsResult || []);
     },
+    [GameStateUpdateType.CharacterSetCombatActionTarget]: (data) => {
+      const { characterId, targetingSelection } = data;
+      const { targetingScheme, target } = targetingSelection;
+      const { game, party, combatant } = gameContext.requireCombatantContext(characterId);
+      const username = combatant.getCombatantProperties().controlledBy.controllerPlayerName;
+      const player = game.getExpectedPlayer(username);
+
+      const targetingCalculator = new TargetingCalculator(
+        new ActionUserContext(game, party, combatant),
+        player
+      );
+
+      const targetingProperties = combatant.getTargetingProperties();
+
+      const selectedActionAndRank = targetingProperties.getSelectedActionAndRank();
+      if (selectedActionAndRank === null) {
+        throw new Error(ERROR_MESSAGES.COMBATANT.NO_ACTION_SELECTED);
+      }
+
+      targetingProperties.setSelectedTargetingScheme(targetingScheme);
+      targetingProperties.setSelectedTarget(target);
+
+      const { actionName } = selectedActionAndRank;
+
+      const targetIdsResult = targetingCalculator.getCombatActionTargetIds(
+        COMBAT_ACTIONS[actionName],
+        target
+      );
+      if (targetIdsResult instanceof Error) {
+        throw targetIdsResult;
+      }
+
+      targetIndicatorStore.synchronize(actionName, combatant.getEntityId(), targetIdsResult || []);
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
+    },
     [GameStateUpdateType.CharacterCycledTargetingSchemes]: (data) => {
       const { characterId } = data;
       const { game, party, combatant } = gameContext.requireCombatantContext(characterId);
@@ -760,6 +851,8 @@ export function createGameUpdateHandlers(
       }
 
       targetIndicatorStore.synchronize(actionNameOption, combatant.getEntityId(), targetIdsResult);
+
+      clientApplication.combatantClickHandler.synchronizeReticleClickability();
     },
     [GameStateUpdateType.DungeonFloorNumber]: (data) => {
       const party = gameContext.requireParty();
@@ -803,6 +896,7 @@ export function createGameUpdateHandlers(
         alertsService.setAlert(removedItemResult);
       } else {
         const asClassInstance = Consumable.fromSerialized(book);
+        asClassInstance.makeObservable();
         const { inventory } = combatantProperties;
         inventory.insertItem(asClassInstance);
         alertsService.setAlert(

@@ -1,13 +1,20 @@
 import { AdventuringParty } from "../../../../adventuring-party/index.js";
 import { CombatantId } from "../../../../aliases.js";
 import { BASE_XP_LEVEL_DIFF_MULTIPLIER, BASE_XP_PER_MONSTER } from "../../../../app-consts.js";
+import { getMonsterRewardProfile } from "../../../../monsters/monster-reward-profiles.js";
 
 export function generateExperiencePoints(party: AdventuringParty) {
   const experiencePointChanges: Record<CombatantId, number> = {};
 
-  const defeatedMonsterLevels = party.combatantManager
-    .getDungeonControlledCombatants()
-    .map((monster) => monster.combatantProperties.classProgressionProperties.getMainClass().level);
+  const defeatedMonsters = party.combatantManager.getDungeonControlledCombatants().map((monster) => {
+    const { monsterType } = monster.combatantProperties;
+    const experience =
+      monsterType === null ? BASE_XP_PER_MONSTER : getMonsterRewardProfile(monsterType).experience;
+    return {
+      level: monster.combatantProperties.classProgressionProperties.getMainClass().level,
+      experience,
+    };
+  });
 
   const { combatantManager } = party;
   const partyCombatants = combatantManager.getPartyMemberCombatants();
@@ -32,9 +39,9 @@ export function generateExperiencePoints(party: AdventuringParty) {
 
     let totalExpToAward = 0;
 
-    for (const monsterLevel of defeatedMonsterLevels) {
-      const baseExp = BASE_XP_PER_MONSTER / combatantsEligableToReceiveExpCount;
-      const levelDifference = classProgressionProperties.getMainClass().level - monsterLevel;
+    for (const defeatedMonster of defeatedMonsters) {
+      const baseExp = defeatedMonster.experience / combatantsEligableToReceiveExpCount;
+      const levelDifference = classProgressionProperties.getMainClass().level - defeatedMonster.level;
       const diffMultiplier = BASE_XP_LEVEL_DIFF_MULTIPLIER * Math.abs(levelDifference);
 
       const sign = levelDifference > 0 ? -1 : 1;

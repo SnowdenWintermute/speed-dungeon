@@ -13,7 +13,7 @@ export interface ResourceChangeCalculationStrategy {
     actionLevel: number,
     target: CombatantProperties
   ): void;
-  applyResilience(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties): void;
+  applySpirit(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties): void;
 }
 
 export class ResourceChangeCalulationContext implements ResourceChangeCalculationStrategy {
@@ -31,8 +31,8 @@ export class ResourceChangeCalulationContext implements ResourceChangeCalculatio
   ) {
     return this.strategy.applyArmorClass(hitOutcomeProperties, hpChange, user, actionLevel, target);
   }
-  applyResilience(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties) {
-    return this.strategy.applyResilience(hpChange, user, target);
+  applySpirit(hpChange: ResourceChange, user: IActionUser, target: CombatantProperties) {
+    return this.strategy.applySpirit(hpChange, user, target);
   }
 
   private createStrategy(

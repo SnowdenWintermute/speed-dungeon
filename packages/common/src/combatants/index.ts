@@ -155,6 +155,9 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   getEquipmentOption() {
     return this.combatantProperties.equipment;
   }
+  getEquipmentLifestealPercentage() {
+    return this.combatantProperties.equipment.getEquippedLifestealPercentage();
+  }
   getInventoryOption(): null | Inventory {
     return this.combatantProperties.inventory;
   }

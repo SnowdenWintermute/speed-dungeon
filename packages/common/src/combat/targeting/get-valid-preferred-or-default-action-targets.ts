@@ -28,6 +28,17 @@ export function getValidPreferredOrDefaultActionTargets(
   const opponentIds = targetIdsByDisposition[FriendOrFoe.Hostile];
   const neutralIds = targetIdsByDisposition[FriendOrFoe.Neutral];
 
+  const dispositionDefaultTargetConsiderationOrder: FriendOrFoe[] = [];
+  if (action.targetingProperties.intent === CombatActionIntent.Malicious) {
+    dispositionDefaultTargetConsiderationOrder.push(FriendOrFoe.Hostile);
+    dispositionDefaultTargetConsiderationOrder.push(FriendOrFoe.Neutral);
+    dispositionDefaultTargetConsiderationOrder.push(FriendOrFoe.Friendly);
+  } else {
+    dispositionDefaultTargetConsiderationOrder.push(FriendOrFoe.Friendly);
+    dispositionDefaultTargetConsiderationOrder.push(FriendOrFoe.Neutral);
+    dispositionDefaultTargetConsiderationOrder.push(FriendOrFoe.Hostile);
+  }
+
   if (playerOption) {
     const {
       targetingSchemePreference,
@@ -62,7 +73,8 @@ export function getValidPreferredOrDefaultActionTargets(
             }
           }
           // IF NO VALID PREFERRED SINGLE, GET ANY VALID SINGLE
-          for (const category of iterateNumericEnum(FriendOrFoe)) {
+
+          for (const category of dispositionDefaultTargetConsiderationOrder) {
             if (newTargets) return newTargets;
 
             const idsOption = category === FriendOrFoe.Friendly ? allyIds : opponentIds;

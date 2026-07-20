@@ -8,23 +8,13 @@ import {
   ServerCommand,
   GameSessionStoreService,
   RandomNumberGenerationPolicyFactory,
-  ScriptedCharacterCreationPolicy,
-  BASIC_CHARACTER_FIXTURES,
-  IdGeneratorSequential,
-  CHARARCTER_FIXTURES_WITH_PETS,
-  HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
-  MONSTER_FIXTURES,
-  CHARARCTER_FIXTURES_WITH_PET_MANTAS,
-  LOW_HP_CHARACTER_FIXTURES,
   cookieHeaderAuthSessionIdParser,
   IdGeneratorRandom,
-  CHARACTER_LEVEL_LADDER,
-  GlobalGameSessionStore,
+  UserGlobalGameSessionStore,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   SpeedDungeonProfileService,
-  InMemoryLadderRecordsPersistenceStrategy,
   LadderGameRecordsService,
   IdGenerator,
   DefaultCharacterCreationPolicy,
@@ -43,6 +33,11 @@ import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GAME_SERVER_NAME } from "../main.js";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
+import { DatabaseLadderRecordsPersistenceStrategy } from "../game-node/services/database-ladder-records-persistence-strategy.js";
+import {
+  MANUAL_TEST_MODE,
+  setLobbyServerNodeManualTestProperties,
+} from "../manual-test-mode-config.js";
 
 export class LobbyServerNode {
   private _lobbyServer: LobbyServer | null = null;
@@ -50,7 +45,7 @@ export class LobbyServerNode {
   async createServer(
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     gameSessionStoreService: GameSessionStoreService,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
@@ -70,31 +65,32 @@ export class LobbyServerNode {
     const leastBusyGameServerUrlGetter = async () => {
       return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
     };
-    this._lobbyServer = new LobbyServer(
-      usersIncomingConnectionGateway,
-      externalServices,
-      gameServerSessionClaimTokenCodec,
-      guestReconnectionTokenCodec,
-      { [GAME_SERVER_NAME]: "http://localhost:8090" },
-      leastBusyGameServerUrlGetter,
-      DefaultCharacterCreationPolicy,
-      // ScriptedCharacterCreationPolicy,
-      RandomNumberGenerationPolicyFactory.allRandomPolicy(),
-      // new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
-      idGenerator,
-      cookieHeaderAuthSessionIdParser
-    );
 
-    // this._lobbyServer.characterCreationPolicy.setCharacters(BASIC_CHARACTER_FIXTURES);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PETS);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(LOW_HP_CHARACTER_FIXTURES);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(CHARARCTER_FIXTURES_WITH_PET_MANTAS);
-    // this._lobbyServer.characterCreationPolicy.setCharacters(
-    //   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS([
-    //     (idGenerator, itemBuilder, rngPolicy, name) =>
-    //       MONSTER_FIXTURES.MANTA_RAY(idGenerator, itemBuilder, rngPolicy).build(idGenerator),
-    //   ])
-    // );
+    // TO MATCH TEST SETUP
+
+    if (MANUAL_TEST_MODE) {
+      this._lobbyServer = setLobbyServerNodeManualTestProperties(
+        usersIncomingConnectionGateway,
+        externalServices,
+        gameServerSessionClaimTokenCodec,
+        guestReconnectionTokenCodec,
+        leastBusyGameServerUrlGetter,
+        cookieHeaderAuthSessionIdParser
+      );
+    } else {
+      this._lobbyServer = new LobbyServer(
+        usersIncomingConnectionGateway,
+        externalServices,
+        gameServerSessionClaimTokenCodec,
+        guestReconnectionTokenCodec,
+        { [GAME_SERVER_NAME]: "http://localhost:8090" },
+        leastBusyGameServerUrlGetter,
+        DefaultCharacterCreationPolicy,
+        RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+        idGenerator,
+        cookieHeaderAuthSessionIdParser
+      );
+    }
 
     console.info("lobby server node created");
   }
@@ -102,7 +98,7 @@ export class LobbyServerNode {
   private createExternalServices(
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
-    globalGameSessionStore: GlobalGameSessionStore,
+    globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
     idGenerator: IdGenerator
   ): LobbyExternalServices {
@@ -128,7 +124,7 @@ export class LobbyServerNode {
       valkeyManager.context
     );
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new InMemoryLadderRecordsPersistenceStrategy(),
+      new DatabaseLadderRecordsPersistenceStrategy(),
       idGenerator
     );
 

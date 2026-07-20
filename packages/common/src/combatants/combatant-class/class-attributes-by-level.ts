@@ -6,47 +6,36 @@ export const COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL: Record<
   Partial<Record<CombatAttribute, number>>
 > = {
   [CombatantClass.Warrior]: {
-    [CombatAttribute.ArmorPenetration]: 0,
-    [CombatAttribute.Accuracy]: 0,
-    [CombatAttribute.ArmorClass]: 0,
-    [CombatAttribute.Evasion]: 0,
+    // DERIVED
     [CombatAttribute.Hp]: 2.0,
-    [CombatAttribute.Speed]: 0,
     [CombatAttribute.Mp]: 1.0,
+    // CORE
     [CombatAttribute.Strength]: 2.5,
-    // [CombatAttribute.Strength]: 20.5,
     [CombatAttribute.Dexterity]: 1.5,
-    // [CombatAttribute.Spirit]: 3, // should be 0
-    [CombatAttribute.Spirit]: 0,
-    [CombatAttribute.Vitality]: 2.0,
-    [CombatAttribute.Agility]: 1.0,
-  },
-  [CombatantClass.Mage]: {
-    [CombatAttribute.ArmorPenetration]: 0,
-    [CombatAttribute.Accuracy]: 0,
-    [CombatAttribute.ArmorClass]: 0,
-    [CombatAttribute.Evasion]: 0,
-    [CombatAttribute.Hp]: 1.0,
-    [CombatAttribute.Speed]: 0,
-    [CombatAttribute.Mp]: 2.0,
-    [CombatAttribute.Strength]: 0.5,
-    [CombatAttribute.Dexterity]: 0.5,
-    [CombatAttribute.Spirit]: 2.5,
-    [CombatAttribute.Vitality]: 1.0,
-    [CombatAttribute.Agility]: 0.5,
+    [CombatAttribute.Spirit]: 0.5,
+    [CombatAttribute.Vitality]: 1.75,
+    [CombatAttribute.Agility]: 0.75,
   },
   [CombatantClass.Rogue]: {
-    [CombatAttribute.ArmorPenetration]: 0,
-    [CombatAttribute.Accuracy]: 0,
-    [CombatAttribute.ArmorClass]: 0,
-    [CombatAttribute.Evasion]: 0,
+    // DERIVED
     [CombatAttribute.Hp]: 1.5,
-    [CombatAttribute.Speed]: 0,
     [CombatAttribute.Mp]: 1.5,
-    [CombatAttribute.Strength]: 1.5,
-    [CombatAttribute.Dexterity]: 2.0,
-    [CombatAttribute.Spirit]: 1.0,
-    [CombatAttribute.Vitality]: 1.5,
+    // CORE
+    [CombatAttribute.Strength]: 1.25,
+    [CombatAttribute.Dexterity]: 2.5,
+    [CombatAttribute.Spirit]: 0.75,
+    [CombatAttribute.Vitality]: 1,
     [CombatAttribute.Agility]: 1.5,
+  },
+  [CombatantClass.Mage]: {
+    // DERIVED
+    [CombatAttribute.Hp]: 1.0,
+    [CombatAttribute.Mp]: 2.0,
+    // CORE
+    [CombatAttribute.Strength]: 1,
+    [CombatAttribute.Dexterity]: 1.75,
+    [CombatAttribute.Spirit]: 2.5,
+    [CombatAttribute.Vitality]: 1,
+    [CombatAttribute.Agility]: 0.75,
   },
 };

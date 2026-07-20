@@ -36,11 +36,12 @@ export class LobbyClient extends BaseClient {
   }
 
   static QUICK_START_CHARACTER_CLASSES = [
+    // CombatantClass.Rogue,
+    // // CombatantClass.Warrior,
+    // CombatantClass.Rogue,
     CombatantClass.Warrior,
     CombatantClass.Rogue,
     CombatantClass.Mage,
-    // CombatantClass.Warrior,
-    // CombatantClass.Rogue,
   ];
 
   quickStartGame() {

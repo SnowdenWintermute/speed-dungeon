@@ -28,17 +28,21 @@ export function rollIsSuccess(props: {
 
 export interface RandomNumberGenerationPolicy {
   // Item/Loot generation
-  lootTableSelection: RandomNumberGenerator;
   consumableTypeFallback: RandomNumberGenerator;
+  lootDropRuleChance: RandomNumberGenerator;
+  lootDropQuantity: RandomNumberGenerator;
+  lootItemLevelRoll: RandomNumberGenerator;
+  lootItemSelection: RandomNumberGenerator;
   // Equipment base properties
   equipmentBaseProperties: RandomNumberGenerator;
-  equipmentDurability: RandomNumberGenerator;
+  equipmentGenerationDurability: RandomNumberGenerator;
   // Magical & affix system
   magicalDetermination: RandomNumberGenerator;
   affixSlotDistribution: RandomNumberGenerator;
   affixTypeSelection: RandomNumberGenerator;
   affixTier: RandomNumberGenerator;
   affixValue: RandomNumberGenerator;
+  guaranteedAffixCategoryDraw: RandomNumberGenerator;
   // Combat
   hitChance: RandomNumberGenerator;
   criticalStrike: RandomNumberGenerator;
@@ -47,6 +51,8 @@ export interface RandomNumberGenerationPolicy {
   shieldBlock: RandomNumberGenerator;
   spellResist: RandomNumberGenerator;
   combatResourceChange: RandomNumberGenerator;
+  durabilityLossOnHitOutcome: RandomNumberGenerator;
+  durabilityLossOnUse: RandomNumberGenerator;
   combatDurabilityTarget: RandomNumberGenerator;
   bouncingProjectileTargetSelection: RandomNumberGenerator;
   // Monsters
@@ -57,6 +63,10 @@ export interface RandomNumberGenerationPolicy {
   // World generation
   dungeonLayout: RandomNumberGenerator;
   monsterEquipment: RandomNumberGenerator;
+  monsterGenerationTypeSelection: RandomNumberGenerator;
+  floorPaletteSelection: RandomNumberGenerator;
+  roomFillSelection: RandomNumberGenerator;
+  bossSelection: RandomNumberGenerator;
 }
 
 export class RandomNumberGenerationPolicyFactory {
@@ -65,15 +75,19 @@ export class RandomNumberGenerationPolicyFactory {
   ): RandomNumberGenerationPolicy {
     const basic = new BasicRandomNumberGenerator();
     return {
-      lootTableSelection: basic,
       consumableTypeFallback: basic,
+      lootDropRuleChance: basic,
+      lootDropQuantity: basic,
+      lootItemLevelRoll: basic,
+      lootItemSelection: basic,
       equipmentBaseProperties: basic,
-      equipmentDurability: basic,
+      equipmentGenerationDurability: basic,
       magicalDetermination: basic,
       affixSlotDistribution: basic,
       affixTypeSelection: basic,
       affixTier: basic,
       affixValue: basic,
+      guaranteedAffixCategoryDraw: basic,
       hitChance: basic,
       criticalStrike: basic,
       parry: basic,
@@ -82,12 +96,18 @@ export class RandomNumberGenerationPolicyFactory {
       spellResist: basic,
       combatResourceChange: basic,
       combatDurabilityTarget: basic,
+      durabilityLossOnHitOutcome: basic,
+      durabilityLossOnUse: basic,
       bouncingProjectileTargetSelection: basic,
       monsterAiRandomAction: basic,
       monsterEquipmentChoice: basic,
       consumableEffect: basic,
       dungeonLayout: basic,
       monsterEquipment: basic,
+      monsterGenerationTypeSelection: basic,
+      floorPaletteSelection: basic,
+      roomFillSelection: basic,
+      bossSelection: basic,
       ...overrides,
     };
   }
@@ -98,15 +118,19 @@ export class RandomNumberGenerationPolicyFactory {
   ): RandomNumberGenerationPolicy {
     const fixed = new FixedNumberGenerator(value);
     return {
-      lootTableSelection: fixed,
       consumableTypeFallback: fixed,
+      lootDropRuleChance: fixed,
+      lootDropQuantity: fixed,
+      lootItemLevelRoll: fixed,
+      lootItemSelection: fixed,
       equipmentBaseProperties: fixed,
-      equipmentDurability: fixed,
+      equipmentGenerationDurability: fixed,
       magicalDetermination: fixed,
       affixSlotDistribution: fixed,
       affixTypeSelection: fixed,
       affixTier: fixed,
       affixValue: fixed,
+      guaranteedAffixCategoryDraw: fixed,
       hitChance: fixed,
       criticalStrike: fixed,
       parry: fixed,
@@ -115,12 +139,18 @@ export class RandomNumberGenerationPolicyFactory {
       spellResist: fixed,
       combatResourceChange: fixed,
       combatDurabilityTarget: fixed,
+      durabilityLossOnHitOutcome: fixed,
+      durabilityLossOnUse: fixed,
       bouncingProjectileTargetSelection: fixed,
       monsterAiRandomAction: fixed,
       monsterEquipmentChoice: fixed,
       consumableEffect: fixed,
       dungeonLayout: fixed,
       monsterEquipment: fixed,
+      monsterGenerationTypeSelection: fixed,
+      floorPaletteSelection: fixed,
+      roomFillSelection: fixed,
+      bossSelection: fixed,
       ...overrides,
     };
   }

@@ -1,4 +1,5 @@
 import { CombatantClass, MonsterType } from "@speed-dungeon/common";
+import { Artist } from "../../artists";
 
 export enum CharacterModelPartCategory {
   Head,
@@ -12,40 +13,78 @@ export interface CharacterModelPart {
   assetPath: string;
 }
 
+// a null artist means the model is not yet attributed, and no attribution will be shown for it
+export interface CombatantModel {
+  path: string;
+  artist: Artist | null;
+}
+
 export const CHARACTER_PARTS: Record<
   CombatantClass,
-  Partial<Record<CharacterModelPartCategory, string>>
+  Partial<Record<CharacterModelPartCategory, CombatantModel>>
 > = {
   [CombatantClass.Warrior]: {
-    [CharacterModelPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
-    [CharacterModelPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
-    [CharacterModelPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
+    [CharacterModelPartCategory.Head]: {
+      path: "humanoid/adventurer/adventurer-head.glb",
+      artist: Artist.Quaternius,
+    },
+    [CharacterModelPartCategory.Torso]: {
+      path: "humanoid/adventurer/adventurer-torso.glb",
+      artist: Artist.Quaternius,
+    },
+    [CharacterModelPartCategory.Legs]: {
+      path: "humanoid/adventurer/adventurer-legs.glb",
+      artist: Artist.Quaternius,
+    },
   },
   [CombatantClass.Rogue]: {
-    [CharacterModelPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
-    [CharacterModelPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
-    [CharacterModelPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
-    // [CharacterModelPartCategory.Head]: "humanoid/midieval/midieval-head.glb",
-    // [CharacterModelPartCategory.Torso]: "humanoid/midieval/midieval-torso.glb",
-    // [CharacterModelPartCategory.Legs]: "humanoid/midieval/midieval-legs.glb",
+    [CharacterModelPartCategory.Head]: {
+      path: "humanoid/adventurer/adventurer-head.glb",
+      artist: Artist.Quaternius,
+    },
+    [CharacterModelPartCategory.Torso]: {
+      path: "humanoid/adventurer/adventurer-torso.glb",
+      artist: Artist.Quaternius,
+    },
+    [CharacterModelPartCategory.Legs]: {
+      path: "humanoid/adventurer/adventurer-legs.glb",
+      artist: Artist.Quaternius,
+    },
   },
   [CombatantClass.Mage]: {
-    [CharacterModelPartCategory.Head]: "humanoid/adventurer/adventurer-head.glb",
-    [CharacterModelPartCategory.Torso]: "humanoid/adventurer/adventurer-torso.glb",
-    [CharacterModelPartCategory.Legs]: "humanoid/adventurer/adventurer-legs.glb",
-    // [CharacterModelPartCategory.Head]: "humanoid/witch/witch-head.glb",
-    // [CharacterModelPartCategory.Torso]: "humanoid/witch/witch-torso.glb",
-    // [CharacterModelPartCategory.Legs]: "humanoid/witch/witch-legs.glb",
+    [CharacterModelPartCategory.Head]: {
+      path: "humanoid/adventurer/adventurer-head.glb",
+      artist: Artist.Quaternius,
+    },
+    [CharacterModelPartCategory.Torso]: {
+      path: "humanoid/adventurer/adventurer-torso.glb",
+      artist: Artist.Quaternius,
+    },
+    [CharacterModelPartCategory.Legs]: {
+      path: "humanoid/adventurer/adventurer-legs.glb",
+      artist: Artist.Quaternius,
+    },
   },
 };
 
-export const MONSTER_FULL_SKINS: Record<MonsterType, string> = {
-  [MonsterType.Wolf]: "monsters/wolf-full.glb",
-  [MonsterType.MantaRay]: "monsters/manta-ray-full.glb",
-  [MonsterType.Spider]: "monsters/spider-full.glb",
-  [MonsterType.Net]: "effects/net-full.glb",
-  [MonsterType.Slime]: "monsters/slime-full.glb",
-  [MonsterType.FireMage]: "",
-  [MonsterType.Cultist]: "",
-  [MonsterType.Zombie]: "monsters/zombie-full.glb",
+// a null entry means the monster has no full skin and is instead built from CHARACTER_PARTS
+export const MONSTER_FULL_SKINS: Record<MonsterType, CombatantModel | null> = {
+  [MonsterType.Wolf]: { path: "monsters/wolf-full.glb", artist: Artist.Quaternius },
+  [MonsterType.MantaRay]: { path: "monsters/manta-ray-full.glb", artist: Artist.Quaternius },
+  [MonsterType.Spider]: { path: "monsters/spider-full.glb", artist: Artist.GuieA_7 },
+  [MonsterType.Net]: { path: "effects/net-full.glb", artist: Artist.Snowden },
+  [MonsterType.Slime]: { path: "monsters/slime-full.glb", artist: Artist.Quaternius },
+  [MonsterType.FireMage]: null,
+  [MonsterType.Cultist]: null,
+  [MonsterType.Zombie]: { path: "monsters/zombie-full.glb", artist: Artist.ClintBellanger },
+  [MonsterType.SkeletonWarrior]: {
+    path: "monsters/skeleton-full.glb",
+    artist: Artist.ClintBellanger,
+  },
+  [MonsterType.SkeletonCaptain]: {
+    path: "monsters/skeleton-captain-full.glb",
+    artist: Artist.ClintBellanger,
+  },
+  [MonsterType.VampireBat]: { path: "monsters/bat-full.glb", artist: Artist.Zsky },
+  [MonsterType.TyrantRex]: { path: "monsters/t-rex-full.glb", artist: Artist.Quaternius },
 };

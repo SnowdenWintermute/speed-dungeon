@@ -15,7 +15,7 @@ import { GameServerGameLifecycleController } from "../controllers/game-lifecycle
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { RECONNECTION_OPPORTUNITY_TIMEOUT_MS } from "../../../app-consts.js";
 import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
-import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { UserGlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { OpaqueEncryptionTokenCodec } from "../../lobby-server/game-handoff/session-claim-token.js";
 import { GuestSessionReconnectionToken } from "./guest-session-reconnection-token.js";
 import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
@@ -45,7 +45,7 @@ export class GameServerReconnectionProtocol implements PlayerReconnectionProtoco
     private readonly reconnectionOpportunityManager: ReconnectionOpportunityManager,
     private readonly userSessionRegistry: UserSessionRegistry,
     private readonly gameLifecycleController: GameServerGameLifecycleController,
-    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly globalGameSessionStore: UserGlobalGameSessionStore,
     private readonly guestSessionReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
     private readonly dispatchOutboxMessages: (
       outbox: MessageDispatchOutbox<GameStateUpdate>

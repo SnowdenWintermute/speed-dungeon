@@ -26,3 +26,22 @@ export class SequentialNumberGenerator implements RandomNumberGenerator {
     return value;
   };
 }
+
+// averages `rollCount` rolls of a base generator (a Bates sample) so results cluster
+// toward 0.5 on a bell curve. higher rollCount = tighter clustering.
+
+export class NormalDistributionNumberGenerator implements RandomNumberGenerator {
+  constructor(
+    private baseGenerator: RandomNumberGenerator,
+    private rollCount: number
+  ) {
+    if (rollCount < 1) {
+      throw new Error("NormalDistributionNumberGenerator requires a rollCount of at least 1");
+    }
+  }
+  roll = (): NormalizedPercentage => {
+    let sum = 0;
+    for (let i = 0; i < this.rollCount; i += 1) sum += this.baseGenerator.roll();
+    return sum / this.rollCount;
+  };
+}

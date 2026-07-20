@@ -1,7 +1,8 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
+import { FocusEventHandler, MouseEventHandler, PointerEventHandler, useEffect, useRef } from "react";
+import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
 
 interface Props {
   className?: string;
@@ -18,6 +19,7 @@ interface Props {
   onBlur?: FocusEventHandler<HTMLButtonElement>;
   onMouseEnter?: MouseEventHandler<HTMLButtonElement>;
   onMouseLeave?: MouseEventHandler<HTMLButtonElement>;
+  onPointerDown?: PointerEventHandler<HTMLButtonElement>;
   keyUp?: boolean;
 }
 
@@ -33,7 +35,14 @@ export const HotkeyButton = observer((props: Props) => {
     if (props.hotkeys !== undefined) {
       keydownListenerRef.current = (e: KeyboardEvent) => {
         for (const hotkey of props.hotkeys!) {
-          if (e.code === hotkey && !disabled && !props.ariaDisabled) {
+          if (
+            normalizeKeyValue(e.key) === normalizeKeyValue(hotkey) &&
+            !disabled &&
+            !props.ariaDisabled
+          ) {
+            // consume the keystroke so it can't also be typed into an input that this
+            // action focuses (e.g. opening a modal whose field auto-focuses)
+            e.preventDefault();
             //@ts-ignore
             props.onClick(new MouseEvent("mouseup"));
           }
@@ -62,6 +71,7 @@ export const HotkeyButton = observer((props: Props) => {
       aria-label={props.ariaLabel}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
+      onPointerDown={props.onPointerDown}
       style={props.style}
     >
       {props.children}

@@ -27,6 +27,7 @@ import { Equipment } from "../../../../items/equipment/index.js";
 import { ItemCrafter } from "./craft-actions.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
 import { getBookLevelForTrade } from "../../../../items/trading/index.js";
+import { PlayerShardPool } from "../../../../game/player-shard-pool.js";
 
 export class CraftingController {
   itemCrafter: ItemCrafter;
@@ -102,9 +103,10 @@ export class CraftingController {
     if (priceOption === null) {
       throw new Error(ERROR_MESSAGES.ITEM.NOT_PURCHASEABLE);
     }
-    inventory.requireShardCount(priceOption);
+    const shardPool = PlayerShardPool.forCharacter(game, party, character);
+    const payments = shardPool.planPayments(priceOption);
+    PlayerShardPool.applyPayments(party, payments);
 
-    inventory.changeShards(priceOption * -1);
     const purchasedItem = this.itemBuilder.consumable(consumableType).build(this.idGenerator);
     inventory.consumables.push(purchasedItem);
 
@@ -114,7 +116,7 @@ export class CraftingController {
       data: {
         characterId,
         item: purchasedItem,
-        price: priceOption,
+        payments,
       },
     });
 
@@ -129,8 +131,6 @@ export class CraftingController {
     const { game, party, character } = session.requireCharacterContext(characterId);
     party.currentRoom.requireType(DungeonRoomType.VendingMachine);
 
-    const { inventory } = character.combatantProperties;
-
     const itemResult = character.combatantProperties.inventory.getStoredOrEquipped(itemId);
     if (itemResult instanceof Error) {
       throw itemResult;
@@ -141,7 +141,8 @@ export class CraftingController {
     }
 
     const price = getCraftingActionPrice(craftingAction, itemResult);
-    inventory.requireShardCount(price);
+    const shardPool = PlayerShardPool.forCharacter(game, party, character);
+    shardPool.requireShardCount(price);
 
     let percentRepairedBeforeModification = 1;
     const durabilityOption = itemResult.getDurability();
@@ -166,7 +167,8 @@ export class CraftingController {
     }
 
     // do this after in case action was aborted earlier
-    inventory.changeShards(price * -1);
+    const payments = shardPool.planPayments(price);
+    PlayerShardPool.applyPayments(party, payments);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -175,6 +177,7 @@ export class CraftingController {
         characterId,
         item: itemResult,
         craftingAction,
+        payments,
       },
     });
 

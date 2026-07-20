@@ -164,16 +164,6 @@ export class CombatantSceneEntityAnimationControls {
     this.skeletalAnimationManager.startAnimationWithTransition(SkeletalAnimationName.DeathBack, 0, {
       onComplete: () => {
         this.skeletalAnimationManager.locked = true;
-        try {
-          // @TODO
-          // // in case it was removed on death like a web/net would be
-          // const wasRemoved = // check if still exists in game state
-          // this.world.modelManager.synchronizeCombatantModels();
-        } catch {
-          console.info(
-            "couldn't do death animation onComplete, maybe the combatant was already removed"
-          );
-        }
       },
     });
   }

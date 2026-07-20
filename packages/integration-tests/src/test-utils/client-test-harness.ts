@@ -325,6 +325,35 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
+  async equipItemFromGround(
+    characterId: CombatantId,
+    itemId: ItemId,
+    equipToAlternateSlot: boolean = false
+  ) {
+    return this.settleIntentResult({
+      type: ClientIntentType.EquipItemFromGround,
+      data: { characterId, itemId, equipToAlternateSlot },
+    });
+  }
+
+  async moveEquippedItemToSlot(
+    characterId: CombatantId,
+    sourceSlot: TaggedEquipmentSlot,
+    destinationSlot: TaggedEquipmentSlot
+  ) {
+    return this.settleIntentResult({
+      type: ClientIntentType.MoveEquippedItemToSlot,
+      data: { characterId, sourceSlot, destinationSlot },
+    });
+  }
+
+  async dropEquippedItem(characterId: CombatantId, slot: TaggedEquipmentSlot) {
+    return this.settleIntentResult({
+      type: ClientIntentType.DropEquippedItem,
+      data: { characterId, slot },
+    });
+  }
+
   async allocateAbilityPoint(ability: AbilityTreeAbility) {
     const characterId = this.clientApplication.combatantFocus.requireFocusedCharacterId();
     return this.settleIntentResult({
@@ -427,7 +456,6 @@ export class ClientTestHarness<T extends BaseClient> {
   async useFireRankTwoOnAllEnemies() {
     await this.selectCombatAction(CombatActionName.Fire, 2);
     await this.cycleTargetingSchemes();
-    await this.cycleTargets(NextOrPrevious.Next);
     await this.useSelectedCombatAction();
   }
 }

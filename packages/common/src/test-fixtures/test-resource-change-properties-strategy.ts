@@ -171,4 +171,7 @@ export const TEST_RESOURCE_CHANGE_PROPERTIES_GETTERS: Record<
   [CombatActionName.HalfKill]: HALF_KILL_ACTION_RESOURCE_PROPERTY_CHANGE_GETTERS,
   [CombatActionName.FallTowardsHomePosition]: {},
   [CombatActionName.StartFlying]: {},
+  [CombatActionName.Provoke]: {},
+  [CombatActionName.ThrowPebbleParent]: {},
+  [CombatActionName.ThrowPebbleProjectile]: ONE_PHYSICAL_DAMAGE,
 };

@@ -1,5 +1,9 @@
 import React, { ReactNode } from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
+import {
+  getActionMenuSlotHotkeys,
+  getActionMenuSlotLabel,
+} from "@/client-application/action-menu/slot-keybinds";
 import { AbilityTreeAbility, getAbilityTreeAbilityNameString } from "@speed-dungeon/common";
 import { getAbilityIcon } from "@/app/game/character-sheet/ability-tree/ability-icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
@@ -24,6 +28,7 @@ export default function AbilityTreeAbilityButton(props: Props) {
 
   const clientApplication = useClientApplication();
   const { detailableEntityFocus, actionMenu } = clientApplication;
+  const { keybinds } = clientApplication.uiStore;
 
   function clickHandler() {
     if (abilityOption === undefined) {
@@ -61,8 +66,8 @@ export default function AbilityTreeAbilityButton(props: Props) {
 
   return (
     <ActionMenuNumberedButton
-      hotkeys={[`Digit${displayIndex}`]}
-      hotkeyLabel={displayIndex.toString()}
+      hotkeys={getActionMenuSlotHotkeys(keybinds, displayIndex)}
+      hotkeyLabel={getActionMenuSlotLabel(keybinds, displayIndex)}
       focusHandler={focusHandler}
       blurHandler={blurHandler}
       clickHandler={clickHandler}

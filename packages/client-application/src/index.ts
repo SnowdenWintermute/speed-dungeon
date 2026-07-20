@@ -13,6 +13,7 @@ import { ClientApplicationSession } from "./client-application-session";
 import { ClientApplicationGameContext } from "./client-application-game-context";
 import { DetailableEntityFocus } from "./detailables/detailable-entity-focus";
 import { CombatantFocus } from "./combatant-focus";
+import { CombatantClickHandler } from "./combatant-click-handler";
 import { ClientApplicationLobbyContext } from "./client-application-lobby-context";
 import { TargetIndicatorStore } from "./target-indicator-store";
 import { EventLogStore } from "./event-log/event-log-store";
@@ -36,6 +37,8 @@ import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
 import { RootActionMenuScreen } from "./action-menu/screens/root";
 import { LadderRecordsStore } from "./ladder-records-store";
+import { ItemCommands } from "./item-commands";
+import { ItemDragService } from "./item-drag/drag-service";
 
 /* composition root for frontend subsystems */
 export class ClientApplication {
@@ -57,12 +60,15 @@ export class ClientApplication {
 
   // ui state
   readonly actionMenu = new ActionMenu(this);
+  readonly combatantClickHandler = new CombatantClickHandler(this);
   readonly combatantFocus: CombatantFocus;
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly imageStore = new ImageStore();
-  readonly uiStore = new UiStore();
+  readonly uiStore = new UiStore(this);
   readonly ladderRecordsStore = new LadderRecordsStore(this);
+  readonly itemCommands = new ItemCommands(this);
+  readonly dragService = new ItemDragService(this);
 
   // notifications/user readable logs
   readonly eventLogStore = new EventLogStore();
@@ -126,6 +132,7 @@ export class ClientApplication {
     this.lobbyContext.makeObservable();
     this.ladderRecordsStore.makeObservable();
     this.targetIndicatorStore.makeObservable();
+    // this.sequentialEventProcessor.makeObservable();
     // @TODO - find other subsystems that are calling .makeObservable() in their constructors
     // and move them here
   }
@@ -164,8 +171,12 @@ export class ClientApplication {
     this.actionMenu.initialize(new RootActionMenuScreen(this));
 
     this.combatantFocus.focusFirstOwnedCharacter();
-
     const { game, party } = this.combatantFocus.requireFocusedCharacterContext();
+    const battleOption = game.battles.get(party.battleId || "");
+    if (battleOption) {
+      const firstTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+      this.combatantFocus.handleBattleStart(firstTracker);
+    }
 
     if (!game.clock.isLive()) {
       game.clock.startLiveSession();

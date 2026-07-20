@@ -5,7 +5,7 @@ import {
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
-import { GlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
+import { UserGlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
 import { UserIdType } from "../../sessions/user-ids.js";
 import { UserSession } from "../../sessions/user-session.js";
@@ -34,7 +34,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
-    private readonly globalGameSessionStore: GlobalGameSessionStore,
+    private readonly globalGameSessionStore: UserGlobalGameSessionStore,
     private readonly gameServerUrlRegistry: Record<GameServerName, string>
   ) {}
 

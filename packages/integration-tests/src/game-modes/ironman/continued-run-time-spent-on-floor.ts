@@ -23,7 +23,7 @@ export async function testContinuedRunTimeSpentOnFloor(testFixture: IntegrationT
   // - spend some time on first floor
   testFixture.timeMachine.advanceTime(ONE_SECOND);
   // leave game
-  alpha.clientApplication.gameClientRef.get().leaveGame();
+  await alpha.clientApplication.gameClientRef.get().leaveGame();
   const bravoDisconnectedOnAlphaLeavePromise = bravo.gameClientHarness.awaitMessageOfType(
     GameStateUpdateType.GameClosed
   );

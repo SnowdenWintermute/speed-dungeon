@@ -7,17 +7,24 @@ import {
   GAME_LOG_MESSAGE_STYLE_STRINGS,
   GameLogMessage,
 } from "@/client-application/event-log/game-log-messages";
+import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { keyValueToDisplayString } from "@/client-application/ui/keyboard-layouts";
 
 export const GameLog = observer(() => {
   const [expanded, setExpanded] = useState(false);
-  const { eventLogStore } = useClientApplication();
+  const { eventLogStore, uiStore } = useClientApplication();
+  const { keybinds } = uiStore;
   const gameLogMessages = eventLogStore.getMessages();
 
   const expandedStyle = expanded
     ? "absolute bg-slate-700 p-2 top-0 right-0 h-screen w-screen"
     : "h-full";
 
-  const expandButtonText = expanded ? "Restore (L)" : "Maximize (L)";
+  const toggleLogHotkeys = keybinds.getKeybind(HotkeyButtonTypes.ToggleCombatLog);
+  const toggleLogKeyLabel = keyValueToDisplayString(toggleLogHotkeys[0] ?? "");
+  const expandButtonText = expanded
+    ? `Restore (${toggleLogKeyLabel})`
+    : `Maximize (${toggleLogKeyLabel})`;
 
   return (
     <div className={`flex flex-col pointer-events-auto ${expandedStyle}`}>
@@ -27,7 +34,7 @@ export const GameLog = observer(() => {
           onClick={() => {
             setExpanded(!expanded);
           }}
-          hotkeys={["KeyL"]}
+          hotkeys={toggleLogHotkeys}
         >
           {expandButtonText}
         </HotkeyButton>

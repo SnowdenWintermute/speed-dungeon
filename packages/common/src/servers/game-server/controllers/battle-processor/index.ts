@@ -9,7 +9,7 @@ import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random
 import { MessageDispatchFactory } from "../../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
-import { LootGenerator } from "../../../../items/item-creation/loot-generator.js";
+import { LootGenerator } from "../../../../items/loot-generation/loot-generator.js";
 import { AssetAnalyzer } from "../../asset-analyzer/index.js";
 import {
   ClientSequentialEvent,

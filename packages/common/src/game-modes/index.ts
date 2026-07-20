@@ -1,6 +1,7 @@
 import { EntityId } from "../aliases.js";
 import { SerializedCombatantWithPets } from "../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 import { GameModeGameInitializationPolicy } from "./game-initialization-policy.js";
+import { GameModeInGameDecisionsPolicy } from "./in-game-decisions-policy.js";
 import { GameModeLadderUpdatePolicy } from "./ladder-update-policy.js";
 import { GameModeLobbySetupPolicy } from "./lobby-setup-policy.js";
 import { GameModePersistencePolicy } from "./persistence-policy.js";
@@ -45,6 +46,7 @@ export interface GameModePolicy {
   persistence: GameModePersistencePolicy;
   ladder: GameModeLadderUpdatePolicy;
   gameInitialization: GameModeGameInitializationPolicy;
+  inGameDecisions: GameModeInGameDecisionsPolicy;
 }
 
 export interface UserAccountPersistentGameData {

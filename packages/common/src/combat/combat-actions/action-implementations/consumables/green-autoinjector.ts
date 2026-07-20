@@ -28,6 +28,7 @@ import {
 import { TARGETING_PROPERTIES_TEMPLATE_GETTERS } from "../generic-action-templates/targeting-properties-config-templates/index.js";
 import { CombatantTraitType } from "../../../../combatants/combatant-traits/trait-types.js";
 import { ConsumableType } from "../../../../items/consumables/consumable-types.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -69,6 +70,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   getConsumableCost: () => {
     return { type: ConsumableType.HpAutoinjector, level: 1 };
   },
+  costsByRank: { [1]: { [ActionPayableResource.ActionPoints]: 1 } },
 };
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);

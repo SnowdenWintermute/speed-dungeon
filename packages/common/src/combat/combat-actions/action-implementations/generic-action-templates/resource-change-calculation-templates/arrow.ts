@@ -25,6 +25,6 @@ export const ARROW_RESOURCE_CHANGE_CALCULATORS = {
       // the bow it was fired from
       // it should never add weapon properties from an initially broken weapon because the projectile would not
       // be allowed to be fired from a broken weapon
-      { usableWeaponsOnly: false }
+      { usableWeaponsOnly: false, forceUnarmed: false }
     ),
 };

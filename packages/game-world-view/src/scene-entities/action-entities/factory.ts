@@ -16,7 +16,10 @@ import {
   invariant,
 } from "@speed-dungeon/common";
 import { ACTION_ENTITY_NAME_TO_ASSET_ID } from "./action-entity-asset-ids";
-import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
+import {
+  loadAssetContainerIntoScene,
+  SCENE_DISPOSED_BEFORE_ASSET_LOAD,
+} from "@/game-world-view/utils/load-asset-container-into-scene";
 import { ActionEntitySceneEntity } from ".";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "@/game-world-view";
@@ -56,6 +59,13 @@ export class ActionEntitySceneEntityFactory {
       position,
       taggedDimensionsOption
     );
+
+    // the scene can be torn down while the model is being built (e.g. a rapid remount during a
+    // reconnection). surface it as the recognized disposed-scene error so callers swallow it instead
+    // of tripping the mesh invariant below
+    if (this.scene.isDisposed) {
+      throw new Error(SCENE_DISPOSED_BEFORE_ASSET_LOAD);
+    }
 
     const parentMesh = assetContainer.meshes[0];
     invariant(parentMesh !== undefined, "expected mesh was missing in imported scene");
@@ -114,6 +124,21 @@ export class ActionEntitySceneEntityFactory {
       const mesh = MeshBuilder.CreateBox("", { width, height, depth }, this.scene);
       const material = new StandardMaterial("", this.scene);
       material.alpha = 0;
+
+      mesh.material = material;
+      mesh.position.copyFrom(position);
+      const assetContainer = new AssetContainer(this.scene);
+      assetContainer.meshes = [mesh];
+      return assetContainer;
+    },
+    [ActionEntityName.Pebble]: async (position: Vector3) => {
+      const mesh = MeshBuilder.CreateSphere(
+        "pebble sphere",
+        { diameter: 0.1, segments: 5 },
+        this.scene
+      );
+      const material = new StandardMaterial("", this.scene);
+      material.diffuseColor = new Color3(0.5, 0.5, 0.5);
 
       mesh.material = material;
       mesh.position.copyFrom(position);
