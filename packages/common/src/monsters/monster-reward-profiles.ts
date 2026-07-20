@@ -13,7 +13,7 @@ export const FALLBACK_MONSTER_REWARD_PROFILE: MonsterRewardProfile = {
     {
       chance: 1,
       quantity: { min: 1, max: 1 },
-      itemLevel: { type: LootItemLevelType.CenteredOnFloor, spread: 1 },
+      itemLevel: { type: LootItemLevelType.CenteredOnFloor, spread: 0 },
       selector: {
         type: LootItemSelectorType.Any,
         categoryWeights: { equipment: 3, consumable: 1 },
