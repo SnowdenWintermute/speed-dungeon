@@ -1,5 +1,6 @@
 import {
-  AssetService,
+  AssetCache,
+  AssetServer,
   CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
@@ -50,7 +51,11 @@ export const LOCAL_OFFLINE_GAME_SERVER_PORT = 8090;
 export const LOCAL_OFFLINE_GAME_SERVER_NAME = "Local Offline Game Server" as GameServerName;
 export const LOCAL_OFFLINE_GAME_SERVER_URL = localServerUrl(LOCAL_OFFLINE_GAME_SERVER_PORT);
 
-export async function createOfflineLocalServers(assetService: AssetService) {
+export async function createOfflineLocalServers(assetCache: AssetCache) {
+  const assetServer = new AssetServer(assetCache);
+  await assetServer.initialize();
+  const { facts } = await assetServer.getGameplayAssetFacts();
+
   const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();
   InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
     LOCAL_OFFLINE_LOBBY_SERVER_URL,
@@ -139,21 +144,19 @@ export async function createOfflineLocalServers(assetService: AssetService) {
       userGameDataPersistenceService,
       characterLevelLadderService,
       ladderGameRecordsService,
-      assetService,
       gameCrossServerBroadcasterService,
       globalGameSessionStore,
       profileService
     ),
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
+    facts,
     RandomDungeonGenerationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
     new RealResourceChangePropertiesStrategy(),
     idGenerator,
     cookieHeaderAuthSessionIdParser
   );
-
-  await gameServer.analyzeAssetsForGameplayRelevantData();
 
   return { lobbyServer, gameServer };
 }
@@ -196,7 +199,6 @@ function createOfflineGameServerServices(
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
-  assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
@@ -206,7 +208,6 @@ function createOfflineGameServerServices(
     userGameDataPersistenceService,
     characterLevelLadderService,
     ladderGameRecordsService,
-    assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,
     profileService,

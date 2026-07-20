@@ -82,7 +82,7 @@ export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/services/profiles.js";
-export * from "./servers/services/assets/game-server-node-asset-service.js";
+export * from "./servers/services/assets/local-store-asset-service.js";
 export * from "./servers/services/user-game-data-persistence/index.js";
 export * from "./servers/services/user-game-data-persistence/saved-character-persistence-strategy.js";
 export * from "./servers/services/user-game-data-persistence/serialized-player-character.js";
@@ -234,6 +234,9 @@ export * from "./servers/query-params.js";
 
 export * from "./cryptography/index.js";
 
+export * from "./servers/asset-server/index.js";
+export * from "./servers/services/assets/gameplay-asset-facts.js";
+export * from "./servers/services/assets/http-gameplay-asset-facts-source.js";
 export * from "./servers/services/assets/index.js";
 export * from "./servers/services/assets/stores/index.js";
 export * from "./servers/services/assets/stores/indexed-db.js";
@@ -290,7 +293,7 @@ export * from "./game-modes/ladder-records/ladder-records-service.js";
 export * from "./errors/fetch-aborted.js";
 export * from "./combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
-export * from "./servers/game-server/asset-analyzer/index.js";
+export * from "./servers/asset-server/asset-analyzer/index.js";
 export * from "./test-fixtures/test-resource-change-properties-strategy.js";
 export * from "./combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";
 export * from "./monsters/scaling-sizes.js";

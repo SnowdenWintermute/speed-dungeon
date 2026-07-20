@@ -91,33 +91,123 @@ in this plan to break without noticing, because nothing about the VPS deploy exe
 These are correctness prerequisites. Nothing here changes behavior in the single-process
 setup, which means each one can land and be verified independently before any container work.
 
-### 1.1 Shared token secret — status: TODO
+### 1.1 Shared token secret — status: DONE (2026-07-20)
 
 `main.ts:52` does `SodiumHelpers.createSecret()` per process, and both codecs derive from it.
 It only works today because lobby and game server are the same process. Once they are
 separate containers the game server cannot decrypt the lobby's `GameServerSessionClaimToken`.
 
-- Add `TOKENS_SECRET` to `validate-env.ts` and to `.env`.
-- Read it in `main.ts` instead of generating.
-- Keep the generated path available for tests/offline only.
+What was done:
+
+- `TOKENS_SECRET` added to `validate-env.ts` and `packages/server/.env` (gitignored).
+- `main.ts:51` reads `env.TOKENS_SECRET` instead of calling `createSecret()`.
+- `SodiumHelpers.assertUsableSecret()` added and called at boot, so a bad secret fails
+  immediately with a clear message instead of at handoff time. A secret is a base64
+  `crypto_secretbox_KEYBYTES` (32-byte) key; malformed base64 throws at decode, wrong length
+  is caught by an explicit length check. Both paths verified against libsodium.
+- `ERROR_MESSAGES.SERVERS.MALFORMED_SECRET` includes the generate command.
+- `createSecret()` deliberately left in place — still used by offline mode
+  (`create-offline-servers.ts:90`) and the integration fixtures
+  (`create-test-servers.ts:96`), which are same-process and need no shared secret.
+
+**Still to do when deploying:** generate a *different* `TOKENS_SECRET` for production and put
+it in the deploy env file. Every lobby and game server container must share it. Rotating it
+invalidates in-flight claim tokens, so rotate at low traffic.
 
 Verify: start normally, create a game, confirm handoff still succeeds.
 
-**This is the one that fails silently and confusingly if skipped. Do it first.**
+### 1.2 Env-driven `MANUAL_TEST_MODE` — status: DONE (2026-07-20)
 
-### 1.2 Env-driven `MANUAL_TEST_MODE` — status: TODO
+`manual-test-mode-config.ts:29` was a source-level `const` shipping in the production image,
+so a stray commit could deploy fixture characters and scripted dungeons to prod.
 
-`manual-test-mode-config.ts:29` is a source-level `const` that ships in the production image.
-A stray commit deploys fixture characters and scripted dungeons to prod. Make it read an env
-var defaulting to off.
+What was done:
 
-### 1.3 Migrations out of the server boot path — status: TODO
+- `MANUAL_TEST_MODE: bool({ default: false })` in `validate-env.ts`; the const now reads it.
+  Default-off means the deploy env file does not have to mention it.
+- Added a **hard refusal**: `validate-env.ts` throws at module load if `MANUAL_TEST_MODE` is
+  on while `NODE_ENV=production`. Env-driven alone stops a stray *commit*; this also stops a
+  stray *env file*, which is the likelier mistake now. Remove it if it ever gets in the way of
+  debugging against a production-like config.
+- Documented in `.env` with the explicit `MANUAL_TEST_MODE=false`.
 
-`main.ts:35` calls `runMigrations()` on every process start. With N game servers booting in
-parallel that is a migration race. Options: lobby-only, or a one-shot init container in
-compose. Lobby-only is simpler and matches the fact that game servers should not own schema.
+Note the type of the exported const widened from literal `false` to `boolean`. Both call
+sites (`lobby-node/index.ts:71`, `game-node/index.ts:78`) are if/else assigning the same
+field, so nothing downstream cares.
 
-### 1.4 Asset serving moves to its own role — status: TODO
+### 1.3 Migrations out of the game server boot path — status: DONE (2026-07-20)
+
+**Correction to the original audit:** this was written up as a "migration race", which was
+wrong. node-pg-migrate 7.7.1 takes a Postgres advisory lock by default (`runner.js:212`,
+`runMigrations` does not pass `noLock`), so concurrent runs cannot corrupt the schema. But it
+uses `pg_try_advisory_lock` — non-blocking — so a loser throws
+`"Another migration is already running"`, which `runMigrations()` catches and turns into
+`process.exit(1)`. The real failure mode on parallel boot is **crash-looping containers**.
+
+**Decided: keep migrating on lobby boot; game servers skip it.** No init container. With one
+lobby there is no contention, and an init container is machinery this project does not need
+yet.
+
+- `RUN_MIGRATIONS_ON_BOOT: bool({ default: true })` in `validate-env.ts`; `main.ts` gates the
+  call on it. Game server containers set it false.
+
+Reasons to revisit later, none urgent at this scale:
+
+- a bad migration `process.exit(1)`s the lobby into a restart loop with the game down, rather
+  than failing a deploy step and leaving the old version up
+- the runtime DB user needs DDL rights permanently
+- it stays safe only while there is exactly **one** lobby — two replicas or an overlapping
+  rolling deploy and the loser exits 1
+
+Unrelated smell noticed while reading: `runMigrations` swallows Postgres error `42P07`
+("table already exists") and reports success. That suggests a migration somewhere is not
+idempotent. Worth a look sometime, not part of this work.
+
+### 1.4 Asset serving moves to its own role — status: CODE DONE (2026-07-20), container split pending 3.1
+
+The restructure below is done. The `AssetServer` still runs inside the combined process and
+attaches to the lobby's Express app; moving it to its own container happens with the
+entrypoint split (3.1) and compose (4.3).
+
+What landed:
+
+- `common/src/servers/asset-server/index.ts` — `AssetServer`, peer of `LobbyServer`/
+  `GameServer`, implements `GameplayAssetFactsSource`. Owns the analyzer, `initialize()`
+  computes once, `getAssetManifest()` moved here from `packages/server`.
+- `common/src/servers/services/assets/gameplay-asset-facts.ts` — `GameplayAssetFacts`,
+  `VersionedGameplayAssetFacts`, `GameplayAssetFactsSource`.
+- `common/src/servers/services/assets/http-gameplay-asset-facts-source.ts` — the deployed
+  game server's implementation.
+- `AssetAnalyzer` **moved** from `servers/game-server/asset-analyzer/` to
+  `servers/asset-server/asset-analyzer/` — it is not a game server concern anymore.
+- `GameServerNodeAssetService` **renamed** to `LocalStoreAssetService`. Both halves of the old
+  name were wrong: it is not game-server-specific, and offline uses it in the browser over
+  IndexedDB, so it is not "node" either.
+- `packages/server/src/asset-server/index.ts` is now `AssetServerRouter`, a thin Express
+  adapter serving `/asset-manifest`, `/gameplay-asset-facts`, `/assets/*`.
+
+**Design change during implementation** (Mike caught it): the sketch had `AssetAnalyzer` gain
+a `load()` so a game server could stuff in facts it did not compute — muddling a class whose
+whole job is computing them. Instead `GameplayAssetFacts` is a plain immutable object passed
+to the `GameServer` constructor and down to the three controllers that need it
+(`BattleProcessor`, `CombatActionController`, `DungeonExplorationController`), which only ever
+read `.animationLengths` / `.boundingBoxes`. The analyzer keeps a `getFacts()` producer method
+and nothing else changed about it.
+
+Consequences of that change, all good:
+
+- facts must exist *before* `new GameServer(...)`, so the post-construction mutation pattern
+  (`analyzeAssetsForGameplayRelevantData()`) is gone entirely
+- `assetService` was removed from `GameServerExternalServices` — game servers now have **no
+  asset access of any kind**, which is what makes "no asset binaries in the game server image"
+  structural rather than a convention
+- the integration fixture's `previouslyCalculatedAnimationLengths` caching machinery was
+  deleted; `create-test-servers.ts` memoizes one `AssetServer` at module scope instead
+
+Also revised from the sketch: `getGameplayAssetFacts()` is **not** an abstract method on
+`RemoteAssetStore`. `processCombatAction` is called only from game-server controllers, so the
+client never needs facts, and putting it there would force the two client-side stores to
+implement a method only servers call.
 
 **Decided: a dedicated asset container.** Assets will grow a lot (sounds, textures), so they
 should not ride along with the lobby or be duplicated per game server.
@@ -377,6 +467,30 @@ server on the VPS.
 ## Log
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
+
+- 2026-07-20 — **1.4 code done.** Two naming corrections from Mike mid-implementation, both
+  the same underlying point: things named for the game server were no longer game server
+  things. `AssetAnalyzer.load()` became a plain `GameplayAssetFacts` object passed by
+  constructor (see 1.4), and `GameServerNodeAssetService` became `LocalStoreAssetService`.
+  Worth remembering the pattern — when moving a responsibility between services, check the
+  names that travel with it, not just the wiring.
+  **Still to verify:** offline mode boots, and the integration suite passes (fixture asset
+  caching was rewritten). Neither run yet.
+- 2026-07-20 — **1.3 done, and the original audit item was wrong.** Mike asked why migrating
+  on every lobby boot is actually a problem, which was the right question — checking
+  node-pg-migrate showed it locks by default, so "migration race" was overstated. Real failure
+  mode is `process.exit(1)` crash loops on parallel boot, and it only bites game servers.
+  Ended up with a much smaller change than planned: one env flag, no init container. Lesson
+  worth keeping: verify the library's actual behavior before designing around a hazard.
+- 2026-07-20 — **1.2 done.** Small. One judgement call worth revisiting: added a hard throw
+  when `MANUAL_TEST_MODE` is on under `NODE_ENV=production`, which was not strictly asked for.
+  Cheap insurance given what that flag serves, but it is a deliberate extra.
+- 2026-07-20 — **1.1 done.** No surprises. Worth recording: the failure mode was not actually
+  silent, it was *late* — a mismatched secret throws `INVALID_TOKEN` at handoff, which reads
+  like a token bug rather than a config bug. Hence `assertUsableSecret()` at boot. Also note
+  `SodiumHelpers.encrypt` takes the secret as a base64 string and calls `from_base64` on every
+  call, so the env value must be base64 with padding (libsodium `ORIGINAL` variant) —
+  `openssl rand -base64 32` produces exactly that.
 
 - 2026-07-20 — Plan written. Audit found: per-process token secret, static
   `gameServerUrlRegistry` breaking reconnection to new servers, dead `client.Dockerfile`,

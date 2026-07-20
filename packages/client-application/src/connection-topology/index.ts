@@ -205,7 +205,7 @@ export class ConnectionTopology {
     this.clientApplication.sequentialEventProcessor.cancelQueued();
     this.clientApplication.sequentialEventProcessor.clearCurrent();
 
-    createOfflineLocalServers(this.clientApplication.assetService).then(
+    createOfflineLocalServers(this.clientApplication.assetCache).then(
       ({ lobbyServer, gameServer }) => {
         this.offlineServers.lobbyServer = lobbyServer;
         this.offlineServers.gameServer = gameServer;

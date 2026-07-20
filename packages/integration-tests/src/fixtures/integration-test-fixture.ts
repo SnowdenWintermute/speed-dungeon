@@ -25,7 +25,6 @@ import {
   UserGameDataPersistenceService,
   LadderGameRecordsService,
   ResourceChangePropertiesStrategy,
-  SpeciesAnimationLengths,
   TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
@@ -56,7 +55,6 @@ export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
   private _gameServers: Record<TestGameServerName, GameServer> | null = null;
   private clients = new Map<string, ClientFixture>();
-  private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
   private _gameServerPorts: {
     [TestGameServerName.Lindblum]: number;
@@ -121,11 +119,6 @@ export class IntegrationTestFixture {
       this._gameServerPorts[testServerName] = port;
     }
 
-    if (this._gameServers !== null) {
-      this.previouslyCalculatedAnimationLengths =
-        this._gameServers[TestGameServerName.Lindblum].assetAnalyzer.animationLengths;
-    }
-
     const {
       lobbyServer,
       gameServers,
@@ -155,13 +148,6 @@ export class IntegrationTestFixture {
       gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
     }
 
-    if (!this.previouslyCalculatedAnimationLengths) {
-      await this._gameServers[TestGameServerName.Lindblum].analyzeAssetsForGameplayRelevantData();
-    } else {
-      for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
-        gameServer.assetAnalyzer.animationLengths = this.previouslyCalculatedAnimationLengths;
-      }
-    }
   }
 
   get rankedLadderService() {

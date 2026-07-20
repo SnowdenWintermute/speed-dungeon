@@ -1,8 +1,9 @@
 import {
   CharacterCreationPolicyConstructor,
   DefaultCharacterCreationPolicy,
+  AssetServer,
   GameServer,
-  GameServerNodeAssetService,
+  GameplayAssetFacts,
   IdGeneratorSequential,
   IncomingConnectionGateway,
   InMemoryGameSessionStoreService,
@@ -20,7 +21,6 @@ import {
   InMemoryIdentityProviderQueryStrategy,
   IdentityProviderService,
   GameServerExternalServices,
-  AssetService,
   queryParamsAuthSessionIdParser,
   GameStateUpdate,
   InMemoryCrossServerBroadcaster,
@@ -51,6 +51,20 @@ import {
   TestGameServerName,
   TEST_GAME_SERVER_NAME_STRINGS,
 } from "./consts";
+
+const TEST_ASSET_DIRECTORY = "packages/server/assets/";
+
+let cachedFactsOption: null | GameplayAssetFacts = null;
+
+async function getTestGameplayAssetFacts() {
+  if (cachedFactsOption === null) {
+    const assetServer = new AssetServer(new NodeFileSystemAssetStore(TEST_ASSET_DIRECTORY));
+    await assetServer.initialize();
+    cachedFactsOption = (await assetServer.getGameplayAssetFacts()).facts;
+  }
+
+  return cachedFactsOption;
+}
 
 export async function createTestServers(
   lobbyIncomingConnectionGateway: IncomingConnectionGateway,
@@ -89,9 +103,7 @@ export async function createTestServers(
     new IdGeneratorSequential({ saveHistory: false, prefix: "ladder-record-id" })
   );
 
-  const baseAssetDirectory = "packages/server/assets/";
-  const localFileSystemStore = new NodeFileSystemAssetStore(baseAssetDirectory);
-  const gameServerNodeAssetService = new GameServerNodeAssetService(localFileSystemStore);
+  const gameplayAssetFacts = await getTestGameplayAssetFacts();
 
   const testSecret = await SodiumHelpers.createSecret();
   const gameServerSessionClaimCodec = new OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>(
@@ -155,13 +167,13 @@ export async function createTestServers(
             userGameDataPersistenceService,
             rankedLadderService,
             ladderGameRecordsService,
-            gameServerNodeAssetService,
             new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
             globalGameSessionStore,
             profileService
           ),
           gameServerSessionClaimCodec,
           guestSessionReconnectionTokencodec,
+          gameplayAssetFacts,
           ScriptedDungeonGenerationPolicy,
           rngPolicy,
           resourceChangePropertiesStrategy,
@@ -229,7 +241,6 @@ export function createGameServerTestServices(
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
-  assetService: AssetService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
@@ -239,7 +250,6 @@ export function createGameServerTestServices(
     userGameDataPersistenceService,
     characterLevelLadderService,
     ladderGameRecordsService,
-    assetService,
     crossServerBroadcasterService,
     globalGameSessionStore,
     profileService,

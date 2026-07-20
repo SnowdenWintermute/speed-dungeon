@@ -10,7 +10,7 @@ import { MessageDispatchFactory } from "../../../update-delivery/message-dispatc
 import { MessageDispatchOutbox } from "../../../update-delivery/outbox.js";
 import { getPartyChannelName } from "../../../../packets/channels.js";
 import { LootGenerator } from "../../../../items/loot-generation/loot-generator.js";
-import { AssetAnalyzer } from "../../asset-analyzer/index.js";
+import { GameplayAssetFacts } from "../../../services/assets/gameplay-asset-facts.js";
 import {
   ClientSequentialEvent,
   ClientSequentialEventType,
@@ -34,7 +34,7 @@ export class BattleProcessor {
     private rngPolicy: RandomNumberGenerationPolicy,
     private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private lootGenerator: LootGenerator,
-    private assetAnalyzer: AssetAnalyzer,
+    private gameplayAssetFacts: GameplayAssetFacts,
     private partyLifecycleController: PartyLifecyleController
   ) {}
 
@@ -93,8 +93,8 @@ export class BattleProcessor {
           this.idGenerator,
           this.rngPolicy,
           this.resourceChangePropertiesStrategy,
-          this.assetAnalyzer.animationLengths,
-          this.assetAnalyzer.boundingBoxes,
+          this.gameplayAssetFacts.animationLengths,
+          this.gameplayAssetFacts.boundingBoxes,
           this.lootGenerator
         );
 

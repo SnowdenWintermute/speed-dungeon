@@ -1,10 +1,9 @@
 import {
-  AssetCache,
   CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
   GameServerName,
-  GameServerNodeAssetService,
+  GameplayAssetFactsSource,
   GameSessionStoreService,
   GameStateUpdate,
   RandomNumberGenerationPolicyFactory,
@@ -23,9 +22,6 @@ import {
   RandomDungeonGenerationPolicy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { AssetServer } from "../asset-server/index.js";
-import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
-import { Express } from "express";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import {
@@ -36,7 +32,6 @@ import { DatabaseCharacterLevelLadderService } from "./services/ranked-ladder.js
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
-import { env } from "../validate-env.js";
 import { DatabaseLadderRecordsPersistenceStrategy } from "./services/database-ladder-records-persistence-strategy.js";
 import {
   MANUAL_TEST_MODE,
@@ -45,28 +40,24 @@ import {
 
 export class GameServerNode {
   private _server: GameServer | null = null;
-  private _assetServer: AssetServer | null = null;
 
   async createServer(
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
-    expressApp: Express,
     profileService: SpeedDungeonProfileService,
     gameSessionStoreService: GameSessionStoreService,
     globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
-    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
+    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    gameplayAssetFactsSource: GameplayAssetFactsSource
   ) {
-    const fsAssetStore = new NodeFileSystemAssetStore("./assets");
-    this._assetServer = new AssetServer(fsAssetStore);
-    this._assetServer.attachRouter(expressApp, { isProduction: env.isProduction });
+    const { facts } = await gameplayAssetFactsSource.getGameplayAssetFacts();
 
     const wss = new WebSocketServer({ server: httpServer });
     const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const idGenerator = new IdGeneratorRandom({ saveHistory: false });
     const externalServices = this.createExternalServices(
-      fsAssetStore,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,
@@ -82,6 +73,7 @@ export class GameServerNode {
         guestReconnectionTokenCodec,
         incomingConnectionGateway,
         externalServices,
+        facts,
         cookieHeaderAuthSessionIdParser
       );
     } else {
@@ -92,6 +84,7 @@ export class GameServerNode {
         externalServices,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
+        facts,
         RandomDungeonGenerationPolicy,
         rngPolicy,
         new RealResourceChangePropertiesStrategy(),
@@ -99,20 +92,15 @@ export class GameServerNode {
         cookieHeaderAuthSessionIdParser
       );
     }
-
-    await this._server.analyzeAssetsForGameplayRelevantData();
   }
 
   private createExternalServices(
-    assetStore: AssetCache,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
     idGenerator: IdGenerator
   ): GameServerExternalServices {
-    const assetService = new GameServerNodeAssetService(assetStore);
-
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
@@ -139,7 +127,6 @@ export class GameServerNode {
       userGameDataPersistenceService,
       characterLevelLadderService,
       ladderGameRecordsService,
-      assetService,
       crossServerBroadcasterService,
       globalGameSessionStore,
       profileService,

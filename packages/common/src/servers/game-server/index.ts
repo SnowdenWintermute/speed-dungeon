@@ -28,8 +28,7 @@ import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equipment-randomizer.js";
 import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
 import { LootGenerator } from "../../items/loot-generation/loot-generator.js";
-import { AssetService } from "../services/assets/index.js";
-import { AssetAnalyzer } from "./asset-analyzer/index.js";
+import { GameplayAssetFacts } from "../services/assets/gameplay-asset-facts.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
@@ -72,7 +71,6 @@ export interface GameServerExternalServices {
   profileService: SpeedDungeonProfileService;
   characterLevelLadderService: CharacterLevelLadderService;
   ladderGameRecordsService: LadderGameRecordsService;
-  assetService: AssetService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: UserGlobalGameSessionStore;
 }
@@ -85,8 +83,6 @@ export class GameServer extends SpeedDungeonServer {
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
-
-  readonly assetAnalyzer: AssetAnalyzer;
 
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
@@ -108,6 +104,7 @@ export class GameServer extends SpeedDungeonServer {
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    private readonly gameplayAssetFacts: GameplayAssetFacts,
     /** pass constructor so the class can use its own private parameters to instantiate it */
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
     public readonly rngPolicy: RandomNumberGenerationPolicy,
@@ -132,7 +129,6 @@ export class GameServer extends SpeedDungeonServer {
       rngPolicy
     );
 
-    this.assetAnalyzer = new AssetAnalyzer(this.externalServices.assetService);
     this.incomingConnectionGateway.initialize((context, identityContext) => {
       return new Promise<void>((resolve, reject) => {
         this.executor.enqueue(async () => {
@@ -177,7 +173,7 @@ export class GameServer extends SpeedDungeonServer {
       resourceChangePropertiesStrategy,
       this.lootGenerator,
       this.dungeonGenerationPolicy,
-      this.assetAnalyzer,
+      this.gameplayAssetFacts,
       this.gameModePolicyStore,
       this.partyLifecycleController
     );
@@ -207,7 +203,7 @@ export class GameServer extends SpeedDungeonServer {
       rngPolicy,
       resourceChangePropertiesStrategy,
       this.lootGenerator,
-      this.assetAnalyzer,
+      this.gameplayAssetFacts,
       this.partyLifecycleController
     );
 
@@ -239,11 +235,6 @@ export class GameServer extends SpeedDungeonServer {
       this.guestReconnectionTokenCodec,
       (outbox) => this.dispatchOutboxMessages(outbox)
     );
-  }
-
-  async analyzeAssetsForGameplayRelevantData() {
-    await this.assetAnalyzer.collectAnimationLengths();
-    await this.assetAnalyzer.collectBoundingBoxSizes();
   }
 
   private intentHandlers = createGameServerClientIntentHandlers(this);

@@ -7,7 +7,10 @@ import {
   SodiumHelpers,
   OpaqueEncryptionTokenCodec,
   GameServerSessionClaimToken,
+  AssetServer,
 } from "@speed-dungeon/common";
+import { AssetServerRouter } from "./asset-server/index.js";
+import { NodeFileSystemAssetStore } from "./services/assets/stores/node-file-system.js";
 import { ValkeyUserGlobalGameSessionStore } from "./services/valkey-user-global-game-session-store.js";
 import { ValkeyCrossServerBroadcaster } from "./services/valkey-cross-server-broadcaster.js";
 import { pgPool } from "./singletons/pg-pool.js";
@@ -22,12 +25,15 @@ import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseProfileService } from "./game-node/services/profiles.js";
 import { speedDungeonProfilesRepo } from "./database/repos/speed-dungeon-profiles.js";
 import { ValkeyGameSessionStoreService } from "./services/valkey-game-session-store-service.js";
+import { env } from "./validate-env.js";
 
 const LOBBY_PORT = 8080;
 export const GAME_SERVER_NAME = "Lindblum Test Game Server" as GameServerName;
 const GAME_SERVER_PORT = 8090;
 
-await runMigrations();
+if (env.RUN_MIGRATIONS_ON_BOOT) {
+  await runMigrations();
+}
 pgPool.connect(pgOptions);
 await valkeyManager.context.connect();
 
@@ -47,7 +53,8 @@ const lobbyCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate
 const gameCrossServerBroadcaster: CrossServerBroadcasterService<GameStateUpdate, ServerCommand> =
   new ValkeyCrossServerBroadcaster(valkeyManager.context.client);
 
-const tokensSecret = await SodiumHelpers.createSecret();
+const tokensSecret = env.TOKENS_SECRET;
+await SodiumHelpers.assertUsableSecret(tokensSecret);
 const gameServerSessionClaimTokenCodec =
   new OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>(tokensSecret);
 const guestReconnectionTokenCodec = new OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>(
@@ -56,7 +63,14 @@ const guestReconnectionTokenCodec = new OpaqueEncryptionTokenCodec<GuestSessionR
 
 const profileService = new DatabaseProfileService(speedDungeonProfilesRepo);
 
+const fsAssetStore = new NodeFileSystemAssetStore("./assets");
+const assetServer = new AssetServer(fsAssetStore);
+await assetServer.initialize();
+
 const expressApp = createExpressApp();
+new AssetServerRouter(assetServer, fsAssetStore).attachRouter(expressApp, {
+  isProduction: env.isProduction,
+});
 const httpServer = expressApp.listen(LOBBY_PORT, async () => {
   console.info(`lobby server on port ${LOBBY_PORT}`);
 
@@ -77,12 +91,12 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
   gameServerNode.createServer(
     GAME_SERVER_NAME,
     gameHttpServer,
-    expressApp,
     profileService,
     gameSessionStoreService,
     userGlobalGameSessionStore,
     gameCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec,
-    guestReconnectionTokenCodec
+    guestReconnectionTokenCodec,
+    assetServer
   );
 });

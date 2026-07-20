@@ -219,5 +219,7 @@ export const ERROR_MESSAGES = {
     SESSION_CLAIM_TOKEN_MISSING: "No token was provided when attempting to join the game server",
     TOKEN_REPLAY_ATTACK: "Token replay attack suspected",
     INVALID_TOKEN: "Invalid token presented",
+    MALFORMED_SECRET:
+      "TOKENS_SECRET is not a valid base64 secretbox key. Generate one with: openssl rand -base64 32",
   },
 };

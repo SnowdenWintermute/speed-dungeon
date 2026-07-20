@@ -26,7 +26,7 @@ import { processCombatAction } from "../../../../action-processing/process-comba
 import { IdGenerator } from "../../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../../utility-classes/random-number-generation-policy.js";
 import { LootGenerator } from "../../../../items/loot-generation/loot-generator.js";
-import { AssetAnalyzer } from "../../asset-analyzer/index.js";
+import { GameplayAssetFacts } from "../../../services/assets/gameplay-asset-facts.js";
 import {
   ClientSequentialEvent,
   ClientSequentialEventType,
@@ -44,7 +44,7 @@ export class CombatActionController {
     private rngPolicy: RandomNumberGenerationPolicy,
     private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private lootGenerator: LootGenerator,
-    private assetAnalyzer: AssetAnalyzer,
+    private gameplayAssetFacts: GameplayAssetFacts,
     private readonly partyLifecycleController: PartyLifecyleController
   ) {}
 
@@ -398,8 +398,8 @@ export class CombatActionController {
       this.idGenerator,
       this.rngPolicy,
       this.resourceChangePropertiesStrategy,
-      this.assetAnalyzer.animationLengths,
-      this.assetAnalyzer.boundingBoxes,
+      this.gameplayAssetFacts.animationLengths,
+      this.gameplayAssetFacts.boundingBoxes,
       this.lootGenerator
     );
 
@@ -422,7 +422,7 @@ export class CombatActionController {
         this.rngPolicy,
         this.resourceChangePropertiesStrategy,
         this.lootGenerator,
-        this.assetAnalyzer,
+        this.gameplayAssetFacts,
         this.partyLifecycleController
       ).handlePostBattleConclusion(battleConcludedOption);
       sequentialEvents.push(...postConclusionEvents.sequentialEvents);
@@ -471,7 +471,7 @@ export class CombatActionController {
         this.rngPolicy,
         this.resourceChangePropertiesStrategy,
         this.lootGenerator,
-        this.assetAnalyzer,
+        this.gameplayAssetFacts,
         this.partyLifecycleController
       );
 
