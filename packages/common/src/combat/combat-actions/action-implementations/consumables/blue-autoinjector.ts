@@ -29,6 +29,7 @@ import { BIOAVAILABILITY_PERCENTAGE_BONUS_PER_TRAIT_LEVEL } from "../../../../co
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
@@ -67,6 +68,7 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
   getConsumableCost: () => {
     return { type: ConsumableType.MpAutoinjector, level: 1 };
   },
+  costsByRank: { [1]: { [ActionPayableResource.ActionPoints]: 1 } },
 };
 const costPropertiesBase = COST_PROPERTIES_TEMPLATE_GETTERS.FAST_ACTION;
 const costProperties = createCostPropertiesConfig(costPropertiesBase, costPropertiesOverrides);
