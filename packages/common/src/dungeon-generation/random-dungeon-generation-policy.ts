@@ -60,6 +60,8 @@ export class RandomDungeonGenerationPolicy extends DungeonGenerationPolicy {
     lastRooms.push(DungeonRoomType.VendingMachine);
     lastRooms.push(DungeonRoomType.Staircase);
 
+    firstRooms.push(DungeonRoomType.VendingMachine); // testing
+
     // reverse because we pop from the end when getting next room to generate
     return [...firstRooms, ...mainRooms, ...lastRooms].reverse();
   }

@@ -42,6 +42,9 @@ export async function battleConclusionGameUpdateHandler(
     const equipment = command.loot.equipment.map((item) => Equipment.fromSerialized(item));
     const consumables = command.loot.consumables.map((item) => Consumable.fromSerialized(item));
     const items = [...consumables, ...equipment];
+    for (const item of items) {
+      item.makeObservable();
+    }
     party.currentRoom.inventory.insertItems(items);
 
     for (const item of equipment) {

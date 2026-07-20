@@ -581,6 +581,7 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.CharacterDroppedShards]: (data) => {
       const { characterId, shardStack } = data;
       const asClassInstance = Consumable.fromSerialized(shardStack);
+      asClassInstance.makeObservable();
       const { party, combatant } = gameContext.requireCombatantContext(characterId);
       combatant.combatantProperties.inventory.changeShards(asClassInstance.usesRemaining * -1);
       party.currentRoom.inventory.insertItem(asClassInstance);
@@ -589,6 +590,7 @@ export function createGameUpdateHandlers(
       const { item, characterId, payments } = data;
       const { party, combatant } = gameContext.requireCombatantContext(characterId);
       const asClassInstance = Consumable.fromSerialized(item);
+      asClassInstance.makeObservable();
       PlayerShardPool.applyPayments(party, payments);
       combatant.combatantProperties.inventory.insertItem(asClassInstance);
       alertsService.setAlert(`Purchased ${item.entityProperties.name}`, true);
@@ -877,6 +879,7 @@ export function createGameUpdateHandlers(
         alertsService.setAlert(removedItemResult);
       } else {
         const asClassInstance = Consumable.fromSerialized(book);
+        asClassInstance.makeObservable();
         const { inventory } = combatantProperties;
         inventory.insertItem(asClassInstance);
         alertsService.setAlert(

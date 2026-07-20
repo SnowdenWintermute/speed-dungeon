@@ -75,9 +75,9 @@ export class CombatantFocus {
       this.actionMenu.popStack();
     }
 
-    const staleItemCraftingMenuInStack =
-      this.actionMenu.shouldShowCharacterSheet() &&
-      this.actionMenu.stackedMenusIncludeType(ActionMenuScreenType.CraftingActionSelection);
+    const staleItemCraftingMenuInStack = this.actionMenu.stackedMenusIncludeType(
+      ActionMenuScreenType.CraftingActionSelection
+    );
 
     // otherwise you'll end up looking at crafting action selection on an unowned item
     if (staleItemCraftingMenuInStack) {

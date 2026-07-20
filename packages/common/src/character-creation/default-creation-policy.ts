@@ -46,6 +46,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
 
     const result = builder.build(this.idGenerator);
 
+    result.combatantProperties.inventory.changeShards(400);
     // setPlaytestingCombatantProperties(result.combatantProperties);
     // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
