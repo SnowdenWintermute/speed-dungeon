@@ -8,6 +8,7 @@ import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { Shield } from "../items/equipment/equipment-types/shield.js";
 import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
@@ -108,6 +109,23 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .addInventoryConsumable(
         itemBuilder.consumable(ConsumableType.HpAutoinjector).build(idGenerator)
       )
+      .build(idGenerator),
+};
+
+export const SHIELD_BEARING_PLAYER_CHARACTER_FIXTURES = {
+  WARRIOR: (
+    playerName: Username,
+    characterName: EntityName,
+    idGenerator: IdGenerator,
+    itemBuilder: ItemBuilder
+  ) =>
+    BASIC_CHARACTER_FIXTURE_BUILDERS.WARRIOR()
+      .name(characterName)
+      .controllingPlayerName(playerName)
+      .equipMainHand(
+        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+      )
+      .equipOffHand(itemBuilder.shield(Shield.Buckler).build(idGenerator))
       .build(idGenerator),
 };
 
@@ -336,6 +354,12 @@ export const BASIC_CHARACTER_FIXTURES: FixedCharacterCreationLists = {
   ],
   [CombatantClass.Rogue]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.ROGUE, petFactories: [] }],
   [CombatantClass.Mage]: [{ characterFactory: PLAYER_CHARACTER_FIXTURES.MAGE, petFactories: [] }],
+};
+
+export const SHIELD_BEARING_CHARACTER_FIXTURES: FixedCharacterCreationLists = {
+  [CombatantClass.Warrior]: [
+    { characterFactory: SHIELD_BEARING_PLAYER_CHARACTER_FIXTURES.WARRIOR, petFactories: [] },
+  ],
 };
 
 export const BASIC_CHARACTER_FIXTURES_INCREASING_FLOORS_VISITED: FixedCharacterCreationLists = {

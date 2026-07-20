@@ -382,6 +382,23 @@ export function createGameUpdateHandlers(
         data: { entityId: characterId },
       });
     },
+    [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: (data) => {
+      const { characterId, sourceSlot, destinationSlot } = data;
+      const { combatant } = gameContext.requireCombatantContext(characterId);
+
+      const moveResult = combatant.combatantProperties.equipment.moveEquippedItemToSlot(
+        sourceSlot,
+        destinationSlot
+      );
+      if (moveResult instanceof Error) {
+        throw moveResult;
+      }
+
+      sequentialEventProcessor.scheduleEvent({
+        type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
+        data: { entityId: characterId },
+      });
+    },
     [GameStateUpdateType.CharacterPickedUpItems]: (data) => {
       const { combatant, party } = gameContext.requireCombatantContext(data.characterId);
       for (const itemId of data.itemIds) {

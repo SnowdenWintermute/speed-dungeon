@@ -8,7 +8,7 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   // classProgressionProperties.experiencePoints.changeExperience(2000);
   classProgressionProperties.awardLevelups();
 
-  // combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Strength, 30);
+  combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Strength, 30);
   // combatantProperties.attributeProperties.setSpeccedAttributeValue(CombatAttribute.Spirit, 30);
   combatantProperties.abilityProperties.setOwnedAction(
     new CombatantActionState(CombatActionName.IceBoltParent, 1)
@@ -22,5 +22,5 @@ export function setPlaytestingCombatantProperties(combatantProperties: Combatant
   combatantProperties.abilityProperties.setOwnedAction(
     new CombatantActionState(CombatActionName.Healing, 3)
   );
-  // combatantProperties.attributeProperties.changeUnspentPoints(30);
+  combatantProperties.attributeProperties.changeUnspentPoints(30);
 }

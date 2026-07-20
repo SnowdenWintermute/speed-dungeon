@@ -114,7 +114,7 @@ export const ItemDetails = observer(
         thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];
         if (item.consumableType === ConsumableType.StackOfShards) {
           svgThumbnailOption = SVG_ICONS[IconName.Shards]("h-full fill-slate-400 m-2");
-          itemDetailsDisplay = <div>Could be useful...</div>;
+          itemDetailsDisplay = <div>Currency / crafting ingredient</div>;
         } else {
           if (Consumable.isSkillBook(item.consumableType)) {
             svgThumbnailOption = SVG_ICONS[IconName.Book]("h-full fill-slate-400 m-2");

@@ -1,4 +1,5 @@
 import { ActionRank, CombatantId, EntityId, ItemId } from "../../../aliases.js";
+import { TaggedEquipmentSlot } from "../../../items/equipment/slots.js";
 import { HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST } from "../../../app-consts.js";
 import { CombatActionExecutionIntent } from "../../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../../combat/combat-actions/combat-action-names.js";
@@ -213,6 +214,34 @@ export class ItemManagementController {
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
       type: GameStateUpdateType.CharacterEquippedItem,
+      data,
+    });
+
+    return outbox;
+  }
+
+  moveEquippedItemToSlotHandler(
+    session: UserSession,
+    data: {
+      characterId: CombatantId;
+      sourceSlot: TaggedEquipmentSlot;
+      destinationSlot: TaggedEquipmentSlot;
+    }
+  ) {
+    const { characterId, sourceSlot, destinationSlot } = data;
+    const { game, party, character } = session.requireCharacterContext(characterId);
+
+    const moveResult = character.combatantProperties.equipment.moveEquippedItemToSlot(
+      sourceSlot,
+      destinationSlot
+    );
+    if (moveResult instanceof Error) {
+      throw moveResult;
+    }
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
+      type: GameStateUpdateType.CharacterMovedEquippedItemToSlot,
       data,
     });
 

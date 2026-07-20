@@ -336,6 +336,17 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
+  async moveEquippedItemToSlot(
+    characterId: CombatantId,
+    sourceSlot: TaggedEquipmentSlot,
+    destinationSlot: TaggedEquipmentSlot
+  ) {
+    return this.settleIntentResult({
+      type: ClientIntentType.MoveEquippedItemToSlot,
+      data: { characterId, sourceSlot, destinationSlot },
+    });
+  }
+
   async dropEquippedItem(characterId: CombatantId, slot: TaggedEquipmentSlot) {
     return this.settleIntentResult({
       type: ClientIntentType.DropEquippedItem,

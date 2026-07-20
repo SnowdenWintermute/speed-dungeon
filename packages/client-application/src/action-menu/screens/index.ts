@@ -4,6 +4,7 @@ import {
   EntityName,
   Item,
   ItemUtils,
+  MaxAndCurrent,
   NextOrPrevious,
   getNextOrPreviousNumber,
   getSkillBookName,
@@ -106,6 +107,8 @@ export abstract class ActionMenuScreen {
     options?: {
       getShowEquippedStatus?: (item: Item) => boolean;
       getPrice?: (item: Item) => number | null;
+      getDurability?: (item: Item) => MaxAndCurrent | null;
+      shardsOwned?: number | null;
     }
   ): ActionMenuNumberedButtonDescriptor[] {
     const stackedItems = ItemUtils.sortIntoStacks(items);
@@ -150,6 +153,8 @@ export abstract class ActionMenuScreen {
           onClick: clickHandler,
           showEquippedStatus: options?.getShowEquippedStatus?.(item),
           price: options?.getPrice?.(item),
+          durability: options?.getDurability?.(item),
+          shardsOwned: options?.shardsOwned,
         },
       };
     });

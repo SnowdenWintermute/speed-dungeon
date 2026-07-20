@@ -16,7 +16,8 @@ export const VendingMachineShardDisplay = observer(() => {
 
   const viewingDropShardsModal = uiStore.dialogs.isOpen(DialogElementName.DropShards);
 
-  const { game, party, combatant } = clientApplication.combatantFocus.requireFocusedCharacterContext();
+  const { game, party, combatant } =
+    clientApplication.combatantFocus.requireFocusedCharacterContext();
   const characterShards = combatant.combatantProperties.inventory.shards;
   const shardPool = PlayerShardPool.forCharacter(game, party, combatant);
   const playerTotalShards = shardPool.isSharedAmongCharacters()

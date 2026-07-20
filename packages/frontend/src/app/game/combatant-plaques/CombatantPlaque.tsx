@@ -3,13 +3,10 @@ import { TargetingIndicators } from "./TargetingIndicators";
 import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import { CombatantInfoButton } from "./CombatantInfoButton";
-import { DetailedCombatantInfoCard } from "./DetailedCombatantInfoCard";
 import { Combatant, CombatantControllerType } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
-import { CombatantFloatingMessagesDisplay } from "./combatant-floating-messages-display";
 import { InventoryIconButton } from "./InventoryIconButton";
 import { HotswapSlotButtons } from "./HotswapSlotButtons";
-import { CharacterModelDisplay } from "@/app/character-model-display";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
 import { ConditionIndicators } from "./condition-indicators/";
@@ -68,7 +65,7 @@ export const CombatantPlaque = observer(
     const conditionalBorder = getConditionalBorder(isHovered, isFocused, combatantIsDetailed);
 
     const lockedUiState = party.inputLock.isLocked()
-      ? "opacity-50 pointer-events-none "
+      ? "pointer-events-auto"
       : "pointer-events-auto ";
 
     const equippedItems = combatantProperties.equipment.getAllEquippedItems({});

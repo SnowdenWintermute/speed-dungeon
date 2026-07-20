@@ -18,6 +18,17 @@ export class ItemCommands {
     });
   }
 
+  moveEquippedItemToSlot(
+    characterId: CombatantId,
+    sourceSlot: TaggedEquipmentSlot,
+    destinationSlot: TaggedEquipmentSlot
+  ) {
+    this.clientApplication.gameClientRef.get().dispatchIntent({
+      type: ClientIntentType.MoveEquippedItemToSlot,
+      data: { characterId, sourceSlot, destinationSlot },
+    });
+  }
+
   unequipSlot(characterId: CombatantId, slot: TaggedEquipmentSlot) {
     this.clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.UnequipSlot,

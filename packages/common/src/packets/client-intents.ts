@@ -72,6 +72,7 @@ export enum ClientIntentType {
   SelectHoldableHotswapSlot,
   EquipInventoryItem,
   EquipItemFromGround,
+  MoveEquippedItemToSlot,
 
   // item management
   DropEquippedItem,
@@ -132,6 +133,11 @@ export interface ClientIntentMap {
     characterId: CombatantId;
     itemId: ItemId;
     equipToAlternateSlot: boolean;
+  };
+  [ClientIntentType.MoveEquippedItemToSlot]: {
+    characterId: CombatantId;
+    sourceSlot: TaggedEquipmentSlot;
+    destinationSlot: TaggedEquipmentSlot;
   };
   [ClientIntentType.CycleCombatActionTargets]: {
     characterId: CombatantId;

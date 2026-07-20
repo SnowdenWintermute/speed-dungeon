@@ -80,6 +80,7 @@ export enum GameStateUpdateType {
   CharacterUnequippedItem,
   CharacterEquippedItem,
   CharacterEquippedItemFromGround,
+  CharacterMovedEquippedItemToSlot,
   CharacterPickedUpItems,
   // RawActionResults ,
   CharacterSelectedCombatAction,
@@ -230,6 +231,11 @@ export interface GameStateUpdateMap {
     itemId: ItemId;
     equipToAlternateSlot: boolean;
     characterId: CombatantId;
+  };
+  [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: {
+    characterId: CombatantId;
+    sourceSlot: TaggedEquipmentSlot;
+    destinationSlot: TaggedEquipmentSlot;
   };
   [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
@@ -434,6 +440,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.CharacterUnequippedItem]: "CharacterUnequippedItem",
   [GameStateUpdateType.CharacterEquippedItem]: "CharacterEquippedItem",
   [GameStateUpdateType.CharacterEquippedItemFromGround]: "CharacterEquippedItemFromGround",
+  [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: "CharacterMovedEquippedItemToSlot",
   [GameStateUpdateType.CharacterPickedUpItems]: "CharacterPickedUpItems",
   // RawActionResults ,
   [GameStateUpdateType.CharacterSelectedCombatAction]: "CharacterSelectedCombatAction",

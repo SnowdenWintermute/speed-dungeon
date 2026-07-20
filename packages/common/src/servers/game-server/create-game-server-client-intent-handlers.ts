@@ -62,6 +62,8 @@ export function createGameServerClientIntentHandlers(
       gameServer.itemManagementController.equipItemHandler(user, data),
     [ClientIntentType.EquipItemFromGround]: (data, user) =>
       gameServer.itemManagementController.equipItemFromGroundHandler(user, data),
+    [ClientIntentType.MoveEquippedItemToSlot]: (data, user) =>
+      gameServer.itemManagementController.moveEquippedItemToSlotHandler(user, data),
     // // CRAFTING AND TRADING
     [ClientIntentType.ConvertItemsToShards]: (data, user) =>
       gameServer.craftingController.convertItemsToShardsHandler(user, data),

@@ -52,17 +52,24 @@ export interface EquipableSlots {
   alternate: null | TaggedEquipmentSlot;
 }
 
-export function validateEquipmentSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
+export function taggedEquipmentSlotsAreEqual(a: TaggedEquipmentSlot, b: TaggedEquipmentSlot) {
+  return a.type === b.type && a.slot === b.slot;
+}
+
+export function equipmentTypeCanGoInSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
   const equipableSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 
-  const matchesMain =
-    equipableSlots.main.type === slot.type && equipableSlots.main.slot === slot.slot;
-  const matchesAlternate =
+  if (taggedEquipmentSlotsAreEqual(equipableSlots.main, slot)) {
+    return true;
+  }
+  return (
     equipableSlots.alternate !== null &&
-    equipableSlots.alternate.type === slot.type &&
-    equipableSlots.alternate.slot === slot.slot;
+    taggedEquipmentSlotsAreEqual(equipableSlots.alternate, slot)
+  );
+}
 
-  if (!matchesMain && !matchesAlternate) {
+export function validateEquipmentSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
+  if (!equipmentTypeCanGoInSlot(equipmentType, slot)) {
     const slotName =
       slot.type === EquipmentSlotType.Wearable
         ? WEARABLE_SLOT_STRINGS[slot.slot]

@@ -145,6 +145,7 @@ export class ActionMenu {
     const { detailableEntityFocus, gameContext, combatantFocus, combatantClickHandler } =
       this.clientApplication;
     detailableEntityFocus.detailables.clear();
+
     const party = gameContext.requireParty();
     const focusedCharacter = combatantFocus.requireFocusedCharacter();
     focusedCharacter.getTargetingProperties().setSelectedActionAndRank(null);

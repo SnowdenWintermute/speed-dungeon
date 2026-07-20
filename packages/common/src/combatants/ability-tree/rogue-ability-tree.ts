@@ -15,16 +15,16 @@ export function setUpRogueAbilityTree() {
     traitType: CombatantTraitType.Counterattack,
   });
 
-  tree.assign(2, 1, {
+  tree.assign(2, 0, {
     type: AbilityType.Action,
     actionName: CombatActionName.ExplodingArrowParent,
   });
-  tree.assign(2, 3, {
+  tree.assign(2, 1, {
     type: AbilityType.Action,
     actionName: CombatActionName.ChainingSplitArrowParent,
   });
 
-  tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.TamePet });
 
   tree.assign(4, 0, {
     type: AbilityType.Trait,

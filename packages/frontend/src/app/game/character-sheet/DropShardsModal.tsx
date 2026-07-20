@@ -28,9 +28,7 @@ export const DropShardsModal = observer(
 
     const { alertsService } = clientApplication;
 
-    function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
-      e?.preventDefault();
-      const shardCount = parseInt(value);
+    function dropShards(shardCount: number) {
       if (isNaN(shardCount) || shardCount <= 0) {
         return;
       }
@@ -46,6 +44,11 @@ export const DropShardsModal = observer(
       dialogs.close(DialogElementName.DropShards);
     }
 
+    function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
+      e?.preventDefault();
+      dropShards(parseInt(value));
+    }
+
     return (
       <div className={className}>
         <ClickOutsideHandlerWrapper
@@ -54,7 +57,7 @@ export const DropShardsModal = observer(
             dialogs.close(DialogElementName.DropShards);
           }}
         >
-          <div className="p-4 bg-slate-800 z-50 pointer-events-auto w-72">
+          <div className="p-4 bg-slate-800 z-50 pointer-events-auto w-[360px]">
             <HotkeyButton
               className="absolute top-0 right-0 p-2 border border-t-0 border-r-0 border-slate-400 cursor-pointer bg-slate-700"
               style={{ height: `${BUTTON_HEIGHT_SMALL}rem` }}
@@ -93,6 +96,17 @@ export const DropShardsModal = observer(
                 className="bg-slate-700 h-10 pr-2 pl-2 border-l-0 border border-slate-400"
               >
                 DROP
+              </HotkeyButton>
+              <HotkeyButton
+                ariaLabel="drop all shards"
+                alwaysEnabled={true}
+                ariaDisabled={max <= 0 ? true : undefined}
+                onClick={() => {
+                  dropShards(max);
+                }}
+                className={`bg-slate-700 h-10 pr-2 pl-2 border-l-0 border border-slate-400 ${max <= 0 ? "opacity-50" : ""}`}
+              >
+                ALL
               </HotkeyButton>
             </form>
           </div>

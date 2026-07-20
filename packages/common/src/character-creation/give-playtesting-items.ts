@@ -103,7 +103,7 @@ function giveHotswapSlotEquipment(
 ) {
   const mh = itemBuilder
     .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Mace)
-    .durability(100)
+    .durability(3)
     .build(idGenerator);
 
   combatantProperties.inventory.insertItem(mh);

@@ -1,7 +1,9 @@
 import {
   EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   EquipmentSlotType,
+  equipmentTypeCanGoInSlot,
   HoldableSlotType,
+  taggedEquipmentSlotsAreEqual,
   TaggedEquipmentSlot,
   WearableSlotType,
 } from "../../items/equipment/slots.js";
@@ -335,6 +337,55 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     });
 
     return { idsOfUnequippedItems, unequippedSlots: slotsToUnequip };
+  }
+
+  /** Moves an already equipped item to another of its legal slots. Whatever occupies the
+  destination trades places with it if it can legally go in the vacated slot, otherwise it is
+  unequipped into the inventory. */
+  moveEquippedItemToSlot(
+    sourceSlot: TaggedEquipmentSlot,
+    destinationSlot: TaggedEquipmentSlot
+  ): Error | { idsOfUnequippedItems: EntityId[] } {
+    if (taggedEquipmentSlotsAreEqual(sourceSlot, destinationSlot)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.ALREADY_IN_SLOT);
+    }
+
+    const item = this.getEquipmentInSlot(sourceSlot);
+    if (item === undefined) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
+    }
+
+    const { equipmentType } = item.equipmentBaseItemProperties;
+    if (!equipmentTypeCanGoInSlot(equipmentType, destinationSlot)) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.CANNOT_GO_IN_SLOT);
+    }
+
+    const combatantProperties = this.getCombatantProperties();
+    const idsOfUnequippedItems: EntityId[] = [];
+
+    combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
+      const displacedOption = this.getEquipmentInSlot(destinationSlot);
+
+      this.removeEquipmentInSlots([sourceSlot, destinationSlot]);
+
+      if (displacedOption !== undefined) {
+        const displacedCanSwap = equipmentTypeCanGoInSlot(
+          displacedOption.equipmentBaseItemProperties.equipmentType,
+          sourceSlot
+        );
+
+        if (displacedCanSwap) {
+          this.putEquipmentInSlot(displacedOption, sourceSlot);
+        } else {
+          combatantProperties.inventory.insertItem(displacedOption);
+          idsOfUnequippedItems.push(displacedOption.entityProperties.id);
+        }
+      }
+
+      this.putEquipmentInSlot(item, destinationSlot);
+    });
+
+    return { idsOfUnequippedItems };
   }
 
   changeSelectedHotswapSlot(slotIndex: number) {

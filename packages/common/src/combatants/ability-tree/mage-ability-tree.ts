@@ -7,8 +7,8 @@ export function setUpMageAbilityTree() {
   const tree = new AbilityTree();
   tree.assign(0, 0, { type: AbilityType.Action, actionName: CombatActionName.IceBoltParent });
 
-  tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.Fire });
-  tree.assign(1, 2, { type: AbilityType.Action, actionName: CombatActionName.Firewall });
+  tree.assign(1, 0, { type: AbilityType.Action, actionName: CombatActionName.Fire });
+  tree.assign(1, 1, { type: AbilityType.Action, actionName: CombatActionName.Firewall });
 
   tree.assign(2, 0, { type: AbilityType.Action, actionName: CombatActionName.Healing });
 

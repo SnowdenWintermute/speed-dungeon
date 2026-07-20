@@ -177,6 +177,8 @@ export const ERROR_MESSAGES = {
     IS_BROKEN: "That equipment is broken",
     INVALID_TYPE: "Invalid equipment type was provided",
     NO_ITEM_EQUIPPED: "No item is equipped in that slot",
+    CANNOT_GO_IN_SLOT: "That equipment can't go in that slot",
+    ALREADY_IN_SLOT: "That equipment is already in that slot",
     REQUIREMENTS_NOT_MET: "You don't meet the requirements to equip that item",
     EXPECTED_TRAIT_MISSING: "Expected to find an equipment trait but didn't",
     NO_SELECTED_HOTSWAP_SLOT: "The combatant has no slots to equip holdable items",

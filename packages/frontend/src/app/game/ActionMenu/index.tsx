@@ -45,7 +45,7 @@ import { CraftActionButton } from "./menu-state/common-buttons/CraftActionButton
 import AbilityTreeAbilityButton from "./menu-state/common-buttons/AbilityTreeAbilityButton";
 import { ActionMenuNumberedButton } from "./menu-state/common-buttons/ActionMenuNumberedButton";
 import { PurchaseItemButton } from "./menu-state/common-buttons/PurchaseItemButton";
-import { RepairEquipmentButton } from "./menu-state/common-buttons/RepairEquipmentButton";
+import { ItemButtonBadges } from "./menu-state/common-buttons/ItemButtonBadges";
 import EmptyItemsList from "./menu-state/common-buttons/EmptyItemsList";
 import { PageTurningButtons } from "./menu-state/common-buttons/PageTurningButtons";
 import { CycleCombatActionTargetsButtons } from "./menu-state/common-buttons/CycleCombatActionTargetsButtons";
@@ -56,7 +56,6 @@ import { ActionSelectedDetails } from "@/app/game/detailables/action-details/Act
 import AbilityDetailDisplay from "./AbilityDetailDisplay";
 import TradeForBookConfirmationDisplay from "./TradeForBookConfirmationDisplay";
 import TradeForBookRequirementsDisplay from "./TradeForBookRequirementsDisplay";
-import { PriceDisplay } from "@/app/game/character-sheet/ShardsDisplay";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 import { DragSourceType, DropTargetType } from "@/client-application/item-drag/types";
 import { useDropTarget } from "@/app/game/item-drag/use-drop-target";
@@ -210,21 +209,12 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                           : undefined
                       }
                     >
-                      {btn.data.showEquippedStatus && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
-                          <div className="w-fit flex pr-2 pl-2 h-8 items-center bg-slate-700 border border-slate-400">
-                            EQUIPPED
-                          </div>
-                          {btn.data.price !== undefined && (
-                            <PriceDisplay price={btn.data.price} shardsOwned={null} />
-                          )}
-                        </div>
-                      )}
-                      {!btn.data.showEquippedStatus && btn.data.price !== undefined && (
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                          <PriceDisplay price={btn.data.price} shardsOwned={null} />
-                        </div>
-                      )}
+                      <ItemButtonBadges
+                        showEquippedStatus={btn.data.showEquippedStatus}
+                        durability={btn.data.durability}
+                        price={btn.data.price}
+                        shardsOwned={btn.data.shardsOwned}
+                      />
                     </ItemButton>
                   );
                 case ActionMenuNumberedButtonType.CraftAction:
@@ -265,14 +255,6 @@ export const ActionMenu = observer(({ inputLocked }: { inputLocked: boolean }) =
                     <PurchaseItemButton
                       key={btn.data.listIndex}
                       item={btn.data.item}
-                      listIndex={btn.data.listIndex}
-                    />
-                  );
-                case ActionMenuNumberedButtonType.RepairEquipment:
-                  return (
-                    <RepairEquipmentButton
-                      key={btn.data.listIndex}
-                      equipment={btn.data.equipment}
                       listIndex={btn.data.listIndex}
                     />
                   );
