@@ -93,7 +93,7 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
-    gameServerRegistry: GameServerRegistry,
+    private readonly gameServerRegistry: GameServerRegistry,
     fetchLeastBusyServer: () => Promise<{ name: GameServerName; url: string }>,
     characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
     rngPolicy: RandomNumberGenerationPolicy,
@@ -377,6 +377,13 @@ export class LobbyServer extends SpeedDungeonServer {
           if (activeGame.isStale()) {
             await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
             await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
+          }
+        }
+
+        const gameServers = await this.gameServerRegistry.getAllServers();
+        for (const gameServer of gameServers) {
+          if (gameServer.isStale()) {
+            await this.gameServerRegistry.unregister(gameServer.name);
           }
         }
       })

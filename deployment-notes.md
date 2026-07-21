@@ -732,8 +732,9 @@ Append dated entries as steps land — what changed, what broke, what surprised 
   processes anyway (matching prod, minimizing dev-specific code) then the memoization is
   solving a problem we should not have — main.ts got deleted instead. He also caught that
   backoff code already existed in `connection-topology`, so the new util is an extraction of it
-  rather than a second implementation. **Not yet run:** the integration suite, offline mode, or
-  a real multi-process boot — that is 3.2.
+  rather than a second implementation.
+  **Verified 2026-07-21 by Mike:** integration suite passes, and connecting and reconnecting to
+  games both work with the lobby, game server and asset server running as three processes.
 - 2026-07-21 — **2.3 and 2.4 done.** 2.3 verified by Mike in manual dev testing (joining games
   and reconnecting both still work with live selection). 2.4 deletes the static url record, so
   it needs the same check plus the integration suite before Phase 2 is called done. Only 2.5
