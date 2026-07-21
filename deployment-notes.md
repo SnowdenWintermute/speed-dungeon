@@ -306,39 +306,148 @@ env entries can go. Left alone for now to keep this step narrow.
 
 ## Phase 2 — the server registry
 
-### 2.1 `GameServerRegistry` interface + Valkey impl — status: TODO
+Design agreed 2026-07-21. Phase 1 is complete; this is where multi-server behavior starts
+actually existing.
 
-Shape: `{ name, url, activeGameCount, lastSeenAt }` keyed by `GameServerName`.
+### 2.1 `GameServerStatus` + `GameServerRegistry` — status: DONE (2026-07-21)
 
-- `register(entry)` / `heartbeat(name, activeGameCount)` / `getLiveServers()` / `deregister(name)`
-- Staleness follows the `ActiveGameStatus.isStale()` precedent: stale after two heartbeat
-  durations (`GAME_RECORD_HEARTBEAT_MS * 2`).
-- In-memory impl for offline/single-player and integration tests, mirroring how
-  `GameSessionStoreService` already has both. Offline pre-populates it with its one local
-  game server — see the offline section.
+Landed as designed below, with two adjustments:
+
+- the method is **`unregister`**, not `deregister` — matches the verb the codebase already
+  uses (`GameRegistry.unregisterGame`, `HeartbeatScheduler.unregister`)
+- added **`getAllServers()`** to the interface. `getLiveServers()` filters stale statuses out,
+  which means the dangling-resources cleanup could not see the very things it needs to prune.
+  Live-filtering and prune-scanning are genuinely different queries.
+
+Files: `common/src/servers/services/game-server-registry/{index,game-server-status,
+in-memory-game-server-registry}.ts`, `server/src/services/valkey-game-server-registry.ts`,
+`GAME_SERVER_HEARTBEAT_MS` in `app-consts.ts`, three barrel exports.
+
+**Open question for 2.4:** `getServerByName` currently returns a status regardless of
+staleness. For reconnection that means we could hand a client the url of a dead game server.
+Filtering there instead risks failing a reconnect during a brief heartbeat blip. Decide when
+wiring reconnection — the game-existence check may already cover it.
+
+
+The record is **`GameServerStatus`**, deliberately parallel to `ActiveGameStatus` — they are
+the same kind of thing (a heartbeat-refreshed liveness record with `isStale()`), so they
+should read the same. The holder is the `GameServerRegistry`.
+
+`common/src/servers/services/game-server-registry/game-server-status.ts`:
+
+```ts
+export class GameServerStatus implements Serializable {
+  private lastSeenAt: number = Date.now();
+  constructor(
+    readonly name: GameServerName,
+    readonly url: string,
+    public activeGameCount: number
+  ) {}
+  toSerialized() / static fromSerialized()
+  isStale()   // lastSeenAt older than GAME_SERVER_HEARTBEAT_MS * 2
+  refresh(activeGameCount: number)
+}
+```
+
+`.../game-server-registry/index.ts`:
+
+```ts
+export interface GameServerRegistry {
+  register(status: GameServerStatus): Promise<void>;
+  heartbeat(name: GameServerName, activeGameCount: number): Promise<void>;
+  getLiveServers(): Promise<GameServerStatus[]>;   // stale filtered out
+  getServerByName(name: GameServerName): Promise<GameServerStatus | null>;
+  deregister(name: GameServerName): Promise<void>;
+}
+```
+
+Two impls mirroring `GameSessionStoreService`: `InMemoryGameServerRegistry` in `common`,
+`ValkeyGameServerRegistry` in `packages/server` over a single hash
+(`game-server-registry:servers`), following `ValkeyGameSessionStoreService`'s style.
+
+`GAME_SERVER_HEARTBEAT_MS` goes in `app-consts.ts`.
 
 Note from prior work: the Valkey impls cannot be integration-tested under fake timers
 (node-redis hangs). Test against the in-memory impl.
 
-### 2.2 Game server heartbeats into the registry — status: TODO
+**Stale pruning belongs in the lobby's `startDanglingResourcesCleanupHeartbeat`**
+(`lobby-server/index.ts:360-380`), which already walks pending setups and active games doing
+exactly this — a third block is the same shape in the same place. Explicitly *not* pruning
+inside `getLeastBusyGameServer`: a selection method that silently mutates the store does
+something its name does not advertise.
 
-Register on startup after `analyzeAssetsForGameplayRelevantData()` resolves (do not advertise
-before assets are ready), then a `HeartbeatTask` on the existing scheduler. Deregister on
-graceful shutdown.
+### 2.2 Game servers report into the registry — status: TODO
 
-Each game server needs to know its own externally reachable url — env var, since only the
-deploy knows it.
+`GameServerRegistry` joins `GameServerExternalServices`. Each game server needs its own
+**public** url — what clients get told to connect to, not its container address — so that is
+an env var; only the deploy knows it.
+
+Register once listening. Facts are constructor-injected now (1.4), so there is no
+"analyzed but not ready" window to wait out. **Fail loudly if registration fails** — a game
+server nobody can be handed off to should not sit there looking healthy. Revisit once there is
+a real deploy to observe. Deregister on graceful shutdown.
+
+**`activeGameCount` is event-driven, not heartbeat-derived.** The heartbeat only refreshes
+liveness. The count updates at the two points where it actually changes:
+
+- `initializeExpectedPendingGame` (`game-server/controllers/game-lifecycle/index.ts:56`) —
+  right after `this.gameRegistry.registerGame(newGame)`
+- `cleanUpGame` (`:291`) — right after `this.gameRegistry.unregisterGame(game.id)`, which is
+  the centralized close path all the game-mode policies funnel through
+
+Both sites **push the current `gameRegistry.games.size`** rather than incrementing or
+decrementing: no drift, and idempotent if a path ever fires twice.
+
+Worth knowing: a handed-off game that nobody ever joins is never registered on the game server
+at all — the game is only created when the first player connects. It stays a
+`PendingGameSetup` and the lobby's cleanup loop reaps it. So the count never counts a game
+that did not materialize.
+
+Later additions to `GameServerStatus` (load signals etc.) belong here, though resource metrics
+are usually better read from the orchestrator than self-reported.
 
 ### 2.3 `getLeastBusyGameServer` reads the registry — status: TODO
 
-Replaces the stub at `lobby-node/index.ts:65`. Picks the live server with the lowest
-`activeGameCount`. Throws a clear error if none are live — that error surfacing at handoff
-time is the whole point of registering only when ready.
+Replaces the stub at `lobby-node/index.ts:65`. Add `LeastBusyGameServerSelector` in `common`:
+reads the registry, picks the lowest `activeGameCount`, throws clearly when none are live.
+
+**Keep the injectable getter on `LobbyServer`.** `IntegrationTestFixture.setLeastBusyGameServerGetter`
+steers which server a game lands on and the ladder tests depend on it — that seam is worth
+preserving. `lobby-node` just passes `() => selector.select()` instead of today's hardcoded
+stub.
+
+The "spawn a new game server past N games" threshold slots in here later as a
+`GameServerFleetManager` the selector consults. Not part of this phase.
 
 ### 2.4 Reconnection resolves urls from the registry — status: TODO
 
-Replace `gameServerUrlRegistry` in `LobbyServer`'s constructor and
-`reconnection/index.ts:136` with a registry lookup. Removes the static record entirely.
+Delete `gameServerUrlRegistry` from the `LobbyServer` constructor, and
+`getGameServerUrlFromName` from `reconnection/index.ts:135`.
+
+**Do not make `getGameServerUrlFromName` async.** `async` is contagious upward — every caller
+that needs the value has to await it and becomes async in turn. The chain here is:
+
+```
+getGameServerUrlFromName         reconnection/index.ts:135        (sync)
+  ← toGameServerSessionClaimToken  global-auth-game-session.ts:129 (sync)
+    ← createClaimToken             global-auth-game-session.ts:56  (sync)
+      ← reconnection/index.ts:62                                   (already async)
+```
+
+Only three levels deep and the top is already async, so the contagion would stop quickly. But
+better: resolve the url at line 62 and pass the string down, so both inner methods stay
+synchronous. Side benefit — the session object stops depending on `LobbyReconnectionProtocol`
+entirely, a coupling that should not have been there.
+
+### 2.5 Update the construction sites — status: TODO
+
+`lobby-node`, `game-node`, `manual-test-mode-config`, plus:
+
+- `create-offline-servers` — `InMemoryGameServerRegistry` pre-populated with its one local
+  server, replacing the static record and hardcoded getter
+- `create-test-servers` — pre-populated with Lindblum and Alexandria
+
+Offline is the standing risk here; re-check it boots after 2.4.
 
 ---
 
@@ -472,6 +581,14 @@ server on the VPS.
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
 
+- 2026-07-21 — **Phase 2 designed** (see above, sketched before writing code as with 1.4).
+  Mike's calls: `GameServerStatus` over `GameServerRegistration` (parallel to
+  `ActiveGameStatus`); stale pruning in the dangling-resources loop rather than inside the
+  selector, since a selection method should not silently mutate the store; and
+  `activeGameCount` pushed on game-open/game-close events rather than derived on the
+  heartbeat, which also makes it accurate immediately instead of up to one heartbeat stale.
+  Verified while designing: `cleanUpGame` really is the centralized close path, and a
+  handed-off game nobody joins is never registered on the game server at all.
 - 2026-07-21 — **1.5 done. Phase 1 complete.** Nothing surprising. Found `BASE_FILE_PATH` /
   `NEXT_PUBLIC_ASSET_BASE_PATH_3D` to be entirely dead; left in place rather than widening the
   step. Next: Phase 2, the server registry.

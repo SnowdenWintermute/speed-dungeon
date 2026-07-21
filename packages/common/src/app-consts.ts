@@ -55,6 +55,7 @@ export const HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST = 1;
 // SERVERS
 export const RECONNECTION_OPPORTUNITY_TIMEOUT_MS = (ONE_SECOND * 120) as Milliseconds;
 export const GAME_RECORD_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
+export const GAME_SERVER_HEARTBEAT_MS: Milliseconds = ONE_SECOND * 10;
 export const LOBBY_DANGLING_RESOURCES_CLEANUP_MS: Milliseconds = ONE_SECOND * 10;
 
 // UI
