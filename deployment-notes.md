@@ -288,15 +288,19 @@ spawning becomes much more reasonable later.
 Client-only assets (textures, sounds) then never touch a game server, and the asset container
 should use a volume or bind mount rather than baking a growing asset set into its image.
 
-### 1.5 Fix client-side hardcoded urls — status: TODO
+### 1.5 Fix client-side hardcoded urls — status: DONE (2026-07-21)
 
-- `frontend/src/app/create-client-application.ts:24` hardcodes
-  `new RemoteServerAssetStore("http://localhost:8080")`, ignoring
-  `NEXT_PUBLIC_ASSET_SERVER_URL`.
-- `.env.production` defines no `NEXT_PUBLIC_ASSET_SERVER_URL`, so there is nothing for it to
-  read once the hardcode is removed. It should point at the dedicated asset container's
-  public route (see 1.4). (The `roguelikeracing.com` urls in that file are correct — that is
-  this project's domain.)
+- `create-client-application.ts` now reads `NEXT_PUBLIC_ASSET_SERVER_URL` with an `invariant`,
+  matching how the lobby url is handled, instead of hardcoding `http://localhost:8080`.
+- `.env.production` gained `NEXT_PUBLIC_ASSET_SERVER_URL="https://roguelikeracing.com/api"`.
+  `/api` because `appRoute()` prefixes routes with it when `isProduction`, so the manifest and
+  asset routes live at `/api/asset-manifest` and `/api/assets/*`. **Repoint this at the
+  dedicated asset container's route in 4.4** — today it still resolves to the combined
+  process. `.env.development` already had the variable and needed no change.
+
+Unrelated dead config found here: `NEXT_PUBLIC_ASSET_BASE_PATH_3D` feeds `BASE_FILE_PATH` in
+`frontend/src/client-consts.ts:3`, which has **zero consumers**. Both the constant and the two
+env entries can go. Left alone for now to keep this step narrow.
 
 ---
 
@@ -468,14 +472,16 @@ server on the VPS.
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
 
+- 2026-07-21 — **1.5 done. Phase 1 complete.** Nothing surprising. Found `BASE_FILE_PATH` /
+  `NEXT_PUBLIC_ASSET_BASE_PATH_3D` to be entirely dead; left in place rather than widening the
+  step. Next: Phase 2, the server registry.
 - 2026-07-20 — **1.4 code done.** Two naming corrections from Mike mid-implementation, both
   the same underlying point: things named for the game server were no longer game server
   things. `AssetAnalyzer.load()` became a plain `GameplayAssetFacts` object passed by
   constructor (see 1.4), and `GameServerNodeAssetService` became `LocalStoreAssetService`.
   Worth remembering the pattern — when moving a responsibility between services, check the
   names that travel with it, not just the wiring.
-  **Still to verify:** offline mode boots, and the integration suite passes (fixture asset
-  caching was rewritten). Neither run yet.
+  **Verified 2026-07-21:** integration suite passes and offline mode works.
 - 2026-07-20 — **1.3 done, and the original audit item was wrong.** Mike asked why migrating
   on every lobby boot is actually a problem, which was the right question — checking
   node-pg-migrate showed it locks by default, so "migration race" was overstated. Real failure
