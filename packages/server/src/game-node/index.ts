@@ -4,6 +4,7 @@ import {
   GameServerExternalServices,
   GameServerName,
   GameplayAssetFactsSource,
+  GameServerRegistry,
   GameSessionStoreService,
   GameStateUpdate,
   RandomNumberGenerationPolicyFactory,
@@ -22,6 +23,7 @@ import {
   RandomDungeonGenerationPolicy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
+import { env } from "../validate-env.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import {
@@ -50,7 +52,8 @@ export class GameServerNode {
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
-    gameplayAssetFactsSource: GameplayAssetFactsSource
+    gameplayAssetFactsSource: GameplayAssetFactsSource,
+    gameServerRegistry: GameServerRegistry
   ) {
     const { facts } = await gameplayAssetFactsSource.getGameplayAssetFacts();
 
@@ -62,6 +65,7 @@ export class GameServerNode {
       crossServerBroadcasterService,
       globalGameSessionStore,
       profileService,
+      gameServerRegistry,
       idGenerator
     );
 
@@ -69,6 +73,7 @@ export class GameServerNode {
     if (MANUAL_TEST_MODE) {
       this._server = setGameServerNodeManualTestProperties(
         name,
+        env.GAME_SERVER_PUBLIC_URL,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
         incomingConnectionGateway,
@@ -80,6 +85,7 @@ export class GameServerNode {
       const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
       this._server = new GameServer(
         name,
+        env.GAME_SERVER_PUBLIC_URL,
         incomingConnectionGateway,
         externalServices,
         gameServerSessionClaimTokenCodec,
@@ -92,6 +98,8 @@ export class GameServerNode {
         cookieHeaderAuthSessionIdParser
       );
     }
+
+    await this._server.registerWithGameServerRegistry();
   }
 
   private createExternalServices(
@@ -99,6 +107,7 @@ export class GameServerNode {
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
+    gameServerRegistry: GameServerRegistry,
     idGenerator: IdGenerator
   ): GameServerExternalServices {
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
@@ -127,6 +136,7 @@ export class GameServerNode {
       userGameDataPersistenceService,
       characterLevelLadderService,
       ladderGameRecordsService,
+      gameServerRegistry,
       crossServerBroadcasterService,
       globalGameSessionStore,
       profileService,

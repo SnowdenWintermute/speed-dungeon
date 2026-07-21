@@ -1,6 +1,9 @@
 import {
   AssetCache,
   AssetServer,
+  GameServerRegistry,
+  GameServerStatus,
+  InMemoryGameServerRegistry,
   CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
@@ -67,6 +70,10 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
 
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const globalGameSessionStore = new InMemoryUserGlobalGameSessionStore();
+  const gameServerRegistry = new InMemoryGameServerRegistry();
+  await gameServerRegistry.register(
+    new GameServerStatus(LOCAL_OFFLINE_GAME_SERVER_NAME, LOCAL_OFFLINE_GAME_SERVER_URL)
+  );
 
   const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<
     GameStateUpdate,
@@ -138,12 +145,14 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
 
   const gameServer = new GameServer(
     LOCAL_OFFLINE_GAME_SERVER_NAME,
+    LOCAL_OFFLINE_GAME_SERVER_URL,
     gameIncomingConnectionGateway,
     createOfflineGameServerServices(
       gameSessionStoreService,
       userGameDataPersistenceService,
       characterLevelLadderService,
       ladderGameRecordsService,
+      gameServerRegistry,
       gameCrossServerBroadcasterService,
       globalGameSessionStore,
       profileService
@@ -199,6 +208,7 @@ function createOfflineGameServerServices(
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
+  gameServerRegistry: GameServerRegistry,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
@@ -208,6 +218,7 @@ function createOfflineGameServerServices(
     userGameDataPersistenceService,
     characterLevelLadderService,
     ladderGameRecordsService,
+    gameServerRegistry,
     crossServerBroadcasterService,
     globalGameSessionStore,
     profileService,

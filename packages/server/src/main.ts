@@ -25,6 +25,7 @@ import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseProfileService } from "./game-node/services/profiles.js";
 import { speedDungeonProfilesRepo } from "./database/repos/speed-dungeon-profiles.js";
 import { ValkeyGameSessionStoreService } from "./services/valkey-game-session-store-service.js";
+import { ValkeyGameServerRegistry } from "./services/valkey-game-server-registry.js";
 import { env } from "./validate-env.js";
 
 const LOBBY_PORT = 8080;
@@ -45,6 +46,8 @@ const gameServerNode = new GameServerNode();
 const gameSessionStoreService = new ValkeyGameSessionStoreService(valkeyManager.context);
 
 const userGlobalGameSessionStore = new ValkeyUserGlobalGameSessionStore(valkeyManager.context);
+
+const gameServerRegistry = new ValkeyGameServerRegistry(valkeyManager.context);
 
 // for sending ladder rank global messages from the originating game server to all clients
 // on all servers
@@ -97,6 +100,7 @@ gameHttpServer.listen(GAME_SERVER_PORT, () => {
     gameCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec,
     guestReconnectionTokenCodec,
-    assetServer
+    assetServer,
+    gameServerRegistry
   );
 });

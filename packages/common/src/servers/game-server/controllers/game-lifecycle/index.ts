@@ -1,4 +1,4 @@
-import { GameId } from "../../../../aliases.js";
+import { GameId, GameServerName } from "../../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../../packets/game-state-updates.js";
 import { GameLifecycleController } from "../../../controllers/game-lifecycle.js";
 import { GameRegistry } from "../../../game-registry.js";
@@ -37,7 +37,8 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly dungeonExplorationController: DungeonExplorationController,
-    private readonly partyLifecycleController: PartyLifecyleController
+    private readonly partyLifecycleController: PartyLifecyleController,
+    private readonly gameServerName: GameServerName
   ) {
     this.partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       this.updateDispatchFactory
@@ -77,7 +78,7 @@ export class GameServerGameLifecycleController implements GameLifecycleControlle
     await this.gameSessionStoreService.deletePendingGameSetup(newGame.id);
     await this.gameSessionStoreService.writeActiveGameStatus(
       newGame.id,
-      new ActiveGameStatus(newGame.name, newGame.id)
+      new ActiveGameStatus(newGame.name, newGame.id, this.gameServerName)
     );
 
     return newGame;

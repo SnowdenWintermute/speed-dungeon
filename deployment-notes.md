@@ -376,7 +376,24 @@ exactly this — a third block is the same shape in the same place. Explicitly *
 inside `getLeastBusyGameServer`: a selection method that silently mutates the store does
 something its name does not advertise.
 
-### 2.2 Game servers report into the registry — status: TODO
+### 2.2 Game servers report into the registry — status: DONE (2026-07-21)
+
+Landed as designed. Notes on how it went together:
+
+- `GameServer` gained a `url` constructor param right after `name` — the public url, fed from
+  the new `GAME_SERVER_PUBLIC_URL` env var. Each game server container gets its own value.
+- `registerWithGameServerRegistry()` is awaited by `GameServerNode.createServer` after
+  construction, so a registration failure rejects and takes the process down — the loud
+  failure we wanted. `unregisterFromGameServerRegistry()` exists for graceful shutdown.
+- the heartbeat task just calls `gameServerRegistry.heartbeat(this.name)` to refresh liveness.
+  The count-publishing machinery this step originally carried was removed the same day — see
+  the derived-count decision above.
+- `GameServerGameLifecycleController` takes the game server's `name`, which it stamps onto
+  each `ActiveGameStatus` it writes.
+
+Offline and the integration fixtures **seed** the registry with a pre-registered
+`GameServerStatus` rather than calling `registerWithGameServerRegistry()`. Equivalent outcome,
+and their heartbeats then find the existing entry and refresh it normally.
 
 `GameServerRegistry` joins `GameServerExternalServices`. Each game server needs its own
 **public** url — what clients get told to connect to, not its container address — so that is
@@ -387,23 +404,34 @@ Register once listening. Facts are constructor-injected now (1.4), so there is n
 server nobody can be handed off to should not sit there looking healthy. Revisit once there is
 a real deploy to observe. Deregister on graceful shutdown.
 
-**`activeGameCount` is event-driven, not heartbeat-derived.** The heartbeat only refreshes
-liveness. The count updates at the two points where it actually changes:
+**Busy-ness is derived, not reported.** `GameServerStatus` carries no count at all — it is
+identity and liveness only (`name`, `url`, `lastSeenAt`), and `heartbeat(name)` just refreshes.
 
-- `initializeExpectedPendingGame` (`game-server/controllers/game-lifecycle/index.ts:56`) —
-  right after `this.gameRegistry.registerGame(newGame)`
-- `cleanUpGame` (`:291`) — right after `this.gameRegistry.unregisterGame(game.id)`, which is
-  the centralized close path all the game-mode policies funnel through
+**This reversed the original design**, which had game servers self-report `activeGameCount` on
+open/close events. Mike questioned it and was right. The reasoning:
 
-Both sites **push the current `gameRegistry.games.size`** rather than incrementing or
-decrementing: no drift, and idempotent if a path ever fires twice.
+- A self-reported count is a **denormalization** — a second copy of a fact the game records
+  already establish. Denormalized counters drift; any path that removes a game outside
+  `cleanUpGame`, or a failure between unregistering and publishing, silently desyncs it. A
+  derived count cannot be wrong.
+- The performance objection did not survive contact: `getActiveGames()` is **already** a full
+  scan run every 10 seconds by the lobby's dangling-resources cleanup
+  (`lobby-server/index.ts:374`). Doing the same scan once per handoff is strictly less work
+  than what the codebase already does on a loop.
 
-Worth knowing: a handed-off game that nobody ever joins is never registered on the game server
-at all — the game is only created when the first player connects. It stays a
-`PendingGameSetup` and the lobby's cleanup loop reaps it. So the count never counts a game
-that did not materialize.
+Instead, both game records carry their host:
 
-Later additions to `GameServerStatus` (load signals etc.) belong here, though resource metrics
+- `ActiveGameStatus` gained `hostingServerName`, set at its one construction site
+  (`game-lifecycle/index.ts:81`). The lifecycle controller takes the server name as a plain
+  value rather than a wired-up publish callback.
+- `PendingGameSetup` gained `hostingServerName` too, set by `GameHandoffManager` from the
+  server it just selected.
+
+Including `PendingGameSetup` closes a real gap: a handed-off game is not registered on the
+game server until the first player connects, so counting only active games would miss games
+in flight, and two games created in quick succession could both be sent to the same server.
+
+Later load signals (CPU etc.) could still live on `GameServerStatus`, though resource metrics
 are usually better read from the orchestrator than self-reported.
 
 ### 2.3 `getLeastBusyGameServer` reads the registry — status: TODO
@@ -581,6 +609,18 @@ server on the VPS.
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
 
+- 2026-07-21 — **Reversed the self-reported game count** (see 2.2). Mike pushed back after it
+  was already built: why maintain a counter when the active game records can just be counted?
+  Correct, and the performance case for reporting evaporated once I checked — that scan
+  already runs every 10s in the cleanup loop. The general lesson is the one worth keeping:
+  I optimized the cheap axis (a hash read vs a scan) and paid for it on the expensive one
+  (a denormalized value that can silently disagree with the truth). Took `PendingGameSetup`
+  along for the ride, which also closes the in-flight-games gap.
+- 2026-07-21 — **2.1 and 2.2 done.** Additive so far: the registry exists and game servers
+  report into it, but nothing reads it yet, so behavior is unchanged. `GameServer` construction
+  sites touched again (url param) — that is four sites for the second time this phase, worth
+  remembering when weighing constructor params against a parameter object if it grows further.
+  **Not yet run:** tests / offline since 2.2.
 - 2026-07-21 — **Phase 2 designed** (see above, sketched before writing code as with 1.4).
   Mike's calls: `GameServerStatus` over `GameServerRegistration` (parallel to
   `ActiveGameStatus`); stale pruning in the dangling-resources loop rather than inside the

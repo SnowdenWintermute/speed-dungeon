@@ -17,6 +17,7 @@ export const env = cleanEnv(process.env, {
   VALKEY_URL: url(),
   MANUAL_TEST_MODE: bool({ default: false }),
   RUN_MIGRATIONS_ON_BOOT: bool({ default: true }),
+  GAME_SERVER_PUBLIC_URL: url(),
 });
 
 if (env.MANUAL_TEST_MODE && env.isProduction) {

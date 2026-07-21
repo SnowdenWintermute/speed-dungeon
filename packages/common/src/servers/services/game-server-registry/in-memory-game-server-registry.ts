@@ -10,13 +10,13 @@ export class InMemoryGameServerRegistry implements GameServerRegistry {
     this.statuses.set(status.name, cloneDeep(status));
   }
 
-  async heartbeat(name: GameServerName, activeGameCount: number): Promise<void> {
+  async heartbeat(name: GameServerName): Promise<void> {
     const existing = this.statuses.get(name);
     if (existing === undefined) {
       console.info("Tried to heartbeat a GameServerStatus that was not registered");
       return;
     }
-    existing.refresh(activeGameCount);
+    existing.refresh();
   }
 
   async getLiveServers(): Promise<GameServerStatus[]> {

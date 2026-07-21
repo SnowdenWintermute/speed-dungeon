@@ -10,13 +10,13 @@ export class ValkeyGameServerRegistry implements GameServerRegistry {
     await this.write(status);
   }
 
-  async heartbeat(name: GameServerName, activeGameCount: number): Promise<void> {
+  async heartbeat(name: GameServerName): Promise<void> {
     const existing = await this.getServerByName(name);
     if (existing === null) {
       console.info("Tried to heartbeat a GameServerStatus that was not registered");
       return;
     }
-    existing.refresh(activeGameCount);
+    existing.refresh();
     await this.write(existing);
   }
 

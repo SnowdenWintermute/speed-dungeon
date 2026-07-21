@@ -2,6 +2,9 @@ import {
   CharacterCreationPolicyConstructor,
   DefaultCharacterCreationPolicy,
   AssetServer,
+  GameServerRegistry,
+  GameServerStatus,
+  InMemoryGameServerRegistry,
   GameServer,
   GameplayAssetFacts,
   IdGeneratorSequential,
@@ -105,6 +108,15 @@ export async function createTestServers(
 
   const gameplayAssetFacts = await getTestGameplayAssetFacts();
 
+  const gameServerRegistry = new InMemoryGameServerRegistry();
+  for (const [testGameServerName, { port }] of iterateNumericEnumKeyedRecord(
+    gameServerGatewaysAndPorts
+  )) {
+    await gameServerRegistry.register(
+      new GameServerStatus(TEST_GAME_SERVER_NAME_STRINGS[testGameServerName], localServerUrl(port))
+    );
+  }
+
   const testSecret = await SodiumHelpers.createSecret();
   const gameServerSessionClaimCodec = new OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>(
     testSecret
@@ -157,16 +169,18 @@ export async function createTestServers(
 
   const gameServers = Object.fromEntries(
     iterateNumericEnumKeyedRecord(gameServerGatewaysAndPorts).map(
-      ([testGameServerName, { incomingConnectionGateway }]) => [
+      ([testGameServerName, { incomingConnectionGateway, port }]) => [
         testGameServerName,
         new GameServer(
           TEST_GAME_SERVER_NAME_STRINGS[testGameServerName],
+          localServerUrl(port),
           incomingConnectionGateway,
           createGameServerTestServices(
             gameSessionStoreService,
             userGameDataPersistenceService,
             rankedLadderService,
             ladderGameRecordsService,
+            gameServerRegistry,
             new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
             globalGameSessionStore,
             profileService
@@ -241,6 +255,7 @@ export function createGameServerTestServices(
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
+  gameServerRegistry: GameServerRegistry,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
@@ -250,6 +265,7 @@ export function createGameServerTestServices(
     userGameDataPersistenceService,
     characterLevelLadderService,
     ladderGameRecordsService,
+    gameServerRegistry,
     crossServerBroadcasterService,
     globalGameSessionStore,
     profileService,

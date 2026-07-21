@@ -14,7 +14,12 @@ import {
   GameServerGameLifecycleController,
 } from "./controllers/game-lifecycle/index.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
-import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
+import {
+  GAME_CONFIG,
+  GAME_RECORD_HEARTBEAT_MS,
+  GAME_SERVER_HEARTBEAT_MS,
+  WebSocketCloseCode,
+} from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import {
@@ -29,6 +34,8 @@ import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equi
 import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
 import { LootGenerator } from "../../items/loot-generation/loot-generator.js";
 import { GameplayAssetFacts } from "../services/assets/gameplay-asset-facts.js";
+import { GameServerRegistry } from "../services/game-server-registry/index.js";
+import { GameServerStatus } from "../services/game-server-registry/game-server-status.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
@@ -71,6 +78,7 @@ export interface GameServerExternalServices {
   profileService: SpeedDungeonProfileService;
   characterLevelLadderService: CharacterLevelLadderService;
   ladderGameRecordsService: LadderGameRecordsService;
+  gameServerRegistry: GameServerRegistry;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: UserGlobalGameSessionStore;
 }
@@ -100,6 +108,8 @@ export class GameServer extends SpeedDungeonServer {
 
   constructor(
     readonly name: GameServerName,
+    /** the url clients are told to connect to, not this process's container address */
+    readonly url: string,
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
@@ -147,6 +157,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.heartbeatScheduler.start();
     this.startActiveGamesRecordHeartbeatTask();
+    this.startGameServerRegistryHeartbeatTask();
 
     this.gameModePolicyStore = new GameModePolicyStore(
       this.updateDispatchFactory,
@@ -186,7 +197,8 @@ export class GameServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       this.gameModePolicyStore,
       this.dungeonExplorationController,
-      this.partyLifecycleController
+      this.partyLifecycleController,
+      name
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
@@ -407,6 +419,24 @@ export class GameServer extends SpeedDungeonServer {
     outbox.pushFromOther(cleanupSessionOutbox);
 
     this.dispatchOutboxMessages(outbox);
+  }
+
+  async registerWithGameServerRegistry() {
+    await this.externalServices.gameServerRegistry.register(
+      new GameServerStatus(this.name, this.url)
+    );
+  }
+
+  async unregisterFromGameServerRegistry() {
+    await this.externalServices.gameServerRegistry.unregister(this.name);
+  }
+
+  private startGameServerRegistryHeartbeatTask() {
+    const heartbeat = new HeartbeatTask(GAME_SERVER_HEARTBEAT_MS, () =>
+      this.externalServices.gameServerRegistry.heartbeat(this.name)
+    );
+
+    this.heartbeatScheduler.register(heartbeat);
   }
 
   private startActiveGamesRecordHeartbeatTask() {

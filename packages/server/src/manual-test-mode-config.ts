@@ -33,6 +33,7 @@ export const MANUAL_TEST_MODE = env.MANUAL_TEST_MODE;
 const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
 export function setGameServerNodeManualTestProperties(
   name: GameServerName,
+  url: string,
   gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
   guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
   incomingConnectionGateway: IncomingConnectionGateway,
@@ -49,6 +50,7 @@ export function setGameServerNodeManualTestProperties(
   });
   const server = new GameServer(
     name,
+    url,
     incomingConnectionGateway,
     externalServices,
     gameServerSessionClaimTokenCodec,
