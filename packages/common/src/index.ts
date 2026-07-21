@@ -44,6 +44,7 @@ export * from "./monsters/monster-reward-profiles.js";
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
 export * from "./utils/rand-between.js";
+export * from "./utils/retry-with-exponential-backoff.js";
 export * from "./utils/shape-utils.js";
 export * from "./utils/interpolation-curves.js";
 

@@ -1,7 +1,8 @@
-import * as dotenv from "dotenv";
-dotenv.config({ path: ".env" });
+import "./load-env-file.js";
 import { bool, cleanEnv, num, str, url } from "envalid";
 
+// shared by the lobby and game server roles. the asset server validates its own
+// smaller schema so a missing DATABASE_URL cannot stop its container from booting.
 export const env = cleanEnv(process.env, {
   NODE_ENV: str({ choices: ["development", "production", "test"] }),
   FRONT_END_URL: url(),
@@ -16,8 +17,6 @@ export const env = cleanEnv(process.env, {
   TOKENS_SECRET: str(),
   VALKEY_URL: url(),
   MANUAL_TEST_MODE: bool({ default: false }),
-  RUN_MIGRATIONS_ON_BOOT: bool({ default: true }),
-  GAME_SERVER_PUBLIC_URL: url(),
 });
 
 if (env.MANUAL_TEST_MODE && env.isProduction) {

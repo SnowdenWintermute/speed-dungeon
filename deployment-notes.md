@@ -9,14 +9,18 @@ Update the status markers and the log at the bottom as steps land.
 
 ## Where we are now
 
-`packages/server/src/main.ts` runs **both server nodes in one process**:
+**Phases 1–3.1 are done.** `packages/server/src/entrypoints/` holds three role entrypoints —
+lobby (8080), game server (8090), asset server (8100) — each its own process with its own env
+schema. The lobby selects a live game server from the Valkey-backed registry, game servers
+heartbeat into it and fetch gameplay asset facts over HTTP from the asset server, and
+reconnection resolves urls from the registry.
 
-- lobby on port 8080 (Express + ws)
-- game server on port 8090 (bare http server + ws), sharing the lobby's Express app
-- one PG pool, one Valkey connection, one in-memory token secret
+Remaining: verify multi-process locally (3.2), then Docker (Phase 4).
 
-Everything below exists because that single process has to become two roles in separate
-containers before a second game server is possible.
+The original single-process state, for reference: `main.ts` ran both server nodes together,
+lobby on 8080 and game server on 8090 sharing the lobby's Express app, with one PG pool, one
+Valkey connection and one in-memory token secret. Everything in this plan exists because that
+process had to become separate roles before a second game server was possible.
 
 Handoff already works correctly in the abstract: `GameHandoffManager.initiateGameHandoff`
 asks `getLeastBusyGameServer()` for a `{ name, url }`, writes a `PendingGameSetup` to the
@@ -508,39 +512,98 @@ better: resolve the url at line 62 and pass the string down, so both inner metho
 synchronous. Side benefit — the session object stops depending on `LobbyReconnectionProtocol`
 entirely, a coupling that should not have been there.
 
-### 2.5 Update the construction sites — status: TODO
+### 2.5 Update the construction sites — status: DONE (2026-07-21)
 
-`lobby-node`, `game-node`, `manual-test-mode-config`, plus:
+Absorbed entirely into 2.3/2.4 as those steps touched the construction sites. Verified rather
+than written: `create-offline-servers.ts:73` seeds an `InMemoryGameServerRegistry` with its one
+local server, and `create-test-servers.ts:111` seeds one per entry in
+`gameServerGatewaysAndPorts`. `lobby-node`, `game-node` and `manual-test-mode-config` all take
+the registry. Nothing left to do.
 
-- `create-offline-servers` — `InMemoryGameServerRegistry` pre-populated with its one local
-  server, replacing the static record and hardcoded getter
-- `create-test-servers` — pre-populated with Lindblum and Alexandria
-
-Offline is the standing risk here; re-check it boots after 2.4.
+**Phase 2 complete.**
 
 ---
 
 ## Phase 3 — split the process
 
-### 3.1 Two entrypoints — status: TODO
+### 3.1 Three entrypoints — status: DONE (2026-07-21)
 
-`main.ts` becomes three role entrypoints — lobby, game server, asset server — sharing a
-bootstrap module. Prefer separate entrypoints over a `SERVER_ROLE` branch: the role is a
-deploy-time fact, not a runtime one, and it keeps each container's startup readable.
+`main.ts` is **deleted**. `src/entrypoints/` holds `lobby.ts`, `game-server.ts`,
+`asset-server.ts` and `bootstrap.ts`. Each entrypoint is a top-level-await module that runs on
+import, so its container command is `node dist/entrypoints/<role>.js` with no role flag.
 
-The asset entrypoint is the smallest by far: Express app + `AssetServer`, no pg pool, no
-valkey, no auth, no token codecs. Its `validate-env` needs should be scoped down accordingly
-rather than sharing the full env schema, so a missing `DATABASE_URL` cannot stop the asset
-container from booting.
+`bootstrapSharedServices()` (lobby + game only) connects the pg pool and valkey, asserts the
+token secret, and returns the two token codecs, the game session store, the global session
+store, the game server registry, the cross-server broadcaster and the profile service.
 
-Also removes the awkward `GAME_SERVER_NAME` import from `main.js` into `lobby-node/index.ts`
-and `manual-test-mode-config.ts` — the name becomes env config per game server container.
+**Env is now scoped per role.** `validate-env.ts` keeps the shared lobby+game schema;
+`validate-lobby-env.ts`, `validate-game-server-env.ts` and `validate-asset-server-env.ts` hold
+the role-specific vars and are imported only by their own role, so each `cleanEnv` call runs
+only in the process that needs it. `load-env-file.ts` isolates the `dotenv.config()` side
+effect so a role env file can be loaded without dragging in the full schema. New vars:
+`LOBBY_PORT` (8080), `GAME_SERVER_PORT` (8090), `GAME_SERVER_NAME`, `ASSET_SERVER_URL`,
+`ASSET_SERVER_PORT` (8100), `ASSETS_DIRECTORY`. `RUN_MIGRATIONS_ON_BOOT` and
+`GAME_SERVER_PUBLIC_URL` moved out of the shared schema into their roles.
 
-### 3.2 Verify locally with two processes — status: TODO
+The asset entrypoint builds **its own** minimal Express app (cors + `AssetServerRouter` +
+error handler) rather than calling `createExpressApp()`, which pulls in DB-backed route
+handlers and the full env. It has no pg pool, no valkey, no auth and no codecs.
+
+**The deployed game server no longer computes facts.** It constructs
+`HttpGameplayAssetFactsSource(ASSET_SERVER_URL)` — the 1.4 implementation finally has its real
+caller. `ASSET_SERVER_URL` must include the `/api` suffix when the asset server runs with
+`NODE_ENV=production`, since `appRoute()` prefixes its routes.
+
+Found while splitting, **not** in the original audit: `loadLadderIntoKvStore()` **deletes** the
+ladder key and rebuilds it from postgres. Running it on game server boot would wipe live ladder
+state, so it is lobby-only, alongside migrations. Would have been a nasty one to find in prod.
+
+Two things added beyond the sketch:
+
+- **Startup ordering.** The game server cannot boot until the asset server answers, and
+  nothing orders them. Rather than dev-only shell sequencing, the facts fetch retries with
+  exponential backoff (`ASSET_FACTS_FETCH_MAX_ATTEMPTS`/`_BASE_DELAY_MS` in
+  `server/src/consts.ts`), then exits 1 with a clear log. Same behavior in dev and in compose,
+  and it does not depend on healthchecks landing in 4.3. The retry wraps only the fetch —
+  wrapping all of `createServer` would re-attach a `WebSocketServer` per attempt.
+- **Graceful shutdown.** `GameServerNode.shutDown()` calls the
+  `unregisterFromGameServerRegistry()` that 2.2 added but never wired; the entrypoint calls it
+  on SIGTERM/SIGINT so a stopped container leaves the registry immediately instead of aging out.
+
+`retryWithExponentialBackoff` went into `common/src/utils/` by **extracting** the inline loop in
+`client-application/src/connection-topology/index.ts` rather than writing a second copy (Mike
+caught that there was already backoff code in there). `attemptReconnectOnce` now rejects instead
+of resolving `false`, which removed the boolean plumbing from the reconnect loop.
+
+**Dev is now four terminals**, and `start.sh` is updated: one `yarn build:watch`
+(`tsc -b --watch`, the single writer to `dist/`) plus `yarn serve:lobby`,
+`yarn serve:game-server`, `yarn serve:asset-server` (each `node --watch dist/entrypoints/…`).
+Three `tsc-watch -b` processes would race on the same `dist/` and `.tsbuildinfo`, so the
+compile and run jobs that `tsc-watch` bundles had to be split. The only dev-specific delta is
+the `--watch` flag; production runs the identical command without it.
+
+`NEXT_PUBLIC_ASSET_SERVER_URL` in `.env.development` moved to `http://localhost:8100`.
+Production still points at the combined `/api` route — **still to repoint in 4.4.**
+
+### 3.2 Verify locally with two processes — status: TODO — **next**
 
 Run one lobby and two game servers on the host, different ports, before involving Docker.
 This isolates "did the split work" from "did the container networking work". Full loop:
 create game, start, handoff, play, disconnect, reconnect to the right server.
+
+`dotenv` does not override vars already in the environment, so a second game server needs no
+second env file — shell vars win over `.env`:
+
+```
+GAME_SERVER_PORT=8091 \
+GAME_SERVER_NAME="Alexandria Test Game Server" \
+GAME_SERVER_PUBLIC_URL=http://localhost:8091 \
+yarn serve:game-server
+```
+
+Watch for: both servers appearing in `getLiveServers()`, the selector alternating between them
+as games are created, and reconnection resolving the *right* url per game. Also confirm
+offline mode still boots — nothing in 3.1 touches it, but it is the standing risk in this plan.
 
 ---
 
@@ -553,6 +616,13 @@ It is currently dead: it copies `packages/client`, which no longer exists (the p
 build as written.
 
 ### 4.2 Audit `server.Dockerfile` — status: TODO
+
+Its `CMD ["node", "dist/index.js"]` is already wrong — `src/index.ts` is a barrel of exports,
+not an entrypoint. One image can serve all three roles; the role is chosen by the compose
+`command:` (`dist/entrypoints/lobby.js` etc). The asset role wants a volume or bind mount for
+`ASSETS_DIRECTORY` rather than the baked `COPY packages/server/assets`, and the game server
+image needs no assets at all now (1.4).
+
 
 Builds `common` then `server`; copies the root `tsconfig.json`. Watch the root tsconfig — it
 has `declaration: true`, no `outDir`, and no include/exclude, so anything that runs `tsc -b`
@@ -650,6 +720,20 @@ server on the VPS.
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
 
+- 2026-07-21 — **2.5 and 3.1 done. Phase 2 complete, the process is split.** 2.5 turned out to
+  be already satisfied by 2.3/2.4 — verified, not written. The surprise in 3.1 was
+  `loadLadderIntoKvStore()`: it `del`s the ladder key and rebuilds, so a game server running it
+  on boot would wipe live ladder state. Nothing in the audit flagged it, because in one process
+  the question of "which role owns this" never came up. Worth generalizing — the split's real
+  risk is not the wiring, it is **boot-time side effects that were only ever safe because there
+  was exactly one process running them**. Migrations were the known one; the ladder rebuild was
+  the unknown one. Two corrections from Mike: I reached for memoized shared services so a
+  combined dev entrypoint could work, and he pointed out that if dev is going to run separate
+  processes anyway (matching prod, minimizing dev-specific code) then the memoization is
+  solving a problem we should not have — main.ts got deleted instead. He also caught that
+  backoff code already existed in `connection-topology`, so the new util is an extraction of it
+  rather than a second implementation. **Not yet run:** the integration suite, offline mode, or
+  a real multi-process boot — that is 3.2.
 - 2026-07-21 — **2.3 and 2.4 done.** 2.3 verified by Mike in manual dev testing (joining games
   and reconnecting both still work with live selection). 2.4 deletes the static url record, so
   it needs the same check plus the integration suite before Phase 2 is called done. Only 2.5

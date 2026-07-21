@@ -23,7 +23,7 @@ import {
   RandomDungeonGenerationPolicy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { env } from "../validate-env.js";
+import { gameServerEnv } from "../validate-game-server-env.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import {
@@ -73,7 +73,7 @@ export class GameServerNode {
     if (MANUAL_TEST_MODE) {
       this._server = setGameServerNodeManualTestProperties(
         name,
-        env.GAME_SERVER_PUBLIC_URL,
+        gameServerEnv.GAME_SERVER_PUBLIC_URL,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
         incomingConnectionGateway,
@@ -85,7 +85,7 @@ export class GameServerNode {
       const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
       this._server = new GameServer(
         name,
-        env.GAME_SERVER_PUBLIC_URL,
+        gameServerEnv.GAME_SERVER_PUBLIC_URL,
         incomingConnectionGateway,
         externalServices,
         gameServerSessionClaimTokenCodec,
@@ -100,6 +100,13 @@ export class GameServerNode {
     }
 
     await this._server.registerWithGameServerRegistry();
+  }
+
+  async shutDown() {
+    if (this._server === null) {
+      return;
+    }
+    await this._server.unregisterFromGameServerRegistry();
   }
 
   private createExternalServices(
