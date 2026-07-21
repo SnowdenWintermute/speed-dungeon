@@ -1,9 +1,9 @@
-import { GameServerName } from "../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import {
   ConnectionContextType,
   PlayerReconnectionProtocol,
 } from "../../reconnection-protocol/index.js";
+import { GameServerRegistry } from "../../services/game-server-registry/index.js";
 import { GameSessionStoreService } from "../../services/game-session-store/index.js";
 import { UserGlobalGameSessionStore } from "../../services/global-auth-game-connection-session-store/index.js";
 import { GameSessionConnectionStatus } from "../../sessions/global-auth-game-session.js";
@@ -35,7 +35,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     private readonly gameSessionStoreService: GameSessionStoreService,
     private readonly globalGameSessionStore: UserGlobalGameSessionStore,
-    private readonly gameServerUrlRegistry: Record<GameServerName, string>
+    private readonly gameServerRegistry: GameServerRegistry
   ) {}
 
   async evaluateConnectionContext(session: UserSession): Promise<LobbyConnectionContext> {
@@ -59,7 +59,17 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
     if (!gameStillExists) {
       return { type: ConnectionContextType.InitialConnection };
     }
-    const token = globalSessionOption.createClaimToken(this);
+
+    // a game server that is gone or has stopped heartbeating cannot be reconnected to, so
+    // send them back through the lobby rather than at a dead url
+    const gameServerOption = await this.gameServerRegistry.getServerByName(
+      globalSessionOption.gameServerName
+    );
+    if (gameServerOption === null || gameServerOption.isStale()) {
+      return { type: ConnectionContextType.InitialConnection };
+    }
+
+    const token = globalSessionOption.createClaimToken(gameServerOption.url);
 
     return {
       type: ConnectionContextType.WillForwardToGameServer,
@@ -130,14 +140,6 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
 
   onPlayerDisconnected(...args: any[]): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     throw new Error("Method not implemented.");
-  }
-
-  getGameServerUrlFromName(name: GameServerName) {
-    const urlOption = this.gameServerUrlRegistry[name];
-    if (urlOption === undefined) {
-      throw new Error("No game server url found by that name");
-    }
-    return urlOption;
   }
 
   attemptReconnectionClaim(...args: any[]): Promise<void> {

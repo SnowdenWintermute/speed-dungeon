@@ -149,14 +149,7 @@ export async function createTestServers(
     lobbyExternalServices,
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
-    {
-      [TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Lindblum]]: localServerUrl(
-        gameServerGatewaysAndPorts[TestGameServerName.Lindblum].port
-      ),
-      [TEST_GAME_SERVER_NAME_STRINGS[TestGameServerName.Alexandria]]: localServerUrl(
-        gameServerGatewaysAndPorts[TestGameServerName.Alexandria].port
-      ),
-    },
+    gameServerRegistry,
     async () => {
       return leastBusyGameServerGetterRef.getter();
     },

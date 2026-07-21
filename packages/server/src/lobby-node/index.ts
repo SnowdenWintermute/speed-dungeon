@@ -33,7 +33,6 @@ import { valkeyManager } from "../kv-store/index.js";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
-import { GAME_SERVER_NAME } from "../main.js";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseLadderRecordsPersistenceStrategy } from "../game-node/services/database-ladder-records-persistence-strategy.js";
 import {
@@ -79,6 +78,7 @@ export class LobbyServerNode {
         externalServices,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
+        gameServerRegistry,
         leastBusyGameServerUrlGetter,
         cookieHeaderAuthSessionIdParser
       );
@@ -88,7 +88,7 @@ export class LobbyServerNode {
         externalServices,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
-        { [GAME_SERVER_NAME]: "http://localhost:8090" },
+        gameServerRegistry,
         leastBusyGameServerUrlGetter,
         DefaultCharacterCreationPolicy,
         RandomNumberGenerationPolicyFactory.allRandomPolicy(),

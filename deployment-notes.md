@@ -468,7 +468,27 @@ stub.
 The "spawn a new game server past N games" threshold slots in here later as a
 `GameServerFleetManager` the selector consults. Not part of this phase.
 
-### 2.4 Reconnection resolves urls from the registry — status: TODO
+### 2.4 Reconnection resolves urls from the registry — status: DONE (2026-07-21)
+
+The static `Record<GameServerName, string>` is gone from `LobbyServer`'s constructor and
+`LobbyReconnectionProtocol`; both now take the `GameServerRegistry`.
+`getGameServerUrlFromName` is deleted.
+
+As designed, the url is resolved at the already-async site in `evaluateConnectionContext` and
+passed down, so `createClaimToken(gameServerUrl)` and `toGameServerSessionClaimToken(gameServerUrl)`
+stay synchronous. `GlobalGameSession` gained a `gameServerName` getter and **no longer imports
+`LobbyReconnectionProtocol` at all** — a session object no longer depends on the protocol that
+reads it.
+
+**Resolved the 2.1 open question:** the registry returns statuses regardless of staleness, and
+this caller decides that stale means unavailable. If the server is missing *or* stale,
+reconnection returns `InitialConnection` and the player goes back through the lobby rather than
+being handed a dead url. That matches how the surrounding code already treats a missing game.
+
+Bonus cleanup: with the static record gone, `GAME_SERVER_NAME` was no longer used in
+`lobby-node` or `manual-test-mode-config`, so those `import ... from "./main.js"` lines are
+deleted. That was the awkward reach-into-main coupling flagged in the original audit; only
+`main.ts` uses the constant now.
 
 Delete `gameServerUrlRegistry` from the `LobbyServer` constructor, and
 `getGameServerUrlFromName` from `reconnection/index.ts:135`.
@@ -630,6 +650,10 @@ server on the VPS.
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
 
+- 2026-07-21 — **2.3 and 2.4 done.** 2.3 verified by Mike in manual dev testing (joining games
+  and reconnecting both still work with live selection). 2.4 deletes the static url record, so
+  it needs the same check plus the integration suite before Phase 2 is called done. Only 2.5
+  remains, and most of it got absorbed into 2.3/2.4 as the construction sites were touched.
 - 2026-07-21 — **Reversed the self-reported game count** (see 2.2). Mike pushed back after it
   was already built: why maintain a counter when the active game records can just be counted?
   Correct, and the performance case for reporting evaporated once I checked — that scan

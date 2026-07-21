@@ -6,6 +6,7 @@ import {
   GameServer,
   GameServerExternalServices,
   GameServerName,
+  GameServerRegistry,
   GameServerSessionClaimToken,
   GameplayAssetFacts,
   GuestSessionReconnectionToken,
@@ -25,7 +26,6 @@ import {
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
-import { GAME_SERVER_NAME } from "./main.js";
 import { env } from "./validate-env.js";
 
 export const MANUAL_TEST_MODE = env.MANUAL_TEST_MODE;
@@ -87,6 +87,7 @@ export function setLobbyServerNodeManualTestProperties(
   externalServices: LobbyExternalServices,
   gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
   guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+  gameServerRegistry: GameServerRegistry,
   leastBusyGameServerUrlGetter: () => Promise<{ name: GameServerName; url: string }>,
   cookieHeaderAuthSessionIdParser: AuthSessionIdParser
 ) {
@@ -95,7 +96,7 @@ export function setLobbyServerNodeManualTestProperties(
     externalServices,
     gameServerSessionClaimTokenCodec,
     guestReconnectionTokenCodec,
-    { [GAME_SERVER_NAME]: "http://localhost:8090" },
+    gameServerRegistry,
     leastBusyGameServerUrlGetter,
     ScriptedCharacterCreationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),

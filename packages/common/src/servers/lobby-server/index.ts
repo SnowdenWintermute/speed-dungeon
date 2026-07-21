@@ -20,6 +20,7 @@ import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-conn
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { ServerCommand } from "../services/server-command/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameServerRegistry } from "../services/game-server-registry/index.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
@@ -92,7 +93,7 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
-    gameServerUrlRegistry: Record<GameServerName, string>,
+    gameServerRegistry: GameServerRegistry,
     fetchLeastBusyServer: () => Promise<{ name: GameServerName; url: string }>,
     characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
     rngPolicy: RandomNumberGenerationPolicy,
@@ -174,7 +175,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
       externalServices.globalGameSessionStore,
-      gameServerUrlRegistry
+      gameServerRegistry
     );
   }
 

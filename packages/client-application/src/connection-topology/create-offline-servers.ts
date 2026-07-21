@@ -126,7 +126,7 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
     ),
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
-    { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
+    gameServerRegistry,
     () => testLeastBusyServerUrlGetter(),
     DefaultCharacterCreationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
