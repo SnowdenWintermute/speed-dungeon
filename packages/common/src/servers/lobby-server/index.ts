@@ -355,38 +355,37 @@ export class LobbyServer extends SpeedDungeonServer {
   startDanglingResourcesCleanupHeartbeat() {
     this.danglingResourcesHeartbeatScheduler.start();
     this.danglingResourcesHeartbeatScheduler.register(
-      new HeartbeatTask(LOBBY_DANGLING_RESOURCES_CLEANUP_MS, async () => {
-        // @TODO - figure this out: if a read on the active games starts, then the active game is deleted by
-        // closing, then someone creates and disconnects from a game of the same name before the read finishes,
-        // we might could actually clean up a valid newly started game with the same name as a previously stale one
-        const { gameSessionStoreService } = this.externalServices;
-
-        const pendingGames =
-          await this.externalServices.gameSessionStoreService.getPendingGameSetups();
-        for (const pendingGame of pendingGames) {
-          if (pendingGame.isStale()) {
-            await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.id);
-            await this.externalServices.globalGameSessionStore.clearSessionsInGame(
-              pendingGame.game.id
-            );
-          }
-        }
-
-        const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
-        for (const activeGame of activeGames) {
-          if (activeGame.isStale()) {
-            await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
-            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
-          }
-        }
-
-        const gameServers = await this.gameServerRegistry.getAllServers();
-        for (const gameServer of gameServers) {
-          if (gameServer.isStale()) {
-            await this.gameServerRegistry.unregister(gameServer.name);
-          }
-        }
-      })
+      new HeartbeatTask(LOBBY_DANGLING_RESOURCES_CLEANUP_MS, () => this.cleanUpDanglingResources())
     );
+  }
+
+  async cleanUpDanglingResources() {
+    // @TODO - figure this out: if a read on the active games starts, then the active game is deleted by
+    // closing, then someone creates and disconnects from a game of the same name before the read finishes,
+    // we might could actually clean up a valid newly started game with the same name as a previously stale one
+    const { gameSessionStoreService } = this.externalServices;
+
+    const pendingGames = await this.externalServices.gameSessionStoreService.getPendingGameSetups();
+    for (const pendingGame of pendingGames) {
+      if (pendingGame.isStale()) {
+        await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.id);
+        await this.externalServices.globalGameSessionStore.clearSessionsInGame(pendingGame.game.id);
+      }
+    }
+
+    const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
+    for (const activeGame of activeGames) {
+      if (activeGame.isStale()) {
+        await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
+        await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
+      }
+    }
+
+    const gameServers = await this.gameServerRegistry.getAllServers();
+    for (const gameServer of gameServers) {
+      if (gameServer.isStale()) {
+        await this.gameServerRegistry.unregister(gameServer.name);
+      }
+    }
   }
 }

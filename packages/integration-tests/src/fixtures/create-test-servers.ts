@@ -194,6 +194,7 @@ export async function createTestServers(
   return {
     lobbyServer,
     gameServers,
+    gameServerRegistry,
     rankedLadderService,
     ladderGameRecordsService,
     identityProviderQueryStrategy,

@@ -10,6 +10,7 @@ import {
   GameName,
   GameServer,
   GameServerName,
+  GameServerRegistry,
   GameStateUpdateType,
   IncomingConnectionGateway,
   InMemoryIdentityProviderQueryStrategy,
@@ -54,6 +55,7 @@ export type TestGameServersAndPorts = Record<
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
   private _gameServers: Record<TestGameServerName, GameServer> | null = null;
+  private _gameServerRegistry: GameServerRegistry | null = null;
   private clients = new Map<string, ClientFixture>();
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
   private _gameServerPorts: {
@@ -122,6 +124,7 @@ export class IntegrationTestFixture {
     const {
       lobbyServer,
       gameServers,
+      gameServerRegistry,
       rankedLadderService,
       ladderGameRecordsService,
       identityProviderQueryStrategy,
@@ -140,6 +143,8 @@ export class IntegrationTestFixture {
     this._identityProviderQueryStrategy = identityProviderQueryStrategy;
     this._userGameDataPersistenceService = userGameDataPersistenceService;
 
+    this._gameServerRegistry = gameServerRegistry;
+
     this._lobbyServer = lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
 
@@ -147,7 +152,6 @@ export class IntegrationTestFixture {
     for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
       gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
     }
-
   }
 
   get rankedLadderService() {
@@ -181,6 +185,11 @@ export class IntegrationTestFixture {
   get lobbyServer() {
     invariant(this._lobbyServer !== null, "no lobby server initialized");
     return this._lobbyServer;
+  }
+
+  get gameServerRegistry() {
+    invariant(this._gameServerRegistry !== null, "no game server registry initialized");
+    return this._gameServerRegistry;
   }
 
   get lobbyServerPort() {
@@ -236,9 +245,16 @@ export class IntegrationTestFixture {
     dungeonTemplate: ExplicitCombatantDungeonTemplate = TEST_DUNGEON_TWO_WOLF_ROOMS,
     charactersTemplate: FixedCharacterCreationLists = BASIC_CHARACTER_FIXTURES,
     rngOverrides: Partial<RandomNumberGenerationPolicy> = {},
-    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy = new TestResourceChangePropertiesStrategy()
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy = new TestResourceChangePropertiesStrategy(),
+    // servers register their heartbeat intervals as they are constructed, so tests that need
+    // to drive those intervals must have fake timers installed before the servers exist
+    options: { useFakeTimersFromBoot: boolean } = { useFakeTimersFromBoot: false }
   ) {
     this.timeMachine.returnToPresent();
+
+    if (options.useFakeTimersFromBoot) {
+      this.timeMachine.start();
+    }
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
     const basicOverrides = {

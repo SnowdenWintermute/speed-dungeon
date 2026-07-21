@@ -50,6 +50,16 @@ const outbox = await handlerOption(parsed.data as never, session);
   error TS5055: Cannot write file 'some long name.d.ts' because it would overwrite input file.
   Solution: Delete tsconfig.tsbuildinfo, dist folders and .next folder. May need to delete node_modules,
   clear the yarn cache and yarn install.
+  (From Claude) Root cause of the TS5055 half, fixed 2026-07-21: specifying `exclude` in a tsconfig replaces
+  TypeScript's default exclude **entirely**, and that default is what normally keeps `outDir` out of
+  the compiler's inputs. `packages/common/tsconfig.build.json` listed only test globs, so `dist/*.d.ts`
+  were globbed back in as source and every build tried to overwrite its own output. It now lists
+  `node_modules` and `dist` explicitly. If you add an `exclude` to another package, re-list both.
+- (From Claude) Error description: A build succeeds but emits nothing, and stale code keeps running.
+  Solution: Deleting `dist` alone is not enough — `tsconfig*.tsbuildinfo` still says everything is
+  up to date, so `tsc` exits 0 without writing anything. Delete the buildinfo too. Note the
+  integration tests import `@speed-dungeon/common` through the workspace symlink, which resolves to
+  `packages/common/dist`, not `src` — so tests run against the last successful build.
 - Error description: Module not found but the IDE doesn't give errors.
   Solution: Maybe you are importing from a common package incorrectly:
   Check how you’re importing from a common package. Correct:

@@ -431,6 +431,12 @@ export class GameServer extends SpeedDungeonServer {
     await this.externalServices.gameServerRegistry.unregister(this.name);
   }
 
+  // registry heartbeat is a read-modify-write, so a tick interleaving with unregister can
+  // re-create the entry it just deleted. stop ticking before unregistering
+  stopHeartbeats() {
+    this.heartbeatScheduler.stop();
+  }
+
   private startGameServerRegistryHeartbeatTask() {
     const heartbeat = new HeartbeatTask(GAME_SERVER_HEARTBEAT_MS, () =>
       this.externalServices.gameServerRegistry.heartbeat(this.name)

@@ -106,6 +106,7 @@ export class GameServerNode {
     if (this._server === null) {
       return;
     }
+    this._server.stopHeartbeats();
     await this._server.unregisterFromGameServerRegistry();
   }
 

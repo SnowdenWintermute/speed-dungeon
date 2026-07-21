@@ -374,6 +374,23 @@ Two impls mirroring `GameSessionStoreService`: `InMemoryGameServerRegistry` in `
 Note from prior work: the Valkey impls cannot be integration-tested under fake timers
 (node-redis hangs). Test against the in-memory impl.
 
+**Pruning landed 2026-07-21**, late — 2.1 specified it and `getAllServers()` was added for it,
+but the third block was never written, so a killed game server sat in Valkey forever. Found
+while prepping 3.2. Covered by `integration-tests/src/server-crashes/`: stop one server's heartbeat, advance past
+the stale threshold, assert it is pruned and the still-heartbeating one is not. Verified by
+mutation — deleting the pruning block fails the test.
+
+That test needed a fixture change. Servers register their heartbeat intervals *as they are
+constructed*, so a `timeMachine.start()` after `resetWithOptions` leaves them as real timers
+that advancing time cannot drive. `resetWithOptions` now takes
+`{ useFakeTimersFromBoot: true }`, which installs fake timers before the servers exist, so the
+real heartbeats and the real cleanup interval both run under the time machine.
+
+`GameServer.stopHeartbeats()` came out of the same work. It is not a test hook:
+`ValkeyGameServerRegistry.heartbeat` is a read-modify-write, so a tick interleaving with
+`unregister` can re-create the entry it just deleted. `GameServerNode.shutDown()` now stops the
+scheduler before unregistering.
+
 **Stale pruning belongs in the lobby's `startDanglingResourcesCleanupHeartbeat`**
 (`lobby-server/index.ts:360-380`), which already walks pending setups and active games doing
 exactly this — a third block is the same shape in the same place. Explicitly *not* pruning
@@ -617,6 +634,10 @@ build as written.
 
 ### 4.2 Audit `server.Dockerfile` — status: TODO
 
+Its `rm tsconfig.tsbuildinfo` / `rm -rf ./dist` before building common are no longer needed —
+that existed to work around the `tsconfig.build.json` exclude bug fixed 2026-07-21. Harmless in
+a fresh build context either way, but the comment they imply is now misleading.
+
 Its `CMD ["node", "dist/index.js"]` is already wrong — `src/index.ts` is a barrel of exports,
 not an entrypoint. One image can serve all three roles; the role is chosen by the compose
 `command:` (`dist/entrypoints/lobby.js` etc). The asset role wants a volume or bind mount for
@@ -720,6 +741,23 @@ server on the VPS.
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
 
+- 2026-07-21 — **Two build-config traps fixed while getting that test to run**, both of which had
+  been costing time for a while. `packages/common/tsconfig.build.json` specified `exclude`, which
+  replaces TypeScript's default exclude *entirely* — including the part that keeps `outDir` out of
+  the inputs. So `dist/*.d.ts` were compiler input and every build overwrote its own output
+  (TS5055). Now lists `node_modules` and `dist`; inputs dropped 4131 → 2887 and `common` rebuilds
+  in place without deleting `dist`. Second trap: deleting `dist` without deleting
+  `tsconfig*.tsbuildinfo` makes `tsc` exit 0 and emit nothing, which matters because the
+  integration tests resolve `@speed-dungeon/common` to `dist`, not `src` — a green suite can be
+  testing the last successful build. Both written up in the README's common-errors list.
+- 2026-07-21 — **Stale game server pruning implemented and tested.** 2.1 specified it and 2.1
+  even added `getAllServers()` for it, but the block was never written — a specified step that
+  everything downstream *looked* fine without, because `getLiveServers()` filters stale entries
+  so selection was already correct. Only the leak was missing. Worth remembering that "the
+  feature works" is not evidence the spec was fully implemented. The test lives in
+  `server-crashes/`, whose `notes.ts` had already sketched this exact genre (write a record,
+  never refresh it, advance past the threshold) for active game records — the game server
+  record is the same shape.
 - 2026-07-21 — **2.5 and 3.1 done. Phase 2 complete, the process is split.** 2.5 turned out to
   be already satisfied by 2.3/2.4 — verified, not written. The surprise in 3.1 was
   `loadLadderIntoKvStore()`: it `del`s the ladder key and rebuilds, so a game server running it
