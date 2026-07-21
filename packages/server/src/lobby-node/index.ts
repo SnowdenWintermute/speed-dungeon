@@ -18,6 +18,8 @@ import {
   LadderGameRecordsService,
   IdGenerator,
   DefaultCharacterCreationPolicy,
+  GameServerRegistry,
+  LeastBusyGameServerSelector,
 } from "@speed-dungeon/common";
 import { WebSocketServer } from "ws";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
@@ -45,6 +47,7 @@ export class LobbyServerNode {
   async createServer(
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
     gameSessionStoreService: GameSessionStoreService,
+    gameServerRegistry: GameServerRegistry,
     globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
@@ -62,9 +65,11 @@ export class LobbyServerNode {
       profileService,
       idGenerator
     );
-    const leastBusyGameServerUrlGetter = async () => {
-      return { name: GAME_SERVER_NAME, url: "http://localhost:8090" };
-    };
+    const leastBusyGameServerSelector = new LeastBusyGameServerSelector(
+      gameServerRegistry,
+      gameSessionStoreService
+    );
+    const leastBusyGameServerUrlGetter = () => leastBusyGameServerSelector.select();
 
     // TO MATCH TEST SETUP
 

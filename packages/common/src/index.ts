@@ -258,6 +258,7 @@ export * from "./servers/services/user-game-data-persistence/in-memory-user-game
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";
+export * from "./servers/lobby-server/game-handoff/least-busy-game-server-selector.js";
 export * from "./servers/game-server/reconnection/index.js";
 
 export * from "./servers/game-server/index.js";

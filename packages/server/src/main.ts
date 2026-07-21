@@ -80,6 +80,7 @@ const httpServer = expressApp.listen(LOBBY_PORT, async () => {
   lobbyServerNode.createServer(
     httpServer,
     gameSessionStoreService,
+    gameServerRegistry,
     userGlobalGameSessionStore,
     lobbyCrossServerBroadcaster,
     gameServerSessionClaimTokenCodec,

@@ -434,7 +434,28 @@ in flight, and two games created in quick succession could both be sent to the s
 Later load signals (CPU etc.) could still live on `GameServerStatus`, though resource metrics
 are usually better read from the orchestrator than self-reported.
 
-### 2.3 `getLeastBusyGameServer` reads the registry — status: TODO
+### 2.3 `getLeastBusyGameServer` reads the registry — status: DONE (2026-07-21)
+
+`LeastBusyGameServerSelector` lives at
+`common/src/servers/lobby-server/game-handoff/least-busy-game-server-selector.ts`, next to the
+`GameHandoffManager` that consumes its result. It takes the registry and the game session
+store, uses `getLiveServers()` for candidates, counts active games **and** pending setups by
+`hostingServerName`, and returns the minimum. Throws
+`ERROR_MESSAGES.SERVERS.NO_LIVE_GAME_SERVERS` when nothing is live.
+
+`lobby-node` constructs it and passes `() => selector.select()` where the hardcoded
+`http://localhost:8090` stub used to be. `main.ts` threads the registry through.
+
+**This is the first behavior change of the phase** — everything before it was additive.
+
+Offline and the integration fixtures still use their own hardcoded getters rather than the
+selector. Left alone deliberately: they have one and two servers respectively, and the fixture
+override is the seam the ladder tests steer with. Worth revisiting if offline ever needs to
+exercise the real selection path.
+
+Known wrinkle: a pending setup for a game nobody joins counts against its server until it goes
+stale (5 minute TTL) and the cleanup loop reaps it. Normal flow deletes it the moment the
+first player connects, so this only affects abandoned handoffs.
 
 Replaces the stub at `lobby-node/index.ts:65`. Add `LeastBusyGameServerSelector` in `common`:
 reads the registry, picks the lowest `activeGameCount`, throws clearly when none are live.
