@@ -1,5 +1,5 @@
 {
-  "name": "@speed-dungeon/client",
+  "name": "@speed-dungeon/frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {

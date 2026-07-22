@@ -38,6 +38,7 @@ export class InMemoryConnectionEndpointServerRegistry {
 
     // Create mock request with URL, headers, etc.
     const request: InMemoryConnectionRequest = {
+      isInMemoryRequest: true,
       url: url.pathname + url.search, // Include query params
       headers: {
         host: url.host,

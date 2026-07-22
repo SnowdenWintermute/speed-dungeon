@@ -474,6 +474,41 @@ selector. Left alone deliberately: they have one and two servers respectively, a
 override is the seam the ladder tests steer with. Worth revisiting if offline ever needs to
 exercise the real selection path.
 
+**Integration test for least-busy selection — DONE (2026-07-21).**
+`integration-tests/src/game-server-selection/` covers all four gaps listed below. Tests opt back
+into the real path with `IntegrationTestFixture.useRealLeastBusyGameServerSelector()`, which
+builds a `LeastBusyGameServerSelector` over the fixture's registry and session store; the
+override seam stays for the ladder tests that steer placement deliberately.
+
+Assertions read `clientApplication.topologyManager.gameServerUrlOption` — a new field on
+`ConnectionTopology` recording the url `createGameClient` was handed, cleared by
+`clearGameClient`. The client did not previously retain that url anywhere, and asserting on the
+selector's return value directly was explicitly not what this test is for.
+
+Arranging the pending-setup case took some care: a `PendingGameSetup` exists only between
+`initiateGameHandoff` writing it and the game server deleting it on first connect
+(`game-lifecycle/index.ts:78`). Skipping `proceedToGameServer` leaves no setup at all, and
+toggling ready without awaiting the transition only gives a race window, since the instructions
+arrive in the same reply stream `settleIntentResult` awaits and `createGameClient` fires
+synchronously in that handler. Mike's call was to pause alpha's lobby transport so the
+instructions are buffered and alpha never connects — the real handoff path, with the setup held
+still. That needs `ClientTestHarness.dispatchWithoutAwaitingReply`, because a paused client
+cannot await its own reply.
+
+Original TODO, kept for the reasoning:
+
+**TODO — integration test for least-busy selection.** Because the fixtures override the getter,
+**nothing automated covers `LeastBusyGameServerSelector` at all**: not that a new game goes to
+the server with fewer games, not that active games and pending setups are both counted, not that
+a dead server is skipped, not that it throws `NO_LIVE_GAME_SERVERS` when none are live. 3.2
+checks this by hand once; after that it is unguarded, and it is exactly the logic that decides
+where players land. The fixture already boots two servers (Lindblum and Alexandria) and seeds
+both into the registry, so the setup exists — the test needs
+`setLeastBusyGameServerGetter(() => selector.select())` to opt back into the real path, then
+create games and assert which server each client is handed. Keep the override seam for the
+ladder tests that steer placement deliberately. Assert on client output (which url the client
+was told to connect to), not on the selector's return value directly.
+
 Known wrinkle: a pending setup for a game nobody joins counts against its server until it goes
 stale (5 minute TTL) and the cleanup loop reaps it. Normal flow deletes it the moment the
 first player connects, so this only affects abandoned handoffs.
@@ -602,7 +637,7 @@ the `--watch` flag; production runs the identical command without it.
 `NEXT_PUBLIC_ASSET_SERVER_URL` in `.env.development` moved to `http://localhost:8100`.
 Production still points at the combined `/api` route — **still to repoint in 4.4.**
 
-### 3.2 Verify locally with two processes — status: TODO — **next**
+### 3.2 Verify locally with two processes — status: DONE (2026-07-21, verified by Mike)
 
 Run one lobby and two game servers on the host, different ports, before involving Docker.
 This isolates "did the split work" from "did the container networking work". Full loop:
@@ -622,15 +657,56 @@ Watch for: both servers appearing in `getLiveServers()`, the selector alternatin
 as games are created, and reconnection resolving the *right* url per game. Also confirm
 offline mode still boots — nothing in 3.1 touches it, but it is the standing risk in this plan.
 
+Note this manual pass was, at the time, the *only* coverage of least-busy selection — the
+automated test that replaced that gap landed with Phase 4 (see the 2.3 TODO, now closed).
+
 ---
 
 ## Phase 4 — Docker
 
-### 4.1 Rewrite `client.Dockerfile` — status: TODO
+### 4.1 Rewrite `client.Dockerfile` — status: DONE (2026-07-21)
 
-It is currently dead: it copies `packages/client`, which no longer exists (the package is
-`frontend`), and does not know about `client-application` or `game-world-view`. It cannot
-build as written.
+`client.Dockerfile` deleted, replaced by `dockerfiles/frontend.Dockerfile`. Builds, boots, serves
+`/` at HTTP 200 (next start ready in ~200ms). The `@speed-dungeon/frontend` package (renamed from
+`@speed-dungeon/client` at all three layers — dir already was `frontend`, npm name, image tag; the
+old name had no importers) pulls siblings two ways, and the Dockerfile mirrors that: `common` is
+compiled to `dist` (consumed via the node_modules symlink), while `client-application` and
+`game-world-view` are copied as **source** and transpiled by next through the `@/` tsconfig paths.
+
+**The build surfaced three real bugs, none Docker-specific — all latent because nothing had run a
+production `next build` since these packages changed.** The frontend uses turbopack in dev
+(`next dev --turbopack`) but `next build` is webpack in Next 15; the two bundlers disagree, and the
+webpack production path is what exposed all of this:
+
+- **`@gltf-transform/core` was declared in `packages/server` but imported only from
+  `packages/common`** (the AssetAnalyzer moved to common in 1.4; the dep never followed). Compiled
+  locally via root hoisting and even in the *server* image (which installs server's manifest), but
+  the frontend image installs common's manifest without server's, so common's own dep vanished and
+  `tsc` failed. Moved the dep to `common`. The server image was rebuilt and re-smoke-tested after
+  the move — still fine, since it depends on common.
+- **`common` leaked `node:http` into the client bundle.** `incoming-connection-gateway.ts` did
+  `import { IncomingMessage } from "node:http"` and used it as a *value* (`instanceof` in
+  `queryParamsAuthSessionIdParser`). The single `@speed-dungeon/common` barrel re-exports it, and a
+  `"use client"` page importing two constants from that barrel dragged `node:http` into webpack's
+  browser build → `UnhandledSchemeError`. `next dev`/turbopack never forced that module into a
+  client graph, so it was invisible. Fix: brand `InMemoryConnectionRequest` with
+  `isInMemoryRequest: true` and replace the `instanceof` with `Object.hasOwn(request,
+  "isInMemoryRequest")` — then `import type`, which tsc elides. **Security note (Mike asked):**
+  `Object.hasOwn`, not `in`/`instanceof`, so a real `IncomingMessage` can never look in-memory —
+  wire-controlled headers never become own props, and prototype pollution can't forge an own
+  property. Behavior is identical to the old check for every real case and strictly fail-closed on
+  any unknown request type. This is the pre-existing client/server barrel-coupling smell (the "one
+  big barrel" from [[feedback_no_directory_barrels]]) biting; a proper barrel split is deferred.
+- **ESLint parser errors during `next build`.** The frontend `.eslintrc.cjs` has no parser; it
+  cascades up to the root config, which the image doesn't copy — and the root config does
+  type-aware lint over every `packages/*/tsconfig.json`, so copying it would drag the whole
+  monorepo in. Set `eslint.ignoreDuringBuilds: true` in `next.config.mjs`. Type-checking still runs
+  and still fails the build; lint stays a CI/editor concern. This changes local `next build` too,
+  not just Docker — output is byte-identical.
+
+Runtime stage is deliberately unoptimized: it carries the whole built workspace so every
+`@speed-dungeon/*` symlink resolves. `next output:"standalone"` would trim it to a traced minimal
+set — deferred, noted inline.
 
 ### 4.2 Audit `server.Dockerfile` — status: TODO
 
@@ -651,7 +727,55 @@ against it emits artifacts into every `src/`. The Dockerfile currently only does
 `tsc -p tsconfig.build.json` in common and plain `tsc` in server, which is fine; just do not
 "simplify" it to a root build.
 
-### 4.3 Replace the compose files — status: TODO
+### 4.2 Audit `server.Dockerfile` — status: DONE (2026-07-21)
+
+Rewritten as one build with two final targets, `--target server` (lobby + game server, no asset
+binaries) and `--target asset-server` (same image + the 42MB asset set on top). Role is chosen by
+the compose `command:`, not the image. Both targets build; the asset image was booted and
+confirmed to run the gltf analysis (~2s) and serve `/api/asset-manifest` and
+`/api/gameplay-asset-facts`. `wget` and node's `net` are both present in `node:22-alpine` for the
+compose healthchecks.
+
+What the build surfaced, none of it in the audit:
+
+- **`packages/server` imports `cors` but never declared `@types/cors`.** It compiled locally only
+  because `frontend`'s dead `socket.io` 4.7.5 dep pulls `@types/cors` in transitively and Yarn
+  hoists it to the root. The image installs only the common+server manifests, so the phantom
+  vanished and `tsc` failed. Added `@types/cors` to `packages/server` devDeps. **This means
+  deleting the dead `socket.io` dep (frontend) would break the local server build** — the two are
+  now decoupled, but do the socket.io removal and this fix together, not separately.
+- **`yarn.lock` was never copied into the old image** — `--pure-lockfile` had no lockfile to honor.
+  Now copied in every deps stage.
+- **No `.dockerignore` existed.** `COPY packages/common/` was pulling host `node_modules`, `dist`,
+  and every `.env` (including `TOKENS_SECRET` and DB creds) into the build context and image
+  layers. Added one; it re-allows only `frontend/.env.production` (public `NEXT_PUBLIC_*` urls,
+  baked by next at build time).
+- Stages must be lowercase to be usable in `FROM x AS y`; the old `deployDeps`/`buildDeps` worked
+  only because they were referenced via `COPY --from`, which is laxer. Renamed to
+  `deploy-deps`/`build-deps`.
+- Runs as `USER node`, `NODE_ENV=production` baked in.
+
+**Docker Hub tag shape changes.** Old: one `snowd3n/speed-dungeon:server` (combined process). New:
+`:server` (lean) + `:asset-server` + the client image. The box-level compose still expects the old
+combined `:server`, so the cutover and the box-level compose edit (4.3) must land together.
+
+### 4.3 Replace the compose files — status: WRITTEN, UNTESTED (2026-07-21)
+
+`docker-compose.deploy.yml` rewritten as speed-dungeon's own project: lobby, two game servers,
+asset server, postgres, valkey. Not yet run end to end. Still needs:
+
+- a `.env.deploy` file (gitignored) with the secrets and public urls
+- `docker network create speed-dungeon-shared` on the VPS, joined by the lobby, for snowauth
+  (4.3b)
+- the box-level `packages/server/deploy.docker-compose.yml` to stop managing speed-dungeon
+- 4.4 nginx routes before `GAME_SERVER_PUBLIC_URL`/asset urls resolve
+
+Host ports chosen to dodge the box-global ones already taken (3000-3002, 8082, 8084): lobby 8083,
+game servers 8085/8086, asset 8087. Uses YAML anchors (`x-server-common`, `x-infra-env`); the
+shallow-merge trap means both game servers restate their full `depends_on` rather than extending
+it — that repetition is load-bearing, not sloppiness.
+
+### 4.3 (original notes) — status: superseded by the above
 
 **Decided: speed-dungeon gets its own compose file**, and the existing box-level one stops
 managing it. Multiple compose projects coexist fine on one VPS — each gets its own network
@@ -720,6 +844,18 @@ container address.
 
 ---
 
+## Deferred — dependency and toolchain sweep
+
+Nothing has been updated in roughly 18 months. Noticed while pinning the Docker base image:
+the repo had **no** `engines` field, so the Node version was whatever each machine happened to
+have. Added `"node": ">=22"` to the root `package.json`; the Dockerfile pins the major
+(`22-alpine`) and should be kept in step with it.
+
+Worth a deliberate pass after the deploy works, not during it: node 22 → current LTS, the
+`node:22-alpine` tag → a digest if reproducible builds are wanted, express 4 → 5, and the
+jest/ts-jest devDeps still sitting in `packages/server/package.json` even though the project
+moved to vitest. Do this on its own branch with the integration suite as the safety net.
+
 ## Deferred — dynamic provisioning
 
 Once the static pool works, `GameServerFleetManager` gets a Docker implementation:
@@ -740,6 +876,29 @@ server on the VPS.
 ## Log
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
+
+- 2026-07-21 — **4.1 + 4.2 done, images build and run.** All three images (lean server, asset
+  server, frontend) build from scratch, boot, and answer. The recurring lesson this session:
+  **splitting the install by package turns every undeclared-but-hoisted dependency into a build
+  failure.** Three of them fell out — `@types/cors` (server, from frontend's dead socket.io),
+  `@gltf-transform/core` (declared on server, imported by common), and the `node:http` value-use
+  leaking through common's barrel into the client webpack bundle. None showed up locally because
+  Yarn hoists everything to the root and nobody had run a production `next build` in a long time.
+  Each fix was at the source (declare the dep where it's used; don't use a node builtin as a value
+  in client-reachable code), not a Docker workaround. The `node:http` one is the interesting one:
+  dev (turbopack) and build (webpack) genuinely differ, and only the production build path found
+  it. Also renamed the frontend package/image to `frontend` across all three layers. Next: the
+  `.env.deploy` template and running the compose stack end to end (4.3).
+
+- 2026-07-21 — **3.2 verified by Mike; least-busy selection now has automated coverage.** Four
+  cases in `game-server-selection/`: fewest-games wins, pending setups count, a stale server is
+  skipped, and `NO_LIVE_GAME_SERVERS` reaches the client as an error. The third case asserts a
+  count-based pick rather than alternation — with one game each, the next game goes back to the
+  first server, which round-robin would get wrong. Two small seams opened to make client-output
+  assertions possible: `ConnectionTopology.gameServerUrlOption` and the fixture's
+  `gameSessionStoreService` getter. Worth remembering from the pending-setup case: the state a
+  test needs to observe may only exist transiently in the real flow, and the fix is to hold the
+  flow still (pause the transport) rather than to fabricate the state or assert into a race.
 
 - 2026-07-21 — **Two build-config traps fixed while getting that test to run**, both of which had
   been costing time for a while. `packages/common/tsconfig.build.json` specified `exclude`, which

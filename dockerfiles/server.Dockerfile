@@ -1,65 +1,59 @@
-# just download production deps, we'll copy them into the next step as well as the final step
-FROM node:alpine AS deployDeps
+# Two final targets share one build:
+#   --target server        lobby + game server roles, carries no asset binaries
+#   --target asset-server  the same image plus the asset set
+# The role is chosen by the compose command, not by the image.
+
+# keep the major in step with "engines" in the root package.json
+ARG NODE_VERSION=22-alpine
+
+# production deps only, copied into the final images
+FROM node:${NODE_VERSION} AS deploy-deps
 WORKDIR /app
-RUN mkdir /app/packages
-RUN mkdir /app/packages/common
-RUN mkdir /app/packages/server
-
-COPY package.json .
-COPY packages/common/package.json ./packages/common
-COPY packages/server/package.json ./packages/server
-
+COPY package.json yarn.lock ./
+COPY packages/common/package.json ./packages/common/
+COPY packages/server/package.json ./packages/server/
+# --pure-lockfile rather than --frozen-lockfile: only two of the six workspace manifests are
+# present here, so a frozen install would object to the lockfile covering the other four
 RUN yarn install --pure-lockfile --non-interactive --production
 
-# Get dev deps because they are needed to build the app (tailwind)
-FROM node:alpine AS buildDeps
+# dev deps as well, since typescript is needed to build
+FROM node:${NODE_VERSION} AS build-deps
 WORKDIR /app
-RUN mkdir /app/packages
-RUN mkdir /app/packages/common
-RUN mkdir /app/packages/server
-
-COPY package.json .
-COPY packages/common/package.json ./packages/common
-COPY packages/server/package.json ./packages/server
-
+COPY package.json yarn.lock ./
+COPY packages/common/package.json ./packages/common/
+COPY packages/server/package.json ./packages/server/
 RUN yarn install --pure-lockfile --non-interactive
 
-# build app
-FROM node:latest as builder
-WORKDIR /
-RUN npm install -g typescript -y
-
-WORKDIR /app
-COPY --from=buildDeps /app/package.json ./package.json
-COPY --from=buildDeps /app/node_modules ./node_modules
-# COPY --from=deployDeps /app/packages/server/node_modules ./packages/server/node_modules
-
-COPY packages/common/ ./packages/common/
-COPY packages/server/assets ./packages/server/assets
-COPY packages/server/src ./packages/server/src
+FROM build-deps AS builder
+COPY tsconfig.json ./
+COPY packages/common ./packages/common
 COPY packages/server/tsconfig.json ./packages/server/
-COPY tsconfig.json .
+COPY packages/server/src ./packages/server/src
 
+# common first: the server resolves @speed-dungeon/common through the workspace symlink to its
+# dist, not to its source, so it has to exist before the server compiles
 WORKDIR /app/packages/common
-RUN rm tsconfig.tsbuildinfo
-RUN rm -rf ./dist
-RUN tsc -p tsconfig.build.json && echo compiled common directory
+RUN yarn tsc -p tsconfig.build.json
 
 WORKDIR /app/packages/server
-RUN tsc && echo compiled server directory
+RUN yarn tsc
 
-FROM node:alpine
+FROM node:${NODE_VERSION} AS server
+ENV NODE_ENV=production
 WORKDIR /app
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/packages/server/assets ./packages/server/assets
-COPY --from=builder /app/packages/server/dist ./packages/server/dist
-COPY --from=builder /app/packages/server/src/database/migrations ./packages/server/src/database/migrations
+COPY --from=deploy-deps /app/package.json ./package.json
+COPY --from=deploy-deps /app/node_modules ./node_modules
+COPY packages/common/package.json ./packages/common/
+COPY packages/server/package.json ./packages/server/
 COPY --from=builder /app/packages/common/dist ./packages/common/dist
-
-COPY --from=deployDeps /app/packages/server/package.json ./packages/server
-COPY --from=deployDeps /app/packages/common/package.json ./packages/common
-COPY --from=deployDeps /app/node_modules ./node_modules
-# COPY --from=deployDeps /app/packages/server/node_modules ./packages/server/node_modules
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
+# runMigrations resolves ./src/database/migrations against the working directory
+COPY packages/server/src/database/migrations ./packages/server/src/database/migrations
+USER node
 WORKDIR /app/packages/server
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/entrypoints/lobby.js"]
 
+FROM server AS asset-server
+COPY packages/server/assets ./assets
+ENV ASSETS_DIRECTORY=./assets
+CMD ["node", "dist/entrypoints/asset-server.js"]

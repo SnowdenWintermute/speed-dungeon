@@ -11,11 +11,13 @@ import {
   GameServer,
   GameServerName,
   GameServerRegistry,
+  GameSessionStoreService,
   GameStateUpdateType,
   IncomingConnectionGateway,
   InMemoryIdentityProviderQueryStrategy,
   invariant,
   iterateNumericEnumKeyedRecord,
+  LeastBusyGameServerSelector,
   LobbyServer,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
@@ -56,6 +58,7 @@ export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
   private _gameServers: Record<TestGameServerName, GameServer> | null = null;
   private _gameServerRegistry: GameServerRegistry | null = null;
+  private _gameSessionStoreService: GameSessionStoreService | null = null;
   private clients = new Map<string, ClientFixture>();
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
   private _gameServerPorts: {
@@ -125,6 +128,7 @@ export class IntegrationTestFixture {
       lobbyServer,
       gameServers,
       gameServerRegistry,
+      gameSessionStoreService,
       rankedLadderService,
       ladderGameRecordsService,
       identityProviderQueryStrategy,
@@ -144,6 +148,7 @@ export class IntegrationTestFixture {
     this._userGameDataPersistenceService = userGameDataPersistenceService;
 
     this._gameServerRegistry = gameServerRegistry;
+    this._gameSessionStoreService = gameSessionStoreService;
 
     this._lobbyServer = lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
@@ -192,6 +197,11 @@ export class IntegrationTestFixture {
     return this._gameServerRegistry;
   }
 
+  get gameSessionStoreService() {
+    invariant(this._gameSessionStoreService !== null, "no game session store initialized");
+    return this._gameSessionStoreService;
+  }
+
   get lobbyServerPort() {
     return this._lobbyServerPort;
   }
@@ -212,6 +222,16 @@ export class IntegrationTestFixture {
 
   setLeastBusyGameServerGetter(value: () => Promise<{ url: string; name: GameServerName }>) {
     this._leastBusyGameServerUrlGetterRef.getter = value;
+  }
+
+  /** the fixture defaults to a hardcoded getter so tests can steer placement deliberately.
+   * tests of the real selection logic opt back into it with this */
+  useRealLeastBusyGameServerSelector() {
+    const selector = new LeastBusyGameServerSelector(
+      this.gameServerRegistry,
+      this.gameSessionStoreService
+    );
+    this.setLeastBusyGameServerGetter(() => selector.select());
   }
 
   async closeAllServers() {

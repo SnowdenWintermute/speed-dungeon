@@ -1,0 +1,18 @@
+**/node_modules
+**/dist
+**/.next
+**/*.tsbuildinfo
+
+# never let a local secret into a build context or an image layer
+**/.env
+**/.env.*
+**/*.secrets
+
+# next bakes NEXT_PUBLIC_* at build time and these are all public urls, no secrets
+!packages/frontend/.env.production
+
+.git
+.github
+.claude
+**/.DS_Store
+**/yarn-error.log

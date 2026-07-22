@@ -195,6 +195,7 @@ export async function createTestServers(
     lobbyServer,
     gameServers,
     gameServerRegistry,
+    gameSessionStoreService,
     rankedLadderService,
     ladderGameRecordsService,
     identityProviderQueryStrategy,

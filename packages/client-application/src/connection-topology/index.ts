@@ -49,6 +49,7 @@ export class ConnectionTopology {
   readonly waitForReconnectionInstructions = new Deferred("waitForReconnectionInstructions");
   readonly transitionToLobbyServer = new Deferred("transitionToLobbyServer");
   private reconnecting = false;
+  private _gameServerUrlOption: string | null = null;
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -130,6 +131,9 @@ export class ConnectionTopology {
   }
   get isOffline() {
     return this._mode === ConnectionMode.Offline;
+  }
+  get gameServerUrlOption() {
+    return this._gameServerUrlOption;
   }
 
   async resetLobbyConnection() {
@@ -337,6 +341,7 @@ export class ConnectionTopology {
     }[]
   ) {
     const connectionEndpoint = this.createModeConnectionEndpoint(url, queryParams);
+    this._gameServerUrlOption = url;
     this.clientApplication.gameClientRef.setClient(
       new GameClient(
         "Game server",
@@ -353,5 +358,6 @@ export class ConnectionTopology {
       this.clientApplication.gameClientRef.get().close();
       this.clientApplication.gameClientRef.clearClient();
     }
+    this._gameServerUrlOption = null;
   }
 }
