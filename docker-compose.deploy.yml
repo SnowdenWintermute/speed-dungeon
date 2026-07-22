@@ -6,6 +6,10 @@
 #
 # The lobby needs to reach snowauth, which lives in that other compose project, so it joins an
 # external network both projects share:  docker network create speed-dungeon-shared
+#
+# format 2.4 (not 3.x): this box runs docker-compose v1, and only 2.x keeps depends_on
+# healthcheck conditions for non-swarm. 2.4 also enables the x-* extension anchors below.
+version: "2.4"
 
 x-server-common: &server-common
   image: snowd3n/speed-dungeon:server
@@ -99,7 +103,8 @@ services:
       GAME_SERVER_PUBLIC_URL: wss://roguelikeracing.com/game-server-1
       ASSET_SERVER_URL: http://speed-dungeon-asset-server:8100/api
     ports:
-      - 8085:8090
+      # 8085 is taken by battle-school-node-server on the box
+      - 8088:8090
     depends_on:
       speed-dungeon-postgres:
         condition: service_healthy

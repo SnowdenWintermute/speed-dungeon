@@ -759,10 +759,35 @@ What the build surfaced, none of it in the audit:
 `:server` (lean) + `:asset-server` + the client image. The box-level compose still expects the old
 combined `:server`, so the cutover and the box-level compose edit (4.3) must land together.
 
-### 4.3 Replace the compose files — status: WRITTEN, UNTESTED (2026-07-21)
+### 4.3 Replace the compose files — status: DRY-RUN PASSED (2026-07-22)
 
 `docker-compose.deploy.yml` rewritten as speed-dungeon's own project: lobby, two game servers,
-asset server, postgres, valkey. Not yet run end to end. Still needs:
+asset server, postgres, valkey. **Brought up end to end locally and the whole internal wiring
+converged clean.** What the dry run proved:
+
+- **Ordering/healthchecks work.** postgres + valkey healthy → asset-server healthy (only after the
+  gltf analysis finishes, which is what its `/api/asset-manifest` healthcheck gates on) → game
+  servers and lobby start. No crash loops, no restarts.
+- **Migrations ran on the lobby only** (all four UP, "Migrations completed successfully"); game
+  servers did not migrate.
+- **Cross-container asset facts fetch works.** Both game servers fetched
+  `http://speed-dungeon-asset-server:8100/api/gameplay-asset-facts` on attempt 1 of the backoff and
+  came up healthy (WS port only opens after `createServer`, which needs that fetch).
+- **Both game servers registered into the shared Valkey registry** with their public urls
+  (`Lindblum → wss://.../game-server-1`, `Alexandria → .../game-server-2`), and the **heartbeat
+  refreshes `lastSeenAt`** every `GAME_SERVER_HEARTBEAT_MS` (10s) — checked over a full interval.
+
+`env_file` is `.env.deploy` (now gitignored via an explicit rule — the old `**/*.env` pattern did
+NOT match `.env.deploy`; that was a latent secret-leak trap). Committed `.env.deploy.example`
+template alongside. `docker network create speed-dungeon-shared` is required before `up` (external
+network for snowauth); created locally for the run.
+
+**Not exercised (needs 4.4 + a real client):** the public-url handoff path. The registered urls are
+`wss://roguelikeracing.com/...` placeholders that don't resolve until nginx exists, and no client
+was driven, so least-busy *selection* is still only covered by the integration test, not a live
+handoff. Also **no frontend service in this compose yet** — the dry run was backend wiring only.
+
+Still needs before real deploy:
 
 - a `.env.deploy` file (gitignored) with the secrets and public urls
 - `docker network create speed-dungeon-shared` on the VPS, joined by the lobby, for snowauth
@@ -822,25 +847,52 @@ New compose: lobby, `game-server-1`, `game-server-2`, postgres, valkey, proxy. E
 server gets its own name/url/port env. Add healthchecks and `depends_on` so game servers do
 not register before postgres/valkey are up.
 
-### 4.4 Reverse proxy — status: TODO
+### 4.4 Reverse proxy — status: WRITTEN, UNTESTED (2026-07-22)
 
-`packages/server/nginx.conf` is this project's live production config (roguelikeracing.com is
-our domain), and it mostly works: `/` to the client on 3002, `/api` to the server on 8083,
-`/auth` to snowauth on 8084, TLS via certbot. Two problems for this work:
+`packages/server/nginx.conf` rewritten for the split. Route map (host-published ports):
 
-- the `/socket.io/` location is a leftover from the older socket.io-based server; this
-  project uses raw ws, so the WS upgrade block is on a path nothing connects to
-- there is no route to any game server — only the combined 8083 process is proxied
+| path | backend | port | kind | client env |
+|------|---------|------|------|-----------|
+| `/` | frontend (next) | 3002 | HTTP | — |
+| `/lobby` | lobby | 8083 | WS | `NEXT_PUBLIC_WS_SERVER_URL` |
+| `/api` | lobby | 8083 | HTTP | `NEXT_PUBLIC_GAME_SERVER_URL` |
+| `/game-server-1` | game (Lindblum) | 8085 | WS | `GAME_SERVER_PUBLIC_URL` (server-side) |
+| `/game-server-2` | game (Alexandria) | 8086 | WS | `GAME_SERVER_PUBLIC_URL` (server-side) |
+| `/asset` | asset | 8087 | HTTP | `NEXT_PUBLIC_ASSET_SERVER_URL` |
+| `/auth` | snowauth | 8084 | HTTP | `NEXT_PUBLIC_AUTH_SERVER_URL` |
 
-Needs a working WS upgrade route for the lobby, a route per game server, a route for the
-asset container, and TLS so the client gets `wss://`.
+Design decisions, both made because the client urls are **baked into the frontend image at build
+time**:
 
-The asset route is the one worth tuning: it is plain static bytes, so give it cache headers
-and let nginx do the work. `AssetServer.serveAsset` currently reads through the store and
-sends a buffer with no caching headers at all — fine for dev, wasteful for a growing asset
-set over the public internet.
-The url each game server advertises in the registry must be its public proxy url, not its
-container address.
+- **Lobby WS gets its own path `/lobby`** rather than sharing `/` with the frontend. Splitting
+  WS-upgrade-vs-GET at the same path needs a `map $http_upgrade`, which must live in the `http`
+  context — but `nginx.conf` here is a `server {}` block included into it, so a `map` can't go in
+  this file. A dedicated path sidesteps that entirely (and avoids the fragile `if` alternative).
+  Changed `NEXT_PUBLIC_WS_SERVER_URL` from the bare host to `.../lobby`. `new WebSocket()` accepts
+  an `https://` url and normalizes it to `wss://`, so no scheme handling needed.
+- **Asset server gets a dedicated `/asset` prefix**, rewritten to the container's internal `/api`
+  (`proxy_pass http://localhost:8087/api/`). The rewrite is a transparent whole-prefix swap, so
+  whatever assetId convention already worked under `/api` is preserved. `/asset/assets/` is a
+  more-specific location than `/asset/` so it wins the match for asset bytes; the manifest/facts
+  fall through to `/asset/`. Changed `NEXT_PUBLIC_ASSET_SERVER_URL` to `.../asset` and the (dead)
+  `NEXT_PUBLIC_ASSET_BASE_PATH_3D` to `.../asset/assets/` for consistency.
+
+`/socket.io/` (dead socket.io leftover) removed. Each WS location carries the upgrade headers and a
+3600s read/send timeout so idle sockets are not dropped at nginx's default 60s. Added `Host` and
+`X-Forwarded-Proto` to every location — neither is read by the app today (verified by grep), kept
+as standard hygiene for `/auth` and future backends.
+
+**Asset caching — deliberately NOT added**, against the original plan's "give it cache headers."
+Asset urls are path-keyed, not content-hashed, and the client already caches in IndexedDB keyed by
+the manifest version. A long browser `max-age` would let a browser serve stale bytes for an
+unchanged url after a redeploy that changed that asset, defeating the manifest-hash cache-bust. The
+right move is `Cache-Control: immutable` **once asset urls carry a content hash** — noted inline in
+the conf. Left as a follow-up, not a wasteful omission.
+
+**Untested — needs the real box.** No local nginx run (the routes point at host-published ports
+that only exist on the VPS with the stack up, and TLS is certbot-managed for the real domain).
+**The frontend image must be rebuilt** for the three changed `NEXT_PUBLIC_*` values to take effect —
+they are baked at build time, so the image built on 2026-07-21 still has the old urls.
 
 ---
 
@@ -876,6 +928,51 @@ server on the VPS.
 ## Log
 
 Append dated entries as steps land — what changed, what broke, what surprised us.
+
+- 2026-07-22 — **Deploy shape changed: folded into the single box compose, dropped the
+  separate-project + OS-upgrade plans.** Briefly considered a full VPS upgrade (Ubuntu 18 → 24,
+  compose v1 → v2) via fresh-box migration, then dropped it — "just get it working as is." The
+  real box compose (`vps.docker.yml`, which Mike copied in — the repo's
+  `packages/server/deploy.docker-compose.yml` was **stale/not live**) revealed more services than
+  the audit knew: `twistgame` (3008) and **battle-school/lucella** (3005 client, **8085 server**).
+  8085 collided with the game-server-1 port I'd picked, so game-server-1 moved to **8088**
+  (compose + nginx both updated).
+
+  **What we actually did:** folded the split roles (frontend, lobby, 2 game servers, asset) into
+  `vps.docker.yml`, replacing the old combined `speed-dungeon-client`/`-server`, reusing the box's
+  `.speed-dungeon-env`. Because it's one compose project, snowauth is reachable at
+  `http://snowauth-server:8081` with **no shared network** (4.3b is moot for this box). Bumped the
+  file to format `2.4` for health-gated `depends_on` under v1. Per Mike: **destroy speed-dungeon's
+  pg data, keep snowauth accounts** — so the SD pg volume is wiped on deploy, no data migration.
+  Final box host ports (all unique, verified): 3000 personal, 3002 SD-frontend, 3005 bs-client,
+  3008 twistgame, 8083 SD-lobby, 8084 snowauth, 8085 bs-server, 8086 SD-game-2, 8087 SD-asset,
+  8088 SD-game-1.
+
+  **Superseded (kept, not deleted):** `docker-compose.deploy.yml` (separate-project variant, still
+  valid + dry-run-verified if we ever want it), `.env.deploy`/`.env.deploy.example` (the example
+  still documents the env vars `.speed-dungeon-env` must now carry), and the earlier edits to the
+  stale `packages/server/deploy.docker-compose.yml`.
+
+  **Deploy steps on the box (docker-compose v1):**
+  1. `docker push snowd3n/speed-dungeon:{server,asset-server,frontend}` (only built locally so far).
+  2. Update `.speed-dungeon-env` on the box to include `TOKENS_SECRET` and `INTERNAL_SERVICES_SECRET`
+     (new images require them) plus the existing shared DB/valkey/FRONT_END_URL/NODE_ENV vars.
+  3. Replace the box's nginx site with `packages/server/nginx.conf`; `nginx -t && systemctl reload nginx`.
+  4. Wipe the SD pg volume for a fresh DB: `docker-compose down && docker volume rm <project>_speed_dungeon_pg_volume`.
+  5. `docker-compose pull && docker-compose up -d` (uses `vps.docker.yml`).
+  6. Verify: migrations ran on lobby, both game servers registered + heartbeat, a real client can
+     log in (snowauth), create a game, and get handed to `wss://roguelikeracing.com/game-server-N`.
+
+- 2026-07-22 — **4.4 nginx written.** Dedicated paths for the lobby WS (`/lobby`) and asset server
+  (`/asset`) rather than sharing `/` and `/api`. The forcing reason for `/lobby` was structural,
+  not aesthetic: the WS-vs-GET split at `/` needs a `map`, which can't live in a `server {}` block,
+  and this conf IS a server block. Both choices changed baked `NEXT_PUBLIC_*` urls, so **the
+  frontend image needs a rebuild** before deploy. Chose not to add asset cache headers despite the
+  plan asking for them — path-keyed urls + the client's version-keyed IndexedDB cache make a long
+  `max-age` a stale-asset trap across redeploys; the correct fix is content-hashed urls +
+  `immutable`, deferred. Nothing here could be tested locally (host-published ports + certbot TLS
+  live only on the VPS). Phase 4 code is now all written; what remains is box-side: the compose
+  cutover, the shared network on the VPS, a frontend rebuild+push, and a real end-to-end run.
 
 - 2026-07-21 — **4.1 + 4.2 done, images build and run.** All three images (lean server, asset
   server, frontend) build from scratch, boot, and answer. The recurring lesson this session:
