@@ -24,6 +24,15 @@ export class ClientAppAssetService implements AssetService {
   // track completion of full update
   private updateCompletionResolver?: () => void;
   private updateCompletionPromise?: Promise<void>;
+  // resolves once initialize() has fetched the manifest and populated the prefetch queue, so
+  // getAsset can safely dispatch; rejects if initialize() fails so callers fail fast
+  private isReady = false;
+  private readyResolve: () => void = () => {};
+  private readyReject: (error: Error) => void = () => {};
+  private readonly readyPromise = new Promise<void>((resolve, reject) => {
+    this.readyResolve = resolve;
+    this.readyReject = reject;
+  });
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
@@ -31,7 +40,11 @@ export class ClientAppAssetService implements AssetService {
     private readonly assetIdsByDefaultPrefetchPriority: Map<AssetId, AssetFetchPriority>,
     private readonly isOnline: () => boolean,
     private readonly onFetchErrorCallback: (error: Error) => void
-  ) {}
+  ) {
+    // no-op so a failed-init rejection with no getAsset awaiting doesn't surface as an
+    // unhandled rejection (which pops Next.js's error overlay); real awaiters still see it
+    this.readyPromise.catch(() => {});
+  }
 
   get assetManifest() {
     return cloneDeep(this._assetManifest);
@@ -74,23 +87,30 @@ export class ClientAppAssetService implements AssetService {
 
       const prefetchQueue = await this.scheduleAssetUpdates();
       this.progressTracker.initialize(this._assetManifest, prefetchQueue);
+      this.isReady = true;
+      this.readyResolve();
       this.startAssetUpdatesPrefetch();
 
       return cloneDeep(upToDateVersionData);
     } catch (error) {
+      const asError =
+        error instanceof Error
+          ? error
+          : new Error("Fetching asset manifest failed with unknown error type");
       console.info("error fetching asset manifest:", error);
       this.progressTracker.fetchFailed = true;
-      if (error instanceof Error) {
-        this.onFetchErrorCallback(error);
-      } else {
-        this.onFetchErrorCallback(
-          new Error("Fetching asset manifest failed with unknown error type")
-        );
-      }
+      this.onFetchErrorCallback(asError);
+      this.readyReject(asError);
     }
   }
 
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
+    // only yield when the service isn't set up yet (the reconnect race); once ready, dispatch
+    // synchronously so callers observing fetch start in the same tick still work
+    if (!this.isReady) {
+      await this.readyPromise;
+    }
+
     const currentFetchOption = this.activeFetches.get(assetId);
     const isBeingFetched = currentFetchOption !== undefined;
 
