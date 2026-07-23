@@ -14,18 +14,19 @@ export const AssetCacheControls = observer(({ assetService }: Props) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <ButtonBasic onClick={() => setConfirmingClear(true)}>Clear cache & refetch</ButtonBasic>
+      <ButtonBasic onClick={() => assetService.refetch()}>Refetch</ButtonBasic>
+      <ButtonBasic onClick={() => setConfirmingClear(true)}>Clear cache</ButtonBasic>
       {confirmingClear && (
         <ConfirmationModal
           title="Clear cached assets?"
           onCancel={() => setConfirmingClear(false)}
           onConfirm={() => {
             setConfirmingClear(false);
-            assetService.initialize({ clearCache: true });
+            assetService.clearCache();
           }}
         >
           <p className="text-red-400 mb-1">
-            This deletes every cached asset and re-downloads them from the server.
+            This deletes every cached asset and stops asset loading until you press Refetch.
           </p>
           <p className="mb-2">Really clear the cache?</p>
         </ConfirmationModal>

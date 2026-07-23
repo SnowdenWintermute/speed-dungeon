@@ -29,10 +29,10 @@ export class ClientAppAssetService implements AssetService {
   private isReady = false;
   private readyResolve: () => void = () => {};
   private readyReject: (error: Error) => void = () => {};
-  private readonly readyPromise = new Promise<void>((resolve, reject) => {
-    this.readyResolve = resolve;
-    this.readyReject = reject;
-  });
+  private readyPromise = this.createReadyPromise();
+  // incremented when clearing the cache. any in-flight fetch continuation checks whether it belongs
+  // to a stale generation before touching the cache, progress tracker, or prefetch queue.
+  private generation = 0;
 
   constructor(
     private readonly remoteStore: RemoteAssetStore,
@@ -40,10 +40,17 @@ export class ClientAppAssetService implements AssetService {
     private readonly assetIdsByDefaultPrefetchPriority: Map<AssetId, AssetFetchPriority>,
     private readonly isOnline: () => boolean,
     private readonly onFetchErrorCallback: (error: Error) => void
-  ) {
+  ) {}
+
+  private createReadyPromise() {
+    const promise = new Promise<void>((resolve, reject) => {
+      this.readyResolve = resolve;
+      this.readyReject = reject;
+    });
     // no-op so a failed-init rejection with no getAsset awaiting doesn't surface as an
     // unhandled rejection (which pops Next.js's error overlay); real awaiters still see it
-    this.readyPromise.catch(() => {});
+    promise.catch(() => {});
+    return promise;
   }
 
   get assetManifest() {
@@ -57,6 +64,33 @@ export class ClientAppAssetService implements AssetService {
   clearManifest() {
     this._assetManifest = null;
     this.progressTracker.reset();
+  }
+
+  // wipes the cache and stops all in-flight/queued work, leaving the service NOT ready: any
+  // getAsset after this blocks on readyPromise until refetch() (or initialize) re-arms it.
+  async clearCache() {
+    // bump first so any fetch that settles after this point sees itself as stale and no-ops
+    this.generation += 1;
+    this.isReady = false;
+    this.readyPromise = this.createReadyPromise();
+
+    for (const [_, managedFetch] of this.activeFetches) {
+      managedFetch.abort();
+    }
+    this.activeFetches.clear();
+    this.prefetchQueue.clear();
+    this.progressTracker.reset();
+
+    await this.cache.clear();
+  }
+
+  async refetch() {
+    return this.initialize();
+  }
+
+  async clearCacheAndRefetch() {
+    await this.clearCache();
+    await this.refetch();
   }
 
   dispose() {
@@ -140,6 +174,7 @@ export class ClientAppAssetService implements AssetService {
   }
 
   private async startManagedFetch(assetId: AssetId, priority: AssetFetchPriority) {
+    const fetchGeneration = this.generation;
     const tooManyConcurrentFetches = this.activeFetches.size >= TARGET_CONCURRENT_ASSET_FETCH_COUNT;
     if (tooManyConcurrentFetches) {
       this.rescheduleLowPriorityFetches();
@@ -154,6 +189,11 @@ export class ClientAppAssetService implements AssetService {
 
     const managedFetchPromise = promise
       .then(async (bytes) => {
+        const becameStale = fetchGeneration !== this.generation;
+        if (becameStale) {
+          return bytes;
+        }
+
         const versionedAsset = new VersionedAsset(bytes, versionData);
 
         await this.cache.cacheAsset(assetId, versionedAsset);
@@ -167,6 +207,11 @@ export class ClientAppAssetService implements AssetService {
         throw error;
       })
       .finally(() => {
+        const becameStale = fetchGeneration !== this.generation;
+        if (becameStale) {
+          return;
+        }
+
         this.activeFetches.delete(assetId);
         const updatesCompleted = this.activeFetches.size === 0 && this.prefetchQueue.isEmpty();
 

@@ -53,6 +53,13 @@ export class ScheduledFetchQueue {
     return undefined;
   }
 
+  clear() {
+    for (const [priority] of iterateNumericEnumKeyedRecord(this.idsByPriority)) {
+      this.getIdsAtPriority(priority).clear();
+    }
+    this.prioritiesById.clear();
+  }
+
   hasEntries() {
     for (const [priority, assetIds] of iterateNumericEnumKeyedRecord(this.idsByPriority)) {
       if (assetIds.size > 0) {

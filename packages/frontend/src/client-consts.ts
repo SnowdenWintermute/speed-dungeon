@@ -5,7 +5,7 @@ export const CHARACTER_SLOT_SPACING = 1;
 // dev-only: wipe and re-fetch the asset cache on each load. Flip on when iterating on assets.
 // Never cleared in production — a refresh would otherwise race asset re-download against the
 // reconnect path's model loading, leaving an in-progress game with no 3d models.
-export const SHOULD_CLEAR_ASSET_CACHE_IN_DEV = true;
+export const SHOULD_CLEAR_ASSET_CACHE_IN_DEV = false;
 
 export const WEBSITE_NAME = "Speed Dungeon";
 export const BUTTON_HEIGHT_SMALL = 1.875;
