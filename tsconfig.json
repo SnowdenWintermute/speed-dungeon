@@ -15,5 +15,9 @@
     "noUncheckedIndexedAccess": true,
     // "noImplicitOverride": true, // @TODO - turn this on and fix errors
     "useDefineForClassFields": true // mobx requires
-  }
+  },
+  // base config only: the packages extend this for compilerOptions but each sets its own
+  // include, so compiling this config directly must pick up nothing — otherwise a root-level
+  // tsc globs vitest.config.ts and emits vitest.config.js/.d.ts/.map next to it
+  "include": []
 }

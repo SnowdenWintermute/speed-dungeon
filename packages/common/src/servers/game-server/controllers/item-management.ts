@@ -29,6 +29,10 @@ export class ItemManagementController {
     const { characterId, itemId } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
+    if (party.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
+    }
+
     const itemDroppedIdResult = character.combatantProperties.inventory.dropItem(party, itemId);
 
     if (itemDroppedIdResult instanceof Error) {
@@ -47,6 +51,10 @@ export class ItemManagementController {
   dropEquippedItemHandler(session: UserSession, data: CharacterAndSlot) {
     const { characterId, slot } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
+
+    if (party.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
+    }
 
     const { inventory } = character.combatantProperties;
     const itemDroppedIdResult = inventory.dropEquippedItem(party, slot);
@@ -135,6 +143,10 @@ export class ItemManagementController {
     const { characterId, slot } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
+    if (party.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
+    }
+
     character.combatantProperties.equipment.unequipSlots([slot]);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
@@ -203,6 +215,10 @@ export class ItemManagementController {
     const { characterId, itemId, equipToAlternateSlot } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
+    if (party.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
+    }
+
     const equipItemResult = character.combatantProperties.equipment.equipItem(
       itemId,
       equipToAlternateSlot
@@ -231,6 +247,10 @@ export class ItemManagementController {
     const { characterId, sourceSlot, destinationSlot } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
+    if (party.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
+    }
+
     const moveResult = character.combatantProperties.equipment.moveEquippedItemToSlot(
       sourceSlot,
       destinationSlot
@@ -258,6 +278,10 @@ export class ItemManagementController {
   ) {
     const { characterId, itemId, equipToAlternateSlot } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
+
+    if (party.isInCombat()) {
+      throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
+    }
 
     const equipItemResult = character.combatantProperties.equipment.equipItemFromGround(
       itemId,

@@ -1,4 +1,5 @@
 import { GameId, GameName } from "../aliases.js";
+
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { GameListEntry } from "../packets/game-state-updates.js";
