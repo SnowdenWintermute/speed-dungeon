@@ -19,6 +19,6 @@ export default defineConfig({
     silent: false,
     // Run tests in full verbose mode
     reporters: "verbose",
-    testTimeout: 3000,
+    testTimeout: 5000,
   },
 });

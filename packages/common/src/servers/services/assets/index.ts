@@ -66,10 +66,10 @@ export class ClientAppAssetService implements AssetService {
     this.progressTracker.reset();
   }
 
-  // wipes the cache and stops all in-flight/queued work, leaving the service NOT ready: any
-  // getAsset after this blocks on readyPromise until refetch() (or initialize) re-arms it.
-  async clearCache() {
-    // bump first so any fetch that settles after this point sees itself as stale and no-ops
+  // aborts in-flight fetches, drops the queue, and resets progress + ready state so a fresh
+  // initialize can start clean. bumps the generation first so any fetch that settles afterward
+  // sees itself as stale and no-ops instead of touching the cache, tracker, or queue.
+  private stopInFlightWork() {
     this.generation += 1;
     this.isReady = false;
     this.readyPromise = this.createReadyPromise();
@@ -80,11 +80,17 @@ export class ClientAppAssetService implements AssetService {
     this.activeFetches.clear();
     this.prefetchQueue.clear();
     this.progressTracker.reset();
+  }
 
+  // wipes the cache and stops all in-flight/queued work, leaving the service NOT ready: any
+  // getAsset after this blocks on readyPromise until refetch() (or initialize) re-arms it.
+  async clearCache() {
+    this.stopInFlightWork();
     await this.cache.clear();
   }
 
   async refetch() {
+    this.stopInFlightWork();
     return this.initialize();
   }
 
