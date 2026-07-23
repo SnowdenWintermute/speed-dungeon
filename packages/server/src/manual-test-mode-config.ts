@@ -6,7 +6,9 @@ import {
   GameServer,
   GameServerExternalServices,
   GameServerName,
+  GameServerRegistry,
   GameServerSessionClaimToken,
+  GameplayAssetFacts,
   GuestSessionReconnectionToken,
   HIGH_LEVEL_CHARARCTER_FIXTURES_WITH_PETS,
   IdGeneratorSequential,
@@ -24,17 +26,19 @@ import {
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
-import { GAME_SERVER_NAME } from "./main.js";
+import { env } from "./validate-env.js";
 
-export const MANUAL_TEST_MODE = false;
+export const MANUAL_TEST_MODE = env.MANUAL_TEST_MODE;
 
 const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
 export function setGameServerNodeManualTestProperties(
   name: GameServerName,
+  url: string,
   gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
   guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
   incomingConnectionGateway: IncomingConnectionGateway,
   externalServices: GameServerExternalServices,
+  gameplayAssetFacts: GameplayAssetFacts,
   authSessionIdParser: AuthSessionIdParser
 ) {
   const rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(RNG_RANGE.MAX, {
@@ -46,10 +50,12 @@ export function setGameServerNodeManualTestProperties(
   });
   const server = new GameServer(
     name,
+    url,
     incomingConnectionGateway,
     externalServices,
     gameServerSessionClaimTokenCodec,
     guestReconnectionTokenCodec,
+    gameplayAssetFacts,
     ScriptedDungeonGenerationPolicy,
     rngPolicy,
     new TestResourceChangePropertiesStrategy(),
@@ -81,6 +87,7 @@ export function setLobbyServerNodeManualTestProperties(
   externalServices: LobbyExternalServices,
   gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
   guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+  gameServerRegistry: GameServerRegistry,
   leastBusyGameServerUrlGetter: () => Promise<{ name: GameServerName; url: string }>,
   cookieHeaderAuthSessionIdParser: AuthSessionIdParser
 ) {
@@ -89,7 +96,7 @@ export function setLobbyServerNodeManualTestProperties(
     externalServices,
     gameServerSessionClaimTokenCodec,
     guestReconnectionTokenCodec,
-    { [GAME_SERVER_NAME]: "http://localhost:8090" },
+    gameServerRegistry,
     leastBusyGameServerUrlGetter,
     ScriptedCharacterCreationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),

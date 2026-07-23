@@ -42,4 +42,21 @@ export class SodiumHelpers {
     const secret = sodium.to_base64(keyBytes, sodium.base64_variants.ORIGINAL);
     return secret;
   }
+
+  static async assertUsableSecret(secret: string) {
+    await sodium.ready;
+
+    let keyBytes: Uint8Array;
+    try {
+      keyBytes = sodium.from_base64(secret, sodium.base64_variants.ORIGINAL);
+    } catch {
+      throw new Error(ERROR_MESSAGES.SERVERS.MALFORMED_SECRET);
+    }
+
+    if (keyBytes.length !== sodium.crypto_secretbox_KEYBYTES) {
+      throw new Error(
+        `${ERROR_MESSAGES.SERVERS.MALFORMED_SECRET} expected ${sodium.crypto_secretbox_KEYBYTES} bytes, got ${keyBytes.length}`
+      );
+    }
+  }
 }

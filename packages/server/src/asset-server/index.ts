@@ -1,38 +1,45 @@
-import { AssetId, invariant, MapUtils } from "@speed-dungeon/common";
-import { AssetManifest } from "@speed-dungeon/common";
+import { AssetId, AssetServer, invariant, MapUtils } from "@speed-dungeon/common";
 import { Express, Router, Request, Response, NextFunction } from "express";
 import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
 import { appRoute } from "../app-route.js";
 
-export class AssetServer {
-  constructor(public readonly localFileSystemStore: NodeFileSystemAssetStore) {}
+export class AssetServerRouter {
+  constructor(
+    private readonly assetServer: AssetServer,
+    private readonly localFileSystemStore: NodeFileSystemAssetStore
+  ) {}
 
   attachRouter(expressApp: Express, options: { isProduction: boolean }) {
     const router = Router();
 
     const { isProduction } = options;
     router.get(appRoute({ isProduction }, "/asset-manifest"), this.serveManifest.bind(this));
+    router.get(
+      appRoute({ isProduction }, "/gameplay-asset-facts"),
+      this.serveGameplayAssetFacts.bind(this)
+    );
     router.get(appRoute({ isProduction }, "/assets/*"), this.serveAsset.bind(this));
 
     expressApp.use(router);
   }
 
-  async createManifest() {
-    const assetIds = await this.localFileSystemStore.getAssetIdsCached();
-
-    const manifest: AssetManifest = new Map();
-
-    for (const id of assetIds) {
-      const asset = await this.localFileSystemStore.getAsset(id);
-      manifest.set(id, asset.versionData);
+  private async serveManifest(req: Request, res: Response, next: NextFunction) {
+    try {
+      const manifest = await this.assetServer.getAssetManifest();
+      res.json(MapUtils.serialize(manifest));
+    } catch (err) {
+      console.error("error serving asset manifest:", err);
+      next(err);
     }
-
-    return manifest;
   }
 
-  private async serveManifest(req: Request, res: Response, next: NextFunction) {
-    const manifest = await this.createManifest();
-    res.json(MapUtils.serialize(manifest));
+  private async serveGameplayAssetFacts(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(await this.assetServer.getGameplayAssetFacts());
+    } catch (err) {
+      console.error("error serving gameplay asset facts:", err);
+      next(err);
+    }
   }
 
   private async serveAsset(req: Request, res: Response, next: NextFunction) {

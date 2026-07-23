@@ -89,7 +89,7 @@ export class ClientApplication {
   public localUntrustedAuthSessionIdQueryParam = "";
 
   constructor(
-    assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
+    readonly assetCache: AssetCache, // determined by the environment (browser, test, electron, capacitor)
     remoteAssetStore: RemoteAssetStore, // determined by the environment (real HTTP store, test fake, etc.)
     public lobbyServerUrl: string,
     replayManagerTickScheduler: TickScheduler,

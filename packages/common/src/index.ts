@@ -44,6 +44,7 @@ export * from "./monsters/monster-reward-profiles.js";
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
 export * from "./utils/rand-between.js";
+export * from "./utils/retry-with-exponential-backoff.js";
 export * from "./utils/shape-utils.js";
 export * from "./utils/interpolation-curves.js";
 
@@ -82,7 +83,7 @@ export * from "./servers/lobby-server/default-names/game.js";
 export * from "./servers/lobby-server/game-handoff/connection-instructions.js";
 export * from "./servers/lobby-server/default-names/parties.js";
 export * from "./servers/services/profiles.js";
-export * from "./servers/services/assets/game-server-node-asset-service.js";
+export * from "./servers/services/assets/local-store-asset-service.js";
 export * from "./servers/services/user-game-data-persistence/index.js";
 export * from "./servers/services/user-game-data-persistence/saved-character-persistence-strategy.js";
 export * from "./servers/services/user-game-data-persistence/serialized-player-character.js";
@@ -234,11 +235,17 @@ export * from "./servers/query-params.js";
 
 export * from "./cryptography/index.js";
 
+export * from "./servers/asset-server/index.js";
+export * from "./servers/services/assets/gameplay-asset-facts.js";
+export * from "./servers/services/assets/http-gameplay-asset-facts-source.js";
 export * from "./servers/services/assets/index.js";
 export * from "./servers/services/assets/stores/index.js";
 export * from "./servers/services/assets/stores/indexed-db.js";
 export * from "./servers/services/assets/stores/remote-server.js";
 export * from "./servers/services/assets/versioned-asset.js";
+export * from "./servers/services/game-server-registry/index.js";
+export * from "./servers/services/game-server-registry/game-server-status.js";
+export * from "./servers/services/game-server-registry/in-memory-game-server-registry.js";
 export * from "./servers/services/game-session-store/index.js";
 export * from "./servers/services/game-session-store/active-game-status.js";
 export * from "./servers/services/game-session-store/pending-game-setup.js";
@@ -252,6 +259,7 @@ export * from "./servers/services/user-game-data-persistence/in-memory-user-game
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";
+export * from "./servers/lobby-server/game-handoff/least-busy-game-server-selector.js";
 export * from "./servers/game-server/reconnection/index.js";
 
 export * from "./servers/game-server/index.js";
@@ -290,7 +298,7 @@ export * from "./game-modes/ladder-records/ladder-records-service.js";
 export * from "./errors/fetch-aborted.js";
 export * from "./combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
-export * from "./servers/game-server/asset-analyzer/index.js";
+export * from "./servers/asset-server/asset-analyzer/index.js";
 export * from "./test-fixtures/test-resource-change-properties-strategy.js";
 export * from "./combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";
 export * from "./monsters/scaling-sizes.js";

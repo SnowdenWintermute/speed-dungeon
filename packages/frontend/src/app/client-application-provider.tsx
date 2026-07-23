@@ -3,6 +3,7 @@ import { ClientApplication } from "@/client-application";
 import { useEffect, useRef, useState } from "react";
 import { createClientApplication } from "./create-client-application";
 import { ClientApplicationContext } from "@/hooks/create-client-application-context";
+import { SHOULD_CLEAR_ASSET_CACHE_IN_DEV } from "@/client-consts";
 
 export function ClientApplicationProvider({ children }: { children: React.ReactNode }) {
   const clientApplicationRef = useRef<ClientApplication | null>(null);
@@ -14,7 +15,10 @@ export function ClientApplicationProvider({ children }: { children: React.ReactN
     clientApplication.makeObservable();
 
     clientApplication.assetService.initialize({
-      clearCache: true,
+      clearCache:
+        process.env.NODE_ENV === "production"
+          ? process.env.NEXT_PUBLIC_SHOULD_CLEAR_CACHE_IN_PRODUCTION === "true"
+          : SHOULD_CLEAR_ASSET_CACHE_IN_DEV,
     });
 
     clientApplication.topologyManager.connectWithPrefferedMode();

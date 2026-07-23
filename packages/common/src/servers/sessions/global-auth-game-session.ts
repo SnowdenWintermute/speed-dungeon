@@ -1,7 +1,6 @@
 import { GameId, GameServerName, PartyName, Username } from "../../aliases.js";
 import { GuestSessionReconnectionToken } from "../game-server/reconnection/guest-session-reconnection-token.js";
 import { GameServerSessionClaimToken } from "../lobby-server/game-handoff/session-claim-token.js";
-import { LobbyReconnectionProtocol } from "../lobby-server/reconnection/index.js";
 import { Serializable, SerializedOf } from "../../serialization/index.js";
 import { TaggedUserId } from "./user-ids.js";
 import { UserSession } from "./user-session.js";
@@ -53,8 +52,12 @@ export class GlobalGameSession implements Serializable {
     this._gameSessionData.guestUserReconnectionTokenOption = value;
   }
 
-  createClaimToken(lobbyReconnectionProtocol: LobbyReconnectionProtocol) {
-    return this._gameSessionData.toGameServerSessionClaimToken(lobbyReconnectionProtocol);
+  get gameServerName() {
+    return this._gameSessionData.gameServerName;
+  }
+
+  createClaimToken(gameServerUrl: string) {
+    return this._gameSessionData.toGameServerSessionClaimToken(gameServerUrl);
   }
 }
 
@@ -126,13 +129,13 @@ export class GameServerSessionData implements Serializable {
     return this._partyName;
   }
 
-  toGameServerSessionClaimToken(lobbyReconnectionProtocol: LobbyReconnectionProtocol) {
+  toGameServerSessionClaimToken(gameServerUrl: string) {
     return new GameServerSessionClaimToken(
       this._gameId,
       this._partyName,
       this.username,
       this.taggedUserId,
-      lobbyReconnectionProtocol.getGameServerUrlFromName(this.gameServerName),
+      gameServerUrl,
       this.guestUserReconnectionTokenOption || undefined
     );
   }

@@ -70,6 +70,10 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
+  dispatchWithoutAwaitingReply(intent: ClientIntent) {
+    this.clientSingleton.get().dispatchIntent(intent);
+  }
+
   async dispatchAndAwaitReply(intent: ClientIntent) {
     const intentId = this.clientSingleton.get().dispatchIntent(intent);
     await this.clientSingleton.get().waitForServerReply(intentId);

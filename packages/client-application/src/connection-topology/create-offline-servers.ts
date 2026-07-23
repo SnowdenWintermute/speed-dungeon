@@ -1,5 +1,9 @@
 import {
-  AssetService,
+  AssetCache,
+  AssetServer,
+  GameServerRegistry,
+  GameServerStatus,
+  InMemoryGameServerRegistry,
   CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
@@ -50,7 +54,11 @@ export const LOCAL_OFFLINE_GAME_SERVER_PORT = 8090;
 export const LOCAL_OFFLINE_GAME_SERVER_NAME = "Local Offline Game Server" as GameServerName;
 export const LOCAL_OFFLINE_GAME_SERVER_URL = localServerUrl(LOCAL_OFFLINE_GAME_SERVER_PORT);
 
-export async function createOfflineLocalServers(assetService: AssetService) {
+export async function createOfflineLocalServers(assetCache: AssetCache) {
+  const assetServer = new AssetServer(assetCache);
+  await assetServer.initialize();
+  const { facts } = await assetServer.getGameplayAssetFacts();
+
   const lobbyConnectionEndpointServer = new InMemoryConnectionEndpointServer();
   InMemoryConnectionEndpointServerRegistry.singleton.registerServer(
     LOCAL_OFFLINE_LOBBY_SERVER_URL,
@@ -62,6 +70,10 @@ export async function createOfflineLocalServers(assetService: AssetService) {
 
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const globalGameSessionStore = new InMemoryUserGlobalGameSessionStore();
+  const gameServerRegistry = new InMemoryGameServerRegistry();
+  await gameServerRegistry.register(
+    new GameServerStatus(LOCAL_OFFLINE_GAME_SERVER_NAME, LOCAL_OFFLINE_GAME_SERVER_URL)
+  );
 
   const crossServerBroadcastBus = new InMemoryCrossServerBroadcastBus<
     GameStateUpdate,
@@ -114,7 +126,7 @@ export async function createOfflineLocalServers(assetService: AssetService) {
     ),
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
-    { [LOCAL_OFFLINE_GAME_SERVER_NAME]: LOCAL_OFFLINE_GAME_SERVER_URL },
+    gameServerRegistry,
     () => testLeastBusyServerUrlGetter(),
     DefaultCharacterCreationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
@@ -133,27 +145,27 @@ export async function createOfflineLocalServers(assetService: AssetService) {
 
   const gameServer = new GameServer(
     LOCAL_OFFLINE_GAME_SERVER_NAME,
+    LOCAL_OFFLINE_GAME_SERVER_URL,
     gameIncomingConnectionGateway,
     createOfflineGameServerServices(
       gameSessionStoreService,
       userGameDataPersistenceService,
       characterLevelLadderService,
       ladderGameRecordsService,
-      assetService,
+      gameServerRegistry,
       gameCrossServerBroadcasterService,
       globalGameSessionStore,
       profileService
     ),
     gameServerSessionClaimCodec,
     guestSessionReconnectionTokencodec,
+    facts,
     RandomDungeonGenerationPolicy,
     RandomNumberGenerationPolicyFactory.allRandomPolicy(),
     new RealResourceChangePropertiesStrategy(),
     idGenerator,
     cookieHeaderAuthSessionIdParser
   );
-
-  await gameServer.analyzeAssetsForGameplayRelevantData();
 
   return { lobbyServer, gameServer };
 }
@@ -196,7 +208,7 @@ function createOfflineGameServerServices(
   userGameDataPersistenceService: UserGameDataPersistenceService,
   characterLevelLadderService: CharacterLevelLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
-  assetService: AssetService,
+  gameServerRegistry: GameServerRegistry,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: UserGlobalGameSessionStore,
   profileService: SpeedDungeonProfileService
@@ -206,7 +218,7 @@ function createOfflineGameServerServices(
     userGameDataPersistenceService,
     characterLevelLadderService,
     ladderGameRecordsService,
-    assetService,
+    gameServerRegistry,
     crossServerBroadcasterService,
     globalGameSessionStore,
     profileService,

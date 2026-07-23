@@ -14,6 +14,12 @@
 
 **/*.env
 **/*.env*.local
+# deploy env holds real secrets; only the .example template is tracked
+.env.deploy
+!.env.deploy.example
+# box env files (real secrets) use a -env suffix that **/*.env does not catch
+.speed-dungeon-env
+.battle-school-env
 cypress.env.json
 *.secrets
 **/*.secrets

@@ -5,6 +5,7 @@ import { CombatantSpecies } from "../../../combatants/combatant-species.js";
 import { BoundingBoxSizesBySpecies } from "../../../types.js";
 import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { AssetId, AssetService } from "../../services/assets/index.js";
+import { GameplayAssetFacts } from "../../services/assets/gameplay-asset-facts.js";
 import { WebIO } from "@gltf-transform/core";
 
 export type SpeciesAnimationLengths = Record<CombatantSpecies, Record<string, Milliseconds>>;
@@ -86,6 +87,10 @@ export class AssetAnalyzer {
 
   get boundingBoxes() {
     return this._boundingBoxes;
+  }
+
+  getFacts(): GameplayAssetFacts {
+    return { animationLengths: this._animationLengths, boundingBoxes: this._boundingBoxes };
   }
 
   // using the skeleton right now, but could use meshes later

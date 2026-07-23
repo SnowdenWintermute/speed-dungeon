@@ -18,7 +18,7 @@ import { UserGameDataPersistenceService } from "../../services/user-game-data-pe
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
-import { AssetAnalyzer } from "../asset-analyzer/index.js";
+import { GameplayAssetFacts } from "../../services/assets/gameplay-asset-facts.js";
 import { PartyDelayedGameMessageFactory } from "../party-delayed-game-message-factory.js";
 import { BattleProcessor } from "./battle-processor/index.js";
 import { PartyLifecyleController } from "./party-lifecycle.js";
@@ -34,7 +34,7 @@ export class DungeonExplorationController {
     private readonly resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
     private readonly lootGenerator: LootGenerator,
     private readonly dungeonGenerationPolicy: DungeonGenerationPolicy,
-    private readonly assetAnalyzer: AssetAnalyzer,
+    private readonly gameplayAssetFacts: GameplayAssetFacts,
     private readonly gameModePolicyStore: GameModePolicyStore,
     private readonly partyLifecycleController: PartyLifecyleController
   ) {
@@ -288,7 +288,7 @@ export class DungeonExplorationController {
       this.rngPolicy,
       this.resourceChangePropertiesStrategy,
       this.lootGenerator,
-      this.assetAnalyzer,
+      this.gameplayAssetFacts,
       this.partyLifecycleController
     );
 

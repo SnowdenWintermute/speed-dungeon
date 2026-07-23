@@ -10,6 +10,10 @@ const nextConfig = {
     // ignoreBuildErrors: true,
   },
   devIndicators: false, // turn off the next logo
+  // lint is a separate CI/editor step against the root eslint config, which does type-aware
+  // linting over every packages/*/tsconfig.json. A production build shouldn't drag the whole
+  // monorepo's lint toolchain in just to lint. Type-checking still runs and still fails the build.
+  eslint: { ignoreDuringBuilds: true },
   // transpilePackages: ["common"], // attemptingtospeedbuildtimes
   turbopack: {
     rules: {

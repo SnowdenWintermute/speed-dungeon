@@ -1,0 +1,194 @@
+# format 2.4 (not 3.x): this box runs docker-compose v1, and only 2.x keeps depends_on
+# healthcheck conditions for non-swarm. 2.4 is a superset of 2.2, so the other services are
+# unaffected by the bump.
+version: "2.4"
+services:
+        #    roguelike-racing-client:
+        #       image: snowd3n/roguelike-racing:client
+        #       restart: unless-stopped
+        #       ports:
+        #             - 3001:80
+        #    roguelike-racing-server:
+        #       image: snowd3n/roguelike-racing:server
+        #       restart: unless-stopped
+        #       ports:
+        #             - 8082:8082
+    next-client:
+        image: snowd3n/mike-silverman:client
+        restart: unless-stopped
+        environment:
+             - NODE_ENV=production
+        ports:
+             - 3000:3000
+    twistgame:
+        image: snowd3n/twistgame
+        restart: unless-stopped
+        ports:
+             - 3008:3008
+    # speed-dungeon, split into lobby / two game servers / asset / frontend. Shared secrets and
+    # DB/valkey config come from .speed-dungeon-env (must now also contain TOKENS_SECRET and
+    # INTERNAL_SERVICES_SECRET, which the new images require). Per-role vars are set inline below.
+    # snowauth is in this same project, so it is reachable at http://snowauth-server:8081 with no
+    # extra network. NOTE: to honor "fresh speed-dungeon DB", remove the pg volume before first up:
+    #   docker-compose down && docker volume rm <project>_speed_dungeon_pg_volume
+    speed-dungeon-frontend:
+        image: snowd3n/speed-dungeon:frontend
+        restart: unless-stopped
+        ports:
+            - 3002:3000
+    speed-dungeon-lobby:
+        image: snowd3n/speed-dungeon:server
+        command: ["node", "dist/entrypoints/lobby.js"]
+        restart: unless-stopped
+        env_file:
+            - .speed-dungeon-env
+        environment:
+            - LOBBY_PORT=8080
+            - RUN_MIGRATIONS_ON_BOOT=true
+            - POSTGRES_HOST=speed-dungeon-postgres
+            - VALKEY_URL=redis://speed-dungeon-valkey:6379
+        ports:
+            - 8083:8080
+        depends_on:
+            speed-dungeon-postgres:
+                condition: service_healthy
+            speed-dungeon-valkey:
+                condition: service_healthy
+    speed-dungeon-game-server-1:
+        image: snowd3n/speed-dungeon:server
+        command: ["node", "dist/entrypoints/game-server.js"]
+        restart: unless-stopped
+        env_file:
+            - .speed-dungeon-env
+        environment:
+            - GAME_SERVER_PORT=8090
+            - GAME_SERVER_NAME=Lindblum
+            - GAME_SERVER_PUBLIC_URL=wss://roguelikeracing.com/game-server-1
+            - ASSET_SERVER_URL=http://speed-dungeon-asset-server:8100/api
+            - POSTGRES_HOST=speed-dungeon-postgres
+            - VALKEY_URL=redis://speed-dungeon-valkey:6379
+        ports:
+            # 8085 is taken by battle-school-node-server
+            - 8088:8090
+        depends_on:
+            speed-dungeon-postgres:
+                condition: service_healthy
+            speed-dungeon-valkey:
+                condition: service_healthy
+            speed-dungeon-asset-server:
+                condition: service_healthy
+    speed-dungeon-game-server-2:
+        image: snowd3n/speed-dungeon:server
+        command: ["node", "dist/entrypoints/game-server.js"]
+        restart: unless-stopped
+        env_file:
+            - .speed-dungeon-env
+        environment:
+            - GAME_SERVER_PORT=8090
+            - GAME_SERVER_NAME=Alexandria
+            - GAME_SERVER_PUBLIC_URL=wss://roguelikeracing.com/game-server-2
+            - ASSET_SERVER_URL=http://speed-dungeon-asset-server:8100/api
+            - POSTGRES_HOST=speed-dungeon-postgres
+            - VALKEY_URL=redis://speed-dungeon-valkey:6379
+        ports:
+            - 8086:8090
+        depends_on:
+            speed-dungeon-postgres:
+                condition: service_healthy
+            speed-dungeon-valkey:
+                condition: service_healthy
+            speed-dungeon-asset-server:
+                condition: service_healthy
+    speed-dungeon-asset-server:
+        image: snowd3n/speed-dungeon:asset-server
+        restart: unless-stopped
+        environment:
+            - NODE_ENV=production
+            - FRONT_END_URL=https://roguelikeracing.com
+            - ASSET_SERVER_PORT=8100
+        ports:
+            - 8087:8100
+        healthcheck:
+            # port only opens after the gltf analysis, so this also gates the game servers
+            test: ["CMD", "wget", "-qO-", "http://localhost:8100/api/asset-manifest"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 60s
+    speed-dungeon-postgres:
+       image: postgres:16
+       restart: unless-stopped
+       volumes:
+             - speed_dungeon_pg_volume:/var/lib/postgresql/data
+       env_file:
+             - .speed-dungeon-env
+       healthcheck:
+             test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+             interval: 5s
+             timeout: 5s
+             retries: 10
+    speed-dungeon-valkey:
+       image: valkey/valkey
+       restart: unless-stopped
+       container_name: speed-dungeon-valkey
+       volumes:
+             - speed_dungeon_valkey_volume:/data
+       healthcheck:
+             test: ["CMD", "valkey-cli", "ping"]
+             interval: 5s
+             timeout: 5s
+             retries: 10
+    snowauth-server:
+       image: snowd3n/snowauth:server
+       container_name: snowauth-server
+       restart: unless-stopped
+       env_file:
+            - .env
+       ports:
+            - 8084:8081
+    snowauth-postgres:
+       image: postgres:16
+       restart: unless-stopped
+       volumes:
+             - snowauth_pg_volume:/var/lib/postgresql/data
+       env_file:
+             - .env
+       environment:
+             - POSTGRES_USER:${POSTGRES_USER}
+             - POSTGRES_PASSWORD:${POSTGRES_PASSWORD}
+             - POSTGRES_DB:${POSTGRES_DB}
+    snowauth-valkey:
+       image: valkey/valkey
+       restart: unless-stopped
+       container_name: valkey
+       volumes:
+             - snowauth_valkey_volume:/data
+    battle-school-next-client:
+       image: snowd3n/lucella:client
+       restart: unless-stopped
+       environment:
+         - NODE_ENV=production
+       ports:
+         - 3005:3000
+    battle-school-node-server:
+       image: snowd3n/lucella:server
+       restart: unless-stopped
+       env_file:
+         - .battle-school-env
+       ports:
+         - 8085:8080
+    redis:
+       image: redis:latest
+       restart: unless-stopped
+       container_name: redis
+       volumes:
+         - battle_school_redis:/data
+volumes:
+    snowauth_pg_volume:
+    snowauth_valkey_volume:
+    speed_dungeon_pg_volume:
+    speed_dungeon_valkey_volume:
+    battle_school_redis:
+  
+  
+

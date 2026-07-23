@@ -1,4 +1,4 @@
-import { IncomingMessage } from "node:http";
+import type { IncomingMessage } from "node:http";
 import { ConnectionId, EncryptedOpaqueToken } from "../aliases.js";
 import { ConnectionEndpoint } from "../transport/connection-endpoint.js";
 import { ConnectionIdentityResolutionContext } from "./services/identity-provider.js";
@@ -93,7 +93,13 @@ export function queryParamsAuthSessionIdParser(
   request: IncomingMessage | InMemoryConnectionRequest
 ) {
   invariant(request.url !== undefined, "no url in handshake");
-  if (request instanceof IncomingMessage && process.env.NODE_ENV === "production") {
+  // fail closed: anything that is not our own in-memory request is treated as a real remote
+  // connection. Object.hasOwn (not `in` / `instanceof`) so a real IncomingMessage can never look
+  // in-memory — its wire-controlled headers never become own props, and prototype pollution
+  // can't forge an own property. Avoids an `instanceof node:http` value-use that would pull
+  // node:http into the client bundle.
+  const isInMemoryRequest = Object.hasOwn(request, "isInMemoryRequest");
+  if (!isInMemoryRequest && process.env.NODE_ENV === "production") {
     throw new Error("Don't use query params to parse id on a remote connection in production");
   }
   const url = new URL(request.url, `http://${request.headers.host}`);

@@ -14,7 +14,12 @@ import {
   GameServerGameLifecycleController,
 } from "./controllers/game-lifecycle/index.js";
 import { HeartbeatScheduler, HeartbeatTask } from "../../primatives/heartbeat.js";
-import { GAME_CONFIG, GAME_RECORD_HEARTBEAT_MS, WebSocketCloseCode } from "../../app-consts.js";
+import {
+  GAME_CONFIG,
+  GAME_RECORD_HEARTBEAT_MS,
+  GAME_SERVER_HEARTBEAT_MS,
+  WebSocketCloseCode,
+} from "../../app-consts.js";
 import { ReconnectionOpportunityManager } from "./reconnection-opportunity-manager.js";
 import { SpeedDungeonServer } from "../speed-dungeon-server.js";
 import {
@@ -28,8 +33,9 @@ import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { EquipmentRandomizer } from "../../items/item-creation/item-builder/equipment-randomizer.js";
 import { ItemBuilder } from "../../items/item-creation/item-builder/index.js";
 import { LootGenerator } from "../../items/loot-generation/loot-generator.js";
-import { AssetService } from "../services/assets/index.js";
-import { AssetAnalyzer } from "./asset-analyzer/index.js";
+import { GameplayAssetFacts } from "../services/assets/gameplay-asset-facts.js";
+import { GameServerRegistry } from "../services/game-server-registry/index.js";
+import { GameServerStatus } from "../services/game-server-registry/game-server-status.js";
 import { CombatActionController } from "./controllers/combat-action/index.js";
 import { CharacterProgressionController } from "./controllers/character-progression.js";
 import { ItemManagementController } from "./controllers/item-management.js";
@@ -72,7 +78,7 @@ export interface GameServerExternalServices {
   profileService: SpeedDungeonProfileService;
   characterLevelLadderService: CharacterLevelLadderService;
   ladderGameRecordsService: LadderGameRecordsService;
-  assetService: AssetService;
+  gameServerRegistry: GameServerRegistry;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: UserGlobalGameSessionStore;
 }
@@ -85,8 +91,6 @@ export class GameServer extends SpeedDungeonServer {
   private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
-
-  readonly assetAnalyzer: AssetAnalyzer;
 
   // controllers
   public readonly gameLifecycleController: GameServerGameLifecycleController;
@@ -104,10 +108,13 @@ export class GameServer extends SpeedDungeonServer {
 
   constructor(
     readonly name: GameServerName,
+    /** the url clients are told to connect to, not this process's container address */
+    readonly url: string,
     protected readonly incomingConnectionGateway: IncomingConnectionGateway,
     private readonly externalServices: GameServerExternalServices,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    private readonly gameplayAssetFacts: GameplayAssetFacts,
     /** pass constructor so the class can use its own private parameters to instantiate it */
     dungeonGenerationPolicyConstructor: DungeonGenerationPolicyConstructor,
     public readonly rngPolicy: RandomNumberGenerationPolicy,
@@ -132,7 +139,6 @@ export class GameServer extends SpeedDungeonServer {
       rngPolicy
     );
 
-    this.assetAnalyzer = new AssetAnalyzer(this.externalServices.assetService);
     this.incomingConnectionGateway.initialize((context, identityContext) => {
       return new Promise<void>((resolve, reject) => {
         this.executor.enqueue(async () => {
@@ -151,6 +157,7 @@ export class GameServer extends SpeedDungeonServer {
 
     this.heartbeatScheduler.start();
     this.startActiveGamesRecordHeartbeatTask();
+    this.startGameServerRegistryHeartbeatTask();
 
     this.gameModePolicyStore = new GameModePolicyStore(
       this.updateDispatchFactory,
@@ -177,7 +184,7 @@ export class GameServer extends SpeedDungeonServer {
       resourceChangePropertiesStrategy,
       this.lootGenerator,
       this.dungeonGenerationPolicy,
-      this.assetAnalyzer,
+      this.gameplayAssetFacts,
       this.gameModePolicyStore,
       this.partyLifecycleController
     );
@@ -190,7 +197,8 @@ export class GameServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       this.gameModePolicyStore,
       this.dungeonExplorationController,
-      this.partyLifecycleController
+      this.partyLifecycleController,
+      name
     );
 
     this.sessionLifecycleController = new GameServerSessionLifecycleController(
@@ -207,7 +215,7 @@ export class GameServer extends SpeedDungeonServer {
       rngPolicy,
       resourceChangePropertiesStrategy,
       this.lootGenerator,
-      this.assetAnalyzer,
+      this.gameplayAssetFacts,
       this.partyLifecycleController
     );
 
@@ -239,11 +247,6 @@ export class GameServer extends SpeedDungeonServer {
       this.guestReconnectionTokenCodec,
       (outbox) => this.dispatchOutboxMessages(outbox)
     );
-  }
-
-  async analyzeAssetsForGameplayRelevantData() {
-    await this.assetAnalyzer.collectAnimationLengths();
-    await this.assetAnalyzer.collectBoundingBoxSizes();
   }
 
   private intentHandlers = createGameServerClientIntentHandlers(this);
@@ -416,6 +419,30 @@ export class GameServer extends SpeedDungeonServer {
     outbox.pushFromOther(cleanupSessionOutbox);
 
     this.dispatchOutboxMessages(outbox);
+  }
+
+  async registerWithGameServerRegistry() {
+    await this.externalServices.gameServerRegistry.register(
+      new GameServerStatus(this.name, this.url)
+    );
+  }
+
+  async unregisterFromGameServerRegistry() {
+    await this.externalServices.gameServerRegistry.unregister(this.name);
+  }
+
+  // registry heartbeat is a read-modify-write, so a tick interleaving with unregister can
+  // re-create the entry it just deleted. stop ticking before unregistering
+  stopHeartbeats() {
+    this.heartbeatScheduler.stop();
+  }
+
+  private startGameServerRegistryHeartbeatTask() {
+    const heartbeat = new HeartbeatTask(GAME_SERVER_HEARTBEAT_MS, () =>
+      this.externalServices.gameServerRegistry.heartbeat(this.name)
+    );
+
+    this.heartbeatScheduler.register(heartbeat);
   }
 
   private startActiveGamesRecordHeartbeatTask() {

@@ -1,3 +1,4 @@
+# format 2.x (not 3.x): this box is deployed with docker-compose v1
 version: "2.2"
 services:
     next-client:
@@ -7,43 +8,11 @@ services:
              - NODE_ENV=production
         ports:
              - 3000:3000
-    roguelike-racing-client:
-       image: snowd3n/roguelike-racing:client
-       restart: unless-stopped
-       ports:
-             - 3001:80
-    roguelike-racing-server:
-       image: snowd3n/roguelike-racing:server
-       restart: unless-stopped
-       ports:
-             - 8082:8082
-    speed-dungeon-client:
-       image: snowd3n/speed-dungeon:client
-       restart: unless-stopped
-       ports:
-             - 3002:3000
-    speed-dungeon-server:
-       image: snowd3n/speed-dungeon:server
-       env_file:
-             - .speed-dungeon-env
-       restart: unless-stopped
-       ports:
-             - 8083:8080
-    speed-dungeon-postgres:
-       image: postgres:16
-       volumes:
-             - speed_dungeon_pg_volume:/var/lib/postgresql/data
-       env_file:
-             - .speed-dungeon-env
-       environment:
-             - POSTGRES_USER:${POSTGRES_USER}
-             - POSTGRES_PASSWORD:${POSTGRES_PASSWORD}
-             - POSTGRES_DB:${POSTGRES_DB}
-    speed-dungeon-valkey:
-       image: valkey/valkey
-       container_name: speed-dungeon-valkey
-       volumes:
-             - speed_dungeon_valkey_volume:/data
+    # speed-dungeon (client, server, postgres, valkey) moved to its own compose project:
+    # the repo-root docker-compose.deploy.yml. Do not re-add them here. The old
+    # speed_dungeon_pg_volume / speed_dungeon_valkey_volume still hold the pre-split data on
+    # disk — migrate it into the new project's volumes before bringing the new stack up (or
+    # point the new compose at these volumes). See deployment-notes.md "box-level cutover".
     snowauth-server:
        image: snowd3n/snowauth:server
        container_name: snowauth-server
@@ -52,6 +21,11 @@ services:
             - .env
        ports:
             - 8084:8081
+       # default keeps it reachable to snowauth-postgres/valkey; the shared network lets the
+       # speed-dungeon lobby (a separate compose project) reach it at http://snowauth-server:8081
+       networks:
+            - default
+            - speed-dungeon-shared
     snowauth-postgres:
        image: postgres:16
        volumes:
@@ -67,3 +41,9 @@ services:
        container_name: valkey
        volumes:
              - snowauth_valkey_volume:/data
+
+# shared with the speed-dungeon compose project (repo-root docker-compose.deploy.yml).
+# created once on the box: docker network create speed-dungeon-shared
+networks:
+    speed-dungeon-shared:
+        external: true

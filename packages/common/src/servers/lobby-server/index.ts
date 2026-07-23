@@ -20,6 +20,7 @@ import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-conn
 import { CrossServerBroadcasterService } from "../services/cross-server-broadcaster/index.js";
 import { ServerCommand } from "../services/server-command/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
+import { GameServerRegistry } from "../services/game-server-registry/index.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
 import { TransportDisconnectReason } from "../../transport/disconnect-reasons.js";
 import { UserSession, UserSessionConnectionState } from "../sessions/user-session.js";
@@ -92,7 +93,7 @@ export class LobbyServer extends SpeedDungeonServer {
     private readonly externalServices: LobbyExternalServices,
     private readonly gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
     private readonly guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
-    gameServerUrlRegistry: Record<GameServerName, string>,
+    private readonly gameServerRegistry: GameServerRegistry,
     fetchLeastBusyServer: () => Promise<{ name: GameServerName; url: string }>,
     characterCreationPolicyConstructor: CharacterCreationPolicyConstructor,
     rngPolicy: RandomNumberGenerationPolicy,
@@ -174,7 +175,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.gameSessionStoreService,
       externalServices.globalGameSessionStore,
-      gameServerUrlRegistry
+      gameServerRegistry
     );
   }
 
@@ -354,31 +355,37 @@ export class LobbyServer extends SpeedDungeonServer {
   startDanglingResourcesCleanupHeartbeat() {
     this.danglingResourcesHeartbeatScheduler.start();
     this.danglingResourcesHeartbeatScheduler.register(
-      new HeartbeatTask(LOBBY_DANGLING_RESOURCES_CLEANUP_MS, async () => {
-        // @TODO - figure this out: if a read on the active games starts, then the active game is deleted by
-        // closing, then someone creates and disconnects from a game of the same name before the read finishes,
-        // we might could actually clean up a valid newly started game with the same name as a previously stale one
-        const { gameSessionStoreService } = this.externalServices;
-
-        const pendingGames =
-          await this.externalServices.gameSessionStoreService.getPendingGameSetups();
-        for (const pendingGame of pendingGames) {
-          if (pendingGame.isStale()) {
-            await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.id);
-            await this.externalServices.globalGameSessionStore.clearSessionsInGame(
-              pendingGame.game.id
-            );
-          }
-        }
-
-        const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
-        for (const activeGame of activeGames) {
-          if (activeGame.isStale()) {
-            await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
-            await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
-          }
-        }
-      })
+      new HeartbeatTask(LOBBY_DANGLING_RESOURCES_CLEANUP_MS, () => this.cleanUpDanglingResources())
     );
+  }
+
+  async cleanUpDanglingResources() {
+    // @TODO - figure this out: if a read on the active games starts, then the active game is deleted by
+    // closing, then someone creates and disconnects from a game of the same name before the read finishes,
+    // we might could actually clean up a valid newly started game with the same name as a previously stale one
+    const { gameSessionStoreService } = this.externalServices;
+
+    const pendingGames = await this.externalServices.gameSessionStoreService.getPendingGameSetups();
+    for (const pendingGame of pendingGames) {
+      if (pendingGame.isStale()) {
+        await gameSessionStoreService.deletePendingGameSetup(pendingGame.game.id);
+        await this.externalServices.globalGameSessionStore.clearSessionsInGame(pendingGame.game.id);
+      }
+    }
+
+    const activeGames = await this.externalServices.gameSessionStoreService.getActiveGames();
+    for (const activeGame of activeGames) {
+      if (activeGame.isStale()) {
+        await gameSessionStoreService.deleteActiveGameStatus(activeGame.id);
+        await this.externalServices.globalGameSessionStore.clearSessionsInGame(activeGame.id);
+      }
+    }
+
+    const gameServers = await this.gameServerRegistry.getAllServers();
+    for (const gameServer of gameServers) {
+      if (gameServer.isStale()) {
+        await this.gameServerRegistry.unregister(gameServer.name);
+      }
+    }
   }
 }

@@ -47,7 +47,7 @@ export class GameHandoffManager {
 
     await this.gameSessionStoreService.writePendingGameSetup(
       game.id,
-      new PendingGameSetup(game.toSerialized())
+      new PendingGameSetup(game.toSerialized(), leastBusyServer.name)
     );
 
     const sessionsInGame = this.userSessionRegistry.getAllSessionsInGame(game);

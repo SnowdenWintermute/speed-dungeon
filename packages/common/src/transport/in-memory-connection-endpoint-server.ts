@@ -4,6 +4,9 @@ import { ConnectionId } from "../aliases.js";
 import { v4 as uuidv4 } from "uuid";
 
 export interface InMemoryConnectionRequest {
+  // lets consumers identify an in-memory request without an `instanceof node:http` check, which
+  // would drag node:http into the client barrel and break the browser bundle
+  isInMemoryRequest: true;
   url: string;
   headers: Record<string, string | undefined>;
   method?: string;

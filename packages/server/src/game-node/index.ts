@@ -1,10 +1,10 @@
 import {
-  AssetCache,
   CrossServerBroadcasterService,
   GameServer,
   GameServerExternalServices,
   GameServerName,
-  GameServerNodeAssetService,
+  GameplayAssetFactsSource,
+  GameServerRegistry,
   GameSessionStoreService,
   GameStateUpdate,
   RandomNumberGenerationPolicyFactory,
@@ -23,9 +23,7 @@ import {
   RandomDungeonGenerationPolicy,
 } from "@speed-dungeon/common";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { AssetServer } from "../asset-server/index.js";
-import { NodeFileSystemAssetStore } from "../services/assets/stores/node-file-system.js";
-import { Express } from "express";
+import { gameServerEnv } from "../validate-game-server-env.js";
 import { WebSocketServer } from "ws";
 import { NodeWebSocketIncomingConnectionGateway } from "../servers/node-websocket-incoming-connection-gateway.js";
 import {
@@ -36,7 +34,6 @@ import { DatabaseCharacterLevelLadderService } from "./services/ranked-ladder.js
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
-import { env } from "../validate-env.js";
 import { DatabaseLadderRecordsPersistenceStrategy } from "./services/database-ladder-records-persistence-strategy.js";
 import {
   MANUAL_TEST_MODE,
@@ -45,32 +42,30 @@ import {
 
 export class GameServerNode {
   private _server: GameServer | null = null;
-  private _assetServer: AssetServer | null = null;
 
   async createServer(
     name: GameServerName,
     httpServer: Server<typeof IncomingMessage, typeof ServerResponse>,
-    expressApp: Express,
     profileService: SpeedDungeonProfileService,
     gameSessionStoreService: GameSessionStoreService,
     globalGameSessionStore: UserGlobalGameSessionStore,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     gameServerSessionClaimTokenCodec: OpaqueEncryptionTokenCodec<GameServerSessionClaimToken>,
-    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>
+    guestReconnectionTokenCodec: OpaqueEncryptionTokenCodec<GuestSessionReconnectionToken>,
+    gameplayAssetFactsSource: GameplayAssetFactsSource,
+    gameServerRegistry: GameServerRegistry
   ) {
-    const fsAssetStore = new NodeFileSystemAssetStore("./assets");
-    this._assetServer = new AssetServer(fsAssetStore);
-    this._assetServer.attachRouter(expressApp, { isProduction: env.isProduction });
+    const { facts } = await gameplayAssetFactsSource.getGameplayAssetFacts();
 
     const wss = new WebSocketServer({ server: httpServer });
     const incomingConnectionGateway = new NodeWebSocketIncomingConnectionGateway(wss);
     const idGenerator = new IdGeneratorRandom({ saveHistory: false });
     const externalServices = this.createExternalServices(
-      fsAssetStore,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,
       profileService,
+      gameServerRegistry,
       idGenerator
     );
 
@@ -78,20 +73,24 @@ export class GameServerNode {
     if (MANUAL_TEST_MODE) {
       this._server = setGameServerNodeManualTestProperties(
         name,
+        gameServerEnv.GAME_SERVER_PUBLIC_URL,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
         incomingConnectionGateway,
         externalServices,
+        facts,
         cookieHeaderAuthSessionIdParser
       );
     } else {
       const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
       this._server = new GameServer(
         name,
+        gameServerEnv.GAME_SERVER_PUBLIC_URL,
         incomingConnectionGateway,
         externalServices,
         gameServerSessionClaimTokenCodec,
         guestReconnectionTokenCodec,
+        facts,
         RandomDungeonGenerationPolicy,
         rngPolicy,
         new RealResourceChangePropertiesStrategy(),
@@ -100,19 +99,25 @@ export class GameServerNode {
       );
     }
 
-    await this._server.analyzeAssetsForGameplayRelevantData();
+    await this._server.registerWithGameServerRegistry();
+  }
+
+  async shutDown() {
+    if (this._server === null) {
+      return;
+    }
+    this._server.stopHeartbeats();
+    await this._server.unregisterFromGameServerRegistry();
   }
 
   private createExternalServices(
-    assetStore: AssetCache,
     gameSessionStoreService: GameSessionStoreService,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     globalGameSessionStore: UserGlobalGameSessionStore,
     profileService: SpeedDungeonProfileService,
+    gameServerRegistry: GameServerRegistry,
     idGenerator: IdGenerator
   ): GameServerExternalServices {
-    const assetService = new GameServerNodeAssetService(assetStore);
-
     const savedCharactersPersistenceStrategy = new DatabaseSavedCharacterPersistenceStrategy(
       playerCharactersRepo
     );
@@ -139,7 +144,7 @@ export class GameServerNode {
       userGameDataPersistenceService,
       characterLevelLadderService,
       ladderGameRecordsService,
-      assetService,
+      gameServerRegistry,
       crossServerBroadcasterService,
       globalGameSessionStore,
       profileService,

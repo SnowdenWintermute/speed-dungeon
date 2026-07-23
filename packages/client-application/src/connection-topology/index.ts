@@ -8,6 +8,7 @@ import {
   urlWithQueryParams,
   Deferred,
   CharacterControlScheme,
+  retryWithExponentialBackoff,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
@@ -48,6 +49,7 @@ export class ConnectionTopology {
   readonly waitForReconnectionInstructions = new Deferred("waitForReconnectionInstructions");
   readonly transitionToLobbyServer = new Deferred("transitionToLobbyServer");
   private reconnecting = false;
+  private _gameServerUrlOption: string | null = null;
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -130,6 +132,9 @@ export class ConnectionTopology {
   get isOffline() {
     return this._mode === ConnectionMode.Offline;
   }
+  get gameServerUrlOption() {
+    return this._gameServerUrlOption;
+  }
 
   async resetLobbyConnection() {
     await this.clientApplication.lobbyClientRef.get().close();
@@ -205,7 +210,7 @@ export class ConnectionTopology {
     this.clientApplication.sequentialEventProcessor.cancelQueued();
     this.clientApplication.sequentialEventProcessor.clearCurrent();
 
-    createOfflineLocalServers(this.clientApplication.assetService).then(
+    createOfflineLocalServers(this.clientApplication.assetCache).then(
       ({ lobbyServer, gameServer }) => {
         this.offlineServers.lobbyServer = lobbyServer;
         this.offlineServers.gameServer = gameServer;
@@ -273,23 +278,24 @@ export class ConnectionTopology {
     const { connectionStatus } = this.clientApplication.uiStore;
     connectionStatus.connectionStatus = ConnectionStatus.Disconnected;
 
-    for (let attempt = 1; attempt <= RECONNECT_MAX_ATTEMPTS; attempt += 1) {
-      this.clientApplication.alertsService.setAlert(
-        `Connection lost — reconnecting (attempt ${attempt} of ${RECONNECT_MAX_ATTEMPTS})…`
+    try {
+      await retryWithExponentialBackoff(
+        {
+          maxAttempts: RECONNECT_MAX_ATTEMPTS,
+          baseDelayMs: RECONNECT_BASE_DELAY_MS,
+          onAttempt: (attempt, maxAttempts) =>
+            this.clientApplication.alertsService.setAlert(
+              `Connection lost — reconnecting (attempt ${attempt} of ${maxAttempts})…`
+            ),
+        },
+        () => this.attemptReconnectOnce()
       );
 
-      const reconnected = await this.attemptReconnectOnce();
-      if (reconnected) {
-        this.reconnecting = false;
-        this.clientApplication.alertsService.setAlert("Reconnected to server");
-        return;
-      }
-
-      if (attempt < RECONNECT_MAX_ATTEMPTS) {
-        await new Promise<void>((resolve) =>
-          setTimeout(resolve, RECONNECT_BASE_DELAY_MS * 2 ** (attempt - 1))
-        );
-      }
+      this.reconnecting = false;
+      this.clientApplication.alertsService.setAlert("Reconnected to server");
+      return;
+    } catch {
+      // fall through to the offline fallback below
     }
 
     this.reconnecting = false;
@@ -301,22 +307,29 @@ export class ConnectionTopology {
     }
   }
 
-  private attemptReconnectOnce(): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
+  private attemptReconnectOnce(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       let settled = false;
-      const settle = (result: boolean) => {
+      const settle = (error: null | Error) => {
         if (settled) {
           return;
         }
         settled = true;
         clearTimeout(timeout);
-        resolve(result);
+        if (error === null) {
+          resolve();
+        } else {
+          reject(error);
+        }
       };
 
-      const timeout = setTimeout(() => settle(false), RECONNECT_ATTEMPT_TIMEOUT_MS);
+      const timeout = setTimeout(
+        () => settle(new Error("reconnect attempt timed out")),
+        RECONNECT_ATTEMPT_TIMEOUT_MS
+      );
       this.enterOnline()
-        .then(() => settle(true))
-        .catch(() => settle(false));
+        .then(() => settle(null))
+        .catch((error) => settle(error));
     });
   }
 
@@ -328,6 +341,7 @@ export class ConnectionTopology {
     }[]
   ) {
     const connectionEndpoint = this.createModeConnectionEndpoint(url, queryParams);
+    this._gameServerUrlOption = url;
     this.clientApplication.gameClientRef.setClient(
       new GameClient(
         "Game server",
@@ -344,5 +358,6 @@ export class ConnectionTopology {
       this.clientApplication.gameClientRef.get().close();
       this.clientApplication.gameClientRef.clearClient();
     }
+    this._gameServerUrlOption = null;
   }
 }

@@ -10,11 +10,14 @@ import {
   GameName,
   GameServer,
   GameServerName,
+  GameServerRegistry,
+  GameSessionStoreService,
   GameStateUpdateType,
   IncomingConnectionGateway,
   InMemoryIdentityProviderQueryStrategy,
   invariant,
   iterateNumericEnumKeyedRecord,
+  LeastBusyGameServerSelector,
   LobbyServer,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
@@ -25,7 +28,6 @@ import {
   UserGameDataPersistenceService,
   LadderGameRecordsService,
   ResourceChangePropertiesStrategy,
-  SpeciesAnimationLengths,
   TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { ClientFixture, ClientTestFixtureOptions } from "./client-test-fixture.js";
@@ -55,8 +57,9 @@ export type TestGameServersAndPorts = Record<
 export class IntegrationTestFixture {
   private _lobbyServer: LobbyServer | null = null;
   private _gameServers: Record<TestGameServerName, GameServer> | null = null;
+  private _gameServerRegistry: GameServerRegistry | null = null;
+  private _gameSessionStoreService: GameSessionStoreService | null = null;
   private clients = new Map<string, ClientFixture>();
-  private previouslyCalculatedAnimationLengths: SpeciesAnimationLengths | undefined;
   private _lobbyServerPort: number = 0; // will be assigned to some open port by the OS automatically
   private _gameServerPorts: {
     [TestGameServerName.Lindblum]: number;
@@ -121,14 +124,11 @@ export class IntegrationTestFixture {
       this._gameServerPorts[testServerName] = port;
     }
 
-    if (this._gameServers !== null) {
-      this.previouslyCalculatedAnimationLengths =
-        this._gameServers[TestGameServerName.Lindblum].assetAnalyzer.animationLengths;
-    }
-
     const {
       lobbyServer,
       gameServers,
+      gameServerRegistry,
+      gameSessionStoreService,
       rankedLadderService,
       ladderGameRecordsService,
       identityProviderQueryStrategy,
@@ -147,20 +147,15 @@ export class IntegrationTestFixture {
     this._identityProviderQueryStrategy = identityProviderQueryStrategy;
     this._userGameDataPersistenceService = userGameDataPersistenceService;
 
+    this._gameServerRegistry = gameServerRegistry;
+    this._gameSessionStoreService = gameSessionStoreService;
+
     this._lobbyServer = lobbyServer;
     this._lobbyServer.characterCreationPolicy.setCharacters(characterCreationFixture);
 
     this._gameServers = gameServers;
     for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
       gameServer.dungeonGenerationPolicy.setExplicitFloors(dungeonScript);
-    }
-
-    if (!this.previouslyCalculatedAnimationLengths) {
-      await this._gameServers[TestGameServerName.Lindblum].analyzeAssetsForGameplayRelevantData();
-    } else {
-      for (const [_, gameServer] of iterateNumericEnumKeyedRecord(this._gameServers)) {
-        gameServer.assetAnalyzer.animationLengths = this.previouslyCalculatedAnimationLengths;
-      }
     }
   }
 
@@ -197,6 +192,16 @@ export class IntegrationTestFixture {
     return this._lobbyServer;
   }
 
+  get gameServerRegistry() {
+    invariant(this._gameServerRegistry !== null, "no game server registry initialized");
+    return this._gameServerRegistry;
+  }
+
+  get gameSessionStoreService() {
+    invariant(this._gameSessionStoreService !== null, "no game session store initialized");
+    return this._gameSessionStoreService;
+  }
+
   get lobbyServerPort() {
     return this._lobbyServerPort;
   }
@@ -217,6 +222,16 @@ export class IntegrationTestFixture {
 
   setLeastBusyGameServerGetter(value: () => Promise<{ url: string; name: GameServerName }>) {
     this._leastBusyGameServerUrlGetterRef.getter = value;
+  }
+
+  /** the fixture defaults to a hardcoded getter so tests can steer placement deliberately.
+   * tests of the real selection logic opt back into it with this */
+  useRealLeastBusyGameServerSelector() {
+    const selector = new LeastBusyGameServerSelector(
+      this.gameServerRegistry,
+      this.gameSessionStoreService
+    );
+    this.setLeastBusyGameServerGetter(() => selector.select());
   }
 
   async closeAllServers() {
@@ -250,9 +265,16 @@ export class IntegrationTestFixture {
     dungeonTemplate: ExplicitCombatantDungeonTemplate = TEST_DUNGEON_TWO_WOLF_ROOMS,
     charactersTemplate: FixedCharacterCreationLists = BASIC_CHARACTER_FIXTURES,
     rngOverrides: Partial<RandomNumberGenerationPolicy> = {},
-    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy = new TestResourceChangePropertiesStrategy()
+    resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy = new TestResourceChangePropertiesStrategy(),
+    // servers register their heartbeat intervals as they are constructed, so tests that need
+    // to drive those intervals must have fake timers installed before the servers exist
+    options: { useFakeTimersFromBoot: boolean } = { useFakeTimersFromBoot: false }
   ) {
     this.timeMachine.returnToPresent();
+
+    if (options.useFakeTimersFromBoot) {
+      this.timeMachine.start();
+    }
 
     const fixedRngMinRoll = new FixedNumberGenerator(RNG_RANGE.MIN);
     const basicOverrides = {

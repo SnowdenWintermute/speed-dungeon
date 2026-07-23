@@ -1,4 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["**/*.test.ts", "**/__tests__/**"]
+  // a custom exclude replaces TypeScript's default one entirely, so node_modules and the
+  // outDir have to be listed again or dist gets globbed back in as input (TS5055)
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"]
 }

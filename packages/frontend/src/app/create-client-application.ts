@@ -19,9 +19,11 @@ export function createClientApplication() {
   );
   const lobbyServerUrl = process.env.NEXT_PUBLIC_WS_SERVER_URL;
   invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
+  const assetServerUrl = process.env.NEXT_PUBLIC_ASSET_SERVER_URL;
+  invariant(assetServerUrl !== undefined, "no asset server url provided");
   return new ClientApplication(
     assetCache,
-    new RemoteServerAssetStore("http://localhost:8080"),
+    new RemoteServerAssetStore(assetServerUrl),
     lobbyServerUrl,
     tickScheduler.scheduler,
     clientLogRecorder,
