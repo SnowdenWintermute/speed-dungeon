@@ -236,6 +236,7 @@ export * from "./servers/query-params.js";
 export * from "./cryptography/index.js";
 
 export * from "./servers/asset-server/index.js";
+export * from "./servers/services/assets/asset-fetch-progress-tracker.js";
 export * from "./servers/services/assets/gameplay-asset-facts.js";
 export * from "./servers/services/assets/http-gameplay-asset-facts-source.js";
 export * from "./servers/services/assets/index.js";

@@ -11,6 +11,7 @@ import { SETTINGS_TAB_REQUIRES_AUTH, SettingsTab } from "./tabs";
 import { SettingsTabBar } from "./SettingsTabBar";
 import { AccountSection } from "./sections/account";
 import { KeybindsSection } from "./sections/keybinds";
+import { AssetsSection } from "./sections/assets";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 
 export const Settings = observer(() => {
@@ -65,6 +66,7 @@ export const Settings = observer(() => {
       >
         {selectedTab === SettingsTab.Account && <AccountSection />}
         {selectedTab === SettingsTab.Keybinds && <KeybindsSection />}
+        {selectedTab === SettingsTab.Assets && <AssetsSection />}
       </div>
     </section>
   );

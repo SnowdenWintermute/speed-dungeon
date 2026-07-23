@@ -3,21 +3,20 @@ import { AssetId } from "./index.js";
 import { AssetManifest, AssetVersionData } from "./versioned-asset.js";
 import { invariant } from "../../../utils/index.js";
 
+export interface AssetFetchEntry {
+  sizeBytes: number;
+  started: boolean;
+  aborted: boolean;
+  isComplete: boolean;
+  wasCached: boolean;
+}
+
 export class AssetFetchProgressTracker {
   initialized: boolean = false;
   private _fetchFailed: boolean = false;
   totalBytesFetching: number = 0;
   totalBytesFetched: number = 0;
-  fetches = new Map<
-    AssetId,
-    {
-      sizeBytes: number;
-      started: boolean;
-      aborted: boolean;
-      isComplete: boolean;
-      wasCached: boolean;
-    }
-  >();
+  fetches = new Map<AssetId, AssetFetchEntry>();
 
   constructor() {
     makeAutoObservable(this);
