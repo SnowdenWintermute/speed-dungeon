@@ -134,7 +134,7 @@ export class ActionEntitySceneEntityFactory {
     [ActionEntityName.Pebble]: async (position: Vector3) => {
       const mesh = MeshBuilder.CreateSphere(
         "pebble sphere",
-        { diameter: 0.1, segments: 5 },
+        { diameter: 0.1, segments: 1 },
         this.scene
       );
       const material = new StandardMaterial("", this.scene);

@@ -6,13 +6,12 @@ import {
   LadderCharacterFloorClearRecordId,
   Milliseconds,
   PartyId,
-  PartyName,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import { FloorClear, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 import {
@@ -78,25 +77,10 @@ export interface UserGameHistoryEntry {
 // for the experience facet, and maps these onto the corresponding client-facing …View. these carry
 // ids, never usernames.
 
-export interface FloorClearCharacterEntry {
-  characterId: CombatantId;
-  characterName: string;
-  snapshotIdOption?: LadderCharacterFloorClearRecordId;
-}
-
-export interface FloorClearEntry {
-  rank: number;
-  gameRecordId: GameId;
-  partyRecordId: PartyId;
-  partyName: PartyName;
-  mode: GameMode;
-  controlScheme: CharacterControlScheme;
-  floor: number;
-  timeSpentOnFloor: Milliseconds;
-  clearedAt: Milliseconds;
-  playerIds: IdentityProviderId[];
-  characters: FloorClearCharacterEntry[];
-}
+// the persistence read side keys players by id; the client-facing FloorClearView keys them by
+// Username. both are FloorClear<…> so they share every other field and can't drift — see
+// floor-clear-times.ts. FloorClearCharacter (identical either side) is shared directly.
+export type FloorClearEntry = FloorClear<IdentityProviderId>;
 
 // no winRate: that 0..1 display figure is derived during View assembly, not stored here
 export interface WinLossTally {

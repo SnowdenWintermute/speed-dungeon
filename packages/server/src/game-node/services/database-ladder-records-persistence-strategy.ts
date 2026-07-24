@@ -21,7 +21,6 @@ import {
   LadderParticipantRecord,
   LadderPartyFateUpdate,
   LadderPartyFloorClearRecord,
-  LadderPartyFloorClearRecordId,
   LadderPartyRecord,
   LadderRecordsPersistenceStrategy,
   Milliseconds,
@@ -32,6 +31,23 @@ import {
   USER_GAME_HISTORY_PAGE_SIZE,
   UserGameHistoryEntry,
   Username,
+  CharacterFloorClearSnapshotView,
+  ExperiencePointsLadderCharacterEntry,
+  FloorClearEntry,
+  FloorClearProjectionRecords,
+  FloorClearTimesQuery,
+  LadderPage,
+  LadderPartyFloorClearRecordId,
+  PlayerProfileData,
+  WinRateEntry,
+  WinRateLadderQuery,
+  assemblePersonalBestEntries,
+  computeRankedRaceTally,
+  projectCharacterFloorClearSnapshot,
+  projectExperiencePointsLadderCharacters,
+  projectFloorClearTimesPage,
+  projectWinRateLadderPage,
+  selectPersonalBestPartyFloorClears,
 } from "@speed-dungeon/common";
 import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../../database/db-consts.js";
@@ -305,6 +321,250 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
 
     return { game: gameRowToRecord(gameRow), participants, participations, parties };
   }
+
+  // read side. loads the ladder-records rows each projection needs and hands them to the shared
+  // pure projections; the LadderQueries impl resolves usernames + joins the XP sorted-set on top.
+  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
+    const floorClearRows = await queryCamel<LadderPartyFloorClearRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} WHERE floor = %L;`,
+        query.floor
+      )
+    );
+    const candidatePartyIds = unique(
+      floorClearRows.map((row) => partyFloorClearRowToRecord(row).partyRecordRef)
+    );
+    // pull these parties' clears up to the target floor too, so cumulativeTimeToClearFloor can sum them
+    const partyClearHistory = await this.loadPartyFloorClearsUpToFloor(
+      candidatePartyIds,
+      query.floor
+    );
+    const records = await this.floorClearProjectionRecords(partyClearHistory);
+    return projectFloorClearTimesPage(query, records);
+  }
+
+  async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
+    const gameRows = await queryCamel<LadderGameRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_GAME_RECORDS} WHERE mode = %L;`,
+        GAME_MODE_STRINGS[GameMode.RankedRace]
+      )
+    );
+    const games = gameRows.map(gameRowToRecord);
+    const parties = await this.loadPartiesByGameIds(games.map((game) => game.id));
+    const characters = await this.loadCharactersByPartyIds(parties.map((party) => party.id));
+    const participantRows = await queryCamel<{ id: number }>(
+      format(`SELECT id FROM ${RESOURCE_NAMES.LADDER_PARTICIPANT_RECORDS};`)
+    );
+    const participantIds = participantRows.map((row) => row.id as IdentityProviderId);
+    return projectWinRateLadderPage(query, { participantIds, games, parties, characters });
+  }
+
+  async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
+    const participant = await this.findParticipantRecordById(userId);
+    if (participant === undefined) {
+      return undefined;
+    }
+
+    const userCharacters = await this.loadCharactersByOwner(userId);
+    const userPartyIds = unique(userCharacters.map((character) => character.partyRecordId));
+    const userParties = await this.loadPartiesByIds(userPartyIds);
+    const gameIds = unique(userParties.map((party) => party.gameRecordId));
+    const games = await this.loadGamesByIds(gameIds);
+
+    // tally over ranked races: needs every party in those games (winner = earliest escape), but
+    // those are tiny fate rows — no snapshot blobs, no character loads beyond the user's own.
+    const partiesInGames = await this.loadPartiesByGameIds(gameIds);
+    const rankedRaceTally = computeRankedRaceTally(userId, games, partiesInGames, userCharacters);
+
+    // personal bests: pick the user's fastest clears FIRST, then load characters + heavy snapshot
+    // blobs only for that handful — never for rival parties or non-best clears.
+    const userPartyFloorClears = await this.loadPartyFloorClearsByPartyIds(userPartyIds);
+    const bests = selectPersonalBestPartyFloorClears(userPartyFloorClears, userParties, games);
+    const bestPartyIds = unique(bests.map((partyFloorClear) => partyFloorClear.partyRecordRef));
+    const bestPartyCharacters = await this.loadCharactersByPartyIds(bestPartyIds);
+    const bestSnapshots = await this.loadSnapshotsByPartyFloorClearIds(
+      bests.map((partyFloorClear) => partyFloorClear.id)
+    );
+    const personalBestFloorClears = assemblePersonalBestEntries(bests, {
+      parties: userParties,
+      games,
+      characters: bestPartyCharacters,
+      snapshots: bestSnapshots,
+      // the user's full clear history covers floors <= each best, for cumulativeTimeToClearFloor
+      partyClearHistory: userPartyFloorClears,
+    });
+
+    return { participantId: userId, rankedRaceTally, personalBestFloorClears };
+  }
+
+  async getCharacterFloorClearSnapshot(
+    id: LadderCharacterFloorClearRecordId
+  ): Promise<CharacterFloorClearSnapshotView | undefined> {
+    const snapshotRows = await queryCamel<LadderCharacterFloorClearedRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS} WHERE id = %L;`,
+        id
+      )
+    );
+    const snapshotRow = snapshotRows[0];
+    if (snapshotRow === undefined) {
+      return undefined;
+    }
+    const snapshot = characterFloorClearedRowToRecord(snapshotRow);
+    const characterRows = await queryCamel<LadderCharacterRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_RECORDS} WHERE id = %L;`,
+        snapshot.characterRecordRef
+      )
+    );
+    return projectCharacterFloorClearSnapshot(snapshot, characterRows[0]?.name ?? "");
+  }
+
+  async getExperiencePointsLadderCharacters(
+    characterIds: CombatantId[]
+  ): Promise<ExperiencePointsLadderCharacterEntry[]> {
+    const characters = await this.loadCharactersByIds(characterIds);
+    const parties = await this.loadPartiesByIds(
+      unique(characters.map((character) => character.partyRecordId))
+    );
+    const games = await this.loadGamesByIds(unique(parties.map((party) => party.gameRecordId)));
+    return projectExperiencePointsLadderCharacters(characterIds, { characters, parties, games });
+  }
+
+  private async floorClearProjectionRecords(
+    partyFloorClears: LadderPartyFloorClearRecord[]
+  ): Promise<FloorClearProjectionRecords> {
+    const partyIds = unique(
+      partyFloorClears.map((partyFloorClear) => partyFloorClear.partyRecordRef)
+    );
+    const parties = await this.loadPartiesByIds(partyIds);
+    const games = await this.loadGamesByIds(unique(parties.map((party) => party.gameRecordId)));
+    const characters = await this.loadCharactersByPartyIds(partyIds);
+    const snapshots = await this.loadSnapshotsByPartyFloorClearIds(
+      partyFloorClears.map((partyFloorClear) => partyFloorClear.id)
+    );
+    return { partyFloorClears, parties, games, characters, snapshots };
+  }
+
+  private async loadGamesByIds(ids: GameId[]): Promise<LadderGameRecord[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderGameRecordRow>(
+      format(`SELECT * FROM ${RESOURCE_NAMES.LADDER_GAME_RECORDS} WHERE id IN (%L);`, ids)
+    );
+    return rows.map(gameRowToRecord);
+  }
+
+  private async loadPartiesByIds(ids: PartyId[]): Promise<LadderPartyRecord[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderPartyRecordRow>(
+      format(`SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} WHERE id IN (%L);`, ids)
+    );
+    return rows.map(partyRowToRecord);
+  }
+
+  private async loadPartiesByGameIds(gameIds: GameId[]): Promise<LadderPartyRecord[]> {
+    if (gameIds.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderPartyRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} WHERE game_record_id IN (%L);`,
+        gameIds
+      )
+    );
+    return rows.map(partyRowToRecord);
+  }
+
+  private async loadCharactersByIds(ids: CombatantId[]): Promise<LadderCharacterRecord[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderCharacterRecordRow>(
+      format(`SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_RECORDS} WHERE id IN (%L);`, ids)
+    );
+    return rows.map(characterRowToRecord);
+  }
+
+  private async loadCharactersByPartyIds(partyIds: PartyId[]): Promise<LadderCharacterRecord[]> {
+    if (partyIds.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderCharacterRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_RECORDS} WHERE party_record_id IN (%L);`,
+        partyIds
+      )
+    );
+    return rows.map(characterRowToRecord);
+  }
+
+  private async loadCharactersByOwner(
+    userId: IdentityProviderId
+  ): Promise<LadderCharacterRecord[]> {
+    const rows = await queryCamel<LadderCharacterRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_RECORDS} WHERE controlling_player_id = %L;`,
+        userId
+      )
+    );
+    return rows.map(characterRowToRecord);
+  }
+
+  private async loadPartyFloorClearsByPartyIds(
+    partyIds: PartyId[]
+  ): Promise<LadderPartyFloorClearRecord[]> {
+    if (partyIds.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderPartyFloorClearRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} WHERE party_record_ref IN (%L);`,
+        partyIds
+      )
+    );
+    return rows.map(partyFloorClearRowToRecord);
+  }
+
+  private async loadPartyFloorClearsUpToFloor(
+    partyIds: PartyId[],
+    floor: number
+  ): Promise<LadderPartyFloorClearRecord[]> {
+    if (partyIds.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderPartyFloorClearRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} WHERE party_record_ref IN (%L) AND floor <= %L;`,
+        partyIds,
+        floor
+      )
+    );
+    return rows.map(partyFloorClearRowToRecord);
+  }
+
+  private async loadSnapshotsByPartyFloorClearIds(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<LadderCharacterFloorClearRecord[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const rows = await queryCamel<LadderCharacterFloorClearedRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS} WHERE party_floor_clear_record IN (%L);`,
+        ids
+      )
+    );
+    return rows.map(characterFloorClearedRowToRecord);
+  }
+}
+
+function unique<T>(values: T[]): T[] {
+  return [...new Set(values)];
 }
 
 async function queryCamel<T>(sql: string): Promise<T[]> {

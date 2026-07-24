@@ -1,4 +1,5 @@
 import {
+  CombatantId,
   GameId,
   IdentityProviderId,
   LadderCharacterFloorClearRecordId,
@@ -18,12 +19,20 @@ import {
 } from "./index.js";
 import { DateRange } from "../../primatives/date-range.js";
 import {
+  ExperiencePointsLadderCharacterEntry,
+  FloorClearEntry,
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
+  PlayerProfileData,
   UserGameHistoryEntry,
+  WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
+import { LadderPage } from "../queries/ladder-page.js";
+import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
+import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import cloneDeep from "lodash.clonedeep";
@@ -284,5 +293,31 @@ export class LadderGameRecordsService {
     dateRange?: DateRange
   ): Promise<number> {
     return this.persistenceStrategy.getUserGameRecordsCount(userId, dateRange);
+  }
+
+  // read-side query passthroughs. these return the id-keyed …Entry read models; the eventual
+  // LadderQueries impl layers username resolution + the XP sorted-set join on top of these.
+  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
+    return this.persistenceStrategy.getFloorClearTimes(query);
+  }
+
+  async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
+    return this.persistenceStrategy.getWinRateLadder(query);
+  }
+
+  async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
+    return this.persistenceStrategy.getPlayerProfileData(userId);
+  }
+
+  async getCharacterFloorClearSnapshot(
+    id: LadderCharacterFloorClearRecordId
+  ): Promise<CharacterFloorClearSnapshotView | undefined> {
+    return this.persistenceStrategy.getCharacterFloorClearSnapshot(id);
+  }
+
+  async getExperiencePointsLadderCharacters(
+    characterIds: CombatantId[]
+  ): Promise<ExperiencePointsLadderCharacterEntry[]> {
+    return this.persistenceStrategy.getExperiencePointsLadderCharacters(characterIds);
   }
 }

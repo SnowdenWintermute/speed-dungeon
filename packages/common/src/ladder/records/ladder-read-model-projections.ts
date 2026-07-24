@@ -11,14 +11,13 @@ import {
 } from "./index.js";
 import {
   ExperiencePointsLadderCharacterEntry,
-  FloorClearCharacterEntry,
   FloorClearEntry,
   PlayerProfileData,
   WinLossTally,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import { FloorClearCharacter, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 
@@ -98,6 +97,10 @@ export function projectWinRateLadderPage(
   }));
 }
 
+// convenience over the whole record bag, used by the in-memory strategy where everything is already
+// in RAM. the Postgres strategy instead composes the pieces below (computeRankedRaceTally +
+// selectPersonalBestPartyFloorClears + assemblePersonalBestEntries) so it can load the heavy
+// snapshot blobs only for the user's actual personal-best clears, never for rival parties.
 export function projectPlayerProfileData(
   userId: IdentityProviderId,
   records: FloorClearProjectionRecords & { isKnownParticipant: boolean }
@@ -111,8 +114,79 @@ export function projectPlayerProfileData(
     records.parties,
     records.characters
   );
-  const personalBestFloorClears = projectPersonalBestFloorClears(userId, records);
+  const userPartyIds = new Set(
+    records.characters
+      .filter((character) => character.controllingPlayerId === userId)
+      .map((character) => character.partyRecordId)
+  );
+  const userPartyFloorClears = records.partyFloorClears.filter((partyFloorClear) =>
+    userPartyIds.has(partyFloorClear.partyRecordRef)
+  );
+  const bests = selectPersonalBestPartyFloorClears(
+    userPartyFloorClears,
+    records.parties,
+    records.games
+  );
+  const personalBestFloorClears = assemblePersonalBestEntries(bests, {
+    parties: records.parties,
+    games: records.games,
+    characters: records.characters,
+    snapshots: records.snapshots,
+    partyClearHistory: records.partyFloorClears,
+  });
   return { participantId: userId, rankedRaceTally, personalBestFloorClears };
+}
+
+// the user's fastest clear per (floor, mode, control scheme), sorted by floor. inputs are expected
+// to be pre-scoped to the user's own clears — this does not itself check party membership.
+export function selectPersonalBestPartyFloorClears(
+  userPartyFloorClears: LadderPartyFloorClearRecord[],
+  parties: LadderPartyRecord[],
+  games: LadderGameRecord[]
+): LadderPartyFloorClearRecord[] {
+  const partiesById = new Map(parties.map((party) => [party.id, party]));
+  const gamesById = new Map(games.map((game) => [game.id, game]));
+  const bestByFloorModeScheme = new Map<string, LadderPartyFloorClearRecord>();
+
+  for (const partyFloorClear of userPartyFloorClears) {
+    const party = partiesById.get(partyFloorClear.partyRecordRef);
+    const game = party === undefined ? undefined : gamesById.get(party.gameRecordId);
+    if (game === undefined) {
+      continue;
+    }
+    const key = `${partyFloorClear.floor}:${game.mode}:${partyFloorClear.controlScheme}`;
+    const current = bestByFloorModeScheme.get(key);
+    if (current === undefined || partyFloorClear.timeSpentOnFloor < current.timeSpentOnFloor) {
+      bestByFloorModeScheme.set(key, partyFloorClear);
+    }
+  }
+
+  return [...bestByFloorModeScheme.values()].sort((a, b) => a.floor - b.floor);
+}
+
+// assembles the display entries for an already-selected, floor-sorted set of best clears. rank here
+// is the floor-order position within the personal-best list, not a global ladder rank.
+export function assemblePersonalBestEntries(
+  bestPartyFloorClears: LadderPartyFloorClearRecord[],
+  records: {
+    parties: LadderPartyRecord[];
+    games: LadderGameRecord[];
+    characters: LadderCharacterRecord[];
+    snapshots: LadderCharacterFloorClearRecord[];
+    // the best clears' parties' full clear history (floors <= each best), for cumulativeTimeToClearFloor
+    partyClearHistory: LadderPartyFloorClearRecord[];
+  }
+): FloorClearEntry[] {
+  const indexes = indexFloorClearRecords({
+    partyFloorClears: records.partyClearHistory,
+    parties: records.parties,
+    games: records.games,
+    characters: records.characters,
+    snapshots: records.snapshots,
+  });
+  return bestPartyFloorClears.map((partyFloorClear, index) =>
+    assembleFloorClearEntry(partyFloorClear, index + 1, indexes)
+  );
 }
 
 export function projectExperiencePointsLadderCharacters(
@@ -220,41 +294,11 @@ export function computeRankedRaceTally(
   return { wins, losses: gamesPlayed - wins, gamesPlayed };
 }
 
-function projectPersonalBestFloorClears(
-  userId: IdentityProviderId,
-  records: FloorClearProjectionRecords
-): FloorClearEntry[] {
-  const indexes = indexFloorClearRecords(records);
-  const bestByFloorModeScheme = new Map<string, LadderPartyFloorClearRecord>();
-
-  for (const partyFloorClear of records.partyFloorClears) {
-    const game = gameForPartyFloorClear(partyFloorClear, indexes);
-    if (game === undefined) {
-      continue;
-    }
-    const partyCharacters = indexes.charactersByParty.get(partyFloorClear.partyRecordRef) ?? [];
-    const userIsInParty = partyCharacters.some(
-      (character) => character.controllingPlayerId === userId
-    );
-    if (!userIsInParty) {
-      continue;
-    }
-    const key = `${partyFloorClear.floor}:${game.mode}:${partyFloorClear.controlScheme}`;
-    const current = bestByFloorModeScheme.get(key);
-    if (current === undefined || partyFloorClear.timeSpentOnFloor < current.timeSpentOnFloor) {
-      bestByFloorModeScheme.set(key, partyFloorClear);
-    }
-  }
-
-  return [...bestByFloorModeScheme.values()]
-    .sort((a, b) => a.floor - b.floor)
-    .map((partyFloorClear, index) => assembleFloorClearEntry(partyFloorClear, index + 1, indexes));
-}
-
 interface FloorClearIndexes {
   partiesById: Map<PartyId, LadderPartyRecord>;
   gamesById: Map<GameId, LadderGameRecord>;
   charactersByParty: Map<PartyId, LadderCharacterRecord[]>;
+  partyFloorClearsByParty: Map<PartyId, LadderPartyFloorClearRecord[]>;
   snapshots: LadderCharacterFloorClearRecord[];
 }
 
@@ -265,12 +309,32 @@ function indexFloorClearRecords(records: FloorClearProjectionRecords): FloorClea
     forParty.push(character);
     charactersByParty.set(character.partyRecordId, forParty);
   }
+  const partyFloorClearsByParty = new Map<PartyId, LadderPartyFloorClearRecord[]>();
+  for (const partyFloorClear of records.partyFloorClears) {
+    const forParty = partyFloorClearsByParty.get(partyFloorClear.partyRecordRef) ?? [];
+    forParty.push(partyFloorClear);
+    partyFloorClearsByParty.set(partyFloorClear.partyRecordRef, forParty);
+  }
   return {
     partiesById: new Map(records.parties.map((party) => [party.id, party])),
     gamesById: new Map(records.games.map((game) => [game.id, game])),
     charactersByParty,
+    partyFloorClearsByParty,
     snapshots: records.snapshots,
   };
+}
+
+// active time from game start through clearing the given floor: sum of timeSpentOnFloor over the
+// party's clears on floors <= this one. floors 1..X are expected to all be present (an invariant — a
+// gap means a floor clear went unrecorded, i.e. a write-path bug); we sum whatever exists.
+function cumulativeTimeToClearFloor(
+  partyFloorClear: LadderPartyFloorClearRecord,
+  indexes: FloorClearIndexes
+): number {
+  const partyClears = indexes.partyFloorClearsByParty.get(partyFloorClear.partyRecordRef) ?? [];
+  return partyClears
+    .filter((clear) => clear.floor <= partyFloorClear.floor)
+    .reduce((total, clear) => total + clear.timeSpentOnFloor, 0);
 }
 
 function gameForPartyFloorClear(
@@ -298,7 +362,7 @@ function assembleFloorClearEntry(
 
   const partyCharacters = indexes.charactersByParty.get(party.id) ?? [];
 
-  const characters: FloorClearCharacterEntry[] = partyCharacters.map((character) => {
+  const characters: FloorClearCharacter[] = partyCharacters.map((character) => {
     const snapshot = indexes.snapshots.find(
       (candidate) =>
         candidate.partyFloorClearRecord === partyFloorClear.id &&
@@ -311,7 +375,7 @@ function assembleFloorClearEntry(
     };
   });
 
-  const playerIds = [...new Set(partyCharacters.map((character) => character.controllingPlayerId))];
+  const players = [...new Set(partyCharacters.map((character) => character.controllingPlayerId))];
 
   return {
     rank,
@@ -322,10 +386,11 @@ function assembleFloorClearEntry(
     controlScheme: partyFloorClear.controlScheme,
     floor: partyFloorClear.floor,
     timeSpentOnFloor: partyFloorClear.timeSpentOnFloor,
-    // floor-clear records store no absolute clear timestamp; the run's start date is the display
-    // "date". add a real clearedAt to LadderPartyFloorClearRecord if per-floor dating is needed.
-    clearedAt: game.timeStarted,
-    playerIds,
+    cumulativeTimeToClearFloor: cumulativeTimeToClearFloor(partyFloorClear, indexes),
+    // floor-clear records store no absolute per-floor timestamp; the run's start date is the
+    // display "date". see notes for why we don't derive a wall-clock clear time here.
+    gameStartedAt: game.timeStarted,
+    players,
     characters,
   };
 }
