@@ -17,6 +17,7 @@ export const TEST_GAME_NAME = "test-game-a" as GameName;
 export const TEST_GAME_NAME_2 = "test-game-b" as GameName;
 export const TEST_GAME_NAME_3 = "test-game-c" as GameName;
 export const TEST_PARTY_NAME = "test-party-a";
+export const TEST_PARTY_NAME_2 = "test-party-b";
 
 export const TEST_AUTH_SESSION_ID_PLAYER_1 = "0000";
 export const TEST_AUTH_SESSION_ID_PLAYER_2 = "0001";

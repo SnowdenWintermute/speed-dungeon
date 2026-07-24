@@ -42,9 +42,17 @@ import {
   TEST_CHARACTER_NAME_2,
   TEST_GAME_NAME,
   TEST_PARTY_NAME,
+  TEST_PARTY_NAME_2,
   TestGameServerName,
 } from "./consts.js";
 import { TimeMachine } from "@/test-utils/time-machine.js";
+
+export interface TwoClientGameOptions {
+  auth?: boolean;
+  mode?: GameMode;
+  // when true, bravo creates their own party instead of joining alpha's — e.g. a race with two parties
+  separateParties?: boolean;
+}
 
 export type TestGameServersAndPorts = Record<
   TestGameServerName,
@@ -365,6 +373,40 @@ export class IntegrationTestFixture {
     return client;
   }
 
+  // one authed client in a fresh single-party game, driven all the way onto the game server. Only
+  // fits the single-party modes (Ironman, Progression) where creating the game makes the party for
+  // you — multi-party modes like race need an explicit createParty, so use the two-client helpers.
+  async createSingleClientInGameServerGame(options?: {
+    mode?: GameMode;
+    characterName?: string;
+    combatantClass?: CombatantClass;
+  }) {
+    const mode = options?.mode ?? GameMode.Ironman;
+    const characterName = options?.characterName ?? TEST_CHARACTER_NAME_1;
+    const combatantClass = options?.combatantClass ?? CombatantClass.Warrior;
+    const client = this.createClient("alpha", TEST_AUTH_SESSION_ID_PLAYER_1);
+    await client.connect();
+
+    await client.lobbyClientHarness.createGame(TEST_GAME_NAME, mode);
+    await client.lobbyClientHarness.createCharacter(characterName, combatantClass);
+    const gameId = client.clientApplication.gameContext.requireGame().id;
+
+    const gotConnectionInstructions = client.lobbyClientHarness.awaitMessageOfType(
+      GameStateUpdateType.GameServerConnectionInstructions
+    );
+    await client.lobbyClientHarness.toggleReadyToStartGame();
+    await gotConnectionInstructions;
+
+    const gotGameStartedMessage = client.gameClientHarness.awaitMessageOfType(
+      GameStateUpdateType.GameStarted
+    );
+    await client.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
+    await client.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
+    await gotGameStartedMessage;
+
+    return { client, gameId, characterName };
+  }
+
   async createTwoClientsInLobbyProgressionGame(
     alphaOptions: undefined | ClientTestFixtureOptions,
     bravoOptions: undefined | ClientTestFixtureOptions
@@ -386,7 +428,7 @@ export class IntegrationTestFixture {
     return { alpha, bravo };
   }
 
-  async createTwoClientsInLobbyGame(options?: { auth?: boolean }) {
+  async createTwoClientsInLobbyGame(options?: TwoClientGameOptions) {
     let alphaAuthId = "";
     let bravoAuthId = "";
     if (options?.auth) {
@@ -397,20 +439,30 @@ export class IntegrationTestFixture {
     const bravo = this.createClient("client b", bravoAuthId);
     await Promise.all([alpha.connect(), bravo.connect()]);
 
-    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME);
-    await alpha.lobbyClientHarness.createParty(TEST_PARTY_NAME);
-    await alpha.lobbyClientHarness.createCharacter("a", CombatantClass.Rogue);
+    const alphaPartyName = TEST_PARTY_NAME;
+    const bravoPartyName = options?.separateParties ? TEST_PARTY_NAME_2 : TEST_PARTY_NAME;
+    const alphaCharacterName = "a";
+    const bravoCharacterName = "b";
+
+    await alpha.lobbyClientHarness.createGame(TEST_GAME_NAME, options?.mode);
+    await alpha.lobbyClientHarness.createParty(alphaPartyName);
+    await alpha.lobbyClientHarness.createCharacter(alphaCharacterName, CombatantClass.Rogue);
 
     await bravo.lobbyClientHarness.fetchGameList();
     await bravo.lobbyClientHarness.joinGame(bravo.requireGameIdFromClientGameList(TEST_GAME_NAME));
-    await bravo.lobbyClientHarness.joinParty(TEST_PARTY_NAME);
-    await bravo.lobbyClientHarness.createCharacter("b", CombatantClass.Warrior);
+    if (options?.separateParties) {
+      await bravo.lobbyClientHarness.createParty(bravoPartyName);
+    } else {
+      await bravo.lobbyClientHarness.joinParty(bravoPartyName);
+    }
+    await bravo.lobbyClientHarness.createCharacter(bravoCharacterName, CombatantClass.Warrior);
 
-    return { alpha, bravo };
+    return { alpha, bravo, alphaPartyName, bravoPartyName, alphaCharacterName, bravoCharacterName };
   }
 
-  async createTwoClientsInGameServerGame(options?: { auth?: boolean }) {
-    const { alpha, bravo } = await this.createTwoClientsInLobbyGame(options);
+  async createTwoClientsInGameServerGame(options?: TwoClientGameOptions) {
+    const lobby = await this.createTwoClientsInLobbyGame(options);
+    const { alpha, bravo } = lobby;
     await alpha.lobbyClientHarness.toggleReadyToStartGame();
     await bravo.lobbyClientHarness.toggleReadyToStartGame();
 
@@ -418,7 +470,7 @@ export class IntegrationTestFixture {
     await alpha.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
     await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
     await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
-    return { alpha, bravo };
+    return lobby;
   }
 
   async createTwoClientsInFirstMonsterLair(options?: { auth?: boolean }) {

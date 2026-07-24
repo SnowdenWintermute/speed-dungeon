@@ -7,6 +7,41 @@ Started 2026-07-23.
 
 ---
 
+## Where we are / resume here (2026-07-24)
+
+Read increment (step 3) is **done and validated**: persistence read methods (in-memory + naive
+Postgres) over shared projections, and a **passing** Ironman integration test
+(`integration-tests/src/ladder/read-queries/`) proving the write→read→projection path against real
+records. Read queries are surfaced as passthroughs on `LadderGameRecordsService`.
+
+**`RankedRaceModeLadderPolicy` is now implemented** (2026-07-24) — race writes ladder records, so the
+win-rate / race-floor-clear / race-profile facets finally have a data source. Implemented as a
+multi-party mirror of `IronmanModeLadderPolicy` (`recordNewGame` on start; aggregate update +
+per-party floor-clear on descent; aggregate update on escape/battle-victory). See session log for the
+one non-obvious wrinkle (the detached-party wipe on solo leave).
+
+**Race read-query integration tests** (`integration-tests/src/ladder/read-queries/`):
+- `ranked-race-win-rate-reads.ts` — two-party ranked race, both escape (alpha before bravo via a clock
+  advance between escapes), asserts `getWinRateLadder` / `getPlayerProfileData` win-loss split +
+  `getFloorClearTimes`. **GREEN (validated 2026-07-24).**
+- `ranked-race-solo-leave-loss-reads.ts` — two-party ranked race, bravo (solo party) leaves → their
+  party is detached before the wipe; asserts the `updatePartyFate` guard still records the loss
+  (`{ wins:0, losses:1, gamesPlayed:1 }`). **GREEN (validated 2026-07-24).**
+
+The race write path (`RankedRaceModeLadderPolicy`) is now implemented AND covered by green integration
+tests (escape-winner, win/loss split, and the solo-leave detached-party guard). The win-rate,
+race-floor-clear, and race-profile facets have a validated data source.
+
+**Next, pick one:**
+- **Round out Ironman read-query integration tests** (quick, pattern proven): filters
+  (mode/control-scheme), pagination, `getCharacterFloorClearSnapshot`, `getExperiencePointsLadderCharacters`,
+  multi-run personal-bests.
+- Later, unchanged: Postgres SQL still needs a DB-backed test; then steps 4-8 (IndexedDB offline,
+  socket wiring for the LadderQueries impl, faceted UI, profiles, XP re-keying); and the deferred
+  write-path items (owner-at-clear-time `IdentityProviderId` denormalization; game-history facet).
+
+---
+
 ## Goal
 
 Replace the old experience-points ladder frontend with a client-rendered, faceted view over the
@@ -166,13 +201,11 @@ upgrade to client-driven (per the assert-on-client-output rule) once that wiring
 - **Write tests mode-agnostically where possible.** Ironman and race share most of the record shape
   and flow, so structure the play-a-run-then-read helpers to be reused for race once its write path
   exists.
-- **Race is DEFERRED — it has no write path yet.** `RankedRaceModeLadderPolicy` is entirely stubbed
-  (every method `throw new Error("... not implemented")` / "tbd": `onGameStart`, `onFloorDescent`,
-  `onPartyEscape`, `onPartyWipe`, leaves). So **ranked race writes NO ladder records at all** — the
-  win-rate, race floor-clear, and race-profile facets have no data source until that policy is
-  implemented. Only **Ironman** writes records today (its `onFloorDescent` → `recordPartyFloorClear`
-  is wired via `dungeon-exploration.ts:150-151`). Implementing the race write path is a prerequisite
-  for race integration tests (and for those facets to show anything live).
+- **Race write path is now IMPLEMENTED (2026-07-24)** — `RankedRaceModeLadderPolicy` is filled in
+  (see session log). Ranked race now writes ladder records, so the win-rate, race floor-clear, and
+  race-profile facets have a live data source. The **race integration test is the recommended next
+  step** and is no longer blocked; it should drive a multi-party game to exercise winner resolution
+  (earliest escape) and the solo-leave wipe path.
 - **Edge cases that gameplay can't naturally produce — deferred, noted:**
   - *Earliest-escape tie* (two parties escaping at the exact same ms): may not even be reachable in
     practice. If we ever need to cover it, force it with a controllable-clock ("time machine") test
@@ -240,6 +273,17 @@ Checked usage before teardown; these looked dead from the frontend but are live:
   `PlayerProfileData`, `ExperiencePointsLadderCharacterEntry`, `WinLossTally`) — NOT the
   username-carrying `…View`s. Named `…Entry` (matches `UserGameHistoryEntry`), deliberately not
   `…Row` — the DB repos already use `…RecordRow` for literal SQL rows and we didn't want to overload it.
+- **First integration test PASSING (2026-07-24).** `integration-tests/src/ladder/read-queries/`
+  (`ironman-floor-clear-reads.ts` + `index.test.ts`): plays a real Ironman run, descends two floors,
+  then asserts `getFloorClearTimes` + `getPlayerProfileData`, deriving expectations from
+  `getGameRecordAggregate` (ground truth) so it's robust to exact tick timing. Green means the whole
+  Ironman write→read→projection path is validated against real records: sort/rank, cumulative
+  summation across two floors, player attribution, snapshot-id linkage, and profile personal-bests.
+  Surfaced the read queries as passthroughs on `LadderGameRecordsService` (the shared handle the
+  fixture exposes, and where the eventual LadderQueries impl will call in). Added a 3-floor
+  immediate-staircase dungeon fixture (`TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE`) so a run can
+  descend twice without exploring/escaping. Confirmed: entering a floor lands the party on its room-0
+  staircase, so consecutive immediate descents work.
 - **`FloorClearEntry` and `FloorClearView` are one generic**, not two hand-synced interfaces:
   `FloorClear<TPlayer>` (in `queries/floor-clear-times.ts`) with a shared `players: TPlayer[]` and a
   shared `FloorClearCharacter` sub-shape. `FloorClearView = FloorClear<Username>`,
@@ -266,6 +310,47 @@ Checked usage before teardown; these looked dead from the frontend but are live:
   (b) that control-scheme / mode filtering (done in the projection, not SQL) behaves.
 
 ---
+
+## Session log — 2026-07-24 (race ladder policy)
+
+- **Implemented `RankedRaceModeLadderPolicy`** (`game-modes/race-modes/ranked-race-ladder-policy.ts`),
+  previously fully stubbed. Written as a multi-party mirror of `IronmanModeLadderPolicy` — all the
+  service plumbing (`recordNewGame`, `updateGameRecordAggregate`, `recordPartyFloorClear`) already
+  iterates `game.adventuringParties`, so multi-party fell out for free. Hooks: `onGameStart` →
+  `recordNewGame`; `onFloorDescent` → aggregate update + `recordPartyFloorClear`; `onPartyEscape` →
+  aggregate update; `onPartyBattleVictory` → aggregate update; `onPartyWipe` → aggregate update +
+  targeted `updatePartyFate` (see below). Dropped the Ironman `isContinuedRun` guard on start (race
+  games are never continued runs — that's an Ironman `requireIronmanRun` concept).
+- **Winner detection needs no special work in the policy.** The controllers set `party.fate =
+  { type: Escape, timestamp }` *before* calling `ladder.onPartyEscape` (`dungeon-exploration.ts:163`)
+  / `ladder.onPartyWipe` (`party-lifecycle.ts:20`), and `updateGameRecordAggregate` persists each
+  live party's `fateOption` (incl. the escape timestamp). So `raceWinnerPartyIds`
+  (earliest-escape-in-game) gets its timestamps just by calling the aggregate update.
+- **Non-obvious wrinkle — the detached-party wipe on solo leave.** For race (in
+  `gameModesWhereLeavingRemovesPlayer`), `handlePlayerRemovalOnGameLeave` calls
+  `game.removePlayerFromParty` **before** the wipe; if that player was solo, their party is *deleted
+  from `game.adventuringParties`* (`game/index.ts:406-412`), then `handlePartyWipe` sets `party.fate`
+  on the now-detached object and calls `onPartyWipe`. `updateGameRecordAggregate` only sweeps *live*
+  parties, so it silently skips the detached one — the loss would never be persisted, and
+  `computeRankedRaceTally` skips games where the user's party has no `fateOption` (so it wouldn't even
+  count as a game played). Fix: `onPartyWipe` also calls `updatePartyFate({ partyRecordId, fate,
+  deepestFloorReached })` directly (looks the record up by id, independent of the live map). Escape
+  doesn't have this problem — the escaping player stays in the game through the descent, so the party
+  is still live when its fate is persisted.
+- **`onLiveGameLeave` / `onLastPlayerLeftLiveGame` intentionally NOT overridden** (inherit base
+  no-ops). Every fate is persisted at the moment it happens (escape, battle-wipe, and leave-induced
+  wipe all route through the escape/wipe hooks), so no final sweep is needed — and Ironman's
+  `onLastPlayerLeftLiveGame` couldn't be reused anyway since `getUpdatedUserIdsToUsernamesMap` is
+  Ironman-only (`requireIronmanRun`).
+- **Test-fixture ceremony DRY'd up while writing the race test.** Extended
+  `createTwoClientsInLobbyGame` / `createTwoClientsInGameServerGame` with `{ mode, separateParties }`
+  (separateParties → bravo makes their own party instead of joining alpha's; needed for the two-party
+  race) and had them return the party/character names. Added `createSingleClientInGameServerGame`
+  ({ mode?, characterName?, combatantClass? }) for the single-party single-client flow and refactored
+  `ironman-floor-clear-reads.ts` onto it — the same authed-createGame→createCharacter→ready→await-
+  GameStarted dance is duplicated in `run-escape.ts` and `save-game-record-on-start.ts`, which could
+  adopt it too. Note the helper is only valid for single-party modes (Ironman/Progression); race
+  needs explicit party creation.
 
 ## Follow-ups / open questions
 

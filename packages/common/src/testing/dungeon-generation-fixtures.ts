@@ -21,6 +21,15 @@ export const TEST_DUNGEON_EMPTY_ROOMS_WITH_STAIRCASE: ExplicitCombatantDungeonTe
   ],
 ];
 
+// three floors, each a single immediately-descendable staircase room, so a run can descend twice
+// (recording floor 1 and floor 2 clears) without exploring or escaping the dungeon — used to test
+// cumulative floor timing across multiple recorded floor clears.
+export const TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE: ExplicitCombatantDungeonTemplate = [
+  [{ type: DungeonRoomType.Staircase }],
+  [{ type: DungeonRoomType.Staircase }],
+  [{ type: DungeonRoomType.Staircase }],
+];
+
 const ROOM_WITH_TWO_SPIDERS: ExplicitCombatantRoomTemplate = {
   type: DungeonRoomType.MonsterLair,
   combatants: [MONSTER_FIXTURES.SPIDER, MONSTER_FIXTURES.SPIDER],
