@@ -12,7 +12,7 @@ import {
 } from "../../aliases.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { SerializedCombatantWithPets } from "../../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
-import { CharacterControlScheme, GameMode } from "../index.js";
+import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 
 // in case they delete their account we can still show the name of a player in a game record
 // if they change their username, old game records should show their updated username

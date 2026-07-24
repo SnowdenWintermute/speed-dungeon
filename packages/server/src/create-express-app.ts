@@ -2,12 +2,6 @@ import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import expressErrorHandler from "./express-error-handler/index.js";
-import { getCharacterLevelLadderPageHandler } from "./game-node/route-handlers/get-character-level-ladder-page.js";
-import getUserRankedRaceGameCountHandler from "./game-node/route-handlers/get-user-ranked-race-game-count.js";
-import getUserRankedRaceHistoryHandler from "./game-node/route-handlers/get-user-ranked-race-history.js";
-import getUserIdFromUsernameInPath from "./game-node/route-handlers/middleware/userIdFromUsernameInPath.js";
-import getUserWinsAndLossesHandler from "./game-node/route-handlers/get-user-wins-and-losses.js";
-import { getUserProfileHandler } from "./game-node/route-handlers/get-user-profile.js";
 import { env } from "./validate-env.js";
 import { appRoute } from "./app-route.js";
 
@@ -28,29 +22,6 @@ export function createExpressApp() {
   app.get(appRoute({ isProduction }, "/"), (_: Request, res: Response) =>
     res.send("this is the api server")
   );
-  // app.get(appRoute("/assets/*"), getAssetHandler);
-  app.get(
-    appRoute({ isProduction }, "/profiles/:username"),
-    getUserIdFromUsernameInPath,
-    getUserProfileHandler
-  );
-  app.get(appRoute({ isProduction }, "/ladders/level/:page"), getCharacterLevelLadderPageHandler);
-  app.get(
-    appRoute({ isProduction }, "/game-records/count/:username"),
-    getUserIdFromUsernameInPath,
-    getUserRankedRaceGameCountHandler
-  );
-  app.get(
-    appRoute({ isProduction }, "/game-records/:username"),
-    getUserIdFromUsernameInPath,
-    getUserRankedRaceHistoryHandler
-  );
-  app.get(
-    appRoute({ isProduction }, "/game-records/win-loss-records/:username"),
-    getUserIdFromUsernameInPath,
-    getUserWinsAndLossesHandler
-  );
-
   // app.all(appRoute("*"), (req: Request, _: Response, next: NextFunction) => {
   //   const err = new Error(`Route ${req.originalUrl} not found`) as any;
   //   err.status = 404;

@@ -25,7 +25,7 @@ import {
   UserGameHistoryEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CharacterControlScheme } from "../index.js";
+import { CharacterControlScheme } from "../../game-modes/index.js";
 import cloneDeep from "lodash.clonedeep";
 import { SerializedOf } from "../../serialization/index.js";
 import { Combatant } from "../../combatants/index.js";

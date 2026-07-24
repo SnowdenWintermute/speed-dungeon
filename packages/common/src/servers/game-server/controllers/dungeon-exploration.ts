@@ -6,7 +6,7 @@ import { ResourceChangePropertiesStrategy } from "../../../combat/combat-actions
 import { DungeonGenerationPolicy } from "../../../dungeon-generation/index.js";
 import { GameModePolicyStore } from "../../../game-modes/game-mode-policy-store.js";
 import { GameMode } from "../../../game-modes/index.js";
-import { PartyFateType } from "../../../game-modes/ladder-records/index.js";
+import { PartyFateType } from "../../../ladder/records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { LootGenerator } from "../../../items/loot-generation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";

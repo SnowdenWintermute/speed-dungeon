@@ -1,5 +1,5 @@
 import { GameId } from "../../aliases.js";
-import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";

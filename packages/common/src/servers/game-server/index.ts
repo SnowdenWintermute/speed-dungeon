@@ -68,7 +68,7 @@ import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js"
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js";
 import { LobbyState } from "../lobby-server/lobby-state.js";
-import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
 import { PartyLifecyleController } from "./controllers/party-lifecycle.js";
 import { ResourceChangePropertiesStrategy } from "../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 

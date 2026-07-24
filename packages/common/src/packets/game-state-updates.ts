@@ -3,7 +3,7 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { ShardPayment } from "../game/player-shard-pool.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { UserGameHistoryEntry } from "../game-modes/ladder-records/ladder-records-persistence-strategy.js";
+import { UserGameHistoryEntry } from "../ladder/records/ladder-records-persistence-strategy.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";

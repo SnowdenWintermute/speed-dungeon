@@ -49,7 +49,7 @@ import { UserGameDataPersistenceService } from "../services/user-game-data-persi
 import { GameExistenceChecker } from "./game-existence-queries.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
 import { IronmanRunController } from "../controllers/ironman-run-controller.js";
-import { LadderGameRecordsService } from "../../game-modes/ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;

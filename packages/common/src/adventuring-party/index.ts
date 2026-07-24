@@ -22,7 +22,7 @@ import {
 import { ActionIntentAndUser } from "../action-processing/action-steps/index.js";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { invariant } from "../utils/index.js";
-import { PartyFate, PartyFateType } from "../game-modes/ladder-records/index.js";
+import { PartyFate, PartyFateType } from "../ladder/records/index.js";
 import cloneDeep from "lodash.clonedeep";
 
 export class AdventuringParty implements Serializable, ReactiveNode {

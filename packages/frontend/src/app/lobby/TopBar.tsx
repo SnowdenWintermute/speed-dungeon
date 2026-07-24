@@ -37,14 +37,6 @@ export default function TopBar() {
             <li className={`${pathName === `/` && "underline"} mr-4`}>
               <Link href={"/"}>Game</Link>
             </li>
-            <li>
-              <Link
-                href={"/ladder/1"}
-                className={`${pathName.split("/")[1] === `ladder` && "underline"} mr-4`}
-              >
-                Ladder
-              </Link>
-            </li>
           </ul>
         </div>
         <div className="flex">

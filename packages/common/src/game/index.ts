@@ -32,7 +32,7 @@ import { invariant } from "../utils/index.js";
 import { UserSession } from "../servers/sessions/user-session.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { GameClock } from "./game-clock.js";
-import { PartyFateType } from "../game-modes/ladder-records/index.js";
+import { PartyFateType } from "../ladder/records/index.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 
 export class SpeedDungeonGame implements Serializable, ReactiveNode {

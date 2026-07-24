@@ -74,8 +74,6 @@ docker volume rm <PROJECT>_speed_dungeon_pg_volume   # destroys SD data ONLY
 docker-compose up -d
 ```
 
-## 6. VPS — verify
-
 ```bash
 docker-compose ps                                              # all up; SD services healthy
 docker-compose logs speed-dungeon-lobby | grep -i migration    # "Migrations completed successfully"
@@ -83,33 +81,15 @@ docker-compose logs speed-dungeon-game-server-1 | grep -i "asset facts"   # fetc
 docker exec <PROJECT>_speed-dungeon-valkey_1 valkey-cli HGETALL game-server-registry:servers   # both registered
 ```
 
-Then in a browser: log in (snowauth), create a game, start it — you should be handed to
-`wss://roguelikeracing.com/game-server-1` (or `-2`).
-
----
-
-## If something breaks
-
-- **Auth/token error at the lobby on boot** → almost always `TOKENS_SECRET` or
-  `INTERNAL_SERVICES_SECRET` missing/mismatched in `.speed-dungeon-env`.
-- **Game server exits / restarts** → it couldn't fetch asset facts; check the asset server is
-  healthy (`docker-compose logs speed-dungeon-asset-server`).
-- **Rollback** → pushing the new `:server`/`:frontend` overwrites the old combined images on
-  Docker Hub (we chose not to preserve them). To roll back: check out the pre-split commit from git
-  history, rebuild the old combined `:server` + `:client` images and push them, restore that
-  commit's `vps.docker.yml` and nginx site, then `docker-compose up -d`.
-
-## Port map on the box (all host ports, for reference)
-
-| port | service |
-|------|---------|
-| 3000 | personal site |
-| 3002 | speed-dungeon frontend |
-| 3005 | battle-school client |
-| 3008 | twistgame |
-| 8083 | speed-dungeon lobby |
-| 8084 | snowauth |
-| 8085 | battle-school server |
+| port | service                     |
+| ---- | --------------------------- |
+| 3000 | personal site               |
+| 3002 | speed-dungeon frontend      |
+| 3005 | battle-school client        |
+| 3008 | twistgame                   |
+| 8083 | speed-dungeon lobby         |
+| 8084 | snowauth                    |
+| 8085 | battle-school server        |
 | 8086 | speed-dungeon game-server-2 |
-| 8087 | speed-dungeon asset-server |
+| 8087 | speed-dungeon asset-server  |
 | 8088 | speed-dungeon game-server-1 |

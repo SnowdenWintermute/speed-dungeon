@@ -1,6 +1,6 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { GameModePolicy } from "../../../game-modes/index.js";
-import { PartyFateType } from "../../../game-modes/ladder-records/index.js";
+import { PartyFateType } from "../../../ladder/records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
 import { createPartyWipeMessage, GameMessageType } from "../../../packets/game-message.js";

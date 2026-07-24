@@ -1,6 +1,6 @@
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
-import { LadderGameRecordsService } from "../../../game-modes/ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../../../ladder/records/ladder-records-service.js";
 import { DateRange } from "../../../primatives/date-range.js";
 import { invariant } from "../../../utils/index.js";
 import { UserIdType } from "../../sessions/user-ids.js";

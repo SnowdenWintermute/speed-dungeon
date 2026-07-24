@@ -12,7 +12,7 @@ import { UserSessionRegistry } from "../servers/sessions/user-session-registry.j
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 import { IdGenerator } from "../utility-classes/index.js";
-import { LadderGameRecordsService } from "./ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../ladder/records/ladder-records-service.js";
 
 /** how to update which ladder when certain events happen
  * will need access to ladder services, or be owned by a composing class that

@@ -10,7 +10,7 @@ import {
   PartyId,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
-import { CharacterControlScheme } from "../index.js";
+import { CharacterControlScheme } from "../../game-modes/index.js";
 import { invariant } from "../../utils/index.js";
 import {
   LadderCharacterFloorClearRecord,
@@ -23,12 +23,28 @@ import {
   PartyFate,
 } from "./index.js";
 import {
+  ExperiencePointsLadderCharacterEntry,
+  FloorClearEntry,
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
+  PlayerProfileData,
   UserGameHistoryEntry,
+  WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
+import {
+  FloorClearProjectionRecords,
+  projectCharacterFloorClearSnapshot,
+  projectExperiencePointsLadderCharacters,
+  projectFloorClearTimesPage,
+  projectPlayerProfileData,
+  projectWinRateLadderPage,
+} from "./ladder-read-model-projections.js";
+import { LadderPage } from "../queries/ladder-page.js";
+import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
+import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 
 export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPersistenceStrategy {
   private games = new Map<GameId, LadderGameRecord>();
@@ -96,13 +112,20 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     gameId: GameId,
     userId: IdentityProviderId
   ): PartyFate | undefined {
+    return this.playerPartyInGame(gameId, userId)?.fateOption;
+  }
+
+  private playerPartyInGame(
+    gameId: GameId,
+    userId: IdentityProviderId
+  ): LadderPartyRecord | undefined {
     for (const character of this.characters.values()) {
       if (character.controllingPlayerId !== userId) {
         continue;
       }
       const party = this.parties.get(character.partyRecordId);
       if (party !== undefined && party.gameRecordId === gameId) {
-        return party.fateOption;
+        return party;
       }
     }
     return undefined;
@@ -243,5 +266,56 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
   async updateCharacterRecord(record: LadderCharacterRecord): Promise<void> {
     invariant(this.characters.has(record.id), "expected an existing character record to update");
     this.characters.set(record.id, cloneDeep(record));
+  }
+
+  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
+    return projectFloorClearTimesPage(query, this.floorClearProjectionRecords());
+  }
+
+  async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
+    return projectWinRateLadderPage(query, {
+      participantIds: [...this.participants.keys()],
+      games: [...this.games.values()],
+      parties: [...this.parties.values()],
+      characters: [...this.characters.values()],
+    });
+  }
+
+  async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
+    return projectPlayerProfileData(userId, {
+      ...this.floorClearProjectionRecords(),
+      isKnownParticipant: this.participants.has(userId),
+    });
+  }
+
+  async getCharacterFloorClearSnapshot(
+    id: LadderCharacterFloorClearRecordId
+  ): Promise<CharacterFloorClearSnapshotView | undefined> {
+    const stored = this.characterFloorClearedSnapshots.get(id);
+    // clone so the returned view's combatantWithPets isn't a live reference into stored state
+    const snapshot = stored === undefined ? undefined : cloneDeep(stored);
+    const characterName =
+      stored === undefined ? "" : (this.characters.get(stored.characterRecordRef)?.name ?? "");
+    return projectCharacterFloorClearSnapshot(snapshot, characterName);
+  }
+
+  async getExperiencePointsLadderCharacters(
+    characterIds: CombatantId[]
+  ): Promise<ExperiencePointsLadderCharacterEntry[]> {
+    return projectExperiencePointsLadderCharacters(characterIds, {
+      characters: [...this.characters.values()],
+      parties: [...this.parties.values()],
+      games: [...this.games.values()],
+    });
+  }
+
+  private floorClearProjectionRecords(): FloorClearProjectionRecords {
+    return {
+      partyFloorClears: [...this.partyFloorClears.values()],
+      parties: [...this.parties.values()],
+      games: [...this.games.values()],
+      characters: [...this.characters.values()],
+      snapshots: [...this.characterFloorClearedSnapshots.values()],
+    };
   }
 }

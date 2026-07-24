@@ -18,7 +18,7 @@ import { IronmanModeInGameDecisionsPolicy } from "./ironman-mode/in-game-decisio
 import { IronmanModeLadderPolicy } from "./ironman-mode/ladder-policy.js";
 import { IronmanModeLobbySetup } from "./ironman-mode/lobby-setup-policy.js";
 import { IronmanModePersistencePolicy } from "./ironman-mode/persistence-policy.js";
-import { LadderGameRecordsService } from "./ladder-records/ladder-records-service.js";
+import { LadderGameRecordsService } from "../ladder/records/ladder-records-service.js";
 import { ProgressionModeInGameDecisionsPolicy } from "./progression-mode/in-game-decisions-policy.js";
 import { ProgressionModeLadderPolicy } from "./progression-mode/ladder-policy.js";
 import { ProgressionModeLobbySetup } from "./progression-mode/lobby-setup-policy.js";
