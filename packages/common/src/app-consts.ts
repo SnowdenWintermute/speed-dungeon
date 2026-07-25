@@ -135,7 +135,11 @@ export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
 // ACCOUNTS AND PROFILES
 export const DEFAULT_ACCOUNT_CHARACTER_CAPACITY = 3;
 export const DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY = 2;
-export const LADDER_PAGE_SIZE = 20;
+// mutable so tests can shrink the page size instead of having to produce 20+ real records to cross a
+// page boundary (same test-seam pattern as GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE)
+export const LADDER_CONFIG = {
+  PAGE_SIZE: 20,
+};
 export const RACE_GAME_RECORDS_PAGE_SIZE = 3;
 export const USER_GAME_HISTORY_PAGE_SIZE = 10;
 export const MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD = 10;

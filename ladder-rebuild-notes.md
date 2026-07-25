@@ -27,15 +27,85 @@ one non-obvious wrinkle (the detached-party wipe on solo leave).
 - `ranked-race-solo-leave-loss-reads.ts` — two-party ranked race, bravo (solo party) leaves → their
   party is detached before the wipe; asserts the `updatePartyFate` guard still records the loss
   (`{ wins:0, losses:1, gamesPlayed:1 }`). **GREEN (validated 2026-07-24).**
+- `ironman-filters-and-snapshot-reads.ts` — single Ironman run; asserts `getFloorClearTimes` mode +
+  control-scheme filters (match vs exclude) and `getCharacterFloorClearSnapshot` hydration. **GREEN
+  (validated 2026-07-24).**
+- `floor-clear-pagination-reads.ts` — three independent single-player Ironman runs (one per user,
+  PLAYER_1/2/3), page size shrunk via the new `LADDER_CONFIG.PAGE_SIZE` seam; asserts full page +
+  partial page, rank continuation across the boundary, `totalPages`, and an out-of-range page.
+  **GREEN (validated 2026-07-24).** (`LADDER_PAGE_SIZE` const → `LADDER_CONFIG.PAGE_SIZE` mutable
+  object, mirroring the `GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE` test seam; only the projection
+  consumed it. Confirms three game-server games can run concurrently under fake timers.)
+- `ironman-multi-run-personal-best-reads.ts` — one player plays two Ironman runs, each clearing floor
+  1 at a different time; asserts `getPlayerProfileData` dedupes to a single floor-1 personal best at
+  the faster time. **GREEN (validated 2026-07-24).** Uses the extracted
+  `driveClientIntoSinglePartyGameServerGame` (leave saves run 1 → 1 of 2 slots → play run 2). Note:
+  leaving a solo Ironman run SAVES it (holds a slot); only a *concluded* run (escape/wipe/abandon)
+  frees the slot — two saved runs sit exactly at the cap of 2, which is fine.
 
 The race write path (`RankedRaceModeLadderPolicy`) is now implemented AND covered by green integration
 tests (escape-winner, win/loss split, and the solo-leave detached-party guard). The win-rate,
 race-floor-clear, and race-profile facets have a validated data source.
 
-**Next, pick one:**
-- **Round out Ironman read-query integration tests** (quick, pattern proven): filters
-  (mode/control-scheme), pagination, `getCharacterFloorClearSnapshot`, `getExperiencePointsLadderCharacters`,
-  multi-run personal-bests.
+**Fixture-helper shape (2026-07-24):** the game-server-setup ceremony is now `createClient` +
+`driveClientIntoSinglePartyGameServerGame` (public, reusable across sequential games on one client,
+**guards single-party modes only** — race must use the two-client helpers). `createSingleClientInGameServerGame`
+wraps those two.
+
+**Read-query coverage is COMPLETE at the read-model level (all green, 2026-07-24):** floor clears +
+cumulative + profile bests, race win/loss + earliest-escape winner, solo-leave detached-party guard,
+mode/control-scheme filters + snapshot hydration, pagination, and multi-run personal-best dedup.
+`getExperiencePointsLadderCharacters` stays out of scope: it's the Progression-only XP facet, and
+**progression characters hydrate from their actual persisted character entity, not a
+`LadderCharacterRecord`** (don't mirror a live entity into a denormalized record) — its hydration path
+is part of the XP re-keying work (step 8).
+
+> ⚠️ **These read-query tests are a STOPGAP — they don't yet test what we ultimately care about.** They
+> assert against `testFixture.ladderGameRecordsService` (the server-side read methods) directly, because
+> there's no client path to request ladder records yet. The real goal (per the assert-on-client-output
+> rule, [[feedback_integration_tests_assert_client_output]]) is to drive a **client** query over the
+> socket and assert on **`clientApplication` state** — that the player actually sees the records they
+> asked for. That needs the `LadderQueries` socket wiring (steps 5-6), which doesn't exist yet. **When it
+> lands, revisit ALL of these (both the in-memory and postgres params) and re-point them at
+> client-observed output.** The current tests still have value in the meantime (they validate the
+> projection + SQL), but they are not the final shape.
+
+**Postgres-backed read-query test — GREEN 2026-07-24.** All 12 pass (6 in-memory + 6 postgres). The
+previously-UNVERIFIED Postgres read SQL is now validated against a real DB (Testcontainers). Parametrized
+the read-query suite over `{ in-memory, postgres }` via `describe.each` (mirrors the auth/guest pattern in
+`game-server-reconnection/index.test.ts`). Both strategies run the SAME six tests through the same
+`LadderGameRecordsService`, so in-memory doubles as an oracle for the Postgres SQL.
+
+Two non-obvious things surfaced getting it green (both fixed):
+- **Fake timers deadlock Testcontainers startup.** A prior in-memory test leaves `vi.useFakeTimers()`
+  installed; `container.start()` (and pg queries in migrate) are timer-driven and hang forever. Fix:
+  `testFixture.timeMachine.returnToPresent()` before every container-lifecycle op (start/truncate/stop)
+  in the pg block's hooks. NOTE: pg *queries during a test* are fine under fake timers (they resolve on
+  socket I/O, which fake timers don't touch) — only container startup/migrate needed real timers.
+- **UUID columns vs the harness's sequential ids.** Prod ids come from `IdGeneratorRandom` (uuidv4), and
+  the schema id columns are UUID; the test harness swaps in `IdGeneratorSequential` (`"lid-1"`, `"eid-N"`)
+  for determinism, which isn't valid UUID → `22P02`. Fix: the pg run injects `() => new IdGeneratorRandom(...)`
+  via the new `idGeneratorFactory` seam (safe here — no read-query test depends on turn-order determinism;
+  they use no-combat dungeons). Participant id is INT and the test identity provider issues numeric ids
+  (`getNextIdNumeric`), so that column was already fine.
+- Infra: `@testcontainers/postgresql` spins up ephemeral `postgres:16`; `node-pg-migrate` runs the
+  real `.cjs` migrations programmatically against it (explicit `databaseUrl`, never touches the dev
+  `.env`). `packages/integration-tests/src/fixtures/postgres-test-database.ts` owns container lifecycle
+  + `TRUNCATE ... RESTART IDENTITY CASCADE` between tests.
+- Wiring: `createTestServers` / `IntegrationTestFixture` now take a `ladderPersistenceStrategyFactory`
+  (defaults to in-memory); the pg param passes `() => new DatabaseLadderRecordsPersistenceStrategy()`.
+  Server barrel now exports `pgPool`, `DatabaseLadderRecordsPersistenceStrategy`, `RESOURCE_NAMES` (the
+  strategy uses the `pgPool` singleton, which the harness connects to the container).
+- **Gated behind `RUN_POSTGRES_LADDER_TESTS=1`** so the default suite stays fast + Docker-free; the pg
+  block (and its container) only exists when the flag is set. Run:
+  `RUN_POSTGRES_LADDER_TESTS=1 yarn workspace @speed-dungeon/integration-tests test read-queries`.
+- Minor cleanup still open: `node-pg-migrate` works from integration-tests via yarn hoist but isn't
+  declared there — add it as a devDep for correctness.
+
+**Next (moving off the read increment — the whole read side is now validated on both stores):**
+steps 4-8 (IndexedDB offline, socket wiring for the LadderQueries impl, faceted UI, profiles, XP
+re-keying); and the deferred write-path items (owner-at-clear-time `IdentityProviderId` denormalization;
+game-history facet).
 - Later, unchanged: Postgres SQL still needs a DB-backed test; then steps 4-8 (IndexedDB offline,
   socket wiring for the LadderQueries impl, faceted UI, profiles, XP re-keying); and the deferred
   write-path items (owner-at-clear-time `IdentityProviderId` denormalization; game-history facet).
@@ -303,11 +373,10 @@ Checked usage before teardown; these looked dead from the frontend but are live:
   toward `gamesPlayed` once the user's party has a fate (in-progress games are skipped). Floor-clear
   times sort fastest-first and page at `LADDER_PAGE_SIZE` (20). Personal bests = the user's fastest
   clear per `(floor, mode, controlScheme)`, ranked by floor order.
-- **Postgres SQL is UNVERIFIED against a live DB** (written to mirror the existing strategy's
-  patterns; couldn't run it here). Two things to check when a DB is up: (a) the `IdentityProviderId`
-  type on the projection-side equality — participant PK is numeric but `controlling_player_id` is
-  stored as a string, so make sure the `userId` passed in matches what the join compares against;
-  (b) that control-scheme / mode filtering (done in the projection, not SQL) behaves.
+- ~~**Postgres SQL is UNVERIFIED against a live DB**~~ **RESOLVED 2026-07-24** — the Postgres read
+  strategy now passes the full read-query suite against a real DB via Testcontainers (see the
+  "Postgres-backed read-query test — GREEN" entry up top). Both original worries checked out:
+  participant-id typing (numeric PK) and mode/control-scheme filtering both behave correctly.
 
 ---
 

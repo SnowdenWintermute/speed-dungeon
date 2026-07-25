@@ -7,6 +7,7 @@ import {
   InMemoryGameServerRegistry,
   GameServer,
   GameplayAssetFacts,
+  IdGenerator,
   IdGeneratorSequential,
   IncomingConnectionGateway,
   InMemoryGameSessionStoreService,
@@ -39,6 +40,7 @@ import {
   UserGameDataPersistenceService,
   InMemoryIronmanRunPersistenceStrategy,
   LadderGameRecordsService,
+  LadderRecordsPersistenceStrategy,
   InMemoryLadderRecordsPersistenceStrategy,
   ResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
@@ -81,7 +83,11 @@ export async function createTestServers(
   leastBusyGameServerGetterRef: { getter: () => Promise<{ name: GameServerName; url: string }> },
   rngPolicy: RandomNumberGenerationPolicy,
   resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy,
-  characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy
+  characterCreationPolicyConstructor: CharacterCreationPolicyConstructor = DefaultCharacterCreationPolicy,
+  ladderPersistenceStrategyFactory: () => LadderRecordsPersistenceStrategy = () =>
+    new InMemoryLadderRecordsPersistenceStrategy(),
+  idGeneratorFactory: (prefix?: string) => IdGenerator = (prefix) =>
+    new IdGeneratorSequential({ saveHistory: false, prefix })
 ) {
   const gameSessionStoreService = new InMemoryGameSessionStoreService();
   const globalGameSessionStore = new InMemoryUserGlobalGameSessionStore();
@@ -102,8 +108,8 @@ export async function createTestServers(
   );
   const rankedLadderService = new InMemoryCharacterLevelLadderService();
   const ladderGameRecordsService = new LadderGameRecordsService(
-    new InMemoryLadderRecordsPersistenceStrategy(),
-    new IdGeneratorSequential({ saveHistory: false, prefix: "ladder-record-id" })
+    ladderPersistenceStrategyFactory(),
+    idGeneratorFactory("ladder-record-id")
   );
 
   const gameplayAssetFacts = await getTestGameplayAssetFacts();
@@ -155,8 +161,7 @@ export async function createTestServers(
     },
     characterCreationPolicyConstructor,
     rngPolicy,
-    // must use sequential ids for deterministic turn ordering since id is used as tiebreaker
-    new IdGeneratorSequential({ saveHistory: false, prefix: "lid" }),
+    idGeneratorFactory("lid"),
     queryParamsAuthSessionIdParser
   );
 
@@ -184,7 +189,7 @@ export async function createTestServers(
           ScriptedDungeonGenerationPolicy,
           rngPolicy,
           resourceChangePropertiesStrategy,
-          new IdGeneratorSequential({ saveHistory: false, prefix: "gid" }),
+          idGeneratorFactory("gid"),
           queryParamsAuthSessionIdParser
         ),
       ]

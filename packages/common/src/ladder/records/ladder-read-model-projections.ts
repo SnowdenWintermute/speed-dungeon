@@ -1,4 +1,4 @@
-import { LADDER_PAGE_SIZE } from "../../app-consts.js";
+import { LADDER_CONFIG } from "../../app-consts.js";
 import { CombatantId, GameId, IdentityProviderId, PartyId } from "../../aliases.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 import {
@@ -423,9 +423,9 @@ function paginate<TSource, TEntry>(
   page: number,
   toEntry: (source: TSource, rank: number) => TEntry
 ): LadderPage<TEntry> {
-  const totalPages = Math.ceil(all.length / LADDER_PAGE_SIZE);
-  const pageStart = page * LADDER_PAGE_SIZE;
-  const pageSources = all.slice(pageStart, pageStart + LADDER_PAGE_SIZE);
+  const totalPages = Math.ceil(all.length / LADDER_CONFIG.PAGE_SIZE);
+  const pageStart = page * LADDER_CONFIG.PAGE_SIZE;
+  const pageSources = all.slice(pageStart, pageStart + LADDER_CONFIG.PAGE_SIZE);
   const entries = pageSources.map((source, indexInPage) =>
     toEntry(source, pageStart + indexInPage + 1)
   );

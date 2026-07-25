@@ -26,7 +26,9 @@ import {
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   UserGameDataPersistenceService,
+  IdGenerator,
   LadderGameRecordsService,
+  LadderRecordsPersistenceStrategy,
   ResourceChangePropertiesStrategy,
   TestResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
@@ -89,6 +91,16 @@ export class IntegrationTestFixture {
       throw new Error("Not initialized");
     },
   };
+  private readonly ladderPersistenceStrategyFactory?: () => LadderRecordsPersistenceStrategy;
+  private readonly idGeneratorFactory?: (prefix?: string) => IdGenerator;
+
+  constructor(options?: {
+    ladderPersistenceStrategyFactory?: () => LadderRecordsPersistenceStrategy;
+    idGeneratorFactory?: (prefix?: string) => IdGenerator;
+  }) {
+    this.ladderPersistenceStrategyFactory = options?.ladderPersistenceStrategyFactory;
+    this.idGeneratorFactory = options?.idGeneratorFactory;
+  }
 
   private createIncomingConnectionGateways() {
     const lobbyWebSocketServer = new WebSocketServer({ port: 0 });
@@ -147,7 +159,9 @@ export class IntegrationTestFixture {
       this._leastBusyGameServerUrlGetterRef,
       rngPolicy,
       resourceChangePropertiesStrategy,
-      ScriptedCharacterCreationPolicy
+      ScriptedCharacterCreationPolicy,
+      this.ladderPersistenceStrategyFactory,
+      this.idGeneratorFactory
     );
 
     this._rankedLadderService = rankedLadderService;
@@ -373,22 +387,26 @@ export class IntegrationTestFixture {
     return client;
   }
 
-  // one authed client in a fresh single-party game, driven all the way onto the game server. Only
-  // fits the single-party modes (Ironman, Progression) where creating the game makes the party for
-  // you — multi-party modes like race need an explicit createParty, so use the two-client helpers.
-  async createSingleClientInGameServerGame(options?: {
-    mode?: GameMode;
-    characterName?: string;
-    combatantClass?: CombatantClass;
-  }) {
-    const mode = options?.mode ?? GameMode.Ironman;
-    const characterName = options?.characterName ?? TEST_CHARACTER_NAME_1;
-    const combatantClass = options?.combatantClass ?? CombatantClass.Warrior;
-    const client = this.createClient("alpha", TEST_AUTH_SESSION_ID_PLAYER_1);
-    await client.connect();
-
-    await client.lobbyClientHarness.createGame(TEST_GAME_NAME, mode);
-    await client.lobbyClientHarness.createCharacter(characterName, combatantClass);
+  // drives an already-connected client from the lobby into a fresh SINGLE-PARTY game on the game
+  // server (createGame → createCharacter → ready → await GameStarted). No party is created explicitly,
+  // so this only fits single-party modes (Ironman, Progression) where creating the game makes the
+  // party for you — it rejects the multi-party race modes. Reusable for a client that plays several
+  // games in sequence — e.g. leave a saved run, then start another.
+  async driveClientIntoSinglePartyGameServerGame(
+    client: ClientFixture,
+    options: {
+      mode: GameMode;
+      gameName: GameName;
+      characterName: string;
+      combatantClass: CombatantClass;
+    }
+  ) {
+    invariant(
+      [GameMode.Ironman, GameMode.Progression].includes(options.mode),
+      "driveClientIntoSinglePartyGameServerGame supports only single-party modes (Ironman, Progression); race modes need explicit party creation"
+    );
+    await client.lobbyClientHarness.createGame(options.gameName, options.mode);
+    await client.lobbyClientHarness.createCharacter(options.characterName, options.combatantClass);
     const gameId = client.clientApplication.gameContext.requireGame().id;
 
     const gotConnectionInstructions = client.lobbyClientHarness.awaitMessageOfType(
@@ -404,6 +422,36 @@ export class IntegrationTestFixture {
     await client.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
     await gotGameStartedMessage;
 
+    return gameId;
+  }
+
+  // one authed client in a fresh single-party game, driven all the way onto the game server. Only
+  // fits the single-party modes (Ironman, Progression) where creating the game makes the party for
+  // you — multi-party modes like race need an explicit createParty, so use the two-client helpers.
+  // authId/gameName/clientId are overridable so several independent games can run side by side (each
+  // under its own user, so no session collision and no shared saved-run slot).
+  async createSingleClientInGameServerGame(options?: {
+    mode?: GameMode;
+    characterName?: string;
+    combatantClass?: CombatantClass;
+    authId?: string;
+    gameName?: GameName;
+    clientId?: string;
+  }) {
+    const mode = options?.mode ?? GameMode.Ironman;
+    const characterName = options?.characterName ?? TEST_CHARACTER_NAME_1;
+    const combatantClass = options?.combatantClass ?? CombatantClass.Warrior;
+    const authId = options?.authId ?? TEST_AUTH_SESSION_ID_PLAYER_1;
+    const gameName = options?.gameName ?? TEST_GAME_NAME;
+    const clientId = options?.clientId ?? "alpha";
+    const client = this.createClient(clientId, authId);
+    await client.connect();
+    const gameId = await this.driveClientIntoSinglePartyGameServerGame(client, {
+      mode,
+      gameName,
+      characterName,
+      combatantClass,
+    });
     return { client, gameId, characterName };
   }
 
