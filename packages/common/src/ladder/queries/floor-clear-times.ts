@@ -15,8 +15,6 @@ export interface FloorClearCharacter {
   snapshotIdOption?: LadderCharacterFloorClearRecordId;
 }
 
-// every floor clear that exists for the filter, sorted fastest-first by default. only race +
-// ironman record floor clears; progression does not.
 export interface FloorClearTimesQuery {
   floor: number;
   page: number;
@@ -24,10 +22,7 @@ export interface FloorClearTimesQuery {
   modeOption?: GameMode;
 }
 
-// one floor-clear read model, generic over how players are referenced. the persistence read side
-// keys players by IdentityProviderId (FloorClearEntry, in the records layer); the client-facing view
-// keys them by Username (FloorClearView). the LadderQueries impl converts one to the other by
-// resolving the player refs — every other field is shared, so the two shapes can't drift.
+// TPlayer = IdentityProviderID (as persisted) or Username (for client view)
 export interface FloorClear<TPlayer> {
   rank: number;
   gameRecordId: GameId;
@@ -36,13 +31,9 @@ export interface FloorClear<TPlayer> {
   mode: GameMode;
   controlScheme: CharacterControlScheme;
   floor: number;
-  // active time on this floor alone
   timeSpentOnFloor: Milliseconds;
-  // active time from game start through clearing this floor: running total of timeSpentOnFloor over
-  // floors 1..this, which are expected to all exist (invariant — a gap is a write-path bug)
+  // time from start of game until floor cleared
   cumulativeTimeToClearFloor: Milliseconds;
-  // the run's date, for sorting/showing floor clears by when the run happened (= game start).
-  // NOT when floor X was cleared — no absolute per-floor timestamp is stored (see notes).
   gameStartedAt: Milliseconds;
   players: TPlayer[];
   characters: FloorClearCharacter[];

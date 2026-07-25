@@ -1,7 +1,6 @@
-import { Username } from "../../aliases.js";
+import { NormalizedPercentage, Username } from "../../aliases.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 
-// minimumGamesPlayed guards against a single-win player sitting at 100% forever
 export interface WinRateLadderQuery {
   page: number;
   minimumGamesPlayed: number;
@@ -12,7 +11,7 @@ export interface WinLossRecord {
   wins: number;
   losses: number;
   gamesPlayed: number;
-  winRate: number; // 0..1
+  winRate: NormalizedPercentage;
 }
 
 export interface WinRateLadderView {
