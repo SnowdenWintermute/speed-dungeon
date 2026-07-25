@@ -1,0 +1,17 @@
+how are we resolving usernames of deleted accounts
+- currently we don't save them on account deletion
+  or username update
+
+experience point ladder for progression games
+
+frontend ladder browser
+
+frontend profiles at /profiles/:username
+
+fill db with test data for frontend manual testing
+
+floor clears show participating players at that time
+
+game history records show all original players and if they abandoned or not
+
+finish moving ladder read tests from reading server side results to testing client state after queries

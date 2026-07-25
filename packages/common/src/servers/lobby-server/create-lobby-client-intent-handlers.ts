@@ -61,6 +61,8 @@ export function createLobbyClientIntentHandlers(
       lobbyServer.ladderGameRecordsController.getUserGameHistoryHandler(user, data),
     [ClientIntentType.GetUserGameRecordsCount]: (data, user) =>
       lobbyServer.ladderGameRecordsController.getUserGameRecordsCountHandler(user, data),
+    [ClientIntentType.LadderQuery]: (data, user) =>
+      lobbyServer.ladderGameRecordsController.ladderQueryHandler(user, data),
 
     // IRONMAN RUN MANAGEMENT
     [ClientIntentType.AbandonIronmanRun]: (data, user) =>

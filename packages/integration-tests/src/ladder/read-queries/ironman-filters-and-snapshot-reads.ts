@@ -23,10 +23,10 @@ export async function testIronmanReadQueryFiltersAndSnapshot(testFixture: Integr
   testFixture.timeMachine.advanceTime(ONE_SECOND);
   await alpha.gameClientHarness.toggleReadyToDescend();
 
-  const service = testFixture.ladderGameRecordsService;
+  const ladderQueries = await testFixture.createLadderViewerQueries();
 
   // the unfiltered floor-1 read gives us the recorded character + its snapshot id to drill into
-  const basePage = await service.getFloorClearTimes({ floor: 1, page: 0 });
+  const basePage = await ladderQueries.getFloorClearTimes({ floor: 1, page: 0 });
   expect(basePage.entries).toHaveLength(1);
   const entry = basePage.entries[0];
   invariant(entry !== undefined, "expected a floor-1 entry");
@@ -37,16 +37,18 @@ export async function testIronmanReadQueryFiltersAndSnapshot(testFixture: Integr
 
   // --- mode filter: matches Ironman, excludes any other mode ---
   expect(
-    (await service.getFloorClearTimes({ floor: 1, page: 0, modeOption: GameMode.Ironman })).entries
+    (await ladderQueries.getFloorClearTimes({ floor: 1, page: 0, modeOption: GameMode.Ironman }))
+      .entries
   ).toHaveLength(1);
   expect(
-    (await service.getFloorClearTimes({ floor: 1, page: 0, modeOption: GameMode.RankedRace })).entries
+    (await ladderQueries.getFloorClearTimes({ floor: 1, page: 0, modeOption: GameMode.RankedRace }))
+      .entries
   ).toHaveLength(0);
 
   // --- control-scheme filter: matches Captain (the run's scheme), excludes Freelancer ---
   expect(
     (
-      await service.getFloorClearTimes({
+      await ladderQueries.getFloorClearTimes({
         floor: 1,
         page: 0,
         controlSchemeOption: CharacterControlScheme.Captain,
@@ -55,7 +57,7 @@ export async function testIronmanReadQueryFiltersAndSnapshot(testFixture: Integr
   ).toHaveLength(1);
   expect(
     (
-      await service.getFloorClearTimes({
+      await ladderQueries.getFloorClearTimes({
         floor: 1,
         page: 0,
         controlSchemeOption: CharacterControlScheme.Freelancer,
@@ -64,7 +66,7 @@ export async function testIronmanReadQueryFiltersAndSnapshot(testFixture: Integr
   ).toHaveLength(0);
 
   // --- getCharacterFloorClearSnapshot: the entry's snapshot id hydrates the stored combatant ---
-  const snapshot = await service.getCharacterFloorClearSnapshot(snapshotIdOption);
+  const snapshot = await ladderQueries.getCharacterFloorClearSnapshot(snapshotIdOption);
   invariant(snapshot !== undefined, "expected a snapshot for the floor-1 character");
   expect(snapshot.id).toBe(snapshotIdOption);
   expect(snapshot.characterRecordId).toBe(characterId);

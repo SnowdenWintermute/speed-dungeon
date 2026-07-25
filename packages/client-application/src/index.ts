@@ -37,6 +37,7 @@ import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
 import { RootActionMenuScreen } from "./action-menu/screens/root";
 import { LadderRecordsStore } from "./ladder-records-store";
+import { RemoteLadderQueries } from "./remote-ladder-queries";
 import { ItemCommands } from "./item-commands";
 import { ItemDragService } from "./item-drag/drag-service";
 
@@ -67,6 +68,7 @@ export class ClientApplication {
   readonly imageStore = new ImageStore();
   readonly uiStore = new UiStore(this);
   readonly ladderRecordsStore = new LadderRecordsStore(this);
+  readonly remoteLadderQueries = new RemoteLadderQueries(this);
   readonly itemCommands = new ItemCommands(this);
   readonly dragService = new ItemDragService(this);
 

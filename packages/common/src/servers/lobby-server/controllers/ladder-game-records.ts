@@ -1,6 +1,11 @@
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { LadderGameRecordsService } from "../../../ladder/records/ladder-records-service.js";
+import { LadderQueries } from "../../../ladder/queries/ladder-queries.js";
+import {
+  executeLadderQuery,
+  LadderQueryRequest,
+} from "../../../ladder/queries/ladder-query-messages.js";
 import { DateRange } from "../../../primatives/date-range.js";
 import { invariant } from "../../../utils/index.js";
 import { UserIdType } from "../../sessions/user-ids.js";
@@ -11,8 +16,21 @@ import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 export class LadderGameRecordsController {
   constructor(
     private readonly ladderGameRecordsService: LadderGameRecordsService,
+    private readonly ladderQueries: LadderQueries,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>
   ) {}
+
+  async ladderQueryHandler(session: UserSession, request: LadderQueryRequest) {
+    const clientIntentSequenceId = session.currentIntentSequenceId;
+    const result = await executeLadderQuery(this.ladderQueries, request);
+
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
+    outbox.pushToConnection(session.connectionId, {
+      type: GameStateUpdateType.LadderQueryResult,
+      data: { clientIntentSequenceId, result },
+    });
+    return outbox;
+  }
 
   async getUserGameHistoryHandler(
     session: UserSession,

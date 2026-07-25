@@ -50,9 +50,12 @@ import { GameExistenceChecker } from "./game-existence-queries.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
 import { IronmanRunController } from "../controllers/ironman-run-controller.js";
 import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
+import { LocalLadderQueries } from "../../ladder/queries/local-ladder-queries.js";
+import { UsernameDirectory } from "../services/username-directory.js";
 
 export interface LobbyExternalServices {
   identityProviderService: IdentityProviderService;
+  usernameDirectory: UsernameDirectory;
   profileService: SpeedDungeonProfileService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
   characterLevelLadderService: CharacterLevelLadderService;
@@ -302,6 +305,10 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const ladderGameRecordsController = new LadderGameRecordsController(
       this.externalServices.ladderGameRecordsService,
+      new LocalLadderQueries(
+        this.externalServices.ladderGameRecordsService,
+        this.externalServices.usernameDirectory
+      ),
       this.updateDispatchFactory
     );
 

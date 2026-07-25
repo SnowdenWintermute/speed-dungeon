@@ -15,6 +15,7 @@ import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { DateRange } from "../primatives/date-range.js";
+import { LadderQueryRequest } from "../ladder/queries/ladder-query-messages.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -50,6 +51,7 @@ export enum ClientIntentType {
   // ladder game records
   GetUserGameHistory,
   GetUserGameRecordsCount,
+  LadderQuery,
 
   // action selection
   SelectCombatAction,
@@ -178,6 +180,7 @@ export interface ClientIntentMap {
   [ClientIntentType.GetUserGameRecordsCount]: {
     dateRange?: DateRange;
   };
+  [ClientIntentType.LadderQuery]: LadderQueryRequest;
   [ClientIntentType.AddSavedCharacterToProgressionGame]: { entityId: CombatantId };
   [ClientIntentType.SelectProgressionGameStartingFloor]: { floorNumber: number };
   [ClientIntentType.SelectHoldableHotswapSlot]: {

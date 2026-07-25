@@ -28,6 +28,12 @@ export abstract class ConnectionSession {
     return this._lastIntentHandledId;
   }
 
+  // incremented before the handler is dispatched, so inside a handler this is its own intent: what a
+  // ClientIntentReply stamps to identify the call it answers
+  get currentIntentSequenceId() {
+    return this._lastIntentHandledId;
+  }
+
   incrementLastIntentHandledId() {
     this._lastIntentHandledId += 1;
   }

@@ -7,7 +7,88 @@ Started 2026-07-23.
 
 ---
 
-## Where we are / resume here (2026-07-24)
+## Where we are / resume here (2026-07-25)
+
+**Step 5 (socket wiring for `LadderQueries`) is IMPLEMENTED — one client-driven test written, NOT YET
+RUN.** The online read path exists end to end:
+
+- **`UsernameDirectory`** (`common/src/servers/services/username-directory.ts`) — new port for looking
+  up names of *arbitrary* users (`resolveUsernames(ids)`, `findUserIdByUsername`).
+  `IdentityProviderService` only resolves the identity behind the connection being served, which is
+  not what a read model needs. Implemented by `InMemoryIdentityProviderQueryStrategy` (it already owns
+  the id↔username map, so it now implements both interfaces) and by
+  `AuthServerUsernameDirectory` in `server/src/services/`, which wraps the pre-existing
+  `getUsernamesByUserIds` / `getUserIdsByUsername` auth-server fetches (they were dead code until now).
+  Injected via `LobbyExternalServices.usernameDirectory` (wired in lobby-node, the test fixture, and
+  the offline server factory).
+- **`LocalLadderQueries`** (`common/src/ladder/queries/local-ladder-queries.ts`) — implements
+  `LadderQueries` in-process over `LadderGameRecordsService` + the directory. This is the Entry→View
+  seam: resolves `IdentityProviderId` → `Username` and derives `winRate`. The server runs it for a
+  connected client; an offline client can run it directly (see the offline finding below).
+- **`LadderQueryType` / `LadderQueryRequest` / `LadderQueryResult` + `executeLadderQuery`**
+  (`ladder/queries/ladder-query-messages.ts`) — `LadderQueries` expressed as messages, so all four
+  calls travel as ONE intent type (`ClientIntentType.LadderQuery`) and ONE reply update
+  (`GameStateUpdateType.LadderQueryResult`) instead of four of each.
+- **`RemoteLadderQueries`** (`client-application/src/remote-ladder-queries.ts`) — implements
+  `LadderQueries` over the socket; owns all reply bookkeeping (a `Map<intentSequenceId, {resolve,
+  reject}>`). The lobby update handler hands it results; `waitForServerReply` is used only to detect
+  "stream ended with no result" → reject with the recorded error. Exposed as
+  `clientApplication.remoteLadderQueries`. Pending queries are failed on reconnect (see below).
+
+**Design decision — reply updates carry the intent id; correlation is never inferred from order.**
+`GameStateUpdateType.LadderQueryResult` implements the new **`ClientIntentReply`** interface
+(`{ clientIntentSequenceId }`) in `packets/game-state-updates.ts`, which names the concept: *an update
+that answers one specific client intent rather than pushing state at whoever is listening*. Only such
+updates carry the id — ordinary pushes stay as they are (`ErrorMessage` and `EndOfUpdateStream` happen
+to carry the same field but were deliberately left alone for now). Server side, the handler stamps
+`session.currentIntentSequenceId`, a new getter aliasing `lastIntentHandledId` (the server increments
+it *before* dispatching, so inside a handler it is that handler's own intent — the old name reads as if
+it were the previous one).
+
+Why this was never needed before: **no previous read returned a value to its caller.** The old reads
+(`UserGameHistoryPage`) push into an observable store whose key comes out of the payload itself
+(`setPage(data.page, …)`), so "which request does this answer?" was never asked, and
+`waitForServerReply` only ever meant "the server is done with my intent". A promise-returning port
+changes that — a promise must settle with exactly one value belonging to exactly that call. Sequential
+server processing gives **ordering, not identity**: FIFO attribution almost works, but breaks on
+failure, because an errored query emits an error message and *no* result, after which the next
+stream's result is handed to the request that already failed. Ordering cannot distinguish "no answer
+yet" from "no answer coming".
+
+**Unresolvable username is an INVARIANT, not a fallback.** Every participant id resolves either at the
+identity provider or, for a deleted account, from `LadderParticipantRecord.usernameAtTimeOfAccountDeletion`
+(canonical, since account deletion happens in the external auth service that is not in this repo).
+`LocalLadderQueries` consults the directory first, then the participant record, then `invariant`s — no
+"[unknown]" placeholder, because a placeholder would imply a reachable state that must not be.
+⚠️ **Write-path gap: nothing in this repo writes `usernameAtTimeOfAccountDeletion` yet.** The column and
+the mapping exist on both strategies, but `recordNewGame` creates participant records as `{ id }` and
+no deletion hook stamps the name. Until that hook exists (external service notifies us → we stamp it),
+a deleted account's ladder rows will trip the invariant. **That hook is the next write-path follow-up.**
+
+**Test status — all six read-query tests now assert on client output.** `ironman-floor-clear-reads.ts`
+was converted and confirmed green first; the other five followed via the shared
+`createLadderViewerQueries()` helper (details in the resolved-stopgap note further down). Every ladder
+read under assertion is now a client's, over the socket, returning Views. **The five newly-converted
+ones have NOT been run yet** — needs
+`yarn workspace @speed-dungeon/integration-tests test read-queries`, plus the
+`RUN_POSTGRES_LADDER_TESTS=1` variant to re-validate the pg params.
+
+**Offline finding that changes step 4's shape.** Offline mode already constructs a **real `LobbyServer`
+over the in-memory transport** (`client-application/src/connection-topology/create-offline-servers.ts`),
+so the earlier "offline reads never touch a wire" premise is not how offline actually runs today.
+`RemoteLadderQueries` therefore works offline as-is, and step 4 may reduce to *just* an IndexedDB
+`LadderRecordsPersistenceStrategy* — no second `LadderQueries` implementation, no impl selection on the
+client. Confirm when building it.
+
+Also cleaned: `getExperiencePointsLadder` removed from the `LadderQueries` interface (it had no data
+source; step 8 re-authors it along with `experience-points-ladder.ts` and
+`ExperiencePointsLadderCharacterEntry`, which remain unreferenced for now), plus the four leftover
+unused imports of that Entry type. `winRateOf` is now exported from the projections module so View
+assembly and ladder sorting share one formula.
+
+---
+
+## Where we were (2026-07-24)
 
 Read increment (step 3) is **done and validated**: persistence read methods (in-memory + naive
 Postgres) over shared projections, and a **passing** Ironman integration test
@@ -60,7 +141,19 @@ in the XP re-keying work (step 8) — it was implemented wrong (read `LadderChar
 XP-ladder facet section). The correct build ranks the **real progression-mode characters by their
 experience points**.
 
-> ⚠️ **These read-query tests are a STOPGAP — they don't yet test what we ultimately care about.** They
+> ✅ **RESOLVED 2026-07-25 — all six now assert on client output**, so the stopgap warning below is
+> historical. Each test reads through `LadderQueries` on a client via the new fixture helper
+> `createLadderViewerQueries()` (a **guest** in the lobby by default — nobody has to be logged in to
+> browse a ladder, and in the pagination test all three auth identities are busy playing). The
+> multi-run test instead reads through `alpha`'s own client, which is back in the lobby after leaving
+> run 2, covering "my own profile". `testFixture.ladderGameRecordsService` still appears in four of
+> them, but only as `requireGameRecordAggregate` for ground-truth expectations — the write path's own
+> record is the oracle, which is the point. Assertions moved from Entries to **Views**: usernames
+> instead of `IdentityProviderId`s, `record`/`rankedRaceRecord` (with the derived `winRate`) instead of
+> raw tallies. `requireOwnerId` / `requireCharacterRecord` in `aggregate-lookup.ts` died with the
+> id-keyed assertions and were deleted.
+>
+> ⚠️ **HISTORICAL (2026-07-24): these read-query tests were a STOPGAP.** They
 > assert against `testFixture.ladderGameRecordsService` (the server-side read methods) directly, because
 > there's no client path to request ladder records yet. The real goal (per the assert-on-client-output
 > rule, [[feedback_integration_tests_assert_client_output]]) is to drive a **client** query over the
@@ -102,11 +195,11 @@ Two non-obvious things surfaced getting it green (both fixed):
 - Minor cleanup still open: `node-pg-migrate` works from integration-tests via yarn hoist but isn't
   declared there — add it as a devDep for correctness.
 
-**Next (moving off the read increment — the whole read side is now validated on both stores):**
-steps 4-8 (IndexedDB offline, socket wiring for the LadderQueries impl, faceted UI, profiles, XP
-re-keying — which includes fixing `getExperiencePointsLadderCharacters`, see the XP-ladder facet
-section); and the deferred write-path items (owner-at-clear-time `IdentityProviderId` denormalization;
-game-history facet).
+**Next:** run the converted client-driven tests; then steps 6 (faceted UI) and 7 (profiles), which now
+have a working read path to build on. Step 4 (IndexedDB) is reduced in scope per the offline finding
+above; step 8 is XP re-keying, including rebuilding the removed XP-ladder read. Deferred write-path
+items: the `usernameAtTimeOfAccountDeletion` stamping hook, the owner-at-clear-time
+`IdentityProviderId` denormalization, and the game-history facet.
 
 ---
 
@@ -258,7 +351,7 @@ Control scheme is a **filter column**, not separate tables — the records alrea
    methods DONE 2026-07-24** (in-memory + naive Postgres). See session log below. Testing: see
    "Testing strategy" below — integration-first over pure-unit, Ironman now, race deferred.
 4. IndexedDB strategy for offline.
-5. Wire the online gateway impl over socket request/reply.
+5. ~~Wire the online gateway impl over socket request/reply~~ — done 2026-07-25 (see top).
 6. Build the faceted view UI, reusing the old Tailwind table styling.
 7. Rebuild profiles at `/profile/:username` (client-rendered).
 8. XP ladder re-keying for control scheme + total view.

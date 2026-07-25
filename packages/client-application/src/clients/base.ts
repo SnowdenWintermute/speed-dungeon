@@ -16,6 +16,7 @@ export abstract class BaseClient {
   // which is associated with our sent client intent
   private _intentSequenceCounter = 0;
   private _pendingReplies = new Map<number, () => void>();
+  private _endOfStreamListeners = new Map<number, () => void>();
   private _hasOpened = false;
 
   constructor(
@@ -38,6 +39,7 @@ export abstract class BaseClient {
 
   stopAwaitingReplies() {
     this._pendingReplies.clear();
+    this._endOfStreamListeners.clear();
   }
 
   dispatchIntent(message: ClientIntent): number {

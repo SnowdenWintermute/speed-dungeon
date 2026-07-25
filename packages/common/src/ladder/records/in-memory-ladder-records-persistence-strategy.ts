@@ -23,7 +23,6 @@ import {
   PartyFate,
 } from "./index.js";
 import {
-  ExperiencePointsLadderCharacterEntry,
   FloorClearEntry,
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,

@@ -238,6 +238,7 @@ export function createLobbyTestServices(
 
   const externalServices = {
     identityProviderService,
+    usernameDirectory: identityProviderQueryStrategy,
     profileService,
     userGameDataPersistenceService,
     characterLevelLadderService,

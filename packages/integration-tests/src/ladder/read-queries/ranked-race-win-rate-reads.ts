@@ -8,7 +8,8 @@ import {
   PartyFateType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
-import { requireOwnerId, requirePartyOfCharacter } from "./aggregate-lookup";
+import { requirePartyOfCharacter } from "./aggregate-lookup";
+import { TEST_AUTH_USERNAME_PLAYER_1, TEST_AUTH_USERNAME_PLAYER_2 } from "@/fixtures/consts";
 
 // Drives a real two-party ranked-race game where both parties escape, the first one earlier than the
 // second, then asserts the win-rate and floor-clear READ queries against the records the race write
@@ -43,8 +44,6 @@ export async function testRankedRaceWinRateReads(testFixture: IntegrationTestFix
     expect(aggregate.game.mode).toBe(GameMode.RankedRace);
     const alphaParty = requirePartyOfCharacter(aggregate, alphaCharacterName);
     const bravoParty = requirePartyOfCharacter(aggregate, bravoCharacterName);
-    const alphaId = requireOwnerId(alphaParty, alphaCharacterName);
-    const bravoId = requireOwnerId(bravoParty, bravoCharacterName);
 
     // both parties escaped, alpha before bravo
     invariant(
@@ -53,33 +52,47 @@ export async function testRankedRaceWinRateReads(testFixture: IntegrationTestFix
     );
     expect(alphaParty.party.fateOption.type).toBe(PartyFateType.Escape);
     expect(bravoParty.party.fateOption.type).toBe(PartyFateType.Escape);
-    expect(alphaParty.party.fateOption.timestamp).toBeLessThan(bravoParty.party.fateOption.timestamp);
+    expect(alphaParty.party.fateOption.timestamp).toBeLessThan(
+      bravoParty.party.fateOption.timestamp
+    );
+
+    const ladderQueries = await testFixture.createLadderViewerQueries();
 
     // --- getWinRateLadder: alpha (earliest escape) is the winner, bravo the loser ---
-    const winRatePage = await testFixture.ladderGameRecordsService.getWinRateLadder({
+    const winRatePage = await ladderQueries.getWinRateLadder({
       page: 0,
       minimumGamesPlayed: 1,
     });
-    const byId = new Map(winRatePage.entries.map((entry) => [entry.participantId, entry]));
-    const alphaEntry = byId.get(alphaId);
-    const bravoEntry = byId.get(bravoId);
+    const byUsername = new Map(winRatePage.entries.map((entry) => [entry.username, entry]));
+    const alphaEntry = byUsername.get(TEST_AUTH_USERNAME_PLAYER_1);
+    const bravoEntry = byUsername.get(TEST_AUTH_USERNAME_PLAYER_2);
     invariant(
       alphaEntry !== undefined && bravoEntry !== undefined,
       "expected both participants on the win-rate ladder"
     );
-    expect(alphaEntry.tally).toEqual({ wins: 1, losses: 0, gamesPlayed: 1 });
-    expect(bravoEntry.tally).toEqual({ wins: 0, losses: 1, gamesPlayed: 1 });
+    expect(alphaEntry.record).toEqual({ wins: 1, losses: 0, gamesPlayed: 1, winRate: 1 });
+    expect(bravoEntry.record).toEqual({ wins: 0, losses: 1, gamesPlayed: 1, winRate: 0 });
     // winner ranks above the loser
     expect(alphaEntry.rank).toBeLessThan(bravoEntry.rank);
 
     // --- player profiles reflect the same win/loss split ---
-    const alphaProfile = await testFixture.ladderGameRecordsService.getPlayerProfileData(alphaId);
-    const bravoProfile = await testFixture.ladderGameRecordsService.getPlayerProfileData(bravoId);
-    expect(alphaProfile?.rankedRaceTally).toEqual({ wins: 1, losses: 0, gamesPlayed: 1 });
-    expect(bravoProfile?.rankedRaceTally).toEqual({ wins: 0, losses: 1, gamesPlayed: 1 });
+    const alphaProfile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_1);
+    const bravoProfile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_2);
+    expect(alphaProfile?.rankedRaceRecord).toEqual({
+      wins: 1,
+      losses: 0,
+      gamesPlayed: 1,
+      winRate: 1,
+    });
+    expect(bravoProfile?.rankedRaceRecord).toEqual({
+      wins: 0,
+      losses: 1,
+      gamesPlayed: 1,
+      winRate: 0,
+    });
 
     // --- getFloorClearTimes(floor 1): both parties recorded a race floor-1 clear ---
-    const floor1Page = await testFixture.ladderGameRecordsService.getFloorClearTimes({
+    const floor1Page = await ladderQueries.getFloorClearTimes({
       floor: 1,
       page: 0,
     });

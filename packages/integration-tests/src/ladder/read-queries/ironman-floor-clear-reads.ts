@@ -1,4 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+import { TEST_AUTH_USERNAME_PLAYER_1 } from "@/fixtures/consts";
 import {
   GameMode,
   invariant,
@@ -6,16 +7,20 @@ import {
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
 
-// Drives a real Ironman run through two floor descents, then asserts the floor-clear-times and
-// player-profile READ queries against the records the write path actually produced. Expected values
-// are derived from getGameRecordAggregate (ground truth), so this stays robust to exact tick timing
-// while still exercising the projection logic: sort/rank, cumulative sum, player attribution, and
-// snapshot-id linkage. Its ranked-race counterpart is ranked-race-win-rate-reads.ts.
+// Drives a real Ironman run through two floor descents, then reads it back the way a player does: a
+// client sitting in the lobby runs the LadderQueries over the socket, so this covers the whole path
+// (query intent -> lobby handler -> projection -> username resolution -> reply to the caller).
+// Expected values are derived from getGameRecordAggregate (ground truth), so this stays robust to
+// exact tick timing while still exercising the projection logic: sort/rank, cumulative sum, player
+// attribution, and snapshot-id linkage. Its ranked-race counterpart is ranked-race-win-rate-reads.ts.
 export async function testIronmanFloorClearReads(testFixture: IntegrationTestFixture) {
   await testFixture.resetWithOptions(TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE);
   testFixture.timeMachine.start();
-  const { client: alpha, gameId, characterName } =
-    await testFixture.createSingleClientInGameServerGame();
+  const {
+    client: alpha,
+    gameId,
+    characterName,
+  } = await testFixture.createSingleClientInGameServerGame();
 
   // clear floor 1, then floor 2, spending a distinct amount of active time on each
   testFixture.timeMachine.advanceTime(ONE_SECOND);
@@ -33,7 +38,9 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
   const partyAggregate = aggregate.parties[0];
   invariant(partyAggregate !== undefined, "expected a recorded party");
-  const floorClearsByFloor = new Map(partyAggregate.floorClears.map((clear) => [clear.floor, clear]));
+  const floorClearsByFloor = new Map(
+    partyAggregate.floorClears.map((clear) => [clear.floor, clear])
+  );
   const floor1Clear = floorClearsByFloor.get(1);
   const floor2Clear = floorClearsByFloor.get(2);
   invariant(
@@ -42,10 +49,12 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   );
   const recordedCharacter = partyAggregate.characters[0];
   invariant(recordedCharacter !== undefined, "expected a recorded character");
-  const ownerId = recordedCharacter.character.controllingPlayerId;
+
+  // the reads under test are a client's, made from the lobby by someone who wasn't in the run
+  const ladderQueries = await testFixture.createLadderViewerQueries();
 
   // --- getFloorClearTimes(floor 1) ---
-  const floor1Page = await testFixture.ladderGameRecordsService.getFloorClearTimes({
+  const floor1Page = await ladderQueries.getFloorClearTimes({
     floor: 1,
     page: 0,
   });
@@ -61,7 +70,8 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   expect(floor1Entry.timeSpentOnFloor).toBe(floor1Clear.timeSpentOnFloor);
   // only floor 1 has elapsed so far → cumulative == floor 1 time
   expect(floor1Entry.cumulativeTimeToClearFloor).toBe(floor1Clear.timeSpentOnFloor);
-  expect(floor1Entry.players).toEqual([ownerId]);
+  // the client sees usernames; the id it was recorded under never leaves the server
+  expect(floor1Entry.players).toEqual([TEST_AUTH_USERNAME_PLAYER_1]);
 
   // the character's snapshot-id links back to the snapshot recorded for that floor clear
   const floor1Snapshot = recordedCharacter.floorClearedSnapshots.find(
@@ -76,7 +86,7 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   expect(floor1EntryCharacter.snapshotIdOption).toBe(floor1Snapshot.id);
 
   // --- getFloorClearTimes(floor 2): cumulative sums floors 1 + 2 ---
-  const floor2Page = await testFixture.ladderGameRecordsService.getFloorClearTimes({
+  const floor2Page = await ladderQueries.getFloorClearTimes({
     floor: 2,
     page: 0,
   });
@@ -89,9 +99,15 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   );
 
   // --- player profile: personal bests cover both floors; ironman is not ranked race ---
-  const profile = await testFixture.ladderGameRecordsService.getPlayerProfileData(ownerId);
+  const profile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_1);
   invariant(profile !== undefined, "expected a profile for a known participant");
-  expect(profile.rankedRaceTally).toEqual({ wins: 0, losses: 0, gamesPlayed: 0 });
+  expect(profile.username).toBe(TEST_AUTH_USERNAME_PLAYER_1);
+  expect(profile.rankedRaceRecord).toEqual({
+    wins: 0,
+    losses: 0,
+    gamesPlayed: 0,
+    winRate: 0,
+  });
   expect(profile.personalBestFloorClears.map((entry) => entry.floor)).toEqual([1, 2]);
   const profileFloor2 = profile.personalBestFloorClears.find((entry) => entry.floor === 2);
   expect(profileFloor2?.cumulativeTimeToClearFloor).toBe(

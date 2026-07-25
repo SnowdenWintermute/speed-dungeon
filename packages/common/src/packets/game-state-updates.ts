@@ -4,6 +4,7 @@ import { ShardPayment } from "../game/player-shard-pool.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { UserGameHistoryEntry } from "../ladder/records/ladder-records-persistence-strategy.js";
+import { LadderQueryResult } from "../ladder/queries/ladder-query-messages.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserChannelDisplayData } from "../users/index.js";
@@ -97,6 +98,7 @@ export enum GameStateUpdateType {
   // ladder game records
   UserGameHistoryPage,
   UserGameRecordsCount,
+  LadderQueryResult,
   SavedCharacterDeleted,
   CharacterSelectedHoldableHotswapSlot,
   CharacterConvertedItemsToShards,
@@ -279,6 +281,9 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.UserGameRecordsCount]: {
     count: number;
   };
+  [GameStateUpdateType.LadderQueryResult]: ClientIntentReply & {
+    result: LadderQueryResult;
+  };
   [GameStateUpdateType.IronmanRunAbandoned]: {
     usernameAbandoning: Username;
     runId: GameId;
@@ -357,6 +362,12 @@ export type GameStateUpdateHandler<K extends keyof GameStateUpdateMap> = (
 export type GameStateUpdateHandlers = {
   [K in keyof GameStateUpdateMap]: GameStateUpdateHandler<K>;
 };
+
+// an update that answers one specific client intent instead of pushing state at whoever is
+// listening. carrying the intent's sequence id is what lets a caller be handed its own reply
+export interface ClientIntentReply {
+  clientIntentSequenceId: number;
+}
 
 export interface CharacterAndItem {
   characterId: CombatantId;
@@ -453,6 +464,7 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.IronmanRunsList]: "IronmanRunsList",
   [GameStateUpdateType.UserGameHistoryPage]: "UserGameHistoryPage",
   [GameStateUpdateType.UserGameRecordsCount]: "UserGameRecordsCount",
+  [GameStateUpdateType.LadderQueryResult]: "LadderQueryResult",
   [GameStateUpdateType.IronmanRunAbandoned]: "IronmanRunAbandoned",
   [GameStateUpdateType.SavedCharacter]: "SavedCharacter",
   [GameStateUpdateType.SavedCharacterDeleted]: "SavedCharacterDeleted",

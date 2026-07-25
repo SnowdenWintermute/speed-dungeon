@@ -32,7 +32,6 @@ import {
   UserGameHistoryEntry,
   Username,
   CharacterFloorClearSnapshotView,
-  ExperiencePointsLadderCharacterEntry,
   FloorClearEntry,
   FloorClearProjectionRecords,
   FloorClearTimesQuery,

@@ -258,6 +258,7 @@ export * from "./servers/services/cross-server-broadcaster/in-memory-cross-serve
 export * from "./servers/services/server-command/index.js";
 export * from "./servers/services/user-game-data-persistence/in-memory-user-game-data-persistence-service.js";
 export * from "./servers/services/in-memory-ranked-ladder-service.js";
+export * from "./servers/services/username-directory.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";
 export * from "./servers/lobby-server/game-handoff/least-busy-game-server-selector.js";
@@ -304,6 +305,8 @@ export * from "./ladder/queries/win-rate-ladder.js";
 export * from "./ladder/queries/player-profile.js";
 export * from "./ladder/queries/character-floor-clear-snapshot.js";
 export * from "./ladder/queries/ladder-queries.js";
+export * from "./ladder/queries/ladder-query-messages.js";
+export * from "./ladder/queries/local-ladder-queries.js";
 export * from "./errors/fetch-aborted.js";
 export * from "./combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 

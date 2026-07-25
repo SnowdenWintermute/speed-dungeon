@@ -1,4 +1,4 @@
-import { TEST_AUTH_SESSION_ID_PLAYER_1 } from "@/fixtures/consts";
+import { TEST_AUTH_SESSION_ID_PLAYER_1, TEST_AUTH_USERNAME_PLAYER_1 } from "@/fixtures/consts";
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   CombatantClass,
@@ -9,7 +9,6 @@ import {
   ONE_SECOND,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
-import { requireOwnerId, requirePartyOfCharacter } from "./aggregate-lookup";
 
 // One player plays two Ironman runs and clears floor 1 in each, spending a different amount of active
 // time. getPlayerProfileData's personal-best projection dedupes by (floor, mode, controlScheme) and
@@ -55,10 +54,11 @@ export async function testIronmanMultiRunPersonalBest(testFixture: IntegrationTe
   const time2 = requireFloorOneTime(aggregate2);
   // the two runs must differ, otherwise "keeps the faster" isn't actually exercised
   expect(time1).not.toBe(time2);
-  const ownerId = requireOwnerId(requirePartyOfCharacter(aggregate1, "char-1"), "char-1");
-
-  // both runs' floor-1 clears belong to the same player, so the personal-best dedupes to one entry
-  const profile = await service.getPlayerProfileData(ownerId);
+  // both runs' floor-1 clears belong to the same player, so the personal-best dedupes to one entry.
+  // alpha is back in the lobby after leaving run 2, so they read their own profile themselves
+  const profile = await alpha.clientApplication.remoteLadderQueries.getPlayerProfile(
+    TEST_AUTH_USERNAME_PLAYER_1
+  );
   invariant(profile !== undefined, "expected a profile for the participant");
   const floorOneBests = profile.personalBestFloorClears.filter((entry) => entry.floor === 1);
   expect(floorOneBests).toHaveLength(1);

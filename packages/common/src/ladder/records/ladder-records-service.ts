@@ -19,7 +19,6 @@ import {
 } from "./index.js";
 import { DateRange } from "../../primatives/date-range.js";
 import {
-  ExperiencePointsLadderCharacterEntry,
   FloorClearEntry,
   LadderGameRecordAggregate,
   LadderPartyFateUpdate,

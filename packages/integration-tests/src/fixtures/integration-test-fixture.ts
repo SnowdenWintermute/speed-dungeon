@@ -16,6 +16,7 @@ import {
   IncomingConnectionGateway,
   InMemoryIdentityProviderQueryStrategy,
   invariant,
+  LadderQueries,
   iterateNumericEnumKeyedRecord,
   LeastBusyGameServerSelector,
   LobbyServer,
@@ -269,6 +270,14 @@ export class IntegrationTestFixture {
     const client = new ClientFixture(this.lobbyServerPort, this.timeMachine, authSessionId);
     this.clients.set(id, client);
     return client;
+  }
+
+  // ladder reads are asserted through a client rather than the server's own read methods, and the
+  // reader needn't be anyone involved in the games being read about — a guest in the lobby can browse
+  async createLadderViewerQueries(authSessionId = ""): Promise<LadderQueries> {
+    const viewer = this.createClient("ladder viewer", authSessionId);
+    await viewer.connect();
+    return viewer.clientApplication.remoteLadderQueries;
   }
 
   async createConnectedClients<const T extends readonly { id: string; authSessionId?: string }[]>(

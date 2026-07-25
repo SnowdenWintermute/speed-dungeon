@@ -10,7 +10,6 @@ import {
   PartyFateType,
 } from "./index.js";
 import {
-  ExperiencePointsLadderCharacterEntry,
   FloorClearEntry,
   PlayerProfileData,
   WinLossTally,
@@ -372,7 +371,7 @@ function playerPartyInGame(
   return undefined;
 }
 
-function winRateOf(tally: WinLossTally): number {
+export function winRateOf(tally: WinLossTally): number {
   return tally.gamesPlayed === 0 ? 0 : tally.wins / tally.gamesPlayed;
 }
 

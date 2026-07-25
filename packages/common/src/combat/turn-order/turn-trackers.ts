@@ -24,6 +24,7 @@ export abstract class TurnTracker {
 
   abstract getTaggedIdOfTrackedEntity(): TaggedTurnTrackerTrackedEntityId;
   abstract getMatchingScheduler(schedulers: ITurnScheduler[]): undefined | ITurnScheduler;
+
   abstract getNextActionIntentAndUser(
     game: SpeedDungeonGame,
     party: AdventuringParty,

@@ -5,9 +5,10 @@ import {
   ConnectionIdentityResolutionContext,
   IdentityProviderUserSessionQueryStrategy,
 } from "./identity-provider.js";
+import { UsernameDirectory } from "./username-directory.js";
 
 export class InMemoryIdentityProviderQueryStrategy
-  implements IdentityProviderUserSessionQueryStrategy
+  implements IdentityProviderUserSessionQueryStrategy, UsernameDirectory
 {
   private identities = new Map<IdentityProviderId, Username>();
   private authSessions = new Map<string, IdentityProviderId>();
@@ -29,6 +30,26 @@ export class InMemoryIdentityProviderQueryStrategy
     const identity = this.identities.get(authId);
     invariant(identity !== undefined, "expected to find an identity");
     this.identities.set(authId, value as Username);
+  }
+
+  async resolveUsernames(ids: IdentityProviderId[]): Promise<Map<IdentityProviderId, Username>> {
+    const resolved = new Map<IdentityProviderId, Username>();
+    for (const id of ids) {
+      const usernameOption = this.identities.get(id);
+      if (usernameOption !== undefined) {
+        resolved.set(id, usernameOption);
+      }
+    }
+    return resolved;
+  }
+
+  async findUserIdByUsername(username: Username): Promise<IdentityProviderId | undefined> {
+    for (const [id, existingUsername] of this.identities) {
+      if (existingUsername === username) {
+        return id;
+      }
+    }
+    return undefined;
   }
 
   async execute(

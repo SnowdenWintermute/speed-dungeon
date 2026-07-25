@@ -35,6 +35,7 @@ import { Server, IncomingMessage, ServerResponse } from "http";
 import { getLoggedInUserOption } from "../game-node/get-logged-in-user-option.js";
 import { GuestSessionReconnectionToken } from "@speed-dungeon/common";
 import { DatabaseLadderRecordsPersistenceStrategy } from "../game-node/services/database-ladder-records-persistence-strategy.js";
+import { AuthServerUsernameDirectory } from "../services/auth-server-username-directory.js";
 import {
   MANUAL_TEST_MODE,
   setLobbyServerNodeManualTestProperties,
@@ -135,6 +136,7 @@ export class LobbyServerNode {
 
     const externalServices: LobbyExternalServices = {
       identityProviderService,
+      usernameDirectory: new AuthServerUsernameDirectory(),
       profileService,
       userGameDataPersistenceService,
       characterLevelLadderService,

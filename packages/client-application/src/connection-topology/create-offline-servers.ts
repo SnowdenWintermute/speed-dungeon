@@ -192,6 +192,7 @@ function createOfflineLobbyServerServices(
 
   const externalServices = {
     identityProviderService,
+    usernameDirectory: identityProviderQueryStrategy,
     profileService,
     userGameDataPersistenceService,
     characterLevelLadderService,

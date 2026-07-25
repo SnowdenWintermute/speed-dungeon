@@ -37,23 +37,24 @@ export async function testFloorClearPagination(testFixture: IntegrationTestFixtu
     await client.gameClientHarness.toggleReadyToDescend();
   }
 
-  const service = testFixture.ladderGameRecordsService;
+  // all three auth identities are playing, so the ladder reader here is a guest in the lobby
+  const ladderQueries = await testFixture.createLadderViewerQueries();
   const originalPageSize = LADDER_CONFIG.PAGE_SIZE;
   LADDER_CONFIG.PAGE_SIZE = 2;
   try {
     // three floor-1 clears over a page size of two → a full page then a partial page
-    const page0 = await service.getFloorClearTimes({ floor: 1, page: 0 });
+    const page0 = await ladderQueries.getFloorClearTimes({ floor: 1, page: 0 });
     expect(page0.totalPages).toBe(2);
     expect(page0.entries).toHaveLength(2);
     expect(page0.entries.map((entry) => entry.rank)).toEqual([1, 2]);
 
-    const page1 = await service.getFloorClearTimes({ floor: 1, page: 1 });
+    const page1 = await ladderQueries.getFloorClearTimes({ floor: 1, page: 1 });
     expect(page1.totalPages).toBe(2);
     expect(page1.entries).toHaveLength(1);
     expect(page1.entries.map((entry) => entry.rank)).toEqual([3]);
 
     // an out-of-range page is empty (still reports the true total)
-    const page2 = await service.getFloorClearTimes({ floor: 1, page: 2 });
+    const page2 = await ladderQueries.getFloorClearTimes({ floor: 1, page: 2 });
     expect(page2.totalPages).toBe(2);
     expect(page2.entries).toHaveLength(0);
 

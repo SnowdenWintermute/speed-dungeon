@@ -1,6 +1,7 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { GameMode, invariant, PartyFateType } from "@speed-dungeon/common";
-import { requireOwnerId, requirePartyOfCharacter } from "./aggregate-lookup";
+import { requirePartyOfCharacter } from "./aggregate-lookup";
+import { TEST_AUTH_USERNAME_PLAYER_2 } from "@/fixtures/consts";
 
 // Guards the trickiest race write-path case: a solo player leaving mid-run. Leaving a ranked race
 // removes the player, which deletes their (now-empty) party from the LIVE game *before* the party is
@@ -23,20 +24,30 @@ export async function testRankedRaceSoloLeaveRecordsLoss(testFixture: Integratio
 
   const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
   const bravoParty = requirePartyOfCharacter(aggregate, bravoCharacterName);
-  const bravoId = requireOwnerId(bravoParty, bravoCharacterName);
 
   // the guard persisted the wipe fate on the detached party
   expect(bravoParty.party.fateOption?.type).toBe(PartyFateType.Wipe);
 
-  // ...so the loss surfaces in the read queries (a game played + a loss, not a skipped game)
-  const bravoProfile = await testFixture.ladderGameRecordsService.getPlayerProfileData(bravoId);
-  expect(bravoProfile?.rankedRaceTally).toEqual({ wins: 0, losses: 1, gamesPlayed: 1 });
+  // ...so the loss surfaces in what a client reads (a game played + a loss, not a skipped game)
+  const ladderQueries = await testFixture.createLadderViewerQueries();
+  const bravoProfile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_2);
+  expect(bravoProfile?.rankedRaceRecord).toEqual({
+    wins: 0,
+    losses: 1,
+    gamesPlayed: 1,
+    winRate: 0,
+  });
 
-  const winRatePage = await testFixture.ladderGameRecordsService.getWinRateLadder({
+  const winRatePage = await ladderQueries.getWinRateLadder({
     page: 0,
     minimumGamesPlayed: 1,
   });
-  const bravoEntry = winRatePage.entries.find((entry) => entry.participantId === bravoId);
-  invariant(bravoEntry !== undefined, "expected bravo on the win-rate ladder after recording a loss");
-  expect(bravoEntry.tally).toEqual({ wins: 0, losses: 1, gamesPlayed: 1 });
+  const bravoEntry = winRatePage.entries.find(
+    (entry) => entry.username === TEST_AUTH_USERNAME_PLAYER_2
+  );
+  invariant(
+    bravoEntry !== undefined,
+    "expected bravo on the win-rate ladder after recording a loss"
+  );
+  expect(bravoEntry.record).toEqual({ wins: 0, losses: 1, gamesPlayed: 1, winRate: 0 });
 }
