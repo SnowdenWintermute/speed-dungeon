@@ -205,6 +205,12 @@ export class LobbyServer extends SpeedDungeonServer {
       await this.externalServices.profileService.createProfileIfUserHasNone(
         session.taggedUserId.id
       );
+      // game records outlive the account that made them, so keep a name on file for when the
+      // identity provider stops resolving this id. renaming requires a reconnect to take effect
+      await this.externalServices.ladderGameRecordsService.refreshParticipantUsername(
+        session.taggedUserId.id,
+        session.username
+      );
     }
 
     this.outgoingMessagesGateway.registerEndpoint(connectionEndpoint);

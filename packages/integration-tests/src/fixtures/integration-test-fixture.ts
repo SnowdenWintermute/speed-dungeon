@@ -277,7 +277,7 @@ export class IntegrationTestFixture {
   async createLadderViewerQueries(authSessionId = ""): Promise<LadderQueries> {
     const viewer = this.createClient("ladder viewer", authSessionId);
     await viewer.connect();
-    return viewer.clientApplication.remoteLadderQueries;
+    return viewer.clientApplication.ladderQueries;
   }
 
   async createConnectedClients<const T extends readonly { id: string; authSessionId?: string }[]>(

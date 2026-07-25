@@ -218,7 +218,7 @@ export function createLobbyUpdateHandlers(
       clientApplication.ladderRecordsStore.setTotalRecordsCount(data.count);
     },
     [GameStateUpdateType.LadderQueryResult]: (data) => {
-      clientApplication.remoteLadderQueries.receiveResult(data);
+      clientApplication.ladderQueries.receiveResult(data);
     },
     [GameStateUpdateType.SavedCharacterList]: (data) => {
       const { characterControlScheme, characters, capacity } = data;

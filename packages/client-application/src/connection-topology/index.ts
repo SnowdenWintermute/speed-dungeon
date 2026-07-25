@@ -172,7 +172,7 @@ export class ConnectionTopology {
 
       if (lobbyClientRef.isInitialized) {
         lobbyClientRef.get().stopAwaitingReplies();
-        this.clientApplication.remoteLadderQueries.failAllPendingQueries();
+        this.clientApplication.ladderQueries.failAllPendingQueries();
       }
 
       if (!lobbyClientRef.isInitialized) {
@@ -191,7 +191,7 @@ export class ConnectionTopology {
         // this.runtimeMode = ConnectionMode.Initializing;
         lobbyClientRef.get().setEndpoint(connectionEndpoint);
         lobbyClientRef.get().stopAwaitingReplies();
-        this.clientApplication.remoteLadderQueries.failAllPendingQueries();
+        this.clientApplication.ladderQueries.failAllPendingQueries();
       }
     });
   }

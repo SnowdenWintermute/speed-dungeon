@@ -10,19 +10,29 @@ const tableName = RESOURCE_NAMES.LADDER_PARTICIPANT_RECORDS;
 
 export interface LadderParticipantRecordRow {
   id: IdentityProviderId;
-  usernameAtTimeOfAccountDeletion: string | null;
+  lastKnownUsername: string | null;
 }
 
 class LadderParticipantRecordsRepo extends DatabaseRepository<LadderParticipantRecordRow> {
   async insert(record: LadderParticipantRecord, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
-        `INSERT INTO ${tableName} (id, username_at_time_of_account_deletion)
+        `INSERT INTO ${tableName} (id, last_known_username)
          VALUES (%L, %L)
          ON CONFLICT (id) DO NOTHING;`,
         record.id,
-        record.usernameAtTimeOfAccountDeletion ?? null
+        record.lastKnownUsername ?? null
       )
+    );
+  }
+
+  async updateLastKnownUsername(
+    id: IdentityProviderId,
+    username: string,
+    executor: Queryable = this.pgPool
+  ) {
+    await executor.query(
+      format(`UPDATE ${tableName} SET last_known_username = %L WHERE id = %L;`, username, id)
     );
   }
 

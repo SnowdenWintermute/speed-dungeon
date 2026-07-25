@@ -91,13 +91,16 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     if (row === undefined) return undefined;
     return {
       id: row.id,
-      usernameAtTimeOfAccountDeletion:
-        (row.usernameAtTimeOfAccountDeletion as Username) ?? undefined,
+      lastKnownUsername: (row.lastKnownUsername as Username) ?? undefined,
     };
   }
 
   async upsertParticipantRecord(record: LadderParticipantRecord): Promise<void> {
     await ladderParticipantRecordsRepo.insert(record);
+  }
+
+  async refreshParticipantUsername(id: IdentityProviderId, username: Username): Promise<void> {
+    await ladderParticipantRecordsRepo.updateLastKnownUsername(id, username);
   }
 
   async updateGameRecord(record: LadderGameRecord): Promise<void> {
@@ -258,7 +261,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const participantIds = participations.map((participation) => participation.participantRecordId);
     const participants: LadderParticipantRecord[] = participantIds.length
       ? (
-          await queryCamel<{ id: number; usernameAtTimeOfAccountDeletion: string | null }>(
+          await queryCamel<{ id: number; lastKnownUsername: string | null }>(
             format(
               `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTICIPANT_RECORDS} WHERE id IN (%L);`,
               participantIds
@@ -266,8 +269,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
           )
         ).map((row) => ({
           id: row.id as IdentityProviderId,
-          usernameAtTimeOfAccountDeletion:
-            (row.usernameAtTimeOfAccountDeletion as Username) ?? undefined,
+          lastKnownUsername: (row.lastKnownUsername as Username) ?? undefined,
         }))
       : [];
 

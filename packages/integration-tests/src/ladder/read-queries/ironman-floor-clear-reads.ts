@@ -4,6 +4,7 @@ import {
   GameMode,
   invariant,
   ONE_SECOND,
+  PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
 
@@ -99,8 +100,9 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   );
 
   // --- player profile: personal bests cover both floors; ironman is not ranked race ---
-  const profile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_1);
-  invariant(profile !== undefined, "expected a profile for a known participant");
+  const lookup = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_1);
+  invariant(lookup.type === PlayerProfileLookupType.Found, "expected to find the player");
+  const { profile } = lookup;
   expect(profile.username).toBe(TEST_AUTH_USERNAME_PLAYER_1);
   expect(profile.rankedRaceRecord).toEqual({
     wins: 0,

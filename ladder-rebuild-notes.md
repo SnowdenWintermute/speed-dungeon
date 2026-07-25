@@ -29,11 +29,13 @@ RUN.** The online read path exists end to end:
   (`ladder/queries/ladder-query-messages.ts`) — `LadderQueries` expressed as messages, so all four
   calls travel as ONE intent type (`ClientIntentType.LadderQuery`) and ONE reply update
   (`GameStateUpdateType.LadderQueryResult`) instead of four of each.
-- **`RemoteLadderQueries`** (`client-application/src/remote-ladder-queries.ts`) — implements
-  `LadderQueries` over the socket; owns all reply bookkeeping (a `Map<intentSequenceId, {resolve,
-  reject}>`). The lobby update handler hands it results; `waitForServerReply` is used only to detect
-  "stream ended with no result" → reject with the recorded error. Exposed as
-  `clientApplication.remoteLadderQueries`. Pending queries are failed on reconnect (see below).
+- **`ClientLadderQueries`** (`client-application/src/client-ladder-queries.ts`) — implements
+  `LadderQueries` by dispatching to whatever server the client is connected to, over whatever endpoint
+  that is; owns all reply bookkeeping (a `Map<intentSequenceId, {resolve, reject}>`). The lobby update
+  handler hands it results; `waitForServerReply` is used only to detect "stream ended with no result"
+  → reject with the recorded error. Exposed as `clientApplication.ladderQueries`. Pending queries are
+  failed on reconnect (see below). Named for its *role*, not the topology — "Remote" was wrong offline,
+  where the LobbyServer is in-process behind an in-memory endpoint.
 
 **Design decision — reply updates carry the intent id; correlation is never inferred from order.**
 `GameStateUpdateType.LadderQueryResult` implements the new **`ClientIntentReply`** interface
@@ -56,14 +58,36 @@ stream's result is handed to the request that already failed. Ordering cannot di
 yet" from "no answer coming".
 
 **Unresolvable username is an INVARIANT, not a fallback.** Every participant id resolves either at the
-identity provider or, for a deleted account, from `LadderParticipantRecord.usernameAtTimeOfAccountDeletion`
-(canonical, since account deletion happens in the external auth service that is not in this repo).
+identity provider or, for a deleted account, from `LadderParticipantRecord.lastKnownUsername`.
 `LocalLadderQueries` consults the directory first, then the participant record, then `invariant`s — no
 "[unknown]" placeholder, because a placeholder would imply a reachable state that must not be.
-⚠️ **Write-path gap: nothing in this repo writes `usernameAtTimeOfAccountDeletion` yet.** The column and
-the mapping exist on both strategies, but `recordNewGame` creates participant records as `{ id }` and
-no deletion hook stamps the name. Until that hook exists (external service notifies us → we stamp it),
-a deleted account's ladder rows will trip the invariant. **That hook is the next write-path follow-up.**
+
+**The write-path gap is CLOSED (2026-07-25) — refresh on lobby connect.** Renamed
+`usernameAtTimeOfAccountDeletion` → **`lastKnownUsername`**, because it is now kept current for live
+accounts and merely *becomes* the deletion-time record once the id stops resolving. Mechanism: every
+time an authed session is created, `LobbyServer.connectionHandler` calls
+`ladderGameRecordsService.refreshParticipantUsername(id, username)` — right beside the existing
+`createProfileIfUserHasNone`. A rename therefore takes effect on the player's next connect; compliant
+clients reconnect after a rename, and a non-compliant one just keeps a stale name on file until it
+does, which is an acceptable degradation. Two supporting rules:
+- **`recordNewGame` stamps the name** when it creates the participant record (it already has
+  `usernamesToAuthIds`), so a player's first game doesn't leave a null until their next connect.
+- **`refreshParticipantUsername` is UPDATE-only, never an insert.** Only players with ladder history
+  get a participant record; connecting alone must not create one. That is precisely what makes the
+  profile lookup below able to tell "never played" from "doesn't exist".
+- ⚠️ **The column rename edited the existing migration in place** (`20260612000000_ladder_records.cjs`,
+  `username_at_time_of_account_deletion` → `last_known_username`) rather than adding a rename
+  migration, per the pre-release "no migration code for unreleased features" rule. **A dev DB created
+  before this needs a `migrate down` + `up`.** The Testcontainers pg tests build from migrations fresh,
+  so they are unaffected.
+
+**Player profile distinguishes "no such player" from "never played" (2026-07-25).**
+`getPlayerProfile` returns a **`PlayerProfileLookup`** union (`player-profile.ts`): `NoSuchPlayer` when
+the username resolves to nobody at the directory, or `Found` with a `PlayerProfileView` — including an
+*empty* one (zeroed record, no bests) for a real user with no participant record. Modelled as a typed
+result rather than a thrown error so the UI can render a proper 404 page: a throw would arrive as an
+`ErrorMessage`, and `BaseClient.handleErrorMessage` pops a global alert toast for those, which is wrong
+for "that player doesn't exist".
 
 **Test status — all six read-query tests now assert on client output.** `ironman-floor-clear-reads.ts`
 was converted and confirmed green first; the other five followed via the shared
@@ -76,8 +100,8 @@ ones have NOT been run yet** — needs
 **Offline finding that changes step 4's shape.** Offline mode already constructs a **real `LobbyServer`
 over the in-memory transport** (`client-application/src/connection-topology/create-offline-servers.ts`),
 so the earlier "offline reads never touch a wire" premise is not how offline actually runs today.
-`RemoteLadderQueries` therefore works offline as-is, and step 4 may reduce to *just* an IndexedDB
-`LadderRecordsPersistenceStrategy* — no second `LadderQueries` implementation, no impl selection on the
+`ClientLadderQueries` therefore works offline as-is, and step 4 may reduce to *just* an IndexedDB
+`LadderRecordsPersistenceStrategy` — no second `LadderQueries` implementation, no impl selection on the
 client. Confirm when building it.
 
 Also cleaned: `getExperiencePointsLadder` removed from the `LadderQueries` interface (it had no data
@@ -195,11 +219,22 @@ Two non-obvious things surfaced getting it green (both fixed):
 - Minor cleanup still open: `node-pg-migrate` works from integration-tests via yarn hoist but isn't
   declared there — add it as a devDep for correctness.
 
-**Next:** run the converted client-driven tests; then steps 6 (faceted UI) and 7 (profiles), which now
-have a working read path to build on. Step 4 (IndexedDB) is reduced in scope per the offline finding
-above; step 8 is XP re-keying, including rebuilding the removed XP-ladder read. Deferred write-path
-items: the `usernameAtTimeOfAccountDeletion` stamping hook, the owner-at-clear-time
-`IdentityProviderId` denormalization, and the game-history facet.
+**Next:** steps 6 (faceted UI) and 7 (profiles), which now have a working read path to build on. Step 4
+(IndexedDB) is reduced in scope per the offline finding above; step 8 is XP re-keying, including
+rebuilding the removed XP-ladder read.
+
+**Known open loose ends (none blocking step 6):**
+- **The new plumbing's failure paths have no test coverage** — the reject-on-error-reply path and
+  `failAllPendingQueries` on reconnect. Everything green today is the happy path.
+- `node-pg-migrate` is imported by `integration-tests/src/fixtures/postgres-test-database.ts` but
+  declared in neither its `dependencies` nor `devDependencies` — resolves only via yarn hoisting from
+  the server package.
+- Dead XP-ladder types awaiting step 8: `queries/experience-points-ladder.ts` and
+  `ExperiencePointsLadderCharacterEntry`, both unreferenced since the interface method was removed.
+- `frontend/src/app/lobby/user-menu/index.tsx:170` still routes to `/profile/:username`, which 404s
+  until step 7.
+- Deferred write-path items: the owner-at-clear-time `IdentityProviderId` denormalization and the
+  game-history facet.
 
 ---
 

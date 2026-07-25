@@ -7,6 +7,7 @@ import {
   invariant,
   LadderGameRecordAggregate,
   ONE_SECOND,
+  PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
 
@@ -56,11 +57,11 @@ export async function testIronmanMultiRunPersonalBest(testFixture: IntegrationTe
   expect(time1).not.toBe(time2);
   // both runs' floor-1 clears belong to the same player, so the personal-best dedupes to one entry.
   // alpha is back in the lobby after leaving run 2, so they read their own profile themselves
-  const profile = await alpha.clientApplication.remoteLadderQueries.getPlayerProfile(
+  const lookup = await alpha.clientApplication.ladderQueries.getPlayerProfile(
     TEST_AUTH_USERNAME_PLAYER_1
   );
-  invariant(profile !== undefined, "expected a profile for the participant");
-  const floorOneBests = profile.personalBestFloorClears.filter((entry) => entry.floor === 1);
+  invariant(lookup.type === PlayerProfileLookupType.Found, "expected to find the participant");
+  const floorOneBests = lookup.profile.personalBestFloorClears.filter((entry) => entry.floor === 1);
   expect(floorOneBests).toHaveLength(1);
   const best = floorOneBests[0];
   invariant(best !== undefined, "expected a floor-1 personal best");

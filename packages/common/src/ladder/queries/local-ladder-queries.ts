@@ -8,7 +8,7 @@ import { LadderPage } from "./ladder-page.js";
 import { FloorClearTimesQuery, FloorClearView } from "./floor-clear-times.js";
 import { WinLossRecord, WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
-import { PlayerProfileView } from "./player-profile.js";
+import { PlayerProfileLookup, PlayerProfileLookupType } from "./player-profile.js";
 import { LadderQueries } from "./ladder-queries.js";
 
 // executes the queries in-process against ladder records. the server runs it over its own
@@ -53,15 +53,24 @@ export class LocalLadderQueries implements LadderQueries {
     return this.ladderGameRecordsService.getCharacterFloorClearSnapshot(id);
   }
 
-  async getPlayerProfile(username: Username): Promise<PlayerProfileView | undefined> {
+  async getPlayerProfile(username: Username): Promise<PlayerProfileLookup> {
     const userIdOption = await this.usernameDirectory.findUserIdByUsername(username);
     if (userIdOption === undefined) {
-      return undefined;
+      return { type: PlayerProfileLookupType.NoSuchPlayer };
     }
 
+    // only players with ladder history get a participant record, so a real user with none is found
+    // with an empty profile
     const dataOption = await this.ladderGameRecordsService.getPlayerProfileData(userIdOption);
     if (dataOption === undefined) {
-      return undefined;
+      return {
+        type: PlayerProfileLookupType.Found,
+        profile: {
+          username,
+          rankedRaceRecord: toWinLossRecord({ wins: 0, losses: 0, gamesPlayed: 0 }),
+          personalBestFloorClears: [],
+        },
+      };
     }
 
     const usernameOf = await this.resolverForPlayers(
@@ -69,16 +78,19 @@ export class LocalLadderQueries implements LadderQueries {
     );
 
     return {
-      username,
-      rankedRaceRecord: toWinLossRecord(dataOption.rankedRaceTally),
-      personalBestFloorClears: dataOption.personalBestFloorClears.map((entry) =>
-        toFloorClearView(entry, usernameOf)
-      ),
+      type: PlayerProfileLookupType.Found,
+      profile: {
+        username,
+        rankedRaceRecord: toWinLossRecord(dataOption.rankedRaceTally),
+        personalBestFloorClears: dataOption.personalBestFloorClears.map((entry) =>
+          toFloorClearView(entry, usernameOf)
+        ),
+      },
     };
   }
 
-  // a participant id always has a name: the identity provider's current one, or the one the
-  // participant record captured when the account was deleted there
+  // a participant id always has a name: the identity provider's current one, or — once the account is
+  // deleted there — the last one we saw them connect under
   private async resolverForPlayers(ids: IdentityProviderId[]) {
     const uniqueIds = [...new Set(ids)];
     const usernamesById = await this.usernameDirectory.resolveUsernames(uniqueIds);
@@ -89,9 +101,9 @@ export class LocalLadderQueries implements LadderQueries {
       }
       const participantRecordOption =
         await this.ladderGameRecordsService.findParticipantRecordById(id);
-      const usernameAtDeletionOption = participantRecordOption?.usernameAtTimeOfAccountDeletion;
-      invariant(usernameAtDeletionOption !== undefined, `no username for ladder participant ${id}`);
-      usernamesById.set(id, usernameAtDeletionOption);
+      const lastKnownUsernameOption = participantRecordOption?.lastKnownUsername;
+      invariant(lastKnownUsernameOption !== undefined, `no username for ladder participant ${id}`);
+      usernamesById.set(id, lastKnownUsernameOption);
     }
 
     return (id: IdentityProviderId): Username => {

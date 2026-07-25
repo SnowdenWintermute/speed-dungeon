@@ -6,6 +6,7 @@ import {
   invariant,
   ONE_SECOND,
   PartyFateType,
+  PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
 import { requirePartyOfCharacter } from "./aggregate-lookup";
@@ -76,15 +77,20 @@ export async function testRankedRaceWinRateReads(testFixture: IntegrationTestFix
     expect(alphaEntry.rank).toBeLessThan(bravoEntry.rank);
 
     // --- player profiles reflect the same win/loss split ---
-    const alphaProfile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_1);
-    const bravoProfile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_2);
-    expect(alphaProfile?.rankedRaceRecord).toEqual({
+    const alphaLookup = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_1);
+    const bravoLookup = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_2);
+    invariant(
+      alphaLookup.type === PlayerProfileLookupType.Found &&
+        bravoLookup.type === PlayerProfileLookupType.Found,
+      "expected to find both players"
+    );
+    expect(alphaLookup.profile.rankedRaceRecord).toEqual({
       wins: 1,
       losses: 0,
       gamesPlayed: 1,
       winRate: 1,
     });
-    expect(bravoProfile?.rankedRaceRecord).toEqual({
+    expect(bravoLookup.profile.rankedRaceRecord).toEqual({
       wins: 0,
       losses: 1,
       gamesPlayed: 1,

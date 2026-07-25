@@ -3,7 +3,7 @@ import { LadderPage } from "./ladder-page.js";
 import { FloorClearTimesQuery, FloorClearView } from "./floor-clear-times.js";
 import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
-import { PlayerProfileView } from "./player-profile.js";
+import { PlayerProfileLookup } from "./player-profile.js";
 import { LadderQueries } from "./ladder-queries.js";
 
 // LadderQueries as messages, so every call travels as one intent type and one reply update type
@@ -31,7 +31,7 @@ export type LadderQueryResult =
       type: LadderQueryType.CharacterFloorClearSnapshot;
       snapshotOption?: CharacterFloorClearSnapshotView;
     }
-  | { type: LadderQueryType.PlayerProfile; profileOption?: PlayerProfileView };
+  | { type: LadderQueryType.PlayerProfile; lookup: PlayerProfileLookup };
 
 export async function executeLadderQuery(
   ladderQueries: LadderQueries,
@@ -56,7 +56,7 @@ export async function executeLadderQuery(
     case LadderQueryType.PlayerProfile:
       return {
         type: request.type,
-        profileOption: await ladderQueries.getPlayerProfile(request.username),
+        lookup: await ladderQueries.getPlayerProfile(request.username),
       };
   }
 }

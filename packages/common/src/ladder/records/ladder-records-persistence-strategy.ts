@@ -6,6 +6,7 @@ import {
   LadderCharacterFloorClearRecordId,
   Milliseconds,
   PartyId,
+  Username,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
@@ -111,6 +112,9 @@ export interface LadderRecordsPersistenceStrategy {
   // participants are global per user; resolve before building character/game records that reference them
   findParticipantRecordById(id: IdentityProviderId): Promise<LadderParticipantRecord | undefined>;
   upsertParticipantRecord(record: LadderParticipantRecord): Promise<void>;
+  // no-op for a user with no participant record: only players with ladder history have one, and a
+  // record is never created just because someone connected
+  refreshParticipantUsername(id: IdentityProviderId, username: Username): Promise<void>;
   updateGameRecord(record: LadderGameRecord): Promise<void>;
   updateGameRecordControlScheme(
     gameId: GameId,

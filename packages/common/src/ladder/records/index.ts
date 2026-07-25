@@ -14,12 +14,12 @@ import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { SerializedCombatantWithPets } from "../../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 
-// in case they delete their account we can still show the name of a player in a game record
-// if they change their username, old game records should show their updated username
-// and typically we would just query for their current name based on their IdentityProviderId
+// a player's name normally comes from the identity provider, looked up by IdentityProviderId, so
+// records always show their current username. lastKnownUsername is refreshed whenever they connect,
+// and is what a game record falls back to once the account is deleted and the id resolves to nothing
 export interface LadderParticipantRecord {
   id: IdentityProviderId; // primary key
-  usernameAtTimeOfAccountDeletion?: Username;
+  lastKnownUsername?: Username;
 }
 
 // player <-> game junction. exists for every player from game-record creation, independent of

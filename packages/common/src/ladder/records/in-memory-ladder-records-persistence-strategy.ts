@@ -8,6 +8,7 @@ import {
   LadderPartyFloorClearRecordId,
   Milliseconds,
   PartyId,
+  Username,
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
@@ -141,6 +142,14 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     if (!this.participants.has(record.id)) {
       this.participants.set(record.id, cloneDeep(record));
     }
+  }
+
+  async refreshParticipantUsername(id: IdentityProviderId, username: Username): Promise<void> {
+    const existingOption = this.participants.get(id);
+    if (existingOption === undefined) {
+      return;
+    }
+    existingOption.lastKnownUsername = username;
   }
 
   async insertNewGameRecordSet(set: NewLadderGameRecordSet): Promise<void> {

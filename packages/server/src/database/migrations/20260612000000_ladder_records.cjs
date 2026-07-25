@@ -12,7 +12,7 @@ exports.up = (pgm) => {
     -- back to the stored name once the account is deleted.
     CREATE TABLE ladder_participant_records (
         id INT PRIMARY KEY,
-        username_at_time_of_account_deletion VARCHAR(128)
+        last_known_username VARCHAR(128)
     );
 
     CREATE TABLE ladder_game_records (

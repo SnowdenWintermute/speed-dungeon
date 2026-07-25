@@ -11,7 +11,7 @@ import {
   CharacterFloorClearSnapshotView,
   FloorClearTimesQuery,
   FloorClearView,
-  PlayerProfileView,
+  PlayerProfileLookup,
   Username,
   WinRateLadderQuery,
   WinRateLadderView,
@@ -22,7 +22,10 @@ import { ClientSingleton } from "./clients/singleton";
 import { LobbyClient } from "./clients/lobby";
 import { ErrorRecordService } from "./error-record-service";
 
-export class RemoteLadderQueries implements LadderQueries {
+// the client's LadderQueries: dispatches each call to whatever server it is connected to, over
+// whatever endpoint that is (a websocket online, an in-memory one offline). LocalLadderQueries is
+// the implementation on the other side, executing in-process against ladder records
+export class ClientLadderQueries implements LadderQueries {
   private lobbyClientRef: ClientSingleton<LobbyClient>;
   private errorRecordService: ErrorRecordService;
   private pendingQueries = new Map<
@@ -58,10 +61,10 @@ export class RemoteLadderQueries implements LadderQueries {
     return result.snapshotOption;
   }
 
-  async getPlayerProfile(username: Username): Promise<PlayerProfileView | undefined> {
+  async getPlayerProfile(username: Username): Promise<PlayerProfileLookup> {
     const result = await this.send({ type: LadderQueryType.PlayerProfile, username });
     invariant(result.type === LadderQueryType.PlayerProfile, WRONG_RESULT_TYPE);
-    return result.profileOption;
+    return result.lookup;
   }
 
   receiveResult(reply: ClientIntentReply & { result: LadderQueryResult }) {

@@ -52,6 +52,10 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.findParticipantRecordById(userId);
   }
 
+  async refreshParticipantUsername(id: IdentityProviderId, username: Username): Promise<void> {
+    return this.persistenceStrategy.refreshParticipantUsername(id, username);
+  }
+
   async upsertParticipantRecord(record: LadderParticipantRecord): Promise<void> {
     return this.persistenceStrategy.upsertParticipantRecord(record);
   }
@@ -61,9 +65,10 @@ export class LadderGameRecordsService {
     usernamesToAuthIds: Map<Username, IdentityProviderId>
   ): Promise<void> {
     const participantRecords: LadderParticipantRecord[] = [];
-    for (const [_, userId] of usernamesToAuthIds) {
+    for (const [username, userId] of usernamesToAuthIds) {
       const participantRecord: LadderParticipantRecord = {
         id: userId,
+        lastKnownUsername: username,
       };
       participantRecords.push(participantRecord);
     }

@@ -1,5 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { GameMode, invariant, PartyFateType } from "@speed-dungeon/common";
+import { GameMode, invariant, PartyFateType, PlayerProfileLookupType } from "@speed-dungeon/common";
 import { requirePartyOfCharacter } from "./aggregate-lookup";
 import { TEST_AUTH_USERNAME_PLAYER_2 } from "@/fixtures/consts";
 
@@ -30,8 +30,9 @@ export async function testRankedRaceSoloLeaveRecordsLoss(testFixture: Integratio
 
   // ...so the loss surfaces in what a client reads (a game played + a loss, not a skipped game)
   const ladderQueries = await testFixture.createLadderViewerQueries();
-  const bravoProfile = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_2);
-  expect(bravoProfile?.rankedRaceRecord).toEqual({
+  const bravoLookup = await ladderQueries.getPlayerProfile(TEST_AUTH_USERNAME_PLAYER_2);
+  invariant(bravoLookup.type === PlayerProfileLookupType.Found, "expected to find bravo");
+  expect(bravoLookup.profile.rankedRaceRecord).toEqual({
     wins: 0,
     losses: 1,
     gamesPlayed: 1,
