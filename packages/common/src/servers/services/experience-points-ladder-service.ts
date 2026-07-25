@@ -31,7 +31,7 @@ export interface ExperiencePointsLadderRankings {
   totalEntries: number;
 }
 
-export abstract class CharacterLevelLadderService {
+export abstract class ExperiencePointsLadderService {
   abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null>;
   abstract setScore(
     ladderName: string,
@@ -46,7 +46,7 @@ export abstract class CharacterLevelLadderService {
     pageSize: number
   ): Promise<ExperiencePointsLadderRankings>;
 
-  async updateOrCreateCharacterLevelEntry(
+  async updateOrCreateCharacterExperienceEntry(
     entryId: EntityId,
     totalExperiencePoints: number,
     controlScheme: CharacterControlScheme

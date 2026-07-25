@@ -77,7 +77,7 @@ export async function testGlobalLadderRankUpMessages(testFixture: IntegrationTes
   // got own death message
   gotLadderDeathMessage(alpha.clientApplication, alphaUsername, focusedCharacter);
   // no longer in rankings
-  const expectedRankAfterDeath = await testFixture.rankedLadderService.getCurrentRank(
+  const expectedRankAfterDeath = await testFixture.experiencePointsLadderService.getCurrentRank(
     CAPTAIN_LADDER_NAME,
     focusedCharacter.getEntityId()
   );

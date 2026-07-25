@@ -2,9 +2,9 @@ import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-stat
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
 import {
-  CharacterLevelLadderService,
+  ExperiencePointsLadderService,
   experiencePointsLadderName,
-} from "../../services/ranked-ladder.js";
+} from "../../services/experience-points-ladder-service.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
 import { CombatantId, EntityName } from "../../../aliases.js";
@@ -18,7 +18,7 @@ import { UserGameDataPersistenceService } from "../../services/user-game-data-pe
 
 export class SavedCharactersController {
   private readonly userGameDataPersistenceService: UserGameDataPersistenceService;
-  private readonly rankedLadderService: CharacterLevelLadderService;
+  private readonly experiencePointsLadderService: ExperiencePointsLadderService;
   constructor(
     private readonly profileService: SpeedDungeonProfileService,
     private readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
@@ -26,7 +26,7 @@ export class SavedCharactersController {
     private readonly characterCreationPolicy: CharacterCreationPolicy
   ) {
     this.userGameDataPersistenceService = externalServices.userGameDataPersistenceService;
-    this.rankedLadderService = externalServices.characterLevelLadderService;
+    this.experiencePointsLadderService = externalServices.experiencePointsLadderService;
   }
 
   async fetchSavedCharactersHandler(
@@ -115,7 +115,7 @@ export class SavedCharactersController {
     );
     await this.userGameDataPersistenceService.deleteCharacter(entityId);
 
-    await this.rankedLadderService.removeEntry(
+    await this.experiencePointsLadderService.removeEntry(
       experiencePointsLadderName(character.controlScheme),
       entityId
     );

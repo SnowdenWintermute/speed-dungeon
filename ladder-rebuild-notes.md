@@ -22,7 +22,15 @@ path. Shape:
 - ⚠️ **The Valkey key prefix changed** (`character-level-ladder:` → `experience-points-ladder:`, plus
   a per-scheme suffix). Old keys just orphan in Valkey; `loadLadderIntoKvStore` rebuilds the new ones
   from Postgres at lobby boot, so no migration, per the pre-release rule.
-- **`CharacterLevelLadderService` is now primitives + policy.** Abstract: `getCurrentRank`,
+- **Renamed off the stale "level" vocabulary** (2026-07-25): `CharacterLevelLadderService` →
+  `ExperiencePointsLadderService` (+ the `InMemory…` / `Database…` implementations and the
+  `experiencePointsLadderService` field everywhere it is injected),
+  `updateOrCreateCharacterLevelEntry` → `updateOrCreateCharacterExperienceEntry`, and the files
+  `servers/services/ranked-ladder.ts` → `experience-points-ladder-service.ts`,
+  `in-memory-ranked-ladder-service.ts` → `in-memory-experience-points-ladder-service.ts`,
+  `server/game-node/services/ranked-ladder.ts` → `experience-points-ladder.ts`. Nothing ranks by
+  level anymore, so nothing should be named for it.
+- **`ExperiencePointsLadderService` is now primitives + policy.** Abstract: `getCurrentRank`,
   `setScore`, `removeEntry`, `getRankedPage` (the new range read). Concrete on the base:
   `updateOrCreateCharacterLevelEntry` (brackets the write with two rank reads) and
   `removeDeadCharacters`. Both implementations are thin, so in-memory stays a faithful oracle for
@@ -47,17 +55,22 @@ path. Shape:
   rows rather than `invariant`ing, so one orphan can't 500 a public page; ranks keep their sorted-set
   positions, so a skipped row leaves a visible gap. Flip it to an invariant if we'd rather find out
   loudly.
-- **Tests: `integration-tests/src/ladder/experience-points/`** — its own suite, not parametrized over
-  the ladder-records strategies (this facet never touches one). The old `ladder/index.test.ts`
-  (rank-up / death / delete *message* tests) moved in here too, split into per-concern files behind one
-  `index.test.ts`, since they were always XP-ladder tests. New: read-back of a real battle's XP, the
-  two schemes ranking separately, and death removing a ranked character (via the `Death` action on
-  self — deterministic, unlike waiting to be killed).
+- **Tests: `integration-tests/src/ladder/experience-points/` — 8 green (2026-07-25).** Its own suite,
+  not parametrized over the ladder-records strategies (this facet never touches one). The old
+  `ladder/index.test.ts` (rank-up / death / delete *message* tests) moved in here too, split into
+  per-concern files behind one `index.test.ts`, since they were always XP-ladder tests. New: read-back
+  of a real battle's XP, the two schemes ranking separately, and death removing a ranked character.
+  - ⚠️ **A player character does not own `CombatActionName.Death`** (it exists for engine-triggered
+    deaths, and is not in a character's `ownedActions`), so `useCombatAction(Death)` is a silent
+    no-op — it looked like a targeting problem but the action never resolved. Killing a test character
+    still means walking a 1hp fixture into a lair and passing the turn, as the older death tests do.
 - Fixture: `ClientTestFixtureOptions.controlScheme` now threads through
   `createSingleClientWithSavedCharacters` / `createSingleClientInProgressionGame`, which were both
   hardcoded to Captain.
 
-**NOT yet done for this step:** the suite has not been run (asking first), and no UI — that is step 6.
+**Validated:** the new suite plus the adjacent ones that touch this wiring (saved-characters,
+character-control-schemes, progression-games, ladder game-records / read-queries / query-transport) —
+29 tests green. **Not done:** the UI, which is step 6.
 
 ---
 

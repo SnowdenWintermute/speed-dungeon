@@ -24,12 +24,12 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
   ) {
     const characters = player.getCharactersInGame(game);
     // If they're leaving a game while dead, this character should be removed from the ladder
-    const deathsAndRanks = await this.characterLevelLadderService.removeDeadCharacters(
+    const deathsAndRanks = await this.experiencePointsLadderService.removeDeadCharacters(
       characters,
       game.characterControlScheme
     );
     const deathMessages =
-      await this.characterLevelLadderService.getTopRankedDeathMessages(deathsAndRanks);
+      await this.experiencePointsLadderService.getTopRankedDeathMessages(deathsAndRanks);
 
     const ladderDeathMessagesOutboxes = deathMessages.map((message) =>
       this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
@@ -49,7 +49,7 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
 
   async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
-    const ladderDeathsUpdate = await this.characterLevelLadderService.removeDeadCharacters(
+    const ladderDeathsUpdate = await this.experiencePointsLadderService.removeDeadCharacters(
       partyCharacters,
       game.characterControlScheme
     );
@@ -103,7 +103,7 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
 
       const { id } = character.entityProperties;
       const { previousRank, newRank } =
-        await this.characterLevelLadderService.updateOrCreateCharacterLevelEntry(
+        await this.experiencePointsLadderService.updateOrCreateCharacterExperienceEntry(
           id,
           totalExp,
           game.characterControlScheme

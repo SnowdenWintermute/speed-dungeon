@@ -1,7 +1,7 @@
 import { GameId, GameServerName } from "../../aliases.js";
 import { AuthSessionIdParser, IncomingConnectionGateway } from "../incoming-connection-gateway.js";
 import { GameSessionStoreService } from "../services/game-session-store/index.js";
-import { CharacterLevelLadderService } from "../services/ranked-ladder.js";
+import { ExperiencePointsLadderService } from "../services/experience-points-ladder-service.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { ConnectionIdentityResolutionContext } from "../services/identity-provider.js";
 import { createGameServerClientIntentHandlers } from "./create-game-server-client-intent-handlers.js";
@@ -76,7 +76,7 @@ export interface GameServerExternalServices {
   gameSessionStoreService: GameSessionStoreService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
   profileService: SpeedDungeonProfileService;
-  characterLevelLadderService: CharacterLevelLadderService;
+  experiencePointsLadderService: ExperiencePointsLadderService;
   ladderGameRecordsService: LadderGameRecordsService;
   gameServerRegistry: GameServerRegistry;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
@@ -163,7 +163,7 @@ export class GameServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.crossServerBroadcasterService,
       externalServices.profileService,
-      externalServices.characterLevelLadderService,
+      externalServices.experiencePointsLadderService,
       externalServices.ladderGameRecordsService,
       externalServices.userGameDataPersistenceService,
       this.userSessionRegistry,

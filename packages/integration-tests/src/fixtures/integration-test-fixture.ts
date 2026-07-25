@@ -22,7 +22,7 @@ import {
   LobbyServer,
   RandomNumberGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
-  CharacterLevelLadderService,
+  ExperiencePointsLadderService,
   RNG_RANGE,
   ScriptedCharacterCreationPolicy,
   TEST_DUNGEON_TWO_WOLF_ROOMS,
@@ -80,7 +80,7 @@ export class IntegrationTestFixture {
     [TestGameServerName.Alexandria]: 0,
   }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
-  private _rankedLadderService: CharacterLevelLadderService | null = null;
+  private _experiencePointsLadderService: ExperiencePointsLadderService | null = null;
   private _ladderGameRecordsService: LadderGameRecordsService | null = null;
   private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
   private _userGameDataPersistenceService: UserGameDataPersistenceService | null = null;
@@ -150,7 +150,7 @@ export class IntegrationTestFixture {
       gameServers,
       gameServerRegistry,
       gameSessionStoreService,
-      rankedLadderService,
+      experiencePointsLadderService,
       ladderGameRecordsService,
       identityProviderQueryStrategy,
       userGameDataPersistenceService,
@@ -165,7 +165,7 @@ export class IntegrationTestFixture {
       this.idGeneratorFactory
     );
 
-    this._rankedLadderService = rankedLadderService;
+    this._experiencePointsLadderService = experiencePointsLadderService;
     this._ladderGameRecordsService = ladderGameRecordsService;
     this._identityProviderQueryStrategy = identityProviderQueryStrategy;
     this._userGameDataPersistenceService = userGameDataPersistenceService;
@@ -182,11 +182,11 @@ export class IntegrationTestFixture {
     }
   }
 
-  get rankedLadderService() {
-    if (!this._rankedLadderService) {
-      throw new Error("no rankedLadderService was initialized");
+  get experiencePointsLadderService() {
+    if (!this._experiencePointsLadderService) {
+      throw new Error("no experiencePointsLadderService was initialized");
     }
-    return this._rankedLadderService;
+    return this._experiencePointsLadderService;
   }
 
   get ladderGameRecordsService() {

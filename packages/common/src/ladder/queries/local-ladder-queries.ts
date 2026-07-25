@@ -3,9 +3,9 @@ import { LADDER_CONFIG } from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
 import {
-  CharacterLevelLadderService,
+  ExperiencePointsLadderService,
   experiencePointsLadderName,
-} from "../../servers/services/ranked-ladder.js";
+} from "../../servers/services/experience-points-ladder-service.js";
 import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
 import { LadderGameRecordsService } from "../records/ladder-records-service.js";
 import { FloorClearEntry, WinLossTally } from "../records/ladder-records-persistence-strategy.js";
@@ -28,7 +28,7 @@ export class LocalLadderQueries implements LadderQueries {
   constructor(
     private readonly ladderGameRecordsService: LadderGameRecordsService,
     private readonly usernameDirectory: UsernameDirectory,
-    private readonly characterLevelLadderService: CharacterLevelLadderService,
+    private readonly experiencePointsLadderService: ExperiencePointsLadderService,
     private readonly userGameDataPersistenceService: UserGameDataPersistenceService
   ) {}
 
@@ -37,7 +37,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getExperiencePointsLadderPage(
     query: ExperiencePointsLadderQuery
   ): Promise<LadderPage<ExperiencePointsLadderViewEntry>> {
-    const rankings = await this.characterLevelLadderService.getRankedPage(
+    const rankings = await this.experiencePointsLadderService.getRankedPage(
       experiencePointsLadderName(query.controlScheme),
       query.page,
       LADDER_CONFIG.PAGE_SIZE

@@ -5,7 +5,7 @@ import { SpeedDungeonPlayer } from "../game/player.js";
 import { GameStateUpdate } from "../packets/game-state-updates.js";
 import { PartyDelayedGameMessageFactory } from "../servers/game-server/party-delayed-game-message-factory.js";
 import { CrossServerBroadcasterService } from "../servers/services/cross-server-broadcaster/index.js";
-import { CharacterLevelLadderService } from "../servers/services/ranked-ladder.js";
+import { ExperiencePointsLadderService } from "../servers/services/experience-points-ladder-service.js";
 import { ServerCommand } from "../servers/services/server-command/index.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
@@ -21,7 +21,7 @@ import { LadderGameRecordsService } from "../ladder/records/ladder-records-servi
 export abstract class GameModeLadderUpdatePolicy {
   constructor(
     protected userSessionRegistry: UserSessionRegistry,
-    protected characterLevelLadderService: CharacterLevelLadderService,
+    protected experiencePointsLadderService: ExperiencePointsLadderService,
     protected userGameDataPersistenceService: UserGameDataPersistenceService,
     protected gameRecordsLadderService: LadderGameRecordsService,
     protected updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,

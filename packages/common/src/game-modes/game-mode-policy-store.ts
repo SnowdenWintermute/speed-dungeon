@@ -5,7 +5,7 @@ import { GameExistenceChecker } from "../servers/lobby-server/game-existence-que
 import { CrossServerBroadcasterService } from "../servers/services/cross-server-broadcaster/index.js";
 import { GameSessionStoreService } from "../servers/services/game-session-store/index.js";
 import { SpeedDungeonProfileService } from "../servers/services/profiles.js";
-import { CharacterLevelLadderService } from "../servers/services/ranked-ladder.js";
+import { ExperiencePointsLadderService } from "../servers/services/experience-points-ladder-service.js";
 import { ServerCommand } from "../servers/services/server-command/index.js";
 import { UserGameDataPersistenceService } from "../servers/services/user-game-data-persistence/index.js";
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
@@ -37,7 +37,7 @@ export class GameModePolicyStore {
     updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     profileService: SpeedDungeonProfileService,
-    characterLevelLadderService: CharacterLevelLadderService,
+    experiencePointsLadderService: ExperiencePointsLadderService,
     ladderGameRecordsService: LadderGameRecordsService,
     userGameDataPersistenceService: UserGameDataPersistenceService,
     userSessionRegistry: UserSessionRegistry,
@@ -70,7 +70,7 @@ export class GameModePolicyStore {
         ),
         ladder: new IronmanModeLadderPolicy(
           userSessionRegistry,
-          characterLevelLadderService,
+          experiencePointsLadderService,
           userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
@@ -99,7 +99,7 @@ export class GameModePolicyStore {
         ),
         ladder: new ProgressionModeLadderPolicy(
           userSessionRegistry,
-          characterLevelLadderService,
+          experiencePointsLadderService,
           userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
@@ -128,7 +128,7 @@ export class GameModePolicyStore {
         ),
         ladder: new RankedRaceModeLadderPolicy(
           userSessionRegistry,
-          characterLevelLadderService,
+          experiencePointsLadderService,
           userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,
@@ -157,7 +157,7 @@ export class GameModePolicyStore {
         ),
         ladder: new UnrankedRaceModeLadderPolicy(
           userSessionRegistry,
-          characterLevelLadderService,
+          experiencePointsLadderService,
           userGameDataPersistenceService,
           ladderGameRecordsService,
           updateDispatchFactory,

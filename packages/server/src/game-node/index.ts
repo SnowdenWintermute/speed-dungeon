@@ -30,7 +30,7 @@ import {
   DatabaseIronmanRunPersistenceStrategy,
   DatabaseSavedCharacterPersistenceStrategy,
 } from "./services/user-game-data-persistence.js";
-import { DatabaseCharacterLevelLadderService } from "./services/ranked-ladder.js";
+import { DatabaseExperiencePointsLadderService } from "./services/experience-points-ladder.js";
 import { valkeyManager } from "../kv-store/index.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 import { savedIronmanRunsRepo } from "../database/repos/saved-ironman-runs.js";
@@ -130,7 +130,7 @@ export class GameServerNode {
       profileService
     );
 
-    const characterLevelLadderService = new DatabaseCharacterLevelLadderService(
+    const experiencePointsLadderService = new DatabaseExperiencePointsLadderService(
       valkeyManager.context
     );
 
@@ -142,7 +142,7 @@ export class GameServerNode {
     const result: GameServerExternalServices = {
       gameSessionStoreService,
       userGameDataPersistenceService,
-      characterLevelLadderService,
+      experiencePointsLadderService,
       ladderGameRecordsService,
       gameServerRegistry,
       crossServerBroadcasterService,

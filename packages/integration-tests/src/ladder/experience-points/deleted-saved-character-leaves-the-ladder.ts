@@ -19,7 +19,7 @@ export async function testDeletedSavedCharacterLeavesTheLadder(
   await alpha.gameClientHarness.useFireRankTwoOnAllEnemies();
   const focusedCharacter = alpha.clientApplication.combatantFocus.requireFocusedCharacter();
   const characterId = focusedCharacter.getEntityId();
-  const expectedRankAfter = await testFixture.rankedLadderService.getCurrentRank(
+  const expectedRankAfter = await testFixture.experiencePointsLadderService.getCurrentRank(
     CAPTAIN_LADDER_NAME,
     characterId
   );
@@ -29,7 +29,7 @@ export async function testDeletedSavedCharacterLeavesTheLadder(
   await alpha.connect();
   await alpha.lobbyClientHarness.deleteSavedCharacter(characterId);
 
-  const expectedRankAfterDelete = await testFixture.rankedLadderService.getCurrentRank(
+  const expectedRankAfterDelete = await testFixture.experiencePointsLadderService.getCurrentRank(
     CAPTAIN_LADDER_NAME,
     characterId
   );

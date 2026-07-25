@@ -1,5 +1,8 @@
 import { EntityId } from "../../aliases.js";
-import { CharacterLevelLadderService, ExperiencePointsLadderRankings } from "./ranked-ladder.js";
+import {
+  ExperiencePointsLadderRankings,
+  ExperiencePointsLadderService,
+} from "./experience-points-ladder-service.js";
 
 interface LadderEntry {
   entryId: EntityId;
@@ -11,7 +14,7 @@ interface LadderState {
   sorted: LadderEntry[] | null; // cached, null means dirty
 }
 
-export class InMemoryCharacterLevelLadderService extends CharacterLevelLadderService {
+export class InMemoryExperiencePointsLadderService extends ExperiencePointsLadderService {
   private ladders = new Map<string, LadderState>();
 
   private getOrCreateLadder(ladderName: string): LadderState {

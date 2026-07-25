@@ -11,7 +11,7 @@ import {
   IdentityProviderService,
 } from "../services/identity-provider.js";
 import { SpeedDungeonProfileService } from "../services/profiles.js";
-import { CharacterLevelLadderService } from "../services/ranked-ladder.js";
+import { ExperiencePointsLadderService } from "../services/experience-points-ladder-service.js";
 import { IdGenerator } from "../../utility-classes/index.js";
 import { AffixGenerator } from "../../items/item-creation/affix-generator.js";
 import { ItemBuilder, EquipmentRandomizer } from "../../items/item-creation/item-builder/index.js";
@@ -58,7 +58,7 @@ export interface LobbyExternalServices {
   usernameDirectory: UsernameDirectory;
   profileService: SpeedDungeonProfileService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
-  characterLevelLadderService: CharacterLevelLadderService;
+  experiencePointsLadderService: ExperiencePointsLadderService;
   ladderGameRecordsService: LadderGameRecordsService;
   gameSessionStoreService: GameSessionStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
@@ -154,7 +154,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.updateDispatchFactory,
       externalServices.crossServerBroadcasterService,
       externalServices.profileService,
-      externalServices.characterLevelLadderService,
+      externalServices.experiencePointsLadderService,
       externalServices.ladderGameRecordsService,
       externalServices.userGameDataPersistenceService,
       this.userSessionRegistry,
@@ -314,7 +314,7 @@ export class LobbyServer extends SpeedDungeonServer {
       new LocalLadderQueries(
         this.externalServices.ladderGameRecordsService,
         this.externalServices.usernameDirectory,
-        this.externalServices.characterLevelLadderService,
+        this.externalServices.experiencePointsLadderService,
         this.externalServices.userGameDataPersistenceService
       ),
       this.updateDispatchFactory

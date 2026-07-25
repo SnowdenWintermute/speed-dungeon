@@ -11,7 +11,7 @@ import {
   IdGeneratorSequential,
   IncomingConnectionGateway,
   InMemoryGameSessionStoreService,
-  InMemoryCharacterLevelLadderService,
+  InMemoryExperiencePointsLadderService,
   InMemorySavedCharacterPersistenceStrategy,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
@@ -20,7 +20,7 @@ import {
   RandomNumberGenerationPolicy,
   CrossServerBroadcasterService,
   GameSessionStoreService,
-  CharacterLevelLadderService,
+  ExperiencePointsLadderService,
   SpeedDungeonProfileService,
   InMemoryIdentityProviderQueryStrategy,
   IdentityProviderService,
@@ -106,7 +106,7 @@ export async function createTestServers(
     new InMemoryIronmanRunPersistenceStrategy(),
     profileService
   );
-  const rankedLadderService = new InMemoryCharacterLevelLadderService();
+  const experiencePointsLadderService = new InMemoryExperiencePointsLadderService();
   const ladderGameRecordsService = new LadderGameRecordsService(
     ladderPersistenceStrategyFactory(),
     idGeneratorFactory("ladder-record-id")
@@ -143,7 +143,7 @@ export async function createTestServers(
     createLobbyTestServices(
       gameSessionStoreService,
       userGameDataPersistenceService,
-      rankedLadderService,
+      experiencePointsLadderService,
       ladderGameRecordsService,
       profileService,
       lobbyCrossServerBroadcasterService,
@@ -176,7 +176,7 @@ export async function createTestServers(
           createGameServerTestServices(
             gameSessionStoreService,
             userGameDataPersistenceService,
-            rankedLadderService,
+            experiencePointsLadderService,
             ladderGameRecordsService,
             gameServerRegistry,
             new InMemoryCrossServerBroadcaster(crossServerBroadcastBus),
@@ -201,7 +201,7 @@ export async function createTestServers(
     gameServers,
     gameServerRegistry,
     gameSessionStoreService,
-    rankedLadderService,
+    experiencePointsLadderService,
     ladderGameRecordsService,
     identityProviderQueryStrategy,
     userGameDataPersistenceService,
@@ -211,7 +211,7 @@ export async function createTestServers(
 export function createLobbyTestServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
-  characterLevelLadderService: CharacterLevelLadderService,
+  experiencePointsLadderService: ExperiencePointsLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -241,7 +241,7 @@ export function createLobbyTestServices(
     usernameDirectory: identityProviderQueryStrategy,
     profileService,
     userGameDataPersistenceService,
-    characterLevelLadderService,
+    experiencePointsLadderService,
     ladderGameRecordsService,
     idGenerator: new IdGeneratorSequential({ saveHistory: false }),
     gameSessionStoreService,
@@ -254,7 +254,7 @@ export function createLobbyTestServices(
 export function createGameServerTestServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
-  characterLevelLadderService: CharacterLevelLadderService,
+  experiencePointsLadderService: ExperiencePointsLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
   gameServerRegistry: GameServerRegistry,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -264,7 +264,7 @@ export function createGameServerTestServices(
   const externalServices = {
     gameSessionStoreService,
     userGameDataPersistenceService,
-    characterLevelLadderService,
+    experiencePointsLadderService,
     ladderGameRecordsService,
     gameServerRegistry,
     crossServerBroadcasterService,

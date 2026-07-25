@@ -18,10 +18,10 @@ import {
   InMemoryGameSessionStoreService,
   InMemoryIdentityProviderQueryStrategy,
   InMemoryIncomingConnectionGateway,
-  InMemoryCharacterLevelLadderService,
+  InMemoryExperiencePointsLadderService,
   InMemorySpeedDungeonProfileService,
   LobbyServer,
-  CharacterLevelLadderService,
+  ExperiencePointsLadderService,
   SodiumHelpers,
   SpeedDungeonProfileService,
   RandomDungeonGenerationPolicy,
@@ -92,7 +92,7 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
     new InMemoryIronmanRunPersistenceStrategy(),
     profileService
   );
-  const characterLevelLadderService = new InMemoryCharacterLevelLadderService();
+  const experiencePointsLadderService = new InMemoryExperiencePointsLadderService();
   const idGenerator = new IdGeneratorRandom({ saveHistory: false });
   const ladderGameRecordsService = new LadderGameRecordsService(
     new InMemoryLadderRecordsPersistenceStrategy(),
@@ -118,7 +118,7 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
     createOfflineLobbyServerServices(
       gameSessionStoreService,
       userGameDataPersistenceService,
-      characterLevelLadderService,
+      experiencePointsLadderService,
       ladderGameRecordsService,
       profileService,
       lobbyCrossServerBroadcasterService,
@@ -150,7 +150,7 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
     createOfflineGameServerServices(
       gameSessionStoreService,
       userGameDataPersistenceService,
-      characterLevelLadderService,
+      experiencePointsLadderService,
       ladderGameRecordsService,
       gameServerRegistry,
       gameCrossServerBroadcasterService,
@@ -173,7 +173,7 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
 function createOfflineLobbyServerServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
-  characterLevelLadderService: CharacterLevelLadderService,
+  experiencePointsLadderService: ExperiencePointsLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -195,7 +195,7 @@ function createOfflineLobbyServerServices(
     usernameDirectory: identityProviderQueryStrategy,
     profileService,
     userGameDataPersistenceService,
-    characterLevelLadderService,
+    experiencePointsLadderService,
     ladderGameRecordsService,
     gameSessionStoreService,
     crossServerBroadcasterService,
@@ -207,7 +207,7 @@ function createOfflineLobbyServerServices(
 function createOfflineGameServerServices(
   gameSessionStoreService: GameSessionStoreService,
   userGameDataPersistenceService: UserGameDataPersistenceService,
-  characterLevelLadderService: CharacterLevelLadderService,
+  experiencePointsLadderService: ExperiencePointsLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
   gameServerRegistry: GameServerRegistry,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
@@ -217,7 +217,7 @@ function createOfflineGameServerServices(
   const externalServices: GameServerExternalServices = {
     gameSessionStoreService,
     userGameDataPersistenceService,
-    characterLevelLadderService,
+    experiencePointsLadderService,
     ladderGameRecordsService,
     gameServerRegistry,
     crossServerBroadcasterService,

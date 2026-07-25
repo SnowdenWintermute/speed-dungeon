@@ -90,7 +90,7 @@ export * from "./servers/services/user-game-data-persistence/serialized-player-c
 export * from "./servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 export * from "./servers/services/user-game-data-persistence/saved-ironman-runs.js";
 export * from "./servers/services/user-game-data-persistence/in-memory-ironman-run-persistence-strategy.js";
-export * from "./servers/services/ranked-ladder.js";
+export * from "./servers/services/experience-points-ladder-service.js";
 export * from "./servers/services/identity-provider.js";
 export * from "./servers/lobby-server/index.js";
 export * from "./servers/sessions/user-ids.js";
@@ -257,7 +257,7 @@ export * from "./servers/services/cross-server-broadcaster/index.js";
 export * from "./servers/services/cross-server-broadcaster/in-memory-cross-server-broadcaster.js";
 export * from "./servers/services/server-command/index.js";
 export * from "./servers/services/user-game-data-persistence/in-memory-user-game-data-persistence-service.js";
-export * from "./servers/services/in-memory-ranked-ladder-service.js";
+export * from "./servers/services/in-memory-experience-points-ladder-service.js";
 export * from "./servers/services/username-directory.js";
 export * from "./servers/services/in-memory-profiles-service.js";
 export * from "./servers/lobby-server/game-handoff/session-claim-token.js";

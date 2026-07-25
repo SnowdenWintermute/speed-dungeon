@@ -1,7 +1,7 @@
 import { EntityId, IdentityProviderId, Username } from "../../aliases.js";
 import { LADDER_CONFIG } from "../../app-consts.js";
 import { ClassProgressionProperties } from "../../combatants/class-progression-properties.js";
-import { ExperiencePointsLadderRankings } from "../../servers/services/ranked-ladder.js";
+import { ExperiencePointsLadderRankings } from "../../servers/services/experience-points-ladder-service.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
 import { ExperiencePointsLadderViewEntry } from "./experience-points-ladder.js";
 import { LadderPage } from "./ladder-page.js";
@@ -18,13 +18,20 @@ export function projectExperiencePointsLadderPage(
   const pageStart = page * LADDER_CONFIG.PAGE_SIZE;
   const entries: ExperiencePointsLadderViewEntry[] = [];
 
+  // a ranked entry we can't describe is dropped rather than thrown over, so one orphan can't take
+  // down a page everyone can see. both cases are reportable though: a missing character means the
+  // sorted set outlived what it ranks, and a missing username means an account was deleted upstream
   rankings.entryIds.forEach((characterId, indexInPage) => {
     const characterOption = charactersById.get(characterId);
     if (characterOption === undefined) {
+      console.info(`ladder entry ${characterId} has no saved character, skipping it`);
       return;
     }
     const usernameOption = usernamesByOwnerId.get(characterOption.ownerId);
     if (usernameOption === undefined) {
+      console.info(
+        `ladder entry ${characterId} has no resolvable owner (${characterOption.ownerId}), skipping it`
+      );
       return;
     }
 

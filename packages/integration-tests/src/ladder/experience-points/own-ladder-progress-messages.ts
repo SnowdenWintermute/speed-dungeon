@@ -26,7 +26,7 @@ export async function testOwnLadderRankUpMessages(testFixture: IntegrationTestFi
   // pre rank up assertions
   const focusedCharacter = alpha.clientApplication.combatantFocus.requireFocusedCharacter();
   expect(focusedCharacter.getLevel()).toBe(1);
-  const expectedRankBefore = await testFixture.rankedLadderService.getCurrentRank(
+  const expectedRankBefore = await testFixture.experiencePointsLadderService.getCurrentRank(
     CAPTAIN_LADDER_NAME,
     focusedCharacter.getEntityId()
   );
@@ -40,7 +40,7 @@ export async function testOwnLadderRankUpMessages(testFixture: IntegrationTestFi
   expect(focusedCharacter.getLevel()).toBe(2);
   gotLadderLevelUpMessage(alpha.clientApplication, alphaUsername, focusedCharacter);
   gotLadderExperienceMessage(alpha.clientApplication, alphaUsername, focusedCharacter);
-  const expectedRankAfter = await testFixture.rankedLadderService.getCurrentRank(
+  const expectedRankAfter = await testFixture.experiencePointsLadderService.getCurrentRank(
     CAPTAIN_LADDER_NAME,
     focusedCharacter.getEntityId()
   );
@@ -68,7 +68,7 @@ export async function testOwnLadderDeathMessages(testFixture: IntegrationTestFix
   // got own death message
   gotLadderDeathMessage(alpha.clientApplication, alphaUsername, focusedCharacter);
   // no longer in rankings
-  const expectedRankAfterDeath = await testFixture.rankedLadderService.getCurrentRank(
+  const expectedRankAfterDeath = await testFixture.experiencePointsLadderService.getCurrentRank(
     CAPTAIN_LADDER_NAME,
     focusedCharacter.getEntityId()
   );
