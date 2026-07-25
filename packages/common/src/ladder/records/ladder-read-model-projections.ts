@@ -189,48 +189,6 @@ export function assemblePersonalBestEntries(
   );
 }
 
-export function projectExperiencePointsLadderCharacters(
-  characterIds: CombatantId[],
-  records: {
-    characters: LadderCharacterRecord[];
-    parties: LadderPartyRecord[];
-    games: LadderGameRecord[];
-  }
-): ExperiencePointsLadderCharacterEntry[] {
-  const charactersById = new Map(records.characters.map((character) => [character.id, character]));
-  const partiesById = new Map(records.parties.map((party) => [party.id, party]));
-  const gamesById = new Map(records.games.map((game) => [game.id, game]));
-
-  const entries: ExperiencePointsLadderCharacterEntry[] = [];
-  for (const characterId of characterIds) {
-    const character = charactersById.get(characterId);
-    if (character === undefined) {
-      continue;
-    }
-    const party = partiesById.get(character.partyRecordId);
-    if (party === undefined) {
-      continue;
-    }
-    const game = gamesById.get(party.gameRecordId);
-    if (game === undefined) {
-      continue;
-    }
-    entries.push({
-      characterId: character.id,
-      characterName: character.name,
-      ownerId: character.controllingPlayerId,
-      mainClass: { ...character.mainClass },
-      supportClassOption:
-        character.supportClassOption === undefined
-          ? undefined
-          : { ...character.supportClassOption },
-      mode: game.mode,
-      controlScheme: game.controlScheme,
-    });
-  }
-  return entries;
-}
-
 export function projectCharacterFloorClearSnapshot(
   snapshot: LadderCharacterFloorClearRecord | undefined,
   characterName: string

@@ -44,7 +44,6 @@ import {
   assemblePersonalBestEntries,
   computeRankedRaceTally,
   projectCharacterFloorClearSnapshot,
-  projectExperiencePointsLadderCharacters,
   projectFloorClearTimesPage,
   projectWinRateLadderPage,
   selectPersonalBestPartyFloorClears,
@@ -419,17 +418,6 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       )
     );
     return projectCharacterFloorClearSnapshot(snapshot, characterRows[0]?.name ?? "");
-  }
-
-  async getExperiencePointsLadderCharacters(
-    characterIds: CombatantId[]
-  ): Promise<ExperiencePointsLadderCharacterEntry[]> {
-    const characters = await this.loadCharactersByIds(characterIds);
-    const parties = await this.loadPartiesByIds(
-      unique(characters.map((character) => character.partyRecordId))
-    );
-    const games = await this.loadGamesByIds(unique(parties.map((party) => party.gameRecordId)));
-    return projectExperiencePointsLadderCharacters(characterIds, { characters, parties, games });
   }
 
   private async floorClearProjectionRecords(

@@ -36,7 +36,6 @@ import {
 import {
   FloorClearProjectionRecords,
   projectCharacterFloorClearSnapshot,
-  projectExperiencePointsLadderCharacters,
   projectFloorClearTimesPage,
   projectPlayerProfileData,
   projectWinRateLadderPage,
@@ -297,16 +296,6 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const characterName =
       stored === undefined ? "" : (this.characters.get(stored.characterRecordRef)?.name ?? "");
     return projectCharacterFloorClearSnapshot(snapshot, characterName);
-  }
-
-  async getExperiencePointsLadderCharacters(
-    characterIds: CombatantId[]
-  ): Promise<ExperiencePointsLadderCharacterEntry[]> {
-    return projectExperiencePointsLadderCharacters(characterIds, {
-      characters: [...this.characters.values()],
-      parties: [...this.parties.values()],
-      games: [...this.games.values()],
-    });
   }
 
   private floorClearProjectionRecords(): FloorClearProjectionRecords {

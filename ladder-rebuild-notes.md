@@ -55,10 +55,10 @@ wraps those two.
 **Read-query coverage is COMPLETE at the read-model level (all green, 2026-07-24):** floor clears +
 cumulative + profile bests, race win/loss + earliest-escape winner, solo-leave detached-party guard,
 mode/control-scheme filters + snapshot hydration, pagination, and multi-run personal-best dedup.
-`getExperiencePointsLadderCharacters` stays out of scope: it's the Progression-only XP facet, and
-**progression characters hydrate from their actual persisted character entity, not a
-`LadderCharacterRecord`** (don't mirror a live entity into a denormalized record) — its hydration path
-is part of the XP re-keying work (step 8).
+`getExperiencePointsLadderCharacters` was **removed from the service (2026-07-24) to be rebuilt fresh**
+in the XP re-keying work (step 8) — it was implemented wrong (read `LadderCharacterRecord`s; see the
+XP-ladder facet section). The correct build ranks the **real progression-mode characters by their
+experience points**.
 
 > ⚠️ **These read-query tests are a STOPGAP — they don't yet test what we ultimately care about.** They
 > assert against `testFixture.ladderGameRecordsService` (the server-side read methods) directly, because
@@ -104,11 +104,9 @@ Two non-obvious things surfaced getting it green (both fixed):
 
 **Next (moving off the read increment — the whole read side is now validated on both stores):**
 steps 4-8 (IndexedDB offline, socket wiring for the LadderQueries impl, faceted UI, profiles, XP
-re-keying); and the deferred write-path items (owner-at-clear-time `IdentityProviderId` denormalization;
+re-keying — which includes fixing `getExperiencePointsLadderCharacters`, see the XP-ladder facet
+section); and the deferred write-path items (owner-at-clear-time `IdentityProviderId` denormalization;
 game-history facet).
-- Later, unchanged: Postgres SQL still needs a DB-backed test; then steps 4-8 (IndexedDB offline,
-  socket wiring for the LadderQueries impl, faceted UI, profiles, XP re-keying); and the deferred
-  write-path items (owner-at-clear-time `IdentityProviderId` denormalization; game-history facet).
 
 ---
 
@@ -167,6 +165,18 @@ with no control-scheme dimension. Required:
 - An all-up "total" ladder across all players regardless of mode.
 - Every row carries **mode and control scheme as context columns**, so a viewer always knows what
   they're looking at — especially in the combined view.
+
+> ⚠️ **The XP-ladder read was REMOVED from the service (2026-07-24), to be built fresh in step 8.**
+> `getExperiencePointsLadderCharacters` was gone-wrong: it read `LadderCharacterRecord`s — but those
+> exist only to show basic character info *within an ironman/race game record* (name/class for a
+> floor-clear row); they are NOT the XP ladder's source, and ironman/race characters don't belong on the
+> XP ladder at all. The correct build ranks the **real progression-mode characters by their experience
+> points** — source of truth is the actual progression character entities + the `CharacterLevelLadderService`
+> sorted set, hydrated from the live character, not a `LadderCharacterRecord`. (Same "hydrate from the
+> real entity, don't mirror it into a denormalized record" point, made concrete.)
+> Remnants still lingering to clean when rebuilding: the `LadderQueries.getExperiencePointsLadder`
+> interface method, the `ExperiencePointsLadderCharacterEntry` type, `projectExperiencePointsLadderCharacters`,
+> and the two strategy implementations (in-memory + Postgres) — all dead until step 8.
 
 Offline nuance: a _world_ ladder has no meaning with no world. Offline, this facet either hides or
 degrades to the local player's own characters. Decide when we build it.

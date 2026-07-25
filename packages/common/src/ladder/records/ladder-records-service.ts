@@ -295,8 +295,6 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.getUserGameRecordsCount(userId, dateRange);
   }
 
-  // read-side query passthroughs. these return the id-keyed …Entry read models; the eventual
-  // LadderQueries impl layers username resolution + the XP sorted-set join on top of these.
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
     return this.persistenceStrategy.getFloorClearTimes(query);
   }
@@ -313,11 +311,5 @@ export class LadderGameRecordsService {
     id: LadderCharacterFloorClearRecordId
   ): Promise<CharacterFloorClearSnapshotView | undefined> {
     return this.persistenceStrategy.getCharacterFloorClearSnapshot(id);
-  }
-
-  async getExperiencePointsLadderCharacters(
-    characterIds: CombatantId[]
-  ): Promise<ExperiencePointsLadderCharacterEntry[]> {
-    return this.persistenceStrategy.getExperiencePointsLadderCharacters(characterIds);
   }
 }
