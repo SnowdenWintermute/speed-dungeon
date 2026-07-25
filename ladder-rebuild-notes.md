@@ -9,8 +9,10 @@ Started 2026-07-23.
 
 ## Where we are / resume here (2026-07-25)
 
-**Step 5 (socket wiring for `LadderQueries`) is IMPLEMENTED — one client-driven test written, NOT YET
-RUN.** The online read path exists end to end:
+**Step 5 (socket wiring for `LadderQueries`) is DONE and validated.** Committed as `c90e816c`
+(client-side queries) and `bc29b39d` (username on participant records); migrations run and the whole
+read-query suite green with all six tests asserting on client output. The online read path exists end
+to end:
 
 - **`UsernameDirectory`** (`common/src/servers/services/username-directory.ts`) — new port for looking
   up names of *arbitrary* users (`resolveUsernames(ids)`, `findUserIdByUsername`).
@@ -89,13 +91,38 @@ result rather than a thrown error so the UI can render a proper 404 page: a thro
 `ErrorMessage`, and `BaseClient.handleErrorMessage` pops a global alert toast for those, which is wrong
 for "that player doesn't exist".
 
-**Test status — all six read-query tests now assert on client output.** `ironman-floor-clear-reads.ts`
-was converted and confirmed green first; the other five followed via the shared
-`createLadderViewerQueries()` helper (details in the resolved-stopgap note further down). Every ladder
-read under assertion is now a client's, over the socket, returning Views. **The five newly-converted
-ones have NOT been run yet** — needs
-`yarn workspace @speed-dungeon/integration-tests test read-queries`, plus the
-`RUN_POSTGRES_LADDER_TESTS=1` variant to re-validate the pg params.
+**Test status — all six read-query tests assert on client output, all green.**
+`ironman-floor-clear-reads.ts` was converted and confirmed first; the other five followed via the
+shared `createLadderViewerQueries()` helper (details in the resolved-stopgap note further down). Every
+ladder read under assertion is now a client's, over the socket, returning Views.
+
+**Failure paths now covered — and covering them caught a real bug (2026-07-25).**
+`ClientLadderQueries` destructured `clientApplication.errorRecordService` in its constructor, but it
+is built as a `ClientApplication` field initializer (`index.ts:71`) and `errorRecordService` is
+declared below it (`:81`), so it captured `undefined`. Every errored query then threw a `TypeError`
+inside `failIfStillPending` and **hung its caller forever instead of rejecting** — the entire
+reject-on-error path was dead. Fixed by holding the `clientApplication` and reading through it at call
+time, which is what every other subsystem constructed with `this` already does. New tests in
+`integration-tests/src/ladder/query-transport/` (own directory, not parametrized over postgres — they
+never reach a persistence strategy):
+- `server-error-rejects-query.ts` — a server-side throw rejects the caller **with the server's own
+  message** (proving the error was matched to that intent, not a generic timeout), then a follow-up
+  query returns normally, proving the failure left no stale pending entry for a later reply to be
+  misattributed to. That second assertion is the exact failure mode FIFO ordering cannot prevent.
+- `reconnect-fails-pending-queries.ts` — pauses the client transport so the reply is produced but
+  never delivered, reconnects, and asserts the stranded query rejects rather than hanging or being
+  answered by a reused intent id.
+
+**Deleted-account read path covered (2026-07-25).** `read-queries/deleted-account-username-reads.ts`
+(runs against both strategies, so it exercises the real `last_known_username` column): plays an
+Ironman run, deletes the identity, asserts the directory has genuinely forgotten the id — otherwise
+the test would pass without the fallback ever firing — then that the floor-clear row still shows the
+old username while `getPlayerProfile` on that name returns `NoSuchPlayer`. Needed a new
+`deleteIdentity(authSessionId)` on `InMemoryIdentityProviderQueryStrategy` (drops both the session and
+the identity, mirroring the existing `changeUsername` test seam). Verified this is a faithful
+simulation: nothing in this repo handles deletion at all, and `AuthServerUsernameDirectory` surfaces a
+deleted user as an **absent map key**, exactly like the in-memory one — which is the signal
+`resolverForPlayers` keys its fallback off.
 
 **Offline finding that changes step 4's shape.** Offline mode already constructs a **real `LobbyServer`
 over the in-memory transport** (`client-application/src/connection-topology/create-offline-servers.ts`),
@@ -216,19 +243,21 @@ Two non-obvious things surfaced getting it green (both fixed):
 - **Gated behind `RUN_POSTGRES_LADDER_TESTS=1`** so the default suite stays fast + Docker-free; the pg
   block (and its container) only exists when the flag is set. Run:
   `RUN_POSTGRES_LADDER_TESTS=1 yarn workspace @speed-dungeon/integration-tests test read-queries`.
-- Minor cleanup still open: `node-pg-migrate` works from integration-tests via yarn hoist but isn't
-  declared there — add it as a devDep for correctness.
+- ~~Minor cleanup still open: `node-pg-migrate` works from integration-tests via yarn hoist but isn't
+  declared there~~ — declared 2026-07-25, **pinned to `7.7.1` to match the server**. It must not float:
+  a `^9.0.0` range hoists v9 over the server's 7.7.1 and v9 changed the default export, so
+  `import migrate from "node-pg-migrate"` dies with `TypeError: (0 , default) is not a function` and
+  the whole postgres block fails before any test runs. Declaring the exact version leaves `yarn.lock`
+  byte-identical, which is the sign it is a declaration and not a version bump.
+  - Unrelated environment trap hit while reinstalling: `yarn install` fails on
+    `undici@8.9.0 … Expected version ">=22.19.0". Got "22.14.0"`. That undici is already in the
+    committed lockfile, so this bites any install on this node version — use `--ignore-engines`.
 
 **Next:** steps 6 (faceted UI) and 7 (profiles), which now have a working read path to build on. Step 4
 (IndexedDB) is reduced in scope per the offline finding above; step 8 is XP re-keying, including
 rebuilding the removed XP-ladder read.
 
 **Known open loose ends (none blocking step 6):**
-- **The new plumbing's failure paths have no test coverage** — the reject-on-error-reply path and
-  `failAllPendingQueries` on reconnect. Everything green today is the happy path.
-- `node-pg-migrate` is imported by `integration-tests/src/fixtures/postgres-test-database.ts` but
-  declared in neither its `dependencies` nor `devDependencies` — resolves only via yarn hoisting from
-  the server package.
 - Dead XP-ladder types awaiting step 8: `queries/experience-points-ladder.ts` and
   `ExperiencePointsLadderCharacterEntry`, both unreferenced since the interface method was removed.
 - `frontend/src/app/lobby/user-menu/index.tsx:170` still routes to `/profile/:username`, which 404s
@@ -566,6 +595,11 @@ Checked usage before teardown; these looked dead from the frontend but are live:
   same path. Left intentionally; re-point or restore when profiles are rebuilt.
 - Offline <-> online profile reconciliation: when a player plays offline then goes online, do local
   IndexedDB stats merge into their server profile, or stay separate? Not yet decided.
+- **Deleted accounts orphan everything except ladder records.** Nothing in this repo handles account
+  deletion — it happens entirely at the external auth service and reaches us only as the
+  `UsernameDirectory` no longer resolving that id. Ladder records survive that deliberately (that is
+  what `lastKnownUsername` is for), but profiles, saved characters, and saved ironman runs are all
+  keyed by `IdentityProviderId` and just orphan. Decide whether that needs a cleanup path.
 - Whether the XP ladder facet hides or degrades offline (see above).
 - Pagination shape for the leaderboard queries — old page used `USER_GAME_HISTORY_PAGE_SIZE`-style
   paging; decide per-facet page sizes and where those constants live (`app-consts.ts`). Currently all

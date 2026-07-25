@@ -32,6 +32,13 @@ export class InMemoryIdentityProviderQueryStrategy
     this.identities.set(authId, value as Username);
   }
 
+  deleteIdentity(authSessionId: string) {
+    const authId = this.authSessions.get(authSessionId);
+    invariant(authId !== undefined, "expected an auth session");
+    this.authSessions.delete(authSessionId);
+    this.identities.delete(authId);
+  }
+
   async resolveUsernames(ids: IdentityProviderId[]): Promise<Map<IdentityProviderId, Username>> {
     const resolved = new Map<IdentityProviderId, Username>();
     for (const id of ids) {

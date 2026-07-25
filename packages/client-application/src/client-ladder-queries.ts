@@ -18,25 +18,19 @@ import {
   invariant,
 } from "@speed-dungeon/common";
 import { ClientApplication } from ".";
-import { ClientSingleton } from "./clients/singleton";
-import { LobbyClient } from "./clients/lobby";
-import { ErrorRecordService } from "./error-record-service";
 
 // the client's LadderQueries: dispatches each call to whatever server it is connected to, over
 // whatever endpoint that is (a websocket online, an in-memory one offline). LocalLadderQueries is
 // the implementation on the other side, executing in-process against ladder records
 export class ClientLadderQueries implements LadderQueries {
-  private lobbyClientRef: ClientSingleton<LobbyClient>;
-  private errorRecordService: ErrorRecordService;
   private pendingQueries = new Map<
     number,
     { resolve: (result: LadderQueryResult) => void; reject: (error: Error) => void }
   >();
 
-  constructor(clientApplication: ClientApplication) {
-    this.lobbyClientRef = clientApplication.lobbyClientRef;
-    this.errorRecordService = clientApplication.errorRecordService;
-  }
+  // reached through the application rather than captured here: this is built as one of its field
+  // initializers, so anything declared below it is still undefined at construction time
+  constructor(private readonly clientApplication: ClientApplication) {}
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
     const result = await this.send({ type: LadderQueryType.FloorClearTimes, query });
@@ -77,7 +71,7 @@ export class ClientLadderQueries implements LadderQueries {
   }
 
   private send(request: LadderQueryRequest): Promise<LadderQueryResult> {
-    const lobbyClient = this.lobbyClientRef.get();
+    const lobbyClient = this.clientApplication.lobbyClientRef.get();
     const clientIntentSequenceId = lobbyClient.dispatchIntent({
       type: ClientIntentType.LadderQuery,
       data: request,
@@ -111,7 +105,8 @@ export class ClientLadderQueries implements LadderQueries {
       return;
     }
     this.pendingQueries.delete(clientIntentSequenceId);
-    const errorOption = this.errorRecordService.getErrorForIntent(clientIntentSequenceId);
+    const errorOption =
+      this.clientApplication.errorRecordService.getErrorForIntent(clientIntentSequenceId);
     pendingOption.reject(new Error(errorOption?.message ?? ERROR_MESSAGES.SERVER_GENERIC));
   }
 }
