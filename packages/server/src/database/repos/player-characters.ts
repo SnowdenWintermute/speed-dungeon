@@ -89,10 +89,22 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
     return toCamelCase(rows) as unknown as SerializedPlayerCharacter[];
   }
 
-  async getAllByLevel() {
+  async findByIds(characterIds: string[]): Promise<SerializedPlayerCharacter[]> {
+    if (characterIds.length === 0) {
+      return [];
+    }
+    const { rows } = await this.pgPool.query(
+      format(`SELECT * FROM ${tableName} WHERE id IN (%L);`, characterIds)
+    );
+    return toCamelCase(rows) as unknown as SerializedPlayerCharacter[];
+  }
+
+  // everything the experience points ladders are rebuilt from at boot
+  async getAllCharacterExperienceScores() {
     const { rows } = await this.pgPool.query(
       `
-      SELECT id, ( combatant_properties->'classProgressionProperties'->'mainClass'->>'level' )::int AS level,
+      SELECT id, control_scheme,
+      ( combatant_properties->'classProgressionProperties'->'mainClass'->>'level' )::int AS level,
       ( combatant_properties->'classProgressionProperties'->'experiencePoints'->>'current' )::int AS experience_points,
       combatant_properties->'resources'->>'hitPoints' AS hit_points
       FROM player_characters;
@@ -102,6 +114,7 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
     if (rows[0])
       return toCamelCase(rows) as unknown as {
         id: string;
+        controlScheme: CharacterControlScheme;
         level: number;
         experiencePoints: number;
         hitPoints: number;

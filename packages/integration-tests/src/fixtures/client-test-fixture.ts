@@ -3,6 +3,7 @@ import { ManualTickScheduler } from "@/client-application/replay-execution/repla
 import { ClientTestHarness } from "@/test-utils/client-test-harness";
 import {
   CLIENT_LOG_RECORDER_MAX_BYTES,
+  CharacterControlScheme,
   CombatantClass,
   GameMode,
   GameName,
@@ -153,4 +154,7 @@ export interface ClientTestFixtureOptions {
   characters?: { name: string; combatantClass: CombatantClass }[];
   gameName?: string;
   proceedToGameServer?: boolean;
+  // the saved characters and the game they play in must agree on this; each scheme has its own
+  // saved-character pool and its own experience points ladder
+  controlScheme?: CharacterControlScheme;
 }

@@ -35,6 +35,17 @@ export class InMemorySavedCharacterPersistenceStrategy
     return matches;
   }
 
+  async findByIds(characterIds: EntityId[]): Promise<SerializedPlayerCharacter[]> {
+    const matches: SerializedPlayerCharacter[] = [];
+    for (const characterId of characterIds) {
+      const characterOption = this.savedCharacters.get(characterId);
+      if (characterOption !== undefined) {
+        matches.push(cloneDeep(characterOption));
+      }
+    }
+    return matches;
+  }
+
   async insert(
     combatant: Combatant,
     pets: Combatant[],

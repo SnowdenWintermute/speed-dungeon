@@ -9,6 +9,8 @@ import {
   LadderQueryResult,
   LadderQueryType,
   CharacterFloorClearSnapshotView,
+  ExperiencePointsLadderQuery,
+  ExperiencePointsLadderViewEntry,
   FloorClearTimesQuery,
   FloorClearView,
   PlayerProfileLookup,
@@ -31,6 +33,14 @@ export class ClientLadderQueries implements LadderQueries {
   // reached through the application rather than captured here: this is built as one of its field
   // initializers, so anything declared below it is still undefined at construction time
   constructor(private readonly clientApplication: ClientApplication) {}
+
+  async getExperiencePointsLadderPage(
+    query: ExperiencePointsLadderQuery
+  ): Promise<LadderPage<ExperiencePointsLadderViewEntry>> {
+    const result = await this.send({ type: LadderQueryType.ExperiencePointsLadder, query });
+    invariant(result.type === LadderQueryType.ExperiencePointsLadder, WRONG_RESULT_TYPE);
+    return result.page;
+  }
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
     const result = await this.send({ type: LadderQueryType.FloorClearTimes, query });

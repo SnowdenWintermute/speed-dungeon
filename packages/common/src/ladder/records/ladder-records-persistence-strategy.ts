@@ -10,7 +10,6 @@ import {
 } from "../../aliases.js";
 import { DateRange } from "../../primatives/date-range.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
-import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { LadderPage } from "../queries/ladder-page.js";
 import { FloorClear, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
@@ -90,15 +89,6 @@ export interface PlayerProfileData {
   participantId: IdentityProviderId;
   rankedRaceTally: WinLossTally;
   personalBestFloorClears: FloorClearEntry[];
-}
-
-export interface ExperiencePointsLadderCharacterEntry {
-  characterId: CombatantId;
-  characterName: string;
-  ownerId: IdentityProviderId;
-  mainClass: { combatantClass: CombatantClass; level: number };
-  supportClassOption?: { combatantClass: CombatantClass; level: number };
-  controlScheme: CharacterControlScheme;
 }
 
 export interface LadderRecordsPersistenceStrategy {

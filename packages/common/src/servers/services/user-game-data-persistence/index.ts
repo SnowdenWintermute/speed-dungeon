@@ -9,6 +9,7 @@ import { SerializedCombatantWithPets } from "./serialized-combatant-with-pets.js
 import { CharacterControlScheme, GameMode } from "../../../game-modes/index.js";
 import { IronmanRunPersistenceStrategy, SavedIronmanRun } from "./saved-ironman-runs.js";
 import { SavedCharacterPersistenceStrategy } from "./saved-character-persistence-strategy.js";
+import { SerializedPlayerCharacter } from "./serialized-player-character.js";
 import { SerializedOf } from "../../../serialization/index.js";
 import { SpeedDungeonProfile, SpeedDungeonProfileService } from "../profiles.js";
 
@@ -72,6 +73,10 @@ export class UserGameDataPersistenceService {
       },
       pets: record.pets,
     }));
+  }
+
+  async findSavedCharactersByIds(characterIds: EntityId[]): Promise<SerializedPlayerCharacter[]> {
+    return this.savedCharacterPersistenceStrategy.findByIds(characterIds);
   }
 
   async fetchSavedCharacter(characterId: EntityId): Promise<SerializedCombatantWithPets> {

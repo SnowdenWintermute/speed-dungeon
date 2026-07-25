@@ -300,6 +300,7 @@ export * from "./ladder/records/ladder-read-model-projections.js";
 export * from "./ladder/records/ladder-records-service.js";
 export * from "./ladder/queries/ladder-page.js";
 export * from "./ladder/queries/experience-points-ladder.js";
+export * from "./ladder/queries/experience-points-ladder-projection.js";
 export * from "./ladder/queries/floor-clear-times.js";
 export * from "./ladder/queries/win-rate-ladder.js";
 export * from "./ladder/queries/player-profile.js";

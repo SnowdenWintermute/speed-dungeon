@@ -4,10 +4,17 @@ import { FloorClearTimesQuery, FloorClearView } from "./floor-clear-times.js";
 import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup } from "./player-profile.js";
+import {
+  ExperiencePointsLadderQuery,
+  ExperiencePointsLadderViewEntry,
+} from "./experience-points-ladder.js";
 
-// the client-facing read side (CQRS-style queries). getExperiencePointsLadder belongs here too, but
-// its data source was removed to be rebuilt over progression characters (increment step 8)
+// the client-facing read side (CQRS-style queries)
 export interface LadderQueries {
+  getExperiencePointsLadderPage(
+    query: ExperiencePointsLadderQuery
+  ): Promise<LadderPage<ExperiencePointsLadderViewEntry>>;
+
   getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>>;

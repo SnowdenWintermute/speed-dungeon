@@ -2,8 +2,8 @@ import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-stat
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
 import { CharacterLifecycleController } from "./character-lifecycle.js";
 import {
-  CHARACTER_LEVEL_LADDER,
   CharacterLevelLadderService,
+  experiencePointsLadderName,
 } from "../../services/ranked-ladder.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
@@ -109,10 +109,16 @@ export class SavedCharactersController {
 
     const profile = await session.requireProfile(this.profileService);
 
-    await this.userGameDataPersistenceService.requireOwnedCharacter(profile.ownerId, entityId);
+    const character = await this.userGameDataPersistenceService.requireOwnedCharacter(
+      profile.ownerId,
+      entityId
+    );
     await this.userGameDataPersistenceService.deleteCharacter(entityId);
 
-    await this.rankedLadderService.removeEntry(CHARACTER_LEVEL_LADDER, entityId);
+    await this.rankedLadderService.removeEntry(
+      experiencePointsLadderName(character.controlScheme),
+      entityId
+    );
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {

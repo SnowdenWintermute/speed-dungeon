@@ -313,7 +313,9 @@ export class LobbyServer extends SpeedDungeonServer {
       this.externalServices.ladderGameRecordsService,
       new LocalLadderQueries(
         this.externalServices.ladderGameRecordsService,
-        this.externalServices.usernameDirectory
+        this.externalServices.usernameDirectory,
+        this.externalServices.characterLevelLadderService,
+        this.externalServices.userGameDataPersistenceService
       ),
       this.updateDispatchFactory
     );

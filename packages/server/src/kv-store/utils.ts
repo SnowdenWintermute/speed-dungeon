@@ -1,58 +1,42 @@
 import {
-  Combatant,
-  LadderDeathsUpdate,
-  Username,
+  CHARACTER_CONTROL_SCHEME_STRINGS,
   calculateTotalExperience,
+  experiencePointsLadderName,
+  invariant,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { valkeyManager } from "./index.js";
-import { CHARACTER_LEVEL_LADDER } from "./consts.js";
 import { playerCharactersRepo } from "../database/repos/player-characters.js";
 
-export async function removeDeadCharactersFromLadder(characters: Combatant[]) {
-  const ladderDeathsUpdate: LadderDeathsUpdate = {};
-
-  for (const character of characters) {
-    const { combatantProperties } = character;
-
-    const isAlive = !combatantProperties.isDead();
-    if (isAlive) continue; // still alive
-
-    const rank = await valkeyManager.context.zRevRank(
-      CHARACTER_LEVEL_LADDER,
-      character.entityProperties.id
-    );
-    if (rank === null) continue;
-    ladderDeathsUpdate[character.entityProperties.name] = {
-      owner: combatantProperties.controlledBy.controllerPlayerName || ("" as Username),
-      rank,
-      level: combatantProperties.classProgressionProperties.getMainClass().level,
-    };
-    valkeyManager.context.zRem(CHARACTER_LEVEL_LADDER, [character.entityProperties.id]);
-  }
-
-  return ladderDeathsUpdate;
-}
-
 export async function loadLadderIntoKvStore() {
-  await valkeyManager.context.del(CHARACTER_LEVEL_LADDER);
-  const rows = await playerCharactersRepo.getAllByLevel();
-  if (!rows) return console.error("Couldn't load character levels");
-  const forValkey: { value: string; score: number }[] = [];
-  for (const item of rows) {
-    if (item.hitPoints <= 0) continue; // only allow living characters in the ladder
-    if (item.experiencePoints === 0) continue; // don't flood the list with 0 exp characters
-    forValkey.push({
-      value: item.id,
-      score: calculateTotalExperience(item.level) + item.experiencePoints,
-    });
+  const rows = await playerCharactersRepo.getAllCharacterExperienceScores();
+  if (!rows) {
+    return console.error("Couldn't load character levels");
   }
 
-  if (forValkey.length === 0) {
-    return;
+  const entriesByLadderName = new Map<string, { value: string; score: number }[]>();
+  for (const [controlScheme] of iterateNumericEnumKeyedRecord(CHARACTER_CONTROL_SCHEME_STRINGS)) {
+    entriesByLadderName.set(experiencePointsLadderName(controlScheme), []);
   }
 
-  await valkeyManager.context.zAdd(CHARACTER_LEVEL_LADDER, forValkey);
-  const topTen = await valkeyManager.context.zRangeWithScores(CHARACTER_LEVEL_LADDER, 0, 10, {
-    REV: true,
-  });
+  for (const character of rows) {
+    if (character.hitPoints <= 0) {
+      continue; // only allow living characters in the ladder
+    }
+    const score = calculateTotalExperience(character.level) + character.experiencePoints;
+    if (score === 0) {
+      continue; // don't flood the list with characters who have never earned anything
+    }
+    const entries = entriesByLadderName.get(experiencePointsLadderName(character.controlScheme));
+    invariant(entries !== undefined, "every control scheme has a ladder");
+    entries.push({ value: character.id, score });
+  }
+
+  for (const [ladderName, entries] of entriesByLadderName) {
+    await valkeyManager.context.del(ladderName);
+    if (entries.length === 0) {
+      continue;
+    }
+    await valkeyManager.context.zAdd(ladderName, entries);
+  }
 }

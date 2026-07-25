@@ -5,10 +5,15 @@ import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup } from "./player-profile.js";
 import { LadderQueries } from "./ladder-queries.js";
+import {
+  ExperiencePointsLadderQuery,
+  ExperiencePointsLadderViewEntry,
+} from "./experience-points-ladder.js";
 
 // LadderQueries as messages, so every call travels as one intent type and one reply update type
 // instead of four of each
 export enum LadderQueryType {
+  ExperiencePointsLadder,
   FloorClearTimes,
   WinRateLadder,
   CharacterFloorClearSnapshot,
@@ -16,6 +21,7 @@ export enum LadderQueryType {
 }
 
 export type LadderQueryRequest =
+  | { type: LadderQueryType.ExperiencePointsLadder; query: ExperiencePointsLadderQuery }
   | { type: LadderQueryType.FloorClearTimes; query: FloorClearTimesQuery }
   | { type: LadderQueryType.WinRateLadder; query: WinRateLadderQuery }
   | {
@@ -25,6 +31,10 @@ export type LadderQueryRequest =
   | { type: LadderQueryType.PlayerProfile; username: Username };
 
 export type LadderQueryResult =
+  | {
+      type: LadderQueryType.ExperiencePointsLadder;
+      page: LadderPage<ExperiencePointsLadderViewEntry>;
+    }
   | { type: LadderQueryType.FloorClearTimes; page: LadderPage<FloorClearView> }
   | { type: LadderQueryType.WinRateLadder; page: LadderPage<WinRateLadderView> }
   | {
@@ -38,6 +48,11 @@ export async function executeLadderQuery(
   request: LadderQueryRequest
 ): Promise<LadderQueryResult> {
   switch (request.type) {
+    case LadderQueryType.ExperiencePointsLadder:
+      return {
+        type: request.type,
+        page: await ladderQueries.getExperiencePointsLadderPage(request.query),
+      };
     case LadderQueryType.FloorClearTimes:
       return {
         type: request.type,

@@ -1,4 +1,8 @@
-import { CHARACTER_LEVEL_LADDER, EntityId, CharacterLevelLadderService } from "@speed-dungeon/common";
+import {
+  EntityId,
+  CharacterLevelLadderService,
+  ExperiencePointsLadderRankings,
+} from "@speed-dungeon/common";
 import { ValkeyManager } from "../../kv-store/index.js";
 
 export class DatabaseCharacterLevelLadderService extends CharacterLevelLadderService {
@@ -10,15 +14,30 @@ export class DatabaseCharacterLevelLadderService extends CharacterLevelLadderSer
     const rank = await this.valkeyManager.zRevRank(ladderName, entryId);
     return rank;
   }
-  override async updateOrCreateCharacterLevelEntry(
+
+  override async setScore(
+    ladderName: string,
     entryId: EntityId,
-    totalExp: number
-  ): Promise<{ previousRank: number | null; newRank: number }> {
-    const previousRank = await this.valkeyManager.zRevRank(CHARACTER_LEVEL_LADDER, entryId);
-    const newRank = await this.valkeyManager.zAdd(CHARACTER_LEVEL_LADDER, [
-      { value: entryId, score: totalExp },
-    ]);
-    return { previousRank, newRank };
+    totalExperiencePoints: number
+  ): Promise<void> {
+    await this.valkeyManager.zAdd(ladderName, [{ value: entryId, score: totalExperiencePoints }]);
+  }
+
+  override async getRankedPage(
+    ladderName: string,
+    page: number,
+    pageSize: number
+  ): Promise<ExperiencePointsLadderRankings> {
+    const pageStart = page * pageSize;
+    const entryIds = await this.valkeyManager.zRange(
+      ladderName,
+      pageStart,
+      pageStart + pageSize - 1,
+      { REV: true }
+    );
+    const totalEntries = await this.valkeyManager.zCard(ladderName);
+
+    return { entryIds, totalEntries };
   }
 
   override async removeEntry(ladderName: string, entryId: EntityId): Promise<number> {

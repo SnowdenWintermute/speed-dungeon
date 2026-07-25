@@ -1,6 +1,5 @@
 import { EntityId } from "../../aliases.js";
-import { invariant } from "../../utils/index.js";
-import { CHARACTER_LEVEL_LADDER, CharacterLevelLadderService } from "./ranked-ladder.js";
+import { CharacterLevelLadderService, ExperiencePointsLadderRankings } from "./ranked-ladder.js";
 
 interface LadderEntry {
   entryId: EntityId;
@@ -31,7 +30,8 @@ export class InMemoryCharacterLevelLadderService extends CharacterLevelLadderSer
     if (ladder.sorted === null) {
       ladder.sorted = Array.from(ladder.scores.entries())
         .map(([entryId, score]) => ({ entryId, score }))
-        .sort((a, b) => b.score - a.score); // descending like zRevRank
+        // descending like zRevRank, which breaks ties in reverse lexicographic order of the member
+        .sort((a, b) => b.score - a.score || b.entryId.localeCompare(a.entryId));
     }
     return ladder.sorted;
   }
@@ -51,21 +51,31 @@ export class InMemoryCharacterLevelLadderService extends CharacterLevelLadderSer
     return null;
   }
 
-  override async updateOrCreateCharacterLevelEntry(
+  override async setScore(
+    ladderName: string,
     entryId: EntityId,
-    totalExp: number
-  ): Promise<{ previousRank: number | null; newRank: number }> {
-    const ladder = this.getOrCreateLadder(CHARACTER_LEVEL_LADDER);
-
-    const previousRank = await this.getCurrentRank(CHARACTER_LEVEL_LADDER, entryId);
-
-    ladder.scores.set(entryId, totalExp);
+    totalExperiencePoints: number
+  ): Promise<void> {
+    const ladder = this.getOrCreateLadder(ladderName);
+    ladder.scores.set(entryId, totalExperiencePoints);
     ladder.sorted = null; // invalidate cache
+  }
 
-    const newRank = await this.getCurrentRank(CHARACTER_LEVEL_LADDER, entryId);
-    invariant(newRank !== null);
+  override async getRankedPage(
+    ladderName: string,
+    page: number,
+    pageSize: number
+  ): Promise<ExperiencePointsLadderRankings> {
+    const ladder = this.ladders.get(ladderName);
+    if (!ladder) return { entryIds: [], totalEntries: 0 };
 
-    return { previousRank, newRank };
+    const sorted = this.ensureSorted(ladder);
+    const pageStart = page * pageSize;
+
+    return {
+      entryIds: sorted.slice(pageStart, pageStart + pageSize).map((entry) => entry.entryId),
+      totalEntries: sorted.length,
+    };
   }
 
   override async removeEntry(ladderName: string, entryId: EntityId): Promise<number> {

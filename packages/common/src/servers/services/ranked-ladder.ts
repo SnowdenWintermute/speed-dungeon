@@ -1,26 +1,69 @@
 import { LadderDeathsUpdate } from "../../action-processing/index.js";
 import { EntityId, Username } from "../../aliases.js";
 import { Combatant } from "../../combatants/index.js";
-import { ClientSequentialEvent } from "../../packets/client-sequential-events.js";
+import { CharacterControlScheme } from "../../game-modes/index.js";
 import {
   GameMessage,
   GameMessageType,
   createLadderDeathsMessage,
 } from "../../packets/game-message.js";
+import { invariant } from "../../utils/index.js";
 
-export const CHARACTER_LEVEL_LADDER = "character-level-ladder:";
+// not exported: the prefix alone is not a key, and using it as one would address a set nothing
+// writes to. experiencePointsLadderName is the only way to name a ladder
+const EXPERIENCE_POINTS_LADDER = "experience-points-ladder:";
+
+// key fragments of their own rather than the display strings, so renaming what a scheme is called
+// never re-keys a live sorted set
+const CONTROL_SCHEME_LADDER_KEY_FRAGMENTS: Record<CharacterControlScheme, string> = {
+  [CharacterControlScheme.Freelancer]: "freelancer",
+  [CharacterControlScheme.Captain]: "captain",
+};
+
+/** Each control scheme ranks on its own sorted set. There is no combined ladder — the schemes play
+ * differently enough that one ranking across them wouldn't mean anything. */
+export function experiencePointsLadderName(controlScheme: CharacterControlScheme): string {
+  return EXPERIENCE_POINTS_LADDER + CONTROL_SCHEME_LADDER_KEY_FRAGMENTS[controlScheme];
+}
+
+export interface ExperiencePointsLadderRankings {
+  entryIds: EntityId[];
+  totalEntries: number;
+}
 
 export abstract class CharacterLevelLadderService {
-  abstract removeEntry(ladderName: string, entryId: EntityId): Promise<number>;
   abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null>;
-
-  abstract updateOrCreateCharacterLevelEntry(
+  abstract setScore(
+    ladderName: string,
     entryId: EntityId,
-    totalExp: number
-  ): Promise<{ previousRank: number | null; newRank: number }>;
+    totalExperiencePoints: number
+  ): Promise<void>;
+  abstract removeEntry(ladderName: string, entryId: EntityId): Promise<number>;
+  /** highest score first, as a zero-based page of ranked entry ids */
+  abstract getRankedPage(
+    ladderName: string,
+    page: number,
+    pageSize: number
+  ): Promise<ExperiencePointsLadderRankings>;
 
-  async removeDeadCharacters(characters: Combatant[]) {
+  async updateOrCreateCharacterLevelEntry(
+    entryId: EntityId,
+    totalExperiencePoints: number,
+    controlScheme: CharacterControlScheme
+  ): Promise<{ previousRank: number | null; newRank: number }> {
+    const ladderName = experiencePointsLadderName(controlScheme);
+
+    const previousRank = await this.getCurrentRank(ladderName, entryId);
+    await this.setScore(ladderName, entryId, totalExperiencePoints);
+    const newRank = await this.getCurrentRank(ladderName, entryId);
+    invariant(newRank !== null);
+
+    return { previousRank, newRank };
+  }
+
+  async removeDeadCharacters(characters: Combatant[], controlScheme: CharacterControlScheme) {
     const ladderDeathsUpdate: LadderDeathsUpdate = {};
+    const ladderName = experiencePointsLadderName(controlScheme);
 
     for (const character of characters) {
       const { combatantProperties } = character;
@@ -30,7 +73,7 @@ export abstract class CharacterLevelLadderService {
         continue;
       }
 
-      const rank = await this.getCurrentRank(CHARACTER_LEVEL_LADDER, character.entityProperties.id);
+      const rank = await this.getCurrentRank(ladderName, character.entityProperties.id);
       if (rank === null) {
         continue;
       }
@@ -41,7 +84,7 @@ export abstract class CharacterLevelLadderService {
         level: combatantProperties.classProgressionProperties.getMainClass().level,
       };
 
-      await this.removeEntry(CHARACTER_LEVEL_LADDER, character.entityProperties.id);
+      await this.removeEntry(ladderName, character.entityProperties.id);
     }
 
     return ladderDeathsUpdate;

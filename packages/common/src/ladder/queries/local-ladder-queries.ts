@@ -1,6 +1,12 @@
 import { IdentityProviderId, LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
+import { LADDER_CONFIG } from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
+import {
+  CharacterLevelLadderService,
+  experiencePointsLadderName,
+} from "../../servers/services/ranked-ladder.js";
+import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
 import { LadderGameRecordsService } from "../records/ladder-records-service.js";
 import { FloorClearEntry, WinLossTally } from "../records/ladder-records-persistence-strategy.js";
 import { winRateOf } from "../records/ladder-read-model-projections.js";
@@ -10,14 +16,48 @@ import { WinLossRecord, WinRateLadderQuery, WinRateLadderView } from "./win-rate
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup, PlayerProfileLookupType } from "./player-profile.js";
 import { LadderQueries } from "./ladder-queries.js";
+import {
+  ExperiencePointsLadderQuery,
+  ExperiencePointsLadderViewEntry,
+} from "./experience-points-ladder.js";
+import { projectExperiencePointsLadderPage } from "./experience-points-ladder-projection.js";
 
-// executes the queries in-process against ladder records. the server runs it over its own
+// executes the queries in-process against the ladder stores. the server runs it over its own
 // persistence strategy on behalf of a connected client; offline clients run it over their local one.
 export class LocalLadderQueries implements LadderQueries {
   constructor(
     private readonly ladderGameRecordsService: LadderGameRecordsService,
-    private readonly usernameDirectory: UsernameDirectory
+    private readonly usernameDirectory: UsernameDirectory,
+    private readonly characterLevelLadderService: CharacterLevelLadderService,
+    private readonly userGameDataPersistenceService: UserGameDataPersistenceService
   ) {}
+
+  // the two stores this joins answer different questions: the sorted set ranks, the saved characters
+  // describe. neither is a copy of the other, so neither can go stale against the other
+  async getExperiencePointsLadderPage(
+    query: ExperiencePointsLadderQuery
+  ): Promise<LadderPage<ExperiencePointsLadderViewEntry>> {
+    const rankings = await this.characterLevelLadderService.getRankedPage(
+      experiencePointsLadderName(query.controlScheme),
+      query.page,
+      LADDER_CONFIG.PAGE_SIZE
+    );
+
+    const characters = await this.userGameDataPersistenceService.findSavedCharactersByIds(
+      rankings.entryIds
+    );
+    const charactersById = new Map(characters.map((character) => [character.id, character]));
+    const usernamesByOwnerId = await this.usernameDirectory.resolveUsernames([
+      ...new Set(characters.map((character) => character.ownerId)),
+    ]);
+
+    return projectExperiencePointsLadderPage(
+      rankings,
+      query.page,
+      charactersById,
+      usernamesByOwnerId
+    );
+  }
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
     const page = await this.ladderGameRecordsService.getFloorClearTimes(query);

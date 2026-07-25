@@ -35,6 +35,10 @@ export class DatabaseSavedCharacterPersistenceStrategy
     return this.playerCharactersRepo.findByOwnerAndControlScheme(ownerId, controlScheme);
   }
 
+  async findByIds(characterIds: EntityId[]): Promise<SerializedPlayerCharacter[]> {
+    return this.playerCharactersRepo.findByIds(characterIds);
+  }
+
   async insert(
     combatant: Combatant,
     pets: Combatant[],

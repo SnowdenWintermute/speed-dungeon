@@ -356,22 +356,19 @@ export class IntegrationTestFixture {
   ) {
     const client = this.createClient(testClientId, authId);
     await client.connect();
+    const controlScheme = options?.controlScheme ?? CharacterControlScheme.Captain;
     if (options?.characters) {
       if (options.characters.length < 1) {
         throw new Error("Should at least specify one character");
       }
       for (const { name, combatantClass } of options.characters) {
-        await client.lobbyClientHarness.createSavedCharacter(
-          name,
-          combatantClass,
-          CharacterControlScheme.Captain
-        );
+        await client.lobbyClientHarness.createSavedCharacter(name, combatantClass, controlScheme);
       }
     } else {
       await client.lobbyClientHarness.createSavedCharacter(
         TEST_CHARACTER_NAME_1,
         CombatantClass.Warrior,
-        CharacterControlScheme.Captain
+        controlScheme
       );
     }
     return client;
@@ -387,7 +384,7 @@ export class IntegrationTestFixture {
     await client.lobbyClientHarness.createGame(
       gameName as GameName,
       GameMode.Progression,
-      CharacterControlScheme.Captain
+      options?.controlScheme ?? CharacterControlScheme.Captain
     );
     if (options?.proceedToGameServer) {
       await client.lobbyClientHarness.toggleReadyToStartGame();

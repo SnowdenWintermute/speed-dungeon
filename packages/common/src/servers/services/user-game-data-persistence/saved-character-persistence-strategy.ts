@@ -9,6 +9,9 @@ export interface SavedCharacterPersistenceStrategy {
     ownerId: IdentityProviderId,
     controlScheme: CharacterControlScheme
   ) => Promise<SerializedPlayerCharacter[]>;
+  // for reads that start from a list of character ids rather than from an owner, such as hydrating a
+  // page of the experience points ladder. missing ids are simply absent from the result
+  findByIds: (characterIds: EntityId[]) => Promise<SerializedPlayerCharacter[]>;
   insert: (
     combatant: Combatant,
     pets: Combatant[],

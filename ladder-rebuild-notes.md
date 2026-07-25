@@ -7,7 +7,61 @@ Started 2026-07-23.
 
 ---
 
-## Where we are / resume here (2026-07-25)
+## Where we are / resume here (2026-07-25, later)
+
+**Step 8 (XP ladder) is BUILT — not yet run.** The facet now has a real data source and a client read
+path. Shape:
+
+- **One sorted set per control scheme, and no combined ladder.** `experiencePointsLadderName(scheme)`
+  in `servers/services/ranked-ladder.ts` is the only way to name a ladder; the bare prefix const is no
+  longer exported. A cross-scheme "total" board was considered and dropped — PoE/Diablo keep their
+  ladders separate, and the schemes play differently enough that one ranking across them means
+  nothing. Every write/read/removal therefore carries a `CharacterControlScheme`, which is always at
+  hand (`game.characterControlScheme` in the policies, `character.controlScheme` on the saved-character
+  record in the delete handler).
+- ⚠️ **The Valkey key prefix changed** (`character-level-ladder:` → `experience-points-ladder:`, plus
+  a per-scheme suffix). Old keys just orphan in Valkey; `loadLadderIntoKvStore` rebuilds the new ones
+  from Postgres at lobby boot, so no migration, per the pre-release rule.
+- **`CharacterLevelLadderService` is now primitives + policy.** Abstract: `getCurrentRank`,
+  `setScore`, `removeEntry`, `getRankedPage` (the new range read). Concrete on the base:
+  `updateOrCreateCharacterLevelEntry` (brackets the write with two rank reads) and
+  `removeDeadCharacters`. Both implementations are thin, so in-memory stays a faithful oracle for
+  Valkey — including tie ordering, where in-memory now breaks score ties in reverse-lexicographic
+  member order to match `ZREVRANGE`.
+- **Bug found doing it:** the Valkey `updateOrCreateCharacterLevelEntry` returned `zAdd`'s result as
+  `newRank`. `zAdd` returns *how many members were added* (0 when updating an existing one), not a
+  rank — so every rank-up message on the deployed server computed a rank of 0 or 1. In-memory computed
+  it correctly, which is why the ladder tests never caught it. Both now go through `zRevRank`.
+- **The read is a join of two stores, not a mirror of one.** `getExperiencePointsLadderPage` on
+  `LadderQueries`: the sorted set says *who is ranked and in what order*, and every displayed figure
+  (name, class, level, level progress, total XP) is read back off the **saved progression character**
+  via the new `findByIds` on `SavedCharacterPersistenceStrategy`. Nothing is denormalized, so a row
+  cannot disagree with the character its owner logs in to. `projectExperiencePointsLadderPage`
+  (`ladder/queries/experience-points-ladder-projection.ts`) is the pure assembly, deriving rank the
+  same way the records-side `paginate` does (`page * PAGE_SIZE + index + 1`).
+- **`ExperiencePointsLadderCharacterEntry` and the `LadderCharacterRecord`-based read are gone** — the
+  wrong-source implementation the earlier note flagged. Saved characters are the source now.
+- 🔸 **Open decision: a ladder entry that cannot be hydrated is skipped, not fatal.** Two ways it can
+  happen — the saved character is missing, or its owner no longer resolves at the identity provider
+  (an externally deleted account, the orphan case already noted below). The projection drops those
+  rows rather than `invariant`ing, so one orphan can't 500 a public page; ranks keep their sorted-set
+  positions, so a skipped row leaves a visible gap. Flip it to an invariant if we'd rather find out
+  loudly.
+- **Tests: `integration-tests/src/ladder/experience-points/`** — its own suite, not parametrized over
+  the ladder-records strategies (this facet never touches one). The old `ladder/index.test.ts`
+  (rank-up / death / delete *message* tests) moved in here too, split into per-concern files behind one
+  `index.test.ts`, since they were always XP-ladder tests. New: read-back of a real battle's XP, the
+  two schemes ranking separately, and death removing a ranked character (via the `Death` action on
+  self — deterministic, unlike waiting to be killed).
+- Fixture: `ClientTestFixtureOptions.controlScheme` now threads through
+  `createSingleClientWithSavedCharacters` / `createSingleClientInProgressionGame`, which were both
+  hardcoded to Captain.
+
+**NOT yet done for this step:** the suite has not been run (asking first), and no UI — that is step 6.
+
+---
+
+## Where we are (2026-07-25)
 
 **Step 5 (socket wiring for `LadderQueries`) is DONE and validated.** Committed as `c90e816c`
 (client-side queries) and `bc29b39d` (username on participant records); migrations run and the whole
@@ -258,8 +312,8 @@ Two non-obvious things surfaced getting it green (both fixed):
 rebuilding the removed XP-ladder read.
 
 **Known open loose ends (none blocking step 6):**
-- Dead XP-ladder types awaiting step 8: `queries/experience-points-ladder.ts` and
-  `ExperiencePointsLadderCharacterEntry`, both unreferenced since the interface method was removed.
+- ~~Dead XP-ladder types awaiting step 8~~ — `queries/experience-points-ladder.ts` was rewritten and
+  is live; `ExperiencePointsLadderCharacterEntry` was deleted (2026-07-25).
 - `frontend/src/app/lobby/user-menu/index.tsx:170` still routes to `/profile/:username`, which 404s
   until step 7.
 - Deferred write-path items: the owner-at-clear-time `IdentityProviderId` denormalization and the
@@ -313,16 +367,20 @@ ladder-records store.
 3. **Party victories** — race winners / escapes.
 4. **Player profile** — personalized aggregate, own _and_ other players'.
 
-### XP ladder — needs new keying work
+### XP ladder — re-keyed 2026-07-25 (step 8, see top)
 
-Today `CharacterLevelLadderService` uses a single sorted set (one key, `CHARACTER_LEVEL_LADDER`),
-with no control-scheme dimension. Required:
+Was a single sorted set with no control-scheme dimension. Now one set per scheme, named by
+`experiencePointsLadderName(scheme)`.
 
-- Per-control-scheme ladders (best Freelancer, best Captain) viewable separately.
-- An all-up "total" ladder across all players regardless of mode.
-- Every row carries **mode and control scheme as context columns**, so a viewer always knows what
-  they're looking at — especially in the combined view.
+- ~~An all-up "total" ladder across all players regardless of mode.~~ **Dropped** — separate ladders
+  only, as PoE and Diablo do it.
+- ~~Every row carries mode and control scheme as context columns.~~ **Dropped**: only progression
+  characters are ranked, so mode is a constant, and the control scheme is the board you are looking
+  at rather than a column on it.
 
+> ✅ **RESOLVED 2026-07-25 — rebuilt over saved progression characters (see the entry at the top).**
+> The historical note below explains why the old one was wrong.
+>
 > ⚠️ **The XP-ladder read was REMOVED from the service (2026-07-24), to be built fresh in step 8.**
 > `getExperiencePointsLadderCharacters` was gone-wrong: it read `LadderCharacterRecord`s — but those
 > exist only to show basic character info *within an ironman/race game record* (name/class for a
@@ -418,7 +476,7 @@ Control scheme is a **filter column**, not separate tables — the records alrea
 5. ~~Wire the online gateway impl over socket request/reply~~ — done 2026-07-25 (see top).
 6. Build the faceted view UI, reusing the old Tailwind table styling.
 7. Rebuild profiles at `/profile/:username` (client-rendered).
-8. XP ladder re-keying for control scheme + total view.
+8. ~~XP ladder re-keying for control scheme~~ — done 2026-07-25 (see top); no total view, by decision.
 9. _Optional phase 2:_ live-updating ladder via server push. Needs subscription bookkeeping (who is
    watching which facet) and throttling — do not push on every XP tick. Explicitly NOT baseline.
 
