@@ -49,12 +49,12 @@ path. Shape:
   same way the records-side `paginate` does (`page * PAGE_SIZE + index + 1`).
 - **`ExperiencePointsLadderCharacterEntry` and the `LadderCharacterRecord`-based read are gone** — the
   wrong-source implementation the earlier note flagged. Saved characters are the source now.
-- 🔸 **Open decision: a ladder entry that cannot be hydrated is skipped, not fatal.** Two ways it can
-  happen — the saved character is missing, or its owner no longer resolves at the identity provider
-  (an externally deleted account, the orphan case already noted below). The projection drops those
-  rows rather than `invariant`ing, so one orphan can't 500 a public page; ranks keep their sorted-set
-  positions, so a skipped row leaves a visible gap. Flip it to an invariant if we'd rather find out
-  loudly.
+- **A ladder entry that cannot be hydrated is skipped and `console.info`d.** Two ways it can happen —
+  the saved character is missing (the sorted set outlived what it ranks), or its owner no longer
+  resolves at the identity provider (an externally deleted account, the orphan case noted below).
+  Dropping the row rather than `invariant`ing means one orphan can't take down a page everyone can
+  see; the log line is how we find out it is happening at all. Ranks keep their sorted-set positions,
+  so a skipped row leaves a visible gap.
 - **Tests: `integration-tests/src/ladder/experience-points/` — 8 green (2026-07-25).** Its own suite,
   not parametrized over the ladder-records strategies (this facet never touches one). The old
   `ladder/index.test.ts` (rank-up / death / delete *message* tests) moved in here too, split into
@@ -68,9 +68,10 @@ path. Shape:
   `createSingleClientWithSavedCharacters` / `createSingleClientInProgressionGame`, which were both
   hardcoded to Captain.
 
-**Validated:** the new suite plus the adjacent ones that touch this wiring (saved-characters,
-character-control-schemes, progression-games, ladder game-records / read-queries / query-transport) —
-29 tests green. **Not done:** the UI, which is step 6.
+**Validated: the full suite is green (2026-07-26).** With this, every backend increment of the
+rebuild is done — all four facets have a data source, a read path, and tests. **What is left is the
+frontend**: step 6 (the faceted ladder view) and step 7 (`/profile/:username`). Step 4 (IndexedDB for
+offline) is still open but reduced in scope, per the offline finding below.
 
 ---
 

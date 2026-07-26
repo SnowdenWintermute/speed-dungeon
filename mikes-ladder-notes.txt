@@ -1,7 +1,5 @@
 Notes for Mike to maintain - (Claude may read, not write here)
 
-experience point ladder for progression games
-
 frontend ladder browser
 
 frontend profiles at /profiles/:username
@@ -13,3 +11,5 @@ floor clears show participating players at that time
 game history records show all original players and if they abandoned or not
 
 how will we handle orphaned profiles/characters when deleting accounts
+
+global messages for new world record fastest clear time of a floor/mode/control scheme
