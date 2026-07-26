@@ -1,5 +1,5 @@
 import { IdentityProviderId, LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
-import { LADDER_CONFIG } from "../../app-consts.js";
+import { LADDER_CONFIG, USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
 import {
@@ -21,6 +21,7 @@ import {
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
 import { projectExperiencePointsLadderPage } from "./experience-points-ladder-projection.js";
+import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 
 // executes the queries in-process against the ladder stores. the server runs it over its own
 // persistence strategy on behalf of a connected client; offline clients run it over their local one.
@@ -126,6 +127,31 @@ export class LocalLadderQueries implements LadderQueries {
           toFloorClearView(entry, usernameOf)
         ),
       },
+    };
+  }
+
+  // an unknown username yields an empty page rather than its own "no such player" case: the profile
+  // query rendered alongside this one is what distinguishes a missing player from an idle one
+  async getUserGameHistory(query: UserGameHistoryQuery): Promise<LadderPage<UserGameHistoryEntry>> {
+    const userIdOption = await this.usernameDirectory.findUserIdByUsername(query.username);
+    if (userIdOption === undefined) {
+      return { page: query.page, totalPages: 0, entries: [] };
+    }
+
+    const entries = await this.ladderGameRecordsService.getUserGameHistory(
+      userIdOption,
+      query.page,
+      query.dateRangeOption
+    );
+    const totalRecordsCount = await this.ladderGameRecordsService.getUserGameRecordsCount(
+      userIdOption,
+      query.dateRangeOption
+    );
+
+    return {
+      page: query.page,
+      totalPages: Math.ceil(totalRecordsCount / USER_GAME_HISTORY_PAGE_SIZE),
+      entries,
     };
   }
 

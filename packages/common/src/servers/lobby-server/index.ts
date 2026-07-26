@@ -310,7 +310,6 @@ export class LobbyServer extends SpeedDungeonServer {
     );
 
     const ladderGameRecordsController = new LadderGameRecordsController(
-      this.externalServices.ladderGameRecordsService,
       new LocalLadderQueries(
         this.externalServices.ladderGameRecordsService,
         this.externalServices.usernameDirectory,

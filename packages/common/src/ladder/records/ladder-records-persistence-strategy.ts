@@ -1,7 +1,6 @@
 import {
   CombatantId,
   GameId,
-  GameName,
   IdentityProviderId,
   LadderCharacterFloorClearRecordId,
   Milliseconds,
@@ -14,6 +13,7 @@ import { LadderPage } from "../queries/ladder-page.js";
 import { FloorClear, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
+import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import {
   LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
@@ -59,15 +59,6 @@ export interface LadderGameRecordAggregate {
   participants: LadderParticipantRecord[];
   participations: LadderGameParticipationRecord[];
   parties: LadderPartyRecordAggregate[];
-}
-
-// a row in a user's paginated game-history list
-export interface UserGameHistoryEntry {
-  gameId: GameId;
-  gameName: GameName;
-  date: Milliseconds;
-  fateOptionOfQueryingPlayerParty?: PartyFate;
-  queryingPlayerAbandonedAtOption?: Milliseconds;
 }
 
 export type FloorClearEntry = FloorClear<IdentityProviderId>;

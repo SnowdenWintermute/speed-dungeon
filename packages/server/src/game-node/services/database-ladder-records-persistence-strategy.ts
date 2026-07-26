@@ -231,10 +231,10 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       gameId: row.id as GameId,
       gameName: row.name as GameName,
       date: timestampToMs(row.timeStarted) ?? 0,
-      fateOptionOfQueryingPlayerParty: row.fateType
+      partyFateOption: row.fateType
         ? { type: row.fateType as PartyFateType, timestamp: timestampToMs(row.fateTimestamp) ?? 0 }
         : undefined,
-      queryingPlayerAbandonedAtOption: timestampToMs(row.abandonedAt),
+      abandonedAtOption: timestampToMs(row.abandonedAt),
     }));
   }
 

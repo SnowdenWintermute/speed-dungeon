@@ -36,8 +36,8 @@ import { GameClient } from "./clients/game";
 import { LobbyClient } from "./clients/lobby";
 import { ReconnectionTokenStore } from "./reconnection-token-store";
 import { RootActionMenuScreen } from "./action-menu/screens/root";
-import { LadderRecordsStore } from "./ladder-records-store";
 import { ClientLadderQueries } from "./client-ladder-queries";
+import { LadderViewStore } from "./ladder-view";
 import { ItemCommands } from "./item-commands";
 import { ItemDragService } from "./item-drag/drag-service";
 
@@ -67,8 +67,8 @@ export class ClientApplication {
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly imageStore = new ImageStore();
   readonly uiStore = new UiStore(this);
-  readonly ladderRecordsStore = new LadderRecordsStore(this);
   readonly ladderQueries = new ClientLadderQueries(this);
+  readonly ladderView = new LadderViewStore(this);
   readonly itemCommands = new ItemCommands(this);
   readonly dragService = new ItemDragService(this);
 
@@ -132,7 +132,7 @@ export class ClientApplication {
   makeObservable() {
     this.topologyManager.makeObservable();
     this.lobbyContext.makeObservable();
-    this.ladderRecordsStore.makeObservable();
+    this.ladderView.makeObservable();
     this.targetIndicatorStore.makeObservable();
     // this.sequentialEventProcessor.makeObservable();
     // @TODO - find other subsystems that are calling .makeObservable() in their constructors

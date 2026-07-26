@@ -14,7 +14,6 @@ import { TargetingSelection } from "../combat/targeting/combat-action-targets.js
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
-import { DateRange } from "../primatives/date-range.js";
 import { LadderQueryRequest } from "../ladder/queries/ladder-query-messages.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { BookConsumableType } from "../items/consumables/index.js";
@@ -49,8 +48,6 @@ export enum ClientIntentType {
   AbandonIronmanRun,
 
   // ladder game records
-  GetUserGameHistory,
-  GetUserGameRecordsCount,
   LadderQuery,
 
   // action selection
@@ -172,13 +169,6 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.AbandonIronmanRun]: {
     runId: GameId;
-  };
-  [ClientIntentType.GetUserGameHistory]: {
-    page: number;
-    dateRange?: DateRange;
-  };
-  [ClientIntentType.GetUserGameRecordsCount]: {
-    dateRange?: DateRange;
   };
   [ClientIntentType.LadderQuery]: LadderQueryRequest;
   [ClientIntentType.AddSavedCharacterToProgressionGame]: { entityId: CombatantId };

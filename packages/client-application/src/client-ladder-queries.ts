@@ -14,6 +14,8 @@ import {
   FloorClearTimesQuery,
   FloorClearView,
   PlayerProfileLookup,
+  UserGameHistoryEntry,
+  UserGameHistoryQuery,
   Username,
   WinRateLadderQuery,
   WinRateLadderView,
@@ -69,6 +71,14 @@ export class ClientLadderQueries implements LadderQueries {
     const result = await this.send({ type: LadderQueryType.PlayerProfile, username });
     invariant(result.type === LadderQueryType.PlayerProfile, WRONG_RESULT_TYPE);
     return result.lookup;
+  }
+
+  async getUserGameHistory(
+    query: UserGameHistoryQuery
+  ): Promise<LadderPage<UserGameHistoryEntry>> {
+    const result = await this.send({ type: LadderQueryType.UserGameHistory, query });
+    invariant(result.type === LadderQueryType.UserGameHistory, WRONG_RESULT_TYPE);
+    return result.page;
   }
 
   receiveResult(reply: ClientIntentReply & { result: LadderQueryResult }) {

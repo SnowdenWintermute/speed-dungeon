@@ -1,5 +1,6 @@
 import {
   TEST_AUTH_SESSION_ID_PLAYER_1,
+  TEST_AUTH_USERNAME_PLAYER_1,
   TEST_CHARACTER_NAME_1,
   TEST_GAME_NAME,
 } from "@/fixtures/consts";
@@ -25,12 +26,12 @@ export async function testSaveGameRecordOnGameStart(testFixture: IntegrationTest
 
   // expect to NOT find record in persistence service yet
   const gameId = alpha.clientApplication.gameContext.requireGame().id;
-  await alpha.lobbyClientHarness.requestGameHistory(1);
-  expect(
-    alpha.clientApplication.ladderRecordsStore
-      .getPage(1)
-      ?.some((gameRecord) => gameRecord.gameId === gameId)
-  ).toBeFalsy();
+  const ladderQueries = await testFixture.createLadderViewerQueries();
+  const history = await ladderQueries.getUserGameHistory({
+    username: TEST_AUTH_USERNAME_PLAYER_1,
+    page: 1,
+  });
+  expect(history.entries.some((gameRecord) => gameRecord.gameId === gameId)).toBeFalsy();
   const gameRecordAggregateNotExpected =
     await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
   expect(gameRecordAggregateNotExpected).toBeUndefined();

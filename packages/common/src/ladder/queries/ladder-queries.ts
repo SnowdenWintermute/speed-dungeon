@@ -8,6 +8,7 @@ import {
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
+import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 
 // the client-facing read side (CQRS-style queries)
 export interface LadderQueries {
@@ -24,4 +25,6 @@ export interface LadderQueries {
   ): Promise<CharacterFloorClearSnapshotView | undefined>;
 
   getPlayerProfile(username: Username): Promise<PlayerProfileLookup>;
+
+  getUserGameHistory(query: UserGameHistoryQuery): Promise<LadderPage<UserGameHistoryEntry>>;
 }

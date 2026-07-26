@@ -9,15 +9,17 @@ import {
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
+import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 
 // LadderQueries as messages, so every call travels as one intent type and one reply update type
-// instead of four of each
+// instead of one of each per query
 export enum LadderQueryType {
   ExperiencePointsLadder,
   FloorClearTimes,
   WinRateLadder,
   CharacterFloorClearSnapshot,
   PlayerProfile,
+  UserGameHistory,
 }
 
 export type LadderQueryRequest =
@@ -28,7 +30,8 @@ export type LadderQueryRequest =
       type: LadderQueryType.CharacterFloorClearSnapshot;
       snapshotId: LadderCharacterFloorClearRecordId;
     }
-  | { type: LadderQueryType.PlayerProfile; username: Username };
+  | { type: LadderQueryType.PlayerProfile; username: Username }
+  | { type: LadderQueryType.UserGameHistory; query: UserGameHistoryQuery };
 
 export type LadderQueryResult =
   | {
@@ -41,7 +44,8 @@ export type LadderQueryResult =
       type: LadderQueryType.CharacterFloorClearSnapshot;
       snapshotOption?: CharacterFloorClearSnapshotView;
     }
-  | { type: LadderQueryType.PlayerProfile; lookup: PlayerProfileLookup };
+  | { type: LadderQueryType.PlayerProfile; lookup: PlayerProfileLookup }
+  | { type: LadderQueryType.UserGameHistory; page: LadderPage<UserGameHistoryEntry> };
 
 export async function executeLadderQuery(
   ladderQueries: LadderQueries,
@@ -72,6 +76,11 @@ export async function executeLadderQuery(
       return {
         type: request.type,
         lookup: await ladderQueries.getPlayerProfile(request.username),
+      };
+    case LadderQueryType.UserGameHistory:
+      return {
+        type: request.type,
+        page: await ladderQueries.getUserGameHistory(request.query),
       };
   }
 }

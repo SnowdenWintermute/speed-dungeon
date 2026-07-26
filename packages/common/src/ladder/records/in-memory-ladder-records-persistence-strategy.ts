@@ -30,9 +30,9 @@ import {
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
   PlayerProfileData,
-  UserGameHistoryEntry,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
+import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import {
   FloorClearProjectionRecords,
   projectCharacterFloorClearSnapshot,
@@ -71,8 +71,8 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
       gameId: game.id,
       gameName: game.name,
       date: game.timeStarted,
-      fateOptionOfQueryingPlayerParty: this.queryingPlayerPartyFate(game.id, userId),
-      queryingPlayerAbandonedAtOption: this.gameParticipations.find(
+      partyFateOption: this.playerPartyFate(game.id, userId),
+      abandonedAtOption: this.gameParticipations.find(
         (participation) =>
           participation.gameRecordId === game.id && participation.participantRecordId === userId
       )?.abandonedAtOption,
@@ -107,7 +107,7 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     return games;
   }
 
-  private queryingPlayerPartyFate(
+  private playerPartyFate(
     gameId: GameId,
     userId: IdentityProviderId
   ): PartyFate | undefined {

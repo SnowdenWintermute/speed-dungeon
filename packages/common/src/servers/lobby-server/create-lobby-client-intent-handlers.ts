@@ -57,10 +57,6 @@ export function createLobbyClientIntentHandlers(
       lobbyServer.savedCharactersController.deleteSavedCharacterHandler(user, data),
 
     // LADDER GAME RECORDS
-    [ClientIntentType.GetUserGameHistory]: (data, user) =>
-      lobbyServer.ladderGameRecordsController.getUserGameHistoryHandler(user, data),
-    [ClientIntentType.GetUserGameRecordsCount]: (data, user) =>
-      lobbyServer.ladderGameRecordsController.getUserGameRecordsCountHandler(user, data),
     [ClientIntentType.LadderQuery]: (data, user) =>
       lobbyServer.ladderGameRecordsController.ladderQueryHandler(user, data),
 

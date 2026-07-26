@@ -25,13 +25,13 @@ import {
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
   PlayerProfileData,
-  UserGameHistoryEntry,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { LadderPage } from "../queries/ladder-page.js";
 import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
+import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import cloneDeep from "lodash.clonedeep";

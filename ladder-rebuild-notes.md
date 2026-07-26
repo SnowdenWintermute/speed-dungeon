@@ -7,7 +7,67 @@ Started 2026-07-23.
 
 ---
 
-## Where we are / resume here (2026-07-25, later)
+## Where we are / resume here (2026-07-26) — client read store BUILT, frontend next
+
+**`LadderViewStore` (`client-application/src/ladder-view/`) is the client-side read state.** Six
+`KeyedQueryCache` instances, one per query on `LadderQueries`. The old `LadderRecordsStore` is
+**deleted** — despite the name it only ever held the user's own game history, and its shape
+(`setPage` + a `pagesInFlight` set) was an artifact of the push transport, not of any ladder facet.
+
+- **One entry per distinct query; the key is the whole query.** `(floor, page, controlScheme, mode)`
+  for floor clears, and so on. A page is stored exactly as the server assembled it and never rebuilt
+  from local records — it *couldn't* be, since `rank` is assigned server-side and the client only
+  holds the pages it asked for. `keyOf` is passed per facet rather than stringifying the query
+  object, so field order is explicit and a new filter can't silently collide with cached entries.
+- **The cache owns the async lifecycle** because the port returns promises: status
+  (Loading/Loaded/Failed), rejection capture, `lastUpdatedAt`, and a per-key request-generation
+  guard so a slow page 1 resolving after the user clicked page 2 cannot overwrite it. That guard is
+  the reason this is one class instead of five `useEffect`s.
+- **No eviction, no current-selection state.** The URL is the source of truth; the route component
+  derives the query object and calls `request(query)` (cache-first) or `refresh(query)` (always
+  fetches, behind the refresh button). Entering a URL fetches fresh with no special casing, because
+  a full page load starts with an empty cache. A *failed* entry counts as asked — retry is the
+  button's job, or a render loop would hammer an already-failing server.
+- ⚠️ **mobx: `stateByKey` is `observable.shallow`, and the injected `fetchResult`/`keyOf` are
+  `false`.** Both are TS parameter properties, so mobx sees them as own fields holding functions and
+  would infer `autoAction` — wrapping another subsystem's bound method, and putting a batch around
+  an async function whose every state write happens after the first `await` anyway (the real actions
+  are `beginRequest`/`receiveResult`/`receiveFailure`). Deep observability was measured to re-proxy
+  every stored page and break value identity; shallow keeps the map reactive and stores pages as
+  sent. Note `autoAction` does **not** untrack reads inside a derivation — a method like `get()`
+  being an action is harmless (verified against mobx 6.15).
+
+**User game history folded into `LadderQueries` and made public (2026-07-26).** It was always meant
+to be part of the profile page. `getUserGameHistory({ username, page, dateRangeOption })` is a sixth
+query, implemented like `getPlayerProfile` (`findUserIdByUsername`, then the page); an unknown
+username returns an **empty page**, not a second `NoSuchPlayer` union, since the profile query
+rendered alongside it already drives the 404. Deleted: `ClientIntentType.GetUserGameHistory` and
+`GetUserGameRecordsCount`, `GameStateUpdateType.UserGameHistoryPage` and `UserGameRecordsCount`,
+both controller handlers, and the update-handler push. `LadderPage.totalPages` subsumes the separate
+count intent, so the read is now **one round trip instead of two**.
+
+- Nothing in the entry was ever viewer-relative — both persistence impls filter by one `userId` — so
+  `fateOptionOfQueryingPlayerParty`/`queryingPlayerAbandonedAtOption` became `partyFateOption`/
+  `abandonedAtOption` and `UserGameHistoryEntry` moved to `queries/user-game-history.ts`. No SQL
+  changed. **`LadderQueries` stays uniformly public**, so `executeLadderQuery` never needs caller
+  identity.
+- The three tests that read the old store (`abandon-run-updates-ladder-records.ts`,
+  `save-game-record-on-start.ts`) now go through `createLadderViewerQueries()` like every other read
+  test; `requestGameHistory` is gone from the harness.
+
+**Perf finding, deliberately NOT acted on.** `getUserGameHistory` is the only query that runs a
+`COUNT(*)` — and the only one that paginates in SQL. The others skip counting only because they
+already materialized everything: `getFloorClearTimes` loads every party that ever cleared the floor
+plus their clear history, and `getWinRateLadder` loads **every ranked race game ever**, all their
+parties, all their characters, and the whole participant table, then slices in memory. That's the
+naive tier working as designed; leave it until a profiler says otherwise.
+
+**Next: the JSX.** Step 6 (faceted ladder view) and step 7 (`/profile/:username`). No frontend route
+exists yet — nothing under `frontend/src/app` references the ladder.
+
+---
+
+## Where we are (2026-07-25, later)
 
 **Step 8 (XP ladder) is BUILT — not yet run.** The facet now has a real data source and a client read
 path. Shape:

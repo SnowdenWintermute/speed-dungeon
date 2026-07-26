@@ -3,7 +3,6 @@ import { SpeedDungeonGame } from "../game/index.js";
 import { ShardPayment } from "../game/player-shard-pool.js";
 import { Item } from "../items/index.js";
 import { NextOrPrevious } from "../primatives/index.js";
-import { UserGameHistoryEntry } from "../ladder/records/ladder-records-persistence-strategy.js";
 import { LadderQueryResult } from "../ladder/queries/ladder-query-messages.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
@@ -96,8 +95,6 @@ export enum GameStateUpdateType {
   IronmanRunAbandoned,
   SavedCharacter,
   // ladder game records
-  UserGameHistoryPage,
-  UserGameRecordsCount,
   LadderQueryResult,
   SavedCharacterDeleted,
   CharacterSelectedHoldableHotswapSlot,
@@ -273,13 +270,6 @@ export interface GameStateUpdateMap {
   [GameStateUpdateType.IronmanRunsList]: {
     savedIronmanRuns: SerializedOf<SavedIronmanRunClientEntry>[];
     ironmanRunCapacity: number;
-  };
-  [GameStateUpdateType.UserGameHistoryPage]: {
-    page: number;
-    entries: UserGameHistoryEntry[];
-  };
-  [GameStateUpdateType.UserGameRecordsCount]: {
-    count: number;
   };
   [GameStateUpdateType.LadderQueryResult]: ClientIntentReply & {
     result: LadderQueryResult;
@@ -462,8 +452,6 @@ export const GAME_STATE_UPDATE_TYPE_STRINGS: Record<GameStateUpdateType, string>
   [GameStateUpdateType.CharacterSpentAttributePoint]: "CharacterSpentAttributePoint",
   [GameStateUpdateType.SavedCharacterList]: "SavedCharacterList",
   [GameStateUpdateType.IronmanRunsList]: "IronmanRunsList",
-  [GameStateUpdateType.UserGameHistoryPage]: "UserGameHistoryPage",
-  [GameStateUpdateType.UserGameRecordsCount]: "UserGameRecordsCount",
   [GameStateUpdateType.LadderQueryResult]: "LadderQueryResult",
   [GameStateUpdateType.IronmanRunAbandoned]: "IronmanRunAbandoned",
   [GameStateUpdateType.SavedCharacter]: "SavedCharacter",
