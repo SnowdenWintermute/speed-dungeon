@@ -126,6 +126,13 @@ New queries on `LadderQueries`:
 4. **Progression character by id** — full combatant minus inventory. Not started; touches saved
    characters rather than ladder records, so it shares nothing with 2/3.
 
+**Possible later: show a floor clear's rank on each board it appears on.** The standalone page has no
+rank by design, but a clear has *many* ranks — one per board (floor × mode × control scheme × sort,
+plus Deepest Cumulative) — and each one is a `COUNT(*) + 1` of the clears beating it under that
+board's filter and ordering. A scan returning one integer, not a materialized board, so the page
+could show the whole set rather than any single "the" rank. Pick which boards are worth listing when
+we build it; the full cross-product is more counts than anyone wants to read.
+
 Plus, on existing queries:
 
 5. ~~`FloorClearCharacter` gains main/support class and owner~~ — **DONE 2026-07-26.** It is now
