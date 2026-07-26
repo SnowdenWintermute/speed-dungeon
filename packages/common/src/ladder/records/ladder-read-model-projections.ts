@@ -1,5 +1,12 @@
 import { LADDER_CONFIG } from "../../app-consts.js";
-import { CombatantId, GameId, IdentityProviderId, PartyId } from "../../aliases.js";
+import {
+  CombatantId,
+  GameId,
+  IdentityProviderId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
+  PartyId,
+} from "../../aliases.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 import {
   LadderCharacterFloorClearRecord,
@@ -16,7 +23,13 @@ import {
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { FloorClearCharacter, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import {
+  CumulativeClearTimesQuery,
+  DEFAULT_FLOOR_CLEAR_SORT,
+  FloorClearCharacter,
+  FloorClearSortField,
+  FloorClearTimesQuery,
+} from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 
@@ -25,12 +38,21 @@ import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clea
 // id-keyed …Entry read models. keeping the subtle bits (race-winner resolution, win/loss tallying,
 // personal-best grouping) here means the in-memory and Postgres strategies can never diverge on them.
 
+// a snapshot's identity without its payload. floor-clear rows only need the id, to link to the
+// snapshot's own page — loading LadderCharacterFloorClearRecord here would drag the serialized
+// combatant and its pets along for every character of every clear on the board
+export interface FloorClearSnapshotRef {
+  id: LadderCharacterFloorClearRecordId;
+  partyFloorClearRecord: LadderPartyFloorClearRecordId;
+  characterRecordRef: CombatantId;
+}
+
 export interface FloorClearProjectionRecords {
   partyFloorClears: LadderPartyFloorClearRecord[];
   parties: LadderPartyRecord[];
   games: LadderGameRecord[];
   characters: LadderCharacterRecord[];
-  snapshots: LadderCharacterFloorClearRecord[];
+  snapshots: FloorClearSnapshotRef[];
 }
 
 export function projectFloorClearTimesPage(
@@ -56,11 +78,102 @@ export function projectFloorClearTimesPage(
     return query.modeOption === undefined || game.mode === query.modeOption;
   });
 
-  matching.sort((a, b) => a.timeSpentOnFloor - b.timeSpentOnFloor);
+  const sort = query.sortOption ?? DEFAULT_FLOOR_CLEAR_SORT;
+  const ranked = matching.map((partyFloorClear) => ({
+    partyFloorClear,
+    cumulativeTime: cumulativeTimeToClearFloor(partyFloorClear, indexes),
+  }));
 
-  return paginate(matching, query.page, (partyFloorClear, rank) =>
+  // the id tie-break stays ascending whichever way the chosen column points, so a descending sort is
+  // a mirror of the ascending one rather than a differently-tied ordering
+  ranked.sort((a, b) => {
+    const comparison = compareFloorClearsBy(a, b, sort.field);
+    const directed = sort.isDescending ? -comparison : comparison;
+    return directed || compareIds(a.partyFloorClear.id, b.partyFloorClear.id);
+  });
+
+  return paginate(ranked, query.page, ({ partyFloorClear }, rank) =>
     assembleFloorClearEntry(partyFloorClear, rank, indexes)
   );
+}
+
+// ordinal, not localeCompare: Postgres orders these ids by their own value, and locale-aware
+// comparison can disagree with that on punctuation. the two strategies must tie-break alike
+function compareIds(a: string, b: string): number {
+  if (a === b) {
+    return 0;
+  }
+  return a < b ? -1 : 1;
+}
+
+function compareFloorClearsBy(
+  a: { partyFloorClear: LadderPartyFloorClearRecord; cumulativeTime: number },
+  b: { partyFloorClear: LadderPartyFloorClearRecord; cumulativeTime: number },
+  field: FloorClearSortField
+): number {
+  switch (field) {
+    case FloorClearSortField.TimeSpentOnFloor:
+      return a.partyFloorClear.timeSpentOnFloor - b.partyFloorClear.timeSpentOnFloor;
+    case FloorClearSortField.CumulativeTimeToClearFloor:
+      return a.cumulativeTime - b.cumulativeTime;
+  }
+}
+
+export function projectCumulativeClearTimesPage(
+  query: CumulativeClearTimesQuery,
+  records: FloorClearProjectionRecords
+): LadderPage<FloorClearEntry> {
+  const indexes = indexFloorClearRecords(records);
+
+  // cumulative time is computed once per clear rather than inside the comparator, which would
+  // re-sum a party's whole history on every comparison
+  const ranked = records.partyFloorClears
+    .filter((partyFloorClear) => {
+      if (partyFloorClear.controlScheme !== query.controlScheme) {
+        return false;
+      }
+      return gameForPartyFloorClear(partyFloorClear, indexes) !== undefined;
+    })
+    .map((partyFloorClear) => ({
+      partyFloorClear,
+      cumulativeTime: cumulativeTimeToClearFloor(partyFloorClear, indexes),
+    }));
+
+  // deepest first, then fastest to get there. the id tie-break keeps the in-memory strategy a
+  // faithful oracle for the SQL one, whose row order is otherwise unspecified
+  ranked.sort(
+    (a, b) =>
+      b.partyFloorClear.floor - a.partyFloorClear.floor ||
+      a.cumulativeTime - b.cumulativeTime ||
+      compareIds(a.partyFloorClear.id, b.partyFloorClear.id)
+  );
+
+  return paginate(ranked, query.page, ({ partyFloorClear }, rank) =>
+    assembleFloorClearEntry(partyFloorClear, rank, indexes)
+  );
+}
+
+// for strategies that already filtered, ordered and sliced in storage: assembles the given rows in
+// the order handed over, without re-sorting. every displayed figure — cumulative time included —
+// still comes from this shared assembly, so a storage-side ordering can only ever disagree about
+// order, never about the numbers on a row. records.partyFloorClears is the page's parties' full
+// clear history, which cumulativeTimeToClearFloor sums over.
+export function assembleFloorClearPage(
+  orderedPageClears: LadderPartyFloorClearRecord[],
+  page: number,
+  totalEntries: number,
+  records: FloorClearProjectionRecords
+): LadderPage<FloorClearEntry> {
+  const indexes = indexFloorClearRecords(records);
+  const pageStart = page * LADDER_CONFIG.PAGE_SIZE;
+
+  return {
+    page,
+    totalPages: Math.ceil(totalEntries / LADDER_CONFIG.PAGE_SIZE),
+    entries: orderedPageClears.map((partyFloorClear, indexInPage) =>
+      assembleFloorClearEntry(partyFloorClear, pageStart + indexInPage + 1, indexes)
+    ),
+  };
 }
 
 export function projectWinRateLadderPage(
@@ -171,7 +284,7 @@ export function assemblePersonalBestEntries(
     parties: LadderPartyRecord[];
     games: LadderGameRecord[];
     characters: LadderCharacterRecord[];
-    snapshots: LadderCharacterFloorClearRecord[];
+    snapshots: FloorClearSnapshotRef[];
     // the best clears' parties' full clear history (floors <= each best), for cumulativeTimeToClearFloor
     partyClearHistory: LadderPartyFloorClearRecord[];
   }
@@ -256,7 +369,16 @@ interface FloorClearIndexes {
   gamesById: Map<GameId, LadderGameRecord>;
   charactersByParty: Map<PartyId, LadderCharacterRecord[]>;
   partyFloorClearsByParty: Map<PartyId, LadderPartyFloorClearRecord[]>;
-  snapshots: LadderCharacterFloorClearRecord[];
+  // keyed by clear + character rather than scanned per assembled row: the ref list covers every
+  // clear on the board, so a linear find here is a full pass over it for each character of each row
+  snapshotIdByClearAndCharacter: Map<string, LadderCharacterFloorClearRecordId>;
+}
+
+function snapshotKey(
+  partyFloorClearRecordId: LadderPartyFloorClearRecordId,
+  characterRecordId: CombatantId
+): string {
+  return `${partyFloorClearRecordId}:${characterRecordId}`;
 }
 
 function indexFloorClearRecords(records: FloorClearProjectionRecords): FloorClearIndexes {
@@ -277,7 +399,12 @@ function indexFloorClearRecords(records: FloorClearProjectionRecords): FloorClea
     gamesById: new Map(records.games.map((game) => [game.id, game])),
     charactersByParty,
     partyFloorClearsByParty,
-    snapshots: records.snapshots,
+    snapshotIdByClearAndCharacter: new Map(
+      records.snapshots.map((snapshot) => [
+        snapshotKey(snapshot.partyFloorClearRecord, snapshot.characterRecordRef),
+        snapshot.id,
+      ])
+    ),
   };
 }
 
@@ -319,16 +446,16 @@ function assembleFloorClearEntry(
 
   const partyCharacters = indexes.charactersByParty.get(party.id) ?? [];
 
-  const characters: FloorClearCharacter[] = partyCharacters.map((character) => {
-    const snapshot = indexes.snapshots.find(
-      (candidate) =>
-        candidate.partyFloorClearRecord === partyFloorClear.id &&
-        candidate.characterRecordRef === character.id
-    );
+  const characters: FloorClearCharacter<IdentityProviderId>[] = partyCharacters.map((character) => {
     return {
       characterId: character.id,
       characterName: character.name,
-      snapshotIdOption: snapshot?.id,
+      snapshotIdOption: indexes.snapshotIdByClearAndCharacter.get(
+        snapshotKey(partyFloorClear.id, character.id)
+      ),
+      mainClass: character.mainClass,
+      supportClassOption: character.supportClassOption,
+      owner: character.controllingPlayerId,
     };
   });
 
@@ -344,9 +471,8 @@ function assembleFloorClearEntry(
     floor: partyFloorClear.floor,
     timeSpentOnFloor: partyFloorClear.timeSpentOnFloor,
     cumulativeTimeToClearFloor: cumulativeTimeToClearFloor(partyFloorClear, indexes),
-    // floor-clear records store no absolute per-floor timestamp; the run's start date is the
-    // display "date". see notes for why we don't derive a wall-clock clear time here.
     gameStartedAt: game.timeStarted,
+    clearedAt: partyFloorClear.clearedAt,
     players,
     characters,
   };

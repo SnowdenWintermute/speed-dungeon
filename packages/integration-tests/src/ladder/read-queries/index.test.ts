@@ -8,6 +8,7 @@ import { testIronmanReadQueryFiltersAndSnapshot } from "./ironman-filters-and-sn
 import { testFloorClearPagination } from "./floor-clear-pagination-reads";
 import { testIronmanMultiRunPersonalBest } from "./ironman-multi-run-personal-best-reads";
 import { testDeletedAccountFloorClearReads } from "./deleted-account-username-reads";
+import { testCumulativeClearTimesReads } from "./cumulative-clear-times-reads";
 
 const CONTAINER_STARTUP_TIMEOUT_MS = 120_000;
 
@@ -77,5 +78,9 @@ describe.each(strategies)("ladder read queries ($name)", ({ usePostgres }) => {
 
   it("shows a deleted account's last known username on their old floor clears", async () => {
     await testDeletedAccountFloorClearReads(testFixture);
+  });
+
+  it("orders cumulative clear times deepest first, then fastest to get there", async () => {
+    await testCumulativeClearTimesReads(testFixture);
   });
 });

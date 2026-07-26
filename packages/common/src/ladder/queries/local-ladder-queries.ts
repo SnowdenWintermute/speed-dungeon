@@ -12,7 +12,11 @@ import { LadderGameRecordsService } from "../records/ladder-records-service.js";
 import { FloorClearEntry, WinLossTally } from "../records/ladder-records-persistence-strategy.js";
 import { winRateOf } from "../records/ladder-read-model-projections.js";
 import { LadderPage } from "./ladder-page.js";
-import { FloorClearTimesQuery, FloorClearView } from "./floor-clear-times.js";
+import {
+  CumulativeClearTimesQuery,
+  FloorClearTimesQuery,
+  FloorClearView,
+} from "./floor-clear-times.js";
 import { WinLossRecord, WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup, PlayerProfileLookupType } from "./player-profile.js";
@@ -65,6 +69,21 @@ export class LocalLadderQueries implements LadderQueries {
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
     validatePage(query.page);
     const page = await this.ladderGameRecordsService.getFloorClearTimes(query);
+    const usernameOf = await this.resolverForPlayers(
+      page.entries.flatMap((entry) => entry.players)
+    );
+
+    return {
+      ...page,
+      entries: page.entries.map((entry) => toFloorClearView(entry, usernameOf)),
+    };
+  }
+
+  async getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<FloorClearView>> {
+    validatePage(query.page);
+    const page = await this.ladderGameRecordsService.getCumulativeClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.flatMap((entry) => entry.players)
     );
@@ -197,7 +216,14 @@ function toFloorClearView(
   entry: FloorClearEntry,
   usernameOf: (id: IdentityProviderId) => Username
 ): FloorClearView {
-  return { ...entry, players: entry.players.map(usernameOf) };
+  return {
+    ...entry,
+    players: entry.players.map(usernameOf),
+    characters: entry.characters.map((character) => ({
+      ...character,
+      owner: usernameOf(character.owner),
+    })),
+  };
 }
 
 function toWinLossRecord(tally: WinLossTally): WinLossRecord {

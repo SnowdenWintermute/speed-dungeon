@@ -1,5 +1,6 @@
 import {
   CharacterFloorClearSnapshotView,
+  CumulativeClearTimesQuery,
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderViewEntry,
   FloorClearTimesQuery,
@@ -25,6 +26,10 @@ export class LadderViewStore implements ReactiveNode {
     LadderPage<ExperiencePointsLadderViewEntry>
   >;
   readonly floorClearTimes: KeyedQueryCache<FloorClearTimesQuery, LadderPage<FloorClearView>>;
+  readonly cumulativeClearTimes: KeyedQueryCache<
+    CumulativeClearTimesQuery,
+    LadderPage<FloorClearView>
+  >;
   readonly winRateLadder: KeyedQueryCache<WinRateLadderQuery, LadderPage<WinRateLadderView>>;
   readonly playerProfile: KeyedQueryCache<Username, PlayerProfileLookup>;
   readonly userGameHistory: KeyedQueryCache<
@@ -50,6 +55,10 @@ export class LadderViewStore implements ReactiveNode {
     this.floorClearTimes = new KeyedQueryCache(
       (query) => queries().getFloorClearTimes(query),
       (query) => keyOf(query.floor, query.page, query.controlSchemeOption, query.modeOption)
+    );
+    this.cumulativeClearTimes = new KeyedQueryCache(
+      (query) => queries().getCumulativeClearTimes(query),
+      (query) => keyOf(query.controlScheme, query.page)
     );
     this.winRateLadder = new KeyedQueryCache(
       (query) => queries().getWinRateLadder(query),
@@ -77,6 +86,7 @@ export class LadderViewStore implements ReactiveNode {
     this.caches = [
       this.experiencePointsLadder,
       this.floorClearTimes,
+      this.cumulativeClearTimes,
       this.winRateLadder,
       this.playerProfile,
       this.userGameHistory,

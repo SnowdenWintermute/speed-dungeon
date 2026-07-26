@@ -36,12 +36,13 @@ import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import {
   FloorClearProjectionRecords,
   projectCharacterFloorClearSnapshot,
+  projectCumulativeClearTimesPage,
   projectFloorClearTimesPage,
   projectPlayerProfileData,
   projectWinRateLadderPage,
 } from "./ladder-read-model-projections.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import { CumulativeClearTimesQuery, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 
@@ -277,6 +278,12 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
     return projectFloorClearTimesPage(query, this.floorClearProjectionRecords());
+  }
+
+  async getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<FloorClearEntry>> {
+    return projectCumulativeClearTimesPage(query, this.floorClearProjectionRecords());
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {

@@ -10,7 +10,11 @@ import {
 import { DateRange } from "../../primatives/date-range.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { FloorClear, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import {
+  CumulativeClearTimesQuery,
+  FloorClear,
+  FloorClearTimesQuery,
+} from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 import { UserGameHistoryEntry } from "../queries/user-game-history.js";
@@ -126,6 +130,8 @@ export interface LadderRecordsPersistenceStrategy {
   // read side (CQRS-style). id-keyed …Entry results; the LadderQueries impl resolves usernames and
   // assembles the client-facing …View. race + ironman record floor clears; progression does not.
   getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>>;
+
+  getCumulativeClearTimes(query: CumulativeClearTimesQuery): Promise<LadderPage<FloorClearEntry>>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>>;
 

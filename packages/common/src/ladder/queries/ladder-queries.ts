@@ -1,6 +1,10 @@
 import { LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
 import { LadderPage } from "./ladder-page.js";
-import { FloorClearTimesQuery, FloorClearView } from "./floor-clear-times.js";
+import {
+  CumulativeClearTimesQuery,
+  FloorClearTimesQuery,
+  FloorClearView,
+} from "./floor-clear-times.js";
 import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup } from "./player-profile.js";
@@ -17,6 +21,8 @@ export interface LadderQueries {
   ): Promise<LadderPage<ExperiencePointsLadderViewEntry>>;
 
   getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>>;
+
+  getCumulativeClearTimes(query: CumulativeClearTimesQuery): Promise<LadderPage<FloorClearView>>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>>;
 

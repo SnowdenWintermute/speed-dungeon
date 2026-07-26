@@ -44,13 +44,16 @@ exports.up = (pgm) => {
         deepest_floor_reached INT NOT NULL DEFAULT 1
     );
 
-    -- time_spent_on_floor is a duration in milliseconds, not a wall-clock time
+    -- time_spent_on_floor is a duration in milliseconds, not a wall-clock time. cleared_at is the
+    -- wall-clock time of the clear, for period leaderboards — it is not derivable from the game's
+    -- start plus elapsed floor durations, which omit the gaps between floors
     CREATE TABLE ladder_party_floor_clear_records (
         id UUID PRIMARY KEY,
         party_record_ref UUID REFERENCES ladder_party_records(id) ON DELETE CASCADE,
         floor INT NOT NULL,
         time_spent_on_floor BIGINT NOT NULL,
         control_scheme character_control_scheme NOT NULL,
+        cleared_at TIMESTAMP WITH TIME ZONE NOT NULL,
         UNIQUE (party_record_ref, floor)
     );
 
@@ -81,6 +84,8 @@ exports.up = (pgm) => {
     -- "best clear times on floor N" leaderboard; also covers lookups by party_record_ref
     -- alone? No - that is already served by the UNIQUE (party_record_ref, floor) index.
     CREATE INDEX idx_ladder_party_floor_clear_records_floor_time ON ladder_party_floor_clear_records (floor, time_spent_on_floor);
+    -- "best clears in the last week/month/year"
+    CREATE INDEX idx_ladder_party_floor_clear_records_cleared_at ON ladder_party_floor_clear_records (cleared_at);
     CREATE INDEX idx_ladder_character_records_party ON ladder_character_records (party_record_id);
     CREATE INDEX idx_ladder_character_records_controlling_player ON ladder_character_records (controlling_player_id);
     CREATE INDEX idx_ladder_character_floor_cleared_records_character ON ladder_character_floor_cleared_records (character_record_ref);

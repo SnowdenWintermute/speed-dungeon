@@ -1,6 +1,10 @@
 import { LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
 import { LadderPage } from "./ladder-page.js";
-import { FloorClearTimesQuery, FloorClearView } from "./floor-clear-times.js";
+import {
+  CumulativeClearTimesQuery,
+  FloorClearTimesQuery,
+  FloorClearView,
+} from "./floor-clear-times.js";
 import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup } from "./player-profile.js";
@@ -16,6 +20,7 @@ import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.
 export enum LadderQueryType {
   ExperiencePointsLadder,
   FloorClearTimes,
+  CumulativeClearTimes,
   WinRateLadder,
   CharacterFloorClearSnapshot,
   PlayerProfile,
@@ -25,6 +30,7 @@ export enum LadderQueryType {
 export type LadderQueryRequest =
   | { type: LadderQueryType.ExperiencePointsLadder; query: ExperiencePointsLadderQuery }
   | { type: LadderQueryType.FloorClearTimes; query: FloorClearTimesQuery }
+  | { type: LadderQueryType.CumulativeClearTimes; query: CumulativeClearTimesQuery }
   | { type: LadderQueryType.WinRateLadder; query: WinRateLadderQuery }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -39,6 +45,7 @@ export type LadderQueryResult =
       page: LadderPage<ExperiencePointsLadderViewEntry>;
     }
   | { type: LadderQueryType.FloorClearTimes; page: LadderPage<FloorClearView> }
+  | { type: LadderQueryType.CumulativeClearTimes; page: LadderPage<FloorClearView> }
   | { type: LadderQueryType.WinRateLadder; page: LadderPage<WinRateLadderView> }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -61,6 +68,11 @@ export async function executeLadderQuery(
       return {
         type: request.type,
         page: await ladderQueries.getFloorClearTimes(request.query),
+      };
+    case LadderQueryType.CumulativeClearTimes:
+      return {
+        type: request.type,
+        page: await ladderQueries.getCumulativeClearTimes(request.query),
       };
     case LadderQueryType.WinRateLadder:
       return {

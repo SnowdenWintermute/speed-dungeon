@@ -61,9 +61,22 @@ Progression XP [Freelancers], Progression XP [Captains], Deepest Cumulative Time
 
 New queries on `LadderQueries`:
 
-1. **Deepest clears ladder** (`{controlScheme, page}`, spans modes) — new projection, no new writes:
-   `LadderPartyFloorClearRecord` already stores floor + `timeSpentOnFloor` per party per floor, and
-   the cumulative sum already exists as `FloorClearView.cumulativeTimeToClearFloor`.
+1. ~~**Deepest clears ladder**~~ — **BUILT 2026-07-26 as `getCumulativeClearTimes`.** Two corrections
+   landed while building it. **(a) Not named "deepest".** Deepest-first is how the table *sorts*; it
+   is not what a row *is*. **(b) A row is a floor clear, not a party.** Per the spec's own wording
+   ("list of floor clear times, sorted by deepest, then fastest cumulative time to clear"), so this
+   reuses `FloorClear`/`FloorClearView` **unchanged** — no new view type. The query is
+   `{controlScheme, page}`, and all that is new is the ordering: `floor desc, cumulativeTime asc,
+   then record id` (that last tie-break keeps in-memory a faithful oracle for SQL, whose row order is
+   otherwise unspecified). Postgres loads every clear by the candidate parties, including clears made
+   under the *other* scheme, because cumulative time sums a party's whole history below the row.
+   Also added: **`clearedAt` on `LadderPartyFloorClearRecord`** (`cleared_at TIMESTAMP NOT NULL` +
+   index), since the wall-clock clear time is not derivable from game start plus elapsed floor
+   durations — those omit the gaps between floors. The original migration was edited in place and the
+   tables dropped/recreated rather than adding a follow-up migration.
+   - ⚠️ **Untested: that the board spans game modes.** The test drives one Ironman run, so it covers
+     ordering, the cumulative sum, `clearedAt`, and scheme separation — but nothing yet proves an
+     ironman and a race clear co-list. Needs a race run alongside an ironman one.
 2. **Floor clear by id** (`LadderPartyFloorClearRecordId`) — standalone fetch for the linkable page.
 3. **Game record by id** — `getGameRecordAggregate` exists on `LadderGameRecordsService` but is not
    on `LadderQueries` and is not view-projected (usernames unresolved).
@@ -71,10 +84,56 @@ New queries on `LadderQueries`:
 
 Plus, on existing queries:
 
-5. `FloorClearCharacter` gains main/support class and owner. Cheap — `LadderCharacterRecord` already
-   stores `mainClass`, `supportClassOption` and `controllingPlayerId`; they just aren't projected.
-6. A sort parameter for the floor-clear tables.
+5. ~~`FloorClearCharacter` gains main/support class and owner~~ — **DONE 2026-07-26.** It is now
+   `FloorClearCharacter<TPlayer>` like `FloorClear` itself, since `owner` is an id as persisted and a
+   username in the view; `LocalLadderQueries.toFloorClearView` maps it. Owners are always a subset of
+   `players` (both derive from the party's characters), so username resolution needed no extra ids —
+   an implicit coupling worth remembering if `players` ever stops being derived that way.
+6. ~~A sort parameter for the floor-clear tables~~ — **DONE 2026-07-26.** `FloorClearTimesQuery.
+   sortOption` = `{ field, isDescending }` (parameter object, not a bare boolean), defaulting to
+   `DEFAULT_FLOOR_CLEAR_SORT`.
 7. Top-5 summaries for the main page — page 0 sliced, or a limit param.
+
+### Read-path performance work (2026-07-26)
+
+Prompted by Mike asking whether materializing every floor clear per request was really something to
+defer. It wasn't — "we load the whole table on a single-threaded event loop" is a structural
+property, not a guess about traffic, which is a different thing from what the profiler-gated tiering
+rule is meant to prevent. Three changes, in ascending order of how much design they cost:
+
+- **Snapshot blobs are no longer loaded to read an id.** `FloorClearProjectionRecords.snapshots` is
+  now `FloorClearSnapshotRef` (id + clear + character) and the Postgres loader selects those three
+  columns instead of `SELECT *`. That table holds `combatant_with_pets JSONB`, the largest data in
+  the schema, and a floor-clear row wants nothing from it but the id. This also fixed the profile
+  query's personal-bests path, whose comment claimed it loaded "heavy snapshot blobs only for that
+  handful" — it now loads none.
+- **Snapshot lookup is a Map, not a scan.** `assembleFloorClearEntry` was doing
+  `snapshots.find(...)` per character per row, a full pass over every ref on the board each time.
+- **Both boards now filter, order and slice in SQL.** A CTE computes the running total with a window
+  function (`SUM(...) OVER (PARTITION BY party_record_ref ORDER BY floor ROWS UNBOUNDED PRECEDING)`),
+  and only the page's parties get hydrated afterward. A window beats the lateral-join alternative
+  outright here: one ordered pass versus re-summing a party's rows once per row. Rejected:
+  denormalizing a `cumulative_time` column, since the window derives it without storing derived data.
+  - ⚠️ **Every caller condition is applied OUTSIDE the CTE.** Cumulative time deliberately counts
+    floors cleared under the *other* control scheme (a party can switch mid-run), so filtering inside
+    the window silently changes what the number means. Mode is safe either way — it lives on the
+    game, so it is constant across a party's clears — but it is kept outside for consistency.
+  - **Postgres decides order; the shared projection still produces every number.** The new
+    `assembleFloorClearPage` assembles in the order handed to it without sorting, and
+    `cumulativeTimeToClearFloor` is still summed from loaded history rather than read off the window.
+    So the two strategies can only ever disagree about *ordering*, which is precisely what the
+    `describe.each` suite checks. **In-memory is now the reference implementation, not a parallel
+    copy** — it still uses the sorting projections.
+  - Tie-breaks moved from `localeCompare` to ordinal comparison, because Postgres orders ids by their
+    own value and locale-aware comparison can disagree on punctuation.
+  - ⚠️ **The Postgres strategy is only exercised with `RUN_POSTGRES_LADDER_TESTS=1`.** A default run
+    covers in-memory alone, which still takes the old sorting path — so it cannot validate any of
+    this SQL. **Run with the flag and green on 2026-07-26**, both strategies, so the window ordering
+    is confirmed to agree with the reference implementation.
+
+What is still linear, deliberately: Postgres scans the clear table to compute running totals, and a
+running total cannot be indexed. That scan is cheap (a narrow table, in C, inside the database); what
+mattered was that it stopped crossing the wire into Node objects.
 
 **Still open:** somewhere to seed test data, so the real frontend has something to display. Its own
 session; nothing above depends on it.

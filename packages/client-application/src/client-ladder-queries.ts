@@ -9,6 +9,7 @@ import {
   LadderQueryResult,
   LadderQueryType,
   CharacterFloorClearSnapshotView,
+  CumulativeClearTimesQuery,
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderViewEntry,
   FloorClearTimesQuery,
@@ -47,6 +48,14 @@ export class ClientLadderQueries implements LadderQueries {
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
     const result = await this.send({ type: LadderQueryType.FloorClearTimes, query });
     invariant(result.type === LadderQueryType.FloorClearTimes, WRONG_RESULT_TYPE);
+    return result.page;
+  }
+
+  async getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<FloorClearView>> {
+    const result = await this.send({ type: LadderQueryType.CumulativeClearTimes, query });
+    invariant(result.type === LadderQueryType.CumulativeClearTimes, WRONG_RESULT_TYPE);
     return result.page;
   }
 

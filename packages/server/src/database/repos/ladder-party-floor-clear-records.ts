@@ -16,19 +16,22 @@ export interface LadderPartyFloorClearRecordRow {
   floor: number;
   timeSpentOnFloor: number;
   controlScheme: string;
+  clearedAt: Date | string;
 }
 
 class LadderPartyFloorClearRecordsRepo extends DatabaseRepository<LadderPartyFloorClearRecordRow> {
   async insert(record: LadderPartyFloorClearRecord, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
-        `INSERT INTO ${tableName} (id, party_record_ref, floor, time_spent_on_floor, control_scheme)
-         VALUES (%L, %L, %L, %L, %L);`,
+        `INSERT INTO ${tableName}
+           (id, party_record_ref, floor, time_spent_on_floor, control_scheme, cleared_at)
+         VALUES (%L, %L, %L, %L, %L, to_timestamp(%L::double precision / 1000.0));`,
         record.id,
         record.partyRecordRef,
         record.floor,
         record.timeSpentOnFloor,
-        CHARACTER_CONTROL_SCHEME_STRINGS[record.controlScheme]
+        CHARACTER_CONTROL_SCHEME_STRINGS[record.controlScheme],
+        record.clearedAt
       )
     );
   }

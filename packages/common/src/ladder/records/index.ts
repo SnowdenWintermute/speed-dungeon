@@ -70,6 +70,9 @@ export interface LadderPartyFloorClearRecord {
   floor: number;
   timeSpentOnFloor: Milliseconds;
   controlScheme: CharacterControlScheme; // the scheme the floor was actually cleared under
+  // wall-clock time the clear happened, so period leaderboards can filter on it. not derivable from
+  // the game's start plus elapsed floor durations, which omit the gaps between floors
+  clearedAt: Milliseconds;
 }
 
 // denormalized last known basic data about character

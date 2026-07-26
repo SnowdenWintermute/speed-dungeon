@@ -28,7 +28,7 @@ import {
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import { CumulativeClearTimesQuery, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 import { UserGameHistoryEntry } from "../queries/user-game-history.js";
@@ -198,6 +198,7 @@ export class LadderGameRecordsService {
       floor: clearedFloor,
       timeSpentOnFloor: timeSpentOnFloorMs,
       controlScheme,
+      clearedAt: Date.now(),
     };
 
     const characterFloorClearRecords = this.createCharacterFloorClearRecords(
@@ -297,6 +298,12 @@ export class LadderGameRecordsService {
     dateRange?: DateRange
   ): Promise<number> {
     return this.persistenceStrategy.getUserGameRecordsCount(userId, dateRange);
+  }
+
+  async getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<FloorClearEntry>> {
+    return this.persistenceStrategy.getCumulativeClearTimes(query);
   }
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {

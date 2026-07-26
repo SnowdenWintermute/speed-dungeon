@@ -34,6 +34,8 @@ import {
   CharacterFloorClearSnapshotView,
   FloorClearEntry,
   FloorClearProjectionRecords,
+  FloorClearSnapshotRef,
+  CumulativeClearTimesQuery,
   FloorClearTimesQuery,
   LadderPage,
   LadderPartyFloorClearRecordId,
@@ -43,7 +45,10 @@ import {
   assemblePersonalBestEntries,
   computeRankedRaceTally,
   projectCharacterFloorClearSnapshot,
-  projectFloorClearTimesPage,
+  assembleFloorClearPage,
+  DEFAULT_FLOOR_CLEAR_SORT,
+  FloorClearSortField,
+  LADDER_CONFIG,
   projectWinRateLadderPage,
   selectPersonalBestPartyFloorClears,
 } from "@speed-dungeon/common";
@@ -323,24 +328,102 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
   }
 
   // read side. loads the ladder-records rows each projection needs and hands them to the shared
-  // pure projections; the LadderQueries impl resolves usernames + joins the XP sorted-set on top.
+  // both boards filter, order and slice in SQL, then hydrate only the page's rows. the in-memory
+  // strategy stays on the sorting projections and remains the oracle the ladder suite compares to.
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
-    const floorClearRows = await queryCamel<LadderPartyFloorClearRecordRow>(
+    const sort = query.sortOption ?? DEFAULT_FLOOR_CLEAR_SORT;
+    const conditions = [format("c.floor = %L", query.floor)];
+    if (query.controlSchemeOption !== undefined) {
+      conditions.push(
+        format("c.control_scheme = %L", CHARACTER_CONTROL_SCHEME_STRINGS[query.controlSchemeOption])
+      );
+    }
+    // mode is a property of the game, so it is the same for every clear a party made — filtering on
+    // it cannot change what the window summed
+    if (query.modeOption !== undefined) {
+      conditions.push(format("g.mode = %L", GAME_MODE_STRINGS[query.modeOption]));
+    }
+    const whereClause = conditions.join(" AND ");
+    const sortColumn =
+      sort.field === FloorClearSortField.CumulativeTimeToClearFloor
+        ? "c.cumulative_time"
+        : "c.time_spent_on_floor";
+
+    const pageClears = await this.loadOrderedFloorClearPage(
+      whereClause,
+      // the id tie-break stays ascending either way, mirroring the shared projection's comparator
+      `${sortColumn} ${sort.isDescending ? "DESC" : "ASC"}, c.id ASC`,
+      query.page
+    );
+    const totalEntries = await this.countFloorClears(whereClause);
+    const partyIds = unique(pageClears.map((partyFloorClear) => partyFloorClear.partyRecordRef));
+    // only this page's parties, and only up to the floor being ranked, for the cumulative sums
+    const partyClearHistory = await this.loadPartyFloorClearsUpToFloor(partyIds, query.floor);
+    const records = await this.floorClearProjectionRecords(partyClearHistory);
+    return assembleFloorClearPage(pageClears, query.page, totalEntries, records);
+  }
+
+  async getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<FloorClearEntry>> {
+    // the scheme filter sits outside the window on purpose: cumulative time counts every floor the
+    // party cleared below this one, including any cleared under the other scheme
+    const whereClause = format(
+      "c.control_scheme = %L",
+      CHARACTER_CONTROL_SCHEME_STRINGS[query.controlScheme]
+    );
+
+    const pageClears = await this.loadOrderedFloorClearPage(
+      whereClause,
+      "c.floor DESC, c.cumulative_time ASC, c.id ASC",
+      query.page
+    );
+    const totalEntries = await this.countFloorClears(whereClause);
+    const partyIds = unique(pageClears.map((partyFloorClear) => partyFloorClear.partyRecordRef));
+    // rows here span floors, so each party's whole history is what the sums need
+    const partyClearHistory = await this.loadPartyFloorClearsByPartyIds(partyIds);
+    const records = await this.floorClearProjectionRecords(partyClearHistory);
+    return assembleFloorClearPage(pageClears, query.page, totalEntries, records);
+  }
+
+  // the running total has to be computed before any row filter is applied, so it lives in a CTE and
+  // every caller-supplied condition is applied outside it
+  private async loadOrderedFloorClearPage(
+    whereClause: string,
+    orderByClause: string,
+    page: number
+  ): Promise<LadderPartyFloorClearRecord[]> {
+    const rows = await queryCamel<LadderPartyFloorClearRecordRow>(
       format(
-        `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} WHERE floor = %L;`,
-        query.floor
+        `WITH clears_with_cumulative AS (
+           SELECT *, SUM(time_spent_on_floor) OVER (
+             PARTITION BY party_record_ref ORDER BY floor ROWS UNBOUNDED PRECEDING
+           ) AS cumulative_time
+           FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS}
+         )
+         SELECT c.* FROM clears_with_cumulative c
+         JOIN ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} p ON p.id = c.party_record_ref
+         JOIN ${RESOURCE_NAMES.LADDER_GAME_RECORDS} g ON g.id = p.game_record_id
+         WHERE ${whereClause}
+         ORDER BY ${orderByClause}
+         LIMIT %L OFFSET %L;`,
+        LADDER_CONFIG.PAGE_SIZE,
+        page * LADDER_CONFIG.PAGE_SIZE
       )
     );
-    const candidatePartyIds = unique(
-      floorClearRows.map((row) => partyFloorClearRowToRecord(row).partyRecordRef)
+    return rows.map(partyFloorClearRowToRecord);
+  }
+
+  // the inner joins match the projection's rule that a clear with no resolvable party or game is
+  // not on the board at all
+  private async countFloorClears(whereClause: string): Promise<number> {
+    const result = await pgPool.query(
+      `SELECT COUNT(*) FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} c
+       JOIN ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} p ON p.id = c.party_record_ref
+       JOIN ${RESOURCE_NAMES.LADDER_GAME_RECORDS} g ON g.id = p.game_record_id
+       WHERE ${whereClause};`
     );
-    // pull these parties' clears up to the target floor too, so cumulativeTimeToClearFloor can sum them
-    const partyClearHistory = await this.loadPartyFloorClearsUpToFloor(
-      candidatePartyIds,
-      query.floor
-    );
-    const records = await this.floorClearProjectionRecords(partyClearHistory);
-    return projectFloorClearTimesPage(query, records);
+    return parseInt(result.rows[0].count, 10);
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
@@ -377,13 +460,13 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const partiesInGames = await this.loadPartiesByGameIds(gameIds);
     const rankedRaceTally = computeRankedRaceTally(userId, games, partiesInGames, userCharacters);
 
-    // personal bests: pick the user's fastest clears FIRST, then load characters + heavy snapshot
-    // blobs only for that handful — never for rival parties or non-best clears.
+    // personal bests: pick the user's fastest clears FIRST, then load characters only for that
+    // handful — never for rival parties or non-best clears.
     const userPartyFloorClears = await this.loadPartyFloorClearsByPartyIds(userPartyIds);
     const bests = selectPersonalBestPartyFloorClears(userPartyFloorClears, userParties, games);
     const bestPartyIds = unique(bests.map((partyFloorClear) => partyFloorClear.partyRecordRef));
     const bestPartyCharacters = await this.loadCharactersByPartyIds(bestPartyIds);
-    const bestSnapshots = await this.loadSnapshotsByPartyFloorClearIds(
+    const bestSnapshots = await this.loadSnapshotRefsByPartyFloorClearIds(
       bests.map((partyFloorClear) => partyFloorClear.id)
     );
     const personalBestFloorClears = assemblePersonalBestEntries(bests, {
@@ -430,7 +513,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const parties = await this.loadPartiesByIds(partyIds);
     const games = await this.loadGamesByIds(unique(parties.map((party) => party.gameRecordId)));
     const characters = await this.loadCharactersByPartyIds(partyIds);
-    const snapshots = await this.loadSnapshotsByPartyFloorClearIds(
+    const snapshots = await this.loadSnapshotRefsByPartyFloorClearIds(
       partyFloorClears.map((partyFloorClear) => partyFloorClear.id)
     );
     return { partyFloorClears, parties, games, characters, snapshots };
@@ -536,19 +619,31 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     return rows.map(partyFloorClearRowToRecord);
   }
 
-  private async loadSnapshotsByPartyFloorClearIds(
+  // deliberately not SELECT *: this table's combatant_with_pets column is the largest data in the
+  // schema, and a floor-clear row needs nothing from a snapshot but its id
+  private async loadSnapshotRefsByPartyFloorClearIds(
     ids: LadderPartyFloorClearRecordId[]
-  ): Promise<LadderCharacterFloorClearRecord[]> {
+  ): Promise<FloorClearSnapshotRef[]> {
     if (ids.length === 0) {
       return [];
     }
-    const rows = await queryCamel<LadderCharacterFloorClearedRecordRow>(
+    const rows = await queryCamel<{
+      id: string;
+      partyFloorClearRecord: string;
+      characterRecordRef: string;
+    }>(
       format(
-        `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS} WHERE party_floor_clear_record IN (%L);`,
+        `SELECT id, party_floor_clear_record, character_record_ref
+         FROM ${RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS}
+         WHERE party_floor_clear_record IN (%L);`,
         ids
       )
     );
-    return rows.map(characterFloorClearedRowToRecord);
+    return rows.map((row) => ({
+      id: row.id as LadderCharacterFloorClearRecordId,
+      partyFloorClearRecord: row.partyFloorClearRecord as LadderPartyFloorClearRecordId,
+      characterRecordRef: row.characterRecordRef as CombatantId,
+    }));
   }
 }
 
@@ -659,7 +754,16 @@ function partyFloorClearRowToRecord(
     floor: row.floor,
     timeSpentOnFloor: Number(row.timeSpentOnFloor) as Milliseconds,
     controlScheme: controlSchemeFromString(row.controlScheme),
+    clearedAt: requireTimestampMs(row.clearedAt),
   };
+}
+
+// the column is NOT NULL, so a missing value means the row was written by something that bypassed
+// the write path rather than a legitimately absent date
+function requireTimestampMs(value: Date | string): Milliseconds {
+  const timestampOption = timestampToMs(value);
+  invariant(timestampOption !== undefined, "floor clear record is missing cleared_at");
+  return timestampOption;
 }
 
 function characterFloorClearedRowToRecord(
