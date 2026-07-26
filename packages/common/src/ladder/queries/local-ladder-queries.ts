@@ -1,4 +1,10 @@
-import { IdentityProviderId, LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
+import {
+  GameId,
+  IdentityProviderId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
+  Username,
+} from "../../aliases.js";
 import { LADDER_CONFIG, USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -9,14 +15,21 @@ import {
 } from "../../servers/services/experience-points-ladder-service.js";
 import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
 import { LadderGameRecordsService } from "../records/ladder-records-service.js";
-import { FloorClearEntry, WinLossTally } from "../records/ladder-records-persistence-strategy.js";
+import {
+  FloorClearEntry,
+  RankedFloorClearEntry,
+  WinLossTally,
+} from "../records/ladder-records-persistence-strategy.js";
 import { winRateOf } from "../records/ladder-read-model-projections.js";
 import { LadderPage } from "./ladder-page.js";
 import {
   CumulativeClearTimesQuery,
   FloorClearTimesQuery,
   FloorClearView,
+  RankedFloorClearView,
 } from "./floor-clear-times.js";
+import { GameRecordView } from "./game-record.js";
+import { projectGameRecordView } from "./game-record-projection.js";
 import { WinLossRecord, WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup, PlayerProfileLookupType } from "./player-profile.js";
@@ -66,7 +79,7 @@ export class LocalLadderQueries implements LadderQueries {
     );
   }
 
-  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
+  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<RankedFloorClearView>> {
     validatePage(query.page);
     const page = await this.ladderGameRecordsService.getFloorClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
@@ -75,13 +88,13 @@ export class LocalLadderQueries implements LadderQueries {
 
     return {
       ...page,
-      entries: page.entries.map((entry) => toFloorClearView(entry, usernameOf)),
+      entries: page.entries.map((entry) => toRankedFloorClearView(entry, usernameOf)),
     };
   }
 
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
-  ): Promise<LadderPage<FloorClearView>> {
+  ): Promise<LadderPage<RankedFloorClearView>> {
     validatePage(query.page);
     const page = await this.ladderGameRecordsService.getCumulativeClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
@@ -90,8 +103,33 @@ export class LocalLadderQueries implements LadderQueries {
 
     return {
       ...page,
-      entries: page.entries.map((entry) => toFloorClearView(entry, usernameOf)),
+      entries: page.entries.map((entry) => toRankedFloorClearView(entry, usernameOf)),
     };
+  }
+
+  async getFloorClear(id: LadderPartyFloorClearRecordId): Promise<FloorClearView | undefined> {
+    const entryOption = await this.ladderGameRecordsService.getFloorClearById(id);
+    if (entryOption === undefined) {
+      return undefined;
+    }
+    const usernameOf = await this.resolverForPlayers(entryOption.players);
+    return toFloorClearView(entryOption, usernameOf);
+  }
+
+  async getGameRecord(id: GameId): Promise<GameRecordView | undefined> {
+    const aggregateOption = await this.ladderGameRecordsService.getGameRecordAggregate(id);
+    if (aggregateOption === undefined) {
+      return undefined;
+    }
+    // character owners are resolved alongside the participants rather than assumed to be among them:
+    // a character can change hands when a player abandons, so the two lists are related but not one
+    const usernameOf = await this.resolverForPlayers([
+      ...aggregateOption.participations.map((participation) => participation.participantRecordId),
+      ...aggregateOption.parties.flatMap((party) =>
+        party.characters.map(({ character }) => character.controllingPlayerId)
+      ),
+    ]);
+    return projectGameRecordView(aggregateOption, usernameOf);
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {
@@ -224,6 +262,13 @@ function toFloorClearView(
       owner: usernameOf(character.owner),
     })),
   };
+}
+
+function toRankedFloorClearView(
+  entry: RankedFloorClearEntry,
+  usernameOf: (id: IdentityProviderId) => Username
+): RankedFloorClearView {
+  return { ...toFloorClearView(entry, usernameOf), rank: entry.rank };
 }
 
 function toWinLossRecord(tally: WinLossTally): WinLossRecord {

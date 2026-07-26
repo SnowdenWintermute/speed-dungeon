@@ -1,10 +1,17 @@
-import { LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
+import {
+  GameId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
+  Username,
+} from "../../aliases.js";
 import { LadderPage } from "./ladder-page.js";
 import {
   CumulativeClearTimesQuery,
   FloorClearTimesQuery,
   FloorClearView,
+  RankedFloorClearView,
 } from "./floor-clear-times.js";
+import { GameRecordView } from "./game-record.js";
 import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup } from "./player-profile.js";
@@ -20,9 +27,17 @@ export interface LadderQueries {
     query: ExperiencePointsLadderQuery
   ): Promise<LadderPage<ExperiencePointsLadderViewEntry>>;
 
-  getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>>;
+  getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<RankedFloorClearView>>;
 
-  getCumulativeClearTimes(query: CumulativeClearTimesQuery): Promise<LadderPage<FloorClearView>>;
+  getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<RankedFloorClearView>>;
+
+  // the individually linkable reads. both answer "show me this one thing", so they take an id rather
+  // than a query object, as getCharacterFloorClearSnapshot does
+  getFloorClear(id: LadderPartyFloorClearRecordId): Promise<FloorClearView | undefined>;
+
+  getGameRecord(id: GameId): Promise<GameRecordView | undefined>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>>;
 

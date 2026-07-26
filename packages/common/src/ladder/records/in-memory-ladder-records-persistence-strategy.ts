@@ -14,6 +14,7 @@ import { DateRange } from "../../primatives/date-range.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import { invariant } from "../../utils/index.js";
 import {
+  FloorClearSnapshotRef,
   LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
   LadderGameParticipationRecord,
@@ -30,6 +31,7 @@ import {
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
   PlayerProfileData,
+  RankedFloorClearEntry,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { UserGameHistoryEntry } from "../queries/user-game-history.js";
@@ -37,6 +39,7 @@ import {
   FloorClearProjectionRecords,
   projectCharacterFloorClearSnapshot,
   projectCumulativeClearTimesPage,
+  projectFloorClearById,
   projectFloorClearTimesPage,
   projectPlayerProfileData,
   projectWinRateLadderPage,
@@ -236,9 +239,9 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
           .filter((character) => character.partyRecordId === party.id)
           .map((character) => ({
             character,
-            floorClearedSnapshots: [...this.characterFloorClearedSnapshots.values()].filter(
-              (snapshot) => snapshot.characterRecordRef === character.id
-            ),
+            floorClearedSnapshots: [...this.characterFloorClearedSnapshots.values()]
+              .filter((snapshot) => snapshot.characterRecordRef === character.id)
+              .map(toSnapshotRef),
           })),
       }));
 
@@ -276,14 +279,22 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     this.characters.set(record.id, cloneDeep(record));
   }
 
-  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
+  async getFloorClearTimes(
+    query: FloorClearTimesQuery
+  ): Promise<LadderPage<RankedFloorClearEntry>> {
     return projectFloorClearTimesPage(query, this.floorClearProjectionRecords());
   }
 
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
-  ): Promise<LadderPage<FloorClearEntry>> {
+  ): Promise<LadderPage<RankedFloorClearEntry>> {
     return projectCumulativeClearTimesPage(query, this.floorClearProjectionRecords());
+  }
+
+  async findFloorClearById(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearEntry | undefined> {
+    return projectFloorClearById(id, this.floorClearProjectionRecords());
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
@@ -319,7 +330,15 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
       parties: [...this.parties.values()],
       games: [...this.games.values()],
       characters: [...this.characters.values()],
-      snapshots: [...this.characterFloorClearedSnapshots.values()],
+      snapshots: [...this.characterFloorClearedSnapshots.values()].map(toSnapshotRef),
     };
   }
+}
+
+function toSnapshotRef(snapshot: LadderCharacterFloorClearRecord): FloorClearSnapshotRef {
+  return {
+    id: snapshot.id,
+    partyFloorClearRecord: snapshot.partyFloorClearRecord,
+    characterRecordRef: snapshot.characterRecordRef,
+  };
 }

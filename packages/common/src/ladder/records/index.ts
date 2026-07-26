@@ -95,3 +95,12 @@ export interface LadderCharacterFloorClearRecord {
   characterRecordRef: CombatantId; // foreign key to main character record
   combatantWithPets: SerializedCombatantWithPets; // character + pets, each minus inventory
 }
+
+// a snapshot's identity without its payload. reads that only need to link to a snapshot's own page
+// take this instead, since loading the record above would drag the serialized combatant and its pets
+// along for every character of every clear
+export interface FloorClearSnapshotRef {
+  id: LadderCharacterFloorClearRecordId;
+  partyFloorClearRecord: LadderPartyFloorClearRecordId;
+  characterRecordRef: CombatantId;
+}

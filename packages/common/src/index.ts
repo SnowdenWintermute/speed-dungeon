@@ -302,6 +302,8 @@ export * from "./ladder/queries/ladder-page.js";
 export * from "./ladder/queries/experience-points-ladder.js";
 export * from "./ladder/queries/experience-points-ladder-projection.js";
 export * from "./ladder/queries/floor-clear-times.js";
+export * from "./ladder/queries/game-record.js";
+export * from "./ladder/queries/game-record-projection.js";
 export * from "./ladder/queries/win-rate-ladder.js";
 export * from "./ladder/queries/player-profile.js";
 export * from "./ladder/queries/character-floor-clear-snapshot.js";

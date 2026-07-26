@@ -14,7 +14,11 @@ import {
   ExperiencePointsLadderViewEntry,
   FloorClearTimesQuery,
   FloorClearView,
+  GameId,
+  GameRecordView,
+  LadderPartyFloorClearRecordId,
   PlayerProfileLookup,
+  RankedFloorClearView,
   UserGameHistoryEntry,
   UserGameHistoryQuery,
   Username,
@@ -45,7 +49,9 @@ export class ClientLadderQueries implements LadderQueries {
     return result.page;
   }
 
-  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
+  async getFloorClearTimes(
+    query: FloorClearTimesQuery
+  ): Promise<LadderPage<RankedFloorClearView>> {
     const result = await this.send({ type: LadderQueryType.FloorClearTimes, query });
     invariant(result.type === LadderQueryType.FloorClearTimes, WRONG_RESULT_TYPE);
     return result.page;
@@ -53,10 +59,24 @@ export class ClientLadderQueries implements LadderQueries {
 
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
-  ): Promise<LadderPage<FloorClearView>> {
+  ): Promise<LadderPage<RankedFloorClearView>> {
     const result = await this.send({ type: LadderQueryType.CumulativeClearTimes, query });
     invariant(result.type === LadderQueryType.CumulativeClearTimes, WRONG_RESULT_TYPE);
     return result.page;
+  }
+
+  async getFloorClear(
+    floorClearId: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearView | undefined> {
+    const result = await this.send({ type: LadderQueryType.FloorClear, floorClearId });
+    invariant(result.type === LadderQueryType.FloorClear, WRONG_RESULT_TYPE);
+    return result.floorClearOption;
+  }
+
+  async getGameRecord(gameRecordId: GameId): Promise<GameRecordView | undefined> {
+    const result = await this.send({ type: LadderQueryType.GameRecord, gameRecordId });
+    invariant(result.type === LadderQueryType.GameRecord, WRONG_RESULT_TYPE);
+    return result.gameRecordOption;
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {

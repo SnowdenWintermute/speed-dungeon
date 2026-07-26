@@ -9,6 +9,7 @@ import { testFloorClearPagination } from "./floor-clear-pagination-reads";
 import { testIronmanMultiRunPersonalBest } from "./ironman-multi-run-personal-best-reads";
 import { testDeletedAccountFloorClearReads } from "./deleted-account-username-reads";
 import { testCumulativeClearTimesReads } from "./cumulative-clear-times-reads";
+import { testFloorClearAndGameRecordByIdReads } from "./floor-clear-and-game-record-by-id-reads";
 
 const CONTAINER_STARTUP_TIMEOUT_MS = 120_000;
 
@@ -82,5 +83,9 @@ describe.each(strategies)("ladder read queries ($name)", ({ usePostgres }) => {
 
   it("orders cumulative clear times deepest first, then fastest to get there", async () => {
     await testCumulativeClearTimesReads(testFixture);
+  });
+
+  it("fetches a single floor clear and a whole game record by id", async () => {
+    await testFloorClearAndGameRecordByIdReads(testFixture);
   });
 });

@@ -1,10 +1,17 @@
-import { LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
+import {
+  GameId,
+  LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
+  Username,
+} from "../../aliases.js";
 import { LadderPage } from "./ladder-page.js";
 import {
   CumulativeClearTimesQuery,
   FloorClearTimesQuery,
   FloorClearView,
+  RankedFloorClearView,
 } from "./floor-clear-times.js";
+import { GameRecordView } from "./game-record.js";
 import { WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup } from "./player-profile.js";
@@ -21,6 +28,8 @@ export enum LadderQueryType {
   ExperiencePointsLadder,
   FloorClearTimes,
   CumulativeClearTimes,
+  FloorClear,
+  GameRecord,
   WinRateLadder,
   CharacterFloorClearSnapshot,
   PlayerProfile,
@@ -31,6 +40,8 @@ export type LadderQueryRequest =
   | { type: LadderQueryType.ExperiencePointsLadder; query: ExperiencePointsLadderQuery }
   | { type: LadderQueryType.FloorClearTimes; query: FloorClearTimesQuery }
   | { type: LadderQueryType.CumulativeClearTimes; query: CumulativeClearTimesQuery }
+  | { type: LadderQueryType.FloorClear; floorClearId: LadderPartyFloorClearRecordId }
+  | { type: LadderQueryType.GameRecord; gameRecordId: GameId }
   | { type: LadderQueryType.WinRateLadder; query: WinRateLadderQuery }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -44,8 +55,10 @@ export type LadderQueryResult =
       type: LadderQueryType.ExperiencePointsLadder;
       page: LadderPage<ExperiencePointsLadderViewEntry>;
     }
-  | { type: LadderQueryType.FloorClearTimes; page: LadderPage<FloorClearView> }
-  | { type: LadderQueryType.CumulativeClearTimes; page: LadderPage<FloorClearView> }
+  | { type: LadderQueryType.FloorClearTimes; page: LadderPage<RankedFloorClearView> }
+  | { type: LadderQueryType.CumulativeClearTimes; page: LadderPage<RankedFloorClearView> }
+  | { type: LadderQueryType.FloorClear; floorClearOption?: FloorClearView }
+  | { type: LadderQueryType.GameRecord; gameRecordOption?: GameRecordView }
   | { type: LadderQueryType.WinRateLadder; page: LadderPage<WinRateLadderView> }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -73,6 +86,16 @@ export async function executeLadderQuery(
       return {
         type: request.type,
         page: await ladderQueries.getCumulativeClearTimes(request.query),
+      };
+    case LadderQueryType.FloorClear:
+      return {
+        type: request.type,
+        floorClearOption: await ladderQueries.getFloorClear(request.floorClearId),
+      };
+    case LadderQueryType.GameRecord:
+      return {
+        type: request.type,
+        gameRecordOption: await ladderQueries.getGameRecord(request.gameRecordId),
       };
     case LadderQueryType.WinRateLadder:
       return {

@@ -74,13 +74,57 @@ New queries on `LadderQueries`:
    index), since the wall-clock clear time is not derivable from game start plus elapsed floor
    durations — those omit the gaps between floors. The original migration was edited in place and the
    tables dropped/recreated rather than adding a follow-up migration.
-   - ⚠️ **Untested: that the board spans game modes.** The test drives one Ironman run, so it covers
-     ordering, the cumulative sum, `clearedAt`, and scheme separation — but nothing yet proves an
-     ironman and a race clear co-list. Needs a race run alongside an ironman one.
-2. **Floor clear by id** (`LadderPartyFloorClearRecordId`) — standalone fetch for the linkable page.
-3. **Game record by id** — `getGameRecordAggregate` exists on `LadderGameRecordsService` but is not
-   on `LadderQueries` and is not view-projected (usernames unresolved).
-4. **Progression character by id** — full combatant minus inventory.
+   - The test now drives **two** games — an Ironman run (floors 1 and 2) and a ranked race (floor 1)
+     — so mode-spanning is covered along with ordering, the cumulative sum, `clearedAt`, and scheme
+     separation. Both games take the Captain scheme by default, which is what puts them on one board;
+     the ironman run is given an explicit game name so the race can claim `TEST_GAME_NAME`, and it is
+     left before the race starts because `createTwoClientsInGameServerGame({ auth: true })`
+     authenticates as the same player. **Green under both strategies 2026-07-26**, including with
+     `RUN_POSTGRES_LADDER_TESTS=1`.
+2. ~~**Floor clear by id**~~ and 3. ~~**Game record by id**~~ — **BUILT 2026-07-26 as
+   `getFloorClear(id)` / `getGameRecord(id)`. Green under both strategies 2026-07-26**, including
+   with `RUN_POSTGRES_LADDER_TESTS=1`, so the new SQL (`findFloorClearById`, and the aggregate's
+   snapshot-ref select replacing its `SELECT *`) is validated against a real DB.
+   Both take an id rather than a query object, as `getCharacterFloorClearSnapshot` does.
+   Three things came out of building them:
+   - **`rank` split off the floor-clear type.** A clear fetched on its own has no board to have a
+     rank on, and inventing one would be a placeholder for a meaningless value. So `FloorClear` lost
+     `rank` and gained `RankedFloorClear extends FloorClear` (+ `RankedFloorClearEntry` /
+     `RankedFloorClearView`); the boards return the ranked one, this query returns the bare one.
+     Rank is now applied where a page is formed (`paginate` / `assembleFloorClearPage`) rather than
+     inside `assembleFloorClear`. This also deleted a wart: personal-best clears used to carry a
+     fake rank that was really a floor-order index, with a comment saying so. `FloorClear` also
+     gained its own **`id`**, which boards need to link a row to its page.
+   - ⚠️ **`LadderGameRecordAggregate` now carries `FloorClearSnapshotRef`s, not whole snapshot
+     records.** It previously `SELECT *`'d `combatant_with_pets` for every character of every clear
+     in the game — the largest data in the schema — and nothing that reads an aggregate wants more
+     than the id. Same argument as the earlier `FloorClearProjectionRecords.snapshots` change, and
+     nothing consumed the blobs (one test reads `.id` / `.partyFloorClearRecord`, both on the ref).
+     `FloorClearSnapshotRef` moved to `records/index.ts` so the aggregate can name it without a
+     cycle back through the projections module.
+   - **View-type overlap collapsed into shared bases, on Mike's push-back.** The first cut restated
+     `FloorClearCharacter`'s fields and a subset of `FloorClear`'s. Now:
+     `LadderCharacterView<TPlayer>` (who a character is) ← `FloorClearCharacter` (+ the snapshot at
+     *this* clear), and `FloorClearDetail` (the clear itself) ← `FloorClear` (+ party/game context)
+     ← `RankedFloorClear` (+ rank). `game-record.ts` extends those and declares no field twice.
+     The one thing that genuinely isn't duplication: **where the snapshot link lives.**
+     `FloorClearCharacter.snapshotIdOption` works on a board because a row *is* one clear; a game
+     record lists a party's characters once and each clear has its own snapshot per character, so
+     the link sits on the clear as `characterSnapshots` and names the character. Same fact,
+     different index, because the nesting differs.
+   - `projectGameRecordView` (`queries/game-record-projection.ts`) is the pure assembly, taking the
+     aggregate plus a username resolver. It resolves **character owners alongside participants**
+     rather than assuming owners are a subset — ownership can change hands when a player abandons.
+     `cumulativeTimeToClearFloor` is now exported from the projections module and shared, instead of
+     the sum being restated here.
+   - Test: `read-queries/floor-clear-and-game-record-by-id-reads.ts`, through a lobby client like
+     every other read test. It asserts the standalone clear **equals the board row minus its rank**
+     (which is the whole claim: the page reached from a row reports the same numbers, cumulative
+     time included), the game record's party/characters/clears against the write-path aggregate,
+     that a snapshot link on a clear really fetches, and that both queries return `undefined` for a
+     missing id — using a zero UUID, so Postgres treats it as absent rather than malformed.
+4. **Progression character by id** — full combatant minus inventory. Not started; touches saved
+   characters rather than ladder records, so it shares nothing with 2/3.
 
 Plus, on existing queries:
 

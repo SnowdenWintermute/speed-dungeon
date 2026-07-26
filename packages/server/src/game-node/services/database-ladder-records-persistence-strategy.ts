@@ -34,6 +34,8 @@ import {
   CharacterFloorClearSnapshotView,
   FloorClearEntry,
   FloorClearProjectionRecords,
+  RankedFloorClearEntry,
+  projectFloorClearById,
   FloorClearSnapshotRef,
   CumulativeClearTimesQuery,
   FloorClearTimesQuery,
@@ -299,15 +301,11 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
           )
         )
       : [];
-    const characterIds = characterRows.map((row) => row.id);
-    const characterFloorClearRows = characterIds.length
-      ? await queryCamel<LadderCharacterFloorClearedRecordRow>(
-          format(
-            `SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS} WHERE character_record_ref IN (%L);`,
-            characterIds
-          )
-        )
-      : [];
+    // refs, not records: the aggregate links to snapshots rather than carrying them, so a whole
+    // game's serialized combatants never cross the wire to answer this
+    const characterSnapshotRefs = await this.loadSnapshotRefsByCharacterIds(
+      characterRows.map((row) => row.id as CombatantId)
+    );
 
     const parties = partyRows.map((partyRow) => ({
       party: partyRowToRecord(partyRow),
@@ -318,9 +316,9 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
         .filter((character) => character.partyRecordId === partyRow.id)
         .map((characterRow) => ({
           character: characterRowToRecord(characterRow),
-          floorClearedSnapshots: characterFloorClearRows
-            .filter((snapshot) => snapshot.characterRecordRef === characterRow.id)
-            .map(characterFloorClearedRowToRecord),
+          floorClearedSnapshots: characterSnapshotRefs.filter(
+            (snapshot) => snapshot.characterRecordRef === characterRow.id
+          ),
         })),
     }));
 
@@ -330,7 +328,9 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
   // read side. loads the ladder-records rows each projection needs and hands them to the shared
   // both boards filter, order and slice in SQL, then hydrate only the page's rows. the in-memory
   // strategy stays on the sorting projections and remains the oracle the ladder suite compares to.
-  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
+  async getFloorClearTimes(
+    query: FloorClearTimesQuery
+  ): Promise<LadderPage<RankedFloorClearEntry>> {
     const sort = query.sortOption ?? DEFAULT_FLOOR_CLEAR_SORT;
     const conditions = [format("c.floor = %L", query.floor)];
     if (query.controlSchemeOption !== undefined) {
@@ -365,7 +365,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
 
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
-  ): Promise<LadderPage<FloorClearEntry>> {
+  ): Promise<LadderPage<RankedFloorClearEntry>> {
     // the scheme filter sits outside the window on purpose: cumulative time counts every floor the
     // party cleared below this one, including any cleared under the other scheme
     const whereClause = format(
@@ -424,6 +424,29 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
        WHERE ${whereClause};`
     );
     return parseInt(result.rows[0].count, 10);
+  }
+
+  async findFloorClearById(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearEntry | undefined> {
+    const rows = await queryCamel<LadderPartyFloorClearRecordRow>(
+      format(
+        `SELECT * FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} WHERE id = %L;`,
+        id
+      )
+    );
+    const row = rows[0];
+    if (row === undefined) {
+      return undefined;
+    }
+    const partyFloorClear = partyFloorClearRowToRecord(row);
+    // the same history a board row would sum, so the standalone page reports the same numbers
+    const partyClearHistory = await this.loadPartyFloorClearsUpToFloor(
+      [partyFloorClear.partyRecordRef],
+      partyFloorClear.floor
+    );
+    const records = await this.floorClearProjectionRecords(partyClearHistory);
+    return projectFloorClearById(id, records);
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
@@ -619,10 +642,23 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     return rows.map(partyFloorClearRowToRecord);
   }
 
-  // deliberately not SELECT *: this table's combatant_with_pets column is the largest data in the
-  // schema, and a floor-clear row needs nothing from a snapshot but its id
   private async loadSnapshotRefsByPartyFloorClearIds(
     ids: LadderPartyFloorClearRecordId[]
+  ): Promise<FloorClearSnapshotRef[]> {
+    return this.loadSnapshotRefsWhere("party_floor_clear_record", ids);
+  }
+
+  private async loadSnapshotRefsByCharacterIds(
+    ids: CombatantId[]
+  ): Promise<FloorClearSnapshotRef[]> {
+    return this.loadSnapshotRefsWhere("character_record_ref", ids);
+  }
+
+  // deliberately not SELECT *: this table's combatant_with_pets column is the largest data in the
+  // schema, and everything that links to a snapshot needs nothing from it but the id
+  private async loadSnapshotRefsWhere(
+    column: "party_floor_clear_record" | "character_record_ref",
+    ids: string[]
   ): Promise<FloorClearSnapshotRef[]> {
     if (ids.length === 0) {
       return [];
@@ -635,7 +671,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       format(
         `SELECT id, party_floor_clear_record, character_record_ref
          FROM ${RESOURCE_NAMES.LADDER_CHARACTER_FLOOR_CLEARED_RECORDS}
-         WHERE party_floor_clear_record IN (%L);`,
+         WHERE ${column} IN (%L);`,
         ids
       )
     );

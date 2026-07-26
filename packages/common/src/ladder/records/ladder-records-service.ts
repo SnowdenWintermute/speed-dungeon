@@ -25,6 +25,7 @@ import {
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
   PlayerProfileData,
+  RankedFloorClearEntry,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
 import { LadderPage } from "../queries/ladder-page.js";
@@ -302,12 +303,20 @@ export class LadderGameRecordsService {
 
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
-  ): Promise<LadderPage<FloorClearEntry>> {
+  ): Promise<LadderPage<RankedFloorClearEntry>> {
     return this.persistenceStrategy.getCumulativeClearTimes(query);
   }
 
-  async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>> {
+  async getFloorClearTimes(
+    query: FloorClearTimesQuery
+  ): Promise<LadderPage<RankedFloorClearEntry>> {
     return this.persistenceStrategy.getFloorClearTimes(query);
+  }
+
+  async getFloorClearById(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearEntry | undefined> {
+    return this.persistenceStrategy.findFloorClearById(id);
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {

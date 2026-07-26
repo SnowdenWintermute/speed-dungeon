@@ -3,6 +3,7 @@ import {
   GameId,
   IdentityProviderId,
   LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
   Milliseconds,
   PartyId,
   Username,
@@ -14,11 +15,13 @@ import {
   CumulativeClearTimesQuery,
   FloorClear,
   FloorClearTimesQuery,
+  RankedFloorClear,
 } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import {
+  FloorClearSnapshotRef,
   LadderCharacterFloorClearRecord,
   LadderCharacterRecord,
   LadderGameParticipationRecord,
@@ -51,7 +54,9 @@ export interface LadderPartyFateUpdate {
 // assembled read shape (the parent "refs" arrays expressed as nested children)
 export interface LadderCharacterRecordAggregate {
   character: LadderCharacterRecord;
-  floorClearedSnapshots: LadderCharacterFloorClearRecord[];
+  // refs, not records: a whole game's worth of serialized combatants is the largest payload in the
+  // schema, and nothing that reads an aggregate wants more than the id to link by
+  floorClearedSnapshots: FloorClearSnapshotRef[];
 }
 export interface LadderPartyRecordAggregate {
   party: LadderPartyRecord;
@@ -66,6 +71,7 @@ export interface LadderGameRecordAggregate {
 }
 
 export type FloorClearEntry = FloorClear<IdentityProviderId>;
+export type RankedFloorClearEntry = RankedFloorClear<IdentityProviderId>;
 
 // no winRate: that 0..1 display figure is derived during View assembly, not stored here
 export interface WinLossTally {
@@ -129,9 +135,14 @@ export interface LadderRecordsPersistenceStrategy {
 
   // read side (CQRS-style). id-keyed …Entry results; the LadderQueries impl resolves usernames and
   // assembles the client-facing …View. race + ironman record floor clears; progression does not.
-  getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearEntry>>;
+  getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<RankedFloorClearEntry>>;
 
-  getCumulativeClearTimes(query: CumulativeClearTimesQuery): Promise<LadderPage<FloorClearEntry>>;
+  getCumulativeClearTimes(
+    query: CumulativeClearTimesQuery
+  ): Promise<LadderPage<RankedFloorClearEntry>>;
+
+  // one clear on its own, for its linkable page. unranked: it was not read off any board
+  findFloorClearById(id: LadderPartyFloorClearRecordId): Promise<FloorClearEntry | undefined>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>>;
 
