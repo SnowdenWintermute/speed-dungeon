@@ -7,6 +7,80 @@ Started 2026-07-23.
 
 ---
 
+## Page inventory + navigation, from Mike (2026-07-26) — RESUME HERE
+
+The frontend design is now specified. **Four new queries stand between this and the JSX**, so the
+next work is another backend increment, not the pages. Bare-bones JSON scaffolding exists for the
+two facets that already have a query (`frontend/src/app/ladder/`), and is regenerable — it is not
+what to protect.
+
+### Main ladder page — four summary tables, top 5 each
+
+Progression XP [Freelancers], Progression XP [Captains], Deepest Cumulative Time to Clear
+[Freelancers], Deepest Cumulative Time to Clear [Captains].
+
+### Tabs
+
+1. **Progression Experience Points** → Freelancers / Captains
+2. **Deepest Cumulative Time To Clear** → Freelancers / Captains. Sorted deepest first, then fastest
+   cumulative time.
+3. **Fastest Floor Clears** → Ironman Freelancers / Ironman Captains / Race Freelancers / Race
+   Captains. One table *per floor*, deepest floor at top, **sortable headers** (clear time,
+   cumulative clear time). Rows expand to character summaries (name, main/support class, owner),
+   each linking to that character's snapshot.
+
+### Individually linkable pages
+
+- **Floor clear** — one whole floor clear, all details plus character snapshots.
+- **Game record** — game summary → every party → that party's floor clear records → links to
+  character snapshots.
+- **Profile** — linked from any mention of a user anywhere.
+- **Progression character** — full combatant view like the in-game inventory screen (equipment,
+  attributes, abilities), linked from XP ladder entries.
+
+### Decisions (Mike, 2026-07-26)
+
+- **No public win-rate ladder — the facet stays a stub.** Races are unfinished and will be the least
+  played mode this release, and `getWinRateLadder` is also the most expensive query we have (it loads
+  every ranked race game ever). Keep the built query and its tests; do not surface a public board.
+  The *personal* ranked race record still shows on profiles (`PlayerProfileView.rankedRaceRecord`),
+  which is cheap. Revisit if live race play ever gets busy enough to be interesting.
+- **Deepest Cumulative spans game modes, deliberately.** Ironman and race have identical gameplay
+  rules — race is just more ephemeral — so "how fast did you clear this floor" means the same thing
+  in both, and the mode recorded per clear does not need its own board. Split them only if race ever
+  gains mechanics that change floor difficulty.
+- **The progression character page omits inventory, for payload size — not privacy.** Any player who
+  joins a game with you already sees your whole inventory, so there is nothing to protect; it is just
+  a lot of bytes nobody asked for. ⚠️ Note this is a *different* reason than the one snapshots strip
+  it for: snapshots strip inventory for **storage**, since there are far more character snapshots
+  than progression characters and inventory would multiply their size several times over.
+- **Sorting must be server-side.** Sortable headers need a sort parameter on the query; sorting a
+  fetched page client-side would reorder only those rows.
+
+### What has to be built before the JSX
+
+New queries on `LadderQueries`:
+
+1. **Deepest clears ladder** (`{controlScheme, page}`, spans modes) — new projection, no new writes:
+   `LadderPartyFloorClearRecord` already stores floor + `timeSpentOnFloor` per party per floor, and
+   the cumulative sum already exists as `FloorClearView.cumulativeTimeToClearFloor`.
+2. **Floor clear by id** (`LadderPartyFloorClearRecordId`) — standalone fetch for the linkable page.
+3. **Game record by id** — `getGameRecordAggregate` exists on `LadderGameRecordsService` but is not
+   on `LadderQueries` and is not view-projected (usernames unresolved).
+4. **Progression character by id** — full combatant minus inventory.
+
+Plus, on existing queries:
+
+5. `FloorClearCharacter` gains main/support class and owner. Cheap — `LadderCharacterRecord` already
+   stores `mainClass`, `supportClassOption` and `controllingPlayerId`; they just aren't projected.
+6. A sort parameter for the floor-clear tables.
+7. Top-5 summaries for the main page — page 0 sliced, or a limit param.
+
+**Still open:** somewhere to seed test data, so the real frontend has something to display. Its own
+session; nothing above depends on it.
+
+---
+
 ## Where we are / resume here (2026-07-26) — client read store BUILT, frontend next
 
 **`LadderViewStore` (`client-application/src/ladder-view/`) is the client-side read state.** Six

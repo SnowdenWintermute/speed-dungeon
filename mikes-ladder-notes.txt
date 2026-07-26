@@ -6,10 +6,45 @@ frontend profiles at /profiles/:username
 
 fill db with test data for frontend manual testing
 
-floor clears show participating players at that time
+
+ensure floor clears show participating players at that time
+even if they are deleted accounts
+
+global messages for new world record fastest clear time of a floor/mode/control scheme
 
 game history records show all original players and if they abandoned or not
 
 how will we handle orphaned profiles/characters when deleting accounts
 
-global messages for new world record fastest clear time of a floor/mode/control scheme
+page count for experience ladder will be potentially incorrect if it is counting
+characters of deleted accounts
+
+Main Ladder Page - list of tables of summaries of top 5
+- Progression Experience Points [Freelancers]
+- Progression Experience Points [Captains]
+- Deepest Cumulative Time to Clear [Freelancers]
+- Deepest Cumulative Time to Clear [Captains]
+
+Tabs
+- Progression Experience Points
+  * Freelancers
+  * Captains
+- Deepest Cumulative Time To Clear
+  * Freelancers
+    - list of floor clear times, sorted by deepest, then fastest cumulative time to clear
+  * Captains
+- Fastest Floor Clears
+  * Ironman Freelancers
+    - list of tables by floor (a table for each floor), deepest shown at top, with sortable headers by clear time, cumulative clear time
+      entries expandable to show character summaries (character name, main/support class, owner) with link to their character snapshot
+  * Ironman Captains
+  * Race Freelancers
+  * Race Captains
+
+Individual linkable pages
+- Floor clear (an entire floor clear with all details and character snapshots)
+- Game record (game summary with list of all parties, each party with floor clear records for that run, each floor clear with links to
+character snapshots)
+- Profile (linked from any mention of a user in any other record)
+- Progression character (linked from the Progression Experience Points ladder entries, 
+  a full combatant object view similar to in-game view in the inventory viewing items/equipment/attributes, inventory)

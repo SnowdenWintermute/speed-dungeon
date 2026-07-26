@@ -1,6 +1,7 @@
 import { IdentityProviderId, LadderCharacterFloorClearRecordId, Username } from "../../aliases.js";
 import { LADDER_CONFIG, USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
+import { ERROR_MESSAGES } from "../../errors/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
 import {
   ExperiencePointsLadderService,
@@ -38,6 +39,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getExperiencePointsLadderPage(
     query: ExperiencePointsLadderQuery
   ): Promise<LadderPage<ExperiencePointsLadderViewEntry>> {
+    validatePage(query.page);
     const rankings = await this.experiencePointsLadderService.getRankedPage(
       experiencePointsLadderName(query.controlScheme),
       query.page,
@@ -61,6 +63,7 @@ export class LocalLadderQueries implements LadderQueries {
   }
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<FloorClearView>> {
+    validatePage(query.page);
     const page = await this.ladderGameRecordsService.getFloorClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.flatMap((entry) => entry.players)
@@ -73,6 +76,7 @@ export class LocalLadderQueries implements LadderQueries {
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {
+    validatePage(query.page);
     const page = await this.ladderGameRecordsService.getWinRateLadder(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.map((entry) => entry.participantId)
@@ -133,6 +137,7 @@ export class LocalLadderQueries implements LadderQueries {
   // an unknown username yields an empty page rather than its own "no such player" case: the profile
   // query rendered alongside this one is what distinguishes a missing player from an idle one
   async getUserGameHistory(query: UserGameHistoryQuery): Promise<LadderPage<UserGameHistoryEntry>> {
+    validatePage(query.page);
     const userIdOption = await this.usernameDirectory.findUserIdByUsername(query.username);
     if (userIdOption === undefined) {
       return { page: query.page, totalPages: 0, entries: [] };
@@ -177,6 +182,14 @@ export class LocalLadderQueries implements LadderQueries {
       invariant(usernameOption !== undefined, `unresolved ladder participant ${id}`);
       return usernameOption;
     };
+  }
+}
+
+// the query reaches here from a client we do not control. a negative page is not merely empty: it
+// reaches zRange as an index counted from the end of the sorted set, and SQL OFFSET as an error
+function validatePage(page: number): void {
+  if (!Number.isInteger(page) || page < 0) {
+    throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE);
   }
 }
 

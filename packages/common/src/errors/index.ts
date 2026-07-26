@@ -89,6 +89,7 @@ export const ERROR_MESSAGES = {
     USER_NOT_FOUND: "No record found for that user",
     CHARACTER_NOT_FOUND: "No record found for that character",
     NO_ENTRIES_FOUND: "No ladder entries found",
+    INVALID_PAGE: "Ladder page must be a non-negative integer",
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",
