@@ -37,6 +37,7 @@ import { PlayerProfileLookup, PlayerProfileLookupType } from "./player-profile.j
 import { LadderQueries } from "./ladder-queries.js";
 import {
   ExperiencePointsLadderQuery,
+  ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
 import { projectExperiencePointsLadderPage } from "./experience-points-ladder-projection.js";
@@ -110,6 +111,33 @@ export class LocalLadderQueries implements LadderQueries {
       ...page,
       entries: page.entries.map((entry) => toRankedFloorClearView(entry, usernameOf)),
     };
+  }
+
+  // the sorted set already knows where a member sits, so this is a read of one position rather than
+  // of a page. zRevRank counts from zero and every rank the client is shown counts from one
+  async getExperiencePointsLadderRanks(
+    query: ExperiencePointsLadderRankQuery
+  ): Promise<Record<EntityId, number>> {
+    const ladderName = experiencePointsLadderName(query.controlScheme);
+    const ranksById: Record<EntityId, number> = {};
+
+    for (const characterId of new Set(query.characterIds)) {
+      const rankOption = await this.experiencePointsLadderService.getCurrentRank(
+        ladderName,
+        characterId
+      );
+      if (rankOption !== null) {
+        ranksById[characterId] = rankOption + 1;
+      }
+    }
+
+    return ranksById;
+  }
+
+  async getCumulativeClearRanks(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
+    return this.ladderGameRecordsService.getCumulativeClearRanks(ids);
   }
 
   async getFloorClear(id: LadderPartyFloorClearRecordId): Promise<FloorClearView | undefined> {

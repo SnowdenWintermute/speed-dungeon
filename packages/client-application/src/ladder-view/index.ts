@@ -3,6 +3,7 @@ import {
   CumulativeClearTimesQuery,
   EntityId,
   ExperiencePointsLadderQuery,
+  ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
   FloorClearTimesQuery,
   FloorClearView,
@@ -39,6 +40,16 @@ export class LadderViewStore implements ReactiveNode {
     CumulativeClearTimesQuery,
     LadderPage<RankedFloorClearView>
   >;
+  // the rank lookups are keyed by the whole set of ids asked about, since a page asks about the ids
+  // it is showing and asks again as one request when that set changes
+  readonly experiencePointsLadderRanks: KeyedQueryCache<
+    ExperiencePointsLadderRankQuery,
+    Record<EntityId, number>
+  >;
+  readonly cumulativeClearRanks: KeyedQueryCache<
+    LadderPartyFloorClearRecordId[],
+    Record<LadderPartyFloorClearRecordId, number>
+  >;
   readonly floorClear: KeyedQueryCache<
     LadderPartyFloorClearRecordId,
     FloorClearView | undefined
@@ -74,6 +85,14 @@ export class LadderViewStore implements ReactiveNode {
     this.cumulativeClearTimes = new KeyedQueryCache(
       (query) => queries().getCumulativeClearTimes(query),
       (query) => keyOf(query.controlScheme, query.page, query.pageSizeOption)
+    );
+    this.experiencePointsLadderRanks = new KeyedQueryCache(
+      (query) => queries().getExperiencePointsLadderRanks(query),
+      (query) => keyOf(query.controlScheme, ...query.characterIds)
+    );
+    this.cumulativeClearRanks = new KeyedQueryCache(
+      (floorClearIds) => queries().getCumulativeClearRanks(floorClearIds),
+      (floorClearIds) => keyOf(...floorClearIds)
     );
     this.floorClear = new KeyedQueryCache(
       (floorClearId) => queries().getFloorClear(floorClearId),
@@ -114,6 +133,8 @@ export class LadderViewStore implements ReactiveNode {
       this.experiencePointsLadder,
       this.floorClearTimes,
       this.cumulativeClearTimes,
+      this.experiencePointsLadderRanks,
+      this.cumulativeClearRanks,
       this.floorClear,
       this.gameRecord,
       this.progressionCharacter,

@@ -319,6 +319,12 @@ export class LadderGameRecordsService {
     return this.persistenceStrategy.findFloorClearById(id);
   }
 
+  async getCumulativeClearRanks(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
+    return this.persistenceStrategy.getCumulativeClearRanks(ids);
+  }
+
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
     return this.persistenceStrategy.getWinRateLadder(query);
   }

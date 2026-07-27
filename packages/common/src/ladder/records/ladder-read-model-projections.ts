@@ -117,12 +117,51 @@ export function projectCumulativeClearTimesPage(
   records: FloorClearProjectionRecords
 ): LadderPage<RankedFloorClearEntry> {
   const indexes = indexFloorClearRecords(records);
+  const ranked = rankCumulativeClears(query.controlScheme, records, indexes);
 
+  return paginate(ranked, query, ({ partyFloorClear }, rank) => ({
+    rank,
+    ...assembleFloorClear(partyFloorClear, indexes),
+  }));
+}
+
+// what rank the given clears hold on their own scheme's board. a clear names the board it is on, so
+// the ids may span both schemes and each is ranked against its own
+export function projectCumulativeClearRanks(
+  ids: LadderPartyFloorClearRecordId[],
+  records: FloorClearProjectionRecords
+): Record<LadderPartyFloorClearRecordId, number> {
+  const indexes = indexFloorClearRecords(records);
+  const wanted = new Set(ids);
+  const schemes = new Set(
+    records.partyFloorClears
+      .filter((partyFloorClear) => wanted.has(partyFloorClear.id))
+      .map((partyFloorClear) => partyFloorClear.controlScheme)
+  );
+
+  const ranksById: Record<LadderPartyFloorClearRecordId, number> = {};
+  for (const controlScheme of schemes) {
+    rankCumulativeClears(controlScheme, records, indexes).forEach(({ partyFloorClear }, index) => {
+      if (wanted.has(partyFloorClear.id)) {
+        ranksById[partyFloorClear.id] = index + 1;
+      }
+    });
+  }
+  return ranksById;
+}
+
+// the board's ordering, shared by the page and the rank lookups so a row cannot be told one rank when
+// it is read off the board and another when it is asked about
+function rankCumulativeClears(
+  controlScheme: CharacterControlScheme,
+  records: FloorClearProjectionRecords,
+  indexes: FloorClearIndexes
+) {
   // cumulative time is computed once per clear rather than inside the comparator, which would
   // re-sum a party's whole history on every comparison
   const ranked = records.partyFloorClears
     .filter((partyFloorClear) => {
-      if (partyFloorClear.controlScheme !== query.controlScheme) {
+      if (partyFloorClear.controlScheme !== controlScheme) {
         return false;
       }
       return gameForPartyFloorClear(partyFloorClear, indexes) !== undefined;
@@ -141,10 +180,7 @@ export function projectCumulativeClearTimesPage(
       compareIds(a.partyFloorClear.id, b.partyFloorClear.id)
   );
 
-  return paginate(ranked, query, ({ partyFloorClear }, rank) => ({
-    rank,
-    ...assembleFloorClear(partyFloorClear, indexes),
-  }));
+  return ranked;
 }
 
 // the single clear behind its own linkable page. the caller loads the clear's party history for the

@@ -22,6 +22,15 @@ export interface ExperiencePointsLadderQuery extends PagedLadderQuery {
   controlScheme: CharacterControlScheme;
 }
 
+// a player wants to know where they stand, and their character is almost never on the page anyone is
+// looking at. takes a list because a profile asks about every character its owner has at once; a
+// character page passes one. the scheme names which board to ask, since a character is only ranked on
+// its own
+export interface ExperiencePointsLadderRankQuery {
+  characterIds: EntityId[];
+  controlScheme: CharacterControlScheme;
+}
+
 export interface ExperiencePointsLadderViewEntry {
   rank: number;
   characterId: EntityId;

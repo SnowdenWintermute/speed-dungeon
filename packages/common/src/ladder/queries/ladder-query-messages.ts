@@ -19,6 +19,7 @@ import { PlayerProfileLookup } from "./player-profile.js";
 import { LadderQueries } from "./ladder-queries.js";
 import {
   ExperiencePointsLadderQuery,
+  ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
@@ -28,8 +29,10 @@ import { ProgressionCharacterView } from "./progression-character.js";
 // instead of one of each per query
 export enum LadderQueryType {
   ExperiencePointsLadder,
+  ExperiencePointsLadderRanks,
   FloorClearTimes,
   CumulativeClearTimes,
+  CumulativeClearRanks,
   FloorClear,
   GameRecord,
   ProgressionCharacter,
@@ -41,8 +44,10 @@ export enum LadderQueryType {
 
 export type LadderQueryRequest =
   | { type: LadderQueryType.ExperiencePointsLadder; query: ExperiencePointsLadderQuery }
+  | { type: LadderQueryType.ExperiencePointsLadderRanks; query: ExperiencePointsLadderRankQuery }
   | { type: LadderQueryType.FloorClearTimes; query: FloorClearTimesQuery }
   | { type: LadderQueryType.CumulativeClearTimes; query: CumulativeClearTimesQuery }
+  | { type: LadderQueryType.CumulativeClearRanks; floorClearIds: LadderPartyFloorClearRecordId[] }
   | { type: LadderQueryType.FloorClear; floorClearId: LadderPartyFloorClearRecordId }
   | { type: LadderQueryType.GameRecord; gameRecordId: GameId }
   | { type: LadderQueryType.ProgressionCharacter; characterId: EntityId }
@@ -59,8 +64,13 @@ export type LadderQueryResult =
       type: LadderQueryType.ExperiencePointsLadder;
       page: LadderPage<ExperiencePointsLadderViewEntry>;
     }
+  | { type: LadderQueryType.ExperiencePointsLadderRanks; ranksById: Record<EntityId, number> }
   | { type: LadderQueryType.FloorClearTimes; page: LadderPage<RankedFloorClearView> }
   | { type: LadderQueryType.CumulativeClearTimes; page: LadderPage<RankedFloorClearView> }
+  | {
+      type: LadderQueryType.CumulativeClearRanks;
+      ranksById: Record<LadderPartyFloorClearRecordId, number>;
+    }
   | { type: LadderQueryType.FloorClear; floorClearOption?: FloorClearView }
   | { type: LadderQueryType.GameRecord; gameRecordOption?: GameRecordView }
   | { type: LadderQueryType.ProgressionCharacter; characterOption?: ProgressionCharacterView }
@@ -82,6 +92,11 @@ export async function executeLadderQuery(
         type: request.type,
         page: await ladderQueries.getExperiencePointsLadderPage(request.query),
       };
+    case LadderQueryType.ExperiencePointsLadderRanks:
+      return {
+        type: request.type,
+        ranksById: await ladderQueries.getExperiencePointsLadderRanks(request.query),
+      };
     case LadderQueryType.FloorClearTimes:
       return {
         type: request.type,
@@ -91,6 +106,11 @@ export async function executeLadderQuery(
       return {
         type: request.type,
         page: await ladderQueries.getCumulativeClearTimes(request.query),
+      };
+    case LadderQueryType.CumulativeClearRanks:
+      return {
+        type: request.type,
+        ranksById: await ladderQueries.getCumulativeClearRanks(request.floorClearIds),
       };
     case LadderQueryType.FloorClear:
       return {

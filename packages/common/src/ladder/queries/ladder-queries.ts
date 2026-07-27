@@ -18,6 +18,7 @@ import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapsho
 import { PlayerProfileLookup } from "./player-profile.js";
 import {
   ExperiencePointsLadderQuery,
+  ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
@@ -34,6 +35,19 @@ export interface LadderQueries {
   getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearView>>;
+
+  // where given rows stand on a board, for a reader who is not on the page they fall on. keyed by id,
+  // and anything not on that board is simply absent — a character that died off the ladder, an
+  // unknown clear. rank belongs to a board rather than to the row, which is why these are asked
+  // separately rather than carried by the character and clear views. batched because a profile asks
+  // about all of a player's characters and best clears at once
+  getExperiencePointsLadderRanks(
+    query: ExperiencePointsLadderRankQuery
+  ): Promise<Record<EntityId, number>>;
+
+  getCumulativeClearRanks(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>>;
 
   // the individually linkable reads. each answers "show me this one thing", so they take an id rather
   // than a query object, as getCharacterFloorClearSnapshot does

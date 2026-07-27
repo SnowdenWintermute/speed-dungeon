@@ -144,6 +144,12 @@ export interface LadderRecordsPersistenceStrategy {
   // one clear on its own, for its linkable page. unranked: it was not read off any board
   findFloorClearById(id: LadderPartyFloorClearRecordId): Promise<FloorClearEntry | undefined>;
 
+  // where the given clears stand on the cumulative board, without materializing the board itself.
+  // ids that are not on it are absent from the result rather than reported as some sentinel rank
+  getCumulativeClearRanks(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>>;
+
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>>;
 
   getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined>;

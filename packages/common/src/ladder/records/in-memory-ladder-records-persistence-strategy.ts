@@ -39,6 +39,7 @@ import {
   FloorClearProjectionRecords,
   projectCharacterFloorClearSnapshot,
   projectCumulativeClearTimesPage,
+  projectCumulativeClearRanks,
   projectFloorClearById,
   projectFloorClearTimesPage,
   projectPlayerProfileData,
@@ -295,6 +296,12 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     id: LadderPartyFloorClearRecordId
   ): Promise<FloorClearEntry | undefined> {
     return projectFloorClearById(id, this.floorClearProjectionRecords());
+  }
+
+  async getCumulativeClearRanks(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
+    return projectCumulativeClearRanks(ids, this.floorClearProjectionRecords());
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {

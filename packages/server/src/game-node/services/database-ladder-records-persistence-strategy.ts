@@ -91,6 +91,29 @@ for (const [key, value] of Object.entries(COMBATANT_CLASS_NAME_STRINGS)) {
   COMBATANT_CLASS_FROM_COLUMN.set(value.toLowerCase(), Number(key) as CombatantClass);
 }
 
+// the running total has to be computed before any row filter is applied, or the number would silently
+// change meaning: a party's cumulative time counts floors it cleared under the other control scheme
+// too. so it lives in a CTE and every caller-supplied condition is applied outside it
+const CLEARS_WITH_CUMULATIVE_CTE = `clears_with_cumulative AS (
+  SELECT *, SUM(time_spent_on_floor) OVER (
+    PARTITION BY party_record_ref ORDER BY floor ROWS UNBOUNDED PRECEDING
+  ) AS cumulative_time
+  FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS}
+)`;
+
+// the inner joins match the projection's rule that a clear with no resolvable party or game is not on
+// the board at all. every read of a board applies them, so they decide the same thing everywhere
+const ON_THE_BOARD_JOINS = `JOIN ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} p ON p.id = c.party_record_ref
+  JOIN ${RESOURCE_NAMES.LADDER_GAME_RECORDS} g ON g.id = p.game_record_id`;
+
+// one ordering in its two forms: as a sort for the rows of a page, and as a predicate for counting
+// the rows that beat one. they have to agree, or a clear's rank would disagree with where it sits on
+// the board — and both must match the shared projection's comparator, tie-break included
+const CUMULATIVE_BOARD_ORDER = "c.floor DESC, c.cumulative_time ASC, c.id ASC";
+const CUMULATIVE_BOARD_BEATS_TARGET = `c.floor > t.floor
+  OR (c.floor = t.floor AND c.cumulative_time < t.cumulative_time)
+  OR (c.floor = t.floor AND c.cumulative_time = t.cumulative_time AND c.id < t.id)`;
+
 export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPersistenceStrategy {
   async findParticipantRecordById(
     id: IdentityProviderId
@@ -376,7 +399,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
 
     const pageClears = await this.loadOrderedFloorClearPage(
       whereClause,
-      "c.floor DESC, c.cumulative_time ASC, c.id ASC",
+      CUMULATIVE_BOARD_ORDER,
       query
     );
     const totalEntries = await this.countFloorClears(whereClause);
@@ -387,8 +410,6 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     return assembleFloorClearPage(pageClears, query, totalEntries, records);
   }
 
-  // the running total has to be computed before any row filter is applied, so it lives in a CTE and
-  // every caller-supplied condition is applied outside it
   private async loadOrderedFloorClearPage(
     whereClause: string,
     orderByClause: string,
@@ -397,15 +418,9 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const pageSize = pageSizeOf(query);
     const rows = await queryCamel<LadderPartyFloorClearRecordRow>(
       format(
-        `WITH clears_with_cumulative AS (
-           SELECT *, SUM(time_spent_on_floor) OVER (
-             PARTITION BY party_record_ref ORDER BY floor ROWS UNBOUNDED PRECEDING
-           ) AS cumulative_time
-           FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS}
-         )
+        `WITH ${CLEARS_WITH_CUMULATIVE_CTE}
          SELECT c.* FROM clears_with_cumulative c
-         JOIN ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} p ON p.id = c.party_record_ref
-         JOIN ${RESOURCE_NAMES.LADDER_GAME_RECORDS} g ON g.id = p.game_record_id
+         ${ON_THE_BOARD_JOINS}
          WHERE ${whereClause}
          ORDER BY ${orderByClause}
          LIMIT %L OFFSET %L;`,
@@ -416,13 +431,10 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     return rows.map(partyFloorClearRowToRecord);
   }
 
-  // the inner joins match the projection's rule that a clear with no resolvable party or game is
-  // not on the board at all
   private async countFloorClears(whereClause: string): Promise<number> {
     const result = await pgPool.query(
       `SELECT COUNT(*) FROM ${RESOURCE_NAMES.LADDER_PARTY_FLOOR_CLEAR_RECORDS} c
-       JOIN ${RESOURCE_NAMES.LADDER_PARTY_RECORDS} p ON p.id = c.party_record_ref
-       JOIN ${RESOURCE_NAMES.LADDER_GAME_RECORDS} g ON g.id = p.game_record_id
+       ${ON_THE_BOARD_JOINS}
        WHERE ${whereClause};`
     );
     return parseInt(result.rows[0].count, 10);
@@ -449,6 +461,38 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     );
     const records = await this.floorClearProjectionRecords(partyClearHistory);
     return projectFloorClearById(id, records);
+  }
+
+  // a rank is a count of the clears that beat this one, not a board built and searched for it. the
+  // scheme comes off the target row, since a clear names the board it is on
+  async getCumulativeClearRanks(
+    ids: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
+    // load-bearing, not an optimization: an empty list formats to `IN ()`, which does not parse
+    if (ids.length === 0) {
+      return {};
+    }
+
+    const rows = await queryCamel<{ id: LadderPartyFloorClearRecordId; rank: string }>(
+      format(
+        `WITH ${CLEARS_WITH_CUMULATIVE_CTE},
+         on_the_board AS (
+           SELECT c.* FROM clears_with_cumulative c ${ON_THE_BOARD_JOINS}
+         )
+         SELECT t.id, (
+           SELECT COUNT(*) + 1 FROM on_the_board c
+           WHERE c.control_scheme = t.control_scheme AND (${CUMULATIVE_BOARD_BEATS_TARGET})
+         ) AS rank
+         FROM on_the_board t WHERE t.id IN (%L);`,
+        ids
+      )
+    );
+
+    const ranksById: Record<LadderPartyFloorClearRecordId, number> = {};
+    for (const row of rows) {
+      ranksById[row.id] = parseInt(row.rank, 10);
+    }
+    return ranksById;
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {

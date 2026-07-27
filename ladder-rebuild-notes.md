@@ -149,12 +149,33 @@ New queries on `LadderQueries`:
      guest. Absence is covered by deleting the character for real and re-querying, rather than by
      inventing an id that was never issued.
 
-**Possible later: show a floor clear's rank on each board it appears on.** The standalone page has no
-rank by design, but a clear has *many* ranks — one per board (floor × mode × control scheme × sort,
-plus Deepest Cumulative) — and each one is a `COUNT(*) + 1` of the clears beating it under that
-board's filter and ordering. A scan returning one integer, not a materialized board, so the page
-could show the whole set rather than any single "the" rank. Pick which boards are worth listing when
-we build it; the full cross-product is more counts than anyone wants to read.
+**Rank lookups — BUILT 2026-07-27.** Mike's point: people do not only read the top of a ladder, they
+want to know where *they* sit, and their row is almost never on the page anyone is looking at. Two
+queries, both **batched by id**, because a profile asks about all of a player's characters and best
+clears at once and a per-id query would be a round trip and a count each:
+
+- `getExperiencePointsLadderRanks({ characterIds, controlScheme })` — a position read out of the
+  sorted set (`zRevRank`), not a page. ⚠️ **It counts from zero and every rank a client is shown
+  counts from one**, so the query does the `+ 1`.
+- `getCumulativeClearRanks(ids)` — `COUNT(*) + 1` of the clears beating each target, so no board is
+  built to find one row on it. The scheme comes off the target row, since a clear names the board it
+  is on; ids may therefore span both boards in one call.
+
+Both return `Record<id, number>` with **anything not on that board simply absent** — a character that
+died off the ladder, an unknown clear — rather than a sentinel rank. Rank stays off the
+character/clear *views*, per the earlier decision that rank belongs to a board and not to the row.
+
+This forced a Postgres cleanup worth keeping: the window CTE, the party/game "is it on the board at
+all" joins, and the cumulative ordering were about to exist in three places. They are now
+`CLEARS_WITH_CUMULATIVE_CTE`, `ON_THE_BOARD_JOINS`, and the **pair** `CUMULATIVE_BOARD_ORDER` /
+`CUMULATIVE_BOARD_BEATS_TARGET` — one ordering in its two forms, a sort for a page and a predicate for
+a count, which have to agree or a clear's rank would contradict where it sits. In-memory shares
+`rankCumulativeClears` between its page and its rank projection for the same reason.
+
+**Still possible later: the *other* boards' ranks.** A clear has many ranks — one per board (floor ×
+mode × control scheme × sort) — and only the cumulative one is built. Same `COUNT(*) + 1` shape when
+we want them; pick which boards are worth listing, since the full cross-product is more counts than
+anyone wants to read.
 
 Plus, on existing queries:
 

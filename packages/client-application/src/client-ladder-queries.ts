@@ -12,6 +12,7 @@ import {
   CumulativeClearTimesQuery,
   EntityId,
   ExperiencePointsLadderQuery,
+  ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
   FloorClearTimesQuery,
   FloorClearView,
@@ -49,6 +50,22 @@ export class ClientLadderQueries implements LadderQueries {
     const result = await this.send({ type: LadderQueryType.ExperiencePointsLadder, query });
     invariant(result.type === LadderQueryType.ExperiencePointsLadder, WRONG_RESULT_TYPE);
     return result.page;
+  }
+
+  async getExperiencePointsLadderRanks(
+    query: ExperiencePointsLadderRankQuery
+  ): Promise<Record<EntityId, number>> {
+    const result = await this.send({ type: LadderQueryType.ExperiencePointsLadderRanks, query });
+    invariant(result.type === LadderQueryType.ExperiencePointsLadderRanks, WRONG_RESULT_TYPE);
+    return result.ranksById;
+  }
+
+  async getCumulativeClearRanks(
+    floorClearIds: LadderPartyFloorClearRecordId[]
+  ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
+    const result = await this.send({ type: LadderQueryType.CumulativeClearRanks, floorClearIds });
+    invariant(result.type === LadderQueryType.CumulativeClearRanks, WRONG_RESULT_TYPE);
+    return result.ranksById;
   }
 
   async getFloorClearTimes(
