@@ -37,6 +37,9 @@ export default function TopBar() {
             <li className={`${pathName === `/` && "underline"} mr-4`}>
               <Link href={"/"}>Game</Link>
             </li>
+            <li className={`${pathName.startsWith(`/ladder`) && "underline"} mr-4`}>
+              <Link href={"/ladder"}>Ladder</Link>
+            </li>
           </ul>
         </div>
         <div className="flex">

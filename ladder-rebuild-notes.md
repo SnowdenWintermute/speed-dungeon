@@ -7,7 +7,37 @@ Started 2026-07-23.
 
 ---
 
-## Page inventory + navigation, from Mike (2026-07-26) — RESUME HERE
+## Main ladder page — BUILT 2026-07-27
+
+`frontend/src/app/ladder/page.tsx`: the four top-5 summaries as one scrolling column of tables, PoE
+style, styled off the old experience-points ladder (row bottom-borders only, no outer border).
+Everything reusable sits under `app/ladder/`:
+
+- `ladder-table/` — **`LadderTable` owns every `<table>`, `<tr>` and `<td>`**; a board supplies
+  `LadderTableColumn<TEntry>[]` (`header`, `renderCell`, optional `widthPercentOption` / `sortOption`)
+  and never writes markup, which is what keeps the boards from drifting apart visually. Sort state is
+  per column because not every field is sortable, and `onSort` re-queries rather than reordering the
+  fetched rows — sorting is server-side. `LadderQueryBoundary` renders loading/failed/loaded once for
+  every facet; `LadderBoardSection` composes heading + "View full board" link + boundary + table.
+- **Styling is the component, not a class-string module.** On Mike's push-back: the only const left is
+  `LADDER_TABLE_CELL_CLASSES`, for the box `th` and `td` must share (no one component spans both
+  without a fake `as` prop). Anything a board renders itself is a component — `LadderTableCellLink` —
+  so a board can't apply its own link style.
+- `boards/` — the column sets, to be shared by the summary and the full board pages.
+- `routes.ts` — every ladder link built in one place.
+- `formatDuration` went to `common/src/utils/index.ts` beside `formatThousandsAsK` rather than a ladder
+  file: it is generic, and a duration is not a `Date` (wraps past 24h, pads everything to `hh:mm:ss`,
+  and is only correct in UTC). `SECONDS_PER_MINUTE` / `SECONDS_PER_HOUR` joined `ONE_SECOND` in
+  app-consts.
+- The top bar has a **Ladder** nav item now; it had only "Game".
+
+⚠️ **Rows link to routes that do not exist yet**: `/ladder/character/:id`, `/ladder/floor-clear/:id`,
+`/profile/:username`, and `/ladder/cumulative-clear-times`. No tab bar yet either — deliberately, until
+there are tab pages to point it at. And with no seeded data every board renders its empty state.
+
+---
+
+## Page inventory + navigation, from Mike (2026-07-26) — main page done, tabs next
 
 The frontend design is now specified. Four new queries stood between this and the JSX; **all of them,
 and the two follow-on items, are built as of 2026-07-27. Nothing is left before step 6 but the JSX.** Bare-bones JSON scaffolding exists for the

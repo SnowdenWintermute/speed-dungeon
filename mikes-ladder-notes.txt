@@ -48,3 +48,7 @@ character snapshots)
 - Profile (linked from any mention of a user in any other record)
 - Progression character (linked from the Progression Experience Points ladder entries, 
   a full combatant object view similar to in-game view in the inventory viewing items/equipment/attributes, inventory)
+
+cleanup
+- look for extractable logic
+- look for local utils/consts that are generic enough to move to a real home

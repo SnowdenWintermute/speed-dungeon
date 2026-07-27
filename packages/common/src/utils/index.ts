@@ -5,10 +5,15 @@ import { NextOrPrevious } from "../primatives/index.js";
 import { toJS } from "mobx";
 import cloneDeep from "lodash.clonedeep";
 import { plainToInstance } from "class-transformer";
-import { EntityId, EntityName, GameName, PartyName } from "../aliases.js";
+import { EntityId, EntityName, GameName, Milliseconds, PartyName } from "../aliases.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
-import { LOOP_SAFETY_ITERATION_LIMIT } from "../app-consts.js";
+import {
+  LOOP_SAFETY_ITERATION_LIMIT,
+  ONE_SECOND,
+  SECONDS_PER_HOUR,
+  SECONDS_PER_MINUTE,
+} from "../app-consts.js";
 
 export function invariant(condition: boolean, message?: string): asserts condition {
   if (!condition) {
@@ -125,6 +130,19 @@ export type KeysWithValueOfType<O, T> = {
 export function formatThousandsAsK(value: number): string {
   if (value < 1000) return value.toString();
   return (value / 1000).toFixed(2).replace(/\.?0+$/, "") + "k";
+}
+
+// an elapsed span, not a moment: Date would wrap past 24 hours and pad every duration to hh:mm:ss
+export function formatDuration(milliseconds: Milliseconds): string {
+  const totalSeconds = Math.floor(milliseconds / ONE_SECOND);
+  const hours = Math.floor(totalSeconds / SECONDS_PER_HOUR);
+  const minutes = Math.floor((totalSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+  const seconds = totalSeconds % SECONDS_PER_MINUTE;
+
+  const segments = hours > 0 ? [hours, minutes, seconds] : [minutes, seconds];
+  return segments
+    .map((segment, index) => (index === 0 ? segment.toString() : segment.toString().padStart(2, "0")))
+    .join(":");
 }
 
 export function getLookRotationFromPositions(

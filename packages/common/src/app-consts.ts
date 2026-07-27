@@ -9,6 +9,8 @@ export const TARGET_CONCURRENT_ASSET_FETCH_COUNT = 2;
 export const INFO_UNICODE_SYMBOL = "ⓘ";
 
 export const ONE_SECOND: Milliseconds = 1000;
+export const SECONDS_PER_MINUTE = 60;
+export const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
 export const SIMULATION_FPS: Milliseconds = 15;
 export const TICK_LENGTH: Milliseconds = ONE_SECOND / SIMULATION_FPS;
 
