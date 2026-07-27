@@ -172,6 +172,19 @@ all" joins, and the cumulative ordering were about to exist in three places. The
 a count, which have to agree or a clear's rank would contradict where it sits. In-memory shares
 `rankCumulativeClears` between its page and its rank projection for the same reason.
 
+**Depth cap: `LADDER_MAX_RANKED_ENTRIES = 15_000` (2026-07-27), the same number Path of Exile uses.**
+This is what makes OFFSET pagination safe for good rather than by assumption: skipped rows are
+generated and discarded, so without a floor under how deep a page can be, a hand-written url could ask
+storage to walk the whole table. Two halves, which have to agree:
+- **`validatePagedQuery` refuses a page starting at or past entry 15,000**, before any query runs —
+  answering it emptily would pay the whole OFFSET cost on the way to finding nothing.
+- **`totalPagesOf` caps every board's `totalPages` to match**, so no pager can lead a reader somewhere
+  the validator will refuse. Every board's total comes from that one function now.
+- Rank *lookups* are deliberately not capped: `zRevRank` is cheap at any depth, and telling a player
+  they are #40,000 is the entire point of the feature even though no page will show them.
+- ⚠️ The `totalPages` capping only bites above 15,000 records, so nothing at integration scale can
+  cover it — the test asserts the refusal, which is the half with a cost attached.
+
 **Still possible later: the *other* boards' ranks.** A clear has many ranks — one per board (floor ×
 mode × control scheme × sort) — and only the cumulative one is built. Same `COUNT(*) + 1` shape when
 we want them; pick which boards are worth listing, since the full cross-product is more counts than

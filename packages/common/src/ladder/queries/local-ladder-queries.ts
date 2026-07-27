@@ -6,7 +6,11 @@ import {
   LadderPartyFloorClearRecordId,
   Username,
 } from "../../aliases.js";
-import { LADDER_MAX_PAGE_SIZE, USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
+import {
+  LADDER_MAX_PAGE_SIZE,
+  LADDER_MAX_RANKED_ENTRIES,
+  USER_GAME_HISTORY_PAGE_SIZE,
+} from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
@@ -313,15 +317,19 @@ function validatePagedQuery(query: PagedLadderQuery): void {
     throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE);
   }
   const { pageSizeOption } = query;
-  if (pageSizeOption === undefined) {
-    return;
-  }
   if (
-    !Number.isInteger(pageSizeOption) ||
-    pageSizeOption < 1 ||
-    pageSizeOption > LADDER_MAX_PAGE_SIZE
+    pageSizeOption !== undefined &&
+    (!Number.isInteger(pageSizeOption) ||
+      pageSizeOption < 1 ||
+      pageSizeOption > LADDER_MAX_PAGE_SIZE)
   ) {
     throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE_SIZE(LADDER_MAX_PAGE_SIZE));
+  }
+  // depth is refused rather than answered emptily, because the cost of OFFSET is paid on the way to
+  // discovering there is nothing there. no pager can lead a reader this deep — totalPages is capped
+  // to match — so a request this deep was hand-written
+  if (query.page * pageSizeOf(query) >= LADDER_MAX_RANKED_ENTRIES) {
+    throw new Error(ERROR_MESSAGES.LADDER.PAGE_BEYOND_RANKED_ENTRIES(LADDER_MAX_RANKED_ENTRIES));
   }
 }
 

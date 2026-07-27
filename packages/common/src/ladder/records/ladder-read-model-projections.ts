@@ -23,7 +23,7 @@ import {
   WinLossTally,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
-import { LadderPage, PagedLadderQuery, pageSizeOf } from "../queries/ladder-page.js";
+import { LadderPage, PagedLadderQuery, pageSizeOf, totalPagesOf } from "../queries/ladder-page.js";
 import {
   CumulativeClearTimesQuery,
   DEFAULT_FLOOR_CLEAR_SORT,
@@ -221,7 +221,7 @@ export function assembleFloorClearPage(
 
   return {
     page,
-    totalPages: Math.ceil(totalEntries / pageSize),
+    totalPages: totalPagesOf(totalEntries, pageSize),
     entries: orderedPageClears.map((partyFloorClear, indexInPage) => ({
       rank: pageStart + indexInPage + 1,
       ...assembleFloorClear(partyFloorClear, indexes),
@@ -568,7 +568,7 @@ function paginate<TSource, TEntry>(
 ): LadderPage<TEntry> {
   const { page } = query;
   const pageSize = pageSizeOf(query);
-  const totalPages = Math.ceil(all.length / pageSize);
+  const totalPages = totalPagesOf(all.length, pageSize);
   const pageStart = page * pageSize;
   const pageSources = all.slice(pageStart, pageStart + pageSize);
   const entries = pageSources.map((source, indexInPage) =>

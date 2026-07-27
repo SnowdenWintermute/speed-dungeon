@@ -3,7 +3,7 @@ import { ClassProgressionProperties } from "../../combatants/class-progression-p
 import { ExperiencePointsLadderRankings } from "../../servers/services/experience-points-ladder-service.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
 import { ExperiencePointsLadderViewEntry } from "./experience-points-ladder.js";
-import { LadderPage } from "./ladder-page.js";
+import { LadderPage, totalPagesOf } from "./ladder-page.js";
 
 // the sorted set decides who is ranked and in what order; every figure on display is read back off
 // the character record itself, so a row can never disagree with the character its owner logs in to.
@@ -40,7 +40,7 @@ export function projectExperiencePointsLadderPage(
 
   return {
     page,
-    totalPages: Math.ceil(rankings.totalEntries / pageSize),
+    totalPages: totalPagesOf(rankings.totalEntries, pageSize),
     entries,
   };
 }

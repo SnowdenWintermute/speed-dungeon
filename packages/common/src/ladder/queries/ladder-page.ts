@@ -1,4 +1,4 @@
-import { LADDER_MAX_PAGE_SIZE } from "../../app-consts.js";
+import { LADDER_MAX_PAGE_SIZE, LADDER_MAX_RANKED_ENTRIES } from "../../app-consts.js";
 
 export interface LadderPage<T> {
   page: number;
@@ -17,4 +17,10 @@ export interface PagedLadderQuery {
 // never disagree about how big a page was
 export function pageSizeOf(query: PagedLadderQuery): number {
   return query.pageSizeOption ?? LADDER_MAX_PAGE_SIZE;
+}
+
+// a board reports only as many pages as it will actually serve, so a pager can never offer a page the
+// depth cap would refuse. every board's totalPages comes from here for that reason
+export function totalPagesOf(totalEntries: number, pageSize: number): number {
+  return Math.ceil(Math.min(totalEntries, LADDER_MAX_RANKED_ENTRIES) / pageSize);
 }

@@ -139,6 +139,10 @@ export const DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY = 2;
 // not control, so the size it asks for is how many rows it can make the server read. it needs no test
 // seam now that a query carries its own size — a test asking for two rows just asks for two
 export const LADDER_MAX_PAGE_SIZE = 20;
+// how far down a board can be read at all, as Path of Exile caps its ladders. this is what bounds the
+// cost of OFFSET pagination: skipped rows are generated and discarded, so without a floor under how
+// deep a page can be, a hand-written url could ask storage to walk the whole table
+export const LADDER_MAX_RANKED_ENTRIES = 15_000;
 // the main page shows the head of each board next to a link to the whole thing
 export const LADDER_SUMMARY_ROW_COUNT = 5;
 export const FLOOR_CLEAR_TIMES_DEFAULT_FLOOR = 1;
