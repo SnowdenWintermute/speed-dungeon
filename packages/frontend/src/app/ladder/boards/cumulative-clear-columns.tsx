@@ -5,7 +5,7 @@ import {
   Username,
   formatDuration,
 } from "@speed-dungeon/common";
-import { LadderTableColumn } from "../ladder-table/column";
+import { LadderTableCellLayout, LadderTableColumn } from "../ladder-table/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { floorClearRoute, gameRecordRoute, playerProfileRoute } from "../routes";
 
@@ -21,7 +21,11 @@ export const CUMULATIVE_CLEAR_TIMES_COLUMNS: LadderTableColumn<RankedFloorClearV
       </LadderTableCellLink>
     ),
   },
-  { header: "Players", renderCell: (entry) => <PlayerLinks players={entry.players} /> },
+  {
+    header: "Players",
+    cellLayoutOption: LadderTableCellLayout.Stacked,
+    renderCell: (entry) => <PlayerLinks players={entry.players} />,
+  },
   { header: "Mode", renderCell: (entry) => GAME_MODE_STRINGS[entry.mode] },
   {
     // the time is what this row is a record of, so it is what leads to the clear's own page
@@ -40,13 +44,12 @@ export function floorClearEntryKey(entry: RankedFloorClearView): string {
 
 function PlayerLinks({ players }: { players: Username[] }) {
   return (
-    <>
-      {players.map((player, index) => (
-        <React.Fragment key={player}>
-          {index > 0 && ", "}
-          <LadderTableCellLink href={playerProfileRoute(player)}>{player}</LadderTableCellLink>
-        </React.Fragment>
+    <div className="flex flex-col">
+      {players.map((player) => (
+        <LadderTableCellLink key={player} href={playerProfileRoute(player)}>
+          {player}
+        </LadderTableCellLink>
       ))}
-    </>
+    </div>
   );
 }

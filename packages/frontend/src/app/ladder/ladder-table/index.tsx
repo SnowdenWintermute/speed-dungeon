@@ -1,10 +1,19 @@
 import React from "react";
-import { LadderTableColumn } from "./column";
+import { LadderTableCellLayout, LadderTableColumn } from "./column";
 import { LadderTableHeaderCell } from "./LadderTableHeaderCell";
-import { LADDER_TABLE_CELL_CLASSES } from "./styles";
+import { LADDER_TABLE_CELL_CLASSES, LADDER_TABLE_STACKED_CELL_CLASSES } from "./styles";
 
 // every board's rows hold different fields, so a board describes its columns and this owns all the
 // markup. no board writes a td, which is what keeps them from drifting apart visually
+// the two are complete strings rather than a base plus overrides: tailwind resolves conflicting
+// utilities by their order in the stylesheet, not the order they appear in a className
+function cellClassesFor<TEntry>(column: LadderTableColumn<TEntry>): string {
+  if (column.cellLayoutOption === LadderTableCellLayout.Stacked) {
+    return LADDER_TABLE_STACKED_CELL_CLASSES;
+  }
+  return LADDER_TABLE_CELL_CLASSES;
+}
+
 export function LadderTable<TEntry>({
   columns,
   entries,
@@ -41,7 +50,7 @@ export function LadderTable<TEntry>({
         {entries.map((entry) => (
           <tr key={keyOf(entry)} className="border-b border-slate-400">
             {columns.map((column) => (
-              <td key={column.header} className={LADDER_TABLE_CELL_CLASSES}>
+              <td key={column.header} className={cellClassesFor(column)}>
                 {column.renderCell(entry)}
               </td>
             ))}
