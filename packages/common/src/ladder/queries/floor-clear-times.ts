@@ -10,6 +10,7 @@ import {
 } from "../../aliases.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
+import { PagedLadderQuery } from "./ladder-page.js";
 
 // who a character is, wherever one is displayed. TPlayer, as on FloorClear: the owner is an id as
 // persisted and a username in the client view
@@ -44,9 +45,8 @@ export const DEFAULT_FLOOR_CLEAR_SORT: FloorClearSort = {
   isDescending: false,
 };
 
-export interface FloorClearTimesQuery {
+export interface FloorClearTimesQuery extends PagedLadderQuery {
   floor: number;
-  page: number;
   controlSchemeOption?: CharacterControlScheme;
   modeOption?: GameMode;
   sortOption?: FloorClearSort;
@@ -55,9 +55,8 @@ export interface FloorClearTimesQuery {
 // the same floor clears, across every floor instead of one, ordered by how deep the clear was and
 // then by how fast the party got there. spans game modes deliberately: ironman and race play by the
 // same rules, so a clear means the same thing in both. each control scheme is its own board
-export interface CumulativeClearTimesQuery {
+export interface CumulativeClearTimesQuery extends PagedLadderQuery {
   controlScheme: CharacterControlScheme;
-  page: number;
 }
 
 // the clear itself, with nothing about the party or game that made it. a game record nests these

@@ -135,11 +135,12 @@ export const DEFAULT_HITBOX_RADIUS_FALLBACK = 1.5;
 // ACCOUNTS AND PROFILES
 export const DEFAULT_ACCOUNT_CHARACTER_CAPACITY = 3;
 export const DEFAULT_ACCOUNT_IRONMAN_RUN_CAPACITY = 2;
-// mutable so tests can shrink the page size instead of having to produce 20+ real records to cross a
-// page boundary (same test-seam pattern as GAME_CONFIG.LEVEL_TO_REACH_FOR_ESCAPE)
-export const LADDER_CONFIG = {
-  PAGE_SIZE: 20,
-};
+// both the default page size and the ceiling on a requested one: the query comes from a client we do
+// not control, so the size it asks for is how many rows it can make the server read. it needs no test
+// seam now that a query carries its own size — a test asking for two rows just asks for two
+export const LADDER_MAX_PAGE_SIZE = 20;
+// the main page shows the head of each board next to a link to the whole thing
+export const LADDER_SUMMARY_ROW_COUNT = 5;
 export const FLOOR_CLEAR_TIMES_DEFAULT_FLOOR = 1;
 export const RACE_GAME_RECORDS_PAGE_SIZE = 3;
 export const USER_GAME_HISTORY_PAGE_SIZE = 10;

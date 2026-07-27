@@ -65,7 +65,7 @@ export class LadderViewStore implements ReactiveNode {
 
     this.experiencePointsLadder = new KeyedQueryCache(
       (query) => queries().getExperiencePointsLadderPage(query),
-      (query) => keyOf(query.controlScheme, query.page)
+      (query) => keyOf(query.controlScheme, query.page, query.pageSizeOption)
     );
     this.floorClearTimes = new KeyedQueryCache(
       (query) => queries().getFloorClearTimes(query),
@@ -73,7 +73,7 @@ export class LadderViewStore implements ReactiveNode {
     );
     this.cumulativeClearTimes = new KeyedQueryCache(
       (query) => queries().getCumulativeClearTimes(query),
-      (query) => keyOf(query.controlScheme, query.page)
+      (query) => keyOf(query.controlScheme, query.page, query.pageSizeOption)
     );
     this.floorClear = new KeyedQueryCache(
       (floorClearId) => queries().getFloorClear(floorClearId),

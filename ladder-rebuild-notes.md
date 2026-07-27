@@ -9,8 +9,8 @@ Started 2026-07-23.
 
 ## Page inventory + navigation, from Mike (2026-07-26) — RESUME HERE
 
-The frontend design is now specified. Four new queries stood between this and the JSX; **all four are
-built as of 2026-07-26, and only the top-5 summaries (item 7) are left**. Bare-bones JSON scaffolding exists for the
+The frontend design is now specified. Four new queries stood between this and the JSX; **all of them,
+and the two follow-on items, are built as of 2026-07-27. Nothing is left before step 6 but the JSX.** Bare-bones JSON scaffolding exists for the
 two facets that already have a query (`frontend/src/app/ladder/`), and is regenerable — it is not
 what to protect.
 
@@ -166,7 +166,24 @@ Plus, on existing queries:
 6. ~~A sort parameter for the floor-clear tables~~ — **DONE 2026-07-26.** `FloorClearTimesQuery.
    sortOption` = `{ field, isDescending }` (parameter object, not a bare boolean), defaulting to
    `DEFAULT_FLOOR_CLEAR_SORT`.
-7. Top-5 summaries for the main page — page 0 sliced, or a limit param.
+7. ~~Top-5 summaries for the main page~~ — **DONE 2026-07-27, as a page size on the query.** Not a
+   client-side slice of page 0: at a page size of 20 the landing page would fetch 80 rows to show 20,
+   and the heavy ones (clear rows carry players + characters) are the ones it would waste.
+   - **`PagedLadderQuery` (`{ page, pageSizeOption? }`) in `ladder-page.ts`**, extended by the XP
+     ladder, cumulative and floor-clear-times queries, with `pageSizeOf(query)` as the single place
+     an unstated size resolves to the default. Everything downstream — rank arithmetic, `totalPages`,
+     the sorted-set range read, the SQL `LIMIT/OFFSET` — takes the size from there, so a page is a
+     page of the *board* and the two strategies cannot disagree about how big one is.
+   - ⚠️ **`LADDER_CONFIG.PAGE_SIZE` is now `LADDER_MAX_PAGE_SIZE`, a plain const.** It is both the
+     default and the ceiling: the query arrives from a client we do not control, so the size it names
+     is how many rows it can make the server read. Out of range (non-integer, < 1, or above the
+     maximum) throws at `validatePagedQuery`, beside the existing page check. The **mutable test seam
+     is gone** — it existed only so a test could shrink the page size, and a test can now just ask for
+     two rows.
+   - **One pagination test, not one per facet** (`read-queries/floor-clear-pagination-reads.ts`): the
+     size travels the same path for every board, so it asserts the boundary, rank continuation,
+     `totalPages`, an out-of-range page and a too-big size once, on the board whose suite already runs
+     against Postgres.
 
 ### Read-path performance work (2026-07-26)
 

@@ -50,7 +50,8 @@ import {
   assembleFloorClearPage,
   DEFAULT_FLOOR_CLEAR_SORT,
   FloorClearSortField,
-  LADDER_CONFIG,
+  PagedLadderQuery,
+  pageSizeOf,
   projectWinRateLadderPage,
   selectPersonalBestPartyFloorClears,
 } from "@speed-dungeon/common";
@@ -353,14 +354,14 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       whereClause,
       // the id tie-break stays ascending either way, mirroring the shared projection's comparator
       `${sortColumn} ${sort.isDescending ? "DESC" : "ASC"}, c.id ASC`,
-      query.page
+      query
     );
     const totalEntries = await this.countFloorClears(whereClause);
     const partyIds = unique(pageClears.map((partyFloorClear) => partyFloorClear.partyRecordRef));
     // only this page's parties, and only up to the floor being ranked, for the cumulative sums
     const partyClearHistory = await this.loadPartyFloorClearsUpToFloor(partyIds, query.floor);
     const records = await this.floorClearProjectionRecords(partyClearHistory);
-    return assembleFloorClearPage(pageClears, query.page, totalEntries, records);
+    return assembleFloorClearPage(pageClears, query, totalEntries, records);
   }
 
   async getCumulativeClearTimes(
@@ -376,14 +377,14 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const pageClears = await this.loadOrderedFloorClearPage(
       whereClause,
       "c.floor DESC, c.cumulative_time ASC, c.id ASC",
-      query.page
+      query
     );
     const totalEntries = await this.countFloorClears(whereClause);
     const partyIds = unique(pageClears.map((partyFloorClear) => partyFloorClear.partyRecordRef));
     // rows here span floors, so each party's whole history is what the sums need
     const partyClearHistory = await this.loadPartyFloorClearsByPartyIds(partyIds);
     const records = await this.floorClearProjectionRecords(partyClearHistory);
-    return assembleFloorClearPage(pageClears, query.page, totalEntries, records);
+    return assembleFloorClearPage(pageClears, query, totalEntries, records);
   }
 
   // the running total has to be computed before any row filter is applied, so it lives in a CTE and
@@ -391,8 +392,9 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
   private async loadOrderedFloorClearPage(
     whereClause: string,
     orderByClause: string,
-    page: number
+    query: PagedLadderQuery
   ): Promise<LadderPartyFloorClearRecord[]> {
+    const pageSize = pageSizeOf(query);
     const rows = await queryCamel<LadderPartyFloorClearRecordRow>(
       format(
         `WITH clears_with_cumulative AS (
@@ -407,8 +409,8 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
          WHERE ${whereClause}
          ORDER BY ${orderByClause}
          LIMIT %L OFFSET %L;`,
-        LADDER_CONFIG.PAGE_SIZE,
-        page * LADDER_CONFIG.PAGE_SIZE
+        pageSize,
+        query.page * pageSize
       )
     );
     return rows.map(partyFloorClearRowToRecord);

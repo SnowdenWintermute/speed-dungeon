@@ -1,4 +1,3 @@
-import { LADDER_CONFIG } from "../../app-consts.js";
 import {
   CombatantId,
   GameId,
@@ -24,7 +23,7 @@ import {
   WinLossTally,
   WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
-import { LadderPage } from "../queries/ladder-page.js";
+import { LadderPage, PagedLadderQuery, pageSizeOf } from "../queries/ladder-page.js";
 import {
   CumulativeClearTimesQuery,
   DEFAULT_FLOOR_CLEAR_SORT,
@@ -85,7 +84,7 @@ export function projectFloorClearTimesPage(
     return directed || compareIds(a.partyFloorClear.id, b.partyFloorClear.id);
   });
 
-  return paginate(ranked, query.page, ({ partyFloorClear }, rank) => ({
+  return paginate(ranked, query, ({ partyFloorClear }, rank) => ({
     rank,
     ...assembleFloorClear(partyFloorClear, indexes),
   }));
@@ -142,7 +141,7 @@ export function projectCumulativeClearTimesPage(
       compareIds(a.partyFloorClear.id, b.partyFloorClear.id)
   );
 
-  return paginate(ranked, query.page, ({ partyFloorClear }, rank) => ({
+  return paginate(ranked, query, ({ partyFloorClear }, rank) => ({
     rank,
     ...assembleFloorClear(partyFloorClear, indexes),
   }));
@@ -175,16 +174,18 @@ export function projectFloorClearById(
 // clear history, which cumulativeTimeToClearFloor sums over.
 export function assembleFloorClearPage(
   orderedPageClears: LadderPartyFloorClearRecord[],
-  page: number,
+  query: PagedLadderQuery,
   totalEntries: number,
   records: FloorClearProjectionRecords
 ): LadderPage<RankedFloorClearEntry> {
   const indexes = indexFloorClearRecords(records);
-  const pageStart = page * LADDER_CONFIG.PAGE_SIZE;
+  const { page } = query;
+  const pageSize = pageSizeOf(query);
+  const pageStart = page * pageSize;
 
   return {
     page,
-    totalPages: Math.ceil(totalEntries / LADDER_CONFIG.PAGE_SIZE),
+    totalPages: Math.ceil(totalEntries / pageSize),
     entries: orderedPageClears.map((partyFloorClear, indexInPage) => ({
       rank: pageStart + indexInPage + 1,
       ...assembleFloorClear(partyFloorClear, indexes),
@@ -218,7 +219,7 @@ export function projectWinRateLadderPage(
     (a, b) => winRateOf(b.tally) - winRateOf(a.tally) || b.tally.gamesPlayed - a.tally.gamesPlayed
   );
 
-  return paginate(tallied, query.page, (entry, rank) => ({
+  return paginate(tallied, query, (entry, rank) => ({
     rank,
     participantId: entry.participantId,
     tally: entry.tally,
@@ -526,12 +527,14 @@ export function winRateOf(tally: WinLossTally): number {
 
 function paginate<TSource, TEntry>(
   all: TSource[],
-  page: number,
+  query: PagedLadderQuery,
   toEntry: (source: TSource, rank: number) => TEntry
 ): LadderPage<TEntry> {
-  const totalPages = Math.ceil(all.length / LADDER_CONFIG.PAGE_SIZE);
-  const pageStart = page * LADDER_CONFIG.PAGE_SIZE;
-  const pageSources = all.slice(pageStart, pageStart + LADDER_CONFIG.PAGE_SIZE);
+  const { page } = query;
+  const pageSize = pageSizeOf(query);
+  const totalPages = Math.ceil(all.length / pageSize);
+  const pageStart = page * pageSize;
+  const pageSources = all.slice(pageStart, pageStart + pageSize);
   const entries = pageSources.map((source, indexInPage) =>
     toEntry(source, pageStart + indexInPage + 1)
   );

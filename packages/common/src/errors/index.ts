@@ -90,6 +90,9 @@ export const ERROR_MESSAGES = {
     CHARACTER_NOT_FOUND: "No record found for that character",
     NO_ENTRIES_FOUND: "No ladder entries found",
     INVALID_PAGE: "Ladder page must be a non-negative integer",
+    // a function, since the maximum is a mutable test seam and a baked-in string would go stale
+    INVALID_PAGE_SIZE: (maxPageSize: number) =>
+      `Ladder page size must be an integer from 1 to ${maxPageSize}`,
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",

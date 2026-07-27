@@ -1,5 +1,4 @@
 import { EntityId, IdentityProviderId, Username } from "../../aliases.js";
-import { LADDER_CONFIG } from "../../app-consts.js";
 import { ClassProgressionProperties } from "../../combatants/class-progression-properties.js";
 import { ExperiencePointsLadderRankings } from "../../servers/services/experience-points-ladder-service.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
@@ -12,10 +11,11 @@ import { LadderPage } from "./ladder-page.js";
 export function projectExperiencePointsLadderPage(
   rankings: ExperiencePointsLadderRankings,
   page: number,
+  pageSize: number,
   charactersById: Map<EntityId, SerializedPlayerCharacter>,
   usernamesByOwnerId: Map<IdentityProviderId, Username>
 ): LadderPage<ExperiencePointsLadderViewEntry> {
-  const pageStart = page * LADDER_CONFIG.PAGE_SIZE;
+  const pageStart = page * pageSize;
   const entries: ExperiencePointsLadderViewEntry[] = [];
 
   // a ranked entry we can't describe is dropped rather than thrown over, so one orphan can't take
@@ -40,7 +40,7 @@ export function projectExperiencePointsLadderPage(
 
   return {
     page,
-    totalPages: Math.ceil(rankings.totalEntries / LADDER_CONFIG.PAGE_SIZE),
+    totalPages: Math.ceil(rankings.totalEntries / pageSize),
     entries,
   };
 }
