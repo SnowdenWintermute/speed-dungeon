@@ -1,4 +1,5 @@
 import {
+  EntityId,
   GameId,
   IdentityProviderId,
   LadderCharacterFloorClearRecordId,
@@ -40,6 +41,8 @@ import {
 } from "./experience-points-ladder.js";
 import { projectExperiencePointsLadderPage } from "./experience-points-ladder-projection.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
+import { ProgressionCharacterView } from "./progression-character.js";
+import { projectProgressionCharacterView } from "./progression-character-projection.js";
 
 // executes the queries in-process against the ladder stores. the server runs it over its own
 // persistence strategy on behalf of a connected client; offline clients run it over their local one.
@@ -130,6 +133,35 @@ export class LocalLadderQueries implements LadderQueries {
       ),
     ]);
     return projectGameRecordView(aggregateOption, usernameOf);
+  }
+
+  // the same saved character an experience points ladder row is hydrated from, read whole this time.
+  // findByIds rather than fetchCharacter because a page reached by url can name a character that no
+  // longer exists, which is an empty page and not an error
+  async getProgressionCharacter(id: EntityId): Promise<ProgressionCharacterView | undefined> {
+    const [characterOption] = await this.userGameDataPersistenceService.findSavedCharactersByIds([
+      id,
+    ]);
+    if (characterOption === undefined) {
+      return undefined;
+    }
+
+    const usernamesByOwnerId = await this.usernameDirectory.resolveUsernames([
+      characterOption.ownerId,
+    ]);
+    // a character whose owner was deleted upstream reads as gone rather than as a nameless build, the
+    // same way the ladder page skips the row that would link here. the log line is how we learn it
+    // is happening: the ladder participant fallback cannot help, since owning a character never made
+    // anyone a ladder participant
+    const ownerUsernameOption = usernamesByOwnerId.get(characterOption.ownerId);
+    if (ownerUsernameOption === undefined) {
+      console.info(
+        `saved character ${id} has no resolvable owner (${characterOption.ownerId}), reporting it as missing`
+      );
+      return undefined;
+    }
+
+    return projectProgressionCharacterView(characterOption, ownerUsernameOption);
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {

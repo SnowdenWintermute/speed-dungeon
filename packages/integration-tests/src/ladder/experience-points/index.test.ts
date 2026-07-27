@@ -1,5 +1,6 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { testProgressionCharacterExperiencePointsLadderReads } from "./progression-character-xp-ladder-reads";
+import { testProgressionCharacterPageReads } from "./progression-character-page-reads";
 import { testControlSchemeLaddersAreSeparate } from "./control-scheme-ladders-are-separate";
 import { testDeadCharacterLeavesTheLadder } from "./dead-character-leaves-the-ladder";
 import { testDeletedSavedCharacterLeavesTheLadder } from "./deleted-saved-character-leaves-the-ladder";
@@ -24,6 +25,10 @@ describe("experience points ladder", () => {
 
   it("ranks a progression character by experience earned in a real battle", async () => {
     await testProgressionCharacterExperiencePointsLadderReads(testFixture);
+  });
+
+  it("shows a ranked character's whole build, without its inventory", async () => {
+    await testProgressionCharacterPageReads(testFixture);
   });
 
   it("ranks each control scheme on its own ladder", async () => {

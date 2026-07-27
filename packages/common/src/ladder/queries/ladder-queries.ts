@@ -1,4 +1,5 @@
 import {
+  EntityId,
   GameId,
   LadderCharacterFloorClearRecordId,
   LadderPartyFloorClearRecordId,
@@ -20,6 +21,7 @@ import {
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
+import { ProgressionCharacterView } from "./progression-character.js";
 
 // the client-facing read side (CQRS-style queries)
 export interface LadderQueries {
@@ -33,11 +35,13 @@ export interface LadderQueries {
     query: CumulativeClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearView>>;
 
-  // the individually linkable reads. both answer "show me this one thing", so they take an id rather
+  // the individually linkable reads. each answers "show me this one thing", so they take an id rather
   // than a query object, as getCharacterFloorClearSnapshot does
   getFloorClear(id: LadderPartyFloorClearRecordId): Promise<FloorClearView | undefined>;
 
   getGameRecord(id: GameId): Promise<GameRecordView | undefined>;
+
+  getProgressionCharacter(id: EntityId): Promise<ProgressionCharacterView | undefined>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>>;
 

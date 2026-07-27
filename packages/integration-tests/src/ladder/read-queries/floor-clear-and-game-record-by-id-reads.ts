@@ -1,5 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import { TEST_AUTH_USERNAME_PLAYER_1 } from "@/fixtures/consts";
+import { MISSING_RECORD_ID, TEST_AUTH_USERNAME_PLAYER_1 } from "@/fixtures/consts";
 import {
   GameId,
   GameMode,
@@ -8,10 +8,6 @@ import {
   ONE_SECOND,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
-
-// valid UUID syntax so the Postgres strategy rejects it as absent rather than as malformed input,
-// and absent under both strategies
-const MISSING_ID = "00000000-0000-0000-0000-000000000000";
 
 // The two individually-linkable reads: one floor clear on its own, and one whole game record. Both
 // are read the way the pages will read them — a client in the lobby running LadderQueries over the
@@ -66,9 +62,10 @@ export async function testFloorClearAndGameRecordByIdReads(testFixture: Integrat
   );
   expect(standaloneClear.players).toEqual([TEST_AUTH_USERNAME_PLAYER_1]);
 
-  expect(await ladderQueries.getFloorClear(MISSING_ID as LadderPartyFloorClearRecordId)).toBe(
-    undefined
+  const missingClearOption = await ladderQueries.getFloorClear(
+    MISSING_RECORD_ID as LadderPartyFloorClearRecordId
   );
+  expect(missingClearOption).toBe(undefined);
 
   // --- getGameRecord: the game, its parties, and what each party cleared ---
   const gameRecord = await ladderQueries.getGameRecord(gameId);
@@ -119,5 +116,5 @@ export async function testFloorClearAndGameRecordByIdReads(testFixture: Integrat
   invariant(snapshot !== undefined, "expected the linked snapshot to be fetchable");
   expect(snapshot.characterName).toBe(characterName);
 
-  expect(await ladderQueries.getGameRecord(MISSING_ID as GameId)).toBe(undefined);
+  expect(await ladderQueries.getGameRecord(MISSING_RECORD_ID as GameId)).toBe(undefined);
 }

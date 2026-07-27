@@ -9,8 +9,8 @@ Started 2026-07-23.
 
 ## Page inventory + navigation, from Mike (2026-07-26) — RESUME HERE
 
-The frontend design is now specified. **Four new queries stand between this and the JSX**, so the
-next work is another backend increment, not the pages. Bare-bones JSON scaffolding exists for the
+The frontend design is now specified. Four new queries stood between this and the JSX; **all four are
+built as of 2026-07-26, and only the top-5 summaries (item 7) are left**. Bare-bones JSON scaffolding exists for the
 two facets that already have a query (`frontend/src/app/ladder/`), and is regenerable — it is not
 what to protect.
 
@@ -123,8 +123,31 @@ New queries on `LadderQueries`:
      time included), the game record's party/characters/clears against the write-path aggregate,
      that a snapshot link on a clear really fetches, and that both queries return `undefined` for a
      missing id — using a zero UUID, so Postgres treats it as absent rather than malformed.
-4. **Progression character by id** — full combatant minus inventory. Not started; touches saved
-   characters rather than ladder records, so it shares nothing with 2/3.
+4. ~~**Progression character by id**~~ — **BUILT 2026-07-26 as `getProgressionCharacter(id)`.**
+   Touches saved characters rather than ladder records, so it added **no SQL and no persistence
+   method**: it reads the same `findByIds` the experience points ladder hydrates its rows with, which
+   is also why it returns `undefined` for an unknown id instead of throwing the way `fetchCharacter`
+   does — a url reached from a stale link names a character that may be gone, and that is a page, not
+   an error.
+   - **The view carries the combatant, not a restatement of it.** `ProgressionCharacterView` is
+     `{ ownerUsername, controlScheme, combatantWithPets }` and nothing else: the id, name, classes,
+     levels and experience all travel inside the serialized combatant, where every other reader of one
+     already looks. Only the two facts the *record* holds and the combatant does not are lifted out.
+     Deliberately unlike `CharacterFloorClearSnapshotView`, which restates the name.
+   - Inventory is stripped in `progression-character-projection.ts`, from the serialized shape rather
+     than by deserializing a combatant to call `deleteAllItems` on it. Capacity and shards stay, as
+     they do on a floor clear snapshot — they describe the character, not what it is carrying. Pet
+     inventories are stripped too, since pets come along as part of the build.
+   - **An owner who no longer resolves reads as missing**, with a `console.info`, matching how the
+     ladder page skips the row that would link here. The `lastKnownUsername` fallback cannot help:
+     owning a character never made anyone a ladder *participant*.
+   - Test: `experience-points/progression-character-page-reads.ts` (that suite, not read-queries —
+     nothing here touches a `LadderRecordsPersistenceStrategy`). It needs no game at all: a saved
+     character exists the moment it is created in the lobby. The owner's own client is the oracle —
+     it holds the same character *with* its inventory, which is what makes "the public view has no
+     items" an assertion about stripping rather than about an empty character — and the reader is a
+     guest. Absence is covered by deleting the character for real and re-querying, rather than by
+     inventing an id that was never issued.
 
 **Possible later: show a floor clear's rank on each board it appears on.** The standalone page has no
 rank by design, but a clear has *many* ranks — one per board (floor × mode × control scheme × sort,

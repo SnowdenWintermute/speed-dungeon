@@ -26,6 +26,10 @@ export const TEST_AUTH_USERNAME_PLAYER_1 = "TestUsername1" as Username;
 export const TEST_AUTH_USERNAME_PLAYER_2 = "TestUsername2" as Username;
 export const TEST_AUTH_USERNAME_PLAYER_3 = "TestUsername3" as Username;
 
+// the id of nothing, for reads that must answer "no such thing". valid UUID syntax so a Postgres
+// strategy rejects it as absent rather than as malformed input
+export const MISSING_RECORD_ID = "00000000-0000-0000-0000-000000000000";
+
 export const TEST_CHARACTER_NAME_1 = "character 1";
 export const TEST_CHARACTER_NAME_2 = "character 2";
 export const TEST_CHARACTER_NAME_3 = "character 3";

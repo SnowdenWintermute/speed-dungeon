@@ -1,4 +1,5 @@
 import {
+  EntityId,
   GameId,
   LadderCharacterFloorClearRecordId,
   LadderPartyFloorClearRecordId,
@@ -21,6 +22,7 @@ import {
   ExperiencePointsLadderViewEntry,
 } from "./experience-points-ladder.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
+import { ProgressionCharacterView } from "./progression-character.js";
 
 // LadderQueries as messages, so every call travels as one intent type and one reply update type
 // instead of one of each per query
@@ -30,6 +32,7 @@ export enum LadderQueryType {
   CumulativeClearTimes,
   FloorClear,
   GameRecord,
+  ProgressionCharacter,
   WinRateLadder,
   CharacterFloorClearSnapshot,
   PlayerProfile,
@@ -42,6 +45,7 @@ export type LadderQueryRequest =
   | { type: LadderQueryType.CumulativeClearTimes; query: CumulativeClearTimesQuery }
   | { type: LadderQueryType.FloorClear; floorClearId: LadderPartyFloorClearRecordId }
   | { type: LadderQueryType.GameRecord; gameRecordId: GameId }
+  | { type: LadderQueryType.ProgressionCharacter; characterId: EntityId }
   | { type: LadderQueryType.WinRateLadder; query: WinRateLadderQuery }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -59,6 +63,7 @@ export type LadderQueryResult =
   | { type: LadderQueryType.CumulativeClearTimes; page: LadderPage<RankedFloorClearView> }
   | { type: LadderQueryType.FloorClear; floorClearOption?: FloorClearView }
   | { type: LadderQueryType.GameRecord; gameRecordOption?: GameRecordView }
+  | { type: LadderQueryType.ProgressionCharacter; characterOption?: ProgressionCharacterView }
   | { type: LadderQueryType.WinRateLadder; page: LadderPage<WinRateLadderView> }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -96,6 +101,11 @@ export async function executeLadderQuery(
       return {
         type: request.type,
         gameRecordOption: await ladderQueries.getGameRecord(request.gameRecordId),
+      };
+    case LadderQueryType.ProgressionCharacter:
+      return {
+        type: request.type,
+        characterOption: await ladderQueries.getProgressionCharacter(request.characterId),
       };
     case LadderQueryType.WinRateLadder:
       return {
