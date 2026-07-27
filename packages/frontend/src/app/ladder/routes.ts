@@ -1,6 +1,7 @@
 import {
   CharacterControlScheme,
   EntityId,
+  GameId,
   LadderPartyFloorClearRecordId,
   Username,
 } from "@speed-dungeon/common";
@@ -21,6 +22,10 @@ export function progressionCharacterRoute(characterId: EntityId): string {
 
 export function floorClearRoute(floorClearId: LadderPartyFloorClearRecordId): string {
   return `/ladder/floor-clear/${floorClearId}`;
+}
+
+export function gameRecordRoute(gameRecordId: GameId): string {
+  return `/ladder/game/${gameRecordId}`;
 }
 
 export function playerProfileRoute(username: Username): string {

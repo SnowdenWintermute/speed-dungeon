@@ -111,15 +111,15 @@ export class PlayerCharacterRepo extends DatabaseRepository<SerializedPlayerChar
       `
     );
 
-    if (rows[0])
-      return toCamelCase(rows) as unknown as {
-        id: string;
-        controlScheme: CharacterControlScheme;
-        level: number;
-        experiencePoints: number;
-        hitPoints: number;
-      }[];
-    return undefined;
+    // an empty table is an answer, not a failure — returning undefined for it made the ladder
+    // rebuild skip clearing its keys, leaving deleted characters ranked
+    return toCamelCase(rows) as unknown as {
+      id: string;
+      controlScheme: CharacterControlScheme;
+      level: number;
+      experiencePoints: number;
+      hitPoints: number;
+    }[];
   }
 }
 

@@ -10,9 +10,6 @@ import { playerCharactersRepo } from "../database/repos/player-characters.js";
 
 export async function loadLadderIntoKvStore() {
   const rows = await playerCharactersRepo.getAllCharacterExperienceScores();
-  if (!rows) {
-    return console.error("Couldn't load character levels");
-  }
 
   const entriesByLadderName = new Map<string, { value: string; score: number }[]>();
   for (const [controlScheme] of iterateNumericEnumKeyedRecord(CHARACTER_CONTROL_SCHEME_STRINGS)) {

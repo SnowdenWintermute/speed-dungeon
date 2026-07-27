@@ -7,3 +7,9 @@ export * from "./transport/node-client-endpoint-factories.js";
 export { pgPool } from "./singletons/pg-pool.js";
 export { DatabaseLadderRecordsPersistenceStrategy } from "./game-node/services/database-ladder-records-persistence-strategy.js";
 export { RESOURCE_NAMES } from "./database/db-consts.js";
+// and so the dev ladder seeder can write to the dev database the way the running server does
+export { pgOptions } from "./database/config.js";
+export { playerCharactersRepo } from "./database/repos/player-characters.js";
+export { getUserIdsByUsername } from "./database/get-user-ids-by-username.js";
+export { valkeyManager } from "./kv-store/index.js";
+export { loadLadderIntoKvStore } from "./kv-store/utils.js";

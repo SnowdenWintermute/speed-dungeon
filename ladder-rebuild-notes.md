@@ -7,6 +7,75 @@ Started 2026-07-23.
 
 ---
 
+## Dev seed data — BUILT 2026-07-27 (this closes the "somewhere to seed test data" open item)
+
+Two halves, in two repos, because a ladder row whose owner does not resolve at the identity provider
+is **skipped** — the XP board has no `lastKnownUsername` fallback (owning a character never made
+anyone a ladder participant), so seeded characters need accounts that really exist.
+
+- **`snowauth/dev-accounts/`** — `fake-usernames.txt` (the editable list) plus
+  `create-fake-accounts.sh` / `delete-fake-accounts.sh`. Profiles only, no credentials, so these
+  accounts resolve by name but cannot log in. Create is idempotent; teardown's guard is **"no
+  credentials row"**, which is safe because `insert-new-user.ts` is the only caller of
+  `userIdsRepo.insert()` and always writes credentials — Google sign-ins included (email, null
+  password). Verified by round-tripping: teardown removed the 8 fakes and left the 2 real accounts.
+  ⚠️ **Ids are not stable across teardown/recreate** (they went 5–12 → 13–20), so the seeder resolves
+  owners **by username** via `getUserIdsByUsername`, never by id.
+- **`integration-tests/src/scripts/seed-ladder-data.ts`** — deliberately *not* in `packages/server`:
+  `server.Dockerfile` copies `packages/server/src` and ships `dist`, so a seeder living there would
+  ride into production images. It writes through the **real** `DatabaseLadderRecordsPersistenceStrategy`
+  and `playerCharactersRepo` rather than hand-written SQL, so it cannot drift from the schema; the
+  service layer above them was skipped because `recordNewGame` wants a whole `SpeedDungeonGame`.
+  Five named exports were added to the server barrel for it.
+
+Run it:
+
+```
+yarn workspace @speed-dungeon/integration-tests seed-ladder-data          # seed / reseed
+yarn workspace @speed-dungeon/integration-tests delete-ladder-seed-data   # take it back down
+```
+
+Both go through `dotenv -e ../server/.env`, because `load-env-file.ts` does
+`dotenv.config({ path: ".env" })` **relative to cwd** — naming the file beats depending on where you
+ran it from. Seeding always deletes first, so the two modes differ only in whether they write after.
+
+- **Type stripping needs `import type` for type-only names.** Node erases annotations but cannot tell
+  a type import from a value one, so the imports are split into two statements. Keep them that way.
+- **Re-running replaces its own data**: games are deleted by the `[seed]` name prefix (cascading to
+  parties, clears and snapshots) and characters by owner id. Nothing you made by playing is touched.
+- It calls `loadLadderIntoKvStore()` at the end, so the XP sorted sets are current **without a lobby
+  restart**.
+- Character names come from the game's own random pool (an empty name makes the creation policy roll
+  one), not a hand-written list. 29 names across 48 characters means repeats, which is fine — identity
+  is the id.
+
+What it produces: 48 progression characters (24 per scheme, so both XP boards paginate), 24 games,
+~118 floor clears (both schemes past the 20-row page), floors 1–7 tapering. Party shape follows the
+scheme: a **Freelancer** party is one character per player (so the Players column shows several
+names), a **Captain** party is one player running several characters.
+
+⚠️ **Two properties derived from the same index with the same modulus come out perfectly correlated**
+— both bugs Mike caught looking at the first seeded page:
+- `mode` on `gameIndex % 2` and `controlScheme` on `gameIndex % 2` made every freelancer clear
+  ironman and every captain clear a race. Scheme now advances at half the rate; all four combinations
+  appear, ~30 clears each.
+- support class on `characterIndex % 3` and level on `(characterIndex * 3) % 18` pinned every
+  support-class character to level 2 or 11, so none was ever in a top five. The level stride is now
+  **coprime with the range** (7 and 18); support classes reach level 17.
+
+**Bug fixed while testing the teardown:** `getAllCharacterExperienceScores` returned `undefined` for
+an empty table, so `loadLadderIntoKvStore` logged "Couldn't load character levels" and returned
+**before deleting the ladder keys** — deleted characters stayed ranked in Valkey. The repo now returns
+an empty array (an empty table is an answer, not a failure) and the guard in the rebuild is gone. This
+was only reachable with zero saved characters, which is why playing never surfaced it.
+
+⚠️ Seeded characters are levelled by setting `mainClass.level` directly, which is exactly what
+`CombatantBuilder.level()` does — but attributes are not re-derived, so their stats read like level-1
+characters. Fine for the boards; worth knowing when the progression character page renders equipment
+and attributes.
+
+---
+
 ## Main ladder page — BUILT 2026-07-27
 
 `frontend/src/app/ladder/page.tsx`: the four top-5 summaries as one scrolling column of tables, PoE

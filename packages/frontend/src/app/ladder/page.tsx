@@ -66,13 +66,14 @@ const LadderMainPage = observer(() => {
   return (
     <WithTopBar>
       <div
-        className="w-full overflow-y-auto pointer-events-auto flex justify-center"
+        className="w-full overflow-y-auto pointer-events-auto"
         style={{
           height: `calc(100vh - ${TOP_BAR_HEIGHT_REM}rem)`,
           padding: `${SPACING_REM_LARGE}rem`,
+          paddingBottom: 0,
         }}
       >
-        <div className="w-full max-w-[54rem]">
+        <div className="w-full max-w-[60rem] mx-auto pb-24">
           <h1 className="text-2xl mb-6">Ladder</h1>
 
           <LadderBoardSection

@@ -9,7 +9,9 @@
   "type": "module",
   "scripts": {
     "compileClean": "rm -rf tsconfig.tsbuildinfo && rm -rf ./dist && npx tsc",
-    "checkTs": "npx tsc --noEmit --watch"
+    "checkTs": "npx tsc --noEmit --watch",
+    "seed-ladder-data": "dotenv -e ../server/.env -- node --experimental-strip-types src/scripts/seed-ladder-data.ts",
+    "delete-ladder-seed-data": "dotenv -e ../server/.env -- node --experimental-strip-types src/scripts/seed-ladder-data.ts --delete-only"
   },
   "dependencies": {
     "@speed-dungeon/common": "1.0.0",
