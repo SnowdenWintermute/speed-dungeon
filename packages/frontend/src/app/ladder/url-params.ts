@@ -9,3 +9,14 @@ export const LADDER_URL_PARAMS = {
   SORT_IS_DESCENDING: "sortIsDescending",
   // as const so a schema can use these as computed keys and still destructure them by name
 } as const;
+
+// the dynamic segments a record page's id arrives in. these have to match the [bracketed] directory
+// names the route files live under, which nothing checks — a mismatch reads as an absent param, so
+// the code side names them here rather than repeating the string
+export const LADDER_ROUTE_PARAMS = {
+  FLOOR_CLEAR_ID: "floorClearId",
+  GAME_RECORD_ID: "gameRecordId",
+  // the profile route lives outside /ladder, but it is reached from ladder rows and shows ladder
+  // data, so its url is parsed and written by the same two files as the rest
+  PROFILE_USERNAME: "username",
+} as const;

@@ -7,6 +7,184 @@ Started 2026-07-23.
 
 ---
 
+## Status 2026-07-28 — ladder suites green, row expansion dropped
+
+**`read-queries` and `experience-points` are green** with the two new tests
+(`personal-best-two-clocks-reads`, `player-progression-characters-reads`) and the three updated for the
+personal-bests split.
+
+**Row expansion on Fastest Floor Clears is abandoned** (Mike, 2026-07-28). A row already links to the
+clear's own page, which lists every character with its snapshot link — the expansion would be a second
+way to say the same thing, in a table with less room to say it.
+
+**All that is left of the rebuild: the two combatant pages** — `/ladder/character/:id` and
+`/ladder/character-snapshot/:id`, on the decoupled character sheet described further down.
+
+---
+
+## Profile, second pass — BUILT 2026-07-28 (personal bests split, progression characters, 404 bug)
+
+Three things Mike asked for after looking at the first cut.
+
+**1. Personal bests are two lists now**, `personalBestFloorTimes` and `personalBestCumulativeTimes`,
+on `PlayerProfileData` and `PlayerProfileView` alike. The clocks disagree: how fast a player took a
+floor is not how fast they *arrived* at it, so a slow floor inside a fast descent can hold one record
+and not the other. `selectPersonalBestPartyFloorClears` now takes the records bag plus a
+`FloorClearSortField` — reusing that enum because its two members are exactly the two clocks — and the
+cumulative case sums the party's history the same way the rest of the read model does, **including
+floors cleared under the other control scheme**, since a party can switch mid-run.
+- Both strategies select twice and **load once**: the two lists overlap heavily, so the Postgres path
+  unions the ids before fetching characters and snapshot refs, and `LocalLadderQueries` resolves
+  usernames across both lists in one call.
+- New test `personal-best-two-clocks-reads.ts` drives two Ironman runs arranged so the *same floor* is
+  held by a different run on each list — the only shape that can tell the two selections apart. It
+  asserts the arrangement itself first, so it fails loudly rather than passing vacuously if the timings
+  ever collapse. ⚠️ **Written but not run.**
+
+**1b. The personal bests are faceted, not collapsed.** Mike first saw several rows for one floor and
+asked for one; the reason there were several is that a best is per floor **per mode per control
+scheme**, which with the two clocks is eight lists. So the profile gained **Game Mode and Control
+Scheme selectors** over the whole personal-bests block instead — one row per floor falls out of the
+facet, and the two columns that restated the selectors are gone, as on the floor clear board.
+- **A profile's url now has a state**, `ProfileUrlState { page, mode, controlScheme }`, parsed by one
+  schema and written by one route builder that takes the whole thing — so choosing a facet keeps the
+  history page a reader was on, and paging keeps their facet. Unlike a board, where a filter change
+  resets to page one, because there the filter and the pager describe the same table.
+- The facet defaults to Ironman/Freelancer, the same as the floor clear board's, so "no filter stated"
+  means one thing across the app.
+- Filtering is client-side, deliberately: the whole personal-bests set arrives with the profile (at
+  most floors × 4 per clock), so a selector is instant and costs no round trip.
+- **Choosing a facet scrolls the section back to the top** (`hooks/use-scroll-into-view.tsx`), because
+  the tables change height under the selector and everything below them moves. `scrollIntoView` finds
+  the page column rather than the window, and the push passes **`{ scroll: false }`** so next's own
+  scroll handling does not fight it. Two things this depends on: nothing above the section changes
+  height on the same navigation (so scrolling immediately, before the re-render, is safe), and the
+  page carries enough bottom padding (`pb-32`) for a scroller to have somewhere to scroll *to*.
+  The ladder boards deliberately do **not** do this — there is no content above their table, so a
+  changing row count never moves the control that was just used.
+
+**2. Progression characters on the profile**, one table per control scheme, because the two are
+separate ladders and not one list filtered.
+- New query `getPlayerProgressionCharacters({ username, controlScheme })` →
+  `PlayerProgressionCharactersView { characters, ranksByCharacterId }`. `ProgressionCharacterSummaryView`
+  is the XP ladder row minus its rank, so `ExperiencePointsLadderViewEntry` now extends it and the
+  assembly moved to `progression-character-summary-projection.ts` — a profile row and a ladder row are
+  read off the same saved character by the same code and cannot disagree.
+- ⚠️ **The ranks come back with the characters**, not as a second query. A board never asks for ranks
+  at all — a row's rank there is its position on the page being read — so the rank *lookup* is for
+  characters ranked somewhere other than the page in front of you, which is exactly what a profile
+  lists. Asking over the wire would have been a round trip that cannot start until this one lands,
+  twice over (once per scheme). They stay keyed *beside* the rows rather than on them, so a character
+  the ladder no longer holds is simply absent, and the table shows a dash.
+  - The 32-id `LADDER_MAX_RANK_LOOKUP_IDS` cap is a non-issue here: `DEFAULT_ACCOUNT_CHARACTER_CAPACITY`
+    is 3 per owner per scheme. This is what made ranks feasible on this table and not on the personal
+    bests, whose length is floors × modes × schemes.
+  - ⚠️ **A character joins the ladder by earning experience, and the write happens on battle victory** —
+    so a freshly created character is genuinely unranked, not missing. The new test
+    `player-progression-characters-reads.ts` covers both a ranked and an unranked character on one
+    profile. ⚠️ **Written but not run.**
+- `findSavedCharactersByOwner` was added to `UserGameDataPersistenceService` (whole records, unlike
+  `fetchSavedCharacters`, which hands back only what a client needs to build combatants).
+
+**3. The "no such player" 404 bug was in snowauth, not here.** `/internal/user_ids` treated a username
+with no profile as an error (`next([new Error(MISSING_PROFILE)])` inside a `new Promise(async …)` that
+never resolved), so we got an error-shaped body, it failed `z.record(z.number())`, and
+`getUserIdsByUsername` returned `new Error(JSON.stringify(zodError.format()))` — the JSON blob on
+screen. Fixed **in the snowauth repo**: a name nobody holds is left out of the map, since the caller is
+asking which of these names exist. ⚠️ **Needs a snowauth restart locally and a redeploy in prod.**
+Deliberately left alone: our end still relays zod detail to the client, which Mike is folding into the
+error-handling pass (see the todo memory).
+
+---
+
+## Player profile — BUILT 2026-07-28 (step 7, and the last of the pure record pages)
+
+`/profile/:username`: the ranked race record, personal best floor clears, and a paged game history.
+
+- **The shell moved out of the ladder layout.** `/profile` is outside `/ladder`, so `WithTopBar` + the
+  scrolling column + the width-capped centre are now `components/layouts/scrolling-page-column.tsx`,
+  which the ladder layout wraps with its tab bar and the profile layout uses bare — there is no tab
+  for a profile to sit under. `profile/loading.tsx` mirrors the ladder's, for the same reason.
+- **The profile query answers a lookup, so this page has a "no player by that name" branch of its own**
+  rather than the missing-record branch the other detail pages take. That distinction is the whole
+  point of `PlayerProfileLookup`: a player who has never played is `Found` with an empty profile.
+- **Only the game history pages**, and the page is all of its query a url carries — the username is a
+  path segment. So `userGameHistoryQuerySchema` (scaffolding that parsed a username out of the search
+  params) is **deleted** in favour of `profileGameHistoryPageSchema`, and the profile's own url
+  parsing stays in the ladder's two url files: the page is reached from ladder rows and shows ladder
+  data, so one place still owns url text for the feature.
+- ⚠️ **`useMemo` on the history query is load-bearing**, unlike most: the query is assembled from a
+  username and a page rather than coming out of a schema already memoized against the url, and the
+  fetching hook keys its effect off the query object's identity.
+- **No rank column on the personal bests**, and this is worth a decision: the batched
+  `getCumulativeClearRanks` was built with a profile in mind, but a personal best is the player's
+  fastest clear **per (floor, mode, control scheme)**, so the list can reach `DEEPEST_FLOOR` × modes ×
+  schemes rows — past `LADDER_MAX_RANK_LOOKUP_IDS` (32) — and a clear has one rank per board anyway,
+  so which board is being reported would have to be stated rather than assumed.
+- `partyFateText` / `partyFateAtTimeText` were pulled into `ladder/party-fate-text.ts` once the
+  history table and the game record's parties both needed the strings. The game record states the
+  time with the fate; a history row has a Date column of its own, so it does not.
+- Not built: the **date range filter** `getUserGameHistory` accepts. No UI asks for one yet.
+
+---
+
+## Floor clear + game record pages — BUILT 2026-07-28 (first half of step 6)
+
+The two record pages every board row already linked to. Both are the same three parts: a heading, a
+`RecordFactList`, and the shared `LadderTable` — so a detail page is a board page without the
+filters, not a new kind of page.
+
+- **`detail-page/` holds what a record page is**, beside `board-page/`: `ParsedRouteParam` (the path
+  counterpart of `ParsedLadderQuery` — no memo, since what comes out is a string and the fetching hook
+  compares by value), `LadderRecordBoundary`, `RecordFactList`, `RecordLink`, `PlayerProfileLinks`,
+  and the shared character columns.
+- **`LadderRecordBoundary` is the fourth state a record page has that a board does not**: the by-id
+  queries answer `undefined` for an id that names nothing, so "no such floor clear" is a page rather
+  than an error — the same decision that made those queries return undefined instead of throwing.
+- **`ladderCharacterColumns(renderNameCell)`** is shared by both pages, since both list a character's
+  last-known summary in its party. Only the name cell is passed in, and only because of **where a
+  snapshot link can sit**: a clear is one moment, so each of its characters names one snapshot, while
+  a party's characters are listed once for a whole game, where a character has a snapshot per clear
+  rather than one to link to. On the game record the links therefore sit on the clear's own
+  **Snapshots** column, which is why `gameRecordFloorClearColumns` takes the party's character names —
+  a snapshot names a character id and a reader wants a name. A name missing from that map is
+  `invariant`, not a fallback: both lists come off the same party record.
+- **Links keep the boards' conventions**: party name → the game record (a party is a thing in a game),
+  and the **time on the floor** → the clear's own page, because the time is what a clear is a record
+  of. So the game record's clear rows link the same way the board rows that lead to it do.
+- ⚠️ **Record ids are now checked as uuids** in `query-schemas.ts` (`recordIdParam`), which is new for
+  the frontend. Every ladder id column is `UUID` and every server the frontend can reach — lobby, game
+  node, and the in-process offline one — issues ids from `IdGeneratorRandom`, so this is a fact about
+  the ids rather than an assumption. It is what makes an `undefined` answer mean *the record is gone*
+  instead of *the url was mistyped*, and it keeps a malformed id off a UUID column, where Postgres
+  raises a syntax error rather than returning no rows.
+  - **Deliberately NOT validated server-side** in `validate-ladder-queries.ts`, unlike every other
+    query input. An id's shape is a property of the *storage strategy*, not of the port: the
+    in-memory strategy's ids are whatever its generator makes, and the read-queries suite runs it with
+    `IdGeneratorSequential` (`eid-7`), so a uuid check at the port would fail the oracle the Postgres
+    strategy is measured against. **Still open:** a hand-crafted socket message with a malformed id
+    reaches Postgres and comes back as a DB syntax error instead of "no such record". If that is worth
+    closing it belongs in the Postgres strategy, which is the thing that knows its columns are UUIDs.
+- Cleanups on the way: `classProgressText` / `supportClassText` moved out of the XP board's column
+  file to `ladder/class-progress-text.ts` now that the record pages write classes too, and
+  `formatTimestamp` (a wall-clock time in the reader's own locale, unlike `formatDuration`, which is a
+  length and the same number everywhere) went to `frontend/src/utils/`.
+- `characterSnapshotRoute` is built and linked from both pages; **`/ladder/character-snapshot/:id`
+  does not exist yet** and lands with the combatant pages, as `/ladder/character/:id` and
+  `/profile/:username` still do.
+
+⚠️ **Frontend typechecks clean, not visually confirmed** — no package but `frontend` was touched.
+
+**Decided for the combatant pages, not yet built:** the public character view will come from
+**decoupling the in-game character sheet**, not from a second rendering of a character.
+`CharacterAttributes` and `PaperDoll` already take a `combatant` prop but reach into `combatantFocus`
+(`clientUserControlsFocusedCombatant()` *throws* when nothing is focused), and `PaperDollSlot` is
+wired into the drag sources, drop targets and action menu. What they read off the client's game state
+becomes explicit props, so one component serves the in-game sheet and a public page and the two
+cannot drift apart.
+
+---
+
 ## Tab bar + full board pages — BUILT 2026-07-27 (steps 1–5 of the previous session's list)
 
 All three full boards exist, each reached from a tab bar that sits on every ladder page. What a board
@@ -87,8 +265,8 @@ click, and that would outlive dev, since even a prebuilt route costs a round tri
   each nav owns what a pending link looks like. The top bar's nav became `lobby/TopBarNav.tsx` rather
   than staying inline, now that it holds state.
 
-**Deferred deliberately:** row expansion to character summaries on Fastest Floor Clears (spec, tab 3).
-It links to character snapshot pages that do not exist yet, so it lands with the detail pages.
+~~**Deferred deliberately:** row expansion to character summaries on Fastest Floor Clears (spec, tab
+3).~~ **Dropped 2026-07-28** — the clear's own page already lists the characters and their snapshots.
 
 ### Query validation moved into common and now runs server-side — BUILT 2026-07-27
 
@@ -244,11 +422,11 @@ either — deliberately, until there are tab pages to point it at.
 ~~1–5 (tab bar, full board pages, pagination, selectors, sortable headers)~~ — **BUILT 2026-07-27**,
 see the section at the top of this file.
 
-6. **Next: the detail pages** — floor clear, game record, profile, progression character. Every board
-   row already links to them (`/ladder/character/:id`, `/ladder/floor-clear/:id`, `/ladder/game/:id`,
-   `/profile/:username`), so those links are live and currently 404. All four queries exist and are
-   tested; `LadderViewStore` already caches each one. Row expansion on Fastest Floor Clears belongs
-   with these, since it links to character snapshots.
+6. **The detail pages** — ~~floor clear~~, ~~game record~~, ~~profile~~ (all **BUILT 2026-07-28**, see
+   the sections at the top of this file).
+   - **Next, and all that is left: the combatant pages** — `/ladder/character/:id` and
+     `/ladder/character-snapshot/:id`, both on the decoupled character sheet described above. Every
+     other page already links to them.
 
 ---
 

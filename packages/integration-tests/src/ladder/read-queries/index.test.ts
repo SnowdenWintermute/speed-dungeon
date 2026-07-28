@@ -7,6 +7,7 @@ import { testRankedRaceSoloLeaveRecordsLoss } from "./ranked-race-solo-leave-los
 import { testIronmanReadQueryFiltersAndSnapshot } from "./ironman-filters-and-snapshot-reads";
 import { testFloorClearPagination } from "./floor-clear-pagination-reads";
 import { testIronmanMultiRunPersonalBest } from "./ironman-multi-run-personal-best-reads";
+import { testPersonalBestsUseTwoClocks } from "./personal-best-two-clocks-reads";
 import { testDeletedAccountFloorClearReads } from "./deleted-account-username-reads";
 import { testCumulativeClearTimesReads } from "./cumulative-clear-times-reads";
 import { testCumulativeClearRankReads } from "./cumulative-clear-rank-reads";
@@ -76,6 +77,10 @@ describe.each(strategies)("ladder read queries ($name)", ({ usePostgres }) => {
 
   it("keeps the fastest floor clear across multiple runs in a player's personal bests", async () => {
     await testIronmanMultiRunPersonalBest(testFixture);
+  });
+
+  it("ranks a player's personal bests by time on the floor and by time to reach it, separately", async () => {
+    await testPersonalBestsUseTwoClocks(testFixture);
   });
 
   it("shows a deleted account's last known username on their old floor clears", async () => {

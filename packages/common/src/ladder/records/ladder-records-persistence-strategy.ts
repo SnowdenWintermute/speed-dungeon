@@ -86,10 +86,13 @@ export interface WinRateEntry {
   tally: WinLossTally;
 }
 
+// two lists of the same rows selected by different clocks: the fastest the player has taken a floor,
+// and the fastest they have ever arrived at one. a run can hold one and not the other
 export interface PlayerProfileData {
   participantId: IdentityProviderId;
   rankedRaceTally: WinLossTally;
-  personalBestFloorClears: FloorClearEntry[];
+  personalBestFloorTimes: FloorClearEntry[];
+  personalBestCumulativeTimes: FloorClearEntry[];
 }
 
 export interface LadderRecordsPersistenceStrategy {

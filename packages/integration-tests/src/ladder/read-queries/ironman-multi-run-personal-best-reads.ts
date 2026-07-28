@@ -61,11 +61,23 @@ export async function testIronmanMultiRunPersonalBest(testFixture: IntegrationTe
     TEST_AUTH_USERNAME_PLAYER_1
   );
   invariant(lookup.type === PlayerProfileLookupType.Found, "expected to find the participant");
-  const floorOneBests = lookup.profile.personalBestFloorClears.filter((entry) => entry.floor === 1);
+  const floorOneBests = lookup.profile.personalBestFloorTimes.filter((entry) => entry.floor === 1);
   expect(floorOneBests).toHaveLength(1);
   const best = floorOneBests[0];
   invariant(best !== undefined, "expected a floor-1 personal best");
   expect(best.timeSpentOnFloor).toBe(Math.min(time1, time2));
+
+  // on floor 1 the cumulative time IS the floor time, so the second list picks the same clear. what
+  // it proves here is that the cumulative selection dedupes to one entry and reads the same clock —
+  // the two lists diverging needs a run whose fast floor sits behind a slow descent
+  const floorOneCumulativeBests = lookup.profile.personalBestCumulativeTimes.filter(
+    (entry) => entry.floor === 1
+  );
+  expect(floorOneCumulativeBests).toHaveLength(1);
+  const cumulativeBest = floorOneCumulativeBests[0];
+  invariant(cumulativeBest !== undefined, "expected a floor-1 cumulative personal best");
+  expect(cumulativeBest.id).toBe(best.id);
+  expect(cumulativeBest.cumulativeTimeToClearFloor).toBe(Math.min(time1, time2));
 }
 
 function requireFloorOneTime(aggregate: LadderGameRecordAggregate): number {

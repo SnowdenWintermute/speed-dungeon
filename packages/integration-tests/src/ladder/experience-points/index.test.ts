@@ -1,6 +1,7 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { testProgressionCharacterExperiencePointsLadderReads } from "./progression-character-xp-ladder-reads";
 import { testProgressionCharacterPageReads } from "./progression-character-page-reads";
+import { testPlayerProgressionCharacterReads } from "./player-progression-characters-reads";
 import { testExperiencePointsCharacterRankReads } from "./character-rank-reads";
 import { testControlSchemeLaddersAreSeparate } from "./control-scheme-ladders-are-separate";
 import { testDeadCharacterLeavesTheLadder } from "./dead-character-leaves-the-ladder";
@@ -34,6 +35,10 @@ describe("experience points ladder", () => {
 
   it("tells a character its rank without paging the board", async () => {
     await testExperiencePointsCharacterRankReads(testFixture);
+  });
+
+  it("lists a player's own characters on each ladder, with where they stand on it", async () => {
+    await testPlayerProgressionCharacterReads(testFixture);
   });
 
   it("ranks each control scheme on its own ladder", async () => {

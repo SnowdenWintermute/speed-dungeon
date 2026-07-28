@@ -5,7 +5,9 @@ import { WinLossRecord } from "./win-rate-ladder.js";
 export interface PlayerProfileView {
   username: Username;
   rankedRaceRecord: WinLossRecord;
-  personalBestFloorClears: FloorClearView[];
+  // the same clears ranked by two different clocks — see PlayerProfileData
+  personalBestFloorTimes: FloorClearView[];
+  personalBestCumulativeTimes: FloorClearView[];
 }
 
 export enum PlayerProfileLookupType {

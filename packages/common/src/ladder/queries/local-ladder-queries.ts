@@ -7,6 +7,7 @@ import {
   Username,
 } from "../../aliases.js";
 import { USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
+import { CharacterControlScheme } from "../../game-modes/index.js";
 import { invariant } from "../../utils/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
@@ -28,6 +29,7 @@ import {
   validateExperiencePointsLadderQuery,
   validateExperiencePointsLadderRankQuery,
   validateFloorClearTimesQuery,
+  validatePlayerProgressionCharactersQuery,
   validateRankLookupIds,
   validateUserGameHistoryQuery,
   validateWinRateLadderQuery,
@@ -48,8 +50,14 @@ import {
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
+  PlayerProgressionCharactersQuery,
+  PlayerProgressionCharactersView,
 } from "./experience-points-ladder.js";
 import { projectExperiencePointsLadderPage } from "./experience-points-ladder-projection.js";
+import {
+  byMostExperienced,
+  projectProgressionCharacterSummary,
+} from "./progression-character-summary-projection.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 import { ProgressionCharacterView } from "./progression-character.js";
 import { projectProgressionCharacterView } from "./progression-character-projection.js";
@@ -128,10 +136,17 @@ export class LocalLadderQueries implements LadderQueries {
     query: ExperiencePointsLadderRankQuery
   ): Promise<Record<EntityId, number>> {
     validateExperiencePointsLadderRankQuery(query);
-    const ladderName = experiencePointsLadderName(query.controlScheme);
+    return this.readRanks(query.controlScheme, query.characterIds);
+  }
+
+  private async readRanks(
+    controlScheme: CharacterControlScheme,
+    characterIds: EntityId[]
+  ): Promise<Record<EntityId, number>> {
+    const ladderName = experiencePointsLadderName(controlScheme);
     const ranksById: Record<EntityId, number> = {};
 
-    for (const characterId of new Set(query.characterIds)) {
+    for (const characterId of new Set(characterIds)) {
       const rankOption = await this.experiencePointsLadderService.getCurrentRank(
         ladderName,
         characterId
@@ -205,6 +220,41 @@ export class LocalLadderQueries implements LadderQueries {
     return projectProgressionCharacterView(characterOption, ownerUsernameOption);
   }
 
+  // an unknown username is an empty list rather than its own "no such player" case, as the game
+  // history is: the profile query rendered beside this one is what tells a reader they do not exist
+  async getPlayerProgressionCharacters(
+    query: PlayerProgressionCharactersQuery
+  ): Promise<PlayerProgressionCharactersView> {
+    validatePlayerProgressionCharactersQuery(query);
+    const userIdOption = await this.usernameDirectory.findUserIdByUsername(query.username);
+    if (userIdOption === undefined) {
+      return { characters: [], ranksByCharacterId: {} };
+    }
+
+    const savedCharacters = await this.userGameDataPersistenceService.findSavedCharactersByOwner(
+      userIdOption,
+      query.controlScheme
+    );
+    const characters = savedCharacters
+      .map((character) => projectProgressionCharacterSummary(character, query.username))
+      .sort(byMostExperienced);
+
+    // the ranks travel back with the characters rather than as a second query. a board asks for none
+    // of this — a row's rank there is its position on the page being read — so the rank lookup is
+    // for characters ranked somewhere other than the page in front of you, which is what a profile
+    // lists. the ids are the ones just read and they can only be on this one ladder, so asking over
+    // the wire would be a round trip that cannot even start until this one lands.
+    // they stay off the rows: a rank is the ladder's answer about a character rather than something
+    // the character has, and one that has left the ladder is simply absent
+    return {
+      characters,
+      ranksByCharacterId: await this.readRanks(
+        query.controlScheme,
+        characters.map((character) => character.characterId)
+      ),
+    };
+  }
+
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {
     validateWinRateLadderQuery(query);
     const page = await this.ladderGameRecordsService.getWinRateLadder(query);
@@ -243,13 +293,18 @@ export class LocalLadderQueries implements LadderQueries {
         profile: {
           username,
           rankedRaceRecord: toWinLossRecord({ wins: 0, losses: 0, gamesPlayed: 0 }),
-          personalBestFloorClears: [],
+          personalBestFloorTimes: [],
+          personalBestCumulativeTimes: [],
         },
       };
     }
 
+    // one resolution for both lists: they overlap heavily — often the same clear appears in each —
+    // and resolving twice would ask the directory about the same players again
     const usernameOf = await this.resolverForPlayers(
-      dataOption.personalBestFloorClears.flatMap((entry) => entry.players)
+      [...dataOption.personalBestFloorTimes, ...dataOption.personalBestCumulativeTimes].flatMap(
+        (entry) => entry.players
+      )
     );
 
     return {
@@ -257,7 +312,10 @@ export class LocalLadderQueries implements LadderQueries {
       profile: {
         username,
         rankedRaceRecord: toWinLossRecord(dataOption.rankedRaceTally),
-        personalBestFloorClears: dataOption.personalBestFloorClears.map((entry) =>
+        personalBestFloorTimes: dataOption.personalBestFloorTimes.map((entry) =>
+          toFloorClearView(entry, usernameOf)
+        ),
+        personalBestCumulativeTimes: dataOption.personalBestCumulativeTimes.map((entry) =>
           toFloorClearView(entry, usernameOf)
         ),
       },

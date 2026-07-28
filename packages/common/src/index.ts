@@ -310,6 +310,7 @@ export * from "./ladder/queries/character-floor-clear-snapshot.js";
 export * from "./ladder/queries/user-game-history.js";
 export * from "./ladder/queries/progression-character.js";
 export * from "./ladder/queries/progression-character-projection.js";
+export * from "./ladder/queries/progression-character-summary-projection.js";
 export * from "./ladder/queries/ladder-queries.js";
 export * from "./ladder/queries/ladder-query-messages.js";
 export * from "./ladder/queries/local-ladder-queries.js";

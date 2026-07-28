@@ -15,6 +15,7 @@ import {
 import {
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderRankQuery,
+  PlayerProgressionCharactersQuery,
 } from "./experience-points-ladder.js";
 import { WinRateLadderQuery } from "./win-rate-ladder.js";
 import { UserGameHistoryQuery } from "./user-game-history.js";
@@ -64,6 +65,14 @@ export function validateWinRateLadderQuery(query: WinRateLadderQuery): void {
 
 export function validateUserGameHistoryQuery(query: UserGameHistoryQuery): void {
   validatePagedQuery(query);
+}
+
+// no page to check: a player's characters on one ladder are capped by their account's capacity, not
+// by anything the caller names
+export function validatePlayerProgressionCharactersQuery(
+  query: PlayerProgressionCharactersQuery
+): void {
+  validateControlScheme(query.controlScheme);
 }
 
 export function validateExperiencePointsLadderRankQuery(query: ExperiencePointsLadderRankQuery): void {

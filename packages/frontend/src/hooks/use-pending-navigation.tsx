@@ -17,3 +17,16 @@ export function usePendingNavigation() {
 
   return { currentPathname, pendingPathnameOption, markPending: setPendingPathnameOption };
 }
+
+// one link's share of the same idea, for a link that is not part of a nav: a row's cell has no
+// "current" state to fall back on, so all it needs to know is whether it is the one that was clicked.
+// still worth clearing when the navigation lands — the page a link points at is not always the page
+// that replaces it, and a link left marked in a table that is still on screen would be a lie
+export function usePendingLink(href: string) {
+  const { pendingPathnameOption, markPending } = usePendingNavigation();
+
+  return {
+    isPending: pendingPathnameOption === href,
+    markPending: () => markPending(href),
+  };
+}

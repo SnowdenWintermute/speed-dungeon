@@ -1,12 +1,9 @@
 import React from "react";
-import {
-  COMBATANT_CLASS_NAME_STRINGS,
-  ExperiencePointsLadderViewEntry,
-  SupportClassProgress,
-} from "@speed-dungeon/common";
+import { ExperiencePointsLadderViewEntry } from "@speed-dungeon/common";
 import { LadderTableColumn } from "../ladder-table/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { playerProfileRoute, progressionCharacterRoute } from "../routes";
+import { classProgressText, supportClassText } from "../class-progress-text";
 
 export const EXPERIENCE_POINTS_LADDER_COLUMNS: LadderTableColumn<ExperiencePointsLadderViewEntry>[] =
   [
@@ -29,8 +26,7 @@ export const EXPERIENCE_POINTS_LADDER_COLUMNS: LadderTableColumn<ExperiencePoint
     },
     {
       header: "Main Class",
-      renderCell: (entry) =>
-        `${COMBATANT_CLASS_NAME_STRINGS[entry.mainClass.combatantClass]} ${entry.mainClass.level}`,
+      renderCell: (entry) => classProgressText(entry.mainClass),
     },
     {
       header: "Support Class",
@@ -44,11 +40,4 @@ export const EXPERIENCE_POINTS_LADDER_COLUMNS: LadderTableColumn<ExperiencePoint
 
 export function experiencePointsLadderEntryKey(entry: ExperiencePointsLadderViewEntry): string {
   return entry.characterId;
-}
-
-function supportClassText(supportClassOption: SupportClassProgress | undefined): string {
-  if (supportClassOption === undefined) {
-    return "—";
-  }
-  return `${COMBATANT_CLASS_NAME_STRINGS[supportClassOption.combatantClass]} ${supportClassOption.level}`;
 }

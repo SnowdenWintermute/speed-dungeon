@@ -31,8 +31,10 @@ export interface ExperiencePointsLadderRankQuery {
   controlScheme: CharacterControlScheme;
 }
 
-export interface ExperiencePointsLadderViewEntry {
-  rank: number;
+// one progression character wherever it is listed: a row of an experience points ladder, or one of
+// the characters on its owner's profile. no control scheme on it — both places that list these ask
+// for one scheme at a time, as the ladders themselves are separate
+export interface ProgressionCharacterSummaryView {
   characterId: EntityId;
   characterName: EntityName;
   ownerUsername: Username;
@@ -40,4 +42,24 @@ export interface ExperiencePointsLadderViewEntry {
   totalExperiencePoints: number;
   mainClass: MainClassProgress;
   supportClassOption?: SupportClassProgress;
+}
+
+// a player's own characters on one of the two progression ladders. separate queries per scheme for
+// the same reason the boards are separate: they are different ladders, and a profile shows a table
+// of each rather than one mixed list
+export interface PlayerProgressionCharactersQuery {
+  username: Username;
+  controlScheme: CharacterControlScheme;
+}
+
+// the ranks are keyed beside the rows rather than carried on them, as everywhere else: a rank is the
+// ladder's answer about a character, and a character no longer on it is simply absent
+export interface PlayerProgressionCharactersView {
+  characters: ProgressionCharacterSummaryView[];
+  ranksByCharacterId: Record<EntityId, number>;
+}
+
+// rank is the board's, not the character's, so it is added where a page is formed
+export interface ExperiencePointsLadderViewEntry extends ProgressionCharacterSummaryView {
+  rank: number;
 }

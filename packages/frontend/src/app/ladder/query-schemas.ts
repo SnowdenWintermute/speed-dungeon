@@ -8,8 +8,10 @@ import {
   FloorClearSort,
   FloorClearSortField,
   FloorClearTimesQuery,
+  GameId,
   GameMode,
   LadderCharacterFloorClearRecordId,
+  LadderPartyFloorClearRecordId,
   UserGameHistoryQuery,
   Username,
 } from "@speed-dungeon/common";
@@ -37,16 +39,28 @@ const sortFieldParam = z
 // z.coerce.boolean() is javascript truthiness, under which the string "false" is true
 const booleanParam = z.enum(["true", "false"]).transform((value) => value === "true");
 
-// the branded aliases have no runtime constructor, so the cast is confined to these two schemas
+// the branded aliases have no runtime constructor, so the cast is confined to these schemas
 export const usernameParamSchema = z
   .string()
   .min(1)
   .transform((value) => value as Username);
 
-export const floorClearSnapshotIdParamSchema = z
-  .string()
-  .min(1)
-  .transform((value) => value as LadderCharacterFloorClearRecordId);
+// every ladder record id is a uuid: the columns are UUID, and every server this talks to — lobby,
+// game node, and the in-process offline one — issues ids from IdGeneratorRandom. checking the shape
+// is what makes "the query answered undefined" mean the record is gone rather than that the url was
+// mistyped, and it keeps a malformed id from reaching a UUID column, where postgres raises a syntax
+// error instead of returning no rows
+const recordIdParam = z.string().uuid();
+
+export const floorClearSnapshotIdParamSchema = recordIdParam.transform(
+  (value) => value as LadderCharacterFloorClearRecordId
+);
+
+export const floorClearIdParamSchema = recordIdParam.transform(
+  (value) => value as LadderPartyFloorClearRecordId
+);
+
+export const gameRecordIdParamSchema = recordIdParam.transform((value) => value as GameId);
 
 export const experiencePointsLadderQuerySchema = z
   .object({
@@ -111,6 +125,26 @@ export const floorClearTimesQuerySchema = z
     })
   );
 
-export const userGameHistoryQuerySchema = z
-  .object({ username: usernameParamSchema, [LADDER_URL_PARAMS.PAGE]: pageParam.optional() })
-  .transform(({ username, page }): UserGameHistoryQuery => ({ username, page: page ?? 0 }));
+// what a reader is looking at on a profile: which facet of their personal bests, and where their game
+// history is paged to. the username is a path segment, parsed on its own.
+// the mode and scheme default to the same facet the floor clear board opens on, so the two agree
+// about what "no filter stated" means
+export interface ProfileUrlState {
+  page: number;
+  mode: GameMode;
+  controlScheme: CharacterControlScheme;
+}
+
+export const profileUrlStateSchema = z
+  .object({
+    [LADDER_URL_PARAMS.PAGE]: pageParam.optional(),
+    [LADDER_URL_PARAMS.MODE]: gameModeParam.optional(),
+    [LADDER_URL_PARAMS.CONTROL_SCHEME]: controlSchemeParam.optional(),
+  })
+  .transform(
+    ({ page, mode, controlScheme }): ProfileUrlState => ({
+      page: page ?? 0,
+      mode: mode ?? GameMode.Ironman,
+      controlScheme: controlScheme ?? CharacterControlScheme.Freelancer,
+    })
+  );

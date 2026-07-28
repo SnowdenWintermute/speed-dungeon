@@ -1,8 +1,8 @@
 import { EntityId, IdentityProviderId, Username } from "../../aliases.js";
-import { ClassProgressionProperties } from "../../combatants/class-progression-properties.js";
 import { ExperiencePointsLadderRankings } from "../../servers/services/experience-points-ladder-service.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
 import { ExperiencePointsLadderViewEntry } from "./experience-points-ladder.js";
+import { projectProgressionCharacterSummary } from "./progression-character-summary-projection.js";
 import { LadderPage, totalPagesOf } from "./ladder-page.js";
 
 // the sorted set decides who is ranked and in what order; every figure on display is read back off
@@ -35,7 +35,10 @@ export function projectExperiencePointsLadderPage(
       return;
     }
 
-    entries.push(assembleEntry(pageStart + indexInPage + 1, characterOption, usernameOption));
+    entries.push({
+      rank: pageStart + indexInPage + 1,
+      ...projectProgressionCharacterSummary(characterOption, usernameOption),
+    });
   });
 
   return {
@@ -45,31 +48,3 @@ export function projectExperiencePointsLadderPage(
   };
 }
 
-function assembleEntry(
-  rank: number,
-  character: SerializedPlayerCharacter,
-  ownerUsername: Username
-): ExperiencePointsLadderViewEntry {
-  const classProgression = ClassProgressionProperties.fromSerialized(
-    character.combatantProperties.classProgressionProperties
-  );
-  const mainClass = classProgression.getMainClass();
-  const supportClassOption = classProgression.getSupportClassOption();
-
-  return {
-    rank,
-    characterId: character.id,
-    characterName: character.name,
-    ownerUsername,
-    totalExperiencePoints: classProgression.totalExperiencePoints,
-    mainClass: {
-      combatantClass: mainClass.combatantClass,
-      level: mainClass.level,
-      experiencePoints: classProgression.experiencePoints.getCurrent(),
-    },
-    supportClassOption:
-      supportClassOption === null
-        ? undefined
-        : { combatantClass: supportClassOption.combatantClass, level: supportClassOption.level },
-  };
-}

@@ -529,25 +529,52 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const partiesInGames = await this.loadPartiesByGameIds(gameIds);
     const rankedRaceTally = computeRankedRaceTally(userId, games, partiesInGames, userCharacters);
 
-    // personal bests: pick the user's fastest clears FIRST, then load characters only for that
+    // personal bests: pick the user's best clears FIRST, then load characters only for that
     // handful — never for rival parties or non-best clears.
     const userPartyFloorClears = await this.loadPartyFloorClearsByPartyIds(userPartyIds);
-    const bests = selectPersonalBestPartyFloorClears(userPartyFloorClears, userParties, games);
+    // the user's full clear history covers floors <= each best, for cumulativeTimeToClearFloor —
+    // which the cumulative selection needs before it can pick anything, not only afterwards
+    const selectionRecords = {
+      parties: userParties,
+      games,
+      partyClearHistory: userPartyFloorClears,
+    };
+    const bestFloorTimes = selectPersonalBestPartyFloorClears(
+      userPartyFloorClears,
+      selectionRecords,
+      FloorClearSortField.TimeSpentOnFloor
+    );
+    const bestCumulativeTimes = selectPersonalBestPartyFloorClears(
+      userPartyFloorClears,
+      selectionRecords,
+      FloorClearSortField.CumulativeTimeToClearFloor
+    );
+
+    // one load for both lists: the two overlap heavily, and loading per list would fetch the same
+    // parties' characters and the same snapshot refs twice
+    const bests = [...bestFloorTimes, ...bestCumulativeTimes];
     const bestPartyIds = unique(bests.map((partyFloorClear) => partyFloorClear.partyRecordRef));
     const bestPartyCharacters = await this.loadCharactersByPartyIds(bestPartyIds);
     const bestSnapshots = await this.loadSnapshotRefsByPartyFloorClearIds(
-      bests.map((partyFloorClear) => partyFloorClear.id)
+      unique(bests.map((partyFloorClear) => partyFloorClear.id))
     );
-    const personalBestFloorClears = assemblePersonalBestEntries(bests, {
+    const assemblyRecords = {
       parties: userParties,
       games,
       characters: bestPartyCharacters,
       snapshots: bestSnapshots,
-      // the user's full clear history covers floors <= each best, for cumulativeTimeToClearFloor
       partyClearHistory: userPartyFloorClears,
-    });
+    };
 
-    return { participantId: userId, rankedRaceTally, personalBestFloorClears };
+    return {
+      participantId: userId,
+      rankedRaceTally,
+      personalBestFloorTimes: assemblePersonalBestEntries(bestFloorTimes, assemblyRecords),
+      personalBestCumulativeTimes: assemblePersonalBestEntries(
+        bestCumulativeTimes,
+        assemblyRecords
+      ),
+    };
   }
 
   async getCharacterFloorClearSnapshot(

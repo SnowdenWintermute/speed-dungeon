@@ -110,8 +110,11 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
     gamesPlayed: 0,
     winRate: 0,
   });
-  expect(profile.personalBestFloorClears.map((entry) => entry.floor)).toEqual([1, 2]);
-  const profileFloor2 = profile.personalBestFloorClears.find((entry) => entry.floor === 2);
+  // one run, so both lists hold the same two clears — which run is best by either clock is only a
+  // question once there are two
+  expect(profile.personalBestFloorTimes.map((entry) => entry.floor)).toEqual([1, 2]);
+  expect(profile.personalBestCumulativeTimes.map((entry) => entry.floor)).toEqual([1, 2]);
+  const profileFloor2 = profile.personalBestFloorTimes.find((entry) => entry.floor === 2);
   expect(profileFloor2?.cumulativeTimeToClearFloor).toBe(
     floor1Clear.timeSpentOnFloor + floor2Clear.timeSpentOnFloor
   );

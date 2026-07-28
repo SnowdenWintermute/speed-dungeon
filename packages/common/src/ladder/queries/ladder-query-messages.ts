@@ -21,6 +21,8 @@ import {
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
+  PlayerProgressionCharactersQuery,
+  PlayerProgressionCharactersView,
 } from "./experience-points-ladder.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 import { ProgressionCharacterView } from "./progression-character.js";
@@ -36,6 +38,7 @@ export enum LadderQueryType {
   FloorClear,
   GameRecord,
   ProgressionCharacter,
+  PlayerProgressionCharacters,
   WinRateLadder,
   CharacterFloorClearSnapshot,
   PlayerProfile,
@@ -51,6 +54,10 @@ export type LadderQueryRequest =
   | { type: LadderQueryType.FloorClear; floorClearId: LadderPartyFloorClearRecordId }
   | { type: LadderQueryType.GameRecord; gameRecordId: GameId }
   | { type: LadderQueryType.ProgressionCharacter; characterId: EntityId }
+  | {
+      type: LadderQueryType.PlayerProgressionCharacters;
+      query: PlayerProgressionCharactersQuery;
+    }
   | { type: LadderQueryType.WinRateLadder; query: WinRateLadderQuery }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -74,6 +81,10 @@ export type LadderQueryResult =
   | { type: LadderQueryType.FloorClear; floorClearOption?: FloorClearView }
   | { type: LadderQueryType.GameRecord; gameRecordOption?: GameRecordView }
   | { type: LadderQueryType.ProgressionCharacter; characterOption?: ProgressionCharacterView }
+  | {
+      type: LadderQueryType.PlayerProgressionCharacters;
+      progressionCharacters: PlayerProgressionCharactersView;
+    }
   | { type: LadderQueryType.WinRateLadder; page: LadderPage<WinRateLadderView> }
   | {
       type: LadderQueryType.CharacterFloorClearSnapshot;
@@ -126,6 +137,11 @@ export async function executeLadderQuery(
       return {
         type: request.type,
         characterOption: await ladderQueries.getProgressionCharacter(request.characterId),
+      };
+    case LadderQueryType.PlayerProgressionCharacters:
+      return {
+        type: request.type,
+        progressionCharacters: await ladderQueries.getPlayerProgressionCharacters(request.query),
       };
     case LadderQueryType.WinRateLadder:
       return {

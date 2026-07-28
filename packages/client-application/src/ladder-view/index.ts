@@ -13,6 +13,8 @@ import {
   LadderPage,
   LadderPartyFloorClearRecordId,
   PlayerProfileLookup,
+  PlayerProgressionCharactersQuery,
+  PlayerProgressionCharactersView,
   ProgressionCharacterView,
   RankedFloorClearView,
   ReactiveNode,
@@ -56,6 +58,10 @@ export class LadderViewStore implements ReactiveNode {
   >;
   readonly gameRecord: KeyedQueryCache<GameId, GameRecordView | undefined>;
   readonly progressionCharacter: KeyedQueryCache<EntityId, ProgressionCharacterView | undefined>;
+  readonly playerProgressionCharacters: KeyedQueryCache<
+    PlayerProgressionCharactersQuery,
+    PlayerProgressionCharactersView
+  >;
   readonly winRateLadder: KeyedQueryCache<WinRateLadderQuery, LadderPage<WinRateLadderView>>;
   readonly playerProfile: KeyedQueryCache<Username, PlayerProfileLookup>;
   readonly userGameHistory: KeyedQueryCache<
@@ -115,6 +121,10 @@ export class LadderViewStore implements ReactiveNode {
       (characterId) => queries().getProgressionCharacter(characterId),
       (characterId) => keyOf(characterId)
     );
+    this.playerProgressionCharacters = new KeyedQueryCache(
+      (query) => queries().getPlayerProgressionCharacters(query),
+      (query) => keyOf(query.username, query.controlScheme)
+    );
     this.winRateLadder = new KeyedQueryCache(
       (query) => queries().getWinRateLadder(query),
       (query) => keyOf(query.page, query.minimumGamesPlayed, query.controlSchemeOption)
@@ -147,6 +157,7 @@ export class LadderViewStore implements ReactiveNode {
       this.floorClear,
       this.gameRecord,
       this.progressionCharacter,
+      this.playerProgressionCharacters,
       this.winRateLadder,
       this.playerProfile,
       this.userGameHistory,

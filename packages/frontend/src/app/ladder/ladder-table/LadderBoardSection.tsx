@@ -1,10 +1,10 @@
 import React from "react";
-import Link from "next/link";
 import { LadderPage } from "@speed-dungeon/common";
 import { LadderQueryState } from "@/client-application/ladder-view/query-state";
 import { LadderTableColumn } from "./column";
 import { LadderQueryBoundary } from "./LadderQueryBoundary";
 import { LadderTable } from ".";
+import { LadderLink } from "../LadderLink";
 
 export function LadderBoardSection<TEntry>({
   title,
@@ -26,9 +26,7 @@ export function LadderBoardSection<TEntry>({
       <div className="flex items-baseline justify-between mb-2">
         <h2 className="text-xl">{title}</h2>
         {fullBoardHrefOption !== undefined && (
-          <Link href={fullBoardHrefOption} className="hover:underline">
-            View full board
-          </Link>
+          <LadderLink href={fullBoardHrefOption}>View full board</LadderLink>
         )}
       </div>
       <LadderQueryBoundary state={state}>

@@ -20,6 +20,8 @@ import {
   ExperiencePointsLadderQuery,
   ExperiencePointsLadderRankQuery,
   ExperiencePointsLadderViewEntry,
+  PlayerProgressionCharactersQuery,
+  PlayerProgressionCharactersView,
 } from "./experience-points-ladder.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 import { ProgressionCharacterView } from "./progression-character.js";
@@ -56,6 +58,12 @@ export interface LadderQueries {
   getGameRecord(id: GameId): Promise<GameRecordView | undefined>;
 
   getProgressionCharacter(id: EntityId): Promise<ProgressionCharacterView | undefined>;
+
+  // a player's own characters on one progression ladder, for their profile, with where each of them
+  // stands on it — the ids are known by the time this runs, so the ranks come back in the same answer
+  getPlayerProgressionCharacters(
+    query: PlayerProgressionCharactersQuery
+  ): Promise<PlayerProgressionCharactersView>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>>;
 

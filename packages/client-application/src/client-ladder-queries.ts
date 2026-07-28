@@ -21,6 +21,8 @@ import {
   ProgressionCharacterView,
   LadderPartyFloorClearRecordId,
   PlayerProfileLookup,
+  PlayerProgressionCharactersQuery,
+  PlayerProgressionCharactersView,
   RankedFloorClearView,
   UserGameHistoryEntry,
   UserGameHistoryQuery,
@@ -104,6 +106,14 @@ export class ClientLadderQueries implements LadderQueries {
     const result = await this.send({ type: LadderQueryType.ProgressionCharacter, characterId });
     invariant(result.type === LadderQueryType.ProgressionCharacter, WRONG_RESULT_TYPE);
     return result.characterOption;
+  }
+
+  async getPlayerProgressionCharacters(
+    query: PlayerProgressionCharactersQuery
+  ): Promise<PlayerProgressionCharactersView> {
+    const result = await this.send({ type: LadderQueryType.PlayerProgressionCharacters, query });
+    invariant(result.type === LadderQueryType.PlayerProgressionCharacters, WRONG_RESULT_TYPE);
+    return result.progressionCharacters;
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {

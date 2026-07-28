@@ -79,6 +79,18 @@ export class UserGameDataPersistenceService {
     return this.savedCharacterPersistenceStrategy.findByIds(characterIds);
   }
 
+  // the whole records, unlike fetchSavedCharacters, which hands back only what a client needs to
+  // build the combatants. a read model wants the owner and the progression figures too
+  async findSavedCharactersByOwner(
+    ownerId: IdentityProviderId,
+    controlScheme: CharacterControlScheme
+  ): Promise<SerializedPlayerCharacter[]> {
+    return this.savedCharacterPersistenceStrategy.findByOwnerAndControlScheme(
+      ownerId,
+      controlScheme
+    );
+  }
+
   async fetchSavedCharacter(characterId: EntityId): Promise<SerializedCombatantWithPets> {
     const character = await this.savedCharacterPersistenceStrategy.fetchCharacter(characterId);
 

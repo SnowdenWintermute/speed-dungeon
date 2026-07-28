@@ -287,30 +287,76 @@ export function projectPlayerProfileData(
   const userPartyFloorClears = records.partyFloorClears.filter((partyFloorClear) =>
     userPartyIds.has(partyFloorClear.partyRecordRef)
   );
-  const bests = selectPersonalBestPartyFloorClears(
-    userPartyFloorClears,
-    records.parties,
-    records.games
-  );
-  const personalBestFloorClears = assemblePersonalBestEntries(bests, {
+  const assemblyRecords = {
     parties: records.parties,
     games: records.games,
     characters: records.characters,
     snapshots: records.snapshots,
     partyClearHistory: records.partyFloorClears,
-  });
-  return { participantId: userId, rankedRaceTally, personalBestFloorClears };
+  };
+  const selectionRecords = {
+    parties: records.parties,
+    games: records.games,
+    partyClearHistory: records.partyFloorClears,
+  };
+
+  return {
+    participantId: userId,
+    rankedRaceTally,
+    personalBestFloorTimes: assemblePersonalBestEntries(
+      selectPersonalBestPartyFloorClears(
+        userPartyFloorClears,
+        selectionRecords,
+        FloorClearSortField.TimeSpentOnFloor
+      ),
+      assemblyRecords
+    ),
+    personalBestCumulativeTimes: assemblePersonalBestEntries(
+      selectPersonalBestPartyFloorClears(
+        userPartyFloorClears,
+        selectionRecords,
+        FloorClearSortField.CumulativeTimeToClearFloor
+      ),
+      assemblyRecords
+    ),
+  };
 }
 
-// the user's fastest clear per (floor, mode, control scheme), sorted by floor. inputs are expected
+// the user's best clear per (floor, mode, control scheme), sorted by floor. inputs are expected
 // to be pre-scoped to the user's own clears — this does not itself check party membership.
+// which time counts as "best" is the caller's, because a run that took a floor fastest is often not
+// the run that got there fastest: the cumulative figure is the whole descent up to that floor, so a
+// slow floor in a fast run can still be the best cumulative time the player has.
+// the clear history is the *party's*, deliberately including floors cleared under the other control
+// scheme, as everywhere else cumulative time is summed — a party can switch mid-run
 export function selectPersonalBestPartyFloorClears(
   userPartyFloorClears: LadderPartyFloorClearRecord[],
-  parties: LadderPartyRecord[],
-  games: LadderGameRecord[]
+  records: {
+    parties: LadderPartyRecord[];
+    games: LadderGameRecord[];
+    partyClearHistory: LadderPartyFloorClearRecord[];
+  },
+  bestBy: FloorClearSortField
 ): LadderPartyFloorClearRecord[] {
-  const partiesById = new Map(parties.map((party) => [party.id, party]));
-  const gamesById = new Map(games.map((game) => [game.id, game]));
+  const partiesById = new Map(records.parties.map((party) => [party.id, party]));
+  const gamesById = new Map(records.games.map((game) => [game.id, game]));
+  const clearsByParty = new Map<PartyId, LadderPartyFloorClearRecord[]>();
+  for (const clear of records.partyClearHistory) {
+    const partyClears = clearsByParty.get(clear.partyRecordRef) ?? [];
+    partyClears.push(clear);
+    clearsByParty.set(clear.partyRecordRef, partyClears);
+  }
+
+  function timeOf(partyFloorClear: LadderPartyFloorClearRecord): number {
+    if (bestBy === FloorClearSortField.TimeSpentOnFloor) {
+      return partyFloorClear.timeSpentOnFloor;
+    }
+    return cumulativeTimeToClearFloor(
+      partyFloorClear,
+      clearsByParty.get(partyFloorClear.partyRecordRef) ?? []
+    );
+  }
+
   const bestByFloorModeScheme = new Map<string, LadderPartyFloorClearRecord>();
 
   for (const partyFloorClear of userPartyFloorClears) {
@@ -321,7 +367,7 @@ export function selectPersonalBestPartyFloorClears(
     }
     const key = `${partyFloorClear.floor}:${game.mode}:${partyFloorClear.controlScheme}`;
     const current = bestByFloorModeScheme.get(key);
-    if (current === undefined || partyFloorClear.timeSpentOnFloor < current.timeSpentOnFloor) {
+    if (current === undefined || timeOf(partyFloorClear) < timeOf(current)) {
       bestByFloorModeScheme.set(key, partyFloorClear);
     }
   }
