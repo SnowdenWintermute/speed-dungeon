@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef } from "react";
 import { ZIndexLayers } from "./z-index-layers";
 import { observer } from "mobx-react-lite";

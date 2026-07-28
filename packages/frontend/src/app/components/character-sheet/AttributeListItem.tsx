@@ -7,24 +7,25 @@ import {
   COMBAT_ATTRIBUTE_STRINGS,
   CORE_ATTRIBUTES,
   INFO_UNICODE_SYMBOL,
-  ClientIntentType,
 } from "@speed-dungeon/common";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import { observer } from "mobx-react-lite";
 
 interface Props {
   attribute: CombatAttribute;
   value: number;
   combatantHasUnspentAttributePoints: boolean;
-  playerOwnsCharacter: boolean;
-  showAttributeAssignmentButtonsIfOwned: boolean;
+  onAllocatePointOption: null | ((attribute: CombatAttribute) => void);
 }
 
 export const AttributeListItem = observer((props: Props) => {
-  const clientApplication = useClientApplication();
-  const { detailableEntityFocus } = clientApplication;
-  const consideredItemUnmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements();
+  const { detailableEntityFocus } = useClientApplication();
+  const subject = useCharacterSheetSubject();
+  const consideredItemUnmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements(
+    subject.combatant
+  );
 
   const isUnmetRequirement = consideredItemUnmetRequirements.has(props.attribute);
 
@@ -33,8 +34,7 @@ export const AttributeListItem = observer((props: Props) => {
   const shouldShowIncreaseAttributeButton =
     props.combatantHasUnspentAttributePoints &&
     ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(props.attribute) &&
-    props.playerOwnsCharacter &&
-    props.showAttributeAssignmentButtonsIfOwned;
+    props.onAllocatePointOption !== null;
 
   const isCoreAttribute = CORE_ATTRIBUTES.includes(props.attribute);
 
@@ -62,35 +62,32 @@ export const AttributeListItem = observer((props: Props) => {
       </span>
       <span>
         <span>{Math.floor(props.value)}</span>
-        {shouldShowIncreaseAttributeButton && (
-          <IncreaseAttributeButton attribute={props.attribute} />
+        {shouldShowIncreaseAttributeButton && props.onAllocatePointOption !== null && (
+          <IncreaseAttributeButton
+            attribute={props.attribute}
+            onAllocatePoint={props.onAllocatePointOption}
+          />
         )}
       </span>
     </li>
   );
 });
 
-const IncreaseAttributeButton = observer(({ attribute }: { attribute: CombatAttribute }) => {
-  const clientApplication = useClientApplication();
-  const { combatantFocus, gameClientRef } = clientApplication;
-  const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
-
-  function handleClick() {
-    gameClientRef.get()?.dispatchIntent({
-      type: ClientIntentType.IncrementAttribute,
-      data: {
-        characterId: focusedCharacterId,
-        attribute,
-      },
-    });
+const IncreaseAttributeButton = observer(
+  ({
+    attribute,
+    onAllocatePoint,
+  }: {
+    attribute: CombatAttribute;
+    onAllocatePoint: (attribute: CombatAttribute) => void;
+  }) => {
+    return (
+      <button
+        onClick={() => onAllocatePoint(attribute)}
+        className="inline-block h-4 w-4 border border-slate-400 text-lg leading-3 ml-2"
+      >
+        {"+"}
+      </button>
+    );
   }
-
-  return (
-    <button
-      onClick={handleClick}
-      className="inline-block h-4 w-4 border border-slate-400 text-lg leading-3 ml-2"
-    >
-      {"+"}
-    </button>
-  );
-});
+);

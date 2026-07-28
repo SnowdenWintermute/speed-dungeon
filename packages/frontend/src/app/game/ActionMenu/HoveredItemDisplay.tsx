@@ -1,5 +1,5 @@
 import React from "react";
-import { ItemDetailsWithComparison } from "../ItemDetailsWithComparison";
+import { ItemDetailsWithComparison } from "@/app/components/item-details/ItemDetailsWithComparison";
 import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
 
 export default function HoveredItemDisplay() {

@@ -3,6 +3,7 @@ import {
   CharacterControlScheme,
   CumulativeClearTimesQuery,
   DEFAULT_FLOOR_CLEAR_SORT,
+  EntityId,
   ExperiencePointsLadderQuery,
   FLOOR_CLEAR_TIMES_DEFAULT_FLOOR,
   FloorClearSort,
@@ -61,6 +62,10 @@ export const floorClearIdParamSchema = recordIdParam.transform(
 );
 
 export const gameRecordIdParamSchema = recordIdParam.transform((value) => value as GameId);
+
+export const progressionCharacterIdParamSchema = recordIdParam.transform(
+  (value) => value as EntityId
+);
 
 export const experiencePointsLadderQuerySchema = z
   .object({

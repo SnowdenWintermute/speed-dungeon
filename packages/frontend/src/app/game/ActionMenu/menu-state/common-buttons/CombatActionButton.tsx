@@ -1,4 +1,4 @@
-import { getAttackActionIcons } from "@/app/game/character-sheet/ability-tree/action-icons";
+import { getAttackActionIcons } from "@/app/components/character-sheet/ability-tree/action-icons";
 import { ACTION_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {

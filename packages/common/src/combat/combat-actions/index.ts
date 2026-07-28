@@ -29,9 +29,11 @@ export interface CombatActionComponentConfig {
   description: string;
   /** Such as Tame Pet, in which selecting a higher rank is meaningless and thus should not be shown in the menu */
   selectableRankLimit?: number;
+  // null party because these are read outside a game too, by a ladder page's ability tree. the
+  // short ones below are only ever read in a game, and name party members, so they still require one
   getByRankDescriptions?: (
     user: IActionUser,
-    party: AdventuringParty
+    party: null | AdventuringParty
   ) => Record<ActionRank, string | null>;
   getByRankShortDescriptions?: (
     user: IActionUser,
@@ -52,7 +54,7 @@ export abstract class CombatActionComponent {
   public readonly selectableRankLimit?: number;
   public readonly getByRankDescriptions: (
     user: IActionUser,
-    party: AdventuringParty
+    party: null | AdventuringParty
   ) => Record<ActionRank, string | null> = () => {
     return {};
   };

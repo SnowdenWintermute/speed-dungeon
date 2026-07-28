@@ -1,11 +1,11 @@
 import React from "react";
-import { PaperDoll } from "./PaperDoll";
+import { PaperDoll } from "../../components/character-sheet/PaperDoll";
 import { InventoryCapacityDisplay } from "./InventoryCapacityDisplay";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ShardsDisplay } from "./ShardsDisplay";
 import { DropShardsModal } from "./DropShardsModal";
-import { CharacterAttributes } from "./CharacterAttributes";
+import { CharacterAttributes } from "../../components/character-sheet/CharacterAttributes";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
@@ -29,7 +29,7 @@ export const PaperDollAndAttributes = observer(() => {
   return (
     <div className="flex">
       <div className="flex flex-col justify-between mr-5">
-        <PaperDoll combatant={combatant} />
+        <PaperDoll dimmed={viewingDropShardsModal} />
         <div className={"flex justify-between items-end"}>
           <InventoryCapacityDisplay />
           <div className="relative">
@@ -58,7 +58,7 @@ export const PaperDollAndAttributes = observer(() => {
           </div>
         </div>
       </div>
-      <CharacterAttributes combatant={combatant} showAttributeAssignmentButtons={true} />
+      <CharacterAttributes />
     </div>
   );
 });

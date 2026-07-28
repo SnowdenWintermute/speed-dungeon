@@ -17,16 +17,16 @@ import {
 } from "@speed-dungeon/common";
 import React from "react";
 import { ActionDetailsTitleBar, handleSelectActionLevel } from "./ActionDetailsTitleBar";
-import { COMBAT_ACTION_DESCRIPTIONS } from "../../character-sheet/ability-tree/ability-descriptions";
-import { ActionDescriptionComponent } from "../../character-sheet/ability-tree/action-description";
-import { ResourceChangeDisplay } from "../../character-sheet/ability-tree/ActionDescriptionDisplay";
+import { COMBAT_ACTION_DESCRIPTIONS } from "@/app/components/character-sheet/ability-tree/ability-descriptions";
+import { ActionDescriptionComponent } from "@/app/components/character-sheet/ability-tree/action-description";
+import { ResourceChangeDisplay } from "@/app/components/character-sheet/ability-tree/ActionDescriptionDisplay";
 import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { observer } from "mobx-react-lite";
 import { CombatantConditionFactory } from "@speed-dungeon/common";
-import { CharacterSheetWeaponDamage } from "../../character-sheet/CharacterSheetWeaponDamage";
+import { CharacterSheetWeaponDamage } from "@/app/components/character-sheet/CharacterSheetWeaponDamage";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 interface Props {

@@ -10,20 +10,27 @@ import { useRef } from "react";
 import { PrerequisiteArrows } from "./PrerequisiteArrows";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "../character-sheet-subject-context";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
+import { ActionMenuScreen } from "@/client-application/action-menu/screens";
 
 export const CharacterClassAbilityTree = observer(
   ({ abilityTree, isSupportClass }: { abilityTree: AbilityTree; isSupportClass: boolean }) => {
     const clientApplication = useClientApplication();
     const { actionMenu, detailableEntityFocus } = clientApplication;
-    const currentMenu = actionMenu.getCurrentMenu();
     const detailedAbilityOption = detailableEntityFocus.combatantAbilities.get().detailed;
+
+    // the column a menu is open on, highlighted behind the buttons. no menu is open on a page
+    // outside a game, so nothing is highlighted there
+    const consideredColumnIndexOption = actionMenu.isInitialized()
+      ? getConsideredColumnIndexOption(actionMenu.getCurrentMenu())
+      : null;
 
     const cellRefs = useRef<
       Record<string, { element: HTMLDivElement; prerequisites: AbilityTreeAbility[] }>
     >({});
 
-    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+    const focusedCharacter = useCharacterSheetSubject().combatant;
 
     const { combatantProperties } = focusedCharacter;
 
@@ -36,9 +43,7 @@ export const CharacterClassAbilityTree = observer(
           style={{ height: `calc(100% + 1rem)` }}
         >
           {abilityTree.columns.map((column, columnIndex) => {
-            const shouldHighlight =
-              currentMenu.type === ActionMenuScreenType.ConsideringAbilityTreeColumn &&
-              currentMenu.pageIndex === columnIndex;
+            const shouldHighlight = consideredColumnIndexOption === columnIndex;
             return (
               <div
                 key={columnIndex}
@@ -136,3 +141,10 @@ export const CharacterClassAbilityTree = observer(
     );
   }
 );
+
+function getConsideredColumnIndexOption(currentMenu: ActionMenuScreen): null | number {
+  if (currentMenu.type !== ActionMenuScreenType.ConsideringAbilityTreeColumn) {
+    return null;
+  }
+  return currentMenu.pageIndex;
+}

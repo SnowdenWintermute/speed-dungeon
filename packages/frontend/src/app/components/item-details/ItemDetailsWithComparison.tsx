@@ -1,7 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { FocusedAndComparedItemDetails } from "./detailables/FocusedAndComparedItemDetails";
+import { FocusedAndComparedItemDetails } from "@/app/game/detailables/FocusedAndComparedItemDetails";
 
 export const ItemDetailsWithComparison = observer(() => {
   const clientApplication = useClientApplication();

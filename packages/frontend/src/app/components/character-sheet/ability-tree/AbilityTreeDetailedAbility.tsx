@@ -11,11 +11,11 @@ import { ActionDescriptionDisplay } from "./ActionDescriptionDisplay";
 import { TraitDescriptionDisplay } from "./TraitDescriptionDisplay";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "../character-sheet-subject-context";
 
 export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant }) => {
-  const clientApplication = useClientApplication();
-  const { gameContext, detailableEntityFocus } = clientApplication;
-  const party = gameContext.requireParty();
+  const { detailableEntityFocus } = useClientApplication();
+  const partyOption = useCharacterSheetSubject().getPartyOption();
   const focusedAbility = detailableEntityFocus.combatantAbilities.get();
   const { detailed: detailedAbility, hovered: hoveredCombatantAbility } = focusedAbility;
   const ability = hoveredCombatantAbility || detailedAbility || null;
@@ -34,7 +34,7 @@ export const AbilityTreeDetailedAbility = observer(({ user }: { user: Combatant 
         <ActionDescriptionDisplay
           description={description}
           user={user}
-          party={party}
+          party={partyOption}
           ownedAbilityLevel={ownedAbilityLevel}
         />
       );

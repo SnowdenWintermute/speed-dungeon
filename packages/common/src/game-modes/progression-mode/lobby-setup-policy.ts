@@ -1,6 +1,5 @@
 import { CombatantId } from "../../aliases.js";
 import { MAX_PARTY_SIZE } from "../../app-consts.js";
-import { Combatant } from "../../combatants/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
@@ -10,7 +9,7 @@ import { SpeedDungeonProfile } from "../../servers/services/profiles.js";
 import { UserIdType } from "../../servers/sessions/user-ids.js";
 import { UserSession } from "../../servers/sessions/user-session.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
-import { CombatantWithPets } from "../../types.js";
+import { CombatantWithPets, combatantWithPetsFromSerialized } from "../../types.js";
 import { invariant } from "../../utils/index.js";
 import { CharacterControlScheme } from "../index.js";
 import { GameModeLobbySetupPolicy } from "../lobby-setup-policy.js";
@@ -134,10 +133,9 @@ export class ProgressionModeLobbySetup extends GameModeLobbySetupPolicy {
     let defaultSavedCharacter: CombatantWithPets | undefined = undefined;
 
     for (const character of charactersResult) {
-      const deserialized = Combatant.fromSerialized(character.combatant);
-      const deserializedPets = character.pets.map((pet) => Combatant.fromSerialized(pet));
-      if (!deserialized.combatantProperties.isDead()) {
-        defaultSavedCharacter = { combatant: deserialized, pets: deserializedPets };
+      const deserialized = combatantWithPetsFromSerialized(character);
+      if (!deserialized.combatant.combatantProperties.isDead()) {
+        defaultSavedCharacter = deserialized;
         break;
       }
     }

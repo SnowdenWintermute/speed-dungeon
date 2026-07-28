@@ -12,6 +12,7 @@ import {
 import { CombatantProperties } from "./combatants/combatant-properties.js";
 import { ActionEntity } from "./action-entities/index.js";
 import { CombatActionResourceChangeProperties } from "./combat/combat-actions/combat-action-resource-change-properties.js";
+import { SerializedCombatantWithPets } from "./servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 
 export interface CharacterAssociatedData {
   character: Combatant;
@@ -58,6 +59,15 @@ export type BoundingBoxSizes = Partial<
 export interface CombatantWithPets {
   combatant: Combatant;
   pets: Combatant[];
+}
+
+export function combatantWithPetsFromSerialized(
+  serialized: SerializedCombatantWithPets
+): CombatantWithPets {
+  return {
+    combatant: Combatant.fromSerialized(serialized.combatant),
+    pets: serialized.pets.map((pet) => Combatant.fromSerialized(pet)),
+  };
 }
 
 export type CombatActionResourceChangePropertiesGetter = (

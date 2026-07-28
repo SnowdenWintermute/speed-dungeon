@@ -119,7 +119,6 @@ export class ClientApplication {
 
     this.gameContext = new ClientApplicationGameContext(this.session);
     this.combatantFocus = new CombatantFocus(this);
-    this.detailableEntityFocus.initialize(this.combatantFocus);
     this.targetIndicatorStore = new TargetIndicatorStore();
     this.eventLogMessageService = new EventLogGameMessageService(this);
     this.sequentialEventProcessor = new ClientSequentialEventProcessor(this);

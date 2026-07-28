@@ -4,6 +4,7 @@ import { ItemDetails } from "./ItemDetails";
 import shouldDisplayModTooltip from "./should-display-mod-tooltip";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "@/app/components/character-sheet/character-sheet-subject-context";
 import { ModifierKey } from "@/client-application/ui/inputs";
 
 interface Props {
@@ -13,17 +14,17 @@ interface Props {
 export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) => {
   const clientApplication = useClientApplication();
   const { detailableEntityFocus } = clientApplication;
+  const subject = useCharacterSheetSubject();
   const { inputs } = clientApplication.uiStore;
   const modKeyHeld = inputs.getKeyIsHeld(ModifierKey.Mod);
   const { comparedItem, comparedSlot } = detailableEntityFocus.getItemComparison();
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
-    const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
     detailableEntityFocus.updateItemComparison(
       focusedItem,
       modKeyHeld,
-      focusedCharacter.getEquipmentOption()
+      subject.combatant.getEquipmentOption()
     );
 
     return () => {

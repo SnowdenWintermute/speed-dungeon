@@ -18,7 +18,7 @@ import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
-import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 
 export const CharacterSheetWeaponDamage = observer(
@@ -26,8 +26,7 @@ export const CharacterSheetWeaponDamage = observer(
     const { combatantProperties } = combatant;
     const { equipment } = combatantProperties;
 
-    const clientApplication = useClientApplication();
-    const { gameContext } = clientApplication;
+    const gameOption = useCharacterSheetSubject().getGameOption();
 
     const mhWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.MainHand);
 
@@ -36,7 +35,7 @@ export const CharacterSheetWeaponDamage = observer(
       combatant,
       mhWeaponOption,
       false,
-      gameContext.gameOption
+      gameOption
     );
     const isTwoHanded = mhWeaponOption
       ? Equipment.isTwoHandedWeaponType(mhWeaponOption.taggedBaseEquipment.equipmentType)
@@ -58,7 +57,7 @@ export const CharacterSheetWeaponDamage = observer(
         combatant,
         ohWeaponOption,
         true,
-        gameContext.gameOption
+        gameOption
       );
     }
 

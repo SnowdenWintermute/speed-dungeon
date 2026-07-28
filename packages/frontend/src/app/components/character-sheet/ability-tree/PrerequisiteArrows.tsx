@@ -1,5 +1,5 @@
 import { MAIN_TEXT_AND_BORDERS_COLOR } from "@/client-consts";
-import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "../character-sheet-subject-context";
 import { AbilityTreeAbility, AbilityUtils } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import React, { RefObject, useLayoutEffect, useRef, useState } from "react";
@@ -27,8 +27,7 @@ export const PrerequisiteArrows = observer((props: Props) => {
 
   const { cellRefs } = props;
 
-  const clientApplication = useClientApplication();
-  const focusedCharacter = clientApplication.combatantFocus.requireFocusedCharacter();
+  const focusedCharacter = useCharacterSheetSubject().combatant;
   const { combatantProperties } = focusedCharacter;
 
   useLayoutEffect(() => {

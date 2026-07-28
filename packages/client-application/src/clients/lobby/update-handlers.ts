@@ -5,7 +5,7 @@ import {
   CLIENT_APP_MESSAGES,
   ClientAppMessageType,
   ClientSequentialEventType,
-  Combatant,
+  combatantWithPetsFromSerialized,
   ConnectionEndpoint,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   ERROR_MESSAGES,
@@ -141,14 +141,9 @@ export function createLobbyUpdateHandlers(
       const { username, character, pets } = data;
       const { game, party, player } = gameContext.requirePlayerContext(username);
 
-      const deserialized = Combatant.fromSerialized(character);
-      const deserializedPets: Combatant[] = [];
-      for (const pet of pets) {
-        const deserializedPet = Combatant.fromSerialized(pet);
-        deserializedPets.push(deserializedPet);
-      }
+      const deserialized = combatantWithPetsFromSerialized({ combatant: character, pets });
 
-      game.addCharacterToParty(party, player, deserialized, deserializedPets);
+      game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
 
       if (game.mode === GameMode.Progression) {
         clientApplication.sequentialEventProcessor.scheduleEvent({
@@ -174,10 +169,7 @@ export function createLobbyUpdateHandlers(
         );
       }
 
-      const deserialized = {
-        combatant: Combatant.fromSerialized(character.combatant),
-        pets: character.pets.map((pet) => Combatant.fromSerialized(pet)),
-      };
+      const deserialized = combatantWithPetsFromSerialized(character);
 
       const partyName = getProgressionGamePartyName(game.name);
       const party = game.adventuringParties.get(partyName);
@@ -217,8 +209,8 @@ export function createLobbyUpdateHandlers(
       const { characterControlScheme, characters, capacity } = data;
 
       const deserialized = characters.map((entry, i) => {
-        const combatant = Combatant.fromSerialized(entry.combatant);
-        combatant.combatantProperties.transformProperties.autoSetHomePosition(
+        const characterWithPets = combatantWithPetsFromSerialized(entry);
+        characterWithPets.combatant.combatantProperties.transformProperties.autoSetHomePosition(
           DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
           i,
           {
@@ -227,10 +219,7 @@ export function createLobbyUpdateHandlers(
             reverseOrder: true,
           }
         );
-        return {
-          combatant,
-          pets: entry.pets.map((pet) => Combatant.fromSerialized(pet)),
-        };
+        return characterWithPets;
       });
 
       lobbyContext.savedCharacters.setCharacters(characterControlScheme, deserialized);
@@ -281,13 +270,11 @@ export function createLobbyUpdateHandlers(
     },
     [GameStateUpdateType.SavedCharacter]: (data) => {
       const { characterControlScheme, character } = data;
-      const { combatant, pets } = character;
-      const deserializedCombatant = Combatant.fromSerialized(combatant);
-      const deserializedPets = pets.map((pet) => Combatant.fromSerialized(pet));
+      const deserialized = combatantWithPetsFromSerialized(character);
 
       const existingCharacters =
         lobbyContext.savedCharacters.byControlScheme[characterControlScheme];
-      deserializedCombatant.combatantProperties.transformProperties.autoSetHomePosition(
+      deserialized.combatant.combatantProperties.transformProperties.autoSetHomePosition(
         DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
         existingCharacters.length,
         {
@@ -297,10 +284,7 @@ export function createLobbyUpdateHandlers(
         }
       );
 
-      lobbyContext.savedCharacters.appendCharacter(characterControlScheme, {
-        combatant: deserializedCombatant,
-        pets: deserializedPets,
-      });
+      lobbyContext.savedCharacters.appendCharacter(characterControlScheme, deserialized);
 
       clientApplication.sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantModels,

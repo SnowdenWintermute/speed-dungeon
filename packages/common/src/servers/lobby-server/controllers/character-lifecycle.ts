@@ -1,7 +1,7 @@
 import { CombatantId, EntityName } from "../../../aliases.js";
 import { MAX_CHARACTER_NAME_LENGTH } from "../../../app-consts.js";
 import { CombatantClass } from "../../../combatants/combatant-class/classes.js";
-import { Combatant } from "../../../combatants/index.js";
+import { combatantWithPetsFromSerialized } from "../../../types.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { CharacterCreationPolicy } from "../../../character-creation/character-creation-policy.js";
@@ -152,12 +152,8 @@ export class CharacterLifecycleController {
       pets: ownedCharacter.pets,
     };
 
-    game.addCharacterToParty(
-      party,
-      player,
-      Combatant.fromSerialized(savedCharacter.combatant),
-      savedCharacter.pets.map((pet) => Combatant.fromSerialized(pet))
-    );
+    const { combatant, pets } = combatantWithPetsFromSerialized(savedCharacter);
+    game.addCharacterToParty(party, player, combatant, pets);
 
     game.selectedStartingFloor = Math.min(game.selectedStartingFloor, game.maxStartingFloor);
     party.dungeonExplorationManager.setCurrentFloor(game.selectedStartingFloor);

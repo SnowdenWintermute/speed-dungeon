@@ -7,6 +7,57 @@ Started 2026-07-23.
 
 ---
 
+## Character sheet decoupled + both combatant pages — BUILT 2026-07-28
+
+The sheet now serves the in-game view and the two public pages off one set of components. What it
+reads about the world travels through **`CharacterSheetSubject`**
+(`client-application/src/character-sheet/`): the combatant it is about, the game and party it is in
+(both **null** on a ladder page), and a getter per interaction that returns **null when this viewer
+may not do that**. Two implementations — `InGameCharacterSheetSubject` (dispatches intents, drives
+the action menu) and `ReadOnlyCharacterSheetSubject`. Provided by React context
+(`components/character-sheet/character-sheet-subject-context.tsx`), so providers **nest**: the
+in-game layer provides the focused character, and `CombatantDisplay` — the inspect-a-combatant card —
+provides that combatant read-only inside it.
+
+- **Moved to `app/components/character-sheet/`**: PaperDoll(+Slot), CharacterAttributes,
+  AttributeListItem, CharacterSheetHeader, HpAndMp, CharacterSheetWeaponDamage, parry/affinity
+  displays, `HotswapSlotButtons` (was under combatant-plaques), and all of `ability-tree/`.
+  `ItemDetailsWithComparison` went to `components/item-details/` for the same reason. The in-game
+  **shell** stayed in `app/game/character-sheet/` — its index, top bar, PaperDollAndAttributes,
+  inventory capacity, shards — since it is the layout that sits over the 3d scene, not the sheet.
+- ⚠️ **`getSelectedItemUnmetRequirements(combatant)` now takes the combatant** instead of reaching
+  for the focused one. That was the call that made requirements unreadable on an unowned character.
+- **Hotswap slots switch locally on a public page.** `changeSelectedHotswapSlot` is a plain mutation
+  on `CombatantEquipment`, so the read-only subject applies it straight to the deserialized combatant
+  the page owns and the paper doll re-renders off the same field the game drives. This is why
+  `CombatantWithPetsSheet` deserializes in a **`useMemo`** — remaking the combatant each render would
+  throw the selection away — and why it calls `makeObservable()`, which in a game comes from
+  `CombatantManager.makeObservable()` and so never had to be called by hand before.
+- **`getIsUnownedInPlay()` is its own question**, not "cannot act": dimming an ally's sheet reads as
+  *not yours* beside one that is, and as noise on a page where nobody's is. Hovering an equipped item
+  to read it is **never** gated — that was true in game already and stays true.
+- **`getByRankDescriptions` takes a null party** (nothing implements it with one). The **short**
+  variant still requires a party, because `summon-pet` and `release-pet` name pet slots through it,
+  and only the in-game action details read those.
+- Extracted **`combatantWithPetsFromSerialized`** to `common/src/types.ts` — the same three lines
+  were inlined in five places (lobby setup policy, character lifecycle, three lobby update handlers).
+
+**The pages**: `/ladder/character/:id` and `/ladder/character-snapshot/:id`, each the existing
+`ParsedRouteParam` → `DetailView` → `Details` shape, then `CombatantWithPetsSheet` — pet selector,
+paper doll + attributes, a collapsible ability tree, and item details under it. The snapshot page
+links back to the character's live page, which **can be missing** (deleted since the clear) and lands
+on that page's own missing-record branch.
+
+⚠️ **All five packages typecheck clean. Nothing here has been looked at in a browser** — the public
+sheet's layout is the one thing with no in-game original to have been right already.
+
+⚠️ **Item thumbnails will not render on the ladder pages.** They are generated from the babylon scene
+by `game-world-view/src/images/image-generator.ts`, and these pages never mount the canvas.
+`PaperDollSlot` already falls back to the item's name, so it degrades on its own — decide whether
+that is good enough before treating it as a bug.
+
+---
+
 ## Status 2026-07-28 — ladder suites green, row expansion dropped
 
 **`read-queries` and `experience-points` are green** with the two new tests
@@ -17,8 +68,8 @@ personal-bests split.
 clear's own page, which lists every character with its snapshot link — the expansion would be a second
 way to say the same thing, in a table with less room to say it.
 
-**All that is left of the rebuild: the two combatant pages** — `/ladder/character/:id` and
-`/ladder/character-snapshot/:id`, on the decoupled character sheet described further down.
+~~**All that is left of the rebuild: the two combatant pages**~~ — **BUILT 2026-07-28**, see the
+section above. Every page the rebuild specified now exists.
 
 ---
 

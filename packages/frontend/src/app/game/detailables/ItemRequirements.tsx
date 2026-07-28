@@ -1,5 +1,6 @@
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "@/app/components/character-sheet/character-sheet-subject-context";
 import {
   COMBAT_ATTRIBUTE_STRINGS,
   CombatAttribute,
@@ -14,8 +15,10 @@ interface Props {
 
 export const ItemRequirements = observer(({ attributeRequirements }: Props) => {
   const clientApplication = useClientApplication();
-  const unmetRequirements =
-    clientApplication.detailableEntityFocus.getSelectedItemUnmetRequirements();
+  const subject = useCharacterSheetSubject();
+  const unmetRequirements = clientApplication.detailableEntityFocus.getSelectedItemUnmetRequirements(
+    subject.combatant
+  );
 
   const displays = [];
 

@@ -16,6 +16,7 @@ import ModKeyTooltip from "./ModKeyTooltip";
 import Divider from "@/app/components/atoms/Divider";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
+import { useCharacterSheetSubject } from "@/app/components/character-sheet/character-sheet-subject-context";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import domtoimage from "dom-to-image";
 import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
@@ -85,7 +86,10 @@ export const ItemDetails = observer(
     const clientApplication = useClientApplication();
     const { detailableEntityFocus, imageStore } = clientApplication;
     const { keybinds } = clientApplication.uiStore;
-    const unmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements();
+    const subject = useCharacterSheetSubject();
+    const unmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements(
+      subject.combatant
+    );
     let BG_COLOR = "bg-slate-800";
 
     let thumbnailIdOption = "";

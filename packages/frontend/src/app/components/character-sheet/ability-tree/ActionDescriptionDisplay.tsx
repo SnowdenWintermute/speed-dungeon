@@ -17,7 +17,7 @@ import {
 import { ActionDescription, ActionDescriptionComponent } from "./action-description";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { formatActionAccuracy } from "@speed-dungeon/common";
-import { DamageTypeBadgeWithIcon } from "../../detailables/DamageTypeBadge";
+import { DamageTypeBadgeWithIcon } from "@/app/game/detailables/DamageTypeBadge";
 import { observer } from "mobx-react-lite";
 
 export const ActionDescriptionDisplay = observer(
@@ -29,7 +29,7 @@ export const ActionDescriptionDisplay = observer(
   }: {
     description: ActionDescription;
     user: Combatant;
-    party: AdventuringParty;
+    party: null | AdventuringParty;
     ownedAbilityLevel: number;
   }) => {
     const descriptions = [];

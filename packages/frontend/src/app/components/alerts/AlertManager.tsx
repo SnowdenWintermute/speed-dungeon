@@ -1,3 +1,4 @@
+"use client";
 import React, { ReactNode } from "react";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import SuccessIcon from "../../../../public/img/alert-icons/success.svg";

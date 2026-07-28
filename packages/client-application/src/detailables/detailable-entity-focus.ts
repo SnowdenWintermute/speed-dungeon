@@ -9,7 +9,6 @@ import {
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
-import { CombatantFocus } from "../combatant-focus";
 import { Detailable, DetailableEntity } from "./detailable";
 
 export class DetailableEntityFocus {
@@ -24,14 +23,9 @@ export class DetailableEntityFocus {
   private comparedSlot: null | TaggedEquipmentSlot = null;
 
   private consideredItemUnmetRequirements = new Set<CombatAttribute>();
-  private combatantFocus: CombatantFocus | null = null;
 
   constructor() {
     makeAutoObservable(this);
-  }
-
-  initialize(combatantFocus: CombatantFocus) {
-    this.combatantFocus = combatantFocus;
   }
 
   entityIsHovered(entityId: string) {
@@ -59,34 +53,25 @@ export class DetailableEntityFocus {
     }
   }
 
-  requireCombatantFocus() {
-    if (this.combatantFocus === null) {
-      throw new Error("didn't initialize DetailableEntityFocus class");
-    }
-    return this.combatantFocus;
-  }
-
-  getSelectedItemUnmetRequirements() {
+  // measured against whoever the sheet is about rather than against a focused character, so a
+  // combatant nobody controls — an inspected monster, a character on a ladder page — reads its own
+  // requirements
+  getSelectedItemUnmetRequirements(combatant: Combatant) {
     const detailedItemOption = this.detailables.get();
     if (detailedItemOption === null) {
-      return new Set();
+      return new Set<CombatAttribute>();
     }
     const { hovered, detailed } = detailedItemOption;
-    if (hovered === null && detailed === null) {
-      return new Set();
-    }
-    const focusedCharacter = this.requireCombatantFocus().requireFocusedCharacter();
+
+    const { attributeProperties } = combatant.combatantProperties;
+
     if (hovered instanceof Item) {
-      return focusedCharacter.combatantProperties.attributeProperties.getUnmetItemRequirements(
-        hovered
-      );
-    } else if (detailed instanceof Item) {
-      return focusedCharacter.combatantProperties.attributeProperties.getUnmetItemRequirements(
-        detailed
-      );
-    } else {
-      return new Set();
+      return attributeProperties.getUnmetItemRequirements(hovered);
     }
+    if (detailed instanceof Item) {
+      return attributeProperties.getUnmetItemRequirements(detailed);
+    }
+    return new Set<CombatAttribute>();
   }
 
   getFocusedItems() {

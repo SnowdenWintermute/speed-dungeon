@@ -2,10 +2,9 @@ import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import TextInput from "@/app/components/atoms/TextInput";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import { useClientApplication } from "@/hooks/create-client-application-context";
+import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import {
-  ClientIntentType,
   COMBATANT_CLASS_NAME_STRINGS,
   CombatantId,
   CombatantProperties,
@@ -47,14 +46,7 @@ export const CharacterSheetHeader = observer((props: Props) => {
   const isPlayerPet = controlledBy.isPlayerPet();
   const shouldShowExp = isPlayerControlled || isPlayerPet;
 
-  const clientApplication = useClientApplication();
-  const { gameContext } = clientApplication;
-  const party = gameContext.requireParty();
-  const player = gameContext.requireClientPlayer();
-  const isPetOfClientPlayer = controlledBy.wasSummonedByCharacterControlledByPlayer(
-    player.username,
-    party
-  );
+  const renamePetHandlerOption = useCharacterSheetSubject().getPetRenameHandlerOption();
 
   const experiencePointsText = shouldShowExp
     ? `${experiencePoints.getCurrent()} / ${expRequiredForNextLevelString} experience`
@@ -63,13 +55,7 @@ export const CharacterSheetHeader = observer((props: Props) => {
   function handleSubmitChangePetName(e: FormEvent) {
     e.preventDefault();
 
-    clientApplication.gameClientRef.get().dispatchIntent({
-      type: ClientIntentType.RenamePet,
-      data: {
-        petId: entityId,
-        newName: editNameText as EntityName,
-      },
-    });
+    renamePetHandlerOption?.(editNameText as EntityName);
 
     setIsEditingName(false);
   }
@@ -78,7 +64,7 @@ export const CharacterSheetHeader = observer((props: Props) => {
     <div>
       <div className="font-bold flex justify-between items-center">
         <div className="h-6 flex">
-          {isPetOfClientPlayer && (
+          {renamePetHandlerOption !== null && (
             <HotkeyButton
               onClick={() => {
                 setIsEditingName(!isEditingName);

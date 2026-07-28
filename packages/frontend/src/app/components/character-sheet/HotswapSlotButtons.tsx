@@ -1,21 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  ClientIntentType,
-  CombatantId,
-  NextOrPrevious,
-  getNextOrPreviousNumber,
-} from "@speed-dungeon/common";
+import React, { useEffect, useRef } from "react";
+import { NextOrPrevious, getNextOrPreviousNumber } from "@speed-dungeon/common";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
-import { ClientSingleton } from "@/client-application/clients/singleton";
-import { GameClient } from "@/client-application/clients/game";
 
 interface Props {
-  entityId: CombatantId;
+  // null when the slot cannot be changed right now — in a game, when it is not this combatant's
+  // turn. never null on a public page, where changing it only changes what is being looked at
+  onSelectSlotOption: null | ((slotIndex: number) => void);
   selectedSlotIndex: number;
   slotsCount: number;
   className: string;
@@ -24,52 +19,40 @@ interface Props {
 }
 
 export const HotswapSlotButtons = observer(
-  ({ entityId, selectedSlotIndex, slotsCount, className, vertical, registerKeyEvents }: Props) => {
+  ({
+    onSelectSlotOption,
+    selectedSlotIndex,
+    slotsCount,
+    className,
+    vertical,
+    registerKeyEvents,
+  }: Props) => {
     const listenerRef = useRef<((e: KeyboardEvent) => void) | null>(null);
-
-    const clientApplication = useClientApplication();
-    const { combatantFocus, uiStore, gameClientRef } = clientApplication;
-
-    const focusedCharacterId = combatantFocus.requireFocusedCharacterId();
-    const prevSlotIndexRef = useRef(selectedSlotIndex);
-    const [waitingForIndexChange, setWaitingForIndexChange] = useState(false);
-    const disableIfNotTurn = combatantFocus.disableButtonBecauseNotThisCombatantTurn(entityId);
+    const { uiStore } = useClientApplication();
 
     function selectNextOrPrevious(nextOrPrevious: NextOrPrevious) {
-      if (waitingForIndexChange) return;
-      if (disableIfNotTurn) return;
-
-      const newIndex = getNextOrPreviousNumber(selectedSlotIndex, slotsCount - 1, nextOrPrevious, {
-        minNumber: 0,
-      });
-
-      gameClientRef.get().dispatchIntent({
-        type: ClientIntentType.SelectHoldableHotswapSlot,
-        data: {
-          characterId: focusedCharacterId,
-          slotIndex: newIndex,
-        },
-      });
-
-      if (newIndex !== selectedSlotIndex) {
-        prevSlotIndexRef.current = selectedSlotIndex;
-        // setWaitingForIndexChange(true);
+      if (onSelectSlotOption === null) {
+        return;
       }
+
+      onSelectSlotOption(
+        getNextOrPreviousNumber(selectedSlotIndex, slotsCount - 1, nextOrPrevious, {
+          minNumber: 0,
+        })
+      );
     }
-
-    useEffect(() => {
-      if (selectedSlotIndex !== prevSlotIndexRef.current) {
-        // setWaitingForIndexChange(false);
-      }
-    }, [selectedSlotIndex]);
 
     const hotkeysDisabled = uiStore.inputs.getHotkeysDisabled();
 
     useEffect(() => {
-      if (!registerKeyEvents) return;
+      if (!registerKeyEvents) {
+        return;
+      }
 
       listenerRef.current = (e: KeyboardEvent) => {
-        if (uiStore.inputs.getHotkeysDisabled()) return;
+        if (uiStore.inputs.getHotkeysDisabled()) {
+          return;
+        }
         const pressed = normalizeKeyValue(e.key);
         if (uiStore.keybinds.getKeybind(HotkeyButtonTypes.CycleHotswapSlotBack).includes(pressed)) {
           selectNextOrPrevious(NextOrPrevious.Previous);
@@ -83,11 +66,15 @@ export const HotswapSlotButtons = observer(
 
       window.addEventListener("keydown", listenerRef.current);
       return () => {
-        if (listenerRef.current) window.removeEventListener("keydown", listenerRef.current);
+        if (listenerRef.current) {
+          window.removeEventListener("keydown", listenerRef.current);
+        }
       };
-    }, [selectedSlotIndex, focusedCharacterId, slotsCount, waitingForIndexChange, hotkeysDisabled]);
+    }, [selectedSlotIndex, slotsCount, onSelectSlotOption, hotkeysDisabled]);
 
-    if (slotsCount < 2) return <div />;
+    if (slotsCount < 2) {
+      return <div />;
+    }
 
     return (
       <div className={className}>
@@ -109,11 +96,9 @@ export const HotswapSlotButtons = observer(
             className={`m-0 ${vertical ? "border-b" : "border-r"} border-slate-400 last:border-none`}
           >
             <HotswapSlotButton
-              entityId={entityId}
               index={i}
               isSelected={selectedSlotIndex === i}
-              disabled={waitingForIndexChange || disableIfNotTurn}
-              gameClientRef={gameClientRef}
+              onSelectSlotOption={onSelectSlotOption}
             />
           </div>
         ))}
@@ -123,17 +108,13 @@ export const HotswapSlotButtons = observer(
 );
 
 function HotswapSlotButton({
-  entityId,
   isSelected,
   index,
-  disabled,
-  gameClientRef,
+  onSelectSlotOption,
 }: {
-  entityId: CombatantId;
   index: number;
   isSelected: boolean;
-  disabled: boolean;
-  gameClientRef: ClientSingleton<GameClient>;
+  onSelectSlotOption: null | ((slotIndex: number) => void);
 }) {
   return (
     <HoverableTooltipWrapper
@@ -145,16 +126,8 @@ function HotswapSlotButton({
       text-sm hover:bg-slate-950 block disabled:opacity-50
       `}
         style={{ lineHeight: "14px" }}
-        disabled={disabled}
-        onClick={() => {
-          gameClientRef.get().dispatchIntent({
-            type: ClientIntentType.SelectHoldableHotswapSlot,
-            data: {
-              characterId: entityId,
-              slotIndex: index,
-            },
-          });
-        }}
+        disabled={onSelectSlotOption === null}
+        onClick={() => onSelectSlotOption?.(index)}
       >
         {index + 1}
       </button>

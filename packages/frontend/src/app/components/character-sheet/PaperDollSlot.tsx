@@ -11,7 +11,7 @@ import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg"
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
+import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import { DragSourceType, DropTargetType } from "@/client-application/item-drag/types";
 import { useDragSource } from "@/app/game/item-drag/use-drag-source";
 import { useDropTarget } from "@/app/game/item-drag/use-drop-target";
@@ -31,18 +31,19 @@ const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 export const PaperDollSlot = observer(
   ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
     const clientApplication = useClientApplication();
-    const { detailableEntityFocus, imageStore, combatantFocus, actionMenu, dragService } =
-      clientApplication;
+    const { detailableEntityFocus, imageStore, dragService } = clientApplication;
+    const subject = useCharacterSheetSubject();
 
     const { detailedItem, hoveredItem } = detailableEntityFocus.getFocusedItems();
     const { comparedSlot } = detailableEntityFocus.getItemComparison();
 
-    const consideredItemUnmetRequirements =
-      detailableEntityFocus.getSelectedItemUnmetRequirements();
+    const consideredItemUnmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements(
+      subject.combatant
+    );
 
-    const playerOwnsCharacter = combatantFocus.clientUserControlsFocusedCombatant();
+    const clickHandlerOption = subject.getEquipmentSlotClickHandlerOption();
 
-    const canDragFromHere = itemOption !== null && playerOwnsCharacter;
+    const canDragFromHere = itemOption !== null && subject.getEquipmentIsDraggable();
     const dragHandlers = useDragSource(() =>
       canDragFromHere ? { type: DragSourceType.EquippedItem, slot } : null
     );
@@ -119,25 +120,13 @@ export const PaperDollSlot = observer(
     }
 
     function handleClick() {
-      if (!playerOwnsCharacter) return;
+      if (clickHandlerOption === null) return;
       if (!itemOption) return;
 
-      detailableEntityFocus.selectItem(itemOption);
-      const detailedItemIsNowNull = detailableEntityFocus.detailables.get().detailed === null;
-
-      const currentMenu = actionMenu.getCurrentMenu();
-      if (currentMenu instanceof ConsideringItemActionMenuScreen && detailedItemIsNowNull) {
-        return actionMenu.popStack();
-      }
-
-      if (currentMenu instanceof ConsideringItemActionMenuScreen) {
-        currentMenu.item = itemOption;
-      } else {
-        actionMenu.pushStack(new ConsideringItemActionMenuScreen(clientApplication, itemOption));
-      }
+      clickHandlerOption(itemOption);
     }
 
-    const disabledStyle = playerOwnsCharacter ? "" : "opacity-50";
+    const disabledStyle = subject.getIsUnownedInPlay() ? "opacity-50" : "";
 
     return (
       <button

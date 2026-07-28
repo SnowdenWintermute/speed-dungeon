@@ -1,26 +1,18 @@
 import React, { useMemo } from "react";
 import { PaperDollSlot } from "./PaperDollSlot";
-import {
-  Combatant,
-  EquipmentSlotType,
-  HoldableSlotType,
-  WearableSlotType,
-} from "@speed-dungeon/common";
-import { HotswapSlotButtons } from "../combatant-plaques/HotswapSlotButtons";
+import { EquipmentSlotType, HoldableSlotType, WearableSlotType } from "@speed-dungeon/common";
+import { HotswapSlotButtons } from "./HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
-import { useClientApplication } from "@/hooks/create-client-application-context";
-import { DialogElementName } from "@/client-application/ui/dialogs";
+import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 
 interface Props {
-  combatant: Combatant;
+  dimmed?: boolean;
 }
 
-export const PaperDoll = observer(({ combatant }: Props) => {
-  const { combatantProperties } = combatant;
+export const PaperDoll = observer(({ dimmed }: Props) => {
+  const subject = useCharacterSheetSubject();
+  const { combatantProperties } = subject.combatant;
   const equippedHoldables = combatantProperties.equipment.getActiveHoldableSlot();
-  const clientApplication = useClientApplication();
-  const { dialogs } = clientApplication.uiStore;
-  const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
 
   const { equipment } = combatantProperties;
 
@@ -36,12 +28,12 @@ export const PaperDoll = observer(({ combatant }: Props) => {
   return (
     <div
       id="paper-doll"
-      className={`relative flex w-[23.75rem] ${viewingDropShardsModal && "pointer-events-none opacity-50"}`}
+      className={`relative flex w-[23.75rem] ${dimmed && "pointer-events-none opacity-50"}`}
     >
       <HotswapSlotButtons
         vertical={false}
         className={"absolute h-fit flex border border-slate-400"}
-        entityId={combatant.getEntityId()}
+        onSelectSlotOption={subject.getHotswapSlotSelectionHandlerOption()}
         selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
         slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
       />

@@ -12,8 +12,8 @@ export function classProgressText(progress: ClassProgress): string {
 
 // a character without a support class is a character that has one fewer thing, not one with an
 // unknown one, so the cell says so rather than sitting empty
-export function supportClassText(progressOption: ClassProgress | undefined): string {
-  if (progressOption === undefined) {
+export function supportClassText(progressOption: ClassProgress | null | undefined): string {
+  if (progressOption === undefined || progressOption === null) {
     return "—";
   }
   return classProgressText(progressOption);

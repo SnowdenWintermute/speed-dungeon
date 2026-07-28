@@ -16,6 +16,8 @@ export const LADDER_URL_PARAMS = {
 export const LADDER_ROUTE_PARAMS = {
   FLOOR_CLEAR_ID: "floorClearId",
   GAME_RECORD_ID: "gameRecordId",
+  CHARACTER_ID: "characterId",
+  SNAPSHOT_ID: "snapshotId",
   // the profile route lives outside /ladder, but it is reached from ladder rows and shows ladder
   // data, so its url is parsed and written by the same two files as the rest
   PROFILE_USERNAME: "username",

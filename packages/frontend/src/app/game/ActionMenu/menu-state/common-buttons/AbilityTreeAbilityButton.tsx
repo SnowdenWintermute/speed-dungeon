@@ -5,7 +5,7 @@ import {
   getActionMenuSlotLabel,
 } from "@/client-application/action-menu/slot-keybinds";
 import { AbilityTreeAbility, getAbilityTreeAbilityNameString } from "@speed-dungeon/common";
-import { getAbilityIcon } from "@/app/game/character-sheet/ability-tree/ability-icons";
+import { getAbilityIcon } from "@/app/components/character-sheet/ability-tree/ability-icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ConsideringCombatantAbilityActionMenuScreen } from "@/client-application/action-menu/screens/ability-tree-ability";
 

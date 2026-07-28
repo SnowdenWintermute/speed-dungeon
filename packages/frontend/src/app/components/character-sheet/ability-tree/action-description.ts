@@ -81,11 +81,24 @@ export class ActionDescription {
       abilityRank
     );
   }
-  getByRankDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: ActionRank) {
+  getByRankDescriptions(
+    user: IActionUser,
+    party: null | AdventuringParty,
+    abilityRank: ActionRank
+  ) {
     return this.combatAction.getByRankDescriptions?.(user, party)[abilityRank] || null;
   }
 
-  getByRankShortDescriptions(user: IActionUser, party: AdventuringParty, abilityRank: ActionRank) {
+  // the short descriptions name party members, so without a party there is nothing to say. only the
+  // in-game action details read them, and that always has one
+  getByRankShortDescriptions(
+    user: IActionUser,
+    party: null | AdventuringParty,
+    abilityRank: ActionRank
+  ) {
+    if (party === null) {
+      return null;
+    }
     return this.combatAction.getByRankShortDescriptions?.(user, party)[abilityRank] || null;
   }
 
@@ -93,7 +106,7 @@ export class ActionDescription {
     return this.combatAction.hitOutcomeProperties.flatThreatGeneratedOnHit;
   }
 
-  getDescriptionByLevel(user: Combatant, party: AdventuringParty, actionRank: ActionRank) {
+  getDescriptionByLevel(user: Combatant, party: null | AdventuringParty, actionRank: ActionRank) {
     const { hitOutcomeProperties, targetingProperties, costProperties } = this.combatAction;
 
     let resourceCosts = costProperties.getDescriptionResourceCosts?.(user, actionRank);

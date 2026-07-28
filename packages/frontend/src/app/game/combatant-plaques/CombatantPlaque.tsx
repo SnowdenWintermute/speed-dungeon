@@ -3,10 +3,10 @@ import { TargetingIndicators } from "./TargetingIndicators";
 import { UnspentAttributesButton } from "../UnspentAttributesButton";
 import { ValueBarsAndFocusButton } from "./ValueBarsAndFocusButton";
 import { CombatantInfoButton } from "./CombatantInfoButton";
-import { Combatant, CombatantControllerType } from "@speed-dungeon/common";
+import { ClientIntentType, Combatant, CombatantControllerType } from "@speed-dungeon/common";
 import "./floating-text-animation.css";
 import { InventoryIconButton } from "./InventoryIconButton";
-import { HotswapSlotButtons } from "./HotswapSlotButtons";
+import { HotswapSlotButtons } from "@/app/components/character-sheet/HotswapSlotButtons";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
 import { ConditionIndicators } from "./condition-indicators/";
@@ -50,6 +50,15 @@ export const CombatantPlaque = observer(
       const height = nameAndBarsRef.current.clientHeight;
       setPortraitHeight(height);
     }, []);
+
+    const canSelectHotswapSlot = !combatantFocus.disableButtonBecauseNotThisCombatantTurn(entityId);
+    const selectHotswapSlotOption = canSelectHotswapSlot
+      ? (slotIndex: number) =>
+          clientApplication.gameClientRef.get().dispatchIntent({
+            type: ClientIntentType.SelectHoldableHotswapSlot,
+            data: { characterId: entityId, slotIndex },
+          })
+      : null;
 
     const combatantIsDetailed = detailableEntityFocus.entityIsDetailed(entityId);
 
@@ -134,7 +143,7 @@ export const CombatantPlaque = observer(
               {isPartyMember && (
                 <HotswapSlotButtons
                   className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
-                  entityId={entityId}
+                  onSelectSlotOption={selectHotswapSlotOption}
                   selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
                   slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
                   vertical={true}
