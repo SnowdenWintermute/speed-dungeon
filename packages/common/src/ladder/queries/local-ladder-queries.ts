@@ -6,11 +6,7 @@ import {
   LadderPartyFloorClearRecordId,
   Username,
 } from "../../aliases.js";
-import {
-  LADDER_MAX_PAGE_SIZE,
-  LADDER_MAX_RANKED_ENTRIES,
-  USER_GAME_HISTORY_PAGE_SIZE,
-} from "../../app-consts.js";
+import { USER_GAME_HISTORY_PAGE_SIZE } from "../../app-consts.js";
 import { invariant } from "../../utils/index.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { UsernameDirectory } from "../../servers/services/username-directory.js";
@@ -26,7 +22,16 @@ import {
   WinLossTally,
 } from "../records/ladder-records-persistence-strategy.js";
 import { winRateOf } from "../records/ladder-read-model-projections.js";
-import { LadderPage, PagedLadderQuery, pageSizeOf } from "./ladder-page.js";
+import { LadderPage, pageSizeOf } from "./ladder-page.js";
+import {
+  validateCumulativeClearTimesQuery,
+  validateExperiencePointsLadderQuery,
+  validateExperiencePointsLadderRankQuery,
+  validateFloorClearTimesQuery,
+  validateRankLookupIds,
+  validateUserGameHistoryQuery,
+  validateWinRateLadderQuery,
+} from "./validate-ladder-queries.js";
 import {
   CumulativeClearTimesQuery,
   FloorClearTimesQuery,
@@ -64,7 +69,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getExperiencePointsLadderPage(
     query: ExperiencePointsLadderQuery
   ): Promise<LadderPage<ExperiencePointsLadderViewEntry>> {
-    validatePagedQuery(query);
+    validateExperiencePointsLadderQuery(query);
     const pageSize = pageSizeOf(query);
     const rankings = await this.experiencePointsLadderService.getRankedPage(
       experiencePointsLadderName(query.controlScheme),
@@ -90,7 +95,7 @@ export class LocalLadderQueries implements LadderQueries {
   }
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<RankedFloorClearView>> {
-    validatePagedQuery(query);
+    validateFloorClearTimesQuery(query);
     const page = await this.ladderGameRecordsService.getFloorClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.flatMap((entry) => entry.players)
@@ -105,7 +110,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearView>> {
-    validatePagedQuery(query);
+    validateCumulativeClearTimesQuery(query);
     const page = await this.ladderGameRecordsService.getCumulativeClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.flatMap((entry) => entry.players)
@@ -122,6 +127,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getExperiencePointsLadderRanks(
     query: ExperiencePointsLadderRankQuery
   ): Promise<Record<EntityId, number>> {
+    validateExperiencePointsLadderRankQuery(query);
     const ladderName = experiencePointsLadderName(query.controlScheme);
     const ranksById: Record<EntityId, number> = {};
 
@@ -141,6 +147,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getCumulativeClearRanks(
     ids: LadderPartyFloorClearRecordId[]
   ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
+    validateRankLookupIds(ids);
     return this.ladderGameRecordsService.getCumulativeClearRanks(ids);
   }
 
@@ -199,7 +206,7 @@ export class LocalLadderQueries implements LadderQueries {
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {
-    validatePagedQuery(query);
+    validateWinRateLadderQuery(query);
     const page = await this.ladderGameRecordsService.getWinRateLadder(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.map((entry) => entry.participantId)
@@ -260,7 +267,7 @@ export class LocalLadderQueries implements LadderQueries {
   // an unknown username yields an empty page rather than its own "no such player" case: the profile
   // query rendered alongside this one is what distinguishes a missing player from an idle one
   async getUserGameHistory(query: UserGameHistoryQuery): Promise<LadderPage<UserGameHistoryEntry>> {
-    validatePagedQuery(query);
+    validateUserGameHistoryQuery(query);
     const userIdOption = await this.usernameDirectory.findUserIdByUsername(query.username);
     if (userIdOption === undefined) {
       return { page: query.page, totalPages: 0, entries: [] };
@@ -305,31 +312,6 @@ export class LocalLadderQueries implements LadderQueries {
       invariant(usernameOption !== undefined, `unresolved ladder participant ${id}`);
       return usernameOption;
     };
-  }
-}
-
-// the query reaches here from a client we do not control. a negative page is not merely empty: it
-// reaches zRange as an index counted from the end of the sorted set, and SQL OFFSET as an error. a
-// page size is worse than either — it is the caller naming how many rows the server will read — so
-// it is capped rather than merely well-formed
-function validatePagedQuery(query: PagedLadderQuery): void {
-  if (!Number.isInteger(query.page) || query.page < 0) {
-    throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE);
-  }
-  const { pageSizeOption } = query;
-  if (
-    pageSizeOption !== undefined &&
-    (!Number.isInteger(pageSizeOption) ||
-      pageSizeOption < 1 ||
-      pageSizeOption > LADDER_MAX_PAGE_SIZE)
-  ) {
-    throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE_SIZE(LADDER_MAX_PAGE_SIZE));
-  }
-  // depth is refused rather than answered emptily, because the cost of OFFSET is paid on the way to
-  // discovering there is nothing there. no pager can lead a reader this deep — totalPages is capped
-  // to match — so a request this deep was hand-written
-  if (query.page * pageSizeOf(query) >= LADDER_MAX_RANKED_ENTRIES) {
-    throw new Error(ERROR_MESSAGES.LADDER.PAGE_BEYOND_RANKED_ENTRIES(LADDER_MAX_RANKED_ENTRIES));
   }
 }
 

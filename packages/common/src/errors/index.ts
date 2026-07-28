@@ -94,6 +94,14 @@ export const ERROR_MESSAGES = {
       `Ladder page size must be an integer from 1 to ${maxPageSize}`,
     PAGE_BEYOND_RANKED_ENTRIES: (maxRankedEntries: number) =>
       `Only the top ${maxRankedEntries} ladder entries are ranked`,
+    INVALID_FLOOR: "Ladder floor must be a positive integer",
+    INVALID_CONTROL_SCHEME: "Unknown character control scheme",
+    INVALID_GAME_MODE: "Unknown game mode",
+    INVALID_SORT_FIELD: "Unknown floor clear sort field",
+    INVALID_SORT_DIRECTION: "Ladder sort direction must be a boolean",
+    INVALID_MINIMUM_GAMES_PLAYED: "Minimum games played must be a non-negative integer",
+    TOO_MANY_RANK_LOOKUP_IDS: (maxIds: number) =>
+      `A rank lookup may ask about at most ${maxIds} entries at once`,
   },
   PLAYER: {
     NO_CHARACTERS: "The provided player doesn't own any characters",

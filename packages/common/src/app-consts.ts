@@ -145,6 +145,10 @@ export const LADDER_MAX_PAGE_SIZE = 20;
 // cost of OFFSET pagination: skipped rows are generated and discarded, so without a floor under how
 // deep a page can be, a hand-written url could ask storage to walk the whole table
 export const LADDER_MAX_RANKED_ENTRIES = 15_000;
+// a rank lookup costs one store round trip per id, so a batch is capped for the same reason a page
+// size is: the caller is naming how much work the server does. a profile asks about one player's
+// characters and best clears, which is nowhere near this
+export const LADDER_MAX_RANK_LOOKUP_IDS = 32;
 // the main page shows the head of each board next to a link to the whole thing
 export const LADDER_SUMMARY_ROW_COUNT = 5;
 export const FLOOR_CLEAR_TIMES_DEFAULT_FLOOR = 1;

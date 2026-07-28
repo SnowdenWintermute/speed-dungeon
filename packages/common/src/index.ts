@@ -313,6 +313,7 @@ export * from "./ladder/queries/progression-character-projection.js";
 export * from "./ladder/queries/ladder-queries.js";
 export * from "./ladder/queries/ladder-query-messages.js";
 export * from "./ladder/queries/local-ladder-queries.js";
+export * from "./ladder/queries/validate-ladder-queries.js";
 export * from "./errors/fetch-aborted.js";
 export * from "./combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 

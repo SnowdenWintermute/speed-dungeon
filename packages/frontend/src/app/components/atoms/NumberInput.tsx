@@ -11,6 +11,9 @@ interface Props {
   placeholder?: string;
   className?: string;
   autofocus?: boolean;
+  // for a value that is applied rather than watched, so a half-typed number isn't acted on
+  onEnter?: () => void;
+  onBlur?: () => void;
 }
 
 const ALLOWED_CONTROL_KEYS = [
@@ -40,6 +43,10 @@ export default function NumberInput(props: Props) {
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.ctrlKey || e.metaKey || e.altKey) {
+      return;
+    }
+    if (e.key === "Enter") {
+      props.onEnter?.();
       return;
     }
     if (ALLOWED_CONTROL_KEYS.includes(e.key)) {
@@ -84,6 +91,7 @@ export default function NumberInput(props: Props) {
       value={props.value}
       onKeyDown={handleKeyDown}
       onChange={handleChange}
+      onBlur={props.onBlur}
     />
   );
 }

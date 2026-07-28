@@ -1,14 +1,12 @@
 "use client";
 import { SPACING_REM_LARGE, TOP_BAR_HEIGHT_REM, WEBSITE_NAME } from "@/client-consts";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { APP_VERSION_NUMBER } from "@speed-dungeon/common";
 import { UserMenuContainer } from "./user-menu";
 import { ConnectionSelector } from "./connection-selector";
+import { TopBarNav } from "./TopBarNav";
 
 export default function TopBar() {
-  const pathName = usePathname();
-
   return (
     <>
       <section
@@ -33,14 +31,7 @@ export default function TopBar() {
             </h1>
           </Link>
           <div className="h-full w-[1px] bg-slate-400 mr-8" />
-          <ul className="h-full flex items-end text-lg">
-            <li className={`${pathName === `/` && "underline"} mr-4`}>
-              <Link href={"/"}>Game</Link>
-            </li>
-            <li className={`${pathName.startsWith(`/ladder`) && "underline"} mr-4`}>
-              <Link href={"/ladder"}>Ladder</Link>
-            </li>
-          </ul>
+          <TopBarNav />
         </div>
         <div className="flex">
           <div className="mr-2 flex items-center">

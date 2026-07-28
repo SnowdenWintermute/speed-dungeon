@@ -1,13 +1,9 @@
 import React from "react";
-import {
-  GAME_MODE_STRINGS,
-  RankedFloorClearView,
-  Username,
-  formatDuration,
-} from "@speed-dungeon/common";
+import { GAME_MODE_STRINGS, RankedFloorClearView, formatDuration } from "@speed-dungeon/common";
 import { LadderTableCellLayout, LadderTableColumn } from "../ladder-table/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
-import { floorClearRoute, gameRecordRoute, playerProfileRoute } from "../routes";
+import { floorClearRoute, gameRecordRoute } from "../routes";
+import { PlayerLinks } from "./PlayerLinks";
 
 export const CUMULATIVE_CLEAR_TIMES_COLUMNS: LadderTableColumn<RankedFloorClearView>[] = [
   { header: "Rank", widthPercentOption: 8, renderCell: (entry) => entry.rank },
@@ -37,19 +33,3 @@ export const CUMULATIVE_CLEAR_TIMES_COLUMNS: LadderTableColumn<RankedFloorClearV
     ),
   },
 ];
-
-export function floorClearEntryKey(entry: RankedFloorClearView): string {
-  return entry.id;
-}
-
-function PlayerLinks({ players }: { players: Username[] }) {
-  return (
-    <div className="flex flex-col">
-      {players.map((player) => (
-        <LadderTableCellLink key={player} href={playerProfileRoute(player)}>
-          {player}
-        </LadderTableCellLink>
-      ))}
-    </div>
-  );
-}

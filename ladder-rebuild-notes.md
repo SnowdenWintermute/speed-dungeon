@@ -7,6 +7,118 @@ Started 2026-07-23.
 
 ---
 
+## Tab bar + full board pages — BUILT 2026-07-27 (steps 1–5 of the previous session's list)
+
+All three full boards exist, each reached from a tab bar that sits on every ladder page. What a board
+page *is* now: `LadderBoardView` (heading, controls row, shared table, pager), which is all three of
+them; they differ only in columns and in what sits in the controls row.
+
+- **`layout.tsx` owns the shell.** Next's layout is what "on every ladder page" means, so `WithTopBar`,
+  the scroller and the tab bar moved out of the main page into it — including the detail pages when
+  they land. Every page under `/ladder` is now just its own content.
+- **A tab links to a bare pathname**, not a built route: the query schema owns what an absent param
+  means, so arriving with none is arriving at the board's defaults, and no default is written twice.
+  ⚠️ The tab list includes **Progression Experience Points**, which your next-session note omitted but
+  the tab spec above lists — four tabs, not three.
+- **The url is the board's state.** Every selector and page change is a `router.push` of the same
+  query with one field replaced, which is why `xBoardRoute` takes a whole query rather than the field
+  being changed. **Changing a filter or a sort returns to page 0**; paging keeps everything else.
+- **Fastest Floor Clears always states scheme and mode**, matching the four facets in the spec
+  (Ironman/Race × Freelancer/Captain), so its schema narrows `FloorClearTimesQuery` to
+  `FloorClearTimesBoardQuery` with scheme, mode and sort **required**. That is what lets the board
+  read them without a fallback for a state that cannot happen — and the sort has to be stated anyway,
+  since a header can only show which column is sorted if the page knows the sort rather than leaving
+  it to the server's default.
+- Sortable headers: a sorted column flips direction, a new one starts **ascending** (the fastest clear
+  is what a reader came for). The board's other two columns aren't sortable, and `Time On Floor` is
+  what links to the clear's own page here — it is what this board ranks, per the earlier convention.
+- Pagination is prev/next + a page-number input, **`NumberInput` rather than `TextInput`**: it already
+  refuses non-digits and clamps to a range, so the page input needed no validation of its own. It
+  gained optional `onEnter`/`onBlur` — the value is applied on commit, since navigating per keystroke
+  would fetch page 1 on the way to page 12. ⚠️ **Pages count from zero in a query and from one
+  everywhere a reader sees them**; the conversion lives in `LadderPagination` and nowhere else.
+- **`ParsedLadderQuery` is the parse-and-branch seam.** A board component is only rendered once its
+  query parsed, so no board holds a maybe-query. Bad params render a message rather than defaulting —
+  the failure that motivates it is *our own* route building being wrong, which otherwise shows as an
+  empty board indistinguishable from an unpopulated one.
+- Cleaned up on the way: `floorClearEntryKey` and `PlayerLinks` moved out of the cumulative board's
+  column file now that both clear boards use them; `LadderQueryJson` scaffolding deleted;
+  `buildUrlWithSearchParams` went to `frontend/src/utils/` as the generic thing it is.
+- **Bug fixed:** the `floorClearTimes` cache key omitted `sortOption` and `pageSizeOption`, so the
+  first sorted query would have collided with the unsorted one already cached and the table would
+  never have reordered — a bug that could only appear once something sorted.
+
+**Ladder suites green from the repo root, 2026-07-27** — all four (`read-queries`, `experience-points`,
+`query-transport`, `game-records`), 23 tests, so the new validation broke nothing on the query paths.
+
+⚠️ **Not visually confirmed** — the pages typecheck (frontend, common, server) but have not been looked
+at. The scroller/padding note from last session is still unverified too.
+
+**`yarn test` from the repo root was broken by the dev seeder — fixed 2026-07-27.** Two of the four
+exports the seeder added to `packages/server/src/index.ts` pull in modules that **exit the process at
+import time**, and both resolved a path against the **cwd**, so every consumer of the server barrel —
+the integration tests included — only worked when run from `packages/server`:
+- `pgOptions` → `database/config.js` → `validate-env` → `load-env-file` reads `.env` relative to cwd,
+  finds nothing at the root, and envalid exits on the missing vars.
+- `playerCharactersRepo` → `database/repos/player-characters.js` → `server-version.ts` read
+  `./package.json` and exits if it has no `version`. The root one is a private workspace root.
+
+Fixed at both ends rather than by running the tests from elsewhere: **`server-version.ts` now resolves
+its package.json from `import.meta.url`** (a package's own version is not a fact about where the
+process started, and it works from `src` and `dist` alike), and **`vitest.config.ts` loads
+`packages/server/.env`**, resolved from the config file, handing it to the workers via `test.env`.
+⚠️ `NODE_ENV` is deliberately dropped from what is injected — the file says "development", vitest sets
+"test", and nothing branches on the difference, only on "production".
+
+**Tab click felt dead for a few seconds (found by Mike, fixed 2026-07-27).** The delay itself is
+**dev-only**: Turbopack compiles a route the first time it is navigated to, which is why only the first
+click on each tab is slow and the spinner then flashes past — the query was never the slow part. A
+production build has the routes already. What was worth fixing is that *nothing* acknowledged the
+click, and that would outlive dev, since even a prebuilt route costs a round trip:
+- **`ladder/loading.tsx`** — an instant loading state for every page under `/ladder`. The root
+  `loading.tsx` does not cover this: it is the boundary for the *root* segment, so moving between
+  children of `/ladder` never re-suspends it, and an App Router navigation is a React transition —
+  the page being left stays on screen until the next one is ready unless the changing segment has a
+  boundary of its own. This one renders inside the ladder layout, so the tab bar stays put.
+- **The clicked link marks itself**, from local state cleared when the pathname changes. `usePathname`
+  is still the old path until the navigation lands, and `useLinkStatus` is not in 15.5.7. Shared as
+  `hooks/use-pending-navigation.tsx` and used by **both** navs — the ladder tabs and the top bar's
+  Game/Ladder, where Game is the heaviest page in the app to navigate to. The hook owns the logic and
+  each nav owns what a pending link looks like. The top bar's nav became `lobby/TopBarNav.tsx` rather
+  than staying inline, now that it holds state.
+
+**Deferred deliberately:** row expansion to character summaries on Fastest Floor Clears (spec, tab 3).
+It links to character snapshot pages that do not exist yet, so it lands with the detail pages.
+
+### Query validation moved into common and now runs server-side — BUILT 2026-07-27
+
+Prompted by your question of whether the frontend's url parsing should be shared. The two halves split
+cleanly and only one of them moved:
+
+- **Deserialization stayed in the frontend.** The server never sees a string — its input is the JSON
+  `LadderQueryRequest` off the socket, where `controlScheme` is already a number. String→enum is a
+  frontend concern with no second consumer, and sharing it would have meant zod in common, which has
+  no dependency like it.
+- **Validation moved to `ladder/queries/validate-ladder-queries.ts`** and is called at the top of every
+  query in `LocalLadderQueries`, where `validatePagedQuery` already was — so the offline in-process
+  path and the tests get it too, rather than only the socket boundary.
+
+The gap this closes: `validatePagedQuery` checked **`page` and `pageSizeOption` only**, those being the
+fields with a cost attached. Nothing checked the enums, and the types are erased by the time a query
+arrives. A hand-crafted socket message with `controlScheme: 47` read the sorted set
+`experience-points-ladder:undefined` and answered with an **empty board** — a broken query that looks
+exactly like an unpopulated one. Now every field is checked: enum membership via the numeric enum's own
+reverse mapping, floor a positive integer, sort direction a boolean.
+
+- ⚠️ **No ceiling on `floor`.** The deepest floor anyone has cleared is a fact about play, not a
+  constant (`DEEPEST_FLOOR` is item-generation scaling, not a descent limit), so a floor nobody reached
+  is an empty board rather than a malformed request. The frontend's floor selector offers 1–10 anyway.
+- ⚠️ **New: `LADDER_MAX_RANK_LOOKUP_IDS`, set to 32.** A rank lookup is one store round trip per id, so
+  an unbounded id list was the caller naming how much work the server does — the same argument as the
+  page size cap. A profile asks about one player's characters and best clears, well under it.
+
+---
+
 ## Dev seed data — BUILT 2026-07-27 (this closes the "somewhere to seed test data" open item)
 
 Two halves, in two repos, because a ladder row whose owner does not resolve at the identity provider
@@ -100,9 +212,43 @@ Everything reusable sits under `app/ladder/`:
   app-consts.
 - The top bar has a **Ladder** nav item now; it had only "Game".
 
+**Refinements from Mike looking at the seeded page (same day) — these are the table's conventions now:**
+
+- **Per-column presentation lives on the column, not the table.** `cellLayoutOption:
+  LadderTableCellLayout.Stacked` makes a cell wrap to as many lines as it needs and grow the row
+  (the Players column) instead of truncating; `SingleLine` is the default. Same argument as sorting:
+  the table owns markup, the column owns what its content needs. Right-aligned numeric columns, when
+  we want them, go here too — not in the shared box.
+- **`LadderTableCellLink` truncates itself** (`block truncate`). In a stacked cell there is no single
+  line for the cell to clip, so each line owns its ellipsis; `block` is load-bearing, an inline anchor
+  has no box to overflow. Works because `flex flex-col` stretches each anchor to the cell width — going
+  back to `items-start` would shrink-wrap them and silently stop the truncation.
+- **Alignment is stated, never left to defaults**, because the two elements disagree: the UA
+  stylesheet gives `th` `text-align: center` and `td` `vertical-align: middle`. `CELL_BOX_CLASSES` is
+  `h-10 p-1 text-left align-top`; `align-top` is what stops the short cells beside a stacked one from
+  floating to the middle of a grown row.
+- **A scrolling flex container drops its end padding from the scrollable region.** The main page's
+  scroller is therefore plain block layout, centered with `mx-auto`, with the bottom spacing on the
+  column inside it. ⚠️ Not visually confirmed — check it before trusting it.
+- **Where a row's links point**: party name → **game record** (`/ladder/game/:id`), because a party
+  belongs to a game, not to one clear; **cumulative time → the floor clear's own page**, because the
+  time is what the row is a record of. A glyph column was built for this first and thrown out — it
+  cost width to say "go here" without saying where "here" is.
+
 ⚠️ **Rows link to routes that do not exist yet**: `/ladder/character/:id`, `/ladder/floor-clear/:id`,
-`/profile/:username`, and `/ladder/cumulative-clear-times`. No tab bar yet either — deliberately, until
-there are tab pages to point it at. And with no seeded data every board renders its empty state.
+`/ladder/game/:id`, `/profile/:username`, and `/ladder/cumulative-clear-times`. No tab bar yet
+either — deliberately, until there are tab pages to point it at.
+
+### Next session — the rest of the frontend, as Mike specified it
+
+~~1–5 (tab bar, full board pages, pagination, selectors, sortable headers)~~ — **BUILT 2026-07-27**,
+see the section at the top of this file.
+
+6. **Next: the detail pages** — floor clear, game record, profile, progression character. Every board
+   row already links to them (`/ladder/character/:id`, `/ladder/floor-clear/:id`, `/ladder/game/:id`,
+   `/profile/:username`), so those links are live and currently 404. All four queries exist and are
+   tested; `LadderViewStore` already caches each one. Row expansion on Fastest Floor Clears belongs
+   with these, since it links to character snapshots.
 
 ---
 
