@@ -37,14 +37,6 @@ export function ProgressionCharacterDetails({
             label: "Control Scheme",
             value: CHARACTER_CONTROL_SCHEME_STRINGS[character.controlScheme],
           },
-          {
-            label: "Main Class",
-            value: classProgressText(classProgressionProperties.getMainClass()),
-          },
-          {
-            label: "Support Class",
-            value: supportClassText(classProgressionProperties.getSupportClassOption()),
-          },
         ]}
       />
       <CombatantWithPetsSheet serialized={character.combatantWithPets} />

@@ -25,7 +25,6 @@ export const CombatantWithPetsSheet = observer(
   ({ serialized }: { serialized: SerializedCombatantWithPets }) => {
     const { detailableEntityFocus } = useClientApplication();
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [viewingAbilityTree, setViewingAbilityTree] = useState(false);
 
     const combatants = useMemo(() => {
       const { combatant, pets } = combatantWithPetsFromSerialized(serialized);
@@ -51,7 +50,7 @@ export const CombatantWithPetsSheet = observer(
 
     return (
       <CharacterSheetSubjectProvider subject={subject}>
-        <div className="pointer-events-auto pb-32">
+        <div className="pointer-events-auto">
           <SheetCombatantSelector
             combatants={combatants}
             selectedIndex={selectedIndex}
@@ -68,20 +67,9 @@ export const CombatantWithPetsSheet = observer(
             <CharacterAttributes />
           </div>
 
-          <div className="flex" style={{ marginTop: `${SPACING_REM}rem` }}>
-            <HotkeyButton
-              className="border px-2 border-slate-400 bg-slate-700"
-              onClick={() => setViewingAbilityTree(!viewingAbilityTree)}
-            >
-              {viewingAbilityTree ? "Hide Abilities" : "Show Abilities"}
-            </HotkeyButton>
+          <div className="relative" style={{ marginTop: `${SPACING_REM}rem` }}>
+            <AbilitySelection />
           </div>
-
-          {viewingAbilityTree && (
-            <div className="relative" style={{ marginTop: `${SPACING_REM}rem` }}>
-              <AbilitySelection />
-            </div>
-          )}
 
           <div style={{ marginTop: `${SPACING_REM}rem` }}>
             <ItemDetailsWithComparison />
