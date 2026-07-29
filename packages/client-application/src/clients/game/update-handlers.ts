@@ -35,7 +35,6 @@ import { ClientApplication } from "@/client-application";
 import { ConsideringItemActionMenuScreen } from "@/client-application/action-menu/screens/considering-item";
 import { ConsideringCombatActionMenuScreen } from "@/client-application/action-menu/screens/considering-combat-action";
 import { toJS } from "mobx";
-import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 import {
   GameLogMessage,
   GameLogMessageStyle,
@@ -129,8 +128,6 @@ export function createGameUpdateHandlers(
         }, data.awaitingUnresolvedReplayResolutionDuration);
       }
 
-      // if the world view doesn't exist yet, GameWorldView.initialize() enqueues these instead
-      clientApplication.gameWorldView?.imageGenerator.enqueueThumbnailsForParty(partyOption);
     },
     [GameStateUpdateType.GameClosed]: (data) => {
       const { reason } = data;
@@ -179,8 +176,6 @@ export function createGameUpdateHandlers(
       const { dungeonRoom, actionEntitiesToRemove, monsters } = data;
       const deserializedRoom = DungeonRoom.fromSerialized(dungeonRoom);
       deserializedRoom.makeObservable();
-      const itemIdsOnGroundInPreviousRoom: string[] = [];
-      const newItemsOnGround: Item[] = [];
 
       const party = gameContext.requireParty();
 
@@ -193,20 +188,12 @@ export function createGameUpdateHandlers(
         );
       }
 
-      itemIdsOnGroundInPreviousRoom.push(
-        ...party.currentRoom.inventory.getItems().map((item) => item.entityProperties.id)
-      );
-
       const { dungeonExplorationManager } = party;
 
       dungeonExplorationManager.clearPlayerExplorationActionChoices();
 
       const previousRoomType = party.currentRoom.roomType;
       party.setCurrentRoom(deserializedRoom);
-
-      for (const item of party.currentRoom.inventory.getItems()) {
-        newItemsOnGround.push(item);
-      }
 
       detailableEntityFocus.detailables.clearHovered();
 
@@ -255,20 +242,6 @@ export function createGameUpdateHandlers(
         data: { softCleanup: true, placeInHomePositions: true },
       });
 
-      // clean up unused screenshots for items left behind
-      clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-        type: ImageGenerationRequestType.ItemDeletion,
-        data: { itemIds: itemIdsOnGroundInPreviousRoom },
-      });
-
-      for (const item of newItemsOnGround) {
-        if (item instanceof Consumable) continue;
-
-        clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-          type: ImageGenerationRequestType.ItemCreation,
-          data: { item },
-        });
-      }
     },
     [GameStateUpdateType.BattleFullUpdate]: (serializedBattleOption) => {
       clientApplication.handleBattleFullUpdate(serializedBattleOption);
@@ -666,13 +639,6 @@ export function createGameUpdateHandlers(
         });
       }
 
-      if (shouldUpdateThumbnailAfterCraft(itemResult)) {
-        clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-          type: ImageGenerationRequestType.ItemCreation,
-          data: { item: itemResult },
-        });
-      }
-
       itemResult.craftingIteration = itemBeforeModification.craftingIteration + 1;
       PlayerShardPool.applyPayments(party, payments);
 
@@ -922,27 +888,3 @@ export function createGameUpdateHandlers(
   };
 }
 
-function shouldUpdateThumbnailAfterCraft(equipment: Equipment) {
-  // @TODO - instead of checking specific types, we could share the generation template
-  // code from the server and check if the template allows for more damage classifications
-  // than can be rolled at one time
-  if (
-    equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
-      EquipmentType.TwoHandedMeleeWeapon &&
-    equipment.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType ===
-      TwoHandedMeleeWeapon.ElementalStaff
-  ) {
-    return true;
-  }
-
-  if (
-    equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType ===
-      EquipmentType.OneHandedMeleeWeapon &&
-    equipment.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType ===
-      OneHandedMeleeWeapon.RuneSword
-  ) {
-    return true;
-  }
-
-  return false;
-}

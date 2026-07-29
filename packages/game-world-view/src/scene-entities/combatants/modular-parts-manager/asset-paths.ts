@@ -1,6 +1,5 @@
-import { CombatantProperties, getMonsterCombatantClass } from "@speed-dungeon/common";
+import { Artist, CombatantProperties, getMonsterCombatantClass } from "@speed-dungeon/common";
 import { CHARACTER_PARTS, CharacterModelPartCategory, MONSTER_FULL_SKINS } from "./modular-parts";
-import { Artist } from "../../artists";
 
 export function getCombatantSceneEntityPartCategoriesAndAssetPaths(
   combatantProperties: CombatantProperties

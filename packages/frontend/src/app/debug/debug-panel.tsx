@@ -14,9 +14,9 @@ import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
     const clientApplication = useClientApplication();
-    const { uiStore, gameWorldView, imageStore, clientLogRecorder } = clientApplication;
+    const { uiStore, gameWorldView, clientLogRecorder } = clientApplication;
     const { dialogs, inputs, keybinds } = uiStore;
-    const itemThumbnails = imageStore.getItemThumbnails();
+    const itemThumbnails = clientApplication.itemThumbnails.getAll();
     const showDebug = dialogs.isOpen(DialogElementName.Debug);
     const hotkeysDisabled = inputs.getHotkeysDisabled();
     const headerRef = useRef<HTMLDivElement>(null);

@@ -1,12 +1,15 @@
-import { Consumable, Equipment, EquipmentType, Item } from "@speed-dungeon/common";
+import { Item } from "../items/index.js";
+import { Consumable } from "../items/consumables/index.js";
+import { Equipment } from "../items/equipment/index.js";
+import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import {
   ONE_HANDED_MELEE_WEAPON_MODELS,
   SHIELD_MODELS,
   TWO_HANDED_MELEE_WEAPON_MODELS,
   TWO_HANDED_RANGED_WEAPON_MODELS,
-} from "./equipment-base-item-to-asset-id";
-import { CONSUMABLE_MODELS } from "./consumable-models";
-import { ARTISTS } from "../artists";
+} from "./equipment-model-paths.js";
+import { CONSUMABLE_MODELS } from "./consumable-model-paths.js";
+import { ARTISTS } from "./artists.js";
 
 export function getModelAttribution(item: Item) {
   if (item instanceof Equipment) {

@@ -144,6 +144,27 @@ export class ClientAppAssetService implements AssetService {
     }
   }
 
+  /** Identifies the exact set of asset versions currently published, so anything generated from
+   * the models can tell whether any of them changed since. Deliberately the sorted entries
+   * themselves rather than a digest of them: this is compared once per session against one
+   * stored value, which doesn't justify an algorithm with constants nobody can explain. */
+  getManifestFingerprint(): string {
+    const manifest = this.requireAssetManifest();
+    return [...manifest.entries()]
+      .map(([assetId, versionData]) => `${assetId}:${versionData.hash}`)
+      .sort()
+      .join("\n");
+  }
+
+  /** resolves once the manifest is loaded, rejecting if initialization failed, for callers that
+   * need to read the manifest rather than fetch a specific asset */
+  async waitUntilReady() {
+    if (this.isReady) {
+      return;
+    }
+    await this.readyPromise;
+  }
+
   async getAsset(assetId: AssetId): Promise<ArrayBuffer> {
     // only yield when the service isn't set up yet (the reconnect race); once ready, dispatch
     // synchronously so callers observing fetch start in the same tick still work

@@ -17,6 +17,8 @@ all clear (cumulative/on floor) times should link to the floor clear record
 item screenshots in progression ladder
 - cache generated screenshots for items that don't need custom screenshots
 
+fix all idb caches to use helper and use explicit keys
+
 cleanup
 - look for extractable logic
 - look for local utils/consts that are generic enough to move to a real home

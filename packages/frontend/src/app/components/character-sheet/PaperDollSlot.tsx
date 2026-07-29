@@ -17,6 +17,7 @@ import { useDragSource } from "@/app/game/item-drag/use-drag-source";
 import { useDropTarget } from "@/app/game/item-drag/use-drop-target";
 import { dropTargetBorderClass } from "@/app/game/item-drag/highlight-styles";
 import { DRAG_SOURCE_DRAGGING_OPACITY } from "@/client-consts";
+import { useItemThumbnail } from "@/hooks/use-item-thumbnail";
 
 interface Props {
   itemOption: null | Equipment;
@@ -31,7 +32,8 @@ const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 export const PaperDollSlot = observer(
   ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
     const clientApplication = useClientApplication();
-    const { detailableEntityFocus, imageStore, dragService } = clientApplication;
+    const { detailableEntityFocus, dragService } = clientApplication;
+    const thumbnailOption = useItemThumbnail(itemOption);
     const subject = useCharacterSheetSubject();
 
     const { detailedItem, hoveredItem } = detailableEntityFocus.getFocusedItems();
@@ -63,11 +65,6 @@ export const PaperDollSlot = observer(
       : null;
 
     const itemNameDisplay = itemOption ? itemOption.entityProperties.name : "";
-
-    let thumbnailOption = undefined;
-    if (itemOption !== null) {
-      thumbnailOption = imageStore.getItemThumbnailOption(itemOption.entityProperties.id);
-    }
 
     const itemDisplay = thumbnailOption ? (
       <img src={thumbnailOption} className={"max-h-full"} draggable={false} />

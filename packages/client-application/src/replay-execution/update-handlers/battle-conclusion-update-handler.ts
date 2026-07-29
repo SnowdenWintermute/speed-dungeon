@@ -9,7 +9,6 @@ import {
 } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ReplayStepExecution } from "../replay-step-execution";
-import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";
 
 export async function battleConclusionGameUpdateHandler(
@@ -46,13 +45,6 @@ export async function battleConclusionGameUpdateHandler(
       item.makeObservable();
     }
     party.currentRoom.inventory.insertItems(items);
-
-    for (const item of equipment) {
-      gameWorldView?.imageGenerator.enqueueMessage({
-        type: ImageGenerationRequestType.ItemCreation,
-        data: { item },
-      });
-    }
 
     if (actionMenu.currentMenuIsType(ActionMenuScreenType.Root)) {
       actionMenu.pushFromPool(ActionMenuScreenType.ItemsOnGround);

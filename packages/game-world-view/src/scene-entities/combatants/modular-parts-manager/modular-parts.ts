@@ -1,5 +1,4 @@
-import { CombatantClass, MonsterType } from "@speed-dungeon/common";
-import { Artist } from "../../artists";
+import { Artist, CombatantClass, MonsterType } from "@speed-dungeon/common";
 
 export enum CharacterModelPartCategory {
   Head,

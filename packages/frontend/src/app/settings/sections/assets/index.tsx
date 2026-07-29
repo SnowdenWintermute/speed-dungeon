@@ -9,7 +9,7 @@ import { AssetCacheControls } from "./AssetCacheControls";
 
 export const AssetsSection = observer(() => {
   const clientApplication = useClientApplication();
-  const { assetService } = clientApplication;
+  const { assetService, itemThumbnails } = clientApplication;
   const { progressTracker } = assetService;
 
   return (
@@ -18,7 +18,7 @@ export const AssetsSection = observer(() => {
       <Divider />
       <div className="flex flex-1 min-h-0 gap-2">
         <AssetFetchList progressTracker={progressTracker} />
-        <AssetCacheControls assetService={assetService} />
+        <AssetCacheControls assetService={assetService} itemThumbnails={itemThumbnails} />
       </div>
     </div>
   );

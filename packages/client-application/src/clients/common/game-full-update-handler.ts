@@ -1,6 +1,5 @@
 import { ClientApplication } from "@/client-application";
 import { HTTP_REQUEST_NAMES } from "@/client-application/consts";
-import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 import { ClientSequentialEventType, SerializedOf, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export function gameFullUpdateHandler(
@@ -15,11 +14,6 @@ export function gameFullUpdateHandler(
   } else {
     clientApplication.sequentialEventProcessor.scheduleEvent({
       type: ClientSequentialEventType.ClearAllModels,
-      data: undefined,
-    });
-
-    clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-      type: ImageGenerationRequestType.ClearState,
       data: undefined,
     });
   }
@@ -45,11 +39,6 @@ export function gameFullUpdateHandler(
   // into the party but leaves the scene without their models, so respawn any that are missing
   clientApplication.sequentialEventProcessor.scheduleEvent({
     type: ClientSequentialEventType.SynchronizeActionEntityModels,
-    data: undefined,
-  });
-
-  clientApplication.gameWorldView?.imageGenerator.enqueueMessage({
-    type: ImageGenerationRequestType.ClearState,
     data: undefined,
   });
 

@@ -18,6 +18,7 @@ export * from "./utils/index.js";
 export * from "./utils/array-utils.js";
 export * from "./utils/map-utils.js";
 export * from "./utils/url-with-query-params.js";
+export * from "./utils/indexed-db-connection.js";
 
 export * from "./utility-classes/randomizers.js";
 export * from "./utility-classes/random-number-generation-policy.js";
@@ -176,6 +177,11 @@ export * from "./action-processing/action-steps/motion-steps/determine-environme
 export * from "./durability/index.js";
 export * from "./hit-outcome.js";
 export * from "./assets/skeleton-file-paths.js";
+export * from "./assets/artists.js";
+export * from "./assets/equipment-model-paths.js";
+export * from "./assets/consumable-model-paths.js";
+export * from "./assets/get-item-asset-attribution.js";
+export * from "./assets/item-thumbnail-key.js";
 export * from "./scene-entities/index.js";
 export * from "./abilities/index.js";
 export * from "./items/item-creation/equipment-templates/index.js";

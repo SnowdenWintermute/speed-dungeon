@@ -21,6 +21,7 @@ import { ModifierKey } from "@/client-application/ui/inputs";
 import { DragSource, DragSourceType } from "@/client-application/item-drag/types";
 import { useDragSource } from "@/app/game/item-drag/use-drag-source";
 import { DRAG_SOURCE_DRAGGING_OPACITY } from "@/client-consts";
+import { useItemThumbnail } from "@/hooks/use-item-thumbnail";
 
 interface Props {
   item: Item;
@@ -36,8 +37,7 @@ interface Props {
 export const ItemButton = observer((props: Props) => {
   const [isHovered, setIsHovered] = useState(false);
   const clientApplication = useClientApplication();
-  const { uiStore, detailableEntityFocus, imageStore, eventLogMessageService, dragService } =
-    clientApplication;
+  const { uiStore, detailableEntityFocus, eventLogMessageService, dragService } = clientApplication;
   const alternateClickKeyHeld = uiStore.inputs.getKeyIsHeld(ModifierKey.AlternateClick);
 
   const dragHandlers = useDragSource(() => props.dragSource ?? null);
@@ -56,7 +56,7 @@ export const ItemButton = observer((props: Props) => {
 
   const { item, text, hotkeyLabel, hotkeys, children, disabled } = props;
 
-  const thumbnailOption = imageStore.getItemButtonThumbnail(item);
+  const thumbnailOption = useItemThumbnail(item);
 
   let svgIconOption;
   if (!thumbnailOption && item instanceof Equipment) {

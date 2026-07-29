@@ -1,5 +1,6 @@
 import {
   CHARACTER_SLOT_SPACING,
+  CleanupMode,
   Combatant,
   CombatantId,
   EntityId,
@@ -23,6 +24,13 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
   constructor(clientApplication: ClientApplication, gameWorldView: GameWorldView) {
     super(clientApplication, gameWorldView);
     this.factory = new CombatantSceneEntityFactory(gameWorldView, clientApplication);
+  }
+
+  // the portrait is taken of this scene entity's model in onRegister, so it lives exactly as long
+  // as the model does. this is what discards a room's monsters when their models go.
+  override unregister(id: EntityId, cleanupMode: CleanupMode) {
+    super.unregister(id, cleanupMode);
+    this.clientApplication.imageStore.clearCombatantPortrait(id);
   }
 
   resolveCombatant(entityId: EntityId): Combatant | undefined {
@@ -63,7 +71,7 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { entityId } = sceneEntity;
     try {
       const portraitOption =
-        await this.gameWorldView.imageGenerator.createCombatantPortrait(entityId);
+        await this.gameWorldView.portraitGenerator.createCombatantPortrait(entityId);
 
       if (portraitOption) {
         this.clientApplication.imageStore.setCombatantPortrait(entityId, portraitOption);

@@ -6,7 +6,6 @@ import {
 } from "@speed-dungeon/common";
 import { ActionMenuScreenType } from "../action-menu/screen-types";
 import { ClientApplication } from "..";
-import { ImageGenerationRequestType } from "@/game-world-view/images/image-generator-requests";
 import { synchronizeActionEntityModels } from "../replay-execution/update-handlers/spawn-entities-update-handler";
 
 export function createClientSequentialEventHandlers(
@@ -78,8 +77,6 @@ export function createClientSequentialEventHandlers(
       });
     },
     [ClientSequentialEventType.RemovePlayerFromGame]: async (event) => {
-      const itemsToRemoveThumbnails: string[] = [];
-
       const { gameOption } = clientApplication.gameContext;
       if (gameOption === null) {
         // maybe could happen if ally quits game, then user quits before they receive the message
@@ -88,23 +85,7 @@ export function createClientSequentialEventHandlers(
       }
 
       const { username } = event;
-      const removedPlayer = gameOption.removePlayer(event.username);
-
-      for (const character of removedPlayer.charactersRemoved) {
-        itemsToRemoveThumbnails.push(
-          ...character.combatantProperties.inventory.equipment.map(
-            (item) => item.entityProperties.id
-          )
-        );
-
-        itemsToRemoveThumbnails.push(
-          ...Object.values(
-            character.combatantProperties.equipment.getAllEquippedItems({
-              includeUnselectedHotswapSlots: true,
-            })
-          ).map((item) => item.entityProperties.id)
-        );
-      }
+      gameOption.removePlayer(event.username);
 
       const { gameWorldView, eventLogMessageService, combatantFocus } = clientApplication;
       eventLogMessageService.postUserLeftGame(username);
@@ -117,11 +98,6 @@ export function createClientSequentialEventHandlers(
           placeInHomePositions: true,
         }
       );
-
-      gameWorldView?.imageGenerator.enqueueMessage({
-        type: ImageGenerationRequestType.ItemDeletion,
-        data: { itemIds: itemsToRemoveThumbnails },
-      });
     },
     [ClientSequentialEventType.RecordCombatantActionSelected]: async (data) => {
       const { userId, actionExecutionIntent } = data;

@@ -1,13 +1,13 @@
+import { AssetId } from "../servers/services/assets/index.js";
 import {
-  AssetId,
   EquipmentBaseItem,
   EquipmentType,
-  OneHandedMeleeWeapon,
-  Shield,
-  TwoHandedMeleeWeapon,
-  TwoHandedRangedWeapon,
-} from "@speed-dungeon/common";
-import { Artist } from "../artists";
+} from "../items/equipment/equipment-types/index.js";
+import { OneHandedMeleeWeapon } from "../items/equipment/equipment-types/one-handed-melee-weapon.js";
+import { Shield } from "../items/equipment/equipment-types/shield.js";
+import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
+import { TwoHandedRangedWeapon } from "../items/equipment/equipment-types/two-handed-ranged-weapon.js";
+import { Artist } from "./artists.js";
 
 export function equipmentBaseItemToAssetId(baseItem: EquipmentBaseItem) {
   let filePath;

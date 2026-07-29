@@ -11,7 +11,7 @@ const PREVIEW_SIZE_PX = 64;
 
 export const DragPreview = observer(() => {
   const clientApplication = useClientApplication();
-  const { dragService, imageStore } = clientApplication;
+  const { dragService, itemThumbnails } = clientApplication;
   const source = dragService.current;
 
   // animate from the list's sideways orientation to upright once the drag begins
@@ -34,7 +34,8 @@ export const DragPreview = observer(() => {
     source.type === DragSourceType.InventoryItem || source.type === DragSourceType.GroundItem;
   const rotation = startsSideways && !uprighted ? -90 : 0;
 
-  const thumbnail = imageStore.getItemButtonThumbnail(item);
+  // read without requesting: whatever the drag started from already displayed this item
+  const thumbnail = itemThumbnails.getOption(item);
 
   // when the image hasn't loaded, fall back to the same placeholder SVG the item button uses
   let svgIcon;

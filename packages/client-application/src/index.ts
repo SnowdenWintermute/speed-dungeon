@@ -26,6 +26,9 @@ import { ClientLogRecorder } from "./client-log-recorder";
 import { TickScheduler } from "./replay-execution/replay-tree-tick-schedulers";
 import { ReplayTreeScheduler } from "./replay-execution/replay-tree-scheduler";
 import { ImageStore } from "./image-store";
+import { ItemThumbnailService } from "./item-thumbnails";
+import { ItemThumbnailCache } from "./item-thumbnails/item-thumbnail-cache";
+import { ItemThumbnailRendererFactory } from "./item-thumbnails/item-thumbnail-renderer";
 import { UiStore } from "./ui";
 import { ClientSingleton } from "./clients/singleton";
 import { ClientSequentialEventProcessor } from "./sequential-event-processor";
@@ -66,6 +69,7 @@ export class ClientApplication {
   readonly detailableEntityFocus = new DetailableEntityFocus();
   readonly targetIndicatorStore: TargetIndicatorStore;
   readonly imageStore = new ImageStore();
+  readonly itemThumbnails: ItemThumbnailService;
   readonly uiStore = new UiStore(this);
   readonly ladderQueries = new ClientLadderQueries(this);
   readonly ladderView = new LadderViewStore(this);
@@ -97,7 +101,10 @@ export class ClientApplication {
     replayManagerTickScheduler: TickScheduler,
     clientLogRecorder: ClientLogRecorder,
     remoteEndpointFactory: ClientRemoteConnectionEndpointFactory,
-    readonly reconnectionTokenStore: ReconnectionTokenStore
+    readonly reconnectionTokenStore: ReconnectionTokenStore,
+    itemThumbnailCache: ItemThumbnailCache,
+    // supplied by the environment so the babylon renderer is only loaded on a cache miss
+    createItemThumbnailRenderer: ItemThumbnailRendererFactory
   ) {
     this.assetService = new ClientAppAssetService(
       remoteAssetStore,
@@ -109,6 +116,11 @@ export class ClientApplication {
       }
     );
     this.clientLogRecorder = clientLogRecorder;
+    this.itemThumbnails = new ItemThumbnailService(
+      itemThumbnailCache,
+      this.assetService,
+      createItemThumbnailRenderer
+    );
 
     this.topologyManager = new ConnectionTopology(this, remoteEndpointFactory);
 
@@ -153,6 +165,7 @@ export class ClientApplication {
     this.gameWorldView?.dispose();
     this.clientLogRecorder.dispose();
     this.assetService.dispose();
+    this.itemThumbnails.dispose();
   }
 
   setGameWorldView(gameWorldView: GameWorldView) {

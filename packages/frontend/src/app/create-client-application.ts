@@ -9,6 +9,7 @@ import { ManualTickScheduler } from "@/client-application/replay-execution/repla
 import { ClientApplication } from "@/client-application";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
 import { LocalStorageReconnectionTokenStore } from "@/client-application/reconnection-token-store";
+import { IndexedDbItemThumbnailCache } from "@/client-application/item-thumbnails/indexed-db-item-thumbnail-cache";
 
 export function createClientApplication() {
   const assetCache = new IndexedDbAssetStore(indexedDB);
@@ -21,13 +22,27 @@ export function createClientApplication() {
   invariant(lobbyServerUrl !== undefined, "no lobby server url provided");
   const assetServerUrl = process.env.NEXT_PUBLIC_ASSET_SERVER_URL;
   invariant(assetServerUrl !== undefined, "no asset server url provided");
-  return new ClientApplication(
+  const clientApplication: ClientApplication = new ClientApplication(
     assetCache,
     new RemoteServerAssetStore(assetServerUrl),
     lobbyServerUrl,
     tickScheduler.scheduler,
     clientLogRecorder,
     new BrowserWebSocketClientConnectionEndpointFactory(),
-    new LocalStorageReconnectionTokenStore()
+    new LocalStorageReconnectionTokenStore(),
+    new IndexedDbItemThumbnailCache(indexedDB),
+    // imported here rather than at module scope so pages that never miss the thumbnail cache
+    // don't pull babylon into their bundle
+    async () => {
+      const { ItemThumbnailGenerator } = await import(
+        "@/game-world-view/images/item-thumbnail-generator"
+      );
+      return new ItemThumbnailGenerator(
+        clientApplication.assetService,
+        clientApplication.floatingMessagesService
+      );
+    }
   );
+
+  return clientApplication;
 }

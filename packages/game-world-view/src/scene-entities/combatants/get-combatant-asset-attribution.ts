@@ -1,5 +1,4 @@
-import { CombatantProperties } from "@speed-dungeon/common";
-import { ARTISTS, Artist, Attribution } from "../artists";
+import { ARTISTS, Artist, Attribution, CombatantProperties } from "@speed-dungeon/common";
 import { getCombatantSceneEntityPartCategoriesAndAssetPaths } from "./modular-parts-manager/asset-paths";
 
 export function getCombatantModelAttributions(

@@ -8,6 +8,7 @@ import {
   EntityProperties,
   Equipment,
   Item,
+  getModelAttribution,
 } from "@speed-dungeon/common";
 import React, { useEffect, useRef, useState } from "react";
 import { ActionDetails } from "./action-details";
@@ -23,7 +24,7 @@ import { EQUIPMENT_ICONS } from "./EquipmentDetails/equipment-icons";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { getModelAttribution } from "@/game-world-view/scene-entities/items/get-item-asset-attribution";
+import { useItemThumbnail } from "@/hooks/use-item-thumbnail";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 
@@ -84,15 +85,14 @@ export const ItemDetails = observer(
     }, [preppedForDownloadPhoto]);
 
     const clientApplication = useClientApplication();
-    const { detailableEntityFocus, imageStore } = clientApplication;
+    const { detailableEntityFocus } = clientApplication;
+    const thumbnailOption = useItemThumbnail(itemOption);
     const { keybinds } = clientApplication.uiStore;
     const subject = useCharacterSheetSubject();
     const unmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements(
       subject.combatant
     );
     let BG_COLOR = "bg-slate-800";
-
-    let thumbnailIdOption = "";
 
     const isDetailedEntity =
       itemOption && detailableEntityFocus.entityIsDetailed(itemOption.entityProperties.id);
@@ -108,14 +108,12 @@ export const ItemDetails = observer(
 
       if (item instanceof Equipment) {
         itemDetailsDisplay = <EquipmentDetails equipment={item} />;
-        thumbnailIdOption = item.entityProperties.id;
         svgThumbnailOption = EQUIPMENT_ICONS[item.equipmentBaseItemProperties.equipmentType](
           "fill-slate-400",
           {}
         );
       } else if (item instanceof Consumable) {
         BG_COLOR = "bg-slate-700";
-        thumbnailIdOption = CONSUMABLE_TYPE_STRINGS[item.consumableType];
         if (item.consumableType === ConsumableType.StackOfShards) {
           svgThumbnailOption = SVG_ICONS[IconName.Shards]("h-full fill-slate-400 m-2");
           itemDetailsDisplay = <div>Currency / crafting ingredient</div>;
@@ -146,7 +144,6 @@ export const ItemDetails = observer(
       }
     }
 
-    const thumbnailOption = imageStore.getItemThumbnailOption(thumbnailIdOption);
     if (!thumbnailPath && thumbnailOption) thumbnailPath = thumbnailOption;
     if (!thumbnailPath && !svgThumbnailOption)
       svgThumbnailOption = SVG_ICONS[IconName.Sword]("h-full fill-slate-950");

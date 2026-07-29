@@ -4,7 +4,7 @@ import { IdGeneratorRandom, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";
 import { MaterialManager } from "./materials/material-manager";
-import { ImageGenerator } from "./images/image-generator";
+import { CombatantPortraitGenerator } from "./images/combatant-portrait-generator";
 import { TextureManager } from "./textures/texture-manager";
 import { GameWorldViewDebug } from "./debug";
 import { LAYER_MASK_ALL } from "./game-world-view-consts";
@@ -24,7 +24,7 @@ export class GameWorldView {
 
   private _clientApplication: ClientApplication | null = null;
   private _sceneEntityService: SceneEntityService | null = null;
-  private _imageGenerator: ImageGenerator | null = null;
+  private _portraitGenerator: CombatantPortraitGenerator | null = null;
   private _itemSceneEntityFactory: ItemSceneEntityFactory | null = null;
   private _debug: GameWorldViewDebug | null = null;
 
@@ -63,7 +63,7 @@ export class GameWorldView {
       this.scene,
       this.materialManager
     );
-    this._imageGenerator = new ImageGenerator(clientApplication, this);
+    this._portraitGenerator = new CombatantPortraitGenerator(this);
 
     this._sceneEntityService = new SceneEntityService(clientApplication, this);
     this._debug = new GameWorldViewDebug(clientApplication, this);
@@ -72,13 +72,6 @@ export class GameWorldView {
     this._debug.uiDebugDisplayRef = uiDebugDisplayRef;
     if (this.clientApplication.gameContext.gameOption) {
       this.setDefaultCameraPositionForGame();
-    }
-
-    // on reconnection the GameFullUpdate can arrive before this view exists, in which case
-    // its handler couldn't enqueue thumbnails and we catch up on the already received state
-    const { partyOption } = clientApplication.gameContext;
-    if (partyOption) {
-      this.imageGenerator.enqueueThumbnailsForParty(partyOption);
     }
   }
 
@@ -121,9 +114,9 @@ export class GameWorldView {
     invariant(this._itemSceneEntityFactory !== null, GameWorldView.NOT_INITIALIZED);
     return this._itemSceneEntityFactory;
   }
-  get imageGenerator() {
-    invariant(this._imageGenerator !== null, GameWorldView.NOT_INITIALIZED);
-    return this._imageGenerator;
+  get portraitGenerator() {
+    invariant(this._portraitGenerator !== null, GameWorldView.NOT_INITIALIZED);
+    return this._portraitGenerator;
   }
   get debug() {
     invariant(this._debug !== null, GameWorldView.NOT_INITIALIZED);
