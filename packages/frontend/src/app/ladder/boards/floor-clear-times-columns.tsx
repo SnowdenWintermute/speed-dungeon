@@ -44,7 +44,6 @@ export function floorClearTimesColumns(
       renderCell: (entry) => <PlayerLinks players={entry.players} />,
     },
     {
-      // the floor time is what this board ranks, so it is what leads to the clear's own page
       header: "Time On Floor",
       sortOption: sortOptionFor(FloorClearSortField.TimeSpentOnFloor),
       renderCell: (entry) => (
@@ -56,7 +55,11 @@ export function floorClearTimesColumns(
     {
       header: "Cumulative Time",
       sortOption: sortOptionFor(FloorClearSortField.CumulativeTimeToClearFloor),
-      renderCell: (entry) => formatDuration(entry.cumulativeTimeToClearFloor),
+      renderCell: (entry) => (
+        <LadderTableCellLink href={floorClearRoute(entry.id)}>
+          {formatDuration(entry.cumulativeTimeToClearFloor)}
+        </LadderTableCellLink>
+      ),
     },
   ];
 }

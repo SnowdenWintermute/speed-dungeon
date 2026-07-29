@@ -21,7 +21,7 @@ export function ProgressionCharacterDetails({
   const { classProgressionProperties } = combatant.combatantProperties;
 
   return (
-    <>
+    <main className="pb-32">
       <h1 className="text-2xl mb-4">{combatant.entityProperties.name}</h1>
       <RecordFactList
         facts={[
@@ -40,6 +40,6 @@ export function ProgressionCharacterDetails({
         ]}
       />
       <CombatantWithPetsSheet serialized={character.combatantWithPets} />
-    </>
+    </main>
   );
 }

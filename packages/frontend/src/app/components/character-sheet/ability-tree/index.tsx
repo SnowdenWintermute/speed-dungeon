@@ -36,10 +36,7 @@ export const AbilitySelection = observer(() => {
   const unspentAbilityPoints = combatantProperties.abilityProperties.getUnspentPointsCount();
 
   return (
-    <div
-      style={{ width: `calc(100% + 2px)` }}
-      className="flex border border-slate-400 bg-slate-700 p-4 absolute top-[-1px] left-0 h-fit ml-[-1px] max-h-[700px]"
-    >
+    <div className="relative flex border border-slate-400 bg-slate-700 p-4 h-fit max-h-[700px] w-full">
       <HoverableTooltipWrapper tooltipText="Unspent ability points">
         <div className="h-5 fill-slate-400 absolute flex items-center">
           <div className="h-full mr-1">

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { FloorClearSortField, FloorClearView, PlayerProfileView } from "@speed-dungeon/common";
+import { FloorClearView, PlayerProfileView } from "@speed-dungeon/common";
 import { useScrollIntoView } from "@/hooks/use-scroll-into-view";
 import { BoardControl } from "../ladder/board-page/BoardControl";
 import { ControlSchemeSelector } from "../ladder/board-page/ControlSchemeSelector";
@@ -9,7 +9,7 @@ import { GameModeSelector } from "../ladder/board-page/GameModeSelector";
 import { LadderTable } from "../ladder/ladder-table";
 import { ProfileUrlState } from "../ladder/query-schemas";
 import { playerProfileStateRoute } from "../ladder/routes";
-import { personalBestColumns, personalBestKey } from "./personal-best-columns";
+import { PERSONAL_BEST_COLUMNS, personalBestKey } from "./personal-best-columns";
 
 const NO_CLEARS_MESSAGE = "No floor clears under this mode and control scheme.";
 
@@ -63,7 +63,7 @@ export function PersonalBestsSection({
       <h3 className="mb-2">Best Times On Floor</h3>
       <div className="mb-10">
         <LadderTable
-          columns={personalBestColumns(FloorClearSortField.TimeSpentOnFloor)}
+          columns={PERSONAL_BEST_COLUMNS}
           entries={inSelectedFacet(profile.personalBestFloorTimes)}
           keyOf={personalBestKey}
           emptyMessage={NO_CLEARS_MESSAGE}
@@ -71,7 +71,7 @@ export function PersonalBestsSection({
       </div>
       <h3 className="mb-2">Best Cumulative Times To Clear Floor</h3>
       <LadderTable
-        columns={personalBestColumns(FloorClearSortField.CumulativeTimeToClearFloor)}
+        columns={PERSONAL_BEST_COLUMNS}
         entries={inSelectedFacet(profile.personalBestCumulativeTimes)}
         keyOf={personalBestKey}
         emptyMessage={NO_CLEARS_MESSAGE}

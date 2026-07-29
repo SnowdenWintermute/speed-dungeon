@@ -18,8 +18,6 @@ export function gameRecordFloorClearColumns(
   return [
     { header: "Floor", widthPercentOption: 10, renderCell: (clear) => clear.floor },
     {
-      // the time on the floor is what a clear is a record of, so it is what leads to its own page,
-      // as it does on the boards
       header: "Time On Floor",
       renderCell: (clear) => (
         <LadderTableCellLink href={floorClearRoute(clear.id)}>
@@ -29,7 +27,11 @@ export function gameRecordFloorClearColumns(
     },
     {
       header: "Cumulative Time",
-      renderCell: (clear) => formatDuration(clear.cumulativeTimeToClearFloor),
+      renderCell: (clear) => (
+        <LadderTableCellLink href={floorClearRoute(clear.id)}>
+          {formatDuration(clear.cumulativeTimeToClearFloor)}
+        </LadderTableCellLink>
+      ),
     },
     { header: "Cleared At", renderCell: (clear) => formatTimestamp(clear.clearedAt) },
     {

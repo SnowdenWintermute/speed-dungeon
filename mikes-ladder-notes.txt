@@ -12,13 +12,10 @@ how will we handle orphaned profiles/characters when deleting accounts
 page count for experience ladder will be potentially incorrect if it is counting
 characters of deleted accounts
 
-Individual linkable pages
-- Floor clear (an entire floor clear with all details and character snapshots)
-- Game record (game summary with list of all parties, each party with floor clear records for that run, each floor clear with links to
-character snapshots)
-- Profile (linked from any mention of a user in any other record)
-- Progression character (linked from the Progression Experience Points ladder entries, 
-  a full combatant object view similar to in-game view in the inventory viewing items/equipment/attributes, inventory)
+all clear (cumulative/on floor) times should link to the floor clear record
+
+item screenshots in progression ladder
+- cache generated screenshots for items that don't need custom screenshots
 
 cleanup
 - look for extractable logic

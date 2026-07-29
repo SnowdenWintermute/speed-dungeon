@@ -64,7 +64,7 @@ export const CharacterAttributes = observer(({ widthOptionClass, hideHeader }: P
 
   return (
     <div
-      className={`h-full ${widthOptionClass ? `widthOptionClass` : "w-[25.25rem]"} whitespace-nowrap`}
+      className={`h-full ${widthOptionClass ? widthOptionClass : "w-[25.25rem]"} whitespace-nowrap`}
     >
       {!hideHeader && (
         <CharacterSheetHeader

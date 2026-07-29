@@ -24,7 +24,6 @@ export const CUMULATIVE_CLEAR_TIMES_COLUMNS: LadderTableColumn<RankedFloorClearV
   },
   { header: "Mode", renderCell: (entry) => GAME_MODE_STRINGS[entry.mode] },
   {
-    // the time is what this row is a record of, so it is what leads to the clear's own page
     header: "Cumulative Time",
     renderCell: (entry) => (
       <LadderTableCellLink href={floorClearRoute(entry.id)}>

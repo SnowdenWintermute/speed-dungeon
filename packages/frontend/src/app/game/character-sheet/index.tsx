@@ -42,7 +42,11 @@ export const CharacterSheet = observer(
         >
           {shouldShowAbilityTree && (
             <div style={{ width: `${menuWidth || 0}px` }} className="h-fit bg-green-50">
-              <AbilitySelection />
+              {/* holds the sheet box open at the menu's width while the tree overlays it, offset a
+                  pixel each way to sit on top of that box's border rather than inside it */}
+              <div className="absolute top-[-1px] left-0 ml-[-1px] w-[calc(100%+2px)]">
+                <AbilitySelection />
+              </div>
             </div>
           )}
 

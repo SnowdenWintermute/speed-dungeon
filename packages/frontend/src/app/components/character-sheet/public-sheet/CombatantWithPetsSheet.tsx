@@ -8,19 +8,13 @@ import { ReadOnlyCharacterSheetSubject } from "@/client-application/character-sh
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { SPACING_REM } from "@/client-consts";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { ItemDetailsWithComparison } from "@/app/components/item-details/ItemDetailsWithComparison";
 import { CharacterSheetSubjectProvider } from "../character-sheet-subject-context";
 import { PaperDoll } from "../PaperDoll";
 import { CharacterAttributes } from "../CharacterAttributes";
 import { AbilitySelection } from "../ability-tree";
 import { SheetCombatantSelector } from "./SheetCombatantSelector";
+import { ItemDetailsOverlay } from "./ItemDetailsOverlay";
 
-// a character and its pets as a page. the in-game sheet's own layout does not transfer: that one is
-// sized to sit over the 3d scene beside the action menu, in a fixed-height box, with the ability
-// tree as an overlay. here the halves stack and the tree is a section.
-// deserialized once per record, because the sheet mutates the combatant in hand when a hotswap slot
-// is selected — remaking it on every render would throw that selection away
 export const CombatantWithPetsSheet = observer(
   ({ serialized }: { serialized: SerializedCombatantWithPets }) => {
     const { detailableEntityFocus } = useClientApplication();
@@ -37,6 +31,9 @@ export const CombatantWithPetsSheet = observer(
 
     const selected = combatants[selectedIndex] ?? combatants[0];
 
+    const { hoveredItem, detailedItem } = detailableEntityFocus.getFocusedItems();
+    const dimmedWhileReadingItemClass = hoveredItem || detailedItem ? "opacity-50" : "";
+
     const subject = useMemo(() => {
       if (selected === undefined) {
         return null;
@@ -50,7 +47,7 @@ export const CombatantWithPetsSheet = observer(
 
     return (
       <CharacterSheetSubjectProvider subject={subject}>
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto ">
           <SheetCombatantSelector
             combatants={combatants}
             selectedIndex={selectedIndex}
@@ -58,21 +55,22 @@ export const CombatantWithPetsSheet = observer(
           />
 
           <div
-            className="border border-slate-400 bg-slate-700 flex flex-wrap relative"
+            className="border border-slate-400 bg-slate-700 flex flex-wrap relative h-[460px]"
             style={{ padding: `${SPACING_REM}rem` }}
           >
-            <div className="mr-5">
+            <div className={`mr-5 ${dimmedWhileReadingItemClass} `}>
               <PaperDoll />
             </div>
-            <CharacterAttributes />
-          </div>
-
-          <div className="relative" style={{ marginTop: `${SPACING_REM}rem` }}>
-            <AbilitySelection />
+            <div className="relative">
+              <div className={dimmedWhileReadingItemClass}>
+                <CharacterAttributes />
+              </div>
+              <ItemDetailsOverlay />
+            </div>
           </div>
 
           <div style={{ marginTop: `${SPACING_REM}rem` }}>
-            <ItemDetailsWithComparison />
+            <AbilitySelection />
           </div>
         </div>
       </CharacterSheetSubjectProvider>
