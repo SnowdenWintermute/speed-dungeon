@@ -9,6 +9,7 @@ import {
   GameStateUpdate,
   GameStateUpdateType,
   GameUpdateCommand,
+  IndexedDbConnection,
   ReplayEventType,
 } from "@speed-dungeon/common";
 import { ClientLogEntry, ClientLogEntryKind, ClientLogRecorder } from ".";
@@ -16,7 +17,7 @@ import { makeAutoObservable } from "mobx";
 
 const DB_NAME = "client-log";
 const STORE_NAME = "entries";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 interface StoredRecord {
   byteLength: number;
@@ -24,18 +25,17 @@ interface StoredRecord {
 }
 
 export class IndexedDbClientLogRecorder implements ClientLogRecorder {
-  private dbPromise: Promise<IDBDatabase>;
-  private hydratePromise: Promise<void>;
+  private connection: IndexedDbConnection;
+  /** entries are keyed by insertion order, so a write can't start before hydrate seeds the counter */
+  private writeQueue: Promise<void>;
+  private nextKey = 0;
   private _totalBytes = 0;
   private _combatantActionsHistory: ActionIntentAndUserId[] = [];
   private disposed = false;
 
-  constructor(
-    private readonly indexedDB: IDBFactory,
-    private readonly maxBytes: number
-  ) {
-    this.dbPromise = this.open();
-    this.hydratePromise = this.dbPromise.then((db) => this.hydrate(db));
+  constructor(indexedDB: IDBFactory, private readonly maxBytes: number) {
+    this.connection = new IndexedDbConnection(indexedDB, DB_NAME, DB_VERSION, [STORE_NAME]);
+    this.writeQueue = this.hydrate();
     this.put({
       type: ClientLogEntryKind.SessionStarted,
       timestamp: Date.now(),
@@ -49,7 +49,8 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
     return this._totalBytes;
   }
 
-  set totalBytes(value: number) {
+  /** mutations happen in promise continuations, so they need their own action boundary */
+  private setTotalBytes(value: number) {
     this._totalBytes = value;
   }
 
@@ -110,20 +111,9 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   }
 
   async getAllEntries(): Promise<ClientLogEntry[]> {
-    const db = await this.dbPromise;
-    await this.hydratePromise;
-
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, "readonly");
-      const store = tx.objectStore(STORE_NAME);
-      const request = store.getAll();
-
-      request.onsuccess = () => {
-        const records = request.result as StoredRecord[];
-        resolve(records.map((r) => r.entry));
-      };
-      request.onerror = () => reject(request.error);
-    });
+    await this.writeQueue;
+    const records = await this.connection.getAll<StoredRecord>(STORE_NAME);
+    return records.map((record) => record.entry);
   }
 
   async exportAsJson(): Promise<string> {
@@ -132,104 +122,71 @@ export class IndexedDbClientLogRecorder implements ClientLogRecorder {
   }
 
   async clear(): Promise<void> {
-    const db = await this.dbPromise;
-    await this.hydratePromise;
-
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, "readwrite");
-      const store = tx.objectStore(STORE_NAME);
-      store.clear();
-
-      tx.oncomplete = () => {
-        this.totalBytes = 0;
-        resolve();
-      };
-      tx.onerror = () => reject(tx.error);
-      tx.onabort = () => reject(tx.error);
-    });
+    await this.writeQueue;
+    await this.connection.clear(STORE_NAME);
+    this.setTotalBytes(0);
+    this.nextKey = 0;
   }
 
   dispose() {
     this.disposed = true;
-    // nothing to close if the DB never opened; the open error is already surfaced via put()
-    this.dbPromise.then((db) => db.close()).catch(() => {});
+    this.connection.dispose();
   }
 
   private put(entry: ClientLogEntry) {
-    if (this.disposed) return;
+    if (this.disposed) {
+      return;
+    }
     const record: StoredRecord = {
       byteLength: JSON.stringify(entry).length,
       entry,
     };
-    this.totalBytes += record.byteLength;
+    this.setTotalBytes(this._totalBytes + record.byteLength);
 
-    this.hydratePromise
-      .then(() => this.dbPromise)
-      .then((db) => {
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        const store = tx.objectStore(STORE_NAME);
-        store.put(record);
-
-        if (this.totalBytes > this.maxBytes) this.evictOldestUntilUnderCap(store);
-      })
+    this.writeQueue = this.writeQueue
+      .then(() => this.write(record))
       .catch((err) => {
         console.error("ClientLogRecorder put failed", err);
       });
   }
 
-  private evictOldestUntilUnderCap(store: IDBObjectStore) {
-    const cursorReq = store.openCursor();
-    cursorReq.onsuccess = () => {
-      const cursor = cursorReq.result;
-      if (!cursor) return;
-      if (this.totalBytes <= this.maxBytes) return;
-      const stored = cursor.value as StoredRecord;
-      this.totalBytes -= stored.byteLength;
-      cursor.delete();
-      cursor.continue();
-    };
+  private async write(record: StoredRecord) {
+    await this.connection.put(STORE_NAME, this.nextKey, record);
+    this.nextKey += 1;
+
+    if (this._totalBytes > this.maxBytes) {
+      await this.evictOldestUntilUnderCap();
+    }
   }
 
-  private hydrate(db: IDBDatabase): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, "readonly");
-      const store = tx.objectStore(STORE_NAME);
-      const cursorReq = store.openCursor();
-      let total = 0;
+  private async evictOldestUntilUnderCap() {
+    const db = await this.connection.requireDb();
+    const store = db.transaction(STORE_NAME, "readwrite").objectStore(STORE_NAME);
 
-      cursorReq.onsuccess = () => {
-        const cursor = cursorReq.result;
-        if (!cursor) {
-          this.totalBytes = total;
+    return new Promise<void>((resolve, reject) => {
+      const cursorRequest = store.openCursor();
+
+      cursorRequest.onsuccess = () => {
+        const cursor = cursorRequest.result;
+        if (!cursor || this._totalBytes <= this.maxBytes) {
           resolve();
           return;
         }
         const stored = cursor.value as StoredRecord;
-        total += stored.byteLength;
+        this.setTotalBytes(this._totalBytes - stored.byteLength);
+        cursor.delete();
         cursor.continue();
       };
-      cursorReq.onerror = () => reject(cursorReq.error);
+      cursorRequest.onerror = () => reject(cursorRequest.error);
     });
   }
 
-  private open(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      const request = this.indexedDB.open(DB_NAME, DB_VERSION);
+  private async hydrate(): Promise<void> {
+    const records = await this.connection.getAll<StoredRecord>(STORE_NAME);
+    this.setTotalBytes(records.reduce((total, record) => total + record.byteLength, 0));
 
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { autoIncrement: true });
-        }
-      };
-
-      request.onsuccess = () => {
-        const db = request.result;
-        db.onversionchange = () => db.close();
-        resolve(db);
-      };
-
-      request.onerror = () => reject(request.error);
-    });
+    const keys = await this.connection.getAllKeys<number>(STORE_NAME);
+    const highestKey = keys[keys.length - 1];
+    this.nextKey = highestKey === undefined ? 0 : highestKey + 1;
   }
 }

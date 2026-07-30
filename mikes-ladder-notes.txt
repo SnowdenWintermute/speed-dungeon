@@ -12,12 +12,6 @@ how will we handle orphaned profiles/characters when deleting accounts
 page count for experience ladder will be potentially incorrect if it is counting
 characters of deleted accounts
 
-all clear (cumulative/on floor) times should link to the floor clear record
-
-item screenshots in progression ladder
-- cache generated screenshots for items that don't need custom screenshots
-
-fix all idb caches to use helper and use explicit keys
 
 cleanup
 - look for extractable logic

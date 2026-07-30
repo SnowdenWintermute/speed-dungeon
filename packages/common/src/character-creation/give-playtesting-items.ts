@@ -6,6 +6,7 @@ import {
   OneHandedMeleeWeapon,
   PREFIX_TYPES,
   Shield,
+  TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "../index.js";
 import { IdGenerator } from "../utility-classes/index.js";
@@ -28,7 +29,7 @@ export function givePlaytestingItems(
   itemBuilder: ItemBuilder
 ) {
   const { inventory } = combatantProperties;
-  inventory.changeShards(20);
+  inventory.changeShards(200);
 
   const tradeableItem = itemBuilder
     .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
@@ -42,6 +43,12 @@ export function givePlaytestingItems(
 
   inventory.equipment.push(tradeableItem);
 
+  inventory.equipment.push(
+    itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.RuneSword).build(idGenerator)
+  );
+  inventory.equipment.push(
+    itemBuilder.twoHandedMeleeWeapon(TwoHandedMeleeWeapon.ElementalStaff).build(idGenerator)
+  );
   inventory.equipment.push(itemBuilder.shield(Shield.GothicShield).build(idGenerator));
   inventory.equipment.push(itemBuilder.shield(Shield.AncientBuckler).build(idGenerator));
   inventory.equipment.push(itemBuilder.shield(Shield.TowerShield).build(idGenerator));

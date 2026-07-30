@@ -18,6 +18,7 @@ import {
 import { CUMULATIVE_CLEAR_TIMES_COLUMNS } from "./boards/cumulative-clear-columns";
 import { floorClearEntryKey } from "./boards/floor-clear-entry-key";
 import { cumulativeClearTimesBoardRoute, experiencePointsBoardRoute } from "./routes";
+import Divider from "../components/atoms/Divider";
 
 // module level so each query object keeps its identity across renders — the fetching hook keys off it
 const FREELANCER_EXPERIENCE_POINTS_QUERY: ExperiencePointsLadderQuery = {
@@ -76,17 +77,6 @@ const LadderMainPage = observer(() => {
         state={freelancerExperiencePoints}
       />
       <LadderBoardSection
-        title={`Progression Experience Points [${pluralScheme(CharacterControlScheme.Captain)}]`}
-        fullBoardHrefOption={experiencePointsBoardRoute({
-          controlScheme: CharacterControlScheme.Captain,
-          page: 0,
-        })}
-        columns={EXPERIENCE_POINTS_LADDER_COLUMNS}
-        keyOf={experiencePointsLadderEntryKey}
-        emptyMessage={NO_RANKED_CHARACTERS_MESSAGE}
-        state={captainExperiencePoints}
-      />
-      <LadderBoardSection
         title={`Deepest Cumulative Time To Clear [${pluralScheme(CharacterControlScheme.Freelancer)}]`}
         fullBoardHrefOption={cumulativeClearTimesBoardRoute({
           controlScheme: CharacterControlScheme.Freelancer,
@@ -96,6 +86,17 @@ const LadderMainPage = observer(() => {
         keyOf={floorClearEntryKey}
         emptyMessage={NO_FLOOR_CLEARS_MESSAGE}
         state={freelancerCumulative}
+      />
+      <LadderBoardSection
+        title={`Progression Experience Points [${pluralScheme(CharacterControlScheme.Captain)}]`}
+        fullBoardHrefOption={experiencePointsBoardRoute({
+          controlScheme: CharacterControlScheme.Captain,
+          page: 0,
+        })}
+        columns={EXPERIENCE_POINTS_LADDER_COLUMNS}
+        keyOf={experiencePointsLadderEntryKey}
+        emptyMessage={NO_RANKED_CHARACTERS_MESSAGE}
+        state={captainExperiencePoints}
       />
       <LadderBoardSection
         title={`Deepest Cumulative Time To Clear [${pluralScheme(CharacterControlScheme.Captain)}]`}

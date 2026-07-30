@@ -2,7 +2,9 @@
  * stores that persist to IndexedDB, which extend their own domain port rather than this.
  *
  * Every store it creates takes keys chosen by the caller, so a record is found by the same key
- * it was written with. Stores that let IndexedDB derive or generate keys are not served here. */
+ * it was written with. Stores that let IndexedDB derive or generate keys are not served here.
+ *
+ * A version bump drops and recreates every store, so only disposable data belongs here. */
 export class IndexedDbConnection {
   private dbPromise: Promise<IDBDatabase>;
   private disposed = false;
@@ -33,6 +35,14 @@ export class IndexedDbConnection {
     return this.awaitRequest<T[]>(
       db.transaction(storeName, "readonly").objectStore(storeName).getAll()
     );
+  }
+
+  async getAllKeys<T extends IDBValidKey>(storeName: string): Promise<T[]> {
+    const db = await this.dbPromise;
+    const keys = await this.awaitRequest(
+      db.transaction(storeName, "readonly").objectStore(storeName).getAllKeys()
+    );
+    return keys as T[];
   }
 
   /** for stores created without a keyPath or autoIncrement, whose keys live outside the value */
@@ -91,9 +101,10 @@ export class IndexedDbConnection {
       request.onupgradeneeded = () => {
         const db = request.result;
         for (const storeName of this.storeNames) {
-          if (!db.objectStoreNames.contains(storeName)) {
-            db.createObjectStore(storeName);
+          if (db.objectStoreNames.contains(storeName)) {
+            db.deleteObjectStore(storeName);
           }
+          db.createObjectStore(storeName);
         }
       };
 
