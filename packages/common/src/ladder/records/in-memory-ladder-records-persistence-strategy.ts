@@ -313,11 +313,13 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     });
   }
 
+  // only players with ladder history have a participant record, so an unknown one has no profile
+  // rather than an empty one — the same check the database strategy makes before it loads anything
   async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
-    return assemblePlayerProfileData(userId, {
-      ...this.floorClearAssemblyRecords(),
-      isKnownParticipant: this.participants.has(userId),
-    });
+    if (!this.participants.has(userId)) {
+      return undefined;
+    }
+    return assemblePlayerProfileData(userId, this.floorClearAssemblyRecords());
   }
 
   async getCharacterFloorClearSnapshot(

@@ -34,6 +34,7 @@ import {
   CharacterFloorClearSnapshotView,
   FloorClearEntry,
   FloorClearAssemblyRecords,
+  PersonalBestSelectionRecords,
   RankedFloorClearEntry,
   assembleFloorClearById,
   FloorClearSnapshotRef,
@@ -531,10 +532,10 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const userPartyFloorClears = await this.loadPartyFloorClearsByPartyIds(userPartyIds);
     // the user's full clear history covers floors <= each best, for cumulativeTimeToClearFloor —
     // which the cumulative selection needs before it can pick anything, not only afterwards
-    const selectionRecords = {
+    const selectionRecords: PersonalBestSelectionRecords = {
       parties: userParties,
       games,
-      partyClearHistory: userPartyFloorClears,
+      partyFloorClears: userPartyFloorClears,
     };
     const bestFloorTimes = selectPersonalBestPartyFloorClears(
       userPartyFloorClears,
@@ -555,12 +556,12 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const bestSnapshots = await this.loadSnapshotRefsByPartyFloorClearIds(
       unique(bests.map((partyFloorClear) => partyFloorClear.id))
     );
-    const assemblyRecords = {
-      parties: userParties,
-      games,
+    // the selection records plus what only assembly needs, so the two phases cannot disagree about
+    // which parties, games or clear history a row was built from
+    const assemblyRecords: FloorClearAssemblyRecords = {
+      ...selectionRecords,
       characters: bestPartyCharacters,
       snapshots: bestSnapshots,
-      partyClearHistory: userPartyFloorClears,
     };
 
     return {

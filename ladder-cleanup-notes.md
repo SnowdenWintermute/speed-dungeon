@@ -60,25 +60,36 @@ validation or `pageSizeOf`. Stale or blank forever → `KeyedQueryCache`.
 
 ---
 
-## The plan (6 steps, ordered by risk)
-
-1. **Free wins, no behavior change** — dead code + stale comments.
-2. **The two bugs** — failed queries can't recover; game history opted out of the paging rules.
-3. **Extract & hoist** — duplicated display strings and comparators into real homes.
-4. **Template Method on the two record-writing policies** + parameter object for the 8-arg constructor.
-5. **`FloorClearRecordSet` class** in the projections.
-6. **Remove the middle man** on the read side + `findWhereIn` on `DatabaseRepository` + row mappers
-   into the repos.
-
-Steps 1–3 are mechanical. 4–6 change structure and each wants a test run.
-
----
-
 ## Status
 
-- Steps 1–3: **DONE 2026-07-30**, full suite green (Mike ran it).
-- Step 4: **DONE 2026-07-30**, not yet test-run. Built differently than planned — see below.
-- Steps 5–6: not started.
+**Steps 1–5 are DONE and the full suite is green after each** (Mike ran it every time). Everything
+below the status section is a record of *how* each was built and what was rejected — read the step 6
+section first if you are starting cold, then the mental model above.
+
+| step | what | state |
+|---|---|---|
+| 1 | dead code + stale comments | done, green |
+| 2 | the two bugs (failed queries can't recover; game history paging) | done, green |
+| 3 | extract & hoist display strings + comparator | done, green |
+| 4 | policy dedup + dependency bundles | done, green — built differently than planned |
+| 5a | `FloorClearAssembler` + projection→assembly vocabulary | done, green |
+| 5b | record-bag cleanup | done, green |
+| **6** | **remove the read-side middle man + repo loaders** | **NOT STARTED — the whole remaining job** |
+
+Commit `705be76f` holds steps 1–4. Steps 5a/5b were still uncommitted when the session ended —
+**check `git status` before assuming anything.**
+
+### Recurring feedback from this pass (worth re-reading before writing code)
+
+- **Every abstraction must pay for itself in this specific case.** Rejected: an intermediate policy
+  base class, a `LadderRecordWriter` collaborator, a parameter object for `GameModePolicyStore`.
+  The rule that generated the right answers: *when several classes take the same set of collaborators,
+  name the set* — not "many parameters → parameter object".
+- **Stale or garbled comments get deleted, not rewritten.**
+- **Name things for what they are**, not for their fields (`FloorClearIndex` ✗), not for the caller
+  you had in mind (`compareIdsOrdinally` ✗), no articles (`…FromThePrevious…` ✗).
+- **Check borrowed vocabulary against its source.** "Projection" was wrong — see step 5a.
+- Mike reviews diffs, so use Edit rather than scripts, except for sanctioned bulk renames.
 
 ## Step 4 as built — no intermediate base class
 
@@ -203,47 +214,29 @@ the redundant `if (lobbyClientRef.isInitialized)` block in `enterOnline` (same p
 
 ---
 
-## Step 4 — Template Method on the record-writing policies (NOT STARTED)
+## Step 5b — record-bag cleanup — DONE 2026-07-30
 
-`IronmanModeLadderPolicy` and `RankedRaceModeLadderPolicy` are the same class twice. This body
-appears **8 times** across the two files:
+What made the two callers re-bag: the same field was `partyFloorClears` on
+`FloorClearAssemblyRecords` and `partyClearHistory` on the two personal-best functions' inline types.
+One name now (`partyFloorClears`), so the full record set passes straight into both.
 
-```ts
-const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
-```
+- `PersonalBestSelectionRecords` is a **`Pick<FloorClearAssemblyRecords, …>`**, not a re-declaration.
+  Renaming a field on the assembly records now fails at the `Pick` itself rather than drifting —
+  which is how the two names got out of sync originally. (Mike asked exactly this.)
+- **Kept two phases in the postgres path deliberately.** Selection runs before characters/snapshots
+  are loaded — the tier-1 optimization, so snapshot blobs are only fetched for the handful of clears
+  that won. So do NOT try to hand selection a fully-populated `FloorClearAssembler`. Considered and
+  rejected: constructing a selection-time assembler with `characters: []` / `snapshots: []`, because
+  calling `assemble()` on it would silently yield entries with no characters or players.
+  `assemblyRecords` is now spread from `selectionRecords`, so the phases cannot disagree about which
+  parties/games/history a row was built from.
+- `assemblePlayerProfileData` no longer takes `isKnownParticipant` and returns non-optional. The
+  "unknown participant → no profile" check moved into the in-memory strategy, where the postgres
+  strategy already had it. Removes a boolean flag smuggled into a record bag.
 
-`onFloorDescent`, `onPartyEscape`, `onPartyWipe`, `onPartyBattleVictory` are byte-identical between
-them. They genuinely differ in only three places:
-
-- ironman's `isContinuedRun` guard on `onGameStart`
-- ironman's `onLastPlayerLeftLiveGame`
-- race's extra fate persistence on `onPartyWipe` (the solo-leave path)
-
-Plan: a shared `GameRecordWritingLadderPolicy` base with a `protected syncGameRecords(game)` step;
-subclasses hold only their differences. ~60 lines gone, and the mode difference becomes readable.
-
-Also here: `GameModeLadderUpdatePolicy`'s 8-parameter constructor → one injected
-`LadderPolicyServices` parameter object. `UnrankedRaceModeLadderPolicy` inherits all 8 and uses none.
-
-And: `ProgressionModeLadderPolicy.onPartyBattleVictory` is a 90-line method containing the same
-"push to party channel + publish to everyone else" block twice, verbatim but for the message text.
-Extract `announceLadderProgress(text, partyChannel, outbox)`.
-
-## Step 5b — record-bag cleanup (NOT STARTED — Mike explicitly said don't forget this)
-
-Split out of step 5 so 5a could land with no cross-file changes. **5b is the part with the real
-conceptual mess**, and the only part that reaches outside `ladder-read-model-projections.ts`:
-
-- `projectPlayerProfileData` hand-builds two overlapping sub-bags, `assemblyRecords` and
-  `selectionRecords`, because three functions each want a different subset of one clump.
-- `DatabaseLadderRecordsPersistenceStrategy.getPlayerProfileData` builds **those same two shapes
-  again**, independently.
-- `selectPersonalBestPartyFloorClears` and `assemblePersonalBestEntries` each take their own
-  ad-hoc inline record-bag type rather than a named one.
-
-Riskier than 5a: a mistake changes what a profile page shows rather than failing loudly. Do it as its
-own step with a full suite run.
+Still not addressed (deliberate, low value): `selectPersonalBestPartyFloorClears` builds its own
+`partiesById` / `gamesById` / `clearsByParty`, duplicating three of the assembler's five maps. Can't
+share the assembler for the reason above, and the maps are trivial enough that divergence is unlikely.
 
 ## Step 5a — `FloorClearAssembler` + the projection→assembly vocabulary fix — DONE 2026-07-30
 
@@ -311,6 +304,18 @@ Also unresolved there: **reads bypass the repos while writes go through them.** 
 `ladderPartyRecordsRepo.insert`; reads hand-write `SELECT * FROM ladder_party_records`. Pick a
 direction — the inconsistency costs more than either choice.
 
+**Before starting, check these against the code — they were measured on 2026-07-30 and steps 1–5
+have since edited both files:** the 16/24 forward count, the 888-line figure (already smaller after
+the `loadCharactersByIds` deletion), and the seven loaders. Note `getPlayerProfileData` in the
+postgres strategy was reworked in 5b and now spreads `assemblyRecords` from `selectionRecords`.
+
+Two constraints step 6 must not break:
+- `LocalLadderQueries` is constructed in four places (lobby-server, game-node, lobby-node, the
+  offline servers in client-application, plus the integration fixture). Changing what it depends on
+  touches all of them.
+- The service's write side is used by the ladder policies via `gameRecordsLadderService`. Only the
+  read half should move.
+
 ---
 
 ## Deferred / open questions
@@ -323,5 +328,12 @@ direction — the inconsistency costs more than either choice.
 - `PersonalBestsSection` filters mode/control-scheme client-side over a payload that carries every
   facet. Fine at current sizes; noted in case the profile query ever gets narrowed server-side.
 - `computeRankedRaceTally` rebuilds `partiesById` per game via `playerPartyInGame`, and calls
-  `raceWinnerPartyIds` inside the loop. Doesn't use the indexing pattern the rest of the file uses.
-  Left alone deliberately: profiler-gated, and step 5 may absorb it.
+  `raceWinnerPartyIds` inside the loop. Doesn't use the assembler pattern the rest of the file uses.
+  Step 5 did **not** absorb it — the win-rate side never touches `FloorClearAssemblyRecords`.
+  Still left alone deliberately: profiler-gated.
+- `selectPersonalBestPartyFloorClears` builds three maps the assembler also builds. Can't share one
+  (see 5b), and they're trivial. Noted only so it isn't rediscovered as a finding.
+- Naming inconsistencies found during step 4 and left: `updateDispatchFactory` vs
+  `messageDispatchFactory` for the same object; `ladderGameRecordsService` vs
+  `gameRecordsLadderService`; the throwaway `GameExistenceChecker` a game server builds to fill a
+  parameter only lobby-setup policies use.

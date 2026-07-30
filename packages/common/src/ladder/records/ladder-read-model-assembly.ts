@@ -42,6 +42,15 @@ import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clea
 // three verbs, and they mean different things: assemble… returns a read model, select… returns the
 // records that won, compute… returns a figure
 
+// picking which clears are a player's personal bests needs no characters and no snapshots: it reads
+// each clear's game (for the mode) and its party's other clears (for the running total). stated as a
+// subset so a caller holding the full set can pass it straight in, and so the postgres strategy can
+// select first and only then load the snapshot blobs for the handful that won
+export type PersonalBestSelectionRecords = Pick<
+  FloorClearAssemblyRecords,
+  "parties" | "games" | "partyFloorClears"
+>;
+
 // the records needed to describe a floor clear: its party, that party's game and characters, the
 // snapshots taken at it, and the party's other clears for the running total. a query loads whichever
 // slice of these its rows need — the slice spans games, since a board's rows come from many runs
@@ -226,17 +235,8 @@ export function assembleWinRateLadderPage(
 // snapshot blobs only for the user's actual personal-best clears, never for rival parties.
 export function assemblePlayerProfileData(
   userId: IdentityProviderId,
-  records: FloorClearAssemblyRecords & { isKnownParticipant: boolean }
-): PlayerProfileData | undefined {
-  if (!records.isKnownParticipant) {
-    return undefined;
-  }
-  const rankedRaceTally = computeRankedRaceTally(
-    userId,
-    records.games,
-    records.parties,
-    records.characters
-  );
+  records: FloorClearAssemblyRecords
+): PlayerProfileData {
   const userPartyIds = new Set(
     records.characters
       .filter((character) => character.controllingPlayerId === userId)
@@ -245,37 +245,23 @@ export function assemblePlayerProfileData(
   const userPartyFloorClears = records.partyFloorClears.filter((partyFloorClear) =>
     userPartyIds.has(partyFloorClear.partyRecordRef)
   );
-  const assemblyRecords = {
-    parties: records.parties,
-    games: records.games,
-    characters: records.characters,
-    snapshots: records.snapshots,
-    partyClearHistory: records.partyFloorClears,
-  };
-  const selectionRecords = {
-    parties: records.parties,
-    games: records.games,
-    partyClearHistory: records.partyFloorClears,
-  };
+  const personalBestsBy = (bestBy: FloorClearSortField) =>
+    assemblePersonalBestEntries(
+      selectPersonalBestPartyFloorClears(userPartyFloorClears, records, bestBy),
+      records
+    );
 
   return {
     participantId: userId,
-    rankedRaceTally,
-    personalBestFloorTimes: assemblePersonalBestEntries(
-      selectPersonalBestPartyFloorClears(
-        userPartyFloorClears,
-        selectionRecords,
-        FloorClearSortField.TimeSpentOnFloor
-      ),
-      assemblyRecords
+    rankedRaceTally: computeRankedRaceTally(
+      userId,
+      records.games,
+      records.parties,
+      records.characters
     ),
-    personalBestCumulativeTimes: assemblePersonalBestEntries(
-      selectPersonalBestPartyFloorClears(
-        userPartyFloorClears,
-        selectionRecords,
-        FloorClearSortField.CumulativeTimeToClearFloor
-      ),
-      assemblyRecords
+    personalBestFloorTimes: personalBestsBy(FloorClearSortField.TimeSpentOnFloor),
+    personalBestCumulativeTimes: personalBestsBy(
+      FloorClearSortField.CumulativeTimeToClearFloor
     ),
   };
 }
@@ -289,17 +275,13 @@ export function assemblePlayerProfileData(
 // scheme, as everywhere else cumulative time is summed — a party can switch mid-run
 export function selectPersonalBestPartyFloorClears(
   userPartyFloorClears: LadderPartyFloorClearRecord[],
-  records: {
-    parties: LadderPartyRecord[];
-    games: LadderGameRecord[];
-    partyClearHistory: LadderPartyFloorClearRecord[];
-  },
+  records: PersonalBestSelectionRecords,
   bestBy: FloorClearSortField
 ): LadderPartyFloorClearRecord[] {
   const partiesById = new Map(records.parties.map((party) => [party.id, party]));
   const gamesById = new Map(records.games.map((game) => [game.id, game]));
   const clearsByParty = new Map<PartyId, LadderPartyFloorClearRecord[]>();
-  for (const clear of records.partyClearHistory) {
+  for (const clear of records.partyFloorClears) {
     const partyClears = clearsByParty.get(clear.partyRecordRef) ?? [];
     partyClears.push(clear);
     clearsByParty.set(clear.partyRecordRef, partyClears);
@@ -333,25 +315,14 @@ export function selectPersonalBestPartyFloorClears(
   return [...bestByFloorModeScheme.values()].sort((a, b) => a.floor - b.floor);
 }
 
-// assembles the display entries for an already-selected, floor-sorted set of best clears
+// assembles the display entries for an already-selected, floor-sorted set of best clears.
+// partyFloorClears here is the best clears' parties' full history, not just the winning clears —
+// the running total on each row sums every floor below it
 export function assemblePersonalBestEntries(
   bestPartyFloorClears: LadderPartyFloorClearRecord[],
-  records: {
-    parties: LadderPartyRecord[];
-    games: LadderGameRecord[];
-    characters: LadderCharacterRecord[];
-    snapshots: FloorClearSnapshotRef[];
-    // the best clears' parties' full clear history (floors <= each best), for cumulativeTimeToClearFloor
-    partyClearHistory: LadderPartyFloorClearRecord[];
-  }
+  records: FloorClearAssemblyRecords
 ): FloorClearEntry[] {
-  const assembler = new FloorClearAssembler({
-    partyFloorClears: records.partyClearHistory,
-    parties: records.parties,
-    games: records.games,
-    characters: records.characters,
-    snapshots: records.snapshots,
-  });
+  const assembler = new FloorClearAssembler(records);
   return bestPartyFloorClears.map((partyFloorClear) => assembler.assemble(partyFloorClear));
 }
 
