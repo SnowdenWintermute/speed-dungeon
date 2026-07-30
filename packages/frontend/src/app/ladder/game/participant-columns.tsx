@@ -1,7 +1,7 @@
 import React from "react";
 import { GameRecordParticipantView } from "@speed-dungeon/common";
-import { formatTimestamp } from "@/utils/format-timestamp";
 import { LadderTableColumn } from "../ladder-table/column";
+import { optionalTimestampText } from "../display-text";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { playerProfileRoute } from "../routes";
 
@@ -18,10 +18,7 @@ export const GAME_RECORD_PARTICIPANT_COLUMNS: LadderTableColumn<GameRecordPartic
   },
   {
     header: "Abandoned",
-    renderCell: (participant) =>
-      participant.abandonedAtOption === undefined
-        ? "—"
-        : formatTimestamp(participant.abandonedAtOption),
+    renderCell: (participant) => optionalTimestampText(participant.abandonedAtOption),
   },
 ];
 

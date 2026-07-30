@@ -1,5 +1,3 @@
-import { Milliseconds } from "@speed-dungeon/common";
-
 export enum LadderQueryStatus {
   Loading,
   Loaded,
@@ -8,5 +6,5 @@ export enum LadderQueryStatus {
 
 export type LadderQueryState<TResult> =
   | { type: LadderQueryStatus.Loading }
-  | { type: LadderQueryStatus.Loaded; result: TResult; lastUpdatedAt: Milliseconds }
+  | { type: LadderQueryStatus.Loaded; result: TResult }
   | { type: LadderQueryStatus.Failed; message: string };

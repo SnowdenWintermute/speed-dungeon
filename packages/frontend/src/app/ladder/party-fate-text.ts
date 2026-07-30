@@ -1,5 +1,6 @@
 import { PartyFate, PartyFateType } from "@speed-dungeon/common";
 import { formatTimestamp } from "@/utils/format-timestamp";
+import { NO_VALUE_TEXT } from "./display-text";
 
 const PARTY_FATE_TYPE_STRINGS: Record<PartyFateType, string> = {
   [PartyFateType.Wipe]: "Wiped",
@@ -10,7 +11,7 @@ const PARTY_FATE_TYPE_STRINGS: Record<PartyFateType, string> = {
 // ordinary case rather than a figure we are missing
 export function partyFateText(fateOption: PartyFate | undefined): string {
   if (fateOption === undefined) {
-    return "—";
+    return NO_VALUE_TEXT;
   }
   return PARTY_FATE_TYPE_STRINGS[fateOption.type];
 }
@@ -19,7 +20,7 @@ export function partyFateText(fateOption: PartyFate | undefined): string {
 // bare fate is enough
 export function partyFateAtTimeText(fateOption: PartyFate | undefined): string {
   if (fateOption === undefined) {
-    return "—";
+    return NO_VALUE_TEXT;
   }
   return `${partyFateText(fateOption)} at ${formatTimestamp(fateOption.timestamp)}`;
 }

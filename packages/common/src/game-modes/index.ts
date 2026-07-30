@@ -16,6 +16,12 @@ export const CHARACTER_CONTROL_SCHEME_STRINGS: Record<CharacterControlScheme, st
   [CharacterControlScheme.Captain]: "Captain",
 };
 
+// for naming a group of characters rather than the scheme as a setting: "Freelancers", not
+// "Freelancer"
+export function controlSchemePlural(controlScheme: CharacterControlScheme): string {
+  return `${CHARACTER_CONTROL_SCHEME_STRINGS[controlScheme]}s`;
+}
+
 export function getMaxCharacterCountForControlScheme(
   characterControlScheme: CharacterControlScheme
 ) {

@@ -2,10 +2,10 @@
 import React, { useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import {
-  CHARACTER_CONTROL_SCHEME_STRINGS,
   CharacterControlScheme,
   PlayerProgressionCharactersQuery,
   Username,
+  controlSchemePlural,
 } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { useLadderQuery } from "@/hooks/use-ladder-query";
@@ -32,7 +32,7 @@ export const ProgressionCharactersSection = observer(
     return (
       <>
         <h2 className="text-xl mb-2">
-          {`Progression Characters [${CHARACTER_CONTROL_SCHEME_STRINGS[controlScheme]}s]`}
+          {`Progression Characters [${controlSchemePlural(controlScheme)}]`}
         </h2>
         <LadderQueryBoundary state={state}>
           {({ characters, ranksByCharacterId }) => (

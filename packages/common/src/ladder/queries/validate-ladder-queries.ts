@@ -2,6 +2,7 @@ import {
   LADDER_MAX_PAGE_SIZE,
   LADDER_MAX_RANKED_ENTRIES,
   LADDER_MAX_RANK_LOOKUP_IDS,
+  USER_GAME_HISTORY_PAGE_SIZE,
 } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
@@ -63,8 +64,10 @@ export function validateWinRateLadderQuery(query: WinRateLadderQuery): void {
   }
 }
 
+// the one board whose page size is fixed rather than the caller's, so there is no size to check —
+// only how deep the page is, against the size this board actually serves
 export function validateUserGameHistoryQuery(query: UserGameHistoryQuery): void {
-  validatePagedQuery(query);
+  validatePageDepth(query.page, USER_GAME_HISTORY_PAGE_SIZE);
 }
 
 // no page to check: a player's characters on one ladder are capped by their account's capacity, not
@@ -88,14 +91,9 @@ export function validateRankLookupIds(ids: unknown[]): void {
   }
 }
 
-// the query reaches here from a client we do not control. a negative page is not merely empty: it
-// reaches zRange as an index counted from the end of the sorted set, and SQL OFFSET as an error. a
-// page size is worse than either — it is the caller naming how many rows the server will read — so
-// it is capped rather than merely well-formed
+// the query reaches here from a client we do not control. a page size is the caller naming how many
+// rows the server will read, so it is capped rather than merely well-formed
 export function validatePagedQuery(query: PagedLadderQuery): void {
-  if (!Number.isInteger(query.page) || query.page < 0) {
-    throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE);
-  }
   const { pageSizeOption } = query;
   if (
     pageSizeOption !== undefined &&
@@ -103,10 +101,20 @@ export function validatePagedQuery(query: PagedLadderQuery): void {
   ) {
     throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE_SIZE(LADDER_MAX_PAGE_SIZE));
   }
-  // depth is refused rather than answered emptily, because the cost of OFFSET is paid on the way to
-  // discovering there is nothing there. no pager can lead a reader this deep — totalPages is capped
-  // to match — so a request this deep was hand-written
-  if (query.page * pageSizeOf(query) >= LADDER_MAX_RANKED_ENTRIES) {
+  validatePageDepth(query.page, pageSizeOf(query));
+}
+
+// checked against the size the board actually serves, so every board is capped at the same number of
+// rows rather than the same number of pages — totalPagesOf caps totalPages by the same rule, which is
+// what keeps a pager from ever offering a page this would refuse.
+// a negative page is not merely empty: it reaches zRange as an index counted from the end of the
+// sorted set, and SQL OFFSET as an error. depth is refused rather than answered emptily, because the
+// cost of OFFSET is paid on the way to discovering there is nothing there
+export function validatePageDepth(page: number, pageSize: number): void {
+  if (!Number.isInteger(page) || page < 0) {
+    throw new Error(ERROR_MESSAGES.LADDER.INVALID_PAGE);
+  }
+  if (page * pageSize >= LADDER_MAX_RANKED_ENTRIES) {
     throw new Error(ERROR_MESSAGES.LADDER.PAGE_BEYOND_RANKED_ENTRIES(LADDER_MAX_RANKED_ENTRIES));
   }
 }

@@ -36,16 +36,12 @@ export class KeyedQueryCache<TQuery, TResult> implements ReactiveNode {
 
   // a full page load starts with an empty cache, so entering a url fetches without any special
   // casing. only navigating back to a query within the same session is served from memory.
-  // a failed entry counts as asked: retrying is the refresh button's job, or a render loop would
-  // hammer a server that is already failing
+  // a failed entry counts as asked, or a render loop would hammer a server that is already failing.
+  // clearing the cache is what makes a failed query askable again, which a reconnect does
   request(query: TQuery): void {
     if (this.stateByKey.has(this.keyOf(query))) {
       return;
     }
-    void this.fetch(query);
-  }
-
-  refresh(query: TQuery): void {
     void this.fetch(query);
   }
 
@@ -77,11 +73,7 @@ export class KeyedQueryCache<TQuery, TResult> implements ReactiveNode {
     if (this.isSuperseded(key, requestId)) {
       return;
     }
-    this.stateByKey.set(key, {
-      type: LadderQueryStatus.Loaded,
-      result,
-      lastUpdatedAt: Date.now(),
-    });
+    this.stateByKey.set(key, { type: LadderQueryStatus.Loaded, result });
   }
 
   private receiveFailure(key: string, requestId: number, message: string): void {
@@ -91,8 +83,8 @@ export class KeyedQueryCache<TQuery, TResult> implements ReactiveNode {
     this.stateByKey.set(key, { type: LadderQueryStatus.Failed, message });
   }
 
-  // a refresh started while an earlier fetch for the same key was still in flight must win no
-  // matter which of them the server answers first
+  // a reconnect clears the cache and the pages re-ask, so a fetch from the previous connection can
+  // land after its replacement started. the newer request wins whichever answers first
   private isSuperseded(key: string, requestId: number): boolean {
     return this.latestRequestIdByKey.get(key) !== requestId;
   }

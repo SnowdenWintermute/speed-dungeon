@@ -8,11 +8,9 @@ import {
   createLadderDeathsMessage,
   createLevelLadderExpRankMessage,
   createLevelLadderLevelupMessage,
-  GameMessage,
   GameMessageType,
 } from "../../packets/game-message.js";
-import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
-import { CrossServerBroadcastType } from "../../servers/services/cross-server-broadcaster/index.js";
+import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
 import { GameModeLadderUpdatePolicy } from "../ladder-update-policy.js";
 
@@ -47,7 +45,7 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
     return outbox;
   }
 
-  async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
+  override async onPartyWipe(game: SpeedDungeonGame, party: AdventuringParty) {
     const partyCharacters = party.combatantManager.getPartyMemberCharacters();
     const ladderDeathsUpdate = await this.experiencePointsLadderService.removeDeadCharacters(
       partyCharacters,
@@ -63,32 +61,18 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
         deathAndRank.level,
         deathAndRank.rank
       );
-      outbox.pushFromOther(
-        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-          partyChannelName,
-          GameMessageType.LadderDeath,
-          ladderDeathMessageText,
-          partyChannelName
-        )
+      this.announceLadderEvent(
+        outbox,
+        partyChannelName,
+        GameMessageType.LadderDeath,
+        ladderDeathMessageText
       );
-
-      this.crossServerBroadcasterService.publish({
-        type: CrossServerBroadcastType.ChannelFanOut,
-        channelName: LADDER_UPDATES_CHANNEL_NAME,
-        payload: {
-          type: GameStateUpdateType.GameMessage,
-          data: {
-            message: new GameMessage(GameMessageType.LadderDeath, false, ladderDeathMessageText),
-          },
-        },
-        excludedConnectionIds: this.userSessionRegistry.in(partyChannelName),
-      });
     }
 
     return outbox;
   }
 
-  async onPartyBattleVictory(
+  override async onPartyBattleVictory(
     game: SpeedDungeonGame,
     party: AdventuringParty,
     levelups: Record<EntityId, number>
@@ -128,26 +112,12 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
           levelup,
           newRank
         );
-        outbox.pushFromOther(
-          this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-            partyChannel,
-            GameMessageType.LadderProgress,
-            levelupMessageText,
-            partyChannel
-          )
+        this.announceLadderEvent(
+          outbox,
+          partyChannel,
+          GameMessageType.LadderProgress,
+          levelupMessageText
         );
-        // for non party members and users on other servers
-        this.crossServerBroadcasterService.publish({
-          type: CrossServerBroadcastType.ChannelFanOut,
-          channelName: LADDER_UPDATES_CHANNEL_NAME,
-          payload: {
-            type: GameStateUpdateType.GameMessage,
-            data: {
-              message: new GameMessage(GameMessageType.LadderProgress, false, levelupMessageText),
-            },
-          },
-          excludedConnectionIds: this.userSessionRegistry.in(partyChannel),
-        });
       }
       const experiencePointsLadderMessageText = createLevelLadderExpRankMessage(
         name,
@@ -155,29 +125,12 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
         character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent(),
         newRank
       );
-      outbox.pushFromOther(
-        this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
-          partyChannel,
-          GameMessageType.LadderProgress,
-          experiencePointsLadderMessageText,
-          partyChannel
-        )
+      this.announceLadderEvent(
+        outbox,
+        partyChannel,
+        GameMessageType.LadderProgress,
+        experiencePointsLadderMessageText
       );
-      this.crossServerBroadcasterService.publish({
-        type: CrossServerBroadcastType.ChannelFanOut,
-        channelName: LADDER_UPDATES_CHANNEL_NAME,
-        payload: {
-          type: GameStateUpdateType.GameMessage,
-          data: {
-            message: new GameMessage(
-              GameMessageType.LadderProgress,
-              false,
-              experiencePointsLadderMessageText
-            ),
-          },
-        },
-        excludedConnectionIds: this.userSessionRegistry.in(partyChannel),
-      });
     }
 
     return outbox;

@@ -28,7 +28,6 @@ export const LADDER_PATHNAMES = {
 // one place builds every link into the ladder, since a row's cells are written per board.
 // a board route takes the whole query rather than the field being changed: a pager and a selector
 // both mean "this board, with one thing different", and the rest of the filters have to survive it.
-// the character, character snapshot and profile pages are still to be built
 export function experiencePointsBoardRoute(query: ExperiencePointsLadderQuery): string {
   return buildUrlWithSearchParams(LADDER_PATHNAMES.EXPERIENCE_POINTS, {
     [LADDER_URL_PARAMS.CONTROL_SCHEME]: query.controlScheme,

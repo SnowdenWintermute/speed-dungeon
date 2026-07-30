@@ -1,0 +1,260 @@
+# Ladder Code Quality Pass — Running Notes
+
+Working doc for the multi-session cleanup of the ladder/profiles code, after the feature itself
+landed. Maintained by Claude across sessions; throw it out when the pass is done, alongside
+`ladder-rebuild-notes.md`. Purpose is cross-session context, not permanent documentation.
+
+Started 2026-07-30, from Mike's five criteria in `mikes-ladder-notes.txt`:
+extractable logic, local utils/consts that want a real home, unnecessary complexity, applicable
+design patterns, free-floating functions that could be grouped into classes.
+
+Guiding books, per Mike: Evans (DDD), McConnell (Code Complete 2), Fowler (Refactoring).
+
+**Mike does not read this file** — it is Claude's cross-session scratch context. He reads the diffs.
+So: precise pointers over prose, and record decisions + rejected alternatives, not explanations.
+
+### File map
+
+- contract + DTOs: `packages/common/src/ladder/queries/`
+- record model + projections + strategies: `packages/common/src/ladder/records/`
+- write-side policies: `packages/common/src/game-modes/*/ladder-policy.ts`, `ladder-update-policy.ts`
+- postgres strategy: `packages/server/src/game-node/services/database-ladder-records-persistence-strategy.ts`
+- repos: `packages/server/src/database/repos/ladder-*.ts` (base class in `repos/index.ts`)
+- client store: `packages/client-application/src/ladder-view/`, `client-ladder-queries.ts`
+- pages: `packages/frontend/src/app/ladder/`, `packages/frontend/src/app/profile/`
+
+---
+
+## The mental model (write this down once, refer back to it)
+
+One request, all the way down:
+
+```
+URL  →  query-schemas.ts (zod parses/defaults; untrusted text stops here)
+     →  ParsedLadderQuery / ParsedRouteParam (render nothing until it parsed)
+     →  Board component  →  useLadderQuery(cache, query)
+     →  KeyedQueryCache (one entry per distinct query, keyed by its fields)
+     →  ClientLadderQueries          ← the client's impl of the LadderQueries interface
+     →  [socket: one intent type, one reply type — LadderQueryRequest/Result]
+     →  LadderGameRecordsController  →  executeLadderQuery(...)
+     →  LocalLadderQueries           ← the server's impl of the SAME interface
+     →  LadderGameRecordsService  →  LadderRecordsPersistenceStrategy (in-memory | Postgres)
+     →  ladder-read-model-projections.ts  ← the shared "records → read model" math
+```
+
+Four rules explain nearly every decision in there:
+
+1. `LadderQueries` is one interface with two implementations. `ClientLadderQueries` sends;
+   `LocalLadderQueries` executes. Offline skips the socket and calls `LocalLadderQueries` in
+   process. A query that behaves differently online vs offline is a bug in the transport pair.
+2. `…Query` in, `…View` out. Views hold usernames; records/`…Entry` hold ids. Username resolution
+   happens in exactly one place: `LocalLadderQueries.resolverForPlayers`.
+3. Rank belongs to a board, not to a row. Hence `Record<id, number>` maps beside the rows, and no
+   rank on a detail page.
+4. Projections are storage-agnostic. In-memory is the oracle; Postgres must agree with it,
+   tie-breaks included (`compareIds` ↔ `CUMULATIVE_BOARD_ORDER`).
+
+**Debugging shortcut — symptom to layer:** wrong number → projections. Wrong order →
+the comparator/SQL `ORDER BY` pair. Wrong name → `resolverForPlayers`. Wrong rows on a page →
+validation or `pageSizeOf`. Stale or blank forever → `KeyedQueryCache`.
+
+---
+
+## The plan (6 steps, ordered by risk)
+
+1. **Free wins, no behavior change** — dead code + stale comments.
+2. **The two bugs** — failed queries can't recover; game history opted out of the paging rules.
+3. **Extract & hoist** — duplicated display strings and comparators into real homes.
+4. **Template Method on the two record-writing policies** + parameter object for the 8-arg constructor.
+5. **`FloorClearRecordSet` class** in the projections.
+6. **Remove the middle man** on the read side + `findWhereIn` on `DatabaseRepository` + row mappers
+   into the repos.
+
+Steps 1–3 are mechanical. 4–6 change structure and each wants a test run.
+
+---
+
+## Status
+
+- Steps 1–3: **DONE 2026-07-30**, full suite green (Mike ran it).
+- Step 4: **DONE 2026-07-30**, not yet test-run. Built differently than planned — see below.
+- Steps 5–6: not started.
+
+## Step 4 as built — no intermediate base class
+
+I started writing `GameRecordWritingLadderPolicy` between the abstract base and the two concrete
+policies. **Mike rejected the extra inheritance level** and he was right: three levels to answer
+"what does ironman do on a wipe", in a codebase whose main diagnosis was too many layers.
+
+Also rejected, by me, before proposing it: a `LadderRecordWriter` collaborator object. It would have
+inserted another hop between the policies and `LadderGameRecordsService`, which step 6 exists to thin.
+
+**What was actually done:** the repeated idiom became `protected syncGameRecords(game)` on the
+existing `GameModeLadderUpdatePolicy` that all four modes already extend. 8 duplicated two-liners →
+one helper. Ironman and RankedRace keep their own hook methods, which is what makes each policy
+readable as a table of event → behavior without traversing parents.
+
+`announceLadderEvent(outbox, partyChannel, messageType, text)` went on the same base, replacing 3
+copies of the push-to-party-then-fan-out-to-everyone block. **It is on the base, not on
+`ProgressionModeLadderPolicy` where the copies were**, because Mike flagged that upcoming events
+("party X set a record for fastest cumulative clear of floor 9") originate from floor clears — which
+only ironman and ranked race write. The first future caller is a different class than the current ones.
+
+`LadderPolicyDependencies` replaced the 8 positional constructor args. **Named "Dependencies", not
+"Services"** — Mike asked whether "services" was fair in DDD terms and it isn't: two of the seven are
+Repositories wearing a Service name, three are infrastructure/delivery, one is a lookup over
+transient session state. Renaming the individual classes is a repo-wide job, deliberately not done here.
+
+`idGenerator` was dropped from the ladder policies entirely — zero uses across all four.
+
+**Correction to record:** my first justification comment for the parameter object claimed a swapped
+pair of arguments would still compile. Mike caught it; it's false, all seven are structurally
+distinct. The real reason is that all four modes take the same seven, so the set is built once.
+
+### Follow-on: the other policy families (Mike asked about consistency)
+
+Applied the same rule — *when several classes take the same set of collaborators, name the set* —
+rather than "parameter objects everywhere", which would have made things worse in one case:
+
+| family | params | got a bundle? |
+|---|---|---|
+| lobbySetup | 7 | yes — `LobbySetupPolicyDependencies` |
+| persistence | 4 | yes — `PersistencePolicyDependencies` |
+| gameInitialization | 1 | **no** — wrapping one argument is strictly worse |
+| inGameDecisions | 0 | nothing to do |
+
+Deliberately **not** one omnibus `PolicyDependencies`: part of what each bundle buys is a narrow
+statement of what that policy family may touch. Merging them would let every policy reach everything.
+
+All 8 construction sites were byte-identical and all live in `game-mode-policy-store.ts`; no subclass
+declares its own constructor, so only the two base classes changed. Each mode entry in the store is
+now 5 lines, so the *shape* of a mode is visible at a glance.
+
+**Still open, deliberately not done:** `GameModePolicyStore`'s own constructor still takes 11
+positional parameters — the same smell one level up. Its call sites are in server/lobby-node,
+game-node, the offline servers and the integration fixtures, so it is a wider change than this pass.
+
+## Steps 1–3 as built (2026-07-30)
+
+**Deleted:** `ladder/records/notes.ts` (unimported scratch); `loadCharactersByIds` (unused);
+`KeyedQueryCache.refresh()` and `LadderQueryState.lastUpdatedAt` (both written, never read);
+the redundant `if (lobbyClientRef.isInitialized)` block in `enterOnline` (same predicate as the
+`else` below it, so `stopAwaitingReplies` + `failAllPendingQueries` ran twice per reconnect).
+
+**Behavior changes, deliberate:**
+- In-memory `recordRunAbandonment` no longer logs when there is no participation to abandon; it
+  no-ops, matching SQL where the UPDATE matches no rows. (It previously had an unreachable
+  `invariant` after an early return.)
+- Reconnect now calls `ladderView.clear()` via `discardAnswersFromPreviousConnection`. This is the
+  fix for "a failed query stays failed until a full page load" — a cache entry counts as asked, so
+  clearing is the only way back. Verified the retry actually fires: `isConnected` is true only for
+  `ConnectionStatus.Connected`, and `enterOnline` sets `Initializing` first, so `useLadderQuery`'s
+  effect re-runs on reconnect against an empty cache. `isSuperseded` is now load-bearing for a real
+  case (pre-reconnect fetch landing after its replacement).
+- Game history paging now agrees with itself: `validateUserGameHistoryQuery` checks depth against
+  `USER_GAME_HISTORY_PAGE_SIZE` (it was inheriting `validatePagedQuery`'s 20 via a `pageSizeOption`
+  that type doesn't even have), and `totalPages` comes from `totalPagesOf` instead of a raw
+  `Math.ceil`. Extracted `validatePageDepth(page, pageSize)` as the shared rule.
+
+**Hoisted:**
+- `compareStringsOrdinally` → `common/src/utils/index.ts`, replacing the private `compareIds` in the
+  projections and the nested ternary in `byMostExperienced`.
+- `controlSchemePlural` → beside the `CharacterControlScheme` enum in `common/src/game-modes/index.ts`.
+- new `frontend/src/app/ladder/display-text.ts` — `NO_VALUE_TEXT` (was `"—"` in 6 places across 5
+  files) and `optionalTimestampText` (the abandoned-at ternary, duplicated verbatim in two column files).
+- new `frontend/src/app/ladder/board-text.ts` — `LADDER_BOARD_NAMES` (consumed by the tab bar, so the
+  names are not mirrored), the three board title builders, `LADDER_EMPTY_MESSAGES`. Each board title
+  had existed in 2–3 places.
+
+**Mike's corrections this session** (also saved to memory):
+- Stale/garbled comments: **delete, don't rewrite**. I repaired one and he pushed back.
+- No articles in identifiers (`discardAnswersFromPreviousConnection`).
+- Don't narrow a name past the signature (`compareStringsOrdinally`, not `…Ids…`).
+- A general helper goes next to the type it concerns, not in the feature that needed it first.
+
+---
+
+## Step 4 — Template Method on the record-writing policies (NOT STARTED)
+
+`IronmanModeLadderPolicy` and `RankedRaceModeLadderPolicy` are the same class twice. This body
+appears **8 times** across the two files:
+
+```ts
+const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
+await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+```
+
+`onFloorDescent`, `onPartyEscape`, `onPartyWipe`, `onPartyBattleVictory` are byte-identical between
+them. They genuinely differ in only three places:
+
+- ironman's `isContinuedRun` guard on `onGameStart`
+- ironman's `onLastPlayerLeftLiveGame`
+- race's extra fate persistence on `onPartyWipe` (the solo-leave path)
+
+Plan: a shared `GameRecordWritingLadderPolicy` base with a `protected syncGameRecords(game)` step;
+subclasses hold only their differences. ~60 lines gone, and the mode difference becomes readable.
+
+Also here: `GameModeLadderUpdatePolicy`'s 8-parameter constructor → one injected
+`LadderPolicyServices` parameter object. `UnrankedRaceModeLadderPolicy` inherits all 8 and uses none.
+
+And: `ProgressionModeLadderPolicy.onPartyBattleVictory` is a 90-line method containing the same
+"push to party channel + publish to everyone else" block twice, verbatim but for the message text.
+Extract `announceLadderProgress(text, partyChannel, outbox)`.
+
+## Step 5 — `FloorClearRecordSet` class (NOT STARTED)
+
+`ladder-read-model-projections.ts` is 624 lines of free functions with an object hiding in it.
+`FloorClearIndexes` is built by `indexFloorClearRecords` and then threaded as a parameter through
+`assembleFloorClear`, `cumulativeTimeFromIndexes`, `gameForPartyFloorClear`, `rankCumulativeClears`
+and five exported `project…` functions.
+
+```ts
+class FloorClearRecordSet {           // built once from the records bag
+  gameFor(clear): LadderGameRecord | undefined
+  cumulativeTimeFor(clear): Milliseconds
+  assemble(clear): FloorClearEntry
+  rankedByCumulative(controlScheme): RankedClear[]
+}
+```
+
+The `project…` entry points stay as the public API and construct one of these. Two symptoms confirm
+the diagnosis: `projectPlayerProfileData` hand-assembles two overlapping sub-bags
+(`assemblyRecords` / `selectionRecords`) because three functions each want a different subset of one
+clump — and `DatabaseLadderRecordsPersistenceStrategy.getPlayerProfileData` builds those same two
+sub-bags again. One object dissolves both.
+
+Smaller, same file: `pageSizeOf` / `totalPagesOf` / `paginate` are the paging rules spread over two
+files with `paginate` private to the projections. Coherent concept, wants one home.
+
+## Step 6 — Remove the middle man (NOT STARTED)
+
+`LadderGameRecordsService`: **16 of its 24 methods are one-line forwards** to the persistence
+strategy. The 8 that earn their keep are the write-side assembly (`recordNewGame`,
+`updateGameRecordAggregate`, `recordPartyFloorClear`, the private record builders). Fowler's *Remove
+Middle Man*. Plan: keep the service as the **write-side** domain object; let `LocalLadderQueries`
+depend on `LadderRecordsPersistenceStrategy` directly for reads. Deletes ~120 lines and one layer
+from the trace above.
+
+`DatabaseLadderRecordsPersistenceStrategy` (888 lines) has **seven near-identical private loaders**
+— guard empty array → `format` a `WHERE x IN (%L)` → map rows. `DatabaseRepository<T>` already has
+`find`/`findOne`/`findById`; add `findWhereIn(field, values)` and move the five `rowToRecord` mappers
+into the repos that define the row shapes. Roughly halves the file.
+
+Also unresolved there: **reads bypass the repos while writes go through them.** Writes call
+`ladderPartyRecordsRepo.insert`; reads hand-write `SELECT * FROM ladder_party_records`. Pick a
+direction — the inconsistency costs more than either choice.
+
+---
+
+## Deferred / open questions
+
+- **Comment density.** The ladder code is heavily commented against a `CLAUDE.md` that says keep
+  comments to a minimum. Most are genuine *why* comments (why the tie-break is ordinal, why the
+  scheme filter sits outside the window, why an empty `IN ()` guard is load-bearing) and worth
+  keeping. The narration and restatement is what should go. Not done — wants Mike's judgment on how
+  aggressive to be, per-file.
+- `PersonalBestsSection` filters mode/control-scheme client-side over a payload that carries every
+  facet. Fine at current sizes; noted in case the profile query ever gets narrowed server-side.
+- `computeRankedRaceTally` rebuilds `partiesById` per game via `playerPartyInGame`, and calls
+  `raceWinnerPartyIds` inside the loop. Doesn't use the indexing pattern the rest of the file uses.
+  Left alone deliberately: profiler-gated, and step 5 may absorb it.

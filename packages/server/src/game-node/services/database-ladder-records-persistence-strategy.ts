@@ -349,9 +349,6 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     return { game: gameRowToRecord(gameRow), participants, participations, parties };
   }
 
-  // read side. loads the ladder-records rows each projection needs and hands them to the shared
-  // both boards filter, order and slice in SQL, then hydrate only the page's rows. the in-memory
-  // strategy stays on the sorting projections and remains the oracle the ladder suite compares to.
   async getFloorClearTimes(
     query: FloorClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearEntry>> {
@@ -646,16 +643,6 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       )
     );
     return rows.map(partyRowToRecord);
-  }
-
-  private async loadCharactersByIds(ids: CombatantId[]): Promise<LadderCharacterRecord[]> {
-    if (ids.length === 0) {
-      return [];
-    }
-    const rows = await queryCamel<LadderCharacterRecordRow>(
-      format(`SELECT * FROM ${RESOURCE_NAMES.LADDER_CHARACTER_RECORDS} WHERE id IN (%L);`, ids)
-    );
-    return rows.map(characterRowToRecord);
   }
 
   private async loadCharactersByPartyIds(partyIds: PartyId[]): Promise<LadderCharacterRecord[]> {

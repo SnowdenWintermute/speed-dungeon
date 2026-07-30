@@ -1,6 +1,7 @@
 import { Username } from "../../aliases.js";
 import { ClassProgressionProperties } from "../../combatants/class-progression-properties.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
+import { compareStringsOrdinally } from "../../utils/index.js";
 import { ProgressionCharacterSummaryView } from "./experience-points-ladder.js";
 
 // every figure a listed progression character shows is read off the saved character itself, so a
@@ -33,13 +34,13 @@ export function projectProgressionCharacterSummary(
 }
 
 // the ladder orders by rank; a profile has no rank to order by, so it uses the score the ladder
-// ranks on. the id breaks ties ordinally, as the boards do, so the list is stable
+// ranks on. the id breaks ties, as the boards do, so the list is stable
 export function byMostExperienced(
   a: ProgressionCharacterSummaryView,
   b: ProgressionCharacterSummaryView
 ): number {
   return (
     b.totalExperiencePoints - a.totalExperiencePoints ||
-    (a.characterId < b.characterId ? -1 : a.characterId > b.characterId ? 1 : 0)
+    compareStringsOrdinally(a.characterId, b.characterId)
   );
 }

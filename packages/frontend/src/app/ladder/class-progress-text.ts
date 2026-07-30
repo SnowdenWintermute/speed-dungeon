@@ -1,4 +1,5 @@
 import { COMBATANT_CLASS_NAME_STRINGS, CombatantClass } from "@speed-dungeon/common";
+import { NO_VALUE_TEXT } from "./display-text";
 
 interface ClassProgress {
   combatantClass: CombatantClass;
@@ -10,11 +11,9 @@ export function classProgressText(progress: ClassProgress): string {
   return `${COMBATANT_CLASS_NAME_STRINGS[progress.combatantClass]} ${progress.level}`;
 }
 
-// a character without a support class is a character that has one fewer thing, not one with an
-// unknown one, so the cell says so rather than sitting empty
 export function supportClassText(progressOption: ClassProgress | null | undefined): string {
   if (progressOption === undefined || progressOption === null) {
-    return "—";
+    return NO_VALUE_TEXT;
   }
   return classProgressText(progressOption);
 }

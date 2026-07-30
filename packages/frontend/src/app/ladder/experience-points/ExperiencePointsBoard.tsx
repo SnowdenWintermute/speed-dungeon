@@ -2,10 +2,7 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { useRouter } from "next/navigation";
-import {
-  CHARACTER_CONTROL_SCHEME_STRINGS,
-  ExperiencePointsLadderQuery,
-} from "@speed-dungeon/common";
+import { ExperiencePointsLadderQuery } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { useLadderQuery } from "@/hooks/use-ladder-query";
 import { LadderBoardView } from "../board-page";
@@ -16,6 +13,7 @@ import {
   experiencePointsLadderEntryKey,
 } from "../boards/experience-points-columns";
 import { experiencePointsBoardRoute } from "../routes";
+import { LADDER_EMPTY_MESSAGES, experiencePointsBoardTitle } from "../board-text";
 
 export const ExperiencePointsBoard = observer(
   ({ query }: { query: ExperiencePointsLadderQuery }) => {
@@ -25,7 +23,7 @@ export const ExperiencePointsBoard = observer(
 
     return (
       <LadderBoardView
-        title={`Progression Experience Points [${CHARACTER_CONTROL_SCHEME_STRINGS[query.controlScheme]}s]`}
+        title={experiencePointsBoardTitle(query.controlScheme)}
         controls={
           <BoardControl label="Control Scheme">
             <ControlSchemeSelector
@@ -39,7 +37,7 @@ export const ExperiencePointsBoard = observer(
         }
         columns={EXPERIENCE_POINTS_LADDER_COLUMNS}
         keyOf={experiencePointsLadderEntryKey}
-        emptyMessage="No characters ranked yet."
+        emptyMessage={LADDER_EMPTY_MESSAGES.NO_RANKED_CHARACTERS}
         state={state}
         hrefForPage={(page) => experiencePointsBoardRoute({ ...query, page })}
       />

@@ -201,16 +201,16 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     participantRecordId: IdentityProviderId,
     timestamp: Milliseconds
   ): Promise<void> {
-    const participation = this.gameParticipations.find(
+    const participationOption = this.gameParticipations.find(
       (participation) =>
         participation.gameRecordId === gameRecordId &&
         participation.participantRecordId === participantRecordId
     );
-    if (!participation) {
-      return console.info("expected an existing game participation to abandon but didn't find one");
+    // no participation to abandon is a no-op here as it is in SQL, where the UPDATE matches no rows
+    if (participationOption === undefined) {
+      return;
     }
-    invariant(participation !== undefined, "expected an existing game participation to abandon");
-    participation.abandonedAtOption = timestamp;
+    participationOption.abandonedAtOption = timestamp;
   }
 
   async findGameRecordAggregateById(id: GameId): Promise<LadderGameRecordAggregate | undefined> {

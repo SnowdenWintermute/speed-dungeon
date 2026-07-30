@@ -7,6 +7,7 @@ import {
   PartyId,
 } from "../../aliases.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
+import { compareStringsOrdinally } from "../../utils/index.js";
 import {
   FloorClearSnapshotRef,
   LadderCharacterFloorClearRecord,
@@ -81,22 +82,13 @@ export function projectFloorClearTimesPage(
   ranked.sort((a, b) => {
     const comparison = compareFloorClearsBy(a, b, sort.field);
     const directed = sort.isDescending ? -comparison : comparison;
-    return directed || compareIds(a.partyFloorClear.id, b.partyFloorClear.id);
+    return directed || compareStringsOrdinally(a.partyFloorClear.id, b.partyFloorClear.id);
   });
 
   return paginate(ranked, query, ({ partyFloorClear }, rank) => ({
     rank,
     ...assembleFloorClear(partyFloorClear, indexes),
   }));
-}
-
-// ordinal, not localeCompare: Postgres orders these ids by their own value, and locale-aware
-// comparison can disagree with that on punctuation. the two strategies must tie-break alike
-function compareIds(a: string, b: string): number {
-  if (a === b) {
-    return 0;
-  }
-  return a < b ? -1 : 1;
 }
 
 function compareFloorClearsBy(
@@ -177,7 +169,7 @@ function rankCumulativeClears(
     (a, b) =>
       b.partyFloorClear.floor - a.partyFloorClear.floor ||
       a.cumulativeTime - b.cumulativeTime ||
-      compareIds(a.partyFloorClear.id, b.partyFloorClear.id)
+      compareStringsOrdinally(a.partyFloorClear.id, b.partyFloorClear.id)
   );
 
   return ranked;

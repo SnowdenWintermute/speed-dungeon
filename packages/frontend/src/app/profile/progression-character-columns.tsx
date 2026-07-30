@@ -3,6 +3,7 @@ import { EntityId, ProgressionCharacterSummaryView } from "@speed-dungeon/common
 import { LadderTableColumn } from "../ladder/ladder-table/column";
 import { LadderTableCellLink } from "../ladder/ladder-table/LadderTableCellLink";
 import { classProgressText, supportClassText } from "../ladder/class-progress-text";
+import { NO_VALUE_TEXT } from "../ladder/display-text";
 import { progressionCharacterRoute } from "../ladder/routes";
 
 // the owner is the profile, so no column repeats it. the ranks arrive keyed beside the rows rather
@@ -15,7 +16,7 @@ export function progressionCharacterColumns(
     {
       header: "Rank",
       widthPercentOption: 8,
-      renderCell: (character) => ranksByCharacterId[character.characterId] ?? "—",
+      renderCell: (character) => ranksByCharacterId[character.characterId] ?? NO_VALUE_TEXT,
     },
     {
       header: "Character",

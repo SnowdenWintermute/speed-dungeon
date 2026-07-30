@@ -17,8 +17,7 @@ export class RankedRaceModeLadderPolicy extends GameModeLadderUpdatePolicy {
     clearedFloor: number,
     timeSpentOnFloorMs: Milliseconds
   ): Promise<void> {
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
     await this.gameRecordsLadderService.recordPartyFloorClear(
       party,
       clearedFloor,
@@ -28,16 +27,14 @@ export class RankedRaceModeLadderPolicy extends GameModeLadderUpdatePolicy {
   }
 
   override async onPartyEscape(game: SpeedDungeonGame): Promise<void> {
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
   }
 
   override async onPartyWipe(
     game: SpeedDungeonGame,
     party: AdventuringParty
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
     // the leave-induced wipe path removes a solo player's party from the live game before this runs,
     // so the aggregate sweep above skips it; persist this party's fate directly so a loss can't be lost.
     const fate = party.fate;
@@ -56,8 +53,7 @@ export class RankedRaceModeLadderPolicy extends GameModeLadderUpdatePolicy {
     party: AdventuringParty,
     levelups: Record<EntityId, number>
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
     return undefined;
   }
 }

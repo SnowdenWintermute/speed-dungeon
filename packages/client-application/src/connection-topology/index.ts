@@ -170,11 +170,6 @@ export class ConnectionTopology {
         resolve();
       });
 
-      if (lobbyClientRef.isInitialized) {
-        lobbyClientRef.get().stopAwaitingReplies();
-        this.clientApplication.ladderQueries.failAllPendingQueries();
-      }
-
       if (!lobbyClientRef.isInitialized) {
         lobbyClientRef.setClient(
           new LobbyClient(
@@ -191,9 +186,18 @@ export class ConnectionTopology {
         // this.runtimeMode = ConnectionMode.Initializing;
         lobbyClientRef.get().setEndpoint(connectionEndpoint);
         lobbyClientRef.get().stopAwaitingReplies();
-        this.clientApplication.ladderQueries.failAllPendingQueries();
+        this.discardAnswersFromPreviousConnection();
       }
     });
+  }
+
+  // the queries in flight can never be answered — the intent sequence they were keyed by has been
+  // restarted — and the answers already cached predate a gap in which anything could have changed.
+  // clearing them is also what lets a failed query be asked again: a cache entry counts as asked,
+  // so without this a query that failed on the way down stays failed until a full page load
+  private discardAnswersFromPreviousConnection() {
+    this.clientApplication.ladderQueries.failAllPendingQueries();
+    this.clientApplication.ladderView.clear();
   }
 
   enterOffline() {

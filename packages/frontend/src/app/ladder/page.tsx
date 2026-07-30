@@ -2,7 +2,6 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import {
-  CHARACTER_CONTROL_SCHEME_STRINGS,
   CharacterControlScheme,
   CumulativeClearTimesQuery,
   ExperiencePointsLadderQuery,
@@ -18,6 +17,11 @@ import {
 import { CUMULATIVE_CLEAR_TIMES_COLUMNS } from "./boards/cumulative-clear-columns";
 import { floorClearEntryKey } from "./boards/floor-clear-entry-key";
 import { cumulativeClearTimesBoardRoute, experiencePointsBoardRoute } from "./routes";
+import {
+  LADDER_EMPTY_MESSAGES,
+  cumulativeClearTimesBoardTitle,
+  experiencePointsBoardTitle,
+} from "./board-text";
 import Divider from "../components/atoms/Divider";
 
 // module level so each query object keeps its identity across renders — the fetching hook keys off it
@@ -42,9 +46,6 @@ const CAPTAIN_CUMULATIVE_QUERY: CumulativeClearTimesQuery = {
   pageSizeOption: LADDER_SUMMARY_ROW_COUNT,
 };
 
-const NO_RANKED_CHARACTERS_MESSAGE = "No characters ranked yet.";
-const NO_FLOOR_CLEARS_MESSAGE = "No floor clears recorded yet.";
-
 const LadderMainPage = observer(() => {
   const clientApplication = useClientApplication();
   const { experiencePointsLadder, cumulativeClearTimes } = clientApplication.ladderView;
@@ -65,7 +66,7 @@ const LadderMainPage = observer(() => {
       <h1 className="text-2xl mb-6">Ladder</h1>
 
       <LadderBoardSection
-        title={`Progression Experience Points [${pluralScheme(CharacterControlScheme.Freelancer)}]`}
+        title={experiencePointsBoardTitle(CharacterControlScheme.Freelancer)}
         // the summary's own page size is not part of the link: the full board is a page of twenty
         fullBoardHrefOption={experiencePointsBoardRoute({
           controlScheme: CharacterControlScheme.Freelancer,
@@ -73,48 +74,44 @@ const LadderMainPage = observer(() => {
         })}
         columns={EXPERIENCE_POINTS_LADDER_COLUMNS}
         keyOf={experiencePointsLadderEntryKey}
-        emptyMessage={NO_RANKED_CHARACTERS_MESSAGE}
+        emptyMessage={LADDER_EMPTY_MESSAGES.NO_RANKED_CHARACTERS}
         state={freelancerExperiencePoints}
       />
       <LadderBoardSection
-        title={`Deepest Cumulative Time To Clear [${pluralScheme(CharacterControlScheme.Freelancer)}]`}
+        title={cumulativeClearTimesBoardTitle(CharacterControlScheme.Freelancer)}
         fullBoardHrefOption={cumulativeClearTimesBoardRoute({
           controlScheme: CharacterControlScheme.Freelancer,
           page: 0,
         })}
         columns={CUMULATIVE_CLEAR_TIMES_COLUMNS}
         keyOf={floorClearEntryKey}
-        emptyMessage={NO_FLOOR_CLEARS_MESSAGE}
+        emptyMessage={LADDER_EMPTY_MESSAGES.NO_FLOOR_CLEARS}
         state={freelancerCumulative}
       />
       <LadderBoardSection
-        title={`Progression Experience Points [${pluralScheme(CharacterControlScheme.Captain)}]`}
+        title={experiencePointsBoardTitle(CharacterControlScheme.Captain)}
         fullBoardHrefOption={experiencePointsBoardRoute({
           controlScheme: CharacterControlScheme.Captain,
           page: 0,
         })}
         columns={EXPERIENCE_POINTS_LADDER_COLUMNS}
         keyOf={experiencePointsLadderEntryKey}
-        emptyMessage={NO_RANKED_CHARACTERS_MESSAGE}
+        emptyMessage={LADDER_EMPTY_MESSAGES.NO_RANKED_CHARACTERS}
         state={captainExperiencePoints}
       />
       <LadderBoardSection
-        title={`Deepest Cumulative Time To Clear [${pluralScheme(CharacterControlScheme.Captain)}]`}
+        title={cumulativeClearTimesBoardTitle(CharacterControlScheme.Captain)}
         fullBoardHrefOption={cumulativeClearTimesBoardRoute({
           controlScheme: CharacterControlScheme.Captain,
           page: 0,
         })}
         columns={CUMULATIVE_CLEAR_TIMES_COLUMNS}
         keyOf={floorClearEntryKey}
-        emptyMessage={NO_FLOOR_CLEARS_MESSAGE}
+        emptyMessage={LADDER_EMPTY_MESSAGES.NO_FLOOR_CLEARS}
         state={captainCumulative}
       />
     </>
   );
 });
-
-function pluralScheme(controlScheme: CharacterControlScheme): string {
-  return `${CHARACTER_CONTROL_SCHEME_STRINGS[controlScheme]}s`;
-}
 
 export default LadderMainPage;

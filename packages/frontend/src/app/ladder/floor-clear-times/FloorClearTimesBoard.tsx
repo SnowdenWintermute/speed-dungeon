@@ -2,7 +2,6 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { useRouter } from "next/navigation";
-import { CHARACTER_CONTROL_SCHEME_STRINGS, GAME_MODE_STRINGS } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { useLadderQuery } from "@/hooks/use-ladder-query";
 import { LadderBoardView } from "../board-page";
@@ -14,6 +13,7 @@ import { floorClearTimesColumns } from "../boards/floor-clear-times-columns";
 import { floorClearEntryKey } from "../boards/floor-clear-entry-key";
 import { FloorClearTimesBoardQuery } from "../query-schemas";
 import { floorClearTimesBoardRoute } from "../routes";
+import { LADDER_EMPTY_MESSAGES, floorClearTimesBoardTitle } from "../board-text";
 
 export const FloorClearTimesBoard = observer(({ query }: { query: FloorClearTimesBoardQuery }) => {
   const clientApplication = useClientApplication();
@@ -28,7 +28,7 @@ export const FloorClearTimesBoard = observer(({ query }: { query: FloorClearTime
 
   return (
     <LadderBoardView
-      title={`Fastest Floor Clears [${GAME_MODE_STRINGS[query.modeOption]} ${CHARACTER_CONTROL_SCHEME_STRINGS[query.controlSchemeOption]}s]`}
+      title={floorClearTimesBoardTitle(query.modeOption, query.controlSchemeOption)}
       controls={
         <>
           <BoardControl label="Floor">
@@ -50,7 +50,7 @@ export const FloorClearTimesBoard = observer(({ query }: { query: FloorClearTime
       }
       columns={floorClearTimesColumns(query.sortOption, (sortOption) => showBoard({ sortOption }))}
       keyOf={floorClearEntryKey}
-      emptyMessage="No floor clears recorded yet."
+      emptyMessage={LADDER_EMPTY_MESSAGES.NO_FLOOR_CLEARS}
       state={state}
       hrefForPage={(page) => floorClearTimesBoardRoute({ ...query, page })}
     />

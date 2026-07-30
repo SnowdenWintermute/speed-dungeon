@@ -23,7 +23,7 @@ import {
   WinLossTally,
 } from "../records/ladder-records-persistence-strategy.js";
 import { winRateOf } from "../records/ladder-read-model-projections.js";
-import { LadderPage, pageSizeOf } from "./ladder-page.js";
+import { LadderPage, pageSizeOf, totalPagesOf } from "./ladder-page.js";
 import {
   validateCumulativeClearTimesQuery,
   validateExperiencePointsLadderQuery,
@@ -343,7 +343,7 @@ export class LocalLadderQueries implements LadderQueries {
 
     return {
       page: query.page,
-      totalPages: Math.ceil(totalRecordsCount / USER_GAME_HISTORY_PAGE_SIZE),
+      totalPages: totalPagesOf(totalRecordsCount, USER_GAME_HISTORY_PAGE_SIZE),
       entries,
     };
   }

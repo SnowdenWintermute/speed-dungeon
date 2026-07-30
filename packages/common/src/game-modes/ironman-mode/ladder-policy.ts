@@ -15,9 +15,9 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     await this.gameRecordsLadderService.recordNewGame(game, usernamesToUserIds);
   }
 
+  // the last player leaving is the one sync that cannot read the session registry: their session is
+  // going away with them, so the names come from what was persisted instead
   override async onLastPlayerLeftLiveGame(game: SpeedDungeonGame): Promise<void> {
-    // update all game, party and character records
-
     if (game.requireSingleParty().fate !== null) {
       // in this case we cleaned up the game already
       return;
@@ -40,11 +40,7 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     clearedFloor: number,
     timeSpentOnFloorMs: Milliseconds
   ): Promise<void> {
-    // update all game, party and character records
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
-
-    // create party and character timeToClearFloor records using clearedFloor + timeSpentOnFloorMs
+    await this.syncGameRecords(game);
     await this.gameRecordsLadderService.recordPartyFloorClear(
       party,
       clearedFloor,
@@ -54,21 +50,14 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
   }
 
   override async onPartyEscape(game: SpeedDungeonGame): Promise<void> {
-    // update all game, party and character records
-    // mark the party record's partyFate/timeOfFate
-    // create party and character timeToClearFloor records
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
   }
 
   override async onPartyWipe(
     game: SpeedDungeonGame,
     party: AdventuringParty
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
-    // update all game, party and character records
-    // mark the party record's partyFate/timeOfFate
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
     return undefined;
   }
 
@@ -77,9 +66,7 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
     party: AdventuringParty,
     levelups: Record<EntityId, number>
   ): Promise<MessageDispatchOutbox<GameStateUpdate> | undefined> {
-    // update all game, party and character records
-    const usernamesToUserIds = this.userSessionRegistry.getGameUsernameToIdsMap(game);
-    await this.gameRecordsLadderService.updateGameRecordAggregate(game, usernamesToUserIds);
+    await this.syncGameRecords(game);
     return undefined;
   }
 }

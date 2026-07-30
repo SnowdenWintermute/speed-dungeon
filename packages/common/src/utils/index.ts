@@ -268,6 +268,16 @@ export function isDefined<T>(value: T | null | undefined): value is T {
   return value != null;
 }
 
+// ordinal, not localeCompare: this exists to order the same way a database does, and locale-aware
+// comparison can disagree with Postgres on punctuation. wherever a sort has to hold whether it ran
+// in typescript or in SQL, the comparison comes from here
+export function compareStringsOrdinally(a: string, b: string): number {
+  if (a === b) {
+    return 0;
+  }
+  return a < b ? -1 : 1;
+}
+
 export function throwIfLoopLimitReached(safetyCounter: number, message?: string) {
   if (safetyCounter >= LOOP_SAFETY_ITERATION_LIMIT) {
     throw new Error(

@@ -13,6 +13,9 @@ import { MessageDispatchFactory } from "../servers/update-delivery/message-dispa
 import { IdGenerator } from "../utility-classes/index.js";
 import { GameModeGameInitializationPolicy } from "./game-initialization-policy.js";
 import { GameMode, GameModePolicy } from "./index.js";
+import { LadderPolicyDependencies } from "./ladder-update-policy.js";
+import { LobbySetupPolicyDependencies } from "./lobby-setup-policy.js";
+import { PersistencePolicyDependencies } from "./persistence-policy.js";
 import { IronmanGameInitializationPolicy } from "./ironman-mode/game-initialization-policy.js";
 import { IronmanModeInGameDecisionsPolicy } from "./ironman-mode/in-game-decisions-policy.js";
 import { IronmanModeLadderPolicy } from "./ironman-mode/ladder-policy.js";
@@ -49,122 +52,62 @@ export class GameModePolicyStore {
     const partyDelayedGameMessageFactory = new PartyDelayedGameMessageFactory(
       updateDispatchFactory
     );
+
+    const lobbySetupPolicyDependencies: LobbySetupPolicyDependencies = {
+      profileService,
+      userGameDataPersistenceService,
+      gameRegistry,
+      gameSessionStoreService,
+      gameExistenceChecker,
+      idGenerator,
+      messageDispatchFactory: updateDispatchFactory,
+    };
+
+    const persistencePolicyDependencies: PersistencePolicyDependencies = {
+      userSessionRegistry,
+      profileService,
+      userGameDataPersistenceService,
+      messageDispatchFactory: updateDispatchFactory,
+    };
+
+    const ladderPolicyDependencies: LadderPolicyDependencies = {
+      userSessionRegistry,
+      experiencePointsLadderService,
+      userGameDataPersistenceService,
+      gameRecordsLadderService: ladderGameRecordsService,
+      updateDispatchFactory,
+      partyDelayedGameMessageFactory,
+      crossServerBroadcasterService,
+    };
+
     this.policies = {
       [GameMode.Ironman]: {
         inGameDecisions: new IronmanModeInGameDecisionsPolicy(),
         gameInitialization: new IronmanGameInitializationPolicy(updateDispatchFactory),
-        lobbySetup: new IronmanModeLobbySetup(
-          profileService,
-          userGameDataPersistenceService,
-          gameRegistry,
-          gameSessionStoreService,
-          gameExistenceChecker,
-          idGenerator,
-          updateDispatchFactory
-        ),
-        persistence: new IronmanModePersistencePolicy(
-          userSessionRegistry,
-          profileService,
-          userGameDataPersistenceService,
-          updateDispatchFactory
-        ),
-        ladder: new IronmanModeLadderPolicy(
-          userSessionRegistry,
-          experiencePointsLadderService,
-          userGameDataPersistenceService,
-          ladderGameRecordsService,
-          updateDispatchFactory,
-          partyDelayedGameMessageFactory,
-          crossServerBroadcasterService,
-          idGenerator
-        ),
+        lobbySetup: new IronmanModeLobbySetup(lobbySetupPolicyDependencies),
+        persistence: new IronmanModePersistencePolicy(persistencePolicyDependencies),
+        ladder: new IronmanModeLadderPolicy(ladderPolicyDependencies),
       },
       [GameMode.Progression]: {
         inGameDecisions: new ProgressionModeInGameDecisionsPolicy(),
         gameInitialization: new GameModeGameInitializationPolicy(updateDispatchFactory),
-        lobbySetup: new ProgressionModeLobbySetup(
-          profileService,
-          userGameDataPersistenceService,
-          gameRegistry,
-          gameSessionStoreService,
-          gameExistenceChecker,
-          idGenerator,
-          updateDispatchFactory
-        ),
-        persistence: new ProgressionModePersistencePolicy(
-          userSessionRegistry,
-          profileService,
-          userGameDataPersistenceService,
-          updateDispatchFactory
-        ),
-        ladder: new ProgressionModeLadderPolicy(
-          userSessionRegistry,
-          experiencePointsLadderService,
-          userGameDataPersistenceService,
-          ladderGameRecordsService,
-          updateDispatchFactory,
-          partyDelayedGameMessageFactory,
-          crossServerBroadcasterService,
-          idGenerator
-        ),
+        lobbySetup: new ProgressionModeLobbySetup(lobbySetupPolicyDependencies),
+        persistence: new ProgressionModePersistencePolicy(persistencePolicyDependencies),
+        ladder: new ProgressionModeLadderPolicy(ladderPolicyDependencies),
       },
       [GameMode.RankedRace]: {
         inGameDecisions: new RaceModesInGameDecisionsPolicy(),
         gameInitialization: new GameModeGameInitializationPolicy(updateDispatchFactory),
-        lobbySetup: new RankedRaceModeLobbySetup(
-          profileService,
-          userGameDataPersistenceService,
-          gameRegistry,
-          gameSessionStoreService,
-          gameExistenceChecker,
-          idGenerator,
-          updateDispatchFactory
-        ),
-        persistence: new RaceModesPersistencePolicy(
-          userSessionRegistry,
-          profileService,
-          userGameDataPersistenceService,
-          updateDispatchFactory
-        ),
-        ladder: new RankedRaceModeLadderPolicy(
-          userSessionRegistry,
-          experiencePointsLadderService,
-          userGameDataPersistenceService,
-          ladderGameRecordsService,
-          updateDispatchFactory,
-          partyDelayedGameMessageFactory,
-          crossServerBroadcasterService,
-          idGenerator
-        ),
+        lobbySetup: new RankedRaceModeLobbySetup(lobbySetupPolicyDependencies),
+        persistence: new RaceModesPersistencePolicy(persistencePolicyDependencies),
+        ladder: new RankedRaceModeLadderPolicy(ladderPolicyDependencies),
       },
       [GameMode.UnrankedRace]: {
         inGameDecisions: new RaceModesInGameDecisionsPolicy(),
         gameInitialization: new GameModeGameInitializationPolicy(updateDispatchFactory),
-        lobbySetup: new UnrankedRaceModeLobbySetup(
-          profileService,
-          userGameDataPersistenceService,
-          gameRegistry,
-          gameSessionStoreService,
-          gameExistenceChecker,
-          idGenerator,
-          updateDispatchFactory
-        ),
-        persistence: new RaceModesPersistencePolicy(
-          userSessionRegistry,
-          profileService,
-          userGameDataPersistenceService,
-          updateDispatchFactory
-        ),
-        ladder: new UnrankedRaceModeLadderPolicy(
-          userSessionRegistry,
-          experiencePointsLadderService,
-          userGameDataPersistenceService,
-          ladderGameRecordsService,
-          updateDispatchFactory,
-          partyDelayedGameMessageFactory,
-          crossServerBroadcasterService,
-          idGenerator
-        ),
+        lobbySetup: new UnrankedRaceModeLobbySetup(lobbySetupPolicyDependencies),
+        persistence: new RaceModesPersistencePolicy(persistencePolicyDependencies),
+        ladder: new UnrankedRaceModeLadderPolicy(ladderPolicyDependencies),
       },
     };
   }

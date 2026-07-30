@@ -12,17 +12,28 @@ import { MessageDispatchFactory } from "../servers/update-delivery/message-dispa
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 import { CombatantWithPets } from "../types.js";
 
-/** what to save and how to save it when certain events happen
- * will need access to persistence services, or be owned by a composing class that
- * can pass the services to each method
- * */
+// what a persistence policy is allowed to reach. all four modes' policies take the same set, so it
+// is assembled once and handed over whole
+export interface PersistencePolicyDependencies {
+  userSessionRegistry: UserSessionRegistry;
+  profileService: SpeedDungeonProfileService;
+  userGameDataPersistenceService: UserGameDataPersistenceService;
+  messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+}
+
+/** what to save and how to save it when certain events happen */
 export abstract class GameModePersistencePolicy {
-  constructor(
-    protected userSessionRegistry: UserSessionRegistry,
-    protected profileService: SpeedDungeonProfileService,
-    protected userGameDataPersistenceService: UserGameDataPersistenceService,
-    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
-  ) {}
+  protected readonly userSessionRegistry: UserSessionRegistry;
+  protected readonly profileService: SpeedDungeonProfileService;
+  protected readonly userGameDataPersistenceService: UserGameDataPersistenceService;
+  protected readonly messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+
+  constructor(dependencies: PersistencePolicyDependencies) {
+    this.userSessionRegistry = dependencies.userSessionRegistry;
+    this.profileService = dependencies.profileService;
+    this.userGameDataPersistenceService = dependencies.userGameDataPersistenceService;
+    this.messageDispatchFactory = dependencies.messageDispatchFactory;
+  }
 
   async onCreateCharacterInLobbySetup(
     _session: UserSession,

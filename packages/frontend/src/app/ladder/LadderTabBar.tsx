@@ -3,14 +3,18 @@ import React from "react";
 import Link from "next/link";
 import { usePendingNavigation } from "@/hooks/use-pending-navigation";
 import { LADDER_PATHNAMES } from "./routes";
+import { LADDER_BOARD_NAMES } from "./board-text";
 
 // a tab links to a bare pathname rather than a built route: the query schemas own what an absent
 // param means, so arriving with none is arriving at the board's defaults
 const LADDER_TABS = [
   { title: "Main", pathname: LADDER_PATHNAMES.MAIN },
-  { title: "Progression Experience Points", pathname: LADDER_PATHNAMES.EXPERIENCE_POINTS },
-  { title: "Deepest Cumulative Time To Clear", pathname: LADDER_PATHNAMES.CUMULATIVE_CLEAR_TIMES },
-  { title: "Fastest Floor Clears", pathname: LADDER_PATHNAMES.FLOOR_CLEAR_TIMES },
+  { title: LADDER_BOARD_NAMES.EXPERIENCE_POINTS, pathname: LADDER_PATHNAMES.EXPERIENCE_POINTS },
+  {
+    title: LADDER_BOARD_NAMES.CUMULATIVE_CLEAR_TIMES,
+    pathname: LADDER_PATHNAMES.CUMULATIVE_CLEAR_TIMES,
+  },
+  { title: LADDER_BOARD_NAMES.FLOOR_CLEAR_TIMES, pathname: LADDER_PATHNAMES.FLOOR_CLEAR_TIMES },
 ];
 
 export function LadderTabBar() {

@@ -2,7 +2,7 @@
 import React from "react";
 import { observer } from "mobx-react-lite";
 import { useRouter } from "next/navigation";
-import { CHARACTER_CONTROL_SCHEME_STRINGS, CumulativeClearTimesQuery } from "@speed-dungeon/common";
+import { CumulativeClearTimesQuery } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { useLadderQuery } from "@/hooks/use-ladder-query";
 import { LadderBoardView } from "../board-page";
@@ -11,6 +11,7 @@ import { ControlSchemeSelector } from "../board-page/ControlSchemeSelector";
 import { CUMULATIVE_CLEAR_TIMES_COLUMNS } from "../boards/cumulative-clear-columns";
 import { floorClearEntryKey } from "../boards/floor-clear-entry-key";
 import { cumulativeClearTimesBoardRoute } from "../routes";
+import { LADDER_EMPTY_MESSAGES, cumulativeClearTimesBoardTitle } from "../board-text";
 
 // the board's order is fixed — deepest floor first, then fastest cumulative time — so no header
 // here sorts. it spans game modes deliberately, which is why there is no mode selector either
@@ -22,7 +23,7 @@ export const CumulativeClearTimesBoard = observer(
 
     return (
       <LadderBoardView
-        title={`Deepest Cumulative Time To Clear [${CHARACTER_CONTROL_SCHEME_STRINGS[query.controlScheme]}s]`}
+        title={cumulativeClearTimesBoardTitle(query.controlScheme)}
         controls={
           <BoardControl label="Control Scheme">
             <ControlSchemeSelector
@@ -35,7 +36,7 @@ export const CumulativeClearTimesBoard = observer(
         }
         columns={CUMULATIVE_CLEAR_TIMES_COLUMNS}
         keyOf={floorClearEntryKey}
-        emptyMessage="No floor clears recorded yet."
+        emptyMessage={LADDER_EMPTY_MESSAGES.NO_FLOOR_CLEARS}
         state={state}
         hrefForPage={(page) => cumulativeClearTimesBoardRoute({ ...query, page })}
       />

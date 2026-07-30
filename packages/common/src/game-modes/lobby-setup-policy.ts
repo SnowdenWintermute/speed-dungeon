@@ -15,16 +15,36 @@ import { MessageDispatchFactory } from "../servers/update-delivery/message-dispa
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 import { IdGenerator } from "../utility-classes/index.js";
 
+// what a lobby setup policy is allowed to reach. all four modes' policies take the same set, so it
+// is assembled once and handed over whole
+export interface LobbySetupPolicyDependencies {
+  profileService: SpeedDungeonProfileService;
+  userGameDataPersistenceService: UserGameDataPersistenceService;
+  gameRegistry: GameRegistry;
+  gameSessionStoreService: GameSessionStoreService;
+  gameExistenceChecker: GameExistenceChecker;
+  idGenerator: IdGenerator;
+  messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+}
+
 export abstract class GameModeLobbySetupPolicy {
-  constructor(
-    protected profileService: SpeedDungeonProfileService,
-    protected userGameDataPersistenceService: UserGameDataPersistenceService,
-    protected gameRegistry: GameRegistry,
-    protected gameSessionStoreService: GameSessionStoreService,
-    protected gameExistenceChecker: GameExistenceChecker,
-    protected idGenerator: IdGenerator,
-    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>
-  ) {}
+  protected readonly profileService: SpeedDungeonProfileService;
+  protected readonly userGameDataPersistenceService: UserGameDataPersistenceService;
+  protected readonly gameRegistry: GameRegistry;
+  protected readonly gameSessionStoreService: GameSessionStoreService;
+  protected readonly gameExistenceChecker: GameExistenceChecker;
+  protected readonly idGenerator: IdGenerator;
+  protected readonly messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+
+  constructor(dependencies: LobbySetupPolicyDependencies) {
+    this.profileService = dependencies.profileService;
+    this.userGameDataPersistenceService = dependencies.userGameDataPersistenceService;
+    this.gameRegistry = dependencies.gameRegistry;
+    this.gameSessionStoreService = dependencies.gameSessionStoreService;
+    this.gameExistenceChecker = dependencies.gameExistenceChecker;
+    this.idGenerator = dependencies.idGenerator;
+    this.messageDispatchFactory = dependencies.messageDispatchFactory;
+  }
 
   // required number of parties, each player controls at least one character
   // all ironman character players in contiuned ironman game have connected
