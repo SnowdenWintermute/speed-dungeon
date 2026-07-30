@@ -129,8 +129,9 @@ export class LobbyServerNode {
     const experiencePointsLadderService = new DatabaseExperiencePointsLadderService(
       valkeyManager.context
     );
+    const ladderRecordsPersistenceStrategy = new DatabaseLadderRecordsPersistenceStrategy();
     const ladderGameRecordsService = new LadderGameRecordsService(
-      new DatabaseLadderRecordsPersistenceStrategy(),
+      ladderRecordsPersistenceStrategy,
       idGenerator
     );
 
@@ -141,6 +142,7 @@ export class LobbyServerNode {
       userGameDataPersistenceService,
       experiencePointsLadderService,
       ladderGameRecordsService,
+      ladderRecordsPersistenceStrategy,
       gameSessionStoreService,
       crossServerBroadcasterService,
       globalGameSessionStore,

@@ -67,7 +67,7 @@ export async function testIronmanRunWipe(testFixture: IntegrationTestFixture) {
   // expect the party fate to be "Wiped" in the party record
 
   const gameRecordAggregate =
-    await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
+    await testFixture.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(gameId);
   const partyRecord = gameRecordAggregate?.parties[0];
   expect(partyRecord).toBeDefined();
   invariant(partyRecord !== undefined, "checked above");

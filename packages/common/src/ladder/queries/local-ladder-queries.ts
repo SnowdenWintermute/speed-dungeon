@@ -16,9 +16,9 @@ import {
   experiencePointsLadderName,
 } from "../../servers/services/experience-points-ladder-service.js";
 import { UserGameDataPersistenceService } from "../../servers/services/user-game-data-persistence/index.js";
-import { LadderGameRecordsService } from "../records/ladder-records-service.js";
 import {
   FloorClearEntry,
+  LadderRecordsPersistenceStrategy,
   RankedFloorClearEntry,
   WinLossTally,
 } from "../records/ladder-records-persistence-strategy.js";
@@ -66,7 +66,7 @@ import { assembleProgressionCharacterView } from "./progression-character-assemb
 // persistence strategy on behalf of a connected client; offline clients run it over their local one.
 export class LocalLadderQueries implements LadderQueries {
   constructor(
-    private readonly ladderGameRecordsService: LadderGameRecordsService,
+    private readonly ladderRecordsPersistenceStrategy: LadderRecordsPersistenceStrategy,
     private readonly usernameDirectory: UsernameDirectory,
     private readonly experiencePointsLadderService: ExperiencePointsLadderService,
     private readonly userGameDataPersistenceService: UserGameDataPersistenceService
@@ -104,7 +104,7 @@ export class LocalLadderQueries implements LadderQueries {
 
   async getFloorClearTimes(query: FloorClearTimesQuery): Promise<LadderPage<RankedFloorClearView>> {
     validateFloorClearTimesQuery(query);
-    const page = await this.ladderGameRecordsService.getFloorClearTimes(query);
+    const page = await this.ladderRecordsPersistenceStrategy.getFloorClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.flatMap((entry) => entry.players)
     );
@@ -119,7 +119,7 @@ export class LocalLadderQueries implements LadderQueries {
     query: CumulativeClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearView>> {
     validateCumulativeClearTimesQuery(query);
-    const page = await this.ladderGameRecordsService.getCumulativeClearTimes(query);
+    const page = await this.ladderRecordsPersistenceStrategy.getCumulativeClearTimes(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.flatMap((entry) => entry.players)
     );
@@ -163,11 +163,11 @@ export class LocalLadderQueries implements LadderQueries {
     ids: LadderPartyFloorClearRecordId[]
   ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
     validateRankLookupIds(ids);
-    return this.ladderGameRecordsService.getCumulativeClearRanks(ids);
+    return this.ladderRecordsPersistenceStrategy.getCumulativeClearRanks(ids);
   }
 
   async getFloorClear(id: LadderPartyFloorClearRecordId): Promise<FloorClearView | undefined> {
-    const entryOption = await this.ladderGameRecordsService.getFloorClearById(id);
+    const entryOption = await this.ladderRecordsPersistenceStrategy.findFloorClearById(id);
     if (entryOption === undefined) {
       return undefined;
     }
@@ -176,7 +176,8 @@ export class LocalLadderQueries implements LadderQueries {
   }
 
   async getGameRecord(id: GameId): Promise<GameRecordView | undefined> {
-    const aggregateOption = await this.ladderGameRecordsService.getGameRecordAggregate(id);
+    const aggregateOption =
+      await this.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(id);
     if (aggregateOption === undefined) {
       return undefined;
     }
@@ -257,7 +258,7 @@ export class LocalLadderQueries implements LadderQueries {
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateLadderView>> {
     validateWinRateLadderQuery(query);
-    const page = await this.ladderGameRecordsService.getWinRateLadder(query);
+    const page = await this.ladderRecordsPersistenceStrategy.getWinRateLadder(query);
     const usernameOf = await this.resolverForPlayers(
       page.entries.map((entry) => entry.participantId)
     );
@@ -275,7 +276,7 @@ export class LocalLadderQueries implements LadderQueries {
   async getCharacterFloorClearSnapshot(
     id: LadderCharacterFloorClearRecordId
   ): Promise<CharacterFloorClearSnapshotView | undefined> {
-    return this.ladderGameRecordsService.getCharacterFloorClearSnapshot(id);
+    return this.ladderRecordsPersistenceStrategy.getCharacterFloorClearSnapshot(id);
   }
 
   async getPlayerProfile(username: Username): Promise<PlayerProfileLookup> {
@@ -286,7 +287,8 @@ export class LocalLadderQueries implements LadderQueries {
 
     // only players with ladder history get a participant record, so a real user with none is found
     // with an empty profile
-    const dataOption = await this.ladderGameRecordsService.getPlayerProfileData(userIdOption);
+    const dataOption =
+      await this.ladderRecordsPersistenceStrategy.getPlayerProfileData(userIdOption);
     if (dataOption === undefined) {
       return {
         type: PlayerProfileLookupType.Found,
@@ -331,12 +333,12 @@ export class LocalLadderQueries implements LadderQueries {
       return { page: query.page, totalPages: 0, entries: [] };
     }
 
-    const entries = await this.ladderGameRecordsService.getUserGameHistory(
+    const entries = await this.ladderRecordsPersistenceStrategy.getUserGameHistory(
       userIdOption,
       query.page,
       query.dateRangeOption
     );
-    const totalRecordsCount = await this.ladderGameRecordsService.getUserGameRecordsCount(
+    const totalRecordsCount = await this.ladderRecordsPersistenceStrategy.getUserGameRecordsCount(
       userIdOption,
       query.dateRangeOption
     );
@@ -359,7 +361,7 @@ export class LocalLadderQueries implements LadderQueries {
         continue;
       }
       const participantRecordOption =
-        await this.ladderGameRecordsService.findParticipantRecordById(id);
+        await this.ladderRecordsPersistenceStrategy.findParticipantRecordById(id);
       const lastKnownUsernameOption = participantRecordOption?.lastKnownUsername;
       invariant(lastKnownUsernameOption !== undefined, `no username for ladder participant ${id}`);
       usernamesById.set(id, lastKnownUsernameOption);

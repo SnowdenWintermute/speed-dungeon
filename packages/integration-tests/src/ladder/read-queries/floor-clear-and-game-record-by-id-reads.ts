@@ -8,6 +8,7 @@ import {
   ONE_SECOND,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
+import { requireGameRecordAggregate } from "./aggregate-lookup";
 
 // The two individually-linkable reads: one floor clear on its own, and one whole game record. Both
 // are read the way the pages will read them — a client in the lobby running LadderQueries over the
@@ -27,7 +28,7 @@ export async function testFloorClearAndGameRecordByIdReads(testFixture: Integrat
   await alpha.gameClientHarness.toggleReadyToDescend();
 
   // ground truth from the write path
-  const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
+  const aggregate = await requireGameRecordAggregate(testFixture, gameId);
   const partyAggregate = aggregate.parties[0];
   invariant(partyAggregate !== undefined, "expected a recorded party");
   const floorClearsByFloor = new Map(

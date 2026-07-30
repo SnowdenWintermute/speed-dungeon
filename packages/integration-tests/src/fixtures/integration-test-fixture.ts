@@ -28,7 +28,6 @@ import {
   TEST_DUNGEON_TWO_WOLF_ROOMS,
   UserGameDataPersistenceService,
   IdGenerator,
-  LadderGameRecordsService,
   LadderRecordsPersistenceStrategy,
   ResourceChangePropertiesStrategy,
   TestResourceChangePropertiesStrategy,
@@ -81,7 +80,7 @@ export class IntegrationTestFixture {
   }; // will be assigned to some open port by the OS automatically
   readonly timeMachine = new TimeMachine();
   private _experiencePointsLadderService: ExperiencePointsLadderService | null = null;
-  private _ladderGameRecordsService: LadderGameRecordsService | null = null;
+  private _ladderRecordsPersistenceStrategy: LadderRecordsPersistenceStrategy | null = null;
   private _identityProviderQueryStrategy: InMemoryIdentityProviderQueryStrategy | null = null;
   private _userGameDataPersistenceService: UserGameDataPersistenceService | null = null;
   /** for manipulating which server a new game should be created on in a test */
@@ -151,7 +150,7 @@ export class IntegrationTestFixture {
       gameServerRegistry,
       gameSessionStoreService,
       experiencePointsLadderService,
-      ladderGameRecordsService,
+      ladderRecordsPersistenceStrategy,
       identityProviderQueryStrategy,
       userGameDataPersistenceService,
     } = await createTestServers(
@@ -166,7 +165,7 @@ export class IntegrationTestFixture {
     );
 
     this._experiencePointsLadderService = experiencePointsLadderService;
-    this._ladderGameRecordsService = ladderGameRecordsService;
+    this._ladderRecordsPersistenceStrategy = ladderRecordsPersistenceStrategy;
     this._identityProviderQueryStrategy = identityProviderQueryStrategy;
     this._userGameDataPersistenceService = userGameDataPersistenceService;
 
@@ -189,11 +188,11 @@ export class IntegrationTestFixture {
     return this._experiencePointsLadderService;
   }
 
-  get ladderGameRecordsService() {
-    if (!this._ladderGameRecordsService) {
-      throw new Error("no ladderGameRecordsService was initialized");
+  get ladderRecordsPersistenceStrategy() {
+    if (!this._ladderRecordsPersistenceStrategy) {
+      throw new Error("no ladderRecordsPersistenceStrategy was initialized");
     }
-    return this._ladderGameRecordsService;
+    return this._ladderRecordsPersistenceStrategy;
   }
 
   get identityProviderQueryStrategy() {

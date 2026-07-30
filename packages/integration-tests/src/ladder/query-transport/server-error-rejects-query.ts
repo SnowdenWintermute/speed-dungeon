@@ -13,7 +13,7 @@ export async function testServerErrorRejectsQuery(testFixture: IntegrationTestFi
 
   // which read fails is irrelevant; any server-side throw travels the same reply path
   const failingRead = vi
-    .spyOn(testFixture.ladderGameRecordsService, "getFloorClearTimes")
+    .spyOn(testFixture.ladderRecordsPersistenceStrategy, "getFloorClearTimes")
     .mockRejectedValue(new Error(READ_FAILURE_MESSAGE));
 
   await expect(ladderQueries.getFloorClearTimes({ floor: 1, page: 0 })).rejects.toThrow(

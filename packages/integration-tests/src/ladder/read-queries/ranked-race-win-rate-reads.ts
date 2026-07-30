@@ -9,7 +9,7 @@ import {
   PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
-import { requirePartyOfCharacter } from "./aggregate-lookup";
+import { requireGameRecordAggregate, requirePartyOfCharacter } from "./aggregate-lookup";
 import { TEST_AUTH_USERNAME_PLAYER_1, TEST_AUTH_USERNAME_PLAYER_2 } from "@/fixtures/consts";
 
 // Drives a real two-party ranked-race game where both parties escape, the first one earlier than the
@@ -41,7 +41,7 @@ export async function testRankedRaceWinRateReads(testFixture: IntegrationTestFix
     await bravo.gameClientHarness.toggleReadyToDescend();
 
     // ground truth from the write path
-    const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
+    const aggregate = await requireGameRecordAggregate(testFixture, gameId);
     expect(aggregate.game.mode).toBe(GameMode.RankedRace);
     const alphaParty = requirePartyOfCharacter(aggregate, alphaCharacterName);
     const bravoParty = requirePartyOfCharacter(aggregate, bravoCharacterName);

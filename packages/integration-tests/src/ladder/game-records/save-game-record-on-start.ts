@@ -33,7 +33,7 @@ export async function testSaveGameRecordOnGameStart(testFixture: IntegrationTest
   });
   expect(history.entries.some((gameRecord) => gameRecord.gameId === gameId)).toBeFalsy();
   const gameRecordAggregateNotExpected =
-    await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
+    await testFixture.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(gameId);
   expect(gameRecordAggregateNotExpected).toBeUndefined();
   await alpha.lobbyClientHarness.toggleReadyToStartGame();
   await gotConnectionInstructions;
@@ -48,6 +48,6 @@ export async function testSaveGameRecordOnGameStart(testFixture: IntegrationTest
   await gotGameStartedMessage;
   // expect to find saved record in persistence service
   const gameRecordAggregate =
-    await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
+    await testFixture.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(gameId);
   expect(gameRecordAggregate).toBeDefined();
 }

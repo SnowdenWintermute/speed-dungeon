@@ -11,6 +11,7 @@ import {
   PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
+import { requireGameRecordAggregate } from "./aggregate-lookup";
 
 // A profile keeps two personal-best lists because the two clocks disagree: how fast a player took a
 // floor is not how fast they arrived at it. Two Ironman runs are arranged so the same floor is held
@@ -86,7 +87,7 @@ function requireOnlyFloorTwoEntry<TEntry extends { floor: number }>(entries: TEn
 }
 
 async function floorTimesOf(testFixture: IntegrationTestFixture, gameId: GameId) {
-  const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
+  const aggregate = await requireGameRecordAggregate(testFixture, gameId);
   const party = aggregate.parties[0];
   invariant(party !== undefined, "expected a recorded party");
   const floorOne = party.floorClears.find((clear) => clear.floor === 1);

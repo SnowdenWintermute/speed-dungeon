@@ -40,6 +40,7 @@ import {
   InMemoryIronmanRunPersistenceStrategy,
   LadderGameRecordsService,
   InMemoryLadderRecordsPersistenceStrategy,
+  LadderRecordsPersistenceStrategy,
   RealResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 
@@ -94,8 +95,9 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
   );
   const experiencePointsLadderService = new InMemoryExperiencePointsLadderService();
   const idGenerator = new IdGeneratorRandom({ saveHistory: false });
+  const ladderRecordsPersistenceStrategy = new InMemoryLadderRecordsPersistenceStrategy();
   const ladderGameRecordsService = new LadderGameRecordsService(
-    new InMemoryLadderRecordsPersistenceStrategy(),
+    ladderRecordsPersistenceStrategy,
     idGenerator
   );
 
@@ -120,6 +122,7 @@ export async function createOfflineLocalServers(assetCache: AssetCache) {
       userGameDataPersistenceService,
       experiencePointsLadderService,
       ladderGameRecordsService,
+      ladderRecordsPersistenceStrategy,
       profileService,
       lobbyCrossServerBroadcasterService,
       globalGameSessionStore
@@ -175,6 +178,7 @@ function createOfflineLobbyServerServices(
   userGameDataPersistenceService: UserGameDataPersistenceService,
   experiencePointsLadderService: ExperiencePointsLadderService,
   ladderGameRecordsService: LadderGameRecordsService,
+  ladderRecordsPersistenceStrategy: LadderRecordsPersistenceStrategy,
   profileService: SpeedDungeonProfileService,
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
   globalGameSessionStore: UserGlobalGameSessionStore
@@ -197,6 +201,7 @@ function createOfflineLobbyServerServices(
     userGameDataPersistenceService,
     experiencePointsLadderService,
     ladderGameRecordsService,
+    ladderRecordsPersistenceStrategy,
     gameSessionStoreService,
     crossServerBroadcasterService,
     globalGameSessionStore,

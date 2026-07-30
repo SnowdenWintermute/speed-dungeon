@@ -10,6 +10,7 @@ import {
   PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
+import { requireGameRecordAggregate } from "./aggregate-lookup";
 
 // One player plays two Ironman runs and clears floor 1 in each, spending a different amount of active
 // time. getPlayerProfileData's personal-best projection dedupes by (floor, mode, controlScheme) and
@@ -46,11 +47,9 @@ export async function testIronmanMultiRunPersonalBest(testFixture: IntegrationTe
   await alpha.clientApplication.gameClientRef.get().leaveGame();
   await alpha.clientApplication.topologyManager.transitionToLobbyServer.waitFor();
 
-  const service = testFixture.ladderGameRecordsService;
-
   // ground truth: each run's recorded floor-1 time (robust to exact tick timing)
-  const aggregate1 = await service.requireGameRecordAggregate(gameId1);
-  const aggregate2 = await service.requireGameRecordAggregate(gameId2);
+  const aggregate1 = await requireGameRecordAggregate(testFixture, gameId1);
+  const aggregate2 = await requireGameRecordAggregate(testFixture, gameId2);
   const time1 = requireFloorOneTime(aggregate1);
   const time2 = requireFloorOneTime(aggregate2);
   // the two runs must differ, otherwise "keeps the faster" isn't actually exercised

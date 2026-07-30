@@ -1,6 +1,6 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import { GameMode, invariant, PartyFateType, PlayerProfileLookupType } from "@speed-dungeon/common";
-import { requirePartyOfCharacter } from "./aggregate-lookup";
+import { requireGameRecordAggregate, requirePartyOfCharacter } from "./aggregate-lookup";
 import { TEST_AUTH_USERNAME_PLAYER_2 } from "@/fixtures/consts";
 
 // Guards the trickiest race write-path case: a solo player leaving mid-run. Leaving a ranked race
@@ -22,7 +22,7 @@ export async function testRankedRaceSoloLeaveRecordsLoss(testFixture: Integratio
   // bravo is alone in their own party, so leaving detaches that party from the game before the wipe
   await bravo.clientApplication.gameClientRef.get().leaveGame();
 
-  const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
+  const aggregate = await requireGameRecordAggregate(testFixture, gameId);
   const bravoParty = requirePartyOfCharacter(aggregate, bravoCharacterName);
 
   // the guard persisted the wipe fate on the detached party

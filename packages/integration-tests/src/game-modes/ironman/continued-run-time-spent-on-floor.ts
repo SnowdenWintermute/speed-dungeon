@@ -77,9 +77,10 @@ export async function testContinuedRunTimeSpentOnFloor(testFixture: IntegrationT
 
   // - expect time spent on floor records to reflect time spent
   //   in original game instance plus time spent in loaded instance
-  const gameRecordAggregate = await testFixture.ladderGameRecordsService.getGameRecordAggregate(
-    alphaIronmanRunRef.gameId
-  );
+  const gameRecordAggregate =
+    await testFixture.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(
+      alphaIronmanRunRef.gameId
+    );
   invariant(gameRecordAggregate !== undefined, "expected to have recorded a game record");
   const partyRecordAggregate = gameRecordAggregate.parties[0];
   invariant(partyRecordAggregate !== undefined, "expected to have recorded a party record");

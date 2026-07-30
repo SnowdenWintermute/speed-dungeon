@@ -1,8 +1,20 @@
 import {
+  GameId,
   invariant,
   LadderGameRecordAggregate,
   LadderPartyRecordAggregate,
 } from "@speed-dungeon/common";
+import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
+
+export async function requireGameRecordAggregate(
+  testFixture: IntegrationTestFixture,
+  gameId: GameId
+): Promise<LadderGameRecordAggregate> {
+  const aggregate =
+    await testFixture.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(gameId);
+  invariant(aggregate !== undefined, "expected game record to exist");
+  return aggregate;
+}
 
 // find the party a test's character was recorded in, for ground-truth expectations taken from the
 // write path's own aggregate

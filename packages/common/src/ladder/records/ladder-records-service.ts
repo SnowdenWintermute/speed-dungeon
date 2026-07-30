@@ -1,5 +1,4 @@
 import {
-  CombatantId,
   GameId,
   IdentityProviderId,
   LadderCharacterFloorClearRecordId,
@@ -17,22 +16,11 @@ import {
   LadderPartyFloorClearRecord,
   LadderPartyRecord,
 } from "./index.js";
-import { DateRange } from "../../primatives/date-range.js";
 import {
-  FloorClearEntry,
-  LadderGameRecordAggregate,
   LadderPartyFateUpdate,
   LadderRecordsPersistenceStrategy,
   NewLadderGameRecordSet,
-  PlayerProfileData,
-  RankedFloorClearEntry,
-  WinRateEntry,
 } from "./ladder-records-persistence-strategy.js";
-import { LadderPage } from "../queries/ladder-page.js";
-import { CumulativeClearTimesQuery, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
-import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
-import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
-import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import cloneDeep from "lodash.clonedeep";
@@ -47,18 +35,8 @@ export class LadderGameRecordsService {
     private readonly idGenerator: IdGenerator
   ) {}
 
-  async findParticipantRecordById(
-    userId: IdentityProviderId
-  ): Promise<LadderParticipantRecord | undefined> {
-    return this.persistenceStrategy.findParticipantRecordById(userId);
-  }
-
   async refreshParticipantUsername(id: IdentityProviderId, username: Username): Promise<void> {
     return this.persistenceStrategy.refreshParticipantUsername(id, username);
-  }
-
-  async upsertParticipantRecord(record: LadderParticipantRecord): Promise<void> {
-    return this.persistenceStrategy.upsertParticipantRecord(record);
   }
 
   async recordNewGame(
@@ -274,68 +252,5 @@ export class LadderGameRecordsService {
     controlScheme: CharacterControlScheme
   ): Promise<void> {
     return this.persistenceStrategy.updateGameRecordControlScheme(gameId, controlScheme);
-  }
-
-  async getGameRecordAggregate(id: GameId): Promise<LadderGameRecordAggregate | undefined> {
-    return this.persistenceStrategy.findGameRecordAggregateById(id);
-  }
-
-  async requireGameRecordAggregate(id: GameId): Promise<LadderGameRecordAggregate> {
-    const expected = await this.getGameRecordAggregate(id);
-    invariant(expected !== undefined, "expected game record to exist");
-    return expected;
-  }
-
-  async getUserGameHistory(
-    userId: IdentityProviderId,
-    page: number,
-    dateRange?: DateRange
-  ): Promise<UserGameHistoryEntry[]> {
-    return this.persistenceStrategy.getUserGameHistory(userId, page, dateRange);
-  }
-
-  async getUserGameRecordsCount(
-    userId: IdentityProviderId,
-    dateRange?: DateRange
-  ): Promise<number> {
-    return this.persistenceStrategy.getUserGameRecordsCount(userId, dateRange);
-  }
-
-  async getCumulativeClearTimes(
-    query: CumulativeClearTimesQuery
-  ): Promise<LadderPage<RankedFloorClearEntry>> {
-    return this.persistenceStrategy.getCumulativeClearTimes(query);
-  }
-
-  async getFloorClearTimes(
-    query: FloorClearTimesQuery
-  ): Promise<LadderPage<RankedFloorClearEntry>> {
-    return this.persistenceStrategy.getFloorClearTimes(query);
-  }
-
-  async getFloorClearById(
-    id: LadderPartyFloorClearRecordId
-  ): Promise<FloorClearEntry | undefined> {
-    return this.persistenceStrategy.findFloorClearById(id);
-  }
-
-  async getCumulativeClearRanks(
-    ids: LadderPartyFloorClearRecordId[]
-  ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
-    return this.persistenceStrategy.getCumulativeClearRanks(ids);
-  }
-
-  async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
-    return this.persistenceStrategy.getWinRateLadder(query);
-  }
-
-  async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
-    return this.persistenceStrategy.getPlayerProfileData(userId);
-  }
-
-  async getCharacterFloorClearSnapshot(
-    id: LadderCharacterFloorClearRecordId
-  ): Promise<CharacterFloorClearSnapshotView | undefined> {
-    return this.persistenceStrategy.getCharacterFloorClearSnapshot(id);
   }
 }

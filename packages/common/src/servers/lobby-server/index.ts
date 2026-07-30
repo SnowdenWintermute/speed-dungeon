@@ -50,6 +50,7 @@ import { GameExistenceChecker } from "./game-existence-queries.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
 import { IronmanRunController } from "../controllers/ironman-run-controller.js";
 import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
+import { LadderRecordsPersistenceStrategy } from "../../ladder/records/ladder-records-persistence-strategy.js";
 import { LocalLadderQueries } from "../../ladder/queries/local-ladder-queries.js";
 import { UsernameDirectory } from "../services/username-directory.js";
 
@@ -60,6 +61,7 @@ export interface LobbyExternalServices {
   userGameDataPersistenceService: UserGameDataPersistenceService;
   experiencePointsLadderService: ExperiencePointsLadderService;
   ladderGameRecordsService: LadderGameRecordsService;
+  ladderRecordsPersistenceStrategy: LadderRecordsPersistenceStrategy;
   gameSessionStoreService: GameSessionStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: UserGlobalGameSessionStore;
@@ -311,7 +313,7 @@ export class LobbyServer extends SpeedDungeonServer {
 
     const ladderGameRecordsController = new LadderGameRecordsController(
       new LocalLadderQueries(
-        this.externalServices.ladderGameRecordsService,
+        this.externalServices.ladderRecordsPersistenceStrategy,
         this.externalServices.usernameDirectory,
         this.externalServices.experiencePointsLadderService,
         this.externalServices.userGameDataPersistenceService

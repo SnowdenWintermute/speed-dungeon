@@ -74,10 +74,10 @@ section first if you are starting cold, then the mental model above.
 | 4 | policy dedup + dependency bundles | done, green — built differently than planned |
 | 5a | `FloorClearAssembler` + projection→assembly vocabulary | done, green |
 | 5b | record-bag cleanup | done, green |
-| **6** | **remove the read-side middle man + repo loaders** | **NOT STARTED — the whole remaining job** |
+| 6a | remove the read-side middle man | **built, NOT yet test-run** |
+| **6b** | **postgres loaders → repos** | **NOT STARTED** |
 
-Commit `705be76f` holds steps 1–4. Steps 5a/5b were still uncommitted when the session ended —
-**check `git status` before assuming anything.**
+Commit `705be76f` holds steps 1–4, `c357227e` the assemble rename, `faf13a8a` step 5.
 
 ### Recurring feedback from this pass (worth re-reading before writing code)
 
@@ -286,16 +286,32 @@ sub-bags again. One object dissolves both.
 Smaller, same file: `pageSizeOf` / `totalPagesOf` / `paginate` are the paging rules spread over two
 files with `paginate` private to the projections. Coherent concept, wants one home.
 
-## Step 6 — Remove the middle man (NOT STARTED)
+## Step 6a — Remove the read-side middle man — BUILT 2026-07-30, awaiting a suite run
 
-`LadderGameRecordsService`: **16 of its 24 methods are one-line forwards** to the persistence
-strategy. The 8 that earn their keep are the write-side assembly (`recordNewGame`,
-`updateGameRecordAggregate`, `recordPartyFloorClear`, the private record builders). Fowler's *Remove
-Middle Man*. Plan: keep the service as the **write-side** domain object; let `LocalLadderQueries`
-depend on `LadderRecordsPersistenceStrategy` directly for reads. Deletes ~120 lines and one layer
-from the trace above.
+`LocalLadderQueries` now takes `LadderRecordsPersistenceStrategy` instead of
+`LadderGameRecordsService`. 13 forwards deleted from the service (85 lines); `upsertParticipantRecord`
+went with them — dead as a public method, the only external caller (`seed-ladder-data.ts`) already
+uses the strategy.
 
-`DatabaseLadderRecordsPersistenceStrategy` (888 lines) has **seven near-identical private loaders**
+**The line that was drawn: the service owns the write side, `LocalLadderQueries` the read side, both
+over the strategy.** So `refreshParticipantUsername` / `updatePartyFate` / `recordRunAbandonment` /
+`updateGameRecordControlScheme` **stay** as one-line forwards even though Remove Middle Man would
+take them too. Splitting writes between the service and the strategy would reproduce the exact
+inconsistency 6b exists to fix. Don't "finish the job" on those four.
+
+`LobbyExternalServices` gained `ladderRecordsPersistenceStrategy` alongside the service — the lobby
+needs both, since `IronmanRunController` still takes the service. Threaded through the 3 sites that
+build the bundle (offline servers, lobby-node, test servers); game-node was untouched, a game server
+never runs `LocalLadderQueries`.
+
+Test-side fallout: the fixture's `ladderGameRecordsService` getter became
+`ladderRecordsPersistenceStrategy` (nothing used the service for anything but reads).
+`requireGameRecordAggregate` was a **test-only method on a production class** — it moved to
+`read-queries/aggregate-lookup.ts` beside `requirePartyOfCharacter`, taking the fixture. 8 call sites.
+
+## Step 6b — postgres loaders → repos (NOT STARTED)
+
+`DatabaseLadderRecordsPersistenceStrategy` (876 lines) has **seven near-identical private loaders**
 — guard empty array → `format` a `WHERE x IN (%L)` → map rows. `DatabaseRepository<T>` already has
 `find`/`findOne`/`findById`; add `findWhereIn(field, values)` and move the five `rowToRecord` mappers
 into the repos that define the row shapes. Roughly halves the file.
@@ -304,17 +320,16 @@ Also unresolved there: **reads bypass the repos while writes go through them.** 
 `ladderPartyRecordsRepo.insert`; reads hand-write `SELECT * FROM ladder_party_records`. Pick a
 direction — the inconsistency costs more than either choice.
 
-**Before starting, check these against the code — they were measured on 2026-07-30 and steps 1–5
-have since edited both files:** the 16/24 forward count, the 888-line figure (already smaller after
-the `loadCharactersByIds` deletion), and the seven loaders. Note `getPlayerProfileData` in the
-postgres strategy was reworked in 5b and now spreads `assemblyRecords` from `selectionRecords`.
+Verified 2026-07-30: 7 loaders, 5 `…RowToRecord` mappers at the bottom of the file, each paired with
+a `…Row` interface that already lives in its repo. `getPlayerProfileData` was reworked in 5b and now
+spreads `assemblyRecords` from `selectionRecords`.
 
-Two constraints step 6 must not break:
-- `LocalLadderQueries` is constructed in four places (lobby-server, game-node, lobby-node, the
-  offline servers in client-application, plus the integration fixture). Changing what it depends on
-  touches all of them.
-- The service's write side is used by the ladder policies via `gameRecordsLadderService`. Only the
-  read half should move.
+The line to draw (matches the repo's own rules — repos only touch their own resource, cross-resource
+orchestration belongs above them): **single-table row loads go through the repos, cross-table
+analytical SQL stays in the strategy.** So `getFloorClearTimes` / `getCumulativeClearRanks` /
+`getWinRateLadder` / `getUserGameHistory` keep their hand-written joins and CTEs; the seven `load…`
+helpers become repo calls. `loadSnapshotRefsWhere` is the awkward one — it is deliberately not
+`SELECT *` (the `combatant_with_pets` blob), so the repo needs a projection method, not `findWhereIn`.
 
 ---
 

@@ -56,7 +56,7 @@ export async function testIronmanRunEscape(testFixture: IntegrationTestFixture) 
   ).rejects.toThrow();
   // expect the party fate to be "Escaped" in the party record
   const gameRecordAggregate =
-    await testFixture.ladderGameRecordsService.getGameRecordAggregate(gameId);
+    await testFixture.ladderRecordsPersistenceStrategy.findGameRecordAggregateById(gameId);
   invariant(gameRecordAggregate !== undefined, "expected to have recorded a game record");
   const partyRecordAggregate = gameRecordAggregate.parties[0];
   invariant(partyRecordAggregate !== undefined, "expected to have recorded a party record");

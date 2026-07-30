@@ -8,7 +8,7 @@ import {
   ONE_SECOND,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
-import { requirePartyOfCharacter } from "./aggregate-lookup";
+import { requireGameRecordAggregate, requirePartyOfCharacter } from "./aggregate-lookup";
 
 // The board behind the "Deepest Cumulative Time To Clear" tab: the same floor clears as
 // getFloorClearTimes, but across every floor at once and ordered deepest-first, then fastest to get
@@ -28,7 +28,7 @@ export async function testCumulativeClearTimesReads(testFixture: IntegrationTest
   await alpha.gameClientHarness.toggleReadyToDescend();
 
   // ground truth from the write path
-  const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
+  const aggregate = await requireGameRecordAggregate(testFixture, gameId);
   const partyAggregate = aggregate.parties[0];
   invariant(partyAggregate !== undefined, "expected a recorded party");
   const floorClearsByFloor = new Map(
@@ -60,8 +60,7 @@ export async function testCumulativeClearTimesReads(testFixture: IntegrationTest
   testFixture.timeMachine.advanceTime(ONE_SECOND * 3);
   await racer.gameClientHarness.toggleReadyToDescend();
 
-  const raceAggregate =
-    await testFixture.ladderGameRecordsService.requireGameRecordAggregate(raceGameId);
+  const raceAggregate = await requireGameRecordAggregate(testFixture, raceGameId);
   expect(raceAggregate.game.mode).toBe(GameMode.RankedRace);
   const racerParty = requirePartyOfCharacter(raceAggregate, racerCharacterName);
   const raceFloor1Clear = racerParty.floorClears.find((clear) => clear.floor === 1);

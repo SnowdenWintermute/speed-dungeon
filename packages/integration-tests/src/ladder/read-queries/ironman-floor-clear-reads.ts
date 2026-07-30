@@ -7,6 +7,7 @@ import {
   PlayerProfileLookupType,
   TEST_DUNGEON_THREE_FLOORS_IMMEDIATE_STAIRCASE,
 } from "@speed-dungeon/common";
+import { requireGameRecordAggregate } from "./aggregate-lookup";
 
 // Drives a real Ironman run through two floor descents, then reads it back the way a player does: a
 // client sitting in the lobby runs the LadderQueries over the socket, so this covers the whole path
@@ -36,7 +37,7 @@ export async function testIronmanFloorClearReads(testFixture: IntegrationTestFix
   ).toBe(3);
 
   // ground truth from the write path
-  const aggregate = await testFixture.ladderGameRecordsService.requireGameRecordAggregate(gameId);
+  const aggregate = await requireGameRecordAggregate(testFixture, gameId);
   const partyAggregate = aggregate.parties[0];
   invariant(partyAggregate !== undefined, "expected a recorded party");
   const floorClearsByFloor = new Map(
