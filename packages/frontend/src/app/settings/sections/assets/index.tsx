@@ -6,10 +6,11 @@ import Divider from "@/app/components/atoms/Divider";
 import { AssetFetchStatus } from "./AssetFetchStatus";
 import { AssetFetchList } from "./AssetFetchList";
 import { AssetCacheControls } from "./AssetCacheControls";
+import { ItemThumbnailCacheControls } from "./ItemThumbnailCacheControls";
 
 export const AssetsSection = observer(() => {
   const clientApplication = useClientApplication();
-  const { assetService, itemThumbnails } = clientApplication;
+  const { assetService, itemThumbnails, alertsService } = clientApplication;
   const { progressTracker } = assetService;
 
   return (
@@ -18,7 +19,15 @@ export const AssetsSection = observer(() => {
       <Divider />
       <div className="flex flex-1 min-h-0 gap-2">
         <AssetFetchList progressTracker={progressTracker} />
-        <AssetCacheControls assetService={assetService} itemThumbnails={itemThumbnails} />
+        <div>
+          <div className="mb-2">
+            <AssetCacheControls assetService={assetService} />
+          </div>
+          <ItemThumbnailCacheControls
+            itemThumbnails={itemThumbnails}
+            alertsService={alertsService}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import { Scene, Engine, Vector3, ArcRotateCamera, Color4 } from "@babylonjs/core";
-import "@babylonjs/loaders";
 import { IdGeneratorRandom, invariant } from "@speed-dungeon/common";
 import { ClientApplication } from "@/client-application";
 import { ItemSceneEntityFactory } from "./scene-entities/items/item-scene-entity-factory";

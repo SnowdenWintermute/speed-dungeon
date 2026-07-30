@@ -36,6 +36,15 @@ export class IndexedDbItemThumbnailCache extends ItemThumbnailCache {
     await this.connection.clear(THUMBNAIL_STORE_NAME);
   }
 
+  async getContents() {
+    const images = await this.connection.getAll<ImageString>(THUMBNAIL_STORE_NAME);
+    return {
+      thumbnailCount: images.length,
+      // they are base64 data urls, so one character is one stored byte
+      sizeBytes: images.reduce((total, image) => total + image.length, 0),
+    };
+  }
+
   async discardIfStale(assetManifestFingerprint: string) {
     const current: RenderedBy = { appVersion: APP_VERSION_NUMBER, assetManifestFingerprint };
     const stored = await this.connection.getOption<RenderedBy>(

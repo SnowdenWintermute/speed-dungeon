@@ -59,7 +59,6 @@ export class GameWorldViewDebug {
       `branches: ${this.getReplayBranchesText(branches)}`,
       `fps: ${fps}`,
       `sequentialEventProcessor queue: ${sequentialQueueStrings}`,
-      // `image queue: ${this.gameWorldView.imageGenerator.queue}`,
       `isProcessing: ${this.clientApplication.sequentialEventProcessor.isProcessing}`,
       `${this.getCombatantSceneEntityPositions()}`,
       ...this.getGameWorldResources(),

@@ -5,7 +5,11 @@ import {
   getItemThumbnailKeyOption,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
-import { ImageString, ItemThumbnailCache } from "./item-thumbnail-cache";
+import {
+  ImageString,
+  ItemThumbnailCache,
+  ItemThumbnailCacheContents,
+} from "./item-thumbnail-cache";
 import { ItemThumbnailRenderer, ItemThumbnailRendererFactory } from "./item-thumbnail-renderer";
 
 export class ItemThumbnailService {
@@ -16,6 +20,9 @@ export class ItemThumbnailService {
   private renderChain: Promise<unknown> = Promise.resolve();
   private rendererOption: null | Promise<ItemThumbnailRenderer> = null;
   private freshCacheOption: null | Promise<void> = null;
+  // what is on disk, for the settings display. null until something asks, because totalling it
+  // reads every stored image and no other page needs the number
+  private _cacheContentsOption: null | ItemThumbnailCacheContents = null;
   // incremented when clearing. a render that settles afterward sees itself as stale and drops its
   // image instead of writing the appearance the clear was meant to discard back into the cache
   private generation = 0;
@@ -51,7 +58,7 @@ export class ItemThumbnailService {
     const generation = this.generation;
     this.inFlight.add(key);
     this.resolveThumbnail(key, item, generation)
-      .catch((error) => console.info("item thumbnail failed", key, error))
+      .catch((error) => console.error("item thumbnail failed", key, error))
       .finally(() => {
         // a clear already emptied this, and a newer request may have re-added the key
         if (generation === this.generation) {
@@ -65,6 +72,15 @@ export class ItemThumbnailService {
     this.thumbnails.clear();
     this.inFlight.clear();
     await this.cache.clear();
+    await this.loadCacheContents();
+  }
+
+  get cacheContentsOption() {
+    return this._cacheContentsOption;
+  }
+
+  async loadCacheContents() {
+    this._cacheContentsOption = await this.cache.getContents();
   }
 
   dispose() {

@@ -28,6 +28,13 @@ export class IndexedDbConnection {
     );
   }
 
+  async getAll<T>(storeName: string): Promise<T[]> {
+    const db = await this.dbPromise;
+    return this.awaitRequest<T[]>(
+      db.transaction(storeName, "readonly").objectStore(storeName).getAll()
+    );
+  }
+
   /** for stores created without a keyPath or autoIncrement, whose keys live outside the value */
   async put(storeName: string, key: IDBValidKey, value: unknown) {
     const db = await this.dbPromise;

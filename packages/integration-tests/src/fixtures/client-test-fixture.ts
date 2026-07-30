@@ -14,6 +14,7 @@ import { IDBFactory } from "fake-indexeddb";
 import { LobbyClient } from "@/client-application/clients/lobby/index.js";
 import { GameClient } from "@/client-application/clients/game/index.js";
 import { IndexedDbClientLogRecorder } from "@/client-application/client-log-recorder/indexed-db";
+import { IndexedDbItemThumbnailCache } from "@/client-application/item-thumbnails/indexed-db-item-thumbnail-cache";
 import { vi } from "vitest";
 import { PausableClientRemoteConnectionEndpointFactory } from "@/test-utils/pausable-client-remote-connection-endpoint-factory";
 import { InMemoryReconnectionTokenStore } from "@/client-application/reconnection-token-store";
@@ -60,7 +61,13 @@ export class ClientFixture {
       tickScheduler.scheduler,
       clientLogRecorder,
       new PausableClientRemoteConnectionEndpointFactory(this.clientEndpointFactory),
-      new InMemoryReconnectionTokenStore()
+      new InMemoryReconnectionTokenStore(),
+      new IndexedDbItemThumbnailCache(fakeIndexedDB),
+      // thumbnails are only ever requested by a displaying component, so reaching for a babylon
+      // renderer here means a test is exercising something it shouldn't be able to
+      async () => {
+        throw new Error("no item thumbnail renderer in integration tests");
+      }
     );
 
     const { lobbyClientRef, gameClientRef } = this.clientApplication;
