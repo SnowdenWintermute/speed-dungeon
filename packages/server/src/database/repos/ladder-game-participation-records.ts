@@ -3,7 +3,13 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
-import { GameId, IdentityProviderId, Milliseconds } from "@speed-dungeon/common";
+import {
+  GameId,
+  IdentityProviderId,
+  LadderGameParticipationRecord,
+  Milliseconds,
+} from "@speed-dungeon/common";
+import { timestampToMs } from "../row-conversions.js";
 
 const tableName = RESOURCE_NAMES.LADDER_GAME_PARTICIPATION_RECORDS;
 
@@ -14,6 +20,11 @@ export interface LadderGameParticipationRecordRow {
 }
 
 export class LadderGameParticipationRecordsRepo extends DatabaseRepository<LadderGameParticipationRecordRow> {
+  async findRecordsByGameId(gameRecordId: GameId): Promise<LadderGameParticipationRecord[]> {
+    const rows = await this.find("gameRecordId", gameRecordId);
+    return (rows ?? []).map(rowToRecord);
+  }
+
   async insert(
     gameRecordId: GameId,
     userId: IdentityProviderId,
@@ -47,6 +58,14 @@ export class LadderGameParticipationRecordsRepo extends DatabaseRepository<Ladde
       )
     );
   }
+}
+
+function rowToRecord(row: LadderGameParticipationRecordRow): LadderGameParticipationRecord {
+  return {
+    gameRecordId: row.gameRecordId as GameId,
+    participantRecordId: row.participantRecordId as unknown as IdentityProviderId,
+    abandonedAtOption: timestampToMs(row.abandonedAt),
+  };
 }
 
 export const ladderGameParticipationRecordsRepo = new LadderGameParticipationRecordsRepo(

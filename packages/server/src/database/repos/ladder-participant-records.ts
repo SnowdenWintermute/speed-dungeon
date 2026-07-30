@@ -4,7 +4,7 @@ import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
 import { toCamelCase } from "../utils.js";
-import { IdentityProviderId, LadderParticipantRecord } from "@speed-dungeon/common";
+import { IdentityProviderId, LadderParticipantRecord, Username } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_PARTICIPANT_RECORDS;
 
@@ -14,6 +14,15 @@ export interface LadderParticipantRecordRow {
 }
 
 class LadderParticipantRecordsRepo extends DatabaseRepository<LadderParticipantRecordRow> {
+  async findRecordsByIds(ids: IdentityProviderId[]): Promise<LadderParticipantRecord[]> {
+    return (await this.findWhereIn("id", ids)).map(rowToRecord);
+  }
+
+  async findAllIds(): Promise<IdentityProviderId[]> {
+    const { rows } = await this.pgPool.query(`SELECT id FROM ${tableName};`);
+    return (rows as { id: IdentityProviderId }[]).map((row) => row.id);
+  }
+
   async insert(record: LadderParticipantRecord, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
@@ -46,6 +55,13 @@ class LadderParticipantRecordsRepo extends DatabaseRepository<LadderParticipantR
     }
     return toCamelCase(rows)[0] as unknown as LadderParticipantRecordRow;
   }
+}
+
+function rowToRecord(row: LadderParticipantRecordRow): LadderParticipantRecord {
+  return {
+    id: row.id,
+    lastKnownUsername: (row.lastKnownUsername as Username) ?? undefined,
+  };
 }
 
 export const ladderParticipantRecordsRepo = new LadderParticipantRecordsRepo(pgPool, tableName);

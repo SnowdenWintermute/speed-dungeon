@@ -3,7 +3,15 @@ import { pgPool } from "../../singletons/pg-pool.js";
 import { RESOURCE_NAMES } from "../db-consts.js";
 import { DatabaseRepository } from "./index.js";
 import { Queryable } from "../wrapped-pool.js";
-import { LadderPartyRecord, PartyFate, PartyId } from "@speed-dungeon/common";
+import {
+  GameId,
+  LadderPartyRecord,
+  PartyFate,
+  PartyFateType,
+  PartyId,
+  PartyName,
+} from "@speed-dungeon/common";
+import { timestampToMs } from "../row-conversions.js";
 
 const tableName = RESOURCE_NAMES.LADDER_PARTY_RECORDS;
 
@@ -22,6 +30,22 @@ type LadderPartyRecordInsert = Omit<
 >;
 
 class LadderPartyRecordsRepo extends DatabaseRepository<LadderPartyRecordRow> {
+  async findRecordById(id: PartyId): Promise<LadderPartyRecord | undefined> {
+    const row = await this.findById(id);
+    if (row === undefined) {
+      return undefined;
+    }
+    return rowToRecord(row);
+  }
+
+  async findRecordsByIds(ids: PartyId[]): Promise<LadderPartyRecord[]> {
+    return (await this.findWhereIn("id", ids)).map(rowToRecord);
+  }
+
+  async findRecordsByGameIds(gameIds: GameId[]): Promise<LadderPartyRecord[]> {
+    return (await this.findWhereIn("gameRecordId", gameIds)).map(rowToRecord);
+  }
+
   async insert(record: LadderPartyRecordInsert, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
@@ -54,6 +78,22 @@ class LadderPartyRecordsRepo extends DatabaseRepository<LadderPartyRecordRow> {
       )
     );
   }
+}
+
+function rowToRecord(row: LadderPartyRecordRow): LadderPartyRecord {
+  return {
+    id: row.id as PartyId,
+    gameRecordId: row.gameRecordId as GameId,
+    name: row.name as PartyName,
+    fateOption:
+      row.fateType === null
+        ? undefined
+        : {
+            type: row.fateType as PartyFateType,
+            timestamp: timestampToMs(row.fateTimestamp) ?? 0,
+          },
+    deepestFloorReached: row.deepestFloorReached,
+  };
 }
 
 function fateTimestampSql(fateOption: PartyFate | undefined) {

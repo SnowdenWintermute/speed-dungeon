@@ -7,9 +7,14 @@ import {
   CharacterControlScheme,
   CHARACTER_CONTROL_SCHEME_STRINGS,
   GameId,
+  GameMode,
+  GameName,
   GAME_MODE_STRINGS,
+  invariant,
   LadderGameRecord,
+  Milliseconds,
 } from "@speed-dungeon/common";
+import { controlSchemeFromString, gameModeFromString } from "../row-conversions.js";
 
 const tableName = RESOURCE_NAMES.LADDER_GAME_RECORDS;
 
@@ -29,6 +34,23 @@ type LadderGameRecordInsert = Omit<
 >;
 
 class LadderGameRecordsRepo extends DatabaseRepository<LadderGameRecordRow> {
+  async findRecordById(id: GameId): Promise<LadderGameRecord | undefined> {
+    const row = await this.findById(id);
+    if (row === undefined) {
+      return undefined;
+    }
+    return rowToRecord(row);
+  }
+
+  async findRecordsByIds(ids: GameId[]): Promise<LadderGameRecord[]> {
+    return (await this.findWhereIn("id", ids)).map(rowToRecord);
+  }
+
+  async findRecordsByMode(mode: GameMode): Promise<LadderGameRecord[]> {
+    const rows = await this.find("mode", GAME_MODE_STRINGS[mode]);
+    return (rows ?? []).map(rowToRecord);
+  }
+
   async insert(record: LadderGameRecordInsert, executor: Queryable = this.pgPool) {
     await executor.query(
       format(
@@ -72,6 +94,19 @@ class LadderGameRecordsRepo extends DatabaseRepository<LadderGameRecordRow> {
       )
     );
   }
+}
+
+function rowToRecord(row: LadderGameRecordRow): LadderGameRecord {
+  invariant(row.timeStarted !== null, "expected a game record to have a start time");
+  return {
+    id: row.id as GameId,
+    createdAt: new Date(row.createdAt).getTime() as Milliseconds,
+    updatedAt: new Date(row.updatedAt).getTime() as Milliseconds,
+    name: row.name as GameName,
+    mode: gameModeFromString(row.mode),
+    controlScheme: controlSchemeFromString(row.controlScheme),
+    timeStarted: new Date(row.timeStarted).getTime() as Milliseconds,
+  };
 }
 
 export const ladderGameRecordsRepo = new LadderGameRecordsRepo(pgPool, tableName);

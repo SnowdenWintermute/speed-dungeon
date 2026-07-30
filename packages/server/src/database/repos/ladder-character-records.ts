@@ -7,7 +7,12 @@ import {
   COMBATANT_CLASS_NAME_STRINGS,
   CombatantClass,
   CombatantId,
+  IdentityProviderId,
   LadderCharacterRecord,
+  MapUtils,
+  PartyId,
+  invariant,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 
 const tableName = RESOURCE_NAMES.LADDER_CHARACTER_RECORDS;
@@ -26,6 +31,23 @@ export interface LadderCharacterRecordRow {
 type LadderCharacterRecordInsert = Omit<LadderCharacterRecord, "floorClearRecordIds">;
 
 class LadderCharacterRecordsRepo extends DatabaseRepository<LadderCharacterRecordRow> {
+  async findRecordById(id: CombatantId): Promise<LadderCharacterRecord | undefined> {
+    const row = await this.findById(id);
+    if (row === undefined) {
+      return undefined;
+    }
+    return rowToRecord(row);
+  }
+
+  async findRecordsByPartyIds(partyIds: PartyId[]): Promise<LadderCharacterRecord[]> {
+    return (await this.findWhereIn("partyRecordId", partyIds)).map(rowToRecord);
+  }
+
+  async findRecordsByControllingPlayerId(id: IdentityProviderId): Promise<LadderCharacterRecord[]> {
+    const rows = await this.find("controllingPlayerId", id);
+    return (rows ?? []).map(rowToRecord);
+  }
+
   async insert(record: LadderCharacterRecordInsert, executor: Queryable = this.pgPool) {
     let supportClassColumn: string | null = null;
     let supportClassLevelColumn: number | null = null;
@@ -72,6 +94,42 @@ class LadderCharacterRecordsRepo extends DatabaseRepository<LadderCharacterRecor
 
 function classToColumn(combatantClass: CombatantClass) {
   return COMBATANT_CLASS_NAME_STRINGS[combatantClass].toLowerCase();
+}
+
+// built from classToColumn rather than from the name strings, so the two directions cannot drift
+const CLASS_FROM_COLUMN = MapUtils.invert(
+  new Map(
+    iterateNumericEnumKeyedRecord(COMBATANT_CLASS_NAME_STRINGS).map(([combatantClass]) => [
+      combatantClass,
+      classToColumn(combatantClass),
+    ])
+  )
+);
+
+function classFromColumn(value: string): CombatantClass {
+  const combatantClass = CLASS_FROM_COLUMN.get(value);
+  invariant(combatantClass !== undefined, `unknown combatant class column from db: ${value}`);
+  return combatantClass;
+}
+
+function rowToRecord(row: LadderCharacterRecordRow): LadderCharacterRecord {
+  return {
+    id: row.id as CombatantId,
+    name: row.name,
+    mainClass: {
+      combatantClass: classFromColumn(row.mainClass),
+      level: row.mainClassLevel,
+    },
+    supportClassOption:
+      row.supportClassOption === null
+        ? undefined
+        : {
+            combatantClass: classFromColumn(row.supportClassOption),
+            level: row.supportClassOptionLevel ?? 0,
+          },
+    controllingPlayerId: row.controllingPlayerId as unknown as IdentityProviderId,
+    partyRecordId: row.partyRecordId as PartyId,
+  };
 }
 
 export const ladderCharacterRecordsRepo = new LadderCharacterRecordsRepo(pgPool, tableName);

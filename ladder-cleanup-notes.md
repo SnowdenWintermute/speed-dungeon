@@ -74,10 +74,13 @@ section first if you are starting cold, then the mental model above.
 | 4 | policy dedup + dependency bundles | done, green — built differently than planned |
 | 5a | `FloorClearAssembler` + projection→assembly vocabulary | done, green |
 | 5b | record-bag cleanup | done, green |
-| 6a | remove the read-side middle man | **built, NOT yet test-run** |
-| **6b** | **postgres loaders → repos** | **NOT STARTED** |
+| 6a | remove the read-side middle man | done, green, committed `564b30c5` |
+| 6b | postgres loaders → repos | **built, needs `RUN_POSTGRES_LADDER_TESTS=1`** |
 
 Commit `705be76f` holds steps 1–4, `c357227e` the assemble rename, `faf13a8a` step 5.
+
+**Step 6 is the last one. When 6b is verified the pass is done — delete this file and
+`ladder-rebuild-notes.md`.**
 
 ### Recurring feedback from this pass (worth re-reading before writing code)
 
@@ -286,7 +289,7 @@ sub-bags again. One object dissolves both.
 Smaller, same file: `pageSizeOf` / `totalPagesOf` / `paginate` are the paging rules spread over two
 files with `paginate` private to the projections. Coherent concept, wants one home.
 
-## Step 6a — Remove the read-side middle man — BUILT 2026-07-30, awaiting a suite run
+## Step 6a — Remove the read-side middle man — DONE 2026-07-30, green
 
 `LocalLadderQueries` now takes `LadderRecordsPersistenceStrategy` instead of
 `LadderGameRecordsService`. 13 forwards deleted from the service (85 lines); `upsertParticipantRecord`
@@ -329,7 +332,13 @@ orchestration belongs above them): **single-table row loads go through the repos
 analytical SQL stays in the strategy.** So `getFloorClearTimes` / `getCumulativeClearRanks` /
 `getWinRateLadder` / `getUserGameHistory` keep their hand-written joins and CTEs; the seven `load…`
 helpers become repo calls. `loadSnapshotRefsWhere` is the awkward one — it is deliberately not
-`SELECT *` (the `combatant_with_pets` blob), so the repo needs a projection method, not `findWhereIn`.
+`SELECT *` (the `combatant_with_pets` blob), so its repo needs a column-restricted read of its own
+rather than the generic `findWhereIn`.
+
+**Do not call that "a projection method."** Relational projection (π, a subset of columns) is a real
+and separate sense from the CQRS one 5a rejected, but the word carries both meanings in exactly these
+files, so it stays out of the vocabulary entirely. Mike caught me using it. Name such a method for
+what it returns (refs), not for the relational operation that produces it.
 
 ---
 

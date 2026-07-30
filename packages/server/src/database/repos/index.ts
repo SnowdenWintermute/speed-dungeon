@@ -30,6 +30,19 @@ export class DatabaseRepository<T> {
     return undefined;
   }
 
+  // the empty guard is load-bearing, not an optimization: an empty list formats to `IN ()`, which
+  // postgres cannot parse
+  async findWhereIn(field: keyof T, values: (string | number)[]): Promise<T[]> {
+    if (values.length === 0) {
+      return [];
+    }
+    const snakeCaseField = camelToSnakeCase(field.toString());
+    const { rows } = await this.pgPool.query(
+      format(`SELECT * FROM ${this.tableName} WHERE %I IN (%L);`, snakeCaseField, values)
+    );
+    return toCamelCase(rows) as unknown as T[];
+  }
+
   async findById(id: string): Promise<undefined | T> {
     const result = await this.pgPool.query(
       format(`SELECT * FROM ${this.tableName} WHERE id = %L;`, id)
