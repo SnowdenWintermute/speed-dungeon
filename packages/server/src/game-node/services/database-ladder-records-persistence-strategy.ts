@@ -33,9 +33,9 @@ import {
   Username,
   CharacterFloorClearSnapshotView,
   FloorClearEntry,
-  FloorClearProjectionRecords,
+  FloorClearAssemblyRecords,
   RankedFloorClearEntry,
-  projectFloorClearById,
+  assembleFloorClearById,
   FloorClearSnapshotRef,
   CumulativeClearTimesQuery,
   FloorClearTimesQuery,
@@ -46,13 +46,13 @@ import {
   WinRateLadderQuery,
   assemblePersonalBestEntries,
   computeRankedRaceTally,
-  projectCharacterFloorClearSnapshot,
+  assembleCharacterFloorClearSnapshot,
   assembleFloorClearPage,
   DEFAULT_FLOOR_CLEAR_SORT,
   FloorClearSortField,
   PagedLadderQuery,
   pageSizeOf,
-  projectWinRateLadderPage,
+  assembleWinRateLadderPage,
   selectPersonalBestPartyFloorClears,
 } from "@speed-dungeon/common";
 import { pgPool } from "../../singletons/pg-pool.js";
@@ -380,7 +380,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const partyIds = unique(pageClears.map((partyFloorClear) => partyFloorClear.partyRecordRef));
     // only this page's parties, and only up to the floor being ranked, for the cumulative sums
     const partyClearHistory = await this.loadPartyFloorClearsUpToFloor(partyIds, query.floor);
-    const records = await this.floorClearProjectionRecords(partyClearHistory);
+    const records = await this.floorClearAssemblyRecords(partyClearHistory);
     return assembleFloorClearPage(pageClears, query, totalEntries, records);
   }
 
@@ -403,7 +403,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const partyIds = unique(pageClears.map((partyFloorClear) => partyFloorClear.partyRecordRef));
     // rows here span floors, so each party's whole history is what the sums need
     const partyClearHistory = await this.loadPartyFloorClearsByPartyIds(partyIds);
-    const records = await this.floorClearProjectionRecords(partyClearHistory);
+    const records = await this.floorClearAssemblyRecords(partyClearHistory);
     return assembleFloorClearPage(pageClears, query, totalEntries, records);
   }
 
@@ -456,8 +456,8 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       [partyFloorClear.partyRecordRef],
       partyFloorClear.floor
     );
-    const records = await this.floorClearProjectionRecords(partyClearHistory);
-    return projectFloorClearById(id, records);
+    const records = await this.floorClearAssemblyRecords(partyClearHistory);
+    return assembleFloorClearById(id, records);
   }
 
   // a rank is a count of the clears that beat this one, not a board built and searched for it. the
@@ -506,7 +506,7 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       format(`SELECT id FROM ${RESOURCE_NAMES.LADDER_PARTICIPANT_RECORDS};`)
     );
     const participantIds = participantRows.map((row) => row.id as IdentityProviderId);
-    return projectWinRateLadderPage(query, { participantIds, games, parties, characters });
+    return assembleWinRateLadderPage(query, { participantIds, games, parties, characters });
   }
 
   async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
@@ -594,12 +594,12 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
         snapshot.characterRecordRef
       )
     );
-    return projectCharacterFloorClearSnapshot(snapshot, characterRows[0]?.name ?? "");
+    return assembleCharacterFloorClearSnapshot(snapshot, characterRows[0]?.name ?? "");
   }
 
-  private async floorClearProjectionRecords(
+  private async floorClearAssemblyRecords(
     partyFloorClears: LadderPartyFloorClearRecord[]
-  ): Promise<FloorClearProjectionRecords> {
+  ): Promise<FloorClearAssemblyRecords> {
     const partyIds = unique(
       partyFloorClears.map((partyFloorClear) => partyFloorClear.partyRecordRef)
     );

@@ -36,15 +36,15 @@ import {
 } from "./ladder-records-persistence-strategy.js";
 import { UserGameHistoryEntry } from "../queries/user-game-history.js";
 import {
-  FloorClearProjectionRecords,
-  projectCharacterFloorClearSnapshot,
-  projectCumulativeClearTimesPage,
-  projectCumulativeClearRanks,
-  projectFloorClearById,
-  projectFloorClearTimesPage,
-  projectPlayerProfileData,
-  projectWinRateLadderPage,
-} from "./ladder-read-model-projections.js";
+  FloorClearAssemblyRecords,
+  assembleCharacterFloorClearSnapshot,
+  assembleCumulativeClearTimesPage,
+  computeCumulativeClearRanks,
+  assembleFloorClearById,
+  assembleFloorClearTimesPage,
+  assemblePlayerProfileData,
+  assembleWinRateLadderPage,
+} from "./ladder-read-model-assembly.js";
 import { LadderPage } from "../queries/ladder-page.js";
 import { CumulativeClearTimesQuery, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
@@ -283,29 +283,29 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
   async getFloorClearTimes(
     query: FloorClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearEntry>> {
-    return projectFloorClearTimesPage(query, this.floorClearProjectionRecords());
+    return assembleFloorClearTimesPage(query, this.floorClearAssemblyRecords());
   }
 
   async getCumulativeClearTimes(
     query: CumulativeClearTimesQuery
   ): Promise<LadderPage<RankedFloorClearEntry>> {
-    return projectCumulativeClearTimesPage(query, this.floorClearProjectionRecords());
+    return assembleCumulativeClearTimesPage(query, this.floorClearAssemblyRecords());
   }
 
   async findFloorClearById(
     id: LadderPartyFloorClearRecordId
   ): Promise<FloorClearEntry | undefined> {
-    return projectFloorClearById(id, this.floorClearProjectionRecords());
+    return assembleFloorClearById(id, this.floorClearAssemblyRecords());
   }
 
   async getCumulativeClearRanks(
     ids: LadderPartyFloorClearRecordId[]
   ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
-    return projectCumulativeClearRanks(ids, this.floorClearProjectionRecords());
+    return computeCumulativeClearRanks(ids, this.floorClearAssemblyRecords());
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {
-    return projectWinRateLadderPage(query, {
+    return assembleWinRateLadderPage(query, {
       participantIds: [...this.participants.keys()],
       games: [...this.games.values()],
       parties: [...this.parties.values()],
@@ -314,8 +314,8 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
   }
 
   async getPlayerProfileData(userId: IdentityProviderId): Promise<PlayerProfileData | undefined> {
-    return projectPlayerProfileData(userId, {
-      ...this.floorClearProjectionRecords(),
+    return assemblePlayerProfileData(userId, {
+      ...this.floorClearAssemblyRecords(),
       isKnownParticipant: this.participants.has(userId),
     });
   }
@@ -328,10 +328,10 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     const snapshot = stored === undefined ? undefined : cloneDeep(stored);
     const characterName =
       stored === undefined ? "" : (this.characters.get(stored.characterRecordRef)?.name ?? "");
-    return projectCharacterFloorClearSnapshot(snapshot, characterName);
+    return assembleCharacterFloorClearSnapshot(snapshot, characterName);
   }
 
-  private floorClearProjectionRecords(): FloorClearProjectionRecords {
+  private floorClearAssemblyRecords(): FloorClearAssemblyRecords {
     return {
       partyFloorClears: [...this.partyFloorClears.values()],
       parties: [...this.parties.values()],

@@ -6,7 +6,7 @@ import { ProgressionCharacterSummaryView } from "./experience-points-ladder.js";
 
 // every figure a listed progression character shows is read off the saved character itself, so a
 // ladder row and a row on the owner's own profile can never disagree about the same character
-export function projectProgressionCharacterSummary(
+export function assembleProgressionCharacterSummary(
   character: SerializedPlayerCharacter,
   ownerUsername: Username
 ): ProgressionCharacterSummaryView {

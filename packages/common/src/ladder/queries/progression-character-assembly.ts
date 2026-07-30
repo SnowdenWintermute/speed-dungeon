@@ -5,7 +5,7 @@ import { SerializedOf } from "../../serialization/index.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
 import { ProgressionCharacterView } from "./progression-character.js";
 
-export function projectProgressionCharacterView(
+export function assembleProgressionCharacterView(
   character: SerializedPlayerCharacter,
   ownerUsername: Username
 ): ProgressionCharacterView {

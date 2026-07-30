@@ -130,9 +130,38 @@ All 8 construction sites were byte-identical and all live in `game-mode-policy-s
 declares its own constructor, so only the two base classes changed. Each mode entry in the store is
 now 5 lines, so the *shape* of a mode is visible at a glance.
 
-**Still open, deliberately not done:** `GameModePolicyStore`'s own constructor still takes 11
-positional parameters — the same smell one level up. Its call sites are in server/lobby-node,
-game-node, the offline servers and the integration fixtures, so it is a wider change than this pass.
+### `GameModePolicyStore`'s own 11 positional params — TRIED AND REVERTED. Do not re-propose.
+
+Built it, Mike said it didn't help the way the family bundles did, and he was right. Reverted with
+`git reset --hard` (the family bundles were already committed at `705be76f`, so only this was lost).
+
+Why the store fails the same test the families passed:
+
+| | policy families | the store |
+|---|---|---|
+| classes taking the set | 4 each | 1 |
+| construction sites | 4, byte-identical | 2, **not** identical |
+| repeated lines removed | 28 → 4 | none — there was no duplication |
+| bundle constrains reach? | yes, per family | no, it is "everything" |
+| net line change | large reduction | **+22** |
+
+All 11 types are structurally distinct, so there was no miswiring for named arguments to prevent
+either. What remained was "11 named arguments read better than 11 positional ones at two call
+sites" — true, but not worth an interface plus an 11-line destructure.
+
+**The rule, stated properly:** *when several classes take the same set of collaborators, name the
+set.* Not "many parameters → parameter object". I had already written that rule one message earlier
+and over-applied it anyway.
+
+### Naming inconsistencies noticed here, NOT fixed (each its own small pass)
+
+- Same object is `updateDispatchFactory` on the store and ladder bundle, but
+  `messageDispatchFactory` on the lobby-setup and persistence bundles/fields.
+- `ladderGameRecordsService` (store, matches the class `LadderGameRecordsService`) vs
+  `gameRecordsLadderService` (the ladder policy's field, words swapped). ~14 use sites.
+- `game-server/index.ts` constructs a throwaway `GameExistenceChecker(new LobbyState(), …)` purely to
+  fill the parameter, because only lobby-setup policies use it and those never run on a game server.
+  Real fix is that a game server shouldn't assemble lobby-setup policies at all — bigger question.
 
 ## Steps 1–3 as built (2026-07-30)
 
@@ -201,7 +230,45 @@ And: `ProgressionModeLadderPolicy.onPartyBattleVictory` is a 90-line method cont
 "push to party channel + publish to everyone else" block twice, verbatim but for the message text.
 Extract `announceLadderProgress(text, partyChannel, outbox)`.
 
-## Step 5 — `FloorClearRecordSet` class (NOT STARTED)
+## Step 5b — record-bag cleanup (NOT STARTED — Mike explicitly said don't forget this)
+
+Split out of step 5 so 5a could land with no cross-file changes. **5b is the part with the real
+conceptual mess**, and the only part that reaches outside `ladder-read-model-projections.ts`:
+
+- `projectPlayerProfileData` hand-builds two overlapping sub-bags, `assemblyRecords` and
+  `selectionRecords`, because three functions each want a different subset of one clump.
+- `DatabaseLadderRecordsPersistenceStrategy.getPlayerProfileData` builds **those same two shapes
+  again**, independently.
+- `selectPersonalBestPartyFloorClears` and `assemblePersonalBestEntries` each take their own
+  ad-hoc inline record-bag type rather than a named one.
+
+Riskier than 5a: a mistake changes what a profile page shows rather than failing loudly. Do it as its
+own step with a full suite run.
+
+## Step 5a — `FloorClearAssembler` + the projection→assembly vocabulary fix — DONE 2026-07-30
+
+**Naming went through three wrong answers before landing.** Recorded because the reasoning generalises:
+
+- `FloorClearRecordSet` — "Set" implies unique members; it isn't one.
+- `FloorClearIndex` — named for the maps it holds, i.e. for its fields rather than its job. But
+  `assemble()` builds a whole read model and `rankedByCumulative()` sorts a board; neither is indexing.
+- `FloorClearProjection` — matched the file's existing verb, but **Mike checked the CQRS definition**:
+  projecting is folding a *stream of events* into a structural representation, usually stored. We have
+  no events, nothing stored, no incremental fold.
+
+Landed on **`FloorClearAssembler`**, which is Fowler's PoEAA Assembler (domain objects → DTOs). The
+strategies' `rowToRecord` functions are the Data Mapper half of the same picture.
+
+The file already had **three verbs** — `project…` (8), `assemble…` (2), `select…` (1) — so the
+vocabulary was muddled before this. Settled as: **assemble… returns a read model, select… returns the
+records that won, compute… returns a figure.** That renamed 12 symbols and 5 files across common +
+server. `projectCumulativeClearRanks` became `computeCumulativeClearRanks`, not `assemble…`, because
+ranks are calculated rather than assembled.
+
+Also folded in at Mike's call (he'd otherwise be reading a diff full of stale words): the whole
+rename shipped with 5a rather than as its own commit. Safe because a bad rename fails to compile.
+
+`rankCumulativeClears` was deleted outright — the class method replaces it.
 
 `ladder-read-model-projections.ts` is 624 lines of free functions with an object hiding in it.
 `FloorClearIndexes` is built by `indexFloorClearRecords` and then threaded as a parameter through

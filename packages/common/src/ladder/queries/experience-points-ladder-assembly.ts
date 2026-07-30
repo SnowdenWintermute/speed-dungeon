@@ -2,13 +2,13 @@ import { EntityId, IdentityProviderId, Username } from "../../aliases.js";
 import { ExperiencePointsLadderRankings } from "../../servers/services/experience-points-ladder-service.js";
 import { SerializedPlayerCharacter } from "../../servers/services/user-game-data-persistence/serialized-player-character.js";
 import { ExperiencePointsLadderViewEntry } from "./experience-points-ladder.js";
-import { projectProgressionCharacterSummary } from "./progression-character-summary-projection.js";
+import { assembleProgressionCharacterSummary } from "./progression-character-summary-assembly.js";
 import { LadderPage, totalPagesOf } from "./ladder-page.js";
 
 // the sorted set decides who is ranked and in what order; every figure on display is read back off
 // the character record itself, so a row can never disagree with the character its owner logs in to.
 // rankings hold one page's worth of ids, already scored and ordered by the ladder service.
-export function projectExperiencePointsLadderPage(
+export function assembleExperiencePointsLadderPage(
   rankings: ExperiencePointsLadderRankings,
   page: number,
   pageSize: number,
@@ -37,7 +37,7 @@ export function projectExperiencePointsLadderPage(
 
     entries.push({
       rank: pageStart + indexInPage + 1,
-      ...projectProgressionCharacterSummary(characterOption, usernameOption),
+      ...assembleProgressionCharacterSummary(characterOption, usernameOption),
     });
   });
 

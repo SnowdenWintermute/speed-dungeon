@@ -22,7 +22,7 @@ import {
   RankedFloorClearEntry,
   WinLossTally,
 } from "../records/ladder-records-persistence-strategy.js";
-import { winRateOf } from "../records/ladder-read-model-projections.js";
+import { winRateOf } from "../records/ladder-read-model-assembly.js";
 import { LadderPage, pageSizeOf, totalPagesOf } from "./ladder-page.js";
 import {
   validateCumulativeClearTimesQuery,
@@ -41,7 +41,7 @@ import {
   RankedFloorClearView,
 } from "./floor-clear-times.js";
 import { GameRecordView } from "./game-record.js";
-import { projectGameRecordView } from "./game-record-projection.js";
+import { assembleGameRecordView } from "./game-record-assembly.js";
 import { WinLossRecord, WinRateLadderQuery, WinRateLadderView } from "./win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "./character-floor-clear-snapshot.js";
 import { PlayerProfileLookup, PlayerProfileLookupType } from "./player-profile.js";
@@ -53,14 +53,14 @@ import {
   PlayerProgressionCharactersQuery,
   PlayerProgressionCharactersView,
 } from "./experience-points-ladder.js";
-import { projectExperiencePointsLadderPage } from "./experience-points-ladder-projection.js";
+import { assembleExperiencePointsLadderPage } from "./experience-points-ladder-assembly.js";
 import {
   byMostExperienced,
-  projectProgressionCharacterSummary,
-} from "./progression-character-summary-projection.js";
+  assembleProgressionCharacterSummary,
+} from "./progression-character-summary-assembly.js";
 import { UserGameHistoryEntry, UserGameHistoryQuery } from "./user-game-history.js";
 import { ProgressionCharacterView } from "./progression-character.js";
-import { projectProgressionCharacterView } from "./progression-character-projection.js";
+import { assembleProgressionCharacterView } from "./progression-character-assembly.js";
 
 // executes the queries in-process against the ladder stores. the server runs it over its own
 // persistence strategy on behalf of a connected client; offline clients run it over their local one.
@@ -93,7 +93,7 @@ export class LocalLadderQueries implements LadderQueries {
       ...new Set(characters.map((character) => character.ownerId)),
     ]);
 
-    return projectExperiencePointsLadderPage(
+    return assembleExperiencePointsLadderPage(
       rankings,
       query.page,
       pageSize,
@@ -188,7 +188,7 @@ export class LocalLadderQueries implements LadderQueries {
         party.characters.map(({ character }) => character.controllingPlayerId)
       ),
     ]);
-    return projectGameRecordView(aggregateOption, usernameOf);
+    return assembleGameRecordView(aggregateOption, usernameOf);
   }
 
   // the same saved character an experience points ladder row is hydrated from, read whole this time.
@@ -217,7 +217,7 @@ export class LocalLadderQueries implements LadderQueries {
       return undefined;
     }
 
-    return projectProgressionCharacterView(characterOption, ownerUsernameOption);
+    return assembleProgressionCharacterView(characterOption, ownerUsernameOption);
   }
 
   // an unknown username is an empty list rather than its own "no such player" case, as the game
@@ -236,7 +236,7 @@ export class LocalLadderQueries implements LadderQueries {
       query.controlScheme
     );
     const characters = savedCharacters
-      .map((character) => projectProgressionCharacterSummary(character, query.username))
+      .map((character) => assembleProgressionCharacterSummary(character, query.username))
       .sort(byMostExperienced);
 
     // the ranks travel back with the characters rather than as a second query. a board asks for none

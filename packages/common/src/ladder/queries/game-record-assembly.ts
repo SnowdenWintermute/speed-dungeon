@@ -3,7 +3,7 @@ import {
   LadderGameRecordAggregate,
   LadderPartyRecordAggregate,
 } from "../records/ladder-records-persistence-strategy.js";
-import { cumulativeTimeToClearFloor } from "../records/ladder-read-model-projections.js";
+import { cumulativeTimeToClearFloor } from "../records/ladder-read-model-assembly.js";
 import {
   GameRecordCharacterSnapshotLink,
   GameRecordFloorClearView,
@@ -13,7 +13,7 @@ import {
 
 // the whole-game read: takes the assembled record aggregate and resolves it into the client-facing
 // view. the only thing it needs the caller for is usernames, which live at the identity provider
-export function projectGameRecordView(
+export function assembleGameRecordView(
   aggregate: LadderGameRecordAggregate,
   usernameOf: (id: IdentityProviderId) => Username
 ): GameRecordView {
@@ -28,11 +28,11 @@ export function projectGameRecordView(
       username: usernameOf(participation.participantRecordId),
       abandonedAtOption: participation.abandonedAtOption,
     })),
-    parties: aggregate.parties.map((party) => projectPartyView(party, usernameOf)),
+    parties: aggregate.parties.map((party) => assemblePartyView(party, usernameOf)),
   };
 }
 
-function projectPartyView(
+function assemblePartyView(
   partyAggregate: LadderPartyRecordAggregate,
   usernameOf: (id: IdentityProviderId) => Username
 ): GameRecordPartyView {
