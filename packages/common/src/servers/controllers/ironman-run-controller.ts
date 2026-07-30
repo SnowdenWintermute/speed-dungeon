@@ -1,5 +1,5 @@
 import { GameId } from "../../aliases.js";
-import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
+import { GameRecordsLadderService } from "../../ladder/records/game-records-ladder-service.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../packets/game-state-updates.js";
@@ -27,8 +27,8 @@ export class IronmanRunController {
     protected gameSessionStoreService: GameSessionStoreService,
     protected lobbyState: LobbyState,
     protected userSessionRegistry: UserSessionRegistry,
-    protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
-    protected ladderGameRecordsService: LadderGameRecordsService
+    protected updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>,
+    protected gameRecordsLadderService: GameRecordsLadderService
   ) {}
 
   // from lobby, need bespoke ClientIntent and handler
@@ -83,7 +83,7 @@ export class IronmanRunController {
       liveLobbyGameSessionOption.playersReadied = [];
     }
     // record the player abandoning the run in the ladder records
-    await this.ladderGameRecordsService.recordRunAbandonment(
+    await this.gameRecordsLadderService.recordRunAbandonment(
       runId,
       userSession.taggedUserId.id,
       Date.now()
@@ -96,7 +96,7 @@ export class IronmanRunController {
     ArrayUtils.removeElement(profileOfUserLeaving.ironmanRunIds, runId);
     await this.profilesService.update(userSession.taggedUserId.id, profileOfUserLeaving);
 
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     //   .tell the user about it
     outbox.pushToConnection(userSession.connectionId, {
       type: GameStateUpdateType.IronmanRunAbandoned,
@@ -127,11 +127,11 @@ export class IronmanRunController {
 
       // the abandoner's characters were transferred to an inheriting player; reflect the new
       // ownership and the now-degraded control scheme in the ladder records
-      await this.ladderGameRecordsService.refreshCharacterRecordOwnership(
+      await this.gameRecordsLadderService.refreshCharacterRecordOwnership(
         run.game,
         MapUtils.invert(userIdsToUsernames)
       );
-      await this.ladderGameRecordsService.updateGameRecordControlScheme(
+      await this.gameRecordsLadderService.updateGameRecordControlScheme(
         runId,
         run.game.characterControlScheme
       );
@@ -148,7 +148,7 @@ export class IronmanRunController {
       ERROR_MESSAGES.SERVER.EXPECTED_AUTH_USER
     );
     const userId = session.taggedUserId.id;
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     const profile = await this.profilesService.fetchExpectedProfile(userId);
     const { ironmanRunIds } = profile;
     const savedIronmanRuns: SerializedOf<SavedIronmanRun>[] = [];

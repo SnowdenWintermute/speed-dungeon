@@ -28,7 +28,7 @@ export class ProgressionModePersistencePolicy extends GameModePersistencePolicy 
       session.taggedUserId.id,
       game.characterControlScheme
     );
-    const outbox = new MessageDispatchOutbox(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.SavedCharacter,
       data: {
@@ -56,6 +56,6 @@ export class ProgressionModePersistencePolicy extends GameModePersistencePolicy 
 
   override async onLiveGameLeave(game: SpeedDungeonGame, player: SpeedDungeonPlayer) {
     await this.userGameDataPersistenceService.updateCharactersOwnedByPlayerInGame(game, player);
-    return new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
   }
 }

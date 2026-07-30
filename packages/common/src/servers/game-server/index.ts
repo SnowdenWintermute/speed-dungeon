@@ -68,7 +68,7 @@ import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js"
 import { SpeedDungeonProfileService } from "../services/profiles.js";
 import { GameExistenceChecker } from "../lobby-server/game-existence-queries.js";
 import { LobbyState } from "../lobby-server/lobby-state.js";
-import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
+import { GameRecordsLadderService } from "../../ladder/records/game-records-ladder-service.js";
 import { PartyLifecyleController } from "./controllers/party-lifecycle.js";
 import { ResourceChangePropertiesStrategy } from "../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
 
@@ -77,7 +77,7 @@ export interface GameServerExternalServices {
   userGameDataPersistenceService: UserGameDataPersistenceService;
   profileService: SpeedDungeonProfileService;
   experiencePointsLadderService: ExperiencePointsLadderService;
-  ladderGameRecordsService: LadderGameRecordsService;
+  gameRecordsLadderService: GameRecordsLadderService;
   gameServerRegistry: GameServerRegistry;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
   globalGameSessionStore: UserGlobalGameSessionStore;
@@ -164,7 +164,7 @@ export class GameServer extends SpeedDungeonServer {
       externalServices.crossServerBroadcasterService,
       externalServices.profileService,
       externalServices.experiencePointsLadderService,
-      externalServices.ladderGameRecordsService,
+      externalServices.gameRecordsLadderService,
       externalServices.userGameDataPersistenceService,
       this.userSessionRegistry,
       this.gameRegistry,

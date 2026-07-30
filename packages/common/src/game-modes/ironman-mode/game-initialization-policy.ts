@@ -7,7 +7,7 @@ export class IronmanGameInitializationPolicy extends GameModeGameInitializationP
   override async onStartLiveGame(
     game: SpeedDungeonGame
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     return outbox;
   }
 }

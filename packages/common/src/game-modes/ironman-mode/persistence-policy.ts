@@ -42,7 +42,7 @@ export class IronmanModePersistencePolicy extends GameModePersistencePolicy {
     gameLifecycleController: GameServerGameLifecycleController,
     leavingConnectionId: ConnectionId
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     // tell other players "a teammate disconnected, game closed"
     // if their client tries to do anything in the game, it wont work because it is closed
     // a compliant client should reconnect to the lobby server.

@@ -16,7 +16,7 @@ import { UserGameDataPersistenceService } from "../servers/services/user-game-da
 import { UserSessionRegistry } from "../servers/sessions/user-session-registry.js";
 import { MessageDispatchFactory } from "../servers/update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
-import { LadderGameRecordsService } from "../ladder/records/ladder-records-service.js";
+import { GameRecordsLadderService } from "../ladder/records/game-records-ladder-service.js";
 
 // everything a ladder policy is allowed to reach. one object rather than seven parameters because
 // all four modes' policies take the same seven, so the set is assembled once and handed over whole
@@ -24,7 +24,7 @@ export interface LadderPolicyDependencies {
   userSessionRegistry: UserSessionRegistry;
   experiencePointsLadderService: ExperiencePointsLadderService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
-  gameRecordsLadderService: LadderGameRecordsService;
+  gameRecordsLadderService: GameRecordsLadderService;
   updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
   partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
@@ -35,7 +35,7 @@ export abstract class GameModeLadderUpdatePolicy {
   protected readonly userSessionRegistry: UserSessionRegistry;
   protected readonly experiencePointsLadderService: ExperiencePointsLadderService;
   protected readonly userGameDataPersistenceService: UserGameDataPersistenceService;
-  protected readonly gameRecordsLadderService: LadderGameRecordsService;
+  protected readonly gameRecordsLadderService: GameRecordsLadderService;
   protected readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
   protected readonly partyDelayedGameMessageFactory: PartyDelayedGameMessageFactory;
   protected readonly crossServerBroadcasterService: CrossServerBroadcasterService<

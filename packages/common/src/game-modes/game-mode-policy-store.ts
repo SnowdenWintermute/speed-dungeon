@@ -21,7 +21,7 @@ import { IronmanModeInGameDecisionsPolicy } from "./ironman-mode/in-game-decisio
 import { IronmanModeLadderPolicy } from "./ironman-mode/ladder-policy.js";
 import { IronmanModeLobbySetup } from "./ironman-mode/lobby-setup-policy.js";
 import { IronmanModePersistencePolicy } from "./ironman-mode/persistence-policy.js";
-import { LadderGameRecordsService } from "../ladder/records/ladder-records-service.js";
+import { GameRecordsLadderService } from "../ladder/records/game-records-ladder-service.js";
 import { ProgressionModeInGameDecisionsPolicy } from "./progression-mode/in-game-decisions-policy.js";
 import { ProgressionModeLadderPolicy } from "./progression-mode/ladder-policy.js";
 import { ProgressionModeLobbySetup } from "./progression-mode/lobby-setup-policy.js";
@@ -41,7 +41,7 @@ export class GameModePolicyStore {
     crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>,
     profileService: SpeedDungeonProfileService,
     experiencePointsLadderService: ExperiencePointsLadderService,
-    ladderGameRecordsService: LadderGameRecordsService,
+    gameRecordsLadderService: GameRecordsLadderService,
     userGameDataPersistenceService: UserGameDataPersistenceService,
     userSessionRegistry: UserSessionRegistry,
     gameRegistry: GameRegistry,
@@ -60,21 +60,21 @@ export class GameModePolicyStore {
       gameSessionStoreService,
       gameExistenceChecker,
       idGenerator,
-      messageDispatchFactory: updateDispatchFactory,
+      updateDispatchFactory,
     };
 
     const persistencePolicyDependencies: PersistencePolicyDependencies = {
       userSessionRegistry,
       profileService,
       userGameDataPersistenceService,
-      messageDispatchFactory: updateDispatchFactory,
+      updateDispatchFactory,
     };
 
     const ladderPolicyDependencies: LadderPolicyDependencies = {
       userSessionRegistry,
       experiencePointsLadderService,
       userGameDataPersistenceService,
-      gameRecordsLadderService: ladderGameRecordsService,
+      gameRecordsLadderService,
       updateDispatchFactory,
       partyDelayedGameMessageFactory,
       crossServerBroadcasterService,

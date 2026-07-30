@@ -303,7 +303,7 @@ export * from "./ladder/records/index.js";
 export * from "./ladder/records/ladder-records-persistence-strategy.js";
 export * from "./ladder/records/in-memory-ladder-records-persistence-strategy.js";
 export * from "./ladder/records/ladder-read-model-assembly.js";
-export * from "./ladder/records/ladder-records-service.js";
+export * from "./ladder/records/game-records-ladder-service.js";
 export * from "./ladder/queries/ladder-page.js";
 export * from "./ladder/queries/experience-points-ladder.js";
 export * from "./ladder/queries/experience-points-ladder-assembly.js";

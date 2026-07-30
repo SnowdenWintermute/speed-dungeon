@@ -4,8 +4,8 @@ import { MessageDispatchFactory } from "../servers/update-delivery/message-dispa
 import { MessageDispatchOutbox } from "../servers/update-delivery/outbox.js";
 
 export class GameModeGameInitializationPolicy {
-  constructor(protected messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>) {}
+  constructor(protected updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>) {}
   async onStartLiveGame(_game: SpeedDungeonGame): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    return new MessageDispatchOutbox(this.messageDispatchFactory);
+    return new MessageDispatchOutbox(this.updateDispatchFactory);
   }
 }

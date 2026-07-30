@@ -47,7 +47,7 @@ export class RankedRaceModeLobbySetup extends GameModeLobbySetupPolicy {
   }
 
   override async onJoin(): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     return outbox;
   }
 

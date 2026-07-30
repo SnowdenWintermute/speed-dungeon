@@ -17,7 +17,7 @@ import {
   UserGameDataPersistenceService,
   GuestSessionReconnectionToken,
   SpeedDungeonProfileService,
-  LadderGameRecordsService,
+  GameRecordsLadderService,
   IdGenerator,
   RealResourceChangePropertiesStrategy,
   RandomDungeonGenerationPolicy,
@@ -134,7 +134,7 @@ export class GameServerNode {
       valkeyManager.context
     );
 
-    const ladderGameRecordsService = new LadderGameRecordsService(
+    const gameRecordsLadderService = new GameRecordsLadderService(
       new DatabaseLadderRecordsPersistenceStrategy(),
       idGenerator
     );
@@ -143,7 +143,7 @@ export class GameServerNode {
       gameSessionStoreService,
       userGameDataPersistenceService,
       experiencePointsLadderService,
-      ladderGameRecordsService,
+      gameRecordsLadderService,
       gameServerRegistry,
       crossServerBroadcasterService,
       globalGameSessionStore,

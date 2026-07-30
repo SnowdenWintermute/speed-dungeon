@@ -49,7 +49,7 @@ import { UserGameDataPersistenceService } from "../services/user-game-data-persi
 import { GameExistenceChecker } from "./game-existence-queries.js";
 import { GameModePolicyStore } from "../../game-modes/game-mode-policy-store.js";
 import { IronmanRunController } from "../controllers/ironman-run-controller.js";
-import { LadderGameRecordsService } from "../../ladder/records/ladder-records-service.js";
+import { GameRecordsLadderService } from "../../ladder/records/game-records-ladder-service.js";
 import { LadderRecordsPersistenceStrategy } from "../../ladder/records/ladder-records-persistence-strategy.js";
 import { LocalLadderQueries } from "../../ladder/queries/local-ladder-queries.js";
 import { UsernameDirectory } from "../services/username-directory.js";
@@ -60,7 +60,7 @@ export interface LobbyExternalServices {
   profileService: SpeedDungeonProfileService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
   experiencePointsLadderService: ExperiencePointsLadderService;
-  ladderGameRecordsService: LadderGameRecordsService;
+  gameRecordsLadderService: GameRecordsLadderService;
   ladderRecordsPersistenceStrategy: LadderRecordsPersistenceStrategy;
   gameSessionStoreService: GameSessionStoreService;
   crossServerBroadcasterService: CrossServerBroadcasterService<GameStateUpdate, ServerCommand>;
@@ -157,7 +157,7 @@ export class LobbyServer extends SpeedDungeonServer {
       externalServices.crossServerBroadcasterService,
       externalServices.profileService,
       externalServices.experiencePointsLadderService,
-      externalServices.ladderGameRecordsService,
+      externalServices.gameRecordsLadderService,
       externalServices.userGameDataPersistenceService,
       this.userSessionRegistry,
       this.lobbyState.gameRegistry,
@@ -209,7 +209,7 @@ export class LobbyServer extends SpeedDungeonServer {
       );
       // game records outlive the account that made them, so keep a name on file for when the
       // identity provider stops resolving this id. renaming requires a reconnect to take effect
-      await this.externalServices.ladderGameRecordsService.refreshParticipantUsername(
+      await this.externalServices.gameRecordsLadderService.refreshParticipantUsername(
         session.taggedUserId.id,
         session.username
       );
@@ -301,7 +301,7 @@ export class LobbyServer extends SpeedDungeonServer {
       this.lobbyState,
       this.userSessionRegistry,
       this.updateDispatchFactory,
-      this.externalServices.ladderGameRecordsService
+      this.externalServices.gameRecordsLadderService
     );
 
     const savedCharactersController = new SavedCharactersController(

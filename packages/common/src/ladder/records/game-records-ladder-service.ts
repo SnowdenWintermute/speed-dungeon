@@ -29,7 +29,7 @@ import { Combatant } from "../../combatants/index.js";
 import { SerializedCombatantWithPets } from "../../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 import { APP_VERSION_NUMBER } from "../../app-consts.js";
 
-export class LadderGameRecordsService {
+export class GameRecordsLadderService {
   constructor(
     private readonly persistenceStrategy: LadderRecordsPersistenceStrategy,
     private readonly idGenerator: IdGenerator

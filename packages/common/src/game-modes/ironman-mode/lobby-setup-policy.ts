@@ -145,7 +145,7 @@ export class IronmanModeLobbySetup extends GameModeLobbySetupPolicy {
       const serializedRun = await this.userGameDataPersistenceService.requireIronmanRun(game.id);
       const run = SavedIronmanRun.fromSerialized(serializedRun);
       const playerNameUpdateOption = run.updatePlayerOnJoin(session);
-      const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+      const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
       if (playerNameUpdateOption) {
         // this must be called on the run's saved game as well as the live lobby game setup
         game.updatePlayerWithNewUsername(

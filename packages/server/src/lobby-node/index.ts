@@ -15,7 +15,7 @@ import {
   GameServerSessionClaimToken,
   UserGameDataPersistenceService,
   SpeedDungeonProfileService,
-  LadderGameRecordsService,
+  GameRecordsLadderService,
   IdGenerator,
   DefaultCharacterCreationPolicy,
   GameServerRegistry,
@@ -130,7 +130,7 @@ export class LobbyServerNode {
       valkeyManager.context
     );
     const ladderRecordsPersistenceStrategy = new DatabaseLadderRecordsPersistenceStrategy();
-    const ladderGameRecordsService = new LadderGameRecordsService(
+    const gameRecordsLadderService = new GameRecordsLadderService(
       ladderRecordsPersistenceStrategy,
       idGenerator
     );
@@ -141,7 +141,7 @@ export class LobbyServerNode {
       profileService,
       userGameDataPersistenceService,
       experiencePointsLadderService,
-      ladderGameRecordsService,
+      gameRecordsLadderService,
       ladderRecordsPersistenceStrategy,
       gameSessionStoreService,
       crossServerBroadcasterService,

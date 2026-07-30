@@ -24,7 +24,7 @@ export interface LobbySetupPolicyDependencies {
   gameSessionStoreService: GameSessionStoreService;
   gameExistenceChecker: GameExistenceChecker;
   idGenerator: IdGenerator;
-  messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+  updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
 }
 
 export abstract class GameModeLobbySetupPolicy {
@@ -34,7 +34,7 @@ export abstract class GameModeLobbySetupPolicy {
   protected readonly gameSessionStoreService: GameSessionStoreService;
   protected readonly gameExistenceChecker: GameExistenceChecker;
   protected readonly idGenerator: IdGenerator;
-  protected readonly messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+  protected readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
 
   constructor(dependencies: LobbySetupPolicyDependencies) {
     this.profileService = dependencies.profileService;
@@ -43,7 +43,7 @@ export abstract class GameModeLobbySetupPolicy {
     this.gameSessionStoreService = dependencies.gameSessionStoreService;
     this.gameExistenceChecker = dependencies.gameExistenceChecker;
     this.idGenerator = dependencies.idGenerator;
-    this.messageDispatchFactory = dependencies.messageDispatchFactory;
+    this.updateDispatchFactory = dependencies.updateDispatchFactory;
   }
 
   // required number of parties, each player controls at least one character
@@ -92,7 +92,7 @@ export abstract class GameModeLobbySetupPolicy {
     partySetupController: PartySetupController
   ) {
     const partyOption = session.getCurrentPartyOption(game);
-    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     if (partyOption !== null) {
       const partyLeaveOutbox = partySetupController.removeUserFromParty(session);
       outbox.pushFromOther(partyLeaveOutbox);

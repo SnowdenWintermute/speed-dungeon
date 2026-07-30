@@ -18,7 +18,7 @@ export interface PersistencePolicyDependencies {
   userSessionRegistry: UserSessionRegistry;
   profileService: SpeedDungeonProfileService;
   userGameDataPersistenceService: UserGameDataPersistenceService;
-  messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+  updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
 }
 
 /** what to save and how to save it when certain events happen */
@@ -26,13 +26,13 @@ export abstract class GameModePersistencePolicy {
   protected readonly userSessionRegistry: UserSessionRegistry;
   protected readonly profileService: SpeedDungeonProfileService;
   protected readonly userGameDataPersistenceService: UserGameDataPersistenceService;
-  protected readonly messageDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
+  protected readonly updateDispatchFactory: MessageDispatchFactory<GameStateUpdate>;
 
   constructor(dependencies: PersistencePolicyDependencies) {
     this.userSessionRegistry = dependencies.userSessionRegistry;
     this.profileService = dependencies.profileService;
     this.userGameDataPersistenceService = dependencies.userGameDataPersistenceService;
-    this.messageDispatchFactory = dependencies.messageDispatchFactory;
+    this.updateDispatchFactory = dependencies.updateDispatchFactory;
   }
 
   async onCreateCharacterInLobbySetup(
@@ -40,7 +40,7 @@ export abstract class GameModePersistencePolicy {
     _game: SpeedDungeonGame,
     _character: CombatantWithPets
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    return new MessageDispatchOutbox(this.messageDispatchFactory);
+    return new MessageDispatchOutbox(this.updateDispatchFactory);
   }
   abstract onGameStart(game: SpeedDungeonGame): Promise<void>;
   abstract onBattleResult(game: SpeedDungeonGame, party: AdventuringParty): Promise<void>;
@@ -51,7 +51,7 @@ export abstract class GameModePersistencePolicy {
     _gameLifecycleController: GameServerGameLifecycleController,
     _leavingConnectionId: ConnectionId
   ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
-    return new MessageDispatchOutbox<GameStateUpdate>(this.messageDispatchFactory);
+    return new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
   }
   onLastPlayerLeftLiveGame(_game: SpeedDungeonGame): Promise<void> {
     return Promise.resolve();
