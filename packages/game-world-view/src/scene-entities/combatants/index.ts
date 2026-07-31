@@ -15,7 +15,7 @@ import { CombatantSceneEntityPositionControls } from "./position-controls";
 import { CombatantSceneEntityBounding } from "./bounding";
 import { CombatantSceneEntityModularPartsManager } from "./modular-parts-manager/modular-parts-manager";
 import { GameWorldView } from "@/game-world-view";
-import { getClientRectFromMesh } from "@/game-world-view/utils";
+import { CanvasDimensions, getClientRectFromMesh } from "@/game-world-view/utils";
 import { ClientApplication } from "@/client-application";
 import { HighlightManager } from "./highlight-manager/index";
 import { CombatantSceneEntityEquipmentManager } from "./equipment-manager";
@@ -241,20 +241,20 @@ export class CombatantSceneEntity extends SceneEntity {
     });
   }
 
-  updateDomRefPosition() {
+  updateDomRefPosition(canvasDimensions: CanvasDimensions) {
+    if (!this.modelDomPositionElement) {
+      return;
+    }
     const boundingBox = getClientRectFromMesh(
       this.gameWorldView.scene,
-      this.gameWorldView.canvas,
+      canvasDimensions,
       this.rootMesh
     );
-    if (!this.modelDomPositionElement) return;
-    this.modelDomPositionElement.setAttribute(
-      "style",
-      `height: ${boundingBox.height}px;
-         width: ${boundingBox.width}px;
-         top: ${boundingBox.top}px;
-         left: ${boundingBox.left}px;`
-    );
+    const { style } = this.modelDomPositionElement;
+    style.height = `${boundingBox.height}px`;
+    style.width = `${boundingBox.width}px`;
+    style.top = `${boundingBox.top}px`;
+    style.left = `${boundingBox.left}px`;
   }
 
   handleDeath() {

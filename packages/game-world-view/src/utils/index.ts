@@ -85,10 +85,14 @@ export function paintCubeOnNode(node: Node, cubeSize: number, color: Color4, sce
   return cube;
 }
 
+export type CanvasDimensions = { width: number; height: number };
+
 // adapted from https://forum.babylonjs.com/t/get-mesh-bounding-box-position-and-size-in-2d-screen-coordinates/1058/3
+// takes the canvas dimensions rather than the canvas so callers can read them once per frame
+// instead of forcing a layout flush between the style writes this feeds
 export function getClientRectFromMesh(
   scene: Scene,
-  canvas: HTMLCanvasElement,
+  canvasDimensions: CanvasDimensions,
   mesh: Mesh | AbstractMesh
 ): DOMRect {
   // get bounding box of the mesh
@@ -103,8 +107,8 @@ export function getClientRectFromMesh(
   // loop though all the vectors and project them against the current camera viewport to get a set of coordinates
   const coordinates = meshVectors.map((v) => {
     const proj = Vector3.Project(v, worldMatrix, transformMatrix, viewport);
-    proj.x = proj.x * canvas.clientWidth;
-    proj.y = proj.y * canvas.clientHeight;
+    proj.x = proj.x * canvasDimensions.width;
+    proj.y = proj.y * canvasDimensions.height;
     return proj;
   });
 

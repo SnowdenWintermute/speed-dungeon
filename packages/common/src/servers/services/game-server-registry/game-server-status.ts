@@ -30,8 +30,4 @@ export class GameServerStatus implements Serializable {
     const twoHeartbeatDurations = GAME_SERVER_HEARTBEAT_MS * 2;
     return elapsed > twoHeartbeatDurations;
   }
-
-  refresh() {
-    this.lastSeenAt = Date.now();
-  }
 }

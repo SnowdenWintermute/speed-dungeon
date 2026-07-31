@@ -1,4 +1,5 @@
 import { Milliseconds } from "../aliases.js";
+import { HEARTBEAT_SCHEDULER_TICK_MS } from "../app-consts.js";
 
 export class HeartbeatTask {
   public lastRunMs: Milliseconds = 0;
@@ -12,8 +13,6 @@ export class HeartbeatTask {
 export class HeartbeatScheduler {
   private interval: NodeJS.Timeout | null = null;
   private readonly tasks = new Set<HeartbeatTask>();
-
-  constructor(private readonly tickMs: Milliseconds) {}
 
   register(task: HeartbeatTask): void {
     this.tasks.add(task);
@@ -30,7 +29,7 @@ export class HeartbeatScheduler {
 
     this.interval = setInterval(() => {
       void this.tick();
-    }, this.tickMs);
+    }, HEARTBEAT_SCHEDULER_TICK_MS);
   }
 
   private async tick(): Promise<void> {

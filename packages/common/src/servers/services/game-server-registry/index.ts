@@ -2,8 +2,8 @@ import { GameServerName } from "../../../aliases.js";
 import { GameServerStatus } from "./game-server-status.js";
 
 export interface GameServerRegistry {
+  /** also serves as the heartbeat: writing a status stamps it as seen just now */
   register(status: GameServerStatus): Promise<void>;
-  heartbeat(name: GameServerName): Promise<void>;
   /** stale statuses are filtered out, not deleted. the lobby's dangling resources
    * cleanup owns removal */
   getLiveServers(): Promise<GameServerStatus[]>;

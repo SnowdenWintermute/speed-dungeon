@@ -38,5 +38,6 @@ export default defineConfig({
     // Run tests in full verbose mode
     reporters: "verbose",
     testTimeout: 5000,
+    poolOptions: { threads: { maxThreads: 4, minThreads: 1 } },
   },
 });

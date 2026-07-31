@@ -75,9 +75,7 @@ export class LobbyServer extends SpeedDungeonServer {
   private readonly gameHandoffManager: GameHandoffManager;
   private userIntentHandlers = createLobbyClientIntentHandlers(this);
   private readonly reconnectionProtocol: LobbyReconnectionProtocol;
-  private readonly danglingResourcesHeartbeatScheduler = new HeartbeatScheduler(
-    LOBBY_DANGLING_RESOURCES_CLEANUP_MS
-  );
+  private readonly danglingResourcesHeartbeatScheduler = new HeartbeatScheduler();
   // user controllers
   public readonly gameLifecycleController: LobbyGameLifecycleController;
   public readonly partySetupController: PartySetupController;

@@ -44,13 +44,18 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
   }
 
   updateEntities(deltaTime: number) {
+    const { canvas } = this.gameWorldView;
+    // read once per frame, before any of the style writes below, so we don't force a layout flush
+    // between each combatant's write and the next combatant's read
+    const canvasDimensions = { width: canvas.clientWidth, height: canvas.clientHeight };
+
     for (const [_, combatantModel] of this.sceneEntities) {
       combatantModel.highlightManager.updateHighlight();
 
       combatantModel.movementManager.processActiveActions(deltaTime);
       combatantModel.skeletalAnimationManager.stepAnimationTransitionWeights();
       combatantModel.skeletalAnimationManager.handleCompletedAnimations();
-      combatantModel.updateDomRefPosition();
+      combatantModel.updateDomRefPosition(canvasDimensions);
 
       combatantModel.targetingIndicatorManager.updateBillboardPositions();
       combatantModel.pickerDisc.update(deltaTime);

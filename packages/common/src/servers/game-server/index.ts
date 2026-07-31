@@ -88,7 +88,7 @@ export class GameServer extends SpeedDungeonServer {
   private readonly itemBuilder: ItemBuilder;
   private readonly lootGenerator: LootGenerator;
   readonly dungeonGenerationPolicy: DungeonGenerationPolicy;
-  private readonly heartbeatScheduler = new HeartbeatScheduler(GAME_RECORD_HEARTBEAT_MS);
+  private readonly heartbeatScheduler = new HeartbeatScheduler();
   private readonly reconnectionOpportunityManager = new ReconnectionOpportunityManager();
   private readonly reconnectionProtocol: GameServerReconnectionProtocol;
 
@@ -431,15 +431,17 @@ export class GameServer extends SpeedDungeonServer {
     await this.externalServices.gameServerRegistry.unregister(this.name);
   }
 
-  // registry heartbeat is a read-modify-write, so a tick interleaving with unregister can
+  // the registry heartbeat re-registers, so a tick interleaving with unregister can
   // re-create the entry it just deleted. stop ticking before unregistering
   stopHeartbeats() {
     this.heartbeatScheduler.stop();
   }
 
+  /** re-registering rather than refreshing an existing entry means a status wrongly pruned as
+   * stale comes back on the next tick instead of being gone until this process restarts */
   private startGameServerRegistryHeartbeatTask() {
     const heartbeat = new HeartbeatTask(GAME_SERVER_HEARTBEAT_MS, () =>
-      this.externalServices.gameServerRegistry.heartbeat(this.name)
+      this.registerWithGameServerRegistry()
     );
 
     this.heartbeatScheduler.register(heartbeat);

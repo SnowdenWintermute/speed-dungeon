@@ -14,8 +14,3 @@ characters of deleted accounts
 
 get better seeded data with more equipment types, equipment in other hotswap slots, pets, parties, abandoned games
 and deleted accounts
-
-delete claude notes files
-
-inquire about "ladder seasons" feasibility with current design
-
