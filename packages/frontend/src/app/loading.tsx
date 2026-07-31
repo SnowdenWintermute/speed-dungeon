@@ -1,5 +1,5 @@
 import React from "react";
-import LoadingSpinner from "./components/atoms/LoadingSpinner";
+import LoadingScreen from "./components/atoms/LoadingScreen";
 import { ArrayUtils, BasicRandomNumberGenerator } from "@speed-dungeon/common";
 
 export default function Loading() {
@@ -13,12 +13,5 @@ export default function Loading() {
   ];
   let loadingMessage = ArrayUtils.chooseRandom(loadingMessages, new BasicRandomNumberGenerator());
   if (loadingMessage instanceof Error) loadingMessage = "Loading";
-  return (
-    <main className="h-screen w-screen pt-10 flex flex-col items-center">
-      <h1 className="mb-4">{loadingMessage}...</h1>
-      <div className="h-10 w-10">
-        <LoadingSpinner />
-      </div>
-    </main>
-  );
+  return <LoadingScreen message={loadingMessage} />;
 }

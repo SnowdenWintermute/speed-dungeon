@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClientApplication } from "./create-client-application";
 import { ClientApplicationContext } from "@/hooks/create-client-application-context";
 import { SHOULD_CLEAR_ASSET_CACHE_IN_DEV } from "@/client-consts";
+import LoadingScreen from "./components/atoms/LoadingScreen";
 
 export function ClientApplicationProvider({ children }: { children: React.ReactNode }) {
   const clientApplicationRef = useRef<ClientApplication | null>(null);
@@ -40,8 +41,12 @@ export function ClientApplicationProvider({ children }: { children: React.ReactN
     };
   }, []);
 
+  // isReady is only set in the effect above, which never runs during SSR, so this branch is what
+  // gets server-rendered. Returning null here left the initial HTML empty, meaning nothing painted
+  // until the whole bundle downloaded and hydrated. A static message (no randomness) keeps the
+  // server render and the first client render identical, so there's no hydration mismatch.
   if (!isReady || !clientApplicationRef.current) {
-    return null;
+    return <LoadingScreen message="Loading" />;
   }
 
   return (
