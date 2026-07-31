@@ -1,11 +1,10 @@
 import { NumberRange } from "../../../primatives/number-range.js";
-import { AffixType } from "../../equipment/affixes.js";
 import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { ArmorGenerationTemplate } from "./base-templates.js";
-import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes.js";
+import { setArmorPossibleAffixes } from "./armor-possible-affixes.js";
 import { HeadGear } from "../../equipment/equipment-types/head-gear.js";
 
 export class HeadGearGenerationTemplate extends ArmorGenerationTemplate {
@@ -61,7 +60,7 @@ export const HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       baseItemType: baseItem,
     });
 
-    modifyPossibleAffixesByArmorCategory(
+    setArmorPossibleAffixes(
       template.possibleAffixes,
       EquipmentType.HeadGear,
       template.armorCategory

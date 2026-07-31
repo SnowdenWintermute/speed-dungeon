@@ -1,0 +1,21 @@
+{
+  "name": "@speed-dungeon/balance-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dev-only tooling for moving game balance data between the code and spreadsheets",
+  "type": "module",
+  "license": "ISC",
+  "scripts": {
+    "checkTs": "npx tsc --noEmit --watch",
+    "extract": "node --experimental-strip-types src/extract-game-data.ts",
+    "sync": "node --experimental-strip-types src/sync-csv-from-workbook.ts"
+  },
+  "dependencies": {
+    "@speed-dungeon/common": "1.0.0",
+    "exceljs": "^4.4.0",
+    "papaparse": "^5.5.4"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2"
+  }
+}

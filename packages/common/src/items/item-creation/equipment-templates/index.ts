@@ -9,6 +9,15 @@ import { SHIELD_EQUIPMENT_GENERATION_TEMPLATES } from "./shields.js";
 import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
 import { Amulet, Ring } from "../../equipment/equipment-types/jewelry.js";
 
+export {
+  BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES,
+  HEAD_GEAR_EQUIPMENT_GENERATION_TEMPLATES,
+  ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
+  TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES,
+  TWO_HANDED_RANGED_EQUIPMENT_GENERATION_TEMPLATES,
+  SHIELD_EQUIPMENT_GENERATION_TEMPLATES,
+};
+
 export function getEquipmentGenerationTemplate(
   equipmentBaseItem: EquipmentBaseItem
 ): EquipmentGenerationTemplate {

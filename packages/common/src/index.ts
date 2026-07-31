@@ -41,6 +41,8 @@ export * from "./monsters/get-monster-combatant-species.js";
 export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
 export * from "./monsters/monster-reward-profiles.js";
+export * from "./monsters/monster-starting-attributes.js";
+export * from "./monsters/monster-per-level-attributes.js";
 
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
@@ -55,6 +57,7 @@ export * from "./combatants/combatant-transform-properties.js";
 
 export * from "./combatants/combatant-class/starting-traits.js";
 export * from "./combatants/combatant-class/level-zero-attributes.js";
+export * from "./combatants/combatant-class/class-attributes-by-level.js";
 export * from "./combatants/combatant-class/classes.js";
 export * from "./combatants/combatant-traits/combatant-trait-properties.js";
 export * from "./adventuring-party/index.js";

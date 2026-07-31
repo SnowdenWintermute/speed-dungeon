@@ -9,7 +9,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch --reporter=verbose",
-    "watch": "concurrently --names build,types --prefix-colors cyan,magenta \"yarn workspace @speed-dungeon/server build:watch\" \"yarn workspace @speed-dungeon/integration-tests checkTs\""
+    "watch": "concurrently --names build,types,balance --prefix-colors cyan,magenta,yellow \"yarn workspace @speed-dungeon/server build:watch\" \"yarn workspace @speed-dungeon/integration-tests checkTs\" \"yarn workspace @speed-dungeon/balance-tools checkTs\""
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",

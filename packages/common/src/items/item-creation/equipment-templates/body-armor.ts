@@ -1,11 +1,10 @@
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
-import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
 import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
 import { BodyArmor } from "../../equipment/equipment-types/body-armor.js";
 import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
-import { modifyPossibleAffixesByArmorCategory } from "./armor-category-affixes.js";
+import { setArmorPossibleAffixes } from "./armor-possible-affixes.js";
 import { ArmorGenerationTemplate } from "./base-templates.js";
 
 export class BodyArmorGenerationTemplate extends ArmorGenerationTemplate {
@@ -64,41 +63,7 @@ export const BODY_ARMOR_EQUIPMENT_GENERATION_TEMPLATES: Record<
       baseItemType: baseItem,
     });
 
-    // GENERIC ARMOR POSSIBLE AFFIXES
-    for (const prefix of PREFIX_TYPES) {
-      switch (prefix) {
-        case AffixType.PercentDamage:
-        case AffixType.Accuracy:
-        case AffixType.LifeSteal:
-        case AffixType.ArmorPenetration:
-          break;
-        case AffixType.Mp:
-        case AffixType.Evasion:
-        case AffixType.Agility:
-          template.possibleAffixes.prefix[prefix] = 3;
-          break;
-        case AffixType.FlatArmorClass:
-          template.possibleAffixes.prefix[prefix] = 5;
-      }
-    }
-    for (const suffix of SUFFIX_TYPES) {
-      switch (suffix) {
-        case AffixType.FlatDamage:
-          break;
-        case AffixType.Spirit:
-        case AffixType.Dexterity:
-          template.possibleAffixes.suffix[suffix] = 3;
-          break;
-        case AffixType.Hp:
-        case AffixType.Strength:
-        case AffixType.Vitality:
-        case AffixType.Durability:
-        case AffixType.PercentArmorClass:
-          template.possibleAffixes.suffix[suffix] = 5;
-      }
-    }
-
-    modifyPossibleAffixesByArmorCategory(
+    setArmorPossibleAffixes(
       template.possibleAffixes,
       EquipmentType.BodyArmor,
       template.armorCategory
