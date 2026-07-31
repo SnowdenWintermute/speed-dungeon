@@ -14,7 +14,7 @@ import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 export const DebugPanel = observer(
   ({ debugRef }: { debugRef: React.RefObject<HTMLUListElement | null> }) => {
     const clientApplication = useClientApplication();
-    const { uiStore, gameWorldView, clientLogRecorder } = clientApplication;
+    const { uiStore, gameWorldView, clientLogRecorder, topologyManager } = clientApplication;
     const { dialogs, inputs, keybinds } = uiStore;
     const itemThumbnails = clientApplication.itemThumbnails.getAll();
     const showDebug = dialogs.isOpen(DialogElementName.Debug);
@@ -176,6 +176,7 @@ export const DebugPanel = observer(
           <ul ref={debugRef} className=""></ul>
 
           <ul className="">
+            <li>Game server: {topologyManager.gameServerNameOption ?? "not connected"}</li>
             <li>Alternate Click Function Key Held: {JSON.stringify(alternateClickKeyHeld)}</li>
             <li>Shift Held: {JSON.stringify(modKeyHeld)}</li>
             <li>Input Locked: {inputLockStatus}</li>

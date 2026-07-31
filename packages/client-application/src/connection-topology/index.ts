@@ -9,6 +9,7 @@ import {
   Deferred,
   CharacterControlScheme,
   retryWithExponentialBackoff,
+  GameServerName,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { ClientApplication } from "..";
@@ -50,6 +51,7 @@ export class ConnectionTopology {
   readonly transitionToLobbyServer = new Deferred("transitionToLobbyServer");
   private reconnecting = false;
   private _gameServerUrlOption: string | null = null;
+  private _gameServerNameOption: GameServerName | null = null;
 
   private offlineServers: {
     lobbyServer: undefined | LobbyServer;
@@ -135,6 +137,9 @@ export class ConnectionTopology {
   get gameServerUrlOption() {
     return this._gameServerUrlOption;
   }
+  get gameServerNameOption() {
+    return this._gameServerNameOption;
+  }
 
   async resetLobbyConnection() {
     await this.clientApplication.lobbyClientRef.get().close();
@@ -204,7 +209,6 @@ export class ConnectionTopology {
     this._mode = ConnectionMode.Initializing;
     this._preferredMode = ConnectionMode.Offline;
     const { connectionStatus } = this.clientApplication.uiStore;
-    const { lobbyClientRef, gameClientRef } = this.clientApplication;
     connectionStatus.connectionStatus = ConnectionStatus.Initializing;
     // @TODO - load their local persistence slots
     this.clientApplication.lobbyContext.savedCharacters.setCharacters(
@@ -216,31 +220,40 @@ export class ConnectionTopology {
     this.clientApplication.sequentialEventProcessor.cancelQueued();
     this.clientApplication.sequentialEventProcessor.clearCurrent();
 
-    createOfflineLocalServers(this.clientApplication.assetCache).then(
-      ({ lobbyServer, gameServer }) => {
-        this.offlineServers.lobbyServer = lobbyServer;
-        this.offlineServers.gameServer = gameServer;
+    void this.startOfflineServers();
+  }
 
-        const connectionEndpoint = this.createLocalConnectionEndpoint(
-          LOCAL_OFFLINE_LOBBY_SERVER_URL,
-          []
-        );
-        if (!lobbyClientRef.isInitialized) {
-          lobbyClientRef.setClient(
-            new LobbyClient(
-              "Lobby Server",
-              connectionEndpoint,
-              this.clientApplication,
-              this,
-              ConnectionMode.Offline
-            )
-          );
-        } else {
-          lobbyClientRef.get().targetConnectionMode = ConnectionMode.Offline;
-          lobbyClientRef.get().setEndpoint(connectionEndpoint);
-        }
-      }
+  // the whole offline server stack is reachable only through the fallback above, so it loads on
+  // demand instead of in the first-load bundle of every page
+  private async startOfflineServers() {
+    const { createOfflineLocalServers, LOCAL_OFFLINE_LOBBY_SERVER_URL } = await import(
+      "./create-offline-servers"
     );
+    const { lobbyClientRef } = this.clientApplication;
+    const { lobbyServer, gameServer } = await createOfflineLocalServers(
+      this.clientApplication.assetCache
+    );
+    this.offlineServers.lobbyServer = lobbyServer;
+    this.offlineServers.gameServer = gameServer;
+
+    const connectionEndpoint = this.createLocalConnectionEndpoint(
+      LOCAL_OFFLINE_LOBBY_SERVER_URL,
+      []
+    );
+    if (!lobbyClientRef.isInitialized) {
+      lobbyClientRef.setClient(
+        new LobbyClient(
+          "Lobby Server",
+          connectionEndpoint,
+          this.clientApplication,
+          this,
+          ConnectionMode.Offline
+        )
+      );
+    } else {
+      lobbyClientRef.get().targetConnectionMode = ConnectionMode.Offline;
+      lobbyClientRef.get().setEndpoint(connectionEndpoint);
+    }
   }
 
   connectWithPrefferedMode() {
@@ -340,6 +353,7 @@ export class ConnectionTopology {
   }
 
   createGameClient(
+    gameServerName: GameServerName,
     url: string,
     queryParams: {
       name: string;
@@ -348,9 +362,10 @@ export class ConnectionTopology {
   ) {
     const connectionEndpoint = this.createModeConnectionEndpoint(url, queryParams);
     this._gameServerUrlOption = url;
+    this._gameServerNameOption = gameServerName;
     this.clientApplication.gameClientRef.setClient(
       new GameClient(
-        "Game server",
+        gameServerName,
         connectionEndpoint,
         this.clientApplication,
         this,
@@ -365,5 +380,6 @@ export class ConnectionTopology {
       this.clientApplication.gameClientRef.clearClient();
     }
     this._gameServerUrlOption = null;
+    this._gameServerNameOption = null;
   }
 }

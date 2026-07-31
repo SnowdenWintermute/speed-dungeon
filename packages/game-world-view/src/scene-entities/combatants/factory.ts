@@ -10,10 +10,8 @@ import {
 } from "@speed-dungeon/common";
 import { GameWorldView } from "../..";
 import { CombatantSceneEntity } from ".";
-import {
-  SCENE_DISPOSED_BEFORE_ASSET_LOAD,
-  loadAssetContainerIntoScene,
-} from "@/game-world-view/utils/load-asset-container-into-scene";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
+import { SCENE_DISPOSED_BEFORE_ASSET_LOAD } from "@/game-world-view/utils/scene-disposed-error";
 import { ClientApplication } from "@/client-application";
 import { AssetContainer, Color3, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { getCombatantSceneEntityPartCategoriesAndAssetPaths } from "./modular-parts-manager/asset-paths";

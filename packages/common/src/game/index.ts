@@ -312,6 +312,12 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     return raceModes.includes(this.mode);
   }
 
+  /** Modes whose lobby shows the party's characters as 3d model previews */
+  previewsCharacterModelsInLobby() {
+    const modesWithLobbyPreviews = [GameMode.Progression, GameMode.Ironman];
+    return modesWithLobbyPreviews.includes(this.mode);
+  }
+
   requireMode(mode: GameMode) {
     if (this.mode !== mode) {
       throw new Error(ERROR_MESSAGES.GAME.MODE);

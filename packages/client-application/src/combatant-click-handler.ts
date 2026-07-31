@@ -71,6 +71,11 @@ export class CombatantClickHandler {
   private computeReticleIsClickable(combatantId: CombatantId): boolean {
     const { gameContext, combatantFocus, session } = this.clientApplication;
     const { partyOption } = gameContext;
+
+    if (!gameContext.gameOption?.timeHandedOff) {
+      return false;
+    }
+
     if (!partyOption) {
       return false;
     }
@@ -184,7 +189,11 @@ export class CombatantClickHandler {
         targetCombatant
       );
       if (defaultActionAndRank.actionName !== selectedActionAndRank.actionName) {
-        this.selectDefaultActionOnTarget(focusedCharacterId, defaultActionAndRank, targetingSelection);
+        this.selectDefaultActionOnTarget(
+          focusedCharacterId,
+          defaultActionAndRank,
+          targetingSelection
+        );
         return;
       }
     }

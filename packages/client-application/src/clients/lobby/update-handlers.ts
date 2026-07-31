@@ -9,7 +9,6 @@ import {
   ConnectionEndpoint,
   DEFAULT_ACCOUNT_CHARACTER_CAPACITY,
   ERROR_MESSAGES,
-  GameMode,
   GameStateUpdateMap,
   GameStateUpdateType,
   getProgressionGamePartyName,
@@ -145,7 +144,7 @@ export function createLobbyUpdateHandlers(
 
       game.addCharacterToParty(party, player, deserialized.combatant, deserialized.pets);
 
-      if (game.mode === GameMode.Progression) {
+      if (game.previewsCharacterModelsInLobby()) {
         clientApplication.sequentialEventProcessor.scheduleEvent({
           type: ClientSequentialEventType.SynchronizeCombatantModels,
           data: { softCleanup: true, placeInHomePositions: true },
@@ -157,6 +156,13 @@ export function createLobbyUpdateHandlers(
       const { game, party, player } = gameContext.requirePlayerContext(username);
       party.removeCharacter(characterId, player, game);
       party.combatantManager.updateHomePositions();
+
+      if (game.previewsCharacterModelsInLobby()) {
+        clientApplication.sequentialEventProcessor.scheduleEvent({
+          type: ClientSequentialEventType.SynchronizeCombatantModels,
+          data: { softCleanup: true, placeInHomePositions: true },
+        });
+      }
     },
     [GameStateUpdateType.PlayerSelectedSavedCharacterInProgressionGame]: (data) => {
       const game = gameContext.requireGame();
@@ -294,7 +300,7 @@ export function createLobbyUpdateHandlers(
     [GameStateUpdateType.GameServerConnectionInstructions]: async (data) => {
       clientApplication.topologyManager.transitionToLobbyServer.fire(); // if skipping lobby and reconnecting to game
       const { connectionInstructions } = data;
-      const { url, encryptedSessionClaimToken } = connectionInstructions;
+      const { name, url, encryptedSessionClaimToken } = connectionInstructions;
 
       const queryParams = [
         {
@@ -316,7 +322,7 @@ export function createLobbyUpdateHandlers(
       });
 
       clientApplication.topologyManager.waitForReconnectionInstructions.fire();
-      clientApplication.topologyManager.createGameClient(url, queryParams);
+      clientApplication.topologyManager.createGameClient(name, url, queryParams);
     },
 
     [GameStateUpdateType.ClientAppMessage]: (messageType) => {

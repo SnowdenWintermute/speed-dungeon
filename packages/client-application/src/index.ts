@@ -32,7 +32,7 @@ import { ItemThumbnailRendererFactory } from "./item-thumbnails/item-thumbnail-r
 import { UiStore } from "./ui";
 import { ClientSingleton } from "./clients/singleton";
 import { ClientSequentialEventProcessor } from "./sequential-event-processor";
-import { GameWorldView } from "@/game-world-view";
+import type { GameWorldView } from "@/game-world-view";
 import { BroadcastChannelMananger } from "./broadcast-channel";
 import { ConnectionTopology } from "./connection-topology";
 import { GameClient } from "./clients/game";

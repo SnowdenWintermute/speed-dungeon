@@ -1,20 +1,27 @@
-import { BASE_SCREEN_SIZE, ClientIntentType, GOLDEN_RATIO, PartyName } from "@speed-dungeon/common";
+import {
+  BASE_SCREEN_SIZE,
+  ClientIntentType,
+  GameMode,
+  GOLDEN_RATIO,
+  PartyName,
+} from "@speed-dungeon/common";
 import React from "react";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import { GameLobby } from "../GameLobby";
+import { GameLobbyFrame } from "./GameLobbyFrame";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { PartySetupCard } from "./AdventuringPartySetupCard";
+import { StartingFloorSelect } from "./StartingFloorSelect";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
-export const RaceGameLobby = observer(() => {
+export const GameLobby = observer(() => {
   const { session, gameContext } = useClientApplication();
   const username = session.requireUsername();
   const game = gameContext.requireGame();
   const playerOption = game.getPlayer(username);
 
   return (
-    <GameLobby>
+    <GameLobbyFrame>
       <div className="h-full max-h-full overflow-y-auto ">
         <div>
           <h3 className="text-xl mb-2">Adventuring Parties</h3>
@@ -31,8 +38,11 @@ export const RaceGameLobby = observer(() => {
             </li>
           )}
         </ul>
+        {game.mode === GameMode.Progression && (
+          <StartingFloorSelect game={game} playerOption={playerOption} />
+        )}
       </div>
-    </GameLobby>
+    </GameLobbyFrame>
   );
 });
 

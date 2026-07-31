@@ -1,7 +1,7 @@
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
 import { ClientIntentType, GAME_MODE_STRINGS, SpeedDungeonPlayer } from "@speed-dungeon/common";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "../../../../../public/img/basic-shapes/x-shape.svg";
 import { SPACING_REM_LARGE } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
@@ -13,7 +13,7 @@ interface Props {
   children: ReactNode;
 }
 
-export const GameLobby = observer(({ children }: Props) => {
+export const GameLobbyFrame = observer(({ children }: Props) => {
   const { session, gameContext, lobbyClientRef, uiStore } = useClientApplication();
   const { keybinds } = uiStore;
   const { gameOption } = gameContext;

@@ -16,7 +16,7 @@ import { ReplayStepExecution } from "../../replay-step-execution";
 import { plainToInstance } from "class-transformer";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ClientApplication } from "@/client-application";
-import { GameWorldView } from "@/game-world-view";
+import type { GameWorldView } from "@/game-world-view";
 import { SceneEntity } from "@/game-world-view/scene-entities/base";
 import { SceneEntityService } from "@/game-world-view/scene-entity-service/index";
 import { CombatantSceneEntity } from "@/game-world-view/scene-entities/combatants";

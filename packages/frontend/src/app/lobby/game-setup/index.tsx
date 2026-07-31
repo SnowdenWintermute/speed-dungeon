@@ -1,6 +1,6 @@
 import { GameMode } from "@speed-dungeon/common";
 import React from "react";
-import { RaceGameLobby } from "./race-game-lobby/";
+import { GameLobby } from "./game-lobby/";
 import { ZIndexLayers } from "@/app/z-index-layers";
 
 export function GameSetup({ gameMode }: { gameMode: GameMode }) {
@@ -9,7 +9,7 @@ export function GameSetup({ gameMode }: { gameMode: GameMode }) {
       className={`h-screen w-screen absolute overflow-hidden`}
       style={{ zIndex: ZIndexLayers.LobbyGameSetup }}
     >
-      <RaceGameLobby />
+      <GameLobby />
     </main>
   );
 }

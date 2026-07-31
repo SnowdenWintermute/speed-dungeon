@@ -43,7 +43,6 @@ export const KeybindsSection = observer(() => {
         <div className="flex flex-col justify-between mb-2 ">
           <div className="mb-2">Keyboard layout (sets default suggestions)</div>
           <SelectDropdown
-            key={`${keybinds.getSelectedLayout()}-${pendingLayout ?? "none"}`}
             title="keyboard layout"
             value={keybinds.getSelectedLayout()}
             setValue={(layout) => {

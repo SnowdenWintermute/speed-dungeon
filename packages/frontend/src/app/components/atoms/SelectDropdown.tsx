@@ -18,24 +18,44 @@ export const SelectDropdown = observer((props: Props) => {
   const selectInputRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [indexSelected, setIndexSelected] = useState<number>(
-    options.reduce((accumulator, option, i) => (option.value === value ? i : accumulator), 0)
-  );
+  const indexSelected = options.findIndex((option) => option.value === value);
 
   const clientApplication = useClientApplication();
   const { inputs } = clientApplication.uiStore;
 
+  function selectOptionAtIndex(index: number) {
+    const option = options[index];
+    if (!option) return;
+    props.setValue(option.value);
+  }
+
+  function wrapOptionIndex(index: number) {
+    const { length } = options;
+    return ((index % length) + length) % length;
+  }
+
+  function selectNextEnabledOption(step: 1 | -1) {
+    if (options.length === 0) return;
+    // with nothing selected, -1 already steps forward onto the first option, but stepping
+    // backward should reach the last
+    const nothingSelected = indexSelected === -1;
+    const startIndex = nothingSelected && step === -1 ? options.length : indexSelected;
+
+    for (let offset = 1; offset <= options.length; offset += 1) {
+      const option = options[wrapOptionIndex(startIndex + step * offset)];
+      if (option === undefined || option.disabled) continue;
+      props.setValue(option.value);
+      return;
+    }
+  }
+
+  // a value with no matching option would leave nothing to display, so fall back to the first
+  // selectable one
   useEffect(() => {
     if (props.disabled) return;
     if (value === undefined) return;
-    const option = options[indexSelected];
-    if (!option) return;
-    if (option.value === value) return;
-    props.setValue(option.value);
-  }, [indexSelected, value]);
-
-  useEffect(() => {
-    setIndexSelected(options.map((option) => option.value).indexOf(value));
+    if (indexSelected !== -1) return;
+    selectNextEnabledOption(1);
   }, [value]);
 
   function handleBlur() {
@@ -60,15 +80,15 @@ export const SelectDropdown = observer((props: Props) => {
     if (!selectInputRef.current) return;
     if (!isFocused) return;
 
-    if (code === "Space") setIsOpen(!isOpen);
-    if (code === "ArrowUp") {
-      if (indexSelected === 0) {
-        setIndexSelected(options.length - 1);
-      } else setIndexSelected(indexSelected - 1);
+    if (code === "Space") {
+      setIsOpen(!isOpen);
     }
-    if (code === "ArrowDown")
-      if (indexSelected === options.length - 1) setIndexSelected(0);
-      else setIndexSelected(indexSelected + 1);
+    if (code === "ArrowUp") {
+      selectNextEnabledOption(-1);
+    }
+    if (code === "ArrowDown") {
+      selectNextEnabledOption(1);
+    }
   }
 
   function handleClickOutsideMenu(e: MouseEvent) {
@@ -127,7 +147,7 @@ export const SelectDropdown = observer((props: Props) => {
           type="button"
           onMouseDown={() => {
             setIsOpen(false);
-            setIndexSelected(i);
+            selectOptionAtIndex(i);
           }}
           className={`pointer-events-auto h-10 text-left pl-2 w-full bg-slate-700 
           border-slate-400 border-b ${value === option.value && "bg-slate-950"}

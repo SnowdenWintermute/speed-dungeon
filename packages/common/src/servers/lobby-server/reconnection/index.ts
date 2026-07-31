@@ -1,3 +1,4 @@
+import { GameServerName } from "../../../aliases.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import {
   ConnectionContextType,
@@ -73,7 +74,8 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
 
     return {
       type: ConnectionContextType.WillForwardToGameServer,
-      issueCredentials: async () => await this.issueGameServerConnectionCredential(session, token),
+      issueCredentials: async () =>
+        await this.issueGameServerConnectionCredential(session, token, gameServerOption.name),
     };
   }
 
@@ -112,7 +114,8 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
 
   async issueGameServerConnectionCredential(
     session: UserSession,
-    token: GameServerSessionClaimToken
+    token: GameServerSessionClaimToken,
+    gameServerName: GameServerName
   ) {
     const outbox = new MessageDispatchOutbox(this.updateDispatchFactory);
 
@@ -129,6 +132,7 @@ export class LobbyReconnectionProtocol implements PlayerReconnectionProtocol {
       type: GameStateUpdateType.GameServerConnectionInstructions,
       data: {
         connectionInstructions: {
+          name: gameServerName,
           url,
           encryptedSessionClaimToken,
         },

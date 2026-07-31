@@ -72,6 +72,7 @@ export class GameHandoffManager {
         type: GameStateUpdateType.GameServerConnectionInstructions,
         data: {
           connectionInstructions: {
+            name: leastBusyServer.name,
             url: leastBusyServer.url, // game server url
             encryptedSessionClaimToken: encryptedToken,
           },

@@ -8,8 +8,8 @@ import {
 } from "@speed-dungeon/common";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ClientApplication } from "@/client-application";
-import { GameWorldView } from "@/game-world-view";
-import { isExpectedSceneDisposedError } from "@/game-world-view/utils/load-asset-container-into-scene";
+import type { GameWorldView } from "@/game-world-view";
+import { isExpectedSceneDisposedError } from "@/game-world-view/utils/scene-disposed-error";
 import { ReplayStepExecution } from "../replay-step-execution";
 
 export async function spawnEntitiesGameUpdateHandler(

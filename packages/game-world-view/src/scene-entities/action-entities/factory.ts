@@ -16,10 +16,8 @@ import {
   invariant,
 } from "@speed-dungeon/common";
 import { ACTION_ENTITY_NAME_TO_ASSET_ID } from "./action-entity-asset-ids";
-import {
-  loadAssetContainerIntoScene,
-  SCENE_DISPOSED_BEFORE_ASSET_LOAD,
-} from "@/game-world-view/utils/load-asset-container-into-scene";
+import { loadAssetContainerIntoScene } from "@/game-world-view/utils/load-asset-container-into-scene";
+import { SCENE_DISPOSED_BEFORE_ASSET_LOAD } from "@/game-world-view/utils/scene-disposed-error";
 import { ActionEntitySceneEntity } from ".";
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "@/game-world-view";

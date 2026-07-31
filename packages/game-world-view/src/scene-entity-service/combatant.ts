@@ -4,7 +4,6 @@ import {
   Combatant,
   CombatantId,
   EntityId,
-  GameMode,
   MapUtils,
   SpeedDungeonGame,
   invariant,
@@ -15,7 +14,7 @@ import { CombatantSceneEntityFactory } from "../scene-entities/combatants/factor
 import { ClientApplication } from "@/client-application";
 import { GameWorldView } from "..";
 import { SceneEntityManager } from "./base";
-import { isExpectedSceneDisposedError } from "../utils/load-asset-container-into-scene";
+import { isExpectedSceneDisposedError } from "../utils/scene-disposed-error";
 
 export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSceneEntity> {
   sceneEntities = new Map<EntityId, CombatantSceneEntity>();
@@ -109,9 +108,9 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     const { gameOption } = this.clientApplication.gameContext;
     const inLobby = gameOption && !gameOption.clock.isLive();
     const inGame = gameOption && gameOption.clock.isLive();
-    if (inLobby && gameOption.mode === GameMode.Progression) {
-      this.setProgressionGameLobbyCombatantPositions(gameOption);
-      return this.getProgressionGameLobbyCombatants(gameOption);
+    if (inLobby && gameOption.previewsCharacterModelsInLobby()) {
+      this.setLobbyPreviewCombatantPositions(gameOption);
+      return this.getLobbyPreviewCombatants(gameOption);
     } else if (inGame) {
       const { partyOption } = this.clientApplication.gameContext;
       if (!partyOption) {
@@ -221,12 +220,9 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     return result;
   }
 
-  private setProgressionGameLobbyCombatantPositions(game: SpeedDungeonGame) {
+  private setLobbyPreviewCombatantPositions(game: SpeedDungeonGame) {
     const partyOption = MapUtils.getFirstValue(game.adventuringParties);
-    invariant(
-      partyOption !== undefined,
-      "expected to be in a party if in a progression game lobby"
-    );
+    invariant(partyOption !== undefined, "expected a party in a lobby showing model previews");
 
     partyOption.combatantManager.getPartyMemberCharacters().forEach((combatant, i) => {
       const { transformProperties } = combatant.combatantProperties;
@@ -237,12 +233,9 @@ export class CombatantSceneEntityManager extends SceneEntityManager<CombatantSce
     });
   }
 
-  private getProgressionGameLobbyCombatants(game: SpeedDungeonGame) {
+  private getLobbyPreviewCombatants(game: SpeedDungeonGame) {
     const partyOption = MapUtils.getFirstValue(game.adventuringParties);
-    invariant(
-      partyOption !== undefined,
-      "expected to be in a party if in a progression game lobby"
-    );
+    invariant(partyOption !== undefined, "expected a party in a lobby showing model previews");
     const result = new Map<CombatantId, Combatant>();
 
     partyOption.combatantManager.getPartyMemberCharacters().forEach((combatant) => {
