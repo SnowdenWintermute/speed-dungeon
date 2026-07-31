@@ -20,7 +20,7 @@ export function gotLadderLevelUpMessage(
       character.entityProperties.name,
       ownerUsername,
       character.getLevel(),
-      0
+      1
     )
   );
 }
@@ -37,7 +37,7 @@ export function gotLadderExperienceMessage(
       character.entityProperties.name,
       ownerUsername,
       character.combatantProperties.classProgressionProperties.experiencePoints.getCurrent(),
-      0
+      1
     )
   );
 }
@@ -54,7 +54,7 @@ export function gotLadderDeathMessage(
       character.entityProperties.name,
       ownerUsername,
       character.getLevel(),
-      0
+      1
     )
   );
 }

@@ -8,10 +8,12 @@
   },
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest watch --reporter=verbose"
+    "test:watch": "vitest watch --reporter=verbose",
+    "watch": "concurrently --names build,types --prefix-colors cyan,magenta \"yarn workspace @speed-dungeon/server build:watch\" \"yarn workspace @speed-dungeon/integration-tests checkTs\""
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",
+    "concurrently": "9.1.1",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
     "dotenv-cli": "^11.0.0",

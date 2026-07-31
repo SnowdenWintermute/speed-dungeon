@@ -44,7 +44,7 @@ export async function testOwnLadderRankUpMessages(testFixture: IntegrationTestFi
     CAPTAIN_LADDER_NAME,
     focusedCharacter.getEntityId()
   );
-  expect(expectedRankAfter).toBe(0);
+  expect(expectedRankAfter).toBe(1);
 }
 
 export async function testOwnLadderDeathMessages(testFixture: IntegrationTestFixture) {

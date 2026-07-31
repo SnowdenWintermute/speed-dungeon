@@ -10,7 +10,8 @@ import { PartyFateType } from "../../../ladder/records/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { LootGenerator } from "../../../items/loot-generation/loot-generator.js";
 import { getPartyChannelName } from "../../../packets/channels.js";
-import { GameMessageType } from "../../../packets/game-message.js";
+import { createFloorClearedMessage, GameMessageType } from "../../../packets/game-message.js";
+import { FloorClearTiming } from "../../../game-modes/ladder-update-policy.js";
 import { GameStateUpdate, GameStateUpdateType } from "../../../packets/game-state-updates.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
@@ -147,8 +148,32 @@ export class DungeonExplorationController {
 
     outbox.pushFromOther(descentMessageOutbox);
 
+    // every floor of every mode gets timed for the party that cleared it, whether or not the mode
+    // ranks it. live play time is the running total by construction: each floor's time is measured
+    // off the same clock, so the total at this descent is the sum of the floors below it
+    const clear: FloorClearTiming = {
+      clearedFloor,
+      timeSpentOnFloorMs,
+      cumulativeTimeToClearFloorMs: livePlayTimeMs,
+    };
+
+    outbox.pushFromOther(
+      this.partyDelayedGameMessageFactory.createMessageInChannelWithOptionalDelayForParty(
+        getPartyChannelName(game.name, party.name),
+        GameMessageType.PartyDescent,
+        createFloorClearedMessage(
+          clear.clearedFloor,
+          clear.timeSpentOnFloorMs,
+          clear.cumulativeTimeToClearFloorMs
+        )
+      )
+    );
+
     await gameModePolicy.persistence.onFloorDescent(game, party);
-    await gameModePolicy.ladder.onFloorDescent(game, party, clearedFloor, timeSpentOnFloorMs);
+    const ladderOutboxOption = await gameModePolicy.ladder.onFloorDescent(game, party, clear);
+    if (ladderOutboxOption !== undefined) {
+      outbox.pushFromOther(ladderOutboxOption);
+    }
 
     if (dungeonExplorationManager.partyEscapedDungeon()) {
       let anotherPartyAlreadyEscaped = false;

@@ -45,6 +45,7 @@ import {
   assembleFloorClearPage,
   DEFAULT_FLOOR_CLEAR_SORT,
   FloorClearSortField,
+  FloorClearTimeRanks,
   PagedLadderQuery,
   pageSizeOf,
   assembleWinRateLadderPage,
@@ -88,6 +89,16 @@ const CUMULATIVE_BOARD_ORDER = "c.floor DESC, c.cumulative_time ASC, c.id ASC";
 const CUMULATIVE_BOARD_BEATS_TARGET = `c.floor > t.floor
   OR (c.floor = t.floor AND c.cumulative_time < t.cumulative_time)
   OR (c.floor = t.floor AND c.cumulative_time = t.cumulative_time AND c.id < t.id)`;
+
+// the per-floor boards in the same predicate form, one per sort field. a clear is only ever ranked
+// against the ascending board, so these have no descending twin the way the page ordering does
+const SAME_FLOOR_BOARD_AS_TARGET = "c.floor = t.floor AND c.control_scheme = t.control_scheme";
+const FLOOR_BOARD_BEATS_TARGET: Record<FloorClearSortField, string> = {
+  [FloorClearSortField.TimeSpentOnFloor]: `c.time_spent_on_floor < t.time_spent_on_floor
+    OR (c.time_spent_on_floor = t.time_spent_on_floor AND c.id < t.id)`,
+  [FloorClearSortField.CumulativeTimeToClearFloor]: `c.cumulative_time < t.cumulative_time
+    OR (c.cumulative_time = t.cumulative_time AND c.id < t.id)`,
+};
 
 export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPersistenceStrategy {
   async findParticipantRecordById(
@@ -419,6 +430,41 @@ export class DatabaseLadderRecordsPersistenceStrategy implements LadderRecordsPe
       ranksById[row.id] = parseInt(row.rank, 10);
     }
     return ranksById;
+  }
+
+  // both boards for the clear's floor in one pass: the counts differ only in which column they
+  // compare, and the CTE they read is the expensive part to build twice
+  async getFloorClearTimeRanks(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearTimeRanks | undefined> {
+    const [row] = await queryCamel<{ timeSpentRank: string; cumulativeRank: string }>(
+      format(
+        `WITH ${CLEARS_WITH_CUMULATIVE_CTE},
+         on_the_board AS (
+           SELECT c.* FROM clears_with_cumulative c ${ON_THE_BOARD_JOINS}
+         )
+         SELECT (
+           SELECT COUNT(*) + 1 FROM on_the_board c
+           WHERE ${SAME_FLOOR_BOARD_AS_TARGET}
+             AND (${FLOOR_BOARD_BEATS_TARGET[FloorClearSortField.TimeSpentOnFloor]})
+         ) AS time_spent_rank, (
+           SELECT COUNT(*) + 1 FROM on_the_board c
+           WHERE ${SAME_FLOOR_BOARD_AS_TARGET}
+             AND (${FLOOR_BOARD_BEATS_TARGET[FloorClearSortField.CumulativeTimeToClearFloor]})
+         ) AS cumulative_rank
+         FROM on_the_board t WHERE t.id = %L;`,
+        id
+      )
+    );
+
+    if (row === undefined) {
+      return undefined;
+    }
+
+    return {
+      [FloorClearSortField.TimeSpentOnFloor]: parseInt(row.timeSpentRank, 10),
+      [FloorClearSortField.CumulativeTimeToClearFloor]: parseInt(row.cumulativeRank, 10),
+    };
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {

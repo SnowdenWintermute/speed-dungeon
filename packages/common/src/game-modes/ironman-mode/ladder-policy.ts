@@ -1,9 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId, Milliseconds } from "../../aliases.js";
+import { EntityId } from "../../aliases.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { GameStateUpdate } from "../../packets/game-state-updates.js";
 import { MessageDispatchOutbox } from "../../servers/update-delivery/outbox.js";
-import { GameModeLadderUpdatePolicy } from "../ladder-update-policy.js";
+import { FloorClearTiming, GameModeLadderUpdatePolicy } from "../ladder-update-policy.js";
 import { MapUtils } from "../../utils/map-utils.js";
 
 export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
@@ -37,16 +37,10 @@ export class IronmanModeLadderPolicy extends GameModeLadderUpdatePolicy {
   override async onFloorDescent(
     game: SpeedDungeonGame,
     party: AdventuringParty,
-    clearedFloor: number,
-    timeSpentOnFloorMs: Milliseconds
-  ): Promise<void> {
+    clear: FloorClearTiming
+  ): Promise<MessageDispatchOutbox<GameStateUpdate>> {
     await this.syncGameRecords(game);
-    await this.gameRecordsLadderService.recordPartyFloorClear(
-      party,
-      clearedFloor,
-      timeSpentOnFloorMs,
-      game.characterControlScheme
-    );
+    return this.recordFloorClearAndAnnounceRanking(game, party, clear);
   }
 
   override async onPartyEscape(game: SpeedDungeonGame): Promise<void> {

@@ -14,6 +14,7 @@ import { LadderPage } from "../queries/ladder-page.js";
 import {
   CumulativeClearTimesQuery,
   FloorClear,
+  FloorClearTimeRanks,
   FloorClearTimesQuery,
   RankedFloorClear,
 } from "../queries/floor-clear-times.js";
@@ -152,6 +153,13 @@ export interface LadderRecordsPersistenceStrategy {
   getCumulativeClearRanks(
     ids: LadderPartyFloorClearRecordId[]
   ): Promise<Record<LadderPartyFloorClearRecordId, number>>;
+
+  // the same question asked of the boards for a clear's own floor, which it sits on under both sort
+  // fields at once — so both ranks come back together rather than costing a query each. undefined
+  // when the clear is on no board, as an absent id is above
+  getFloorClearTimeRanks(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearTimeRanks | undefined>;
 
   getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>>;
 

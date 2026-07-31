@@ -132,6 +132,25 @@ export function formatThousandsAsK(value: number): string {
   return (value / 1000).toFixed(2).replace(/\.?0+$/, "") + "k";
 }
 
+// the teens are the exception a bare modulo-10 rule gets wrong: 11th, not 11st
+export function formatOrdinal(value: number): string {
+  const lastTwoDigits = value % 100;
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
+    return `${value}th`;
+  }
+
+  switch (value % 10) {
+    case 1:
+      return `${value}st`;
+    case 2:
+      return `${value}nd`;
+    case 3:
+      return `${value}rd`;
+    default:
+      return `${value}th`;
+  }
+}
+
 // an elapsed span, not a moment: Date would wrap past 24 hours and pad every duration to hh:mm:ss
 export function formatDuration(milliseconds: Milliseconds): string {
   const totalSeconds = Math.floor(milliseconds / ONE_SECOND);

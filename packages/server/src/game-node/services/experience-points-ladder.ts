@@ -10,9 +10,8 @@ export class DatabaseExperiencePointsLadderService extends ExperiencePointsLadde
     super();
   }
 
-  override async getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null> {
-    const rank = await this.valkeyManager.zRevRank(ladderName, entryId);
-    return rank;
+  override async getEntryIndex(ladderName: string, entryId: EntityId): Promise<number | null> {
+    return this.valkeyManager.zRevRank(ladderName, entryId);
   }
 
   override async setScore(

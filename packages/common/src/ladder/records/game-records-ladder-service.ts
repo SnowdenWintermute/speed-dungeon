@@ -23,6 +23,7 @@ import {
 } from "./ladder-records-persistence-strategy.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CharacterControlScheme } from "../../game-modes/index.js";
+import { FloorClearTimeRanks } from "../queries/floor-clear-times.js";
 import cloneDeep from "lodash.clonedeep";
 import { SerializedOf } from "../../serialization/index.js";
 import { Combatant } from "../../combatants/index.js";
@@ -165,12 +166,14 @@ export class GameRecordsLadderService {
     return Promise.all(characterUpdatePromises);
   }
 
+  // returns the record it wrote, so a caller that wants to know how the clear placed can ask about it
+  // without having to find it again
   async recordPartyFloorClear(
     party: AdventuringParty,
     clearedFloor: number,
     timeSpentOnFloorMs: Milliseconds,
     controlScheme: CharacterControlScheme
-  ): Promise<void> {
+  ): Promise<LadderPartyFloorClearRecordId> {
     const partyFloorClearRecord: LadderPartyFloorClearRecord = {
       id: this.idGenerator.generate() as LadderPartyFloorClearRecordId,
       partyRecordRef: party.id,
@@ -189,6 +192,14 @@ export class GameRecordsLadderService {
       partyFloorClearRecord,
       characterFloorClearRecords
     );
+
+    return partyFloorClearRecord.id;
+  }
+
+  async getFloorClearTimeRanks(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearTimeRanks | undefined> {
+    return this.persistenceStrategy.getFloorClearTimeRanks(id);
   }
 
   private createCharacterFloorClearRecords(

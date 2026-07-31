@@ -33,6 +33,7 @@ export const COMBAT_LOG_MESSAGE_STYLES_BY_MESSAGE_TYPE: Record<
   [GameMessageType.LadderDeath]: GameLogMessageStyle.LadderProgress,
   [GameMessageType.PartyDissolved]: GameLogMessageStyle.PartyWipe,
   [GameMessageType.CraftingAction]: GameLogMessageStyle.Basic,
+  [GameMessageType.LadderClearTimeRecord]: GameLogMessageStyle.LadderProgress,
 };
 
 export const GAME_LOG_MESSAGE_STYLE_STRINGS: Record<GameLogMessageStyle, string> = {

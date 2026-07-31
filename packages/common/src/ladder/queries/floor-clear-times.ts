@@ -8,7 +8,11 @@ import {
   PartyName,
   Username,
 } from "../../aliases.js";
-import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
+import {
+  CharacterControlScheme,
+  CHARACTER_CONTROL_SCHEME_STRINGS,
+  GameMode,
+} from "../../game-modes/index.js";
 import { CombatantClass } from "../../combatants/combatant-class/classes.js";
 import { PagedLadderQuery } from "./ladder-page.js";
 
@@ -32,6 +36,27 @@ export interface FloorClearCharacter<TPlayer> extends LadderCharacterView<TPlaye
 export enum FloorClearSortField {
   TimeSpentOnFloor,
   CumulativeTimeToClearFloor,
+}
+
+// where one clear stands on the boards for its own floor — one rank per sort field, since the same
+// clear sits on both of them. mode-spanning as the cumulative board is: ironman and race play by the
+// same rules, so a clear means the same thing in either
+export type FloorClearTimeRanks = Record<FloorClearSortField, number>;
+
+// how a board names itself in prose, for a message that has to say which one was placed on. the two
+// fields are two different claims about the same clear — one floor rushed, or the whole run to it
+export function describeFloorClearBoard(
+  controlScheme: CharacterControlScheme,
+  field: FloorClearSortField,
+  floor: number
+): string {
+  const scheme = CHARACTER_CONTROL_SCHEME_STRINGS[controlScheme];
+  switch (field) {
+    case FloorClearSortField.TimeSpentOnFloor:
+      return `${scheme} time on floor ${floor}`;
+    case FloorClearSortField.CumulativeTimeToClearFloor:
+      return `${scheme} cumulative time to clear floor ${floor}`;
+  }
 }
 
 // sorting has to happen server-side: reordering a fetched page would only reorder those rows

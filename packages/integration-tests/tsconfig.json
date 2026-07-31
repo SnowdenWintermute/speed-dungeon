@@ -3,6 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "moduleResolution": "bundler",
+    // the suite reaches into client-application's source, which has .tsx in it
+    "jsx": "react-jsx",
+    // named explicitly to keep @types/jest out: it is here transitively, and being ambient it was
+    // typing expect/describe/it against jest while the suite actually runs on vitest — which is why
+    // vi was the only global missing rather than all of them
+    "types": ["vitest/globals", "node"],
     "paths": {
       "@speed-dungeon/*": ["../packages/*"],
       "@/client-application": ["../client-application/src/index.ts"],

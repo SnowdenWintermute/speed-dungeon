@@ -131,7 +131,7 @@ export class LocalLadderQueries implements LadderQueries {
   }
 
   // the sorted set already knows where a member sits, so this is a read of one position rather than
-  // of a page. zRevRank counts from zero and every rank the client is shown counts from one
+  // of a page
   async getExperiencePointsLadderRanks(
     query: ExperiencePointsLadderRankQuery
   ): Promise<Record<EntityId, number>> {
@@ -152,7 +152,7 @@ export class LocalLadderQueries implements LadderQueries {
         characterId
       );
       if (rankOption !== null) {
-        ranksById[characterId] = rankOption + 1;
+        ranksById[characterId] = rankOption;
       }
     }
 

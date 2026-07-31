@@ -23,7 +23,7 @@ export async function testDeletedSavedCharacterLeavesTheLadder(
     CAPTAIN_LADDER_NAME,
     characterId
   );
-  expect(expectedRankAfter).toBe(0);
+  expect(expectedRankAfter).toBe(1);
   await alpha.gameClientHarness.leaveGame();
   await alpha.clientApplication.gameClientRef.get().close();
   await alpha.connect();

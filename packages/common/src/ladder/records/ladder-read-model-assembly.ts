@@ -30,6 +30,7 @@ import {
   DEFAULT_FLOOR_CLEAR_SORT,
   FloorClearCharacter,
   FloorClearSortField,
+  FloorClearTimeRanks,
   FloorClearTimesQuery,
 } from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
@@ -151,6 +152,30 @@ export function computeCumulativeClearRanks(
     });
   }
   return ranksById;
+}
+
+// what rank one clear holds on the boards for its own floor — the clear names those boards itself,
+// through the floor and scheme it was made under
+export function computeFloorClearTimeRanks(
+  id: LadderPartyFloorClearRecordId,
+  records: FloorClearAssemblyRecords
+): FloorClearTimeRanks | undefined {
+  const assembler = new FloorClearAssembler(records);
+  const targetOption = assembler.clears.find((partyFloorClear) => partyFloorClear.id === id);
+  if (targetOption === undefined || !assembler.isOnABoard(targetOption)) {
+    return undefined;
+  }
+
+  return {
+    [FloorClearSortField.TimeSpentOnFloor]: assembler.rankOnFloorBoard(
+      targetOption,
+      FloorClearSortField.TimeSpentOnFloor
+    ),
+    [FloorClearSortField.CumulativeTimeToClearFloor]: assembler.rankOnFloorBoard(
+      targetOption,
+      FloorClearSortField.CumulativeTimeToClearFloor
+    ),
+  };
 }
 
 // the single clear behind its own linkable page. the caller loads the clear's party history for the
@@ -489,6 +514,33 @@ export class FloorClearAssembler {
           a.cumulativeTime - b.cumulativeTime ||
           compareStringsOrdinally(a.partyFloorClear.id, b.partyFloorClear.id)
       );
+  }
+
+  // a rank counted rather than read off a built board, which is what the SQL strategy does too. only
+  // the ascending board is ever ranked against: a position on a slowest-first ordering is not a
+  // standing anyone claims. the id tie-break matches the page comparator's, so a clear cannot be told
+  // one rank here and another when it is read off the page it falls on
+  rankOnFloorBoard(target: LadderPartyFloorClearRecord, field: FloorClearSortField): number {
+    const timedTarget = this.withCumulativeTime(target);
+    let clearsThatBeatIt = 0;
+
+    for (const partyFloorClear of this.clears) {
+      if (
+        partyFloorClear.floor !== target.floor ||
+        partyFloorClear.controlScheme !== target.controlScheme ||
+        !this.isOnABoard(partyFloorClear)
+      ) {
+        continue;
+      }
+      const comparison =
+        compareFloorClearsBy(this.withCumulativeTime(partyFloorClear), timedTarget, field) ||
+        compareStringsOrdinally(partyFloorClear.id, target.id);
+      if (comparison < 0) {
+        clearsThatBeatIt += 1;
+      }
+    }
+
+    return clearsThatBeatIt + 1;
   }
 
   assemble(partyFloorClear: LadderPartyFloorClearRecord): FloorClearEntry {

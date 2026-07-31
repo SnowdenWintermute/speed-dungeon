@@ -93,7 +93,7 @@ export class ProgressionModeLadderPolicy extends GameModeLadderUpdatePolicy {
           game.characterControlScheme
         );
 
-      if (newRank === previousRank || newRank >= MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD) {
+      if (newRank === previousRank || newRank > MAX_LADDER_RANK_GLOBAL_MESSAGE_THRESHOLD) {
         // not interesting enough to tell anyone about it
         continue;
       }

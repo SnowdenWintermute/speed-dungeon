@@ -32,7 +32,9 @@ export interface ExperiencePointsLadderRankings {
 }
 
 export abstract class ExperiencePointsLadderService {
-  abstract getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null>;
+  /** where the entry sits in the descending-score ordering, counted from zero as the sorted set
+   * counts it. the store's own answer — callers above want getCurrentRank */
+  abstract getEntryIndex(ladderName: string, entryId: EntityId): Promise<number | null>;
   abstract setScore(
     ladderName: string,
     entryId: EntityId,
@@ -45,6 +47,16 @@ export abstract class ExperiencePointsLadderService {
     page: number,
     pageSize: number
   ): Promise<ExperiencePointsLadderRankings>;
+
+  /** a standing rather than an offset: rank 1 is the best on the ladder. the one place the sorted
+   * set's zero-based position becomes a rank, so nothing above has to remember to convert */
+  async getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null> {
+    const indexOption = await this.getEntryIndex(ladderName, entryId);
+    if (indexOption === null) {
+      return null;
+    }
+    return indexOption + 1;
+  }
 
   async updateOrCreateCharacterExperienceEntry(
     entryId: EntityId,

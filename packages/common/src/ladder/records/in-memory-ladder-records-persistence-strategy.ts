@@ -40,13 +40,18 @@ import {
   assembleCharacterFloorClearSnapshot,
   assembleCumulativeClearTimesPage,
   computeCumulativeClearRanks,
+  computeFloorClearTimeRanks,
   assembleFloorClearById,
   assembleFloorClearTimesPage,
   assemblePlayerProfileData,
   assembleWinRateLadderPage,
 } from "./ladder-read-model-assembly.js";
 import { LadderPage } from "../queries/ladder-page.js";
-import { CumulativeClearTimesQuery, FloorClearTimesQuery } from "../queries/floor-clear-times.js";
+import {
+  CumulativeClearTimesQuery,
+  FloorClearTimeRanks,
+  FloorClearTimesQuery,
+} from "../queries/floor-clear-times.js";
 import { WinRateLadderQuery } from "../queries/win-rate-ladder.js";
 import { CharacterFloorClearSnapshotView } from "../queries/character-floor-clear-snapshot.js";
 
@@ -302,6 +307,12 @@ export class InMemoryLadderRecordsPersistenceStrategy implements LadderRecordsPe
     ids: LadderPartyFloorClearRecordId[]
   ): Promise<Record<LadderPartyFloorClearRecordId, number>> {
     return computeCumulativeClearRanks(ids, this.floorClearAssemblyRecords());
+  }
+
+  async getFloorClearTimeRanks(
+    id: LadderPartyFloorClearRecordId
+  ): Promise<FloorClearTimeRanks | undefined> {
+    return computeFloorClearTimeRanks(id, this.floorClearAssemblyRecords());
   }
 
   async getWinRateLadder(query: WinRateLadderQuery): Promise<LadderPage<WinRateEntry>> {

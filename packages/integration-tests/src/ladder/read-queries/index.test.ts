@@ -12,6 +12,7 @@ import { testDeletedAccountFloorClearReads } from "./deleted-account-username-re
 import { testCumulativeClearTimesReads } from "./cumulative-clear-times-reads";
 import { testCumulativeClearRankReads } from "./cumulative-clear-rank-reads";
 import { testFloorClearAndGameRecordByIdReads } from "./floor-clear-and-game-record-by-id-reads";
+import { testFloorClearRecordAnnouncements } from "./floor-clear-record-announcements";
 
 const CONTAINER_STARTUP_TIMEOUT_MS = 120_000;
 
@@ -97,5 +98,9 @@ describe.each(strategies)("ladder read queries ($name)", ({ usePostgres }) => {
 
   it("fetches a single floor clear and a whole game record by id", async () => {
     await testFloorClearAndGameRecordByIdReads(testFixture);
+  });
+
+  it("announces a rank that agrees with the one the board would show", async () => {
+    await testFloorClearRecordAnnouncements(testFixture);
   });
 });

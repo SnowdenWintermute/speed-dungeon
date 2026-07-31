@@ -49,14 +49,9 @@ describe("connection preemption", () => {
     await bravo.clientApplication.topologyManager.transitionToGameServer.waitForStartedOrCompleted();
     await bravo.clientApplication.topologyManager.transitionToGameServer.waitForOrCompleted();
     await bravo.gameClientHarness.toggleReadyToExplore(); // make sure they can issue inputs
-    expect(
-      bravo.clientApplication.eventLogStore
-        .getMessages()
-        .find(
-          (message) =>
-            message.message === CLIENT_APP_MESSAGES[ClientAppMessageType.OtherConnectionPreempted]
-        )
-    ).toBeTruthy();
+    expect(bravo.getEventLogMessageTexts()).toContain(
+      CLIENT_APP_MESSAGES[ClientAppMessageType.OtherConnectionPreempted]
+    );
   });
 
   // because reconnection is time bound, and we don't want them having some identity proving
@@ -78,13 +73,8 @@ describe("connection preemption", () => {
     // token is cleared when not recognized as usable
     expect(bravo.clientApplication.reconnectionTokenStore.guestGameReconnectionToken).toBeNull();
     expect(bravo.clientApplication.topologyManager.isOnline).toBeTruthy();
-    expect(
-      bravo.clientApplication.eventLogStore
-        .getMessages()
-        .find(
-          (message) =>
-            message.message === CLIENT_APP_MESSAGES[ClientAppMessageType.ReconnectingToGameServer]
-        )
-    ).toBeFalsy();
+    expect(bravo.getEventLogMessageTexts()).not.toContain(
+      CLIENT_APP_MESSAGES[ClientAppMessageType.ReconnectingToGameServer]
+    );
   });
 });

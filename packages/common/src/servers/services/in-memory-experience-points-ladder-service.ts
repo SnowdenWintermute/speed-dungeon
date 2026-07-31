@@ -39,7 +39,7 @@ export class InMemoryExperiencePointsLadderService extends ExperiencePointsLadde
     return ladder.sorted;
   }
 
-  override async getCurrentRank(ladderName: string, entryId: EntityId): Promise<number | null> {
+  override async getEntryIndex(ladderName: string, entryId: EntityId): Promise<number | null> {
     const ladder = this.ladders.get(ladderName);
     if (!ladder) return null;
 
@@ -47,7 +47,7 @@ export class InMemoryExperiencePointsLadderService extends ExperiencePointsLadde
 
     for (let i = 0; i < sorted.length; i++) {
       if (sorted[i]?.entryId === entryId) {
-        return i; // zero-based rank, matches Redis zRevRank
+        return i; // zero-based, matching Redis zRevRank
       }
     }
 

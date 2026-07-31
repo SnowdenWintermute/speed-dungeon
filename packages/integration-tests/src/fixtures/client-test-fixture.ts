@@ -135,6 +135,16 @@ export class ClientFixture {
     }, options);
   }
 
+  // the event log holds ReactNodes, so asking whether a client was told something means rendering
+  // them down to text first. a snapshot rather than a live view: a test that reads this before
+  // leaving a game is asking what the client saw while it was there
+  getEventLogMessageTexts(): string[] {
+    return this.clientApplication.eventLogStore
+      .getMessages()
+      .map((logMessage) => logMessage.message?.toString())
+      .filter((text) => text !== undefined);
+  }
+
   requireGameIdFromClientGameList(gameName: GameName) {
     for (const gameListEntry of this.clientApplication.lobbyContext.gameList) {
       if (gameListEntry.gameName === gameName) {
