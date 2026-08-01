@@ -48,7 +48,7 @@ export class EquipmentTemplateRepository {
   constructor(specs: EquipmentTemplateSpec[]) {
     for (const spec of specs) {
       const { equipmentType, baseItemType } = spec.baseItem;
-      this.templatesByType[equipmentType].set(baseItemType, buildTemplate(spec));
+      this.templatesByType[equipmentType].set(baseItemType, assembleTemplate(spec));
     }
   }
 
@@ -68,8 +68,8 @@ function describeBaseItem(baseItem: EquipmentBaseItem) {
   return `${EquipmentType[baseItem.equipmentType]} ${baseItem.baseItemType}`;
 }
 
-function buildTemplate(spec: EquipmentTemplateSpec) {
-  const template = buildTemplateOfType(spec);
+function assembleTemplate(spec: EquipmentTemplateSpec) {
+  const template = assembleTemplateOfType(spec);
 
   template.levelRange = spec.levelRange;
   template.maxDurability = spec.maxDurability;
@@ -79,7 +79,7 @@ function buildTemplate(spec: EquipmentTemplateSpec) {
   return template;
 }
 
-function buildTemplateOfType(spec: EquipmentTemplateSpec): EquipmentGenerationTemplate {
+function assembleTemplateOfType(spec: EquipmentTemplateSpec): EquipmentGenerationTemplate {
   const { baseItem } = spec;
 
   switch (baseItem.equipmentType) {

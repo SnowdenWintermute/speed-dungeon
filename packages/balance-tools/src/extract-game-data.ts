@@ -3,7 +3,7 @@
 // the everyday direction is sync-csv-from-workbook.ts, not this one
 import fs from "node:fs";
 import ExcelJS from "exceljs";
-import { buildBalanceTables } from "./balance-tables.ts";
+import { assembleBalanceTables } from "./balance-tables.ts";
 import { WORKBOOK_PATH } from "./game-data-paths.ts";
 import { writeCsvTables } from "./write-csv-tables.ts";
 
@@ -19,7 +19,7 @@ async function extractGameData() {
     return;
   }
 
-  const tables = buildBalanceTables();
+  const tables = assembleBalanceTables();
   const workbook = new ExcelJS.Workbook();
 
   for (const table of tables) {

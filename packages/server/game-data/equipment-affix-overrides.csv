@@ -1,2 +1,2 @@
-baseItem,affixCategory,affixType,maxTier
-LanternShield,Suffix,FlatDamage,5
+baseItem,affixType,maxTier
+LanternShield,FlatDamage,5

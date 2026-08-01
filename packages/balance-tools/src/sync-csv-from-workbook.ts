@@ -3,7 +3,7 @@ import fs from "node:fs";
 import ExcelJS from "exceljs";
 import { invariant } from "@speed-dungeon/common";
 import type { BalanceCell, BalanceTable } from "./balance-tables.ts";
-import { buildBalanceTables } from "./balance-tables.ts";
+import { assembleBalanceTables } from "./balance-tables.ts";
 import { WORKBOOK_PATH } from "./game-data-paths.ts";
 import { writeCsvTables } from "./write-csv-tables.ts";
 
@@ -16,7 +16,7 @@ async function syncCsvFromWorkbook() {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(WORKBOOK_PATH);
 
-  const tables = buildBalanceTables().map((table) => readTable(workbook, table));
+  const tables = assembleBalanceTables().map((table) => readTable(workbook, table));
 
   console.log("wrote csvs:");
   writeCsvTables(tables);

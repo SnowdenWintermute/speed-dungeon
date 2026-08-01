@@ -35,36 +35,36 @@ export interface BalanceTable {
 /** marks an affix a base item cannot roll even though its profile grants one */
 const CANNOT_ROLL = "x";
 
-export function buildBalanceTables(): BalanceTable[] {
+export function assembleBalanceTables(): BalanceTable[] {
   const equipmentRows = collectEquipmentTemplateRows();
   const { profiles, overrides } = deriveAffixProfiles(equipmentRows);
 
   return [
-    ...EQUIPMENT_TABLE_CONFIGS.map((config) => buildEquipmentTable(config, equipmentRows)),
-    buildAffixProfilesTable(profiles),
-    buildAffixOverridesTable(overrides),
-    buildAttributesTable({
+    ...EQUIPMENT_TABLE_CONFIGS.map((config) => assembleEquipmentTable(config, equipmentRows)),
+    assembleAffixProfilesTable(profiles),
+    assembleAffixOverridesTable(overrides),
+    assembleAttributesTable({
       name: "class-starting-attributes",
       keyColumn: "combatantClass",
       keys: iterateNumericEnum(CombatantClass),
       getKeyName: (combatantClass) => CombatantClass[combatantClass],
       attributesByKey: BASE_STARTING_ATTRIBUTES,
     }),
-    buildAttributesTable({
+    assembleAttributesTable({
       name: "class-attributes-per-level",
       keyColumn: "combatantClass",
       keys: iterateNumericEnum(CombatantClass),
       getKeyName: (combatantClass) => CombatantClass[combatantClass],
       attributesByKey: COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
     }),
-    buildAttributesTable({
+    assembleAttributesTable({
       name: "monster-starting-attributes",
       keyColumn: "monsterType",
       keys: iterateNumericEnum(MonsterType),
       getKeyName: (monsterType) => MonsterType[monsterType],
       attributesByKey: MONSTER_STARTING_ATTRIBUTES,
     }),
-    buildAttributesTable({
+    assembleAttributesTable({
       name: "monster-attributes-per-level",
       keyColumn: "monsterType",
       keys: iterateNumericEnum(MonsterType),
@@ -153,7 +153,7 @@ const EQUIPMENT_TABLE_CONFIGS: EquipmentTableConfig[] = [
   },
 ];
 
-function buildEquipmentTable(
+function assembleEquipmentTable(
   config: EquipmentTableConfig,
   equipmentRows: EquipmentRow[]
 ): BalanceTable {
@@ -212,7 +212,7 @@ function getAffixColumn(affixCategory: AffixCategory, affixType: AffixType) {
   return `${AffixCategory[affixCategory]}:${AffixType[affixType]}`;
 }
 
-function buildAffixProfilesTable(
+function assembleAffixProfilesTable(
   profiles: ReturnType<typeof deriveAffixProfiles>["profiles"]
 ): BalanceTable {
   const affixColumns = [
@@ -236,15 +236,15 @@ function buildAffixProfilesTable(
   return { name: "equipment-affix-profiles", columns: ["affixProfile", ...affixColumns], rows };
 }
 
-function buildAffixOverridesTable(
+function assembleAffixOverridesTable(
   overrides: ReturnType<typeof deriveAffixProfiles>["overrides"]
 ): BalanceTable {
+  // no category column: an affix type belongs to exactly one category, so the reader derives it
   return {
     name: "equipment-affix-overrides",
-    columns: ["baseItem", "affixCategory", "affixType", "maxTier"],
+    columns: ["baseItem", "affixType", "maxTier"],
     rows: overrides.map((override) => ({
       baseItem: override.baseItem,
-      affixCategory: AffixCategory[override.affixCategory],
       affixType: AffixType[override.affixType],
       maxTier: override.maxTier ?? CANNOT_ROLL,
     })),
@@ -259,7 +259,7 @@ interface AttributesTableConfig<T extends number> {
   attributesByKey: Record<T, Partial<Record<CombatAttribute, number>>>;
 }
 
-function buildAttributesTable<T extends number>({
+function assembleAttributesTable<T extends number>({
   name,
   keyColumn,
   keys,
