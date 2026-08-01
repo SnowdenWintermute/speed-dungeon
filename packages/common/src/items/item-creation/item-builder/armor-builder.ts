@@ -1,5 +1,4 @@
-import { ArmorProperties } from "../../equipment/equipment-properties/armor-properties.js";
-import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
+import { ArmorProperties } from "../../equipment/equipment-properties/index.js";
 import {
   BodyArmorBaseItemType,
   EquipmentType,
@@ -10,9 +9,9 @@ import { formatHeadGear } from "../../equipment/equipment-types/head-gear.js";
 import { ArmorGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { EquipmentBuilder } from "./equipment-builder.js";
 
-type ArmorBaseEquipment = BodyArmorBaseItemType | HeadGearBaseItemType;
-
-export class ArmorBuilder extends EquipmentBuilder {
+export class ArmorBuilder extends EquipmentBuilder<
+  EquipmentType.BodyArmor | EquipmentType.HeadGear
+> {
   private _armorClass: number | null = null;
 
   override randomizeBaseProperties(): this {
@@ -27,26 +26,21 @@ export class ArmorBuilder extends EquipmentBuilder {
   }
 
   protected defaultName(): string {
-    const tagged = this.baseEquipment as ArmorBaseEquipment;
-    switch (tagged.equipmentType) {
+    switch (this.baseEquipment.equipmentType) {
       case EquipmentType.BodyArmor:
-        return formatBodyArmor(tagged.baseItemType);
+        return formatBodyArmor(this.baseEquipment.baseItemType);
       case EquipmentType.HeadGear:
-        return formatHeadGear(tagged.baseItemType);
+        return formatHeadGear(this.baseEquipment.baseItemType);
     }
   }
 
-  protected buildEquipmentBaseItemProperties(): EquipmentBaseItemProperties {
-    const tagged = this.baseEquipment as ArmorBaseEquipment;
+  protected buildEquipmentBaseItemProperties(): ArmorProperties {
     const armorTemplate = this.template as ArmorGenerationTemplate;
 
-    const properties: ArmorProperties = {
-      taggedBaseEquipment: tagged,
-      equipmentType: tagged.equipmentType,
+    return {
+      ...this.baseEquipment,
       armorClass: this._armorClass ?? armorTemplate.acRange.max,
       armorCategory: armorTemplate.armorCategory,
     };
-
-    return properties;
   }
 }

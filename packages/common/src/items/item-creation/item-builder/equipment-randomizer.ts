@@ -169,7 +169,7 @@ export class EquipmentRandomizer {
 
   rerollBaseProperties(equipment: Equipment) {
     const template = getEquipmentGenerationTemplate(
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment
+      equipment.equipmentBaseItemProperties
     );
     if (
       template instanceof ArmorGenerationTemplate ||

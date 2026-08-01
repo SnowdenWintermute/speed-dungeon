@@ -38,7 +38,7 @@ export const CharacterSheetWeaponDamage = observer(
       gameOption
     );
     const isTwoHanded = mhWeaponOption
-      ? Equipment.isTwoHandedWeaponType(mhWeaponOption.taggedBaseEquipment.equipmentType)
+      ? Equipment.isTwoHandedWeaponType(mhWeaponOption.equipmentType)
       : false;
 
     const ohEquipmentOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);
@@ -48,7 +48,7 @@ export const CharacterSheetWeaponDamage = observer(
     let ohDamageAndAccuracyResult;
     if (
       !isTwoHanded &&
-      ohEquipmentOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
+      ohEquipmentOption?.equipmentBaseItemProperties.equipmentType !==
         EquipmentType.Shield
     ) {
       let ohWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.OffHand);

@@ -29,11 +29,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseEquipment: {
-            equipmentType: EquipmentType.TwoHandedRangedWeapon,
-            baseItemType: TwoHandedRangedWeapon.ShortBow,
-          },
           equipmentType: EquipmentType.TwoHandedRangedWeapon,
+          baseItemType: TwoHandedRangedWeapon.ShortBow,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new ResourceChangeSource({
@@ -51,11 +48,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseEquipment: {
-            equipmentType: EquipmentType.OneHandedMeleeWeapon,
-            baseItemType: OneHandedMeleeWeapon.ShortSword,
-          },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.ShortSword,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new ResourceChangeSource({
@@ -73,11 +67,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseEquipment: {
-            equipmentType: EquipmentType.OneHandedMeleeWeapon,
-            baseItemType: OneHandedMeleeWeapon.Stick,
-          },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Stick,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new ResourceChangeSource({
@@ -95,11 +86,8 @@ export function generatePreDeterminedItem(itemType: PreDeterminedItemType, id: s
         1,
         {},
         {
-          taggedBaseEquipment: {
-            equipmentType: EquipmentType.OneHandedMeleeWeapon,
-            baseItemType: OneHandedMeleeWeapon.Dagger,
-          },
           equipmentType: EquipmentType.OneHandedMeleeWeapon,
+          baseItemType: OneHandedMeleeWeapon.Dagger,
           damage: new NumberRange(1, 2),
           damageClassification: [
             new ResourceChangeSource({

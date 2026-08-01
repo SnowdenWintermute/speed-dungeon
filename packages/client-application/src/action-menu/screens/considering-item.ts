@@ -29,7 +29,7 @@ export class ConsideringItemActionMenuScreen extends ActionMenuScreen {
     if (modKeyHeld) return false;
     if (!(this.item instanceof Equipment)) return false;
 
-    const { equipmentType } = this.item.equipmentBaseItemProperties.taggedBaseEquipment;
+    const { equipmentType } = this.item.equipmentBaseItemProperties;
     if (!ALT_SLOTTABLE_ITEMS.includes(equipmentType)) return false;
 
     const focusedCharacter = this.clientApplication.combatantFocus.requireFocusedCharacter();

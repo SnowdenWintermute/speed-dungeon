@@ -196,9 +196,7 @@ export * from "./items/crafting/shard-sell-prices.js";
 export * from "./items/crafting/crafting-actions.js";
 
 export * from "./items/equipment/equipment-properties/armor-properties.js";
-export * from "./items/equipment/equipment-properties//jewelry-properties.js";
-export * from "./items/equipment/equipment-properties//shield-properties.js";
-export * from "./items/equipment/equipment-properties//weapon-properties.js";
+export * from "./items/equipment/equipment-properties/shield-properties.js";
 
 export * from "./items/equipment/equipment-properties/index.js";
 export * from "./items/equipment/pre-determined-items/index.js";

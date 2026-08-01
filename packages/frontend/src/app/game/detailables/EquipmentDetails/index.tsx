@@ -18,7 +18,7 @@ export const EquipmentDetails = observer(({ equipment }: Props) => {
     <div className="mr-2">
       {
         EQUIPMENT_TYPE_STRINGS[
-          equipment.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType
+          equipment.equipmentBaseItemProperties.equipmentType
         ]
       }
       {armorCategoryTextOption && armorCategoryTextOption}

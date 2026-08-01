@@ -1,16 +1,3 @@
-import {
-  BodyArmorBaseItemType,
-  EquipmentType,
-  HeadGearBaseItemType,
-} from "../equipment-types/index.js";
-
-export interface ArmorProperties {
-  taggedBaseEquipment: BodyArmorBaseItemType | HeadGearBaseItemType;
-  equipmentType: EquipmentType.HeadGear | EquipmentType.BodyArmor;
-  armorCategory: ArmorCategory;
-  armorClass: number;
-}
-
 export enum ArmorCategory {
   Cloth,
   Leather,

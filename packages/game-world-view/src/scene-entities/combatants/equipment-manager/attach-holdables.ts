@@ -146,8 +146,8 @@ export class HoldableAttacher {
   }
 
   private shouldHolsterAtHip(equipmentSceneEntity: EquipmentSceneEntity) {
-    const { taggedBaseEquipment } = equipmentSceneEntity.equipment.equipmentBaseItemProperties;
-    const { equipmentType, baseItemType } = taggedBaseEquipment;
+    const { equipmentType, baseItemType } =
+      equipmentSceneEntity.equipment.equipmentBaseItemProperties;
 
     return (
       equipmentType === EquipmentType.OneHandedMeleeWeapon &&

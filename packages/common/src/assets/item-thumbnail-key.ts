@@ -19,14 +19,13 @@ export function getItemThumbnailKeyOption(item: Item): null | ItemThumbnailKey {
   }
 
   if (item instanceof Equipment) {
-    const { taggedBaseEquipment } = item.equipmentBaseItemProperties;
-    const assetId = equipmentBaseItemToAssetId(taggedBaseEquipment);
+    const assetId = equipmentBaseItemToAssetId(item.equipmentBaseItemProperties);
     if (assetId === null) {
       return null;
     }
     // the base item is part of the key because two of them can share a model and be given
     // different materials, as the bo staff and the elemental staff do
-    const { equipmentType, baseItemType } = taggedBaseEquipment;
+    const { equipmentType, baseItemType } = item.equipmentBaseItemProperties;
     return `${assetId}:${equipmentType}-${baseItemType}:${getElementSegment(
       item
     )}` as ItemThumbnailKey;

@@ -1,6 +1,5 @@
 import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
-import { WeaponProperties } from "../../equipment/equipment-properties/weapon-properties.js";
-import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
+import { WeaponProperties } from "../../equipment/equipment-properties/index.js";
 import {
   EquipmentType,
   OneHandedMeleeWeaponBaseItemType,
@@ -13,12 +12,11 @@ import { formatTwoHandedRangedWeapon } from "../../equipment/equipment-types/two
 import { WeaponGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { EquipmentBuilder } from "./equipment-builder.js";
 
-type WeaponBaseEquipment =
-  | OneHandedMeleeWeaponBaseItemType
-  | TwoHandedMeleeWeaponBaseItemType
-  | TwoHandedRangedWeaponBaseItemType;
-
-export class WeaponBuilder extends EquipmentBuilder {
+export class WeaponBuilder extends EquipmentBuilder<
+  | EquipmentType.OneHandedMeleeWeapon
+  | EquipmentType.TwoHandedMeleeWeapon
+  | EquipmentType.TwoHandedRangedWeapon
+> {
   private _damageClassification: ResourceChangeSource[] | null = null;
 
   override randomizeBaseProperties(): this {
@@ -33,19 +31,17 @@ export class WeaponBuilder extends EquipmentBuilder {
   }
 
   protected defaultName(): string {
-    const tagged = this.baseEquipment as WeaponBaseEquipment;
-    switch (tagged.equipmentType) {
+    switch (this.baseEquipment.equipmentType) {
       case EquipmentType.OneHandedMeleeWeapon:
-        return ONE_HANDED_MELEE_WEAPON_NAMES[tagged.baseItemType];
+        return ONE_HANDED_MELEE_WEAPON_NAMES[this.baseEquipment.baseItemType];
       case EquipmentType.TwoHandedMeleeWeapon:
-        return formatTwoHandedMeleeWeapon(tagged.baseItemType);
+        return formatTwoHandedMeleeWeapon(this.baseEquipment.baseItemType);
       case EquipmentType.TwoHandedRangedWeapon:
-        return formatTwoHandedRangedWeapon(tagged.baseItemType);
+        return formatTwoHandedRangedWeapon(this.baseEquipment.baseItemType);
     }
   }
 
-  protected buildEquipmentBaseItemProperties(): EquipmentBaseItemProperties {
-    const tagged = this.baseEquipment as WeaponBaseEquipment;
+  protected buildEquipmentBaseItemProperties(): WeaponProperties {
     const weaponTemplate = this.template as WeaponGenerationTemplate;
 
     const damageClassification =
@@ -55,13 +51,10 @@ export class WeaponBuilder extends EquipmentBuilder {
         weaponTemplate.damageClassificationsCount
       );
 
-    const properties: WeaponProperties = {
-      taggedBaseEquipment: tagged,
-      equipmentType: tagged.equipmentType,
+    return {
+      ...this.baseEquipment,
       damage: weaponTemplate.damage,
       damageClassification,
     };
-
-    return properties;
   }
 }

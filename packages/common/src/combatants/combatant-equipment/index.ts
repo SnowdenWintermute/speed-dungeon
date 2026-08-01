@@ -17,7 +17,7 @@ import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementatio
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { Equipment } from "../../items/equipment/index.js";
-import { WeaponProperties } from "../../items/equipment/equipment-properties/weapon-properties.js";
+import { WeaponProperties } from "../../items/equipment/equipment-properties/index.js";
 import { HoldableHotswapSlot } from "./holdable-hotswap-slot.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { NumericEnumUtils } from "../../utils/numeric-enum-utils.js";
@@ -282,7 +282,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     const slotsToUnequip: TaggedEquipmentSlot[] = [];
 
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-      const { equipmentType } = equipment.equipmentBaseItemProperties.taggedBaseEquipment;
+      const { equipmentType } = equipment.equipmentBaseItemProperties;
 
       const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 

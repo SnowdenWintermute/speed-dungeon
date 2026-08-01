@@ -59,17 +59,17 @@ export const CRAFTING_ACTION_DISABLED_CONDITIONS: Record<
     return !equipment.isMagical();
   },
   [CraftingAction.Reform]: function (equipment: Equipment): boolean {
-    const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
-    switch (taggedBaseEquipment.equipmentType) {
+    const { equipmentBaseItemProperties } = equipment;
+    switch (equipmentBaseItemProperties.equipmentType) {
       case EquipmentType.Ring:
       case EquipmentType.Amulet:
       case EquipmentType.TwoHandedRangedWeapon:
         return true;
       case EquipmentType.OneHandedMeleeWeapon:
-        if (taggedBaseEquipment.baseItemType === OneHandedMeleeWeapon.RuneSword) return false;
+        if (equipmentBaseItemProperties.baseItemType ===OneHandedMeleeWeapon.RuneSword) return false;
         else return true;
       case EquipmentType.TwoHandedMeleeWeapon:
-        if (taggedBaseEquipment.baseItemType === TwoHandedMeleeWeapon.ElementalStaff) return false;
+        if (equipmentBaseItemProperties.baseItemType ===TwoHandedMeleeWeapon.ElementalStaff) return false;
         else return true;
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:

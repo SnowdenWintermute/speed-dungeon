@@ -81,26 +81,20 @@ export class MaterialManager {
     const props = item.equipmentBaseItemProperties;
 
     switch (props.equipmentType) {
-      case EquipmentType.OneHandedMeleeWeapon: {
-        const map = this.equipmentMaterialsMap[EquipmentType.OneHandedMeleeWeapon];
-        const base = props.taggedBaseEquipment.baseItemType as OneHandedMeleeWeapon;
-        return map[base](item);
-      }
-      case EquipmentType.TwoHandedMeleeWeapon: {
-        const map = this.equipmentMaterialsMap[EquipmentType.TwoHandedMeleeWeapon];
-        const base = props.taggedBaseEquipment.baseItemType as TwoHandedMeleeWeapon;
-        return map[base](item);
-      }
-      case EquipmentType.TwoHandedRangedWeapon: {
-        const map = this.equipmentMaterialsMap[EquipmentType.TwoHandedRangedWeapon];
-        const base = props.taggedBaseEquipment.baseItemType as TwoHandedRangedWeapon;
-        return map[base](item);
-      }
-      case EquipmentType.Shield: {
-        const map = this.equipmentMaterialsMap[EquipmentType.Shield];
-        const base = props.taggedBaseEquipment.baseItemType as Shield;
-        return map[base](item);
-      }
+      case EquipmentType.OneHandedMeleeWeapon:
+        return this.equipmentMaterialsMap[EquipmentType.OneHandedMeleeWeapon][props.baseItemType](
+          item
+        );
+      case EquipmentType.TwoHandedMeleeWeapon:
+        return this.equipmentMaterialsMap[EquipmentType.TwoHandedMeleeWeapon][props.baseItemType](
+          item
+        );
+      case EquipmentType.TwoHandedRangedWeapon:
+        return this.equipmentMaterialsMap[EquipmentType.TwoHandedRangedWeapon][props.baseItemType](
+          item
+        );
+      case EquipmentType.Shield:
+        return this.equipmentMaterialsMap[EquipmentType.Shield][props.baseItemType](item);
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:
       case EquipmentType.Ring:

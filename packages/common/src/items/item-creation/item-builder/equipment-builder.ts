@@ -9,15 +9,18 @@ import {
   PrefixType,
   SuffixType,
 } from "../../equipment/affixes.js";
-import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";
-import { EquipmentBaseItemProperties } from "../../equipment/equipment-properties/index.js";
+import { EquipmentType } from "../../equipment/equipment-types/index.js";
+import {
+  EquipmentBaseItemOfType,
+  EquipmentBaseItemProperties,
+} from "../../equipment/equipment-properties/index.js";
 import { EquipmentGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { EquipmentRandomizer } from "./equipment-randomizer.js";
 import { addAffixesToEquipmentName } from "./build-equipment-name.js";
 
-export abstract class EquipmentBuilder {
+export abstract class EquipmentBuilder<K extends EquipmentType = EquipmentType> {
   protected template: EquipmentGenerationTemplate;
   protected _itemLevel: number = 1;
   protected _name: string | null = null;
@@ -26,7 +29,7 @@ export abstract class EquipmentBuilder {
   protected _affixes: EquipmentAffixes = {};
 
   constructor(
-    protected baseEquipment: EquipmentBaseItem,
+    protected baseEquipment: EquipmentBaseItemOfType<K>,
     protected randomizer: EquipmentRandomizer
   ) {
     this.template = getEquipmentGenerationTemplate(baseEquipment);

@@ -19,9 +19,8 @@ import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
-import { WeaponProperties } from "./equipment-properties/weapon-properties.js";
+import { ShieldProperties, WeaponProperties } from "./equipment-properties/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
-import { ShieldProperties } from "./equipment-properties/shield-properties.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -78,12 +77,12 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   }
 
   isWeapon() {
-    const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
+    const { equipmentType } = this.equipmentBaseItemProperties;
     return WEAPON_EQUIPMENT_TYPES.includes(equipmentType);
   }
 
   isShield() {
-    const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
+    const { equipmentType } = this.equipmentBaseItemProperties;
     return equipmentType === EquipmentType.Shield;
   }
 
@@ -241,7 +240,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   }
 
   isJewelry() {
-    const { equipmentType } = this.equipmentBaseItemProperties.taggedBaseEquipment;
+    const { equipmentType } = this.equipmentBaseItemProperties;
     return equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.Amulet;
   }
 

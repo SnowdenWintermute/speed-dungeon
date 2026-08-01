@@ -101,7 +101,7 @@ export class DetailableEntityFocus {
       return;
     }
 
-    const { equipmentType } = item.equipmentBaseItemProperties.taggedBaseEquipment;
+    const { equipmentType } = item.equipmentBaseItemProperties;
     const equipableSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 
     if (equipableSlots.alternate !== null && compareToAltSlot) {

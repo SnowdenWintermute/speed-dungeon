@@ -24,7 +24,7 @@ export class ItemSceneEntityFactory {
   async create(item: Item, createUniqueMaterialInstances: boolean) {
     const assetId = (() => {
       if (item instanceof Equipment) {
-        return equipmentBaseItemToAssetId(item.equipmentBaseItemProperties.taggedBaseEquipment);
+        return equipmentBaseItemToAssetId(item.equipmentBaseItemProperties);
       } else if (item instanceof Consumable) {
         return consumableItemToAssetId(item.consumableType);
       }

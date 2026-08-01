@@ -53,7 +53,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
   },
   [ConsumableType.MageSkillbook]: (equipment) => {
     const { baseItemType, equipmentType } =
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment;
+      equipment.equipmentBaseItemProperties;
 
     if (equipmentType === EquipmentType.OneHandedMeleeWeapon) {
       const isWand = WANDS.includes(baseItemType);

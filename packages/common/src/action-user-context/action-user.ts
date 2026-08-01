@@ -20,7 +20,7 @@ import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatantActionState } from "../combatants/owned-actions/combatant-action-state.js";
 import { CombatantEquipment } from "../combatants/combatant-equipment/index.js";
 import { Inventory } from "../combatants/inventory/index.js";
-import { WeaponProperties } from "../items/equipment/equipment-properties/weapon-properties.js";
+import { WeaponProperties } from "../items/equipment/equipment-properties/index.js";
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
 
 export enum ActionUserType {

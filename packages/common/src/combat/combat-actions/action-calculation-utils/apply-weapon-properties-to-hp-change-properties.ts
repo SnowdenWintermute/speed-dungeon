@@ -1,6 +1,6 @@
 import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
-import { WeaponProperties } from "../../../items/equipment/equipment-properties/weapon-properties.js";
+import { WeaponProperties } from "../../../items/equipment/equipment-properties/index.js";
 import { Equipment } from "../../../items/equipment/index.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { ResourceChangeSourceModifiers } from "../../hp-change-source-types.js";

@@ -61,7 +61,7 @@ export class ItemCrafter {
     }
 
     const template = getEquipmentGenerationTemplate(
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment
+      equipment.equipmentBaseItemProperties
     );
     const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
 
@@ -103,14 +103,14 @@ export class ItemCrafter {
   }
 
   private giveNewRandomAffixes(equipment: Equipment, itemLevelLimiter: number) {
-    const { taggedBaseEquipment } = equipment.equipmentBaseItemProperties;
-    const template = getEquipmentGenerationTemplate(taggedBaseEquipment);
+    const { equipmentBaseItemProperties } = equipment;
+    const template = getEquipmentGenerationTemplate(equipmentBaseItemProperties);
     const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
 
     equipment.affixes = this.equipmentRandomizer.rollAffixes(
       template,
       effectiveItemLevel,
-      taggedBaseEquipment.equipmentType,
+      equipmentBaseItemProperties.equipmentType,
       { forcedMagical: true }
     );
 
@@ -140,14 +140,14 @@ export class ItemCrafter {
     }
 
     const template = getEquipmentGenerationTemplate(
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment
+      equipment.equipmentBaseItemProperties
     );
     this.equipmentRandomizer.rerollAffixValues(equipment, template);
   }
 
   private updateEquipmentName(equipment: Equipment) {
     equipment.entityProperties.name = buildEquipmentName(
-      equipment.equipmentBaseItemProperties.taggedBaseEquipment,
+      equipment.equipmentBaseItemProperties,
       equipment.affixes
     );
   }

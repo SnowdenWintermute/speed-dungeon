@@ -111,7 +111,7 @@ function getBowEquipmentAnimation(
 
   const equippedBowOption = equipmentOption.getEquipmentInSlot(slot);
   if (
-    equippedBowOption?.equipmentBaseItemProperties.taggedBaseEquipment.equipmentType !==
+    equippedBowOption?.equipmentBaseItemProperties.equipmentType !==
     EquipmentType.TwoHandedRangedWeapon
   )
     return [];
@@ -119,7 +119,7 @@ function getBowEquipmentAnimation(
   const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   const animationName =
     BOW_EQUIPMENT_ANIMATIONS[
-      equippedBowOption.equipmentBaseItemProperties.taggedBaseEquipment.baseItemType
+      equippedBowOption.equipmentBaseItemProperties.baseItemType
     ];
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
   const duration = speciesLengths[animationNameString] || 0;
