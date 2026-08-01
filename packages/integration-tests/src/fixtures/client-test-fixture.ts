@@ -142,7 +142,7 @@ export class ClientFixture {
     return this.clientApplication.eventLogStore
       .getMessages()
       .map((logMessage) => logMessage.message?.toString())
-      .filter((text) => text !== undefined);
+      .filter((text): text is string => text !== undefined);
   }
 
   requireGameIdFromClientGameList(gameName: GameName) {

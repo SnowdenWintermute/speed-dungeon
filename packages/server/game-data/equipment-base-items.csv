@@ -1,4 +1,4 @@
-baseItem,equipmentType,affixProfile,minLevel,maxLevel,minDamage,maxDamage,numDamageClassifications,damageClassifications,minArmorClass,maxArmorClass,armorCategory,shieldSize,maxDurability,requiresStrength,requiresDexterity,requiresSpirit,requiresVitality,requiresAgility
+baseItem,equipmentType,affixProfile,minLevel,maxLevel,minDamage,maxDamage,damageClassificationsCount,damageClassifications,minArmorClass,maxArmorClass,armorCategory,shieldSize,maxDurability,requiresStrength,requiresDexterity,requiresSpirit,requiresVitality,requiresAgility
 Stick,OneHandedMeleeWeapon,OneHandedMelee,0,0,1,3,1,Physical:Blunt,,,,,8,,,,,
 Club,OneHandedMeleeWeapon,OneHandedMelee,1,3,1,4,1,Physical:Blunt,,,,,14,,,,,
 Mace,OneHandedMeleeWeapon,OneHandedMelee,2,5,1,8,1,Physical:Blunt,,,,,22,10,,,,

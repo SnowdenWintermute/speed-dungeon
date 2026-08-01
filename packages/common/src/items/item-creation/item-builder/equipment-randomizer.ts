@@ -17,9 +17,9 @@ import { EquipmentType } from "../../equipment/equipment-types/index.js";
 import {
   ArmorGenerationTemplate,
   EquipmentGenerationTemplate,
+  ShieldGenerationTemplate,
   WeaponGenerationTemplate,
 } from "../equipment-templates/base-templates.js";
-import { ShieldGenerationTemplate } from "../equipment-templates/shields.js";
 import { AffixGenerator } from "../affix-generator.js";
 import cloneDeep from "lodash.clonedeep";
 import { invariant } from "../../../utils/index.js";

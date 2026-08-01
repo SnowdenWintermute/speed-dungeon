@@ -3,49 +3,41 @@ import { NumberRange } from "../../../primatives/number-range.js";
 import { iterateNumericEnum } from "../../../utils/index.js";
 import { AffixType, PREFIX_TYPES, SUFFIX_TYPES } from "../../equipment/affixes.js";
 import { ShieldSize } from "../../equipment/equipment-properties/shield-properties.js";
-import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
+import { EquipmentType } from "../../equipment/equipment-types/index.js";
 import { Shield } from "../../equipment/equipment-types/shield.js";
-import { EquipmentGenerationTemplate } from "./base-templates.js";
+import { ShieldGenerationTemplate } from "./base-templates.js";
 
-export class ShieldGenerationTemplate extends EquipmentGenerationTemplate {
-  constructor(
-    public acRange: NumberRange,
-    public size: ShieldSize,
-    public equipmentBaseItem: EquipmentBaseItem
-  ) {
-    if (equipmentBaseItem.equipmentType !== EquipmentType.Shield)
-      throw new Error("invalid base item provided");
-
-    super(equipmentBaseItem);
-    for (const prefix of PREFIX_TYPES) {
-      switch (prefix) {
-        case AffixType.Accuracy:
-        case AffixType.PercentDamage:
-        case AffixType.LifeSteal:
-        case AffixType.ArmorPenetration:
-          break;
-        case AffixType.Agility:
-          this.possibleAffixes.prefix[prefix] = 3;
-          break;
-        case AffixType.Mp:
-        case AffixType.FlatArmorClass:
-        case AffixType.Evasion:
-          this.possibleAffixes.prefix[prefix] = 5;
-      }
+/** the affix defaults the shield templates were built with, kept here only until the csv loader
+ * supplies them */
+function setShieldPossibleAffixes(template: ShieldGenerationTemplate) {
+  for (const prefix of PREFIX_TYPES) {
+    switch (prefix) {
+      case AffixType.Accuracy:
+      case AffixType.PercentDamage:
+      case AffixType.LifeSteal:
+      case AffixType.ArmorPenetration:
+        break;
+      case AffixType.Agility:
+        template.possibleAffixes.prefix[prefix] = 3;
+        break;
+      case AffixType.Mp:
+      case AffixType.FlatArmorClass:
+      case AffixType.Evasion:
+        template.possibleAffixes.prefix[prefix] = 5;
     }
-    for (const suffix of SUFFIX_TYPES) {
-      switch (suffix) {
-        case AffixType.FlatDamage:
-          break;
-        case AffixType.Hp:
-        case AffixType.Vitality:
-        case AffixType.Strength:
-        case AffixType.Spirit:
-        case AffixType.Dexterity:
-        case AffixType.Durability:
-        case AffixType.PercentArmorClass:
-          this.possibleAffixes.suffix[suffix] = 5;
-      }
+  }
+  for (const suffix of SUFFIX_TYPES) {
+    switch (suffix) {
+      case AffixType.FlatDamage:
+        break;
+      case AffixType.Hp:
+      case AffixType.Vitality:
+      case AffixType.Strength:
+      case AffixType.Spirit:
+      case AffixType.Dexterity:
+      case AffixType.Durability:
+      case AffixType.PercentArmorClass:
+        template.possibleAffixes.suffix[suffix] = 5;
     }
   }
 }
@@ -59,6 +51,8 @@ export const SHIELD_EQUIPMENT_GENERATION_TEMPLATES: Record<Shield, ShieldGenerat
         equipmentType: EquipmentType.Shield,
         baseItemType: shield,
       });
+
+      setShieldPossibleAffixes(template);
 
       switch (shield) {
         case Shield.PotLid:
