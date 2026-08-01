@@ -41,7 +41,7 @@ export class EquipmentRandomizer {
       this.rngPolicy.equipmentBaseProperties
     );
     const result: ResourceChangeSource[] = [];
-    for (let i = 0; i < template.numDamageClassifications; i += 1) {
+    for (let i = 0; i < template.damageClassificationsCount; i += 1) {
       const classification = shuffled.pop();
       if (classification === undefined) break;
       result.push(classification);

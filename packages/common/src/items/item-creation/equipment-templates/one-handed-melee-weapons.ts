@@ -132,7 +132,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.BastardSword:
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(6, 15);
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         mainDamageClassification = null;
 
         template.possibleDamageClassifications = [
@@ -153,7 +153,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(1, 3);
         template.damage = new NumberRange(1, 4);
         mainDamageClassification = null;
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         template.possibleDamageClassifications = [
           new ResourceChangeSource({
             category: ResourceChangeSourceCategory.Physical,
@@ -184,7 +184,7 @@ export const ONE_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
       case OneHandedMeleeWeapon.RuneSword:
         template.levelRange = new NumberRange(5, 10);
         template.damage = new NumberRange(2, 12);
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         mainDamageClassification = null;
         template.possibleDamageClassifications = iterateNumericEnum(MagicalElement)
           .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)

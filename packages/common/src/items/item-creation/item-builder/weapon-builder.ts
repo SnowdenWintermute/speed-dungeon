@@ -52,7 +52,7 @@ export class WeaponBuilder extends EquipmentBuilder {
       this._damageClassification ??
       weaponTemplate.possibleDamageClassifications.slice(
         0,
-        weaponTemplate.numDamageClassifications
+        weaponTemplate.damageClassificationsCount
       );
 
     const properties: WeaponProperties = {

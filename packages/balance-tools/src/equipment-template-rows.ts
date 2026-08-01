@@ -41,7 +41,7 @@ export interface EquipmentTemplateRow {
     suffix: Partial<Record<AffixType, number>>;
   };
   damage: null | NumberRange;
-  numDamageClassifications: null | number;
+  damageClassificationsCount: null | number;
   damageClassifications: null | ResourceChangeSource[];
   armorClass: null | NumberRange;
   armorCategory: null | ArmorCategory;
@@ -59,7 +59,7 @@ const CASTER_STAVES = [
 
 const EMPTY_TEMPLATE_FIELDS = {
   damage: null,
-  numDamageClassifications: null,
+  damageClassificationsCount: null,
   damageClassifications: null,
   armorClass: null,
   armorCategory: null,
@@ -91,7 +91,7 @@ function collectOneHandedMeleeWeapons(): EquipmentTemplateRow[] {
       requirements: template.requirements,
       possibleAffixes: template.possibleAffixes,
       damage: template.damage,
-      numDamageClassifications: template.numDamageClassifications,
+      damageClassificationsCount: template.damageClassificationsCount,
       damageClassifications: template.possibleDamageClassifications,
     };
   });
@@ -112,7 +112,7 @@ function collectTwoHandedMeleeWeapons(): EquipmentTemplateRow[] {
       requirements: template.requirements,
       possibleAffixes: template.possibleAffixes,
       damage: template.damage,
-      numDamageClassifications: template.numDamageClassifications,
+      damageClassificationsCount: template.damageClassificationsCount,
       damageClassifications: template.possibleDamageClassifications,
     };
   });
@@ -131,7 +131,7 @@ function collectTwoHandedRangedWeapons(): EquipmentTemplateRow[] {
       requirements: template.requirements,
       possibleAffixes: template.possibleAffixes,
       damage: template.damage,
-      numDamageClassifications: template.numDamageClassifications,
+      damageClassificationsCount: template.damageClassificationsCount,
       damageClassifications: template.possibleDamageClassifications,
     };
   });

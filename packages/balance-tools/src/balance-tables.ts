@@ -108,7 +108,7 @@ function buildEquipmentBaseItemsTable(
       maxLevel: equipmentRow.levelRange.max,
       minDamage: damage === null ? null : damage.min,
       maxDamage: damage === null ? null : damage.max,
-      numDamageClassifications: equipmentRow.numDamageClassifications,
+      damageClassificationsCount: equipmentRow.damageClassificationsCount,
       damageClassifications:
         damageClassifications === null
           ? null
@@ -137,7 +137,7 @@ function buildEquipmentBaseItemsTable(
       "maxLevel",
       "minDamage",
       "maxDamage",
-      "numDamageClassifications",
+      "damageClassificationsCount",
       "damageClassifications",
       "minArmorClass",
       "maxArmorClass",

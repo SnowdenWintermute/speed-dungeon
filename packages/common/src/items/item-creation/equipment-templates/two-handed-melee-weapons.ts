@@ -99,7 +99,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(3, 6);
         template.damage = new NumberRange(6, 12);
         mainDamageClassification = null;
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         template.possibleDamageClassifications = [
           new ResourceChangeSource({
             category: ResourceChangeSourceCategory.Physical,
@@ -132,7 +132,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(6, 8);
         template.damage = new NumberRange(8, 17);
         mainDamageClassification = null;
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         template.possibleDamageClassifications = [
           new ResourceChangeSource({
             category: ResourceChangeSourceCategory.Physical,
@@ -151,7 +151,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(7, 9);
         template.damage = new NumberRange(10, 18);
         mainDamageClassification = null;
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         template.possibleDamageClassifications = iterateNumericEnum(MagicalElement)
           .filter((element) => element !== MagicalElement.Dark && element !== MagicalElement.Light)
           .map(
@@ -170,7 +170,7 @@ export const TWO_HANDED_MELEE_EQUIPMENT_GENERATION_TEMPLATES: Record<
         template.levelRange = new NumberRange(8, 10);
         template.damage = new NumberRange(14, 26);
         mainDamageClassification = null;
-        template.numDamageClassifications = 2;
+        template.damageClassificationsCount = 2;
         template.possibleDamageClassifications = [
           new ResourceChangeSource({
             category: ResourceChangeSourceCategory.Magical,
