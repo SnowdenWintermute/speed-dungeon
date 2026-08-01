@@ -16,6 +16,6 @@ Three things the sheets won't tell you:
   can roll; the number caps how good the roll gets, scaled by item level.
 - In `equipment-affix-overrides`, `x` means cannot roll at all, versus a number meaning roll at that
   tier instead of the profile's.
-- Damage classifications are `category[:kinetic[:element]]`, pipe-separated, with `-` standing in
+- Damage classifications are `category[:kinetic[:element]]`, pipe-separated, with `none` standing in
   for a kinetic type an elemental source doesn't have — `Physical:Slashing|Physical:Piercing`,
-  `Magical`, `Physical:Slashing:Ice`.
+  `Magical`, `Physical:Slashing:Ice`, `Magical:none:Dark`.

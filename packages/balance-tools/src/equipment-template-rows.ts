@@ -220,13 +220,13 @@ function collectJewelry(): EquipmentTemplateRow[] {
   }));
 }
 
-const ABSENT_SEGMENT = "-";
+const ABSENT_SEGMENT = "none";
 
 export function serializeDamageClassifications(sources: ResourceChangeSource[]) {
   return sources.map(serializeDamageClassification).join("|");
 }
 
-/** category[:kinetic[:element]], with "-" standing in for a kinetic type an elemental source
+/** category[:kinetic[:element]], with "none" standing in for a kinetic type an elemental source
  * doesn't have */
 function serializeDamageClassification(source: ResourceChangeSource) {
   const { kineticDamageTypeOption, elementOption } = source;

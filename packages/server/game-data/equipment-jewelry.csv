@@ -1,0 +1,3 @@
+baseItem,equipmentType,affixProfile,minLvl,maxLvl,maxDura,reqStr,reqDex,reqSpr,reqVit,reqAgi
+Ring,Ring,Jewelry,3,10,,,,,,
+Amulet,Amulet,Jewelry,3,10,,,,,,

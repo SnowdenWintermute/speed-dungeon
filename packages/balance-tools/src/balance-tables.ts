@@ -40,7 +40,7 @@ export function buildBalanceTables(): BalanceTable[] {
   const { profiles, overrides } = deriveAffixProfiles(equipmentRows);
 
   return [
-    buildEquipmentBaseItemsTable(equipmentRows),
+    ...EQUIPMENT_TABLE_CONFIGS.map((config) => buildEquipmentTable(config, equipmentRows)),
     buildAffixProfilesTable(profiles),
     buildAffixOverridesTable(overrides),
     buildAttributesTable({
@@ -74,76 +74,134 @@ export function buildBalanceTables(): BalanceTable[] {
   ];
 }
 
+/** not derivable from the enum member names — Spirit abbreviates to Spr, not Spi */
+const REQUIREMENT_COLUMNS: Partial<Record<CombatAttribute, string>> = {
+  [CombatAttribute.Strength]: "reqStr",
+  [CombatAttribute.Dexterity]: "reqDex",
+  [CombatAttribute.Spirit]: "reqSpr",
+  [CombatAttribute.Vitality]: "reqVit",
+  [CombatAttribute.Agility]: "reqAgi",
+};
+
 function getRequirementColumn(attribute: CombatAttribute) {
-  return `requires${CombatAttribute[attribute]}`;
+  const column = REQUIREMENT_COLUMNS[attribute];
+  invariant(column !== undefined, `no requirement column for ${CombatAttribute[attribute]}`);
+  return column;
 }
 
-function buildEquipmentBaseItemsTable(
-  equipmentRows: ReturnType<typeof collectEquipmentTemplateRows>
-): BalanceTable {
-  const requirementColumns = ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.map(getRequirementColumn);
+type EquipmentRow = ReturnType<typeof collectEquipmentTemplateRows>[number];
 
-  const rows = equipmentRows.map((equipmentRow) => {
-    const {
-      requirements,
-      damage,
-      damageClassifications,
-      armorClass,
-      armorCategory,
-      shieldSize,
-    } = equipmentRow;
+/** one sheet per property shape rather than per equipment type, so a sheet carries no column its
+ * rows leave blank while every weapon still sits on one sheet to be compared against the others.
+ * a sheet covering a single equipment type has nothing to say in an equipmentType column */
+interface EquipmentTableConfig {
+  name: string;
+  equipmentTypes: EquipmentType[];
+  specificColumns: string[];
+  getSpecificCells: (equipmentRow: EquipmentRow) => Record<string, BalanceCell>;
+}
 
-    for (const [attribute] of iterateNumericEnumKeyedRecord(requirements)) {
-      invariant(
-        ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(attribute),
-        `${equipmentRow.baseItem} requires ${CombatAttribute[attribute]}, which has no column`
-      );
-    }
-
-    const row: Record<string, BalanceCell> = {
-      baseItem: equipmentRow.baseItem,
-      equipmentType: EquipmentType[equipmentRow.equipmentType],
-      affixProfile: equipmentRow.affixProfile,
-      minLevel: equipmentRow.levelRange.min,
-      maxLevel: equipmentRow.levelRange.max,
-      minDamage: damage === null ? null : damage.min,
-      maxDamage: damage === null ? null : damage.max,
-      damageClassificationsCount: equipmentRow.damageClassificationsCount,
+const EQUIPMENT_TABLE_CONFIGS: EquipmentTableConfig[] = [
+  {
+    name: "equipment-weapons",
+    equipmentTypes: [
+      EquipmentType.OneHandedMeleeWeapon,
+      EquipmentType.TwoHandedMeleeWeapon,
+      EquipmentType.TwoHandedRangedWeapon,
+    ],
+    specificColumns: [
+      "minDmg",
+      "maxDmg",
+      "damageClassificationsCount",
+      "damageClassifications",
+    ],
+    getSpecificCells: ({ damage, damageClassificationsCount, damageClassifications }) => ({
+      minDmg: damage === null ? null : damage.min,
+      maxDmg: damage === null ? null : damage.max,
+      damageClassificationsCount,
       damageClassifications:
         damageClassifications === null
           ? null
           : serializeDamageClassifications(damageClassifications),
-      minArmorClass: armorClass === null ? null : armorClass.min,
-      maxArmorClass: armorClass === null ? null : armorClass.max,
+    }),
+  },
+  {
+    name: "equipment-armor",
+    equipmentTypes: [EquipmentType.BodyArmor, EquipmentType.HeadGear],
+    specificColumns: ["minAc", "maxAc", "armorCategory"],
+    getSpecificCells: ({ armorClass, armorCategory }) => ({
+      minAc: armorClass === null ? null : armorClass.min,
+      maxAc: armorClass === null ? null : armorClass.max,
       armorCategory: armorCategory === null ? null : ArmorCategory[armorCategory],
+    }),
+  },
+  {
+    name: "equipment-shields",
+    equipmentTypes: [EquipmentType.Shield],
+    specificColumns: ["minAc", "maxAc", "shieldSize"],
+    getSpecificCells: ({ armorClass, shieldSize }) => ({
+      minAc: armorClass === null ? null : armorClass.min,
+      maxAc: armorClass === null ? null : armorClass.max,
       shieldSize: shieldSize === null ? null : ShieldSize[shieldSize],
-      maxDurability: equipmentRow.maxDurability,
-    };
+    }),
+  },
+  {
+    name: "equipment-jewelry",
+    equipmentTypes: [EquipmentType.Ring, EquipmentType.Amulet],
+    specificColumns: [],
+    getSpecificCells: () => ({}),
+  },
+];
 
-    for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
-      row[getRequirementColumn(attribute)] = requirements[attribute] ?? null;
-    }
+function buildEquipmentTable(
+  config: EquipmentTableConfig,
+  equipmentRows: EquipmentRow[]
+): BalanceTable {
+  const coversOneType = config.equipmentTypes.length === 1;
+  const requirementColumns = ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.map(getRequirementColumn);
 
-    return row;
-  });
+  const rows = equipmentRows
+    .filter((equipmentRow) => config.equipmentTypes.includes(equipmentRow.equipmentType))
+    .map((equipmentRow) => {
+      const { requirements } = equipmentRow;
+
+      for (const [attribute] of iterateNumericEnumKeyedRecord(requirements)) {
+        invariant(
+          ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(attribute),
+          `${equipmentRow.baseItem} requires ${CombatAttribute[attribute]}, which has no column`
+        );
+      }
+
+      const row: Record<string, BalanceCell> = {
+        baseItem: equipmentRow.baseItem,
+        affixProfile: equipmentRow.affixProfile,
+        minLvl: equipmentRow.levelRange.min,
+        maxLvl: equipmentRow.levelRange.max,
+        ...config.getSpecificCells(equipmentRow),
+        maxDura: equipmentRow.maxDurability,
+      };
+
+      if (!coversOneType) {
+        row["equipmentType"] = EquipmentType[equipmentRow.equipmentType];
+      }
+
+      for (const attribute of ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES) {
+        row[getRequirementColumn(attribute)] = requirements[attribute] ?? null;
+      }
+
+      return row;
+    });
 
   return {
-    name: "equipment-base-items",
+    name: config.name,
     columns: [
       "baseItem",
-      "equipmentType",
+      ...(coversOneType ? [] : ["equipmentType"]),
       "affixProfile",
-      "minLevel",
-      "maxLevel",
-      "minDamage",
-      "maxDamage",
-      "damageClassificationsCount",
-      "damageClassifications",
-      "minArmorClass",
-      "maxArmorClass",
-      "armorCategory",
-      "shieldSize",
-      "maxDurability",
+      "minLvl",
+      "maxLvl",
+      ...config.specificColumns,
+      "maxDura",
       ...requirementColumns,
     ],
     rows,
