@@ -7,15 +7,11 @@
   "license": "ISC",
   "scripts": {
     "checkTs": "npx tsc --noEmit --watch",
-    "extract": "node --experimental-strip-types src/extract-game-data.ts",
-    "sync": "node --experimental-strip-types src/sync-csv-from-workbook.ts"
+    "sync": "node --experimental-strip-types src/sync-game-data.ts"
   },
   "dependencies": {
     "@speed-dungeon/common": "1.0.0",
-    "exceljs": "^4.4.0",
-    "papaparse": "^5.5.4"
+    "exceljs": "^4.4.0"
   },
-  "devDependencies": {
-    "@types/papaparse": "^5.5.2"
-  }
+  "devDependencies": {}
 }

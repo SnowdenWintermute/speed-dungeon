@@ -1,9 +1,5 @@
 import { ArmorProperties } from "../../equipment/equipment-properties/index.js";
-import {
-  BodyArmorBaseItemType,
-  EquipmentType,
-  HeadGearBaseItemType,
-} from "../../equipment/equipment-types/index.js";
+import { EquipmentType } from "../../equipment/equipment-types/index.js";
 import { formatBodyArmor } from "../../equipment/equipment-types/body-armor.js";
 import { formatHeadGear } from "../../equipment/equipment-types/head-gear.js";
 import { ArmorGenerationTemplate } from "../equipment-templates/base-templates.js";

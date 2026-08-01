@@ -6,7 +6,7 @@ import {
 import { AffixCategory } from "../../../../items/equipment/affixes.js";
 import { Equipment } from "../../../../items/equipment/index.js";
 import { AffixGenerator } from "../../../../items/item-creation/affix-generator.js";
-import { getEquipmentGenerationTemplate } from "../../../../items/item-creation/equipment-templates/index.js";
+import { getEquipmentTemplateCatalog } from "../../../../items/item-creation/equipment-templates/equipment-template-catalog.js";
 import { EquipmentRandomizer } from "../../../../items/item-creation/item-builder/equipment-randomizer.js";
 import { buildEquipmentName } from "../../../../items/item-creation/item-builder/build-equipment-name.js";
 
@@ -60,7 +60,7 @@ export class ItemCrafter {
       }
     }
 
-    const template = getEquipmentGenerationTemplate(
+    const template = getEquipmentTemplateCatalog().getTemplate(
       equipment.equipmentBaseItemProperties
     );
     const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
@@ -104,7 +104,7 @@ export class ItemCrafter {
 
   private giveNewRandomAffixes(equipment: Equipment, itemLevelLimiter: number) {
     const { equipmentBaseItemProperties } = equipment;
-    const template = getEquipmentGenerationTemplate(equipmentBaseItemProperties);
+    const template = getEquipmentTemplateCatalog().getTemplate(equipmentBaseItemProperties);
     const effectiveItemLevel = Math.min(equipment.itemLevel, itemLevelLimiter);
 
     equipment.affixes = this.equipmentRandomizer.rollAffixes(
@@ -139,7 +139,7 @@ export class ItemCrafter {
       throw new Error(ERROR_MESSAGES.ITEM.INVALID_PROPERTIES);
     }
 
-    const template = getEquipmentGenerationTemplate(
+    const template = getEquipmentTemplateCatalog().getTemplate(
       equipment.equipmentBaseItemProperties
     );
     this.equipmentRandomizer.rerollAffixValues(equipment, template);

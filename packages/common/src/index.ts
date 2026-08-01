@@ -187,9 +187,9 @@ export * from "./assets/get-item-asset-attribution.js";
 export * from "./assets/item-thumbnail-key.js";
 export * from "./scene-entities/index.js";
 export * from "./abilities/index.js";
-export * from "./items/item-creation/equipment-templates/index.js";
-export * from "./items/item-creation/equipment-templates/equipment-template-repository.js";
+export * from "./items/item-creation/equipment-templates/equipment-template-catalog.js";
 export * from "./items/item-creation/equipment-templates/base-templates.js";
+export * from "./items/item-creation/equipment-templates/game-data.generated.js";
 export * from "./items/trading/index.js";
 export * from "./items/trading/combatant-is-allowed-to-trade-for-books.js";
 

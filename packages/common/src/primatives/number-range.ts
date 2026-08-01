@@ -4,8 +4,12 @@ export class NumberRange {
     public max: number
   ) {}
 
+  isValid() {
+    return this.min <= this.max;
+  }
+
   getAverage() {
-    return Math.floor(this.min + this.max / 2);
+    return Math.floor((this.min + this.max) / 2);
   }
 
   floor(minValue: number) {

@@ -15,7 +15,7 @@ import {
   EquipmentBaseItemProperties,
 } from "../../equipment/equipment-properties/index.js";
 import { EquipmentGenerationTemplate } from "../equipment-templates/base-templates.js";
-import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
+import { getEquipmentTemplateCatalog } from "../equipment-templates/equipment-template-catalog.js";
 import { IdGenerator } from "../../../utility-classes/index.js";
 import { EquipmentRandomizer } from "./equipment-randomizer.js";
 import { addAffixesToEquipmentName } from "./build-equipment-name.js";
@@ -32,7 +32,7 @@ export abstract class EquipmentBuilder<K extends EquipmentType = EquipmentType> 
     protected baseEquipment: EquipmentBaseItemOfType<K>,
     protected randomizer: EquipmentRandomizer
   ) {
-    this.template = getEquipmentGenerationTemplate(baseEquipment);
+    this.template = getEquipmentTemplateCatalog().getTemplate(baseEquipment);
   }
 
   itemLevel(level: number): this {

@@ -11,7 +11,7 @@ import {
   EquipmentBaseItem,
   EquipmentType,
 } from "../equipment/equipment-types/index.js";
-import { getEquipmentGenerationTemplate } from "../item-creation/equipment-templates/index.js";
+import { getEquipmentTemplateCatalog } from "../item-creation/equipment-templates/equipment-template-catalog.js";
 import { ItemBuilder } from "../item-creation/item-builder/index.js";
 import { EquipmentBuilder } from "../item-creation/item-builder/equipment-builder.js";
 import { getNumericEnumValues } from "../../utils/index.js";
@@ -123,7 +123,7 @@ export class LootGenerator {
     }
 
     const validBaseItems = entry.baseItems.filter((baseItem) => {
-      const template = getEquipmentGenerationTemplate(baseItem);
+      const template = getEquipmentTemplateCatalog().getTemplate(baseItem);
       return itemLevel >= template.levelRange.min && itemLevel <= template.levelRange.max;
     });
 

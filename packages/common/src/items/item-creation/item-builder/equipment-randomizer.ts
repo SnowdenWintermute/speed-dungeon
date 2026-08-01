@@ -23,7 +23,7 @@ import {
 import { AffixGenerator } from "../affix-generator.js";
 import cloneDeep from "lodash.clonedeep";
 import { invariant } from "../../../utils/index.js";
-import { getEquipmentGenerationTemplate } from "../equipment-templates/index.js";
+import { getEquipmentTemplateCatalog } from "../equipment-templates/equipment-template-catalog.js";
 
 export class EquipmentRandomizer {
   constructor(
@@ -168,7 +168,7 @@ export class EquipmentRandomizer {
   }
 
   rerollBaseProperties(equipment: Equipment) {
-    const template = getEquipmentGenerationTemplate(
+    const template = getEquipmentTemplateCatalog().getTemplate(
       equipment.equipmentBaseItemProperties
     );
     if (
