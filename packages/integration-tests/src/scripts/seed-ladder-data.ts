@@ -3,13 +3,17 @@
 import {
   AffixGenerator,
   APP_VERSION_NUMBER,
+  BasicRandomNumberGenerator,
   CharacterControlScheme,
   CombatantClass,
+  COMBATANT_MAX_LEVEL,
   DefaultCharacterCreationPolicy,
   EquipmentRandomizer,
   GameMode,
   IdGeneratorRandom,
   ItemBuilder,
+  LootGenerator,
+  MonsterGenerator,
   ONE_SECOND,
   PartyFateType,
   RANDOM_PARTY_NAMES,
@@ -17,6 +21,7 @@ import {
 } from "@speed-dungeon/common";
 import type {
   Combatant,
+  CombatantWithPets,
   EntityName,
   GameId,
   IdentityProviderId,
@@ -29,6 +34,7 @@ import type {
   LadderPartyFloorClearRecordId,
   LadderPartyRecord,
   Milliseconds,
+  PartyFate,
   PartyId,
   PartyName,
   SerializedCombatantWithPets,
@@ -46,6 +52,7 @@ import {
 } from "@speed-dungeon/server";
 import format from "pg-format";
 import cloneDeep from "lodash.clonedeep";
+import { SeedCharacterLoadout } from "./seed-character-loadout.ts";
 
 // must match snowauth/dev-accounts/fake-usernames.txt — that script creates the accounts, this one
 // resolves them by name, since deleting and recreating them issues new ids
@@ -67,18 +74,38 @@ const SEED_GAME_NAME_PREFIX = "[seed]";
 const CHARACTERS_PER_OWNER_PER_SCHEME = 3;
 const GAMES_PER_OWNER = 3;
 const SUPPORT_CLASS_EVERY_NTH_CHARACTER = 3;
+const PETS_EVERY_NTH_CHARACTER = 3;
+const MAX_PETS_PER_CHARACTER = 2;
+const MAX_PARTIES_PER_GAME = 3;
+const ABANDONED_EVERY_NTH_GAME = 4;
 const DELETE_ONLY_FLAG = "--delete-only";
 const CONTROL_SCHEMES = [CharacterControlScheme.Freelancer, CharacterControlScheme.Captain];
 const CHARACTER_CLASSES = [CombatantClass.Warrior, CombatantClass.Mage, CombatantClass.Rogue];
+
+// ids the identity provider will never issue, standing in for accounts deleted after they played.
+// the ladder has to keep showing their history, falling back to lastKnownUsername
+const DELETED_ACCOUNT_PARTICIPANTS: LadderParticipantRecord[] = [
+  { id: 900001 as IdentityProviderId, lastKnownUsername: "Ashvane_Mor" as Username },
+  { id: 900002 as IdentityProviderId, lastKnownUsername: "Quillon_Sable" as Username },
+  { id: 900003 as IdentityProviderId, lastKnownUsername: "Peregrine_Ash" as Username },
+];
+const DELETED_ACCOUNT_PARTY_EVERY_NTH = 5;
 
 const idGenerator = new IdGeneratorRandom({ saveHistory: false });
 const ladderRecords = new DatabaseLadderRecordsPersistenceStrategy();
 
 const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
+const itemBuilder = new ItemBuilder(new EquipmentRandomizer(rngPolicy, new AffixGenerator(rngPolicy)));
 const characterCreationPolicy = new DefaultCharacterCreationPolicy(
   idGenerator,
-  new ItemBuilder(new EquipmentRandomizer(rngPolicy, new AffixGenerator(rngPolicy))),
+  itemBuilder,
   rngPolicy
+);
+
+const rng = new BasicRandomNumberGenerator();
+const characterLoadout = new SeedCharacterLoadout(
+  new LootGenerator(itemBuilder, idGenerator, rngPolicy),
+  new MonsterGenerator(idGenerator, itemBuilder, rng)
 );
 
 async function main() {
@@ -153,8 +180,14 @@ async function resolveSeedOwners(): Promise<Map<Username, IdentityProviderId>> {
   return ownerIdsByUsername;
 }
 
-// a re-run replaces what the last run wrote. games cascade to their parties, clears and snapshots
+// a re-run replaces what the last run wrote. games cascade to their parties, clears and snapshots.
+// the stand-in deleted accounts are seeded data too, so they go with everything else
 async function deletePreviouslySeededData(ownerIds: IdentityProviderId[]): Promise<void> {
+  const participantIds = [
+    ...ownerIds,
+    ...DELETED_ACCOUNT_PARTICIPANTS.map((participant) => participant.id),
+  ];
+
   await pgPool.query(
     format(`DELETE FROM ladder_game_records WHERE name LIKE %L;`, `${SEED_GAME_NAME_PREFIX}%`)
   );
@@ -162,7 +195,7 @@ async function deletePreviouslySeededData(ownerIds: IdentityProviderId[]): Promi
     format(`DELETE FROM player_characters WHERE owner_id IN (%L);`, ownerIds)
   );
   await pgPool.query(
-    format(`DELETE FROM ladder_participant_records WHERE id IN (%L);`, ownerIds)
+    format(`DELETE FROM ladder_participant_records WHERE id IN (%L);`, participantIds)
   );
 }
 
@@ -178,7 +211,8 @@ async function seedProgressionCharacters(
     for (const [username, ownerId] of ownerIdsByUsername) {
       for (let owned = 0; owned < CHARACTERS_PER_OWNER_PER_SCHEME; owned += 1) {
         const character = buildCharacter(username, characterIndex, controlScheme);
-        await playerCharactersRepo.insert(character, [], ownerId, controlScheme);
+        const pets = petsFor(character, characterIndex);
+        await playerCharactersRepo.insert(character, pets, ownerId, controlScheme);
         characterIndex += 1;
         created += 1;
       }
@@ -209,10 +243,14 @@ function buildCharacter(
   // level and current experience are what the board ranks on, and are read straight back out of the
   // serialized combatant. spread so the two schemes do not produce identical boards.
   // the stride is coprime with the range so levels cover it evenly — a stride sharing a factor with
-  // the range (3 and 18) would collapse every support-class character onto the same few levels
+  // the range (3 and 9) would collapse every support-class character onto the same few levels.
+  // the range stops at the game's own ceiling: past it there is no equipment to roll and no floor
+  // deep enough to have earned the level
   const { classProgressionProperties } = combatant.combatantProperties;
   const offset = controlScheme === CharacterControlScheme.Freelancer ? 0 : 1;
-  classProgressionProperties.getMainClass().level = 2 + ((characterIndex * 7 + offset) % 18);
+  const levelSpread = COMBATANT_MAX_LEVEL - 1;
+  classProgressionProperties.getMainClass().level =
+    2 + ((characterIndex * 7 + offset) % levelSpread);
   classProgressionProperties.experiencePoints.changeExperience(50 * (characterIndex % 7) + 10);
 
   if (characterIndex % SUPPORT_CLASS_EVERY_NTH_CHARACTER === 0) {
@@ -223,7 +261,18 @@ function buildCharacter(
     classProgressionProperties.setSupportClass(supportClass, 1 + (characterIndex % 5));
   }
 
+  // after the level is set, so generated gear is rolled at the level the character actually is
+  characterLoadout.outfit(combatant, characterIndex);
+
   return combatant;
+}
+
+function petsFor(combatant: Combatant, characterIndex: number): Combatant[] {
+  if (characterIndex % PETS_EVERY_NTH_CHARACTER !== 0) {
+    return [];
+  }
+  const petCount = 1 + (characterIndex % MAX_PETS_PER_CHARACTER);
+  return characterLoadout.buildPets(combatant, characterIndex, petCount);
 }
 
 // several games per owner, each party clearing several floors, so both the cumulative board and the
@@ -244,48 +293,86 @@ async function seedGamesAndFloorClears(
       throw new Error("expected a control scheme for every game");
     }
 
-    // a freelancer party is one character per player; a captain's is one player running several. so
-    // who is in the party follows the scheme rather than being the same shape on both boards
-    const partySize = 1 + (gameIndex % 3);
-    const partyOwners =
-      controlScheme === CharacterControlScheme.Freelancer
-        ? ownersStartingAt(owners, gameIndex, partySize)
-        : ownersStartingAt(owners, gameIndex, 1);
+    const startedAt = Date.now() - (gameIndex + 1) * 60 * 60 * ONE_SECOND;
+    const gameId = idGenerator.generate() as GameId;
 
-    const leadOwner = partyOwners[0];
-    if (leadOwner === undefined) {
-      throw new Error("expected at least one owner in every party");
+    // races are run by several parties competing in one game; an ironman run is one party's own
+    const partyCount =
+      mode === GameMode.RankedRace ? 1 + (gameIndex % MAX_PARTIES_PER_GAME) : 1;
+
+    const parties: LadderPartyRecord[] = [];
+    const characterRecords: LadderCharacterRecord[] = [];
+    const floorClearsByParty: { partyId: PartyId; floors: number; combatants: CombatantWithPets[] }[] =
+      [];
+    const participantsById = new Map<IdentityProviderId, LadderParticipantRecord>();
+
+    for (let partyIndex = 0; partyIndex < partyCount; partyIndex += 1) {
+      // a freelancer party is one character per player; a captain's is one player running several.
+      // so who is in the party follows the scheme rather than being the same shape on both boards
+      const partySize = 1 + ((gameIndex + partyIndex) % 3);
+      const startIndex = gameIndex + partyIndex * partySize;
+      const partyOwners =
+        controlScheme === CharacterControlScheme.Freelancer
+          ? ownersStartingAt(owners, startIndex, partySize)
+          : ownersStartingAt(owners, startIndex, 1);
+
+      // some parties are run by accounts that have since been deleted, so their history has to
+      // survive on lastKnownUsername alone
+      const deletedOwnerOption = deletedOwnerFor(gameIndex, partyIndex);
+      const effectiveOwners =
+        deletedOwnerOption === undefined
+          ? partyOwners
+          : [deletedOwnerAsOwnerEntry(deletedOwnerOption), ...partyOwners.slice(1)];
+
+      const leadOwner = effectiveOwners[0];
+      if (leadOwner === undefined) {
+        throw new Error("expected at least one owner in every party");
+      }
+
+      for (const [username, id] of effectiveOwners) {
+        participantsById.set(id, { id, lastKnownUsername: username });
+      }
+
+      const partyId = idGenerator.generate() as PartyId;
+      const floorsCleared = 3 + ((gameIndex + partyIndex) % 5);
+      const characters = buildPartyCharacters(
+        effectiveOwners,
+        partyId,
+        gameIndex + partyIndex,
+        partySize
+      );
+
+      parties.push({
+        id: partyId,
+        gameRecordId: gameId,
+        name: randomPartyName(),
+        fateOption: partyFateFor(gameIndex, partyIndex, startedAt),
+        deepestFloorReached: floorsCleared,
+      });
+      characterRecords.push(...characters.records);
+      floorClearsByParty.push({
+        partyId,
+        floors: floorsCleared,
+        combatants: characters.combatants,
+      });
     }
 
-    const floorsCleared = 3 + (gameIndex % 5);
-    const startedAt = Date.now() - (gameIndex + 1) * 60 * 60 * ONE_SECOND;
+    const leadPartyOwner = [...participantsById.values()][0];
+    if (leadPartyOwner === undefined) {
+      throw new Error("expected at least one participant in every game");
+    }
 
-    const gameId = idGenerator.generate() as GameId;
-    const partyId = idGenerator.generate() as PartyId;
-
-    const participantRecords: LadderParticipantRecord[] = partyOwners.map(([username, id]) => ({
-      id,
-      lastKnownUsername: username,
-    }));
-
-    const characters = buildPartyCharacters(partyOwners, partyId, gameIndex, partySize);
+    const participantRecords = [...participantsById.values()];
 
     const game: LadderGameRecord = {
       id: gameId,
       createdAt: startedAt,
       updatedAt: startedAt,
-      name: `${SEED_GAME_NAME_PREFIX} ${leadOwner[0]}'s run` as LadderGameRecord["name"],
+      name: `${SEED_GAME_NAME_PREFIX} ${leadPartyOwner.lastKnownUsername}'s run` as
+        LadderGameRecord["name"],
       mode,
       controlScheme,
       timeStarted: startedAt,
-    };
-
-    const party: LadderPartyRecord = {
-      id: partyId,
-      gameRecordId: gameId,
-      name: randomPartyName(),
-      fateOption: { type: PartyFateType.Escape, timestamp: startedAt },
-      deepestFloorReached: floorsCleared,
     };
 
     for (const participantRecord of participantRecords) {
@@ -294,27 +381,78 @@ async function seedGamesAndFloorClears(
     await ladderRecords.insertNewGameRecordSet({
       game,
       participantRecords,
-      parties: [party],
-      characters: characters.records,
+      parties,
+      characters: characterRecords,
     });
 
-    let clearedAt = startedAt;
-    for (let floor = 1; floor <= floorsCleared; floor += 1) {
-      // varied enough that sorting by floor time and by cumulative time disagree, which is the whole
-      // point of having two sortable columns
-      const timeSpentOnFloor = (90 + ((gameIndex * 37 + floor * 53) % 240)) * ONE_SECOND;
-      clearedAt += timeSpentOnFloor + 15 * ONE_SECOND;
+    for (const partyClears of floorClearsByParty) {
+      let clearedAt = startedAt;
+      for (let floor = 1; floor <= partyClears.floors; floor += 1) {
+        // varied enough that sorting by floor time and by cumulative time disagree, which is the
+        // whole point of having two sortable columns
+        const timeSpentOnFloor = (90 + ((gameIndex * 37 + floor * 53) % 240)) * ONE_SECOND;
+        clearedAt += timeSpentOnFloor + 15 * ONE_SECOND;
 
-      await recordFloorClear({
-        partyId,
-        floor,
-        timeSpentOnFloor,
-        clearedAt,
-        controlScheme,
-        combatants: characters.combatants,
-      });
+        await recordFloorClear({
+          partyId: partyClears.partyId,
+          floor,
+          timeSpentOnFloor,
+          clearedAt,
+          controlScheme,
+          combatants: partyClears.combatants,
+        });
+      }
+    }
+
+    // an abandoned run is a participation the player walked away from, which is a different state
+    // from the party wiping or escaping — the game itself never resolves
+    if (gameIndex % ABANDONED_EVERY_NTH_GAME === 0) {
+      await ladderRecords.recordRunAbandonment(
+        gameId,
+        leadPartyOwner.id,
+        startedAt + 30 * 60 * ONE_SECOND
+      );
     }
   }
+}
+
+// a party that wiped or is still underway is as much a part of the history as one that escaped
+function partyFateFor(
+  gameIndex: number,
+  partyIndex: number,
+  startedAt: Milliseconds
+): undefined | PartyFate {
+  switch ((gameIndex + partyIndex) % 4) {
+    case 0:
+      return { type: PartyFateType.Wipe, timestamp: startedAt };
+    // no fate at all: the run never finished
+    case 1:
+      return undefined;
+    default:
+      return { type: PartyFateType.Escape, timestamp: startedAt };
+  }
+}
+
+function deletedOwnerFor(
+  gameIndex: number,
+  partyIndex: number
+): undefined | LadderParticipantRecord {
+  if ((gameIndex + partyIndex) % DELETED_ACCOUNT_PARTY_EVERY_NTH !== 0) {
+    return undefined;
+  }
+  return DELETED_ACCOUNT_PARTICIPANTS[
+    (gameIndex + partyIndex) % DELETED_ACCOUNT_PARTICIPANTS.length
+  ];
+}
+
+function deletedOwnerAsOwnerEntry(
+  participant: LadderParticipantRecord
+): [Username, IdentityProviderId] {
+  const { lastKnownUsername } = participant;
+  if (lastKnownUsername === undefined) {
+    throw new Error("seeded deleted accounts always carry a last known username");
+  }
+  return [lastKnownUsername, participant.id];
 }
 
 function ownersStartingAt(
@@ -338,9 +476,9 @@ function buildPartyCharacters(
   partyId: PartyId,
   gameIndex: number,
   characterCount: number
-): { records: LadderCharacterRecord[]; combatants: Combatant[] } {
+): { records: LadderCharacterRecord[]; combatants: CombatantWithPets[] } {
   const records: LadderCharacterRecord[] = [];
-  const combatants: Combatant[] = [];
+  const combatants: CombatantWithPets[] = [];
 
   for (let index = 0; index < characterCount; index += 1) {
     // a freelancer party has one owner per character; a captain's characters all share theirs
@@ -350,8 +488,9 @@ function buildPartyCharacters(
     }
     const [username, ownerId] = owner;
 
-    const combatant = buildCharacter(username, gameIndex * 3 + index, CharacterControlScheme.Captain);
-    combatants.push(combatant);
+    const characterIndex = gameIndex * 3 + index;
+    const combatant = buildCharacter(username, characterIndex, CharacterControlScheme.Captain);
+    combatants.push({ combatant, pets: petsFor(combatant, characterIndex) });
 
     const { classProgressionProperties } = combatant.combatantProperties;
     const mainClass = classProgressionProperties.getMainClass();
@@ -382,7 +521,7 @@ async function recordFloorClear(args: {
   timeSpentOnFloor: Milliseconds;
   clearedAt: Milliseconds;
   controlScheme: CharacterControlScheme;
-  combatants: Combatant[];
+  combatants: CombatantWithPets[];
 }): Promise<void> {
   const floorClearId = idGenerator.generate() as LadderPartyFloorClearRecordId;
 
@@ -395,13 +534,13 @@ async function recordFloorClear(args: {
     clearedAt: args.clearedAt,
   };
 
-  const characterFloorClears = args.combatants.map((combatant) => {
+  const characterFloorClears = args.combatants.map(({ combatant, pets }) => {
     const characterFloorClear: LadderCharacterFloorClearRecord = {
       id: idGenerator.generate() as LadderCharacterFloorClearRecordId,
       combatantSchemaVersion: APP_VERSION_NUMBER,
       partyFloorClearRecord: floorClearId,
       characterRecordRef: combatant.getEntityId(),
-      combatantWithPets: snapshotOf(combatant),
+      combatantWithPets: snapshotOf(combatant, pets),
     };
     return characterFloorClear;
   });
@@ -409,11 +548,18 @@ async function recordFloorClear(args: {
   await ladderRecords.recordPartyFloorClear(partyFloorClear, characterFloorClears);
 }
 
-// snapshots are stored without inventory, as the write path stores them
-function snapshotOf(combatant: Combatant): SerializedCombatantWithPets {
+// snapshots are stored without inventory, as the write path stores them. pets are part of the build
+// meta the snapshot exists to capture, so they travel with their owner
+function snapshotOf(combatant: Combatant, ownedPets: Combatant[]): SerializedCombatantWithPets {
   const combatantLessInventory = cloneDeep(combatant);
   combatantLessInventory.combatantProperties.inventory.deleteAllItems();
-  const pets: SerializedOf<Combatant>[] = [];
+
+  const pets: SerializedOf<Combatant>[] = ownedPets.map((pet) => {
+    const petLessInventory = cloneDeep(pet);
+    petLessInventory.combatantProperties.inventory.deleteAllItems();
+    return petLessInventory.toSerialized();
+  });
+
   return { combatant: combatantLessInventory.toSerialized(), pets };
 }
 

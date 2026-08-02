@@ -28,6 +28,8 @@ cypress.env.json
 # mac computers add this to all their folders
 **/.DS_Store
 
+# libreoffice writes these next to an open workbook
+.~lock.*#
 
 # claude code personal settings
 .claude/settings.local.json
