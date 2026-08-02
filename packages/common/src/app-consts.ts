@@ -92,6 +92,8 @@ export const CHANCE_TO_HAVE_SUFFIX = 0.625;
 export const CHANCE_TO_HAVE_DOUBLE_AFFIX = 0.167;
 export const FOUND_ITEM_MAX_DURABILITY_MODIFIER = 0.75;
 export const FOUND_ITEM_MIN_DURABILITY_MODIFIER = 0.25;
+// tier ranges widen as tiers increase
+export const ATTRIBUTE_AFFIX_TIER_ONE_RANGE_WIDTH = 2;
 // CRAFTING
 // go to crafting actions for the related consts
 

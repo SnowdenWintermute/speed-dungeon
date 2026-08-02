@@ -1,4 +1,8 @@
-import { DEEPEST_FLOOR, TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER } from "../../app-consts.js";
+import {
+  ATTRIBUTE_AFFIX_TIER_ONE_RANGE_WIDTH,
+  DEEPEST_FLOOR,
+  TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
+} from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { NumberRange } from "../../primatives/number-range.js";
 import { RandomNumberGenerationPolicy } from "../../utility-classes/random-number-generation-policy.js";
@@ -17,7 +21,6 @@ import { EquipmentType } from "../equipment/equipment-types/index.js";
 import { Equipment } from "../equipment/index.js";
 import { EquipmentGenerationTemplate } from "./equipment-templates/base-templates.js";
 
-const ATTRIBUTE_PER_TIER_BASE = 1.25;
 // since core attributes give several derived attributes,
 // we need to give a lot more of a single derived attribute
 // for the affix to be worth considering
@@ -163,13 +166,17 @@ export class AffixGenerator {
   }
 
   private getAttributeAffixValueRange(tier: number, rangeMultipliers: number[]) {
-    let min = Math.round(ATTRIBUTE_PER_TIER_BASE * tier - 1) * 2;
-    let max = Math.round(ATTRIBUTE_PER_TIER_BASE * tier) * 2;
+    let min = this.getAttributeAffixTierMaxValue(tier - 1) + 1;
+    let max = this.getAttributeAffixTierMaxValue(tier);
     for (const multiplier of rangeMultipliers) {
       min *= multiplier;
       max *= multiplier;
     }
-    return new NumberRange(Math.max(1, min), Math.max(1, max));
+    return new NumberRange(Math.max(1, Math.round(min)), Math.max(1, Math.round(max)));
+  }
+
+  private getAttributeAffixTierMaxValue(tier: number) {
+    return tier * ATTRIBUTE_AFFIX_TIER_ONE_RANGE_WIDTH + (tier * (tier - 1)) / 2;
   }
 }
 
