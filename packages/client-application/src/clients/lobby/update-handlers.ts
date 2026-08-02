@@ -57,7 +57,7 @@ export function createLobbyUpdateHandlers(
         );
       }
       clientApplication.topologyManager.clearGameClient();
-      session.setUsername(data.username);
+      session.setUser(data.username, data.authStatus);
     },
     [GameStateUpdateType.ChannelFullUpdate]: (data) => {
       const deserialized = MapUtils.deserialize(data.users, (v) => v);

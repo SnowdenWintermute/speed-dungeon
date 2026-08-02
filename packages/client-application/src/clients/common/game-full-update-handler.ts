@@ -1,5 +1,4 @@
 import { ClientApplication } from "@/client-application";
-import { HTTP_REQUEST_NAMES } from "@/client-application/consts";
 import { ClientSequentialEventType, SerializedOf, SpeedDungeonGame } from "@speed-dungeon/common";
 
 export function gameFullUpdateHandler(
@@ -18,12 +17,9 @@ export function gameFullUpdateHandler(
     });
   }
 
-  const currentSessionHttpResponseTracker =
-    clientApplication.uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
   if (deserializedGame === null) {
     clientApplication.gameContext.clearGame();
-    if (isLoggedIn) {
+    if (clientApplication.session.isLoggedIn) {
       clientApplication.gameWorldView?.environment.groundPlane.drawCharacterSlots();
     }
   } else {

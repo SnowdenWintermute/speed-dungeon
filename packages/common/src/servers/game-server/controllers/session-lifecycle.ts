@@ -3,6 +3,7 @@ import { UserSessionRegistry } from "../../sessions/user-session-registry.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { ConnectionIdentityResolutionContext } from "../../services/identity-provider.js";
 import { ConnectionId, Milliseconds } from "../../../aliases.js";
+import { UserAuthStatus } from "../../../users/index.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { SessionLifecycleController } from "../../controllers/session-lifecycle.js";
 import { GameRegistry } from "../../game-registry.js";
@@ -82,7 +83,10 @@ export class GameServerSessionLifecycleController
     // username from the lobby and we want to give them the username they disconnected with
     outbox.pushToConnection(session.connectionId, {
       type: GameStateUpdateType.OnConnection,
-      data: { username: session.username },
+      data: {
+        username: session.username,
+        authStatus: session.isAuth() ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest,
+      },
     });
     return outbox;
   }

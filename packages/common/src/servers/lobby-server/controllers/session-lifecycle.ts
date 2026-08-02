@@ -7,6 +7,7 @@ import {
   IdentityProviderService,
 } from "../../services/identity-provider.js";
 import { ConnectionId, GuestUserId, Username } from "../../../aliases.js";
+import { UserAuthStatus } from "../../../users/index.js";
 import { LobbyState } from "../lobby-state.js";
 import { SavedCharactersController } from "./saved-characters.js";
 import { LobbyGameLifecycleController } from "./game-lifecycle.js";
@@ -117,6 +118,7 @@ export class LobbySessionLifecycleController
       type: GameStateUpdateType.OnConnection,
       data: {
         username: session.username,
+        authStatus: session.isAuth() ? UserAuthStatus.LoggedIn : UserAuthStatus.Guest,
         willBeReconnectedToGame: options?.sessionWillBeForwardedToGameServer,
       },
     });

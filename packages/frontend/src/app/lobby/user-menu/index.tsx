@@ -9,6 +9,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HttpRequestTracker } from "@/client-application/ui/http-requests";
 import { IconName, SVG_ICONS } from "@/app/icons";
+import { UserAuthStatus } from "@speed-dungeon/common";
 
 export const UserMenuContainer = observer(() => {
   const clientApplication = useClientApplication();
@@ -28,7 +29,7 @@ export const UserMenuContainer = observer(() => {
     if (responseTracker && responseTracker.data) {
       const data = responseTracker.data;
       if (typeof data !== "string") {
-        session.setUsername(data["username"]);
+        session.setUser(data["username"], UserAuthStatus.LoggedIn);
       }
     }
   }, [responseTracker?.data]);
@@ -41,14 +42,13 @@ export const UserMenuContainer = observer(() => {
     );
   }
 
-  return <UserMenu username={usernameOption} />;
+  return <UserMenu username={usernameOption} isLoggedIn={session.isLoggedIn} />;
 });
 
-function UserMenu({ username }: { username: null | string }) {
+function UserMenu({ username, isLoggedIn }: { username: null | string; isLoggedIn: boolean }) {
   const clientApplication = useClientApplication();
   const { dialogs, httpRequests } = clientApplication.uiStore;
   const { session, lobbyClientRef, broadcastChannel } = clientApplication;
-  const isLoggedIn = username !== null;
   const firstLetterOfUsername = username ? username.charAt(0) : "";
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,7 @@ function UserMenu({ username }: { username: null | string }) {
 
     dialogs.open(DialogElementName.Credentials);
 
-    session.clearUsername();
+    session.clearUser();
 
     lobbyClientRef.get().resetConnection();
 

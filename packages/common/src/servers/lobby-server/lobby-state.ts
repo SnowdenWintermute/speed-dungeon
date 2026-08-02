@@ -1,14 +1,6 @@
 import { Username } from "../../aliases.js";
+import { UserAuthStatus, UserChannelDisplayData } from "../../users/index.js";
 import { GameRegistry } from "../game-registry.js";
-
-export enum UserAuthStatus {
-  LoggedIn,
-  Guest,
-}
-
-export class UserChannelDisplayData {
-  constructor(public authStatus: UserAuthStatus) {}
-}
 
 /** Client app will use this to display information in the UI
  * Lobby (either on a server or locally on the client) uses this to

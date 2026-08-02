@@ -19,8 +19,7 @@ export const Settings = observer(() => {
   const { session } = clientApplication;
   const { dialogs, httpRequests } = clientApplication.uiStore;
   const settingsIsOpen = dialogs.isOpen(DialogElementName.AppSettings);
-  const { usernameOption } = session;
-  const isLoggedIn = usernameOption !== null;
+  const { isLoggedIn } = session;
 
   const [selectedTabState, setSelectedTab] = useState<SettingsTab | null>(null);
 

@@ -86,7 +86,7 @@ export function createGameUpdateHandlers(
       }
     },
     [GameStateUpdateType.OnConnection]: async (data) => {
-      clientApplication.session.setUsername(data.username);
+      clientApplication.session.setUser(data.username, data.authStatus);
 
       if (clientApplication.lobbyClientRef.isInitialized) {
         await clientApplication.lobbyClientRef.get().close();

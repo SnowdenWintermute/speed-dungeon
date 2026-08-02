@@ -1,0 +1,23 @@
+{
+  "name": "@speed-dungeon/seed-data",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dev-only seeding of local ladder data",
+  "type": "module",
+  "license": "ISC",
+  "scripts": {
+    "checkTs": "npx tsc --noEmit --watch --preserveWatchOutput",
+    "seed-ladder-data": "dotenv -e ../server/.env -- node --experimental-strip-types src/seed-ladder-data.ts",
+    "delete-ladder-seed-data": "dotenv -e ../server/.env -- node --experimental-strip-types src/seed-ladder-data.ts --delete-only"
+  },
+  "dependencies": {
+    "@speed-dungeon/common": "1.0.0",
+    "@speed-dungeon/server": "*",
+    "lodash.clonedeep": "4.5.0",
+    "pg-format": "1.0.4"
+  },
+  "devDependencies": {
+    "@types/lodash.clonedeep": "4.5.9",
+    "@types/pg-format": "1.0.5"
+  }
+}

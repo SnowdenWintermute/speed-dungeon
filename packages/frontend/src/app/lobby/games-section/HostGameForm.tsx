@@ -6,7 +6,6 @@ import {
 } from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
 import TextInput from "@/app/components/atoms/TextInput";
-import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
 import Divider from "@/app/components/atoms/Divider";
 import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
@@ -18,11 +17,9 @@ import { numberKeyValue } from "@/client-application/ui/keyboard-layouts";
 
 export const HostGameForm = observer(() => {
   const clientApplication = useClientApplication();
-  const { uiStore, lobbyClientRef } = clientApplication;
+  const { uiStore, lobbyClientRef, session } = clientApplication;
   const { keybinds } = uiStore;
-  const currentSessionHttpResponseTracker =
-    uiStore.httpRequests.requests[HTTP_REQUEST_NAMES.GET_SESSION];
-  const isLoggedIn = currentSessionHttpResponseTracker?.statusCode === 200;
+  const { isLoggedIn } = session;
   const [selectedGameMode, setSelectedGameMode] = useState(GameMode.Ironman);
   const [isRanked, setIsRanked] = useState(isLoggedIn);
   const [gameName, setGameName] = useState<GameName>("" as GameName);

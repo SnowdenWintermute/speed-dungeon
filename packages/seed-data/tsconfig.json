@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // this package is never built to dist: its scripts run straight from source under node's type
+    // stripping, which is also why relative imports here carry a .ts extension rather than the .js
+    // the emitted packages use
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "moduleResolution": "bundler",
+    "types": ["node"]
+  },
+  "references": [
+    {
+      "path": "../common"
+    }
+  ],
+  "include": ["src"]
+}

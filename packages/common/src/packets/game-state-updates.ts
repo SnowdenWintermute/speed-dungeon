@@ -6,7 +6,7 @@ import { NextOrPrevious } from "../primatives/index.js";
 import { LadderQueryResult } from "../ladder/queries/ladder-query-messages.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
-import { UserChannelDisplayData } from "../users/index.js";
+import { UserAuthStatus, UserChannelDisplayData } from "../users/index.js";
 import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
@@ -117,6 +117,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.OnConnection]: {
     username: Username;
+    authStatus: UserAuthStatus;
     willBeReconnectedToGame?: boolean;
   };
   [GameStateUpdateType.CacheGuestSessionReconnectionToken]: {
