@@ -58,9 +58,10 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.Dexterity]:
     "Increases accuracy, crit chance of melee and projectile attacks, kinetic projectile damage, block and parry chance.",
   [CombatAttribute.Spirit]:
-    "Increases mana, spell damage and magical healing received. Reduces incoming crit damage from all sources. Reduces magical damage received.",
+    "Increases mana, spell damage and magical healing received. Reduces magical damage received.",
   [CombatAttribute.Strength]:
-    "Increases damage, crit chance, crit multiplier and armor penetration for melee attacks. Increases block chance, damage reduced on block, parry and counterattack chance.",
-  [CombatAttribute.Vitality]: "Increases hit points.",
+    "Increases damage, crit chance, crit multiplier and armor penetration for melee attacks. Increases block, parry and counterattack chance.",
+  [CombatAttribute.Vitality]:
+    "Increases hit points and damage reduction on shield block. Reduces incoming crit damage from all sources.",
   [CombatAttribute.Agility]: `Increases evasion, speed, chance to avoid being crit, damage reduced on block and counterattack chance.`,
 };

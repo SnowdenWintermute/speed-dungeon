@@ -1,4 +1,4 @@
-import { GameId, Meters, Milliseconds } from "./aliases.js";
+import { GameId, Meters, Milliseconds, NormalizedPercentage } from "./aliases.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 50000;
 
@@ -81,8 +81,8 @@ export const SPIRIT_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO = 0.5;
 export const SPIRIT_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO = 1;
 export const CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO = 0.0025;
 export const AGILITY_TO_KINETIC_CRIT_EVASION_RATIO = 0.01;
-export const SPIRIT_TO_CRIT_DAMAGE_REDUCTION_RATIO = 0.005;
-export const MAX_CRIT_DAMAGE_REDUCTION = 1;
+export const CRIT_REDUCTION_ATTRIBUTE_TO_CRIT_DAMAGE_REDUCTION_RATIO = 0.005;
+export const MAX_CRIT_DAMAGE_REDUCTION: NormalizedPercentage = 1;
 
 // EQUIPMENT GENERATION
 export const BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL = 0.75;

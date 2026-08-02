@@ -24,9 +24,9 @@ import {
   MAX_BLOCK_REDUCTION,
   AGILITY_TO_KINETIC_CRIT_EVASION_RATIO,
   MAX_CRIT_DAMAGE_REDUCTION,
-  SPIRIT_TO_CRIT_DAMAGE_REDUCTION_RATIO,
   SPIRIT_TO_PERCENT_MAGICAL_DAMAGE_REDUCTION_RATIO,
   SPIRIT_TO_PERCENT_MAGICAL_HEALING_INCREASE_RATIO,
+  CRIT_REDUCTION_ATTRIBUTE_TO_CRIT_DAMAGE_REDUCTION_RATIO,
 } from "../app-consts.js";
 import { NormalizedPercentage } from "../aliases.js";
 
@@ -144,14 +144,14 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
     const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];
     const withShieldArmorClassBonus = baseDamageReduction + shieldPropertiesOption.armorClass / 300;
 
-    const strength = this.getCombatantProperties().attributeProperties.getAttributeValue(
-      CombatAttribute.Strength
+    const vitality = this.getCombatantProperties().attributeProperties.getAttributeValue(
+      CombatAttribute.Vitality
     );
     const agility = this.getCombatantProperties().attributeProperties.getAttributeValue(
       CombatAttribute.Agility
     );
     const attributeBonusDivisor = 700;
-    const attributeBonus = calculateBalancedAttributeSynergy(strength, agility);
+    const attributeBonus = calculateBalancedAttributeSynergy(vitality, agility);
 
     const final = withShieldArmorClassBonus + attributeBonus / attributeBonusDivisor;
 
@@ -236,11 +236,13 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
   }
 
   getCritDamageReduction(): NormalizedPercentage {
-    const spirit = this.getCombatantProperties().attributeProperties.getAttributeValue(
-      CombatAttribute.Spirit
-    );
+    const critReductionAttribute =
+      this.getCombatantProperties().attributeProperties.getAttributeValue(CombatAttribute.Vitality);
 
-    return Math.min(MAX_CRIT_DAMAGE_REDUCTION, spirit * SPIRIT_TO_CRIT_DAMAGE_REDUCTION_RATIO);
+    return Math.min(
+      MAX_CRIT_DAMAGE_REDUCTION,
+      critReductionAttribute * CRIT_REDUCTION_ATTRIBUTE_TO_CRIT_DAMAGE_REDUCTION_RATIO
+    );
   }
 
   getMagicalDamageReduction(): NormalizedPercentage {

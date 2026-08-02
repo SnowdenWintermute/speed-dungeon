@@ -1,7 +1,7 @@
 import { HP_CALCLULATION_CONTEXTS } from "./hp-change-calculation-strategies/index.js";
 import { ResourceChange } from "../../hp-change-source-types.js";
 import { Percentage } from "../../../aliases.js";
-import { EPSILON } from "../../../utils/index.js";
+import { EPSILON, invariant } from "../../../utils/index.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
@@ -68,7 +68,7 @@ export class ResourceChangeModifier {
 
   private applyShieldBlock() {
     const blockDamageReductionNormalizedPercentage =
-      HitOutcomeMitigationCalculator.getShieldBlockDamageReduction(this.target);
+      this.target.mitigationProperties.getBlockReduction();
     const damageReduced = this.resourceChange.value * blockDamageReductionNormalizedPercentage;
     const damageAdjustedForBlock = this.resourceChange.value - damageReduced;
     this.resourceChange.value = Math.max(0, damageAdjustedForBlock);

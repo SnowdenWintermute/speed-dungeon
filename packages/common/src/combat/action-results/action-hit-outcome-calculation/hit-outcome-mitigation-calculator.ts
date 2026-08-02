@@ -310,19 +310,4 @@ export class HitOutcomeMitigationCalculator {
     // note:
     // FFXI formula: BlockRate = SizeBaseBlockRate + ((ShieldSkill - AttackerCombatSkill) × 0.2325)
   }
-
-  /**Should return a normalized percentage*/
-  static getShieldBlockDamageReduction(
-    combatantProperties: CombatantProperties
-  ): NormalizedPercentage {
-    const shieldPropertiesOption = combatantProperties.equipment.getEquippedShieldProperties();
-    if (!shieldPropertiesOption) return 0;
-
-    const baseDamageReduction = SHIELD_SIZE_DAMAGE_REDUCTION[shieldPropertiesOption.size];
-
-    return baseDamageReduction + shieldPropertiesOption.armorClass / 200;
-
-    // FFXI formula:
-    // PercentDamageBlocked = SizeDamageReduction + (ShieldDEF / ((max(ShieldItemLevel, 99) - 99) / 10 + 2))
-  }
 }
