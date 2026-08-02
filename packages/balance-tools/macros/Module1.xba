@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="Module1" script:language="StarBasic">Function DamageAfterAC(damageBefore As Double, finalAc As Double, armorModifier As Double) As Double
+    DamageAfterAC = Int(damageBefore * (armorModifier * damageBefore) / (finalAc + armorModifier * damageBefore))
+End Function
+</script:module>
