@@ -7,7 +7,8 @@
   "license": "ISC",
   "scripts": {
     "checkTs": "npx tsc --noEmit --watch",
-    "sync": "node --experimental-strip-types src/sync-game-data.ts"
+    "sync": "node --experimental-strip-types src/sync-game-data.ts",
+    "sync:watch": "node --experimental-strip-types src/watch-game-data.ts"
   },
   "dependencies": {
     "@speed-dungeon/common": "1.0.0",
