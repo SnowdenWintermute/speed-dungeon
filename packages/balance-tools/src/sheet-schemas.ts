@@ -3,11 +3,15 @@ import {
   AffixType,
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   CombatAttribute,
+  CombatantClass,
   EquipmentType,
+  MonsterType,
   PREFIX_TYPES,
   SUFFIX_TYPES,
   invariant,
+  iterateNumericEnum,
 } from "@speed-dungeon/common";
+import { assembleEnumMemberLookup } from "./workbook-reader.ts";
 
 const REQUIREMENT_COLUMNS: Partial<Record<CombatAttribute, string>> = {
   [CombatAttribute.Strength]: "reqStr",
@@ -81,11 +85,49 @@ export const AFFIX_OVERRIDES_SHEET = {
   columns: ["baseItem", "affixType", "maxTier"],
 };
 
-/** in the workbook and tuned there, but nothing consumes them yet — the combatant and monster
- * attribute tables are still hardcoded in common */
-export const NOT_YET_CONSUMED_SHEETS = [
-  "class-starting-attributes",
-  "class-attributes-per-level",
-  "monster-starting-attributes",
-  "monster-attributes-per-level",
+export interface AttributeTableSchema {
+  sheetName: string;
+  keyColumn: string;
+  keyTypeName: string;
+  keysByName: Map<string, number>;
+  constName: string;
+}
+
+export const ATTRIBUTE_TABLE_SCHEMAS: AttributeTableSchema[] = [
+  {
+    sheetName: "class-starting-attributes",
+    keyColumn: "combatantClass",
+    keyTypeName: "CombatantClass",
+    keysByName: assembleEnumMemberLookup(CombatantClass),
+    constName: "BASE_STARTING_ATTRIBUTES",
+  },
+  {
+    sheetName: "class-attributes-per-level",
+    keyColumn: "combatantClass",
+    keyTypeName: "CombatantClass",
+    keysByName: assembleEnumMemberLookup(CombatantClass),
+    constName: "COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL",
+  },
+  {
+    sheetName: "monster-starting-attributes",
+    keyColumn: "monsterType",
+    keyTypeName: "MonsterType",
+    keysByName: assembleEnumMemberLookup(MonsterType),
+    constName: "MONSTER_STARTING_ATTRIBUTES",
+  },
+  {
+    sheetName: "monster-attributes-per-level",
+    keyColumn: "monsterType",
+    keyTypeName: "MonsterType",
+    keysByName: assembleEnumMemberLookup(MonsterType),
+    constName: "MONSTER_ATTRIBUTES_BY_LEVEL",
+  },
 ];
+
+/** every attribute is a column, and a blank cell means the entity has no value for it */
+export function getAttributeSheetColumns(schema: AttributeTableSchema) {
+  return [
+    schema.keyColumn,
+    ...iterateNumericEnum(CombatAttribute).map((attribute) => CombatAttribute[attribute]),
+  ];
+}

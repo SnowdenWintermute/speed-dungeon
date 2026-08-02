@@ -15,7 +15,7 @@ import {
   MONSTER_INHERENT_ELEMENTAL_AFFINITIES,
   MONSTER_INHERENT_KINETIC_AFFINITIES,
 } from "./monster-inherent-affinities.js";
-import { MONSTER_ATTRIBUTES_BY_LEVEL } from "./monster-per-level-attributes.js";
+import { MONSTER_ATTRIBUTES_BY_LEVEL } from "../combatants/attributes/attribute-tables.generated.js";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-traits.js";
 import { MONSTER_TYPE_STRINGS, MonsterType } from "./monster-types.js";
 

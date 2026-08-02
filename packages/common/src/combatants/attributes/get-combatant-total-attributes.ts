@@ -6,12 +6,14 @@ import { CombatAttribute } from "../attributes/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
-import { COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL } from "../combatant-class/class-attributes-by-level.js";
+import {
+  BASE_STARTING_ATTRIBUTES,
+  COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
+  MONSTER_ATTRIBUTES_BY_LEVEL,
+  MONSTER_STARTING_ATTRIBUTES,
+} from "./attribute-tables.generated.js";
 import { CombatantProperties } from "../combatant-properties.js";
-import { MONSTER_STARTING_ATTRIBUTES } from "../../monsters/monster-starting-attributes.js";
-import { MONSTER_ATTRIBUTES_BY_LEVEL } from "../../monsters/monster-per-level-attributes.js";
 import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
-import { BASE_STARTING_ATTRIBUTES } from "../combatant-class/level-zero-attributes.js";
 import { HoldableSlotType } from "../../items/equipment/slots.js";
 
 export function getCombatantTotalAttributes(

@@ -6,7 +6,7 @@
   "type": "module",
   "license": "ISC",
   "scripts": {
-    "checkTs": "npx tsc --noEmit --watch",
+    "checkTs": "npx tsc --noEmit --watch --preserveWatchOutput",
     "sync": "node --experimental-strip-types src/sync-game-data.ts",
     "sync:watch": "node --experimental-strip-types src/watch-game-data.ts"
   },

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "migrate": "node-pg-migrate -f pg-migrate-config.json",
-    "build:watch": "tsc -b --watch",
+    "build:watch": "tsc -b --watch --preserveWatchOutput",
     "serve:lobby": "node --watch dist/entrypoints/lobby.js",
     "serve:game-server": "node --watch dist/entrypoints/game-server.js",
     "serve:asset-server": "node --watch dist/entrypoints/asset-server.js"
