@@ -51,3 +51,14 @@ worries/complexities
     - feed action list into the min/max damage table
 - gear-score calculator based on drop chance of items and average chance of equipment affixes / rolls
 - average shards per-level obtained
+
+Start with attack-only balancing
+
+Average attack action damage per room
+
+- average available equipment
+- average damage range of available equipment (a hypothetical average equipment)
+- average available attributes (gear+inherent+discretionary)
+- expected combatant level
+- show table of available weapons by room, their weights (how likely to have one by that time)
+  their attack action damage range by likely attribute allocations (low std dev, avg, high std dev)

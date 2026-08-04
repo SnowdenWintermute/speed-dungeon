@@ -1,5 +1,5 @@
-import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ChangeEvent, useEffect, useRef } from "react";
+import { useSuspendHotkeys } from "./ui-context";
 
 interface Props {
   placeholder: string;
@@ -21,8 +21,8 @@ interface Props {
 
 export default function TextInput(props: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const clientApplication = useClientApplication();
-  const { uiStore } = clientApplication;
+  const suspendHotkeys = useSuspendHotkeys();
+  const releaseHotkeysRef = useRef<null | (() => void)>(null);
 
   useEffect(() => {
     // trying to make it so we trigger the onfocus event, which didn't seem to be triggered
@@ -31,7 +31,7 @@ export default function TextInput(props: Props) {
     if (inputRef.current && props.autofocus) {
       inputRef.current.focus();
       inputRef.current.dispatchEvent(new Event("focus", { bubbles: true })); // Trigger the focus event manually
-      uiStore.inputs.setHotkeysDisabled(true);
+      handleFocus();
     }
 
     return () => {
@@ -39,8 +39,16 @@ export default function TextInput(props: Props) {
     };
   }, []);
 
+  function handleFocus() {
+    if (releaseHotkeysRef.current) {
+      return;
+    }
+    releaseHotkeysRef.current = suspendHotkeys();
+  }
+
   function handleBlur() {
-    uiStore.inputs.setHotkeysDisabled(false);
+    releaseHotkeysRef.current?.();
+    releaseHotkeysRef.current = null;
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -59,9 +67,7 @@ export default function TextInput(props: Props) {
   return (
     <input
       ref={inputRef}
-      onFocus={() => {
-        uiStore.inputs.setHotkeysDisabled(true);
-      }}
+      onFocus={handleFocus}
       onBlur={handleBlur}
       className={`pointer-events-auto ${props.className}`}
       type={props.type || "text"}

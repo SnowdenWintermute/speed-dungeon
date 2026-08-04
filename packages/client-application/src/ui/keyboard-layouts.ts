@@ -1,3 +1,5 @@
+import { normalizeKeyValue } from "@speed-dungeon/common";
+
 export enum KeyboardLayout {
   Qwerty,
   Dvorak,
@@ -44,10 +46,6 @@ export const PHYSICAL_CODE_TO_VALUE: Record<KeyboardLayout, Record<string, strin
 const NAMED_CODE_TO_VALUE: Record<string, string> = {
   Space: " ",
 };
-
-export function normalizeKeyValue(raw: string): string {
-  return raw.toLowerCase();
-}
 
 export function keyValueForCode(code: string, layout: KeyboardLayout): string {
   const letterValue = PHYSICAL_CODE_TO_VALUE[layout][code];

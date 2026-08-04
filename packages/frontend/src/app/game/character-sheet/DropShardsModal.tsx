@@ -10,21 +10,18 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+import { useSuspendHotkeys } from "@/app/components/atoms/ui-context";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {
     const clientApplication = useClientApplication();
     const { gameClientRef } = clientApplication;
-    const { dialogs, inputs, keybinds } = clientApplication.uiStore;
+    const { dialogs, keybinds } = clientApplication.uiStore;
     const viewingDropShardsModal = dialogs.isOpen(DialogElementName.DropShards);
     const [value, setValue] = useState<string>("");
+    const suspendHotkeys = useSuspendHotkeys();
 
-    useEffect(() => {
-      inputs.setHotkeysDisabled(true);
-      return () => {
-        inputs.setHotkeysDisabled(false);
-      };
-    }, []);
+    useEffect(() => suspendHotkeys(), []);
 
     const { alertsService } = clientApplication;
 

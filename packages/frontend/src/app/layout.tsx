@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { DungeonFloor, SKY_COLORS_BY_FLOOR } from "@speed-dungeon/common";
 import { ClientApplicationProvider } from "./client-application-provider";
-import { TooltipManager } from "./TooltipManager";
 import { AlertManager } from "./components/alerts/AlertManager";
+import { UiProvider } from "./components/atoms/ui-context";
+import { ZIndexLayers } from "./z-index-layers";
+
+const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 export const metadata: Metadata = {
   title: "Speed Dungeon",
   description: "A cooperative RPG",
@@ -21,12 +24,10 @@ export default function RootLayout({
         style={{ background: SKY_COLORS_BY_FLOOR[DungeonFloor.Zero] }}
       >
         <ClientApplicationProvider>
-          {/* tooltips and alerts belong to every page, so what renders them is layout-level. both
-              were under the game's own page, which is why they did nothing on a ladder page — and
-              the connection alert the provider raises is one any page can trigger */}
-          <TooltipManager />
-          <AlertManager />
-          {children}
+          <UiProvider layers={UI_LAYERS}>
+            <AlertManager />
+            {children}
+          </UiProvider>
         </ClientApplicationProvider>
       </body>
     </html>

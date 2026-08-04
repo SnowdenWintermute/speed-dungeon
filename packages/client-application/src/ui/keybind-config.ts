@@ -1,12 +1,7 @@
-import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord, normalizeKeyValue } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { makeAutoObservable } from "mobx";
-import {
-  KeyboardLayout,
-  keyValueForCode,
-  keyValueToDisplayString,
-  normalizeKeyValue,
-} from "./keyboard-layouts";
+import { KeyboardLayout, keyValueForCode, keyValueToDisplayString } from "./keyboard-layouts";
 
 export enum HotkeyButtonTypes {
   ToggleInventory,

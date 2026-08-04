@@ -1,6 +1,6 @@
 import { FocusEventHandler, MouseEventHandler, useEffect, useRef } from "react";
 import { HotkeyButton } from "./HotkeyButton";
-import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
+import { normalizeKeyValue } from "@speed-dungeon/common";
 
 interface Props {
   extraStyles?: string;

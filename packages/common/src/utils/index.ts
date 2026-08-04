@@ -86,6 +86,10 @@ export function stringIsValidNumber(str: string) {
   return !isNaN(parseInt(str)) && str.trim() !== "";
 }
 
+export function normalizeKeyValue(raw: string): string {
+  return raw.toLowerCase();
+}
+
 export function createDummyConsumable(consumableType: ConsumableType) {
   return new Consumable(
     {

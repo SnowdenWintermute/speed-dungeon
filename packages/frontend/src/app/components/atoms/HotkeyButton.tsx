@@ -1,8 +1,7 @@
-import { useClientApplication } from "@/hooks/create-client-application-context";
-import { observer } from "mobx-react-lite";
 import React from "react";
 import { FocusEventHandler, MouseEventHandler, PointerEventHandler, useEffect, useRef } from "react";
-import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
+import { normalizeKeyValue } from "@speed-dungeon/common";
+import { useHotkeysDisabled } from "./ui-context";
 
 interface Props {
   className?: string;
@@ -23,10 +22,8 @@ interface Props {
   keyUp?: boolean;
 }
 
-export const HotkeyButton = observer((props: Props) => {
-  const clientApplication = useClientApplication();
-  const { inputs } = clientApplication.uiStore;
-  const hotkeysDisabled = inputs.getHotkeysDisabled();
+export function HotkeyButton(props: Props) {
+  const hotkeysDisabled = useHotkeysDisabled();
   const keydownListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const disabled = props.alwaysEnabled === true ? false : props.disabled || hotkeysDisabled;
   const listenerType = props.keyUp ? "keyup" : "keydown";
@@ -77,4 +74,4 @@ export const HotkeyButton = observer((props: Props) => {
       {props.children}
     </button>
   );
-});
+}

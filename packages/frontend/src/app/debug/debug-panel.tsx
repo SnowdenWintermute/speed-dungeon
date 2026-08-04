@@ -6,9 +6,9 @@ import { DialogElementName } from "@/client-application/ui/dialogs";
 import { ModifierKey } from "@/client-application/ui/inputs";
 import DownloadDebugLogButton from "./download-debug-log-button";
 import ClearDebugLogButton from "./clear-debug-log-button";
-import { formatThousandsAsK } from "@speed-dungeon/common";
+import { formatThousandsAsK, normalizeKeyValue } from "@speed-dungeon/common";
 import { HotkeyButton } from "../components/atoms/HotkeyButton";
-import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
+import { useHotkeysDisabled } from "../components/atoms/ui-context";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const DebugPanel = observer(
@@ -18,7 +18,7 @@ export const DebugPanel = observer(
     const { dialogs, inputs, keybinds } = uiStore;
     const itemThumbnails = clientApplication.itemThumbnails.getAll();
     const showDebug = dialogs.isOpen(DialogElementName.Debug);
-    const hotkeysDisabled = inputs.getHotkeysDisabled();
+    const hotkeysDisabled = useHotkeysDisabled();
     const headerRef = useRef<HTMLDivElement>(null);
     const keydownListenerRef = useRef<(e: KeyboardEvent) => void>(null);
     const mouseDownListenerRef = useRef<(e: MouseEvent) => void>(null);

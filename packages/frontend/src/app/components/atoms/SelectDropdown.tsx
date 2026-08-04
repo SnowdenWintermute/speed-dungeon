@@ -1,8 +1,13 @@
-import Triangle from "../../../../public/img/basic-shapes/triangle.svg";
 import React, { useEffect, useRef, useState } from "react";
-import { ZIndexLayers } from "@/app/z-index-layers";
-import { useClientApplication } from "@/hooks/create-client-application-context";
-import { observer } from "mobx-react-lite";
+import { useSuspendHotkeys, useUiLayers } from "./ui-context";
+
+function Triangle({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <path d="M9.99991 0L19.5262 12.75H0.473633L9.99991 0Z" fill="current" />
+    </svg>
+  );
+}
 
 interface Props {
   title: string;
@@ -13,15 +18,16 @@ interface Props {
   extraStyles?: string;
 }
 
-export const SelectDropdown = observer((props: Props) => {
+export function SelectDropdown(props: Props) {
   const { options, value } = props;
   const selectInputRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const indexSelected = options.findIndex((option) => option.value === value);
 
-  const clientApplication = useClientApplication();
-  const { inputs } = clientApplication.uiStore;
+  const { dropdown: dropdownLayer } = useUiLayers();
+  const suspendHotkeys = useSuspendHotkeys();
+  const releaseHotkeysRef = useRef<null | (() => void)>(null);
 
   function selectOptionAtIndex(index: number) {
     const option = options[index];
@@ -59,7 +65,8 @@ export const SelectDropdown = observer((props: Props) => {
   }, [value]);
 
   function handleBlur() {
-    inputs.setHotkeysDisabled(false);
+    releaseHotkeysRef.current?.();
+    releaseHotkeysRef.current = null;
     setIsFocused(false);
     setIsOpen(false);
     // const activeElement = document.activeElement as HTMLElement;
@@ -71,7 +78,8 @@ export const SelectDropdown = observer((props: Props) => {
   function handleFocus() {
     if (!selectInputRef.current) return;
     setIsFocused(true);
-    inputs.setHotkeysDisabled(true);
+    if (releaseHotkeysRef.current) return;
+    releaseHotkeysRef.current = suspendHotkeys();
   }
 
   function handleUserKeydown(e: KeyboardEvent) {
@@ -168,7 +176,7 @@ export const SelectDropdown = observer((props: Props) => {
       {selectedOptionAsOpenButton}
       {isOpen && (
         <ul
-          style={{ zIndex: ZIndexLayers.Dropdown }}
+          style={{ zIndex: dropdownLayer }}
           className={`absolute w-full border border-b-0 border-slate-400 
        ${props.disabled && "opacity-50"}
        `}
@@ -178,4 +186,4 @@ export const SelectDropdown = observer((props: Props) => {
       )}
     </div>
   );
-});
+}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import { normalizeKeyValue } from "@/client-application/ui/keyboard-layouts";
+import { normalizeKeyValue } from "@speed-dungeon/common";
+import { useSuspendHotkeys } from "@/app/components/atoms/ui-context";
 
 export enum KeybindCaptureMode {
   Assign,
@@ -15,15 +16,15 @@ interface CaptureState {
 
 export function useKeybindCapture() {
   const clientApplication = useClientApplication();
-  const { keybinds, inputs } = clientApplication.uiStore;
+  const { keybinds } = clientApplication.uiStore;
+  const suspendHotkeys = useSuspendHotkeys();
   const [capturing, setCapturing] = useState<CaptureState | null>(null);
 
   useEffect(() => {
     if (capturing === null) {
       return;
     }
-    const previousHotkeysDisabled = inputs.getHotkeysDisabled();
-    inputs.setHotkeysDisabled(true);
+    const releaseHotkeys = suspendHotkeys();
 
     const listener = (e: KeyboardEvent) => {
       e.preventDefault();
@@ -40,9 +41,9 @@ export function useKeybindCapture() {
 
     return () => {
       window.removeEventListener("keydown", listener, { capture: true });
-      inputs.setHotkeysDisabled(previousHotkeysDisabled);
+      releaseHotkeys();
     };
-  }, [capturing, inputs, keybinds]);
+  }, [capturing, suspendHotkeys, keybinds]);
 
   function startCapture(buttonType: HotkeyButtonTypes, mode: KeybindCaptureMode) {
     setCapturing((current) =>

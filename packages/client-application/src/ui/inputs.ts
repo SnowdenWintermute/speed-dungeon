@@ -11,18 +11,8 @@ export class InputStore {
     [ModifierKey.AlternateClick]: false,
   };
 
-  private hotkeysDisabled: boolean = false;
-
   constructor() {
     makeAutoObservable(this);
-  }
-
-  getHotkeysDisabled() {
-    return this.hotkeysDisabled;
-  }
-
-  setHotkeysDisabled(disabled: boolean) {
-    this.hotkeysDisabled = disabled;
   }
 
   setKeyHeld(key: ModifierKey) {
