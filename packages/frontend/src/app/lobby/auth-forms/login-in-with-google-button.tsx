@@ -1,4 +1,4 @@
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import React from "react";
 import GoogleLogo from "../../../../public/google-logo.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";

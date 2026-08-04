@@ -1,4 +1,4 @@
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React, { useState } from "react";
@@ -11,7 +11,7 @@ import { observer } from "mobx-react-lite";
 import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import { CharacterSheetHeader } from "./CharacterSheetHeader";
 import { ParryAndCounterattackChanceDisplay } from "./ParryAndCounterattackChanceDisplay";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 
 interface Props {
   widthOptionClass?: string;

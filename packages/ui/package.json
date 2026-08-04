@@ -1,0 +1,13 @@
+{
+  "name": "@speed-dungeon/ui",
+  "version": "1.0.0",
+  "description": "Shared presentational components, consumed as source and compiled by the importing app",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "checkTs": "npx tsc --noEmit --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

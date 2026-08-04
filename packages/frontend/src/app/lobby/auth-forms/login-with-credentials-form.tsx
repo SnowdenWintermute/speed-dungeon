@@ -1,5 +1,5 @@
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import Divider from "@/app/components/atoms/Divider";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
 import React, { useState } from "react";
 import { AuthFormTypes } from ".";

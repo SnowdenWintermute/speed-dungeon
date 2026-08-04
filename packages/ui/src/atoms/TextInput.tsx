@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useRef } from "react";
-import { useSuspendHotkeys } from "./ui-context";
+import { useSuspendHotkeys } from "../ui-context";
 
 interface Props {
   placeholder: string;

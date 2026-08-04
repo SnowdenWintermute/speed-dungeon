@@ -1,16 +1,16 @@
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import React, { useEffect, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import NumberInput from "@/app/components/atoms/NumberInput";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { ClientIntentType } from "@speed-dungeon/common";
-import { ClickOutsideHandlerWrapper } from "@/app/components/atoms/ClickOutsideHandlerWrapper";
+import { ClickOutsideHandlerWrapper } from "@speed-dungeon/ui/atoms/ClickOutsideHandlerWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import { useSuspendHotkeys } from "@/app/components/atoms/ui-context";
+import { useSuspendHotkeys } from "@speed-dungeon/ui/ui-context";
 
 export const DropShardsModal = observer(
   ({ max, min, className }: { max: number; min: number; className: string }) => {

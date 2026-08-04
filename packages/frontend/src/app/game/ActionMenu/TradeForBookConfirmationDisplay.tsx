@@ -1,8 +1,8 @@
 import React from "react";
 import { BookConsumableType, CONSUMABLE_TYPE_STRINGS, INFO_UNICODE_SYMBOL, Item, getBookLevelForTrade } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import Divider from "@/app/components/atoms/Divider";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "@/app/icons";
 
 interface Props {

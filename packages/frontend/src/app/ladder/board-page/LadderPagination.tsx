@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LadderPage } from "@speed-dungeon/common";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import NumberInput from "@/app/components/atoms/NumberInput";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
+import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 
 // pages count from zero in a query and from one everywhere a reader sees them, so the conversion
 // happens here and nowhere else

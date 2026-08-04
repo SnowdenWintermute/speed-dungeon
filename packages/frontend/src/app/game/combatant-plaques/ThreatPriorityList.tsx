@@ -9,7 +9,7 @@ import {
   getCombatantClassIcon,
   getCombatantUiIdentifierIcon,
 } from "@/utils/get-combatant-class-icon";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";

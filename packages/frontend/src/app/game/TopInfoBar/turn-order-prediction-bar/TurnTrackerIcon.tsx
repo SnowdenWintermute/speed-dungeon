@@ -1,4 +1,4 @@
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getCombatantUiIdentifierIcon } from "@/utils/get-combatant-class-icon";
 import { ActionUserType, CombatantTurnTracker, ConditionTurnTracker } from "@speed-dungeon/common";

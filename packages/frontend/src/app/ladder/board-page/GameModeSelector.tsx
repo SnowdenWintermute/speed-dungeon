@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { GAME_MODE_STRINGS, GameMode } from "@speed-dungeon/common";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 
 // only the two modes with a ladder policy write floor clear records, so the others would be boards
 // that can never have a row. progression games are not ranked at all, and an unranked race is

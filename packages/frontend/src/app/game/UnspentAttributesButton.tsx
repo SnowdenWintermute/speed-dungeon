@@ -1,6 +1,6 @@
 import { ClientIntentType, CombatantId, CombatantProperties } from "@speed-dungeon/common";
 import React from "react";
-import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { ActionMenuScreenType } from "@/client-application/action-menu/screen-types";

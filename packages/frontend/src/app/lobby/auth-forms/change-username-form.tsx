@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import LabeledTextInputWithErrorDisplay from "@/app/components/molocules/LabeledInputWithErrorDisplay";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import { AuthForm } from "./AuthForm";
 import { observer } from "mobx-react-lite";

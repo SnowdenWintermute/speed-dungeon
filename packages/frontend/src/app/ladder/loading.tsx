@@ -1,5 +1,5 @@
 import React from "react";
-import LoadingSpinner from "../components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 
 // the instant loading state for every page under /ladder. without one, a navigation shows the page
 // it is leaving until the next one is ready, which reads as a dead click.

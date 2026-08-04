@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { ACTION_MENU_GENERAL_BUTTON_STYLE, ACTION_MENU_TOP_BUTTON_STYLE } from "./common-styles";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 
 export default function ActionMenuTopButton({
   extraStyles,

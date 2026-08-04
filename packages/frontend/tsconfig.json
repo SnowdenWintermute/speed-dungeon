@@ -24,6 +24,7 @@
       "@/client-application/*": ["../client-application/src/*"],
       "@/game-world-view": ["../game-world-view/src/index.ts"],
       "@/game-world-view/*": ["../game-world-view/src/*"],
+      "@speed-dungeon/ui/*": ["../ui/src/*"],
       "@/*": ["./src/*"]
     },
     "target": "ES2017"

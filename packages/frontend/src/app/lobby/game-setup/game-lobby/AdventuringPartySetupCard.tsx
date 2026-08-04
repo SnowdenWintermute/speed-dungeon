@@ -1,6 +1,6 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { ClientIntentType, SpeedDungeonGame } from "@speed-dungeon/common";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import {
   AdventuringParty,
   BASE_SCREEN_SIZE,

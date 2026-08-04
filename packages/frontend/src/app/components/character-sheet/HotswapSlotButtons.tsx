@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { NextOrPrevious, getNextOrPreviousNumber, normalizeKeyValue } from "@speed-dungeon/common";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import { useHotkeysDisabled } from "@/app/components/atoms/ui-context";
+import { useHotkeysDisabled } from "@speed-dungeon/ui/ui-context";
 
 interface Props {
   // null when the slot cannot be changed right now — in a game, when it is not this combatant's

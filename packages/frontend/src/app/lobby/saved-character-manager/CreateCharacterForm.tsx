@@ -1,5 +1,5 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import TextInput from "@/app/components/atoms/TextInput";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import TextInput from "@speed-dungeon/ui/atoms/TextInput";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {

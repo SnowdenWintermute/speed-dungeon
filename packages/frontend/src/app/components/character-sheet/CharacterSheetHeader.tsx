@@ -1,6 +1,6 @@
-import Divider from "@/app/components/atoms/Divider";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import TextInput from "@/app/components/atoms/TextInput";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import TextInput from "@speed-dungeon/ui/atoms/TextInput";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";

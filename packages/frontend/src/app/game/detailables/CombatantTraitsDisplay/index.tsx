@@ -1,4 +1,4 @@
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import {
   COMBATANT_TRAIT_DESCRIPTIONS,
   CombatantTraitProperties,

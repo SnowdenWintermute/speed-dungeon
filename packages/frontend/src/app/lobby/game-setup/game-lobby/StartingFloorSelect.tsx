@@ -6,7 +6,7 @@ import {
   SpeedDungeonPlayer,
 } from "@speed-dungeon/common";
 import React from "react";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 

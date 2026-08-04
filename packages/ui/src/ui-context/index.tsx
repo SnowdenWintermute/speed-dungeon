@@ -1,4 +1,3 @@
-"use client";
 import React, { ReactNode, createContext, useCallback, useContext, useMemo, useState } from "react";
 
 // the stacking positions the shared components need. the consuming app owns the full ordering and

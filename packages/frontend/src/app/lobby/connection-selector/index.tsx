@@ -1,4 +1,4 @@
-import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { Switch, SwitchThumb } from "@radix-ui/react-switch";

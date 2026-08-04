@@ -1,5 +1,5 @@
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
-import Divider from "@/app/components/atoms/Divider";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { Combatant } from "@speed-dungeon/common";
 import React from "react";
 import { CharacterAttributes } from "../../components/character-sheet/CharacterAttributes";
@@ -8,9 +8,9 @@ import { ReadOnlyCharacterSheetSubject } from "@/client-application/character-sh
 import CombatantTraitsDisplay from "./CombatantTraitsDisplay";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { getCombatantModelAttributions } from "@/game-world-view/scene-entities/combatants/get-combatant-asset-attribution";
 

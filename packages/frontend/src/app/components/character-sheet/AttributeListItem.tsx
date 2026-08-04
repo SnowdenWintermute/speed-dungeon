@@ -1,4 +1,4 @@
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,

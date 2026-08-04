@@ -1,12 +1,12 @@
 import React from "react";
 import { RoomExplorationTracker } from "./RoomExplorationTracker";
 import { DUNGEON_ROOM_TYPE_STRINGS } from "@speed-dungeon/common";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { TurnOrderPredictionBar } from "./turn-order-prediction-bar";
 import StairsIcon from "../../../../public/img/game-ui-icons/stairs.svg";
 import DoorIcon from "../../../../public/img/game-ui-icons/door-icon.svg";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import { DialogElementName } from "@/client-application/ui/dialogs";

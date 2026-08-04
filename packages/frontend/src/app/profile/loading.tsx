@@ -1,5 +1,5 @@
 import React from "react";
-import LoadingSpinner from "../components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 
 // the same instant loading state the ladder pages have: without a boundary in the segment that
 // changes, a navigation leaves the previous page on screen until the next one is ready

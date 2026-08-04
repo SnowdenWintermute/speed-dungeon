@@ -1,8 +1,8 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import React, { useState } from "react";
-import ButtonBasic from "../components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 
 export default function ClearDebugLogButton() {
   const [open, setOpen] = useState(false);

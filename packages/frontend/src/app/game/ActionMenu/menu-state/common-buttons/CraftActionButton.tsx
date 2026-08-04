@@ -12,7 +12,7 @@ import {
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { ActionMenuNumberedButton } from "./ActionMenuNumberedButton";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { IconName, SVG_ICONS } from "@/app/icons";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {

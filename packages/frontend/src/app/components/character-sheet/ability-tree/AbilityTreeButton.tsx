@@ -1,4 +1,4 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { AbilityTreeAbility, AllocationProhibitedReason } from "@speed-dungeon/common";
 import React, { ReactNode, useState } from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";

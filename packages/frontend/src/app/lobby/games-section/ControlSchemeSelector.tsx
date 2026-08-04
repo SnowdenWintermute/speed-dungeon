@@ -1,8 +1,8 @@
 import { CharacterControlScheme } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { useClientApplication } from "@/hooks/create-client-application-context";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 
 export const ControlSchemeSelector = observer(() => {
   const clientApplication = useClientApplication();

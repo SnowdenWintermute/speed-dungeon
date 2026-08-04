@@ -1,7 +1,7 @@
 import React from "react";
-import ButtonBasic from "../components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { AdventuringParty } from "@speed-dungeon/common";
-import Divider from "../components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { ZIndexLayers } from "../z-index-layers";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";

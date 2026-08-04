@@ -7,7 +7,7 @@ import { ClientIntentType, Combatant, CombatantControllerType } from "@speed-dun
 import "./floating-text-animation.css";
 import { InventoryIconButton } from "./InventoryIconButton";
 import { HotswapSlotButtons } from "@/app/components/character-sheet/HotswapSlotButtons";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { LowDurabilityIndicators } from "./LowDurabilityIndicators";
 import { ConditionIndicators } from "./condition-indicators/";
 import { ThreatPriorityList } from "./ThreatPriorityList";

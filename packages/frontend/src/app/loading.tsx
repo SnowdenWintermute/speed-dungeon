@@ -1,5 +1,5 @@
 import React from "react";
-import LoadingScreen from "./components/atoms/LoadingScreen";
+import LoadingScreen from "@speed-dungeon/ui/atoms/LoadingScreen";
 import { ArrayUtils, BasicRandomNumberGenerator } from "@speed-dungeon/common";
 
 export default function Loading() {

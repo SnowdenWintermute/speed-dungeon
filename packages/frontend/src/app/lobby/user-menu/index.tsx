@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { ZIndexLayers } from "@/app/z-index-layers";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import React, { ReactNode, useEffect, useRef, useState } from "react";

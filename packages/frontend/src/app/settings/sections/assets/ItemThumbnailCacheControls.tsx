@@ -2,7 +2,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect } from "react";
 import { BYTES_PER_KB } from "@speed-dungeon/common";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { AlertsService } from "@/client-application/alerts";
 import { ItemThumbnailService } from "@/client-application/item-thumbnails";
 

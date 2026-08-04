@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { LadderQueryState, LadderQueryStatus } from "@/client-application/ladder-view/query-state";
 
 // the three states every ladder query can be in, rendered the same way wherever one is displayed.

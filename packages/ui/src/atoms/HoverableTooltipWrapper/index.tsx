@@ -1,8 +1,7 @@
-"use client";
 import { Point } from "@speed-dungeon/common";
 import React, { ReactNode, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useUiLayers } from "../ui-context";
+import { useUiLayers } from "../../ui-context";
 import { anchorTooltipTo, useTooltipPosition } from "./use-tooltip-position";
 
 interface Props {

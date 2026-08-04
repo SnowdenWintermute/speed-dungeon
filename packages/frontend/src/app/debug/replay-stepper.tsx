@@ -5,7 +5,7 @@ import {
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { HotkeyButton } from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { IconName, SVG_ICONS } from "../icons";
 
 export const ReplayStepper = observer(() => {

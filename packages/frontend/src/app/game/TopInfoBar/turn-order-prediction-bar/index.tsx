@@ -8,7 +8,7 @@ import React from "react";
 import { TurnOrderTrackerIcon } from "./TurnTrackerIcon";
 import { ConditionTurnTrackerAggregation } from "./ConditionTurnTrackerAggregation";
 import ClockIcon from "../../../../../public/img/game-ui-icons/clock-icon.svg";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { ActionEntityTurnOrderTrackerIcon } from "./ActionEntityTurnOrderIcon";
 import { observer } from "mobx-react-lite";
 

@@ -5,7 +5,7 @@ import {
   CharacterControlScheme,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 
 const CONTROL_SCHEME_OPTIONS = iterateNumericEnumKeyedRecord(CHARACTER_CONTROL_SCHEME_STRINGS).map(
   ([controlScheme, title]) => ({ title, value: controlScheme })

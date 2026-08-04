@@ -1,6 +1,6 @@
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
 import { UserPlaque } from "./UserPlaque";
-import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 

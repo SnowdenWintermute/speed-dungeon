@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { ClickOutsideHandlerWrapper } from "@/app/components/atoms/ClickOutsideHandlerWrapper";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import { ClickOutsideHandlerWrapper } from "@speed-dungeon/ui/atoms/ClickOutsideHandlerWrapper";
 import { ZIndexLayers } from "@/app/z-index-layers";
 
 interface Props {

@@ -1,4 +1,4 @@
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { GameId } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";

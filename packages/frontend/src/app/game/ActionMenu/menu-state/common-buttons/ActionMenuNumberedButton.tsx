@@ -1,4 +1,4 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { BUTTON_HEIGHT } from "@/client-consts";
 import { observer } from "mobx-react-lite";
 import React, { CSSProperties, PointerEventHandler, ReactNode } from "react";

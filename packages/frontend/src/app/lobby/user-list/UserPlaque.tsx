@@ -1,7 +1,7 @@
 import React from "react";
 import { UserAuthStatus, UserChannelDisplayData } from "@speed-dungeon/common";
 import { SPACING_REM_SMALL } from "@/client-consts";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

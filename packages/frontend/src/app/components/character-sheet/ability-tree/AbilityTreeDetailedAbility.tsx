@@ -1,4 +1,4 @@
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import {
   AbilityType,
   COMBATANT_TRAIT_DESCRIPTIONS,

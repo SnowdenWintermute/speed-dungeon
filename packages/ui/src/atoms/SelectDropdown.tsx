@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSuspendHotkeys, useUiLayers } from "./ui-context";
+import { useSuspendHotkeys, useUiLayers } from "../ui-context";
 
 function Triangle({ className }: { className: string }) {
   return (

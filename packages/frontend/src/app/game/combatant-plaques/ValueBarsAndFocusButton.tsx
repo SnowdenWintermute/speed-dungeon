@@ -1,4 +1,4 @@
-import ValueBar, { ValueBarColors } from "@/app/components/atoms/ValueBar";
+import ValueBar, { ValueBarColors } from "@speed-dungeon/ui/atoms/ValueBar";
 import { CombatantProperties } from "@speed-dungeon/common";
 import { CombatAttribute } from "@speed-dungeon/common";
 import React from "react";

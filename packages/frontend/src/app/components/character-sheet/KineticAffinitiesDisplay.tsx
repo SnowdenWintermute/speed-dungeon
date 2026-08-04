@@ -1,4 +1,4 @@
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { IconName, KINETIC_TYPE_ICONS, SVG_ICONS } from "@/app/icons";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import {

@@ -18,7 +18,7 @@ import { IconName, SVG_ICONS } from "@/app/icons";
 import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
 import { useCharacterSheetSubject } from "./character-sheet-subject-context";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 
 export const CharacterSheetWeaponDamage = observer(
   ({ combatant, disableOh }: { combatant: Combatant; disableOh?: boolean }) => {

@@ -1,7 +1,7 @@
 // @refresh reset
 "use client";
 import { useState } from "react";
-import Divider from "../components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 
 export default function WelcomeInfo() {
   const [showPatchNotes, setShowPatchNotes] = useState(false);

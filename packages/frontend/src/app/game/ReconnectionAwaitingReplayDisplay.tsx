@@ -1,6 +1,6 @@
 import React from "react";
-import Divider from "../components/atoms/Divider";
-import CountDownDisplay from "../components/atoms/CountDownDisplay";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
+import CountDownDisplay from "@speed-dungeon/ui/atoms/CountDownDisplay";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 

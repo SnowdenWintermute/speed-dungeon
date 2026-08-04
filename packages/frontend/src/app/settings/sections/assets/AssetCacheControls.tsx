@@ -2,7 +2,7 @@
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { ClientAppAssetService } from "@speed-dungeon/common";
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { ConfirmationModal } from "@/app/components/molocules/ConfirmationModal";
 
 interface Props {

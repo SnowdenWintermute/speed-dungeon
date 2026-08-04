@@ -2,7 +2,7 @@ import { NextOrPrevious } from "@speed-dungeon/common";
 import React from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const CycleFocusedCharacterButtons = observer(() => {

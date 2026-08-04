@@ -23,7 +23,7 @@ import { ResourceChangeDisplay } from "@/app/components/character-sheet/ability-
 import { IconName, PAYABLE_RESOURCE_ICONS, SVG_ICONS } from "@/app/icons";
 import { ConditionIndicator } from "../../combatant-plaques/condition-indicators";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { observer } from "mobx-react-lite";
 import { CombatantConditionFactory } from "@speed-dungeon/common";
 import { CharacterSheetWeaponDamage } from "@/app/components/character-sheet/CharacterSheetWeaponDamage";

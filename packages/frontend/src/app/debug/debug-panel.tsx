@@ -7,8 +7,8 @@ import { ModifierKey } from "@/client-application/ui/inputs";
 import DownloadDebugLogButton from "./download-debug-log-button";
 import ClearDebugLogButton from "./clear-debug-log-button";
 import { formatThousandsAsK, normalizeKeyValue } from "@speed-dungeon/common";
-import { HotkeyButton } from "../components/atoms/HotkeyButton";
-import { useHotkeysDisabled } from "../components/atoms/ui-context";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import { useHotkeysDisabled } from "@speed-dungeon/ui/ui-context";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 
 export const DebugPanel = observer(

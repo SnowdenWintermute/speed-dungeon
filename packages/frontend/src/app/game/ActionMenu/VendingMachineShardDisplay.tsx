@@ -1,5 +1,5 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import React from "react";
 import { ShardsDisplay } from "../character-sheet/ShardsDisplay";
 import { DropShardsModal } from "../character-sheet/DropShardsModal";

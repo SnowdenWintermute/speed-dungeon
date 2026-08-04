@@ -1,4 +1,4 @@
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import {
   ABILITY_TREES,
   COMBATANT_CLASS_NAME_STRINGS,
@@ -8,7 +8,7 @@ import cloneDeep from "lodash.clonedeep";
 import React from "react";
 import { AbilityTreeDetailedAbility } from "./AbilityTreeDetailedAbility";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { CharacterClassAbilityTree } from "./CharacterClassAbilityTree";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import { observer } from "mobx-react-lite";

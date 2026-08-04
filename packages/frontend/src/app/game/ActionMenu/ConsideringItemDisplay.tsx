@@ -1,8 +1,8 @@
 import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";
 import React from "react";
 import { Consumable, getItemSellPrice } from "@speed-dungeon/common";
-import Divider from "@/app/components/atoms/Divider";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";

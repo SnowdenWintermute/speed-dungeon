@@ -1,4 +1,4 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   AdventuringParty,
@@ -11,9 +11,9 @@ import {
 import { observer } from "mobx-react-lite";
 import { ReactNode, useEffect, useState } from "react";
 import { CreateCharacterForm } from "./CreateCharacterInPartyForm";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 
 export const EmptyCharacterSlot = observer(
   ({

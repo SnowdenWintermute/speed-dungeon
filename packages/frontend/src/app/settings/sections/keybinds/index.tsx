@@ -5,7 +5,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { DEFAULT_KEYBIND_CODES, HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { KEYBOARD_LAYOUT_STRINGS, KeyboardLayout } from "@/client-application/ui/keyboard-layouts";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { KeybindRow } from "./KeybindRow";
 import { KeybindCaptureMode, useKeybindCapture } from "./use-keybind-capture";
 import { LayoutChangeConfirmationModal } from "./LayoutChangeConfirmationModal";

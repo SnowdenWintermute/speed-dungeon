@@ -1,4 +1,4 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { GameClient } from "@/client-application/clients/game";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { getActionMenuSlotHotkeys } from "@/client-application/action-menu/slot-keybinds";

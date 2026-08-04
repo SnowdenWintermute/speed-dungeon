@@ -9,7 +9,7 @@ import {
 } from "@/client-consts";
 import { GamesSection } from "./games-section";
 import { UserList } from "./user-list/";
-import HoverableTooltipWrapper from "../components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import GithubLogo from "../../../public/github-logo.svg";
 import DiscordLogo from "../../../public/discord-logo.svg";
 import Link from "next/link";
@@ -18,7 +18,7 @@ import { useEffect } from "react";
 import { AuthFormContainer } from "./auth-forms";
 import { SavedCharacterManager } from "./saved-character-manager";
 import { ZIndexLayers } from "../z-index-layers";
-import { HotkeyButton } from "../components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";

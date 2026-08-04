@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClientApplication } from "./create-client-application";
 import { ClientApplicationContext } from "@/hooks/create-client-application-context";
 import { SHOULD_CLEAR_ASSET_CACHE_IN_DEV } from "@/client-consts";
-import LoadingScreen from "./components/atoms/LoadingScreen";
+import LoadingScreen from "@speed-dungeon/ui/atoms/LoadingScreen";
 
 export function ClientApplicationProvider({ children }: { children: React.ReactNode }) {
   const clientApplicationRef = useRef<ClientApplication | null>(null);

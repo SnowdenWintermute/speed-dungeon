@@ -1,5 +1,5 @@
 import React from "react";
-import ButtonBasic from "../components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { ClientIntentType, GameListEntry } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { HotkeyButton } from "../../components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
 import { ClientIntentType, Combatant } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";

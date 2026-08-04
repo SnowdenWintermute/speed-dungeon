@@ -11,13 +11,13 @@ import {
   MAX_PARTY_SIZE,
 } from "@speed-dungeon/common";
 import { ControlSchemeSelector } from "./ControlSchemeSelector";
-import ButtonBasic from "../../components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { SPACING_REM_LARGE, SPACING_REM_SMALL } from "@/client-consts";
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import useElementIsOverflowing from "@/hooks/use-element-is-overflowing";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { HostGameForm } from "./HostGameForm";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import RefreshIcon from "../../../../public/img/menu-icons/refresh.svg";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

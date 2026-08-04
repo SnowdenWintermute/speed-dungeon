@@ -1,7 +1,7 @@
 import React from "react";
 import { FocusEventHandler, MouseEventHandler, PointerEventHandler, useEffect, useRef } from "react";
 import { normalizeKeyValue } from "@speed-dungeon/common";
-import { useHotkeysDisabled } from "./ui-context";
+import { useHotkeysDisabled } from "../ui-context";
 
 interface Props {
   className?: string;

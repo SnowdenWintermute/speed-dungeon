@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { DEEPEST_FLOOR } from "@speed-dungeon/common";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 
 // floor zero is the town, so the shallowest floor anyone clears is one
 const FLOOR_OPTIONS = Array.from({ length: DEEPEST_FLOOR }, (_, index) => ({

@@ -22,7 +22,7 @@ import {
   cumulativeClearTimesBoardTitle,
   experiencePointsBoardTitle,
 } from "./board-text";
-import Divider from "../components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 
 // module level so each query object keeps its identity across renders — the fetching hook keys off it
 const FREELANCER_EXPERIENCE_POINTS_QUERY: ExperiencePointsLadderQuery = {

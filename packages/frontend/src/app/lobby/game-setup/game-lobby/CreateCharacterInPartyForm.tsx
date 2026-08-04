@@ -1,6 +1,6 @@
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
-import { SelectDropdown } from "@/app/components/atoms/SelectDropdown";
-import TextInput from "@/app/components/atoms/TextInput";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
+import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
+import TextInput from "@speed-dungeon/ui/atoms/TextInput";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import {
   ClientIntentType,

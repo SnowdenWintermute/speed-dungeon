@@ -1,6 +1,6 @@
 import React from "react";
 import { getItemSellPrice } from "@speed-dungeon/common";
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import ShardsIcon from "../../../../public/img/game-ui-icons/shards.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { ACTION_MENU_CENTRAL_SECTION_HEIGHT } from "@/client-consts";

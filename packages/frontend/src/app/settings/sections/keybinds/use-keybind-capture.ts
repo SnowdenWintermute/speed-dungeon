@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { normalizeKeyValue } from "@speed-dungeon/common";
-import { useSuspendHotkeys } from "@/app/components/atoms/ui-context";
+import { useSuspendHotkeys } from "@speed-dungeon/ui/ui-context";
 
 export enum KeybindCaptureMode {
   Assign,

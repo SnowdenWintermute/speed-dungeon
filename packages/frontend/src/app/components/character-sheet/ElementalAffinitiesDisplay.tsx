@@ -1,4 +1,4 @@
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { MAGICAL_ELEMENT_ICONS } from "@/app/icons";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
 import { iterateNumericEnum, MAGICAL_ELEMENT_STRINGS, MagicalElement } from "@speed-dungeon/common";

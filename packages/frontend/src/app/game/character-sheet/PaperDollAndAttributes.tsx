@@ -1,8 +1,8 @@
 import React from "react";
 import { PaperDoll } from "../../components/character-sheet/PaperDoll";
 import { InventoryCapacityDisplay } from "./InventoryCapacityDisplay";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { ShardsDisplay } from "./ShardsDisplay";
 import { DropShardsModal } from "./DropShardsModal";
 import { CharacterAttributes } from "../../components/character-sheet/CharacterAttributes";

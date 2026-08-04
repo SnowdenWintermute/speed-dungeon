@@ -5,7 +5,7 @@ import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import { PasswordResetEmailForm } from "@/app/lobby/auth-forms/password-reset-email-form";
 import { DeleteAccountForm } from "@/app/lobby/auth-forms/delete-account-form";
 import { ChangeUsernameForm } from "@/app/lobby/auth-forms/change-username-form";
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 
 export const AccountSection = observer(() => {

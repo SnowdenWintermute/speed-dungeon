@@ -1,7 +1,7 @@
 import React from "react";
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { UNMET_REQUIREMENT_TEXT_COLOR } from "@/client-consts";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
 import { Equipment, INFO_UNICODE_SYMBOL } from "@speed-dungeon/common";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

@@ -18,7 +18,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { COMBAT_ACTION_DESCRIPTIONS } from "@/app/components/character-sheet/ability-tree/ability-descriptions";
 import { ActionDescriptionComponent } from "@/app/components/character-sheet/ability-tree/action-description";
 import { ACTION_ICONS, TRAIT_ICONS } from "@/app/icons";
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 
 interface Props {
   ability: AbilityTreeAbility;

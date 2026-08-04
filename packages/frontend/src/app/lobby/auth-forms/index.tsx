@@ -1,13 +1,13 @@
-import ButtonBasic from "@/app/components/atoms/ButtonBasic";
+import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { SPACING_REM_LARGE } from "@/client-consts";
 import { BASE_SCREEN_SIZE, GOLDEN_RATIO } from "@speed-dungeon/common";
 import React, { useState } from "react";
 import { SignUpWithCredentialsForm } from "./sign-up-with-credentials-form";
 import { LoginWithCredentialsForm } from "./login-with-credentials-form";
 import { PasswordResetEmailForm } from "./password-reset-email-form";
-import LoadingSpinner from "@/app/components/atoms/LoadingSpinner";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

@@ -5,10 +5,10 @@ import {
   GameName,
 } from "@speed-dungeon/common";
 import React, { FormEvent, useEffect, useState } from "react";
-import TextInput from "@/app/components/atoms/TextInput";
-import HoverableTooltipWrapper from "@/app/components/atoms/HoverableTooltipWrapper";
-import Divider from "@/app/components/atoms/Divider";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import TextInput from "@speed-dungeon/ui/atoms/TextInput";
+import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { IronmanRunSelector } from "./IronmanRunSelector";
 import { observer } from "mobx-react-lite";

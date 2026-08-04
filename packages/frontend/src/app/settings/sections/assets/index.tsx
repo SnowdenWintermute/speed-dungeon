@@ -2,7 +2,7 @@
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { AssetFetchStatus } from "./AssetFetchStatus";
 import { AssetFetchList } from "./AssetFetchList";
 import { AssetCacheControls } from "./AssetCacheControls";

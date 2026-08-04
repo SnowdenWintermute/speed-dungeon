@@ -8,7 +8,7 @@ import {
 import React from "react";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
 import { GameLobbyFrame } from "./GameLobbyFrame";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { PartySetupCard } from "./AdventuringPartySetupCard";
 import { StartingFloorSelect } from "./StartingFloorSelect";
 import { observer } from "mobx-react-lite";

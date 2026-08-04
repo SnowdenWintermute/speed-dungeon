@@ -1,7 +1,7 @@
+import TextInput from "@speed-dungeon/ui/atoms/TextInput";
 import React from "react";
-import TextInput from "../atoms/TextInput";
 
-type Props = {
+interface Props {
   name: string;
   type: string;
   label: string;
@@ -14,7 +14,7 @@ type Props = {
   error?: string;
   extraStyles?: string;
   dataCy?: string;
-};
+}
 
 function LabeledTextInputWithErrorDisplay({
   name,

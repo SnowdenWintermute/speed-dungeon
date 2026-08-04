@@ -1,8 +1,8 @@
-import Divider from "@/app/components/atoms/Divider";
+import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { AdventuringParty } from "@speed-dungeon/common";
 import React from "react";
 import { ItemOnGround } from "./ItemOnGround";
-import { HotkeyButton } from "@/app/components/atoms/HotkeyButton";
+import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DropTargetType } from "@/client-application/item-drag/types";
