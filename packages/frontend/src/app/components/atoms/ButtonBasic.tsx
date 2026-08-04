@@ -41,7 +41,7 @@ export default function ButtonBasic(props: Props) {
       buttonType={props.buttonType || "button"}
       disabled={props.disabled || false}
       className={`
-      border border-slate-400 h-10 cursor-pointer pr-4 pl-4 
+      border border-theme-muted h-10 cursor-pointer pr-4 pl-4
       flex justify-center items-center disabled:opacity-50
       pointer-events-auto
       disabled:cursor-auto ${props.extraStyles}

@@ -62,3 +62,19 @@ Average attack action damage per room
 - expected combatant level
 - show table of available weapons by room, their weights (how likely to have one by that time)
   their attack action damage range by likely attribute allocations (low std dev, avg, high std dev)
+
+What determines attack action damage vs a target with average evasion
+
+- combatant level
+    - derived from expected experience points
+- equipped weapons
+    - derived from average availability of every weapon
+      by the time that room was reached
+    - consider possibility of +damage affixes?
+- attributes from equipment
+    - derived from average availability of equipment and average rolls on average affixes
+    - consider discretionary equiping of preferred affixes
+- allocated attributes
+    - derive from expected combatant level
+    - consider point distribution
+- inherent attributes

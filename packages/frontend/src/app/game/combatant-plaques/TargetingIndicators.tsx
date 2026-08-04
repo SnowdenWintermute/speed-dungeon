@@ -35,13 +35,14 @@ interface TargetingIndicatorProps {
 }
 
 function TargetingIndicator({ combatActionName }: TargetingIndicatorProps) {
-  let color = "yellow-700";
+  let color = "border-t-yellow-700";
   const action = COMBAT_ACTIONS[combatActionName];
-  if (action.targetingProperties.intent === CombatActionIntent.Benevolent) color = "green-600";
+  if (action.targetingProperties.intent === CombatActionIntent.Benevolent)
+    color = "border-green-600";
 
   return (
     <div
-      className={`w-0 h-0 border-t-[1.5rem] border-t-${color}
+      className={`w-0 h-0 border-t-[1.5rem] ${color}
       border-r-[1.5rem] border-r-transparent border-l-[1.5rem] 
       border-l-transparent`}
     />

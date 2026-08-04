@@ -134,13 +134,13 @@ export function SelectDropdown(props: Props) {
           type="button"
           key={option.value}
           id={`select-${props.title}-selected-option`}
-          className={`h-full w-full flex justify-between items-center pl-2 bg-slate-700 
-          border ${isOpen && "border-b-transparent"} border-slate-400 ${isFocused && "bg-slate-950"} ${props.disabled && "opacity-50"}`}
+          className={`h-full w-full flex justify-between items-center pl-2 bg-theme-base
+          border ${isOpen && "border-b-transparent"} border-theme-muted ${isFocused && "bg-theme-recessed"} ${props.disabled && "opacity-50"}`}
         >
           <span>{option.title}</span>
           <div className="h-full pt-3 pb-3 pointer-events-none">
             <Triangle
-              className={`h-full w-10 fill-slate-400 transition-transform ${isOpen && "rotate-180"}`}
+              className={`h-full w-10 fill-theme-muted transition-transform ${isOpen && "rotate-180"}`}
             />
           </div>
         </button>
@@ -157,8 +157,8 @@ export function SelectDropdown(props: Props) {
             setIsOpen(false);
             selectOptionAtIndex(i);
           }}
-          className={`pointer-events-auto h-10 text-left pl-2 w-full bg-slate-700 
-          border-slate-400 border-b ${value === option.value && "bg-slate-950"}
+          className={`pointer-events-auto h-10 text-left pl-2 w-full bg-theme-base
+          border-theme-muted border-b ${value === option.value && "bg-theme-recessed"}
           `}
         >
           <span className={`${option.disabled && "opacity-50"}`}>{option.title}</span>
@@ -177,7 +177,7 @@ export function SelectDropdown(props: Props) {
       {isOpen && (
         <ul
           style={{ zIndex: dropdownLayer }}
-          className={`absolute w-full border border-b-0 border-slate-400 
+          className={`absolute w-full border border-b-0 border-theme-muted
        ${props.disabled && "opacity-50"}
        `}
         >

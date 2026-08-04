@@ -10,16 +10,19 @@ import type { CombatantAttributeRecord } from "./attribute-table-dependencies.js
 
 export const BASE_STARTING_ATTRIBUTES: Record<CombatantClass, CombatantAttributeRecord> = {
   [CombatantClass.Warrior]: {
+    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 80,
     [CombatAttribute.Hp]: 20,
     [CombatAttribute.Mp]: 2,
   },
   [CombatantClass.Rogue]: {
+    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 90,
     [CombatAttribute.Hp]: 18,
     [CombatAttribute.Mp]: 3,
   },
   [CombatantClass.Mage]: {
+    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 78,
     [CombatAttribute.Hp]: 15,
     [CombatAttribute.Mp]: 4,

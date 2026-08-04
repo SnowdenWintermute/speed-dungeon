@@ -54,7 +54,7 @@ export default function HoverableTooltipWrapper(props: Props) {
           >
             <div
               ref={tooltipRef}
-              className="border border-slate-400 bg-slate-950 text-zinc-300 p-2 -translate-x-1/2 -translate-y-[100%] max-w-96"
+              className="border border-theme-muted bg-theme-recessed text-theme-emphasis p-2 -translate-x-1/2 -translate-y-[100%] max-w-96"
             >
               {content}
             </div>
