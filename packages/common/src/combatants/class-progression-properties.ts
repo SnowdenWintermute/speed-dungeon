@@ -137,7 +137,7 @@ export class ClassProgressionProperties
     if (this.supportClass !== null) {
       this.supportClass.level += value;
     } else {
-      this.supportClass = new CombatantClassProperties(combatantClass, value);
+      this.supportClass = new CombatantClassProperties(value, combatantClass);
     }
   }
 

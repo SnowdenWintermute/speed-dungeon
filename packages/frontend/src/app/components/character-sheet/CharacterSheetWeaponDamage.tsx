@@ -8,7 +8,6 @@ import {
   CombatActionResource,
   HitOutcomeMitigationCalculator,
   SpeedDungeonGame,
-  invariant,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -48,8 +47,7 @@ export const CharacterSheetWeaponDamage = observer(
     let ohDamageAndAccuracyResult;
     if (
       !isTwoHanded &&
-      ohEquipmentOption?.equipmentBaseItemProperties.equipmentType !==
-        EquipmentType.Shield
+      ohEquipmentOption?.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield
     ) {
       let ohWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.OffHand);
       if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield

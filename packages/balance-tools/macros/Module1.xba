@@ -3,4 +3,38 @@
 <script:module xmlns:script="http://openoffice.org/2000/script" script:name="Module1" script:language="StarBasic">Function DamageAfterAC(damageBefore As Double, finalAc As Double, armorModifier As Double) As Double
     DamageAfterAC = Int(damageBefore * (armorModifier * damageBefore) / (finalAc + armorModifier * damageBefore))
 End Function
+
+' mirrors getAttackResourceChangeProperties - feed it minDmg for a min column, maxDmg for a max one
+Function AttackDamage(weaponDamage As Double, combatantLevel As Double, scalingAttributeValue As Double, combatantLevelModifier As Double, Optional nonWeaponFlatDamageBonus, Optional weaponFlatDamageAffix, Optional weaponPercentDamageAffix) As Double
+    Dim nonWeaponFlat As Double
+    Dim affixFlat As Double
+    Dim affixPercent As Double
+
+    If Not IsMissing(nonWeaponFlatDamageBonus) Then
+        nonWeaponFlat = nonWeaponFlatDamageBonus
+    End If
+    If Not IsMissing(weaponFlatDamageAffix) Then
+        affixFlat = weaponFlatDamageAffix
+    End If
+    If Not IsMissing(weaponPercentDamageAffix) Then
+        affixPercent = weaponPercentDamageAffix
+    End If
+
+    Dim total As Double
+    total = 1 + (combatantLevel - 1)
+    total = total + (scalingAttributeValue * combatantLevel) / combatantLevelModifier
+    total = total + ModifiedWeaponDamage(weaponDamage, affixFlat, affixPercent)
+    total = total + nonWeaponFlat
+
+    total = Int(total)
+    If total > 1 Then
+        AttackDamage = total
+    Else
+        AttackDamage = 1
+    End If
+End Function
+
+Function ModifiedWeaponDamage(weaponDamage As Double, flatDamageAffix As Double, percentDamageAffix As Double) As Double
+    ModifiedWeaponDamage = Int((weaponDamage + flatDamageAffix) * (1 + percentDamageAffix / 100))
+End Function
 </script:module>

@@ -53,6 +53,7 @@ import {
 import format from "pg-format";
 import cloneDeep from "lodash.clonedeep";
 import { SeedCharacterLoadout } from "./seed-character-loadout.ts";
+import { SeedAttributeAllocation } from "./seed-attribute-allocation.ts";
 
 // must match snowauth/dev-accounts/fake-usernames.txt — that script creates the accounts, this one
 // resolves them by name, since deleting and recreating them issues new ids
@@ -107,6 +108,7 @@ const characterLoadout = new SeedCharacterLoadout(
   new LootGenerator(itemBuilder, idGenerator, rngPolicy),
   new MonsterGenerator(idGenerator, itemBuilder, rng)
 );
+const attributeAllocation = new SeedAttributeAllocation();
 
 async function main() {
   // importing the server's database config loads its .env, so this reads what the server would
@@ -263,6 +265,8 @@ function buildCharacter(
 
   // after the level is set, so generated gear is rolled at the level the character actually is
   characterLoadout.outfit(combatant, characterIndex);
+  // after the gear, so the points can be spent on meeting its requirements
+  attributeAllocation.allocate(combatant);
 
   return combatant;
 }
