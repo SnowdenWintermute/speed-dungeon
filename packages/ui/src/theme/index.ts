@@ -26,3 +26,12 @@ export function themeCssVariables(theme: ThemeName): CSSProperties {
     THEME_TOKEN_NAMES.map((token) => [themeCssVariableName(token), palette[token]])
   ) as CSSProperties;
 }
+
+// for apps that render their root element rather than emitting it, so there is no server-rendered
+// style attribute to put the variables in
+export function applyTheme(element: HTMLElement, theme: ThemeName) {
+  const palette = THEMES[theme];
+  for (const token of THEME_TOKEN_NAMES) {
+    element.style.setProperty(themeCssVariableName(token), palette[token]);
+  }
+}

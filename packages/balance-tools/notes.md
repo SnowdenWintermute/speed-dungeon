@@ -67,14 +67,16 @@ What determines attack action damage vs a target with average evasion
 
 - combatant level
     - derived from expected experience points
+- inherent attributes
+    - derived from expected combatant level
+- allocated attributes
+    - derive from expected combatant level
+    - consider point distribution
 - equipped weapons
     - derived from average availability of every weapon
       by the time that room was reached
+    - include dual-wield
     - consider possibility of +damage affixes?
 - attributes from equipment
     - derived from average availability of equipment and average rolls on average affixes
     - consider discretionary equiping of preferred affixes
-- allocated attributes
-    - derive from expected combatant level
-    - consider point distribution
-- inherent attributes
