@@ -1,4 +1,4 @@
-import { GameId, Meters, Milliseconds, NormalizedPercentage } from "./aliases.js";
+import { GameId, Meters, Milliseconds, NormalizedPercentage, Percentage } from "./aliases.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 50000;
 
@@ -105,7 +105,7 @@ export const BASE_CRIT_CHANCE = 0.05;
 export const MAX_CRIT_CHANCE = 0.95;
 export const BASE_CRIT_MULTIPLIER = 1.5;
 export const MULTI_TARGET_RESOURCE_CHANGE_BONUS = 0.15;
-export const MIN_HIT_CHANCE = 0.5;
+export const MIN_HIT_CHANCE: Percentage = 5;
 export const COMBATANT_LEVEL_ACTION_VALUE_LEVEL_MODIFIER = 20;
 export const ARMOR_CLASS_EQUATION_MODIFIER = 2.5;
 

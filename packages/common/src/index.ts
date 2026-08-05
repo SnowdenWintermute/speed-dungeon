@@ -61,6 +61,7 @@ export * from "./adventuring-party/index.js";
 
 export * from "./combatants/experience-points/apply-experience-point-changes.js";
 export * from "./combatants/experience-points/calculate-total-experience.js";
+export * from "./servers/game-server/controllers/battle-processor/generate-experience-points.js";
 
 export * from "./combatants/owned-actions/combatant-action-state.js";
 

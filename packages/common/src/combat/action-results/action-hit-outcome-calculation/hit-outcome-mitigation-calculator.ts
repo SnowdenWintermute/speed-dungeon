@@ -16,19 +16,9 @@ import { CombatActionRequiredRange } from "../../combat-actions/combat-action-ra
 import { rollNormalized } from "../../../utils/rand-between.js";
 import { CombatActionIntent } from "../../combat-actions/combat-action-intent.js";
 import {
-  SHIELD_SIZE_BLOCK_RATE,
-  SHIELD_SIZE_DAMAGE_REDUCTION,
-} from "../../../items/equipment/equipment-properties/shield-properties.js";
-import {
   RandomNumberGenerationPolicy,
   rollIsSuccess,
 } from "../../../utility-classes/random-number-generation-policy.js";
-import {
-  COUNTERATTACK_TRAIT_CHANCE_BY_RANK,
-  PARRY_TRAIT_CHANCE_BY_RANK,
-} from "../../../combatants/combatant-traits/index.js";
-
-const BASE_PARRY_CHANCE: NormalizedPercentage = 0.05;
 
 export class HitOutcomeMitigationCalculator {
   constructor(

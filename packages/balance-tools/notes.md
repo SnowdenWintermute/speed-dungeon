@@ -29,7 +29,7 @@ How do we determine fair attribute requirements for gear:
 
 How do we balance weapon damage?
 
-- Monte-carlo sampling of weapon availability by room/floor
+- Monte carlo sampling of weapon availability by room/floor
     - on average, how many of each weapon will drop by the end of each floor
     - on average, how many of each weapon will drop by the end of each room
     - average damage across available weapons by room/floor
@@ -80,3 +80,29 @@ What determines attack action damage vs a target with average evasion
 - attributes from equipment
     - derived from average availability of equipment and average rolls on average affixes
     - consider discretionary equiping of preferred affixes
+
+Best equipment solver
+
+- checks what equipment combinations from drops-so-far best meet current goal (slider from dps to survivability)
+- allocates attributes to meet requirements for desired equipment
+- knows the average speed of monsters on the floor
+- allocates/equips to stay within a threshold of speed
+    - going from below to above the avg enemy speed of the floor is highly rewarded
+    - dropping below 1/2 the avg enemy speed of the floor is undesireable
+- accounts for broken equipment
+
+Equipment-solver only data views
+
+    - chance of each equipment type being available by room - chance of each equipment type being chosen to be equipped by room
+
+Attacks-only simulated battles by floor
+
+- create player party
+- have them fight a room with target priority as
+    - use autoinjector on ally with below 30% hp
+    - attack something you have a >50% chance to last hit
+    - attack the target you could deal the most expected damage to
+    - attack the target with lowest hp
+- after battle
+    - use autoinjectors on any <50% hp allies
+    - run equipment solver over the dropped loot for each character
