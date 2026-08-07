@@ -1,0 +1,207 @@
+Desired visualization tables (per class, selectable with dropdown)
+
+Table 1
+
+- Inherent attributes by level with sliders for
+    - percent allocation of discretionary points (slider for each attribute, all zero allowed but total capped at 100%)
+    - percent allocation of hypothetical gear of affixes at that item level
+        - a level 5 character would have access to level 5 items in this example
+        - sub-slider for min-max rolls accross all gear slots
+
+- Min/max damage by equipped item
+    - rows are the item
+    - columns are the character level
+    - value are the min/max damage of attack mainhand and attack offhand
+    - values linked to the selected slider positions on table 1
+
+- dps vs selected monster (select input for monster type)
+    - rows are weapon
+    - columns are character level
+    - values are average damage on target per turn by percent of target's hp
+    - damage/accuracy values linked to the selected slider positions on table 1
+
+How do we determine fair attribute requirements for gear:
+
+- average total attributes per room cleared
+    - include avg attributes from avg gear dropped divided by party size
+    - include discretionary attributes from levelups
+    - include inherent attributes from expected levelups
+
+How do we balance weapon damage?
+
+- Monte carlo sampling of weapon availability by room/floor
+    - on average, how many of each weapon will drop by the end of each floor
+    - on average, how many of each weapon will drop by the end of each room
+    - average damage across available weapons by room/floor
+
+What affects turns-to-kill in an attack-only battle?
+
+- character equipment
+- character attributes
+- monster equipment
+- monster attributes
+
+worries/complexities
+
+- some monsters are hard to kill because of a certain attribute like high evasion or armor class
+  or magic resistence,
+  and visualizing that would require the dev sliding the character's allocation toward more dex
+  or int
+- will need a similar chart as weapons for the various spells for damage tuning
+    - feed action list into the min/max damage table
+- gear-score calculator based on drop chance of items and average chance of equipment affixes / rolls
+- average shards per-level obtained
+
+Start with attack-only balancing
+
+Average attack action damage per room
+
+- average available equipment
+- average damage range of available equipment (a hypothetical average equipment)
+- average available attributes (gear+inherent+discretionary)
+- expected combatant level
+- show table of available weapons by room, their weights (how likely to have one by that time)
+  their attack action damage range by likely attribute allocations (low std dev, avg, high std dev)
+
+What determines attack action damage vs a target with average evasion
+
+- combatant level
+    - derived from expected experience points
+- inherent attributes
+    - derived from expected combatant level
+- allocated attributes
+    - derive from expected combatant level
+    - consider point distribution
+- equipped weapons
+    - derived from average availability of every weapon
+      by the time that room was reached
+    - include dual-wield
+    - consider possibility of +damage affixes?
+- attributes from equipment
+    - derived from average availability of equipment and average rolls on average affixes
+    - consider discretionary equiping of preferred affixes
+
+Best equipment solver
+
+- checks what equipment combinations from drops-so-far best meet current goal (slider from dps to survivability)
+- allocates attributes to meet requirements for desired equipment
+- knows the average speed of monsters on the floor
+- allocates/equips to stay within a threshold of speed
+    - going from below to above the avg enemy speed of the floor is highly rewarded
+    - dropping below 1/2 the avg enemy speed of the floor is undesireable
+- accounts for broken equipment
+
+Equipment-solver only data views
+
+    - chance of each equipment type being available by room - chance of each equipment type being chosen to be equipped by room
+
+Attacks-only simulated battles by floor
+
+- create player party
+- have them fight a room with target priority as
+    - use autoinjector on ally with below 30% hp
+    - attack something you have a >50% chance to last hit
+    - attack the target you could deal the most expected damage to
+    - attack the target with lowest hp
+- after battle
+    - use autoinjectors on any <50% hp allies
+    - run equipment solver over the dropped loot for each character
+
+Party best-equipment solver, ran after each loot acquisition event
+    - drop all items on the ground
+    - find the best hand-held (mainhand/offhand) pair/item (if 2h) by goal
+      - dps -> highest dps pair
+      - mitigation -> best effective hp pair
+    - determine if that set can be equipped
+      - search the list for any items that give attributes allowing it to be equipped
+    - if equippable, record the potential dps/effective hp score
+    - if not, check next hand-held set permutation
+    - after best option evaluated, check best option for the other two characters
+    - select character that the set would best help
+    - equip those items to the character
+    - run the function again until all characters are wearing their best-available hand-held sets and supporting items
+    - run a similar evaluation over remaining non-hand-held items
+    - store all remaining items in character inventories
+    - convert leftovers to shards using the rogue's ability
+
+
+How much Effective Hit Points (EHP) is each defensive stat worth
+as a player character against the average monster enemy
+  - hp (1:1)
+  - evasion (linear, with breakpoint based on average accuracy of attackers)
+    - if attackers have infinite or very high accuracy, it is meaningless
+    - minimum hit chance means evasion past a certain point is meaningless
+  - ac (some non-linear formula, based on average *sampled* attack damage of attackers)
+    - sampled because of the non-linear nature of armor mitigation (large hits mitigated less)
+    - shield AC affects shield block properties
+  - shield block (should be simple - based on block chance and block reduction)
+
+What is the average dps-optimized build's turns-to-kill an average target monster
+  - avg target represented by various specialized target dummies
+    - flat hp
+    - high ac
+    - high evasion
+    - all-rounder
+    - shield wearer
+  - character builds sampled from the actual Monte-Carlo sampled loot-solved iterations
+
+What is the average monster's turns-to-kill the average dps-optimized character build
+  - avg monster represented by various specialized training dummies
+    - two-hander
+    - dual weild
+    - projectile
+
+Allocations = all choices a player has for attributes including gear and discretionary points
+
+Desired outcomes for a party of characters with access to average gear (runs simulated within 1 std deviation)
+- turns-to-kill a character that maximized offense: 3.5 
+  - 0.5 = average damage of a dual-wield type monster of their level's main+offhand attacks
+- turns-to-kill a character that maximized defense vs average of all damage types: 9
+- turns-to-kill a character that maximized defense vs phys or magic: 12
+- turns-to-kill a character that has balanced average defenses and offenses: ~5
+- turns-to-kill a monster as a character that has maximized offense: 1.5
+- turns-to-kill a monster as a character that has maximized defense: 3.5
+- average hit chance for a player putting 1/5th of their allocations toward accuracy: 90%
+- average hit chance for a monster targeting a player that has 1/5th of their allocations in evasion: 90%
+
+Desired visualizations
+- average available gear pool by room
+- dps maximized gear solver results by room
+  - need training dummies 
+    - flat hp
+    - high ac
+    - high evasion
+    - all-rounder
+    - shield wearer
+- physical defense maximized gear solver results by room
+  - need training dummies
+    - two-hander
+    - dual weild
+- magic defense maximized gear solver results by room
+  - need training dummies
+    - direct damage spell caster
+    - projectile spell caster (evadable spell like frost bolt)
+- overall defense maximized gear solver results by room
+  - against pool of all training dummies
+
+Unknowns to determine
+  - How should weapon damage ranges be adjusted to meet desired outcomes
+  - How should armor class ranges be adjusted to meet desired outcomes
+  - What attributes are characters likely to have room-by-room
+    - and therefore what are reasonable attribute requirements for each equipment
+  - How should derrived attributes be adjusted such as agility to evasion, dex to accuracy
+  Hypothetical ranges and limits of power
+    - How much stronger are parties with gear access in the high end 2nd and 3rd standard deviations
+    - How much weaker are parties with gear access in the low end 2nd and 3rd standard deviations
+    - How strong are parties with hypothetically perfect gear
+
+
+We know we want a certain hit chance for players vs average monsters
+say 90%.
+  - We'll start by determining the available accuracy each character has access to
+  room by room from aggregated runs, checking available loot after each room.
+  - From that, we can say we want characters to need to spend about 1/6th
+    of their discretionary attributes (gear+allocateable points) on accuracy
+    to keep their 90% hit chance against average monsters
+  - Then we will know how much evasion to give the average monster
+

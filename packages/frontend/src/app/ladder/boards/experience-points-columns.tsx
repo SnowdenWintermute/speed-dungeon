@@ -1,11 +1,11 @@
 import React from "react";
 import { ExperiencePointsLadderViewEntry } from "@speed-dungeon/common";
-import { LadderTableColumn } from "../ladder-table/column";
+import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { playerProfileRoute, progressionCharacterRoute } from "../routes";
 import { classProgressText, supportClassText } from "../class-progress-text";
 
-export const EXPERIENCE_POINTS_LADDER_COLUMNS: LadderTableColumn<ExperiencePointsLadderViewEntry>[] =
+export const EXPERIENCE_POINTS_LADDER_COLUMNS: DataTableColumn<ExperiencePointsLadderViewEntry>[] =
   [
     { header: "Rank", widthPercentOption: 8, renderCell: (entry) => entry.rank },
     {

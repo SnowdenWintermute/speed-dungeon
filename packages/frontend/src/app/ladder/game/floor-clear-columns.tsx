@@ -6,7 +6,7 @@ import {
   invariant,
 } from "@speed-dungeon/common";
 import { formatTimestamp } from "@/utils/format-timestamp";
-import { LadderTableCellLayout, LadderTableColumn } from "../ladder-table/column";
+import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { characterSnapshotRoute, floorClearRoute } from "../routes";
 
@@ -14,7 +14,7 @@ import { characterSnapshotRoute, floorClearRoute } from "../routes";
 // the party's character names because a snapshot link names a character id and a reader wants a name
 export function gameRecordFloorClearColumns(
   characterNamesById: Map<CombatantId, string>
-): LadderTableColumn<GameRecordFloorClearView>[] {
+): DataTableColumn<GameRecordFloorClearView>[] {
   return [
     { header: "Floor", widthPercentOption: 10, renderCell: (clear) => clear.floor },
     {
@@ -36,7 +36,7 @@ export function gameRecordFloorClearColumns(
     { header: "Cleared At", renderCell: (clear) => formatTimestamp(clear.clearedAt) },
     {
       header: "Snapshots",
-      cellLayoutOption: LadderTableCellLayout.Stacked,
+      cellLayoutOption: DataTableCellLayout.Stacked,
       // flex-col as in PlayerLinks: it stretches each anchor to the cell width, which is what gives
       // it a box to truncate
       renderCell: (clear) => (

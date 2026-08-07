@@ -120,11 +120,12 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     // don't allow reading a book if their support class is already half the level of their main class
     const mainClassLevel = user.getLevel();
     const supportClassAtMaxLevel = supportClassLevel >= Math.floor(mainClassLevel / 2);
-    if (supportClassAtMaxLevel)
+    if (supportClassAtMaxLevel) {
       return {
         meetsRequirements: false,
         reasonDoesNot: "Support class level can be a maximum of one half your main class level",
       };
+    }
 
     return { meetsRequirements: true };
   },

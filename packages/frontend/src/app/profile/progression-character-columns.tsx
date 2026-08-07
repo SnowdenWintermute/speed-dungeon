@@ -1,6 +1,6 @@
 import React from "react";
 import { EntityId, ProgressionCharacterSummaryView } from "@speed-dungeon/common";
-import { LadderTableColumn } from "../ladder/ladder-table/column";
+import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder/ladder-table/LadderTableCellLink";
 import { classProgressText, supportClassText } from "../ladder/class-progress-text";
 import { NO_VALUE_TEXT } from "../ladder/display-text";
@@ -11,7 +11,7 @@ import { progressionCharacterRoute } from "../ladder/routes";
 // rather than a number, which is the honest answer for a character that has left it
 export function progressionCharacterColumns(
   ranksByCharacterId: Record<EntityId, number>
-): LadderTableColumn<ProgressionCharacterSummaryView>[] {
+): DataTableColumn<ProgressionCharacterSummaryView>[] {
   return [
     {
       header: "Rank",

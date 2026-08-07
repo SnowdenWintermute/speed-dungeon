@@ -5,7 +5,7 @@ import {
   GameRecordView,
 } from "@speed-dungeon/common";
 import { formatTimestamp } from "@/utils/format-timestamp";
-import { LadderTable } from "../ladder-table";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { RecordFactList } from "../detail-page/RecordFactList";
 import {
   GAME_RECORD_PARTICIPANT_COLUMNS,
@@ -28,7 +28,7 @@ export function GameRecordDetails({ gameRecord }: { gameRecord: GameRecordView }
         ]}
       />
       <h2 className="text-xl mb-2">Players</h2>
-      <LadderTable
+      <DataTable
         columns={GAME_RECORD_PARTICIPANT_COLUMNS}
         entries={gameRecord.participants}
         keyOf={gameRecordParticipantKey}

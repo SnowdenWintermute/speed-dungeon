@@ -202,6 +202,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.DungeonRoomTypesOnCurrentFloor]: {
     roomTypes: (DungeonRoomType | null)[];
+    isDescending: boolean;
   };
   [GameStateUpdateType.DungeonRoomUpdate]: {
     dungeonRoom: DungeonRoom;

@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { LadderCharacterView, Username } from "@speed-dungeon/common";
-import { LadderTableColumn } from "../ladder-table/column";
+import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { playerProfileRoute } from "../routes";
 import { classProgressText, supportClassText } from "../class-progress-text";
@@ -12,7 +12,7 @@ import { classProgressText, supportClassText } from "../class-progress-text";
 // cell and everything else is stated once
 export function ladderCharacterColumns<TCharacter extends LadderCharacterView<Username>>(
   renderNameCell: (character: TCharacter) => ReactNode
-): LadderTableColumn<TCharacter>[] {
+): DataTableColumn<TCharacter>[] {
   return [
     { header: "Character", renderCell: renderNameCell },
     { header: "Main Class", renderCell: (character) => classProgressText(character.mainClass) },

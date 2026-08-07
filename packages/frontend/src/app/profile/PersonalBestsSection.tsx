@@ -6,7 +6,7 @@ import { useScrollIntoView } from "@/hooks/use-scroll-into-view";
 import { BoardControl } from "../ladder/board-page/BoardControl";
 import { ControlSchemeSelector } from "../ladder/board-page/ControlSchemeSelector";
 import { GameModeSelector } from "../ladder/board-page/GameModeSelector";
-import { LadderTable } from "../ladder/ladder-table";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { ProfileUrlState } from "../ladder/query-schemas";
 import { playerProfileStateRoute } from "../ladder/routes";
 import { PERSONAL_BEST_COLUMNS, personalBestKey } from "./personal-best-columns";
@@ -62,7 +62,7 @@ export function PersonalBestsSection({
 
       <h3 className="mb-2">Best Times On Floor</h3>
       <div className="mb-10">
-        <LadderTable
+        <DataTable
           columns={PERSONAL_BEST_COLUMNS}
           entries={inSelectedFacet(profile.personalBestFloorTimes)}
           keyOf={personalBestKey}
@@ -70,7 +70,7 @@ export function PersonalBestsSection({
         />
       </div>
       <h3 className="mb-2">Best Cumulative Times To Clear Floor</h3>
-      <LadderTable
+      <DataTable
         columns={PERSONAL_BEST_COLUMNS}
         entries={inSelectedFacet(profile.personalBestCumulativeTimes)}
         keyOf={personalBestKey}

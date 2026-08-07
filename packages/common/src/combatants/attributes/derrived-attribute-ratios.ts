@@ -10,7 +10,7 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
     [CombatAttribute.Mp]: 1,
   },
   [CombatAttribute.Agility]: {
-    [CombatAttribute.Evasion]: 2,
+    [CombatAttribute.Evasion]: 1,
     [CombatAttribute.Speed]: 1,
   },
   [CombatAttribute.Vitality]: {

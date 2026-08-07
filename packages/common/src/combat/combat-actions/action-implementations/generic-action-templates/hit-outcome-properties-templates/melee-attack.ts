@@ -27,7 +27,7 @@ export const MELEE_ATTACK_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomeProperti
     return getStandardActionCritMultiplier(user, CombatAttribute.Strength);
   },
   getArmorPenetration: function (user: IActionUser): number {
-    return getStandardActionArmorPenetration(user, CombatAttribute.Strength);
+    return getStandardActionArmorPenetration(user);
   },
 
   resourceChangePropertiesGetters: {

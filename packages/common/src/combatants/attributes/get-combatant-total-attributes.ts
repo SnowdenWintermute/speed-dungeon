@@ -1,7 +1,5 @@
-import { STR_TO_MELEE_ARMOR_PEN_RATIO } from "../../app-consts.js";
 import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
@@ -14,7 +12,6 @@ import {
 } from "./attribute-tables.generated.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
-import { HoldableSlotType } from "../../items/equipment/slots.js";
 
 export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
@@ -72,7 +69,7 @@ export function getCombatantTotalAttributes(
     addAttributesToAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {
       for (const affix of Object.values(category)) {
-        addAttributesToAccumulator(affix.combatAttributes, totalAttributes);
+        addAttributesToAccumulator(affixAttributesOtherThanArmorClass(affix), totalAttributes);
       }
     }
     const modifiedArmorClass = item.getModifiedArmorClass();
@@ -92,13 +89,12 @@ export function getCombatantTotalAttributes(
     removeAttributesFromAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {
       for (const affix of Object.values(category)) {
-        removeAttributesFromAccumulator(affix.combatAttributes, totalAttributes);
+        removeAttributesFromAccumulator(affixAttributesOtherThanArmorClass(affix), totalAttributes);
       }
     }
-    const baseArmorClass = item.getBaseArmorClass();
     if (totalAttributes[CombatAttribute.ArmorClass]) {
       totalAttributes[CombatAttribute.ArmorClass] = Math.max(
-        totalAttributes[CombatAttribute.ArmorClass] - baseArmorClass,
+        totalAttributes[CombatAttribute.ArmorClass] - item.getModifiedArmorClass(),
         0
       );
     }
@@ -120,33 +116,12 @@ export function getCombatantTotalAttributes(
     }
   }
 
-  const derivedArmorPen = getArmorPenDerivedBonus(combatantProperties, totalAttributes);
-  if (!totalAttributes[CombatAttribute.ArmorPenetration])
-    totalAttributes[CombatAttribute.ArmorPenetration] = 0;
-  totalAttributes[CombatAttribute.ArmorPenetration] += derivedArmorPen;
-
   // floor everything
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(totalAttributes)) {
     totalAttributes[attribute] = Math.floor(value);
   }
 
   return totalAttributes;
-}
-
-function getArmorPenDerivedBonus(
-  combatantProperties: CombatantProperties,
-  totalAttributesLessArmorPenBonus: CombatantAttributeRecord
-): number {
-  const mhWeaponOption = combatantProperties.equipment.getEquippedWeapon(HoldableSlotType.MainHand);
-  if (mhWeaponOption instanceof Error) return 0;
-
-  if (mhWeaponOption?.equipmentType === EquipmentType.TwoHandedRangedWeapon) {
-    return 0;
-  }
-
-  const attributeQuantity = totalAttributesLessArmorPenBonus[CombatAttribute.Strength] || 0;
-
-  return attributeQuantity * STR_TO_MELEE_ARMOR_PEN_RATIO;
 }
 
 function calculateAndAddDerivedAttribute(
@@ -161,6 +136,17 @@ function calculateAndAddDerivedAttribute(
   const derrivedToAdd = Math.floor(totalMainAttributeOption * ratio);
   const newTotalDerrived = totalDerrived + derrivedToAdd;
   totalAttributes[derivedAttribute] = newTotalDerrived;
+}
+
+/** Armor class on equipment is owned by getModifiedArmorClass, which already folds in the
+ * FlatArmorClass affix and applies any percent modifier to it. Letting the same affix through the
+ * attribute accumulator as well would count it twice. */
+function affixAttributesOtherThanArmorClass(affix: {
+  combatAttributes: CombatantAttributeRecord;
+}): CombatantAttributeRecord {
+  const attributes = { ...affix.combatAttributes };
+  delete attributes[CombatAttribute.ArmorClass];
+  return attributes;
 }
 
 function removeAttributesFromAccumulator(

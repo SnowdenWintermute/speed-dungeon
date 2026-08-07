@@ -1,6 +1,6 @@
 import React from "react";
 import { CombatantId, GameRecordPartyView } from "@speed-dungeon/common";
-import { LadderTable } from "../ladder-table";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { RecordFactList } from "../detail-page/RecordFactList";
 import { ladderCharacterColumns, ladderCharacterKey } from "../detail-page/character-columns";
 import { partyFateAtTimeText } from "../party-fate-text";
@@ -25,14 +25,14 @@ export function GameRecordPartySection({ party }: { party: GameRecordPartyView }
         ]}
       />
       <h3 className="mb-2">Characters</h3>
-      <LadderTable
+      <DataTable
         columns={PARTY_CHARACTER_COLUMNS}
         entries={party.characters}
         keyOf={ladderCharacterKey}
         emptyMessage="No characters recorded for this party."
       />
       <h3 className="mt-6 mb-2">Floor Clears</h3>
-      <LadderTable
+      <DataTable
         columns={gameRecordFloorClearColumns(characterNamesById)}
         entries={party.floorClears}
         keyOf={gameRecordFloorClearKey}

@@ -1,24 +1,12 @@
 import { describe, expect, it } from "vitest";
-import {
-  CombatantClass,
-  DEEPEST_FLOOR,
-  IdGeneratorSequential,
-  RandomNumberGenerationPolicyFactory,
-} from "@speed-dungeon/common";
-import { DungeonExpedition } from "../dungeon-expedition";
+import { CombatantClass, DEEPEST_FLOOR } from "@speed-dungeon/common";
 import { DungeonRun } from "../dungeon-run";
-import { GameServices } from "../game-services";
 import { RoomVisit } from "../run-history";
 
 const PARTY_CLASSES = [CombatantClass.Warrior, CombatantClass.Rogue, CombatantClass.Mage];
 
 function walkFullDungeon(): RoomVisit[] {
-  const services = new GameServices(
-    new IdGeneratorSequential({ saveHistory: false }),
-    RandomNumberGenerationPolicyFactory.allRandomPolicy()
-  );
-  const expedition = DungeonExpedition.begin(services, PARTY_CLASSES);
-  return DungeonRun.of(expedition, DEEPEST_FLOOR).walk();
+  return DungeonRun.random(PARTY_CLASSES, DEEPEST_FLOOR).walk();
 }
 
 function ascendingFrom(start: number, length: number) {
@@ -49,9 +37,10 @@ describe("a party clearing every room of the dungeon", () => {
 
     const finalVisit = visits.at(-1);
     expect(finalVisit).toBeDefined();
-    for (const character of finalVisit?.characters ?? []) {
-      expect(character.experienceEarned).toBeGreaterThan(0);
-      expect(character.level).toBeGreaterThan(1);
+    for (const { combatant, experienceEarned } of finalVisit?.characters ?? []) {
+      expect(experienceEarned).toBeGreaterThan(0);
+      const { level } = combatant.combatantProperties.classProgressionProperties.getMainClass();
+      expect(level).toBeGreaterThan(1);
     }
 
     expect(visits.flatMap((visit) => visit.equipmentDropped).length).toBeGreaterThan(0);

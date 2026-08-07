@@ -75,7 +75,9 @@ export class DungeonExplorationController {
     );
 
     if (allPlayersReadyToExplore) {
-      const exploreNextRoomOutbox = await this.exploreNextRoom(game, party, { isDescending: false });
+      const exploreNextRoomOutbox = await this.exploreNextRoom(game, party, {
+        isDescending: false,
+      });
       outbox.pushFromOther(exploreNextRoomOutbox);
     }
 
@@ -126,6 +128,7 @@ export class DungeonExplorationController {
     const timeSpentOnFloorMs = dungeonExplorationManager.getTimeSpentOnCurrentFloor(livePlayTimeMs);
 
     dungeonExplorationManager.incrementCurrentFloor();
+    dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
     dungeonExplorationManager.markCurrentFloorEnteredTimestamp(livePlayTimeMs);
     dungeonExplorationManager.clearUnexploredRooms();
     dungeonExplorationManager.clearPlayerExplorationActionChoices();
@@ -259,7 +262,7 @@ export class DungeonExplorationController {
 
       outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
         type: GameStateUpdateType.DungeonRoomTypesOnCurrentFloor,
-        data: { roomTypes: newRoomTypesListForClient },
+        data: { roomTypes: newRoomTypesListForClient, isDescending },
       });
     }
 

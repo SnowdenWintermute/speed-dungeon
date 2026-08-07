@@ -1,6 +1,6 @@
 import React from "react";
 import { FloorClearView, formatDuration } from "@speed-dungeon/common";
-import { LadderTableColumn } from "../ladder/ladder-table/column";
+import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder/ladder-table/LadderTableCellLink";
 import { floorClearRoute, gameRecordRoute } from "../ladder/routes";
 
@@ -10,7 +10,7 @@ import { floorClearRoute, gameRecordRoute } from "../ladder/routes";
 // differ in which clears they hold, not in how a row reads, so the columns are the same for both.
 // no rank column: rank belongs to a board, and which board a clear was ranked on would have to be
 // said rather than assumed
-export const PERSONAL_BEST_COLUMNS: LadderTableColumn<FloorClearView>[] = [
+export const PERSONAL_BEST_COLUMNS: DataTableColumn<FloorClearView>[] = [
   { header: "Floor", widthPercentOption: 10, renderCell: (clear) => clear.floor },
   {
     header: "Party",

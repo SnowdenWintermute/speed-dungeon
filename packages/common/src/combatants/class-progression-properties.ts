@@ -5,6 +5,7 @@ import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
 import {
   ABILITY_POINTS_AWARDED_PER_LEVEL,
   ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
+  ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL,
   COMBATANT_MAX_LEVEL,
 } from "../app-consts.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
@@ -145,7 +146,12 @@ export class ClassProgressionProperties
     const combatantProperties = this.getCombatantProperties();
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
       this.changeSupportClassLevel(supportClass, 1);
-      combatantProperties.abilityProperties.changeUnspentAbilityPoints(1);
+      combatantProperties.abilityProperties.changeUnspentAbilityPoints(
+        ABILITY_POINTS_AWARDED_PER_LEVEL
+      );
+      combatantProperties.attributeProperties.changeUnspentPoints(
+        ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL
+      );
     });
   }
 

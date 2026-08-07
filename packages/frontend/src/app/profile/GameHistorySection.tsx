@@ -6,7 +6,7 @@ import { useClientApplication } from "@/hooks/create-client-application-context"
 import { useLadderQuery } from "@/hooks/use-ladder-query";
 import { LadderPagination } from "../ladder/board-page/LadderPagination";
 import { LadderQueryBoundary } from "../ladder/ladder-table/LadderQueryBoundary";
-import { LadderTable } from "../ladder/ladder-table";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { ProfileUrlState } from "../ladder/query-schemas";
 import { playerProfileStateRoute } from "../ladder/routes";
 import { GAME_HISTORY_COLUMNS, gameHistoryEntryKey } from "./game-history-columns";
@@ -30,7 +30,7 @@ export const GameHistorySection = observer(
         <LadderQueryBoundary state={state}>
           {(ladderPage) => (
             <>
-              <LadderTable
+              <DataTable
                 columns={GAME_HISTORY_COLUMNS}
                 entries={ladderPage.entries}
                 keyOf={gameHistoryEntryKey}

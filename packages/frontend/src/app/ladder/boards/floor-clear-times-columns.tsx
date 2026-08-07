@@ -5,7 +5,7 @@ import {
   RankedFloorClearView,
   formatDuration,
 } from "@speed-dungeon/common";
-import { LadderTableCellLayout, LadderTableColumn } from "../ladder-table/column";
+import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { floorClearRoute, gameRecordRoute } from "../routes";
 import { PlayerLinks } from "./PlayerLinks";
@@ -15,7 +15,7 @@ import { PlayerLinks } from "./PlayerLinks";
 export function floorClearTimesColumns(
   sort: FloorClearSort,
   onSort: (sort: FloorClearSort) => void
-): LadderTableColumn<RankedFloorClearView>[] {
+): DataTableColumn<RankedFloorClearView>[] {
   // a column already sorted flips direction; a new one starts ascending, since the fastest clear is
   // what a reader came for
   function sortOptionFor(field: FloorClearSortField) {
@@ -40,7 +40,7 @@ export function floorClearTimesColumns(
     },
     {
       header: "Players",
-      cellLayoutOption: LadderTableCellLayout.Stacked,
+      cellLayoutOption: DataTableCellLayout.Stacked,
       renderCell: (entry) => <PlayerLinks players={entry.players} />,
     },
     {

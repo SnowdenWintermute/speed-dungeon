@@ -1,11 +1,11 @@
 import React from "react";
 import { GAME_MODE_STRINGS, RankedFloorClearView, formatDuration } from "@speed-dungeon/common";
-import { LadderTableCellLayout, LadderTableColumn } from "../ladder-table/column";
+import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { floorClearRoute, gameRecordRoute } from "../routes";
 import { PlayerLinks } from "./PlayerLinks";
 
-export const CUMULATIVE_CLEAR_TIMES_COLUMNS: LadderTableColumn<RankedFloorClearView>[] = [
+export const CUMULATIVE_CLEAR_TIMES_COLUMNS: DataTableColumn<RankedFloorClearView>[] = [
   { header: "Rank", widthPercentOption: 8, renderCell: (entry) => entry.rank },
   { header: "Floor", widthPercentOption: 10, renderCell: (entry) => entry.floor },
   {
@@ -19,7 +19,7 @@ export const CUMULATIVE_CLEAR_TIMES_COLUMNS: LadderTableColumn<RankedFloorClearV
   },
   {
     header: "Players",
-    cellLayoutOption: LadderTableCellLayout.Stacked,
+    cellLayoutOption: DataTableCellLayout.Stacked,
     renderCell: (entry) => <PlayerLinks players={entry.players} />,
   },
   { header: "Mode", renderCell: (entry) => GAME_MODE_STRINGS[entry.mode] },

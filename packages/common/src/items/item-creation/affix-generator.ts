@@ -73,9 +73,11 @@ export class AffixGenerator {
     };
 
     let affixType: AffixType;
-    if (taggedAffixType.affixCategory === AffixCategory.Suffix)
+    if (taggedAffixType.affixCategory === AffixCategory.Suffix) {
       affixType = taggedAffixType.suffixType;
-    else affixType = taggedAffixType.prefixType;
+    } else {
+      affixType = taggedAffixType.prefixType;
+    }
 
     const attributeOption = ATTRIBUTE_AFFIX_ATTRIBUTES[affixType];
     if (attributeOption !== undefined) {
@@ -154,13 +156,16 @@ export class AffixGenerator {
 
   private getAffixValueRange(affixType: AffixType, tier: number, rangeMultiplier: number) {
     const isCoreAttributeAffix = CORE_ATTRIBUTE_AFFIXES.includes(affixType);
-    if (isCoreAttributeAffix) return this.getAttributeAffixValueRange(tier, [rangeMultiplier]);
+    if (isCoreAttributeAffix) {
+      return this.getAttributeAffixValueRange(tier, [rangeMultiplier]);
+    }
     const isDerivedAttributeAffix = DERIVED_ATTRIBUTE_AFFIXES.includes(affixType);
-    if (isDerivedAttributeAffix)
+    if (isDerivedAttributeAffix) {
       return this.getAttributeAffixValueRange(tier, [
         rangeMultiplier,
         DERIVED_ATTRIBUTE_MULTIPLIER,
       ]);
+    }
 
     throw new Error("no number range defined for this affix type");
   }

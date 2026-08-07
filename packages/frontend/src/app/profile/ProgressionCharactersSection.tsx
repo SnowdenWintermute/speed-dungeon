@@ -10,7 +10,7 @@ import {
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { useLadderQuery } from "@/hooks/use-ladder-query";
 import { LadderQueryBoundary } from "../ladder/ladder-table/LadderQueryBoundary";
-import { LadderTable } from "../ladder/ladder-table";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import {
   progressionCharacterColumns,
   progressionCharacterKey,
@@ -36,7 +36,7 @@ export const ProgressionCharactersSection = observer(
         </h2>
         <LadderQueryBoundary state={state}>
           {({ characters, ranksByCharacterId }) => (
-            <LadderTable
+            <DataTable
               columns={progressionCharacterColumns(ranksByCharacterId)}
               entries={characters}
               keyOf={progressionCharacterKey}

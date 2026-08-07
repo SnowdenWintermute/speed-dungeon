@@ -1,9 +1,10 @@
 import React from "react";
 import { LadderPage } from "@speed-dungeon/common";
 import { LadderQueryState } from "@/client-application/ladder-view/query-state";
-import { LadderTableColumn } from "./column";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
+import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { LadderQueryBoundary } from "./LadderQueryBoundary";
-import { LadderTable } from ".";
+import { renderSortIndicator } from "./sort-indicator";
 import { LadderLink } from "../LadderLink";
 
 export function LadderBoardSection<TEntry>({
@@ -16,7 +17,7 @@ export function LadderBoardSection<TEntry>({
 }: {
   title: string;
   fullBoardHrefOption?: string;
-  columns: LadderTableColumn<TEntry>[];
+  columns: DataTableColumn<TEntry>[];
   keyOf: (entry: TEntry) => string;
   emptyMessage: string;
   state: LadderQueryState<LadderPage<TEntry>> | undefined;
@@ -31,11 +32,12 @@ export function LadderBoardSection<TEntry>({
       </div>
       <LadderQueryBoundary state={state}>
         {(ladderPage) => (
-          <LadderTable
+          <DataTable
             columns={columns}
             entries={ladderPage.entries}
             keyOf={keyOf}
             emptyMessage={emptyMessage}
+            renderSortIndicator={renderSortIndicator}
           />
         )}
       </LadderQueryBoundary>

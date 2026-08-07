@@ -1,0 +1,52 @@
+import { DEEPEST_FLOOR, invariant } from "@speed-dungeon/common";
+import { RunAggregator } from "../sim/run-aggregator";
+import { DungeonRun, SIMULATED_PARTY_CLASSES } from "../sim/dungeon-run";
+import { AccuracyAvailability } from "./accuracy-availability";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis";
+import {
+  DungeonRunWorkerMessage,
+  DungeonRunWorkerMessageType,
+  DungeonRunWorkerRequest,
+} from "./dungeon-run-worker-messages";
+
+// the dom lib types the ambient `self` as a Window, whose postMessage takes `any` and would check
+// nothing here. this is the part of a worker's global scope the file actually uses
+declare const self: {
+  onmessage: null | ((event: MessageEvent<DungeonRunWorkerRequest>) => void);
+  postMessage: (message: DungeonRunWorkerMessage) => void;
+};
+
+/** Mapped rather than a plain Record so each analysis is tied to the result type it promises, and
+ * adding one without registering an aggregator for it is a compile error. */
+type AggregatorFactories = {
+  [TAnalysis in DungeonRunAnalysis]: () => RunAggregator<DungeonRunAnalysisResults[TAnalysis]>;
+};
+
+const AGGREGATOR_FACTORIES: AggregatorFactories = {
+  [DungeonRunAnalysis.AccuracyAvailability]: () => new AccuracyAvailability(),
+};
+
+function post(message: DungeonRunWorkerMessage) {
+  self.postMessage(message);
+}
+
+self.onmessage = ({ data }) => {
+  const makeAggregator = AGGREGATOR_FACTORIES[data.analysis];
+  invariant(makeAggregator !== undefined, `no aggregator registered for analysis ${data.analysis}`);
+  const aggregator = makeAggregator();
+
+  try {
+    for (let runsCompleted = 0; runsCompleted < data.runCount; runsCompleted += 1) {
+      // the walk is discarded as soon as it is collected, so only the aggregator's samples grow
+      aggregator.collectRun(DungeonRun.random(SIMULATED_PARTY_CLASSES, DEEPEST_FLOOR).walk());
+      post({ type: DungeonRunWorkerMessageType.Progress, runsCompleted: runsCompleted + 1 });
+    }
+
+    post({ type: DungeonRunWorkerMessageType.Complete, result: aggregator.assemble() });
+  } catch (error) {
+    post({
+      type: DungeonRunWorkerMessageType.Failed,
+      reason: error instanceof Error ? error.message : String(error),
+    });
+  }
+};

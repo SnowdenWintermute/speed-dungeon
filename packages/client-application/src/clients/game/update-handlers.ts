@@ -127,7 +127,6 @@ export function createGameUpdateHandlers(
           clientApplication.uiStore.replayResolutionTimeoutDuration = 0;
         }, data.awaitingUnresolvedReplayResolutionDuration);
       }
-
     },
     [GameStateUpdateType.GameClosed]: (data) => {
       const { reason } = data;
@@ -170,7 +169,10 @@ export function createGameUpdateHandlers(
       const party = gameContext.requireParty();
       const { dungeonExplorationManager } = party;
       dungeonExplorationManager.setClientVisibleRoomExplorationList(data.roomTypes);
-      dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
+
+      if (data.isDescending) {
+        dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
+      }
     },
     [GameStateUpdateType.DungeonRoomUpdate]: (data) => {
       const { dungeonRoom, actionEntitiesToRemove, monsters } = data;
@@ -241,7 +243,6 @@ export function createGameUpdateHandlers(
         type: ClientSequentialEventType.SynchronizeCombatantModels,
         data: { softCleanup: true, placeInHomePositions: true },
       });
-
     },
     [GameStateUpdateType.BattleFullUpdate]: (serializedBattleOption) => {
       clientApplication.handleBattleFullUpdate(serializedBattleOption);
@@ -467,7 +468,9 @@ export function createGameUpdateHandlers(
         return;
       }
 
-      actionMenu.replaceStack([new ConsideringCombatActionMenuScreen(clientApplication, actionName)]);
+      actionMenu.replaceStack([
+        new ConsideringCombatActionMenuScreen(clientApplication, actionName),
+      ]);
     },
     [GameStateUpdateType.GameMessage]: (data) => {
       const { message } = data;
@@ -887,4 +890,3 @@ export function createGameUpdateHandlers(
     },
   };
 }
-

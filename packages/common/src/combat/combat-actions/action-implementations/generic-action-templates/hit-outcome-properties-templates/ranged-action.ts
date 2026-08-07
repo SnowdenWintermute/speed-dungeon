@@ -19,7 +19,7 @@ export const RANGED_ACTION_HIT_OUTCOME_PROPERTIES: CombatActionHitOutcomePropert
     return getStandardActionCritMultiplier(user, null);
   },
   getArmorPenetration: function (user: IActionUser): number {
-    return getStandardActionArmorPenetration(user, null);
+    return getStandardActionArmorPenetration(user);
   },
   getCanTriggerCounterattack: (user: IActionUser) => false,
 };

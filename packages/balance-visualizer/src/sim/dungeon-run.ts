@@ -1,6 +1,19 @@
-import { Consumable, Equipment } from "@speed-dungeon/common";
+import {
+  CombatantClass,
+  Consumable,
+  Equipment,
+  IdGeneratorSequential,
+  RandomNumberGenerationPolicyFactory,
+} from "@speed-dungeon/common";
 import { DungeonExpedition } from "./dungeon-expedition";
+import { GameServices } from "./game-services";
 import { RoomVisit } from "./run-history";
+
+export const SIMULATED_PARTY_CLASSES = [
+  CombatantClass.Warrior,
+  CombatantClass.Rogue,
+  CombatantClass.Mage,
+];
 
 export class DungeonRun {
   private constructor(
@@ -10,6 +23,16 @@ export class DungeonRun {
 
   static of(expedition: DungeonExpedition, deepestFloor: number) {
     return new DungeonRun(expedition, deepestFloor);
+  }
+
+  /** Fresh services per run, so nothing carries between runs but the code itself. Callers wanting a
+   * scripted dungeon or fixed rolls build the expedition themselves and use `of`. */
+  static random(combatantClasses: CombatantClass[], deepestFloor: number) {
+    const services = new GameServices(
+      new IdGeneratorSequential({ saveHistory: false }),
+      RandomNumberGenerationPolicyFactory.allRandomPolicy()
+    );
+    return DungeonRun.of(DungeonExpedition.begin(services, combatantClasses), deepestFloor);
   }
 
   walk(): RoomVisit[] {

@@ -8,7 +8,7 @@ import {
   formatDuration,
 } from "@speed-dungeon/common";
 import { formatTimestamp } from "@/utils/format-timestamp";
-import { LadderTable } from "../ladder-table";
+import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { LadderTableCellLink } from "../ladder-table/LadderTableCellLink";
 import { RecordFactList } from "../detail-page/RecordFactList";
 import { LadderLink } from "../LadderLink";
@@ -61,7 +61,7 @@ export function FloorClearDetails({ floorClear }: { floorClear: FloorClearView }
         ]}
       />
       <h2 className="text-xl mb-2">Characters</h2>
-      <LadderTable
+      <DataTable
         columns={FLOOR_CLEAR_CHARACTER_COLUMNS}
         entries={floorClear.characters}
         keyOf={ladderCharacterKey}

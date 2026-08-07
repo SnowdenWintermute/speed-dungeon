@@ -10,11 +10,13 @@ import {
   Equipment,
   GameId,
   GameMode,
+  GameName,
   PartyId,
   PartyWipes,
   SpeedDungeonGame,
   Username,
 } from "@speed-dungeon/common";
+import cloneDeep from "lodash.clonedeep";
 import { GameServices } from "./game-services";
 import { CharacterRoomSnapshot } from "./run-history";
 
@@ -42,7 +44,7 @@ export class DungeonExpedition {
 
     const game = new SpeedDungeonGame(
       idGenerator.generate() as GameId,
-      "balance-simulation",
+      "balance-simulation" as GameName,
       GameMode.Progression,
       CharacterControlScheme.Freelancer
     );
@@ -139,8 +141,13 @@ export class DungeonExpedition {
     return loot;
   }
 
+  /** Mirrors the state changes of DungeonExplorationController.descendParty, minus the ones that
+   * only exist to talk to clients or the game clock. */
   descend() {
-    this.party.dungeonExplorationManager.incrementCurrentFloor();
+    const { dungeonExplorationManager } = this.party;
+    dungeonExplorationManager.incrementCurrentFloor();
+    dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
+    dungeonExplorationManager.clearUnexploredRooms();
   }
 
   getCharacters(): Combatant[] {
@@ -149,18 +156,17 @@ export class DungeonExpedition {
 
   snapshot(): CharacterRoomSnapshot[] {
     return this.getCharacters().map((character) => {
-      const { classProgressionProperties, attributeProperties, equipment } =
-        character.combatantProperties;
-      const mainClass = classProgressionProperties.getMainClass();
-      return {
-        characterName: character.getName(),
-        combatantClass: mainClass.combatantClass,
-        level: mainClass.level,
+      const clone = cloneDeep(character);
+      // what was kept in reserve is better recorded as shards gained than as retained objects
+      clone.combatantProperties.inventory.deleteAllItems();
+
+      const snapshot: CharacterRoomSnapshot = {
+        combatant: clone,
+        totalAttributes: character.getTotalAttributes(),
         experienceEarned: this.experienceEarned.get(character.getEntityId()) ?? 0,
-        experienceTowardNextLevel: classProgressionProperties.experiencePoints.getCurrent(),
-        unspentAttributePoints: attributeProperties.getUnspentPoints(),
-        equipped: equipment.getAllEquippedItems({ includeUnselectedHotswapSlots: false }),
       };
+
+      return snapshot;
     });
   }
 }
