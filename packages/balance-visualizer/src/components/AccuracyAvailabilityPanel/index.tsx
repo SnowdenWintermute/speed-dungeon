@@ -3,6 +3,7 @@ import { DungeonRunAnalysis, DUNGEON_RUN_ANALYSIS_NAMES } from "@/analysis/dunge
 import { useDungeonRunAnalysis } from "@/hooks/use-dungeon-run-analysis";
 import { AnalysisRunControls } from "../AnalysisRunControls";
 import { ACCURACY_AVAILABILITY_COLUMNS, roomKey } from "./accuracy-availability-columns";
+import { MonsterEvasionSection } from "./MonsterEvasionSection";
 import Divider from "@speed-dungeon/ui/atoms/Divider";
 
 const DEFAULT_RUN_COUNT = 50;
@@ -39,7 +40,7 @@ export function AccuracyAvailabilityPanel() {
         <>
           <p className="text-sm text-theme-muted mb-2">{state.runCountShown} runs, per character</p>
           <Divider extraStyles="mb-8" />
-          <div className="bg-theme-base border p-2 px-4 border-theme-muted w-[1270px] mx-auto">
+          <div className="bg-theme-base border p-2 px-4 border-theme-muted mx-auto mb-10">
             <DataTable
               columns={ACCURACY_AVAILABILITY_COLUMNS}
               entries={state.result}
@@ -47,6 +48,8 @@ export function AccuracyAvailabilityPanel() {
               emptyMessage="no rooms walked"
             />
           </div>
+
+          <MonsterEvasionSection rooms={state.result} />
         </>
       )}
     </section>

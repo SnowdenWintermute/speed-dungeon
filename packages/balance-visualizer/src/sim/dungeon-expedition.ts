@@ -131,7 +131,11 @@ export class DungeonExpedition {
       .requireBattle(this.game)
       .resolveBattle(this.services.lootGenerator, PARTY_ALWAYS_WINS);
 
-    for (const [combatantId, change] of Object.entries(experiencePointChanges)) {
+    // driven from the party rather than Object.entries, which widens the branded CombatantId key
+    // back to a string. only party members are ever read back out of this
+    for (const character of this.getCharacters()) {
+      const combatantId = character.getEntityId();
+      const change = experiencePointChanges[combatantId] ?? 0;
       const earnedSoFar = this.experienceEarned.get(combatantId) ?? 0;
       this.experienceEarned.set(combatantId, earnedSoFar + change);
     }

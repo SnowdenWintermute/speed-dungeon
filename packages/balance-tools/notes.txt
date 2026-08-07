@@ -205,3 +205,18 @@ say 90%.
     to keep their 90% hit chance against average monsters
   - Then we will know how much evasion to give the average monster
 
+
+Now we know 
+  - the evasion monsters have floor by floor
+  - the average weapons characters have access to room by room
+  - the fact that we want players to kill a monster within a certain turn count
+      - DPS builds: 2.5 turns
+      - Defensive builds: 5 turns
+
+We can figure out
+  - the average dps output before armor class for a character, room by room
+    - for 2h users
+    - for dual wielders
+    - for bow users
+  - vs monsters of each level of evasion intensity
+

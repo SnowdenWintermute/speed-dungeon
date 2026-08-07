@@ -36,10 +36,27 @@ describe("accuracy available from loot dropped so far", () => {
   it("tracks the party's own accuracy rising with level", () => {
     const rooms = analyzeRuns();
 
-    const firstRoomAccuracy = rooms.at(0)?.withoutLoot.mean;
-    const lastRoomAccuracy = rooms.at(-1)?.withoutLoot.mean;
+    const firstRoomAccuracy = rooms.at(0)?.potential.asPlayed.mean;
+    const lastRoomAccuracy = rooms.at(-1)?.potential.asPlayed.mean;
 
     expect(firstRoomAccuracy).toBeDefined();
     expect(lastRoomAccuracy).toBeGreaterThan(firstRoomAccuracy ?? 0);
+  });
+
+  // these two are differences of measured accuracies rather than the dexterity ratio reapplied, so
+  // this pins them to the points actually awarded without restating what a point is worth
+  it("isolates what allocated points alone buy, and has a support class grant more of them", () => {
+    const rooms = analyzeRuns();
+
+    // nothing has levelled in the first room, so there is nothing allocated to credit
+    expect(rooms.at(0)?.potential.fromAllocatedPoints.mean).toBe(0);
+
+    const lastRoom = rooms.at(-1);
+    expect(lastRoom).toBeDefined();
+    const withoutSupport = lastRoom?.potential.fromAllocatedPoints.mean ?? 0;
+    const withSupport = lastRoom?.potential.fromAllocatedPointsWithSupportClass.mean ?? 0;
+
+    expect(withoutSupport).toBeGreaterThan(0);
+    expect(withSupport).toBeGreaterThan(withoutSupport);
   });
 });

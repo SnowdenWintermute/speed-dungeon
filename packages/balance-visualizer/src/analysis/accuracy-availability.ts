@@ -1,6 +1,11 @@
-import { CombatAttribute, invariant } from "@speed-dungeon/common";
+import { invariant } from "@speed-dungeon/common";
 import { RunAggregator } from "../sim/run-aggregator";
 import { RoomVisit } from "../sim/run-history";
+import {
+  AccuracyPotential,
+  AccuracyPotentialRecord,
+  CharacterAccuracyPotential,
+} from "./character-accuracy-potential";
 import { Distribution, distributionOf } from "./distribution";
 import { EquipmentAccuracy } from "./equipment-accuracy";
 
@@ -14,9 +19,9 @@ export interface RoomAccuracyAvailability {
   fromAccuracyAffixes: Distribution;
   fromDexterity: Distribution;
   fromAllLoot: Distribution;
-  /** The party's accuracy with no loot equipped at all, averaged across its characters. Gives the
-   * loot figures a baseline to be read against. */
-  withoutLoot: Distribution;
+  /** Baselines the loot figures are read against, all with no loot equipped and all averaged across
+   * the party's characters. See AccuracyPotential for what each assumes. */
+  potential: AccuracyPotentialRecord<Distribution>;
 }
 
 interface RoomIdentity {
@@ -29,7 +34,9 @@ class RoomSamples {
   readonly fromAccuracyAffixes: number[] = [];
   readonly fromDexterity: number[] = [];
   readonly fromAllLoot: number[] = [];
-  readonly withoutLoot: number[] = [];
+  /** One party average per run, kept whole rather than split per variant so a new variant does not
+   * have to be named here as well. */
+  readonly potentials: AccuracyPotential[] = [];
 }
 
 /** Collects run by run so a caller can discard each walk as it finishes. Retaining every RoomVisit
@@ -78,7 +85,12 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
       samples.fromAccuracyAffixes.push(fromAccuracyAffixes / characterCount);
       samples.fromDexterity.push(fromDexterity / characterCount);
       samples.fromAllLoot.push((fromAccuracyAffixes + fromDexterity) / characterCount);
-      samples.withoutLoot.push(AccuracyAvailability.meanAccuracyWithoutLoot(visit));
+
+      samples.potentials.push(
+        CharacterAccuracyPotential.mean(
+          visit.characters.map(({ combatant }) => CharacterAccuracyPotential.of(combatant))
+        )
+      );
     });
   }
 
@@ -92,16 +104,26 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
         fromAccuracyAffixes: distributionOf(samples.fromAccuracyAffixes),
         fromDexterity: distributionOf(samples.fromDexterity),
         fromAllLoot: distributionOf(samples.fromAllLoot),
-        withoutLoot: distributionOf(samples.withoutLoot),
+        potential: AccuracyAvailability.potentialDistributions(samples.potentials),
       };
     });
   }
 
-  private static meanAccuracyWithoutLoot(visit: RoomVisit) {
-    const total = visit.characters.reduce(
-      (sum, { totalAttributes }) => sum + (totalAttributes[CombatAttribute.Accuracy] ?? 0),
-      0
-    );
-    return total / visit.characters.length;
+  private static potentialDistributions(
+    potentials: AccuracyPotential[]
+  ): AccuracyPotentialRecord<Distribution> {
+    const distributionOfVariant = (variant: keyof AccuracyPotential) =>
+      distributionOf(potentials.map((potential) => potential[variant]));
+
+    return {
+      asPlayed: distributionOfVariant("asPlayed"),
+      withSupportClass: distributionOfVariant("withSupportClass"),
+      withMaxDexterity: distributionOfVariant("withMaxDexterity"),
+      withMaxDexterityAndSupportClass: distributionOfVariant("withMaxDexterityAndSupportClass"),
+      fromAllocatedPoints: distributionOfVariant("fromAllocatedPoints"),
+      fromAllocatedPointsWithSupportClass: distributionOfVariant(
+        "fromAllocatedPointsWithSupportClass"
+      ),
+    };
   }
 }

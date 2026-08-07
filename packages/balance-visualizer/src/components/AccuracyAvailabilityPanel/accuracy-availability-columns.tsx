@@ -37,7 +37,27 @@ export const ACCURACY_AVAILABILITY_COLUMNS: DataTableColumn<RoomAccuracyAvailabi
   },
   {
     header: "Inherent",
-    renderCell: (room) => figure(room.withoutLoot.mean),
+    renderCell: (room) => figure(room.potential.asPlayed.mean),
+  },
+  {
+    header: "Inherent+",
+    renderCell: (room) => figure(room.potential.withSupportClass.mean),
+  },
+  {
+    header: "Max Dex",
+    renderCell: (room) => figure(room.potential.withMaxDexterity.mean),
+  },
+  {
+    header: "Max Dex+",
+    renderCell: (room) => figure(room.potential.withMaxDexterityAndSupportClass.mean),
+  },
+  {
+    header: "Allocated Only",
+    renderCell: (room) => figure(room.potential.fromAllocatedPoints.mean),
+  },
+  {
+    header: "Allocated Only+",
+    renderCell: (room) => figure(room.potential.fromAllocatedPointsWithSupportClass.mean),
   },
 ];
 

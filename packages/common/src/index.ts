@@ -104,6 +104,7 @@ export * from "./transport/client-endpoint-factories.js";
 export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
 export * from "./combatants/attributes/derrived-attribute-ratios.js";
+export * from "./combatants/attributes/get-combatant-total-attributes.js";
 export * from "./combatants/combatant-attribute-record.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combatants/combatant-controllers.js";

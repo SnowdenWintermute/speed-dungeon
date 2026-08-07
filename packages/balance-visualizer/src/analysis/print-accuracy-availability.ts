@@ -19,7 +19,18 @@ const COLUMNS: { heading: string; select: (room: RoomAccuracyAvailability) => st
     heading: "90th percentile",
     select: (room) => room.fromAllLoot.ninetiethPercentile.toFixed(1),
   },
-  { heading: "no loot", select: (room) => room.withoutLoot.mean.toFixed(1) },
+  { heading: "inherent", select: (room) => room.potential.asPlayed.mean.toFixed(1) },
+  { heading: "+support", select: (room) => room.potential.withSupportClass.mean.toFixed(1) },
+  { heading: "max dex", select: (room) => room.potential.withMaxDexterity.mean.toFixed(1) },
+  {
+    heading: "max dex +support",
+    select: (room) => room.potential.withMaxDexterityAndSupportClass.mean.toFixed(1),
+  },
+  { heading: "alloc only", select: (room) => room.potential.fromAllocatedPoints.mean.toFixed(1) },
+  {
+    heading: "alloc only +support",
+    select: (room) => room.potential.fromAllocatedPointsWithSupportClass.mean.toFixed(1),
+  },
 ];
 
 function printTable(rooms: RoomAccuracyAvailability[]) {
