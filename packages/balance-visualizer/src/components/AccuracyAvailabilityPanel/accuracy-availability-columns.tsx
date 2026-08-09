@@ -1,5 +1,5 @@
+import { RoomAccuracyAvailability } from "@/analysis/accuracy-availability/index";
 import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { RoomAccuracyAvailability } from "@/analysis/accuracy-availability";
 
 function figure(value: number) {
   return <span className="">{value.toFixed(1)}</span>;
@@ -20,20 +20,20 @@ export const ACCURACY_AVAILABILITY_COLUMNS: DataTableColumn<RoomAccuracyAvailabi
     renderCell: (room) => figure(room.fromDexterity.mean),
   },
   {
-    header: "Total (mean)",
-    renderCell: (room) => figure(room.fromAllLoot.mean),
+    header: "Worn Total (mean)",
+    renderCell: (room) => figure(room.fromEquipped.mean),
   },
   {
     header: "10th Percentile",
-    renderCell: (room) => figure(room.fromAllLoot.tenthPercentile),
+    renderCell: (room) => figure(room.fromEquipped.tenthPercentile),
   },
   {
     header: "Median",
-    renderCell: (room) => figure(room.fromAllLoot.median),
+    renderCell: (room) => figure(room.fromEquipped.median),
   },
   {
     header: "90th Percentile",
-    renderCell: (room) => figure(room.fromAllLoot.ninetiethPercentile),
+    renderCell: (room) => figure(room.fromEquipped.ninetiethPercentile),
   },
   {
     header: "Inherent",

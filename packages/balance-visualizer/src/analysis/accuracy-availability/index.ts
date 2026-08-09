@@ -1,24 +1,26 @@
 import { invariant } from "@speed-dungeon/common";
-import { RunAggregator } from "../sim/run-aggregator";
-import { RoomVisit } from "../sim/run-history";
+import { RunAggregator } from "../../sim/run-aggregator";
+import { RoomVisit } from "../../sim/run-history";
 import {
   AccuracyPotential,
   AccuracyPotentialRecord,
   CharacterAccuracyPotential,
 } from "./character-accuracy-potential";
-import { Distribution, distributionOf } from "./distribution";
 import { EquipmentAccuracy } from "./equipment-accuracy";
+import { EquipmentPoolBySlot } from "../equipment-pool-by-slot";
+import { Distribution, distributionOf } from "@/utils/distribution";
 
-/** Every figure is per character: the accuracy in all loot dropped up to and including this room,
- * divided evenly among the party. It is what the party has *access* to, not what it could wear —
- * slot limits, requirements and the two-handed choice all cut into it. */
+/** Every figure is per character: the accuracy a character would be *wearing* out of all loot
+ * dropped up to and including this room, once one slot can only hold one item and the party of
+ * three competes for the same pool. Requirements are still not modelled, so an item counts even if
+ * nobody could meet its attribute gates. */
 export interface RoomAccuracyAvailability {
   ordinal: number;
   floorNumber: number;
   roomNumberOnFloor: number;
   fromAccuracyAffixes: Distribution;
   fromDexterity: Distribution;
-  fromAllLoot: Distribution;
+  fromEquipped: Distribution;
   /** Baselines the loot figures are read against, all with no loot equipped and all averaged across
    * the party's characters. See AccuracyPotential for what each assumes. */
   potential: AccuracyPotentialRecord<Distribution>;
@@ -33,7 +35,7 @@ interface RoomIdentity {
 class RoomSamples {
   readonly fromAccuracyAffixes: number[] = [];
   readonly fromDexterity: number[] = [];
-  readonly fromAllLoot: number[] = [];
+  readonly fromEquipped: number[] = [];
   /** One party average per run, kept whole rather than split per variant so a new variant does not
    * have to be named here as well. */
   readonly potentials: AccuracyPotential[] = [];
@@ -68,23 +70,27 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
       "runs visited different room counts, so they do not line up room by room"
     );
 
-    let fromAccuracyAffixes = 0;
-    let fromDexterity = 0;
+    // one pool for the whole walk: every drop stays a candidate for its slot, and re-selecting each
+    // room lets a later item displace an earlier one rather than both counting
+    const pool = new EquipmentPoolBySlot();
 
     visits.forEach((visit, index) => {
       for (const equipment of visit.equipmentDropped) {
-        const sources = EquipmentAccuracy.of(equipment);
-        fromAccuracyAffixes += sources.fromAccuracyAffixes;
-        fromDexterity += sources.fromDexterity;
+        pool.add(equipment);
       }
 
       const samples = this.samplesByRoom[index];
       invariant(samples !== undefined, "a visited room has no sample collector");
 
       const characterCount = visit.characters.length;
-      samples.fromAccuracyAffixes.push(fromAccuracyAffixes / characterCount);
-      samples.fromDexterity.push(fromDexterity / characterCount);
-      samples.fromAllLoot.push((fromAccuracyAffixes + fromDexterity) / characterCount);
+      const worn = pool.selectEquipped(characterCount, EquipmentAccuracy.scoreOf);
+      const equipped = EquipmentAccuracy.sum(
+        worn.map((equipment) => EquipmentAccuracy.of(equipment))
+      );
+
+      samples.fromAccuracyAffixes.push(equipped.fromAccuracyAffixes / characterCount);
+      samples.fromDexterity.push(equipped.fromDexterity / characterCount);
+      samples.fromEquipped.push(EquipmentAccuracy.total(equipped) / characterCount);
 
       samples.potentials.push(
         CharacterAccuracyPotential.mean(
@@ -103,7 +109,7 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
         ...identity,
         fromAccuracyAffixes: distributionOf(samples.fromAccuracyAffixes),
         fromDexterity: distributionOf(samples.fromDexterity),
-        fromAllLoot: distributionOf(samples.fromAllLoot),
+        fromEquipped: distributionOf(samples.fromEquipped),
         potential: AccuracyAvailability.potentialDistributions(samples.potentials),
       };
     });

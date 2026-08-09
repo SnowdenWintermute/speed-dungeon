@@ -1,11 +1,11 @@
 import { invariant, MIN_HIT_CHANCE } from "@speed-dungeon/common";
-import { RoomAccuracyAvailability } from "./accuracy-availability";
 import {
   MonsterAttributeIntensity,
   MONSTER_ATTRIBUTE_INTENSITIES,
   ReferenceCharacterProfile,
   REFERENCE_CHARACTER_PROFILES,
 } from "./monster-attribute-intensity";
+import { RoomAccuracyAvailability } from "../accuracy-availability/index";
 
 /** The hit rate every intensity is solved for. getActionHitChance reads accuracy as a percentage
  * and subtracts evasion from it, so an evasion target is just this far below the reference
@@ -76,7 +76,7 @@ export class MonsterEvasionTargets {
     invariant(roomsOnFloor.length > 0, "a floor was recorded with no rooms");
 
     const total = roomsOnFloor.reduce((sum, room) => {
-      const { potential, fromAllLoot } = room;
+      const { potential, fromEquipped } = room;
       const inherent = profile.characterHasSupportClass
         ? potential.withSupportClass.mean
         : potential.asPlayed.mean;
@@ -85,7 +85,7 @@ export class MonsterEvasionTargets {
         : potential.fromAllocatedPoints.mean;
 
       return (
-        sum + inherent + profile.characterAllocatedFraction * (allocatable + fromAllLoot.median)
+        sum + inherent + profile.characterAllocatedFraction * (allocatable + fromEquipped.median)
       );
     }, 0);
 

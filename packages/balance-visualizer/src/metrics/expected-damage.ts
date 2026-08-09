@@ -57,13 +57,18 @@ export class ExpectedDamageCalculator {
 
     const { baseValues, resourceChangeSource } = resourceChangeProperties;
 
-    const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
-      action,
-      user,
-      actionRank,
-      TARGET_ATTEMPTS_MITIGATION,
-      targetProperties
-    ).afterEvasion;
+    // the game rolls this as a threshold against a uniform roll, so it saturates at 1; left as a
+    // bare multiplier it would keep paying for accuracy above evasion + 100, which lands nothing
+    const hitChance = Math.min(
+      1,
+      HitOutcomeMitigationCalculator.getActionHitChance(
+        action,
+        user,
+        actionRank,
+        TARGET_ATTEMPTS_MITIGATION,
+        targetProperties
+      ).afterEvasion
+    );
 
     const critChance = HitOutcomeMitigationCalculator.getActionCritChance(
       action,

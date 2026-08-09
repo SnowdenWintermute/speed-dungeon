@@ -32,6 +32,20 @@ export class EquipmentAccuracy {
     return sources.fromAccuracyAffixes + sources.fromDexterity;
   }
 
+  static scoreOf(equipment: Equipment) {
+    return EquipmentAccuracy.total(EquipmentAccuracy.of(equipment));
+  }
+
+  static sum(sources: AccuracySources[]): AccuracySources {
+    return sources.reduce(
+      (accumulated, current) => ({
+        fromAccuracyAffixes: accumulated.fromAccuracyAffixes + current.fromAccuracyAffixes,
+        fromDexterity: accumulated.fromDexterity + current.fromDexterity,
+      }),
+      { fromAccuracyAffixes: 0, fromDexterity: 0 }
+    );
+  }
+
   /** The same two places getCombatantTotalAttributes reads an equipped item's attributes from, so a
    * new source of accuracy is counted here without this having to know which affix carries it. */
   private static attributeRecordsOf(equipment: Equipment) {

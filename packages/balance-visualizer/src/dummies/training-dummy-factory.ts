@@ -12,6 +12,7 @@ import {
   TwoHandedMeleeWeapon,
   Username,
 } from "@speed-dungeon/common";
+import { MonsterAttributeIntensity } from "../analysis/monster-attributes/monster-attribute-intensity";
 import { getTrainingDummyProfile, TrainingDummyProfile } from "./training-dummy-profile";
 
 export enum TrainingDummyType {
@@ -34,8 +35,12 @@ const DUMMY_PLAYER_NAME = "training-dummy" as Username;
 export class TrainingDummyFactory {
   constructor(private readonly idGenerator: IdGenerator) {}
 
-  build(type: TrainingDummyType, floorNumber: number) {
-    return this.fromProfile(type, getTrainingDummyProfile(floorNumber));
+  build(
+    type: TrainingDummyType,
+    floorNumber: number,
+    evasionIntensity: MonsterAttributeIntensity
+  ) {
+    return this.fromProfile(type, getTrainingDummyProfile(floorNumber, evasionIntensity));
   }
 
   fromProfile(type: TrainingDummyType, profile: TrainingDummyProfile) {

@@ -3,7 +3,7 @@ import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "@/analysis/dungeo
 import {
   DungeonRunWorkerMessage,
   DungeonRunWorkerMessageType,
-} from "@/analysis/dungeon-run-worker-messages";
+} from "@/analysis/dungeon-run-worker/messages";
 
 export interface DungeonRunAnalysisState<TResult> {
   result: null | TResult;
@@ -41,9 +41,12 @@ export function useDungeonRunAnalysis<TAnalysis extends DungeonRunAnalysis>(anal
     (runCount: number) => {
       workerRef.current?.terminate();
 
-      const worker = new Worker(new URL("../analysis/dungeon-run-worker.ts", import.meta.url), {
-        type: "module",
-      });
+      const worker = new Worker(
+        new URL("../analysis/dungeon-run-worker/index.ts", import.meta.url),
+        {
+          type: "module",
+        }
+      );
       workerRef.current = worker;
 
       setState((current) => ({

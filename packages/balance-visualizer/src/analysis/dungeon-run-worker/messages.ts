@@ -1,4 +1,4 @@
-import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "../dungeon-run-analysis";
 
 export interface DungeonRunWorkerRequest {
   analysis: DungeonRunAnalysis;

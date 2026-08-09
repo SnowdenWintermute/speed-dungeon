@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEEPEST_FLOOR } from "@speed-dungeon/common";
 import { DungeonRun, SIMULATED_PARTY_CLASSES } from "../../sim/dungeon-run";
-import { AccuracyAvailability } from "../accuracy-availability";
+import { AccuracyAvailability } from "../accuracy-availability/index";
 
 const RUN_COUNT = 3;
 
@@ -12,23 +12,23 @@ function analyzeRuns() {
   return AccuracyAvailability.ofRuns(runs);
 }
 
-describe("accuracy available from loot dropped so far", () => {
-  it("accumulates down the dungeon and splits into its two sources", () => {
+describe("accuracy a character would be wearing out of loot dropped so far", () => {
+  it("rises down the dungeon and splits into its two sources", () => {
     const rooms = analyzeRuns();
 
     const [firstRoom] = rooms;
-    expect(firstRoom?.fromAllLoot.mean).toBe(0);
+    expect(firstRoom?.fromEquipped.mean).toBe(0);
 
     let previousMean = 0;
     for (const room of rooms) {
-      expect(room.fromAllLoot.mean).toBeGreaterThanOrEqual(previousMean);
-      expect(room.fromAllLoot.mean).toBeCloseTo(
+      expect(room.fromEquipped.mean).toBeGreaterThanOrEqual(previousMean);
+      expect(room.fromEquipped.mean).toBeCloseTo(
         room.fromAccuracyAffixes.mean + room.fromDexterity.mean
       );
-      previousMean = room.fromAllLoot.mean;
+      previousMean = room.fromEquipped.mean;
     }
 
-    expect(rooms.at(-1)?.fromAllLoot.mean).toBeGreaterThan(0);
+    expect(rooms.at(-1)?.fromEquipped.mean).toBeGreaterThan(0);
   });
 
   // cloneDeep copies arrow-function class properties by reference, so a snapshot that read

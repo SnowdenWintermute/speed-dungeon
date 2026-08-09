@@ -1,4 +1,4 @@
-import type { RoomAccuracyAvailability } from "./accuracy-availability";
+import { RoomAccuracyAvailability } from "./accuracy-availability/index";
 
 export enum DungeonRunAnalysis {
   AccuracyAvailability,
@@ -11,5 +11,5 @@ export interface DungeonRunAnalysisResults {
 }
 
 export const DUNGEON_RUN_ANALYSIS_NAMES: Record<DungeonRunAnalysis, string> = {
-  [DungeonRunAnalysis.AccuracyAvailability]: "Accuracy available from loot",
+  [DungeonRunAnalysis.AccuracyAvailability]: "Accuracy worn from loot",
 };

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
-import { RoomAccuracyAvailability } from "@/analysis/accuracy-availability";
-import { MonsterEvasionTargets } from "@/analysis/monster-evasion-targets";
 import { MONSTER_EVASION_COLUMNS, floorKey } from "./monster-evasion-columns";
+import { MonsterEvasionTargets } from "@/analysis/monster-attributes/monster-evasion-targets";
+import { RoomAccuracyAvailability } from "@/analysis/accuracy-availability/index";
 
 export function MonsterEvasionSection({ rooms }: { rooms: RoomAccuracyAvailability[] }) {
   const floors = useMemo(() => MonsterEvasionTargets.byFloor(rooms), [rooms]);

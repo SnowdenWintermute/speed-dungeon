@@ -137,6 +137,8 @@ export class CharacterAccuracyPotential {
   private static readAccuracy(combatant: Combatant) {
     // the free function rather than combatant.getTotalAttributes(), which is an arrow-function
     // property and so stays bound to whatever this was cloned from
-    return getCombatantTotalAttributes(combatant.combatantProperties)[CombatAttribute.Accuracy] ?? 0;
+    return (
+      getCombatantTotalAttributes(combatant.combatantProperties)[CombatAttribute.Accuracy] ?? 0
+    );
   }
 }

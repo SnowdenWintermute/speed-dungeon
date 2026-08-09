@@ -73,7 +73,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 5),
     maxDurability: 22,
-    requirements: { [CombatAttribute.Strength]: 10 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -94,7 +94,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(4, 8),
     maxDurability: 18,
-    requirements: { [CombatAttribute.Strength]: 14 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -115,7 +115,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 20,
-    requirements: { [CombatAttribute.Strength]: 24 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -157,7 +157,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 4),
     maxDurability: 15,
-    requirements: { [CombatAttribute.Strength]: 5 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -178,7 +178,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 5),
     maxDurability: 17,
-    requirements: { [CombatAttribute.Strength]: 7, [CombatAttribute.Dexterity]: 7 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -199,7 +199,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(6, 8),
     maxDurability: 24,
-    requirements: { [CombatAttribute.Strength]: 17, [CombatAttribute.Dexterity]: 7 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -220,7 +220,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 25,
-    requirements: { [CombatAttribute.Strength]: 27, [CombatAttribute.Dexterity]: 15 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -264,7 +264,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 6),
     maxDurability: 13,
-    requirements: { [CombatAttribute.Dexterity]: 7 },
+    requirements: { [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -285,7 +285,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(6, 9),
     maxDurability: 25,
-    requirements: { [CombatAttribute.Strength]: 7, [CombatAttribute.Dexterity]: 14 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -306,7 +306,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 10),
     maxDurability: 20,
-    requirements: { [CombatAttribute.Strength]: 18, [CombatAttribute.Dexterity]: 7, [CombatAttribute.Spirit]: 3 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1, [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -332,7 +332,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 8),
     maxDurability: 12,
-    requirements: { [CombatAttribute.Strength]: 13, [CombatAttribute.Spirit]: 5 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -353,7 +353,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 4),
     maxDurability: 9,
-    requirements: { [CombatAttribute.Strength]: 8, [CombatAttribute.Spirit]: 2 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -374,7 +374,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 4),
     maxDurability: 10,
-    requirements: { [CombatAttribute.Spirit]: 2 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -395,7 +395,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 6),
     maxDurability: 14,
-    requirements: { [CombatAttribute.Spirit]: 10 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -416,7 +416,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 7),
     maxDurability: 18,
-    requirements: { [CombatAttribute.Spirit]: 15 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -437,7 +437,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 24,
-    requirements: { [CombatAttribute.Spirit]: 20 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -500,7 +500,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 5),
     maxDurability: 11,
-    requirements: { [CombatAttribute.Strength]: 2, [CombatAttribute.Dexterity]: 5 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -521,7 +521,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 5),
     maxDurability: 15,
-    requirements: { [CombatAttribute.Strength]: 9 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -542,7 +542,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 6),
     maxDurability: 16,
-    requirements: { [CombatAttribute.Strength]: 11, [CombatAttribute.Dexterity]: 5 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -564,7 +564,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 7),
     maxDurability: 18,
-    requirements: { [CombatAttribute.Strength]: 16 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -585,7 +585,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 7),
     maxDurability: 21,
-    requirements: { [CombatAttribute.Strength]: 13, [CombatAttribute.Dexterity]: 7 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -606,7 +606,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(6, 8),
     maxDurability: 19,
-    requirements: { [CombatAttribute.Strength]: 9, [CombatAttribute.Dexterity]: 15 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -628,7 +628,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(7, 9),
     maxDurability: 18,
-    requirements: { [CombatAttribute.Strength]: 7, [CombatAttribute.Spirit]: 7 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -654,7 +654,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 23,
-    requirements: { [CombatAttribute.Strength]: 7, [CombatAttribute.Spirit]: 7 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -676,7 +676,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(9, 10),
     maxDurability: 28,
-    requirements: { [CombatAttribute.Strength]: 23, [CombatAttribute.Dexterity]: 11 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -697,7 +697,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(9, 10),
     maxDurability: 40,
-    requirements: { [CombatAttribute.Strength]: 30 },
+    requirements: { [CombatAttribute.Strength]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -718,7 +718,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 6),
     maxDurability: 16,
-    requirements: { [CombatAttribute.Spirit]: 10 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.LifeSteal]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Spirit]: 5, [AffixType.Vitality]: 5, [AffixType.Durability]: 5 },
@@ -739,7 +739,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 8),
     maxDurability: 19,
-    requirements: { [CombatAttribute.Spirit]: 15 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.LifeSteal]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Spirit]: 5, [AffixType.Vitality]: 5, [AffixType.Durability]: 5 },
@@ -760,7 +760,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 24,
-    requirements: { [CombatAttribute.Spirit]: 25 },
+    requirements: { [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.LifeSteal]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Spirit]: 5, [AffixType.Vitality]: 5, [AffixType.Durability]: 5 },
@@ -781,7 +781,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(1, 3),
     maxDurability: 15,
-    requirements: { [CombatAttribute.Dexterity]: 2 },
+    requirements: { [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.Evasion]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -802,7 +802,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 5),
     maxDurability: 16,
-    requirements: { [CombatAttribute.Strength]: 3, [CombatAttribute.Dexterity]: 7 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.Evasion]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -823,7 +823,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 8),
     maxDurability: 26,
-    requirements: { [CombatAttribute.Strength]: 7, [CombatAttribute.Dexterity]: 13 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.Evasion]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -844,7 +844,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 25,
-    requirements: { [CombatAttribute.Strength]: 13, [CombatAttribute.Dexterity]: 25 },
+    requirements: { [CombatAttribute.Strength]: 1, [CombatAttribute.Dexterity]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.Evasion]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },
@@ -865,7 +865,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(7, 10),
     maxDurability: 11,
-    requirements: { [CombatAttribute.Dexterity]: 7, [CombatAttribute.Spirit]: 13 },
+    requirements: { [CombatAttribute.Dexterity]: 1, [CombatAttribute.Spirit]: 1 },
     possibleAffixes: {
       prefix: { [AffixType.Accuracy]: 5, [AffixType.PercentDamage]: 5, [AffixType.LifeSteal]: 5, [AffixType.Evasion]: 5, [AffixType.ArmorPenetration]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.FlatDamage]: 5, [AffixType.Durability]: 5 },

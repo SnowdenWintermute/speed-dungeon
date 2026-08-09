@@ -205,6 +205,12 @@ say 90%.
     to keep their 90% hit chance against average monsters
   - Then we will know how much evasion to give the average monster
 
+Monster evasion intensity tiers: Characters meeting requirements hit 90% of the time at each tier
+  - 1: no allocations, gear or support class
+  - 2: support class but no allocations
+  - 3: support class and 1/6th total allocations
+  - 4: support class and 1/4th total allocations
+  - 5: support class and 3/5th total allocations
 
 Now we know 
   - the evasion monsters have floor by floor
@@ -213,10 +219,64 @@ Now we know
       - DPS builds: 2.5 turns
       - Defensive builds: 5 turns
 
-We can figure out
+We want to know
   - the average dps output before armor class for a character, room by room
+    - for 1h/shield users
     - for 2h users
     - for dual wielders
     - for bow users
   - vs monsters of each level of evasion intensity
+  - split by "DPS optimization intensity"
 
+Let's start with
+  - the average available damage per turn, per character, room by room, of a party made up of three characters 
+    picked randomly from these specialities (pick is non-replacing, character should have unique specialties with a party)
+    each run in our research series picks a new random three.
+     - 2h melee weapon user
+     - bow user
+     - dual wielder
+     - 1h/shield user
+     - sprit maximizer
+  - characters use an "equipment set solver" after each loot drop event to determine best total damage per turn
+    for the party as a whole.
+      - evaluate every permutation of all available equipment in each possible slot combination across the three charcters
+  - the average expected damage per turn each archetype does against an average evasive target by room with 
+      - no armor
+      - no crit chance reduction
+      - no crit damage reduction
+      - no shield block/parry/counterattack traits
+    
+
+DPS optimization intensity (all assumes wearing best available weapons for chosen specialty)
+  - 1: no support class, minimum allocations required to equip best available weapon
+  - 2: has support class, minimum allocations required to equip best available weapon 
+  - 3: support class and 1/6th total allocations  
+  - 4: support class and 1/4th total allocations
+  - 5: support class and 3/5th total allocations
+ 
+Cross reference weapon luck with DPS optimization intensity
+  - by standard deviations, or something else?
+  - want to know how much does weapon luck affect tooltip dps vs optimization
+  - getting +damage and +percent damage on a single item may skew the balance causing
+    "very lucky" in weapon drops to be much better than "lucky"
+
+Party Damage Per Turn Optimized Equipment Solver
+- The equipment pool includes all items the party has access to, including those equipped
+  by characters. (they drop all items on the ground before re-assignment)
+- From the pool, check if any equipment are strictly worse versions
+  of other options that meet all character's potential desires. For example,
+  if only one character wants 2h weapons, and there are two of the same 2h weapon
+  where one has a strength affix, remove the vanilla one from consideration.
+- In random order, characters pick their best equipment sets
+  from the pool. Assuming 7 slots and 5 options per slot thats about 80000
+  iterations for the first character, but due to weapon specialty restrictions
+  it should be less.
+- Once initial greedy set selection finishes, iterate through all potetial "swaps"
+  in which we check if one character giving an item to another character would raise the
+  party's total DPT
+- Permute the possible orders in which characters select their best sets
+- For each hypothetical party equipment setup, check the average damage each character
+  would do against a target with "medium" evasion on the current dungeon floor
+- From that, calculate the party's average "damage per character turn"
+- Note if pick-order caused a great variance in damage-per-turn
+- Use the best result from the pick-orders

@@ -1,13 +1,13 @@
 import { DEEPEST_FLOOR, invariant } from "@speed-dungeon/common";
-import { RunAggregator } from "../sim/run-aggregator";
-import { DungeonRun, SIMULATED_PARTY_CLASSES } from "../sim/dungeon-run";
-import { AccuracyAvailability } from "./accuracy-availability";
-import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis";
 import {
   DungeonRunWorkerMessage,
   DungeonRunWorkerMessageType,
   DungeonRunWorkerRequest,
-} from "./dungeon-run-worker-messages";
+} from "./messages";
+import { RunAggregator } from "@/sim/run-aggregator";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "../dungeon-run-analysis";
+import { AccuracyAvailability } from "../accuracy-availability/index";
+import { DungeonRun, SIMULATED_PARTY_CLASSES } from "@/sim/dungeon-run";
 
 // the dom lib types the ambient `self` as a Window, whose postMessage takes `any` and would check
 // nothing here. this is the part of a worker's global scope the file actually uses
