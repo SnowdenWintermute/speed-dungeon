@@ -52,7 +52,7 @@ export class CharacterAccuracyPotential {
     allPointsIntoDexterity(0);
     const withMaxDexterity = CharacterAccuracyPotential.readAccuracy(clone);
 
-    const supportClassLevel = CharacterAccuracyPotential.maxSupportClassLevel(level);
+    const supportClassLevel = ClassProgressionProperties.maxSupportClassLevel(level);
     if (supportClassLevel === 0) {
       return CharacterAccuracyPotential.assemble({
         asPlayed,
@@ -64,7 +64,7 @@ export class CharacterAccuracyPotential {
 
     const pointsFromSupportClass =
       supportClassLevel * ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL;
-    const supportClasses = CharacterAccuracyPotential.supportClassesFor(combatantClass);
+    const supportClasses = ClassProgressionProperties.supportClassOptionsFor(combatantClass);
 
     // averaged across the classes they could legally take rather than the one that happens to suit
     // accuracy, so this reads as a typical support class rather than an optimal one
@@ -117,26 +117,7 @@ export class CharacterAccuracyPotential {
     };
   }
 
-  /** The rule ReadSkillBook enforces: a read is refused once support level has reached half the
-   * main class level. Reaching it also needs a book of item level above the current support level,
-   * so treat this as the ceiling rather than what a run actually attains. */
-  static maxSupportClassLevel(mainClassLevel: number) {
-    return Math.floor(mainClassLevel / 2);
-  }
-
-  /** Every class but their own — ReadSkillBook refuses a book of your own main class. */
-  static supportClassesFor(mainClass: CombatantClass) {
-    const supportClasses = iterateNumericEnumKeyedRecord(COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL)
-      .map(([combatantClass]) => combatantClass)
-      .filter((combatantClass) => combatantClass !== mainClass);
-
-    invariant(supportClasses.length > 0, "no support class exists for the only combatant class");
-    return supportClasses;
-  }
-
   private static readAccuracy(combatant: Combatant) {
-    // the free function rather than combatant.getTotalAttributes(), which is an arrow-function
-    // property and so stays bound to whatever this was cloned from
     return (
       getCombatantTotalAttributes(combatant.combatantProperties)[CombatAttribute.Accuracy] ?? 0
     );

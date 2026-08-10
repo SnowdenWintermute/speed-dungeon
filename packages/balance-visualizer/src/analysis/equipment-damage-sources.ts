@@ -1,17 +1,20 @@
 import { CombatAttribute, Equipment } from "@speed-dungeon/common";
 
-/** What a non-weapon item contributes to a two-handed melee attacker's damage. Kept as the four raw
- * quantities rather than one number because each buys damage through a different channel and the
- * exchange rate between them moves with the target's evasion — collapsing them early is exactly the
- * mistake that hides the falloff. */
+/** What a non-weapon item contributes to a basic attack's damage. Kept as the four raw quantities
+ * rather than one number because each buys damage through a different channel and the exchange rate
+ * between them moves with the target's evasion — collapsing them early is exactly the mistake that
+ * hides the falloff. */
 export interface DamageSources {
   strength: number;
   dexterity: number;
   accuracy: number;
-  /** Only non-weapon flat damage: a weapon's own flat damage suffix is applied inside its own
+  /** Only non-weapon flat damage, which the game sums in getEquippedNonWeaponFlatDamageBonus and
+   * adds to the attack's base range. A weapon's own flat damage suffix is applied inside its own
    * damage range with its percent-damage multiplier, and is counted with the weapon. */
   flatDamage: number;
 }
+
+export const DAMAGE_CHANNELS = ["strength", "dexterity", "accuracy", "flatDamage"] as const;
 
 export const NO_DAMAGE_SOURCES: DamageSources = {
   strength: 0,

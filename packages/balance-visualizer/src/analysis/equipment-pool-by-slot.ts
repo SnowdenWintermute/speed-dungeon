@@ -5,6 +5,7 @@ import {
   EquipmentType,
   invariant,
 } from "@speed-dungeon/common";
+import { DAMAGE_CHANNELS, DamageSources, EquipmentDamageSources } from "./equipment-damage-sources";
 
 /** What an item is worth to the character being measured. Accuracy availability scores by accuracy,
  * the damage study by marginal damage per turn — the slot rules are the same either way. */
@@ -112,6 +113,21 @@ export class EquipmentPoolBySlot {
     );
 
     return EquipmentPoolBySlot.descending(candidates, score)[0] ?? null;
+  }
+
+  // get average available offensive attributes limited by total slots in the party.
+  // if we have 7 +dex rings, only the best 6 count in a party of 3.
+  perCharacterAverageOffensiveAttributes(characterCount: number): DamageSources {
+    const availability = { strength: 0, dexterity: 0, accuracy: 0, flatDamage: 0 };
+
+    for (const channel of DAMAGE_CHANNELS) {
+      const score = (equipment: Equipment) => EquipmentDamageSources.of(equipment)[channel];
+      const worn = this.selectEquippedWearables(characterCount, score);
+      const total = worn.reduce((sum, equipment) => sum + score(equipment), 0);
+      availability[channel] = total / characterCount;
+    }
+
+    return availability;
   }
 
   private descendingHoldables(category: HoldableCategory, score: EquipmentScore) {

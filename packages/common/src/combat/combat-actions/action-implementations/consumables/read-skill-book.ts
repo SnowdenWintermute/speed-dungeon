@@ -9,6 +9,7 @@ import {
 } from "../../../../items/consumables/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { throwIfError } from "../../../../utils/index.js";
+import { ClassProgressionProperties } from "../../../../combatants/class-progression-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
 import {
@@ -119,7 +120,8 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
 
     // don't allow reading a book if their support class is already half the level of their main class
     const mainClassLevel = user.getLevel();
-    const supportClassAtMaxLevel = supportClassLevel >= Math.floor(mainClassLevel / 2);
+    const supportClassAtMaxLevel =
+      supportClassLevel >= ClassProgressionProperties.maxSupportClassLevel(mainClassLevel);
     if (supportClassAtMaxLevel) {
       return {
         meetsRequirements: false,

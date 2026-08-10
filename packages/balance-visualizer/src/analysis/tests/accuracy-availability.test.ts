@@ -31,8 +31,8 @@ describe("accuracy a character would be wearing out of loot dropped so far", () 
     expect(rooms.at(-1)?.fromEquipped.mean).toBeGreaterThan(0);
   });
 
-  // cloneDeep copies arrow-function class properties by reference, so a snapshot that read
-  // getTotalAttributes off the clone reported the end of the run in every room and this was flat
+  // this was flat back when getTotalAttributes was an arrow-function class property: cloneDeep
+  // copies those by reference, so every room's snapshot reported the end of the run
   it("tracks the party's own accuracy rising with level", () => {
     const rooms = analyzeRuns();
 

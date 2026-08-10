@@ -7,7 +7,11 @@ import {
 import { RunAggregator } from "@/sim/run-aggregator";
 import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "../dungeon-run-analysis";
 import { AccuracyAvailability } from "../accuracy-availability/index";
-import { DungeonRun, SIMULATED_PARTY_CLASSES } from "@/sim/dungeon-run";
+import {
+  AvailableDamageBySpecialty,
+  DEFAULT_ATTACK_DAMAGE_INTENSITY,
+} from "../available-damage/index";
+import { DungeonRun } from "@/sim/dungeon-run";
 
 // the dom lib types the ambient `self` as a Window, whose postMessage takes `any` and would check
 // nothing here. this is the part of a worker's global scope the file actually uses
@@ -24,6 +28,8 @@ type AggregatorFactories = {
 
 const AGGREGATOR_FACTORIES: AggregatorFactories = {
   [DungeonRunAnalysis.AccuracyAvailability]: () => new AccuracyAvailability(),
+  [DungeonRunAnalysis.AvailableDamage]: () =>
+    new AvailableDamageBySpecialty(Math.random, DEFAULT_ATTACK_DAMAGE_INTENSITY),
 };
 
 function post(message: DungeonRunWorkerMessage) {
@@ -38,7 +44,9 @@ self.onmessage = ({ data }) => {
   try {
     for (let runsCompleted = 0; runsCompleted < data.runCount; runsCompleted += 1) {
       // the walk is discarded as soon as it is collected, so only the aggregator's samples grow
-      aggregator.collectRun(DungeonRun.random(SIMULATED_PARTY_CLASSES, DEEPEST_FLOOR).walk());
+      aggregator.collectRun(
+        DungeonRun.random(aggregator.nextPartyClasses(), DEEPEST_FLOOR).walk()
+      );
       post({ type: DungeonRunWorkerMessageType.Progress, runsCompleted: runsCompleted + 1 });
     }
 

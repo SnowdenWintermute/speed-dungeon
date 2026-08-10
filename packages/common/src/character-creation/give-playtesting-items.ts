@@ -91,7 +91,11 @@ export function givePlaytestingItems(
 
   for (let i = 0; i < 20; i += 1) {
     inventory.equipment.push(
-      itemBuilder.shield(Shield.LanternShield).itemLevel(7).randomizeAffixes().build(idGenerator)
+      itemBuilder
+        .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Blade)
+        .itemLevel(7)
+        .randomizeAffixes()
+        .build(idGenerator)
     );
   }
   inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));

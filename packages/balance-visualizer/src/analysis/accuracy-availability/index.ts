@@ -1,6 +1,7 @@
 import { invariant } from "@speed-dungeon/common";
 import { RunAggregator } from "../../sim/run-aggregator";
 import { RoomVisit } from "../../sim/run-history";
+import { SIMULATED_PARTY_CLASSES } from "../../sim/dungeon-run";
 import {
   AccuracyPotential,
   AccuracyPotentialRecord,
@@ -8,7 +9,7 @@ import {
 } from "./character-accuracy-potential";
 import { EquipmentAccuracy } from "./equipment-accuracy";
 import { EquipmentPoolBySlot } from "../equipment-pool-by-slot";
-import { Distribution, distributionOf } from "@/utils/distribution";
+import { Distribution, distributionOf } from "../../utils/distribution";
 
 /** Every figure is per character: the accuracy a character would be *wearing* out of all loot
  * dropped up to and including this room, once one slot can only hold one item and the party of
@@ -53,6 +54,12 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
       availability.collectRun(visits);
     }
     return availability.assemble();
+  }
+
+  /** Fixed across runs on purpose: this analysis measures one party's access to accuracy, so
+   * varying the classes would fold class growth differences into the loot figures. */
+  nextPartyClasses() {
+    return SIMULATED_PARTY_CLASSES;
   }
 
   collectRun(visits: RoomVisit[]) {

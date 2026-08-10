@@ -34,22 +34,27 @@ export function AccuracyAvailabilityPanel() {
         <p className="text-theme-danger mb-4">{state.failureReason}</p>
       )}
 
-      {state.result === null ? (
+      {state.completed === null ? (
         <p className="text-theme-muted">Nothing walked yet.</p>
       ) : (
         <>
-          <p className="text-sm text-theme-muted mb-2">{state.runCountShown} runs, per character</p>
+          <p className="text-sm text-theme-muted mb-2">
+            {state.completed.runCount} runs, per character
+          </p>
           <Divider extraStyles="mb-8" />
           <div className="bg-theme-base border p-2 px-4 border-theme-muted mx-auto mb-10">
             <DataTable
               columns={ACCURACY_AVAILABILITY_COLUMNS}
-              entries={state.result}
+              entries={state.completed.result}
               keyOf={roomKey}
               emptyMessage="no rooms walked"
             />
           </div>
 
-          <MonsterEvasionSection rooms={state.result} />
+          <MonsterEvasionSection
+            rooms={state.completed.result}
+            runCount={state.completed.runCount}
+          />
         </>
       )}
     </section>

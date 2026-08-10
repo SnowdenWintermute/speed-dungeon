@@ -5,11 +5,18 @@ import {
   DungeonRunWorkerMessageType,
 } from "@/analysis/dungeon-run-worker/messages";
 
+/** One field rather than two, because a result and the number of runs behind it are only meaningful
+ * together — anything reporting the figure alongside the table would otherwise have to handle a null
+ * run count that cannot happen. */
+export interface CompletedAnalysis<TResult> {
+  result: TResult;
+  /** Not the pending count while a run is in flight — the last finished result stays on screen until
+   * it is replaced. */
+  runCount: number;
+}
+
 export interface DungeonRunAnalysisState<TResult> {
-  result: null | TResult;
-  /** How many runs the displayed result was built from. Not the pending count while a run is in
-   * flight — the last finished result stays on screen until it is replaced. */
-  runCountShown: null | number;
+  completed: null | CompletedAnalysis<TResult>;
   runsCompleted: number;
   runsRequested: number;
   isRunning: boolean;
@@ -18,8 +25,7 @@ export interface DungeonRunAnalysisState<TResult> {
 
 function initialState<TResult>(): DungeonRunAnalysisState<TResult> {
   return {
-    result: null,
-    runCountShown: null,
+    completed: null,
     runsCompleted: 0,
     runsRequested: 0,
     isRunning: false,
@@ -65,8 +71,7 @@ export function useDungeonRunAnalysis<TAnalysis extends DungeonRunAnalysis>(anal
           case DungeonRunWorkerMessageType.Complete:
             setState((current) => ({
               ...current,
-              result: data.result,
-              runCountShown: current.runsRequested,
+              completed: { result: data.result, runCount: current.runsRequested },
               isRunning: false,
             }));
             worker.terminate();

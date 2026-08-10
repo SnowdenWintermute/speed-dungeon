@@ -4,6 +4,7 @@ import {
   CharacterControlScheme,
   Combatant,
   CombatantClass,
+  ClassProgressionProperties,
   CombatantId,
   Consumable,
   EntityName,
@@ -19,6 +20,7 @@ import {
 import cloneDeep from "lodash.clonedeep";
 import { GameServices } from "./game-services";
 import { CharacterRoomSnapshot } from "./run-history";
+import { CharacterSpec } from "./character-spec";
 
 const SIMULATED_PLAYER_NAME = "simulated-player" as Username;
 const PARTY_ALWAYS_WINS: PartyWipes = { alliesDefeated: false, opponentsDefeated: true };
@@ -36,10 +38,11 @@ export class DungeonExpedition {
   private constructor(
     private readonly services: GameServices,
     private readonly game: SpeedDungeonGame,
-    private readonly party: AdventuringParty
+    private readonly party: AdventuringParty,
+    private readonly supportClasses: Map<CombatantId, CombatantClass>
   ) {}
 
-  static begin(services: GameServices, combatantClasses: CombatantClass[]) {
+  static begin(services: GameServices, characterSpecs: CharacterSpec[]) {
     const { idGenerator, characterCreationPolicy } = services;
 
     const game = new SpeedDungeonGame(
@@ -55,16 +58,43 @@ export class DungeonExpedition {
     );
     game.addParty(party);
 
-    for (const combatantClass of combatantClasses) {
+    const supportClasses = new Map<CombatantId, CombatantClass>();
+
+    for (const { mainClass, supportClass } of characterSpecs) {
       const { combatant } = characterCreationPolicy.createCharacter(
         "" as EntityName,
-        combatantClass,
+        mainClass,
         SIMULATED_PLAYER_NAME
       );
       party.combatantManager.addCombatant(combatant, game);
+
+      if (supportClass !== null) {
+        supportClasses.set(combatant.getEntityId(), supportClass);
+      }
     }
 
-    return new DungeonExpedition(services, game, party);
+    return new DungeonExpedition(services, game, party, supportClasses);
+  }
+
+  // incremented rather than set outright: incrementSupportClassLevel is what awards
+  // ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL, and setSupportClass would leave a character
+  // with the class attributes but none of the points
+  private grantSupportClassLevels() {
+    for (const character of this.getCharacters()) {
+      const supportClass = this.supportClasses.get(character.getEntityId());
+      if (supportClass === undefined) {
+        continue;
+      }
+
+      const { classProgressionProperties } = character.combatantProperties;
+      const target = ClassProgressionProperties.maxSupportClassLevel(
+        classProgressionProperties.getMainClass().level
+      );
+
+      while ((classProgressionProperties.getSupportClassOption()?.level ?? 0) < target) {
+        classProgressionProperties.incrementSupportClassLevel(supportClass);
+      }
+    }
   }
 
   getCurrentFloor() {
@@ -140,6 +170,7 @@ export class DungeonExpedition {
       this.experienceEarned.set(combatantId, earnedSoFar + change);
     }
 
+    this.grantSupportClassLevels();
     this.party.removeCombatantsOnBattleEnd(this.game);
 
     return loot;

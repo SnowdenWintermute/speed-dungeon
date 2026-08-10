@@ -1,6 +1,8 @@
 import {
   ATTRIBUTE_AFFIX_TIER_ONE_RANGE_WIDTH,
   DEEPEST_FLOOR,
+  DERIVED_ATTRIBUTE_AFFIX_RANGE_MULTIPLIER,
+  FLAT_DAMAGE_AFFIX_RANGE_MULTIPLIER,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
 } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
@@ -20,11 +22,6 @@ import { EquipmentTraitType } from "../equipment/equipment-traits/index.js";
 import { EquipmentType } from "../equipment/equipment-types/index.js";
 import { Equipment } from "../equipment/index.js";
 import { EquipmentGenerationTemplate } from "./equipment-templates/base-templates.js";
-
-// since core attributes give several derived attributes,
-// we need to give a lot more of a single derived attribute
-// for the affix to be worth considering
-const DERIVED_ATTRIBUTE_MULTIPLIER = 2.5;
 
 export class AffixGenerator {
   constructor(private rngPolicy: RandomNumberGenerationPolicy) {}
@@ -159,11 +156,19 @@ export class AffixGenerator {
     if (isCoreAttributeAffix) {
       return this.getAttributeAffixValueRange(tier, [rangeMultiplier]);
     }
+
+    if (affixType === AffixType.FlatDamage) {
+      return this.getAttributeAffixValueRange(tier, [
+        rangeMultiplier,
+        FLAT_DAMAGE_AFFIX_RANGE_MULTIPLIER,
+      ]);
+    }
+
     const isDerivedAttributeAffix = DERIVED_ATTRIBUTE_AFFIXES.includes(affixType);
     if (isDerivedAttributeAffix) {
       return this.getAttributeAffixValueRange(tier, [
         rangeMultiplier,
-        DERIVED_ATTRIBUTE_MULTIPLIER,
+        DERIVED_ATTRIBUTE_AFFIX_RANGE_MULTIPLIER,
       ]);
     }
 
@@ -191,7 +196,6 @@ const CORE_ATTRIBUTE_AFFIXES = [
   AffixType.Spirit,
   AffixType.Vitality,
   AffixType.Agility,
-  AffixType.FlatDamage, // not a core attribute but we want to roll same values
 ];
 
 const DERIVED_ATTRIBUTE_AFFIXES = [

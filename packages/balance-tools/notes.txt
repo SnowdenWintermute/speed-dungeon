@@ -248,11 +248,11 @@ Let's start with
     
 
 DPS optimization intensity (all assumes wearing best available weapons for chosen specialty)
-  - 1: no support class, minimum allocations required to equip best available weapon
-  - 2: has support class, minimum allocations required to equip best available weapon 
-  - 3: support class and 1/6th total allocations  
-  - 4: support class and 1/4th total allocations
-  - 5: support class and 3/5th total allocations
+  - 1: support class and 1/5th allocations
+  - 2: support class and 2/5th allocations
+  - 3: support class and 3/5th total allocations  
+  - 4: support class and 4/5th total allocations
+  - 5: support class and 5/5th total allocations
  
 Cross reference weapon luck with DPS optimization intensity
   - by standard deviations, or something else?
@@ -260,23 +260,67 @@ Cross reference weapon luck with DPS optimization intensity
   - getting +damage and +percent damage on a single item may skew the balance causing
     "very lucky" in weapon drops to be much better than "lucky"
 
-Party Damage Per Turn Optimized Equipment Solver
-- The equipment pool includes all items the party has access to, including those equipped
-  by characters. (they drop all items on the ground before re-assignment)
-- From the pool, check if any equipment are strictly worse versions
-  of other options that meet all character's potential desires. For example,
-  if only one character wants 2h weapons, and there are two of the same 2h weapon
-  where one has a strength affix, remove the vanilla one from consideration.
-- In random order, characters pick their best equipment sets
-  from the pool. Assuming 7 slots and 5 options per slot thats about 80000
-  iterations for the first character, but due to weapon specialty restrictions
-  it should be less.
-- Once initial greedy set selection finishes, iterate through all potetial "swaps"
-  in which we check if one character giving an item to another character would raise the
-  party's total DPT
-- Permute the possible orders in which characters select their best sets
-- For each hypothetical party equipment setup, check the average damage each character
-  would do against a target with "medium" evasion on the current dungeon floor
-- From that, calculate the party's average "damage per character turn"
-- Note if pick-order caused a great variance in damage-per-turn
-- Use the best result from the pick-orders
+Attemt 3 to explain solver
+- Party puts all available equipment into a "pool" (drop items on ground)
+- Prune any strictly dominated items that no character would ever consider
+- For each possible ordering of characters
+  - Select an optimal set from the remaining pool, excluding any items taken by
+    earlier characters in the pick order, choosing a set that maximizes the picking
+    character's average damage per turn on target, using "Pareto Frontier" to exclude
+    partial sets from selection
+  - for each possible combination of two characters (shuffled for random order of combinations)
+    - pick one "donor" and one "reciever" character
+    - for each equipped item on the donor
+      - drop both character's equipment on the ground
+      - donor picks best set, but can't pick the item from the selected slot
+      - reciever picks best set from remaining items on ground
+      - 3rd character drops their items on the ground
+      - 3rd character picks best set from items on ground, which include their own dropped items
+        and any that were left by the donor/reciever pair
+      - determine if party damage went up
+      - then what?
+
+Alternate approach to available auto attack damage
+- find average damage range of available weapon types room by room (including w/ damage affixes)
+  - 1h melee
+  - 2h melee
+  - bow
+- find average available dex, str and accuracy per character equipment slot room by room
+  - example, on room 4 there are two body armors that have a total of +6 strength between them
+  - there are three characters in the party and therefore 3 body armor slots to fill
+  - +strength per slot in that run in that room is +2
+  - on floor 6 we now have many body armors. the best 3 for +strength give a total of +15 between them
+  - +strength per slot is +5 in that run in that room
+- from this we can know the average available str or dex on a full gear set, room by room
+- for each character specialty, room by room
+  - give them a fake weapon with the damage range equal to the average available range
+    of their specialty's weapon type at that room. dual wielders get two fake 1h weapons.
+  - have them take n/100ths (where n=a tuneable constant, their damage optimization intensity) of the
+    average available desired attributes on gear sets. This will be avg available 
+    ( str + dex + ( accuracy/ DERIVED_ATTRIBUTE_MULTIPLIER )  )/ 3 of "generic offensive attributes"
+  - with their "generic offensive attributes", have them choose optimally between a mix of Strength
+    and dexterity and accuracy (1 point of accuracy from the pool = 1*DERIVED_ATTRIBUTE_MULTIPLIER)
+    to deal the most aveage damage per turn with their Attack action on a target dummy
+    on that floor
+  - do not allow their allocations to exceed average percentage of the pool the allocated attribute takes up.
+    For example, plain accuracy may take up about 20% of the average offensive attribute pool, and str/dex take 40% each.
+    Their hypothetical allocations into each attribute should not exceed those counts.
+  - then add their expected available discretionary points * n/100 as optimally distributed for damage
+
+Controls:
+Run count input
+Toggle for "evenly distribute runs by class/specialty combos" or "only do runs for selected combo"
+Select view specialty
+Select view main class
+Select view support class
+
+Columns, by room for a given specialty/class combo:
+  - avg damage on target 10th percentile
+  - avg damage on target median
+  - avg damage on target 90th percentile
+  - runs excluded (for specialties that don't have their weapon available)
+  - avg str/dex/acc/flat available from gear/percent allocated
+  - str/dex from discretionary points/percent allocated
+  - str/dex from inherent attributes (subjob included)
+  - selected weapons by percent (in floor 2-4, Short Bow 24%, Composite Bow 55%)
+  - weapons in specialty available by percent

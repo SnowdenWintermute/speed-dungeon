@@ -107,7 +107,7 @@ export function getCombatantTotalAttributes(
     addAttributesToAccumulator(attributesFromCondition, totalAttributes);
   }
 
-  // DERRIVED
+  // DERIVED
   for (const [mainAttribute, attributeRatios] of iterateNumericEnumKeyedRecord(
     DERIVED_ATTRIBUTE_RATIOS
   )) {

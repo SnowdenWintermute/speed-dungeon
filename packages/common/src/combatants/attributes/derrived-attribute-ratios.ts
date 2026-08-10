@@ -4,7 +4,7 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
   Record<CombatAttribute, Partial<Record<CombatAttribute, number>>>
 > = {
   [CombatAttribute.Dexterity]: {
-    [CombatAttribute.Accuracy]: 2,
+    [CombatAttribute.Accuracy]: 1.5,
   },
   [CombatAttribute.Spirit]: {
     [CombatAttribute.Mp]: 1,

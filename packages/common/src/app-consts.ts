@@ -93,6 +93,10 @@ export const FOUND_ITEM_MAX_DURABILITY_MODIFIER = 0.75;
 export const FOUND_ITEM_MIN_DURABILITY_MODIFIER = 0.25;
 // tier ranges widen as tiers increase
 export const ATTRIBUTE_AFFIX_TIER_ONE_RANGE_WIDTH = 2;
+// since core attributes give several derived attributes, we need to give a lot more of a single
+// derived attribute for the affix to be worth considering
+export const DERIVED_ATTRIBUTE_AFFIX_RANGE_MULTIPLIER = 2.5;
+export const FLAT_DAMAGE_AFFIX_RANGE_MULTIPLIER = 0.5;
 // CRAFTING
 // go to crafting actions for the related consts
 

@@ -8,6 +8,7 @@ import {
   ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL,
   COMBATANT_MAX_LEVEL,
 } from "../app-consts.js";
+import { iterateNumericEnum } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantClass } from "./combatant-class/classes.js";
@@ -22,6 +23,20 @@ export class ClassProgressionProperties
 {
   private supportClass: null | CombatantClassProperties = null;
   public experiencePoints = new ExperiencePoints();
+
+  /** The ceiling ReadSkillBook enforces on a support class. Reaching it also needs a book of item
+   * level above the current support level, so this is what a character could reach rather than what
+   * they will. */
+  static maxSupportClassLevel(mainClassLevel: number) {
+    return Math.floor(mainClassLevel / 2);
+  }
+
+  /** Every class but their own: ReadSkillBook refuses a book you could have written. */
+  static supportClassOptionsFor(mainClass: CombatantClass) {
+    return iterateNumericEnum(CombatantClass).filter(
+      (combatantClass) => combatantClass !== mainClass
+    );
+  }
 
   constructor(private mainClass: CombatantClassProperties) {
     super();

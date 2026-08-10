@@ -73,7 +73,9 @@ export class CombatantAttributeProperties
     return total;
   }
 
-  getTotalAttributes = () => getCombatantTotalAttributes(this.getCombatantProperties());
+  getTotalAttributes() {
+    return getCombatantTotalAttributes(this.getCombatantProperties());
+  }
 
   getAttributeValue(attribute: CombatAttribute) {
     return this.getTotalAttributes()[attribute];

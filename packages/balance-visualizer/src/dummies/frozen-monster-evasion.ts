@@ -1,57 +1,21 @@
 import { invariant } from "@speed-dungeon/common";
 import { MonsterAttributeIntensity } from "../analysis/monster-attributes/monster-attribute-intensity";
+import { MONSTER_EVASION_BY_FLOOR } from "./monster-evasion.generated";
 
-/** Frozen 2026-08-07 from 500 ten-floor walks, party of Warrior/Rogue/Mage, solved for a 90% hit
- * rate against the reference character of each intensity (see REFERENCE_CHARACTER_PROFILES).
+/** Frozen deliberately, and frozen is the point rather than an implementation detail. Everything
+ * downstream — damage per turn, turns to kill, the offence/defence spread — needs monster evasion as
+ * a fixed input. A study that derived it from whatever character it happened to be measuring would
+ * move the target every time the measurement moved, and nothing could be compared across studies.
  *
- * Frozen deliberately. Everything downstream — damage per turn, turns to kill, the offence/defence
- * spread — needs monster evasion as a fixed input, or each study re-derives it from whatever
- * character it happens to be measuring and nothing can be compared across studies.
- *
- * Re-measure with print-monster-evasion when any of these change: the Dexterity to Accuracy ratio,
- * the affix templates or their tier values, class accuracy growth, drop rates, the XP curve or
- * level pacing, party size, or the equipment slot model in EquipmentPoolBySlot.
- */
-
-/** Depth is the axis that resists a formula. A straight line through these misses by up to 2.3
- * because the party's level plateaus on floors 4 and 8 — that is the XP curve showing through, not
- * sampling noise, so the measured series is kept rather than smoothed. */
-const MEDIUM_EVASION_BY_FLOOR: Record<number, number> = {
-  1: 2.7,
-  2: 11.7,
-  3: 20.2,
-  4: 24.6,
-  5: 29.5,
-  6: 39.6,
-  7: 45.6,
-  8: 51.1,
-  9: 60.4,
-  10: 67.1,
-};
-
-/** Intensity, unlike depth, is close to a clean scaling of the middle-of-the-road monster: the
- * measured ratio to Medium holds to within a few percent at every floor, so the other four rows
- * collapse into one multiplier each.
- *
- * Residuals against the 500-run measurement, floors 2-10: within ~3.5% for Low, High and VeryHigh.
- * VeryLow drifts further, over-predicting shallow floors and under-predicting deep ones by up to
- * ~7%, because it is the only profile with no support class and no allocation — its accuracy is
- * purely inherent, so it does not track loot the way the others do. Floor 1 is excluded from the
- * fit: every intensity is inside 7 evasion there and VeryLow clamps to 0, so evasion is not yet a
- * usable design lever that shallow. */
-const EVASION_MULTIPLIER_BY_INTENSITY: Record<MonsterAttributeIntensity, number> = {
-  [MonsterAttributeIntensity.VeryLow]: 0.37,
-  [MonsterAttributeIntensity.Low]: 0.65,
-  [MonsterAttributeIntensity.Medium]: 1,
-  [MonsterAttributeIntensity.High]: 1.18,
-  [MonsterAttributeIntensity.VeryHigh]: 1.92,
-};
-
+ * Frozen does not mean permanent. The table is generated, and the header of the generated file lists
+ * what invalidates it; re-derive with `yarn workspace @speed-dungeon/balance-visualizer
+ * derive:evasion` and commit the result as its own change, so a shift in every downstream number has
+ * a commit to point at. */
 export function getFrozenMonsterEvasion(
   floorNumber: number,
   intensity: MonsterAttributeIntensity
 ): number {
-  const mediumEvasion = MEDIUM_EVASION_BY_FLOOR[floorNumber];
-  invariant(mediumEvasion !== undefined, `no frozen monster evasion for floor ${floorNumber}`);
-  return mediumEvasion * EVASION_MULTIPLIER_BY_INTENSITY[intensity];
+  const byIntensity = MONSTER_EVASION_BY_FLOOR[floorNumber];
+  invariant(byIntensity !== undefined, `no frozen monster evasion for floor ${floorNumber}`);
+  return byIntensity[intensity];
 }
