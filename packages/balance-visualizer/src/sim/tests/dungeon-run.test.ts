@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 import { CombatantClass, DEEPEST_FLOOR } from "@speed-dungeon/common";
 import { DungeonRun } from "../dungeon-run";
 import { RoomVisit } from "../run-history";
+import { withoutSupportClass } from "../character-spec";
 
 const PARTY_CLASSES = [CombatantClass.Warrior, CombatantClass.Rogue, CombatantClass.Mage];
 
 function walkFullDungeon(): RoomVisit[] {
-  return DungeonRun.random(PARTY_CLASSES, DEEPEST_FLOOR).walk();
+  return DungeonRun.random(withoutSupportClass(PARTY_CLASSES), DEEPEST_FLOOR).walk();
 }
 
 function ascendingFrom(start: number, length: number) {

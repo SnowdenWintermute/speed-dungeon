@@ -21,7 +21,7 @@ const availability = new AccuracyAvailability();
 const started = Date.now();
 
 for (let run = 0; run < runCount; run += 1) {
-  availability.collectRun(DungeonRun.random(availability.nextPartyClasses(), DEEPEST_FLOOR).walk());
+  availability.collectRun(DungeonRun.random(availability.nextParty(), DEEPEST_FLOOR).walk());
 }
 
 const floors = MonsterEvasionTargets.byFloor(availability.assemble());

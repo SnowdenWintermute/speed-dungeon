@@ -332,3 +332,4 @@ export * from "./test-fixtures/test-resource-change-properties-strategy.js";
 export * from "./combatants/combatant-abilities/ability-allocation-prohibited-reasons.js";
 export * from "./monsters/scaling-sizes.js";
 export * from "./monsters/monster-spawn-sizing.js";
+export * from "./items/item-creation/item-builder/build-equipment-name.js";

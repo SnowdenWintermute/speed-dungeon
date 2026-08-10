@@ -25,6 +25,7 @@ import {
   SpecialtyAllocation,
 } from "./specialty-allocation";
 import { Holdables } from "./specialty-holdables";
+import { CombatantAttributeCache } from "../../utils/combatant-attribute-cache";
 
 /** How much of the gear budget one move spends. Small enough that the order moves are taken in stops
  * mattering, large enough that a full solve stays a few hundred damage evaluations. */
@@ -93,6 +94,7 @@ export class SpecialtyDamageSolver {
     const clone = cloneDeep(character);
     const carrier = new FlatDamageCarrier(this.idGenerator);
     SpecialtyDamageSolver.dressIn(clone, holdables, carrier);
+    const attributeCache = new CombatantAttributeCache(clone);
 
     const { attributeProperties } = clone.combatantProperties;
     const speccedBaseline = attributeProperties.getNaturalAttributes();
@@ -128,6 +130,7 @@ export class SpecialtyDamageSolver {
 
     const score = (candidate: SpecialtyAllocation) => {
       SpecialtyDamageSolver.write(clone, carrier, speccedBaseline, writtenAttributes, candidate);
+      attributeCache.refresh();
       return this.damagePerTurn.against(clone, target);
     };
 

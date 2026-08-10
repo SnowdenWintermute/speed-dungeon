@@ -7,6 +7,7 @@ import {
 import { RunAggregator } from "@/sim/run-aggregator";
 import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "../dungeon-run-analysis";
 import { AccuracyAvailability } from "../accuracy-availability/index";
+import { PartyDrawMode } from "../available-damage/party-draw";
 import {
   AvailableDamageBySpecialty,
   DEFAULT_ATTACK_DAMAGE_INTENSITY,
@@ -23,13 +24,18 @@ declare const self: {
 /** Mapped rather than a plain Record so each analysis is tied to the result type it promises, and
  * adding one without registering an aggregator for it is a compile error. */
 type AggregatorFactories = {
-  [TAnalysis in DungeonRunAnalysis]: () => RunAggregator<DungeonRunAnalysisResults[TAnalysis]>;
+  [TAnalysis in DungeonRunAnalysis]: (
+    request: DungeonRunWorkerRequest
+  ) => RunAggregator<DungeonRunAnalysisResults[TAnalysis]>;
 };
 
 const AGGREGATOR_FACTORIES: AggregatorFactories = {
   [DungeonRunAnalysis.AccuracyAvailability]: () => new AccuracyAvailability(),
-  [DungeonRunAnalysis.AvailableDamage]: () =>
-    new AvailableDamageBySpecialty(Math.random, DEFAULT_ATTACK_DAMAGE_INTENSITY),
+  [DungeonRunAnalysis.AvailableDamage]: (request) =>
+    new AvailableDamageBySpecialty(Math.random, {
+      attackDamageIntensity: DEFAULT_ATTACK_DAMAGE_INTENSITY,
+      draw: request.draw ?? { type: PartyDrawMode.EvenlyDistributed },
+    }),
 };
 
 function post(message: DungeonRunWorkerMessage) {
@@ -39,13 +45,13 @@ function post(message: DungeonRunWorkerMessage) {
 self.onmessage = ({ data }) => {
   const makeAggregator = AGGREGATOR_FACTORIES[data.analysis];
   invariant(makeAggregator !== undefined, `no aggregator registered for analysis ${data.analysis}`);
-  const aggregator = makeAggregator();
+  const aggregator = makeAggregator(data);
 
   try {
     for (let runsCompleted = 0; runsCompleted < data.runCount; runsCompleted += 1) {
       // the walk is discarded as soon as it is collected, so only the aggregator's samples grow
       aggregator.collectRun(
-        DungeonRun.random(aggregator.nextPartyClasses(), DEEPEST_FLOOR).walk()
+        DungeonRun.random(aggregator.nextParty(), DEEPEST_FLOOR).walk()
       );
       post({ type: DungeonRunWorkerMessageType.Progress, runsCompleted: runsCompleted + 1 });
     }

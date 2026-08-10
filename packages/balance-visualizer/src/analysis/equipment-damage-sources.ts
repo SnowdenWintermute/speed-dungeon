@@ -16,6 +16,15 @@ export interface DamageSources {
 
 export const DAMAGE_CHANNELS = ["strength", "dexterity", "accuracy", "flatDamage"] as const;
 
+/** Short enough for a column heading. Kept apart from the keys, which have to stay spelled the way
+ * DamageSources spells them so a channel can index it. */
+export const DAMAGE_CHANNEL_NAMES: Record<(typeof DAMAGE_CHANNELS)[number], string> = {
+  strength: "str",
+  dexterity: "dex",
+  accuracy: "acc",
+  flatDamage: "flat",
+};
+
 export const NO_DAMAGE_SOURCES: DamageSources = {
   strength: 0,
   dexterity: 0,

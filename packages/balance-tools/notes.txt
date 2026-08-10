@@ -310,9 +310,11 @@ Alternate approach to available auto attack damage
 Controls:
 Run count input
 Toggle for "evenly distribute runs by class/specialty combos" or "only do runs for selected combo"
-Select view specialty
-Select view main class
-Select view support class
+View inputs (once runs collected, switch table to show selected combo, or before runs are collected, select
+the type of runs to do)
+ - Select view specialty
+ - Select view main class
+ - Select view support class
 
 Columns, by room for a given specialty/class combo:
   - avg damage on target 10th percentile

@@ -2,6 +2,7 @@ import { invariant } from "@speed-dungeon/common";
 import { RunAggregator } from "../../sim/run-aggregator";
 import { RoomVisit } from "../../sim/run-history";
 import { SIMULATED_PARTY_CLASSES } from "../../sim/dungeon-run";
+import { withoutSupportClass } from "../../sim/character-spec";
 import {
   AccuracyPotential,
   AccuracyPotentialRecord,
@@ -57,9 +58,11 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
   }
 
   /** Fixed across runs on purpose: this analysis measures one party's access to accuracy, so
-   * varying the classes would fold class growth differences into the loot figures. */
-  nextPartyClasses() {
-    return SIMULATED_PARTY_CLASSES;
+   * varying the classes would fold class growth differences into the loot figures. No support
+   * class either — CharacterAccuracyPotential models that analytically, as the variant it can then
+   * report separately from the as-played figure. */
+  nextParty() {
+    return withoutSupportClass(SIMULATED_PARTY_CLASSES);
   }
 
   collectRun(visits: RoomVisit[]) {

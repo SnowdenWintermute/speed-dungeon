@@ -2,11 +2,9 @@ import {
   ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL,
   CombatAttribute,
   Combatant,
-  CombatantClass,
-  COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
+  ClassProgressionProperties,
   getCombatantTotalAttributes,
   invariant,
-  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 

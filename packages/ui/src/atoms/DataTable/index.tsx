@@ -1,7 +1,14 @@
 import React, { ReactNode } from "react";
-import { DataTableCellLayout, DataTableColumn } from "./column";
+import { DataTableCellLayout, DataTableColumn, DataTableLayout } from "./column";
 import { DataTableHeaderCell } from "./DataTableHeaderCell";
 import { DATA_TABLE_CELL_CLASSES, DATA_TABLE_STACKED_CELL_CLASSES } from "./styles";
+
+// complete strings for the same reason the cell classes are: tailwind resolves conflicting
+// utilities by their order in the stylesheet, not the order they appear in a className
+const TABLE_CLASSES: Record<DataTableLayout, string> = {
+  [DataTableLayout.FitContainer]: "w-full table-fixed border-collapse",
+  [DataTableLayout.FitContent]: "w-max min-w-full table-auto border-collapse",
+};
 
 // every table's rows hold different fields, so a caller describes its columns and this owns all the
 // markup. no caller writes a td, which is what keeps them from drifting apart visually
@@ -20,15 +27,17 @@ export function DataTable<TEntry>({
   keyOf,
   emptyMessage,
   renderSortIndicator,
+  layoutOption,
 }: {
   columns: DataTableColumn<TEntry>[];
   entries: TEntry[];
   keyOf: (entry: TEntry) => string;
   emptyMessage: string;
   renderSortIndicator?: (isDescending: boolean) => ReactNode;
+  layoutOption?: DataTableLayout;
 }) {
   return (
-    <table className="w-full table-fixed border-collapse">
+    <table className={TABLE_CLASSES[layoutOption ?? DataTableLayout.FitContainer]}>
       <thead>
         <tr className="border-b border-theme-muted font-bold">
           {columns.map((column) => (

@@ -23,7 +23,28 @@ export interface StrippedHoldables {
 /** The measured character gets first pick, so no division by the party: unlike a body armor slot,
  * which every character fills, a two-hander is what the one character specializing in two-handers
  * would be carrying. Nobody else in the party is assumed to want it. */
+/** The weapon types a specialty is measured on. Unconstrained names them all, since a caster is not
+ * defined by what it holds. */
+const WEAPON_TYPES_BY_CONFIGURATION: Record<HoldableConfiguration, EquipmentType[]> = {
+  [HoldableConfiguration.TwoHandedMelee]: [EquipmentType.TwoHandedMeleeWeapon],
+  [HoldableConfiguration.TwoHandedRanged]: [EquipmentType.TwoHandedRangedWeapon],
+  [HoldableConfiguration.DualWield]: [EquipmentType.OneHandedMeleeWeapon],
+  [HoldableConfiguration.OneHandAndShield]: [EquipmentType.OneHandedMeleeWeapon],
+  [HoldableConfiguration.Unconstrained]: [
+    EquipmentType.OneHandedMeleeWeapon,
+    EquipmentType.TwoHandedMeleeWeapon,
+    EquipmentType.TwoHandedRangedWeapon,
+  ],
+};
+
 export class SpecialtyHoldables {
+  static weaponCandidates(configuration: HoldableConfiguration, available: Equipment[]) {
+    const weaponTypes = WEAPON_TYPES_BY_CONFIGURATION[configuration];
+    return available.filter((equipment) =>
+      weaponTypes.includes(equipment.equipmentBaseItemProperties.equipmentType)
+    );
+  }
+
   /** Null when the specialty's weapon has not dropped yet. Not the same as fighting unarmed — the
    * caller records the room as one where the specialty was unavailable rather than scoring it,
    * because a bow user with no bow is measuring the drop rate, not the bow. */

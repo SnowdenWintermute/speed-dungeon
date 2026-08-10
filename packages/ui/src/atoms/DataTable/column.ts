@@ -15,6 +15,15 @@ export enum DataTableCellLayout {
   Stacked,
 }
 
+// whether the table divides the width it is given or takes the width it needs. FitContainer keeps
+// every column on screen and truncates what will not fit, which is what a table read at a glance
+// wants. FitContent lets the table grow past its container so nothing is cut, which only helps if
+// the caller puts it in something that scrolls
+export enum DataTableLayout {
+  FitContainer,
+  FitContent,
+}
+
 export interface DataTableColumn<TEntry> {
   header: string;
   renderCell: (entry: TEntry) => ReactNode;

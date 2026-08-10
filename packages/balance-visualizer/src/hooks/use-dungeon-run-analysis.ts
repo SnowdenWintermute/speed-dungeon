@@ -3,6 +3,7 @@ import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "@/analysis/dungeo
 import {
   DungeonRunWorkerMessage,
   DungeonRunWorkerMessageType,
+  DungeonRunWorkerRequest,
 } from "@/analysis/dungeon-run-worker/messages";
 
 /** One field rather than two, because a result and the number of runs behind it are only meaningful
@@ -44,7 +45,7 @@ export function useDungeonRunAnalysis<TAnalysis extends DungeonRunAnalysis>(anal
   // a fresh worker per request, so starting a run cancels one already in flight rather than
   // interleaving two streams of progress messages
   const run = useCallback(
-    (runCount: number) => {
+    (runCount: number, options: Pick<DungeonRunWorkerRequest, "draw"> = {}) => {
       workerRef.current?.terminate();
 
       const worker = new Worker(
@@ -88,7 +89,7 @@ export function useDungeonRunAnalysis<TAnalysis extends DungeonRunAnalysis>(anal
         worker.terminate();
       };
 
-      worker.postMessage({ analysis, runCount });
+      worker.postMessage({ analysis, runCount, ...options });
     },
     [analysis]
   );

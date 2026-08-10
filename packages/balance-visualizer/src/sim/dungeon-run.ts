@@ -5,6 +5,7 @@ import {
   IdGeneratorSequential,
   RandomNumberGenerationPolicyFactory,
 } from "@speed-dungeon/common";
+import { CharacterSpec } from "./character-spec";
 import { DungeonExpedition } from "./dungeon-expedition";
 import { GameServices } from "./game-services";
 import { RoomVisit } from "./run-history";
@@ -27,12 +28,12 @@ export class DungeonRun {
 
   /** Fresh services per run, so nothing carries between runs but the code itself. Callers wanting a
    * scripted dungeon or fixed rolls build the expedition themselves and use `of`. */
-  static random(combatantClasses: CombatantClass[], deepestFloor: number) {
+  static random(characterSpecs: CharacterSpec[], deepestFloor: number) {
     const services = new GameServices(
       new IdGeneratorSequential({ saveHistory: false }),
       RandomNumberGenerationPolicyFactory.allRandomPolicy()
     );
-    return DungeonRun.of(DungeonExpedition.begin(services, combatantClasses), deepestFloor);
+    return DungeonRun.of(DungeonExpedition.begin(services, characterSpecs), deepestFloor);
   }
 
   walk(): RoomVisit[] {

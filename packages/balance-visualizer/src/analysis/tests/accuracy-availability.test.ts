@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { DEEPEST_FLOOR } from "@speed-dungeon/common";
 import { DungeonRun, SIMULATED_PARTY_CLASSES } from "../../sim/dungeon-run";
+import { withoutSupportClass } from "../../sim/character-spec";
 import { AccuracyAvailability } from "../accuracy-availability/index";
 
 const RUN_COUNT = 3;
 
 function analyzeRuns() {
   const runs = Array.from({ length: RUN_COUNT }, () =>
-    DungeonRun.random(SIMULATED_PARTY_CLASSES, DEEPEST_FLOOR).walk()
+    DungeonRun.random(withoutSupportClass(SIMULATED_PARTY_CLASSES), DEEPEST_FLOOR).walk()
   );
   return AccuracyAvailability.ofRuns(runs);
 }

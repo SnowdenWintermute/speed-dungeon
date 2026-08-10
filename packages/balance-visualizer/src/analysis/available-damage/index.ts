@@ -1,37 +1,32 @@
 import {
-  CombatantClass,
+  CombatAttribute,
   Equipment,
   IdGeneratorSequential,
   invariant,
-  iterateNumericEnumKeyedRecord,
   RealResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
 import { DamagePerTurnCalculator } from "../../metrics/damage-per-turn";
 import { ExpectedDamageCalculator } from "../../metrics/expected-damage";
 import { TargetDummy } from "../../metrics/target-dummy";
 import { getFrozenMonsterEvasion } from "../../dummies/frozen-monster-evasion";
+import { CharacterSpec } from "../../sim/character-spec";
 import { RunAggregator } from "../../sim/run-aggregator";
 import { RoomVisit } from "../../sim/run-history";
-import { Distribution, distributionOf } from "../../utils/distribution";
-import { ArchetypeParty, DrawnMember } from "./party-draw";
-import { CharacterArchetype, DEFAULT_ARCHETYPE_PROFILES } from "../character-archetype";
-import { DamageSources, EquipmentDamageSources } from "../equipment-damage-sources";
+import { DAMAGE_CHANNELS, EquipmentDamageSources } from "../equipment-damage-sources";
 import { EquipmentPoolBySlot } from "../equipment-pool-by-slot";
 import { MonsterAttributeIntensity } from "../monster-attributes/monster-attribute-intensity";
 import { withoutRequirements } from "../unrestricted-equipment";
+import { ComboRoomDamage, ComboSamples } from "./combo-samples";
 import { GearBudget } from "./gear-budget";
-import { OffensiveAvailability } from "./offensive-availability";
-import { SpecialtyAllocation } from "./specialty-allocation";
-import { SpecialtyDamageSolver } from "./specialty-damage-solver";
-import { Holdables, SpecialtyHoldables } from "./specialty-holdables";
+import { ArchetypeParty, DrawnMember, PartyDrawSettings } from "./party-draw";
+import { comboKey, SpecialtyCombo, SpecialtyComboKey, specOf } from "./specialty-combo";
+import { SolvedSpecialtyDamage, SpecialtyDamageSolver } from "./specialty-damage-solver";
+import { SpecialtyHoldables } from "./specialty-holdables";
 
 /** The share of the offensive attributes available to them that a character commits to hitting
- * harder with a basic attack. One of several intensities in the study and not interchangeable with
- * the others — MonsterAttributeIntensity says how dangerous the monsters are, and a character who
- * spends heavily on attack damage is by that fact spending less on staying alive.
- *
- * Shared by the worker and the CLI so a table read in the browser and one printed from the terminal
- * are the same measurement. */
+ * harder with a basic attack. Not interchangeable with the other intensities in the study —
+ * MonsterAttributeIntensity says how dangerous the monsters are, and a character spending heavily on
+ * attack damage is by that fact spending less on staying alive. */
 export const DEFAULT_ATTACK_DAMAGE_INTENSITY = 0.5;
 
 const PARTY_SIZE = 3;
@@ -41,104 +36,65 @@ const TARGET_INTENSITY = MonsterAttributeIntensity.Medium;
 /** No armor, no crit chance reduction (Agility), no crit damage reduction (Vitality), no shield. */
 const UNMITIGATING_TARGET = { armorClass: 0, agility: 0, vitality: 0 };
 
-export interface WeaponDamageRange {
-  min: number;
-  max: number;
-}
-
-/** What each hand was holding, kept per weapon rather than summed. The two are not interchangeable —
- * an off-hand swing lands at OFF_HAND_DAMAGE_MODIFIER and OFF_HAND_ACCURACY_MODIFIER — so adding
- * them would read as a two-hander's range and overstate a dual wielder. Those modifiers are not
- * applied here at all: this describes what dropped, and damagePerTurn is where what it does shows
- * up, through the real off-hand action against the dummy. */
-export interface HeldWeaponDamage {
-  mainHand: null | WeaponDamageRange;
-  /** Null where the specialty never held a second weapon: a shield or a free off hand. Averaged only
-   * over the runs that did, so an early room with one sword does not read as a weak off hand. */
-  offHand: null | WeaponDamageRange;
-}
-
-export interface SpecialtyRoomDamage {
-  /** Absent until a run drew this specialty and found it a weapon. */
-  damagePerTurn: null | Distribution;
-  /** Mean points bought with each budget, over the runs that produced a damage figure. */
-  meanAllocation: null | SpecialtyAllocation;
-  meanWeaponDamage: null | HeldWeaponDamage;
-  /** Runs in which this specialty was drawn into the party at all. The denominator for the rest. */
-  drawnCount: number;
-  /** Runs where the specialty was drawn but its weapon type had not dropped. Excluded from the
-   * damage figures rather than scored as unarmed, so the damage column answers "what does this
-   * specialty do when it is working" and this column answers "how often is it not". */
-  unavailableCount: number;
-  percentRunsUnavailable: number;
-}
-
 export interface RoomAvailableDamage {
   ordinal: number;
   floorNumber: number;
   roomNumberOnFloor: number;
-  /** What one character could be wearing, per channel, before any of it is spent. */
-  availability: DamageSources;
-  bySpecialty: Partial<Record<CharacterArchetype, SpecialtyRoomDamage>>;
+  byCombo: Partial<Record<SpecialtyComboKey, ComboRoomDamage>>;
 }
 
-class SpecialtySamples {
-  readonly damagePerTurn: number[] = [];
-  readonly allocations: SpecialtyAllocation[] = [];
-  readonly weaponDamage: HeldWeaponDamage[] = [];
-  drawnCount = 0;
-  unavailableCount = 0;
+export interface AvailableDamageSettings {
+  attackDamageIntensity: number;
+  draw: PartyDrawSettings;
 }
 
 class RoomSamples {
-  readonly availability: DamageSources[] = [];
-  readonly bySpecialty = new Map<CharacterArchetype, SpecialtySamples>();
+  readonly byCombo = new Map<SpecialtyComboKey, ComboSamples>();
 
-  forSpecialty(archetype: CharacterArchetype) {
-    const samples = this.bySpecialty.get(archetype) ?? new SpecialtySamples();
-    this.bySpecialty.set(archetype, samples);
+  forCombo(combo: SpecialtyCombo) {
+    const key = comboKey(combo);
+    const samples = this.byCombo.get(key) ?? new ComboSamples();
+    this.byCombo.set(key, samples);
     return samples;
   }
 }
 
-/** Damage per turn each specialty could reach, room by room, without solving for anyone's loadout.
- *
- * The loot that has dropped is reduced to two numbers per character — a budget of offensive
- * attributes and a cap on each channel of it (see GearBudget) — plus the best weapon of the
- * specialty's own type. Contention between party members is handled by the division that produces
- * those numbers rather than by assigning items to people, so a specialty's figure does not depend on
- * who it was drawn alongside, and there is no assignment problem to approximate.
- *
- * The party is still re-drawn every run, because the character is: which class fills a specialty and
- * what level they are at a given room both come off the walk. */
+/** Damage per turn each specialty/class/support combo could reach, room by room, without solving for
+ * anyone's loadout. The loot that has dropped is reduced to a budget of offensive attributes and a
+ * cap on each channel of it (see GearBudget) plus the best weapon of the combo's own type, so
+ * contention is handled by the division producing those numbers rather than by assigning items to
+ * people. */
 export class AvailableDamageBySpecialty implements RunAggregator<RoomAvailableDamage[]> {
   private readonly idGenerator = new IdGeneratorSequential({ saveHistory: false });
   private readonly solver: SpecialtyDamageSolver;
+  private readonly party: ArchetypeParty;
   private samplesByRoom: RoomSamples[] = [];
   private roomIdentities: Pick<
     RoomAvailableDamage,
     "ordinal" | "floorNumber" | "roomNumberOnFloor"
   >[] = [];
   private drawn: DrawnMember[] = [];
+  /** Last solve per party seat, and what it was a solve of. Two rooms on most floors drop nothing
+   * and level nobody, and a solve is a pure function of its inputs, so re-running one is pure waste
+   * — and the solve is 97% of this analysis. Reset per run, since seats are re-drawn. */
+  private lastSolvePerMember = new Map<number, { signature: string; solved: SolvedSpecialtyDamage }>();
 
   constructor(
-    private readonly roll: () => number,
-    private readonly attackDamageIntensity: number
+    roll: () => number,
+    private readonly settings: AvailableDamageSettings
   ) {
+    this.party = new ArchetypeParty(roll);
     this.solver = new SpecialtyDamageSolver(
       new DamagePerTurnCalculator(
-        new ExpectedDamageCalculator(
-          new RealResourceChangePropertiesStrategy(),
-          DAMAGE_ROLL_SAMPLES
-        )
+        new ExpectedDamageCalculator(new RealResourceChangePropertiesStrategy(), DAMAGE_ROLL_SAMPLES)
       ),
       this.idGenerator
     );
   }
 
-  nextPartyClasses(): CombatantClass[] {
-    this.drawn = ArchetypeParty.draw(PARTY_SIZE, DEFAULT_ARCHETYPE_PROFILES, this.roll);
-    return this.drawn.map(({ combatantClass }) => combatantClass);
+  nextParty(): CharacterSpec[] {
+    this.drawn = this.party.draw(PARTY_SIZE, this.settings.draw);
+    return this.drawn.map(({ combo }) => specOf(combo));
   }
 
   collectRun(visits: RoomVisit[]) {
@@ -158,6 +114,7 @@ export class AvailableDamageBySpecialty implements RunAggregator<RoomAvailableDa
 
     const pool = new EquipmentPoolBySlot();
     const dropped: Equipment[] = [];
+    this.lastSolvePerMember = new Map();
 
     for (const [index, visit] of visits.entries()) {
       for (const equipment of visit.equipmentDropped) {
@@ -169,17 +126,14 @@ export class AvailableDamageBySpecialty implements RunAggregator<RoomAvailableDa
       const samples = this.samplesByRoom[index];
       invariant(samples !== undefined, "a visited room has no sample collector");
 
-      const availability = pool.perCharacterAverageOffensiveAttributes(PARTY_SIZE);
-      samples.availability.push(availability);
-
-      this.collectRoom(visit, dropped, availability, samples);
+      this.collectRoom(visit, dropped, pool, samples);
     }
   }
 
   private collectRoom(
     visit: RoomVisit,
     dropped: Equipment[],
-    availability: DamageSources,
+    pool: EquipmentPoolBySlot,
     samples: RoomSamples
   ) {
     const target = TargetDummy.build(
@@ -189,38 +143,67 @@ export class AvailableDamageBySpecialty implements RunAggregator<RoomAvailableDa
       },
       this.idGenerator
     );
+    const wearableAvailability = pool.perCharacterAverageOffensiveAttributes(PARTY_SIZE);
 
-    this.drawn.forEach(({ archetype, profile }, member) => {
-      const specialty = samples.forSpecialty(archetype);
-      specialty.drawnCount += 1;
+    this.drawn.forEach(({ combo, profile }, member) => {
+      const comboSamples = samples.forCombo(combo);
+      comboSamples.recordDrawn();
 
       const picked = SpecialtyHoldables.bestFor(profile.holdableConfiguration, dropped);
       if (picked === null) {
-        specialty.unavailableCount += 1;
+        comboSamples.recordUnavailable();
         return;
       }
 
-      const { holdables, movedToBudget } = SpecialtyHoldables.withAffixesMovedToBudget(picked);
       const character = visit.characters[member];
       invariant(character !== undefined, "the walk produced fewer characters than were drawn");
 
-      const budget = GearBudget.from(
-        EquipmentDamageSources.sum([availability, movedToBudget]),
-        this.attackDamageIntensity
-      );
+      const { holdables, movedToBudget } = SpecialtyHoldables.withAffixesMovedToBudget(picked);
+      const availability = EquipmentDamageSources.sum([wearableAvailability, movedToBudget]);
+      const { attributeProperties, classProgressionProperties } =
+        character.combatant.combatantProperties;
+      const discretionaryPointsAvailable = attributeProperties.getUnspentPoints();
 
-      const solved = this.solver.solve(
-        character.combatant,
-        target,
+      // the weapons are identified before stripping, which copies them: picked holds references into
+      // the drop pool, so the same weapon in a later room is the same object
+      const signature = [
+        picked.mainHand?.getEntityId() ?? "none",
+        picked.offHand?.getEntityId() ?? "none",
+        classProgressionProperties.getMainClass().level,
+        classProgressionProperties.getSupportClassOption()?.level ?? 0,
+        discretionaryPointsAvailable,
+        ...DAMAGE_CHANNELS.map((channel) => availability[channel]),
+      ].join("|");
+
+      const cached = this.lastSolvePerMember.get(member);
+      const solved =
+        cached?.signature === signature
+          ? cached.solved
+          : this.solver.solve(
+              character.combatant,
+              target,
+              holdables,
+              GearBudget.from(availability, this.settings.attackDamageIntensity),
+              profile,
+              this.settings.attackDamageIntensity
+            );
+      this.lastSolvePerMember.set(member, { signature, solved });
+
+      comboSamples.recordScored({
+        damagePerTurn: solved.damagePerTurn,
+        allocation: solved.allocation,
+        availability,
+        discretionaryPointsAvailable,
+        // the walk never equips loot or spends a point, so its totals are what class, level and
+        // support class give for free
+        inherentStrength: character.totalAttributes[CombatAttribute.Strength] ?? 0,
+        inherentDexterity: character.totalAttributes[CombatAttribute.Dexterity] ?? 0,
         holdables,
-        budget,
-        profile,
-        this.attackDamageIntensity
-      );
-
-      specialty.damagePerTurn.push(solved.damagePerTurn);
-      specialty.allocations.push(solved.allocation);
-      specialty.weaponDamage.push(AvailableDamageBySpecialty.heldWeaponDamage(holdables));
+        weaponCandidates: SpecialtyHoldables.weaponCandidates(
+          profile.holdableConfiguration,
+          dropped
+        ),
+      });
     });
   }
 
@@ -229,96 +212,12 @@ export class AvailableDamageBySpecialty implements RunAggregator<RoomAvailableDa
       const samples = this.samplesByRoom[index];
       invariant(samples !== undefined, "a room has no samples despite every run visiting it");
 
-      const bySpecialty: Partial<Record<CharacterArchetype, SpecialtyRoomDamage>> = {};
-      for (const [archetype, specialty] of samples.bySpecialty) {
-        bySpecialty[archetype] = AvailableDamageBySpecialty.describe(specialty);
+      const byCombo: Partial<Record<SpecialtyComboKey, ComboRoomDamage>> = {};
+      for (const [key, combo] of samples.byCombo) {
+        byCombo[key] = combo.describe();
       }
 
-      return {
-        ...identity,
-        availability: EquipmentDamageSources.scale(
-          EquipmentDamageSources.sum(samples.availability),
-          1 / samples.availability.length
-        ),
-        bySpecialty,
-      };
+      return { ...identity, byCombo };
     });
-  }
-
-  private static describe(specialty: SpecialtySamples): SpecialtyRoomDamage {
-    const scored = specialty.damagePerTurn.length;
-
-    return {
-      damagePerTurn: scored === 0 ? null : distributionOf(specialty.damagePerTurn),
-      meanAllocation:
-        scored === 0 ? null : AvailableDamageBySpecialty.meanAllocation(specialty.allocations),
-      meanWeaponDamage:
-        scored === 0 ? null : AvailableDamageBySpecialty.meanWeaponDamage(specialty.weaponDamage),
-      drawnCount: specialty.drawnCount,
-      unavailableCount: specialty.unavailableCount,
-      percentRunsUnavailable:
-        specialty.drawnCount === 0 ? 0 : (specialty.unavailableCount / specialty.drawnCount) * 100,
-    };
-  }
-
-  private static meanAllocation(allocations: SpecialtyAllocation[]): SpecialtyAllocation {
-    const fromGear = EquipmentDamageSources.scale(
-      EquipmentDamageSources.sum(allocations.map((allocation) => allocation.fromGear)),
-      1 / allocations.length
-    );
-
-    const fromDiscretionaryPoints: SpecialtyAllocation["fromDiscretionaryPoints"] = {};
-    for (const allocation of allocations) {
-      for (const [attribute, value] of iterateNumericEnumKeyedRecord(
-        allocation.fromDiscretionaryPoints
-      )) {
-        fromDiscretionaryPoints[attribute] =
-          (fromDiscretionaryPoints[attribute] ?? 0) + value / allocations.length;
-      }
-    }
-
-    return { fromGear, fromDiscretionaryPoints };
-  }
-
-  /** The affixes were baked into the base range before being stripped, so these are already the
-   * modified ranges. A shield yields null the same way an empty hand does — it is not a weapon, so
-   * getWeaponProperties refuses it. */
-  private static heldWeaponDamage(holdables: Holdables): HeldWeaponDamage {
-    return {
-      mainHand: AvailableDamageBySpecialty.damageRangeOf(holdables.mainHand),
-      offHand: AvailableDamageBySpecialty.damageRangeOf(holdables.offHand),
-    };
-  }
-
-  private static damageRangeOf(equipment: null | Equipment): null | WeaponDamageRange {
-    if (equipment === null) {
-      return null;
-    }
-    const weaponProperties = equipment.getWeaponProperties();
-    if (weaponProperties instanceof Error) {
-      return null;
-    }
-    const { min, max } = weaponProperties.damage;
-    return { min, max };
-  }
-
-  private static meanWeaponDamage(samples: HeldWeaponDamage[]): HeldWeaponDamage {
-    const meanOfHand = (hand: keyof HeldWeaponDamage): null | WeaponDamageRange => {
-      const held = samples.map((sample) => sample[hand]).filter((range) => range !== null);
-
-      if (held.length === 0) {
-        return null;
-      }
-      return {
-        min: AvailableDamageBySpecialty.mean(held.map(({ min }) => min)),
-        max: AvailableDamageBySpecialty.mean(held.map(({ max }) => max)),
-      };
-    };
-
-    return { mainHand: meanOfHand("mainHand"), offHand: meanOfHand("offHand") };
-  }
-
-  private static mean(values: number[]) {
-    return values.reduce((sum, value) => sum + value, 0) / values.length;
   }
 }
