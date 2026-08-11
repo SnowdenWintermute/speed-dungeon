@@ -27,9 +27,7 @@ import {
 import { Holdables } from "./specialty-holdables";
 import { CombatantAttributeCache } from "../../utils/combatant-attribute-cache";
 
-/** How much of the gear budget one move spends. Small enough that the order moves are taken in stops
- * mattering, large enough that a full solve stays a few hundred damage evaluations. */
-const BUDGET_UNITS_PER_MOVE = 1;
+const ONE_POINT_OF_A_CHANNEL = 1;
 const ONE_ATTRIBUTE_POINT = 1;
 
 const ALL_EQUIPMENT_SLOTS: TaggedEquipmentSlot[] = [
@@ -71,12 +69,15 @@ export interface SolvedSpecialtyDamage {
  * against, and it is exactly at the accuracy cap that the two interact: a character who cannot buy
  * more accuracy off gear may want dexterity from levelling instead, or may not.
  *
- * The climb is greedy: it repeatedly takes whichever move buys the most damage. Every channel is
- * monotone (no amount of strength ever lowers an attack's damage), so a greedy step never goes
- * backwards and the budgets are always spent in full. What greedy can miss is a channel that only
- * pays after several moves into it, and the one place that could bite — accuracy, which stops paying
- * the moment hit chance saturates — fails in the harmless direction, since it goes flat rather than
- * starting flat. */
+ * The climb is greedy: it repeatedly takes whichever move buys the most damage, and stops when none
+ * of them buys any. A budget can therefore finish unspent, which is a real answer rather than a
+ * shortfall — a bow user gains nothing from strength at any price, so once dexterity and accuracy
+ * are capped there is genuinely nothing left to buy.
+ *
+ * What greedy can miss is a channel that only pays after several moves into it. That is why a move
+ * buys a whole point of its channel rather than a fixed slice of budget: half a point of flat damage
+ * is floored away before it reaches the damage roll, so a smaller step measured it as worthless and
+ * the climb never went back. */
 export class SpecialtyDamageSolver {
   constructor(
     private readonly damagePerTurn: DamagePerTurnCalculator,
@@ -89,7 +90,11 @@ export class SpecialtyDamageSolver {
     holdables: Holdables,
     gearBudget: GearBudget,
     profile: ArchetypeProfile,
-    attackDamageIntensity: number
+    attackDamageIntensity: number,
+    /** Points this character has already spent in earlier rooms. They stay spent: a character
+     * allocates as they level and cannot respec, so re-deciding them here would be measuring a
+     * player with hindsight. Only points earned since the last solve are still open. */
+    committedPoints: CombatantAttributeRecord
   ): SolvedSpecialtyDamage {
     const clone = cloneDeep(character);
     const carrier = new FlatDamageCarrier(this.idGenerator);
@@ -100,7 +105,11 @@ export class SpecialtyDamageSolver {
     const speccedBaseline = attributeProperties.getNaturalAttributes();
     // a player who is not dressing for damage alone is not spending every level-up point on it
     // either, so the same intensity governs both budgets
-    const discretionaryPoints = Math.floor(attributeProperties.getUnspentPoints() * attackDamageIntensity);
+    const pointsEarned = Math.floor(
+      attributeProperties.getUnspentPoints() * attackDamageIntensity
+    );
+    const alreadyCommitted = Object.values(committedPoints).reduce((sum, value) => sum + value, 0);
+    const newPoints = Math.max(0, pointsEarned - alreadyCommitted);
 
     // a forced attribute is not a special case, only a shorter list of places a point can go
     const discretionaryAttributes =
@@ -123,9 +132,10 @@ export class SpecialtyDamageSolver {
     ]);
 
     const allocation = emptyAllocation();
+    allocation.fromDiscretionaryPoints = { ...committedPoints };
     const remaining = {
       [AllocationBudget.Gear]: gearBudget.size,
-      [AllocationBudget.DiscretionaryPoints]: discretionaryPoints,
+      [AllocationBudget.DiscretionaryPoints]: newPoints,
     };
 
     const score = (candidate: SpecialtyAllocation) => {
@@ -133,6 +143,8 @@ export class SpecialtyDamageSolver {
       attributeCache.refresh();
       return this.damagePerTurn.against(clone, target);
     };
+
+    let damagePerTurn = score(allocation);
 
     while (remaining[AllocationBudget.Gear] > 0 || remaining[AllocationBudget.DiscretionaryPoints] > 0) {
       let best: null | { move: AllocationMove; amount: number; damagePerTurn: number } = null;
@@ -149,27 +161,37 @@ export class SpecialtyDamageSolver {
 
         const trial = copyAllocation(allocation);
         SpecialtyDamageSolver.applyMove(move, trial, amount);
-        const damagePerTurn = score(trial);
+        const trialDamagePerTurn = score(trial);
 
-        if (best === null || damagePerTurn > best.damagePerTurn) {
-          best = { move, amount, damagePerTurn };
+        if (best === null || trialDamagePerTurn > best.damagePerTurn) {
+          best = { move, amount, damagePerTurn: trialDamagePerTurn };
         }
       }
 
-      // every remaining budget is capped out, which in practice is the accuracy cap binding
-      if (best === null) {
+      // nothing left worth buying: either every channel is capped, or none of them still pays. A
+      // character whose budget outlives its useful channels leaves the rest unspent rather than
+      // parking it somewhere inert — a bow user has no use for strength at any price, and spending
+      // there would report an allocation that bought nothing
+      if (best === null || best.damagePerTurn <= damagePerTurn) {
         break;
       }
 
       SpecialtyDamageSolver.applyMove(best.move, allocation, best.amount);
       remaining[best.move.type] -= best.amount;
+      damagePerTurn = best.damagePerTurn;
     }
 
-    return { damagePerTurn: score(allocation), allocation };
+    return { damagePerTurn, allocation };
   }
 
+  /** A gear move buys one whole point of its channel, at whatever that channel costs — not one
+   * budget unit, which buys half a point of flat damage and is then floored away entirely by
+   * NumberRange.floor in getAttackResourceChangeProperties. Measured as zero gain, flat damage was
+   * never bought however much of it had dropped. */
   private static stepOf(move: AllocationMove) {
-    return move.type === AllocationBudget.Gear ? BUDGET_UNITS_PER_MOVE : ONE_ATTRIBUTE_POINT;
+    return move.type === AllocationBudget.Gear
+      ? ONE_POINT_OF_A_CHANNEL / POINTS_PER_BUDGET_UNIT[move.channel]
+      : ONE_ATTRIBUTE_POINT;
   }
 
   /** In units of the move's own budget, so it can be compared against what is left of it. */

@@ -18,12 +18,12 @@ describe("a party clearing every room of the dungeon", () => {
   it("visits every floor in order, numbering rooms from one on each floor", () => {
     const visits = walkFullDungeon();
 
-    const floorsVisited = [...new Set(visits.map((visit) => visit.floorNumber))];
+    const floorsVisited = [...new Set(visits.map((visit) => visit.floor))];
     expect(floorsVisited).toEqual(ascendingFrom(1, DEEPEST_FLOOR));
 
     for (const floorNumber of floorsVisited) {
       const roomNumbers = visits
-        .filter((visit) => visit.floorNumber === floorNumber)
+        .filter((visit) => visit.floor === floorNumber)
         .map((visit) => visit.roomNumberOnFloor);
       expect(roomNumbers).toEqual(ascendingFrom(1, roomNumbers.length));
     }

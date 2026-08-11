@@ -1,5 +1,5 @@
 import { RoomAccuracyAvailability } from "./accuracy-availability/index";
-import { RoomAvailableDamage } from "./available-damage/index";
+import { RoomComboSamples } from "./available-damage/index";
 
 export enum DungeonRunAnalysis {
   AccuracyAvailability,
@@ -10,7 +10,7 @@ export enum DungeonRunAnalysis {
  * pull the simulation into its bundle. */
 export interface DungeonRunAnalysisResults {
   [DungeonRunAnalysis.AccuracyAvailability]: RoomAccuracyAvailability[];
-  [DungeonRunAnalysis.AvailableDamage]: RoomAvailableDamage[];
+  [DungeonRunAnalysis.AvailableDamage]: RoomComboSamples[];
 }
 
 export const DUNGEON_RUN_ANALYSIS_NAMES: Record<DungeonRunAnalysis, string> = {

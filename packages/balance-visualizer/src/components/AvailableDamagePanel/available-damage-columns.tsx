@@ -1,25 +1,27 @@
 import { CombatAttribute, COMBAT_ATTRIBUTE_STRINGS } from "@speed-dungeon/common";
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { ComboRoomDamage, WeaponUsage } from "@/analysis/available-damage/combo-samples";
-import { RoomAvailableDamage } from "@/analysis/available-damage/index";
+import { AvailableDamageResults, RoomAvailableDamage } from "@/analysis/available-damage/index";
 import { SpecialtyComboKey } from "@/analysis/available-damage/specialty-combo";
 import { DAMAGE_CHANNELS, DAMAGE_CHANNEL_NAMES } from "@/analysis/equipment-damage-sources";
 import { formatOptionalNumber, NOTHING_TO_SHOW, topWeaponUsage } from "@/utils/format";
 
 export interface ComboRoomRow {
   ordinal: number;
-  floorNumber: number;
+  floor: number;
   roomNumberOnFloor: number;
   combo: undefined | ComboRoomDamage;
 }
 
 export function comboRowsOf(rooms: RoomAvailableDamage[], key: SpecialtyComboKey): ComboRoomRow[] {
-  return rooms.map(({ ordinal, floorNumber, roomNumberOnFloor, byCombo }) => ({
-    ordinal,
-    floorNumber,
-    roomNumberOnFloor,
-    combo: byCombo[key],
-  }));
+  return AvailableDamageResults.withLootDropped(rooms).map(
+    ({ ordinal, floor, roomNumberOnFloor, byCombo }) => ({
+      ordinal,
+      floor,
+      roomNumberOnFloor,
+      combo: byCombo[key],
+    })
+  );
 }
 
 export function roomKey(row: ComboRoomRow) {
@@ -38,7 +40,7 @@ function stacked(weapons: undefined | WeaponUsage[]) {
 }
 
 export const AVAILABLE_DAMAGE_COLUMNS: DataTableColumn<ComboRoomRow>[] = [
-  { header: "rm", renderCell: (row) => `${row.floorNumber}-${row.roomNumberOnFloor}` },
+  { header: "rm", renderCell: (row) => `${row.floor}-${row.roomNumberOnFloor}` },
   {
     header: "p10",
     renderCell: (row) => formatOptionalNumber(row.combo?.damagePerTurn?.tenthPercentile),

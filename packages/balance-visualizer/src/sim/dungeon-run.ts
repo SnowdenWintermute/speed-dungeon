@@ -57,7 +57,7 @@ export class DungeonRun {
         ordinal += 1;
         visits.push({
           ordinal,
-          floorNumber: this.expedition.getCurrentFloor(),
+          floor: this.expedition.getCurrentFloor(),
           roomNumberOnFloor: this.expedition.getRoomNumberOnFloor(),
           roomType,
           characters: this.expedition.snapshot(),

@@ -36,7 +36,13 @@ export class ArchetypeParty {
    * the next block every time and most combos are never reached. */
   private pending: SpecialtyCombo[] = [];
 
-  constructor(private readonly roll: () => number) {}
+  constructor(
+    private readonly roll: () => number,
+    /** Where this drawer starts in the combo list. Workers each run their own cycle, so without an
+     * offset they would all re-walk the beginning of it and cover the same few combos rather than
+     * splitting the work. */
+    private readonly comboCycleOffset: number = 0
+  ) {}
 
   draw(size: number, settings: PartyDrawSettings): DrawnMember[] {
     invariant(
@@ -95,7 +101,7 @@ export class ArchetypeParty {
         return combo;
       }
 
-      this.pending = [...SPECIALTY_COMBOS];
+      this.pending = ArchetypeParty.cycleFrom(this.comboCycleOffset);
     }
 
     throw new Error("no combo exists for an archetype the party has not filled");
@@ -117,6 +123,11 @@ export class ArchetypeParty {
     invariant(supportClass !== undefined, "a class has no support class options");
 
     return { archetype, mainClass, supportClass };
+  }
+
+  private static cycleFrom(offset: number) {
+    const start = ((offset % SPECIALTY_COMBOS.length) + SPECIALTY_COMBOS.length) % SPECIALTY_COMBOS.length;
+    return [...SPECIALTY_COMBOS.slice(start), ...SPECIALTY_COMBOS.slice(0, start)];
   }
 
   private static memberOf(combo: SpecialtyCombo): DrawnMember {

@@ -22,7 +22,7 @@ export interface CharacterRoomSnapshot {
 
 export interface RoomVisit {
   ordinal: number;
-  floorNumber: number;
+  floor: number;
   roomNumberOnFloor: number;
   roomType: DungeonRoomType;
   characters: CharacterRoomSnapshot[];

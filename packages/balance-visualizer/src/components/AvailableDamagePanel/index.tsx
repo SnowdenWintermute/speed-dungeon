@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
 import Divider from "@speed-dungeon/ui/atoms/Divider";
 import { DungeonRunAnalysis, DUNGEON_RUN_ANALYSIS_NAMES } from "@/analysis/dungeon-run-analysis";
 import { PartyDrawMode, PartyDrawSettings } from "@/analysis/available-damage/party-draw";
+import { AvailableDamageResults } from "@/analysis/available-damage/index";
 import {
   comboKey,
   comboName,
@@ -16,7 +17,7 @@ import { AVAILABLE_DAMAGE_COLUMNS, comboRowsOf, roomKey } from "./available-dama
 import { ComboSelectors } from "./ComboSelectors";
 import { DrawModeToggle } from "./DrawModeToggle";
 
-const DEFAULT_RUN_COUNT = 50;
+const DEFAULT_RUN_COUNT = 500;
 
 function firstCombo(): SpecialtyCombo {
   const combo = SPECIALTY_COMBOS[0];
@@ -27,9 +28,20 @@ function firstCombo(): SpecialtyCombo {
 }
 
 export function AvailableDamagePanel() {
-  const { state, run } = useDungeonRunAnalysis(DungeonRunAnalysis.AvailableDamage);
+  const { state, run } = useDungeonRunAnalysis(
+    DungeonRunAnalysis.AvailableDamage,
+    AvailableDamageResults.merge
+  );
   const [drawMode, setDrawMode] = useState(PartyDrawMode.EvenlyDistributed);
   const [combo, setCombo] = useState(firstCombo);
+
+  // described once per result rather than per combo selected, since switching the select must not
+  // re-derive every room's distributions
+  const completedRooms = useMemo(
+    () =>
+      state.completed === null ? null : AvailableDamageResults.describe(state.completed.result),
+    [state.completed]
+  );
 
   const draw: PartyDrawSettings =
     drawMode === PartyDrawMode.EvenlyDistributed
@@ -69,12 +81,12 @@ export function AvailableDamagePanel() {
         <p className="text-theme-danger mb-4">{state.failureReason}</p>
       )}
 
-      {state.completed === null ? (
+      {completedRooms === null || state.completed === null ? (
         <p className="text-theme-muted">Nothing walked yet.</p>
       ) : (
         <div className="w-full">
           <p className="text-sm text-theme-muted mb-2">
-            {`${state.completed.runCount} runs — ${comboName(combo)}`}
+            {`${state.completed.runCount} runs in ${(state.completed.elapsedMs / 1000).toFixed(1)}s across ${state.completed.workerCount} workers — ${comboName(combo)}`}
           </p>
           <Divider extraStyles="mb-8" />
           {/* the scroller is the table's own wrapper rather than the section, so the headings and
@@ -82,7 +94,7 @@ export function AvailableDamagePanel() {
           <div className="bg-theme-base border p-2 px-4 border-theme-muted mb-10 w-full overflow-x-auto">
             <DataTable
               columns={AVAILABLE_DAMAGE_COLUMNS}
-              entries={comboRowsOf(state.completed.result, comboKey(combo))}
+              entries={comboRowsOf(completedRooms, comboKey(combo))}
               keyOf={roomKey}
               emptyMessage="no rooms walked"
               layoutOption={DataTableLayout.FitContent}

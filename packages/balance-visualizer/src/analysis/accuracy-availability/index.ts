@@ -67,9 +67,9 @@ export class AccuracyAvailability implements RunAggregator<RoomAccuracyAvailabil
 
   collectRun(visits: RoomVisit[]) {
     if (this.samplesByRoom.length === 0) {
-      this.roomIdentities = visits.map(({ ordinal, floorNumber, roomNumberOnFloor }) => ({
+      this.roomIdentities = visits.map(({ ordinal, floor, roomNumberOnFloor }) => ({
         ordinal,
-        floorNumber,
+        floorNumber: floor,
         roomNumberOnFloor,
       }));
       this.samplesByRoom = visits.map(() => new RoomSamples());

@@ -29,12 +29,17 @@ type AggregatorFactories = {
   ) => RunAggregator<DungeonRunAnalysisResults[TAnalysis]>;
 };
 
+// a run seats this many combos, so offsetting by it puts each worker on a different part of the
+// cycle rather than a different seat of the same party
+const PARTY_SIZE_PER_RUN = 3;
+
 const AGGREGATOR_FACTORIES: AggregatorFactories = {
   [DungeonRunAnalysis.AccuracyAvailability]: () => new AccuracyAvailability(),
   [DungeonRunAnalysis.AvailableDamage]: (request) =>
     new AvailableDamageBySpecialty(Math.random, {
       attackDamageIntensity: DEFAULT_ATTACK_DAMAGE_INTENSITY,
       draw: request.draw ?? { type: PartyDrawMode.EvenlyDistributed },
+      comboCycleOffset: (request.workerIndex ?? 0) * PARTY_SIZE_PER_RUN,
     }),
 };
 

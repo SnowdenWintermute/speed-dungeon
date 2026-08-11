@@ -1,7 +1,7 @@
 import { WeaponUsage } from "../analysis/available-damage/combo-samples";
 
 /** Long enough to show what a specialty actually reaches for, short enough to stay in a cell. */
-const WEAPONS_LISTED = 5;
+const WEAPONS_LISTED = 20;
 export const NOTHING_TO_SHOW = "-";
 
 /** Null and undefined both mean "this combo produced no sample here", which reads better as a dash

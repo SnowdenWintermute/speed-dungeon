@@ -14,6 +14,13 @@ export interface TargetDummyStats {
   vitality: number;
 }
 
+export const UNMITIGATING_TARGET_DUMMY_STATS: TargetDummyStats = {
+  armorClass: 0,
+  agility: 0,
+  vitality: 0,
+  evasion: 0,
+};
+
 const DUMMY_PLAYER_NAME = "target-dummy" as Username;
 /** Only so the dummy is not dead — getActionHitChance returns zero against a dead target. Not a
  * tuning input, which is why it is not in TargetDummyStats. */

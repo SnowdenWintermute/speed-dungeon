@@ -6,6 +6,8 @@ export interface DungeonRunWorkerRequest {
   runCount: number;
   /** Only the damage analysis draws a party per run; the others fix theirs. */
   draw?: PartyDrawSettings;
+  /** This worker's index, so several splitting one batch start on different combos. */
+  workerIndex?: number;
 }
 
 export enum DungeonRunWorkerMessageType {

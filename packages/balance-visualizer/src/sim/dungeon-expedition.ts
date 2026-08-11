@@ -189,19 +189,30 @@ export class DungeonExpedition {
     return this.party.combatantManager.getPartyMemberCombatants();
   }
 
+  /** The inventory is set aside rather than copied and then dropped. What is kept in reserve is
+   * better recorded as shards gained than as retained objects, so no snapshot ever wanted it — but
+   * cloning it first meant every room paid to copy an inventory that grows all run, which is a cost
+   * that climbs with depth rather than staying flat. Emptying the array in place keeps the same
+   * Inventory instance, so nothing loses its link to the combatant. */
   snapshot(): CharacterRoomSnapshot[] {
     return this.getCharacters().map((character) => {
-      const clone = cloneDeep(character);
-      // what was kept in reserve is better recorded as shards gained than as retained objects
-      clone.combatantProperties.inventory.deleteAllItems();
+      const { inventory } = character.combatantProperties;
+      const setAside = inventory.getItems().map((item) => item.getEntityId());
+      const removed = setAside.map((itemId) => inventory.removeItem(itemId));
 
-      const snapshot: CharacterRoomSnapshot = {
+      const clone = cloneDeep(character);
+
+      for (const item of removed) {
+        if (!(item instanceof Error)) {
+          inventory.insertItem(item);
+        }
+      }
+
+      return {
         combatant: clone,
         totalAttributes: character.getTotalAttributes(),
         experienceEarned: this.experienceEarned.get(character.getEntityId()) ?? 0,
       };
-
-      return snapshot;
     });
   }
 }

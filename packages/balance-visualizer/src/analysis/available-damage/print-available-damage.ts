@@ -5,6 +5,7 @@ import { ComboRoomDamage } from "./combo-samples";
 import { formatOptionalNumber, formatWeaponUsage } from "../../utils/format";
 import {
   AvailableDamageBySpecialty,
+  AvailableDamageResults,
   DEFAULT_ATTACK_DAMAGE_INTENSITY,
   RoomAvailableDamage,
 } from "./index";
@@ -60,7 +61,9 @@ const COLUMNS: Column[] = [
 ];
 
 function printCombo(rooms: RoomAvailableDamage[], key: SpecialtyComboKey, heading: string) {
-  const withSamples = rooms.filter((room) => room.byCombo[key] !== undefined);
+  const withSamples = AvailableDamageResults.withLootDropped(rooms).filter(
+    (room) => room.byCombo[key] !== undefined
+  );
   if (withSamples.length === 0) {
     return;
   }
@@ -70,7 +73,7 @@ function printCombo(rooms: RoomAvailableDamage[], key: SpecialtyComboKey, headin
   const rows = [
     headings,
     ...withSamples.map((room) => [
-      `${room.floorNumber}-${room.roomNumberOnFloor}`,
+      `${room.floor}-${room.roomNumberOnFloor}`,
       ...COLUMNS.map((column) => column.select(room.byCombo[key])),
     ]),
   ];
@@ -101,7 +104,7 @@ for (let run = 0; run < runCount; run += 1) {
   availability.collectRun(DungeonRun.random(availability.nextParty(), deepestFloor).walk());
 }
 
-const rooms = availability.assemble();
+const rooms = AvailableDamageResults.describe(availability.assemble());
 console.log(`${runCount} runs in ${((Date.now() - started) / 1000).toFixed(1)}s`);
 
 for (const combo of SPECIALTY_COMBOS) {
