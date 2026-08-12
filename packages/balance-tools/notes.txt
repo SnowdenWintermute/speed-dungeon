@@ -367,7 +367,7 @@ RunReportAggregator
 - take reports from DungeonRunSimulators running in workers
 - assemble AggregatedRunsReport
 
-RandomPickOrderDraftEquipmentSolver
+BestImprovementEquipmentSolver
 - drop all items on ground
 - filter out dominated items (if exists seven +2 dex rings and one +1 dex ring, no one will want that +1 dex ring)
   - add them to the UnusedEquipment pile
