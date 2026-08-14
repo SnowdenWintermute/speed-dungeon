@@ -13,10 +13,20 @@
 // - Equipment[]
 // - Consumables[]
 
-// DungeonRunSimulator
+// AnalysisAdventuringPartyBuilder
 // - Assemble Parties of random or selected AnalysisCharacters
+//
+// AnalysisDungeonRunSimulator
 // - clearNextRoom
 //   - return LootDropEvents, ExperiencePointGains
+//
+// EquipmentAttributesAggregator
+//  - accepts an attributeFrom(equipment:Equipment): {total: number, affixesFrom: Record<AffixType, Percentage>}
+//  - get max total attribute (including derived) that could fill all slots on interested characters
+//  - divide by interested character count
+//  - record %from acc affix, %from dex affix
+
+// EquipmentSolver
 // - Have each character solve its best allocation of all available attributes under analysis
 //   - From gear
 //   - From newly obtained discretionary attribute points
@@ -41,9 +51,6 @@
 // - for each slot
 //   - for each item that fills that slot
 //     - for each party member
-//       - multiply equipment affix values by the configurable intensityMultiplier
-//         - to see what it would be like if a character was trying to use
-//           "60% of equipment provided attributes for their goal"
 //       - measure current goal performance
 //         - for auto-attack damage this is "average damage on target dummy sampled over x attacks"
 //         - for basic spirit users this is "total spirit"
@@ -69,3 +76,12 @@
 //   - dex/str total (includes inherent)
 //   - holdables considered by percent
 //   - holdables worn mh/oh by percent
+//
+// AccuracyTable (by room, for avg character)
+//  - inherent dex
+//  - allocated dex
+// - p10,median,p90 avg available accuracy total/fromEquipment(including dex)
+//  - get max total acc that could fill all slots on interested characters
+//  - divide by interested character count
+//  - record %from acc affix, %from dex affix
+//
