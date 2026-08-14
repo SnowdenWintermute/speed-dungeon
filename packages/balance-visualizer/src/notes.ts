@@ -1,14 +1,6 @@
 // AvailableGearInRoom
 // - Equipment[]
 
-// AnalysisCharacterSpecification
-// - CharacterBuildSpecification
-//  - WeaponSpecialty
-//  - MainClass
-//  - SupportClass
-// - AutoAttackOptimizationIntensity | AttributeIntensity<CombatAttribute>
-// - GoalMeasure: () => GoalPoints (arbitrary number)
-
 // LootDropEvent
 // - Equipment[]
 // - Consumables[]
@@ -67,21 +59,3 @@
 //         - if it displaces their item, put that item back in the re-check pool
 //         - if no character wants it, put it in the UnusedEquipment pile
 // - return the UnusedEquipment pile to the caller for sharding or exclusion from future testing
-
-// AttackActionTable (by room, by CharacterBuildSpecification)
-// - p10,median,p90 avg sampled damage on target dummy
-// - avg across runs:
-//   - dex/str/acc/flatDmg on worn equipment
-//   - dex/str allocated
-//   - dex/str total (includes inherent)
-//   - holdables considered by percent
-//   - holdables worn mh/oh by percent
-//
-// AccuracyTable (by room, for avg character)
-//  - inherent dex
-//  - allocated dex
-// - p10,median,p90 avg available accuracy total/fromEquipment(including dex)
-//  - get max total acc that could fill all slots on interested characters
-//  - divide by interested character count
-//  - record %from acc affix, %from dex affix
-//

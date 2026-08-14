@@ -103,6 +103,12 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return itemId;
   }
 
+  dropAll(party: AdventuringParty) {
+    for (const item of this.getItems()) {
+      this.dropItem(party, item.getEntityId());
+    }
+  }
+
   dropEquippedItem(party: AdventuringParty, taggedSlot: TaggedEquipmentSlot): Error | EntityId {
     const combatantProperties = this.getCombatantProperties();
     const itemIdsUnequipped = combatantProperties.equipment.unequipSlots([taggedSlot]);

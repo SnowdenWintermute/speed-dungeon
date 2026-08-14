@@ -161,6 +161,13 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   getInventoryOption(): null | Inventory {
     return this.combatantProperties.inventory;
   }
+  requireInventory(): Inventory {
+    const inventoryOption = this.getInventoryOption();
+    if (inventoryOption === null) {
+      throw new Error("Expected combatant to have an inventory");
+    }
+    return inventoryOption;
+  }
   getIdOfEntityToCreditWithThreat(): EntityId {
     if (this.combatantProperties.giveThreatGeneratedToId) {
       return this.combatantProperties.giveThreatGeneratedToId;
@@ -179,8 +186,7 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     const action = COMBAT_ACTIONS[actionName];
     const consumableCost = action.costProperties.getConsumableCost(this);
     if (consumableCost !== null) {
-      const inventory = this.getInventoryOption();
-      if (inventory === null) throw new Error("expected user to have an inventory");
+      const inventory = this.requireInventory();
       const { type, level } = consumableCost;
       const consumableOption = inventory.getConsumableByTypeAndLevel(type, level);
       if (consumableOption === undefined) return false;

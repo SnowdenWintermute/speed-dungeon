@@ -6,6 +6,8 @@ import {
   taggedEquipmentSlotsAreEqual,
   TaggedEquipmentSlot,
   WearableSlotType,
+  ALL_WEARABLE_SLOTS,
+  ALL_HOLDABLE_SLOTS,
 } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
@@ -406,6 +408,14 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
       unequippedItemIds.push(...unequippedItems.map((item) => item.entityProperties.id));
     });
     return unequippedItemIds;
+  }
+
+  unequipAll() {
+    this.unequipSlots(ALL_WEARABLE_SLOTS);
+    this.getHoldableHotswapSlots().forEach((slot, index) => {
+      this.changeSelectedHotswapSlot(index);
+      this.unequipSlots(ALL_HOLDABLE_SLOTS);
+    });
   }
 
   private removeEquipmentInSlots(slots: TaggedEquipmentSlot[]) {

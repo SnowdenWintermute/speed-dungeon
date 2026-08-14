@@ -1,4 +1,5 @@
 import { EQUIPMENT_TYPE_STRINGS, EquipmentType } from "./equipment-types/index.js";
+import { Equipment } from "./index.js";
 
 export enum EquipmentSlotType {
   Holdable,
@@ -31,6 +32,20 @@ export interface WearableSlot {
   type: EquipmentSlotType.Wearable;
   slot: WearableSlotType;
 }
+
+export const ALL_HOLDABLE_SLOTS: HoldableSlot[] = Object.values(HoldableSlotType)
+  .filter((value): value is HoldableSlotType => typeof value === "number")
+  .map((slot) => ({
+    type: EquipmentSlotType.Holdable,
+    slot,
+  }));
+
+export const ALL_WEARABLE_SLOTS: WearableSlot[] = Object.values(WearableSlotType)
+  .filter((value): value is WearableSlotType => typeof value === "number")
+  .map((slot) => ({
+    type: EquipmentSlotType.Wearable,
+    slot,
+  }));
 
 export type TaggedEquipmentSlot = HoldableSlot | WearableSlot;
 
