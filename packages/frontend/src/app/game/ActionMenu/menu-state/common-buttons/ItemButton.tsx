@@ -190,7 +190,7 @@ function getItemButtonConditionalStyles(
 
   if (alternateClickKeyHeld) mainContainerStyles = "cursor-alias";
   if (isHovered) imageContainerStyles.push("-translate-x-[55px]");
-  const itemIsWeapon = item instanceof Equipment && !(item.getWeaponProperties() instanceof Error);
+  const itemIsWeapon = item instanceof Equipment && item.isWeapon();
   const itemIsConsumable = item instanceof Consumable;
   if (itemIsWeapon || itemIsConsumable) imageContainerStyles.push("scale-[300%]");
   else imageContainerStyles.push("scale-[200%] -translate-x-1/2 p-[2px]");

@@ -24,11 +24,11 @@ import {
   WearableSlotType,
   validateEquipmentSlot,
 } from "../items/equipment/slots.js";
-import { HoldableHotswapSlot } from "./combatant-equipment/holdable-hotswap-slot.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import cloneDeep from "lodash.clonedeep";
+import { HotswapSlot } from "./combatant-equipment/hotswap-slot-manager.js";
 
 interface HoldableEquipEntry {
   equipment: Equipment;
@@ -356,7 +356,7 @@ export class CombatantBuilder {
     // require anything other than an arbitrary number to represent either a value or the level
     // of the trait which would be used in calculations scattered accross the codebase
     if (traitProperties.hasTraitType(CombatantTraitType.ExtraHotswapSlot)) {
-      combatantProperties.equipment.addHoldableSlot(new HoldableHotswapSlot());
+      combatantProperties.equipment.hotswapSlotsManager.addSlot(new HotswapSlot());
     }
 
     combatantProperties.abilityProperties.applyConditionsFromTraits(combatant, idGenerator);

@@ -4,7 +4,6 @@ import {
   CombatAttribute,
   EquipmentTraitType,
   OneHandedMeleeWeapon,
-  PREFIX_TYPES,
   Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
@@ -118,6 +117,6 @@ function giveHotswapSlotEquipment(
     .build(idGenerator);
 
   combatantProperties.inventory.insertItem(mh);
-  combatantProperties.equipment.changeSelectedHotswapSlot(1);
+  combatantProperties.equipment.hotswapSlotsManager.changeSelectedHotswapSlot(1);
   combatantProperties.equipment.equipItem(mh.entityProperties.id, false);
 }

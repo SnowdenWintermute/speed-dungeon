@@ -26,7 +26,6 @@ import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { ReactiveNode } from "../serialization/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
-import { CombatAttribute } from "../combatants/attributes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 

@@ -181,7 +181,7 @@ export class ItemManagementController {
       throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
     }
 
-    equipment.changeSelectedHotswapSlot(slotIndex);
+    equipment.hotswapSlotsManager.changeSelectedHotswapSlot(slotIndex);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {

@@ -5,7 +5,6 @@ import {
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
   EquipmentAnimation,
   EquipmentType,
-  HoldableSlotType,
   MonsterType,
   SKELETAL_ANIMATION_NAME_STRINGS,
   SkeletalAnimationName,
@@ -52,23 +51,27 @@ export class CombatantSceneEntityAnimationControls {
     }
 
     const { equipment } = combatantProperties;
-    const offHandOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);
-    const offhandType = offHandOption?.equipmentBaseItemProperties.equipmentType;
-    const mainHandOption = equipment.getEquippedHoldable(HoldableSlotType.MainHand);
-    const mainHandType = mainHandOption?.equipmentBaseItemProperties.equipmentType;
+    const offHandOption = equipment.hotswapSlotsManager.activeSlot.offHand?.equipmentInSlot;
+    const offhandTypeOption = offHandOption?.equipmentBaseItemProperties.equipmentType;
+    const mainHandOption = equipment.hotswapSlotsManager.activeSlot.mainHand?.equipmentInSlot;
+    const mainHandTypeOption = mainHandOption?.equipmentBaseItemProperties.equipmentType;
     const mhIsBroken = mainHandOption && mainHandOption.isBroken();
     const ohIsBroken = offHandOption && offHandOption.isBroken();
 
-    if (mainHandType === EquipmentType.TwoHandedRangedWeapon && !mhIsBroken) {
+    if (mainHandTypeOption === EquipmentType.TwoHandedRangedWeapon && !mhIsBroken) {
       return SkeletalAnimationName.IdleBow;
     }
-    if (mainHandType === EquipmentType.TwoHandedMeleeWeapon && !mhIsBroken) {
+    if (mainHandTypeOption === EquipmentType.TwoHandedMeleeWeapon && !mhIsBroken) {
       return SkeletalAnimationName.IdleTwoHand;
     }
-    if (offhandType !== undefined && offhandType !== EquipmentType.Shield && !ohIsBroken) {
+    if (
+      offhandTypeOption !== undefined &&
+      offhandTypeOption !== EquipmentType.Shield &&
+      !ohIsBroken
+    ) {
       return SkeletalAnimationName.IdleDualWield;
     }
-    if (mainHandType !== undefined && !mhIsBroken) {
+    if (mainHandTypeOption !== undefined && !mhIsBroken) {
       return SkeletalAnimationName.IdleMainHand;
     }
     return SkeletalAnimationName.IdleUnarmed;

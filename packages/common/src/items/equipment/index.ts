@@ -176,13 +176,10 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     return flatDamageTrait.value;
   }
 
-  getWeaponProperties(): Error | WeaponProperties {
-    if (!this.isWeapon()) return new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
-    return this.equipmentBaseItemProperties as WeaponProperties;
-  }
-
   requireWeaponProperties() {
-    if (!this.isWeapon()) throw new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    if (!this.isWeapon()) {
+      throw new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    }
     return this.equipmentBaseItemProperties as WeaponProperties;
   }
 

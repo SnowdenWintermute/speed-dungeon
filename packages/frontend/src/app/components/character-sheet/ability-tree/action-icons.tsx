@@ -1,31 +1,28 @@
 import { IconName, KINETIC_TYPE_ICONS, MAGICAL_ELEMENT_ICONS, SVG_ICONS } from "@/app/icons";
-import {
-  CombatantProperties,
-  EquipmentType,
-  HoldableSlotType,
-  KineticDamageType,
-  throwIfError,
-} from "@speed-dungeon/common";
+import { CombatantProperties, EquipmentType, KineticDamageType } from "@speed-dungeon/common";
 
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {
   const mhIcons = [];
 
   const actionPoints = user.resources.getActionPoints();
-  const mainHandEquipmentOption = user.equipment.getEquippedHoldable(HoldableSlotType.MainHand);
-  const offHandEquipmentOption = user.equipment.getEquippedHoldable(HoldableSlotType.OffHand);
+  const mainHandEquipmentOption =
+    user.equipment.hotswapSlotsManager.activeSlot.mainHand.equipmentInSlot;
+  const offHandEquipmentOption =
+    user.equipment.hotswapSlotsManager.activeSlot.offHand.equipmentInSlot;
   const ohIsShield =
     offHandEquipmentOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield;
 
   if (
     mainHandEquipmentOption?.equipmentBaseItemProperties.equipmentType ===
     EquipmentType.TwoHandedRangedWeapon
-  )
+  ) {
     mhIcons.push(SVG_ICONS[IconName.CrossedArrows]);
+  }
 
-  if (mainHandEquipmentOption === undefined)
+  if (mainHandEquipmentOption === null) {
     mhIcons.push(KINETIC_TYPE_ICONS[KineticDamageType.Blunt]);
-  else {
-    const mhWeaponPropertiesOption = throwIfError(mainHandEquipmentOption.getWeaponProperties());
+  } else {
+    const mhWeaponPropertiesOption = mainHandEquipmentOption.requireWeaponProperties();
     mhWeaponPropertiesOption.damageClassification.forEach((classification, i) => {
       if (classification.elementOption !== undefined)
         mhIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);
@@ -42,12 +39,12 @@ export function getAttackActionIcons(user: CombatantProperties, inCombat: boolea
   const mhIsTwoHanded = mainHandEquipmentOption && mainHandEquipmentOption.isTwoHanded();
 
   const ohIcons = [];
-  let ohDisabled = actionPoints < 2 && inCombat;
+  const ohDisabled = actionPoints < 2 && inCombat;
   if (!ohIsShield && !mhIsTwoHanded) {
-    if (offHandEquipmentOption === undefined)
+    if (offHandEquipmentOption === null) {
       ohIcons.push(KINETIC_TYPE_ICONS[KineticDamageType.Blunt]);
-    else {
-      const ohWeaponPropertiesOption = throwIfError(offHandEquipmentOption.getWeaponProperties());
+    } else {
+      const ohWeaponPropertiesOption = offHandEquipmentOption.requireWeaponProperties();
       ohWeaponPropertiesOption.damageClassification.forEach((classification, i) => {
         if (classification.elementOption)
           ohIcons.push(MAGICAL_ELEMENT_ICONS[classification.elementOption]);

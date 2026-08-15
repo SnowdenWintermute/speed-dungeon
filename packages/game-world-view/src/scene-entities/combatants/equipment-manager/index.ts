@@ -73,7 +73,7 @@ export class CombatantSceneEntityEquipmentManager {
 
   getHoldableModelInSlot(slot: HoldableSlotType) {
     const { equipment } = this.combatantSceneEntity.combatant.combatantProperties;
-    const selectedHotswapSlotIndex = equipment.getSelectedHoldableSlotIndex();
+    const selectedHotswapSlotIndex = equipment.hotswapSlotsManager.selectedIndex;
     const holdableModelsHotswapSlotOption = this.holdableHotswapSlots[selectedHotswapSlotIndex];
     if (!holdableModelsHotswapSlotOption) return undefined;
     return holdableModelsHotswapSlotOption[slot];
@@ -212,7 +212,7 @@ export class CombatantSceneEntityEquipmentManager {
     // attach to correct positions
 
     const hotswapSlots = combatantProperties.equipment.getHoldableHotswapSlots();
-    const equippedSlotIndex = combatantProperties.equipment.getSelectedHoldableSlotIndex();
+    const equippedSlotIndex = combatantProperties.equipment.hotswapSlotsManager.selectedIndex;
     const holsteredSlotIndex = this.getIndexForDisplayedHolsteredSlot(
       hotswapSlots,
       equippedSlotIndex

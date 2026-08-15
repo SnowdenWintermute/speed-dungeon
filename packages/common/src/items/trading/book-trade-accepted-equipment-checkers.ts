@@ -18,8 +18,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
     return false;
   },
   [ConsumableType.RogueSkillbook]: (equipment) => {
-    const weaponPropertiesResult = equipment.getWeaponProperties();
-    if (weaponPropertiesResult instanceof Error) return false;
+    if (!equipment.isWeapon()) return false;
 
     const { equipmentType } = equipment.equipmentBaseItemProperties;
 
@@ -27,7 +26,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
     if (equipmentType === EquipmentType.OneHandedMeleeWeapon) {
       let isSlashing = false;
 
-      for (const classification of weaponPropertiesResult.damageClassification) {
+      for (const classification of equipment.requireWeaponProperties().damageClassification) {
         if (classification.kineticDamageTypeOption === KineticDamageType.Slashing)
           isSlashing = true;
       }
@@ -52,8 +51,7 @@ export const BOOK_TRADE_ACCEPTED_EQUIPMENT_CHECKERS: Record<
     return false;
   },
   [ConsumableType.MageSkillbook]: (equipment) => {
-    const { baseItemType, equipmentType } =
-      equipment.equipmentBaseItemProperties;
+    const { baseItemType, equipmentType } = equipment.equipmentBaseItemProperties;
 
     if (equipmentType === EquipmentType.OneHandedMeleeWeapon) {
       const isWand = WANDS.includes(baseItemType);

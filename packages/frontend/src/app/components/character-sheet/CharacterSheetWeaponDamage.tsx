@@ -27,9 +27,9 @@ export const CharacterSheetWeaponDamage = observer(
 
     const gameOption = useCharacterSheetSubject().getGameOption();
 
-    const mhWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.MainHand);
+    const mhWeaponOption =
+      equipment.hotswapSlotsManager.activeSlot.mainHand.equipmentInSlot?.requireWeaponProperties();
 
-    if (mhWeaponOption instanceof Error) return <div>{mhWeaponOption.message}</div>;
     const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
       combatant,
       mhWeaponOption,
@@ -40,7 +40,7 @@ export const CharacterSheetWeaponDamage = observer(
       ? Equipment.isTwoHandedWeaponType(mhWeaponOption.equipmentType)
       : false;
 
-    const ohEquipmentOption = equipment.getEquippedHoldable(HoldableSlotType.OffHand);
+    const ohEquipmentOption = equipment.hotswapSlotsManager.activeSlot.offHand.equipmentInSlot;
 
     if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
 

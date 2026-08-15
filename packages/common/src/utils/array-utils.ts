@@ -70,7 +70,11 @@ export class ArrayUtils {
     return false;
   }
 
-  static combinePredicates<T>(...predicates: Array<(item: T) => boolean>) {
+  static combinePredicates<T>(...predicates: ((item: T) => boolean)[]) {
     return (item: T) => predicates.every((p) => p(item));
+  }
+
+  static indexIsWithinBounds<T>(array: T[], index: number): boolean {
+    return index >= 0 && index < array.length;
   }
 }

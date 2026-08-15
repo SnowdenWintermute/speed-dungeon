@@ -37,12 +37,13 @@ export function getItemThumbnailKeyOption(item: Item): null | ItemThumbnailKey {
 // materials are assigned to a weapon's accent slots by the position of each damage
 // classification, so both which elements are present and their order matter
 function getElementSegment(equipment: Equipment) {
-  const weaponPropertiesResult = equipment.getWeaponProperties();
-  if (weaponPropertiesResult instanceof Error) {
+  if (!equipment.isWeapon()) {
     return "";
   }
 
-  return weaponPropertiesResult.damageClassification
+  const weaponProperties = equipment.requireWeaponProperties();
+
+  return weaponProperties.damageClassification
     .map(({ elementOption }) =>
       elementOption === undefined ? "none" : MAGICAL_ELEMENT_STRINGS[elementOption]
     )

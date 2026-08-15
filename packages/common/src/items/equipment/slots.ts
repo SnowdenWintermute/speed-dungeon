@@ -1,7 +1,10 @@
 import cloneDeep from "lodash.clonedeep";
-import { ReactiveNode, Serializable } from "../../serialization/index.js";
+import {
+  EquipmentSlotTypeNew,
+  HOLDABLE_SLOT_TYPES,
+  HoldableSlotType,
+} from "../../combatants/combatant-equipment/slots.js";
 import { EQUIPMENT_TYPE_STRINGS, EquipmentType } from "./equipment-types/index.js";
-import { Equipment } from "./index.js";
 
 export enum EquipmentSlotType {
   Holdable,
@@ -12,11 +15,6 @@ export const EQUIPMENT_SLOT_TYPE_STRINGS: Record<EquipmentSlotType, string> = {
   [EquipmentSlotType.Holdable]: "Holdable",
   [EquipmentSlotType.Wearable]: "Wearable",
 };
-
-export enum HoldableSlotType {
-  MainHand,
-  OffHand,
-}
 
 export enum WearableSlotType {
   Head,
@@ -35,7 +33,7 @@ export interface WearableSlot {
   slot: WearableSlotType;
 }
 
-export const ALL_HOLDABLE_SLOTS: HoldableSlot[] = Object.values(HoldableSlotType)
+export const ALL_HOLDABLE_SLOTS: HoldableSlot[] = cloneDeep(HOLDABLE_SLOT_TYPES)
   .filter((value): value is HoldableSlotType => typeof value === "number")
   .map((slot) => ({
     type: EquipmentSlotType.Holdable,
@@ -62,8 +60,8 @@ export const WEARABLE_SLOT_STRINGS: Record<WearableSlotType, string> = {
 };
 
 export const HOLDABLE_SLOT_STRINGS: Record<HoldableSlotType, string> = {
-  [HoldableSlotType.MainHand]: "main hand",
-  [HoldableSlotType.OffHand]: "offhand",
+  [EquipmentSlotTypeNew.Mainhand]: "main hand",
+  [EquipmentSlotTypeNew.Offhand]: "offhand",
 };
 
 export interface EquipableSlots {
@@ -133,56 +131,3 @@ export const EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipableS
     alternate: null,
   },
 };
-
-export enum EquipmentSlotTypeNew {
-  Head,
-  Body,
-  Ring,
-  Amulet,
-  Mainhand,
-  Offhand,
-}
-
-const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotTypeNew, EquipmentType[]> = {
-  [EquipmentSlotTypeNew.Head]: [EquipmentType.HeadGear],
-  [EquipmentSlotTypeNew.Body]: [EquipmentType.BodyArmor],
-  [EquipmentSlotTypeNew.Ring]: [EquipmentType.Ring],
-  [EquipmentSlotTypeNew.Amulet]: [EquipmentType.Amulet],
-  [EquipmentSlotTypeNew.Mainhand]: [
-    EquipmentType.OneHandedMeleeWeapon,
-    EquipmentType.TwoHandedMeleeWeapon,
-    EquipmentType.TwoHandedRangedWeapon,
-  ],
-  [EquipmentSlotTypeNew.Offhand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
-};
-
-export class EquipmentSlot implements Serializable, ReactiveNode {
-  constructor(
-    public readonly type: EquipmentSlotTypeNew,
-    private _equipmentInSlot: null | Equipment
-  ) {}
-
-  toSerialized() {
-    return { type: this.type, _equipmentInSlot: this._equipmentInSlot };
-  }
-
-  fromSerialized() {
-    return new EquipmentSlot(this.type, this._equipmentInSlot);
-  }
-
-  makeObservable(): void {
-    throw new Error("Method not implemented.");
-  }
-
-  getCompatibleEquipmentTypes() {
-    return COMPATIBLE_ITEMS_BY_SLOT_TYPE[this.type];
-  }
-
-  canAcceptEquipmentType(equipmentType: EquipmentType) {
-    return this.getCompatibleEquipmentTypes().includes(equipmentType);
-  }
-
-  get equipmentInSlot() {
-    return cloneDeep(this._equipmentInSlot);
-  }
-}
