@@ -6,7 +6,6 @@ import {
   equipmentTypeCanGoInSlot,
   EquipmentType,
   Item,
-  taggedEquipmentSlotsAreEqual,
   TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { ItemCommands } from "../item-commands";

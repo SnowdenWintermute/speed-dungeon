@@ -134,6 +134,22 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
     return toReturn;
   }
 
+  getAllEquipped(options: { includeUnselectedHotswapSlots?: boolean }) {
+    const value: (Equipment | null)[] = [];
+
+    if (options?.includeUnselectedHotswapSlots) {
+      value.push(
+        ...this.allSlots.flatMap((hotswapSlot) =>
+          Object.values(hotswapSlot.slots).map((slot) => slot.equipmentInSlot)
+        )
+      );
+    } else {
+      value.push(...Object.values(this.activeSlot.slots).map((slot) => slot.equipmentInSlot));
+    }
+
+    return value.filter((item) => item !== null);
+  }
+
   addSlot(newSlot: HotswapSlot) {
     this._inherentSlots.push(newSlot);
   }

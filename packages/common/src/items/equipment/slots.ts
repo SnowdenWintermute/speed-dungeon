@@ -69,22 +69,6 @@ export interface EquipableSlots {
   alternate: null | TaggedEquipmentSlot;
 }
 
-export function taggedEquipmentSlotsAreEqual(a: TaggedEquipmentSlot, b: TaggedEquipmentSlot) {
-  return a.type === b.type && a.slot === b.slot;
-}
-
-export function equipmentTypeCanGoInSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
-  const equipableSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
-
-  if (taggedEquipmentSlotsAreEqual(equipableSlots.main, slot)) {
-    return true;
-  }
-  return (
-    equipableSlots.alternate !== null &&
-    taggedEquipmentSlotsAreEqual(equipableSlots.alternate, slot)
-  );
-}
-
 export function validateEquipmentSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
   if (!equipmentTypeCanGoInSlot(equipmentType, slot)) {
     const slotName =

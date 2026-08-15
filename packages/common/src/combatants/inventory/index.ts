@@ -147,11 +147,16 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return itemResult;
   }
 
-  removeEquipment(itemId: string): Error | Equipment {
+  removeEquipment(itemId: string): Equipment {
     const itemOption = Item.removeFromArray(this.equipment, itemId);
-    if (itemOption === undefined) return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
-    if (!(itemOption instanceof Equipment)) return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
-    else return itemOption;
+    if (itemOption === undefined) {
+      throw new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    }
+    if (!(itemOption instanceof Equipment)) {
+      throw new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+    } else {
+      return itemOption;
+    }
   }
 
   removeConsumable(itemId: string): Error | Consumable {
@@ -212,14 +217,17 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return item ?? new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  getEquipmentById(itemId: string) {
+  requireEquipmentById(itemId: string) {
     const item = this.equipment.find((i) => i.entityProperties.id === itemId);
-    return item ?? new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    if (item === undefined) {
+      throw new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    }
+    return item;
   }
 
   getItemById(itemId: string) {
     let itemOption: Consumable | Equipment | Error = this.getConsumableById(itemId);
-    if (itemOption instanceof Error) itemOption = this.getEquipmentById(itemId);
+    if (itemOption instanceof Error) itemOption = this.requireEquipmentById(itemId);
     return itemOption;
   }
 
