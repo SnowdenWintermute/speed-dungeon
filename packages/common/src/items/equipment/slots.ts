@@ -1,5 +1,6 @@
 import cloneDeep from "lodash.clonedeep";
 import {
+  EquipmentSlotId,
   EquipmentSlotTypeNew,
   HOLDABLE_SLOT_TYPES,
   HoldableSlotType,
@@ -65,8 +66,8 @@ export const HOLDABLE_SLOT_STRINGS: Record<HoldableSlotType, string> = {
 };
 
 export interface EquipableSlots {
-  main: TaggedEquipmentSlot;
-  alternate: null | TaggedEquipmentSlot;
+  main: EquipmentSlotId;
+  alternate?: EquipmentSlotId;
 }
 
 export function validateEquipmentSlot(equipmentType: EquipmentType, slot: TaggedEquipmentSlot) {
@@ -83,35 +84,29 @@ export function validateEquipmentSlot(equipmentType: EquipmentType, slot: Tagged
 
 export const EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipableSlots> = {
   [EquipmentType.BodyArmor]: {
-    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body },
-    alternate: null,
+    main: EquipmentSlotId.Body,
   },
   [EquipmentType.HeadGear]: {
-    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head },
-    alternate: null,
+    main: EquipmentSlotId.Head,
   },
   [EquipmentType.Ring]: {
-    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingR },
-    alternate: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingL },
+    main: EquipmentSlotId.FingerMain,
+    alternate: EquipmentSlotId.FingerAlternate,
   },
   [EquipmentType.Amulet]: {
-    main: { type: EquipmentSlotType.Wearable, slot: WearableSlotType.Amulet },
-    alternate: null,
+    main: EquipmentSlotId.Neck,
   },
   [EquipmentType.OneHandedMeleeWeapon]: {
-    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
-    alternate: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
+    main: EquipmentSlotId.MainHand,
+    alternate: EquipmentSlotId.OffHand,
   },
   [EquipmentType.TwoHandedMeleeWeapon]: {
-    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
-    alternate: null,
+    main: EquipmentSlotId.MainHand,
   },
   [EquipmentType.TwoHandedRangedWeapon]: {
-    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand },
-    alternate: null,
+    main: EquipmentSlotId.MainHand,
   },
   [EquipmentType.Shield]: {
-    main: { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand },
-    alternate: null,
+    main: EquipmentSlotId.OffHand,
   },
 };
