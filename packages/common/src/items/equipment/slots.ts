@@ -1,3 +1,5 @@
+import cloneDeep from "lodash.clonedeep";
+import { ReactiveNode, Serializable } from "../../serialization/index.js";
 import { EQUIPMENT_TYPE_STRINGS, EquipmentType } from "./equipment-types/index.js";
 import { Equipment } from "./index.js";
 
@@ -46,6 +48,8 @@ export const ALL_WEARABLE_SLOTS: WearableSlot[] = Object.values(WearableSlotType
     type: EquipmentSlotType.Wearable,
     slot,
   }));
+
+export const ALL_EQUIPMENT_SLOTS = [...ALL_HOLDABLE_SLOTS, ...ALL_WEARABLE_SLOTS];
 
 export type TaggedEquipmentSlot = HoldableSlot | WearableSlot;
 
@@ -129,3 +133,56 @@ export const EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipableS
     alternate: null,
   },
 };
+
+export enum EquipmentSlotTypeNew {
+  Head,
+  Body,
+  Ring,
+  Amulet,
+  Mainhand,
+  Offhand,
+}
+
+const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotTypeNew, EquipmentType[]> = {
+  [EquipmentSlotTypeNew.Head]: [EquipmentType.HeadGear],
+  [EquipmentSlotTypeNew.Body]: [EquipmentType.BodyArmor],
+  [EquipmentSlotTypeNew.Ring]: [EquipmentType.Ring],
+  [EquipmentSlotTypeNew.Amulet]: [EquipmentType.Amulet],
+  [EquipmentSlotTypeNew.Mainhand]: [
+    EquipmentType.OneHandedMeleeWeapon,
+    EquipmentType.TwoHandedMeleeWeapon,
+    EquipmentType.TwoHandedRangedWeapon,
+  ],
+  [EquipmentSlotTypeNew.Offhand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
+};
+
+export class EquipmentSlot implements Serializable, ReactiveNode {
+  constructor(
+    public readonly type: EquipmentSlotTypeNew,
+    private _equipmentInSlot: null | Equipment
+  ) {}
+
+  toSerialized() {
+    return { type: this.type, _equipmentInSlot: this._equipmentInSlot };
+  }
+
+  fromSerialized() {
+    return new EquipmentSlot(this.type, this._equipmentInSlot);
+  }
+
+  makeObservable(): void {
+    throw new Error("Method not implemented.");
+  }
+
+  getCompatibleEquipmentTypes() {
+    return COMPATIBLE_ITEMS_BY_SLOT_TYPE[this.type];
+  }
+
+  canAcceptEquipmentType(equipmentType: EquipmentType) {
+    return this.getCompatibleEquipmentTypes().includes(equipmentType);
+  }
+
+  get equipmentInSlot() {
+    return cloneDeep(this._equipmentInSlot);
+  }
+}

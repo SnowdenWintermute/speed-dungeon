@@ -1,4 +1,4 @@
-import { AdventuringParty, Equipment } from "@speed-dungeon/common";
+import { AdventuringParty, ALL_EQUIPMENT_SLOTS, Equipment } from "@speed-dungeon/common";
 
 export class BestImprovementEquipmentSolver {
   unusedEquipment: Equipment[] = [];
@@ -16,8 +16,18 @@ export class BestImprovementEquipmentSolver {
     }
   }
 
+  private getPartySlotEquipmentCapacities() {
+    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
+      for (const taggedSlot of ALL_EQUIPMENT_SLOTS) {
+        //
+      }
+    }
+  }
+
   // if exists seven +2 dex rings and one +1 dex ring, no one will want that +1 dex ring
   private filterSingleAxisCapacityDominated() {
+    // for(const item of this.party.currentRoom.inventory.getItems()){
+    // }
     //    - for each slot type
     //    - count the total slots of that type in the party
     //    - get all items that could go in that slot type
