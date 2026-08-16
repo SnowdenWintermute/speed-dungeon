@@ -55,9 +55,17 @@ export class EquipmentSlot implements Serializable, ReactiveNode {
     this._equipmentInSlot = equipment;
   }
 
-  removeEquipment() {
+  removeEquipmentOption() {
     const value = this._equipmentInSlot;
     this.equipmentInSlot = null;
+    return value;
+  }
+
+  removeExpectedEquipment() {
+    const value = this.removeEquipmentOption();
+    if (value === null) {
+      throw new Error("expected equipment in this slot");
+    }
     return value;
   }
 }

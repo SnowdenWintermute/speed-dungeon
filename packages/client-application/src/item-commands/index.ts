@@ -1,4 +1,4 @@
-import { ClientIntentType, CombatantId, ItemId, TaggedEquipmentSlot } from "@speed-dungeon/common";
+import { ClientIntentType, CombatantId, EquipmentSlotId, ItemId } from "@speed-dungeon/common";
 import { ClientApplication } from "..";
 
 export class ItemCommands {
@@ -20,19 +20,19 @@ export class ItemCommands {
 
   moveEquippedItemToSlot(
     characterId: CombatantId,
-    sourceSlot: TaggedEquipmentSlot,
-    destinationSlot: TaggedEquipmentSlot
+    sourceSlotId: EquipmentSlotId,
+    destinationSlotId: EquipmentSlotId
   ) {
     this.clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.MoveEquippedItemToSlot,
-      data: { characterId, sourceSlot, destinationSlot },
+      data: { characterId, sourceSlotId, destinationSlotId },
     });
   }
 
-  unequipSlot(characterId: CombatantId, slot: TaggedEquipmentSlot) {
+  unequipSlot(characterId: CombatantId, slotId: EquipmentSlotId) {
     this.clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.UnequipSlot,
-      data: { characterId, slot },
+      data: { characterId, slotId },
     });
   }
 
@@ -43,10 +43,10 @@ export class ItemCommands {
     });
   }
 
-  dropEquippedItem(characterId: CombatantId, slot: TaggedEquipmentSlot) {
+  dropEquippedItem(characterId: CombatantId, slotId: EquipmentSlotId) {
     this.clientApplication.gameClientRef.get().dispatchIntent({
       type: ClientIntentType.DropEquippedItem,
-      data: { characterId, slot },
+      data: { characterId, slotId },
     });
   }
 

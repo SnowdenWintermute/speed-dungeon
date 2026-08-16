@@ -1,4 +1,4 @@
-import { Item, TaggedEquipmentSlot } from "@speed-dungeon/common";
+import { EquipmentSlotId, Item } from "@speed-dungeon/common";
 
 export enum DragSourceType {
   InventoryItem,
@@ -9,7 +9,7 @@ export enum DragSourceType {
 export type DragSource =
   | { type: DragSourceType.InventoryItem; item: Item }
   // identified by slot alone; the Equipment is derived via equipment.getEquipmentInSlot(slot)
-  | { type: DragSourceType.EquippedItem; slot: TaggedEquipmentSlot }
+  | { type: DragSourceType.EquippedItem; slotId: EquipmentSlotId }
   | { type: DragSourceType.GroundItem; item: Item };
 
 export enum DropTargetType {
@@ -19,7 +19,7 @@ export enum DropTargetType {
 }
 
 export type DropTarget =
-  | { type: DropTargetType.EquipmentSlot; slot: TaggedEquipmentSlot }
+  | { type: DropTargetType.EquipmentSlot; slotId: EquipmentSlotId }
   | { type: DropTargetType.Ground }
   | { type: DropTargetType.Inventory };
 
@@ -33,7 +33,7 @@ export function dropTargetsEqual(a: DropTarget, b: DropTarget) {
     return false;
   }
   if (a.type === DropTargetType.EquipmentSlot && b.type === DropTargetType.EquipmentSlot) {
-    return a.slot.type === b.slot.type && a.slot.slot === b.slot.slot;
+    return a.slotId === b.slotId;
   }
   return true;
 }

@@ -1,4 +1,5 @@
 import { GameId, Meters, Milliseconds, NormalizedPercentage, Percentage } from "./aliases.js";
+import { EquipmentType } from "./items/equipment/equipment-types/index.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 50000;
 
@@ -82,6 +83,10 @@ export const CRIT_ATTRIBUTE_TO_CRIT_CHANCE_RATIO = 0.0025;
 export const AGILITY_TO_KINETIC_CRIT_EVASION_RATIO = 0.01;
 export const CRIT_REDUCTION_ATTRIBUTE_TO_CRIT_DAMAGE_REDUCTION_RATIO = 0.005;
 export const MAX_CRIT_DAMAGE_REDUCTION: NormalizedPercentage = 1;
+export const WEAPON_TYPES_THAT_CAN_PARRY = [
+  EquipmentType.OneHandedMeleeWeapon,
+  EquipmentType.TwoHandedMeleeWeapon,
+];
 
 // EQUIPMENT GENERATION
 export const BASE_CHANCE_FOR_ITEM_TO_BE_MAGICAL = 0.75;

@@ -1,7 +1,6 @@
 import { Vector3 } from "@babylonjs/core";
 import { CosmeticEffectNames } from "../../action-entities/cosmetic-effect.js";
 import { CombatantSpecies } from "../../combatants/combatant-species.js";
-import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { Milliseconds } from "../../aliases.js";
 import {
   SceneEntityChildTransformNodeIdentifier,
@@ -21,9 +20,10 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "../../action-processing/action-steps/index.js";
+import { EquipmentSlotId } from "../../combatants/combatant-equipment/types.js";
 
 export interface EquipmentAnimation {
-  slot: TaggedEquipmentSlot;
+  slotId: EquipmentSlotId;
   animation: EntityAnimation;
 }
 

@@ -1,12 +1,11 @@
 import {
   CombatantAttributeRecord,
   Equipment,
+  EquipmentSlotId,
   EquipmentType,
   Item,
-  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import React, { useMemo } from "react";
-import isEqual from "lodash.isequal";
 import RingIcon from "../../../../public/img/equipment-icons/ring-flattened.svg";
 import AmuletIcon from "../../../../public/img/equipment-icons/amulet.svg";
 import { observer } from "mobx-react-lite";
@@ -21,7 +20,7 @@ import { useItemThumbnail } from "@/hooks/use-item-thumbnail";
 
 interface Props {
   itemOption: null | Equipment;
-  slot: TaggedEquipmentSlot;
+  slotId: EquipmentSlotId;
   characterAttributes: CombatantAttributeRecord;
   tailwindClasses: string;
 }
@@ -30,14 +29,14 @@ const UNUSABLE_ITEM_BG_STYLES = "bg-slate-700 filter-red";
 const USABLE_ITEM_BG_STYLES = "bg-slate-800";
 
 export const PaperDollSlot = observer(
-  ({ itemOption, slot, characterAttributes, tailwindClasses }: Props) => {
+  ({ itemOption, slotId, characterAttributes, tailwindClasses }: Props) => {
     const clientApplication = useClientApplication();
     const { detailableEntityFocus, dragService } = clientApplication;
     const thumbnailOption = useItemThumbnail(itemOption);
     const subject = useCharacterSheetSubject();
 
     const { detailedItem, hoveredItem } = detailableEntityFocus.getFocusedItems();
-    const { comparedSlot } = detailableEntityFocus.getItemComparison();
+    const { comparedSlotId } = detailableEntityFocus.getItemComparison();
 
     const consideredItemUnmetRequirements = detailableEntityFocus.getSelectedItemUnmetRequirements(
       subject.combatant
@@ -47,18 +46,15 @@ export const PaperDollSlot = observer(
 
     const canDragFromHere = itemOption !== null && subject.getEquipmentIsDraggable();
     const dragHandlers = useDragSource(() =>
-      canDragFromHere ? { type: DragSourceType.EquippedItem, slot } : null
+      canDragFromHere ? { type: DragSourceType.EquippedItem, slotId } : null
     );
     const onPointerDown = canDragFromHere ? dragHandlers.onPointerDown : undefined;
 
-    const dropTarget = useDropTarget({ type: DropTargetType.EquipmentSlot, slot });
+    const dropTarget = useDropTarget({ type: DropTargetType.EquipmentSlot, slotId });
 
     const current = dragService.current;
     const isBeingDragged =
-      current !== null &&
-      current.type === DragSourceType.EquippedItem &&
-      current.slot.type === slot.type &&
-      current.slot.slot === slot.slot;
+      current !== null && current.type === DragSourceType.EquippedItem && current.slotId === slotId;
 
     const dragBorderStyle = dropTarget.isDragging
       ? dropTargetBorderClass(dropTarget.resolution, dropTarget.isHovered)
@@ -79,7 +75,7 @@ export const PaperDollSlot = observer(
     );
 
     const bgStyle = (() => {
-      if (isEqual(comparedSlot, slot)) {
+      if (comparedSlotId === slotId) {
         if (consideredItemUnmetRequirements.size) {
           return UNUSABLE_ITEM_BG_STYLES;
         } else {

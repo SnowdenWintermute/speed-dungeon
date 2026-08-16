@@ -1,16 +1,5 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
-import {
-  CombatantClass,
-  EquipmentSlotType,
-  HoldableSlotType,
-  invariant,
-  TaggedEquipmentSlot,
-} from "@speed-dungeon/common";
-
-const MAIN_HAND: TaggedEquipmentSlot = {
-  type: EquipmentSlotType.Holdable,
-  slot: HoldableSlotType.MainHand,
-};
+import { CombatantClass, EquipmentSlotId, invariant } from "@speed-dungeon/common";
 
 // the default dungeon starts the party in an empty room, so these run out of combat
 export async function testUnequipAndEquipInventoryItem(testFixture: IntegrationTestFixture) {
@@ -26,18 +15,18 @@ export async function testUnequipAndEquipInventoryItem(testFixture: IntegrationT
   const warrior = party.combatantManager.requireCombatantByName("a");
   const { equipment, inventory } = warrior.combatantProperties;
 
-  const swordOption = equipment.getEquipmentInSlot(MAIN_HAND);
-  invariant(swordOption !== undefined, "expected the warrior to start with a main hand weapon");
+  const swordOption = equipment.getEquipmentInSlot(EquipmentSlotId.MainHand);
+  invariant(swordOption !== null, "expected the warrior to start with a main hand weapon");
   const swordId = swordOption.getEntityId();
 
-  await gameClientHarness.unequipSlot(warrior.getEntityId(), MAIN_HAND);
+  await gameClientHarness.unequipSlot(warrior.getEntityId(), EquipmentSlotId.MainHand);
   expect(errorRecordService.getLastError()).toBeUndefined();
-  expect(equipment.getEquipmentInSlot(MAIN_HAND)).toBe(undefined);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(undefined);
   expect(inventory.equipment.map((item) => item.getEntityId())).toEqual([swordId]);
 
   await gameClientHarness.equipInventoryItem(warrior.getEntityId(), swordId);
   expect(errorRecordService.getLastError()).toBeUndefined();
-  expect(equipment.getEquipmentInSlot(MAIN_HAND)?.getEntityId()).toBe(swordId);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)?.getEntityId()).toBe(swordId);
   expect(inventory.equipment).toEqual([]);
 }
 
@@ -54,13 +43,13 @@ export async function testDropEquippedItemToGround(testFixture: IntegrationTestF
   const warrior = party.combatantManager.requireCombatantByName("a");
   const { equipment, inventory } = warrior.combatantProperties;
 
-  const swordOption = equipment.getEquipmentInSlot(MAIN_HAND);
-  invariant(swordOption !== undefined, "expected the warrior to start with a main hand weapon");
+  const swordOption = equipment.getEquipmentInSlot(EquipmentSlotId.MainHand);
+  invariant(swordOption !== null, "expected the warrior to start with a main hand weapon");
   const swordId = swordOption.getEntityId();
 
-  await gameClientHarness.dropEquippedItem(warrior.getEntityId(), MAIN_HAND);
+  await gameClientHarness.dropEquippedItem(warrior.getEntityId(), EquipmentSlotId.MainHand);
   expect(errorRecordService.getLastError()).toBeUndefined();
-  expect(equipment.getEquipmentInSlot(MAIN_HAND)).toBe(undefined);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(undefined);
   expect(inventory.equipment).toEqual([]);
   const droppedItem = party.currentRoom.inventory.getItemById(swordId);
   invariant(!(droppedItem instanceof Error), "expected the dropped item to be in the room");

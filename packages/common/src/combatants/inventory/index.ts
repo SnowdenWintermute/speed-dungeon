@@ -11,8 +11,8 @@ import { CombatantSubsystem } from "../combatant-subsystem.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ConsumableType } from "../../items/consumables/consumable-types.js";
-import { TaggedEquipmentSlot } from "../../items/equipment/slots.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import { EquipmentSlotId } from "../combatant-equipment/types.js";
 
 export class Inventory extends CombatantSubsystem implements Serializable, ReactiveNode {
   consumables: Consumable[] = [];
@@ -96,10 +96,11 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
 
   dropItem(party: AdventuringParty, itemId: string): Error | EntityId {
     const itemResult = this.removeItem(itemId);
-    if (itemResult instanceof Error) return itemResult;
+    if (itemResult instanceof Error) {
+      throw itemResult;
+    }
     const item = itemResult;
-    const maybeError = party.currentRoom.inventory.insertItem(item);
-    if (maybeError instanceof Error) return maybeError;
+    party.currentRoom.inventory.insertItem(item);
     return itemId;
   }
 
@@ -109,9 +110,9 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     }
   }
 
-  dropEquippedItem(party: AdventuringParty, taggedSlot: TaggedEquipmentSlot): Error | EntityId {
+  dropEquippedItem(party: AdventuringParty, slotId: EquipmentSlotId): Error | EntityId {
     const combatantProperties = this.getCombatantProperties();
-    const itemIdsUnequipped = combatantProperties.equipment.unequipSlots([taggedSlot]);
+    const itemIdsUnequipped = combatantProperties.equipment.unequipSlots([slotId]);
     const itemId = itemIdsUnequipped[0];
     if (itemId === undefined) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
     const itemDroppedIdResult = combatantProperties.inventory.dropItem(party, itemId);
@@ -119,22 +120,24 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return itemId;
   }
 
-  insertItem(item: Item): Error | void {
-    if (item instanceof Consumable) this.consumables.push(item);
-    else if (item instanceof Equipment) this.equipment.push(item);
-    else return new Error("Unhandled item type");
+  insertItem(item: Item): void {
+    if (item instanceof Consumable) {
+      this.consumables.push(item);
+    } else if (item instanceof Equipment) {
+      this.equipment.push(item);
+    } else {
+      throw new Error("Unhandled item type");
+    }
   }
 
   insertItems(items: Item[]) {
     for (const item of items) {
-      const result = this.insertItem(item);
-      if (result instanceof Error) return result;
+      this.insertItem(item);
     }
   }
 
   pickUpShardStack(stackId: EntityId, inventoryFrom: Inventory) {
     const shardStackResult = inventoryFrom.removeItem(stackId);
-    if (shardStackResult instanceof Error) return shardStackResult;
     invariant(shardStackResult instanceof Consumable);
     this.changeShards(shardStackResult.usesRemaining);
   }
@@ -147,16 +150,24 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return itemResult;
   }
 
-  removeEquipment(itemId: string): Equipment {
+  removeEquipment(itemId: string): Equipment | Error {
     const itemOption = Item.removeFromArray(this.equipment, itemId);
     if (itemOption === undefined) {
-      throw new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+      return new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
     }
     if (!(itemOption instanceof Equipment)) {
-      throw new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
+      return new Error(ERROR_MESSAGES.ITEM.INVALID_TYPE);
     } else {
       return itemOption;
     }
+  }
+
+  removeExpectedEquipment(itemId: string): Equipment {
+    const itemResult = this.removeEquipment(itemId);
+    if (itemResult instanceof Error) {
+      throw itemResult;
+    }
+    return itemResult;
   }
 
   removeConsumable(itemId: string): Error | Consumable {

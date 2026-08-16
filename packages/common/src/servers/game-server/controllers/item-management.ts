@@ -1,5 +1,4 @@
-import { ActionRank, CombatantId, EntityId, ItemId } from "../../../aliases.js";
-import { TaggedEquipmentSlot } from "../../../items/equipment/slots.js";
+import { ActionRank, CombatantId, ItemId } from "../../../aliases.js";
 import { HOTSWAP_SLOT_SELECTION_ACTION_POINT_COST } from "../../../app-consts.js";
 import { CombatActionExecutionIntent } from "../../../combat/combat-actions/combat-action-execution-intent.js";
 import { CombatActionName } from "../../../combat/combat-actions/combat-action-names.js";
@@ -13,11 +12,11 @@ import {
   GameStateUpdate,
   GameStateUpdateType,
 } from "../../../packets/game-state-updates.js";
-import { invariant } from "../../../utils/index.js";
 import { UserSession } from "../../sessions/user-session.js";
 import { MessageDispatchFactory } from "../../update-delivery/message-dispatch-factory.js";
 import { MessageDispatchOutbox } from "../../update-delivery/outbox.js";
 import { CombatActionController } from "./combat-action/index.js";
+import { EquipmentSlotId } from "../../../combatants/combatant-equipment/types.js";
 
 export class ItemManagementController {
   constructor(
@@ -49,7 +48,7 @@ export class ItemManagementController {
   }
 
   dropEquippedItemHandler(session: UserSession, data: CharacterAndSlot) {
-    const { characterId, slot } = data;
+    const { characterId, slotId } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
     if (party.isInCombat()) {
@@ -57,7 +56,7 @@ export class ItemManagementController {
     }
 
     const { inventory } = character.combatantProperties;
-    const itemDroppedIdResult = inventory.dropEquippedItem(party, slot);
+    const itemDroppedIdResult = inventory.dropEquippedItem(party, slotId);
     if (itemDroppedIdResult instanceof Error) {
       throw itemDroppedIdResult;
     }
@@ -86,14 +85,10 @@ export class ItemManagementController {
       const itemIsShardStack = itemInInventory.isShardStack();
 
       if (itemIsShardStack) {
-        const mabyeError = character.combatantProperties.inventory.pickUpShardStack(
+        character.combatantProperties.inventory.pickUpShardStack(
           itemId,
           party.currentRoom.inventory
         );
-        if (mabyeError instanceof Error) {
-          errors.push(mabyeError);
-          continue;
-        }
         idsPickedUp.push(itemInInventory.entityProperties.id);
         continue;
       }
@@ -140,14 +135,14 @@ export class ItemManagementController {
   }
 
   unequipSlotHandler(session: UserSession, data: CharacterAndSlot) {
-    const { characterId, slot } = data;
+    const { characterId, slotId } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
     if (party.isInCombat()) {
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
     }
 
-    character.combatantProperties.equipment.unequipSlots([slot]);
+    character.combatantProperties.equipment.unequipSlots([slotId]);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -176,10 +171,6 @@ export class ItemManagementController {
     }
 
     const { equipment } = character.combatantProperties;
-
-    if (slotIndex >= equipment.getHoldableHotswapSlots().length) {
-      throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
-    }
 
     equipment.hotswapSlotsManager.changeSelectedHotswapSlot(slotIndex);
 
@@ -240,24 +231,23 @@ export class ItemManagementController {
     session: UserSession,
     data: {
       characterId: CombatantId;
-      sourceSlot: TaggedEquipmentSlot;
-      destinationSlot: TaggedEquipmentSlot;
+      sourceSlotId: EquipmentSlotId;
+      destinationSlotId: EquipmentSlotId;
     }
   ) {
-    const { characterId, sourceSlot, destinationSlot } = data;
+    const { characterId, sourceSlotId, destinationSlotId } = data;
     const { game, party, character } = session.requireCharacterContext(characterId);
 
     if (party.isInCombat()) {
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
     }
 
-    const moveResult = character.combatantProperties.equipment.moveEquippedItemToSlot(
-      sourceSlot,
-      destinationSlot
-    );
-    if (moveResult instanceof Error) {
-      throw moveResult;
-    }
+    const { equipment } = character.combatantProperties;
+
+    const sourceSlot = equipment.getSlotById(sourceSlotId);
+    const destinationSlot = equipment.getSlotById(destinationSlotId);
+
+    character.combatantProperties.equipment.moveEquippedItemToSlot(sourceSlot, destinationSlot);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {

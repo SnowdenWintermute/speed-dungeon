@@ -10,7 +10,6 @@ import {
   BASIC_RANGED_MAIN_HAND_ATTACK_COST_PROPERTIES_CONFIG,
 } from "./basic-attacks.js";
 import { FREE_ACTION_COST_PROPERTIES_CONFIG } from "./free-action.js";
-import { EquipmentSlotType } from "../../../../../items/equipment/slots.js";
 import { CombatActionName } from "../../../combat-action-names.js";
 import { AbilityType } from "../../../../../abilities/ability-types.js";
 import { IActionUser } from "../../../../../action-user-context/action-user.js";
@@ -41,14 +40,8 @@ export function createCostPropertiesConfig(
     ...base,
     ...overrides,
     incursDurabilityLoss: {
-      [EquipmentSlotType.Wearable]: {
-        ...base.incursDurabilityLoss[EquipmentSlotType.Wearable],
-        ...overrides.incursDurabilityLoss?.[EquipmentSlotType.Wearable],
-      },
-      [EquipmentSlotType.Holdable]: {
-        ...base.incursDurabilityLoss[EquipmentSlotType.Holdable],
-        ...overrides.incursDurabilityLoss?.[EquipmentSlotType.Holdable],
-      },
+      ...base.incursDurabilityLoss,
+      ...overrides.incursDurabilityLoss,
     },
     costsByRank: {
       ...base.costsByRank,

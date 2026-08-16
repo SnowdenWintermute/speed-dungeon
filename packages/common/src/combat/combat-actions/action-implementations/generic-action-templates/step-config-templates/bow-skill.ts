@@ -25,11 +25,6 @@ import {
   ActionResolutionStepType,
 } from "../../../../../action-processing/action-steps/index.js";
 import { TwoHandedRangedWeapon } from "../../../../../items/equipment/equipment-types/two-handed-ranged-weapon.js";
-import {
-  EquipmentSlotType,
-  HoldableSlotType,
-  TaggedEquipmentSlot,
-} from "../../../../../items/equipment/slots.js";
 import { EquipmentType } from "../../../../../items/equipment/equipment-types/index.js";
 import {
   AnimationTimingType,
@@ -37,6 +32,7 @@ import {
   EntityMotionUpdate,
 } from "../../../../../action-processing/game-update-commands.js";
 import { CombatantSpecies } from "../../../../../combatants/combatant-species.js";
+import { EquipmentSlotId } from "../../../../../combatants/combatant-equipment/types.js";
 
 const base = cloneDeep(RANGED_SKILL_STEPS_CONFIG);
 delete base.steps[ActionResolutionStepType.RollIncomingHitOutcomes];
@@ -101,15 +97,11 @@ function getBowEquipmentAnimation(
   user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>
 ) {
-  const slot: TaggedEquipmentSlot = {
-    type: EquipmentSlotType.Holdable,
-    slot: HoldableSlotType.MainHand,
-  };
-
   const equipmentOption = user.getEquipmentOption();
   if (equipmentOption === null) throw new Error("expected user to have equipment");
 
-  const equippedBowOption = equipmentOption.getEquipmentInSlot(slot);
+  const slotId = EquipmentSlotId.MainHand;
+  const equippedBowOption = equipmentOption.getEquipmentInSlot(slotId);
   if (
     equippedBowOption?.equipmentBaseItemProperties.equipmentType !==
     EquipmentType.TwoHandedRangedWeapon
@@ -118,9 +110,7 @@ function getBowEquipmentAnimation(
 
   const speciesLengths = animationLengths[user.getCombatantProperties().combatantSpecies];
   const animationName =
-    BOW_EQUIPMENT_ANIMATIONS[
-      equippedBowOption.equipmentBaseItemProperties.baseItemType
-    ];
+    BOW_EQUIPMENT_ANIMATIONS[equippedBowOption.equipmentBaseItemProperties.baseItemType];
   const animationNameString = SKELETAL_ANIMATION_NAME_STRINGS[animationName];
   const duration = speciesLengths[animationNameString] || 0;
 
@@ -130,7 +120,7 @@ function getBowEquipmentAnimation(
     smoothTransition: false,
   };
 
-  const equipmentAnimation: EquipmentAnimation = { slot, animation };
+  const equipmentAnimation: EquipmentAnimation = { slotId, animation };
 
   return [equipmentAnimation];
 }
@@ -143,10 +133,9 @@ function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
     const actionEntity = spawnedEnity;
 
     const combatantProperties = context.actionUserContext.actionUser.getCombatantProperties();
-    const bowOption = combatantProperties.equipment.getEquipmentInSlot({
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
+
+    const slotId = EquipmentSlotId.MainHand;
+    const bowOption = combatantProperties.equipment.getEquipmentInSlot(slotId);
 
     if (!bowOption) {
       console.error("expected combatant to be wearing a bow");
@@ -161,7 +150,7 @@ function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
       sceneEntityIdentifier: {
         type: SceneEntityType.CharacterEquipmentModel,
         characterModelId,
-        slot: HoldableSlotType.MainHand,
+        slotId,
       },
       transformNodeName: CombatantHoldableChildTransformNodeName.NockBone,
     };
@@ -175,7 +164,7 @@ function lockArrowsToFaceArrowRest(context: ActionResolutionStepContext) {
       sceneEntityIdentifier: {
         type: SceneEntityType.CharacterEquipmentModel,
         characterModelId,
-        slot: HoldableSlotType.MainHand,
+        slotId,
       },
       transformNodeName: CombatantHoldableChildTransformNodeName.ArrowRest,
     };

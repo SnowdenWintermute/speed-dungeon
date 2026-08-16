@@ -2,9 +2,8 @@ import { AbstractMesh } from "@babylonjs/core";
 import {
   CombatantBaseChildTransformNodeName,
   CombatantSpecies,
+  EquipmentSlotId,
   EquipmentType,
-  HoldableSlotType,
-  MonsterType,
   OneHandedMeleeWeapon,
 } from "@speed-dungeon/common";
 import { CombatantSceneEntity } from "..";
@@ -27,8 +26,8 @@ export class HoldableAttacher {
     this.skeletonRoot = this.combatantSceneEntity.rootMesh;
   }
 
-  attachToHoldableSlot(equipmentSceneEntity: EquipmentSceneEntity, slot: HoldableSlotType) {
-    const attachmentPointOption = this.getWieldedAttachmentPoint(equipmentSceneEntity, slot);
+  attachToHoldableSlot(equipmentSceneEntity: EquipmentSceneEntity, slotId: EquipmentSlotId) {
+    const attachmentPointOption = this.getWieldedAttachmentPoint(equipmentSceneEntity, slotId);
     if (!attachmentPointOption) return console.error("no equipment bone found");
     const attachmentPoint = attachmentPointOption;
     const itemTransformNode = equipmentSceneEntity.rootTransformNode;
@@ -43,12 +42,12 @@ export class HoldableAttacher {
       return;
     }
 
-    this.adjustWieldedPosition(equipmentSceneEntity, slot);
+    this.adjustWieldedPosition(equipmentSceneEntity, slotId);
   }
 
   private getWieldedAttachmentPoint(
     equipmentSceneEntity: EquipmentSceneEntity,
-    slot: HoldableSlotType
+    slotId: EquipmentSlotId
   ) {
     const { equipment } = equipmentSceneEntity;
     const { childTransformNodes } = this.combatantSceneEntity;
@@ -60,7 +59,7 @@ export class HoldableAttacher {
       return childTransformNodes[CombatantBaseChildTransformNodeName.Shield];
     }
 
-    if (slot === HoldableSlotType.OffHand) {
+    if (slotId === EquipmentSlotId.OffHand) {
       return childTransformNodes[CombatantBaseChildTransformNodeName.OffhandEquipment];
     } else {
       const isRangedWeapon = equipment.isRangedWeapon();
@@ -74,14 +73,14 @@ export class HoldableAttacher {
 
   private adjustWieldedPosition(
     equipmentSceneEntity: EquipmentSceneEntity,
-    slot: HoldableSlotType
+    slotId: EquipmentSlotId
   ) {
     const { rootTransformNode, equipment } = equipmentSceneEntity;
     rootTransformNode.rotation.z = Math.PI;
 
     const { equipmentType } = equipment.equipmentBaseItemProperties;
 
-    if (slot === HoldableSlotType.OffHand) {
+    if (slotId === EquipmentSlotId.OffHand) {
       rootTransformNode.rotation.y = Math.PI;
     }
 
@@ -95,18 +94,18 @@ export class HoldableAttacher {
     }
   }
 
-  attachToHolstered(equipmentSceneEntity: EquipmentSceneEntity, slot: HoldableSlotType) {
+  attachToHolstered(equipmentSceneEntity: EquipmentSceneEntity, slotId: EquipmentSlotId) {
     const holsterAtHip = this.shouldHolsterAtHip(equipmentSceneEntity);
     if (holsterAtHip) {
-      this.attachToHip(equipmentSceneEntity, slot);
+      this.attachToHip(equipmentSceneEntity, slotId);
     } else {
-      this.attachToBack(equipmentSceneEntity, slot);
+      this.attachToBack(equipmentSceneEntity, slotId);
     }
   }
 
-  private attachToHip(equipmentSceneEntity: EquipmentSceneEntity, slot: HoldableSlotType) {
+  private attachToHip(equipmentSceneEntity: EquipmentSceneEntity, slotId: EquipmentSlotId) {
     const { rootTransformNode } = equipmentSceneEntity;
-    const hipHolsterBoneName = slot === HoldableSlotType.OffHand ? "HipHolster.L" : "HipHolster.R";
+    const hipHolsterBoneName = slotId === EquipmentSlotId.OffHand ? "HipHolster.L" : "HipHolster.R";
     const holsterBone = getChildMeshByName(this.skeletonRoot, hipHolsterBoneName);
     if (holsterBone === undefined) {
       throw new Error("expected holster bones missing");
@@ -117,12 +116,12 @@ export class HoldableAttacher {
     rootTransformNode.rotation.x = Math.PI;
   }
 
-  private attachToBack(equipmentSceneEntity: EquipmentSceneEntity, slot: HoldableSlotType) {
+  private attachToBack(equipmentSceneEntity: EquipmentSceneEntity, slotId: EquipmentSlotId) {
     const { rootTransformNode } = equipmentSceneEntity;
     const { equipmentType } = equipmentSceneEntity.equipment.equipmentBaseItemProperties;
 
     const backHolsterBoneName =
-      slot === HoldableSlotType.OffHand ? "BackHolster.L" : "BackHolster.R";
+      slotId === EquipmentSlotId.OffHand ? "BackHolster.L" : "BackHolster.R";
     const holsterBone = getChildMeshByName(this.skeletonRoot, backHolsterBoneName);
     if (holsterBone === undefined) {
       throw new Error("expected holster bones missing");

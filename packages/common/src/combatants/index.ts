@@ -9,7 +9,6 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
-import { HoldableSlotType } from "../items/equipment/slots.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
@@ -26,6 +25,7 @@ import { ActionEntityProperties } from "../action-entities/action-entity-propert
 import { CombatAttribute } from "./attributes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
+import { HoldableSlotId } from "./combatant-equipment/types.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -178,8 +178,11 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     return this.combatantProperties.attributeProperties.hasRequiredAttributesToUseItem(item);
   }
 
-  getWeaponsInSlots(weaponSlots: HoldableSlotType[], options: { usableWeaponsOnly: boolean }) {
-    return this.combatantProperties.equipment.getWeaponsInSlots(weaponSlots, options);
+  getWeaponsInSlots(weaponSlots: HoldableSlotId[], options: { usableWeaponsOnly: boolean }) {
+    return this.combatantProperties.equipment.hotswapSlotsManager.getWeaponsInSlots(
+      weaponSlots,
+      options
+    );
   }
 
   hasRequiredConsumablesToUseAction(actionName: CombatActionName) {

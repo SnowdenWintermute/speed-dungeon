@@ -2,21 +2,14 @@ import { CombatActionComponent } from "./index.js";
 import { IActionUser } from "../../action-user-context/action-user.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { ConsumableType } from "../../items/consumables/consumable-types.js";
-import {
-  EquipmentSlotType,
-  HoldableSlotType,
-  WearableSlotType,
-} from "../../items/equipment/slots.js";
 import { ActionCostsByRank, ActionResourceCosts } from "./action-calculation-utils/action-costs.js";
 import { DurabilityLossCondition } from "./combat-action-durability-loss-condition.js";
 import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
 import { ActionRank } from "../../aliases.js";
+import { EquipmentSlotId } from "../../combatants/combatant-equipment/types.js";
 
 export interface CombatActionCostPropertiesConfig {
-  incursDurabilityLoss: {
-    [EquipmentSlotType.Wearable]?: Partial<Record<WearableSlotType, DurabilityLossCondition>>;
-    [EquipmentSlotType.Holdable]?: Partial<Record<HoldableSlotType, DurabilityLossCondition>>;
-  };
+  incursDurabilityLoss: Partial<Record<EquipmentSlotId, DurabilityLossCondition>>;
   costsByRank: ActionCostsByRank;
   getResourceCosts: (
     user: IActionUser,

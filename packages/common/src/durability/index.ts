@@ -7,10 +7,10 @@ import { Equipment } from "../items/equipment/index.js";
 import { EntityId } from "../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { EquipmentSlotType, TaggedEquipmentSlot } from "../items/equipment/slots.js";
+import { EquipmentSlotId } from "../combatants/combatant-equipment/types.js";
 
 export interface EquipmentDurabilityChange {
-  taggedSlot: TaggedEquipmentSlot;
+  slotId: EquipmentSlotId;
   value: number;
 }
 
@@ -26,12 +26,9 @@ export class DurabilityChanges {
   changes: EquipmentDurabilityChange[] = [];
 
   addOrUpdateEquipmentDurabilityChange(durabilityChange: EquipmentDurabilityChange) {
-    const { taggedSlot, value } = durabilityChange;
+    const { slotId, value } = durabilityChange;
 
-    const existingRecord = this.changes.find(
-      (change) =>
-        change.taggedSlot.type === taggedSlot.type && change.taggedSlot.slot === taggedSlot.slot
-    );
+    const existingRecord = this.changes.find((change) => change.slotId === slotId);
     if (existingRecord) {
       existingRecord.value += value;
     } else {
@@ -48,15 +45,20 @@ export class DurabilityChangesByEntityId {
     durabilityChange: EquipmentDurabilityChange
   ) {
     const userEquipment = actionUser.getEquipmentOption();
-    if (userEquipment === null) throw new Error("Expected action user to have equipment");
+    if (userEquipment === null) {
+      throw new Error("Expected action user to have equipment");
+    }
 
-    const equipment = userEquipment.getEquipmentInSlot(durabilityChange.taggedSlot);
+    const equipment = userEquipment.getEquipmentInSlot(durabilityChange.slotId);
 
-    if (durabilityChange.value < 0 && equipment?.durability?.current === 0) return;
+    if (durabilityChange.value < 0 && equipment?.durability?.current === 0) {
+      return;
+    }
 
     let existingChanges = this.records[actionUser.getEntityId()];
-    if (!existingChanges)
+    if (!existingChanges) {
       existingChanges = this.records[actionUser.getEntityId()] = new DurabilityChanges();
+    }
     existingChanges.addOrUpdateEquipmentDurabilityChange(durabilityChange);
   }
 
@@ -73,13 +75,17 @@ export class DurabilityChangesByEntityId {
       const combatant = party.combatantManager.getExpectedCombatant(entityId);
 
       for (const change of durabilitychanges.changes) {
-        const { taggedSlot, value } = change;
+        const { slotId, value } = change;
         const { equipment } = combatant.combatantProperties;
-        const equipmentOption = equipment.getEquipmentInSlot(taggedSlot);
+        const equipmentOption = equipment.getEquipmentInSlot(slotId);
 
         combatant.combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-          if (equipmentOption !== undefined) equipmentOption.changeDurability(value);
-          if (onApply && equipmentOption) onApply(combatant, equipmentOption);
+          if (equipmentOption !== null) {
+            equipmentOption.changeDurability(value);
+          }
+          if (onApply && equipmentOption) {
+            onApply(combatant, equipmentOption);
+          }
         });
       }
     }
@@ -91,65 +97,43 @@ export class DurabilityChangesByEntityId {
     condition: DurabilityLossCondition
   ) {
     const { incursDurabilityLoss } = action.costProperties;
+
     // take dura from user's equipment if should
-    if (incursDurabilityLoss === undefined) return;
     const equipmentOption = user.getEquipmentOption();
-    if (!equipmentOption) return;
-
-    if (incursDurabilityLoss[EquipmentSlotType.Wearable]) {
-      for (const [wearableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
-        incursDurabilityLoss[EquipmentSlotType.Wearable]
-      )) {
-        if (!(durabilityLossCondition === condition)) continue;
-
-        const taggedSlot: TaggedEquipmentSlot = {
-          type: EquipmentSlotType.Wearable,
-          slot: wearableSlot,
-        };
-
-        const equipment = equipmentOption.getEquipmentInSlot(taggedSlot);
-        if (equipment?.durability?.current === 0) continue;
-
-        this.updateOrCreateDurabilityChangeRecord(user, {
-          taggedSlot,
-          value: BASE_DURABILITY_LOSS,
-        });
-      }
+    if (!equipmentOption) {
+      return;
     }
 
-    if (incursDurabilityLoss[EquipmentSlotType.Holdable]) {
-      for (const [holdableSlot, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
-        incursDurabilityLoss[EquipmentSlotType.Holdable]
-      )) {
-        if (!(durabilityLossCondition === condition)) continue;
-
-        const taggedSlot: TaggedEquipmentSlot = {
-          type: EquipmentSlotType.Holdable,
-          slot: holdableSlot,
-        };
-        const equipment = equipmentOption.getEquipmentInSlot(taggedSlot);
-        if (equipment === undefined) continue;
-        if (equipment.durability?.current === 0) continue;
-
-        this.updateOrCreateDurabilityChangeRecord(user, {
-          taggedSlot: { type: EquipmentSlotType.Holdable, slot: holdableSlot },
-          value: BASE_DURABILITY_LOSS,
-        });
+    for (const [slotId, durabilityLossCondition] of iterateNumericEnumKeyedRecord(
+      incursDurabilityLoss
+    )) {
+      if (!(durabilityLossCondition === condition)) {
+        continue;
       }
+
+      const equipment = equipmentOption.getEquipmentInSlot(slotId);
+      if (equipment?.durability?.current === 0) {
+        continue;
+      }
+
+      this.updateOrCreateDurabilityChangeRecord(user, {
+        slotId,
+        value: BASE_DURABILITY_LOSS,
+      });
     }
   }
 
   updateEquipmentRecord(
     combatant: Combatant,
-    taggedSlot: TaggedEquipmentSlot,
+    slotId: EquipmentSlotId,
     extraDurabilityLoss: number = 0
   ) {
     const { equipment } = combatant.combatantProperties;
-    const equipmentOption = equipment.getEquipmentInSlot(taggedSlot);
+    const equipmentOption = equipment.getEquipmentInSlot(slotId);
 
     if (equipmentOption) {
       this.updateOrCreateDurabilityChangeRecord(combatant, {
-        taggedSlot,
+        slotId,
         value: BASE_DURABILITY_LOSS + extraDurabilityLoss,
       });
     }

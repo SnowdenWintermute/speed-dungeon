@@ -1,25 +1,22 @@
-import {
-  Equipment,
-  TaggedEquipmentSlot,
-  EquipmentType,
-  EquipmentSlotType,
-  HoldableSlotType,
-  WearableSlotType,
-} from "@speed-dungeon/common";
-import isEqual from "lodash.isequal";
+import { Equipment, EquipmentSlotId, EquipmentType } from "@speed-dungeon/common";
 
 export default function shouldDisplayModTooltip(
-  comparedSlot: null | TaggedEquipmentSlot,
+  comparedSlotId: null | EquipmentSlotId,
   equippedItem: Equipment
 ): boolean {
   if (
-    !isEqual(comparedSlot, { type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingR }) &&
-    !isEqual(comparedSlot, { type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand })
-  )
+    !(comparedSlotId === EquipmentSlotId.FingerMain) &&
+    !(comparedSlotId === EquipmentSlotId.MainHand)
+  ) {
     return false;
+  }
 
   const equipmentType = equippedItem.equipmentBaseItemProperties.equipmentType;
-  if (equipmentType === EquipmentType.Ring || equipmentType === EquipmentType.OneHandedMeleeWeapon)
+  if (
+    equipmentType === EquipmentType.Ring ||
+    equipmentType === EquipmentType.OneHandedMeleeWeapon
+  ) {
     return true;
+  }
   return false;
 }

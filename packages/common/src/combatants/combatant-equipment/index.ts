@@ -164,7 +164,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
       throw new Error(canEquip.reasonCanNot);
     }
 
-    const removed = combatantProperties.inventory.removeEquipment(itemId);
+    const removed = combatantProperties.inventory.removeExpectedEquipment(itemId);
 
     return this.putEquipmentInSlotUnequippingConflicts(removed, equipToAltSlot);
   }
@@ -182,7 +182,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
       throw new Error(canEquip.reasonCanNot);
     }
 
-    const removed = groundInventory.removeEquipment(itemId);
+    const removed = groundInventory.removeExpectedEquipment(itemId);
 
     return this.putEquipmentInSlotUnequippingConflicts(removed, equipToAltSlot);
   }
@@ -244,8 +244,8 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     const idsOfUnequippedItems: EntityId[] = [];
 
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-      const displacedOption = destinationSlot.removeEquipment();
-      sourceSlot.removeEquipment();
+      const displacedOption = destinationSlot.removeEquipmentOption();
+      sourceSlot.removeExpectedEquipment();
       destinationSlot.equipmentInSlot = item;
 
       if (displacedOption === null) {
@@ -301,7 +301,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
   removeExpectedItemById(itemId: ItemId) {
     for (const [_slotId, slot] of iterateNumericEnumKeyedRecord(this.staticSlots)) {
       if (slot.equipmentInSlot?.entityProperties.id === itemId) {
-        return slot.removeEquipment();
+        return slot.removeExpectedEquipment();
       }
     }
 
@@ -310,7 +310,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
       return itemInHotswapSlotsOption;
     }
 
-    throw new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
+    return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
   getEquippedShieldProperties() {

@@ -7,9 +7,9 @@ import {
   CombatantId,
   Consumable,
   Equipment,
+  EquipmentSlotId,
   Item,
   Option,
-  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
@@ -71,11 +71,11 @@ export const UseItemButton = observer((props: Props) => {
 
 function getUseItemClickHandler(
   item: Item,
-  slotItemIsEquippedTo: null | TaggedEquipmentSlot,
+  slotIdItemIsEquippedTo: null | EquipmentSlotId,
   clientApplication: ClientApplication
 ) {
   const isEquipment = item instanceof Equipment;
-  const isEquipped = slotItemIsEquippedTo !== null;
+  const isEquipped = slotIdItemIsEquippedTo !== null;
   const isConsumable = item instanceof Consumable;
 
   const { combatantFocus, gameClientRef, uiStore, alertsService, itemCommands } = clientApplication;
@@ -84,7 +84,7 @@ function getUseItemClickHandler(
 
   if (isEquipment && isEquipped) {
     return () => {
-      itemCommands.unequipSlot(characterId, slotItemIsEquippedTo);
+      itemCommands.unequipSlot(characterId, slotIdItemIsEquippedTo);
     };
   } else if (isEquipment) {
     return () => {

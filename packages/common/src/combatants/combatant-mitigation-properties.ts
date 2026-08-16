@@ -1,14 +1,9 @@
 import { instanceToPlain, plainToInstance } from "class-transformer";
-import {
-  calculateBalancedAttributeSynergy,
-  iterateNumericEnumKeyedRecord,
-} from "../utils/index.js";
+import { calculateBalancedAttributeSynergy } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { CombatantTraitType } from "./combatant-traits/trait-types.js";
-import { HoldableSlotType } from "../items/equipment/slots.js";
-import { EquipmentType } from "../items/equipment/equipment-types/index.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
 import {
   SHIELD_SIZE_BLOCK_RATE,
@@ -62,26 +57,7 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
       return false;
     }
 
-    const holdables = combatantProperties.equipment.getActiveHoldableSlot();
-    if (!holdables) {
-      return false;
-    }
-    for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
-      if (slot === HoldableSlotType.OffHand) {
-        continue;
-      }
-      const { equipmentType } = equipment.equipmentBaseItemProperties;
-      if (
-        equipmentType === EquipmentType.OneHandedMeleeWeapon ||
-        equipmentType === EquipmentType.TwoHandedMeleeWeapon
-      ) {
-        if (equipment.isBroken()) {
-          return false;
-        }
-        return true;
-      }
-    }
-    return false;
+    return combatantProperties.equipment.hotswapSlotsManager.activeSlotContainsUsableParryWeapon();
   }
 
   canCounterattack(): boolean {
@@ -97,18 +73,7 @@ export class MitigationProperties extends CombatantSubsystem implements Serializ
     }
 
     const combatantProperties = this.getCombatantProperties();
-    const holdables = combatantProperties.equipment.getActiveHoldableSlot();
-    if (!holdables) return false;
-    for (const [slot, equipment] of iterateNumericEnumKeyedRecord(holdables.holdables)) {
-      if (slot === HoldableSlotType.MainHand) continue;
-      const { equipmentType } = equipment.equipmentBaseItemProperties;
-
-      if (equipmentType === EquipmentType.Shield && !equipment.isBroken()) return true;
-      // @TODO - move this upward to IActionUser so we can use their method of checking
-      // if the shield is usable. Right now we only check it is not broken, but don't
-      // check if user has stats required to wield it
-    }
-    return false;
+    return combatantProperties.equipment.hotswapSlotsManager.activeSlotContainsUseableShield();
   }
 
   getBlockChance() {

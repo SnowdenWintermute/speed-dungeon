@@ -15,19 +15,15 @@ import {
   EntityId,
   EnvironmentEntityName,
   Equipment,
-  EquipmentType,
   ERROR_MESSAGES,
   GAME_CLOSED_REASON_STRINGS,
   GameStateUpdateMap,
   GameStateUpdateType,
   PlayerShardPool,
   getSkillBookName,
-  Item,
   iterateNumericEnumKeyedRecord,
-  OneHandedMeleeWeapon,
-  TaggedEquipmentSlot,
   TargetingCalculator,
-  TwoHandedMeleeWeapon,
+  EquipmentSlotId,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import { gameFullUpdateHandler } from "../common/game-full-update-handler";
@@ -255,11 +251,11 @@ export function createGameUpdateHandlers(
       combatant.combatantProperties.inventory.dropItem(party, itemId);
     },
     [GameStateUpdateType.CharacterDroppedEquippedItem]: (data) => {
-      const { characterId, slot } = data;
+      const { characterId, slotId } = data;
       const { party, combatant } = gameContext.requireCombatantContext(characterId);
       const itemDroppedIdResult = combatant.combatantProperties.inventory.dropEquippedItem(
         party,
-        slot
+        slotId
       );
       if (itemDroppedIdResult instanceof Error) {
         throw itemDroppedIdResult;
@@ -271,9 +267,9 @@ export function createGameUpdateHandlers(
       });
     },
     [GameStateUpdateType.CharacterUnequippedItem]: (data) => {
-      const { characterId, slot } = data;
+      const { characterId, slotId } = data;
       const { combatant } = gameContext.requireCombatantContext(characterId);
-      combatant.combatantProperties.equipment.unequipSlots([slot]);
+      combatant.combatantProperties.equipment.unequipSlots([slotId]);
 
       sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
@@ -292,8 +288,8 @@ export function createGameUpdateHandlers(
 
       const slot = equipment.getSlotItemIsEquippedTo(itemId);
       if (slot !== null) {
-        const item = equipment.getEquipmentInSlot(slot);
-        if (item !== undefined) {
+        const item = slot.slot.equipmentInSlot;
+        if (item !== null) {
           sequentialEventProcessor.scheduleEvent({
             type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,
             data: { entityId: characterId },
@@ -301,7 +297,7 @@ export function createGameUpdateHandlers(
         }
       }
 
-      const { idsOfUnequippedItems } = unequippedResult;
+      const idsOfUnequippedItems = unequippedResult.unequipped;
       if (idsOfUnequippedItems[0] === undefined) {
         return;
       }
@@ -357,13 +353,13 @@ export function createGameUpdateHandlers(
       });
     },
     [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: (data) => {
-      const { characterId, sourceSlot, destinationSlot } = data;
+      const { characterId, sourceSlotId, destinationSlotId } = data;
       const { combatant } = gameContext.requireCombatantContext(characterId);
+      const combatantEquipment = combatant.combatantProperties.equipment;
 
-      const moveResult = combatant.combatantProperties.equipment.moveEquippedItemToSlot(
-        sourceSlot,
-        destinationSlot
-      );
+      const sourceSlot = combatantEquipment.getSlotById(sourceSlotId);
+      const destinationSlot = combatantEquipment.getSlotById(destinationSlotId);
+      const moveResult = combatantEquipment.moveEquippedItemToSlot(sourceSlot, destinationSlot);
       if (moveResult instanceof Error) {
         throw moveResult;
       }
@@ -500,38 +496,30 @@ export function createGameUpdateHandlers(
     [GameStateUpdateType.CharacterSelectedHoldableHotswapSlot]: (data) => {
       const { characterId, slotIndex } = data;
       const { combatant } = gameContext.requireCombatantContext(characterId);
-      const { equipment } = combatant.combatantProperties;
+      const combatantEquipment = combatant.combatantProperties.equipment;
 
-      if (slotIndex >= equipment.getHoldableHotswapSlots().length) {
-        throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
-      }
-
-      const slotSwitchingAwayFrom = equipment.getActiveHoldableSlot();
-      if (!slotSwitchingAwayFrom) {
-        throw new Error(ERROR_MESSAGES.EQUIPMENT.SELECTED_SLOT_OUT_OF_BOUNDS);
-      }
+      const slotSwitchingAwayFrom = combatantEquipment.hotswapSlotsManager.activeSlot;
 
       // if hovering equipped item we don't want to show the previously held item anymore since it is no longer
       // under the cursor, instead mark it such that we want to now hover the new item, if any exists
-      let previouslyHoveredSlotTypeOption = null;
-      for (const [slotType, equipment] of iterateNumericEnumKeyedRecord(
-        slotSwitchingAwayFrom.holdables
-      )) {
-        if (detailableEntityFocus.entityIsHovered(equipment.entityProperties.id))
-          previouslyHoveredSlotTypeOption = slotType;
+      let previouslyHoveredSlotIdOption: null | EquipmentSlotId = null;
+      for (const [slotId, slot] of iterateNumericEnumKeyedRecord(slotSwitchingAwayFrom.slots)) {
+        if (
+          slot.equipmentInSlot &&
+          detailableEntityFocus.entityIsHovered(slot.equipmentInSlot.getEntityId())
+        ) {
+          previouslyHoveredSlotIdOption = slotId;
+        }
       }
 
-      combatant.combatantProperties.equipment.changeSelectedHotswapSlot(slotIndex);
+      combatantEquipment.hotswapSlotsManager.changeSelectedHotswapSlot(slotIndex);
 
-      if (previouslyHoveredSlotTypeOption !== null) {
+      if (previouslyHoveredSlotIdOption !== null) {
         detailableEntityFocus.detailables.clearHovered();
-        const newlyEquippedSlotOption = equipment.getActiveHoldableSlot();
-        if (newlyEquippedSlotOption) {
-          for (const [slotType, holdable] of iterateNumericEnumKeyedRecord(
-            newlyEquippedSlotOption.holdables
-          )) {
-            if (slotType === previouslyHoveredSlotTypeOption)
-              detailableEntityFocus.detailables.setHovered(holdable);
+        const newlyEquippedSlotOption = combatantEquipment.hotswapSlotsManager.activeSlot;
+        for (const [slotId, slot] of iterateNumericEnumKeyedRecord(newlyEquippedSlotOption.slots)) {
+          if (slotId === previouslyHoveredSlotIdOption && slot.equipmentInSlot) {
+            detailableEntityFocus.detailables.setHovered(slot.equipmentInSlot);
           }
         }
       }
@@ -542,27 +530,8 @@ export function createGameUpdateHandlers(
       });
     },
     [GameStateUpdateType.CharacterConvertedItemsToShards]: (data) => {
-      const slotsUnequipped: TaggedEquipmentSlot[] = [];
       const { characterId, itemIds } = data;
       const { combatant } = gameContext.requireCombatantContext(characterId);
-
-      const { combatantProperties } = combatant;
-      // unequip it if is equipped
-      const equippedItems = combatantProperties.equipment.getAllEquippedItems({
-        includeUnselectedHotswapSlots: true,
-      });
-
-      for (const item of equippedItems) {
-        if (itemIds.includes(item.entityProperties.id)) {
-          const slot = combatantProperties.equipment.getSlotItemIsEquippedTo(
-            item.entityProperties.id
-          );
-          if (slot !== null) {
-            combatantProperties.equipment.unequipSlots([slot]);
-            slotsUnequipped.push(slot);
-          }
-        }
-      }
 
       combatant.convertOwnedItemsToShards(itemIds);
 
@@ -838,27 +807,10 @@ export function createGameUpdateHandlers(
       combatant.combatantProperties.attributeProperties.allocatePoint(attribute);
     },
     [GameStateUpdateType.CharacterTradedItemForBook]: (data) => {
-      const slotsUnequipped: TaggedEquipmentSlot[] = [];
       const { characterId, itemIdTraded, book } = data;
 
       const { combatant } = gameContext.requireCombatantContext(characterId);
       const { combatantProperties } = combatant;
-      // unequip it if is equipped
-      const equippedItems = combatantProperties.equipment.getAllEquippedItems({
-        includeUnselectedHotswapSlots: true,
-      });
-
-      for (const item of equippedItems) {
-        if (item.entityProperties.id === itemIdTraded) {
-          const slot = combatantProperties.equipment.getSlotItemIsEquippedTo(
-            item.entityProperties.id
-          );
-          if (slot !== null) {
-            combatantProperties.equipment.unequipSlots([slot]);
-            slotsUnequipped.push(slot);
-          }
-        }
-      }
 
       const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemIdTraded);
       if (removedItemResult instanceof Error) {

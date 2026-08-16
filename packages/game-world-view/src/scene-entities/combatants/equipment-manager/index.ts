@@ -1,12 +1,9 @@
 import {
   CombatantProperties,
   ERROR_MESSAGES,
-  EquipmentSlotType,
-  HoldableHotswapSlot,
-  HoldableSlotType,
+  EquipmentSlotId,
+  HotswapSlot,
   NormalizedPercentage,
-  TaggedEquipmentSlot,
-  WearableSlotType,
   invariant,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -15,16 +12,9 @@ import { EquipmentSceneEntity } from "../../items/equipment-scene-entity";
 import { CombatantSceneEntity } from "..";
 import { ItemSceneEntityFactory } from "../../items/item-scene-entity-factory";
 
-type HoldableHotswapSlotsModels = Partial<Record<HoldableSlotType, null | EquipmentSceneEntity>>[];
+type HoldableHotswapSlotsModels = Partial<Record<EquipmentSlotId, null | EquipmentSceneEntity>>[];
 
 export class CombatantSceneEntityEquipmentManager {
-  wearables: Record<WearableSlotType, null | EquipmentSceneEntity> = {
-    [WearableSlotType.Head]: null,
-    [WearableSlotType.Body]: null,
-    [WearableSlotType.RingL]: null,
-    [WearableSlotType.RingR]: null,
-    [WearableSlotType.Amulet]: null,
-  };
   holdableHotswapSlots: HoldableHotswapSlotsModels = [];
   holdableAttacher: HoldableAttacher;
   private visibilityForShownHotswapSlots = 0;
@@ -38,10 +28,6 @@ export class CombatantSceneEntityEquipmentManager {
 
   getAllModels() {
     const toReturn = [];
-
-    for (const wearableModel of Object.values(this.wearables)) {
-      if (wearableModel !== null) toReturn.push(wearableModel);
-    }
 
     for (const holdableHotswapSlot of this.holdableHotswapSlots)
       for (const holdableModel of Object.values(holdableHotswapSlot)) {
@@ -62,25 +48,22 @@ export class CombatantSceneEntityEquipmentManager {
     this.visibilityForShownHotswapSlots = visibility;
   }
 
-  getEquipmentModelInSlot(slot: TaggedEquipmentSlot) {
-    switch (slot.type) {
-      case EquipmentSlotType.Holdable:
-        return this.getHoldableModelInSlot(slot.slot);
-      case EquipmentSlotType.Wearable:
-        return this.wearables[slot.slot];
-    }
+  getEquipmentModelInSlot(slotId: EquipmentSlotId) {
+    return this.getHoldableModelInSlot(slotId);
   }
 
-  getHoldableModelInSlot(slot: HoldableSlotType) {
+  getHoldableModelInSlot(slotId: EquipmentSlotId) {
     const { equipment } = this.combatantSceneEntity.combatant.combatantProperties;
     const selectedHotswapSlotIndex = equipment.hotswapSlotsManager.selectedIndex;
     const holdableModelsHotswapSlotOption = this.holdableHotswapSlots[selectedHotswapSlotIndex];
-    if (!holdableModelsHotswapSlotOption) return undefined;
-    return holdableModelsHotswapSlotOption[slot];
+    if (!holdableModelsHotswapSlotOption) {
+      return undefined;
+    }
+    return holdableModelsHotswapSlotOption[slotId];
   }
 
-  requireHoldableModelInSlot(slot: HoldableSlotType) {
-    const option = this.getHoldableModelInSlot(slot);
+  requireHoldableModelInSlot(slotId: EquipmentSlotId) {
+    const option = this.getHoldableModelInSlot(slotId);
     if (!option) {
       throw new Error(ERROR_MESSAGES.GAME_WORLD.NO_EQUIPMENT_MODEL);
     }
@@ -128,14 +111,17 @@ export class CombatantSceneEntityEquipmentManager {
   private syncExistingValidModelsWithNewState(combatantProperties: CombatantProperties) {
     const existingSceneEntities: HoldableHotswapSlotsModels = [];
     this.holdableHotswapSlots.forEach((hotswapSlot, i) => {
-      for (const [_holdableSlotType, equipmentModelOption] of iterateNumericEnumKeyedRecord(
+      for (const [holdableSlotId, equipmentModelOption] of iterateNumericEnumKeyedRecord(
         hotswapSlot
       )) {
-        if (!equipmentModelOption) continue;
+        if (!equipmentModelOption) {
+          continue;
+        }
+
         const equipmentModelId = equipmentModelOption.entityId;
 
         const indexAndHoldableSlotIfEquipped =
-          combatantProperties.equipment.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
+          combatantProperties.equipment.hotswapSlotsManager.getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(
             equipmentModelId
           );
 
@@ -153,14 +139,15 @@ export class CombatantSceneEntityEquipmentManager {
           equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
         }
 
-        const { slotIndex, holdableSlot } = indexAndHoldableSlotIfEquipped;
+        const { slotIndex, slot } = indexAndHoldableSlotIfEquipped;
 
         // put it in a temporary new state to later sync with current state
         const existingNewStateSlot = existingSceneEntities[slotIndex];
+
         if (existingNewStateSlot) {
-          existingNewStateSlot[holdableSlot] = equipmentModelOption;
+          existingNewStateSlot[holdableSlotId] = equipmentModelOption;
         } else {
-          existingSceneEntities[slotIndex] = { [holdableSlot]: equipmentModelOption };
+          existingSceneEntities[slotIndex] = { [holdableSlotId]: equipmentModelOption };
         }
       }
     });
@@ -172,7 +159,7 @@ export class CombatantSceneEntityEquipmentManager {
     newState: HoldableHotswapSlotsModels,
     combatantProperties: CombatantProperties
   ) {
-    const holdableSlots = combatantProperties.equipment.getHoldableHotswapSlots();
+    const holdableSlots = combatantProperties.equipment.hotswapSlotsManager.allSlots;
 
     let slotIndex = -1;
     for (const hotswapSlot of holdableSlots) {
@@ -183,23 +170,26 @@ export class CombatantSceneEntityEquipmentManager {
         existingSlotOption = newState[slotIndex] = {};
       }
 
-      for (const [holdableSlotType, holdable] of iterateNumericEnumKeyedRecord(
-        hotswapSlot.holdables
-      )) {
-        const existingModelOption = existingSlotOption[holdableSlotType];
+      for (const [slotId, slot] of iterateNumericEnumKeyedRecord(hotswapSlot.slots)) {
+        const existingModelOption = existingSlotOption[slotId];
 
         if (existingModelOption) {
           continue;
         }
 
-        const equipmentModel = await this.itemSceneEntityFactory.create(holdable, true);
-        invariant(equipmentModel instanceof EquipmentSceneEntity, "unexpected item type");
+        if (slot.equipmentInSlot) {
+          const equipmentModel = await this.itemSceneEntityFactory.create(
+            slot.equipmentInSlot,
+            true
+          );
+          invariant(equipmentModel instanceof EquipmentSceneEntity, "unexpected item type");
 
-        if (equipmentModel.equipment.isBroken()) {
-          equipmentModel.setVisibility(0);
+          if (equipmentModel.equipment.isBroken()) {
+            equipmentModel.setVisibility(0);
+          }
+
+          existingSlotOption[slotId] = equipmentModel;
         }
-
-        existingSlotOption[holdableSlotType] = equipmentModel;
       }
     }
   }
@@ -211,7 +201,7 @@ export class CombatantSceneEntityEquipmentManager {
     this.holdableHotswapSlots = newState;
     // attach to correct positions
 
-    const hotswapSlots = combatantProperties.equipment.getHoldableHotswapSlots();
+    const hotswapSlots = combatantProperties.equipment.hotswapSlotsManager.allSlots;
     const equippedSlotIndex = combatantProperties.equipment.hotswapSlotsManager.selectedIndex;
     const holsteredSlotIndex = this.getIndexForDisplayedHolsteredSlot(
       hotswapSlots,
@@ -243,11 +233,11 @@ export class CombatantSceneEntityEquipmentManager {
   }
 
   private getIndexForDisplayedHolsteredSlot(
-    hotswapSlots: HoldableHotswapSlot[],
+    hotswapSlots: HotswapSlot[],
     selectedIndex: number
   ): number {
     if (selectedIndex > 1) {
-      if (hotswapSlots[1] && Object.entries(hotswapSlots[1].holdables).length) {
+      if (hotswapSlots[1] && Object.entries(hotswapSlots[1].slots).length) {
         return 1;
       } else {
         return 0;

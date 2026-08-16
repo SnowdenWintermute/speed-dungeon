@@ -4,6 +4,7 @@ import {
   CombatantConditionName,
   DEBUG_ANIMATION_SPEED_MULTIPLIER,
   EquipmentAnimation,
+  EquipmentSlotId,
   EquipmentType,
   MonsterType,
   SKELETAL_ANIMATION_NAME_STRINGS,
@@ -51,9 +52,13 @@ export class CombatantSceneEntityAnimationControls {
     }
 
     const { equipment } = combatantProperties;
-    const offHandOption = equipment.hotswapSlotsManager.activeSlot.offHand?.equipmentInSlot;
+    const offHandOption = equipment.hotswapSlotsManager.activeSlot.getEquipmentInSlot(
+      EquipmentSlotId.OffHand
+    );
     const offhandTypeOption = offHandOption?.equipmentBaseItemProperties.equipmentType;
-    const mainHandOption = equipment.hotswapSlotsManager.activeSlot.mainHand?.equipmentInSlot;
+    const mainHandOption = equipment.hotswapSlotsManager.activeSlot.getEquipmentInSlot(
+      EquipmentSlotId.MainHand
+    );
     const mainHandTypeOption = mainHandOption?.equipmentBaseItemProperties.equipmentType;
     const mhIsBroken = mainHandOption && mainHandOption.isBroken();
     const ohIsBroken = offHandOption && offHandOption.isBroken();
@@ -144,9 +149,9 @@ export class CombatantSceneEntityAnimationControls {
 
   startEquipmentAnimations(equipmentAnimations: EquipmentAnimation[]) {
     for (const equipmentAnimation of equipmentAnimations) {
-      const { slot, animation } = equipmentAnimation;
+      const { slotId, animation } = equipmentAnimation;
 
-      const equipmentModel = this.sceneEntity.equipmentManager.getEquipmentModelInSlot(slot);
+      const equipmentModel = this.sceneEntity.equipmentManager.getEquipmentModelInSlot(slotId);
 
       if (!equipmentModel) {
         return console.error("couldn't find equipment");

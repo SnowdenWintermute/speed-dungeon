@@ -14,7 +14,7 @@ import {
   DurabilityChangesByEntityId,
   EntityId,
   EntityName,
-  EquipmentSlotType,
+  EquipmentSlotId,
   HitOutcome,
   HitPointChanges,
   PetSlot,
@@ -300,7 +300,9 @@ export class ActionEffectsApplyerCommand {
           equipment.entityProperties.id
         );
 
-        const justBrokeHoldable = equipment.isBroken() && slot?.type === EquipmentSlotType.Holdable;
+        const justBrokeHoldable =
+          equipment.isBroken() &&
+          (slot?.slotId === EquipmentSlotId.MainHand || slot?.slotId === EquipmentSlotId.OffHand);
         if (!justBrokeHoldable) {
           return;
         }

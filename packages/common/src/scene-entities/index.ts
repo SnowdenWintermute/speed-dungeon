@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { Axis } from "../primatives/index.js";
 import { EntityId, Milliseconds } from "../aliases.js";
-import { HoldableSlotType } from "../items/equipment/slots.js";
+import { EquipmentSlotId } from "../combatants/combatant-equipment/types.js";
 
 export enum SceneEntityType {
   CharacterModel,
@@ -17,7 +17,7 @@ export interface CharacterModelIdentifier {
 export interface CharacterEquipmentModelIdentifier {
   type: SceneEntityType.CharacterEquipmentModel;
   characterModelId: EntityId;
-  slot: HoldableSlotType;
+  slotId: EquipmentSlotId;
 }
 
 export interface ActionEntityModelIdentifier {

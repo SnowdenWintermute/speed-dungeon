@@ -1,7 +1,6 @@
 import { ClientApplication } from "@/client-application";
 import {
   COSMETIC_EFFECT_CONSTRUCTORS,
-  COSMETIC_EFFECT_NAME_STRINGS,
   CosmeticEffectOnTargetTransformNode,
   EntityMotionUpdate,
   SceneEntityChildTransformNodeIdentifier,
@@ -176,9 +175,9 @@ export class SceneEntityService {
           const combatantEntityWithHoldable = this.combatantSceneEntityManager.getOptional(
             identifier.characterModelId
           );
-          const { slot } = identifier;
+          const { slotId } = identifier;
 
-          return combatantEntityWithHoldable?.equipmentManager.requireHoldableModelInSlot(slot);
+          return combatantEntityWithHoldable?.equipmentManager.requireHoldableModelInSlot(slotId);
         } catch {
           return undefined;
         }
@@ -200,8 +199,8 @@ export class SceneEntityService {
         const combatantEntityWithHoldable = this.combatantSceneEntityManager.requireById(
           identifier.characterModelId
         );
-        const { slot } = identifier;
-        return combatantEntityWithHoldable.equipmentManager.requireHoldableModelInSlot(slot);
+        const { slotId } = identifier;
+        return combatantEntityWithHoldable.equipmentManager.requireHoldableModelInSlot(slotId);
       }
     }
   }

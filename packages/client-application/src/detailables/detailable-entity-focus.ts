@@ -3,10 +3,9 @@ import {
   CombatAttribute,
   Combatant,
   CombatantEquipment,
-  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
   Equipment,
+  EquipmentSlotId,
   Item,
-  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
 import { makeAutoObservable } from "mobx";
 import { Detailable, DetailableEntity } from "./detailable";
@@ -20,7 +19,7 @@ export class DetailableEntityFocus {
   );
 
   private comparedItem: null | Item = null;
-  private comparedSlot: null | TaggedEquipmentSlot = null;
+  private comparedSlotId: null | EquipmentSlotId = null;
 
   private consideredItemUnmetRequirements = new Set<CombatAttribute>();
 
@@ -83,12 +82,12 @@ export class DetailableEntityFocus {
 
   // COMPARED ITEMS
   getItemComparison() {
-    return { comparedItem: this.comparedItem, comparedSlot: this.comparedSlot };
+    return { comparedItem: this.comparedItem, comparedSlotId: this.comparedSlotId };
   }
 
   clearItemComparison() {
     this.comparedItem = null;
-    this.comparedSlot = null;
+    this.comparedSlotId = null;
   }
 
   updateItemComparison(
@@ -105,12 +104,15 @@ export class DetailableEntityFocus {
     const equipableSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
 
     if (equipableSlots.alternate !== null && compareToAltSlot) {
-      this.comparedSlot = equipableSlots.alternate;
+      this.comparedSlotId = equipableSlots.alternate;
     } else {
-      this.comparedSlot = equipableSlots.main;
+      this.comparedSlotId = equipableSlots.main;
     }
 
-    const equippedItemOption = combatantEquipment.getEquipmentInSlot(this.comparedSlot);
+    const equippedItemOption =
+      this.comparedSlotId !== null
+        ? combatantEquipment.getEquipmentInSlot(this.comparedSlotId)
+        : null;
 
     const comparingToSelf = equippedItemOption?.entityProperties.id === item.entityProperties.id;
     const noItemInSlot = !equippedItemOption;

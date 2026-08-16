@@ -1,4 +1,5 @@
 import { ItemId } from "../../aliases.js";
+import { WEAPON_TYPES_THAT_CAN_PARRY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { WeaponProperties } from "../../items/equipment/equipment-properties/equipment-properties.js";
 import { Equipment } from "../../items/equipment/index.js";
@@ -7,7 +8,7 @@ import { ArrayUtils } from "../../utils/array-utils.js";
 import { invariant, iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { HotswapSlot } from "./hotswap-slot.js";
-import { HoldableSlotId } from "./types.js";
+import { EquipmentSlotId, HoldableSlotId } from "./types.js";
 
 export class HotswapSlotsManager implements Serializable, ReactiveNode {
   constructor(
@@ -75,7 +76,7 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
     for (const hotswapSlot of this.allSlots) {
       for (const [slotId, equipmentSlot] of iterateNumericEnumKeyedRecord(hotswapSlot.slots)) {
         if (equipmentSlot.equipmentInSlot?.entityProperties.id === itemId) {
-          return equipmentSlot.removeEquipment();
+          return equipmentSlot.removeExpectedEquipment();
         }
       }
     }
@@ -132,7 +133,7 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
   }
 
   /** For checking if a spawned holdable model is still equipped during model synchronization */
-  getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(equipmentId: ItemId) {
+  getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(equipmentId: string) {
     for (let slotIndex = 0; slotIndex < this.allSlots.length; slotIndex += 1) {
       const hotswapSlot = this.allSlots[slotIndex];
       if (hotswapSlot === undefined) {
@@ -147,5 +148,34 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
     }
 
     return null;
+  }
+
+  activeSlotContainsUsableParryWeapon() {
+    const mainHandSlot = this.activeSlot.slots[EquipmentSlotId.MainHand];
+    const mainHandEquipment = mainHandSlot.equipmentInSlot;
+    if (!mainHandEquipment || mainHandEquipment.isBroken()) {
+      return false;
+    }
+
+    const weaponCanParry = WEAPON_TYPES_THAT_CAN_PARRY.includes(
+      mainHandEquipment.equipmentBaseItemProperties.equipmentType
+    );
+
+    if (!weaponCanParry) {
+      return false;
+    }
+
+    const { attributeProperties } = this.getCombatantProperties();
+    return attributeProperties.hasRequiredAttributesToUseItem(mainHandEquipment);
+  }
+
+  activeSlotContainsUseableShield() {
+    const offhandEquipment = this.activeSlot.slots[EquipmentSlotId.OffHand].equipmentInSlot;
+    if (!offhandEquipment || offhandEquipment.isBroken()) {
+      return false;
+    }
+
+    const { attributeProperties } = this.getCombatantProperties();
+    return attributeProperties.hasRequiredAttributesToUseItem(offhandEquipment);
   }
 }

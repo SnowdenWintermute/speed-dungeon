@@ -28,7 +28,6 @@ import {
   Milliseconds,
   NextOrPrevious,
   PartyName,
-  TaggedEquipmentSlot,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { ClientSingleton } from "@/client-application/clients/singleton";
@@ -311,10 +310,10 @@ export class ClientTestHarness<T extends BaseClient> {
     });
   }
 
-  async unequipSlot(characterId: CombatantId, slot: TaggedEquipmentSlot) {
+  async unequipSlot(characterId: CombatantId, slotId: EquipmentSlotId) {
     return this.settleIntentResult({
       type: ClientIntentType.UnequipSlot,
-      data: { characterId, slot },
+      data: { characterId, slotId },
     });
   }
 
@@ -343,7 +342,7 @@ export class ClientTestHarness<T extends BaseClient> {
   async moveEquippedItemToSlot(
     characterId: CombatantId,
     sourceSlotId: EquipmentSlotId,
-    destinationSlotId: TaggedEquipmentSlot
+    destinationSlotId: EquipmentSlotId
   ) {
     return this.settleIntentResult({
       type: ClientIntentType.MoveEquippedItemToSlot,

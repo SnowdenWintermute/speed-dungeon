@@ -1,10 +1,10 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   CombatantClass,
+  EquipmentSlotId,
   invariant,
   SHIELD_BEARING_CHARACTER_FIXTURES,
 } from "@speed-dungeon/common";
-import { EquipmentSlotId } from "@speed-dungeon/common/src/combatants/combatant-equipment/types";
 
 export async function testMovingEquippedItemSwapsWithCompatibleOccupant(
   testFixture: IntegrationTestFixture
@@ -30,17 +30,23 @@ export async function testMovingEquippedItemSwapsWithCompatibleOccupant(
   const stickId = stickOption.getEntityId();
   await gameClientHarness.dropEquippedItem(warrior.getEntityId(), EquipmentSlotId.MainHand);
 
-  const knifeOption = rogue.combatantProperties.equipment.getEquipmentInSlot(MAIN_HAND);
-  invariant(knifeOption !== undefined, "expected the rogue to start with a main hand weapon");
+  const knifeOption = rogue.combatantProperties.equipment.getEquipmentInSlot(
+    EquipmentSlotId.MainHand
+  );
+  invariant(knifeOption !== null, "expected the rogue to start with a main hand weapon");
   const knifeId = knifeOption.getEntityId();
 
   await gameClientHarness.equipItemFromGround(rogue.getEntityId(), stickId, true);
 
-  await gameClientHarness.moveEquippedItemToSlot(rogue.getEntityId(), OFF_HAND, MAIN_HAND);
+  await gameClientHarness.moveEquippedItemToSlot(
+    rogue.getEntityId(),
+    EquipmentSlotId.OffHand,
+    EquipmentSlotId.MainHand
+  );
 
   const { equipment, inventory } = rogue.combatantProperties;
-  expect(equipment.getEquipmentInSlot(MAIN_HAND)?.getEntityId()).toBe(stickId);
-  expect(equipment.getEquipmentInSlot(OFF_HAND)?.getEntityId()).toBe(knifeId);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)?.getEntityId()).toBe(stickId);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.OffHand)?.getEntityId()).toBe(knifeId);
   expect(inventory.equipment).toEqual([]);
 }
 
@@ -58,17 +64,21 @@ export async function testMovingEquippedItemUnequipsIncompatibleOccupant(
   const warrior = party.combatantManager.requireCombatantByName("a");
 
   const { equipment, inventory } = warrior.combatantProperties;
-  const weaponOption = equipment.getEquipmentInSlot(MAIN_HAND);
-  const shieldOption = equipment.getEquipmentInSlot(OFF_HAND);
-  invariant(weaponOption !== undefined, "expected the warrior to start with a main hand weapon");
-  invariant(shieldOption !== undefined, "expected the warrior to start with an offhand shield");
+  const weaponOption = equipment.getEquipmentInSlot(EquipmentSlotId.MainHand);
+  const shieldOption = equipment.getEquipmentInSlot(EquipmentSlotId.OffHand);
+  invariant(weaponOption !== null, "expected the warrior to start with a main hand weapon");
+  invariant(shieldOption !== null, "expected the warrior to start with an offhand shield");
   const weaponId = weaponOption.getEntityId();
   const shieldId = shieldOption.getEntityId();
 
   // a shield can't go in the main hand, so it can't trade places with the weapon
-  await gameClientHarness.moveEquippedItemToSlot(warrior.getEntityId(), MAIN_HAND, OFF_HAND);
+  await gameClientHarness.moveEquippedItemToSlot(
+    warrior.getEntityId(),
+    EquipmentSlotId.MainHand,
+    EquipmentSlotId.OffHand
+  );
 
-  expect(equipment.getEquipmentInSlot(OFF_HAND)?.getEntityId()).toBe(weaponId);
-  expect(equipment.getEquipmentInSlot(MAIN_HAND)).toBe(undefined);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.OffHand)?.getEntityId()).toBe(weaponId);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(undefined);
   expect(inventory.equipment.map((item) => item.getEntityId())).toEqual([shieldId]);
 }

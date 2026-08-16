@@ -18,28 +18,12 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { CombatantTraitType } from "./combatant-traits/trait-types.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
-import {
-  EquipmentSlotType,
-  HoldableSlotType,
-  WearableSlotType,
-  validateEquipmentSlot,
-} from "../items/equipment/slots.js";
 import { ThreatManager } from "./threat-manager/index.js";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import cloneDeep from "lodash.clonedeep";
-import { HotswapSlot } from "./combatant-equipment/hotswap-slot-manager.js";
-
-interface HoldableEquipEntry {
-  equipment: Equipment;
-  holdableSlot: HoldableSlotType;
-  hotswapSlotIndex: number;
-}
-
-interface WearableEquipEntry {
-  equipment: Equipment;
-  wearableSlot: WearableSlotType;
-}
+import { EquipmentSlotId, HoldableSlotId, WearableSlotId } from "./combatant-equipment/types.js";
+import { HotswapSlot } from "./combatant-equipment/hotswap-slot.js";
 
 export class CombatantBuilder {
   private _name: string = "Test Combatant";
@@ -49,8 +33,9 @@ export class CombatantBuilder {
   private _monsterType: MonsterType | null = null;
   private _supportClass: { combatantClass: CombatantClass; level: number } | null = null;
   private _speccedAttributes: Partial<Record<CombatAttribute, number>> = {};
-  private _holdables: HoldableEquipEntry[] = [];
-  private _wearables: WearableEquipEntry[] = [];
+  private _wearables: { slotId: WearableSlotId; equipment: Equipment }[] = [];
+  private _holdables: { hotswapSlotIndex: number; slotId: HoldableSlotId; equipment: Equipment }[] =
+    [];
   private _inventoryEquipment: Equipment[] = [];
   private _inventoryConsumables: Consumable[] = [];
   private _shards: number = 0;
@@ -142,65 +127,37 @@ export class CombatantBuilder {
   }
 
   equipMainHand(equipment: Equipment, hotswapSlotIndex: number = 0): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
-    this._holdables.push({ equipment, holdableSlot: HoldableSlotType.MainHand, hotswapSlotIndex });
+    this._holdables.push({ equipment, slotId: EquipmentSlotId.MainHand, hotswapSlotIndex });
     return this;
   }
 
   equipOffHand(equipment: Equipment, hotswapSlotIndex: number = 0): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.OffHand,
-    });
-    this._holdables.push({ equipment, holdableSlot: HoldableSlotType.OffHand, hotswapSlotIndex });
+    this._holdables.push({ equipment, slotId: EquipmentSlotId.OffHand, hotswapSlotIndex });
     return this;
   }
 
   equipHead(equipment: Equipment): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Head,
-    });
-    this._wearables.push({ equipment, wearableSlot: WearableSlotType.Head });
+    this._wearables.push({ equipment, slotId: EquipmentSlotId.Head });
     return this;
   }
 
   equipBody(equipment: Equipment): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Body,
-    });
-    this._wearables.push({ equipment, wearableSlot: WearableSlotType.Body });
+    this._wearables.push({ equipment, slotId: EquipmentSlotId.Body });
     return this;
   }
 
   equipAmulet(equipment: Equipment): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Amulet,
-    });
-    this._wearables.push({ equipment, wearableSlot: WearableSlotType.Amulet });
+    this._wearables.push({ equipment, slotId: EquipmentSlotId.Neck });
     return this;
   }
 
   equipRingL(equipment: Equipment): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.RingL,
-    });
-    this._wearables.push({ equipment, wearableSlot: WearableSlotType.RingL });
+    this._wearables.push({ equipment, slotId: EquipmentSlotId.FingerAlternate });
     return this;
   }
 
   equipRingR(equipment: Equipment): this {
-    validateEquipmentSlot(equipment.equipmentBaseItemProperties.equipmentType, {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.RingR,
-    });
-    this._wearables.push({ equipment, wearableSlot: WearableSlotType.RingR });
+    this._wearables.push({ equipment, slotId: EquipmentSlotId.FingerMain });
     return this;
   }
 
@@ -318,22 +275,14 @@ export class CombatantBuilder {
       combatantProperties.attributeProperties.setSpeccedAttributeValue(attribute, value);
     }
 
-    const hotswapSlots = combatantProperties.equipment.getHoldableHotswapSlots();
-    for (const { equipment, holdableSlot, hotswapSlotIndex } of this._holdables) {
-      const slot = hotswapSlots[hotswapSlotIndex];
-      if (!slot) {
-        throw new Error(
-          `Hotswap slot index ${hotswapSlotIndex} out of bounds (${hotswapSlots.length} slots available)`
-        );
-      }
-      slot.holdables[holdableSlot] = equipment;
+    const hotswapSlots = combatantProperties.equipment.hotswapSlotsManager;
+    for (const { equipment, slotId, hotswapSlotIndex } of this._holdables) {
+      hotswapSlots.changeSelectedHotswapSlot(hotswapSlotIndex);
+      combatantProperties.equipment.putEquipmentInSlot(equipment, slotId);
     }
 
-    for (const { equipment, wearableSlot } of this._wearables) {
-      combatantProperties.equipment.putEquipmentInSlot(equipment, {
-        type: EquipmentSlotType.Wearable,
-        slot: wearableSlot,
-      });
+    for (const { equipment, slotId } of this._wearables) {
+      combatantProperties.equipment.putEquipmentInSlot(equipment, slotId);
     }
 
     combatantProperties.inventory.equipment.push(...this._inventoryEquipment);

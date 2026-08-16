@@ -13,13 +13,8 @@ import { HitOutcome } from "../../../hit-outcome.js";
 import { ItemId } from "../../../aliases.js";
 import { CombatActionComponent } from "../../../combat/combat-actions/index.js";
 import { ResourceChangePropertiesStrategy } from "../../../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
-import {
-  EquipmentSlotType,
-  HoldableSlotType,
-  TaggedEquipmentSlot,
-  WearableSlotType,
-} from "../../../items/equipment/slots.js";
 import { CombatantEquipment } from "../../../combatants/combatant-equipment/index.js";
+import { EquipmentSlotId } from "../../../combatants/combatant-equipment/types.js";
 
 export function addHitOutcomeDurabilityChanges(
   durabilityChanges: DurabilityChangesByEntityId,
@@ -77,10 +72,7 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
   [HitOutcome.Evade]: () => {},
   [HitOutcome.Death]: () => {},
   [HitOutcome.Parry]: (durabilityChanges, targetCombatant) => {
-    durabilityChanges.updateEquipmentRecord(targetCombatant, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
+    durabilityChanges.updateEquipmentRecord(targetCombatant, EquipmentSlotId.MainHand);
   },
   [HitOutcome.Counterattack]: (durabilityChanges, targetCombatant) => {
     // don't charge durability for counterattack with bow since we'll break the bow before
@@ -89,37 +81,23 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
       CombatantEquipment.isWearingUsableTwoHandedRangedWeapon(targetCombatant);
     if (targetWearingBow) return;
 
-    durabilityChanges.updateEquipmentRecord(targetCombatant, {
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.MainHand,
-    });
+    durabilityChanges.updateEquipmentRecord(targetCombatant, EquipmentSlotId.MainHand);
   },
   [HitOutcome.ShieldBlock]: (durabilityChanges, targetCombatant, isCrit) => {
     const extraDurabilityLoss = isCrit ? -1 : 0;
     durabilityChanges.updateEquipmentRecord(
       targetCombatant,
-      {
-        type: EquipmentSlotType.Holdable,
-        slot: HoldableSlotType.OffHand,
-      },
+      EquipmentSlotId.OffHand,
       extraDurabilityLoss
     );
   },
   [HitOutcome.Hit]: (durabilityChanges, targetCombatant, rng, isCrit) => {
     const { combatantProperties: targetCombatantProperties } = targetCombatant;
-    const headSlot: TaggedEquipmentSlot = {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Head,
-    };
-    const bodySlot: TaggedEquipmentSlot = {
-      type: EquipmentSlotType.Wearable,
-      slot: WearableSlotType.Body,
-    };
 
     // hits damage a random wearable
     const { equipment } = targetCombatantProperties;
-    const equippedHelmOption = equipment.getEquipmentInSlot(headSlot);
-    const equippedBodyOption = equipment.getEquipmentInSlot(bodySlot);
+    const equippedHelmOption = equipment.getEquipmentInSlot(EquipmentSlotId.Head);
+    const equippedBodyOption = equipment.getEquipmentInSlot(EquipmentSlotId.Body);
 
     if (
       equippedBodyOption &&
@@ -132,25 +110,25 @@ const HIT_OUTCOME_DURABILITY_CHANGE_ON_TARGET_CALCULATORS: Record<
 
       if (shouldHitHeadArmor || isCrit) {
         durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
-          taggedSlot: headSlot,
+          slotId: EquipmentSlotId.Head,
           value: BASE_DURABILITY_LOSS,
         });
       }
 
       if (!shouldHitHeadArmor || isCrit) {
         durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
-          taggedSlot: bodySlot,
+          slotId: EquipmentSlotId.Body,
           value: BASE_DURABILITY_LOSS,
         });
       }
     } else if (equippedBodyOption && !equippedBodyOption.isBroken()) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
-        taggedSlot: bodySlot,
+        slotId: EquipmentSlotId.Body,
         value: BASE_DURABILITY_LOSS,
       });
     } else if (equippedHelmOption && !equippedHelmOption.isBroken()) {
       durabilityChanges.updateOrCreateDurabilityChangeRecord(targetCombatant, {
-        taggedSlot: headSlot,
+        slotId: EquipmentSlotId.Head,
         value: BASE_DURABILITY_LOSS,
       });
     }
