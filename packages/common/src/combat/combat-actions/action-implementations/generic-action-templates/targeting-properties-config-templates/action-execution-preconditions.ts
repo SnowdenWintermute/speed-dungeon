@@ -1,7 +1,7 @@
 import { ActionResolutionStepContext } from "../../../../../action-processing/action-steps/index.js";
 import { ActionTracker } from "../../../../../action-processing/action-tracker.js";
+import { EquipmentSlotId } from "../../../../../combatants/combatant-equipment/types.js";
 import { Combatant } from "../../../../../combatants/index.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { isDefined } from "../../../../../utils/index.js";
 import { TargetingCalculator } from "../../../../targeting/targeting-calculator.js";
 import { ActionPayableResource } from "../../../action-calculation-utils/action-costs.js";
@@ -55,11 +55,8 @@ export const ACTION_EXECUTION_PRECONDITIONS: Record<
       return true;
     }
 
-    const offhandEquipmentOption = equipmentOption.getEquipmentInSlot({
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.OffHand,
-    });
-    if (offhandEquipmentOption === undefined) {
+    const offhandEquipmentOption = equipmentOption.getEquipmentInSlot(EquipmentSlotId.OffHand);
+    if (offhandEquipmentOption === null) {
       return true;
     }
 

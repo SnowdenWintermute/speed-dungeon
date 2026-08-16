@@ -1,6 +1,6 @@
 import { ActionResolutionStepContext } from "../../../../action-processing/action-steps/index.js";
+import { HoldableSlotId } from "../../../../combatants/combatant-equipment/types.js";
 import { EquipmentType } from "../../../../items/equipment/equipment-types/index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { FixedNumberGenerator } from "../../../../utility-classes/randomizers.js";
 import { throwIfError } from "../../../../utils/index.js";
 import { IncomingResourceChangesCalculator } from "../../../action-results/action-hit-outcome-calculation/incoming-resource-change-calculator.js";
@@ -19,12 +19,13 @@ export enum MeleeAttackAnimationType {
 
 export function determineMeleeAttackAnimationType(
   context: ActionResolutionStepContext,
-  holdableSlot: HoldableSlotType
+  holdableSlotId: HoldableSlotId
 ): MeleeAttackAnimationType {
   const { actionUser } = context.actionUserContext;
   const combatantProperties = actionUser.getCombatantProperties();
 
-  const equipmentOption = combatantProperties.equipment.getEquippedHoldable(holdableSlot);
+  const equipmentOption =
+    combatantProperties.equipment.hotswapSlotsManager.activeSlot.getEquipmentInSlot(holdableSlotId);
 
   const noUseableEquipmentInSlot =
     !equipmentOption ||

@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import { PaperDollSlot } from "./PaperDollSlot";
-import { EquipmentSlotType, HoldableSlotType, WearableSlotType } from "@speed-dungeon/common";
 import { HotswapSlotButtons } from "./HotswapSlotButtons";
 import { observer } from "mobx-react-lite";
 import { useCharacterSheetSubject } from "./character-sheet-subject-context";
+import { EquipmentSlotId } from "@speed-dungeon/common";
 
 interface Props {
   dimmed?: boolean;
@@ -12,7 +12,7 @@ interface Props {
 export const PaperDoll = observer(({ dimmed }: Props) => {
   const subject = useCharacterSheetSubject();
   const { combatantProperties } = subject.combatant;
-  const equippedHoldables = combatantProperties.equipment.getActiveHoldableSlot();
+  const equippedHoldables = combatantProperties.equipment.hotswapSlotsManager.activeSlot;
 
   const { equipment } = combatantProperties;
 
@@ -21,9 +21,10 @@ export const PaperDoll = observer(({ dimmed }: Props) => {
     [combatantProperties]
   );
 
-  const mainhandOption = equippedHoldables?.holdables[HoldableSlotType.MainHand];
+  const mainhandOption = equippedHoldables.slots[EquipmentSlotId.MainHand];
 
-  const mainHandIs2h = mainhandOption !== undefined ? mainhandOption.isTwoHanded() : false;
+  const mainHandIs2h =
+    mainhandOption.equipmentInSlot !== null ? mainhandOption.equipmentInSlot.isTwoHanded() : false;
 
   return (
     <div
@@ -35,63 +36,63 @@ export const PaperDoll = observer(({ dimmed }: Props) => {
         className={"absolute h-fit flex border border-slate-400"}
         onSelectSlotOption={subject.getHotswapSlotSelectionHandlerOption()}
         selectedSlotIndex={combatantProperties.equipment.hotswapSlotsManager.selectedIndex}
-        slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
+        slotsCount={combatantProperties.equipment.hotswapSlotsManager.allSlots.length}
       />
       <div className="w-[7.5rem] mr-2.5">
         <div className="h-[6.25rem] mb-2.5 flex justify-between items-end">
           <PaperDollSlot
-            itemOption={equipment.staticSlots.fingerMain.equipmentInSlot}
+            itemOption={equipment.staticSlots[EquipmentSlotId.FingerMain].equipmentInSlot}
             characterAttributes={totalAttributes}
-            slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingR }}
+            slotId={EquipmentSlotId.FingerMain}
             tailwindClasses=" h-10 max-h-10 w-10 max-w-10"
           />
           <PaperDollSlot
-            itemOption={equipment.staticSlots.fingerAlternate.equipmentInSlot}
+            itemOption={equipment.staticSlots[EquipmentSlotId.FingerAlternate].equipmentInSlot}
             characterAttributes={totalAttributes}
-            slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.RingL }}
+            slotId={EquipmentSlotId.FingerAlternate}
             tailwindClasses=" h-10 max-h-10 w-10 max-w-10"
           />
         </div>
         <PaperDollSlot
-          itemOption={equippedHoldables?.holdables[HoldableSlotType.MainHand] ?? null}
+          itemOption={equippedHoldables.slots[EquipmentSlotId.MainHand].equipmentInSlot ?? null}
           characterAttributes={totalAttributes}
-          slot={{ type: EquipmentSlotType.Holdable, slot: HoldableSlotType.MainHand }}
+          slotId={EquipmentSlotId.MainHand}
           tailwindClasses="h-[12.125rem] max-h-[12.125rem] w-full"
         />
       </div>
       <div className="w-[7.5rem] mr-2.5">
         {
           <PaperDollSlot
-            itemOption={equipment.staticSlots.head.equipmentInSlot}
+            itemOption={equipment.staticSlots[EquipmentSlotId.Head].equipmentInSlot}
             characterAttributes={totalAttributes}
-            slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.Head }}
+            slotId={EquipmentSlotId.Head}
             tailwindClasses="h-[6.25rem] ?? null w-full mb-2.5"
           />
         }
         <PaperDollSlot
-          itemOption={equipment.staticSlots.body.equipmentInSlot}
+          itemOption={equipment.staticSlots[EquipmentSlotId.Body].equipmentInSlot}
           characterAttributes={totalAttributes}
-          slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.Body }}
+          slotId={EquipmentSlotId.Body}
           tailwindClasses="h-[12.125rem] ?? null max-h-[12.125rem] w-full"
         />
       </div>
       <div className="w-[7.5rem]">
         <div className="h-[6.25rem] mb-2.5 flex justify-end items-end">
           <PaperDollSlot
-            itemOption={equipment.staticSlots.neck.equipmentInSlot}
+            itemOption={equipment.staticSlots[EquipmentSlotId.Neck].equipmentInSlot}
             characterAttributes={totalAttributes}
-            slot={{ type: EquipmentSlotType.Wearable, slot: WearableSlotType.Amulet }}
+            slotId={EquipmentSlotId.Neck}
             tailwindClasses=" h-10 w-10"
           />
         </div>
         <PaperDollSlot
           itemOption={
             mainHandIs2h
-              ? mainhandOption!
-              : (equippedHoldables?.holdables[HoldableSlotType.OffHand] ?? null)
+              ? mainhandOption.equipmentInSlot
+              : equippedHoldables.slots[EquipmentSlotId.OffHand].equipmentInSlot
           }
           characterAttributes={totalAttributes}
-          slot={{ type: EquipmentSlotType.Holdable, slot: HoldableSlotType.OffHand }}
+          slotId={EquipmentSlotId.OffHand}
           tailwindClasses={`h-[12.125rem] w-full ${mainHandIs2h ? " opacity-50" : ""}`}
         />
       </div>

@@ -12,11 +12,11 @@ import {
   ACTION_EXECUTION_PRECONDITIONS,
   ActionExecutionPreconditions,
 } from "../generic-action-templates/targeting-properties-config-templates/action-execution-preconditions.js";
-import { EquipmentSlotType, HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { DurabilityLossCondition } from "../../combat-action-durability-loss-condition.js";
 import { ActionResolutionStepType } from "../../../../action-processing/action-steps/index.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { EquipmentSlotId } from "../../../../combatants/combatant-equipment/types.js";
 
 const clonedConfig = cloneDeep(ATTACK_RANGED_MAIN_HAND_CONFIG);
 const stepsConfig = clonedConfig.stepsConfig;
@@ -37,9 +37,7 @@ const config: CombatActionComponentConfig = {
   ...clonedConfig,
   description: "Respond with a ranged attack target using equipment in main hand",
   costProperties: createCostPropertiesConfig(COST_PROPERTIES_TEMPLATE_GETTERS.FREE_ACTION, {
-    incursDurabilityLoss: {
-      [EquipmentSlotType.Holdable]: { [HoldableSlotType.MainHand]: DurabilityLossCondition.OnUse },
-    },
+    incursDurabilityLoss: { [EquipmentSlotId.MainHand]: DurabilityLossCondition.OnUse },
   }),
   stepsConfig,
   targetingProperties: TARGETING_PROPERTIES_TEMPLATE_GETTERS.COPY_PARENT_HOSTILE(),

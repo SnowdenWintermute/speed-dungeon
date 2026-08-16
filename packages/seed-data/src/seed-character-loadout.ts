@@ -2,13 +2,12 @@
 // import from a value one — so the types have to say so
 import {
   CombatantControllerType,
-  EquipmentSlotType,
+  EquipmentSlotId,
   EquipmentType,
-  HoldableSlotType,
+  iterateNumericEnumKeyedRecord,
   LootItemLevelType,
   LootItemSelectorType,
   MonsterType,
-  WearableSlotType,
 } from "@speed-dungeon/common";
 import type {
   Combatant,
@@ -17,14 +16,15 @@ import type {
   LootGenerator,
   MonsterGenerator,
   MonsterRewardProfile,
+  WearableSlotId,
 } from "@speed-dungeon/common";
 
-const WEARABLE_SLOT_EQUIPMENT_TYPES: Record<WearableSlotType, EquipmentType> = {
-  [WearableSlotType.Head]: EquipmentType.HeadGear,
-  [WearableSlotType.Body]: EquipmentType.BodyArmor,
-  [WearableSlotType.RingL]: EquipmentType.Ring,
-  [WearableSlotType.RingR]: EquipmentType.Ring,
-  [WearableSlotType.Amulet]: EquipmentType.Amulet,
+const WEARABLE_SLOT_EQUIPMENT_TYPES: Record<WearableSlotId, EquipmentType> = {
+  [EquipmentSlotId.Head]: EquipmentType.HeadGear,
+  [EquipmentSlotId.Body]: EquipmentType.BodyArmor,
+  [EquipmentSlotId.FingerMain]: EquipmentType.Ring,
+  [EquipmentSlotId.FingerAlternate]: EquipmentType.Ring,
+  [EquipmentSlotId.Neck]: EquipmentType.Amulet,
 };
 
 // the reserve hotswap slot gets a two-hander, so a character reads as having two real loadouts
@@ -64,13 +64,14 @@ export class SeedCharacterLoadout {
     const itemLevel = combatantProperties.classProgressionProperties.getMainClass().level;
     const { equipment, inventory } = combatantProperties;
 
-    for (const [slot, equipmentType] of Object.entries(WEARABLE_SLOT_EQUIPMENT_TYPES)) {
-      const wearableSlot = Number(slot) as WearableSlotType;
+    for (const [slotId, equipmentType] of iterateNumericEnumKeyedRecord(
+      WEARABLE_SLOT_EQUIPMENT_TYPES
+    )) {
       const item = this.generateOfType(equipmentType, itemLevel);
       if (item === undefined) {
         continue;
       }
-      equipment.putEquipmentInSlot(item, { type: EquipmentSlotType.Wearable, slot: wearableSlot });
+      equipment.putEquipmentInSlot(item, slotId);
     }
 
     this.fillActiveHotswapSlot(combatant, itemLevel);
@@ -89,18 +90,12 @@ export class SeedCharacterLoadout {
 
     const mainHand = this.generateOfType(EquipmentType.OneHandedMeleeWeapon, itemLevel);
     if (mainHand !== undefined) {
-      equipment.putEquipmentInSlot(mainHand, {
-        type: EquipmentSlotType.Holdable,
-        slot: HoldableSlotType.MainHand,
-      });
+      equipment.putEquipmentInSlot(mainHand, EquipmentSlotId.MainHand);
     }
 
     const offHand = this.generateOfType(EquipmentType.Shield, itemLevel);
     if (offHand !== undefined) {
-      equipment.putEquipmentInSlot(offHand, {
-        type: EquipmentSlotType.Holdable,
-        slot: HoldableSlotType.OffHand,
-      });
+      equipment.putEquipmentInSlot(offHand, EquipmentSlotId.OffHand);
     }
   }
 
@@ -111,8 +106,8 @@ export class SeedCharacterLoadout {
     characterIndex: number
   ): void {
     const { equipment } = combatant.combatantProperties;
-    const slots = equipment.getHoldableHotswapSlots();
-    const reserveIndex = equipment.getSelectedHoldableSlotIndex() + 1;
+    const slots = equipment.hotswapSlotsManager.allSlots;
+    const reserveIndex = equipment.hotswapSlotsManager.selectedIndex + 1;
     const reserve = slots[reserveIndex];
     if (reserve === undefined) {
       return;
@@ -125,7 +120,7 @@ export class SeedCharacterLoadout {
 
     const twoHander = this.generateOfType(mainHandType, itemLevel);
     if (twoHander !== undefined) {
-      reserve.holdables[HoldableSlotType.MainHand] = twoHander;
+      reserve.slots[EquipmentSlotId.MainHand].equipmentInSlot = twoHander;
     }
   }
 
@@ -135,8 +130,7 @@ export class SeedCharacterLoadout {
     const pets: Combatant[] = [];
 
     for (let index = 0; index < petCount; index += 1) {
-      const monsterType =
-        PET_MONSTER_TYPES[(characterIndex + index) % PET_MONSTER_TYPES.length];
+      const monsterType = PET_MONSTER_TYPES[(characterIndex + index) % PET_MONSTER_TYPES.length];
       if (monsterType === undefined) {
         continue;
       }
@@ -172,8 +166,7 @@ export class SeedCharacterLoadout {
           itemLevel: { type: LootItemLevelType.CenteredOnFloor, spread: ITEM_LEVEL_SPREAD },
           selector: {
             type: LootItemSelectorType.Equipment,
-            equipmentTypeWeights:
-              equipmentType === undefined ? undefined : { [equipmentType]: 1 },
+            equipmentTypeWeights: equipmentType === undefined ? undefined : { [equipmentType]: 1 },
           },
         },
       ],

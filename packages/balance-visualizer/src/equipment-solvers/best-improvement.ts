@@ -1,4 +1,4 @@
-import { AdventuringParty, ALL_EQUIPMENT_SLOTS, Equipment } from "@speed-dungeon/common";
+import { AdventuringParty, Equipment } from "@speed-dungeon/common";
 
 export class BestImprovementEquipmentSolver {
   unusedEquipment: Equipment[] = [];
@@ -18,9 +18,9 @@ export class BestImprovementEquipmentSolver {
 
   private getPartySlotEquipmentCapacities() {
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      for (const taggedSlot of ALL_EQUIPMENT_SLOTS) {
-        //
-      }
+      // for (const taggedSlot of ALL_EQUIPMENT_SLOTS) {
+      //   //
+      // }
     }
   }
 

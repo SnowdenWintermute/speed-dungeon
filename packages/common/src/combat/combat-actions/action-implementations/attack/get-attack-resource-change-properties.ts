@@ -1,7 +1,7 @@
 import { IActionUser } from "../../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../../combatants/attributes/index.js";
+import { EquipmentSlotId } from "../../../../combatants/combatant-equipment/types.js";
 import { CombatantProperties } from "../../../../combatants/combatant-properties.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { NumberRange } from "../../../../primatives/number-range.js";
 import { addCombatantLevelScaledAttributeToRange } from "../../../action-results/action-hit-outcome-calculation/add-combatant-level-scaled-attribute-to-range.js";
 import {
@@ -52,7 +52,7 @@ export function getAttackResourceChangeProperties(
   };
 
   const equippedUsableWeapons = user.getWeaponsInSlots(
-    [HoldableSlotType.MainHand, HoldableSlotType.OffHand],
+    [EquipmentSlotId.MainHand, EquipmentSlotId.OffHand],
     { usableWeaponsOnly: options.usableWeaponsOnly }
   );
 

@@ -1,4 +1,3 @@
-import { EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { invariant, iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EntityId, ItemId } from "../../aliases.js";
@@ -15,6 +14,7 @@ import { Inventory } from "../inventory/index.js";
 import { HotswapSlotsManager } from "./hotswap-slot-manager.js";
 import { EquipmentSlot } from "./equipment-slot.js";
 import {
+  COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
   EquipmentSlotId,
   EquipmentSlotTypeNew,
   HOLDABLE_SLOT_IDS,
@@ -197,7 +197,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     const idsOfUnequippedItems: ItemId[] = [];
     const slotsToUnequip: EquipmentSlotId[] = [];
     const { equipmentType } = equipment.equipmentBaseItemProperties;
-    const possibleSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+    const possibleSlots = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
     const destinationSlotId = equipToAltSlot ? possibleSlots.alternate : possibleSlots.main;
     invariant(destinationSlotId !== undefined, "expected destinationSlotId to be defined");
 

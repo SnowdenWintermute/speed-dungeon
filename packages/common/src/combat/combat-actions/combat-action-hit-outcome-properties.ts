@@ -2,7 +2,6 @@ import { IActionUser } from "../../action-user-context/action-user.js";
 import { Combatant } from "../../combatants/index.js";
 import { ConditionAppliedBy } from "../../conditions/condition-applied-by.js";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
-import { HoldableSlotType } from "../../items/equipment/slots.js";
 import { NormalizedPercentage } from "../../aliases.js";
 import { ActionAccuracy } from "./combat-action-accuracy.js";
 import { ActionResolutionStepContext } from "../../action-processing/action-steps/index.js";
@@ -11,6 +10,7 @@ import { ThreatChanges } from "../action-results/action-hit-outcome-calculation/
 import { ActivatedTriggersGameUpdateCommand } from "../../action-processing/game-update-commands.js";
 import { ThreatType } from "../../combatants/threat-manager/index.js";
 import { CombatActionResourceChangePropertiesGetter } from "../../types.js";
+import { HoldableSlotId } from "../../combatants/combatant-equipment/types.js";
 
 export enum CombatActionResource {
   HitPoints,
@@ -24,7 +24,7 @@ export interface CombatActionHitOutcomeProperties {
   critChanceModifier: NormalizedPercentage;
   // used for determining melee attack animation types at start of action
   // @TODO - could be used for generically adding weapon damage and kinetic types to hit outcomes
-  addsPropertiesFromHoldableSlot: null | HoldableSlotType;
+  addsPropertiesFromHoldableSlot: null | HoldableSlotId;
   // when true, the wearer's aggregated equipment lifesteal is applied to this action's hit point damage
   addsLifestealFromEquipment?: boolean;
   getUnmodifiedAccuracy: (user: IActionUser, actionLevel: number) => ActionAccuracy;

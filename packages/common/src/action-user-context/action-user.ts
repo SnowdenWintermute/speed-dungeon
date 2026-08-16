@@ -10,7 +10,6 @@ import { ActionEntityProperties } from "../action-entities/action-entity-propert
 import { Battle } from "../battle/index.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Item } from "../items/index.js";
-import { HoldableSlotType } from "../items/equipment/slots.js";
 import { Equipment } from "../items/equipment/index.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
@@ -22,6 +21,7 @@ import { CombatantEquipment } from "../combatants/combatant-equipment/index.js";
 import { Inventory } from "../combatants/inventory/index.js";
 import { WeaponProperties } from "../items/equipment/equipment-properties/index.js";
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
+import { EquipmentSlotId, HoldableSlotId } from "../combatants/combatant-equipment/types.js";
 
 export enum ActionUserType {
   Combatant,
@@ -67,11 +67,11 @@ export interface IActionUser {
   ): { canUse: boolean; reasonCanNot?: string };
 
   getWeaponsInSlots(
-    weaponSlots: HoldableSlotType[],
+    weaponSlots: HoldableSlotId[],
     options: { usableWeaponsOnly: boolean }
   ): Partial<
     Record<
-      HoldableSlotType,
+      HoldableSlotId,
       {
         equipment: Equipment;
         weaponProperties: WeaponProperties;

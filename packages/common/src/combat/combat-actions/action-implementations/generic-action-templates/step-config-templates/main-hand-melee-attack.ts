@@ -2,11 +2,11 @@ import cloneDeep from "lodash.clonedeep";
 import { MELEE_ATTACK_STEPS_CONFIG } from "./melee-attack.js";
 import { getMeleeAttackAnimationFromType } from "../../get-entity-animation.js";
 import { ActionExecutionPhase } from "../../action-execution-phase.js";
-import { HoldableSlotType } from "../../../../../items/equipment/slots.js";
 import { COMBAT_ACTIONS } from "../../index.js";
 import { CombatActionName } from "../../../combat-action-names.js";
 import { MELEE_SKILL_STEPS_CONFIG } from "./melee-skill.js";
 import { ActionResolutionStepType } from "../../../../../action-processing/action-steps/index.js";
+import { EquipmentSlotId } from "../../../../../combatants/combatant-equipment/types.js";
 
 const expectedMeleeAttackAnimationType = "Expected meleeAttackAnimationType was undefined";
 
@@ -21,7 +21,7 @@ config.steps[ActionResolutionStepType.ChamberingMotion] = {
       animationLengths,
       meleeAttackAnimationType,
       ActionExecutionPhase.Chambering,
-      HoldableSlotType.MainHand,
+      EquipmentSlotId.MainHand,
       false
     );
   },
@@ -36,7 +36,7 @@ config.steps[ActionResolutionStepType.DeliveryMotion] = {
       animationLengths,
       meleeAttackAnimationType,
       ActionExecutionPhase.Delivery,
-      HoldableSlotType.MainHand,
+      EquipmentSlotId.MainHand,
       false
     );
   },
@@ -51,7 +51,7 @@ config.finalSteps[ActionResolutionStepType.RecoveryMotion] = {
       animationLengths,
       meleeAttackAnimationType,
       ActionExecutionPhase.Recovery,
-      HoldableSlotType.MainHand,
+      EquipmentSlotId.MainHand,
       false
     );
   },

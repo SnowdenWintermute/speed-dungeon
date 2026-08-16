@@ -1,23 +1,23 @@
 import { EntityAnimation } from "../../../action-processing/game-update-commands.js";
 import { SkeletalAnimationName } from "../../../app-consts.js";
 import { IActionUser } from "../../../action-user-context/action-user.js";
-import { HoldableSlotType } from "../../../items/equipment/slots.js";
 import { getFallbackAnimationWithLength } from "../combat-action-animations.js";
 import { ActionExecutionPhase } from "./action-execution-phase.js";
 import { MeleeAttackAnimationType } from "./attack/determine-melee-attack-animation-type.js";
 import { MELEE_ATTACK_ANIMATION_NAMES } from "./attack/melee-attack-animation-names.js";
 import { CombatantSpecies } from "../../../combatants/combatant-species.js";
+import { HoldableSlotId } from "../../../combatants/combatant-equipment/types.js";
 
 export function getMeleeAttackAnimationFromType(
   user: IActionUser,
   animationLengths: Record<CombatantSpecies, Record<string, number>>,
   meleeAttackAnimationType: MeleeAttackAnimationType,
   executionPhase: ActionExecutionPhase,
-  slotType: HoldableSlotType,
+  slotId: HoldableSlotId,
   smoothTransition: boolean
 ): EntityAnimation {
   const animationName =
-    MELEE_ATTACK_ANIMATION_NAMES[meleeAttackAnimationType][slotType][executionPhase];
+    MELEE_ATTACK_ANIMATION_NAMES[meleeAttackAnimationType][slotId][executionPhase];
   return getTimedSkeletalEntityAnimation(user, animationLengths, animationName, smoothTransition);
 }
 

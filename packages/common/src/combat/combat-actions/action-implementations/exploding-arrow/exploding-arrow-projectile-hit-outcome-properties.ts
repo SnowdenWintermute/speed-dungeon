@@ -4,13 +4,13 @@ import {
   createHitOutcomeProperties,
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS,
 } from "../generic-action-templates/hit-outcome-properties-templates/index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { CombatantConditionName } from "../../../../conditions/condition-names.js";
 import { FriendOrFoe } from "../../targeting-schemes-and-categories.js";
+import { EquipmentSlotId } from "../../../../combatants/combatant-equipment/types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
 
-hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = EquipmentSlotId.MainHand;
 
 hitOutcomeOverrides.getAppliedConditions = (user, actionLevel) => {
   // on the client when we get descriptions we need an appliedBy so we'll just take it

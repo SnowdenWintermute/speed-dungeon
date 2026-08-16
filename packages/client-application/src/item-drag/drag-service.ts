@@ -80,7 +80,7 @@ export class ItemDragService {
         return source.item;
       case DragSourceType.EquippedItem: {
         const character = this.clientApplication.combatantFocus.requireFocusedCharacter();
-        return character.combatantProperties.equipment.getEquipmentInSlot(source.slot) ?? null;
+        return character.combatantProperties.equipment.getEquipmentInSlot(source.slotId) ?? null;
       }
     }
   }

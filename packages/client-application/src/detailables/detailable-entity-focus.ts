@@ -1,5 +1,6 @@
 import {
   AbilityTreeAbility,
+  COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
   CombatAttribute,
   Combatant,
   CombatantEquipment,
@@ -101,9 +102,9 @@ export class DetailableEntityFocus {
     }
 
     const { equipmentType } = item.equipmentBaseItemProperties;
-    const equipableSlots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+    const equipableSlots = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
 
-    if (equipableSlots.alternate !== null && compareToAltSlot) {
+    if (equipableSlots.alternate !== undefined && compareToAltSlot) {
       this.comparedSlotId = equipableSlots.alternate;
     } else {
       this.comparedSlotId = equipableSlots.main;

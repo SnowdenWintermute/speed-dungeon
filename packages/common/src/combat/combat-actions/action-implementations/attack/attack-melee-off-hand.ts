@@ -5,7 +5,6 @@ import {
   OFF_HAND_DAMAGE_MODIFIER,
 } from "../../../../app-consts.js";
 import { ATTACK } from "./index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { BASE_ACTION_HIERARCHY_PROPERTIES } from "../../index.js";
 import { ACTION_STEPS_CONFIG_TEMPLATE_GETTERS } from "../generic-action-templates/step-config-templates/index.js";
@@ -27,9 +26,10 @@ import { CombatActionRequiredRange } from "../../combat-action-range.js";
 import { CombatActionGameLogProperties } from "../../combat-action-combat-log-properties.js";
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionName } from "../../combat-action-names.js";
+import { EquipmentSlotId } from "../../../../combatants/combatant-equipment/types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
-hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.OffHand;
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = EquipmentSlotId.OffHand;
 hitOutcomeOverrides.accuracyModifier = OFF_HAND_ACCURACY_MODIFIER;
 hitOutcomeOverrides.critChanceModifier = OFF_HAND_CRIT_CHANCE_MODIFIER;
 hitOutcomeOverrides.resourceChangeValuesModifier = OFF_HAND_DAMAGE_MODIFIER;

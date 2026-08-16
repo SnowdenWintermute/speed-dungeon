@@ -2,12 +2,12 @@ import {
   ERROR_MESSAGES,
   Combatant,
   Equipment,
-  HoldableSlotType,
   CombatActionName,
   COMBAT_ACTIONS,
   CombatActionResource,
   HitOutcomeMitigationCalculator,
   SpeedDungeonGame,
+  EquipmentSlotId,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
@@ -27,8 +27,9 @@ export const CharacterSheetWeaponDamage = observer(
 
     const gameOption = useCharacterSheetSubject().getGameOption();
 
-    const mhWeaponOption =
-      equipment.hotswapSlotsManager.activeSlot.mainHand.equipmentInSlot?.requireWeaponProperties();
+    const mhWeaponOption = equipment.hotswapSlotsManager.activeSlot
+      .getEquipmentInSlot(EquipmentSlotId.MainHand)
+      ?.requireWeaponProperties();
 
     const mhDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
       combatant,
@@ -40,7 +41,9 @@ export const CharacterSheetWeaponDamage = observer(
       ? Equipment.isTwoHandedWeaponType(mhWeaponOption.equipmentType)
       : false;
 
-    const ohEquipmentOption = equipment.hotswapSlotsManager.activeSlot.offHand.equipmentInSlot;
+    const ohEquipmentOption = equipment.hotswapSlotsManager.activeSlot.getEquipmentInSlot(
+      EquipmentSlotId.OffHand
+    );
 
     if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
 
@@ -49,8 +52,7 @@ export const CharacterSheetWeaponDamage = observer(
       !isTwoHanded &&
       ohEquipmentOption?.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield
     ) {
-      let ohWeaponOption = equipment.getEquippedWeapon(HoldableSlotType.OffHand);
-      if (ohWeaponOption instanceof Error) ohWeaponOption = undefined; // might be a shield
+      const ohWeaponOption = ohEquipmentOption?.requireWeaponProperties();
       ohDamageAndAccuracyResult = getAttackActionDamageAndAccuracy(
         combatant,
         ohWeaponOption,

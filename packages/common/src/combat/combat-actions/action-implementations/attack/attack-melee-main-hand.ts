@@ -1,6 +1,5 @@
 import { CombatActionComponentConfig, CombatActionLeaf } from "../../index.js";
 import { ATTACK } from "./index.js";
-import { HoldableSlotType } from "../../../../items/equipment/slots.js";
 import { CombatActionHitOutcomeProperties } from "../../combat-action-hit-outcome-properties.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { COMBAT_ACTIONS } from "../index.js";
@@ -25,9 +24,10 @@ import { CombatActionGameLogProperties } from "../../combat-action-combat-log-pr
 import { CombatActionOrigin } from "../../combat-action-origin.js";
 import { CombatActionExecutionIntent } from "../../combat-action-execution-intent.js";
 import { ActionRank } from "../../../../aliases.js";
+import { EquipmentSlotId } from "../../../../combatants/combatant-equipment/types.js";
 
 const hitOutcomeOverrides: Partial<CombatActionHitOutcomeProperties> = {};
-hitOutcomeOverrides.addsPropertiesFromHoldableSlot = HoldableSlotType.MainHand;
+hitOutcomeOverrides.addsPropertiesFromHoldableSlot = EquipmentSlotId.MainHand;
 
 const hitOutcomeProperties = createHitOutcomeProperties(
   HIT_OUTCOME_PROPERTIES_TEMPLATE_GETTERS.MELEE_ATTACK,
@@ -35,7 +35,7 @@ const hitOutcomeProperties = createHitOutcomeProperties(
 );
 
 const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
-  requiresCombatTurnInThisContext: (context, self) => {
+  requiresCombatTurnInThisContext: (context, _self) => {
     const user = context.actionUserContext.actionUser;
 
     if (CombatantEquipment.isWearingUsableShield(user)) {

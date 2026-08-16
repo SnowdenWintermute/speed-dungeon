@@ -1,6 +1,7 @@
 import {
   Combatant,
   CombatantId,
+  COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
   Equipment,
   EquipmentSlotId,
   EquipmentType,
@@ -176,12 +177,12 @@ function equipToAlternateForSlot(
   equipmentType: EquipmentType,
   targetSlotId: EquipmentSlotId
 ): boolean | null {
-  const slots = EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE[equipmentType];
+  const slots = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
 
-  if (taggedEquipmentSlotsAreEqual(slots.main, targetSlot)) {
+  if (slots.main === targetSlotId) {
     return false;
   }
-  if (slots.alternate !== null && taggedEquipmentSlotsAreEqual(slots.alternate, targetSlot)) {
+  if (slots.alternate !== null && slots.alternate === targetSlotId) {
     return true;
   }
   return null;

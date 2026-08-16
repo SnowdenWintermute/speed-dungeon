@@ -2,8 +2,9 @@ import cloneDeep from "lodash.clonedeep";
 import { Equipment } from "../../items/equipment/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { makeAutoObservable } from "mobx";
-import { EquipmentSlotTypeNew } from "./types.js";
+import { EquipmentSlotId, EquipmentSlotTypeNew } from "./types.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { invariant } from "../../utils/index.js";
 
 const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotTypeNew, EquipmentType[]> = {
   [EquipmentSlotTypeNew.Head]: [EquipmentType.HeadGear],
@@ -16,6 +17,11 @@ const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotTypeNew, EquipmentType[
     EquipmentType.TwoHandedRangedWeapon,
   ],
   [EquipmentSlotTypeNew.Offhand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
+};
+
+const ALTERNATE_SLOTS: Partial<Record<EquipmentSlotId, EquipmentSlotId>> = {
+  [EquipmentSlotId.MainHand]: EquipmentSlotId.OffHand,
+  [EquipmentSlotId.FingerMain]: EquipmentSlotId.FingerAlternate,
 };
 
 export class EquipmentSlot implements Serializable, ReactiveNode {
@@ -52,6 +58,9 @@ export class EquipmentSlot implements Serializable, ReactiveNode {
   }
 
   set equipmentInSlot(equipment: Equipment | null) {
+    if (equipment !== null) {
+      invariant(this.canAcceptEquipmentType(equipment.equipmentBaseItemProperties.equipmentType));
+    }
     this._equipmentInSlot = equipment;
   }
 
@@ -67,5 +76,13 @@ export class EquipmentSlot implements Serializable, ReactiveNode {
       throw new Error("expected equipment in this slot");
     }
     return value;
+  }
+
+  static getAlternateSlotIdOption(slotId: EquipmentSlotId): EquipmentSlotId | null {
+    const option = ALTERNATE_SLOTS[slotId];
+    if (option === undefined) {
+      return null;
+    }
+    return option;
   }
 }
