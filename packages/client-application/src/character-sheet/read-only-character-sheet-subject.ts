@@ -39,7 +39,9 @@ export class ReadOnlyCharacterSheetSubject extends CharacterSheetSubject {
 
   getHotswapSlotSelectionHandlerOption() {
     return (slotIndex: number) => {
-      this.combatant.combatantProperties.equipment.changeSelectedHotswapSlot(slotIndex);
+      this.combatant.combatantProperties.equipment.hotswapSlotsManager.changeSelectedHotswapSlot(
+        slotIndex
+      );
     };
   }
 

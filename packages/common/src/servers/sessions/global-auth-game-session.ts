@@ -85,7 +85,7 @@ export class GameServerSessionData implements Serializable {
       partyName: this._partyName,
       gameServerName: this.gameServerName,
       guestUserReconnectionTokenOption: this.guestUserReconnectionTokenOption
-        ? this.guestUserReconnectionTokenOption.toSerialized()
+        ? this.guestUserReconnectionTokenOption
         : null,
     };
   }
@@ -98,7 +98,7 @@ export class GameServerSessionData implements Serializable {
       serialized.partyName,
       serialized.gameServerName,
       serialized.guestUserReconnectionTokenOption
-        ? GuestSessionReconnectionToken.fromSerialized(serialized.guestUserReconnectionTokenOption)
+        ? serialized.guestUserReconnectionTokenOption
         : null
     );
   }

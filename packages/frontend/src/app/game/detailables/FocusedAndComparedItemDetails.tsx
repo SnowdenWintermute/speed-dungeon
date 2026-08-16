@@ -17,7 +17,7 @@ export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) =
   const subject = useCharacterSheetSubject();
   const { inputs } = clientApplication.uiStore;
   const modKeyHeld = inputs.getKeyIsHeld(ModifierKey.Mod);
-  const { comparedItem, comparedSlot } = detailableEntityFocus.getItemComparison();
+  const { comparedItem, comparedSlotId } = detailableEntityFocus.getItemComparison();
   const focusedItemId = focusedItem.entityProperties.id;
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export const FocusedAndComparedItemDetails = observer(({ focusedItem }: Props) =
     focusedItem instanceof Equipment ? (
       <ItemDetails
         key="compared"
-        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlot, focusedItem)}
+        shouldShowModKeyTooltip={shouldDisplayModTooltip(comparedSlotId, focusedItem)}
         itemOption={comparedItem}
         extraStyles={""}
         marginSide={"Left"}

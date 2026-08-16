@@ -79,6 +79,6 @@ export async function testMovingEquippedItemUnequipsIncompatibleOccupant(
   );
 
   expect(equipment.getEquipmentInSlot(EquipmentSlotId.OffHand)?.getEntityId()).toBe(weaponId);
-  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(undefined);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(null);
   expect(inventory.equipment.map((item) => item.getEntityId())).toEqual([shieldId]);
 }

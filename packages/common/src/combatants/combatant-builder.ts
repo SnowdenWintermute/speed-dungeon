@@ -280,6 +280,7 @@ export class CombatantBuilder {
       hotswapSlots.changeSelectedHotswapSlot(hotswapSlotIndex);
       combatantProperties.equipment.putEquipmentInSlot(equipment, slotId);
     }
+    hotswapSlots.changeSelectedHotswapSlot(0);
 
     for (const { equipment, slotId } of this._wearables) {
       combatantProperties.equipment.putEquipmentInSlot(equipment, slotId);

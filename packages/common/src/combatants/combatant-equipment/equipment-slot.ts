@@ -1,22 +1,21 @@
-import cloneDeep from "lodash.clonedeep";
 import { Equipment } from "../../items/equipment/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { makeAutoObservable } from "mobx";
-import { EquipmentSlotId, EquipmentSlotTypeNew } from "./types.js";
+import { EquipmentSlotId, EquipmentSlotType } from "./types.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { invariant } from "../../utils/index.js";
 
-const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotTypeNew, EquipmentType[]> = {
-  [EquipmentSlotTypeNew.Head]: [EquipmentType.HeadGear],
-  [EquipmentSlotTypeNew.Body]: [EquipmentType.BodyArmor],
-  [EquipmentSlotTypeNew.Finger]: [EquipmentType.Ring],
-  [EquipmentSlotTypeNew.Neck]: [EquipmentType.Amulet],
-  [EquipmentSlotTypeNew.Mainhand]: [
+const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotType, EquipmentType[]> = {
+  [EquipmentSlotType.Head]: [EquipmentType.HeadGear],
+  [EquipmentSlotType.Body]: [EquipmentType.BodyArmor],
+  [EquipmentSlotType.Finger]: [EquipmentType.Ring],
+  [EquipmentSlotType.Neck]: [EquipmentType.Amulet],
+  [EquipmentSlotType.Mainhand]: [
     EquipmentType.OneHandedMeleeWeapon,
     EquipmentType.TwoHandedMeleeWeapon,
     EquipmentType.TwoHandedRangedWeapon,
   ],
-  [EquipmentSlotTypeNew.Offhand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
+  [EquipmentSlotType.Offhand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
 };
 
 const ALTERNATE_SLOTS: Partial<Record<EquipmentSlotId, EquipmentSlotId>> = {
@@ -26,16 +25,24 @@ const ALTERNATE_SLOTS: Partial<Record<EquipmentSlotId, EquipmentSlotId>> = {
 
 export class EquipmentSlot implements Serializable, ReactiveNode {
   constructor(
-    public readonly type: EquipmentSlotTypeNew,
+    public readonly type: EquipmentSlotType,
     private _equipmentInSlot: null | Equipment
   ) {}
 
   toSerialized() {
-    return { type: this.type, _equipmentInSlot: this._equipmentInSlot };
+    return {
+      type: this.type,
+      _equipmentInSlot:
+        this._equipmentInSlot === null ? null : this._equipmentInSlot.toSerialized(),
+    };
   }
 
   static fromSerialized(serialized: SerializedOf<EquipmentSlot>) {
-    return new EquipmentSlot(serialized.type, serialized._equipmentInSlot);
+    let deserializedEquipmentOption: null | Equipment = null;
+    if (serialized._equipmentInSlot) {
+      deserializedEquipmentOption = Equipment.fromSerialized(serialized._equipmentInSlot);
+    }
+    return new EquipmentSlot(serialized.type, deserializedEquipmentOption);
   }
 
   makeObservable(): void {
@@ -53,8 +60,8 @@ export class EquipmentSlot implements Serializable, ReactiveNode {
     return this.getCompatibleEquipmentTypes().includes(equipmentType);
   }
 
-  get equipmentInSlot() {
-    return cloneDeep(this._equipmentInSlot);
+  get equipmentInSlot(): Readonly<Equipment | null> {
+    return this._equipmentInSlot;
   }
 
   set equipmentInSlot(equipment: Equipment | null) {

@@ -1,14 +1,21 @@
 import { IconName, KINETIC_TYPE_ICONS, MAGICAL_ELEMENT_ICONS, SVG_ICONS } from "@/app/icons";
-import { CombatantProperties, EquipmentType, KineticDamageType } from "@speed-dungeon/common";
+import {
+  CombatantProperties,
+  EquipmentSlotId,
+  EquipmentType,
+  KineticDamageType,
+} from "@speed-dungeon/common";
 
 export function getAttackActionIcons(user: CombatantProperties, inCombat: boolean) {
   const mhIcons = [];
 
   const actionPoints = user.resources.getActionPoints();
-  const mainHandEquipmentOption =
-    user.equipment.hotswapSlotsManager.activeSlot.mainHand.equipmentInSlot;
-  const offHandEquipmentOption =
-    user.equipment.hotswapSlotsManager.activeSlot.offHand.equipmentInSlot;
+  const mainHandEquipmentOption = user.equipment.hotswapSlotsManager.activeSlot.getEquipmentInSlot(
+    EquipmentSlotId.MainHand
+  );
+  const offHandEquipmentOption = user.equipment.hotswapSlotsManager.activeSlot.getEquipmentInSlot(
+    EquipmentSlotId.OffHand
+  );
   const ohIsShield =
     offHandEquipmentOption?.equipmentBaseItemProperties.equipmentType === EquipmentType.Shield;
 

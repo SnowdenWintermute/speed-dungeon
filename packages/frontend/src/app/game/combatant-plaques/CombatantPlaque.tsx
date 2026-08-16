@@ -144,8 +144,10 @@ export const CombatantPlaque = observer(
                 <HotswapSlotButtons
                   className={"absolute -top-2 -left-2 z-10 flex flex-col border border-slate-400"}
                   onSelectSlotOption={selectHotswapSlotOption}
-                  selectedSlotIndex={combatantProperties.equipment.getSelectedHoldableSlotIndex()}
-                  slotsCount={combatantProperties.equipment.getHoldableHotswapSlots().length}
+                  selectedSlotIndex={
+                    combatantProperties.equipment.hotswapSlotsManager.selectedIndex
+                  }
+                  slotsCount={combatantProperties.equipment.hotswapSlotsManager.allSlots.length}
                   vertical={true}
                   registerKeyEvents={isFocused}
                 />

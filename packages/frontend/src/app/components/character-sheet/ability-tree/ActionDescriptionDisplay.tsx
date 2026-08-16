@@ -6,8 +6,8 @@ import {
   Combatant,
   COMBATANT_CLASS_NAME_STRINGS,
   COMBATANT_CONDITION_NAME_STRINGS,
+  EQUIPMENT_SLOT_ID_STRINGS,
   EQUIPMENT_TYPE_STRINGS,
-  HOLDABLE_SLOT_STRINGS,
   INFO_UNICODE_SYMBOL,
   iterateNumericEnumKeyedRecord,
   TARGET_CATEGORY_STRINGS,
@@ -202,7 +202,7 @@ export const ActionDescriptionDisplay = observer(
               )}
               {typeof addsHotswapPropertiesOption === "number" && (
                 <div>
-                  Adds properties from {HOLDABLE_SLOT_STRINGS[addsHotswapPropertiesOption]}{" "}
+                  Adds properties from {EQUIPMENT_SLOT_ID_STRINGS[addsHotswapPropertiesOption]}{" "}
                   equipment
                 </div>
               )}

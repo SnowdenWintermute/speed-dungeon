@@ -29,7 +29,7 @@ export const DropItemButton = observer((props: Props) => {
       focusedCharacter.combatantProperties.equipment.getSlotItemIsEquippedTo(itemId);
 
     if (slotEquipped !== null) {
-      itemCommands.dropEquippedItem(characterId, slotEquipped);
+      itemCommands.dropEquippedItem(characterId, slotEquipped.slotId);
     } else {
       itemCommands.dropItem(characterId, itemId);
     }

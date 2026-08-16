@@ -111,7 +111,7 @@ export class CombatantSceneEntityEquipmentManager {
   private syncExistingValidModelsWithNewState(combatantProperties: CombatantProperties) {
     const existingSceneEntities: HoldableHotswapSlotsModels = [];
     this.holdableHotswapSlots.forEach((hotswapSlot, i) => {
-      for (const [holdableSlotId, equipmentModelOption] of iterateNumericEnumKeyedRecord(
+      for (const [_holdableSlotId, equipmentModelOption] of iterateNumericEnumKeyedRecord(
         hotswapSlot
       )) {
         if (!equipmentModelOption) {
@@ -139,15 +139,15 @@ export class CombatantSceneEntityEquipmentManager {
           equipmentModelOption.setVisibility(this.visibilityForShownHotswapSlots);
         }
 
-        const { slotIndex, slot } = indexAndHoldableSlotIfEquipped;
+        const { slotIndex, slotId } = indexAndHoldableSlotIfEquipped;
 
-        // put it in a temporary new state to later sync with current state
+        // key by where the item is now, not the slot the model used to be attached to
         const existingNewStateSlot = existingSceneEntities[slotIndex];
 
         if (existingNewStateSlot) {
-          existingNewStateSlot[holdableSlotId] = equipmentModelOption;
+          existingNewStateSlot[slotId] = equipmentModelOption;
         } else {
-          existingSceneEntities[slotIndex] = { [holdableSlotId]: equipmentModelOption };
+          existingSceneEntities[slotIndex] = { [slotId]: equipmentModelOption };
         }
       }
     });

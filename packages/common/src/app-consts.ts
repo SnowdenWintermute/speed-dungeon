@@ -1,4 +1,4 @@
-import { GameId, Meters, Milliseconds, NormalizedPercentage, Percentage } from "./aliases.js";
+import { Meters, Milliseconds, NormalizedPercentage, Percentage } from "./aliases.js";
 import { EquipmentType } from "./items/equipment/equipment-types/index.js";
 
 export const LOOP_SAFETY_ITERATION_LIMIT = 50000;

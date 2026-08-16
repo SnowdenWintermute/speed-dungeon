@@ -17,6 +17,7 @@ import {
   CombatantId,
   CombatAttribute,
   EntityName,
+  EquipmentSlotId,
   GameId,
   GameMode,
   GameName,
@@ -34,7 +35,6 @@ import { ClientSingleton } from "@/client-application/clients/singleton";
 import { CombatActionHistoryInspector } from "./combat-action-history-inspector.js";
 import { PausableEndpoint } from "./pausable-endpoint.js";
 import { TimeMachine } from "./time-machine.js";
-import { EquipmentSlotId } from "@speed-dungeon/common/src/combatants/combatant-equipment/types.js";
 
 export class ClientTestHarness<T extends BaseClient> {
   readonly actionHistory: CombatActionHistoryInspector;

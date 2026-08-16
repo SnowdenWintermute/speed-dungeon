@@ -21,7 +21,7 @@ export async function testUnequipAndEquipInventoryItem(testFixture: IntegrationT
 
   await gameClientHarness.unequipSlot(warrior.getEntityId(), EquipmentSlotId.MainHand);
   expect(errorRecordService.getLastError()).toBeUndefined();
-  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(undefined);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(null);
   expect(inventory.equipment.map((item) => item.getEntityId())).toEqual([swordId]);
 
   await gameClientHarness.equipInventoryItem(warrior.getEntityId(), swordId);
@@ -49,7 +49,7 @@ export async function testDropEquippedItemToGround(testFixture: IntegrationTestF
 
   await gameClientHarness.dropEquippedItem(warrior.getEntityId(), EquipmentSlotId.MainHand);
   expect(errorRecordService.getLastError()).toBeUndefined();
-  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(undefined);
+  expect(equipment.getEquipmentInSlot(EquipmentSlotId.MainHand)).toBe(null);
   expect(inventory.equipment).toEqual([]);
   const droppedItem = party.currentRoom.inventory.getItemById(swordId);
   invariant(!(droppedItem instanceof Error), "expected the dropped item to be in the room");

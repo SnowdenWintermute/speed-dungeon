@@ -6,7 +6,7 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "checkTs": "npx tsc --noEmit --watch"
+    "checkTs": "npx tsc --noEmit --watch --preserveWatchOutput"
   },
   "dependencies": {},
   "devDependencies": {}

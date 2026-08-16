@@ -1,17 +1,19 @@
+import { makeAutoObservable } from "mobx";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { EquipmentSlot } from "./equipment-slot.js";
-import { EquipmentSlotId, EquipmentSlotTypeNew, HoldableSlotId } from "./types.js";
+import { EquipmentSlotId, EquipmentSlotType, HoldableSlotId } from "./types.js";
+import { Equipment } from "../../items/equipment/index.js";
 
 export class HotswapSlot implements Serializable, ReactiveNode {
   constructor(
     public readonly slots: Record<HoldableSlotId, EquipmentSlot> = {
-      [EquipmentSlotId.MainHand]: new EquipmentSlot(EquipmentSlotTypeNew.Mainhand, null),
-      [EquipmentSlotId.OffHand]: new EquipmentSlot(EquipmentSlotTypeNew.Offhand, null),
+      [EquipmentSlotId.MainHand]: new EquipmentSlot(EquipmentSlotType.Mainhand, null),
+      [EquipmentSlotId.OffHand]: new EquipmentSlot(EquipmentSlotType.Offhand, null),
     }
   ) {}
 
   makeObservable() {
-    this.makeObservable();
+    makeAutoObservable(this);
     Object.values(this.slots).forEach((slot) => slot.makeObservable());
   }
 
@@ -28,8 +30,14 @@ export class HotswapSlot implements Serializable, ReactiveNode {
     const mainHand = serialized.slots[EquipmentSlotId.MainHand];
     const offHand = serialized.slots[EquipmentSlotId.OffHand];
     return new HotswapSlot({
-      [EquipmentSlotId.MainHand]: new EquipmentSlot(mainHand.type, mainHand._equipmentInSlot),
-      [EquipmentSlotId.OffHand]: new EquipmentSlot(offHand.type, offHand._equipmentInSlot),
+      [EquipmentSlotId.MainHand]: new EquipmentSlot(
+        mainHand.type,
+        mainHand._equipmentInSlot ? Equipment.fromSerialized(mainHand._equipmentInSlot) : null
+      ),
+      [EquipmentSlotId.OffHand]: new EquipmentSlot(
+        offHand.type,
+        offHand._equipmentInSlot ? Equipment.fromSerialized(offHand._equipmentInSlot) : null
+      ),
     });
   }
 

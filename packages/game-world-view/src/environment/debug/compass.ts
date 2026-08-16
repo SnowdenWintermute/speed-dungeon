@@ -1,6 +1,6 @@
 import { DynamicTexture, ICanvasRenderingContext, Vector2 } from "@babylonjs/core";
 import { GROUND_TEXTURE_HEIGHT, GROUND_TEXTURE_WIDTH } from "../../game-world-view-consts";
-import { FFIX_COLORS } from "@speed-dungeon/common/src/app-consts";
+import { FFIX_COLORS } from "@speed-dungeon/common";
 
 class CardinalPoints2 {
   constructor(

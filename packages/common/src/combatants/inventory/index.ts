@@ -228,17 +228,22 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return item ?? new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  requireEquipmentById(itemId: string) {
+  getEquipmentById(itemId: string) {
     const item = this.equipment.find((i) => i.entityProperties.id === itemId);
-    if (item === undefined) {
-      throw new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+    return item ?? new Error(ERROR_MESSAGES.ITEM.NOT_FOUND);
+  }
+
+  requireEquipmentById(itemId: string) {
+    const itemResult = this.getEquipmentById(itemId);
+    if (itemResult instanceof Error) {
+      throw itemResult;
     }
-    return item;
+    return itemResult;
   }
 
   getItemById(itemId: string) {
     let itemOption: Consumable | Equipment | Error = this.getConsumableById(itemId);
-    if (itemOption instanceof Error) itemOption = this.requireEquipmentById(itemId);
+    if (itemOption instanceof Error) itemOption = this.getEquipmentById(itemId);
     return itemOption;
   }
 

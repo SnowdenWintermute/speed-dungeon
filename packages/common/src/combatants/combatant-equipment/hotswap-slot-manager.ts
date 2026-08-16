@@ -1,3 +1,4 @@
+import { makeAutoObservable } from "mobx";
 import { ItemId } from "../../aliases.js";
 import { WEAPON_TYPES_THAT_CAN_PARRY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
@@ -18,7 +19,7 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
   ) {}
 
   makeObservable(): void {
-    this.makeObservable();
+    makeAutoObservable(this);
     this._inherentSlots.forEach((slot) => slot.makeObservable());
   }
 
@@ -142,7 +143,7 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
 
       for (const [slotId, slot] of iterateNumericEnumKeyedRecord(hotswapSlot.slots)) {
         if (slot.equipmentInSlot?.entityProperties.id === equipmentId) {
-          return { slot, slotIndex };
+          return { slotId, slotIndex };
         }
       }
     }

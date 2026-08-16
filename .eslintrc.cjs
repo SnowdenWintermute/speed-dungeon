@@ -24,6 +24,19 @@ module.exports = {
     "no-unused-expressions": "off",
     "@typescript-eslint/no-extraneous-class": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "error",
+    "no-restricted-imports": "off",
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["@speed-dungeon/common/src", "@speed-dungeon/common/src/*"],
+            message:
+              "import from \"@speed-dungeon/common\". a /src/ path bypasses dist and pulls raw .ts into the bundler build, which fails to resolve common's .js specifiers. if the symbol is missing, export it from common/src/index.ts.",
+          },
+        ],
+      },
+    ],
     "@typescript-eslint/no-unused-expressions": "error",
     "@typescript-eslint/no-dynamic-delete":"off",
     "@typescript-eslint/no-inferrable-types": "off",

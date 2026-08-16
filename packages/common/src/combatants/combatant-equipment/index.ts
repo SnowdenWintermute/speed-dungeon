@@ -16,7 +16,7 @@ import { EquipmentSlot } from "./equipment-slot.js";
 import {
   COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
   EquipmentSlotId,
-  EquipmentSlotTypeNew,
+  EquipmentSlotType,
   HOLDABLE_SLOT_IDS,
   HoldableSlotId,
   WEARABLE_SLOT_IDS,
@@ -25,11 +25,11 @@ import {
 
 export class CombatantEquipment extends CombatantSubsystem implements Serializable, ReactiveNode {
   public readonly staticSlots: Record<WearableSlotId, EquipmentSlot> = {
-    [EquipmentSlotId.Head]: new EquipmentSlot(EquipmentSlotTypeNew.Head, null),
-    [EquipmentSlotId.Body]: new EquipmentSlot(EquipmentSlotTypeNew.Body, null),
-    [EquipmentSlotId.FingerMain]: new EquipmentSlot(EquipmentSlotTypeNew.Finger, null),
-    [EquipmentSlotId.FingerAlternate]: new EquipmentSlot(EquipmentSlotTypeNew.Finger, null),
-    [EquipmentSlotId.Neck]: new EquipmentSlot(EquipmentSlotTypeNew.Neck, null),
+    [EquipmentSlotId.Head]: new EquipmentSlot(EquipmentSlotType.Head, null),
+    [EquipmentSlotId.Body]: new EquipmentSlot(EquipmentSlotType.Body, null),
+    [EquipmentSlotId.FingerMain]: new EquipmentSlot(EquipmentSlotType.Finger, null),
+    [EquipmentSlotId.FingerAlternate]: new EquipmentSlot(EquipmentSlotType.Finger, null),
+    [EquipmentSlotId.Neck]: new EquipmentSlot(EquipmentSlotType.Neck, null),
   };
   public hotswapSlotsManager = new HotswapSlotsManager(() => this.getCombatantProperties());
 
@@ -195,7 +195,6 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     const combatantProperties = this.getCombatantProperties();
 
     const idsOfUnequippedItems: ItemId[] = [];
-    const slotsToUnequip: EquipmentSlotId[] = [];
     const { equipmentType } = equipment.equipmentBaseItemProperties;
     const possibleSlots = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
     const destinationSlotId = equipToAltSlot ? possibleSlots.alternate : possibleSlots.main;
@@ -214,7 +213,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     }
 
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-      idsOfUnequippedItems.push(...combatantProperties.equipment.unequipSlots(slotsToUnequip));
+      idsOfUnequippedItems.push(...combatantProperties.equipment.unequipSlots(slotIdsToUnequip));
 
       combatantProperties.equipment.putEquipmentInSlot(equipment, destinationSlotId);
     });

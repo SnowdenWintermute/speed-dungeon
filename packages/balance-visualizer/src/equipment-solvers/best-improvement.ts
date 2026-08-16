@@ -1,4 +1,9 @@
-import { AdventuringParty, Equipment } from "@speed-dungeon/common";
+import {
+  AdventuringParty,
+  Equipment,
+  EquipmentSlotType,
+  iterateNumericEnum,
+} from "@speed-dungeon/common";
 
 export class BestImprovementEquipmentSolver {
   unusedEquipment: Equipment[] = [];
@@ -17,29 +22,39 @@ export class BestImprovementEquipmentSolver {
   }
 
   private getPartySlotEquipmentCapacities() {
+    const totals: Partial<Record<EquipmentSlotType, number>> = {};
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      // for (const taggedSlot of ALL_EQUIPMENT_SLOTS) {
-      //   //
-      // }
+      for (const [_slotId, slot] of combatant.combatantProperties.equipment.getAllActiveSlots()) {
+        const total = totals[slot.type];
+
+        if (total !== undefined) {
+          totals[slot.type] = total + 1;
+        } else {
+          totals[slot.type] = 1;
+        }
+      }
     }
+
+    return totals as Record<EquipmentSlotType, number>;
   }
 
   // if exists seven +2 dex rings and one +1 dex ring, no one will want that +1 dex ring
   private filterSingleAxisCapacityDominated() {
-    // for(const item of this.party.currentRoom.inventory.getItems()){
-    // }
     //    - for each slot type
-    //    - count the total slots of that type in the party
-    //    - get all items that could go in that slot type
-    //    - if the item count is less than the slot capacity, continue
-    //    - for each item
-    //      - for each score axis
-    //        - push score to a list of {score: number, equipment:Equipment}[]
-    //    - sort lists
-    //    - for each list
-    //      - for each item
-    //        - if item has a non-zero score on only one list, and is not in the top SLOT_CAPACITY on that list
-    //           - add them to the UnusedEquipment pile
+    for (const slotType of iterateNumericEnum(EquipmentSlotType)) {
+      //    - count the total slots of that type in the party
+      const partySlotCapacity = this.getPartySlotEquipmentCapacities()[slotType];
+      //    - get all items that could go in that slot type
+      //    - if the item count is less than the slot capacity, continue
+      //    - for each item
+      //      - for each score axis
+      //        - push score to a list of {score: number, equipment:Equipment}[]
+      //    - sort lists
+      //    - for each list
+      //      - for each item
+      //        - if item has a non-zero score on only one list, and is not in the top SLOT_CAPACITY on that list
+      //           - add them to the UnusedEquipment pile
+    }
   }
 
   // - sort equipment slots in random order

@@ -1,6 +1,6 @@
-import { EquipmentType } from "../../items/equipment/equipment-types";
+import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 
-export enum EquipmentSlotTypeNew {
+export enum EquipmentSlotType {
   Head,
   Body,
   Finger,
@@ -18,6 +18,16 @@ export enum EquipmentSlotId {
   MainHand,
   OffHand,
 }
+
+export const EQUIPMENT_SLOT_ID_STRINGS: Record<EquipmentSlotId, string> = {
+  [EquipmentSlotId.Head]: "Head",
+  [EquipmentSlotId.Body]: "Body",
+  [EquipmentSlotId.FingerMain]: "Finger Main",
+  [EquipmentSlotId.FingerAlternate]: "Finger Alternate",
+  [EquipmentSlotId.Neck]: "Neck",
+  [EquipmentSlotId.MainHand]: "Main Hand",
+  [EquipmentSlotId.OffHand]: "Offhand",
+};
 
 export const WEARABLE_SLOT_IDS = [
   EquipmentSlotId.Head,

@@ -53,7 +53,11 @@ export const UseItemButton = observer((props: Props) => {
   }
 
   const buttonText = getUseItemButtonText(item, isEquipped);
-  const clickHandler = getUseItemClickHandler(item, slotItemIsEquippedTo, clientApplication);
+  const clickHandler = getUseItemClickHandler(
+    item,
+    slotItemIsEquippedTo !== null ? slotItemIsEquippedTo.slotId : null,
+    clientApplication
+  );
 
   const userDoesNotControlCharacter = !combatantFocus.clientUserControlsFocusedCombatant();
   const shouldBeDisabled = userDoesNotControlCharacter;
