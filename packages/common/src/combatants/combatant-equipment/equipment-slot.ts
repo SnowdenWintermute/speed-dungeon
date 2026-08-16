@@ -1,40 +1,9 @@
 import cloneDeep from "lodash.clonedeep";
-import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
-
-export enum EquipmentSlotTypeNew {
-  Head,
-  Body,
-  Finger,
-  Neck,
-  Mainhand,
-  Offhand,
-}
-
-export enum EquipmentSlotId {
-  Head,
-  Body,
-  FingerMain,
-  FingerAlternate,
-  Neck,
-  MainHand,
-  OffHand,
-}
-
-export const WEARABLE_SLOT_IDS = [
-  EquipmentSlotId.Head,
-  EquipmentSlotId.Body,
-  EquipmentSlotId.FingerMain,
-  EquipmentSlotId.FingerAlternate,
-  EquipmentSlotId.Neck,
-] as const;
-
-export type WearableSlotId = (typeof WEARABLE_SLOT_IDS)[number];
-
-export const HOLDABLE_SLOT_IDS = [EquipmentSlotId.MainHand, EquipmentSlotId.OffHand] as const;
-
-export type HoldableSlotId = (typeof HOLDABLE_SLOT_IDS)[number];
+import { makeAutoObservable } from "mobx";
+import { EquipmentSlotTypeNew } from "./types.js";
+import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 
 const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotTypeNew, EquipmentType[]> = {
   [EquipmentSlotTypeNew.Head]: [EquipmentType.HeadGear],
@@ -64,7 +33,10 @@ export class EquipmentSlot implements Serializable, ReactiveNode {
   }
 
   makeObservable(): void {
-    throw new Error("Method not implemented.");
+    makeAutoObservable(this);
+    if (this._equipmentInSlot) {
+      this._equipmentInSlot.makeObservable();
+    }
   }
 
   getCompatibleEquipmentTypes() {
@@ -81,5 +53,11 @@ export class EquipmentSlot implements Serializable, ReactiveNode {
 
   set equipmentInSlot(equipment: Equipment | null) {
     this._equipmentInSlot = equipment;
+  }
+
+  removeEquipment() {
+    const value = this._equipmentInSlot;
+    this.equipmentInSlot = null;
+    return value;
   }
 }

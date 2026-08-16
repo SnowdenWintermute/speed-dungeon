@@ -1,10 +1,4 @@
-import {
-  EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE,
-  EquipmentSlotType,
-  equipmentTypeCanGoInSlot,
-  TaggedEquipmentSlot,
-  WearableSlotType,
-} from "../../items/equipment/slots.js";
+import { EQUIPABLE_SLOTS_BY_EQUIPMENT_TYPE } from "../../items/equipment/slots.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { invariant, iterateNumericEnum, iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { EntityId, ItemId } from "../../aliases.js";
@@ -15,29 +9,21 @@ import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementatio
 import { CombatantSubsystem } from "../combatant-subsystem.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { Equipment } from "../../items/equipment/index.js";
-import { HoldableHotswapSlot } from "./holdable-hotswap-slot.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { NumericEnumUtils } from "../../utils/numeric-enum-utils.js";
 import { Inventory } from "../inventory/index.js";
+import { HotswapSlotsManager } from "./hotswap-slot-manager.js";
+import { EquipmentSlot } from "./equipment-slot.js";
 import {
-  EquipmentSlot,
   EquipmentSlotId,
   EquipmentSlotTypeNew,
   HOLDABLE_SLOT_IDS,
   HoldableSlotId,
   WEARABLE_SLOT_IDS,
   WearableSlotId,
-} from "./slots.js";
-import { HotswapSlotsManager } from "./hotswap-slot-manager.js";
+} from "./types.js";
 
 export class CombatantEquipment extends CombatantSubsystem implements Serializable, ReactiveNode {
-  private wearables: Partial<Record<WearableSlotType, Equipment>> = {};
-  private equippedHoldableHotswapSlotIndex: number = 0;
-  private inherentHoldableHotswapSlots: HoldableHotswapSlot[] = [
-    new HoldableHotswapSlot(),
-    new HoldableHotswapSlot(),
-  ];
-  //new
   public readonly staticSlots: Record<WearableSlotId, EquipmentSlot> = {
     [EquipmentSlotId.Head]: new EquipmentSlot(EquipmentSlotTypeNew.Head, null),
     [EquipmentSlotId.Body]: new EquipmentSlot(EquipmentSlotTypeNew.Body, null),
@@ -45,48 +31,25 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     [EquipmentSlotId.FingerAlternate]: new EquipmentSlot(EquipmentSlotTypeNew.Finger, null),
     [EquipmentSlotId.Neck]: new EquipmentSlot(EquipmentSlotTypeNew.Neck, null),
   };
-
   public hotswapSlotsManager = new HotswapSlotsManager(() => this.getCombatantProperties());
 
   makeObservable() {
     makeAutoObservable(this);
-    iterateNumericEnumKeyedRecord(this.wearables).forEach(([_, equipment]) =>
-      equipment.makeObservable()
+    iterateNumericEnumKeyedRecord(this.staticSlots).forEach(([_, equipmentSlot]) =>
+      equipmentSlot.makeObservable()
     );
-    this.inherentHoldableHotswapSlots.forEach((slot) => slot.makeObservable());
+    this.hotswapSlotsManager.makeObservable();
   }
 
   toSerialized() {
     return {
-      wearables: NumericEnumUtils.serializeNumericEnumRecord(this.wearables),
-      equippedHoldableHotswapSlotIndex: this.equippedHoldableHotswapSlotIndex,
-      inherentHoldableHotswapSlots: this.inherentHoldableHotswapSlots.map((slot) =>
-        slot.toSerialized()
-      ),
-      // new
-      staticSlots: {
-        [EquipmentSlotId.Head]: this.staticSlots[EquipmentSlotId.Head].toSerialized(),
-        [EquipmentSlotId.Body]: this.staticSlots[EquipmentSlotId.Body].toSerialized(),
-        [EquipmentSlotId.FingerMain]: this.staticSlots[EquipmentSlotId.FingerMain].toSerialized(),
-        [EquipmentSlotId.FingerAlternate]:
-          this.staticSlots[EquipmentSlotId.FingerAlternate].toSerialized(),
-        [EquipmentSlotId.Neck]: this.staticSlots[EquipmentSlotId.Neck].toSerialized(),
-      },
+      staticSlots: NumericEnumUtils.serializeNumericEnumRecord(this.staticSlots),
       hotswapSlotsManager: this.hotswapSlotsManager.toSerialized(),
     };
   }
 
   static fromSerialized(serialized: SerializedOf<CombatantEquipment>) {
     const result = new CombatantEquipment();
-    result.wearables = NumericEnumUtils.deserializeNumericEnumRecord(
-      serialized.wearables,
-      Equipment.fromSerialized
-    );
-    result.equippedHoldableHotswapSlotIndex = serialized.equippedHoldableHotswapSlotIndex;
-    result.inherentHoldableHotswapSlots = serialized.inherentHoldableHotswapSlots.map((slot) =>
-      HoldableHotswapSlot.fromSerialized(slot)
-    );
-    // new
     result.staticSlots[EquipmentSlotId.Head] = EquipmentSlot.fromSerialized(
       serialized.staticSlots[EquipmentSlotId.Head]
     );
@@ -109,7 +72,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return result;
   }
 
-  getSlotById(slotId: EquipmentSlotId) {
+  getSlotById(slotId: EquipmentSlotId): EquipmentSlot {
     if (WEARABLE_SLOT_IDS.includes(slotId as WearableSlotId)) {
       return this.staticSlots[slotId as WearableSlotId];
     } else if (HOLDABLE_SLOT_IDS.includes(slotId as HoldableSlotId)) {
@@ -260,20 +223,20 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
   }
 
   moveEquippedItemToSlot(
-    sourceSlot: EquipmentSlotId,
-    destinationSlot: EquipmentSlotId
+    sourceSlot: EquipmentSlot,
+    destinationSlot: EquipmentSlot
   ): { idsOfUnequippedItems: EntityId[] } {
     if (sourceSlot === destinationSlot) {
       throw new Error(ERROR_MESSAGES.EQUIPMENT.ALREADY_IN_SLOT);
     }
 
-    const item = this.getEquipmentInSlot(sourceSlot);
-    if (item === undefined) {
+    const item = sourceSlot.equipmentInSlot;
+    if (item === null) {
       throw new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
     }
 
     const { equipmentType } = item.equipmentBaseItemProperties;
-    if (!equipmentTypeCanGoInSlot(equipmentType, destinationSlot)) {
+    if (!destinationSlot.canAcceptEquipmentType(equipmentType)) {
       throw new Error(ERROR_MESSAGES.EQUIPMENT.CANNOT_GO_IN_SLOT);
     }
 
@@ -281,25 +244,24 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     const idsOfUnequippedItems: EntityId[] = [];
 
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-      const displacedOption = this.getEquipmentInSlot(destinationSlot);
+      const displacedOption = destinationSlot.removeEquipment();
+      sourceSlot.removeEquipment();
+      destinationSlot.equipmentInSlot = item;
 
-      this.removeEquipmentInSlots([sourceSlot, destinationSlot]);
-
-      if (displacedOption !== undefined) {
-        const displacedCanSwap = equipmentTypeCanGoInSlot(
-          displacedOption.equipmentBaseItemProperties.equipmentType,
-          sourceSlot
-        );
-
-        if (displacedCanSwap) {
-          this.putEquipmentInSlot(displacedOption, sourceSlot);
-        } else {
-          combatantProperties.inventory.insertItem(displacedOption);
-          idsOfUnequippedItems.push(displacedOption.entityProperties.id);
-        }
+      if (displacedOption === null) {
+        return;
       }
 
-      this.putEquipmentInSlot(item, destinationSlot);
+      const displacedCanSwap = sourceSlot.canAcceptEquipmentType(
+        displacedOption.equipmentBaseItemProperties.equipmentType
+      );
+
+      if (displacedCanSwap) {
+        sourceSlot.equipmentInSlot = displacedOption;
+      } else {
+        combatantProperties.inventory.insertItem(displacedOption);
+        idsOfUnequippedItems.push(displacedOption.entityProperties.id);
+      }
     });
 
     return { idsOfUnequippedItems };
@@ -336,53 +298,58 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return unequippedItems;
   }
 
-  removeItem(itemId: string) {
-    for (const [slot, item] of iterateNumericEnumKeyedRecord(this.wearables)) {
-      if (item.entityProperties.id === itemId) {
-        delete this.wearables[slot];
-        return item;
+  removeExpectedItemById(itemId: ItemId) {
+    for (const [_slotId, slot] of iterateNumericEnumKeyedRecord(this.staticSlots)) {
+      if (slot.equipmentInSlot?.entityProperties.id === itemId) {
+        return slot.removeEquipment();
       }
     }
 
-    const allHotswapSlots = this.getHoldableHotswapSlots();
-    for (const hotswapSlot of allHotswapSlots) {
-      for (const [slot, item] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        if (item.entityProperties.id === itemId) {
-          delete hotswapSlot.holdables[slot];
-          return item;
-        }
-      }
+    const itemInHotswapSlotsOption = this.hotswapSlotsManager.removeItemById(itemId);
+    if (itemInHotswapSlotsOption) {
+      return itemInHotswapSlotsOption;
     }
 
     throw new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
   getEquippedShieldProperties() {
-    const offhandOption = this.getEquipmentInSlot({
-      type: EquipmentSlotType.Holdable,
-      slot: HoldableSlotType.OffHand,
-    });
-    if (offhandOption === undefined) return;
-    if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) return;
+    const offhandOption = this.getEquipmentInSlot(EquipmentSlotId.OffHand);
+    if (offhandOption === null) {
+      return;
+    }
+    // equipment.isShield() doesn't narrow the equipmentBaseItemProperties type
+    if (offhandOption.equipmentBaseItemProperties.equipmentType !== EquipmentType.Shield) {
+      return;
+    }
     return offhandOption.equipmentBaseItemProperties;
   }
 
   private static isHoldingUsableHoldable(
     actionUser: IActionUser,
-    slot: HoldableSlotType,
+    slotId: EquipmentSlotId,
     type: EquipmentType
   ): boolean {
-    const equipment = actionUser.getEquipmentOption();
-    if (!equipment) return false;
+    const combatantEquipment = actionUser.getEquipmentOption();
+    if (!combatantEquipment) {
+      return false;
+    }
 
-    const itemOption = equipment.getEquipmentInSlot({ type: EquipmentSlotType.Holdable, slot });
-    if (!itemOption) return false;
+    const equipmentOption = combatantEquipment.getEquipmentInSlot(slotId);
+    if (!equipmentOption) {
+      return false;
+    }
 
-    if (itemOption.equipmentBaseItemProperties.equipmentType !== type) return false;
+    if (equipmentOption.equipmentBaseItemProperties.equipmentType !== type) {
+      return false;
+    }
 
-    const isBroken = itemOption.isBroken();
-    if (isBroken) return false;
-    return actionUser.hasRequiredAttributesToUseItem(itemOption);
+    const isBroken = equipmentOption.isBroken();
+    if (isBroken) {
+      return false;
+    }
+
+    return actionUser.hasRequiredAttributesToUseItem(equipmentOption);
   }
 
   isWearingItemWithId(itemId: string) {
@@ -392,13 +359,13 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
   }
 
   static isWearingUsableShield(actionUser: IActionUser) {
-    return this.isHoldingUsableHoldable(actionUser, HoldableSlotType.OffHand, EquipmentType.Shield);
+    return this.isHoldingUsableHoldable(actionUser, EquipmentSlotId.OffHand, EquipmentType.Shield);
   }
 
   static isWearingUsableTwoHandedRangedWeapon(actionUser: IActionUser) {
     return this.isHoldingUsableHoldable(
       actionUser,
-      HoldableSlotType.MainHand,
+      EquipmentSlotId.MainHand,
       EquipmentType.TwoHandedRangedWeapon
     );
   }
@@ -406,7 +373,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
   static isWearingUsableTwoHandedMeleeWeapon(actionUser: IActionUser) {
     return this.isHoldingUsableHoldable(
       actionUser,
-      HoldableSlotType.MainHand,
+      EquipmentSlotId.MainHand,
       EquipmentType.TwoHandedMeleeWeapon
     );
   }
@@ -425,30 +392,14 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
 
     for (const equipment of allEquipment) {
       const { equipmentType } = equipment.equipmentBaseItemProperties;
-      if (equipment.isBroken()) continue;
-      if (getRequiredEquipmentTypeOptions(rank).includes(equipmentType)) return true;
+      if (equipment.isBroken()) {
+        continue;
+      }
+      if (getRequiredEquipmentTypeOptions(rank).includes(equipmentType)) {
+        return true;
+      }
     }
 
     return false;
-  }
-
-  /** For checking if a spawned holdable model is still equipped during model synchronization */
-  getHotswapSlotIndexAndHoldableSlotOfPotentiallyEquippedHoldable(equipmentId: EntityId) {
-    const allHotswapSlots = this.getHoldableHotswapSlots();
-
-    for (let slotIndex = 0; slotIndex < allHotswapSlots.length; slotIndex += 1) {
-      const hotswapSlot = allHotswapSlots[slotIndex];
-      if (hotswapSlot === undefined) {
-        throw new Error(ERROR_MESSAGES.EQUIPMENT.EXPECTED_HOTSWAP_SLOT_UNDEFINED);
-      }
-
-      for (const [holdableSlot, holdable] of iterateNumericEnumKeyedRecord(hotswapSlot.holdables)) {
-        if (holdable.entityProperties.id === equipmentId) {
-          return { holdableSlot, slotIndex };
-        }
-      }
-    }
-
-    return null;
   }
 }

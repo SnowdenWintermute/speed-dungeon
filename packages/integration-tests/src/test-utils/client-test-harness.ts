@@ -35,6 +35,7 @@ import { ClientSingleton } from "@/client-application/clients/singleton";
 import { CombatActionHistoryInspector } from "./combat-action-history-inspector.js";
 import { PausableEndpoint } from "./pausable-endpoint.js";
 import { TimeMachine } from "./time-machine.js";
+import { EquipmentSlotId } from "@speed-dungeon/common/src/combatants/combatant-equipment/types.js";
 
 export class ClientTestHarness<T extends BaseClient> {
   readonly actionHistory: CombatActionHistoryInspector;
@@ -341,19 +342,19 @@ export class ClientTestHarness<T extends BaseClient> {
 
   async moveEquippedItemToSlot(
     characterId: CombatantId,
-    sourceSlot: TaggedEquipmentSlot,
-    destinationSlot: TaggedEquipmentSlot
+    sourceSlotId: EquipmentSlotId,
+    destinationSlotId: TaggedEquipmentSlot
   ) {
     return this.settleIntentResult({
       type: ClientIntentType.MoveEquippedItemToSlot,
-      data: { characterId, sourceSlot, destinationSlot },
+      data: { characterId, sourceSlotId, destinationSlotId },
     });
   }
 
-  async dropEquippedItem(characterId: CombatantId, slot: TaggedEquipmentSlot) {
+  async dropEquippedItem(characterId: CombatantId, slotId: EquipmentSlotId) {
     return this.settleIntentResult({
       type: ClientIntentType.DropEquippedItem,
-      data: { characterId, slot },
+      data: { characterId, slotId },
     });
   }
 

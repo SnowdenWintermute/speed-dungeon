@@ -336,7 +336,7 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   }
 
   private convertItemToShards(item: Item, combatantProperties: CombatantProperties) {
-    const itemId = item.entityProperties.id;
+    const itemId = item.getEntityId();
     const removedItemResult = combatantProperties.inventory.removeStoredOrEquipped(itemId);
     if (removedItemResult instanceof Error) throw removedItemResult;
     return getItemSellPrice(removedItemResult);

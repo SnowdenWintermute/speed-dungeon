@@ -1,21 +1,10 @@
 import { IntegrationTestFixture } from "@/fixtures/integration-test-fixture";
 import {
   CombatantClass,
-  EquipmentSlotType,
-  HoldableSlotType,
   invariant,
   SHIELD_BEARING_CHARACTER_FIXTURES,
-  TaggedEquipmentSlot,
 } from "@speed-dungeon/common";
-
-const MAIN_HAND: TaggedEquipmentSlot = {
-  type: EquipmentSlotType.Holdable,
-  slot: HoldableSlotType.MainHand,
-};
-const OFF_HAND: TaggedEquipmentSlot = {
-  type: EquipmentSlotType.Holdable,
-  slot: HoldableSlotType.OffHand,
-};
+import { EquipmentSlotId } from "@speed-dungeon/common/src/combatants/combatant-equipment/types";
 
 export async function testMovingEquippedItemSwapsWithCompatibleOccupant(
   testFixture: IntegrationTestFixture
@@ -34,10 +23,12 @@ export async function testMovingEquippedItemSwapsWithCompatibleOccupant(
 
   // the rogue only starts with a main hand weapon, so take the warrior's one hander to fill both
   // of the rogue's hands with swappable weapons
-  const stickOption = warrior.combatantProperties.equipment.getEquipmentInSlot(MAIN_HAND);
-  invariant(stickOption !== undefined, "expected the warrior to start with a main hand weapon");
+  const stickOption = warrior.combatantProperties.equipment.getEquipmentInSlot(
+    EquipmentSlotId.MainHand
+  );
+  invariant(stickOption !== null, "expected the warrior to start with a main hand weapon");
   const stickId = stickOption.getEntityId();
-  await gameClientHarness.dropEquippedItem(warrior.getEntityId(), MAIN_HAND);
+  await gameClientHarness.dropEquippedItem(warrior.getEntityId(), EquipmentSlotId.MainHand);
 
   const knifeOption = rogue.combatantProperties.equipment.getEquipmentInSlot(MAIN_HAND);
   invariant(knifeOption !== undefined, "expected the rogue to start with a main hand weapon");

@@ -7,7 +7,6 @@ import { LadderQueryResult } from "../ladder/queries/ladder-query-messages.js";
 import { Combatant } from "../combatants/index.js";
 import { GameMessage } from "./game-message.js";
 import { UserAuthStatus, UserChannelDisplayData } from "../users/index.js";
-import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { Consumable } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
@@ -40,6 +39,7 @@ import { ClientAppMessageType } from "./client-app-message.js";
 import { CharacterControlScheme, GameMode } from "../game-modes/index.js";
 import { SerializedCombatantWithPets } from "../servers/services/user-game-data-persistence/serialized-combatant-with-pets.js";
 import { SavedIronmanRunClientEntry } from "../servers/services/user-game-data-persistence/saved-ironman-runs.js";
+import { EquipmentSlotId } from "../combatants/combatant-equipment/types.js";
 
 export enum GameStateUpdateType {
   GameList,
@@ -235,8 +235,8 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.CharacterMovedEquippedItemToSlot]: {
     characterId: CombatantId;
-    sourceSlot: TaggedEquipmentSlot;
-    destinationSlot: TaggedEquipmentSlot;
+    sourceSlotId: EquipmentSlotId;
+    destinationSlotId: EquipmentSlotId;
   };
   [GameStateUpdateType.CharacterPickedUpItems]: CharacterAndItems;
   [GameStateUpdateType.CharacterSelectedCombatAction]: {
@@ -328,7 +328,7 @@ export interface GameStateUpdateMap {
   };
   [GameStateUpdateType.CharacterTradedItemForBook]: {
     characterId: CombatantId;
-    itemIdTraded: EntityId;
+    itemIdTraded: ItemId;
     book: SerializedOf<Consumable>;
   };
   [GameStateUpdateType.CharacterRenamedPet]: {
@@ -373,7 +373,7 @@ export interface CharacterAndItems {
 
 export interface CharacterAndSlot {
   characterId: CombatantId;
-  slot: TaggedEquipmentSlot;
+  slotId: EquipmentSlotId;
 }
 
 export class GameListEntry {

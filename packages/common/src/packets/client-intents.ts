@@ -18,10 +18,10 @@ import { LadderQueryRequest } from "../ladder/queries/ladder-query-messages.js";
 import { ConsumableType } from "../items/consumables/consumable-types.js";
 import { BookConsumableType } from "../items/consumables/index.js";
 import { CraftingAction } from "../items/crafting/crafting-actions.js";
-import { TaggedEquipmentSlot } from "../items/equipment/slots.js";
 import { NextOrPrevious } from "../primatives/index.js";
 import { SerializedOf } from "../serialization/index.js";
 import { CharacterAndItem, CharacterAndItems } from "./game-state-updates.js";
+import { EquipmentSlotId } from "../combatants/combatant-equipment/types.js";
 
 export enum ClientIntentType {
   // lobby
@@ -121,7 +121,7 @@ export interface ClientIntentMap {
   [ClientIntentType.ToggleReadyToExplore]: undefined;
   [ClientIntentType.UnequipSlot]: {
     characterId: CombatantId;
-    slot: TaggedEquipmentSlot;
+    slotId: EquipmentSlotId;
   };
   [ClientIntentType.EquipInventoryItem]: {
     characterId: CombatantId;
@@ -135,8 +135,8 @@ export interface ClientIntentMap {
   };
   [ClientIntentType.MoveEquippedItemToSlot]: {
     characterId: CombatantId;
-    sourceSlot: TaggedEquipmentSlot;
-    destinationSlot: TaggedEquipmentSlot;
+    sourceSlotId: EquipmentSlotId;
+    destinationSlotId: EquipmentSlotId;
   };
   [ClientIntentType.CycleCombatActionTargets]: {
     characterId: CombatantId;
@@ -150,7 +150,7 @@ export interface ClientIntentMap {
   [ClientIntentType.UseSelectedCombatAction]: { characterId: CombatantId };
   [ClientIntentType.DropEquippedItem]: {
     characterId: CombatantId;
-    slot: TaggedEquipmentSlot;
+    slotId: EquipmentSlotId;
   };
   [ClientIntentType.DropItem]: CharacterAndItem;
   [ClientIntentType.ToggleReadyToDescend]: undefined;

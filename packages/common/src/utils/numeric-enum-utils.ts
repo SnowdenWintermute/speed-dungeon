@@ -7,7 +7,7 @@ interface NumericEnumLike {
 }
 
 export class NumericEnumUtils {
-  static serializeNumericEnumRecord<K extends number, V extends Serializable>(
+  static serializePartialNumericEnumRecord<K extends number, V extends Serializable>(
     record: Partial<Record<K, V>>
   ) {
     const serialized: Partial<Record<K, SerializedOf<V>>> = {};
@@ -18,6 +18,18 @@ export class NumericEnumUtils {
       }
     }
     return serialized;
+  }
+
+  static serializeNumericEnumRecord<K extends number, V extends Serializable>(
+    record: Record<K, V>
+  ) {
+    const serialized: Partial<Record<K, SerializedOf<V>>> = {};
+
+    for (const [key, value] of iterateNumericEnumKeyedRecord(record)) {
+      serialized[key] = value.toSerialized() as SerializedOf<V>;
+    }
+
+    return serialized as Record<K, SerializedOf<V>>;
   }
 
   static deserializeNumericEnumRecord<K extends number, V extends Serializable>(

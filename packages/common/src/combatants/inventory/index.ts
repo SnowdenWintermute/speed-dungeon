@@ -4,7 +4,7 @@ import { Item, ItemType } from "../../items/index.js";
 import { Consumable } from "../../items/consumables/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { EXTRA_CONSUMABLES_STORAGE_PER_TRAIT_LEVEL } from "../combatant-traits/index.js";
-import { EntityId } from "../../aliases.js";
+import { EntityId, ItemId } from "../../aliases.js";
 import { CombatantTraitType } from "../combatant-traits/trait-types.js";
 import { invariant } from "../../utils/index.js";
 import { CombatantSubsystem } from "../combatant-subsystem.js";
@@ -200,13 +200,13 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
     return new Error(ERROR_MESSAGES.ITEM.NOT_OWNED);
   }
 
-  removeStoredOrEquipped(itemId: EntityId) {
+  removeStoredOrEquipped(itemId: ItemId) {
     let removedItemResult = this.removeItem(itemId);
 
     if (removedItemResult instanceof Error) {
       const combatantProperties = this.getCombatantProperties();
       combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
-        removedItemResult = combatantProperties.equipment.removeItem(itemId);
+        removedItemResult = combatantProperties.equipment.removeExpectedItemById(itemId);
       });
     }
     return removedItemResult;
