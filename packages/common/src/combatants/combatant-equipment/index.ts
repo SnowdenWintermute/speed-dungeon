@@ -16,7 +16,6 @@ import { EquipmentSlot } from "./equipment-slot.js";
 import {
   COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
   EquipmentSlotId,
-  EquipmentSlotType,
   HOLDABLE_SLOT_IDS,
   HoldableSlotId,
   WEARABLE_SLOT_IDS,
@@ -25,11 +24,11 @@ import {
 
 export class CombatantEquipment extends CombatantSubsystem implements Serializable, ReactiveNode {
   public readonly staticSlots: Record<WearableSlotId, EquipmentSlot> = {
-    [EquipmentSlotId.Head]: new EquipmentSlot(EquipmentSlotType.Head, null),
-    [EquipmentSlotId.Body]: new EquipmentSlot(EquipmentSlotType.Body, null),
-    [EquipmentSlotId.FingerMain]: new EquipmentSlot(EquipmentSlotType.Finger, null),
-    [EquipmentSlotId.FingerAlternate]: new EquipmentSlot(EquipmentSlotType.Finger, null),
-    [EquipmentSlotId.Neck]: new EquipmentSlot(EquipmentSlotType.Neck, null),
+    [EquipmentSlotId.Head]: new EquipmentSlot(EquipmentSlotId.Head, null),
+    [EquipmentSlotId.Body]: new EquipmentSlot(EquipmentSlotId.Body, null),
+    [EquipmentSlotId.FingerMain]: new EquipmentSlot(EquipmentSlotId.FingerMain, null),
+    [EquipmentSlotId.FingerAlternate]: new EquipmentSlot(EquipmentSlotId.FingerAlternate, null),
+    [EquipmentSlotId.Neck]: new EquipmentSlot(EquipmentSlotId.Neck, null),
   };
   public hotswapSlotsManager = new HotswapSlotsManager(() => this.getCombatantProperties());
 
@@ -50,21 +49,12 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
 
   static fromSerialized(serialized: SerializedOf<CombatantEquipment>) {
     const result = new CombatantEquipment();
-    result.staticSlots[EquipmentSlotId.Head] = EquipmentSlot.fromSerialized(
-      serialized.staticSlots[EquipmentSlotId.Head]
-    );
-    result.staticSlots[EquipmentSlotId.Body] = EquipmentSlot.fromSerialized(
-      serialized.staticSlots[EquipmentSlotId.Body]
-    );
-    result.staticSlots[EquipmentSlotId.FingerMain] = EquipmentSlot.fromSerialized(
-      serialized.staticSlots[EquipmentSlotId.FingerMain]
-    );
-    result.staticSlots[EquipmentSlotId.FingerAlternate] = EquipmentSlot.fromSerialized(
-      serialized.staticSlots[EquipmentSlotId.FingerAlternate]
-    );
-    result.staticSlots[EquipmentSlotId.Neck] = EquipmentSlot.fromSerialized(
-      serialized.staticSlots[EquipmentSlotId.Neck]
-    );
+    for (const slotId of WEARABLE_SLOT_IDS) {
+      result.staticSlots[slotId] = EquipmentSlot.fromSerialized(
+        slotId,
+        serialized.staticSlots[slotId]
+      );
+    }
     result.hotswapSlotsManager = HotswapSlotsManager.fromSerialized(
       serialized.hotswapSlotsManager,
       () => result.getCombatantProperties()

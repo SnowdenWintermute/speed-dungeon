@@ -1,7 +1,7 @@
 import { Equipment } from "../../items/equipment/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { makeAutoObservable } from "mobx";
-import { EquipmentSlotId, EquipmentSlotType } from "./types.js";
+import { EquipmentSlotId, EquipmentSlotType, SLOT_TYPE_BY_SLOT_ID } from "./types.js";
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { invariant } from "../../utils/index.js";
 
@@ -10,12 +10,12 @@ const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotType, EquipmentType[]> 
   [EquipmentSlotType.Body]: [EquipmentType.BodyArmor],
   [EquipmentSlotType.Finger]: [EquipmentType.Ring],
   [EquipmentSlotType.Neck]: [EquipmentType.Amulet],
-  [EquipmentSlotType.Mainhand]: [
+  [EquipmentSlotType.MainHand]: [
     EquipmentType.OneHandedMeleeWeapon,
     EquipmentType.TwoHandedMeleeWeapon,
     EquipmentType.TwoHandedRangedWeapon,
   ],
-  [EquipmentSlotType.Offhand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
+  [EquipmentSlotType.OffHand]: [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield],
 };
 
 const ALTERNATE_SLOTS: Partial<Record<EquipmentSlotId, EquipmentSlotId>> = {
@@ -25,24 +25,27 @@ const ALTERNATE_SLOTS: Partial<Record<EquipmentSlotId, EquipmentSlotId>> = {
 
 export class EquipmentSlot implements Serializable, ReactiveNode {
   constructor(
-    public readonly type: EquipmentSlotType,
+    public readonly slotId: EquipmentSlotId,
     private _equipmentInSlot: null | Equipment
   ) {}
 
+  get type() {
+    return SLOT_TYPE_BY_SLOT_ID[this.slotId];
+  }
+
   toSerialized() {
     return {
-      type: this.type,
       _equipmentInSlot:
         this._equipmentInSlot === null ? null : this._equipmentInSlot.toSerialized(),
     };
   }
 
-  static fromSerialized(serialized: SerializedOf<EquipmentSlot>) {
+  static fromSerialized(slotId: EquipmentSlotId, serialized: SerializedOf<EquipmentSlot>) {
     let deserializedEquipmentOption: null | Equipment = null;
     if (serialized._equipmentInSlot) {
       deserializedEquipmentOption = Equipment.fromSerialized(serialized._equipmentInSlot);
     }
-    return new EquipmentSlot(serialized.type, deserializedEquipmentOption);
+    return new EquipmentSlot(slotId, deserializedEquipmentOption);
   }
 
   makeObservable(): void {

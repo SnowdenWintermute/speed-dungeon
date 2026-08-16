@@ -5,8 +5,8 @@ export enum EquipmentSlotType {
   Body,
   Finger,
   Neck,
-  Mainhand,
-  Offhand,
+  MainHand,
+  OffHand,
 }
 
 export enum EquipmentSlotId {
@@ -27,6 +27,16 @@ export const EQUIPMENT_SLOT_ID_STRINGS: Record<EquipmentSlotId, string> = {
   [EquipmentSlotId.Neck]: "Neck",
   [EquipmentSlotId.MainHand]: "Main Hand",
   [EquipmentSlotId.OffHand]: "Offhand",
+};
+
+export const SLOT_TYPE_BY_SLOT_ID: Record<EquipmentSlotId, EquipmentSlotType> = {
+  [EquipmentSlotId.Head]: EquipmentSlotType.Head,
+  [EquipmentSlotId.Body]: EquipmentSlotType.Body,
+  [EquipmentSlotId.FingerMain]: EquipmentSlotType.Finger,
+  [EquipmentSlotId.FingerAlternate]: EquipmentSlotType.Finger,
+  [EquipmentSlotId.Neck]: EquipmentSlotType.Neck,
+  [EquipmentSlotId.MainHand]: EquipmentSlotType.MainHand,
+  [EquipmentSlotId.OffHand]: EquipmentSlotType.OffHand,
 };
 
 export const WEARABLE_SLOT_IDS = [
@@ -71,7 +81,6 @@ export const COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE: Record<
     main: EquipmentSlotId.MainHand,
   },
   [EquipmentType.Shield]: {
-    main: EquipmentSlotId.MainHand,
-    alternate: EquipmentSlotId.OffHand,
+    main: EquipmentSlotId.OffHand,
   },
 };
