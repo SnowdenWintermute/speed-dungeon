@@ -113,11 +113,16 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
   dropEquippedItem(party: AdventuringParty, slotId: EquipmentSlotId): Error | EntityId {
     const combatantProperties = this.getCombatantProperties();
     const itemIdsUnequipped = combatantProperties.equipment.unequipSlots([slotId]);
-    const itemId = itemIdsUnequipped[0];
-    if (itemId === undefined) return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
-    const itemDroppedIdResult = combatantProperties.inventory.dropItem(party, itemId);
+    const unequipped = itemIdsUnequipped[0];
+    if (unequipped === undefined) {
+      return new Error(ERROR_MESSAGES.EQUIPMENT.NO_ITEM_EQUIPPED);
+    }
+    const itemDroppedIdResult = combatantProperties.inventory.dropItem(
+      party,
+      unequipped.equipmentId
+    );
     if (itemDroppedIdResult instanceof Error) return itemDroppedIdResult;
-    return itemId;
+    return unequipped.equipmentId;
   }
 
   insertItem(item: Item): void {

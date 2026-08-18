@@ -143,7 +143,10 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     return { allowed: true };
   }
 
-  equipItem(itemId: string, equipToAltSlot: boolean): { unequipped: ItemId[] } {
+  equipItem(
+    itemId: string,
+    equipToAltSlot: boolean
+  ): { unequipped: { equipmentId: ItemId; fromSlotId: EquipmentSlotId }[] } {
     const combatantProperties = this.getCombatantProperties();
 
     const equipmentResult = combatantProperties.inventory.requireEquipmentById(itemId);
@@ -163,7 +166,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     itemId: string,
     groundInventory: Inventory,
     equipToAltSlot: boolean
-  ): { unequipped: ItemId[] } {
+  ): { unequipped: { equipmentId: ItemId; fromSlotId: EquipmentSlotId }[] } {
     const equipmentResult = groundInventory.requireEquipmentById(itemId);
     const equipment = equipmentResult;
 
@@ -181,10 +184,10 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
   private putEquipmentInSlotUnequippingConflicts(
     equipment: Equipment,
     equipToAltSlot: boolean
-  ): { unequipped: ItemId[] } {
+  ): { unequipped: { equipmentId: ItemId; fromSlotId: EquipmentSlotId }[] } {
     const combatantProperties = this.getCombatantProperties();
 
-    const idsOfUnequippedItems: ItemId[] = [];
+    const idsOfUnequippedItems: { equipmentId: ItemId; fromSlotId: EquipmentSlotId }[] = [];
     const { equipmentType } = equipment.equipmentBaseItemProperties;
     const possibleSlots = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
     const destinationSlotId = equipToAltSlot ? possibleSlots.alternate : possibleSlots.main;
@@ -257,14 +260,20 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
   }
 
   unequipSlots(slotIds: EquipmentSlotId[]) {
-    const unequippedItemIds: ItemId[] = [];
+    const unequippedItemIds: { equipmentId: ItemId; fromSlotId: EquipmentSlotId }[] = [];
 
     const combatantProperties = this.getCombatantProperties();
 
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
       const unequippedItems = combatantProperties.equipment.removeEquipmentInSlots(slotIds);
-      combatantProperties.inventory.equipment.push(...unequippedItems);
-      unequippedItemIds.push(...unequippedItems.map((item) => item.getEntityId()));
+      combatantProperties.inventory.equipment.push(
+        ...unequippedItems.map((item) => item.equipment)
+      );
+      unequippedItemIds.push(
+        ...unequippedItems.map((item) => {
+          return { equipmentId: item.equipment.getEntityId(), fromSlotId: item.slotId };
+        })
+      );
     });
     return unequippedItemIds;
   }
@@ -273,13 +282,15 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     this.unequipSlots(iterateNumericEnum(EquipmentSlotId));
   }
 
-  private removeEquipmentInSlots(slotIds: EquipmentSlotId[]): Equipment[] {
-    const unequippedItems: Equipment[] = [];
+  private removeEquipmentInSlots(
+    slotIds: EquipmentSlotId[]
+  ): { equipment: Equipment; slotId: EquipmentSlotId }[] {
+    const unequippedItems: { equipment: Equipment; slotId: EquipmentSlotId }[] = [];
 
     for (const slotId of slotIds) {
       const slot = this.getSlotById(slotId);
       if (slot.equipmentInSlot) {
-        unequippedItems.push(slot.equipmentInSlot);
+        unequippedItems.push({ equipment: slot.equipmentInSlot, slotId: slotId });
         slot.equipmentInSlot = null;
       }
     }

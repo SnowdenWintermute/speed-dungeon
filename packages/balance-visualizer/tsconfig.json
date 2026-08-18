@@ -5,7 +5,7 @@
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "moduleResolution": "bundler",
-    "types": ["vite/client"],
+    "types": ["vite/client", "vitest/globals"],
     "paths": {
       "@speed-dungeon/ui/*": ["../ui/src/*"],
       "@/*": ["./src/*"]

@@ -316,7 +316,7 @@ export function createGameUpdateHandlers(
       // we want the user to be now selecting the item they just unequipped
       const equipmentInInventory = combatant.combatantProperties.inventory.equipment;
       const itemToSelectOption = equipmentInInventory.find(
-        (equipment) => equipment.entityProperties.id === idsOfUnequippedItems[0]
+        (equipment) => equipment.entityProperties.id === idsOfUnequippedItems[0]?.equipmentId
       );
       if (itemToSelectOption === undefined) {
         return;

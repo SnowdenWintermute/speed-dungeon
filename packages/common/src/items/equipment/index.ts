@@ -282,4 +282,25 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
 
     return { compatibleSlotIds, compatibleSlotTypes };
   }
+
+  static groupBySlotTypeCompatibility(equipmentList: Equipment[]) {
+    const equipmentBySlotType: Record<EquipmentSlotType, Equipment[]> = {
+      [EquipmentSlotType.Head]: [],
+      [EquipmentSlotType.Body]: [],
+      [EquipmentSlotType.Finger]: [],
+      [EquipmentSlotType.Neck]: [],
+      [EquipmentSlotType.MainHand]: [],
+      [EquipmentSlotType.OffHand]: [],
+    };
+
+    for (const equipment of equipmentList) {
+      const { compatibleSlotTypes } = equipment.getCompatibleSlots();
+
+      for (const slotType of compatibleSlotTypes) {
+        equipmentBySlotType[slotType].push(equipment);
+      }
+    }
+
+    return equipmentBySlotType;
+  }
 }

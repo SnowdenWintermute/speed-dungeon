@@ -19,6 +19,8 @@ export enum EquipmentSlotId {
   OffHand,
 }
 
+export const ALTERNATE_SLOT_IDS = [EquipmentSlotId.FingerAlternate, EquipmentSlotId.OffHand];
+
 export const EQUIPMENT_SLOT_ID_STRINGS: Record<EquipmentSlotId, string> = {
   [EquipmentSlotId.Head]: "Head",
   [EquipmentSlotId.Body]: "Body",
