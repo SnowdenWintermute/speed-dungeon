@@ -21,6 +21,11 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
 import { ShieldProperties, WeaponProperties } from "./equipment-properties/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
+import {
+  COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
+  EquipmentSlotType,
+  SLOT_TYPE_BY_SLOT_ID,
+} from "../../combatants/combatant-equipment/types.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -264,5 +269,17 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     const isIndestructable = this.isIndestructable();
     if (isIndestructable || this.durability === null) return false;
     return this.durability.current <= 0;
+  }
+
+  getCompatibleSlots() {
+    const { equipmentType } = this.equipmentBaseItemProperties;
+    const compatibleSlotIds = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
+    const { main, alternate } = compatibleSlotIds;
+    const compatibleSlotTypes = new Set<EquipmentSlotType>().add(SLOT_TYPE_BY_SLOT_ID[main]);
+    if (alternate !== undefined) {
+      compatibleSlotTypes.add(SLOT_TYPE_BY_SLOT_ID[alternate]);
+    }
+
+    return { compatibleSlotIds, compatibleSlotTypes };
   }
 }

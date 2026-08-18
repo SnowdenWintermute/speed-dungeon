@@ -2,19 +2,21 @@ import {
   AdventuringParty,
   ArrayUtils,
   BasicRandomNumberGenerator,
-  COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
+  compareStringsOrdinally,
   Equipment,
   EquipmentSlotType,
+  invariant,
   iterateNumericEnum,
-  SLOT_TYPE_BY_SLOT_ID,
+  MapUtils,
 } from "@speed-dungeon/common";
 
 type EquipmentScoreAxisIndex = number;
+interface EquipmentAxisScore {
+  equipment: Equipment;
+  score: number;
+}
 
 export class BestImprovementEquipmentSolver {
-  unusedEquipment: Equipment[] = [];
-  filteredConsiderable: Equipment[] = [];
-
   constructor(
     private party: AdventuringParty,
     private equipmentScoreAxisCheckers: ((equipment: Equipment) => number)[]
@@ -39,17 +41,25 @@ export class BestImprovementEquipmentSolver {
 
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
       for (const [_slotId, slot] of combatant.combatantProperties.equipment.getAllActiveSlots()) {
-        const total = totals[slot.type];
-
-        if (total !== undefined) {
-          totals[slot.type] = total + 1;
-        } else {
-          totals[slot.type] = 1;
-        }
+        totals[slot.type] += 1;
       }
     }
 
     return totals;
+  }
+
+  private getCapacityForCompatibleSlotTypes(
+    equipment: Equipment,
+    partySlotCapacities: Record<EquipmentSlotType, number>
+  ) {
+    const { compatibleSlotTypes } = equipment.getCompatibleSlots();
+
+    let capacity = 0;
+    for (const slotType of compatibleSlotTypes) {
+      capacity += partySlotCapacities[slotType];
+    }
+
+    return capacity;
   }
 
   private getPartyEquipmentBySlotType() {
@@ -63,30 +73,30 @@ export class BestImprovementEquipmentSolver {
     };
 
     for (const equipment of this.party.currentRoom.inventory.equipment) {
-      const slotIds =
-        COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipment.equipmentBaseItemProperties.equipmentType];
-      const slotTypes: EquipmentSlotType[] = [];
-      for (const slotId of Object.values(slotIds)) {
-        const slotType = SLOT_TYPE_BY_SLOT_ID[slotId];
-        if (!slotTypes.includes(slotType)) {
-          equipmentBySlotType[slotType].push(equipment);
-        }
-        slotTypes.push(slotType);
+      const { compatibleSlotTypes } = equipment.getCompatibleSlots();
+
+      for (const slotType of compatibleSlotTypes) {
+        equipmentBySlotType[slotType].push(equipment);
       }
     }
 
     return equipmentBySlotType;
   }
 
-  private collectSortedScoresByAxis(considered: Equipment[]) {
-    const scoresByAxisIndex = new Map<
-      EquipmentScoreAxisIndex,
-      { equipment: Equipment; score: number }[]
-    >();
+  private axisScoreIsPositive(score: number) {
+    return score > 0;
+  }
+
+  private collectSortedPositiveScoresByAxis(considered: Equipment[]) {
+    const scoresByAxisIndex = new Map<EquipmentScoreAxisIndex, EquipmentAxisScore[]>();
 
     for (const equipment of considered) {
       this.equipmentScoreAxisCheckers.forEach((axisScoreChecker, scoreCheckerIndex) => {
         const score = axisScoreChecker(equipment);
+
+        if (!this.axisScoreIsPositive(score)) {
+          return;
+        }
 
         const record = scoresByAxisIndex.get(scoreCheckerIndex) ?? [];
         record.push({ equipment, score });
@@ -94,8 +104,14 @@ export class BestImprovementEquipmentSolver {
       });
     }
 
-    for (const [scoreAxisIndex, scores] of scoresByAxisIndex) {
-      scores.sort((a, b) => b.score - a.score);
+    for (const scores of scoresByAxisIndex.values()) {
+      scores.sort((a, b) => {
+        const primary = b.score - a.score;
+        if (primary !== 0) {
+          return primary;
+        }
+        return compareStringsOrdinally(b.equipment.getEntityId(), a.equipment.getEntityId());
+      });
     }
 
     return scoresByAxisIndex;
@@ -108,7 +124,7 @@ export class BestImprovementEquipmentSolver {
       this.equipmentScoreAxisCheckers.forEach((axisScoreChecker, scoreCheckerIndex) => {
         const score = axisScoreChecker(equipment);
 
-        if (score <= 0) {
+        if (!this.axisScoreIsPositive(score)) {
           return;
         }
 
@@ -121,31 +137,84 @@ export class BestImprovementEquipmentSolver {
     return positiveScoresByEquipment;
   }
 
+  // a onehander that is dominated in the mainhand slot may be still worth considering
+  // in the offhand slot
+  private getEquipmentDominatedInAllCompatibleSlots(
+    unusedEquipmentBySlotType: Map<EquipmentSlotType, Set<Equipment>>
+  ) {
+    const unusedEquipmentInAtLeastOneSlot = new Set<Equipment>();
+    for (const [_slotType, equipmentSet] of unusedEquipmentBySlotType) {
+      for (const equipment of equipmentSet) {
+        unusedEquipmentInAtLeastOneSlot.add(equipment);
+      }
+    }
+
+    const unusedEquipment = new Set<Equipment>();
+    for (const equipment of unusedEquipmentInAtLeastOneSlot) {
+      const { compatibleSlotTypes } = equipment.getCompatibleSlots();
+
+      // check if it is considered unused in all its slots
+      let isDominatedInAllCompatibleSlots = true;
+      for (const slotType of compatibleSlotTypes) {
+        const isDominatedInThisSlotType = unusedEquipmentBySlotType.get(slotType)?.has(equipment);
+        if (!isDominatedInThisSlotType) {
+          isDominatedInAllCompatibleSlots = false;
+          break;
+        }
+      }
+
+      if (isDominatedInAllCompatibleSlots) {
+        unusedEquipment.add(equipment);
+      }
+    }
+
+    return unusedEquipment;
+  }
+
+  private getRanksByAxisIndex(
+    scoresByAxisIndex: Map<EquipmentScoreAxisIndex, EquipmentAxisScore[]>
+  ) {
+    const rankByEquipmentByAxisIndex = new Map<EquipmentScoreAxisIndex, Map<Equipment, number>>();
+    for (const [axisIndex, axisRankings] of scoresByAxisIndex) {
+      const rankByEquipment = new Map<Equipment, number>();
+      axisRankings.forEach(({ equipment }, rank) => {
+        rankByEquipment.set(equipment, rank);
+      });
+      rankByEquipmentByAxisIndex.set(axisIndex, rankByEquipment);
+    }
+
+    return rankByEquipmentByAxisIndex;
+  }
+
   // if exists seven +2 dex rings and one +1 dex ring, no one will want that +1 dex ring
-  private filterSingleAxisCapacityDominated() {
+  private getCapacityDominatedEquipment() {
     const partySlotCapacities = this.getPartySlotEquipmentCapacities();
     const equipmentBySlotType = this.getPartyEquipmentBySlotType();
-    const unusedEquipment = new Set<Equipment>();
+    const unusedEquipmentBySlotType = new Map<EquipmentSlotType, Set<Equipment>>();
 
     for (const slotType of iterateNumericEnum(EquipmentSlotType)) {
-      const partySlotCapacity = partySlotCapacities[slotType];
       const compatibleItems = equipmentBySlotType[slotType];
-
-      if (compatibleItems.length <= partySlotCapacity) {
-        continue;
-      }
+      const unusedInThisSlotType = new Set<Equipment>();
 
       // An equipment may not be in the top capacity list for either score but it may be just below
       // the threshold on multiple capacities, so we can't discount it like a ring that gives
       // +2 str +2 dex competing against six +3 dex and six +3 str rings when the party slot capacity
-      // for rings is 6. Only discount it if it has a score on only one axis, and is not in the capacity
-      // top list for that axis.
+      // for rings is 6. Only discount it if it has a score on only one axis, and is not within the total
+      // capacity across slot types for that equipment type.
+      //
+      // In party of three, one-handed weapons can go in both main and offhand, so the slot capacity
+      // is six, even though the slot types are different.
       const positiveScoresByEquipment = this.collectPositiveScoresByEquipment(compatibleItems);
-      const scoresByAxisIndex = this.collectSortedScoresByAxis(compatibleItems);
+      const scoresByAxisIndex = this.collectSortedPositiveScoresByAxis(compatibleItems);
+      const rankByEquipmentByAxisIndex = this.getRanksByAxisIndex(scoresByAxisIndex);
 
-      for (const [equipment, scores] of positiveScoresByEquipment) {
-        if (scores.size === 0) {
-          unusedEquipment.add(equipment);
+      for (const equipment of compatibleItems) {
+        const scores = positiveScoresByEquipment.get(equipment);
+        const hasNoPositiveScore = !scores;
+
+        if (hasNoPositiveScore) {
+          unusedInThisSlotType.add(equipment);
+          continue;
         }
 
         const isOnMultipleScoreLists = scores.size >= 2;
@@ -153,15 +222,30 @@ export class BestImprovementEquipmentSolver {
           continue;
         }
 
-        // find which axis list it is on (should be only 1)
-        // check if it is within the slot capacity ranking
-        // if not, add to unused equipment
+        const onlyAxisIndexScored = MapUtils.getFirstEntry(scores)?.[0];
+        invariant(
+          onlyAxisIndexScored !== undefined,
+          "expected to have recorded a score on a single axis"
+        );
+
+        const rankByEquipment = rankByEquipmentByAxisIndex.get(onlyAxisIndexScored);
+        invariant(rankByEquipment !== undefined, "expected to be scored on an existing list");
+        const rank = rankByEquipment.get(equipment);
+        invariant(rank !== undefined, "expected a positively scored equipment to be ranked");
+
+        if (rank >= this.getCapacityForCompatibleSlotTypes(equipment, partySlotCapacities)) {
+          unusedInThisSlotType.add(equipment);
+        }
       }
+
+      unusedEquipmentBySlotType.set(slotType, unusedInThisSlotType);
     }
+
+    return this.getEquipmentDominatedInAllCompatibleSlots(unusedEquipmentBySlotType);
   }
 
   solve() {
-    const unusedEquipment = this.filterSingleAxisCapacityDominated();
+    const unusedEquipment = this.getCapacityDominatedEquipment();
 
     // - sort equipment slots in random order
     const shuffledSlotTypes = ArrayUtils.shuffle(
