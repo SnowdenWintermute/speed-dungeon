@@ -23,6 +23,7 @@ import { ShieldProperties, WeaponProperties } from "./equipment-properties/index
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import {
   COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE,
+  EquipmentSlotId,
   EquipmentSlotType,
   SLOT_TYPE_BY_SLOT_ID,
 } from "../../combatants/combatant-equipment/types.js";
@@ -283,6 +284,11 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     return { compatibleSlotIds, compatibleSlotTypes };
   }
 
+  isCompatibleWithSlotId(slotId: EquipmentSlotId) {
+    const { compatibleSlotIds } = this.getCompatibleSlots();
+    return Object.values(compatibleSlotIds).includes(slotId);
+  }
+
   static groupBySlotTypeCompatibility(equipmentList: Equipment[]) {
     const equipmentBySlotType: Record<EquipmentSlotType, Equipment[]> = {
       [EquipmentSlotType.Head]: [],
@@ -302,5 +308,26 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     }
 
     return equipmentBySlotType;
+  }
+
+  static groupBySlotIdCompatibility(equipmentList: Equipment[]) {
+    const equipmentBySlotIds: Record<EquipmentSlotId, Set<Equipment>> = {
+      [EquipmentSlotId.Head]: new Set(),
+      [EquipmentSlotId.Body]: new Set(),
+      [EquipmentSlotId.FingerMain]: new Set(),
+      [EquipmentSlotId.FingerAlternate]: new Set(),
+      [EquipmentSlotId.Neck]: new Set(),
+      [EquipmentSlotId.MainHand]: new Set(),
+      [EquipmentSlotId.OffHand]: new Set(),
+    };
+
+    for (const equipment of equipmentList) {
+      const { compatibleSlotIds } = equipment.getCompatibleSlots();
+      for (const slotId of Object.values(compatibleSlotIds)) {
+        equipmentBySlotIds[slotId].add(equipment);
+      }
+    }
+
+    return equipmentBySlotIds;
   }
 }

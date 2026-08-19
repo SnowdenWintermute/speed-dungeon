@@ -6,4 +6,10 @@ export class SetUtils {
   static deserializeShallow<T>(arr: T[]): Set<T> {
     return new Set(arr);
   }
+
+  static addAll<T>(target: Set<T>, source: Set<T>): void {
+    for (const item of source) {
+      target.add(item);
+    }
+  }
 }

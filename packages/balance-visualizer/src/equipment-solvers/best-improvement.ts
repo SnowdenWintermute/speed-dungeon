@@ -1,27 +1,32 @@
 import {
   AdventuringParty,
   ALTERNATE_SLOT_IDS,
-  ArrayUtils,
-  BasicRandomNumberGenerator,
   Combatant,
   CombatantId,
   Equipment,
   EquipmentSlotId,
   EquipmentSlotType,
+  invariant,
   iterateNumericEnum,
   MapUtils,
+  throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
 
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;
+  private unusedItems: Equipment[] = [];
+  private cachedPerformanceByCharacter = new Map<CombatantId, number>();
+  private _equipmentMissedByChecker: Equipment[] = [];
 
   constructor(
     private party: AdventuringParty,
     //  - measure current goal performance
     //    - for auto-attack damage this is "average damage on target dummy sampled over x attacks"
+    //      and for weapons "does this weapon fit this character archetype specification"
+    //    - filter weapons by character archetype specification
     //    - for basic spirit users this is "total spirit"
-    private getGoalPerformance: (combatant: Combatant) => number,
+    private goalPerformanceChecker: (combatant: Combatant) => number,
     equipmentScoreAxisCheckers: ((equipment: Equipment) => number)[]
   ) {
     this.scoreDominationSolver = new EquipmentScoreDominationSolver(
@@ -32,110 +37,147 @@ export class BestImprovementEquipmentSolver {
     );
   }
 
-  private dropAllCharacterItemsOnGround() {
+  private getBaselinePerformance(combatant: Combatant) {
+    const cached = this.cachedPerformanceByCharacter.get(combatant.getEntityId());
+    if (cached !== undefined) {
+      return cached;
+    }
+    const performance = this.goalPerformanceChecker(combatant);
+    this.cachedPerformanceByCharacter.set(combatant.getEntityId(), performance);
+    return performance;
+  }
+
+  private dropAllCharacterItemsOnGround(options: { includeEquipped: boolean }) {
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      combatant.getEquipmentOption().unequipAll();
+      if (options.includeEquipped) {
+        combatant.getEquipmentOption().unequipAll();
+      }
       combatant.requireInventory().dropAll(this.party);
     }
   }
 
-  private getPartyEquipmentByCompatibleSlotIds() {
-    const equipmentBySlotIds: Record<EquipmentSlotId, Set<Equipment>> = {
-      [EquipmentSlotId.Head]: new Set(),
-      [EquipmentSlotId.Body]: new Set(),
-      [EquipmentSlotId.FingerMain]: new Set(),
-      [EquipmentSlotId.FingerAlternate]: new Set(),
-      [EquipmentSlotId.Neck]: new Set(),
-      [EquipmentSlotId.MainHand]: new Set(),
-      [EquipmentSlotId.OffHand]: new Set(),
-    };
+  private allCompatibleSlotsAlreadyProcessed(equipment: Equipment, slotId: EquipmentSlotId) {
+    const { compatibleSlotIds } = equipment.getCompatibleSlots();
+    return Object.values(compatibleSlotIds).every((compatibleSlotId) => compatibleSlotId < slotId);
+  }
 
-    for (const equipment of this.party.currentRoom.inventory.equipment) {
-      const { compatibleSlotIds } = equipment.getCompatibleSlots();
-      for (const slotId of Object.values(compatibleSlotIds)) {
-        equipmentBySlotIds[slotId].add(equipment);
+  private assignImprovingEquipment(candidates: Set<Equipment>, slotId: EquipmentSlotId) {
+    const { combatantManager } = this.party;
+    const roomInventory = this.party.currentRoom.inventory;
+    const displacedEquipmentFromAssignments = new Set<Equipment>();
+
+    for (const equipmentToCheck of candidates) {
+      invariant(
+        equipmentToCheck.isCompatibleWithSlotId(slotId),
+        "expected a candidate compatible with the slot being filled"
+      );
+      const { compatibleSlotIds } = equipmentToCheck.getCompatibleSlots();
+      const shouldEquipToAltSlot = compatibleSlotIds.alternate === slotId;
+
+      const performanceDifferenceByCharacter = new Map<CombatantId, number>();
+
+      for (const combatant of combatantManager.getPartyMemberCharacters()) {
+        const combatantProperties = combatant.getCombatantProperties();
+        const combatantEquipment = combatantProperties.equipment;
+        if (!combatantEquipment.canEquip(equipmentToCheck).allowed) {
+          continue;
+        }
+
+        // measure goal performance
+        const performanceBefore = this.getBaselinePerformance(combatant);
+        // try on the item
+        const displaced = combatantEquipment.equipItemFromGround(
+          equipmentToCheck.getEntityId(),
+          roomInventory,
+          shouldEquipToAltSlot
+        );
+
+        // use the checker directly, not the maybe-cached value
+        const performanceAfter = this.goalPerformanceChecker(combatant);
+        const performanceDifference = performanceAfter - performanceBefore;
+        performanceDifferenceByCharacter.set(combatant.getEntityId(), performanceDifference);
+        // put back original equipment
+        combatantEquipment.unequipSlots([slotId]);
+        for (const { equipmentId, fromSlotId } of displaced.unequipped) {
+          const cameFromAltSlot = ALTERNATE_SLOT_IDS.includes(fromSlotId);
+          combatantEquipment.equipItem(equipmentId, cameFromAltSlot);
+        }
+        combatantProperties.inventory.dropAll(this.party);
+      }
+
+      // give the item to character who's goal performance increased the most
+      const atLeastOneCharacterImproved = performanceDifferenceByCharacter
+        .values()
+        .some((value) => value > 0);
+      const characterIdMostImproved = MapUtils.getKeyWithLargestValue(
+        performanceDifferenceByCharacter
+      );
+
+      // it is possible the equipment did not improve anyone's performance
+      if (atLeastOneCharacterImproved && characterIdMostImproved !== undefined) {
+        const combatantReceiving = combatantManager.getExpectedCombatant(characterIdMostImproved);
+        this.cachedPerformanceByCharacter.delete(combatantReceiving.getEntityId());
+        // equip the item
+        const displaced = combatantReceiving
+          .getEquipmentOption()
+          .equipItemFromGround(equipmentToCheck.getEntityId(), roomInventory, shouldEquipToAltSlot);
+
+        // place displaced items back in pool for testing
+        this.dropAllCharacterItemsOnGround({ includeEquipped: false });
+        for (const { equipmentId } of displaced.unequipped) {
+          const displacedEquipment = roomInventory.requireItem(equipmentId);
+          invariant(displacedEquipment instanceof Equipment);
+          // items belonging to another slot are left in the room for that slot's pass.
+          // this means if a 2h weapon is displaced by equiping to the offhand slot it will be
+          // missed by the checker.
+          if (displacedEquipment.isCompatibleWithSlotId(slotId)) {
+            displacedEquipmentFromAssignments.add(displacedEquipment);
+          } else if (this.allCompatibleSlotsAlreadyProcessed(displacedEquipment, slotId)) {
+            this._equipmentMissedByChecker.push(displacedEquipment);
+          }
+        }
       }
     }
 
-    return equipmentBySlotIds;
+    return displacedEquipmentFromAssignments;
   }
 
+  get equipmentMissedByChecker() {
+    return this._equipmentMissedByChecker;
+  }
+
+  /** mutates equipment in place */
   solve() {
-    this.dropAllCharacterItemsOnGround();
+    // thinking of removing this to persist equipment room by room
+    // and save a lot of tests on known-decent gear sets
+    // but will need to try with/without it to check results and performance
+    // differences
+    this.dropAllCharacterItemsOnGround({ includeEquipped: true });
     const equipmentBySlotType = Equipment.groupBySlotTypeCompatibility(
       this.party.currentRoom.inventory.equipment
     );
 
     const unused = this.scoreDominationSolver.getCapacityDominatedEquipment(equipmentBySlotType);
-    const equipmentBySlotIds = this.getPartyEquipmentByCompatibleSlotIds();
 
-    // - sort equipment slots in random order
-    const shuffledSlotIds = ArrayUtils.shuffle(
-      iterateNumericEnum(EquipmentSlotId),
-      new BasicRandomNumberGenerator()
-    );
-
-    const assignedEquipment = new Set<Equipment>();
-
-    // - for each slotId
-    for (const slotId of shuffledSlotIds) {
-      //   - for each item that fills that slot
-      const compatibleItems = equipmentBySlotIds[slotId];
-
-      for (const equipment of compatibleItems) {
-        if (unused.has(equipment)) {
-          continue;
-        }
-
-        // for each party member
-        const performanceDifferenceByCharacter = new Map<CombatantId, number>();
-        for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-          const combatantProperties = combatant.getCombatantProperties();
-          const combatantEquipment = combatantProperties.equipment;
-          // measure goal performance
-          const performanceBefore = this.getGoalPerformance(combatant);
-          // try on the item
-          const shouldEquipToAltSlot = ALTERNATE_SLOT_IDS.includes(slotId);
-          const displaced = combatantEquipment.equipItemFromGround(
-            equipment.getEntityId(),
-            this.party.currentRoom.inventory,
-            shouldEquipToAltSlot
-          );
-          // record how much the goal performance increased
-          const performanceAfter = this.getGoalPerformance(combatant);
-          const performanceDifference = performanceAfter - performanceBefore;
-          performanceDifferenceByCharacter.set(combatant.getEntityId(), performanceDifference);
-          // put back original equipment
-          combatantEquipment.unequipSlots([slotId]);
-          combatantProperties.inventory.dropAll(this.party);
-          for (const { equipmentId, fromSlotId } of displaced.unequipped) {
-            const cameFromAltSlot = ALTERNATE_SLOT_IDS.includes(fromSlotId);
-            combatantEquipment.equipItem(equipmentId, cameFromAltSlot);
-          }
-        }
-
-        //     - give the item to character who's goal performance increased the most
-        const characterIdMostImproved = MapUtils.getKeyWithLargestValue(
-          performanceDifferenceByCharacter
-        );
-        // it is possible the equipment did not improve anyone's performance
-        if (characterIdMostImproved !== undefined) {
-          // equip the item
-          // - record that item as "tested: assigned to character x, with new GoalPerformanceScore"
-          assignedEquipment.add(equipment);
-          //     - if the item displaced a previously tested item
-          //       - place it back in the pool for re-testing
-        }
+    // important that MainHand appears in the enum listing before offhand since
+    // we want to prioritize mainhand upgrades over offhand upgrades. If offhand goes
+    // first, then later a 2h weapon displaces an offhand shield, that shield will never
+    // be re-checked. As it is, mainhand goes first so if an offhand displaces a 2h weapon
+    // it will not be re-checked.
+    for (const slotId of iterateNumericEnum(EquipmentSlotId)) {
+      const partyEquipment = this.party.currentRoom.inventory.equipment;
+      const compatibleItems = Equipment.groupBySlotIdCompatibility(partyEquipment)[slotId];
+      let candidates = compatibleItems.difference(unused);
+      let loopSafetyCounter = 0;
+      while (candidates.size > 0) {
+        throwIfLoopLimitReached(loopSafetyCounter++, "best improvement solver safety limit");
+        candidates = this.assignImprovingEquipment(candidates, slotId);
       }
-
-      //     - after all items in this slot tested, check displaced items
-      //       - each item should have a GoalPerformanceScore change for each character that didn't initially get the item
-      //       - any item they actually did get should also have a GoalPerformanceScore
-      //       - assign the displaced item to the character it would increase GoalPerformanceScore the most for
-      //         - if it displaces their item, put that item back in the re-check pool
-      //         - if no character wants it, put it in the UnusedEquipment pile
-      // - return the UnusedEquipment pile to the caller for sharding or exclusion from future testing
     }
+
+    // anything left on the ground can be considered unused and deleted
+    this.unusedItems.push(...this.party.currentRoom.inventory.equipment);
+    this.party.currentRoom.inventory.deleteAllItems();
   }
 
   static getCombatantGroupEquipmentCapacities(combatants: Combatant[]) {
@@ -149,7 +191,7 @@ export class BestImprovementEquipmentSolver {
     };
 
     for (const combatant of combatants) {
-      for (const [_slotId, slot] of combatant.combatantProperties.equipment.getAllActiveSlots()) {
+      for (const [_slotId, slot] of combatant.getEquipmentOption().getAllActiveSlots()) {
         totals[slot.type] += 1;
       }
     }
