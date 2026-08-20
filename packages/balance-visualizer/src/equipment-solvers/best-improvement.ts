@@ -61,6 +61,67 @@ export class BestImprovementEquipmentSolver {
     return Object.values(compatibleSlotIds).every((compatibleSlotId) => compatibleSlotId < slotId);
   }
 
+  private tryOnEquipment(
+    combatant: Combatant,
+    equipmentToCheck: Equipment,
+    slotId: EquipmentSlotId,
+    shouldEquipToAltSlot: boolean
+  ) {
+    const combatantProperties = combatant.getCombatantProperties();
+    const combatantEquipment = combatantProperties.equipment;
+    const roomInventory = this.party.currentRoom.inventory;
+
+    const performanceBefore = this.getBaselinePerformance(combatant);
+
+    const displaced = combatantEquipment.equipItemFromGround(
+      equipmentToCheck.getEntityId(),
+      roomInventory,
+      shouldEquipToAltSlot
+    );
+
+    // use the checker directly, not the maybe-cached value
+    const performanceAfter = this.goalPerformanceChecker(combatant);
+    const performanceDifference = performanceAfter - performanceBefore;
+
+    // put back original equipment
+    combatantEquipment.unequipSlots([slotId]);
+    for (const { equipmentId, fromSlotId } of displaced.unequipped) {
+      const cameFromAltSlot = ALTERNATE_SLOT_IDS.includes(fromSlotId);
+      combatantEquipment.equipItem(equipmentId, cameFromAltSlot);
+    }
+    combatantProperties.inventory.dropAll(this.party);
+
+    return performanceDifference;
+  }
+
+  private measurePeformanceDifferences(
+    equipmentToCheck: Equipment,
+    slotId: EquipmentSlotId,
+    shouldEquipToAltSlot: boolean
+  ) {
+    const { combatantManager } = this.party;
+    const performanceDifferenceByCharacter = new Map<CombatantId, number>();
+
+    for (const combatant of combatantManager.getPartyMemberCharacters()) {
+      const combatantProperties = combatant.getCombatantProperties();
+      const combatantEquipment = combatantProperties.equipment;
+      if (!combatantEquipment.canEquip(equipmentToCheck).allowed) {
+        continue;
+      }
+
+      const performanceDifference = this.tryOnEquipment(
+        combatant,
+        equipmentToCheck,
+        slotId,
+        shouldEquipToAltSlot
+      );
+
+      performanceDifferenceByCharacter.set(combatant.getEntityId(), performanceDifference);
+    }
+
+    return performanceDifferenceByCharacter;
+  }
+
   private assignImprovingEquipment(candidates: Set<Equipment>, slotId: EquipmentSlotId) {
     const { combatantManager } = this.party;
     const roomInventory = this.party.currentRoom.inventory;
@@ -74,36 +135,11 @@ export class BestImprovementEquipmentSolver {
       const { compatibleSlotIds } = equipmentToCheck.getCompatibleSlots();
       const shouldEquipToAltSlot = compatibleSlotIds.alternate === slotId;
 
-      const performanceDifferenceByCharacter = new Map<CombatantId, number>();
-
-      for (const combatant of combatantManager.getPartyMemberCharacters()) {
-        const combatantProperties = combatant.getCombatantProperties();
-        const combatantEquipment = combatantProperties.equipment;
-        if (!combatantEquipment.canEquip(equipmentToCheck).allowed) {
-          continue;
-        }
-
-        // measure goal performance
-        const performanceBefore = this.getBaselinePerformance(combatant);
-        // try on the item
-        const displaced = combatantEquipment.equipItemFromGround(
-          equipmentToCheck.getEntityId(),
-          roomInventory,
-          shouldEquipToAltSlot
-        );
-
-        // use the checker directly, not the maybe-cached value
-        const performanceAfter = this.goalPerformanceChecker(combatant);
-        const performanceDifference = performanceAfter - performanceBefore;
-        performanceDifferenceByCharacter.set(combatant.getEntityId(), performanceDifference);
-        // put back original equipment
-        combatantEquipment.unequipSlots([slotId]);
-        for (const { equipmentId, fromSlotId } of displaced.unequipped) {
-          const cameFromAltSlot = ALTERNATE_SLOT_IDS.includes(fromSlotId);
-          combatantEquipment.equipItem(equipmentId, cameFromAltSlot);
-        }
-        combatantProperties.inventory.dropAll(this.party);
-      }
+      const performanceDifferenceByCharacter = this.measurePeformanceDifferences(
+        equipmentToCheck,
+        slotId,
+        shouldEquipToAltSlot
+      );
 
       // give the item to character who's goal performance increased the most
       const atLeastOneCharacterImproved = performanceDifferenceByCharacter
@@ -113,28 +149,31 @@ export class BestImprovementEquipmentSolver {
         performanceDifferenceByCharacter
       );
 
-      // it is possible the equipment did not improve anyone's performance
-      if (atLeastOneCharacterImproved && characterIdMostImproved !== undefined) {
-        const combatantReceiving = combatantManager.getExpectedCombatant(characterIdMostImproved);
-        this.cachedPerformanceByCharacter.delete(combatantReceiving.getEntityId());
-        // equip the item
-        const displaced = combatantReceiving
-          .getEquipmentOption()
-          .equipItemFromGround(equipmentToCheck.getEntityId(), roomInventory, shouldEquipToAltSlot);
+      const noCombatantWouldBenefit =
+        !atLeastOneCharacterImproved || characterIdMostImproved === undefined;
+      if (noCombatantWouldBenefit) {
+        continue;
+      }
 
-        // place displaced items back in pool for testing
-        this.dropAllCharacterItemsOnGround({ includeEquipped: false });
-        for (const { equipmentId } of displaced.unequipped) {
-          const displacedEquipment = roomInventory.requireItem(equipmentId);
-          invariant(displacedEquipment instanceof Equipment);
-          // items belonging to another slot are left in the room for that slot's pass.
-          // this means if a 2h weapon is displaced by equiping to the offhand slot it will be
-          // missed by the checker.
-          if (displacedEquipment.isCompatibleWithSlotId(slotId)) {
-            displacedEquipmentFromAssignments.add(displacedEquipment);
-          } else if (this.allCompatibleSlotsAlreadyProcessed(displacedEquipment, slotId)) {
-            this._equipmentMissedByChecker.push(displacedEquipment);
-          }
+      const combatantReceiving = combatantManager.getExpectedCombatant(characterIdMostImproved);
+      this.cachedPerformanceByCharacter.delete(combatantReceiving.getEntityId());
+      // equip the item
+      const displaced = combatantReceiving
+        .getEquipmentOption()
+        .equipItemFromGround(equipmentToCheck.getEntityId(), roomInventory, shouldEquipToAltSlot);
+
+      // place displaced items back in pool for testing
+      this.dropAllCharacterItemsOnGround({ includeEquipped: false });
+      for (const { equipmentId } of displaced.unequipped) {
+        const displacedEquipment = roomInventory.requireItem(equipmentId);
+        invariant(displacedEquipment instanceof Equipment);
+        // items belonging to another slot are left in the room for that slot's pass.
+        // this means if a 2h weapon is displaced by equiping to the offhand slot it will be
+        // missed by the checker.
+        if (displacedEquipment.isCompatibleWithSlotId(slotId)) {
+          displacedEquipmentFromAssignments.add(displacedEquipment);
+        } else if (this.allCompatibleSlotsAlreadyProcessed(displacedEquipment, slotId)) {
+          this._equipmentMissedByChecker.push(displacedEquipment);
         }
       }
     }
@@ -146,7 +185,7 @@ export class BestImprovementEquipmentSolver {
     return this._equipmentMissedByChecker;
   }
 
-  /** mutates equipment in place */
+  /** Mutates combatant equipment in place. Stores all unused items internally. */
   solve() {
     // thinking of removing this to persist equipment room by room
     // and save a lot of tests on known-decent gear sets

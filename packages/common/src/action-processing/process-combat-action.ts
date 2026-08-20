@@ -53,9 +53,7 @@ export function processCombatAction(
 
   let safetyCounter = -1;
   while (registry.isNotEmpty()) {
-    safetyCounter += 1;
-
-    if (safetyCounter > LOOP_SAFETY_ITERATION_LIMIT) {
+    if (safetyCounter++ > LOOP_SAFETY_ITERATION_LIMIT) {
       console.error(
         ERROR_MESSAGES.LOOP_SAFETY_ITERATION_LIMIT_REACHED(LOOP_SAFETY_ITERATION_LIMIT),
         "in process-combat-action"

@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import makeAutoObservable from "mobx-store-inheritance";
 import { GAME_CONFIG } from "../app-consts.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ArrayUtils } from "../utils/array-utils.js";
@@ -9,8 +9,17 @@ import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index
 import { Milliseconds } from "../aliases.js";
 import type { MonsterSpawnEntry } from "../dungeon-generation/monster-types-by-floor.js";
 import type { MonsterType } from "../monsters/monster-types.js";
+import { DungeonGenerationPolicy } from "../dungeon-generation/index.js";
+import { GameModePolicy } from "../game-modes/index.js";
+import { AdventuringPartySubsystem } from "./party-subsystem.js";
+import { SpeedDungeonGame } from "../game/index.js";
+import { Battle } from "../battle/index.js";
+import { IdGenerator } from "../utility-classes/index.js";
 
-export class DungeonExplorationManager implements Serializable, ReactiveNode {
+export class DungeonExplorationManager
+  extends AdventuringPartySubsystem
+  implements Serializable, ReactiveNode
+{
   private currentFloor: number = 1;
   private livePlayTimeAtCurrentFloorEnteredMs: Milliseconds = 0;
   private roomsExplored: RoomsExploredTracker = { total: 0, onCurrentFloor: 0 };
@@ -135,6 +144,73 @@ export class DungeonExplorationManager implements Serializable, ReactiveNode {
 
     newRoomTypesListForClientOption.reverse();
     return newRoomTypesListForClientOption;
+  }
+
+  enterNewFloor(
+    dungeonGenerationPolicy: DungeonGenerationPolicy,
+    bossRoomRepeatsOnFloorRefill: boolean,
+    options: { isDescending: boolean }
+  ) {
+    // staying on a floor keeps its palette; descending (or entering the first floor, which has
+    // no palette yet) rolls a new one
+    const { isDescending } = options;
+    const enteringNewFloor = isDescending || this.getCurrentFloorPalette().length === 0;
+
+    if (enteringNewFloor) {
+      const { palette, boss } = dungeonGenerationPolicy.generateFloorPalette(
+        this.getCurrentFloor()
+      );
+      this.setCurrentFloorPalette(palette);
+      this.setCurrentFloorBoss(boss);
+    }
+
+    const floorHasBoss = this.getCurrentFloorBoss() !== null;
+    const includeBossRoom = floorHasBoss && (enteringNewFloor || bossRoomRepeatsOnFloorRefill);
+
+    const newRoomTypes = dungeonGenerationPolicy.generateUnexploredRoomTypesOnFloor(
+      this.getCurrentFloor(),
+      includeBossRoom
+    );
+    this.setUnexploredRoomTypes(newRoomTypes);
+
+    return this.getFilteredNewRoomListForClient();
+  }
+
+  enterNextRoom(
+    game: SpeedDungeonGame,
+    dungeonGenerationPolicy: DungeonGenerationPolicy,
+    idGenerator: IdGenerator
+  ) {
+    const party = this.getParty();
+    const floorNumber = this.getCurrentFloor();
+
+    const roomTypeToGenerate = this.popNextUnexploredRoomType();
+    const { room, monsters } = dungeonGenerationPolicy.generateDungeonRoom(
+      floorNumber,
+      roomTypeToGenerate,
+      this.getCurrentRoomNumber(),
+      this.getCurrentFloorPalette(),
+      this.getCurrentFloorBoss()
+    );
+
+    party.setCurrentRoom(room);
+
+    for (const monster of monsters) {
+      party.combatantManager.addCombatant(monster, game);
+    }
+
+    party.combatantManager.updateHomePositions();
+
+    party.combatantManager.setAllCombatantsToHomePositions();
+
+    this.incrementExploredRoomsTrackers();
+
+    if (party.combatantManager.monstersArePresent()) {
+      const battleIdResult = Battle.createInitialized(game, party, idGenerator.generate());
+      party.setBattleId(battleIdResult);
+    }
+
+    return monsters;
   }
 
   getCurrentFloorPalette() {

@@ -233,32 +233,12 @@ export class DungeonExplorationController {
 
     const reachedEndOfFloor = !dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
     if (reachedEndOfFloor) {
-      // staying on a floor keeps its palette; descending (or entering the first floor, which has
-      // no palette yet) rolls a new one
-      const enteringNewFloor =
-        isDescending || dungeonExplorationManager.getCurrentFloorPalette().length === 0;
-
-      if (enteringNewFloor) {
-        const { palette, boss } = this.dungeonGenerationPolicy.generateFloorPalette(
-          dungeonExplorationManager.getCurrentFloor()
-        );
-        dungeonExplorationManager.setCurrentFloorPalette(palette);
-        dungeonExplorationManager.setCurrentFloorBoss(boss);
-      }
-
       const gameModePolicy = this.gameModePolicyStore.getPolicy(game.mode);
-      const floorHasBoss = dungeonExplorationManager.getCurrentFloorBoss() !== null;
-      const includeBossRoom =
-        floorHasBoss &&
-        (enteringNewFloor || gameModePolicy.inGameDecisions.bossRoomRepeatsOnFloorRefill());
-
-      const newRoomTypes = this.dungeonGenerationPolicy.generateUnexploredRoomTypesOnFloor(
-        dungeonExplorationManager.getCurrentFloor(),
-        includeBossRoom
+      const newRoomTypesListForClient = dungeonExplorationManager.enterNewFloor(
+        this.dungeonGenerationPolicy,
+        gameModePolicy.inGameDecisions.bossRoomRepeatsOnFloorRefill(),
+        { isDescending }
       );
-      dungeonExplorationManager.setUnexploredRoomTypes(newRoomTypes);
-
-      const newRoomTypesListForClient = dungeonExplorationManager.getFilteredNewRoomListForClient();
 
       outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
         type: GameStateUpdateType.DungeonRoomTypesOnCurrentFloor,
@@ -266,13 +246,16 @@ export class DungeonExplorationController {
       });
     }
 
-    const roomTypeToGenerate = dungeonExplorationManager.popNextUnexploredRoomType();
-
     const { actionEntityManager } = party;
     const actionEntitiesRemoved =
       actionEntityManager.unregisterActionEntitiesOnBattleEndOrNewRoom();
 
-    const newMonsters = this.putPartyInNextRoom(game, party, roomTypeToGenerate);
+    const newMonsters = dungeonExplorationManager.enterNextRoom(
+      game,
+      this.dungeonGenerationPolicy,
+      this.idGenerator
+    );
+
     const serializedMonsters = newMonsters.map((combatant) => combatant.toSerialized());
 
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -327,41 +310,5 @@ export class DungeonExplorationController {
 
     outbox.pushFromOther(battleProcessingOutbox);
     return outbox;
-  }
-
-  private putPartyInNextRoom(
-    game: SpeedDungeonGame,
-    party: AdventuringParty,
-    roomTypeToGenerate: DungeonRoomType
-  ) {
-    const { dungeonExplorationManager } = party;
-    const floorNumber = dungeonExplorationManager.getCurrentFloor();
-
-    const { room, monsters } = this.dungeonGenerationPolicy.generateDungeonRoom(
-      floorNumber,
-      roomTypeToGenerate,
-      party.dungeonExplorationManager.getCurrentRoomNumber(),
-      dungeonExplorationManager.getCurrentFloorPalette(),
-      dungeonExplorationManager.getCurrentFloorBoss()
-    );
-
-    party.setCurrentRoom(room);
-
-    for (const monster of monsters) {
-      party.combatantManager.addCombatant(monster, game);
-    }
-
-    party.combatantManager.updateHomePositions();
-
-    party.combatantManager.setAllCombatantsToHomePositions();
-
-    dungeonExplorationManager.incrementExploredRoomsTrackers();
-
-    if (party.combatantManager.monstersArePresent()) {
-      const battleIdResult = Battle.createInitialized(game, party, this.idGenerator.generate());
-      party.setBattleId(battleIdResult);
-    }
-
-    return monsters;
   }
 }
