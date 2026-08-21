@@ -1,5 +1,9 @@
 import makeAutoObservable from "mobx-store-inheritance";
-import { ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES, CombatAttribute } from "./attributes/index.js";
+import {
+  ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
+  AttributePointAssignableAttributes,
+  CombatAttribute,
+} from "./attributes/index.js";
 import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
@@ -62,6 +66,17 @@ export class CombatantAttributeProperties
     });
   }
 
+  unallocatePoint(attribute: CombatAttribute) {
+    this.getCombatantProperties().resources.maintainResourcePercentagesAfterEffect(() => {
+      const currentAttributeValue = this._speccedAttributes[attribute];
+      if (currentAttributeValue === undefined || currentAttributeValue < 1) {
+        throw new Error("Expected to have an attribute point allocated");
+      }
+      this._speccedAttributes[attribute] = currentAttributeValue - 1;
+      this.unspentAttributePoints += 1;
+    });
+  }
+
   setSpeccedAttributeValue(attribute: CombatAttribute, value: number) {
     this._speccedAttributes[attribute] = value;
   }
@@ -114,7 +129,11 @@ export class CombatantAttributeProperties
   }
 
   requireAttributeAllocatable(attribute: CombatAttribute) {
-    if (!ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(attribute)) {
+    const isAssignable = ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.some(
+      (assignable) => assignable === attribute
+    );
+
+    if (!isAssignable) {
       throw new Error(ERROR_MESSAGES.COMBATANT.ATTRIBUTE_IS_NOT_ASSIGNABLE);
     }
   }

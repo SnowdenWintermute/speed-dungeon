@@ -6,7 +6,11 @@ import {
   COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
-import type { Combatant, CombatAttribute } from "@speed-dungeon/common";
+import type {
+  AttributePointAssignableAttributes,
+  Combatant,
+  CombatAttribute,
+} from "@speed-dungeon/common";
 
 export class SeedAttributeAllocation {
   // seeded characters have their level assigned rather than earned, so they never received the
@@ -54,7 +58,11 @@ export class SeedAttributeAllocation {
     let cheapest: undefined | { attribute: CombatAttribute; deficit: number };
     for (const item of equipment.getAllEquippedItems({ includeUnselectedHotswapSlots: true })) {
       for (const [attribute, required] of iterateNumericEnumKeyedRecord(item.requirements)) {
-        if (!ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(attribute)) {
+        if (
+          !ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(
+            attribute as AttributePointAssignableAttributes
+          )
+        ) {
           continue;
         }
         const deficit = required - (totalAttributes[attribute] || 0);

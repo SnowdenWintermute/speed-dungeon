@@ -7,6 +7,7 @@ import {
   COMBAT_ATTRIBUTE_STRINGS,
   CORE_ATTRIBUTES,
   INFO_UNICODE_SYMBOL,
+  AttributePointAssignableAttributes,
 } from "@speed-dungeon/common";
 import StarShape from "../../../../public/img/basic-shapes/star.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
@@ -33,7 +34,9 @@ export const AttributeListItem = observer((props: Props) => {
 
   const shouldShowIncreaseAttributeButton =
     props.combatantHasUnspentAttributePoints &&
-    ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(props.attribute) &&
+    ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(
+      props.attribute as AttributePointAssignableAttributes
+    ) &&
     props.onAllocatePointOption !== null;
 
   const isCoreAttribute = CORE_ATTRIBUTES.includes(props.attribute);

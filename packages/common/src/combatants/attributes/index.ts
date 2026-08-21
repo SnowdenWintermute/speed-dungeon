@@ -30,7 +30,10 @@ export const ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES = [
   CombatAttribute.Spirit,
   CombatAttribute.Vitality,
   CombatAttribute.Agility,
-];
+] as const;
+
+export type AttributePointAssignableAttributes =
+  (typeof ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES)[number];
 
 export const COMBAT_ATTRIBUTE_STRINGS: Record<CombatAttribute, string> = {
   [CombatAttribute.ArmorClass]: "Armor Class",

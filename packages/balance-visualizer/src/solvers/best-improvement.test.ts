@@ -1,0 +1,147 @@
+import {
+  AdventuringParty,
+  CharacterControlScheme,
+  Combatant,
+  CombatantBuilder,
+  CombatantClass,
+  CombatAttribute,
+  Equipment,
+  EquipmentSlotId,
+  GameId,
+  GameMode,
+  GameName,
+  IdGeneratorSequential,
+  invariant,
+  PartyId,
+  SpeedDungeonGame,
+  Username,
+} from "@speed-dungeon/common";
+import { BestImprovementEquipmentSolver } from "./best-improvement";
+import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-test-items";
+
+const PARTY_CHARACTER_COUNT = 2;
+const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
+
+const dexterityPerformance = (combatant: Combatant) =>
+  combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0;
+
+class BestImprovementFixture {
+  private idGenerator = new IdGeneratorSequential({ saveHistory: false });
+  private party: AdventuringParty;
+  private solver: BestImprovementEquipmentSolver;
+  readonly items = new EquipmentSolverTestItems(this.idGenerator);
+
+  constructor() {
+    const game = new SpeedDungeonGame(
+      "game-id" as GameId,
+      "game" as GameName,
+      GameMode.Progression,
+      CharacterControlScheme.Freelancer
+    );
+    this.party = AdventuringParty.createInitialized("party-id" as PartyId, "party");
+    game.addParty(this.party);
+
+    for (let i = 0; i < PARTY_CHARACTER_COUNT; i += 1) {
+      const character = CombatantBuilder.playerCharacter(
+        CombatantClass.Warrior,
+        `player-${i}` as Username
+      )
+        .name(`character-${i}`)
+        .build(this.idGenerator);
+
+      this.party.combatantManager.addCombatant(character, game);
+    }
+
+    this.solver = new BestImprovementEquipmentSolver(this.party, dexterityPerformance, [
+      totalDexterity,
+    ]);
+  }
+
+  dropInRoom(equipment: Equipment) {
+    this.party.currentRoom.inventory.insertItem(equipment);
+
+    return equipment;
+  }
+
+  equipToCharacter(characterIndex: number, equipment: Equipment, slotId: EquipmentSlotId) {
+    const character = this.party.combatantManager.getPartyMemberCharacters()[characterIndex];
+    invariant(character !== undefined, "expected a character at the passed index");
+    character.getEquipmentOption().putEquipmentInSlot(equipment, slotId);
+
+    return equipment;
+  }
+
+  solve() {
+    return this.solver.solve();
+  }
+
+  getEquipmentInFingerSlots() {
+    return this.party.combatantManager
+      .getPartyMemberCharacters()
+      .flatMap((character) =>
+        FINGER_SLOT_IDS.map((slotId) => character.getEquipmentOption().getEquipmentInSlot(slotId))
+      );
+  }
+
+  getEquippedFingerSlotItems() {
+    return this.getEquipmentInFingerSlots().filter((equipment) => equipment !== null);
+  }
+}
+
+describe("best improvement equipment solver", () => {
+  it("equips rings in alternate finger slots after filling main finger slots", () => {
+    const fixture = new BestImprovementFixture();
+    // one ring per finger slot in the party, each an improvement over an empty slot
+    const rings = [8, 6, 4, 2].map((dexterity) =>
+      fixture.dropInRoom(fixture.items.dexterityRing(dexterity))
+    );
+
+    fixture.solve();
+
+    const equipped = new Set(fixture.getEquipmentInFingerSlots());
+    for (const ring of rings) {
+      expect(equipped.has(ring)).toBe(true);
+    }
+  });
+
+  it("leaves equipped gear in place when a dropped item improves no one", () => {
+    const fixture = new BestImprovementFixture();
+    const startingRings = [
+      fixture.equipToCharacter(0, fixture.items.dexterityRing(8), EquipmentSlotId.FingerMain),
+      fixture.equipToCharacter(0, fixture.items.dexterityRing(7), EquipmentSlotId.FingerAlternate),
+      fixture.equipToCharacter(1, fixture.items.dexterityRing(6), EquipmentSlotId.FingerMain),
+      fixture.equipToCharacter(1, fixture.items.dexterityRing(5), EquipmentSlotId.FingerAlternate),
+    ];
+    const unimprovingRing = fixture.dropInRoom(fixture.items.dexterityRing(4));
+
+    const { unusedEquipment } = fixture.solve();
+
+    const equipped = new Set(fixture.getEquippedFingerSlotItems());
+    for (const ring of startingRings) {
+      expect(equipped.has(ring)).toBe(true);
+    }
+    expect(unusedEquipment).toHaveLength(1);
+    expect(unusedEquipment).toContain(unimprovingRing);
+  });
+
+  it("displaces a worn ring for a better one and reports the displaced ring as unused", () => {
+    const fixture = new BestImprovementFixture();
+    const startingRings = [
+      fixture.equipToCharacter(0, fixture.items.dexterityRing(2), EquipmentSlotId.FingerMain),
+      fixture.equipToCharacter(0, fixture.items.dexterityRing(2), EquipmentSlotId.FingerAlternate),
+      fixture.equipToCharacter(1, fixture.items.dexterityRing(2), EquipmentSlotId.FingerMain),
+      fixture.equipToCharacter(1, fixture.items.dexterityRing(2), EquipmentSlotId.FingerAlternate),
+    ];
+    const upgrade = fixture.dropInRoom(fixture.items.dexterityRing(9));
+
+    const { unusedEquipment } = fixture.solve();
+
+    const equipped = new Set(fixture.getEquippedFingerSlotItems());
+    expect(equipped.has(upgrade)).toBe(true);
+    expect(equipped.size).toBe(startingRings.length);
+
+    const displacedRings = startingRings.filter((ring) => !equipped.has(ring));
+    expect(displacedRings).toHaveLength(1);
+    expect(unusedEquipment).toEqual(displacedRings);
+  });
+});

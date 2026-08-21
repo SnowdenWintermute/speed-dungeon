@@ -12,8 +12,9 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { AnalysisPartyDriver } from "./analysis-party-driver";
-import { BestImprovementEquipmentSolver } from "@/equipment-solvers/best-improvement";
 import { AnalysisRunReporter } from "./analysis-run-reporter";
+import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
+import { BestImprovementEquipmentSolver } from "@/solvers/best-improvement";
 
 export class AnalysisRun<ReportType> {
   private partyDriver: AnalysisPartyDriver;
@@ -30,6 +31,7 @@ export class AnalysisRun<ReportType> {
 
   constructor(
     private equipmentSolver: BestImprovementEquipmentSolver,
+    private attributeAllocationSolver: AttributeAllocationSolver,
     private runReporter: AnalysisRunReporter<ReportType>
   ) {
     this.game.addParty(this.party);
@@ -52,16 +54,12 @@ export class AnalysisRun<ReportType> {
         this.partyDriver.moveToNextFloor();
       }
 
-      // drops items/experience from that room
       this.partyDriver.clearCurrentRoom();
       this.removeRequirementsFromDroppedEquipment();
-      // runs the attribute solver on the party, mutating in place
+      this.attributeAllocationSolver.solve();
       const { performanceByCharacter, unusedEquipment } = this.equipmentSolver.solve();
       this.runReporter.updateReport(performanceByCharacter, unusedEquipment);
       this.partyDriver.moveToNextRoom();
     }
   }
 }
-
-// still needs
-// - attribute solver

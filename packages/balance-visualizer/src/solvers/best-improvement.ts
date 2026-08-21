@@ -14,7 +14,6 @@ import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
 
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;
-  private unusedItems: Equipment[] = [];
   private currentPerformanceByCharacter = new Map<CombatantId, number>();
   private _equipmentMissedByChecker: Equipment[] = [];
 
@@ -213,14 +212,9 @@ export class BestImprovementEquipmentSolver {
     return this._equipmentMissedByChecker;
   }
 
-  /** Mutates combatant equipment in place. Stores all unused items internally. */
+  /** Mutates combatant equipment in place */
   solve() {
-    // thinking of removing this to persist equipment room by room
-    // and save a lot of tests on known-decent gear sets
-    // but will need to try with/without it to check results and performance
-    // differences
-    this.dropAllCharacterItemsOnGround({ includeEquipped: true });
-    // set initial performance after dropping all equipment
+    this.dropAllCharacterItemsOnGround({ includeEquipped: false });
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
       this.currentPerformanceByCharacter.set(
         combatant.getEntityId(),
@@ -251,12 +245,12 @@ export class BestImprovementEquipmentSolver {
     }
 
     // anything left on the ground can be considered unused and deleted
-    this.unusedItems.push(...this.party.currentRoom.inventory.equipment);
+    const unusedEquipment = [...this.party.currentRoom.inventory.equipment];
     this.party.currentRoom.inventory.deleteAllItems();
 
     return {
       performanceByCharacter: structuredClone(this.currentPerformanceByCharacter),
-      unusedEquipment: this.unusedItems,
+      unusedEquipment,
     };
   }
 
