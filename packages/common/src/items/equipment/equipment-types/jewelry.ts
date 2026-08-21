@@ -10,11 +10,3 @@ export enum Ring {
 export enum Amulet {
   Amulet,
 }
-
-export function formatRing(ring: Ring) {
-  return "Ring";
-}
-
-export function formatAmulet(amulet: Amulet) {
-  return "Amulet";
-}

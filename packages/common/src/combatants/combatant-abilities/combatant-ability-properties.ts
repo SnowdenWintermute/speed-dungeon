@@ -30,6 +30,7 @@ import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/in
 import { MapUtils } from "../../utils/map-utils.js";
 import { getTamePetMaxPetLevel } from "../../combat/combat-actions/action-implementations/summon-pet/get-tame-pet-max-level.js";
 import { AllocationProhibitedReason } from "./ability-allocation-prohibited-reasons.js";
+import { CombatActionResource } from "../../combat/combat-actions/combat-action-hit-outcome-properties.js";
 
 export class CombatantAbilityProperties
   extends CombatantSubsystem

@@ -7,50 +7,16 @@ import {
   PrefixType,
   SuffixType,
 } from "../../equipment/affixes.js";
-import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
-import { formatBodyArmor } from "../../equipment/equipment-types/body-armor.js";
-import { formatHeadGear } from "../../equipment/equipment-types/head-gear.js";
-import { ONE_HANDED_MELEE_WEAPON_NAMES } from "../../equipment/equipment-types/one-handed-melee-weapon.js";
-import { formatTwoHandedMeleeWeapon } from "../../equipment/equipment-types/two-handed-melee-weapon.js";
-import { formatTwoHandedRangedWeapon } from "../../equipment/equipment-types/two-handed-ranged-weapon.js";
-import { formatShield } from "../../equipment/equipment-types/shield.js";
-import { formatRing } from "../../equipment/equipment-types/jewelry.js";
-import { formatAmulet } from "../../equipment/equipment-types/jewelry.js";
+import { EquipmentBaseItem } from "../../equipment/equipment-types/index.js";
 import { getPrefixName } from "../builders/item-namer/get-prefix-name.js";
 import { getSuffixName } from "../builders/item-namer/get-suffix-name.js";
+import { Equipment } from "../../equipment/index.js";
 
 export function buildEquipmentName(
   baseItem: EquipmentBaseItem,
   affixes: EquipmentAffixes
 ): EntityName {
-  let baseItemName: string;
-  switch (baseItem.equipmentType) {
-    case EquipmentType.BodyArmor:
-      baseItemName = formatBodyArmor(baseItem.baseItemType);
-      break;
-    case EquipmentType.HeadGear:
-      baseItemName = formatHeadGear(baseItem.baseItemType);
-      break;
-    case EquipmentType.OneHandedMeleeWeapon:
-      baseItemName = ONE_HANDED_MELEE_WEAPON_NAMES[baseItem.baseItemType];
-      break;
-    case EquipmentType.TwoHandedMeleeWeapon:
-      baseItemName = formatTwoHandedMeleeWeapon(baseItem.baseItemType);
-      break;
-    case EquipmentType.TwoHandedRangedWeapon:
-      baseItemName = formatTwoHandedRangedWeapon(baseItem.baseItemType);
-      break;
-    case EquipmentType.Shield:
-      baseItemName = formatShield(baseItem.baseItemType);
-      break;
-    case EquipmentType.Ring:
-      baseItemName = formatRing(baseItem.baseItemType);
-      break;
-    case EquipmentType.Amulet:
-      baseItemName = formatAmulet(baseItem.baseItemType);
-      break;
-  }
-
+  const baseItemName = Equipment.getBaseItemStringName(baseItem);
   const result = addAffixesToEquipmentName(baseItemName, affixes);
   return result;
 }

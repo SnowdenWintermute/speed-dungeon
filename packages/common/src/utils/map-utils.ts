@@ -20,24 +20,6 @@ export class MapUtils {
     return new Map([...map.entries()].map(([k, v]) => [v, k]));
   }
 
-  static getKeyWithLargestValue<K>(map: Map<K, number>): K | undefined {
-    let largestKey: K | undefined;
-    let largestValue: number | undefined;
-
-    for (const [key, value] of map) {
-      if (typeof value !== "number" || Number.isNaN(value)) {
-        throw new TypeError("Map values must be valid numbers");
-      }
-
-      if (largestValue === undefined || value > largestValue) {
-        largestKey = key;
-        largestValue = value;
-      }
-    }
-
-    return largestKey;
-  }
-
   static serialize<K, V, S = V>(
     map: Map<K, V>,
     valueSerializer?: (value: V, key: K) => S

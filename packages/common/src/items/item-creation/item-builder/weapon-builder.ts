@@ -1,14 +1,6 @@
 import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
 import { WeaponProperties } from "../../equipment/equipment-properties/index.js";
-import {
-  EquipmentType,
-  OneHandedMeleeWeaponBaseItemType,
-  TwoHandedMeleeWeaponBaseItemType,
-  TwoHandedRangedWeaponBaseItemType,
-} from "../../equipment/equipment-types/index.js";
-import { ONE_HANDED_MELEE_WEAPON_NAMES } from "../../equipment/equipment-types/one-handed-melee-weapon.js";
-import { formatTwoHandedMeleeWeapon } from "../../equipment/equipment-types/two-handed-melee-weapon.js";
-import { formatTwoHandedRangedWeapon } from "../../equipment/equipment-types/two-handed-ranged-weapon.js";
+import { EquipmentType } from "../../equipment/equipment-types/index.js";
 import { WeaponGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { EquipmentBuilder } from "./equipment-builder.js";
 
@@ -28,17 +20,6 @@ export class WeaponBuilder extends EquipmentBuilder<
   damageClassification(sources: ResourceChangeSource[]): this {
     this._damageClassification = sources;
     return this;
-  }
-
-  protected defaultName(): string {
-    switch (this.baseEquipment.equipmentType) {
-      case EquipmentType.OneHandedMeleeWeapon:
-        return ONE_HANDED_MELEE_WEAPON_NAMES[this.baseEquipment.baseItemType];
-      case EquipmentType.TwoHandedMeleeWeapon:
-        return formatTwoHandedMeleeWeapon(this.baseEquipment.baseItemType);
-      case EquipmentType.TwoHandedRangedWeapon:
-        return formatTwoHandedRangedWeapon(this.baseEquipment.baseItemType);
-    }
   }
 
   protected buildEquipmentBaseItemProperties(): WeaponProperties {

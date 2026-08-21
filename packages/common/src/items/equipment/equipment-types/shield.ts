@@ -12,29 +12,16 @@ export enum Shield {
   GothicShield, // med
 }
 
-export function formatShield(shield: Shield): string {
-  switch (shield) {
-    case Shield.PotLid:
-      return "Pot Lid";
-    case Shield.CabinetDoor:
-      return "Cabinet Door";
-    case Shield.Heater:
-      return "Heater";
-    case Shield.Buckler:
-      return "Buckler";
-    case Shield.Pavise:
-      return "Pavise";
-    case Shield.Aspis:
-      return "Aspis";
-    case Shield.LanternShield:
-      return "Lantern Shield";
-    case Shield.KiteShield:
-      return "Kite Shield";
-    case Shield.TowerShield:
-      return "Tower Shield";
-    case Shield.AncientBuckler:
-      return "Ancient Buckler";
-    case Shield.GothicShield:
-      return "Gothic Shield";
-  }
-}
+export const SHIELD_TYPE_STRINGS: Record<Shield, string> = {
+  [Shield.PotLid]: "Pot Lid",
+  [Shield.CabinetDoor]: "Cabinet Door",
+  [Shield.Heater]: "Heater",
+  [Shield.Buckler]: "Buckler",
+  [Shield.Pavise]: "Pavise",
+  [Shield.Aspis]: "Aspis",
+  [Shield.LanternShield]: "Lantern Shield",
+  [Shield.KiteShield]: "Kite Shield",
+  [Shield.TowerShield]: "Tower Shield",
+  [Shield.AncientBuckler]: "Ancient Buckler",
+  [Shield.GothicShield]: "Gothic Shield",
+};

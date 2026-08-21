@@ -1,21 +1,17 @@
 import {
-  ERROR_MESSAGES,
   Combatant,
   Equipment,
-  CombatActionName,
   COMBAT_ACTIONS,
-  CombatActionResource,
-  HitOutcomeMitigationCalculator,
   SpeedDungeonGame,
   EquipmentSlotId,
+  getAttackActionName,
+  getTooltipOffensiveSpec,
 } from "@speed-dungeon/common";
 import { WeaponProperties } from "@speed-dungeon/common";
 import { EquipmentType } from "@speed-dungeon/common";
 import { NumberRange } from "@speed-dungeon/common";
 import React from "react";
-import { TARGET_DUMMY_COMBATANT } from "./ability-tree/action-description";
 import { IconName, SVG_ICONS } from "@/app/icons";
-import cloneDeep from "lodash.clonedeep";
 import { observer } from "mobx-react-lite";
 import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import HoverableTooltipWrapper from "@speed-dungeon/ui/atoms/HoverableTooltipWrapper";
@@ -45,8 +41,6 @@ export const CharacterSheetWeaponDamage = observer(
       EquipmentSlotId.OffHand
     );
 
-    if (ohEquipmentOption instanceof Error) return <div>{ohEquipmentOption.message}</div>;
-
     let ohDamageAndAccuracyResult;
     if (
       !isTwoHanded &&
@@ -59,13 +53,6 @@ export const CharacterSheetWeaponDamage = observer(
         true,
         gameOption
       );
-    }
-
-    if (mhDamageAndAccuracyResult instanceof Error) {
-      return <div>{mhDamageAndAccuracyResult.message}</div>;
-    }
-    if (ohDamageAndAccuracyResult instanceof Error) {
-      return <div>{ohDamageAndAccuracyResult.message}</div>;
     }
 
     const blockPropertiesOption =
@@ -175,84 +162,18 @@ function WeaponDamageEntry(props: WeaponDamageEntryProps) {
 }
 
 function getAttackActionDamageAndAccuracy(
-  combatant: Combatant,
+  user: Combatant,
   weaponOption: undefined | WeaponProperties,
   isOffHand: boolean,
   gameOption: SpeedDungeonGame | null
 ) {
-  const actionName = getAttackActionName(weaponOption, isOffHand);
+  const actionName = getAttackActionName(weaponOption, { isOffHand });
 
-  const currentlyTargetedCombatantResult = combatant
+  const targetOption = user
     .getTargetingProperties()
-    .getPrimaryTargetOption(gameOption, combatant, actionName);
-  if (currentlyTargetedCombatantResult instanceof Error) return currentlyTargetedCombatantResult;
-  const usingDummy = currentlyTargetedCombatantResult === undefined;
-
-  const target = currentlyTargetedCombatantResult || TARGET_DUMMY_COMBATANT.combatantProperties;
+    .getPrimaryTargetOption(gameOption, user, actionName);
 
   const combatAction = COMBAT_ACTIONS[actionName];
 
-  const hpChangeGetterOption =
-    combatAction.hitOutcomeProperties.resourceChangePropertiesGetters[
-      CombatActionResource.HitPoints
-    ];
-
-  if (hpChangeGetterOption === undefined) {
-    return new Error("No hp change properties getter found");
-  }
-
-  const hpChangeProperties = hpChangeGetterOption(
-    combatant,
-    combatAction.hitOutcomeProperties,
-    1,
-    target
-  );
-  if (hpChangeProperties === null) return new Error(ERROR_MESSAGES.COMBAT_ACTIONS.INVALID_TYPE);
-
-  const modified = cloneDeep(hpChangeProperties);
-
-  modified.baseValues.mult(combatAction.hitOutcomeProperties.resourceChangeValuesModifier);
-
-  const hpChangeRangeResult = modified.baseValues;
-
-  if (hpChangeRangeResult instanceof Error) return hpChangeRangeResult;
-
-  const hpChangeRange = hpChangeRangeResult;
-  const hitChance = HitOutcomeMitigationCalculator.getActionHitChance(
-    combatAction,
-    combatant,
-    1,
-    !usingDummy,
-    target
-  );
-
-  const { hitOutcomeProperties } = combatAction;
-
-  const critMultiplierOption = hitOutcomeProperties.getCritMultiplier(combatant, 1);
-
-  const critChance = HitOutcomeMitigationCalculator.getActionCritChance(
-    combatAction,
-    1,
-    combatant,
-    target,
-    !usingDummy,
-    CombatActionResource.HitPoints,
-    hpChangeProperties.resourceChangeSource
-  );
-
-  return { hpChangeRange, hitChance, critChance, critMultiplierOption };
-}
-
-export function getAttackActionName(
-  weaponOption: WeaponProperties | undefined,
-  isOffHand: boolean
-) {
-  if (isOffHand) return CombatActionName.AttackMeleeOffhand;
-
-  if (weaponOption) {
-    const weaponProperties = weaponOption;
-    if (weaponProperties.equipmentType === EquipmentType.TwoHandedRangedWeapon)
-      return CombatActionName.AttackRangedMainhand;
-  }
-  return CombatActionName.AttackMeleeMainhand;
+  return getTooltipOffensiveSpec(combatAction, user, targetOption);
 }

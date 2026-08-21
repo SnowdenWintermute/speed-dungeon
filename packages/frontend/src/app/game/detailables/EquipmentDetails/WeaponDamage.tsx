@@ -29,9 +29,14 @@ export const WeaponDamage = observer(({ equipment }: Props) => {
       damagetypes = equipment.equipmentBaseItemProperties.damageClassification;
       weaponProperties = equipment.equipmentBaseItemProperties;
       break;
-    default:
+    case EquipmentType.BodyArmor:
+    case EquipmentType.HeadGear:
+    case EquipmentType.Ring:
+    case EquipmentType.Amulet:
+    case EquipmentType.Shield:
       return <></>;
   }
+
   if (damageOption === null || damagetypes === null) return <></>;
 
   const modifiedWeaponDamage = Equipment.getModifiedWeaponDamageRange(

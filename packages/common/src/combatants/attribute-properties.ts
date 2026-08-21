@@ -9,12 +9,19 @@ import { initializeCombatAttributeRecord } from "./attributes/initialize-combat-
 import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
+import {
+  BASE_STARTING_ATTRIBUTES,
+  COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
+  MONSTER_ATTRIBUTES_BY_LEVEL,
+  MONSTER_STARTING_ATTRIBUTES,
+} from "./attributes/attribute-tables.generated.js";
+import { MonsterType } from "../monsters/monster-types.js";
 
 export class CombatantAttributeProperties
   extends CombatantSubsystem
   implements ReactiveNode, Serializable
 {
-  private speccedAttributes: CombatantAttributeRecord = {};
+  private _speccedAttributes: CombatantAttributeRecord = {};
   private unspentAttributePoints: number = 0;
   private _useExplicitAttributes: boolean = false;
 
@@ -32,7 +39,7 @@ export class CombatantAttributeProperties
 
   toSerialized() {
     return {
-      speccedAttributes: this.speccedAttributes,
+      speccedAttributes: this._speccedAttributes,
       unspentAttributePoints: this.unspentAttributePoints,
       useExplicitAttributes: this._useExplicitAttributes,
     };
@@ -40,7 +47,7 @@ export class CombatantAttributeProperties
 
   static fromSerialized(serialized: SerializedOf<CombatantAttributeProperties>) {
     const result = new CombatantAttributeProperties();
-    result.speccedAttributes = serialized.speccedAttributes;
+    result._speccedAttributes = serialized.speccedAttributes;
     result.unspentAttributePoints = serialized.unspentAttributePoints;
     result._useExplicitAttributes = serialized.useExplicitAttributes;
 
@@ -49,14 +56,14 @@ export class CombatantAttributeProperties
 
   allocatePoint(attribute: CombatAttribute) {
     this.getCombatantProperties().resources.maintainResourcePercentagesAfterEffect(() => {
-      const currentAttributeValue = this.speccedAttributes[attribute] || 0;
-      this.speccedAttributes[attribute] = currentAttributeValue + 1;
+      const currentAttributeValue = this._speccedAttributes[attribute] || 0;
+      this._speccedAttributes[attribute] = currentAttributeValue + 1;
       this.unspentAttributePoints -= 1;
     });
   }
 
   setSpeccedAttributeValue(attribute: CombatAttribute, value: number) {
-    this.speccedAttributes[attribute] = value;
+    this._speccedAttributes[attribute] = value;
   }
 
   changeUnspentPoints(value: number) {
@@ -67,9 +74,9 @@ export class CombatantAttributeProperties
     return this.unspentAttributePoints;
   }
 
-  getNaturalAttributes() {
+  getAllocatedAttributes() {
     const total = initializeCombatAttributeRecord();
-    addAttributesToAccumulator(this.speccedAttributes, total);
+    addAttributesToAccumulator(this._speccedAttributes, total);
     return total;
   }
 
@@ -109,6 +116,62 @@ export class CombatantAttributeProperties
   requireAttributeAllocatable(attribute: CombatAttribute) {
     if (!ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(attribute)) {
       throw new Error(ERROR_MESSAGES.COMBATANT.ATTRIBUTE_IS_NOT_ASSIGNABLE);
+    }
+  }
+
+  private getPlayerCharacterInherentAttributes() {
+    const combatantProperties = this.getCombatantProperties();
+    const { classProgressionProperties } = combatantProperties;
+    const { combatantClass, level } = classProgressionProperties.getMainClass();
+
+    const supportClassPropertiesOption = classProgressionProperties.getSupportClassOption();
+
+    const result = initializeCombatAttributeRecord();
+    const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
+    addAttributesToAccumulator(combatantClassStartingAttributes, result);
+
+    const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+    for (let i = 0; i < level; i += 1) {
+      addAttributesToAccumulator(combatantClassAttributesByLevel, result);
+    }
+
+    if (supportClassPropertiesOption !== null) {
+      const { combatantClass, level } = supportClassPropertiesOption;
+      const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
+      for (let i = 0; i < level; i += 1)
+        addAttributesToAccumulator(supportClassAttributesByLevel, result);
+    }
+
+    return result;
+  }
+
+  // monsters will have their attributes explicitly set instead of inferred by their classes
+  private getMonsterInherentAttributes(monsterType: MonsterType) {
+    const combatantProperties = this.getCombatantProperties();
+    const { classProgressionProperties } = combatantProperties;
+    const { level } = classProgressionProperties.getMainClass();
+
+    const result = initializeCombatAttributeRecord();
+    const startingAttributes = MONSTER_STARTING_ATTRIBUTES[monsterType];
+    addAttributesToAccumulator(startingAttributes, result);
+
+    const monsterAttributesByLevel = MONSTER_ATTRIBUTES_BY_LEVEL[monsterType];
+    // don't add for level 1 monsters
+    for (let i = 1; i < level; i += 1) {
+      addAttributesToAccumulator(monsterAttributesByLevel, result);
+    }
+
+    return result;
+  }
+
+  getInherentAttributes() {
+    const { monsterType } = this.getCombatantProperties();
+    const isPlayerCharacter = monsterType === null;
+
+    if (isPlayerCharacter) {
+      return this.getPlayerCharacterInherentAttributes();
+    } else {
+      return this.getMonsterInherentAttributes(monsterType);
     }
   }
 }

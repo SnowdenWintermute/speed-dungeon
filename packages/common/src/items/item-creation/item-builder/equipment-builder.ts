@@ -94,7 +94,9 @@ export abstract class EquipmentBuilder<K extends EquipmentType = EquipmentType> 
 
   protected abstract buildEquipmentBaseItemProperties(): EquipmentBaseItemProperties;
 
-  protected abstract defaultName(): string;
+  protected defaultName() {
+    return Equipment.getBaseItemStringName(this.baseEquipment);
+  }
 
   protected buildName(): string {
     const baseItemName = this.defaultName();

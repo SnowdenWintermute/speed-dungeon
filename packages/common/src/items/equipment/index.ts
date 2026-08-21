@@ -12,13 +12,12 @@ import {
   SuffixType,
 } from "./affixes.js";
 import { EquipmentBaseItemProperties } from "./equipment-properties/index.js";
-import { EquipmentType } from "./equipment-types/index.js";
+import { EquipmentBaseItem, EquipmentType } from "./equipment-types/index.js";
 import { EquipmentTraitType } from "./equipment-traits/index.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
 import makeAutoObservable from "mobx-store-inheritance";
-import { CombatantAttributeRecord } from "../../combatants/combatant-attribute-record.js";
 import { ShieldProperties, WeaponProperties } from "./equipment-properties/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import {
@@ -27,6 +26,12 @@ import {
   EquipmentSlotType,
   SLOT_TYPE_BY_SLOT_ID,
 } from "../../combatants/combatant-equipment/types.js";
+import { BODY_ARMOR_TYPE_STRINGS } from "./equipment-types/body-armor.js";
+import { TWO_HANDED_MELEE_WEAPON_TYPE_STRINGS } from "./equipment-types/two-handed-melee-weapon.js";
+import { ONE_HANDED_MELEE_WEAPON_NAMES } from "./equipment-types/one-handed-melee-weapon.js";
+import { HEADGEAR_TYPE_STRINGS } from "./equipment-types/head-gear.js";
+import { TWO_HANDED_RANGED_WEAPON_TYPE_STRINGS } from "./equipment-types/two-handed-ranged-weapon.js";
+import { SHIELD_TYPE_STRINGS } from "./equipment-types/shield.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -35,7 +40,6 @@ const WEAPON_EQUIPMENT_TYPES = [
 ];
 
 export class Equipment extends Item implements Serializable, ReactiveNode {
-  attributes: CombatantAttributeRecord = {};
   affixes: EquipmentAffixes = {};
   constructor(
     public entityProperties: EntityProperties,
@@ -60,6 +64,27 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   }
 
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
+
+  static getBaseItemStringName(baseItem: EquipmentBaseItem) {
+    switch (baseItem.equipmentType) {
+      case EquipmentType.BodyArmor:
+        return BODY_ARMOR_TYPE_STRINGS[baseItem.baseItemType];
+      case EquipmentType.HeadGear:
+        return HEADGEAR_TYPE_STRINGS[baseItem.baseItemType];
+      case EquipmentType.OneHandedMeleeWeapon:
+        return ONE_HANDED_MELEE_WEAPON_NAMES[baseItem.baseItemType];
+      case EquipmentType.TwoHandedMeleeWeapon:
+        return TWO_HANDED_MELEE_WEAPON_TYPE_STRINGS[baseItem.baseItemType];
+      case EquipmentType.TwoHandedRangedWeapon:
+        return TWO_HANDED_RANGED_WEAPON_TYPE_STRINGS[baseItem.baseItemType];
+      case EquipmentType.Shield:
+        return SHIELD_TYPE_STRINGS[baseItem.baseItemType];
+      case EquipmentType.Ring:
+        return "Ring";
+      case EquipmentType.Amulet:
+        return "Amulet";
+    }
+  }
 
   getBaseArmorClass() {
     // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
@@ -97,14 +122,22 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     return this.equipmentBaseItemProperties as ShieldProperties;
   }
 
-  getAffixAttributeValue(affixTypeToFind: AffixType, attributeToFind: CombatAttribute) {
-    for (const [category, affixes] of iterateNumericEnumKeyedRecord(this.affixes)) {
+  getAffixOption(affixTypeToFind: AffixType) {
+    for (const [_category, affixes] of iterateNumericEnumKeyedRecord(this.affixes)) {
       for (const [affixType, affix] of iterateNumericEnumKeyedRecord(affixes)) {
-        if (affixType !== affixTypeToFind) continue;
-        for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
-          if (attribute === attributeToFind) return value;
-        }
+        if (affixType === affixTypeToFind) return affix;
       }
+    }
+  }
+
+  getAffixAttributeValue(affixTypeToFind: AffixType, attributeToFind: CombatAttribute) {
+    const affixOption = this.getAffixOption(affixTypeToFind);
+    if (!affixOption) {
+      return 0;
+    }
+
+    for (const [attribute, value] of iterateNumericEnumKeyedRecord(affixOption.combatAttributes)) {
+      if (attribute === attributeToFind) return value;
     }
     return 0;
   }

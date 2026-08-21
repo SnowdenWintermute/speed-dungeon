@@ -1,7 +1,5 @@
 import { ArmorProperties } from "../../equipment/equipment-properties/index.js";
 import { EquipmentType } from "../../equipment/equipment-types/index.js";
-import { formatBodyArmor } from "../../equipment/equipment-types/body-armor.js";
-import { formatHeadGear } from "../../equipment/equipment-types/head-gear.js";
 import { ArmorGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { EquipmentBuilder } from "./equipment-builder.js";
 
@@ -19,15 +17,6 @@ export class ArmorBuilder extends EquipmentBuilder<
   armorClass(value: number): this {
     this._armorClass = value;
     return this;
-  }
-
-  protected defaultName(): string {
-    switch (this.baseEquipment.equipmentType) {
-      case EquipmentType.BodyArmor:
-        return formatBodyArmor(this.baseEquipment.baseItemType);
-      case EquipmentType.HeadGear:
-        return formatHeadGear(this.baseEquipment.baseItemType);
-    }
   }
 
   protected buildEquipmentBaseItemProperties(): ArmorProperties {

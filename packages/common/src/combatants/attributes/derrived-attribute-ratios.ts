@@ -18,3 +18,6 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
     // [CombatAttribute.ArmorClass]: 1.5,
   },
 };
+
+export const DEX_TO_ACCURACY_RATIO =
+  DERIVED_ATTRIBUTE_RATIOS?.[CombatAttribute.Dexterity]?.[CombatAttribute.Accuracy] || 1;

@@ -13,8 +13,9 @@ import {
 } from "@speed-dungeon/common";
 import { AnalysisPartyDriver } from "./analysis-party-driver";
 import { BestImprovementEquipmentSolver } from "@/equipment-solvers/best-improvement";
+import { AnalysisRunReporter } from "./analysis-run-reporter";
 
-export class AnalysisRun {
+export class AnalysisRun<ReportType> {
   private partyDriver: AnalysisPartyDriver;
   private game = new SpeedDungeonGame(
     "game id" as GameId,
@@ -27,22 +28,18 @@ export class AnalysisRun {
     "party name" as PartyName
   );
 
-  constructor(private equipmentSolver: BestImprovementEquipmentSolver) {
+  constructor(
+    private equipmentSolver: BestImprovementEquipmentSolver,
+    private runReporter: AnalysisRunReporter<ReportType>
+  ) {
     this.game.addParty(this.party);
     this.partyDriver = new AnalysisPartyDriver(this.game, this.party);
   }
 
-  private updateReport() {
-    //  - creates a report of the current room
-    //    - based on a passed report factory object
-    //      - takes in the party
-    //      - returns some desired info, like
-    //        - combatant goal performance
-    //        - current weapon types worn
-    //        - current attribute allocation
-    //        - current attribute totals
-    //        - total available attributes from equipment
-    //          that could fit in party slot capacity
+  private removeRequirementsFromDroppedEquipment() {
+    for (const equipment of this.party.currentRoom.inventory.equipment) {
+      equipment.requirements = {};
+    }
   }
 
   /** returns dungeon run analysis report */
@@ -57,11 +54,10 @@ export class AnalysisRun {
 
       // drops items/experience from that room
       this.partyDriver.clearCurrentRoom();
+      this.removeRequirementsFromDroppedEquipment();
       // runs the attribute solver on the party, mutating in place
-      // runs the equipment solver on the party, mutating in place
-      this.equipmentSolver.solve();
-      // update report
-      // moves them to next room
+      const { performanceByCharacter, unusedEquipment } = this.equipmentSolver.solve();
+      this.runReporter.updateReport(performanceByCharacter, unusedEquipment);
       this.partyDriver.moveToNextRoom();
     }
   }
@@ -69,4 +65,3 @@ export class AnalysisRun {
 
 // still needs
 // - attribute solver
-// - run reporter

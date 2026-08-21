@@ -1,8 +1,5 @@
 import { DEEPEST_FLOOR } from "../../../app-consts.js";
-import {
-  ResourceChangeSource,
-  ResourceChangeSourceConfig,
-} from "../../../combat/hp-change-source-types.js";
+import { ResourceChangeSource } from "../../../combat/hp-change-source-types.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
@@ -148,11 +145,7 @@ function assembleTemplateOfType(spec: EquipmentTemplateSpec): EquipmentGeneratio
     case EquipmentType.TwoHandedRangedWeapon: {
       const { damage, damageClassificationsCount } = spec;
       invariant(damage !== null, `weapon ${name} has no damage range`);
-      const template = new WeaponGenerationTemplate(
-        damage,
-        spec.damageClassifications,
-        baseItem
-      );
+      const template = new WeaponGenerationTemplate(damage, spec.damageClassifications, baseItem);
       if (damageClassificationsCount !== null) {
         template.damageClassificationsCount = damageClassificationsCount;
       }

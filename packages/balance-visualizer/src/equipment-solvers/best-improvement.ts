@@ -8,7 +8,6 @@ import {
   EquipmentSlotType,
   invariant,
   iterateNumericEnum,
-  MapUtils,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
@@ -16,7 +15,7 @@ import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;
   private unusedItems: Equipment[] = [];
-  private cachedPerformanceByCharacter = new Map<CombatantId, number>();
+  private currentPerformanceByCharacter = new Map<CombatantId, number>();
   private _equipmentMissedByChecker: Equipment[] = [];
 
   constructor(
@@ -38,12 +37,12 @@ export class BestImprovementEquipmentSolver {
   }
 
   private getBaselinePerformance(combatant: Combatant) {
-    const cached = this.cachedPerformanceByCharacter.get(combatant.getEntityId());
+    const cached = this.currentPerformanceByCharacter.get(combatant.getEntityId());
     if (cached !== undefined) {
       return cached;
     }
     const performance = this.goalPerformanceChecker(combatant);
-    this.cachedPerformanceByCharacter.set(combatant.getEntityId(), performance);
+    this.currentPerformanceByCharacter.set(combatant.getEntityId(), performance);
     return performance;
   }
 
@@ -91,7 +90,7 @@ export class BestImprovementEquipmentSolver {
     }
     combatantProperties.inventory.dropAll(this.party);
 
-    return performanceDifference;
+    return { performanceAfter, performanceDifference };
   }
 
   private measurePeformanceDifferences(
@@ -100,7 +99,10 @@ export class BestImprovementEquipmentSolver {
     shouldEquipToAltSlot: boolean
   ) {
     const { combatantManager } = this.party;
-    const performanceDifferenceByCharacter = new Map<CombatantId, number>();
+    const performanceDifferenceByCharacter = new Map<
+      CombatantId,
+      { difference: number; total: number }
+    >();
 
     for (const combatant of combatantManager.getPartyMemberCharacters()) {
       const combatantProperties = combatant.getCombatantProperties();
@@ -109,17 +111,41 @@ export class BestImprovementEquipmentSolver {
         continue;
       }
 
-      const performanceDifference = this.tryOnEquipment(
+      const { performanceDifference, performanceAfter } = this.tryOnEquipment(
         combatant,
         equipmentToCheck,
         slotId,
         shouldEquipToAltSlot
       );
 
-      performanceDifferenceByCharacter.set(combatant.getEntityId(), performanceDifference);
+      performanceDifferenceByCharacter.set(combatant.getEntityId(), {
+        difference: performanceDifference,
+        total: performanceAfter,
+      });
     }
 
     return performanceDifferenceByCharacter;
+  }
+
+  private getMostImprovedCombatant(
+    performanceDifferenceByCharacter: Map<
+      CombatantId,
+      {
+        difference: number;
+        total: number;
+      }
+    >
+  ) {
+    let characterIdMostImproved: CombatantId | undefined = undefined;
+    let largestDifference = 0;
+    for (const [combatantId, { difference }] of performanceDifferenceByCharacter) {
+      if (difference > largestDifference) {
+        largestDifference = difference;
+        characterIdMostImproved = combatantId;
+      }
+    }
+
+    return characterIdMostImproved;
   }
 
   private assignImprovingEquipment(candidates: Set<Equipment>, slotId: EquipmentSlotId) {
@@ -142,21 +168,23 @@ export class BestImprovementEquipmentSolver {
       );
 
       // give the item to character who's goal performance increased the most
-      const atLeastOneCharacterImproved = performanceDifferenceByCharacter
-        .values()
-        .some((value) => value > 0);
-      const characterIdMostImproved = MapUtils.getKeyWithLargestValue(
+      const characterIdMostImproved = this.getMostImprovedCombatant(
         performanceDifferenceByCharacter
       );
 
-      const noCombatantWouldBenefit =
-        !atLeastOneCharacterImproved || characterIdMostImproved === undefined;
+      const noCombatantWouldBenefit = characterIdMostImproved === undefined;
       if (noCombatantWouldBenefit) {
         continue;
       }
 
+      const characterNewPerformance = performanceDifferenceByCharacter.get(characterIdMostImproved);
+      invariant(characterNewPerformance !== undefined);
+
       const combatantReceiving = combatantManager.getExpectedCombatant(characterIdMostImproved);
-      this.cachedPerformanceByCharacter.delete(combatantReceiving.getEntityId());
+      this.currentPerformanceByCharacter.set(
+        combatantReceiving.getEntityId(),
+        characterNewPerformance.total
+      );
       // equip the item
       const displaced = combatantReceiving
         .getEquipmentOption()
@@ -192,6 +220,14 @@ export class BestImprovementEquipmentSolver {
     // but will need to try with/without it to check results and performance
     // differences
     this.dropAllCharacterItemsOnGround({ includeEquipped: true });
+    // set initial performance after dropping all equipment
+    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
+      this.currentPerformanceByCharacter.set(
+        combatant.getEntityId(),
+        this.goalPerformanceChecker(combatant)
+      );
+    }
+
     const equipmentBySlotType = Equipment.groupBySlotTypeCompatibility(
       this.party.currentRoom.inventory.equipment
     );
@@ -217,6 +253,11 @@ export class BestImprovementEquipmentSolver {
     // anything left on the ground can be considered unused and deleted
     this.unusedItems.push(...this.party.currentRoom.inventory.equipment);
     this.party.currentRoom.inventory.deleteAllItems();
+
+    return {
+      performanceByCharacter: structuredClone(this.currentPerformanceByCharacter),
+      unusedEquipment: this.unusedItems,
+    };
   }
 
   static getCombatantGroupEquipmentCapacities(combatants: Combatant[]) {

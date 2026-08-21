@@ -4,12 +4,6 @@ import { CombatAttribute } from "../attributes/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
-import {
-  BASE_STARTING_ATTRIBUTES,
-  COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
-  MONSTER_ATTRIBUTES_BY_LEVEL,
-  MONSTER_STARTING_ATTRIBUTES,
-} from "./attribute-tables.generated.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
 
@@ -17,7 +11,7 @@ export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
 ): Record<CombatAttribute, number> {
   const { attributeProperties } = combatantProperties;
-  const totalAttributes = attributeProperties.getNaturalAttributes();
+  const totalAttributes = attributeProperties.getAllocatedAttributes();
 
   if (attributeProperties.getUseExplicitAttributes()) {
     // floor everything
@@ -27,37 +21,8 @@ export function getCombatantTotalAttributes(
     return totalAttributes;
   }
 
-  const { combatantClass, level } = combatantProperties.classProgressionProperties.getMainClass();
-  const { monsterType } = combatantProperties;
-  const supportClassPropertiesOption =
-    combatantProperties.classProgressionProperties.getSupportClassOption();
-
-  // monsters will have their attributes explicitly set instead of inferred by their classes
-  if (monsterType === null) {
-    const combatantClassStartingAttributes = BASE_STARTING_ATTRIBUTES[combatantClass];
-    addAttributesToAccumulator(combatantClassStartingAttributes, totalAttributes);
-
-    const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-    for (let i = 0; i < level; i += 1) {
-      addAttributesToAccumulator(combatantClassAttributesByLevel, totalAttributes);
-    }
-
-    if (supportClassPropertiesOption !== null) {
-      const { combatantClass, level } = supportClassPropertiesOption;
-      const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-      for (let i = 0; i < level; i += 1)
-        addAttributesToAccumulator(supportClassAttributesByLevel, totalAttributes);
-    }
-  } else {
-    const startingAttributes = MONSTER_STARTING_ATTRIBUTES[monsterType];
-    addAttributesToAccumulator(startingAttributes, totalAttributes);
-
-    const monsterAttributesByLevel = MONSTER_ATTRIBUTES_BY_LEVEL[monsterType];
-    // don't add for level 1 monsters
-    for (let i = 1; i < level; i += 1) {
-      addAttributesToAccumulator(monsterAttributesByLevel, totalAttributes);
-    }
-  }
+  const inherent = combatantProperties.attributeProperties.getInherentAttributes();
+  addAttributesToAccumulator(inherent, totalAttributes);
 
   const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({
     includeUnselectedHotswapSlots: false,
@@ -66,7 +31,6 @@ export function getCombatantTotalAttributes(
   // because some of the equipped items may be giving enough attributes that they can
   // actually be used BECAUSE they are equipped
   for (const item of allEquippedItems) {
-    addAttributesToAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {
       for (const affix of Object.values(category)) {
         addAttributesToAccumulator(affixAttributesOtherThanArmorClass(affix), totalAttributes);
@@ -84,9 +48,12 @@ export function getCombatantTotalAttributes(
     const equippedItemIsUsable =
       Item.requirementsMet(item, totalAttributes) &&
       !(item instanceof Equipment && item.isBroken());
-    if (equippedItemIsUsable) continue;
+
+    if (equippedItemIsUsable) {
+      continue;
+    }
+
     // otherwise subtract its stats
-    removeAttributesFromAccumulator(item.attributes, totalAttributes);
     for (const category of Object.values(item.affixes)) {
       for (const affix of Object.values(category)) {
         removeAttributesFromAccumulator(affixAttributesOtherThanArmorClass(affix), totalAttributes);

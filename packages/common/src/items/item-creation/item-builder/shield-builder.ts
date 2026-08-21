@@ -1,6 +1,5 @@
 import { ShieldProperties } from "../../equipment/equipment-properties/index.js";
 import { EquipmentType } from "../../equipment/equipment-types/index.js";
-import { formatShield } from "../../equipment/equipment-types/shield.js";
 import { ShieldGenerationTemplate } from "../equipment-templates/base-templates.js";
 import { EquipmentBuilder } from "./equipment-builder.js";
 
@@ -16,10 +15,6 @@ export class ShieldBuilder extends EquipmentBuilder<EquipmentType.Shield> {
   armorClass(value: number): this {
     this._armorClass = value;
     return this;
-  }
-
-  protected defaultName(): string {
-    return formatShield(this.baseEquipment.baseItemType);
   }
 
   protected buildEquipmentBaseItemProperties(): ShieldProperties {

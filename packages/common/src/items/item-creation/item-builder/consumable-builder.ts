@@ -44,7 +44,7 @@ export class ConsumableBuilder {
       this._itemLevel,
       {},
       this.consumableType,
-      this._usesRemaining,
+      this._usesRemaining
     );
   }
 }

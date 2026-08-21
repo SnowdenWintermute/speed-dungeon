@@ -22,41 +22,22 @@ export enum HeadGear {
   GreatHelm,
 }
 
-export function formatHeadGear(headGear: HeadGear): string {
-  switch (headGear) {
-    case HeadGear.Cap:
-      return "Cap";
-    case HeadGear.Bandana:
-      return "Bandana";
-    case HeadGear.PaddedCap:
-      return "Padded Cap";
-    case HeadGear.Ribbon:
-      return "Ribbon";
-    case HeadGear.WizardHat:
-      return "Wizard Hat";
-    case HeadGear.Eyepatch:
-      return "Eyepatch";
-    case HeadGear.LeatherHat:
-      return "Leather Hat";
-    case HeadGear.LeatherHelm:
-      return "Leather Helm";
-    case HeadGear.DemonsaurHelm:
-      return "Demonsaur Helm";
-    case HeadGear.Hairpin:
-      return "Hairpin";
-    case HeadGear.Skullcap:
-      return "Skullcap";
-    case HeadGear.Coif:
-      return "Coif";
-    case HeadGear.OhmushellMask:
-      return "Ohmushell Mask";
-    case HeadGear.Circlet:
-      return "Circlet";
-    case HeadGear.Crown:
-      return "Crown";
-    case HeadGear.FullHelm:
-      return "Full Helm";
-    case HeadGear.GreatHelm:
-      return "Great Helm";
-  }
-}
+export const HEADGEAR_TYPE_STRINGS: Record<HeadGear, string> = {
+  [HeadGear.Cap]: "Cap",
+  [HeadGear.Bandana]: "Bandana",
+  [HeadGear.PaddedCap]: "Padded Cap",
+  [HeadGear.Ribbon]: "Ribbon",
+  [HeadGear.WizardHat]: "Wizard Hat",
+  [HeadGear.Eyepatch]: "Eyepatch",
+  [HeadGear.LeatherHat]: "Leather Hat",
+  [HeadGear.LeatherHelm]: "Leather Helm",
+  [HeadGear.DemonsaurHelm]: "Demonsaur Helm",
+  [HeadGear.Hairpin]: "Hairpin",
+  [HeadGear.Skullcap]: "Skullcap",
+  [HeadGear.Coif]: "Coif",
+  [HeadGear.OhmushellMask]: "Ohmushell Mask",
+  [HeadGear.Circlet]: "Circlet",
+  [HeadGear.Crown]: "Crown",
+  [HeadGear.FullHelm]: "Full Helm",
+  [HeadGear.GreatHelm]: "Great Helm",
+};

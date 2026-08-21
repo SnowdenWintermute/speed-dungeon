@@ -12,17 +12,10 @@ export enum TwoHandedRangedWeapon {
   EtherBow,
 }
 
-export function formatTwoHandedRangedWeapon(weapon: TwoHandedRangedWeapon): string {
-  switch (weapon) {
-    case TwoHandedRangedWeapon.ShortBow:
-      return "Short Bow";
-    case TwoHandedRangedWeapon.RecurveBow:
-      return "Recurve Bow";
-    case TwoHandedRangedWeapon.CompositeBow:
-      return "Composite Bow";
-    case TwoHandedRangedWeapon.MilitaryBow:
-      return "Military Bow";
-    case TwoHandedRangedWeapon.EtherBow:
-      return "Ether Bow";
-  }
-}
+export const TWO_HANDED_RANGED_WEAPON_TYPE_STRINGS: Record<TwoHandedRangedWeapon, string> = {
+  [TwoHandedRangedWeapon.ShortBow]: "Short Bow",
+  [TwoHandedRangedWeapon.RecurveBow]: "Recurve Bow",
+  [TwoHandedRangedWeapon.CompositeBow]: "Composite Bow",
+  [TwoHandedRangedWeapon.MilitaryBow]: "Military Bow",
+  [TwoHandedRangedWeapon.EtherBow]: "Ether Bow",
+};

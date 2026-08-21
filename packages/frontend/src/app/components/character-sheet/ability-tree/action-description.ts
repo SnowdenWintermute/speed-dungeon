@@ -1,4 +1,3 @@
-import { Vector3 } from "@babylonjs/core";
 import {
   AbilityTreeAbility,
   AbilityType,
@@ -6,34 +5,16 @@ import {
   ActionPayableResource,
   ActionRank,
   AdventuringParty,
+  BASIC_TARGET_DUMMY,
   COMBAT_ACTION_NAME_STRINGS,
   CombatActionComponent,
   Combatant,
-  CombatantClass,
-  CombatantControlledBy,
-  CombatantControllerType,
-  CombatantProperties,
-  CombatantSpecies,
-  EntityId,
-  EntityName,
   IActionUser,
   iterateNumericEnumKeyedRecord,
   RealResourceChangePropertiesStrategy,
-  Username,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
-
-export const TARGET_DUMMY_COMBATANT = Combatant.createInitialized(
-  { name: "Target Dummy" as EntityName, id: "Target Dummy Entity Id" as EntityId },
-  new CombatantProperties(
-    CombatantClass.Warrior,
-    CombatantSpecies.Humanoid,
-    null,
-    new CombatantControlledBy(CombatantControllerType.Dungeon, "" as Username),
-    Vector3.Zero()
-  )
-);
 
 const DISPLAY_RESOURCE_CHANGE_PROPERTIES_STRATEGY = new RealResourceChangePropertiesStrategy();
 
@@ -173,7 +154,7 @@ export class ActionDescription {
             user,
             hitOutcomeProperties,
             actionRank,
-            TARGET_DUMMY_COMBATANT.combatantProperties
+            BASIC_TARGET_DUMMY.combatantProperties
           )
         );
 

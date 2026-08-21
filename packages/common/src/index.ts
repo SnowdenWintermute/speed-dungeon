@@ -43,6 +43,7 @@ export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
 export * from "./monsters/monster-reward-profiles.js";
 export * from "./combatants/attributes/attribute-tables.generated.js";
+export * from "./combatants/target-dummies/index.js";
 
 export * from "./utils/get-next-or-previous-number.js";
 export * from "./utils/array-utils.js";
@@ -336,3 +337,5 @@ export * from "./combatants/combatant-abilities/ability-allocation-prohibited-re
 export * from "./monsters/scaling-sizes.js";
 export * from "./monsters/monster-spawn-sizing.js";
 export * from "./items/item-creation/item-builder/build-equipment-name.js";
+export * from "./combat/combat-actions/action-implementations/attack/get-attack-action-name.js";
+export * from "./combat/combat-actions/get-offensive-tooltip-spec.js";
