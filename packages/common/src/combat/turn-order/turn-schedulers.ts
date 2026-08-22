@@ -16,7 +16,7 @@ export interface ITurnScheduler {
   getTaggedEntityId: () => TaggedTurnTrackerTrackedEntityId;
   isStale: (party: AdventuringParty) => boolean;
   isMatch: (otherScheduler: ITurnScheduler) => boolean;
-  reset: (party: AdventuringParty) => void;
+  reset: (speed: number) => void;
   createTurnTrackerOption: (game: SpeedDungeonGame, party: AdventuringParty) => null | TurnTracker;
 }
 
@@ -40,13 +40,10 @@ export abstract class TurnScheduler implements ITurnScheduler {
     party: AdventuringParty
   ): null | TurnTracker;
 
-  reset(party: AdventuringParty) {
+  reset(speed: number) {
     // take into account any delay they've accumulated from taking actions in this battle
     this.timeOfNextMove = this.accumulatedDelay;
-    const initialDelay = TurnOrderManager.getActionDelayCost(
-      this.getSpeed(party),
-      BASE_ACTION_DELAY_MULTIPLIER
-    );
+    const initialDelay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
     // start with an initial delay
     this.timeOfNextMove += initialDelay;
 

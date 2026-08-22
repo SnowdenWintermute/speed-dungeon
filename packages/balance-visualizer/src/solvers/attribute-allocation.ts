@@ -20,14 +20,12 @@ export class AttributeAllocationSolver {
   ) {
     const { attributeProperties } = combatant.getCombatantProperties();
     const totalToTry = attributeProperties.getUnspentPoints();
-    for (let i = 0; i < totalToTry; i += 1) {
-      attributeProperties.allocatePoint(attribute);
-    }
+
+    const currentAllocatedValue = attributeProperties.getAllocatedAttributes()[attribute];
+    attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue + totalToTry);
     const performanceAfter = this.goalPerformanceChecker(combatant);
     const difference = performanceAfter - performanceBefore;
-    for (let i = 0; i < totalToTry; i += 1) {
-      attributeProperties.unallocatePoint(attribute);
-    }
+    attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue);
     return difference;
   }
 

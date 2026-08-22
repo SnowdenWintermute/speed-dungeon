@@ -6,12 +6,21 @@ export function addAttributesToAccumulator(
   toAdd: CombatantAttributeRecord,
   acc: Record<CombatAttribute, number>
 ) {
+  addMultipliedAttributesToAccumulator(toAdd, acc, 1);
+}
+
+export function addMultipliedAttributesToAccumulator(
+  toAdd: CombatantAttributeRecord,
+  acc: Record<CombatAttribute, number>,
+  multiplier: number
+) {
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(toAdd)) {
-    if (!acc[attribute]) {
-      acc[attribute] = value;
+    const multiplied = value * multiplier;
+    const existing = acc[attribute];
+    if (!existing) {
+      acc[attribute] = multiplied;
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      acc[attribute]! += value;
+      acc[attribute] = existing + multiplied;
     }
   }
 }

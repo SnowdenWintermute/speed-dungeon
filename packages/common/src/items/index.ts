@@ -36,13 +36,7 @@ export abstract class Item {
   }
 
   static removeFromArray(array: Item[], itemId: string) {
-    let indexToRemove = -1;
-    array.forEach((item, i) => {
-      if (item.entityProperties.id === itemId) {
-        indexToRemove = i;
-        return;
-      }
-    });
+    const indexToRemove = array.findIndex((item) => item.entityProperties.id === itemId);
     if (indexToRemove !== -1) {
       return array.splice(indexToRemove, 1)[0];
     }

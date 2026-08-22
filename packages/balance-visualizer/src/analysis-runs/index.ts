@@ -44,7 +44,6 @@ export class AnalysisRun<RoomReportType> {
       const { performanceByCharacter, unusedEquipment } = this.equipmentSolver.solve();
       this.runReporter.updateReport(performanceByCharacter, unusedEquipment);
 
-      // the staircase is the last room of every floor
       if (this.party.currentRoom.roomType === DungeonRoomType.Staircase) {
         this.partyDriver.descend();
       } else {

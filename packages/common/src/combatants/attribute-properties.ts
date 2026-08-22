@@ -4,7 +4,10 @@ import {
   AttributePointAssignableAttributes,
   CombatAttribute,
 } from "./attributes/index.js";
-import { addAttributesToAccumulator } from "./attributes/add-attributes-to-accumulator.js";
+import {
+  addAttributesToAccumulator,
+  addMultipliedAttributesToAccumulator,
+} from "./attributes/add-attributes-to-accumulator.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
 import { Item } from "../items/index.js";
@@ -150,15 +153,12 @@ export class CombatantAttributeProperties
     addAttributesToAccumulator(combatantClassStartingAttributes, result);
 
     const combatantClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-    for (let i = 0; i < level; i += 1) {
-      addAttributesToAccumulator(combatantClassAttributesByLevel, result);
-    }
+    addMultipliedAttributesToAccumulator(combatantClassAttributesByLevel, result, level);
 
     if (supportClassPropertiesOption !== null) {
       const { combatantClass, level } = supportClassPropertiesOption;
       const supportClassAttributesByLevel = COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL[combatantClass];
-      for (let i = 0; i < level; i += 1)
-        addAttributesToAccumulator(supportClassAttributesByLevel, result);
+      addMultipliedAttributesToAccumulator(supportClassAttributesByLevel, result, level);
     }
 
     return result;
@@ -176,9 +176,7 @@ export class CombatantAttributeProperties
 
     const monsterAttributesByLevel = MONSTER_ATTRIBUTES_BY_LEVEL[monsterType];
     // don't add for level 1 monsters
-    for (let i = 1; i < level; i += 1) {
-      addAttributesToAccumulator(monsterAttributesByLevel, result);
-    }
+    addMultipliedAttributesToAccumulator(monsterAttributesByLevel, result, level - 1);
 
     return result;
   }

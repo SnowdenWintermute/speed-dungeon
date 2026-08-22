@@ -55,8 +55,10 @@ export class TurnSchedulerManager implements Serializable {
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.removeStaleTurnSchedulers(party);
 
+    const speedsByScheduler = this.mapSpeedsByScheduler(party);
+
     for (const scheduler of this.schedulers) {
-      scheduler.reset(party);
+      scheduler.reset(TurnSchedulerManager.requireSpeed(speedsByScheduler, scheduler));
     }
 
     const turnTrackerList: TurnTracker[] = [];
@@ -65,10 +67,6 @@ export class TurnSchedulerManager implements Serializable {
 
     const ITERATION_LIMIT = 40;
     let iterationLimiter = 0;
-
-    // a combatant's speed is a full attribute rebuild, so it is read once here instead of per sort
-    // comparison. nothing below moves a scheduler's speed: only timeOfNextMove changes
-    const speedsByScheduler = this.mapSpeedsByScheduler(party);
 
     while (
       numCombatantTrackersCreated < this.minTurnTrackersCount &&
@@ -99,6 +97,10 @@ export class TurnSchedulerManager implements Serializable {
     return turnTrackerList;
   }
 
+  /** calculating speed was measured to be expensive during the design and testing
+     of AnalysisRun where we run several simulated dungeon runs, so we are caching it
+     before doing the several comparisons, as opposed to directly calling .getSpeed() 
+     each time we want to read it */
   private mapSpeedsByScheduler(party: AdventuringParty) {
     const speedsByScheduler = new Map<ITurnScheduler, number>();
     for (const scheduler of this.schedulers) {

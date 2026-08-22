@@ -148,11 +148,13 @@ export class Inventory extends CombatantSubsystem implements Serializable, React
   }
 
   removeItem(itemId: string) {
-    let itemResult: Consumable | Equipment | Error = this.removeConsumable(itemId);
-    if (itemResult instanceof Error) {
-      itemResult = this.removeEquipment(itemId);
+    // not routed through removeConsumable because its miss case allocates an Error, and every
+    // equipment removal misses
+    const consumableOption = Item.removeFromArray(this.consumables, itemId);
+    if (consumableOption instanceof Consumable) {
+      return consumableOption;
     }
-    return itemResult;
+    return this.removeEquipment(itemId);
   }
 
   removeEquipment(itemId: string): Equipment | Error {
