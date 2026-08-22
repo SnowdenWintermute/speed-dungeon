@@ -1,6 +1,5 @@
 import {
   AdventuringParty,
-  ALTERNATE_SLOT_IDS,
   Combatant,
   CombatantId,
   Equipment,
@@ -84,7 +83,11 @@ export class BestImprovementEquipmentSolver {
     // put back original equipment
     combatantEquipment.unequipSlots([slotId]);
     for (const { equipmentId, fromSlotId } of displaced.unequipped) {
-      const cameFromAltSlot = ALTERNATE_SLOT_IDS.includes(fromSlotId);
+      // a slot is only "alternate" relative to the equipment going into it: the offhand slot is
+      // a shield's main slot but a one handed weapon's alternate
+      const displacedEquipment = combatantProperties.inventory.requireEquipmentById(equipmentId);
+      const cameFromAltSlot =
+        displacedEquipment.getCompatibleSlots().compatibleSlotIds.alternate === fromSlotId;
       combatantEquipment.equipItem(equipmentId, cameFromAltSlot);
     }
     combatantProperties.inventory.dropAll(this.party);

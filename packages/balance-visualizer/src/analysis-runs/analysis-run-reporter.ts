@@ -44,20 +44,29 @@ interface AttackDamageCombatantReport {
   supportClassLevel: number | undefined;
 }
 
-interface AttackDamageRoomReport {
+export interface AttackDamageRoomReport {
   combatantReports: Map<CombatantId, AttackDamageCombatantReport>;
   unusedEquipmentTypeCounts: Map<string, number>;
 }
+
+export type RunReport<T> = { floor: number; room: number; roomReport: T }[];
 
 export interface AnalysisRunReporter<T> {
   updateReport(
     goalPerformanceByCharacter: Map<CombatantId, number>,
     unusedEquipment: Equipment[]
-  ): T;
+  ): void;
+  runReport: RunReport<T>;
 }
 
 export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamageRoomReport> {
+  private _runReport: RunReport<AttackDamageRoomReport> = [];
+
   constructor(private party: AdventuringParty) {}
+
+  get runReport() {
+    return this._runReport;
+  }
 
   private getTooltipDamage(combatant: Combatant) {
     const weaponsHeld = combatant.getWeaponsInSlots(
@@ -181,11 +190,8 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
     };
   }
 
-  updateReport(
-    goalPerformanceByCharacter: Map<CombatantId, number>,
-    unusedEquipment: Equipment[]
-  ): AttackDamageRoomReport {
-    const report = {
+  updateReport(goalPerformanceByCharacter: Map<CombatantId, number>, unusedEquipment: Equipment[]) {
+    const roomReport = {
       combatantReports: new Map<CombatantId, AttackDamageCombatantReport>(),
       unusedEquipmentTypeCounts: new Map<string, number>(),
     };
@@ -205,18 +211,23 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
         supportClassLevel: classProgressionProperties.getSupportClassOption()?.level,
       };
 
-      report.combatantReports.set(combatant.getEntityId(), combatantReport);
+      roomReport.combatantReports.set(combatant.getEntityId(), combatantReport);
     }
 
     for (const equipment of unusedEquipment) {
       const equipmentString = Equipment.getBaseItemStringName(
         equipment.equipmentBaseItemProperties
       );
-      let record = report.unusedEquipmentTypeCounts.get(equipmentString) ?? 0;
+      let record = roomReport.unusedEquipmentTypeCounts.get(equipmentString) ?? 0;
       record += 1;
-      report.unusedEquipmentTypeCounts.set(equipmentString, record);
+      roomReport.unusedEquipmentTypeCounts.set(equipmentString, record);
     }
 
-    return report;
+    const { dungeonExplorationManager } = this.party;
+    this._runReport.push({
+      floor: dungeonExplorationManager.getCurrentFloor(),
+      room: dungeonExplorationManager.getCurrentRoomNumber(),
+      roomReport,
+    });
   }
 }

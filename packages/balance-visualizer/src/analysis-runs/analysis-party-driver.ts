@@ -34,7 +34,15 @@ export class AnalysisPartyDriver {
     );
   }
 
-  moveToNextRoom() {
+  get reachedEndOfFloor() {
+    return !this.dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
+  }
+
+  moveToNextRoom(options: { isDescending: boolean }) {
+    if (this.reachedEndOfFloor) {
+      this.dungeonExplorationManager.enterNewFloor(this.dungeonGenerationPolicy, true, options);
+    }
+
     this.dungeonExplorationManager.enterNextRoom(
       this.game,
       this.dungeonGenerationPolicy,
@@ -42,10 +50,11 @@ export class AnalysisPartyDriver {
     );
   }
 
-  moveToNextFloor() {
-    this.dungeonExplorationManager.enterNewFloor(this.dungeonGenerationPolicy, true, {
-      isDescending: true,
-    });
+  descend() {
+    this.dungeonExplorationManager.incrementCurrentFloor();
+    this.dungeonExplorationManager.clearRoomsExploredOnCurrentFloorCount();
+    this.dungeonExplorationManager.clearUnexploredRooms();
+    this.moveToNextRoom({ isDescending: true });
   }
 
   clearCurrentRoom() {

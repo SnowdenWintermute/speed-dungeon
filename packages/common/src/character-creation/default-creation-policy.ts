@@ -9,12 +9,7 @@ import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { getPlayerCharacterStartingActions } from "../combatants/combatant-class/starting-owned-actions.js";
 import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
 import { CharacterCreationPolicy } from "./character-creation-policy.js";
-import { setPlaytestingCombatantProperties } from "./set-playtesting-combatant-properties.js";
-import { givePlaytestingItems } from "./give-playtesting-items.js";
 import { CombatantWithPets } from "../types.js";
-import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
-import { AffixType } from "../items/equipment/affixes.js";
-import { EquipmentTraitType } from "../items/equipment/equipment-traits/index.js";
 
 const HP_INJECTOR_COUNT = 2;
 const MP_INJECTOR_COUNT = 0;
