@@ -12,11 +12,7 @@ import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-
 import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
 import { Serializable, SerializedOf } from "../../serialization/index.js";
 import { ActionUserType } from "../../action-user-context/action-user.js";
-
-export enum TurnTrackerSortableProperty {
-  TimeOfNextMove,
-  AccumulatedDelay,
-}
+import { invariant } from "../../utils/index.js";
 
 export class TurnSchedulerManager implements Serializable {
   private schedulers: ITurnScheduler[] = [];
@@ -70,12 +66,16 @@ export class TurnSchedulerManager implements Serializable {
     const ITERATION_LIMIT = 40;
     let iterationLimiter = 0;
 
+    // a combatant's speed is a full attribute rebuild, so it is read once here instead of per sort
+    // comparison. nothing below moves a scheduler's speed: only timeOfNextMove changes
+    const speedsByScheduler = this.mapSpeedsByScheduler(party);
+
     while (
       numCombatantTrackersCreated < this.minTurnTrackersCount &&
       iterationLimiter < ITERATION_LIMIT
     ) {
       iterationLimiter += 1;
-      this.sortSchedulers(TurnTrackerSortableProperty.TimeOfNextMove, party);
+      this.sortSchedulers(speedsByScheduler);
 
       const fastestActor = this.getFirstScheduler();
 
@@ -89,7 +89,7 @@ export class TurnSchedulerManager implements Serializable {
       }
 
       const delay = TurnOrderManager.getActionDelayCost(
-        fastestActor.getSpeed(party),
+        TurnSchedulerManager.requireSpeed(speedsByScheduler, fastestActor),
         BASE_ACTION_DELAY_MULTIPLIER
       );
 
@@ -97,6 +97,23 @@ export class TurnSchedulerManager implements Serializable {
     }
 
     return turnTrackerList;
+  }
+
+  private mapSpeedsByScheduler(party: AdventuringParty) {
+    const speedsByScheduler = new Map<ITurnScheduler, number>();
+    for (const scheduler of this.schedulers) {
+      speedsByScheduler.set(scheduler, scheduler.getSpeed(party));
+    }
+    return speedsByScheduler;
+  }
+
+  private static requireSpeed(
+    speedsByScheduler: Map<ITurnScheduler, number>,
+    scheduler: ITurnScheduler
+  ) {
+    const speed = speedsByScheduler.get(scheduler);
+    invariant(speed !== undefined, "expected a speed for every scheduler in the list");
+    return speed;
   }
 
   getSchedulerByCombatantId(entityId: EntityId) {
@@ -144,27 +161,26 @@ export class TurnSchedulerManager implements Serializable {
     });
   }
 
-  private sortSchedulers(sortBy: TurnTrackerSortableProperty, party: AdventuringParty) {
-    switch (sortBy) {
-      case TurnTrackerSortableProperty.TimeOfNextMove:
-        this.schedulers.sort((a, b) => {
-          if (a.timeOfNextMove !== b.timeOfNextMove) {
-            return a.timeOfNextMove - b.timeOfNextMove;
-          } else if (a.getSpeed(party) !== b.getSpeed(party)) {
-            return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
-        });
-        break;
-      case TurnTrackerSortableProperty.AccumulatedDelay:
-        this.schedulers.sort((a, b) => {
-          if (a.accumulatedDelay !== b.accumulatedDelay)
-            return a.accumulatedDelay - b.accumulatedDelay;
-          else if (a.getSpeed(party) !== b.getSpeed(party)) {
-            return b.getSpeed(party) - a.getSpeed(party);
-          } else return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
-        });
-        break;
+  private sortSchedulers(speedsByScheduler: Map<ITurnScheduler, number>) {
+    this.schedulers.sort((a, b) => {
+      if (a.timeOfNextMove !== b.timeOfNextMove) {
+        return a.timeOfNextMove - b.timeOfNextMove;
+      }
+      return TurnSchedulerManager.compareBySpeedThenId(speedsByScheduler, a, b);
+    });
+  }
+
+  private static compareBySpeedThenId(
+    speedsByScheduler: Map<ITurnScheduler, number>,
+    a: ITurnScheduler,
+    b: ITurnScheduler
+  ) {
+    const speedA = TurnSchedulerManager.requireSpeed(speedsByScheduler, a);
+    const speedB = TurnSchedulerManager.requireSpeed(speedsByScheduler, b);
+    if (speedA !== speedB) {
+      return speedB - speedA;
     }
+    return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
   }
 
   getFirstScheduler() {
