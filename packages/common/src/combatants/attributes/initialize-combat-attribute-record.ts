@@ -1,11 +1,19 @@
-import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
 import { CombatAttribute } from "./index.js";
 
 export function initializeCombatAttributeRecord() {
-  const allAttributesAsZero: CombatantAttributeRecord = {};
-  for (const value of Object.values(CombatAttribute)) {
-    if (typeof value === "string") continue;
-    allAttributesAsZero[value] = 0;
-  }
-  return allAttributesAsZero as Record<CombatAttribute, number>;
+  const allAttributesAsZero: Record<CombatAttribute, number> = {
+    [CombatAttribute.Strength]: 0,
+    [CombatAttribute.Dexterity]: 0,
+    [CombatAttribute.Spirit]: 0,
+    [CombatAttribute.Vitality]: 0,
+    [CombatAttribute.Agility]: 0,
+    [CombatAttribute.Speed]: 0,
+    [CombatAttribute.ArmorClass]: 0,
+    [CombatAttribute.ArmorPenetration]: 0,
+    [CombatAttribute.Accuracy]: 0,
+    [CombatAttribute.Evasion]: 0,
+    [CombatAttribute.Hp]: 0,
+    [CombatAttribute.Mp]: 0,
+  };
+  return allAttributesAsZero;
 }

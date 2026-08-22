@@ -32,25 +32,23 @@ export function getNumericEnumValues(enumObj: object): number[] {
   return Object.values(enumObj).filter((v): v is number => typeof v === "number");
 }
 
-// old version - creates 3 intermediate arrays
+// hand rolled rather than Object.entries().filter().map(): this is the inner loop of every
+// attribute accumulator, and the chained version allocated four arrays per call instead of one
 export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
   record: Partial<Record<T, U>>
 ): [T, U][] {
-  return Object.entries(record)
-    .filter(([key, value]) => value !== undefined)
-    .map(([key, value]) => [parseInt(key) as T, value as U]);
-}
+  const entries: [T, U][] = [];
+  // for..in gives string keys, which do not index a numeric-enum-keyed record
+  const stringKeyed = record as Record<string, U | undefined>;
 
-// new - lazily generates next value
-// export function* iterateNumericEnumKeyedRecord<K extends number, V>(
-//   record: Partial<Record<K, V>>
-// ): Iterable<[K, V]> {
-//   for (const [key, value] of Object.entries(record)) {
-//     if (value !== undefined) {
-//       yield [Number(key) as K, value as V];
-//     }
-//   }
-// }
+  for (const key in stringKeyed) {
+    const value = stringKeyed[key];
+    if (value === undefined) continue;
+    entries.push([Number(key) as T, value]);
+  }
+
+  return entries;
+}
 export function randomNormal() {
   let u = 0,
     v = 0;
