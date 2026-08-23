@@ -1,16 +1,5 @@
-// AvailableGearInRoom
-// - Equipment[]
-
-// LootDropEvent
-// - Equipment[]
-// - Consumables[]
-
 // AnalysisAdventuringPartyBuilder
 // - Assemble Parties of random or selected AnalysisCharacters
-//
-// AnalysisDungeonRunSimulator
-// - clearNextRoom
-//   - return LootDropEvents, ExperiencePointGains
 //
 // EquipmentAttributesAggregator
 //  - accepts an attributeFrom(equipment:Equipment): {total: number, affixesFrom: Record<AffixType, Percentage>}

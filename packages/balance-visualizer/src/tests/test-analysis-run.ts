@@ -4,59 +4,12 @@ import {
   AttackDamageRunReporter,
 } from "../analysis-runs/analysis-run-reporter";
 import { BestImprovementEquipmentSolver } from "../solvers/best-improvement";
-import {
-  AdventuringParty,
-  AffixGenerator,
-  CharacterControlScheme,
-  CombatantClass,
-  CombatAttribute,
-  DefaultCharacterCreationPolicy,
-  EntityName,
-  EquipmentRandomizer,
-  GameId,
-  GameMode,
-  GameName,
-  IdGeneratorRandom,
-  ItemBuilder,
-  PartyId,
-  PartyName,
-  RandomNumberGenerationPolicyFactory,
-  SpeedDungeonGame,
-  SpeedDungeonPlayer,
-  Username,
-} from "@speed-dungeon/common";
+import { CombatAttribute } from "@speed-dungeon/common";
 import { AttributeAllocationSolver } from "../solvers/attribute-allocation";
+import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
 
 export function testAnalysisRun() {
-  const idGenerator = new IdGeneratorRandom({ saveHistory: false });
-  const rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
-  const itemBuilder = new ItemBuilder(
-    new EquipmentRandomizer(rngPolicy, new AffixGenerator(rngPolicy))
-  );
-  const characterCreationPolicy = new DefaultCharacterCreationPolicy(
-    idGenerator,
-    itemBuilder,
-    rngPolicy
-  );
-  const game = new SpeedDungeonGame(
-    "game id" as GameId,
-    "game name" as GameName,
-    GameMode.UnrankedRace,
-    CharacterControlScheme.Captain
-  );
-  const party = AdventuringParty.createInitialized(
-    "party id" as PartyId,
-    "party name" as PartyName
-  );
-  const playerName = "player name" as Username;
-  const player = new SpeedDungeonPlayer(playerName, 0);
-  game.addPlayer(player);
-  const characterWithPets = characterCreationPolicy.createCharacter(
-    "character 1" as EntityName,
-    CombatantClass.Warrior,
-    playerName
-  );
-  game.addCharacterToParty(party, player, characterWithPets.combatant, characterWithPets.pets);
+  const { game, party } = new AnalysisPartyBuilder().buildPartyInGame();
 
   const runner = new AnalysisRun<AttackDamageRoomReport>(
     game,
