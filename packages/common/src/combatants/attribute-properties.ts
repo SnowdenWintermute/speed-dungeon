@@ -2,13 +2,13 @@ import makeAutoObservable from "mobx-store-inheritance";
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   AttributePointAssignableAttributes,
+  COMBAT_ATTRIBUTES,
   CombatAttribute,
 } from "./attributes/index.js";
 import {
   addAttributesToAccumulator,
   addMultipliedAttributesToAccumulator,
 } from "./attributes/add-attributes-to-accumulator.js";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { getCombatantTotalAttributes } from "./attributes/get-combatant-total-attributes.js";
 import { Item } from "../items/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
@@ -110,7 +110,11 @@ export class CombatantAttributeProperties
     const totalAttributes = this.getTotalAttributes();
 
     const unmetAttributeRequirements = new Set<CombatAttribute>();
-    for (const [attribute, value] of iterateNumericEnumKeyedRecord(item.requirements)) {
+    for (const attribute of COMBAT_ATTRIBUTES) {
+      const value = item.requirements[attribute];
+      if (value === undefined) {
+        continue;
+      }
       const characterAttribute = totalAttributes[attribute] || 0;
       if (characterAttribute >= value) continue;
       else unmetAttributeRequirements.add(attribute);

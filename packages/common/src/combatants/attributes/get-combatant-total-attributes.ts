@@ -1,6 +1,5 @@
 import { Item } from "../../items/index.js";
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { CombatAttribute } from "../attributes/index.js";
+import { COMBAT_ATTRIBUTES, CombatAttribute } from "../attributes/index.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
@@ -15,7 +14,11 @@ export function getCombatantTotalAttributes(
 
   if (attributeProperties.getUseExplicitAttributes()) {
     // floor everything
-    for (const [attribute, value] of iterateNumericEnumKeyedRecord(totalAttributes)) {
+    for (const attribute of COMBAT_ATTRIBUTES) {
+      const value = totalAttributes[attribute];
+      if (value === undefined) {
+        continue;
+      }
       totalAttributes[attribute] = Math.floor(value);
     }
     return totalAttributes;
@@ -80,7 +83,11 @@ export function getCombatantTotalAttributes(
   }
 
   // floor everything
-  for (const [attribute, value] of iterateNumericEnumKeyedRecord(totalAttributes)) {
+  for (const attribute of COMBAT_ATTRIBUTES) {
+    const value = totalAttributes[attribute];
+    if (value === undefined) {
+      continue;
+    }
     totalAttributes[attribute] = Math.floor(value);
   }
 
@@ -116,9 +123,17 @@ function removeAttributesFromAccumulator(
   toRemove: CombatantAttributeRecord,
   acc: CombatantAttributeRecord
 ) {
-  for (const [attribute, value] of iterateNumericEnumKeyedRecord(toRemove)) {
-    if (acc[attribute] === undefined) continue;
-    else acc[attribute]! -= value || 0; // use ! because ts complains it may be undefined even though checked above
-    if (acc[attribute]! < 0) delete acc[attribute];
+  for (const attribute of COMBAT_ATTRIBUTES) {
+    const value = toRemove[attribute];
+    const existing = acc[attribute];
+    if (value === undefined || existing === undefined) {
+      continue;
+    }
+    const remaining = existing - value;
+    if (remaining < 0) {
+      delete acc[attribute];
+    } else {
+      acc[attribute] = remaining;
+    }
   }
 }

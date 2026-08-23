@@ -1,6 +1,5 @@
-import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
-import { CombatAttribute } from "./index.js";
+import { COMBAT_ATTRIBUTES, CombatAttribute } from "./index.js";
 
 export function addAttributesToAccumulator(
   toAdd: CombatantAttributeRecord,
@@ -14,7 +13,11 @@ export function addMultipliedAttributesToAccumulator(
   acc: Record<CombatAttribute, number>,
   multiplier: number
 ) {
-  for (const [attribute, value] of iterateNumericEnumKeyedRecord(toAdd)) {
+  for (const attribute of COMBAT_ATTRIBUTES) {
+    const value = toAdd[attribute];
+    if (value === undefined) {
+      continue;
+    }
     const multiplied = value * multiplier;
     const existing = acc[attribute];
     if (!existing) {

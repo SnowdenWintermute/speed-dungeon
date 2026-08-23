@@ -1,3 +1,5 @@
+import { iterateNumericEnum } from "../../utils/index.js";
+
 export enum CombatAttribute {
   Strength,
   Dexterity,
@@ -15,6 +17,10 @@ export enum CombatAttribute {
   Hp,
   Mp,
 }
+
+// iterateNumericEnum is expensive as measured in balance analyzer
+// and getting a combatant's attributes often needs to iterate them
+export const COMBAT_ATTRIBUTES = iterateNumericEnum(CombatAttribute);
 
 export const CORE_ATTRIBUTES = [
   CombatAttribute.Dexterity,

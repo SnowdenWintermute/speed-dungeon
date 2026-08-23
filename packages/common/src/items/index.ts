@@ -1,9 +1,8 @@
 import cloneDeep from "lodash.clonedeep";
-import { CombatAttribute } from "../combatants/attributes/index.js";
+import { COMBAT_ATTRIBUTES, CombatAttribute } from "../combatants/attributes/index.js";
 import { Consumable } from "./consumables/index.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
-import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
 import { ConsumableType } from "./consumables/consumable-types.js";
 import { ItemId } from "../aliases.js";
 
@@ -43,8 +42,12 @@ export abstract class Item {
   }
 
   static requirementsMet(item: Item, combatantAttributes: CombatantAttributeRecord) {
-    for (const [key, requiredValue] of iterateNumericEnumKeyedRecord(item.requirements)) {
-      const combatantAttributeValue = combatantAttributes[key];
+    for (const attribute of COMBAT_ATTRIBUTES) {
+      const requiredValue = item.requirements[attribute];
+      if (requiredValue === undefined) {
+        continue;
+      }
+      const combatantAttributeValue = combatantAttributes[attribute];
       if (!combatantAttributeValue) return false;
       if (combatantAttributeValue < requiredValue) return false;
     }

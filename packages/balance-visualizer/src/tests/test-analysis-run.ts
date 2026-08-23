@@ -14,6 +14,7 @@ import {
   CombatActionResource,
   Combatant,
   CombatantClass,
+  CombatantId,
   CombatAttribute,
   DEEPEST_FLOOR,
   EquipmentSlotId,
@@ -34,6 +35,7 @@ import {
   AnalysisCharacterSpecification,
   CharacterWeaponSpecialty,
 } from "@/analysis-subjects/analysis-character-specification";
+import { CombatantAttributesMemo } from "@/analysis-subjects/combatant-attributes-memo";
 
 export function testAnalysisRun() {
   const { game, party, analysisSpecsByCombatantId } = new AnalysisPartyBuilder().build([
@@ -49,10 +51,20 @@ export function testAnalysisRun() {
 
   const targetDummiesByFloor = new Map<number, Combatant>();
   for (let floor = 1; floor <= DEEPEST_FLOOR; floor += 1) {
-    targetDummiesByFloor.set(floor, new TargetDummyFactory().createOnFloor(floor));
+    const targetDummy = new TargetDummyFactory().createOnFloor(floor);
+    new CombatantAttributesMemo(targetDummy).holdIndefinitely();
+    targetDummiesByFloor.set(floor, targetDummy);
   }
 
-  const goalPerformanceChecker = (combatant: Combatant, partyCurrentFloor: number) => {
+  const attributesMemosByCharacterId = new Map<CombatantId, CombatantAttributesMemo>();
+  for (const character of party.combatantManager.getPartyMemberCharacters()) {
+    attributesMemosByCharacterId.set(
+      character.getEntityId(),
+      new CombatantAttributesMemo(character)
+    );
+  }
+
+  const sampleAverageDamageOnDummy = (combatant: Combatant, partyCurrentFloor: number) => {
     const spec = analysisSpecsByCombatantId.get(combatant.getEntityId());
     invariant(spec !== undefined);
     const notWearingSpecDesiredEquipment = !spec.combatantIsWearingDesiredEquipmentType(combatant);
@@ -148,6 +160,12 @@ export function testAnalysisRun() {
     }
 
     return ArrayUtils.average(samples);
+  };
+
+  const goalPerformanceChecker = (combatant: Combatant, partyCurrentFloor: number) => {
+    const attributesMemo = attributesMemosByCharacterId.get(combatant.getEntityId());
+    invariant(attributesMemo !== undefined, "expected an attributes memo for the character");
+    return attributesMemo.holdWhile(() => sampleAverageDamageOnDummy(combatant, partyCurrentFloor));
   };
 
   const runner = new AnalysisRun<AttackDamageRoomReport>(
