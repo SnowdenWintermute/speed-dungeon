@@ -20,9 +20,13 @@ import {
   rollIsSuccess,
 } from "../../../utility-classes/random-number-generation-policy.js";
 import { ResourceChangeModifier } from "./resource-change-modifier.js";
-import cloneDeep from "lodash.clonedeep";
 
 export class HitOutcomeMitigationCalculator {
+  // found to be expensive to compute when profiling the
+  // analysis simulated dungeon runs, cached since used by
+  // multiple functions at the time
+  private targetWillAttemptMitigation: boolean;
+
   constructor(
     private action: CombatActionComponent,
     private actionRank: ActionRank,
@@ -40,15 +44,22 @@ export class HitOutcomeMitigationCalculator {
     private rngPolicy: RandomNumberGenerationPolicy,
     private resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ) {
-    //
+    this.targetWillAttemptMitigation = this.computeTargetWillAttemptMitigation();
   }
 
+  // callers construct with a target and then set that same target before resolving it, so without
+  // this guard the constructor's computation is immediately thrown away and redone
   setTargetCombatant(targetCombatant: Combatant) {
+    const targetIsUnchanged = targetCombatant === this.targetCombatant;
+    if (targetIsUnchanged) {
+      return;
+    }
     this.targetCombatant = targetCombatant;
+    this.targetWillAttemptMitigation = this.computeTargetWillAttemptMitigation();
   }
 
   rollHitMitigationEvents() {
-    const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
+    const { targetWillAttemptMitigation } = this;
 
     const user = this.user;
     const target = this.targetCombatant;
@@ -156,7 +167,7 @@ export class HitOutcomeMitigationCalculator {
     return flagsToReturn;
   }
 
-  targetWillAttemptMitigation() {
+  private computeTargetWillAttemptMitigation() {
     const targetCombatantProperties = this.targetCombatant.combatantProperties;
     const hpChangePropertiesGetterOption =
       this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(this.action.name)[
@@ -205,7 +216,7 @@ export class HitOutcomeMitigationCalculator {
   ) {
     const target = this.targetCombatant.combatantProperties;
 
-    const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
+    const { targetWillAttemptMitigation } = this;
 
     const normalizedChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
       this.action,
