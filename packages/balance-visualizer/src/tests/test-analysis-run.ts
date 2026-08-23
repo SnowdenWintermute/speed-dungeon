@@ -5,11 +5,26 @@ import {
 } from "../analysis-runs/analysis-run-reporter";
 import { BestImprovementEquipmentSolver } from "../solvers/best-improvement";
 import {
+  ActionRank,
+  BasicRandomNumberGenerator,
+  COMBAT_ACTIONS,
+  CombatActionComponent,
+  CombatActionHitOutcomes,
+  CombatActionResource,
   Combatant,
   CombatantClass,
   CombatAttribute,
   DEEPEST_FLOOR,
+  EquipmentSlotId,
+  getAttackActionName,
+  getOffhandAttackActionNameOption,
+  HitOutcomeCalculator,
+  HitOutcomeMitigationCalculator,
+  IncomingResourceChangesCalculator,
   invariant,
+  RandomNumberGenerationPolicyFactory,
+  RealResourceChangePropertiesStrategy,
+  ResourceChangeSource,
   TargetDummyFactory,
 } from "@speed-dungeon/common";
 import { AttributeAllocationSolver } from "../solvers/attribute-allocation";
@@ -28,6 +43,9 @@ export function testAnalysisRun() {
     }),
   ]);
 
+  const rng = new BasicRandomNumberGenerator();
+  const resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();
+
   const targetDummiesByFloor = new Map<number, Combatant>();
   for (let floor = 1; floor <= DEEPEST_FLOOR; floor += 1) {
     targetDummiesByFloor.set(floor, new TargetDummyFactory().createOnFloor(floor));
@@ -36,14 +54,89 @@ export function testAnalysisRun() {
   const goalPerformanceChecker = (combatant: Combatant, partyCurrentFloor: number) => {
     const spec = analysisSpecsByCombatantId.get(combatant.getEntityId());
     invariant(spec !== undefined);
-    const notWearingSpecDesiredEquipmen = !spec.combatantIsWearingDesiredEquipmentType(combatant);
-    if (notWearingSpecDesiredEquipmen) {
+    const notWearingSpecDesiredEquipment = !spec.combatantIsWearingDesiredEquipmentType(combatant);
+    if (notWearingSpecDesiredEquipment) {
       return 0;
     }
 
     const targetDummy = targetDummiesByFloor.get(partyCurrentFloor);
+    invariant(targetDummy !== undefined, "no target dummy");
+
+    const weapons = combatant.getWeaponsInSlots(
+      [EquipmentSlotId.MainHand, EquipmentSlotId.OffHand],
+      { usableWeaponsOnly: true }
+    );
+    const mainHandEquipmentOption = weapons[EquipmentSlotId.MainHand];
+    const offhandEquipmentOption = weapons[EquipmentSlotId.OffHand];
+    const mainHandAttackActionName = getAttackActionName(
+      mainHandEquipmentOption?.weaponProperties,
+      { isOffHand: false }
+    );
+    const offhandAttackActionNameOption = getOffhandAttackActionNameOption(
+      mainHandEquipmentOption?.equipment,
+      offhandEquipmentOption?.equipment
+    );
+
+    const mainhandAttackAction = COMBAT_ACTIONS[mainHandAttackActionName];
+    let offhandAttackActionOption: undefined | CombatActionComponent = undefined;
+    if (offhandAttackActionNameOption !== null) {
+      offhandAttackActionOption = COMBAT_ACTIONS[offhandAttackActionNameOption];
+    }
+
     const sampleCount = 5;
+    const ATTACK_ACTION_RANK = 1 as ActionRank;
     // sample damage on dummy
+    for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
+      const mhHitOutcomeProperties = mainhandAttackAction.hitOutcomeProperties;
+      const incomingRolledMainhand =
+        IncomingResourceChangesCalculator.rollBaseIncomingResourceChangesOnPrimaryTarget(
+          combatant,
+          mhHitOutcomeProperties,
+          ATTACK_ACTION_RANK,
+          targetDummy.combatantProperties,
+          CombatActionResource.HitPoints,
+          resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(
+            mainHandAttackActionName
+          ),
+          rng
+        );
+
+      invariant(incomingRolledMainhand !== null, "expect mainhand attack to roll incoming damage");
+
+      const incomingResourceChanges: Partial<
+        Record<
+          CombatActionResource,
+          {
+            valuePerTarget: number;
+            source: ResourceChangeSource;
+          }
+        >
+      > = {
+        [CombatActionResource.HitPoints]: {
+          valuePerTarget: incomingRolledMainhand.rolled,
+          source: incomingRolledMainhand.resourceChangeProperties.resourceChangeSource,
+        },
+      };
+
+      const mitigationCalculator = new HitOutcomeMitigationCalculator(
+        mainhandAttackAction,
+        ATTACK_ACTION_RANK,
+        combatant,
+        targetDummy,
+        incomingResourceChanges,
+        RandomNumberGenerationPolicyFactory.allRandomPolicy(),
+        new RealResourceChangePropertiesStrategy()
+      );
+
+      const hitOutcomes = new CombatActionHitOutcomes();
+      HitOutcomeCalculator.calculateHitOutcomesOnTarget(
+        targetDummy,
+        mitigationCalculator,
+        incomingResourceChanges,
+        ATTACK_ACTION_RANK,
+        hitOutcomes
+      );
+    }
 
     return 0;
   };

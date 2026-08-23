@@ -3,13 +3,13 @@ import { IActionUser } from "../../../action-user-context/action-user.js";
 import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
-import { NormalizedPercentage } from "../../../aliases.js";
+import { ActionRank, NormalizedPercentage } from "../../../aliases.js";
 import { ActionAccuracyType } from "../../combat-actions/combat-action-accuracy.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
 import { ProhibitedTargetCombatantStates } from "../../combat-actions/prohibited-target-combatant-states.js";
-import { ResourceChangeSource } from "../../hp-change-source-types.js";
+import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { CombatantTraitType } from "../../../combatants/combatant-traits/trait-types.js";
 import { CombatActionRequiredRange } from "../../combat-actions/combat-action-range.js";
@@ -19,11 +19,13 @@ import {
   RandomNumberGenerationPolicy,
   rollIsSuccess,
 } from "../../../utility-classes/random-number-generation-policy.js";
+import { ResourceChangeModifier } from "./resource-change-modifier.js";
+import cloneDeep from "lodash.clonedeep";
 
 export class HitOutcomeMitigationCalculator {
   constructor(
     private action: CombatActionComponent,
-    private actionLevel: number,
+    private actionRank: ActionRank,
     private user: IActionUser,
     private targetCombatant: Combatant,
     private incomingResourceChangesPerTarget: null | Partial<
@@ -46,16 +48,16 @@ export class HitOutcomeMitigationCalculator {
   }
 
   rollHitMitigationEvents() {
-    // HITS
     const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
 
     const user = this.user;
     const target = this.targetCombatant;
 
+    // HITS
     const normalizedChanceToHit = HitOutcomeMitigationCalculator.getActionHitChance(
       this.action,
       user,
-      this.actionLevel,
+      this.actionRank,
       targetWillAttemptMitigation,
       target.combatantProperties
     );
@@ -81,10 +83,10 @@ export class HitOutcomeMitigationCalculator {
 
     const { hitOutcomeProperties } = this.action;
 
-    const { actionLevel } = this;
+    const { actionRank } = this;
 
     const willAttemptParry =
-      hitOutcomeProperties.getIsParryable(user, actionLevel) &&
+      hitOutcomeProperties.getIsParryable(user, actionRank) &&
       target.combatantProperties.mitigationProperties.canParry();
 
     // PARRIES
@@ -97,7 +99,7 @@ export class HitOutcomeMitigationCalculator {
     }
 
     // COUNTERATTACKS
-    if (hitOutcomeProperties.getCanTriggerCounterattack(user, actionLevel)) {
+    if (hitOutcomeProperties.getCanTriggerCounterattack(user, actionRank)) {
       // @TODO - derrive this from various combatant properties
       const normalizedChanceToCounterAttack = HitOutcomeMitigationCalculator.getCounterattackChance(
         user,
@@ -114,7 +116,7 @@ export class HitOutcomeMitigationCalculator {
 
     // RESISTS
     if (hitOutcomeProperties.getResistChance !== undefined) {
-      const resistChance = hitOutcomeProperties.getResistChance(user, this.actionLevel, target);
+      const resistChance = hitOutcomeProperties.getResistChance(user, this.actionRank, target);
 
       const resistRoll = rollNormalized(this.rngPolicy.spellResist);
       const isResisted = rollIsSuccess({
@@ -134,7 +136,7 @@ export class HitOutcomeMitigationCalculator {
     const actionHasResourceChanges = this.incomingResourceChangesPerTarget !== null;
     if (actionHasResourceChanges) {
       if (
-        hitOutcomeProperties.getIsBlockable(user, actionLevel) &&
+        hitOutcomeProperties.getIsBlockable(user, actionRank) &&
         target.combatantProperties.mitigationProperties.canBlock()
       ) {
         const normalizedPercentChanceToBlock = HitOutcomeMitigationCalculator.getShieldBlockChance(
@@ -164,7 +166,7 @@ export class HitOutcomeMitigationCalculator {
       ? hpChangePropertiesGetterOption(
           this.user,
           this.action.hitOutcomeProperties,
-          this.actionLevel,
+          this.actionRank,
           targetCombatantProperties
         )
       : null;
@@ -195,10 +197,47 @@ export class HitOutcomeMitigationCalculator {
     else return false;
   }
 
+  modifyIncomingResourceChange(
+    resourceType: CombatActionResource,
+    resourceChange: ResourceChange,
+    wasBlocked: boolean,
+    actionRank: ActionRank
+  ) {
+    const target = this.targetCombatant.combatantProperties;
+
+    const targetWillAttemptMitigation = this.targetWillAttemptMitigation();
+
+    const normalizedChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
+      this.action,
+      this.actionRank,
+      this.user,
+      target,
+      targetWillAttemptMitigation,
+      resourceType,
+      resourceChange.source
+    );
+
+    const critRoll = rollNormalized(this.rngPolicy.criticalStrike);
+    resourceChange.isCrit = rollIsSuccess({
+      roll: critRoll,
+      successChance: normalizedChanceToCrit,
+    });
+
+    const resourceChangeModifier = new ResourceChangeModifier(
+      this.action.hitOutcomeProperties,
+      this.user,
+      this.targetCombatant.combatantProperties,
+      targetWillAttemptMitigation,
+      resourceChange
+    );
+
+    resourceChangeModifier.applyPostHitModifiers(wasBlocked, actionRank);
+  }
+
   static getActionHitChance(
     combatAction: CombatActionComponent,
     user: IActionUser,
-    actionLevel: number,
+    actionRank: number,
     targetWillAttemptToEvade: boolean,
     target: CombatantProperties
   ): { beforeEvasion: NormalizedPercentage; afterEvasion: NormalizedPercentage } {
@@ -212,7 +251,7 @@ export class HitOutcomeMitigationCalculator {
       return { beforeEvasion: 0, afterEvasion: 0 };
     }
 
-    const actionBaseAccuracy = combatAction.getAccuracy(user, actionLevel);
+    const actionBaseAccuracy = combatAction.getAccuracy(user, actionRank);
     if (actionBaseAccuracy.type === ActionAccuracyType.Unavoidable) {
       return { beforeEvasion: 1, afterEvasion: 1 };
     }
@@ -243,14 +282,14 @@ export class HitOutcomeMitigationCalculator {
 
   static getActionCritChance(
     action: CombatActionComponent,
-    actionLevel: number,
+    actionRank: number,
     user: IActionUser,
     target: CombatantProperties,
     targetWillAttemptMitigation: boolean,
     resourceType: CombatActionResource,
     resourceChangeSource: ResourceChangeSource
   ) {
-    const actionBaseCritChance = action.getCritChance(user, actionLevel);
+    const actionBaseCritChance = action.getCritChance(user, actionRank);
 
     const critIsAvoidable =
       targetWillAttemptMitigation &&

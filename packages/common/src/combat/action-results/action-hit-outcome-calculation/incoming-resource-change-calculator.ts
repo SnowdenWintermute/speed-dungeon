@@ -1,4 +1,4 @@
-import { EntityId } from "../../../aliases.js";
+import { ActionRank, EntityId } from "../../../aliases.js";
 import { iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
@@ -17,6 +17,7 @@ import { ActionUserContext } from "../../../action-user-context/index.js";
 import { CombatantProperties } from "../../../combatants/combatant-properties.js";
 import { randBetween } from "../../../utils/rand-between.js";
 import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
+import { ResourceChangePropertiesGetters } from "../../../types.js";
 
 export interface ResourceChangesPerTarget {
   value: number;
@@ -58,9 +59,70 @@ export class IncomingResourceChangesCalculator {
     );
   }
 
+  private static applyLifesteal(
+    user: IActionUser,
+    hitOutcomeProperties: CombatActionHitOutcomeProperties,
+    actionResource: CombatActionResource,
+    resourceChangeProperties: CombatActionResourceChangeProperties
+  ) {
+    const noLifesteal = !hitOutcomeProperties.addsLifestealFromEquipment;
+    const notChangingHitpoints = actionResource !== CombatActionResource.HitPoints;
+    const isHealing = resourceChangeProperties.resourceChangeSource.isHealing;
+
+    if (noLifesteal || notChangingHitpoints || isHealing) {
+      return;
+    }
+
+    const equippedLifestealPercentage = user.getEquipmentLifestealPercentage();
+    if (equippedLifestealPercentage === 0) {
+      return;
+    }
+
+    const { resourceChangeSource } = resourceChangeProperties;
+    const currentPercentage = resourceChangeSource.lifestealPercentage ?? 0;
+    resourceChangeSource.lifestealPercentage = currentPercentage + equippedLifestealPercentage;
+  }
+
+  /** made static 8/23/26 to be used in analysis runs for checking attack damage on target dummies */
+  static rollBaseIncomingResourceChangesOnPrimaryTarget(
+    user: IActionUser,
+    hitOutcomeProperties: CombatActionHitOutcomeProperties,
+    actionRank: ActionRank,
+    primaryTarget: CombatantProperties,
+    actionResource: CombatActionResource,
+    resourceChangePropertiesGetters: ResourceChangePropertiesGetters,
+    rng: RandomNumberGenerator
+  ) {
+    const resourceChangePropertiesGetter = resourceChangePropertiesGetters[actionResource];
+    if (resourceChangePropertiesGetter === undefined) {
+      return null;
+    }
+
+    const resourceChangeProperties = resourceChangePropertiesGetter(
+      user,
+      hitOutcomeProperties,
+      actionRank,
+      primaryTarget
+    );
+
+    if (resourceChangeProperties === null) {
+      return null;
+    }
+
+    this.applyLifesteal(user, hitOutcomeProperties, actionResource, resourceChangeProperties);
+
+    // some actions have a base multiplier, such as offhand attack
+    const modified = cloneDeep(resourceChangeProperties);
+    modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
+
+    const rolled = this.rollIncomingResourceChangeBaseValue(modified, rng);
+
+    return { resourceChangeProperties, rolled };
+  }
+
   rollBaseIncomingResourceChangesPerTarget(
     user: IActionUser,
-    actionLevel: number,
+    actionRank: ActionRank,
     primaryTarget: CombatantProperties,
     hitOutcomeProperties: CombatActionHitOutcomeProperties
   ) {
@@ -68,43 +130,29 @@ export class IncomingResourceChangesCalculator {
       Record<CombatActionResource, { valuePerTarget: number; source: ResourceChangeSource }>
     > = {};
 
-    for (const [actionResource, getter] of iterateNumericEnumKeyedRecord(
-      this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(
-        this.actionExecutionIntent.actionName
-      )
-    )) {
-      const resourceChangeProperties = getter(
-        user,
-        hitOutcomeProperties,
-        actionLevel,
-        primaryTarget
-      );
+    const { actionName } = this.actionExecutionIntent;
+    const resourceChangePropertiesGetters =
+      this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(actionName);
 
-      if (resourceChangeProperties === null) {
+    for (const [actionResource] of iterateNumericEnumKeyedRecord(
+      resourceChangePropertiesGetters
+    )) {
+      const onPrimaryTarget =
+        IncomingResourceChangesCalculator.rollBaseIncomingResourceChangesOnPrimaryTarget(
+          user,
+          hitOutcomeProperties,
+          actionRank,
+          primaryTarget,
+          actionResource,
+          resourceChangePropertiesGetters,
+          this.rng
+        );
+
+      if (onPrimaryTarget === null) {
         continue;
       }
 
-      if (
-        hitOutcomeProperties.addsLifestealFromEquipment &&
-        actionResource === CombatActionResource.HitPoints &&
-        !resourceChangeProperties.resourceChangeSource.isHealing
-      ) {
-        const equippedLifestealPercentage = user.getEquipmentLifestealPercentage();
-        if (equippedLifestealPercentage) {
-          const { resourceChangeSource } = resourceChangeProperties;
-          resourceChangeSource.lifestealPercentage =
-            (resourceChangeSource.lifestealPercentage ?? 0) + equippedLifestealPercentage;
-        }
-      }
-
-      // some actions have a base multiplier, such as offhand attack
-      const modified = cloneDeep(resourceChangeProperties);
-      modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
-
-      const rolled = IncomingResourceChangesCalculator.rollIncomingResourceChangeBaseValue(
-        modified,
-        this.rng
-      );
+      const { rolled, resourceChangeProperties } = onPrimaryTarget;
 
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);
 
@@ -114,12 +162,14 @@ export class IncomingResourceChangesCalculator {
       };
     }
 
-    if (Object.values(incomingResourceChangesPerTarget).length === 0) return null;
+    if (Object.values(incomingResourceChangesPerTarget).length === 0) {
+      return null;
+    }
 
     return incomingResourceChangesPerTarget;
   }
 
-  static rollIncomingResourceChangeBaseValue(
+  private static rollIncomingResourceChangeBaseValue(
     resourceChangeProperties: CombatActionResourceChangeProperties,
     rng: RandomNumberGenerator
   ) {

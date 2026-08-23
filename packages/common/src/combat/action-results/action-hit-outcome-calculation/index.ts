@@ -1,27 +1,22 @@
 import cloneDeep from "lodash.clonedeep";
 import { iterateNumericEnumKeyedRecord, throwIfError } from "../../../utils/index.js";
-import { ResourceChange } from "../../hp-change-source-types.js";
-import { EntityId } from "../../../aliases.js";
+import { ResourceChange, ResourceChangeSource } from "../../hp-change-source-types.js";
+import { ActionRank, EntityId } from "../../../aliases.js";
 import { TargetingCalculator } from "../../targeting/targeting-calculator.js";
-
 import { DurabilityChangesByEntityId } from "../../../durability/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { HitPointChanges, ManaChanges, ResourceChanges } from "./resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat-actions/action-implementations/index.js";
-import {
-  RandomNumberGenerationPolicy,
-  rollIsSuccess,
-} from "../../../utility-classes/random-number-generation-policy.js";
+import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
 import { IncomingResourceChangesCalculator } from "./incoming-resource-change-calculator.js";
 import { TargetFilterer } from "../../targeting/filtering.js";
 import { CombatActionComponent } from "../../combat-actions/index.js";
 import { CombatActionResource } from "../../combat-actions/combat-action-hit-outcome-properties.js";
 import { HitOutcomeMitigationCalculator } from "./hit-outcome-mitigation-calculator.js";
-import { ResourceChangeModifier } from "./resource-change-modifier.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
-import { rollNormalized } from "../../../utils/rand-between.js";
 import { CombatActionExecutionIntent } from "../../combat-actions/combat-action-execution-intent.js";
 import { ResourceChangePropertiesStrategy } from "../../combat-actions/action-implementations/resource-change-properties-strategy.js";
+import { Combatant } from "../../../combatants/index.js";
 
 export class CombatActionHitOutcomes {
   resourceChanges?: Partial<Record<CombatActionResource, ResourceChanges<ResourceChange>>>;
@@ -87,6 +82,55 @@ export class HitOutcomeCalculator {
     );
   }
 
+  static calculateHitOutcomesOnTarget(
+    targetCombatant: Combatant,
+    mitigationCalculator: HitOutcomeMitigationCalculator,
+    incomingResourceChanges: Partial<
+      Record<
+        CombatActionResource,
+        {
+          valuePerTarget: number;
+          source: ResourceChangeSource;
+        }
+      >
+    > | null,
+    actionRank: ActionRank,
+    hitOutcomes: CombatActionHitOutcomes
+  ) {
+    mitigationCalculator.setTargetCombatant(targetCombatant);
+
+    const hitOutcomeFlags = mitigationCalculator.rollHitMitigationEvents();
+    const wasHit = hitOutcomeFlags.includes(HitOutcome.Hit);
+    const wasBlocked = hitOutcomeFlags.includes(HitOutcome.ShieldBlock);
+    const targetId = targetCombatant.getEntityId();
+
+    for (const flag of hitOutcomeFlags) {
+      hitOutcomes.insertOutcomeFlag(flag, targetId);
+    }
+
+    if (!wasHit || incomingResourceChanges === null) {
+      return;
+    }
+
+    for (const [resourceType, incomingResourceChangeOption] of iterateNumericEnumKeyedRecord(
+      incomingResourceChanges
+    )) {
+      const { valuePerTarget: value } = incomingResourceChangeOption;
+      const resourceChange = new ResourceChange(
+        value,
+        cloneDeep(incomingResourceChangeOption.source)
+      );
+      mitigationCalculator.modifyIncomingResourceChange(
+        resourceType,
+        resourceChange,
+        wasBlocked,
+        actionRank
+      );
+
+      hitOutcomes.insertResourceChange(resourceType, targetId, resourceChange);
+    }
+  }
+
   calculateHitOutcomes() {
     const { party, actionUser } = this.actionUserContext;
 
@@ -108,82 +152,34 @@ export class HitOutcomeCalculator {
 
     const hitOutcomes = new CombatActionHitOutcomes();
 
-    const incomingResourceChangesPerTarget =
+    const incomingResourceChanges =
       this.incomingResourceChangesCalculator.getBaseIncomingResourceChangesPerTarget();
 
-    let mitigationCalculator: null | HitOutcomeMitigationCalculator = null;
-
-    const actionLevel = this.actionExecutionIntent.rank;
+    // let mitigationCalculator: null | HitOutcomeMitigationCalculator = null;
+    let mitigationCalculator: HitOutcomeMitigationCalculator | null = null;
+    const actionRank = this.actionExecutionIntent.rank;
 
     for (const targetId of filteredTargetIds) {
       const targetCombatant = party.combatantManager.getExpectedCombatant(targetId);
-      if (mitigationCalculator === null) {
+      if (!mitigationCalculator) {
         mitigationCalculator = new HitOutcomeMitigationCalculator(
           this.action,
-          actionLevel,
+          actionRank,
           actionUser,
           targetCombatant,
-          incomingResourceChangesPerTarget,
+          incomingResourceChanges,
           this.rngPolicy,
           this.resourceChangePropertiesStrategy
         );
-      } else {
-        mitigationCalculator.setTargetCombatant(targetCombatant);
       }
 
-      const hitOutcomeFlags = mitigationCalculator.rollHitMitigationEvents();
-      let wasHit = false;
-      let wasBlocked = false;
-      for (const flag of hitOutcomeFlags) {
-        hitOutcomes.insertOutcomeFlag(flag, targetId);
-        if (flag === HitOutcome.Hit) wasHit = true;
-        if (flag === HitOutcome.ShieldBlock) wasBlocked = true;
-      }
-
-      if (!wasHit || incomingResourceChangesPerTarget === null) continue;
-
-      for (const [resourceType, incomingResourceChangeOption] of iterateNumericEnumKeyedRecord(
-        incomingResourceChangesPerTarget
-      )) {
-        const { valuePerTarget: value } = incomingResourceChangeOption;
-
-        const resourceChange = new ResourceChange(
-          value,
-          cloneDeep(incomingResourceChangeOption.source)
-        );
-
-        const target = targetCombatant.combatantProperties;
-
-        const targetWillAttemptMitigation = mitigationCalculator.targetWillAttemptMitigation();
-
-        const normalizedChanceToCrit = HitOutcomeMitigationCalculator.getActionCritChance(
-          this.action,
-          actionLevel,
-          actionUser,
-          target,
-          targetWillAttemptMitigation,
-          resourceType,
-          resourceChange.source
-        );
-
-        const critRoll = rollNormalized(this.rngPolicy.criticalStrike);
-        resourceChange.isCrit = rollIsSuccess({
-          roll: critRoll,
-          successChance: normalizedChanceToCrit,
-        });
-
-        const resourceChangeModifier = new ResourceChangeModifier(
-          this.action.hitOutcomeProperties,
-          actionUser,
-          targetCombatant.combatantProperties,
-          targetWillAttemptMitigation,
-          resourceChange
-        );
-
-        resourceChangeModifier.applyPostHitModifiers(wasBlocked, actionLevel);
-
-        hitOutcomes.insertResourceChange(resourceType, targetId, resourceChange);
-      }
+      HitOutcomeCalculator.calculateHitOutcomesOnTarget(
+        targetCombatant,
+        mitigationCalculator,
+        incomingResourceChanges,
+        actionRank,
+        hitOutcomes
+      );
     }
 
     return hitOutcomes;

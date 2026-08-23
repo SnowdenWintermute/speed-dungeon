@@ -48,9 +48,13 @@ export class ResourceChangeModifier {
   }
 
   private applyCritMultiplier(actionLevel: number) {
-    if (!this.resourceChange.isCrit) return;
+    if (!this.resourceChange.isCrit) {
+      return;
+    }
     let critMultiplier = this.hitOutcomeProperties.getCritMultiplier(this.user, actionLevel);
-    if (critMultiplier === null) critMultiplier = 1;
+    if (critMultiplier === null) {
+      critMultiplier = 1;
+    }
 
     this.resourceChange.value *= this.getCritMultiplierAfterTargetReduction(critMultiplier);
   }

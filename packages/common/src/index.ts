@@ -340,3 +340,4 @@ export * from "./items/item-creation/item-builder/build-equipment-name.js";
 export * from "./combat/combat-actions/action-implementations/attack/get-attack-action-name.js";
 export * from "./combat/combat-actions/get-offensive-tooltip-spec.js";
 export * from "./combatants/target-dummies/target-dummy-factory.js";
+export * from "./combat/action-results/action-hit-outcome-calculation/index.js";

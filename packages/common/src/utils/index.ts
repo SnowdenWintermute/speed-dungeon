@@ -43,7 +43,9 @@ export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
 
   for (const key in stringKeyed) {
     const value = stringKeyed[key];
-    if (value === undefined) continue;
+    if (value === undefined) {
+      continue;
+    }
     entries.push([Number(key) as T, value]);
   }
 
@@ -162,7 +164,9 @@ export function formatDuration(milliseconds: Milliseconds): string {
 
   const segments = hours > 0 ? [hours, minutes, seconds] : [minutes, seconds];
   return segments
-    .map((segment, index) => (index === 0 ? segment.toString() : segment.toString().padStart(2, "0")))
+    .map((segment, index) =>
+      index === 0 ? segment.toString() : segment.toString().padStart(2, "0")
+    )
     .join(":");
 }
 
