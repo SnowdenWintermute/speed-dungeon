@@ -2,7 +2,7 @@ import { Item } from "../../items/index.js";
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatAttribute } from "../attributes/index.js";
 import { Equipment } from "../../items/equipment/index.js";
-import { DERIVED_ATTRIBUTE_RATIOS } from "./derrived-attribute-ratios.js";
+import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
@@ -75,12 +75,8 @@ export function getCombatantTotalAttributes(
   }
 
   // DERIVED
-  for (const [mainAttribute, attributeRatios] of iterateNumericEnumKeyedRecord(
-    DERIVED_ATTRIBUTE_RATIOS
-  )) {
-    for (const [derivedAttribute, ratio] of iterateNumericEnumKeyedRecord(attributeRatios)) {
-      calculateAndAddDerivedAttribute(totalAttributes, mainAttribute, derivedAttribute, ratio);
-    }
+  for (const { mainAttribute, derivedAttribute, ratio } of DERIVED_ATTRIBUTE_RATIO_LIST) {
+    calculateAndAddDerivedAttribute(totalAttributes, mainAttribute, derivedAttribute, ratio);
   }
 
   // floor everything
