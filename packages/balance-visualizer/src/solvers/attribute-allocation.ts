@@ -9,7 +9,7 @@ import {
 export class AttributeAllocationSolver {
   constructor(
     private party: AdventuringParty,
-    private goalPerformanceChecker: (combatant: Combatant) => number,
+    private goalPerformanceChecker: (combatant: Combatant, partyCurrentFloor: number) => number,
     private attributesToTry: AttributePointAssignableAttributes[]
   ) {}
 
@@ -23,7 +23,8 @@ export class AttributeAllocationSolver {
 
     const currentAllocatedValue = attributeProperties.getAllocatedAttributes()[attribute];
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue + totalToTry);
-    const performanceAfter = this.goalPerformanceChecker(combatant);
+    const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
+    const performanceAfter = this.goalPerformanceChecker(combatant, currentFloor);
     const difference = performanceAfter - performanceBefore;
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue);
     return difference;
@@ -35,7 +36,8 @@ export class AttributeAllocationSolver {
   ) {
     const { attributeProperties } = combatant.getCombatantProperties();
 
-    const performanceBefore = this.goalPerformanceChecker(combatant);
+    const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
+    const performanceBefore = this.goalPerformanceChecker(combatant, currentFloor);
     let bestImprovementAttribute: { attribute: CombatAttribute; score: number } | null = null;
     for (const attribute of toTry) {
       const score = this.tryAllocation(combatant, attribute, performanceBefore);

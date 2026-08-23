@@ -1,16 +1,18 @@
+import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import {
   AdventuringParty,
   AffixGenerator,
   CharacterControlScheme,
-  CombatantClass,
+  CombatantId,
   DefaultCharacterCreationPolicy,
-  EntityName,
   EquipmentRandomizer,
   GameId,
   GameMode,
   GameName,
   IdGeneratorRandom,
+  invariant,
   ItemBuilder,
+  MAX_PARTY_SIZE,
   PartyId,
   PartyName,
   RandomNumberGenerationPolicyFactory,
@@ -31,7 +33,9 @@ export class AnalysisPartyBuilder {
     this.rngPolicy
   );
 
-  buildPartyInGame() {
+  private static playerName = "player name" as Username;
+
+  private initializePartyContext() {
     const game = new SpeedDungeonGame(
       "game id" as GameId,
       "game name" as GameName,
@@ -42,17 +46,56 @@ export class AnalysisPartyBuilder {
       "party id" as PartyId,
       "party name" as PartyName
     );
-    const playerName = "player name" as Username;
-    const player = new SpeedDungeonPlayer(playerName, 0);
+
+    const player = new SpeedDungeonPlayer(AnalysisPartyBuilder.playerName, 0);
     game.addPlayer(player);
 
-    const characterWithPets = this.characterCreationPolicy.createCharacter(
-      "character 1" as EntityName,
-      CombatantClass.Warrior,
-      playerName
-    );
-    game.addCharacterToParty(party, player, characterWithPets.combatant, characterWithPets.pets);
-
     return { game, party };
+  }
+
+  private requirePlayer(game: SpeedDungeonGame) {
+    return game.getExpectedPlayer(AnalysisPartyBuilder.playerName);
+  }
+
+  private addCharacter(
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    spec: AnalysisCharacterSpecification
+  ) {
+    const characterWithPets = this.characterCreationPolicy.createCharacter(
+      spec.characterName,
+      spec.characterBuildSpec.mainClass,
+      AnalysisPartyBuilder.playerName
+    );
+
+    characterWithPets.combatant
+      .getCombatantProperties()
+      .classProgressionProperties.setSupportClass(spec.characterBuildSpec.supportClass, 0);
+
+    game.addCharacterToParty(
+      party,
+      this.requirePlayer(game),
+      characterWithPets.combatant,
+      characterWithPets.pets
+    );
+
+    return characterWithPets.combatant;
+  }
+
+  build(analysisSpecs: AnalysisCharacterSpecification[]) {
+    invariant(
+      analysisSpecs.length > 0 && analysisSpecs.length <= MAX_PARTY_SIZE,
+      "must provide a list of character specifications greater than zero and less than MAX_PARTY_SIZE"
+    );
+
+    const { game, party } = this.initializePartyContext();
+
+    const analysisSpecsByCombatantId = new Map<CombatantId, AnalysisCharacterSpecification>();
+    for (const spec of analysisSpecs) {
+      const character = this.addCharacter(game, party, spec);
+      analysisSpecsByCombatantId.set(character.getEntityId(), spec);
+    }
+
+    return { game, party, analysisSpecsByCombatantId };
   }
 }

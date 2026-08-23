@@ -101,7 +101,10 @@ export class IncomingResourceChangesCalculator {
       const modified = cloneDeep(resourceChangeProperties);
       modified.baseValues.mult(hitOutcomeProperties.resourceChangeValuesModifier);
 
-      const rolled = this.rollIncomingResourceChangeBaseValue(modified, this.rng);
+      const rolled = IncomingResourceChangesCalculator.rollIncomingResourceChangeBaseValue(
+        modified,
+        this.rng
+      );
 
       const valuePerTarget = this.getIncomingResourceChangeValuePerTarget(rolled);
 
@@ -116,7 +119,7 @@ export class IncomingResourceChangesCalculator {
     return incomingResourceChangesPerTarget;
   }
 
-  rollIncomingResourceChangeBaseValue(
+  static rollIncomingResourceChangeBaseValue(
     resourceChangeProperties: CombatActionResourceChangeProperties,
     rng: RandomNumberGenerator
   ) {

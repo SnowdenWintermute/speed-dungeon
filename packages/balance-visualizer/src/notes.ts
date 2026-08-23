@@ -1,6 +1,3 @@
-// AnalysisAdventuringPartyBuilder
-// - Assemble Parties of random or selected AnalysisCharacters
-//
 // EquipmentAttributesAggregator
 //  - accepts an attributeFrom(equipment:Equipment): {total: number, affixesFrom: Record<AffixType, Percentage>}
 //  - get max total attribute (including derived) that could fill all slots on interested characters
@@ -23,3 +20,10 @@
 // RunReportAggregator
 // - take reports from DungeonRunSimulators running in workers
 // - assemble AggregatedRunsReport
+//
+// TODO
+// - AnalysisAdventuringPartyBuilder
+// - Solver goal performance checkers
+// - RunReportWorkerDispatcher
+// - RunReportAggregator
+//
