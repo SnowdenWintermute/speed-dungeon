@@ -77,4 +77,11 @@ export class ArrayUtils {
   static indexIsWithinBounds<T>(array: T[], index: number): boolean {
     return index >= 0 && index < array.length;
   }
+
+  static average(numbers: number[]) {
+    if (numbers.length === 0) {
+      throw new Error("empty array");
+    }
+    return numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
+  }
 }

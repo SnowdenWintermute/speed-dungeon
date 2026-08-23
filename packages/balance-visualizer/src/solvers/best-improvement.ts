@@ -232,7 +232,10 @@ export class BestImprovementEquipmentSolver {
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
       this.currentPerformanceByCharacter.set(
         combatant.getEntityId(),
-        this.goalPerformanceChecker(combatant)
+        this.goalPerformanceChecker(
+          combatant,
+          this.party.dungeonExplorationManager.getCurrentFloor()
+        )
       );
     }
 

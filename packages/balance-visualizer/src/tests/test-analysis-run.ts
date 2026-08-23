@@ -6,6 +6,7 @@ import {
 import { BestImprovementEquipmentSolver } from "../solvers/best-improvement";
 import {
   ActionRank,
+  ArrayUtils,
   BasicRandomNumberGenerator,
   COMBAT_ACTIONS,
   CombatActionComponent,
@@ -86,6 +87,7 @@ export function testAnalysisRun() {
     const sampleCount = 5;
     const ATTACK_ACTION_RANK = 1 as ActionRank;
     // sample damage on dummy
+    const samples: number[] = [];
     for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
       const mhHitOutcomeProperties = mainhandAttackAction.hitOutcomeProperties;
       const incomingRolledMainhand =
@@ -136,9 +138,16 @@ export function testAnalysisRun() {
         ATTACK_ACTION_RANK,
         hitOutcomes
       );
+
+      const finalDamage = Math.abs(
+        hitOutcomes.resourceChanges?.[CombatActionResource.HitPoints]?.getRecords()[0]?.[1].value ||
+          0
+      );
+
+      samples.push(finalDamage);
     }
 
-    return 0;
+    return ArrayUtils.average(samples);
   };
 
   const runner = new AnalysisRun<AttackDamageRoomReport>(
@@ -152,5 +161,5 @@ export function testAnalysisRun() {
   );
 
   const report = runner.simulateRun();
-  console.log(report);
+  // console.log(report);
 }

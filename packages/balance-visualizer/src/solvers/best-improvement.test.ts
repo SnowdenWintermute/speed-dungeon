@@ -18,6 +18,11 @@ import {
 } from "@speed-dungeon/common";
 import { BestImprovementEquipmentSolver } from "./best-improvement";
 import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-test-items";
+import {
+  AnalysisCharacterSpecification,
+  CharacterWeaponSpecialty,
+} from "@/analysis-subjects/analysis-character-specification";
+import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
 
 const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
@@ -32,29 +37,29 @@ class BestImprovementFixture {
   readonly items = new EquipmentSolverTestItems(this.idGenerator);
 
   constructor() {
-    const game = new SpeedDungeonGame(
-      "game-id" as GameId,
-      "game" as GameName,
-      GameMode.Progression,
-      CharacterControlScheme.Freelancer
-    );
-    this.party = AdventuringParty.createInitialized("party-id" as PartyId, "party");
-    game.addParty(this.party);
-
+    const characterSpecs = [];
     for (let i = 0; i < PARTY_CHARACTER_COUNT; i += 1) {
-      const character = CombatantBuilder.playerCharacter(
-        CombatantClass.Warrior,
-        `player-${i}` as Username
-      )
-        .name(`character-${i}`)
-        .build(this.idGenerator);
-
-      this.party.combatantManager.addCombatant(character, game);
+      characterSpecs.push(
+        new AnalysisCharacterSpecification("character 1", {
+          mainClass: CombatantClass.Warrior,
+          supportClass: CombatantClass.Rogue,
+          weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
+        })
+      );
     }
 
-    this.solver = new BestImprovementEquipmentSolver(this.party, dexterityPerformance, [
-      totalDexterity,
-    ]);
+    const { game, party, analysisSpecsByCombatantId } = new AnalysisPartyBuilder().build(
+      characterSpecs
+    );
+
+    this.party = party;
+
+    this.solver = new BestImprovementEquipmentSolver(
+      this.party,
+      analysisSpecsByCombatantId,
+      dexterityPerformance,
+      [totalDexterity]
+    );
   }
 
   dropInRoom(equipment: Equipment) {
