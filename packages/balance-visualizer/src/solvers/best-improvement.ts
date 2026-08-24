@@ -11,6 +11,7 @@ import {
 } from "@speed-dungeon/common";
 import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;
@@ -25,7 +26,7 @@ export class BestImprovementEquipmentSolver {
     //      and for weapons "does this weapon fit this character archetype specification"
     //    - filter weapons by character archetype specification
     //    - for basic spirit users this is "total spirit"
-    private goalPerformanceChecker: (combatant: Combatant, partyCurrentFloor: number) => number,
+    private goalPerformanceChecker: GoalPerformanceChecker,
     equipmentScoreAxisCheckers: ((equipment: Equipment) => number)[]
   ) {
     this.scoreDominationSolver = new EquipmentScoreDominationSolver(
@@ -42,7 +43,10 @@ export class BestImprovementEquipmentSolver {
       return cached;
     }
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const performance = this.goalPerformanceChecker(combatant, currentFloor);
+
+    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
+    invariant(spec !== undefined);
+    const performance = this.goalPerformanceChecker.checkPerformance(combatant, spec, currentFloor);
     this.currentPerformanceByCharacter.set(combatant.getEntityId(), performance);
     return performance;
   }
@@ -88,7 +92,13 @@ export class BestImprovementEquipmentSolver {
 
     // use the checker directly, not the maybe-cached value
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const performanceAfter = this.goalPerformanceChecker(combatant, currentFloor);
+    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
+    invariant(spec !== undefined);
+    const performanceAfter = this.goalPerformanceChecker.checkPerformance(
+      combatant,
+      spec,
+      currentFloor
+    );
     const performanceDifference = performanceAfter - performanceBefore;
 
     // put back original equipment
@@ -230,10 +240,13 @@ export class BestImprovementEquipmentSolver {
   solve() {
     this.dropAllCharacterItemsOnGround({ includeEquipped: false });
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
+      const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
+      invariant(spec !== undefined);
       this.currentPerformanceByCharacter.set(
         combatant.getEntityId(),
-        this.goalPerformanceChecker(
+        this.goalPerformanceChecker.checkPerformance(
           combatant,
+          spec,
           this.party.dungeonExplorationManager.getCurrentFloor()
         )
       );

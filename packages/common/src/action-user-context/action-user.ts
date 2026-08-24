@@ -29,6 +29,16 @@ export enum ActionUserType {
   ActionEntity,
 }
 
+export type ActionUserHeldWeapons = Partial<
+  Record<
+    EquipmentSlotId.MainHand | EquipmentSlotId.OffHand,
+    {
+      equipment: Equipment;
+      weaponProperties: WeaponProperties;
+    }
+  >
+>;
+
 export interface IActionUser {
   payResourceCosts(): void; // @REFACTOR - remove if unused
   handleTurnEnded(): void;
@@ -69,15 +79,7 @@ export interface IActionUser {
   getWeaponsInSlots(
     weaponSlots: HoldableSlotId[],
     options: { usableWeaponsOnly: boolean }
-  ): Partial<
-    Record<
-      HoldableSlotId,
-      {
-        equipment: Equipment;
-        weaponProperties: WeaponProperties;
-      }
-    >
-  >;
+  ): ActionUserHeldWeapons;
 
   targetFlyingConditionPreventsReachingMeleeRange(target: CombatantProperties): boolean;
 

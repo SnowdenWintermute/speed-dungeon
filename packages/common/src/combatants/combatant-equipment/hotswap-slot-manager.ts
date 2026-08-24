@@ -2,7 +2,6 @@ import { makeAutoObservable } from "mobx";
 import { ItemId } from "../../aliases.js";
 import { WEAPON_TYPES_THAT_CAN_PARRY } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
-import { WeaponProperties } from "../../items/equipment/equipment-properties/equipment-properties.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
 import { ArrayUtils } from "../../utils/array-utils.js";
@@ -10,6 +9,7 @@ import { invariant, iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { CombatantProperties } from "../combatant-properties.js";
 import { HotswapSlot } from "./hotswap-slot.js";
 import { EquipmentSlotId, HoldableSlotId } from "./types.js";
+import { ActionUserHeldWeapons } from "../../action-user-context/action-user.js";
 
 export class HotswapSlotsManager implements Serializable, ReactiveNode {
   constructor(
@@ -85,9 +85,7 @@ export class HotswapSlotsManager implements Serializable, ReactiveNode {
   }
 
   getWeaponsInSlots(slotIds: HoldableSlotId[], options: { usableWeaponsOnly: boolean }) {
-    const toReturn: Partial<
-      Record<HoldableSlotId, { equipment: Equipment; weaponProperties: WeaponProperties }>
-    > = {};
+    const toReturn: ActionUserHeldWeapons = {};
 
     for (const slotId of slotIds) {
       const holdable = this.activeSlot.getEquipmentInSlot(slotId);

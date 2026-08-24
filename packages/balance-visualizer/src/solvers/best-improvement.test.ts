@@ -1,20 +1,12 @@
 import {
   AdventuringParty,
-  CharacterControlScheme,
   Combatant,
-  CombatantBuilder,
   CombatantClass,
   CombatAttribute,
   Equipment,
   EquipmentSlotId,
-  GameId,
-  GameMode,
-  GameName,
   IdGeneratorSequential,
   invariant,
-  PartyId,
-  SpeedDungeonGame,
-  Username,
 } from "@speed-dungeon/common";
 import { BestImprovementEquipmentSolver } from "./best-improvement";
 import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-test-items";
@@ -27,8 +19,10 @@ import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
 const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
 
-const dexterityPerformance = (combatant: Combatant) =>
-  combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0;
+const dexterityPerformance = {
+  checkPerformance: (combatant: Combatant) =>
+    combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
+};
 
 class BestImprovementFixture {
   private idGenerator = new IdGeneratorSequential({ saveHistory: false });

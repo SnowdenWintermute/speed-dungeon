@@ -1,7 +1,10 @@
+import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 import {
   AdventuringParty,
   AttributePointAssignableAttributes,
   Combatant,
+  CombatantId,
   CombatAttribute,
   invariant,
 } from "@speed-dungeon/common";
@@ -9,7 +12,8 @@ import {
 export class AttributeAllocationSolver {
   constructor(
     private party: AdventuringParty,
-    private goalPerformanceChecker: (combatant: Combatant, partyCurrentFloor: number) => number,
+    private analysisCharacterSpecs: Map<CombatantId, AnalysisCharacterSpecification>,
+    private goalPerformanceChecker: GoalPerformanceChecker,
     private attributesToTry: AttributePointAssignableAttributes[]
   ) {}
 
@@ -24,7 +28,13 @@ export class AttributeAllocationSolver {
     const currentAllocatedValue = attributeProperties.getAllocatedAttributes()[attribute];
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue + totalToTry);
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const performanceAfter = this.goalPerformanceChecker(combatant, currentFloor);
+    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
+    invariant(spec !== undefined);
+    const performanceAfter = this.goalPerformanceChecker.checkPerformance(
+      combatant,
+      spec,
+      currentFloor
+    );
     const difference = performanceAfter - performanceBefore;
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue);
     return difference;
@@ -37,7 +47,13 @@ export class AttributeAllocationSolver {
     const { attributeProperties } = combatant.getCombatantProperties();
 
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const performanceBefore = this.goalPerformanceChecker(combatant, currentFloor);
+    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
+    invariant(spec !== undefined);
+    const performanceBefore = this.goalPerformanceChecker.checkPerformance(
+      combatant,
+      spec,
+      currentFloor
+    );
     let bestImprovementAttribute: { attribute: CombatAttribute; score: number } | null = null;
     for (const attribute of toTry) {
       const score = this.tryAllocation(combatant, attribute, performanceBefore);
