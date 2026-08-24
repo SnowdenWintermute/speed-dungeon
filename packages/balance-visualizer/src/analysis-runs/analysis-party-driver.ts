@@ -63,5 +63,6 @@ export class AnalysisPartyDriver {
     }
     const battle = this.game.getExpectedBattle(this.party.battleId);
     battle.resolveBattle(this.lootGenerator, { alliesDefeated: false, opponentsDefeated: true });
+    this.party.combatantManager.removeDungeonControlledCombatants(this.game);
   }
 }

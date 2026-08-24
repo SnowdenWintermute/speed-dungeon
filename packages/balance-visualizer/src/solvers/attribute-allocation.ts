@@ -1,10 +1,9 @@
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
 import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 import {
   AdventuringParty,
   AttributePointAssignableAttributes,
   Combatant,
-  CombatantId,
   CombatAttribute,
   invariant,
 } from "@speed-dungeon/common";
@@ -12,7 +11,7 @@ import {
 export class AttributeAllocationSolver {
   constructor(
     private party: AdventuringParty,
-    private analysisCharacterSpecs: Map<CombatantId, AnalysisCharacterSpecification>,
+    private analysisSpecsHolder: AnalysisSpecHolder,
     private goalPerformanceChecker: GoalPerformanceChecker,
     private attributesToTry: AttributePointAssignableAttributes[]
   ) {}
@@ -28,8 +27,7 @@ export class AttributeAllocationSolver {
     const currentAllocatedValue = attributeProperties.getAllocatedAttributes()[attribute];
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue + totalToTry);
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
-    invariant(spec !== undefined);
+    const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
     const performanceAfter = this.goalPerformanceChecker.checkPerformance(
       combatant,
       spec,
@@ -47,8 +45,7 @@ export class AttributeAllocationSolver {
     const { attributeProperties } = combatant.getCombatantProperties();
 
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
-    invariant(spec !== undefined);
+    const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
     const performanceBefore = this.goalPerformanceChecker.checkPerformance(
       combatant,
       spec,

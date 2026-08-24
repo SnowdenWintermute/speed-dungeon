@@ -10,6 +10,7 @@ import {
   CombatActionHitOutcomes,
   CombatActionResource,
   Combatant,
+  CombatantId,
   DEEPEST_FLOOR,
   EquipmentSlotId,
   getAttackActionName,
@@ -30,6 +31,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
   private resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();
   private targetDummyFactory = new TargetDummyFactory();
   private targetDummiesByFloor = new Map<number, Combatant>();
+  private attributesMemosByCombatantId = new Map<CombatantId, CombatantAttributesMemo>();
 
   constructor() {
     this.initializeTargetDummies();
@@ -43,6 +45,17 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
       new CombatantAttributesMemo(targetDummy).holdIndefinitely();
       this.targetDummiesByFloor.set(floor, targetDummy);
     }
+  }
+
+  private requireAttributesMemo(combatant: Combatant) {
+    const combatantId = combatant.getEntityId();
+    const existing = this.attributesMemosByCombatantId.get(combatantId);
+    if (existing !== undefined) {
+      return existing;
+    }
+    const created = new CombatantAttributesMemo(combatant);
+    this.attributesMemosByCombatantId.set(combatantId, created);
+    return created;
   }
 
   private getAttackActions(weapons: ActionUserHeldWeapons) {
@@ -131,6 +144,15 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
       return 0;
     }
 
+    // the combatant does not change while it is being sampled, so its attributes are derived once
+    // instead of on every read the samples make. solvers mutate it between checks, so the hold ends
+    // with the read
+    return this.requireAttributesMemo(combatant).holdWhile(() =>
+      this.sampleAverageDamage(combatant, partyCurrentFloor)
+    );
+  }
+
+  private sampleAverageDamage(combatant: Combatant, partyCurrentFloor: number) {
     const targetDummy = this.targetDummiesByFloor.get(partyCurrentFloor);
     invariant(targetDummy !== undefined, "no target dummy");
 

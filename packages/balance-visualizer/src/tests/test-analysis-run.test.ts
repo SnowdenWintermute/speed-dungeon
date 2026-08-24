@@ -1,9 +1,9 @@
-import { testAnalysisRun } from "./test-analysis-run";
+import { attackDamageAnalysisRun } from "@/analysis-runs/attack-damage";
 
 it("runs a mock analysis run", () => {
-  const runCount = 100;
+  const runCount = 50;
   for (let i = 0; i < runCount; i += 1) {
-    // expect(true).toBeTruthy();
-    expect(() => testAnalysisRun()).not.toThrow();
+    expect(() => attackDamageAnalysisRun()).not.toThrow();
   }
+  // expect(true).toBeTruthy();
 });

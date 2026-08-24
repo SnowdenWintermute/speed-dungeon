@@ -42,15 +42,13 @@ class BestImprovementFixture {
       );
     }
 
-    const { game, party, analysisSpecsByCombatantId } = new AnalysisPartyBuilder().build(
-      characterSpecs
-    );
+    const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
     this.party = party;
 
     this.solver = new BestImprovementEquipmentSolver(
       this.party,
-      analysisSpecsByCombatantId,
+      analysisSpecsHolder,
       dexterityPerformance,
       [totalDexterity]
     );

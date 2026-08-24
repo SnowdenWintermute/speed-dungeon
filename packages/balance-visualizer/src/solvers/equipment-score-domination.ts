@@ -135,7 +135,6 @@ export class EquipmentScoreDominationSolver {
 
   // if exists seven +2 dex rings and one +1 dex ring, no one will want that +1 dex ring
   getCapacityDominatedEquipment(equipmentBySlotType: Record<EquipmentSlotType, Equipment[]>) {
-    const partySlotCapacities = this.partySlotCapacities;
     const unusedEquipmentBySlotType = new Map<EquipmentSlotType, Set<Equipment>>();
 
     for (const slotType of iterateNumericEnum(EquipmentSlotType)) {

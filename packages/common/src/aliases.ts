@@ -26,6 +26,9 @@ export type CombatantId = string & { __brand: "CombatantId" };
 export type ConditionId = string & { __brand: "ConditionId" };
 export type ActionRank = number & { __brand: "ActionRank" };
 
+export type FloorNumber = number;
+export type RoomNumber = number;
+
 export type GameServerId = string & { __brand: "GameServerId" };
 export type GameServerName = string & { __brand: "GameServerName" };
 

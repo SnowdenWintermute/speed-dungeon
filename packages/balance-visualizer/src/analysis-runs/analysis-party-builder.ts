@@ -20,6 +20,7 @@ import {
   SpeedDungeonPlayer,
   Username,
 } from "@speed-dungeon/common";
+import { AnalysisSpecHolder } from "./analysis-spec-holder";
 
 export class AnalysisPartyBuilder {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
@@ -96,6 +97,8 @@ export class AnalysisPartyBuilder {
       analysisSpecsByCombatantId.set(character.getEntityId(), spec);
     }
 
-    return { game, party, analysisSpecsByCombatantId };
+    const analysisSpecsHolder = new AnalysisSpecHolder(analysisSpecsByCombatantId);
+
+    return { game, party, analysisSpecsHolder };
   }
 }

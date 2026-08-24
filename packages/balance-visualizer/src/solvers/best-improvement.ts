@@ -10,8 +10,8 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
 
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;
@@ -20,7 +20,7 @@ export class BestImprovementEquipmentSolver {
 
   constructor(
     private party: AdventuringParty,
-    private analysisCharacterSpecs: Map<CombatantId, AnalysisCharacterSpecification>,
+    private analysisSpecsHolder: AnalysisSpecHolder,
     //  - measure current goal performance
     //    - for auto-attack damage this is "average damage on target dummy sampled over x attacks"
     //      and for weapons "does this weapon fit this character archetype specification"
@@ -44,8 +44,7 @@ export class BestImprovementEquipmentSolver {
     }
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
 
-    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
-    invariant(spec !== undefined);
+    const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
     const performance = this.goalPerformanceChecker.checkPerformance(combatant, spec, currentFloor);
     this.currentPerformanceByCharacter.set(combatant.getEntityId(), performance);
     return performance;
@@ -75,8 +74,7 @@ export class BestImprovementEquipmentSolver {
     const combatantEquipment = combatantProperties.equipment;
     const roomInventory = this.party.currentRoom.inventory;
 
-    const characterSpec = this.analysisCharacterSpecs.get(combatant.getEntityId());
-    invariant(characterSpec !== undefined, "expected character spec");
+    const characterSpec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
     const { equipmentType } = equipmentToCheck.equipmentBaseItemProperties;
     if (!characterSpec.combatantWouldConsiderEquipmentTypeInSlot(equipmentType, slotId)) {
       return { performanceAfter: 0, performanceDifference: -1 };
@@ -92,11 +90,9 @@ export class BestImprovementEquipmentSolver {
 
     // use the checker directly, not the maybe-cached value
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
-    invariant(spec !== undefined);
     const performanceAfter = this.goalPerformanceChecker.checkPerformance(
       combatant,
-      spec,
+      characterSpec,
       currentFloor
     );
     const performanceDifference = performanceAfter - performanceBefore;
@@ -240,8 +236,7 @@ export class BestImprovementEquipmentSolver {
   solve() {
     this.dropAllCharacterItemsOnGround({ includeEquipped: false });
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      const spec = this.analysisCharacterSpecs.get(combatant.getEntityId());
-      invariant(spec !== undefined);
+      const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
       this.currentPerformanceByCharacter.set(
         combatant.getEntityId(),
         this.goalPerformanceChecker.checkPerformance(
@@ -257,6 +252,7 @@ export class BestImprovementEquipmentSolver {
     );
 
     const unused = this.scoreDominationSolver.getCapacityDominatedEquipment(equipmentBySlotType);
+    // const unused = new Map();
 
     // important that MainHand appears in the enum listing before offhand since
     // we want to prioritize mainhand upgrades over offhand upgrades. If offhand goes
