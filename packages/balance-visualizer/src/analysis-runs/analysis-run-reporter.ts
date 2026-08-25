@@ -14,6 +14,7 @@ import {
   invariant,
   NumberRange,
 } from "@speed-dungeon/common";
+import { EquipmentBaseItemTally } from "@/analysis-subjects/equipment-base-item-tally";
 
 export enum AttackDamageContributingAttribute {
   Strength,
@@ -22,12 +23,12 @@ export enum AttackDamageContributingAttribute {
   FlatDamage,
 }
 
-interface CombatantReportTooltipDamage {
+export interface CombatantReportTooltipDamage {
   [EquipmentSlotId.MainHand]: NumberRange;
   [EquipmentSlotId.OffHand]: NumberRange | null;
 }
 
-type CombatantAttackContributingAttributes = Record<
+export type CombatantAttackContributingAttributes = Record<
   AttackDamageContributingAttribute,
   { fromGear: number; allocated: number; inherent: number }
 >;
@@ -45,8 +46,9 @@ interface AttackDamageCombatantReport {
 }
 
 export interface AttackDamageRoomReport {
+  /** every base item dropped since the run began, not only this room's drops */
+  cumulativeAvailableEquipment: EquipmentBaseItemTally;
   combatantReports: Map<CombatantId, AttackDamageCombatantReport>;
-  unusedEquipmentTypeCounts: Map<string, number>;
 }
 
 export type RunReport<T> = { floor: number; room: number; roomReport: T }[];
@@ -54,13 +56,14 @@ export type RunReport<T> = { floor: number; room: number; roomReport: T }[];
 export interface AnalysisRunReporter<T> {
   updateReport(
     goalPerformanceByCharacter: Map<CombatantId, number>,
-    unusedEquipment: Equipment[]
+    equipmentDroppedThisRoom: Equipment[]
   ): void;
   runReport: RunReport<T>;
 }
 
 export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamageRoomReport> {
   private _runReport: RunReport<AttackDamageRoomReport> = [];
+  private cumulativeAvailableEquipment = EquipmentBaseItemTally.empty();
 
   constructor(private party: AdventuringParty) {}
 
@@ -190,10 +193,15 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
     };
   }
 
-  updateReport(goalPerformanceByCharacter: Map<CombatantId, number>, unusedEquipment: Equipment[]) {
+  updateReport(
+    goalPerformanceByCharacter: Map<CombatantId, number>,
+    equipmentDroppedThisRoom: Equipment[]
+  ) {
+    this.cumulativeAvailableEquipment.addAllEquipment(equipmentDroppedThisRoom);
+
     const roomReport = {
+      cumulativeAvailableEquipment: this.cumulativeAvailableEquipment.clone(),
       combatantReports: new Map<CombatantId, AttackDamageCombatantReport>(),
-      unusedEquipmentTypeCounts: new Map<string, number>(),
     };
 
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
@@ -212,15 +220,6 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
       };
 
       roomReport.combatantReports.set(combatant.getEntityId(), combatantReport);
-    }
-
-    for (const equipment of unusedEquipment) {
-      const equipmentString = Equipment.getBaseItemStringName(
-        equipment.equipmentBaseItemProperties
-      );
-      let record = roomReport.unusedEquipmentTypeCounts.get(equipmentString) ?? 0;
-      record += 1;
-      roomReport.unusedEquipmentTypeCounts.set(equipmentString, record);
     }
 
     const { dungeonExplorationManager } = this.party;

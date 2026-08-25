@@ -15,10 +15,4 @@ export class AnalysisSpecHolder {
     invariant(specOption !== undefined, "no spec by that id");
     return specOption;
   }
-
-  mergeFromOther(other: AnalysisSpecHolder) {
-    for (const [combatantId, spec] of other.analysisSpecsByCombatantId) {
-      this._analysisSpecsByCombatantId.set(combatantId, spec);
-    }
-  }
 }

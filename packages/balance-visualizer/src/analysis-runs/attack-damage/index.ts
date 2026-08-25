@@ -14,14 +14,28 @@ import {
 import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "@/goal-performance-checkers/sampled-damage-on-target-dummy";
 import { EQUIPMENT_SCORE_DOMINATION_AXES } from "@/solvers/equipment-score-domination-axes";
 
-export function attackDamageAnalysisRun() {
-  const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build([
-    new AnalysisCharacterSpecification("character 1", {
-      mainClass: CombatantClass.Warrior,
-      supportClass: CombatantClass.Rogue,
-      weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
-    }),
-  ]);
+export const DEFAULT_ANALYSIS_CHARACTER_SPECS = [
+  new AnalysisCharacterSpecification("character 1", {
+    mainClass: CombatantClass.Warrior,
+    supportClass: CombatantClass.Rogue,
+    weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
+  }),
+  new AnalysisCharacterSpecification("character 2", {
+    mainClass: CombatantClass.Rogue,
+    supportClass: CombatantClass.Warrior,
+    weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged,
+  }),
+  new AnalysisCharacterSpecification("character 3", {
+    mainClass: CombatantClass.Mage,
+    supportClass: CombatantClass.Rogue,
+    weaponSpecialty: CharacterWeaponSpecialty.Shields,
+  }),
+];
+
+export function attackDamageAnalysisRun(
+  characterSpecs: AnalysisCharacterSpecification[] = DEFAULT_ANALYSIS_CHARACTER_SPECS
+) {
+  const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
   const goalPerformanceChecker = new SampledDamageOnTargetDummyGoalPerformanceChecker();
 

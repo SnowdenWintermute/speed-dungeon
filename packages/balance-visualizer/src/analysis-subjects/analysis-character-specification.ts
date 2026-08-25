@@ -37,6 +37,20 @@ export class AnalysisCharacterSpecification {
     }
   }
 
+  /** the holdable types this build competes for, so availability can be reported per build */
+  static getUsedHoldableTypes(weaponSpecialty: CharacterWeaponSpecialty): EquipmentType[] {
+    switch (weaponSpecialty) {
+      case CharacterWeaponSpecialty.TwoHandedMelee:
+        return [EquipmentType.TwoHandedMeleeWeapon];
+      case CharacterWeaponSpecialty.TwoHandedRanged:
+        return [EquipmentType.TwoHandedRangedWeapon];
+      case CharacterWeaponSpecialty.DualWield:
+        return [EquipmentType.OneHandedMeleeWeapon];
+      case CharacterWeaponSpecialty.Shields:
+        return [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield];
+    }
+  }
+
   /** not meant to check equipment basic slot compatibility */
   combatantWouldConsiderEquipmentTypeInSlot(equipmentType: EquipmentType, slotId: EquipmentSlotId) {
     const { weaponSpecialty } = this.characterBuildSpec;
@@ -74,5 +88,5 @@ export enum CharacterWeaponSpecialty {
 export interface CharacterBuildSpecification {
   weaponSpecialty: CharacterWeaponSpecialty;
   mainClass: CombatantClass;
-  supportClass: CombatantClass;
+  supportClass: CombatantClass | null;
 }

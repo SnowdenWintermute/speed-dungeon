@@ -41,8 +41,10 @@ export class AnalysisRun<RoomReportType> {
       this.partyDriver.clearCurrentRoom();
       this.removeRequirementsFromDroppedEquipment();
       this.attributeAllocationSolver.solve();
-      const { performanceByCharacter, unusedEquipment } = this.equipmentSolver.solve();
-      this.runReporter.updateReport(performanceByCharacter, unusedEquipment);
+      // the solver deletes what it doesn't equip, so capture the drops before it runs
+      const equipmentDroppedThisRoom = [...this.party.currentRoom.inventory.equipment];
+      const { performanceByCharacter } = this.equipmentSolver.solve();
+      this.runReporter.updateReport(performanceByCharacter, equipmentDroppedThisRoom);
 
       if (this.party.currentRoom.roomType === DungeonRoomType.Staircase) {
         this.partyDriver.descend();

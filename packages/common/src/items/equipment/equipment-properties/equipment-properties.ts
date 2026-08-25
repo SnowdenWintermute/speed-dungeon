@@ -40,8 +40,8 @@ export interface ShieldProperties extends ShieldBaseItemType {
   size: ShieldSize;
   armorClass: number;
 }
-export interface RingProperties extends RingBaseItemType {}
-export interface AmuletProperties extends AmuletBaseItemType {}
+export type RingProperties = RingBaseItemType;
+export type AmuletProperties = AmuletBaseItemType;
 
 export type EquipmentProperties =
   | BodyArmorProperties

@@ -69,9 +69,12 @@ export class AnalysisPartyBuilder {
       AnalysisPartyBuilder.playerName
     );
 
-    characterWithPets.combatant
-      .getCombatantProperties()
-      .classProgressionProperties.setSupportClass(spec.characterBuildSpec.supportClass, 0);
+    const { supportClass } = spec.characterBuildSpec;
+    if (supportClass !== null) {
+      characterWithPets.combatant
+        .getCombatantProperties()
+        .classProgressionProperties.setSupportClass(supportClass, 0);
+    }
 
     game.addCharacterToParty(
       party,
