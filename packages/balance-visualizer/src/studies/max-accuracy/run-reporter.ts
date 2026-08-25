@@ -1,18 +1,14 @@
 import {
-  AdventuringParty,
   AffixType,
-  CombatantId,
+  Combatant,
   CombatantProperties,
   CombatAttribute,
   DEX_TO_ACCURACY_RATIO,
-  Equipment,
-  invariant,
 } from "@speed-dungeon/common";
-import { AnalysisRunReporter, RunReport } from "@/analysis-runs/analysis-run-reporter";
 import {
-  EquipmentBaseItemTally,
-  TalliedBaseItem,
-} from "@/analysis-subjects/equipment-base-item-tally";
+  AnalysisCombatantReport,
+  RoomReportingRunReporter,
+} from "@/analysis-runs/analysis-run-reporter";
 
 /** every field is accuracy, including the ones dexterity supplies, so they read against each other */
 export interface AccuracyBySource {
@@ -22,7 +18,7 @@ export interface AccuracyBySource {
   fromInherent: number;
 }
 
-export interface MaxAccuracyCombatantReport {
+export interface MaxAccuracyCombatantReport extends AnalysisCombatantReport {
   /**
    * Read from the combatant. The sources below attribute it and will not re-sum to it exactly:
    * getCombatantTotalAttributes derives accuracy from *total* dexterity and floors the result once,
@@ -30,26 +26,9 @@ export interface MaxAccuracyCombatantReport {
    */
   totalAccuracy: number;
   accuracyBySource: AccuracyBySource;
-  mainClassLevel: number;
-  supportClassLevel: number | undefined;
 }
 
-export interface MaxAccuracyRoomReport {
-  /** every base item dropped since the run began, not only this room's drops */
-  cumulativeAvailableEquipment: TalliedBaseItem[];
-  combatantReports: Map<CombatantId, MaxAccuracyCombatantReport>;
-}
-
-export class MaxAccuracyRunReporter implements AnalysisRunReporter<MaxAccuracyRoomReport> {
-  private _runReport: RunReport<MaxAccuracyRoomReport> = [];
-  private cumulativeAvailableEquipment = new EquipmentBaseItemTally();
-
-  constructor(private party: AdventuringParty) {}
-
-  get runReport() {
-    return this._runReport;
-  }
-
+export class MaxAccuracyRunReporter extends RoomReportingRunReporter<MaxAccuracyCombatantReport> {
   private getGearContributions(combatantProperties: CombatantProperties) {
     let dexterity = 0;
     let fromAccuracyAffix = 0;
@@ -67,10 +46,11 @@ export class MaxAccuracyRunReporter implements AnalysisRunReporter<MaxAccuracyRo
     return { dexterity, fromAccuracyAffix };
   }
 
-  private getCombatantReport(
-    combatantProperties: CombatantProperties,
+  protected getCombatantReport(
+    combatant: Combatant,
     totalAccuracy: number
   ): MaxAccuracyCombatantReport {
+    const combatantProperties = combatant.getCombatantProperties();
     const gear = this.getGearContributions(combatantProperties);
     const { attributeProperties, classProgressionProperties } = combatantProperties;
     const allocated = attributeProperties.getAllocatedAttributes();
@@ -90,34 +70,5 @@ export class MaxAccuracyRunReporter implements AnalysisRunReporter<MaxAccuracyRo
       mainClassLevel: classProgressionProperties.getMainClass().level,
       supportClassLevel: classProgressionProperties.getSupportClassOption()?.level,
     };
-  }
-
-  updateReport(
-    goalPerformanceByCharacter: Map<CombatantId, number>,
-    equipmentDroppedThisRoom: Equipment[]
-  ) {
-    this.cumulativeAvailableEquipment.addAllEquipment(equipmentDroppedThisRoom);
-
-    const roomReport = {
-      cumulativeAvailableEquipment: this.cumulativeAvailableEquipment.entries(),
-      combatantReports: new Map<CombatantId, MaxAccuracyCombatantReport>(),
-    };
-
-    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      const totalAccuracy = goalPerformanceByCharacter.get(combatant.getEntityId());
-      invariant(totalAccuracy !== undefined);
-
-      roomReport.combatantReports.set(
-        combatant.getEntityId(),
-        this.getCombatantReport(combatant.getCombatantProperties(), totalAccuracy)
-      );
-    }
-
-    const { dungeonExplorationManager } = this.party;
-    this._runReport.push({
-      floor: dungeonExplorationManager.getCurrentFloor(),
-      room: dungeonExplorationManager.getCurrentRoomNumber(),
-      roomReport,
-    });
   }
 }

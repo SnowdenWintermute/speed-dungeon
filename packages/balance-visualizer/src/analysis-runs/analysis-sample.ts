@@ -47,23 +47,20 @@ export class RoomGroupedSamples<TSample extends AnalysisSampleDimensions> {
   }
 
   selectRooms(slice: AnalysisSlice): SampledRoom<TSample>[] {
-    const byFloor = new Map<number, Map<number, TSample[]>>();
+    const byRoom = new Map<string, SampledRoom<TSample>>();
 
     for (const sample of this.samples) {
       if (!this.matchesSlice(sample, slice)) {
         continue;
       }
-      const byRoom = MapUtils.getOrCreate(byFloor, sample.floor, () => new Map<number, TSample[]>());
-      MapUtils.getOrCreate(byRoom, sample.room, () => []).push(sample);
+      const { floor, room } = sample;
+      MapUtils.getOrCreate(byRoom, roomKey(sample), () => ({
+        floor,
+        room,
+        samples: [],
+      })).samples.push(sample);
     }
 
-    const rooms: SampledRoom<TSample>[] = [];
-    for (const [floor, byRoom] of byFloor) {
-      for (const [room, samples] of byRoom) {
-        rooms.push({ floor, room, samples });
-      }
-    }
-
-    return rooms.sort((a, b) => a.floor - b.floor || a.room - b.room);
+    return [...byRoom.values()].sort((a, b) => a.floor - b.floor || a.room - b.room);
   }
 }

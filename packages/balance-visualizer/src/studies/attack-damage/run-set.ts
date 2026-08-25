@@ -1,15 +1,9 @@
 import { EquipmentSlotId } from "@speed-dungeon/common";
-import { attackDamageAnalysisRun } from "./run";
-import { AnalysisRunSet } from "@/analysis-runs/run-set";
-import { RunReport } from "@/analysis-runs/analysis-run-reporter";
-import { RoomAvailability } from "@/analysis-runs/room-availability";
-import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
+import { AnalysisSampleCollectingRunSet } from "@/analysis-runs/run-set";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import {
-  AttackDamageRoomReport,
-  CombatantReportTooltipDamage,
-} from "./run-reporter";
-import { AttackDamageRunSetResult, AttackDamageSample, SampleTooltipDamage } from "./samples";
+import { attackDamageAnalysisRun } from "./run";
+import { AttackDamageCombatantReport, CombatantReportTooltipDamage } from "./run-reporter";
+import { AttackDamageSample, SampleTooltipDamage } from "./samples";
 
 function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): SampleTooltipDamage {
   const offHand = tooltipDamage[EquipmentSlotId.OffHand];
@@ -19,73 +13,23 @@ function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): Sam
   };
 }
 
-export class AttackDamageRunSet implements AnalysisRunSet<AttackDamageRunSetResult> {
-  private samples: AttackDamageSample[] = [];
-  private availability: RoomAvailability[] = [];
-  private runsCollected = 0;
-  private runsFailed = 0;
-
-  constructor(private characterSpecs: AnalysisCharacterSpecification[]) {}
-
-  get result(): AttackDamageRunSetResult {
-    return { samples: this.samples, availability: this.availability, runsFailed: this.runsFailed };
-  }
-
-  /**
-   * Flattens as each run finishes so the RunReport, which holds live Equipment, can be dropped
-   * instead of retained across the whole set.
-   */
-  private collectRun(runReport: RunReport<AttackDamageRoomReport>, specHolder: AnalysisSpecHolder) {
-    const runIndex = this.runsCollected;
-    this.runsCollected += 1;
-
-    for (const { floor, room, roomReport } of runReport) {
-      const { combatantReports, cumulativeAvailableEquipment } = roomReport;
-
-      this.availability.push({
-        runIndex,
-        floor,
-        room,
-        availableEquipment: cumulativeAvailableEquipment,
-      });
-
-      for (const [combatantId, combatantReport] of combatantReports) {
-        const { characterBuildSpec } = specHolder.requireSpec(combatantId);
-        const { heldEquipment } = combatantReport;
-
-        this.samples.push({
-          runIndex,
-          floor,
-          room,
-          weaponSpecialty: characterBuildSpec.weaponSpecialty,
-          mainClass: characterBuildSpec.mainClass,
-          supportClass: characterBuildSpec.supportClass,
-          mainClassLevel: combatantReport.mainClassLevel,
-          supportClassLevel: combatantReport.supportClassLevel ?? null,
-          sampledDamageOnDummy: combatantReport.sampledDamageOnDummy,
-          tooltipDamage: toSampleTooltipDamage(combatantReport.tooltipDamage),
-          wornHoldables: {
-            [EquipmentSlotId.MainHand]:
-              heldEquipment[EquipmentSlotId.MainHand]?.equipmentBaseItemProperties ?? null,
-            [EquipmentSlotId.OffHand]:
-              heldEquipment[EquipmentSlotId.OffHand]?.equipmentBaseItemProperties ?? null,
-          },
-          contributingAttributes: combatantReport.contributingAttributes,
-        });
-      }
+export function attackDamageRunSet(characterSpecs: AnalysisCharacterSpecification[]) {
+  return new AnalysisSampleCollectingRunSet<AttackDamageCombatantReport, AttackDamageSample>(
+    () => attackDamageAnalysisRun(characterSpecs),
+    (dimensions, combatantReport) => {
+      const { heldEquipment } = combatantReport;
+      return {
+        ...dimensions,
+        sampledDamageOnDummy: combatantReport.sampledDamageOnDummy,
+        tooltipDamage: toSampleTooltipDamage(combatantReport.tooltipDamage),
+        wornHoldables: {
+          [EquipmentSlotId.MainHand]:
+            heldEquipment[EquipmentSlotId.MainHand]?.equipmentBaseItemProperties ?? null,
+          [EquipmentSlotId.OffHand]:
+            heldEquipment[EquipmentSlotId.OffHand]?.equipmentBaseItemProperties ?? null,
+        },
+        contributingAttributes: combatantReport.contributingAttributes,
+      };
     }
-  }
-
-  executeSet(runCount: number, onRunFinished: (runsFinished: number) => void) {
-    for (let i = 0; i < runCount; i += 1) {
-      try {
-        const { report, analysisSpecsHolder } = attackDamageAnalysisRun(this.characterSpecs);
-        this.collectRun(report, analysisSpecsHolder);
-      } catch (probablyError) {
-        this.runsFailed += 1;
-        console.error(probablyError);
-      }
-      onRunFinished(i + 1);
-    }
-  }
+  );
 }

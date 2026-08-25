@@ -6,14 +6,14 @@ import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
 import { BestImprovementEquipmentSolver } from "@/solvers/best-improvement";
 import { EQUIPMENT_SCORE_DOMINATION_AXES } from "@/solvers/equipment-score-domination-axes";
 import { TotalAccuracyGoalPerformanceChecker } from "./goal-performance-checker";
-import { MaxAccuracyRoomReport, MaxAccuracyRunReporter } from "./run-reporter";
+import { MaxAccuracyCombatantReport, MaxAccuracyRunReporter } from "./run-reporter";
 
 export function maxAccuracyAnalysisRun(characterSpecs: AnalysisCharacterSpecification[]) {
   const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
   const goalPerformanceChecker = new TotalAccuracyGoalPerformanceChecker();
 
-  const runner = new AnalysisRun<MaxAccuracyRoomReport>(
+  const runner = new AnalysisRun<MaxAccuracyCombatantReport>(
     game,
     party,
     // an item carrying neither affix is pruned as scoring on no axis, which is what we want: it

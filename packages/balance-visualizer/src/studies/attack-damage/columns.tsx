@@ -9,12 +9,7 @@ function totalContributionColumn(
 ): DataTableColumn<AttackDamageTableRow> {
   return {
     header,
-    renderCell: (row) => {
-      const { averageContributingAttributes } = row;
-      const contributions = averageContributingAttributes[attribute];
-      // return `${Math.round(contributions.inherent)}/${Math.round(contributions.fromGear)}/${Math.round(contributions.allocated)}/${Math.round(contributions.total)}`;
-      return `${Math.round(contributions.total)}`;
-    },
+    renderCell: (row) => `${Math.round(row.averageContributingAttributes[attribute].total)}`,
   };
 }
 

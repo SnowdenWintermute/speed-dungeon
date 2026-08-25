@@ -6,8 +6,7 @@ import {
   SerializedOf,
 } from "@speed-dungeon/common";
 import { AnalysisSampleDimensions } from "@/analysis-runs/analysis-sample";
-import { RoomAvailability } from "@/analysis-runs/room-availability";
-import { AnalysisRunSetResult } from "@/analysis-runs/run-set";
+import { AnalysisSampleRunSetResult } from "@/analysis-runs/run-set";
 import { CombatantAttackContributingAttributes } from "./run-reporter";
 
 // serialized rather than the NumberRange itself: postMessage copies own properties without the
@@ -25,7 +24,4 @@ export interface AttackDamageSample extends AnalysisSampleDimensions {
   contributingAttributes: CombatantAttackContributingAttributes;
 }
 
-export interface AttackDamageRunSetResult extends AnalysisRunSetResult {
-  samples: AttackDamageSample[];
-  availability: RoomAvailability[];
-}
+export type AttackDamageRunSetResult = AnalysisSampleRunSetResult<AttackDamageSample>;

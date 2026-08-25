@@ -1,9 +1,7 @@
 import {
-  AdventuringParty,
   AffixType,
   COMBAT_ACTIONS,
   Combatant,
-  CombatantId,
   CombatantProperties,
   CombatAttribute,
   DEX_TO_ACCURACY_RATIO,
@@ -14,12 +12,13 @@ import {
   HoldableSlotId,
   invariant,
   NumberRange,
+  WeaponProperties,
 } from "@speed-dungeon/common";
-import { AnalysisRunReporter, RunReport } from "@/analysis-runs/analysis-run-reporter";
 import {
-  EquipmentBaseItemTally,
-  TalliedBaseItem,
-} from "@/analysis-subjects/equipment-base-item-tally";
+  AnalysisCombatantReport,
+  RoomReportingRunReporter,
+} from "@/analysis-runs/analysis-run-reporter";
+import { numericEnumKeyedRecord } from "@/utils/numeric-enum-record";
 
 export enum AttackDamageContributingAttribute {
   Strength,
@@ -35,70 +34,58 @@ export interface CombatantReportTooltipDamage {
   [EquipmentSlotId.OffHand]: NumberRange | null;
 }
 
+type ContributionsByAttribute = Record<AttackDamageContributingAttribute, number>;
+
 export type CombatantAttackContributingAttributes = Record<
   AttackDamageContributingAttribute,
   { fromGear: number; allocated: number; inherent: number }
 >;
 
-interface AttackDamageCombatantReport {
+export interface AttackDamageCombatantReport extends AnalysisCombatantReport {
   sampledDamageOnDummy: number;
   tooltipDamage: CombatantReportTooltipDamage;
   heldEquipment: Record<HoldableSlotId, Equipment | null>;
   contributingAttributes: CombatantAttackContributingAttributes;
-  mainClassLevel: number;
-  supportClassLevel: number | undefined;
 }
 
-export interface AttackDamageRoomReport {
-  /** every base item dropped since the run began, not only this room's drops */
-  cumulativeAvailableEquipment: TalliedBaseItem[];
-  combatantReports: Map<CombatantId, AttackDamageCombatantReport>;
-}
-
-export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamageRoomReport> {
-  private _runReport: RunReport<AttackDamageRoomReport> = [];
-  private cumulativeAvailableEquipment = new EquipmentBaseItemTally();
-
-  constructor(private party: AdventuringParty) {}
-
-  get runReport() {
-    return this._runReport;
+export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDamageCombatantReport> {
+  private tooltipRangeForHand(
+    combatant: Combatant,
+    weaponPropertiesOption: WeaponProperties | undefined,
+    options: { isOffHand: boolean }
+  ) {
+    const attackActionName = getAttackActionName(weaponPropertiesOption, options);
+    const tooltip = getTooltipOffensiveSpec(COMBAT_ACTIONS[attackActionName], combatant);
+    invariant(tooltip?.hpChangeRange !== undefined);
+    return tooltip.hpChangeRange;
   }
 
-  private getTooltipDamage(combatant: Combatant) {
+  private getTooltipDamage(combatant: Combatant): CombatantReportTooltipDamage {
     const weaponsHeld = combatant.getWeaponsInSlots(
       [EquipmentSlotId.MainHand, EquipmentSlotId.OffHand],
       { usableWeaponsOnly: false }
     );
-    const mhOption = weaponsHeld[EquipmentSlotId.MainHand];
-    const mainhandAttackActionName = getAttackActionName(mhOption?.weaponProperties, {
-      isOffHand: false,
-    });
-    const mhAttackAction = COMBAT_ACTIONS[mainhandAttackActionName];
-
-    const mhTooltip = getTooltipOffensiveSpec(mhAttackAction, combatant);
-    invariant(mhTooltip !== undefined);
-
-    const tooltipDamage: CombatantReportTooltipDamage = {
-      [EquipmentSlotId.MainHand]: mhTooltip.hpChangeRange,
-      [EquipmentSlotId.OffHand]: null,
-    };
-
-    const ohEquipmentOption = combatant
+    const mainHandOption = weaponsHeld[EquipmentSlotId.MainHand];
+    const offHandEquipmentOption = combatant
       .getCombatantProperties()
       .equipment.getEquipmentInSlot(EquipmentSlotId.OffHand);
-    if (!mhOption?.equipment.isTwoHanded() && !ohEquipmentOption?.isShield()) {
-      const ohOption = weaponsHeld[EquipmentSlotId.OffHand];
-      const offhandAttackActionName = getAttackActionName(ohOption?.weaponProperties, {
-        isOffHand: true,
-      });
-      const ohAttackAction = COMBAT_ACTIONS[offhandAttackActionName];
-      const ohTooltip = getTooltipOffensiveSpec(ohAttackAction, combatant);
-      invariant(ohTooltip?.hpChangeRange !== undefined);
-      tooltipDamage[EquipmentSlotId.OffHand] = ohTooltip.hpChangeRange;
-    }
+    const hasOffHandAttack =
+      !mainHandOption?.equipment.isTwoHanded() && !offHandEquipmentOption?.isShield();
 
-    return tooltipDamage;
+    return {
+      [EquipmentSlotId.MainHand]: this.tooltipRangeForHand(
+        combatant,
+        mainHandOption?.weaponProperties,
+        { isOffHand: false }
+      ),
+      [EquipmentSlotId.OffHand]: hasOffHandAttack
+        ? this.tooltipRangeForHand(
+            combatant,
+            weaponsHeld[EquipmentSlotId.OffHand]?.weaponProperties,
+            { isOffHand: true }
+          )
+        : null,
+    };
   }
 
   private getHeldEquipment(combatantProperties: CombatantProperties) {
@@ -109,118 +96,86 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
     };
   }
 
-  private getContributingAttributesOnEquipment(equipment: Equipment) {
-    const strength = equipment.getAffixAttributeValue(AffixType.Strength, CombatAttribute.Strength);
-    const dexterity = equipment.getAffixAttributeValue(
-      AffixType.Dexterity,
-      CombatAttribute.Dexterity
-    );
-    let accuracy = equipment.getAffixAttributeValue(AffixType.Accuracy, CombatAttribute.Accuracy);
-    accuracy += dexterity * DEX_TO_ACCURACY_RATIO;
+  private getGearContributions(combatantProperties: CombatantProperties): ContributionsByAttribute {
+    const result = numericEnumKeyedRecord(AttackDamageContributingAttribute, () => 0);
 
-    // weapon flat damage already included in the weapon's damage range
-    // so we're only interested in counting rings/amulets with +damage
-    let flatDamage = 0;
-    if (!equipment.isWeapon()) {
-      flatDamage = equipment.getFlatDamageBonus();
+    for (const equipment of combatantProperties.equipment.getAllEquippedItems({
+      includeUnselectedHotswapSlots: false,
+    })) {
+      const strength = equipment.getAffixAttributeValue(
+        AffixType.Strength,
+        CombatAttribute.Strength
+      );
+      const dexterity = equipment.getAffixAttributeValue(
+        AffixType.Dexterity,
+        CombatAttribute.Dexterity
+      );
+      const accuracy = equipment.getAffixAttributeValue(
+        AffixType.Accuracy,
+        CombatAttribute.Accuracy
+      );
+
+      result[AttackDamageContributingAttribute.Strength] += strength;
+      result[AttackDamageContributingAttribute.Dexterity] += dexterity;
+      result[AttackDamageContributingAttribute.Accuracy] +=
+        accuracy + dexterity * DEX_TO_ACCURACY_RATIO;
+
+      // weapon flat damage is already inside the weapon's damage range, so only rings and amulets
+      // with +damage are counted here
+      if (!equipment.isWeapon()) {
+        result[AttackDamageContributingAttribute.FlatDamage] += equipment.getFlatDamageBonus();
+      }
     }
 
-    return { strength, dexterity, accuracy, flatDamage };
+    return result;
+  }
+
+  private contributionsFromAttributes(
+    attributes: Record<CombatAttribute, number>
+  ): ContributionsByAttribute {
+    return {
+      [AttackDamageContributingAttribute.Strength]: attributes[CombatAttribute.Strength],
+      [AttackDamageContributingAttribute.Dexterity]: attributes[CombatAttribute.Dexterity],
+      // you can't allocate to accuracy, but reading it the same way as inherent keeps the two
+      // sources comparable
+      [AttackDamageContributingAttribute.Accuracy]:
+        attributes[CombatAttribute.Accuracy] +
+        attributes[CombatAttribute.Dexterity] * DEX_TO_ACCURACY_RATIO,
+      [AttackDamageContributingAttribute.FlatDamage]: 0,
+    };
   }
 
   private getContributingAttributes(
     combatantProperties: CombatantProperties
   ): CombatantAttackContributingAttributes {
-    // from equipment
-    const contributionsFromEquipped: Record<AttackDamageContributingAttribute, number> = {
-      [AttackDamageContributingAttribute.Strength]: 0,
-      [AttackDamageContributingAttribute.Dexterity]: 0,
-      [AttackDamageContributingAttribute.Accuracy]: 0,
-      [AttackDamageContributingAttribute.FlatDamage]: 0,
-    };
-
-    for (const equipment of combatantProperties.equipment.getAllEquippedItems({
-      includeUnselectedHotswapSlots: false,
-    })) {
-      const { strength, dexterity, accuracy, flatDamage } =
-        this.getContributingAttributesOnEquipment(equipment);
-      contributionsFromEquipped[AttackDamageContributingAttribute.Strength] += strength;
-      contributionsFromEquipped[AttackDamageContributingAttribute.Dexterity] += dexterity;
-      contributionsFromEquipped[AttackDamageContributingAttribute.Accuracy] += accuracy;
-      contributionsFromEquipped[AttackDamageContributingAttribute.FlatDamage] += flatDamage;
-    }
-
-    // from allocated points
     const { attributeProperties } = combatantProperties;
-    const allocated = attributeProperties.getAllocatedAttributes();
-    const accuracyFromAllocated =
-      allocated[CombatAttribute.Accuracy] + // you can't allocate to accuracy, but for consistency
-      allocated[CombatAttribute.Dexterity] * DEX_TO_ACCURACY_RATIO;
+    const fromGear = this.getGearContributions(combatantProperties);
+    const allocated = this.contributionsFromAttributes(
+      attributeProperties.getAllocatedAttributes()
+    );
+    const inherent = this.contributionsFromAttributes(attributeProperties.getInherentAttributes());
 
-    // from inherent
-    const inherent = attributeProperties.getInherentAttributes();
-    const accuracyFromInherent =
-      inherent[CombatAttribute.Accuracy] +
-      inherent[CombatAttribute.Dexterity] * DEX_TO_ACCURACY_RATIO;
-
-    return {
-      [AttackDamageContributingAttribute.Strength]: {
-        fromGear: contributionsFromEquipped[AttackDamageContributingAttribute.Strength],
-        allocated: allocated[CombatAttribute.Strength],
-        inherent: inherent[CombatAttribute.Strength],
-      },
-      [AttackDamageContributingAttribute.Dexterity]: {
-        fromGear: contributionsFromEquipped[AttackDamageContributingAttribute.Dexterity],
-        allocated: allocated[CombatAttribute.Dexterity],
-        inherent: inherent[CombatAttribute.Dexterity],
-      },
-      [AttackDamageContributingAttribute.Accuracy]: {
-        fromGear: contributionsFromEquipped[AttackDamageContributingAttribute.Accuracy],
-        allocated: accuracyFromAllocated,
-        inherent: accuracyFromInherent,
-      },
-      [AttackDamageContributingAttribute.FlatDamage]: {
-        fromGear: contributionsFromEquipped[AttackDamageContributingAttribute.FlatDamage],
-        allocated: 0,
-        inherent: 0,
-      },
-    };
+    return numericEnumKeyedRecord(AttackDamageContributingAttribute, (attribute) => ({
+      fromGear: fromGear[attribute],
+      allocated: allocated[attribute],
+      inherent: inherent[attribute],
+    }));
   }
 
-  updateReport(
-    goalPerformanceByCharacter: Map<CombatantId, number>,
-    equipmentDroppedThisRoom: Equipment[]
-  ) {
-    this.cumulativeAvailableEquipment.addAllEquipment(equipmentDroppedThisRoom);
+  protected getCombatantReport(
+    combatant: Combatant,
+    sampledDamageOnDummy: number
+  ): AttackDamageCombatantReport {
+    const combatantProperties = combatant.getCombatantProperties();
+    const { classProgressionProperties } = combatantProperties;
 
-    const roomReport = {
-      cumulativeAvailableEquipment: this.cumulativeAvailableEquipment.entries(),
-      combatantReports: new Map<CombatantId, AttackDamageCombatantReport>(),
+    return {
+      sampledDamageOnDummy,
+      tooltipDamage: this.getTooltipDamage(combatant),
+      heldEquipment: this.getHeldEquipment(combatantProperties),
+      contributingAttributes: this.getContributingAttributes(combatantProperties),
+      mainClassLevel: classProgressionProperties.getMainClass().level,
+      supportClassLevel: classProgressionProperties.getSupportClassOption()?.level,
     };
-
-    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      const sampledDamageOnDummy = goalPerformanceByCharacter.get(combatant.getEntityId());
-      invariant(sampledDamageOnDummy !== undefined);
-      const combatantProperties = combatant.getCombatantProperties();
-      const { classProgressionProperties } = combatantProperties;
-
-      const combatantReport = {
-        sampledDamageOnDummy,
-        tooltipDamage: this.getTooltipDamage(combatant),
-        heldEquipment: this.getHeldEquipment(combatantProperties),
-        contributingAttributes: this.getContributingAttributes(combatantProperties),
-        mainClassLevel: classProgressionProperties.getMainClass().level,
-        supportClassLevel: classProgressionProperties.getSupportClassOption()?.level,
-      };
-
-      roomReport.combatantReports.set(combatant.getEntityId(), combatantReport);
-    }
-
-    const { dungeonExplorationManager } = this.party;
-    this._runReport.push({
-      floor: dungeonExplorationManager.getCurrentFloor(),
-      room: dungeonExplorationManager.getCurrentRoomNumber(),
-      roomReport,
-    });
   }
 }

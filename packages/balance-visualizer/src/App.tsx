@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import { iterateNumericEnum } from "@speed-dungeon/common";
 import { UiProvider } from "@speed-dungeon/ui/ui-context";
 import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
@@ -18,7 +18,7 @@ const ANALYSIS_OPTIONS = iterateNumericEnum(DungeonRunAnalysis).map((analysis) =
 }));
 
 // mounting only the selected study keeps a single worker in flight, and drops the other's table
-const ANALYSIS_PANELS: Record<DungeonRunAnalysis, () => React.ReactElement> = {
+const ANALYSIS_PANELS: Record<DungeonRunAnalysis, () => ReactElement> = {
   [DungeonRunAnalysis.AttackDamage]: AttackDamagePanel,
   [DungeonRunAnalysis.MaxAccuracy]: MaxAccuracyPanel,
 };

@@ -1,6 +1,17 @@
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { HoldablePercentList } from "@/components/HoldablePercentList";
+import { AccuracyBySource } from "./run-reporter";
 import { MaxAccuracyTableRow } from "./row";
+
+function bySourceColumn(
+  header: string,
+  source: keyof AccuracyBySource
+): DataTableColumn<MaxAccuracyTableRow> {
+  return {
+    header,
+    renderCell: (row) => Math.round(row.averageAccuracyBySource[source]),
+  };
+}
 
 export const MAX_ACCURACY_TABLE_COLUMNS: DataTableColumn<MaxAccuracyTableRow>[] = [
   { header: "Room", renderCell: (row) => `${row.floor}-${row.room}` },
@@ -12,24 +23,15 @@ export const MAX_ACCURACY_TABLE_COLUMNS: DataTableColumn<MaxAccuracyTableRow>[] 
   },
   { header: "accLow", renderCell: (row) => Math.floor(row.totalAccuracy.tenthPercentileAverage) },
   { header: "accMed", renderCell: (row) => Math.floor(row.totalAccuracy.median) },
-  { header: "accHigh", renderCell: (row) => Math.floor(row.totalAccuracy.ninetiethPercentileAverage) },
+  {
+    header: "accHigh",
+    renderCell: (row) => Math.floor(row.totalAccuracy.ninetiethPercentileAverage),
+  },
   { header: "gearMed", renderCell: (row) => Math.floor(row.accuracyFromEquipment.median) },
-  {
-    header: "fromAccGear",
-    renderCell: (row) => Math.round(row.averageAccuracyBySource.fromAccuracyAffixOnGear),
-  },
-  {
-    header: "fromDexGear",
-    renderCell: (row) => Math.round(row.averageAccuracyBySource.fromDexterityAffixOnGear),
-  },
-  {
-    header: "fromAlloc",
-    renderCell: (row) => Math.round(row.averageAccuracyBySource.fromAllocated),
-  },
-  {
-    header: "fromInher",
-    renderCell: (row) => Math.round(row.averageAccuracyBySource.fromInherent),
-  },
+  bySourceColumn("fromAccGear", "fromAccuracyAffixOnGear"),
+  bySourceColumn("fromDexGear", "fromDexterityAffixOnGear"),
+  bySourceColumn("fromAlloc", "fromAllocated"),
+  bySourceColumn("fromInher", "fromInherent"),
   {
     header: "available",
     cellLayoutOption: DataTableCellLayout.Stacked,

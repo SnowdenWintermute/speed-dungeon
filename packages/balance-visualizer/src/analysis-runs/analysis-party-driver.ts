@@ -58,6 +58,8 @@ export class AnalysisPartyDriver {
     this.moveToNextRoom({ isDescending: true });
   }
 
+  // incremented rather than assigned: a support class level also awards ability and attribute
+  // points, which the allocation solver then has to spend
   private awardSupportClassLevels() {
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
       const { classProgressionProperties } = combatant.getCombatantProperties();
@@ -68,7 +70,9 @@ export class AnalysisPartyDriver {
 
       const mainClassLevel = classProgressionProperties.getMainClass().level;
       const expectedLevel = ClassProgressionProperties.maxSupportClassLevel(mainClassLevel);
-      supportClassOption.level = expectedLevel;
+      while (supportClassOption.level < expectedLevel) {
+        classProgressionProperties.incrementSupportClassLevel(supportClassOption.combatantClass);
+      }
     }
   }
 

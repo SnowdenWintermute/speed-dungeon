@@ -12,7 +12,7 @@ import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
 import { BestImprovementEquipmentSolver } from "@/solvers/best-improvement";
 import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 
-export class AnalysisRun<RoomReportType> {
+export class AnalysisRun<TCombatantReport> {
   private partyDriver: AnalysisPartyDriver;
 
   constructor(
@@ -21,7 +21,7 @@ export class AnalysisRun<RoomReportType> {
     private equipmentSolver: BestImprovementEquipmentSolver,
     private attributeAllocationSolver: AttributeAllocationSolver,
     private goalPerformanceChecker: GoalPerformanceChecker,
-    private runReporter: AnalysisRunReporter<RoomReportType>
+    private runReporter: AnalysisRunReporter<TCombatantReport>
   ) {
     this.game.addParty(this.party);
     this.partyDriver = new AnalysisPartyDriver(this.game, this.party);

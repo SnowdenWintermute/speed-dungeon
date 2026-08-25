@@ -6,12 +6,13 @@ import {
   NumberRange,
   SerializedOf,
 } from "@speed-dungeon/common";
-import { AnalysisSlice, RoomGroupedSamples } from "@/analysis-runs/analysis-sample";
-import { RoomAvailabilityIndex } from "@/analysis-runs/room-availability";
+import { SampledRoom } from "@/analysis-runs/analysis-sample";
+import { AnalysisSampleTable } from "@/analysis-runs/analysis-sample-table";
 import { baseItemKey, EquipmentBaseItemTally } from "@/analysis-subjects/equipment-base-item-tally";
 import { Distribution } from "@/statistics/distribution";
+import { numericEnumKeyedRecord } from "@/utils/numeric-enum-record";
 import { AttackDamageContributingAttribute } from "./run-reporter";
-import { AttackDamageRunSetResult, AttackDamageSample } from "./samples";
+import { AttackDamageSample } from "./samples";
 import { AttackDamageTableRow, AverageContributingAttributes } from "./row";
 
 function averageDamageRange(ranges: SerializedOf<NumberRange>[]) {
@@ -21,15 +22,10 @@ function averageDamageRange(ranges: SerializedOf<NumberRange>[]) {
   );
 }
 
-export class AttackDamageTable {
-  private rooms: RoomGroupedSamples<AttackDamageSample>;
-  private availability: RoomAvailabilityIndex;
-
-  constructor(result: AttackDamageRunSetResult) {
-    this.rooms = new RoomGroupedSamples(result.samples);
-    this.availability = new RoomAvailabilityIndex(result.availability);
-  }
-
+export class AttackDamageTable extends AnalysisSampleTable<
+  AttackDamageSample,
+  AttackDamageTableRow
+> {
   private averageContribution(
     samples: AttackDamageSample[],
     attribute: AttackDamageContributingAttribute
@@ -54,23 +50,9 @@ export class AttackDamageTable {
   private averageContributingAttributes(
     samples: AttackDamageSample[]
   ): AverageContributingAttributes {
-    const averageOf = (attribute: AttackDamageContributingAttribute) =>
-      this.averageContribution(samples, attribute);
-
-    return {
-      [AttackDamageContributingAttribute.Strength]: averageOf(
-        AttackDamageContributingAttribute.Strength
-      ),
-      [AttackDamageContributingAttribute.Dexterity]: averageOf(
-        AttackDamageContributingAttribute.Dexterity
-      ),
-      [AttackDamageContributingAttribute.Accuracy]: averageOf(
-        AttackDamageContributingAttribute.Accuracy
-      ),
-      [AttackDamageContributingAttribute.FlatDamage]: averageOf(
-        AttackDamageContributingAttribute.FlatDamage
-      ),
-    };
+    return numericEnumKeyedRecord(AttackDamageContributingAttribute, (attribute) =>
+      this.averageContribution(samples, attribute)
+    );
   }
 
   private averageTooltipDamage(samples: AttackDamageSample[]) {
@@ -84,13 +66,6 @@ export class AttackDamageTable {
       ),
       offHand: offHandRanges.length === 0 ? null : averageDamageRange(offHandRanges),
     };
-  }
-
-  private averageSupportClassLevel(samples: AttackDamageSample[]) {
-    const levels = samples
-      .map((sample) => sample.supportClassLevel)
-      .filter((level) => level !== null);
-    return levels.length === 0 ? null : ArrayUtils.average(levels);
   }
 
   /** counted once per character even when both hands hold the same base item */
@@ -113,20 +88,14 @@ export class AttackDamageTable {
     return tally.toPercentages(samples.length);
   }
 
-  selectRows(slice: AnalysisSlice): AttackDamageTableRow[] {
-    return this.rooms.selectRooms(slice).map(({ floor, room, samples }) => ({
-      floor,
-      room,
+  protected selectRow(room: SampledRoom<AttackDamageSample>): AttackDamageTableRow {
+    const { samples } = room;
+    return {
+      ...this.commonRowFields(room),
       damageOnDummy: Distribution.of(samples.map((sample) => sample.sampledDamageOnDummy)),
-      averageMainClassLevel: ArrayUtils.average(samples.map((sample) => sample.mainClassLevel)),
-      averageSupportClassLevel: this.averageSupportClassLevel(samples),
       averageTooltipDamage: this.averageTooltipDamage(samples),
       averageContributingAttributes: this.averageContributingAttributes(samples),
       wornHoldablePercentages: this.wornHoldablePercentages(samples),
-      availableHoldablePercentages: this.availability.selectHoldablePercentages(
-        { floor, room },
-        samples
-      ),
-    }));
+    };
   }
 }
