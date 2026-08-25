@@ -1,7 +1,7 @@
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { AttackDamageContributingAttribute } from "@/analysis-runs/analysis-run-reporter";
+import { AttackDamageContributingAttribute } from "./run-reporter";
 import { AttackDamageTableRow } from "./row";
-import { HoldablePercentList } from "./holdable-percent-list";
+import { HoldablePercentList } from "@/components/HoldablePercentList";
 
 function totalContributionColumn(
   header: string,

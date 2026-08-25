@@ -23,7 +23,7 @@ import {
   SeededNumberGenerator,
   TargetDummyFactory,
 } from "@speed-dungeon/common";
-import { GoalPerformanceChecker } from ".";
+import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
   // every check within a comparison scope replays this stream from the same point, so a difference

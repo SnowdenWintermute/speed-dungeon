@@ -68,12 +68,15 @@ const costPropertiesOverrides: Partial<CombatActionCostPropertiesConfig> = {
     // check what book they are selecting
     // if it isn't a skill book, error
     const inventoryOption = user.getInventoryOption();
-    if (inventoryOption === null) throw new Error("expected user to have an inventory");
+    if (inventoryOption === null) {
+      throw new Error("expected user to have an inventory");
+    }
     const skillBookResult = inventoryOption.getSelectedSkillBook(
       user.getTargetingProperties().getSelectedItemId()
     );
-    if (skillBookResult instanceof Error)
+    if (skillBookResult instanceof Error) {
       return { meetsRequirements: false, reasonDoesNot: skillBookResult.message };
+    }
 
     // if they have no support class it is allowed
     const supportClassProperties = user

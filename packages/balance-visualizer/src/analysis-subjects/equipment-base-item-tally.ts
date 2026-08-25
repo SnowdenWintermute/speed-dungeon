@@ -1,8 +1,19 @@
-import { Equipment, EquipmentBaseItem, MapUtils } from "@speed-dungeon/common";
+import {
+  Equipment,
+  EquipmentBaseItem,
+  MapUtils,
+  NormalizedPercentage,
+} from "@speed-dungeon/common";
 
 export interface TalliedBaseItem {
   baseItem: EquipmentBaseItem;
   count: number;
+}
+
+export interface HoldableAndPercent {
+  baseItem: EquipmentBaseItem;
+  /** the denominator differs by column, so read it off the row field this came from */
+  percent: NormalizedPercentage;
 }
 
 /**
@@ -30,5 +41,11 @@ export class EquipmentBaseItemTally {
   /** a snapshot, so a running tally can be read per room without the reader aliasing it */
   entries(): TalliedBaseItem[] {
     return [...this.tallied.values()].map(({ baseItem, count }) => ({ baseItem, count }));
+  }
+
+  toPercentages(total: number): HoldableAndPercent[] {
+    return this.entries()
+      .map(({ baseItem, count }) => ({ baseItem, percent: count / total }))
+      .sort((a, b) => b.percent - a.percent);
   }
 }

@@ -1,36 +1,21 @@
-import { EquipmentSlotId } from "@speed-dungeon/common";
-import { attackDamageAnalysisRun } from ".";
-import {
-  AttackDamageRoomReport,
-  CombatantReportTooltipDamage,
-  RunReport,
-} from "../analysis-run-reporter";
-import { AnalysisSpecHolder } from "../analysis-spec-holder";
+import { RunReport } from "@/analysis-runs/analysis-run-reporter";
+import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
+import { RoomAvailability } from "@/analysis-runs/room-availability";
+import { AnalysisRunSet } from "@/analysis-runs/run-set";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import {
-  AttackDamageRunSetResult,
-  AttackDamageSample,
-  RoomAvailability,
-  SampleTooltipDamage,
-} from "./samples";
+import { maxAccuracyAnalysisRun } from "./run";
+import { MaxAccuracyRoomReport } from "./run-reporter";
+import { MaxAccuracyRunSetResult, MaxAccuracySample } from "./samples";
 
-function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): SampleTooltipDamage {
-  const offHand = tooltipDamage[EquipmentSlotId.OffHand];
-  return {
-    [EquipmentSlotId.MainHand]: tooltipDamage[EquipmentSlotId.MainHand].toSerialized(),
-    [EquipmentSlotId.OffHand]: offHand === null ? null : offHand.toSerialized(),
-  };
-}
-
-export class AttackDamageRunSet {
-  private samples: AttackDamageSample[] = [];
+export class MaxAccuracyRunSet implements AnalysisRunSet<MaxAccuracyRunSetResult> {
+  private samples: MaxAccuracySample[] = [];
   private availability: RoomAvailability[] = [];
   private runsCollected = 0;
   private runsFailed = 0;
 
   constructor(private characterSpecs: AnalysisCharacterSpecification[]) {}
 
-  get result(): AttackDamageRunSetResult {
+  get result(): MaxAccuracyRunSetResult {
     return { samples: this.samples, availability: this.availability, runsFailed: this.runsFailed };
   }
 
@@ -38,7 +23,7 @@ export class AttackDamageRunSet {
    * Flattens as each run finishes so the RunReport, which holds live Equipment, can be dropped
    * instead of retained across the whole set.
    */
-  private collectRun(runReport: RunReport<AttackDamageRoomReport>, specHolder: AnalysisSpecHolder) {
+  private collectRun(runReport: RunReport<MaxAccuracyRoomReport>, specHolder: AnalysisSpecHolder) {
     const runIndex = this.runsCollected;
     this.runsCollected += 1;
 
@@ -54,7 +39,6 @@ export class AttackDamageRunSet {
 
       for (const [combatantId, combatantReport] of combatantReports) {
         const { characterBuildSpec } = specHolder.requireSpec(combatantId);
-        const { heldEquipment } = combatantReport;
 
         this.samples.push({
           runIndex,
@@ -65,15 +49,8 @@ export class AttackDamageRunSet {
           supportClass: characterBuildSpec.supportClass,
           mainClassLevel: combatantReport.mainClassLevel,
           supportClassLevel: combatantReport.supportClassLevel ?? null,
-          sampledDamageOnDummy: combatantReport.sampledDamageOnDummy,
-          tooltipDamage: toSampleTooltipDamage(combatantReport.tooltipDamage),
-          wornHoldables: {
-            [EquipmentSlotId.MainHand]:
-              heldEquipment[EquipmentSlotId.MainHand]?.equipmentBaseItemProperties ?? null,
-            [EquipmentSlotId.OffHand]:
-              heldEquipment[EquipmentSlotId.OffHand]?.equipmentBaseItemProperties ?? null,
-          },
-          contributingAttributes: combatantReport.contributingAttributes,
+          totalAccuracy: combatantReport.totalAccuracy,
+          accuracyBySource: combatantReport.accuracyBySource,
         });
       }
     }
@@ -82,7 +59,7 @@ export class AttackDamageRunSet {
   executeSet(runCount: number, onRunFinished: (runsFinished: number) => void) {
     for (let i = 0; i < runCount; i += 1) {
       try {
-        const { report, analysisSpecsHolder } = attackDamageAnalysisRun(this.characterSpecs);
+        const { report, analysisSpecsHolder } = maxAccuracyAnalysisRun(this.characterSpecs);
         this.collectRun(report, analysisSpecsHolder);
       } catch (probablyError) {
         this.runsFailed += 1;

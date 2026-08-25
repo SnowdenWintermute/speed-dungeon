@@ -41,7 +41,11 @@ export function AnalysisRunControls(props: Props) {
         />
       </label>
 
-      <ButtonBasic onClick={handleRun} disabled={props.isRunning || !runCountIsUsable}>
+      <ButtonBasic
+        onClick={handleRun}
+        disabled={props.isRunning || !runCountIsUsable}
+        extraStyles="bg-theme-base"
+      >
         {props.isRunning ? "running..." : "run set"}
       </ButtonBasic>
 

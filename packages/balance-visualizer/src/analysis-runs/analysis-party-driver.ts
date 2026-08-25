@@ -1,6 +1,7 @@
 import {
   AdventuringParty,
   AffixGenerator,
+  ClassProgressionProperties,
   DungeonExplorationManager,
   DungeonGenerationPolicy,
   EquipmentRandomizer,
@@ -57,12 +58,27 @@ export class AnalysisPartyDriver {
     this.moveToNextRoom({ isDescending: true });
   }
 
+  private awardSupportClassLevels() {
+    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
+      const { classProgressionProperties } = combatant.getCombatantProperties();
+      const supportClassOption = classProgressionProperties.getSupportClassOption();
+      if (!supportClassOption) {
+        continue;
+      }
+
+      const mainClassLevel = classProgressionProperties.getMainClass().level;
+      const expectedLevel = ClassProgressionProperties.maxSupportClassLevel(mainClassLevel);
+      supportClassOption.level = expectedLevel;
+    }
+  }
+
   clearCurrentRoom() {
     if (this.party.battleId === null) {
       return;
     }
     const battle = this.game.getExpectedBattle(this.party.battleId);
     battle.resolveBattle(this.lootGenerator, { alliesDefeated: false, opponentsDefeated: true });
+    this.awardSupportClassLevels();
     this.party.combatantManager.removeDungeonControlledCombatants(this.game);
   }
 }

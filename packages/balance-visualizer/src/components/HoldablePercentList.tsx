@@ -1,6 +1,5 @@
-import { baseItemKey } from "@/analysis-subjects/equipment-base-item-tally";
 import { Equipment } from "@speed-dungeon/common";
-import { HoldableAndPercent } from "./row";
+import { baseItemKey, HoldableAndPercent } from "@/analysis-subjects/equipment-base-item-tally";
 
 export function HoldablePercentList({ holdables }: { holdables: HoldableAndPercent[] }) {
   if (holdables.length === 0) {
@@ -8,7 +7,7 @@ export function HoldablePercentList({ holdables }: { holdables: HoldableAndPerce
   }
 
   return (
-    <ul>
+    <ul className="max-h-32 overflow-auto">
       {holdables.map(({ baseItem, percent }) => (
         <li key={baseItemKey(baseItem)} className="whitespace-nowrap">
           {Math.floor(percent * 100)}% {Equipment.getBaseItemStringName(baseItem)}

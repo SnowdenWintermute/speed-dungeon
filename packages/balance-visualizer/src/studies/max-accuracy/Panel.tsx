@@ -1,25 +1,29 @@
 import { useMemo, useState } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "@/analysis-runs/attack-damage";
-import { useAttackDamageRunSet } from "@/hooks/use-attack-damage-run-set";
-import { ATTACK_DAMAGE_TABLE_COLUMNS } from "@/tables/attack-damage/columns";
-import { AttackDamageSlice, roomKey } from "@/tables/attack-damage/row";
-import { AnalysisRunControls } from "../AnalysisRunControls";
-import { AttackDamageSliceControls } from "./AttackDamageSliceControls";
+import { AnalysisSlice, roomKey } from "@/analysis-runs/analysis-sample";
+import { DungeonRunAnalysis } from "@/analysis-runs/dungeon-run-analysis";
+import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "@/analysis-subjects/default-analysis-character-specs";
+import { AnalysisRunControls } from "@/components/AnalysisRunControls";
+import { AnalysisSliceControls } from "@/components/AnalysisSliceControls";
+import { useAnalysisRunSet } from "@/hooks/use-analysis-run-set";
+import { MAX_ACCURACY_TABLE_COLUMNS } from "./columns";
+import { MaxAccuracyTable } from "./table";
 
-const DEFAULT_RUN_COUNT = 10;
+const DEFAULT_RUN_COUNT = 100;
 
-export function AttackDamagePanel() {
-  const { state, run } = useAttackDamageRunSet();
-  const [slice, setSlice] = useState<AttackDamageSlice>({});
+export function MaxAccuracyPanel() {
+  const { state, run } = useAnalysisRunSet(DungeonRunAnalysis.MaxAccuracy);
+  const [slice, setSlice] = useState<AnalysisSlice>({});
+
+  const table = useMemo(
+    () => (state.result === null ? null : new MaxAccuracyTable(state.result)),
+    [state.result]
+  );
 
   // re-aggregating every sample is the expensive half of showing this table, and a keystroke in
   // the run count input would otherwise pay for it
-  const rows = useMemo(
-    () => (state.table === null ? [] : state.table.selectRows(slice)),
-    [state.table, slice]
-  );
+  const rows = useMemo(() => (table === null ? [] : table.selectRows(slice)), [table, slice]);
 
   return (
     <div className="">
@@ -43,14 +47,14 @@ export function AttackDamagePanel() {
         </p>
       )}
 
-      <AttackDamageSliceControls slice={slice} onChange={setSlice} />
+      <AnalysisSliceControls slice={slice} onChange={setSlice} />
 
       <div className="bg-theme-base p-2 border border-theme-muted overflow-auto">
         <DataTable
-          columns={ATTACK_DAMAGE_TABLE_COLUMNS}
+          columns={MAX_ACCURACY_TABLE_COLUMNS}
           entries={rows}
           keyOf={roomKey}
-          emptyMessage={state.table === null ? "no runs yet" : "no samples match this slice"}
+          emptyMessage={table === null ? "no runs yet" : "no samples match this slice"}
           layoutOption={DataTableLayout.FitContent}
         />
       </div>

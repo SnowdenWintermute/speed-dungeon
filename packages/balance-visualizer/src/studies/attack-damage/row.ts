@@ -1,14 +1,7 @@
-import { CombatantClass, EquipmentBaseItem, NormalizedPercentage } from "@speed-dungeon/common";
-import { AttackDamageContributingAttribute } from "@/analysis-runs/analysis-run-reporter";
 import { NumberRange } from "@speed-dungeon/common";
 import { Distribution } from "@/statistics/distribution";
-import { CharacterWeaponSpecialty } from "@/analysis-subjects/analysis-character-specification";
-
-export interface HoldableAndPercent {
-  baseItem: EquipmentBaseItem;
-  /** the denominator differs by column, so read it off the row field this came from */
-  percent: NormalizedPercentage;
-}
+import { HoldableAndPercent } from "@/analysis-subjects/equipment-base-item-tally";
+import { AttackDamageContributingAttribute } from "./run-reporter";
 
 export type AverageContributingAttributes = Record<
   AttackDamageContributingAttribute,
@@ -32,15 +25,4 @@ export interface AttackDamageTableRow {
   wornHoldablePercentages: HoldableAndPercent[];
   /** percent of runs in which it had dropped by this room, limited to types the build uses */
   availableHoldablePercentages: HoldableAndPercent[];
-}
-
-/** an omitted dimension means "any", so dropping one widens the slice without a re-run */
-export interface AttackDamageSlice {
-  weaponSpecialty?: CharacterWeaponSpecialty;
-  mainClass?: CombatantClass;
-  supportClass?: CombatantClass | null;
-}
-
-export function roomKey(location: { floor: number; room: number }) {
-  return `${location.floor}-${location.room}`;
 }

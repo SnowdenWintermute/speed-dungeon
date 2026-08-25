@@ -4,8 +4,8 @@ import {
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
+import { AnalysisSlice } from "@/analysis-runs/analysis-sample";
 import { CharacterWeaponSpecialty } from "@/analysis-subjects/analysis-character-specification";
-import { AttackDamageSlice } from "@/tables/attack-damage/row";
 
 const WEAPON_SPECIALTY_STRINGS: Record<CharacterWeaponSpecialty, string> = {
   [CharacterWeaponSpecialty.TwoHandedMelee]: "Two Handed Melee",
@@ -56,12 +56,12 @@ function SliceDropdown<T>({
   );
 }
 
-export function AttackDamageSliceControls({
+export function AnalysisSliceControls({
   slice,
   onChange,
 }: {
-  slice: AttackDamageSlice;
-  onChange: (slice: AttackDamageSlice) => void;
+  slice: AnalysisSlice;
+  onChange: (slice: AnalysisSlice) => void;
 }) {
   return (
     <div className="mb-4 flex items-end gap-2">
