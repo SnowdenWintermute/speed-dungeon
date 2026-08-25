@@ -22,7 +22,7 @@ export function AttackDamagePanel() {
   );
 
   return (
-    <div>
+    <div className="">
       <div className="mb-4">
         <AnalysisRunControls
           defaultRunCount={DEFAULT_RUN_COUNT}
@@ -45,13 +45,15 @@ export function AttackDamagePanel() {
 
       <AttackDamageSliceControls slice={slice} onChange={setSlice} />
 
-      <DataTable
-        columns={ATTACK_DAMAGE_TABLE_COLUMNS}
-        entries={rows}
-        keyOf={roomKey}
-        emptyMessage={state.table === null ? "no runs yet" : "no samples match this slice"}
-        layoutOption={DataTableLayout.FitContent}
-      />
+      <div className="bg-theme-base p-2 border border-theme-muted overflow-auto">
+        <DataTable
+          columns={ATTACK_DAMAGE_TABLE_COLUMNS}
+          entries={rows}
+          keyOf={roomKey}
+          emptyMessage={state.table === null ? "no runs yet" : "no samples match this slice"}
+          layoutOption={DataTableLayout.FitContent}
+        />
+      </div>
     </div>
   );
 }

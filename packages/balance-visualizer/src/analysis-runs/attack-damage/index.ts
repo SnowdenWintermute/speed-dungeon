@@ -49,7 +49,9 @@ export function attackDamageAnalysisRun(characterSpecs: AnalysisCharacterSpecifi
     ]),
     new AttributeAllocationSolver(party, analysisSpecsHolder, goalPerformanceChecker, [
       CombatAttribute.Strength,
+      CombatAttribute.Dexterity,
     ]),
+    goalPerformanceChecker,
     new AttackDamageRunReporter(party)
   );
 

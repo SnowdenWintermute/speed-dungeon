@@ -1,6 +1,6 @@
 import { CombatantClass, EquipmentBaseItem, NormalizedPercentage } from "@speed-dungeon/common";
 import { AttackDamageContributingAttribute } from "@/analysis-runs/analysis-run-reporter";
-import { DamageRange } from "@/analysis-runs/attack-damage/samples";
+import { NumberRange } from "@speed-dungeon/common";
 import { Distribution } from "@/statistics/distribution";
 import { CharacterWeaponSpecialty } from "@/analysis-subjects/analysis-character-specification";
 
@@ -18,15 +18,14 @@ export type AverageContributingAttributes = Record<
 export interface AttackDamageTableRow {
   floor: number;
   room: number;
-  sampleCount: number;
   damageOnDummy: Distribution;
   averageMainClassLevel: number;
   /** null when no matched character had a support class */
   averageSupportClassLevel: number | null;
   averageTooltipDamage: {
-    mainHand: DamageRange;
+    mainHand: NumberRange;
     /** null when no matched character had an off hand attack to quote */
-    offHand: DamageRange | null;
+    offHand: NumberRange | null;
   };
   averageContributingAttributes: AverageContributingAttributes;
   /** percent of matched characters that were holding it in this room */

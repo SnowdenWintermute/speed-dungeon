@@ -32,6 +32,7 @@ import { ONE_HANDED_MELEE_WEAPON_NAMES } from "./equipment-types/one-handed-mele
 import { HEADGEAR_TYPE_STRINGS } from "./equipment-types/head-gear.js";
 import { TWO_HANDED_RANGED_WEAPON_TYPE_STRINGS } from "./equipment-types/two-handed-ranged-weapon.js";
 import { SHIELD_TYPE_STRINGS } from "./equipment-types/shield.js";
+import { NumberRange } from "../../primatives/number-range.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -60,7 +61,12 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   }
 
   static fromSerialized(serialized: SerializedOf<Equipment>) {
-    return plainToInstance(Equipment, serialized);
+    const equipment = plainToInstance(Equipment, serialized);
+    const weaponProperties = equipment.getWeaponPropertiesOption();
+    if (weaponProperties !== undefined) {
+      weaponProperties.damage = NumberRange.fromSerialized(weaponProperties.damage);
+    }
+    return equipment;
   }
 
   static getModifiedWeaponDamageRange = getModifiedWeaponDamageRange;
@@ -215,11 +221,19 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     return flatDamageTrait.value;
   }
 
-  requireWeaponProperties() {
+  getWeaponPropertiesOption() {
     if (!this.isWeapon()) {
-      throw new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+      return undefined;
     }
     return this.equipmentBaseItemProperties as WeaponProperties;
+  }
+
+  requireWeaponProperties() {
+    const option = this.getWeaponPropertiesOption();
+    if (!option) {
+      throw new Error(ERROR_MESSAGES.EQUIPMENT.INVALID_TYPE);
+    }
+    return option;
   }
 
   hasPrefix() {

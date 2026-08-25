@@ -70,88 +70,64 @@ export interface RandomNumberGenerationPolicy {
 }
 
 export class RandomNumberGenerationPolicyFactory {
+  static policyFromGenerator(
+    generator: RandomNumberGenerator,
+    overrides?: Partial<RandomNumberGenerationPolicy>
+  ): RandomNumberGenerationPolicy {
+    return {
+      consumableTypeFallback: generator,
+      lootDropRuleChance: generator,
+      lootDropQuantity: generator,
+      lootItemLevelRoll: generator,
+      lootItemSelection: generator,
+      equipmentBaseProperties: generator,
+      equipmentGenerationDurability: generator,
+      magicalDetermination: generator,
+      affixSlotDistribution: generator,
+      affixTypeSelection: generator,
+      affixTier: generator,
+      affixValue: generator,
+      guaranteedAffixCategoryDraw: generator,
+      hitChance: generator,
+      criticalStrike: generator,
+      parry: generator,
+      counterAttack: generator,
+      shieldBlock: generator,
+      spellResist: generator,
+      combatResourceChange: generator,
+      combatDurabilityTarget: generator,
+      durabilityLossOnHitOutcome: generator,
+      durabilityLossOnUse: generator,
+      bouncingProjectileTargetSelection: generator,
+      monsterAiRandomAction: generator,
+      monsterEquipmentChoice: generator,
+      consumableEffect: generator,
+      dungeonLayout: generator,
+      monsterEquipment: generator,
+      monsterGenerationTypeSelection: generator,
+      floorPaletteSelection: generator,
+      roomFillSelection: generator,
+      bossSelection: generator,
+      ...overrides,
+    };
+  }
+
   static allRandomPolicy(
     overrides?: Partial<RandomNumberGenerationPolicy>
   ): RandomNumberGenerationPolicy {
-    const basic = new BasicRandomNumberGenerator();
-    return {
-      consumableTypeFallback: basic,
-      lootDropRuleChance: basic,
-      lootDropQuantity: basic,
-      lootItemLevelRoll: basic,
-      lootItemSelection: basic,
-      equipmentBaseProperties: basic,
-      equipmentGenerationDurability: basic,
-      magicalDetermination: basic,
-      affixSlotDistribution: basic,
-      affixTypeSelection: basic,
-      affixTier: basic,
-      affixValue: basic,
-      guaranteedAffixCategoryDraw: basic,
-      hitChance: basic,
-      criticalStrike: basic,
-      parry: basic,
-      counterAttack: basic,
-      shieldBlock: basic,
-      spellResist: basic,
-      combatResourceChange: basic,
-      combatDurabilityTarget: basic,
-      durabilityLossOnHitOutcome: basic,
-      durabilityLossOnUse: basic,
-      bouncingProjectileTargetSelection: basic,
-      monsterAiRandomAction: basic,
-      monsterEquipmentChoice: basic,
-      consumableEffect: basic,
-      dungeonLayout: basic,
-      monsterEquipment: basic,
-      monsterGenerationTypeSelection: basic,
-      floorPaletteSelection: basic,
-      roomFillSelection: basic,
-      bossSelection: basic,
-      ...overrides,
-    };
+    return RandomNumberGenerationPolicyFactory.policyFromGenerator(
+      new BasicRandomNumberGenerator(),
+      overrides
+    );
   }
 
   static allFixedPolicy(
     value: NormalizedPercentage,
     overrides?: Partial<RandomNumberGenerationPolicy>
   ): RandomNumberGenerationPolicy {
-    const fixed = new FixedNumberGenerator(value);
-    return {
-      consumableTypeFallback: fixed,
-      lootDropRuleChance: fixed,
-      lootDropQuantity: fixed,
-      lootItemLevelRoll: fixed,
-      lootItemSelection: fixed,
-      equipmentBaseProperties: fixed,
-      equipmentGenerationDurability: fixed,
-      magicalDetermination: fixed,
-      affixSlotDistribution: fixed,
-      affixTypeSelection: fixed,
-      affixTier: fixed,
-      affixValue: fixed,
-      guaranteedAffixCategoryDraw: fixed,
-      hitChance: fixed,
-      criticalStrike: fixed,
-      parry: fixed,
-      counterAttack: fixed,
-      shieldBlock: fixed,
-      spellResist: fixed,
-      combatResourceChange: fixed,
-      combatDurabilityTarget: fixed,
-      durabilityLossOnHitOutcome: fixed,
-      durabilityLossOnUse: fixed,
-      bouncingProjectileTargetSelection: fixed,
-      monsterAiRandomAction: fixed,
-      monsterEquipmentChoice: fixed,
-      consumableEffect: fixed,
-      dungeonLayout: fixed,
-      monsterEquipment: fixed,
-      monsterGenerationTypeSelection: fixed,
-      floorPaletteSelection: fixed,
-      roomFillSelection: fixed,
-      bossSelection: fixed,
-      ...overrides,
-    };
+    return RandomNumberGenerationPolicyFactory.policyFromGenerator(
+      new FixedNumberGenerator(value),
+      overrides
+    );
   }
 }

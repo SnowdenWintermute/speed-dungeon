@@ -4,7 +4,6 @@ import {
   ActionRank,
   ActionUserHeldWeapons,
   ArrayUtils,
-  BasicRandomNumberGenerator,
   COMBAT_ACTIONS,
   CombatActionComponent,
   CombatActionHitOutcomes,
@@ -21,13 +20,18 @@ import {
   invariant,
   RandomNumberGenerationPolicyFactory,
   RealResourceChangePropertiesStrategy,
+  SeededNumberGenerator,
   TargetDummyFactory,
 } from "@speed-dungeon/common";
 import { GoalPerformanceChecker } from ".";
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
-  private rng = new BasicRandomNumberGenerator();
-  private rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
+  // every check within a comparison scope replays this stream from the same point, so a difference
+  // between two of them reflects the build change instead of the rolls. without it, comparing two
+  // independent samples of a wide damage range reads as an improvement about half the time no
+  // matter what changed
+  private rng = SeededNumberGenerator.withRandomSeed();
+  private rngPolicy = RandomNumberGenerationPolicyFactory.policyFromGenerator(this.rng);
   private resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();
   private targetDummyFactory = new TargetDummyFactory();
   private targetDummiesByFloor = new Map<number, Combatant>();
@@ -38,6 +42,10 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
   }
 
   private sampleCount = 5;
+
+  beginComparisonScope() {
+    this.rng.setRandomSeed();
+  }
 
   private initializeTargetDummies() {
     for (let floor = 1; floor <= DEEPEST_FLOOR; floor += 1) {
@@ -153,6 +161,8 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
   }
 
   private sampleAverageDamage(combatant: Combatant, partyCurrentFloor: number) {
+    this.rng.reset();
+
     const targetDummy = this.targetDummiesByFloor.get(partyCurrentFloor);
     invariant(targetDummy !== undefined, "no target dummy");
 

@@ -1,9 +1,10 @@
-import { SerializedCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { SerializedOf } from "@speed-dungeon/common";
 import { AttackDamageRunSetResult } from "./samples";
+import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 
 /** the specs cross as data: postMessage would hand the worker the fields without the class */
 export interface AttackDamageRunSetWorkerRequest {
-  characterSpecs: SerializedCharacterSpecification[];
+  characterSpecs: SerializedOf<AnalysisCharacterSpecification>[];
   runCount: number;
 }
 

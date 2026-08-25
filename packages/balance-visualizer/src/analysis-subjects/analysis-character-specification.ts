@@ -6,14 +6,11 @@ import {
   EquipmentType,
   HOLDABLE_EQUIPMENT_TYPES,
   HOLDABLE_SLOT_IDS,
+  Serializable,
+  SerializedOf,
 } from "@speed-dungeon/common";
 
-export interface SerializedCharacterSpecification {
-  name: string;
-  characterBuildSpec: CharacterBuildSpecification;
-}
-
-export class AnalysisCharacterSpecification {
+export class AnalysisCharacterSpecification implements Serializable {
   public characterName: EntityName;
   constructor(
     name: string,
@@ -22,11 +19,11 @@ export class AnalysisCharacterSpecification {
     this.characterName = name as EntityName;
   }
 
-  toSerialized(): SerializedCharacterSpecification {
+  toSerialized() {
     return { name: this.characterName, characterBuildSpec: this.characterBuildSpec };
   }
 
-  static fromSerialized(serialized: SerializedCharacterSpecification) {
+  static fromSerialized(serialized: SerializedOf<AnalysisCharacterSpecification>) {
     return new AnalysisCharacterSpecification(serialized.name, serialized.characterBuildSpec);
   }
 

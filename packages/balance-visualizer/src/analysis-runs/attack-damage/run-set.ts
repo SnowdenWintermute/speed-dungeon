@@ -1,4 +1,4 @@
-import { EquipmentSlotId, NumberRange } from "@speed-dungeon/common";
+import { EquipmentSlotId } from "@speed-dungeon/common";
 import { attackDamageAnalysisRun } from ".";
 import {
   AttackDamageRoomReport,
@@ -10,20 +10,15 @@ import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-cha
 import {
   AttackDamageRunSetResult,
   AttackDamageSample,
-  DamageRange,
   RoomAvailability,
   SampleTooltipDamage,
 } from "./samples";
 
-function toDamageRange(range: NumberRange): DamageRange {
-  return { min: range.min, max: range.max };
-}
-
 function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): SampleTooltipDamage {
   const offHand = tooltipDamage[EquipmentSlotId.OffHand];
   return {
-    [EquipmentSlotId.MainHand]: toDamageRange(tooltipDamage[EquipmentSlotId.MainHand]),
-    [EquipmentSlotId.OffHand]: offHand === null ? null : toDamageRange(offHand),
+    [EquipmentSlotId.MainHand]: tooltipDamage[EquipmentSlotId.MainHand].toSerialized(),
+    [EquipmentSlotId.OffHand]: offHand === null ? null : offHand.toSerialized(),
   };
 }
 

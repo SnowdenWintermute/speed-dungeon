@@ -12,12 +12,10 @@ export class TargetDummyFactory {
 
   createOnFloor(floor: number) {
     const combatant = CombatantBuilder.monster(MonsterType.Net)
+      .explicitAttributes()
+      .attribute(CombatAttribute.Hp, 10000)
       .name("Target Dummy")
       .build(this.idGenerator);
-
-    combatant
-      .getCombatantProperties()
-      .attributeProperties.setSpeccedAttributeValue(CombatAttribute.Hp, 10000);
 
     combatant
       .getCombatantProperties()

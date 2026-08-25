@@ -3,20 +3,18 @@ import {
   EquipmentBaseItem,
   EquipmentSlotId,
   HoldableSlotId,
+  NumberRange,
+  SerializedOf,
 } from "@speed-dungeon/common";
 import { CombatantAttackContributingAttributes } from "../analysis-run-reporter";
 import { CharacterWeaponSpecialty } from "@/analysis-subjects/analysis-character-specification";
 import { TalliedBaseItem } from "@/analysis-subjects/equipment-base-item-tally";
 
-/** NumberRange is a class, and a worker's postMessage would hand back its fields without it */
-export interface DamageRange {
-  min: number;
-  max: number;
-}
-
+// serialized rather than the NumberRange itself: postMessage copies own properties without the
+// prototype, so a class arrives on the other side with its fields and none of its methods
 export interface SampleTooltipDamage {
-  [EquipmentSlotId.MainHand]: DamageRange;
-  [EquipmentSlotId.OffHand]: DamageRange | null;
+  [EquipmentSlotId.MainHand]: SerializedOf<NumberRange>;
+  [EquipmentSlotId.OffHand]: SerializedOf<NumberRange> | null;
 }
 
 /**

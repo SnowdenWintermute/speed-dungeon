@@ -5,23 +5,18 @@ import {
   EquipmentType,
   HOLDABLE_SLOT_IDS,
   MapUtils,
+  NumberRange,
+  SerializedOf,
 } from "@speed-dungeon/common";
 import {
   AttackDamageRunSetResult,
   AttackDamageSample,
-  DamageRange,
   RoomAvailability,
 } from "@/analysis-runs/attack-damage/samples";
 import { AttackDamageContributingAttribute } from "@/analysis-runs/analysis-run-reporter";
 import { Distribution } from "@/statistics/distribution";
-import {
-  AnalysisCharacterSpecification,
-  CharacterWeaponSpecialty,
-} from "@/analysis-subjects/analysis-character-specification";
-import {
-  baseItemKey,
-  EquipmentBaseItemTally,
-} from "@/analysis-subjects/equipment-base-item-tally";
+import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { baseItemKey, EquipmentBaseItemTally } from "@/analysis-subjects/equipment-base-item-tally";
 import {
   AttackDamageSlice,
   AttackDamageTableRow,
@@ -37,11 +32,11 @@ function toPercentages(tally: EquipmentBaseItemTally, total: number): HoldableAn
     .sort((a, b) => b.percent - a.percent);
 }
 
-function averageDamageRange(ranges: DamageRange[]): DamageRange {
-  return {
-    min: ArrayUtils.average(ranges.map((range) => range.min)),
-    max: ArrayUtils.average(ranges.map((range) => range.max)),
-  };
+function averageDamageRange(ranges: SerializedOf<NumberRange>[]) {
+  return new NumberRange(
+    Math.round(ArrayUtils.average(ranges.map((range) => range.min))),
+    Math.round(ArrayUtils.average(ranges.map((range) => range.max)))
+  );
 }
 
 export class AttackDamageTable {
@@ -208,10 +203,7 @@ export class AttackDamageTable {
         rows.push({
           floor,
           room,
-          sampleCount: roomSamples.length,
-          damageOnDummy: Distribution.of(
-            roomSamples.map((sample) => sample.sampledDamageOnDummy)
-          ),
+          damageOnDummy: Distribution.of(roomSamples.map((sample) => sample.sampledDamageOnDummy)),
           averageMainClassLevel: ArrayUtils.average(
             roomSamples.map((sample) => sample.mainClassLevel)
           ),

@@ -22,6 +22,7 @@ const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlter
 const dexterityPerformance = {
   checkPerformance: (combatant: Combatant) =>
     combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
+  beginComparisonScope: () => {},
 };
 
 class BestImprovementFixture {
