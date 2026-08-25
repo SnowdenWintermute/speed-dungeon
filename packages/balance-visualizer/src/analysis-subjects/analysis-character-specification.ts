@@ -4,7 +4,14 @@ import {
   EntityName,
   EquipmentSlotId,
   EquipmentType,
+  HOLDABLE_EQUIPMENT_TYPES,
+  HOLDABLE_SLOT_IDS,
 } from "@speed-dungeon/common";
+
+export interface SerializedCharacterSpecification {
+  name: string;
+  characterBuildSpec: CharacterBuildSpecification;
+}
 
 export class AnalysisCharacterSpecification {
   public characterName: EntityName;
@@ -13,6 +20,14 @@ export class AnalysisCharacterSpecification {
     public readonly characterBuildSpec: CharacterBuildSpecification
   ) {
     this.characterName = name as EntityName;
+  }
+
+  toSerialized(): SerializedCharacterSpecification {
+    return { name: this.characterName, characterBuildSpec: this.characterBuildSpec };
+  }
+
+  static fromSerialized(serialized: SerializedCharacterSpecification) {
+    return new AnalysisCharacterSpecification(serialized.name, serialized.characterBuildSpec);
   }
 
   combatantIsWearingDesiredEquipmentType(combatant: Combatant) {
@@ -38,22 +53,32 @@ export class AnalysisCharacterSpecification {
   }
 
   /** the holdable types this build competes for, so availability can be reported per build */
-  static getUsedHoldableTypes(weaponSpecialty: CharacterWeaponSpecialty): EquipmentType[] {
-    switch (weaponSpecialty) {
-      case CharacterWeaponSpecialty.TwoHandedMelee:
-        return [EquipmentType.TwoHandedMeleeWeapon];
-      case CharacterWeaponSpecialty.TwoHandedRanged:
-        return [EquipmentType.TwoHandedRangedWeapon];
-      case CharacterWeaponSpecialty.DualWield:
-        return [EquipmentType.OneHandedMeleeWeapon];
-      case CharacterWeaponSpecialty.Shields:
-        return [EquipmentType.OneHandedMeleeWeapon, EquipmentType.Shield];
-    }
+  static getUsedHoldableTypes(weaponSpecialty: CharacterWeaponSpecialty) {
+    return HOLDABLE_EQUIPMENT_TYPES.filter((equipmentType) =>
+      HOLDABLE_SLOT_IDS.some((slotId) =>
+        AnalysisCharacterSpecification.wouldConsiderEquipmentTypeInSlot(
+          weaponSpecialty,
+          equipmentType,
+          slotId
+        )
+      )
+    );
   }
 
   /** not meant to check equipment basic slot compatibility */
   combatantWouldConsiderEquipmentTypeInSlot(equipmentType: EquipmentType, slotId: EquipmentSlotId) {
-    const { weaponSpecialty } = this.characterBuildSpec;
+    return AnalysisCharacterSpecification.wouldConsiderEquipmentTypeInSlot(
+      this.characterBuildSpec.weaponSpecialty,
+      equipmentType,
+      slotId
+    );
+  }
+
+  static wouldConsiderEquipmentTypeInSlot(
+    weaponSpecialty: CharacterWeaponSpecialty,
+    equipmentType: EquipmentType,
+    slotId: EquipmentSlotId
+  ) {
     switch (equipmentType) {
       case EquipmentType.BodyArmor:
       case EquipmentType.HeadGear:

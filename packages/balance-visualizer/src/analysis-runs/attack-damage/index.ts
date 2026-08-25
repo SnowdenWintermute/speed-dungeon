@@ -32,9 +32,7 @@ export const DEFAULT_ANALYSIS_CHARACTER_SPECS = [
   }),
 ];
 
-export function attackDamageAnalysisRun(
-  characterSpecs: AnalysisCharacterSpecification[] = DEFAULT_ANALYSIS_CHARACTER_SPECS
-) {
+export function attackDamageAnalysisRun(characterSpecs: AnalysisCharacterSpecification[]) {
   const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
   const goalPerformanceChecker = new SampledDamageOnTargetDummyGoalPerformanceChecker();

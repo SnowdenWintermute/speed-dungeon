@@ -1,9 +1,18 @@
-import { attackDamageAnalysisRun } from "@/analysis-runs/attack-damage";
+import {
+  attackDamageAnalysisRun,
+  DEFAULT_ANALYSIS_CHARACTER_SPECS,
+} from "@/analysis-runs/attack-damage";
 
-it("runs a mock analysis run", () => {
-  const runCount = 100;
-  for (let i = 0; i < runCount; i += 1) {
-    expect(() => attackDamageAnalysisRun()).not.toThrow();
-  }
-  // expect(true).toBeTruthy();
-});
+const RUN_COUNT = 100;
+// a full party walking every floor takes about 70ms, which does not fit the suite's global timeout
+const TIMEOUT = 60000;
+
+it(
+  "runs a mock analysis run",
+  () => {
+    for (let i = 0; i < RUN_COUNT; i += 1) {
+      expect(() => attackDamageAnalysisRun(DEFAULT_ANALYSIS_CHARACTER_SPECS)).not.toThrow();
+    }
+  },
+  TIMEOUT
+);

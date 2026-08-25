@@ -11,10 +11,14 @@ import {
   EquipmentSlotId,
   getAttackActionName,
   getTooltipOffensiveSpec,
+  HoldableSlotId,
   invariant,
   NumberRange,
 } from "@speed-dungeon/common";
-import { EquipmentBaseItemTally } from "@/analysis-subjects/equipment-base-item-tally";
+import {
+  EquipmentBaseItemTally,
+  TalliedBaseItem,
+} from "@/analysis-subjects/equipment-base-item-tally";
 
 export enum AttackDamageContributingAttribute {
   Strength,
@@ -23,6 +27,8 @@ export enum AttackDamageContributingAttribute {
   FlatDamage,
 }
 
+// not a Record over HoldableSlotId like the equipment below it: a combatant always has a main hand
+// attack to quote, even bare handed, and only the off hand one is conditional
 export interface CombatantReportTooltipDamage {
   [EquipmentSlotId.MainHand]: NumberRange;
   [EquipmentSlotId.OffHand]: NumberRange | null;
@@ -36,18 +42,15 @@ export type CombatantAttackContributingAttributes = Record<
 interface AttackDamageCombatantReport {
   sampledDamageOnDummy: number;
   tooltipDamage: CombatantReportTooltipDamage;
-  heldEquipment: {
-    [EquipmentSlotId.MainHand]: Equipment | null;
-    [EquipmentSlotId.OffHand]: Equipment | null;
-  };
-  contributingAllocations: CombatantAttackContributingAttributes;
+  heldEquipment: Record<HoldableSlotId, Equipment | null>;
+  contributingAttributes: CombatantAttackContributingAttributes;
   mainClassLevel: number;
   supportClassLevel: number | undefined;
 }
 
 export interface AttackDamageRoomReport {
   /** every base item dropped since the run began, not only this room's drops */
-  cumulativeAvailableEquipment: EquipmentBaseItemTally;
+  cumulativeAvailableEquipment: TalliedBaseItem[];
   combatantReports: Map<CombatantId, AttackDamageCombatantReport>;
 }
 
@@ -63,7 +66,7 @@ export interface AnalysisRunReporter<T> {
 
 export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamageRoomReport> {
   private _runReport: RunReport<AttackDamageRoomReport> = [];
-  private cumulativeAvailableEquipment = EquipmentBaseItemTally.empty();
+  private cumulativeAvailableEquipment = new EquipmentBaseItemTally();
 
   constructor(private party: AdventuringParty) {}
 
@@ -115,7 +118,7 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
     };
   }
 
-  private getContributingAllocationsOnEquipment(equipment: Equipment) {
+  private getContributingAttributesOnEquipment(equipment: Equipment) {
     const strength = equipment.getAffixAttributeValue(AffixType.Strength, CombatAttribute.Strength);
     const dexterity = equipment.getAffixAttributeValue(
       AffixType.Dexterity,
@@ -134,7 +137,7 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
     return { strength, dexterity, accuracy, flatDamage };
   }
 
-  private getContributingAllocations(
+  private getContributingAttributes(
     combatantProperties: CombatantProperties
   ): CombatantAttackContributingAttributes {
     // from equipment
@@ -149,7 +152,7 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
       includeUnselectedHotswapSlots: false,
     })) {
       const { strength, dexterity, accuracy, flatDamage } =
-        this.getContributingAllocationsOnEquipment(equipment);
+        this.getContributingAttributesOnEquipment(equipment);
       contributionsFromEquipped[AttackDamageContributingAttribute.Strength] += strength;
       contributionsFromEquipped[AttackDamageContributingAttribute.Dexterity] += dexterity;
       contributionsFromEquipped[AttackDamageContributingAttribute.Accuracy] += accuracy;
@@ -200,7 +203,7 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
     this.cumulativeAvailableEquipment.addAllEquipment(equipmentDroppedThisRoom);
 
     const roomReport = {
-      cumulativeAvailableEquipment: this.cumulativeAvailableEquipment.clone(),
+      cumulativeAvailableEquipment: this.cumulativeAvailableEquipment.entries(),
       combatantReports: new Map<CombatantId, AttackDamageCombatantReport>(),
     };
 
@@ -214,7 +217,7 @@ export class AttackDamageRunReporter implements AnalysisRunReporter<AttackDamage
         sampledDamageOnDummy,
         tooltipDamage: this.getTooltipDamage(combatant),
         heldEquipment: this.getHeldEquipment(combatantProperties),
-        contributingAllocations: this.getContributingAllocations(combatantProperties),
+        contributingAttributes: this.getContributingAttributes(combatantProperties),
         mainClassLevel: classProgressionProperties.getMainClass().level,
         supportClassLevel: classProgressionProperties.getSupportClassOption()?.level,
       };

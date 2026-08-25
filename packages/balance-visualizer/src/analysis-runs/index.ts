@@ -2,6 +2,7 @@ import {
   AdventuringParty,
   DEEPEST_FLOOR,
   DungeonRoomType,
+  Equipment,
   SpeedDungeonGame,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
@@ -24,9 +25,9 @@ export class AnalysisRun<RoomReportType> {
     this.partyDriver = new AnalysisPartyDriver(this.game, this.party);
   }
 
-  private removeRequirementsFromDroppedEquipment() {
-    for (const equipment of this.party.currentRoom.inventory.equipment) {
-      equipment.requirements = {};
+  private removeRequirementsFrom(equipment: Equipment[]) {
+    for (const item of equipment) {
+      item.requirements = {};
     }
   }
 
@@ -39,10 +40,10 @@ export class AnalysisRun<RoomReportType> {
       throwIfLoopLimitReached((safetyCounter += 1));
 
       this.partyDriver.clearCurrentRoom();
-      this.removeRequirementsFromDroppedEquipment();
-      this.attributeAllocationSolver.solve();
       // the solver deletes what it doesn't equip, so capture the drops before it runs
       const equipmentDroppedThisRoom = [...this.party.currentRoom.inventory.equipment];
+      this.removeRequirementsFrom(equipmentDroppedThisRoom);
+      this.attributeAllocationSolver.solve();
       const { performanceByCharacter } = this.equipmentSolver.solve();
       this.runReporter.updateReport(performanceByCharacter, equipmentDroppedThisRoom);
 

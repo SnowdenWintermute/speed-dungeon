@@ -1,4 +1,5 @@
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
+import { iterateNumericEnum } from "../../utils/index.js";
 
 export enum EquipmentSlotType {
   Head,
@@ -84,3 +85,15 @@ export const COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE: Record<
     main: EquipmentSlotId.OffHand,
   },
 };
+
+const HOLDABLE_SLOT_ID_SET: Set<EquipmentSlotId> = new Set(HOLDABLE_SLOT_IDS);
+
+export const HOLDABLE_EQUIPMENT_TYPES = iterateNumericEnum(EquipmentType).filter(
+  (equipmentType) => {
+    const { main, alternate } = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
+    return (
+      HOLDABLE_SLOT_ID_SET.has(main) ||
+      (alternate !== undefined && HOLDABLE_SLOT_ID_SET.has(alternate))
+    );
+  }
+);

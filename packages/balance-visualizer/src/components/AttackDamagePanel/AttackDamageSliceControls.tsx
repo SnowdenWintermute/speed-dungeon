@@ -5,7 +5,7 @@ import {
 } from "@speed-dungeon/common";
 import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { CharacterWeaponSpecialty } from "@/analysis-subjects/analysis-character-specification";
-import { AttackDamageSlice } from "@/tables/attack-action";
+import { AttackDamageSlice } from "@/tables/attack-damage/row";
 
 const WEAPON_SPECIALTY_STRINGS: Record<CharacterWeaponSpecialty, string> = {
   [CharacterWeaponSpecialty.TwoHandedMelee]: "Two Handed Melee",
@@ -14,8 +14,8 @@ const WEAPON_SPECIALTY_STRINGS: Record<CharacterWeaponSpecialty, string> = {
   [CharacterWeaponSpecialty.Shields]: "Shield",
 };
 
-// a sentinel rather than undefined so SelectDropdown can match it by value: undefined makes it
-// fall back to the first selectable option
+// a sentinel rather than undefined so SelectDropdown can match it by value: it renders the option
+// whose value matches, and undefined matches none of them, leaving the closed dropdown blank
 const ANY_OPTION_VALUE = "any";
 
 const ANY_OPTION = { title: "Any", value: ANY_OPTION_VALUE };

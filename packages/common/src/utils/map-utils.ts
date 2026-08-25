@@ -16,6 +16,16 @@ export class MapUtils {
     return result.done ? undefined : result.value;
   }
 
+  static getOrCreate<K, V>(map: Map<K, V>, key: K, createValue: () => V): V {
+    const existing = map.get(key);
+    if (existing !== undefined) {
+      return existing;
+    }
+    const created = createValue();
+    map.set(key, created);
+    return created;
+  }
+
   static invert<K, V>(map: Map<K, V>): Map<V, K> {
     return new Map([...map.entries()].map(([k, v]) => [v, k]));
   }
