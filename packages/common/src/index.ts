@@ -42,6 +42,7 @@ export * from "./monsters/get-monster-combatant-species.js";
 export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
 export * from "./monsters/monster-reward-profiles.js";
+export * from "./monsters/monster-evasion.generated.js";
 export * from "./combatants/attributes/attribute-tables.generated.js";
 export * from "./combatants/target-dummies/index.js";
 

@@ -1,4 +1,4 @@
-import { COMBAT_ATTRIBUTE_STRINGS, CombatAttribute } from "../combatants/attributes/index.js";
+import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { Combatant } from "../combatants/index.js";
 import { ItemBuilder } from "../items/item-creation/item-builder/index.js";
@@ -8,14 +8,13 @@ import {
   RandomNumberGenerator,
 } from "../utility-classes/randomizers.js";
 import { iterateNumericEnumKeyedRecord } from "../utils/index.js";
-import { randBetween, rollNormalized } from "../utils/rand-between.js";
+import { randBetween } from "../utils/rand-between.js";
 import { appendMonsterEquipment } from "./append-monster-equipment.js";
 import { MONSTER_COMBAT_PROFILES } from "./monster-combat-profiles.js";
 import {
   MONSTER_INHERENT_ELEMENTAL_AFFINITIES,
   MONSTER_INHERENT_KINETIC_AFFINITIES,
 } from "./monster-inherent-affinities.js";
-import { MONSTER_ATTRIBUTES_BY_LEVEL } from "../combatants/attributes/attribute-tables.generated.js";
 import { MONSTER_INHERENT_TRAIT_GETTERS } from "./monster-traits.js";
 import { MONSTER_TYPE_STRINGS, MonsterType } from "./monster-types.js";
 

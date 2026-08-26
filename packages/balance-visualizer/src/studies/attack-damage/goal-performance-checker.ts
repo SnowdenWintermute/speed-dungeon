@@ -26,10 +26,9 @@ import {
 import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
-  // every check within a comparison scope replays this stream from the same point, so a difference
-  // between two of them reflects the build change instead of the rolls. without it, comparing two
-  // independent samples of a wide damage range reads as an improvement about half the time no
-  // matter what changed
+  // when rolling attacks on the target dummy to check effectiveness of an equipment, we want to
+  // use the same rolls for each equipment tried on or else lucky attack rolls might make an equipment
+  // seem better than it really is
   private rng = SeededNumberGenerator.withRandomSeed();
   private rngPolicy = RandomNumberGenerationPolicyFactory.policyFromGenerator(this.rng);
   private resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();

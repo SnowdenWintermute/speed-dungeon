@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableColumn, DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { AnalysisSlice, roomKey } from "@/analysis-runs/analysis-sample";
@@ -15,18 +15,29 @@ interface StudyTable<TRow> {
   selectRows(slice: AnalysisSlice): TRow[];
 }
 
-interface Props<AnalysisType extends DungeonRunAnalysis, TRow extends AnalysisTableRow> {
+interface Props<
+  AnalysisType extends DungeonRunAnalysis,
+  TRow extends AnalysisTableRow,
+  TTable extends StudyTable<TRow>,
+> {
   analysis: AnalysisType;
   columns: DataTableColumn<TRow>[];
   /** the class itself, so the memo below is not rebuilt by a new closure on every render */
-  tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisType]) => StudyTable<TRow>;
+  tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisType]) => TTable;
+  /** whatever the study does with a finished table, such as generating a module from it */
+  renderTableActions?: (table: TTable) => ReactNode;
 }
 
-export function StudyPanel<AnalysisType extends DungeonRunAnalysis, TRow extends AnalysisTableRow>({
+export function StudyPanel<
+  AnalysisType extends DungeonRunAnalysis,
+  TRow extends AnalysisTableRow,
+  TTable extends StudyTable<TRow>,
+>({
   analysis,
   columns,
   tableConstructor: TableConstructor,
-}: Props<AnalysisType, TRow>) {
+  renderTableActions,
+}: Props<AnalysisType, TRow, TTable>) {
   const { state, run } = useAnalysisRunSet(analysis);
   const [slice, setSlice] = useState<AnalysisSlice>({});
 
@@ -60,6 +71,10 @@ export function StudyPanel<AnalysisType extends DungeonRunAnalysis, TRow extends
       )}
 
       <AnalysisSliceControls slice={slice} onChange={setSlice} />
+
+      {table !== null && renderTableActions !== undefined && (
+        <div className="mb-4">{renderTableActions(table)}</div>
+      )}
 
       <div className="bg-theme-base p-2 border border-theme-muted overflow-auto">
         <DataTable
