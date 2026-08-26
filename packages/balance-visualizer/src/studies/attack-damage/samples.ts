@@ -9,8 +9,7 @@ import { AnalysisSampleDimensions } from "@/analysis-runs/analysis-sample";
 import { AnalysisSampleRunSetResult } from "@/analysis-runs/run-set";
 import { CombatantAttackContributingAttributes } from "./run-reporter";
 
-// serialized rather than the NumberRange itself: postMessage copies own properties without the
-// prototype, so a class arrives on the other side with its fields and none of its methods
+// serialized because sent through worker message
 export interface SampleTooltipDamage {
   [EquipmentSlotId.MainHand]: SerializedOf<NumberRange>;
   [EquipmentSlotId.OffHand]: SerializedOf<NumberRange> | null;

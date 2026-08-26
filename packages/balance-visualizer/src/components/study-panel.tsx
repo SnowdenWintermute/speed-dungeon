@@ -3,14 +3,11 @@ import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableColumn, DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { AnalysisSlice, roomKey } from "@/analysis-runs/analysis-sample";
 import { AnalysisTableRow } from "@/analysis-runs/analysis-sample-table";
-import {
-  DungeonRunAnalysis,
-  DungeonRunAnalysisResults,
-} from "@/analysis-runs/dungeon-run-analysis";
 import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "@/analysis-subjects/default-analysis-character-specs";
 import { useAnalysisRunSet } from "@/hooks/use-analysis-run-set";
-import { AnalysisRunControls } from "./AnalysisRunControls";
-import { AnalysisSliceControls } from "./AnalysisSliceControls";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "@/analysis-runs/types";
+import { AnalysisRunControls } from "./analysis-run-controls";
+import { AnalysisSliceControls } from "./analysis-slice-controls";
 
 const DEFAULT_RUN_COUNT = 100;
 
@@ -38,8 +35,6 @@ export function StudyPanel<AnalysisType extends DungeonRunAnalysis, TRow extends
     [state.result, TableConstructor]
   );
 
-  // re-aggregating every sample is the expensive half of showing this table, and a keystroke in
-  // the run count input would otherwise pay for it
   const rows = useMemo(() => (table === null ? [] : table.selectRows(slice)), [table, slice]);
 
   return (

@@ -2,13 +2,10 @@ import { ReactElement, useState } from "react";
 import { iterateNumericEnum } from "@speed-dungeon/common";
 import { UiProvider } from "@speed-dungeon/ui/ui-context";
 import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
-import {
-  DUNGEON_RUN_ANALYSIS_NAMES,
-  DungeonRunAnalysis,
-} from "./analysis-runs/dungeon-run-analysis";
-import { AttackDamagePanel } from "./studies/attack-damage/Panel";
-import { MaxAccuracyPanel } from "./studies/max-accuracy/Panel";
 import { ZIndexLayers } from "./z-index-layers";
+import { DUNGEON_RUN_ANALYSIS_NAMES, DungeonRunAnalysis } from "./analysis-runs/types";
+import { MaxAccuracyPanel } from "./studies/max-accuracy/panel";
+import { AttackDamagePanel } from "./studies/attack-damage/panel";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 
@@ -17,7 +14,6 @@ const ANALYSIS_OPTIONS = iterateNumericEnum(DungeonRunAnalysis).map((analysis) =
   value: analysis,
 }));
 
-// mounting only the selected study keeps a single worker in flight, and drops the other's table
 const ANALYSIS_PANELS: Record<DungeonRunAnalysis, () => ReactElement> = {
   [DungeonRunAnalysis.AttackDamage]: AttackDamagePanel,
   [DungeonRunAnalysis.MaxAccuracy]: MaxAccuracyPanel,

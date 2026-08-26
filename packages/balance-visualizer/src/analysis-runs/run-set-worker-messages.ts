@@ -1,8 +1,7 @@
 import { SerializedOf } from "@speed-dungeon/common";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./types";
 
-/** the specs cross as data: postMessage would hand the worker the fields without the class */
 export interface AnalysisRunSetWorkerRequest {
   analysis: DungeonRunAnalysis;
   characterSpecs: SerializedOf<AnalysisCharacterSpecification>[];

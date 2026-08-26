@@ -1,15 +1,14 @@
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { attackDamageRunSet } from "@/studies/attack-damage/run-set";
 import { maxAccuracyRunSet } from "@/studies/max-accuracy/run-set";
-import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis";
 import { AnalysisRunSet } from "./run-set";
 import {
   AnalysisRunSetWorkerMessage,
   AnalysisRunSetWorkerMessageType,
   AnalysisRunSetWorkerRequest,
 } from "./run-set-worker-messages";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./types";
 
-// a mapped type rather than a plain record, so adding a study without a factory is a compile error
 const RUN_SET_FACTORIES: {
   [AnalysisType in DungeonRunAnalysis]: (
     characterSpecs: AnalysisCharacterSpecification[]

@@ -14,10 +14,7 @@ const WEAPON_SPECIALTY_STRINGS: Record<CharacterWeaponSpecialty, string> = {
   [CharacterWeaponSpecialty.Shields]: "Shield",
 };
 
-// a sentinel rather than undefined so SelectDropdown can match it by value: it renders the option
-// whose value matches, and undefined matches none of them, leaving the closed dropdown blank
 const ANY_OPTION_VALUE = "any";
-
 const ANY_OPTION = { title: "Any", value: ANY_OPTION_VALUE };
 
 const COMBATANT_CLASS_OPTIONS = iterateNumericEnum(CombatantClass).map((combatantClass) => ({

@@ -1,7 +1,7 @@
-import { DungeonRunAnalysis } from "@/analysis-runs/dungeon-run-analysis";
-import { StudyPanel } from "@/components/StudyPanel";
+import { StudyPanel } from "@/components/study-panel";
 import { ATTACK_DAMAGE_TABLE_COLUMNS } from "./columns";
 import { AttackDamageTable } from "./table";
+import { DungeonRunAnalysis } from "@/analysis-runs/types";
 
 export function AttackDamagePanel() {
   return (
