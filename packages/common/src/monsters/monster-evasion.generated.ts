@@ -12,6 +12,6 @@ export const MONSTER_EVASION_BY_FLOOR: Record<FloorNumber, number> = {
   6: 30,
   7: 35,
   8: 39,
-  9: 48,
-  10: 53,
+  9: 47,
+  10: 52,
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
+import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 
 const MIN_RUN_COUNT = 1;
 const MAX_RUN_COUNT = 2000;
@@ -12,6 +13,21 @@ interface Props {
   runsRequested: number;
   onRun: (runCount: number) => void;
 }
+
+const RUN_COUNT_OPTIONS = [
+  {
+    title: "500",
+    value: 500,
+  },
+  {
+    title: "100",
+    value: 100,
+  },
+  {
+    title: "10",
+    value: 10,
+  },
+];
 
 export function AnalysisRunControls(props: Props) {
   const [runCountText, setRunCountText] = useState(`${props.defaultRunCount}`);
@@ -28,8 +44,17 @@ export function AnalysisRunControls(props: Props) {
 
   return (
     <div className="flex items-end gap-4">
-      <label className="flex flex-col text-sm text-theme-muted">
+      <div className="flex flex-col text-sm text-theme-muted">
         <span className="mb-1">runs</span>
+
+        <RadioGroup
+          title="run count presets"
+          extraStyles="mb-2"
+          value={runCount}
+          setValue={(presetRunCount) => setRunCountText(`${presetRunCount}`)}
+          options={RUN_COUNT_OPTIONS}
+        />
+
         <NumberInput
           name="run count"
           value={runCountText}
@@ -39,7 +64,7 @@ export function AnalysisRunControls(props: Props) {
           onEnter={handleRun}
           className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
         />
-      </label>
+      </div>
 
       <ButtonBasic
         onClick={handleRun}

@@ -28,7 +28,8 @@ export class AttributeAllocationSolver {
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue + totalToTry);
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
     const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
-    const performanceAfter = this.goalPerformanceChecker.checkPerformance(
+    // allocation moves no equipment, so it can't change whether the build specification is met
+    const { score: performanceAfter } = this.goalPerformanceChecker.checkPerformance(
       combatant,
       spec,
       currentFloor
@@ -46,7 +47,7 @@ export class AttributeAllocationSolver {
 
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
     const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
-    const performanceBefore = this.goalPerformanceChecker.checkPerformance(
+    const { score: performanceBefore } = this.goalPerformanceChecker.checkPerformance(
       combatant,
       spec,
       currentFloor

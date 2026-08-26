@@ -20,8 +20,10 @@ const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
 
 const dexterityPerformance = {
-  checkPerformance: (combatant: Combatant) =>
-    combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
+  checkPerformance: (combatant: Combatant) => ({
+    score: combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
+    meetsBuildSpecification: true,
+  }),
   beginComparisonScope: () => {},
 };
 

@@ -9,7 +9,7 @@ import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "@/analysis-runs/t
 import { AnalysisRunControls } from "./analysis-run-controls";
 import { AnalysisSliceControls } from "./analysis-slice-controls";
 
-const DEFAULT_RUN_COUNT = 100;
+const DEFAULT_RUN_COUNT = 500;
 
 interface StudyTable<TRow> {
   selectRows(slice: AnalysisSlice): TRow[];

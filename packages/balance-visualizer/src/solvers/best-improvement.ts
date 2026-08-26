@@ -10,12 +10,13 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
-import { GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { GoalPerformance, GoalPerformanceChecker } from "@/goal-performance-checkers";
 import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
+import { PerformanceComparison } from "./performance-comparison";
 
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;
-  private currentPerformanceByCharacter = new Map<CombatantId, number>();
+  private currentPerformanceByCharacter = new Map<CombatantId, GoalPerformance>();
   private _equipmentMissedByChecker: Equipment[] = [];
 
   constructor(
@@ -77,7 +78,7 @@ export class BestImprovementEquipmentSolver {
     const characterSpec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
     const { equipmentType } = equipmentToCheck.equipmentBaseItemProperties;
     if (!characterSpec.combatantWouldConsiderEquipmentTypeInSlot(equipmentType, slotId)) {
-      return { performanceAfter: 0, performanceDifference: -1 };
+      return null;
     }
 
     const performanceBefore = this.getBaselinePerformance(combatant);
@@ -95,7 +96,7 @@ export class BestImprovementEquipmentSolver {
       characterSpec,
       currentFloor
     );
-    const performanceDifference = performanceAfter - performanceBefore;
+    const comparison = PerformanceComparison.between(performanceBefore, performanceAfter);
 
     // put back original equipment
     combatantEquipment.unequipSlots([slotId]);
@@ -109,18 +110,18 @@ export class BestImprovementEquipmentSolver {
     }
     combatantProperties.inventory.dropAll(this.party);
 
-    return { performanceAfter, performanceDifference };
+    return { performanceAfter, comparison };
   }
 
-  private measurePeformanceDifferences(
+  private comparePerformanceWithEquipment(
     equipmentToCheck: Equipment,
     slotId: EquipmentSlotId,
     shouldEquipToAltSlot: boolean
   ) {
     const { combatantManager } = this.party;
-    const performanceDifferenceByCharacter = new Map<
+    const comparisonByCharacter = new Map<
       CombatantId,
-      { difference: number; total: number }
+      { comparison: PerformanceComparison; total: GoalPerformance }
     >();
 
     for (const combatant of combatantManager.getPartyMemberCharacters()) {
@@ -130,36 +131,36 @@ export class BestImprovementEquipmentSolver {
         continue;
       }
 
-      const { performanceDifference, performanceAfter } = this.tryOnEquipment(
-        combatant,
-        equipmentToCheck,
-        slotId,
-        shouldEquipToAltSlot
-      );
+      const tried = this.tryOnEquipment(combatant, equipmentToCheck, slotId, shouldEquipToAltSlot);
 
-      performanceDifferenceByCharacter.set(combatant.getEntityId(), {
-        difference: performanceDifference,
-        total: performanceAfter,
+      const specialtyWouldNotConsiderIt = tried === null;
+      if (specialtyWouldNotConsiderIt) {
+        continue;
+      }
+
+      comparisonByCharacter.set(combatant.getEntityId(), {
+        comparison: tried.comparison,
+        total: tried.performanceAfter,
       });
     }
 
-    return performanceDifferenceByCharacter;
+    return comparisonByCharacter;
   }
 
   private getMostImprovedCombatant(
-    performanceDifferenceByCharacter: Map<
+    comparisonByCharacter: Map<
       CombatantId,
-      {
-        difference: number;
-        total: number;
-      }
+      { comparison: PerformanceComparison; total: GoalPerformance }
     >
   ) {
     let characterIdMostImproved: CombatantId | undefined = undefined;
-    let largestDifference = 0;
-    for (const [combatantId, { difference }] of performanceDifferenceByCharacter) {
-      if (difference > largestDifference) {
-        largestDifference = difference;
+    let bestComparison: PerformanceComparison | undefined = undefined;
+    for (const [combatantId, { comparison }] of comparisonByCharacter) {
+      if (!comparison.isImprovement()) {
+        continue;
+      }
+      if (bestComparison === undefined || comparison.beats(bestComparison)) {
+        bestComparison = comparison;
         characterIdMostImproved = combatantId;
       }
     }
@@ -180,23 +181,21 @@ export class BestImprovementEquipmentSolver {
       const { compatibleSlotIds } = equipmentToCheck.getCompatibleSlots();
       const shouldEquipToAltSlot = compatibleSlotIds.alternate === slotId;
 
-      const performanceDifferenceByCharacter = this.measurePeformanceDifferences(
+      const comparisonByCharacter = this.comparePerformanceWithEquipment(
         equipmentToCheck,
         slotId,
         shouldEquipToAltSlot
       );
 
       // give the item to character who's goal performance increased the most
-      const characterIdMostImproved = this.getMostImprovedCombatant(
-        performanceDifferenceByCharacter
-      );
+      const characterIdMostImproved = this.getMostImprovedCombatant(comparisonByCharacter);
 
       const noCombatantWouldBenefit = characterIdMostImproved === undefined;
       if (noCombatantWouldBenefit) {
         continue;
       }
 
-      const characterNewPerformance = performanceDifferenceByCharacter.get(characterIdMostImproved);
+      const characterNewPerformance = comparisonByCharacter.get(characterIdMostImproved);
       invariant(characterNewPerformance !== undefined);
 
       const combatantReceiving = combatantManager.getExpectedCombatant(characterIdMostImproved);
@@ -274,10 +273,12 @@ export class BestImprovementEquipmentSolver {
     const unusedEquipment = [...this.party.currentRoom.inventory.equipment];
     this.party.currentRoom.inventory.deleteAllItems();
 
-    return {
-      performanceByCharacter: structuredClone(this.currentPerformanceByCharacter),
-      unusedEquipment,
-    };
+    const scoreByCharacter = new Map<CombatantId, number>();
+    for (const [combatantId, performance] of this.currentPerformanceByCharacter) {
+      scoreByCharacter.set(combatantId, performance.score);
+    }
+
+    return { performanceByCharacter: scoreByCharacter, unusedEquipment };
   }
 
   static getCombatantGroupEquipmentCapacities(combatants: Combatant[]) {

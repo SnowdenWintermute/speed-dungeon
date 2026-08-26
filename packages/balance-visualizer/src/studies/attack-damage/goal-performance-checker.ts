@@ -23,7 +23,7 @@ import {
   SeededNumberGenerator,
   TargetDummyFactory,
 } from "@speed-dungeon/common";
-import { GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { GoalPerformance, GoalPerformanceChecker } from "@/goal-performance-checkers";
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
   // when rolling attacks on the target dummy to check effectiveness of an equipment, we want to
@@ -143,20 +143,21 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     combatant: Combatant,
     combatantAnalysisSpec: AnalysisCharacterSpecification,
     partyCurrentFloor: number
-  ) {
+  ): GoalPerformance {
     invariant(combatantAnalysisSpec !== undefined);
-    const notWearingSpecDesiredEquipment =
-      !combatantAnalysisSpec.combatantIsWearingDesiredEquipmentType(combatant);
-    if (notWearingSpecDesiredEquipment) {
-      return 0;
-    }
 
     // the combatant does not change while it is being sampled, so its attributes are derived once
     // instead of on every read the samples make. solvers mutate it between checks, so the hold ends
     // with the read
-    return this.requireAttributesMemo(combatant).holdWhile(() =>
+    const score = this.requireAttributesMemo(combatant).holdWhile(() =>
       this.sampleAverageDamage(combatant, partyCurrentFloor)
     );
+
+    return {
+      score,
+      meetsBuildSpecification:
+        combatantAnalysisSpec.combatantIsWearingDesiredEquipmentType(combatant),
+    };
   }
 
   private sampleAverageDamage(combatant: Combatant, partyCurrentFloor: number) {
