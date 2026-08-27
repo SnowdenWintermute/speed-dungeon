@@ -1,7 +1,7 @@
-import { NormalizedPercentage } from "@speed-dungeon/common";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { attackDamageRunSet } from "@/studies/attack-damage/run-set";
 import { maxAccuracyRunSet } from "@/studies/max-accuracy/run-set";
+import { AllocationIntensity } from "./allocation-intensity";
 import { AnalysisRunSet } from "./run-set";
 import {
   AnalysisRunSetWorkerMessage,
@@ -13,7 +13,7 @@ import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./types";
 const RUN_SET_FACTORIES: {
   [AnalysisType in DungeonRunAnalysis]: (
     characterSpecs: AnalysisCharacterSpecification[],
-    discretionaryShare: NormalizedPercentage
+    allocationIntensity: AllocationIntensity
   ) => AnalysisRunSet<DungeonRunAnalysisResults[AnalysisType]>;
 } = {
   [DungeonRunAnalysis.AttackDamage]: attackDamageRunSet,
@@ -34,7 +34,7 @@ function post(message: AnalysisRunSetWorkerMessage<DungeonRunAnalysis>) {
 self.onmessage = ({ data }) => {
   const runSet = RUN_SET_FACTORIES[data.analysis](
     data.characterSpecs.map(AnalysisCharacterSpecification.fromSerialized),
-    data.discretionaryShare
+    new AllocationIntensity(data.allocationIntensity)
   );
 
   try {

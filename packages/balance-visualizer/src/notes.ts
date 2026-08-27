@@ -21,6 +21,9 @@
 //   - declare drop rates by encounter
 // - assign attribute requirements to the armor types based on the new sampledAttackDamage study
 //   attributes
+//   - automatically assign by the armor's availability by room
+//     and a given combatant spec's average attributes in the room
+//     which is the median of rooms in which the item could drop
 
 //
 // 55 95 166 vs 70 111 175

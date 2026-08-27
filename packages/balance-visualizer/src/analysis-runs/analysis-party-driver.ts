@@ -13,15 +13,15 @@ import {
   IdGeneratorRandom,
   ItemBuilder,
   LootGenerator,
-  NormalizedPercentage,
   RandomDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   SpeedDungeonGame,
   TaggedAffixType,
 } from "@speed-dungeon/common";
+import { AllocationIntensity } from "./allocation-intensity";
 
-/** captured before any driver installs its wrapper, so that constructing a second driver scales the
- * pristine attributes rather than ones the first driver already scaled */
+/** the scaled reader is only installed for the length of a walk, so this is both the one it reads
+ * through and the one it puts back */
 const getAttributesOnEquipmentList = Equipment.getAttributesOnEquipmentList.bind(Equipment);
 
 const DAMAGE_TRAITS = [EquipmentTraitType.DamagePercentage, EquipmentTraitType.FlatDamageAdditive];
@@ -40,7 +40,7 @@ export class AnalysisPartyDriver {
   constructor(
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
-    private discretionaryValueMultiplier: NormalizedPercentage
+    private allocationIntensity: AllocationIntensity
   ) {
     this.dungeonExplorationManager = party.dungeonExplorationManager;
 
@@ -61,7 +61,6 @@ export class AnalysisPartyDriver {
   /** although we modify most equipment attribute reads by replacing the
    * Equipment.getAttributesOnEquipmentList, some relevant affix values are not
    * combat attributes */
-
   private modifyAffixValueGeneration() {
     const rollAffixTierAndValue = this.affixGenerator.rollAffixTierAndValue.bind(
       this.affixGenerator
@@ -77,7 +76,7 @@ export class AnalysisPartyDriver {
       for (const traitType of DAMAGE_TRAITS) {
         const trait = affix.equipmentTraits[traitType];
         if (trait !== undefined) {
-          trait.value = trait.value * this.discretionaryValueMultiplier;
+          trait.value = this.allocationIntensity.scaleValue(trait.value);
         }
       }
 
@@ -85,15 +84,23 @@ export class AnalysisPartyDriver {
     };
   }
 
+  /** attributes on worn equipment are read through a static, so scaling them for this party means
+   * swapping it */
   private modifyWornEquipmentAttributes() {
     Equipment.getAttributesOnEquipmentList = (list: Equipment[]) => {
       const attributes = getAttributesOnEquipmentList(list);
       for (const attribute of COMBAT_ATTRIBUTES) {
-        attributes[attribute] *= this.discretionaryValueMultiplier;
+        attributes[attribute] = this.allocationIntensity.scaleValue(attributes[attribute]);
       }
 
       return attributes;
     };
+  }
+
+  /** a swap left installed past the run that asked for it would go on scaling for whatever ran
+   * next, so the run puts it back when it finishes */
+  restoreWornEquipmentAttributes() {
+    Equipment.getAttributesOnEquipmentList = getAttributesOnEquipmentList;
   }
 
   moveToNextRoom(options: { isDescending: boolean }) {

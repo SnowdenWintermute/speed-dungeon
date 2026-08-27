@@ -4,6 +4,7 @@ import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-cha
 import {
   AnalysisRunSetWorkerMessage,
   AnalysisRunSetWorkerMessageType,
+  AnalysisRunSetWorkerRequest,
 } from "@/analysis-runs/run-set-worker-messages";
 import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "@/analysis-runs/types";
 
@@ -42,7 +43,7 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(analy
     (
       characterSpecs: AnalysisCharacterSpecification[],
       runCount: number,
-      discretionaryShare: NormalizedPercentage
+      allocationIntensity: NormalizedPercentage
     ) => {
       workerRef.current?.terminate();
 
@@ -87,12 +88,15 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(analy
         worker.terminate();
       };
 
-      worker.postMessage({
+      // Worker.postMessage takes `any`, so the request is annotated to be checked against the shape
+      // the worker reads
+      const request: AnalysisRunSetWorkerRequest = {
         analysis,
         characterSpecs: characterSpecs.map((spec) => spec.toSerialized()),
         runCount,
-        discretionaryShare,
-      });
+        allocationIntensity,
+      };
+      worker.postMessage(request);
     },
     [analysis]
   );

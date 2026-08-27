@@ -1,5 +1,6 @@
-import { CombatAttribute, NormalizedPercentage } from "@speed-dungeon/common";
+import { CombatAttribute } from "@speed-dungeon/common";
 import { AnalysisRun } from "@/analysis-runs";
+import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
 import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
@@ -10,7 +11,7 @@ import { AttackDamageCombatantReport, AttackDamageRunReporter } from "./run-repo
 
 export function attackDamageAnalysisRun(
   characterSpecs: AnalysisCharacterSpecification[],
-  discretionaryShare: NormalizedPercentage
+  allocationIntensity: AllocationIntensity
 ) {
   const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
@@ -31,11 +32,11 @@ export function attackDamageAnalysisRun(
       analysisSpecsHolder,
       goalPerformanceChecker,
       [CombatAttribute.Strength, CombatAttribute.Dexterity],
-      discretionaryShare
+      allocationIntensity
     ),
     goalPerformanceChecker,
     new AttackDamageRunReporter(party, goalPerformanceChecker),
-    discretionaryShare
+    allocationIntensity
   );
 
   const report = runner.simulateRun();

@@ -1,3 +1,4 @@
+import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
 import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
 import { GoalPerformanceChecker } from "@/goal-performance-checkers";
 import {
@@ -7,7 +8,6 @@ import {
   Combatant,
   CombatAttribute,
   invariant,
-  NormalizedPercentage,
 } from "@speed-dungeon/common";
 
 export class AttributeAllocationSolver {
@@ -16,12 +16,12 @@ export class AttributeAllocationSolver {
     private analysisSpecsHolder: AnalysisSpecHolder,
     private goalPerformanceChecker: GoalPerformanceChecker,
     private attributesToTry: AttributePointAssignableAttributes[],
-    private discretionaryShare: NormalizedPercentage
+    private allocationIntensity: AllocationIntensity
   ) {}
 
-  /** the share is taken against every point the combatant has ever been granted rather than against
-   * what is currently unspent, so that spending is capped at the share of a career's points instead
-   * of draining whatever stock happens to be on hand. the points a floor drops leave behind are
+  /** the intensity is taken against every point the combatant has ever been granted rather than
+   * against what is currently unspent, so that spending is capped at a share of a career's points
+   * instead of draining whatever stock happens to be on hand. the points a floor leaves behind are
    * offered again on the next level up, when the larger cumulative total may fit another whole one */
   private getPointsToAllocate(combatant: Combatant) {
     const { attributeProperties } = combatant.getCombatantProperties();
@@ -34,7 +34,7 @@ export class AttributeAllocationSolver {
     }
 
     const grantedPoints = unspentPoints + allocatedPoints;
-    const targetAllocatedPoints = Math.floor(grantedPoints * this.discretionaryShare);
+    const targetAllocatedPoints = this.allocationIntensity.pointsTowardGoal(grantedPoints);
 
     return Math.min(Math.max(targetAllocatedPoints - allocatedPoints, 0), unspentPoints);
   }
@@ -69,13 +69,12 @@ export class AttributeAllocationSolver {
     combatant: Combatant,
     toTry: AttributePointAssignableAttributes[]
   ) {
-    const { attributeProperties } = combatant.getCombatantProperties();
-
     const pointsToAllocate = this.getPointsToAllocate(combatant);
     if (pointsToAllocate < 1) {
       return;
     }
 
+    const { attributeProperties } = combatant.getCombatantProperties();
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
     const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
     const { score: performanceBefore } = this.goalPerformanceChecker.checkPerformance(
@@ -107,9 +106,6 @@ export class AttributeAllocationSolver {
     invariant(this.attributesToTry.length > 0);
 
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      if (combatant.getCombatantProperties().attributeProperties.getUnspentPoints() < 1) {
-        continue;
-      }
       this.allocateToBestImproved(combatant, this.attributesToTry);
     }
   }

@@ -1,4 +1,4 @@
-import { NormalizedPercentage } from "@speed-dungeon/common";
+import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
 import { AnalysisSampleCollectingRunSet } from "@/analysis-runs/run-set";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { maxAccuracyAnalysisRun } from "./run";
@@ -7,10 +7,10 @@ import { MaxAccuracySample } from "./samples";
 
 export function maxAccuracyRunSet(
   characterSpecs: AnalysisCharacterSpecification[],
-  discretionaryShare: NormalizedPercentage
+  allocationIntensity: AllocationIntensity
 ) {
   return new AnalysisSampleCollectingRunSet<MaxAccuracyCombatantReport, MaxAccuracySample>(
-    () => maxAccuracyAnalysisRun(characterSpecs, discretionaryShare),
+    () => maxAccuracyAnalysisRun(characterSpecs, allocationIntensity),
     (dimensions, combatantReport) => ({
       ...dimensions,
       totalAccuracy: combatantReport.totalAccuracy,

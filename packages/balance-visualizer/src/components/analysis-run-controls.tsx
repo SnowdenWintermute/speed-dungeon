@@ -12,16 +12,16 @@ interface Props {
   isRunning: boolean;
   runsFinished: number;
   runsRequested: number;
-  onRun: (runCount: number, discretionaryShare: NormalizedPercentage) => void;
+  onRun: (runCount: number, allocationIntensity: NormalizedPercentage) => void;
 }
 
-const DEFAULT_DISCRETIONARY_SHARE = 1 as NormalizedPercentage;
+const DEFAULT_ALLOCATION_INTENSITY: NormalizedPercentage = 1;
 
-const DISCRETIONARY_SHARE_OPTIONS = [
-  { title: "100%", value: 1 as NormalizedPercentage },
-  { title: "80%", value: 0.8 as NormalizedPercentage },
-  { title: "60%", value: 0.6 as NormalizedPercentage },
-  { title: "40%", value: 0.4 as NormalizedPercentage },
+const ALLOCATION_INTENSITY_OPTIONS: { title: string; value: NormalizedPercentage }[] = [
+  { title: "100%", value: 1 },
+  { title: "80%", value: 0.8 },
+  { title: "60%", value: 0.6 },
+  { title: "40%", value: 0.4 },
 ];
 
 const RUN_COUNT_OPTIONS = [
@@ -41,7 +41,7 @@ const RUN_COUNT_OPTIONS = [
 
 export function AnalysisRunControls(props: Props) {
   const [runCountText, setRunCountText] = useState(`${props.defaultRunCount}`);
-  const [discretionaryShare, setDiscretionaryShare] = useState(DEFAULT_DISCRETIONARY_SHARE);
+  const [allocationIntensity, setAllocationIntensity] = useState(DEFAULT_ALLOCATION_INTENSITY);
 
   const runCount = Number(runCountText);
   const runCountIsUsable = Number.isInteger(runCount) && runCount >= MIN_RUN_COUNT;
@@ -50,20 +50,20 @@ export function AnalysisRunControls(props: Props) {
     if (!runCountIsUsable || props.isRunning) {
       return;
     }
-    props.onRun(runCount, discretionaryShare);
+    props.onRun(runCount, allocationIntensity);
   }
 
   return (
     <div className="">
       <div className="flex flex-col text-sm text-theme-muted">
-        <span className="mb-1">discretionary share</span>
+        <span className="mb-1">allocation intensity</span>
 
         <RadioGroup
-          title="discretionary share presets"
+          title="allocation intensity presets"
           extraStyles="mb-2"
-          value={discretionaryShare}
-          setValue={setDiscretionaryShare}
-          options={DISCRETIONARY_SHARE_OPTIONS}
+          value={allocationIntensity}
+          setValue={setAllocationIntensity}
+          options={ALLOCATION_INTENSITY_OPTIONS}
         />
       </div>
       <div className="flex items-end gap-4">

@@ -6,7 +6,7 @@ export interface AnalysisRunSetWorkerRequest {
   analysis: DungeonRunAnalysis;
   characterSpecs: SerializedOf<AnalysisCharacterSpecification>[];
   runCount: number;
-  discretionaryShare: NormalizedPercentage;
+  allocationIntensity: NormalizedPercentage;
 }
 
 export enum AnalysisRunSetWorkerMessageType {
