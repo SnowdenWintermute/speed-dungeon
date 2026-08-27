@@ -33,6 +33,9 @@ import { HEADGEAR_TYPE_STRINGS } from "./equipment-types/head-gear.js";
 import { TWO_HANDED_RANGED_WEAPON_TYPE_STRINGS } from "./equipment-types/two-handed-ranged-weapon.js";
 import { SHIELD_TYPE_STRINGS } from "./equipment-types/shield.js";
 import { NumberRange } from "../../primatives/number-range.js";
+import { addAttributesToAccumulator } from "../../combatants/attributes/add-attributes-to-accumulator.js";
+import { initializeCombatAttributeRecord } from "../../combatants/attributes/initialize-combat-attribute-record.js";
+import { CombatantAttributeRecord } from "../../combatants/attributes/combatant-attribute-record.js";
 
 const WEAPON_EQUIPMENT_TYPES = [
   EquipmentType.OneHandedMeleeWeapon,
@@ -146,6 +149,45 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
       if (attribute === attributeToFind) return value;
     }
     return 0;
+  }
+
+  /** Armor class on equipment is owned by getModifiedArmorClass, which already folds in the
+   * FlatArmorClass affix and applies any percent modifier to it. Letting the same affix through the
+   * attribute accumulator as well would count it twice. */
+  private affixAttributesOtherThanArmorClass(affix: {
+    combatAttributes: CombatantAttributeRecord;
+  }): CombatantAttributeRecord {
+    const attributes = { ...affix.combatAttributes };
+    delete attributes[CombatAttribute.ArmorClass];
+    return attributes;
+  }
+
+  getAttributes() {
+    const attributes = initializeCombatAttributeRecord();
+    // @TODO - @PERF - can this be faster if simply iterate a const of all affixes?
+    for (const category of Object.values(this.affixes)) {
+      for (const affix of Object.values(category)) {
+        addAttributesToAccumulator(this.affixAttributesOtherThanArmorClass(affix), attributes);
+      }
+    }
+
+    const modifiedArmorClass = this.getModifiedArmorClass();
+    if (attributes[CombatAttribute.ArmorClass]) {
+      attributes[CombatAttribute.ArmorClass] += modifiedArmorClass;
+    } else {
+      attributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
+    }
+
+    return attributes;
+  }
+
+  static getAttributesOnEquipmentList(list: Equipment[]) {
+    const attributes = initializeCombatAttributeRecord();
+    for (const equipment of list) {
+      addAttributesToAccumulator(equipment.getAttributes(), attributes);
+    }
+
+    return attributes;
   }
 
   getModifiedArmorClass() {

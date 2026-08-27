@@ -23,6 +23,8 @@ import {
 } from "./attribute-tables.generated.js";
 import { MonsterType } from "../../monsters/monster-types.js";
 import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derrived-attribute-ratios.js";
+import { Equipment } from "../../items/equipment/index.js";
+import { EquipmentSlot } from "../combatant-equipment/equipment-slot.js";
 
 export class CombatantAttributeProperties
   extends CombatantSubsystem
@@ -232,17 +234,6 @@ export class CombatantAttributeProperties
     }
   }
 
-  /** Armor class on equipment is owned by getModifiedArmorClass, which already folds in the
-   * FlatArmorClass affix and applies any percent modifier to it. Letting the same affix through the
-   * attribute accumulator as well would count it twice. */
-  private affixAttributesOtherThanArmorClass(affix: {
-    combatAttributes: CombatantAttributeRecord;
-  }): CombatantAttributeRecord {
-    const attributes = { ...affix.combatAttributes };
-    delete attributes[CombatAttribute.ArmorClass];
-    return attributes;
-  }
-
   private addAttributesFromEquipment(runningTotal: Record<CombatAttribute, number>) {
     const combatantProperties = this.getCombatantProperties();
     const allEquippedItems = combatantProperties.equipment.getAllEquippedItems({
@@ -251,46 +242,23 @@ export class CombatantAttributeProperties
     // we add the attributes first, then subtract them later if item is unusable
     // because some of the equipped items may be giving enough attributes that they can
     // actually be used BECAUSE they are equipped
-    for (const item of allEquippedItems) {
-      // @TODO - @PERF - can this be faster if simply iterate a const of all affixes?
-      for (const category of Object.values(item.affixes)) {
-        for (const affix of Object.values(category)) {
-          addAttributesToAccumulator(this.affixAttributesOtherThanArmorClass(affix), runningTotal);
-        }
-      }
-
-      const modifiedArmorClass = item.getModifiedArmorClass();
-      if (runningTotal[CombatAttribute.ArmorClass]) {
-        runningTotal[CombatAttribute.ArmorClass] += modifiedArmorClass;
-      } else {
-        runningTotal[CombatAttribute.ArmorClass] = modifiedArmorClass;
-      }
-    }
+    const attributesOnWornEquipment = Equipment.getAttributesOnEquipmentList(allEquippedItems);
+    addAttributesToAccumulator(attributesOnWornEquipment, runningTotal);
 
     // after adding up attributes, determine if any equipped item still doesn't meet attribute
     // requirements, if so, remove it's attributes from the total
-    for (const item of allEquippedItems) {
-      const equippedItemIsUsable = Item.requirementsMet(item, runningTotal) && !item.isBroken();
-      if (equippedItemIsUsable) {
-        continue;
-      }
-
-      // otherwise subtract its stats
-      for (const category of Object.values(item.affixes)) {
-        for (const affix of Object.values(category)) {
-          removeAttributesFromAccumulator(
-            this.affixAttributesOtherThanArmorClass(affix),
-            runningTotal
-          );
-        }
-      }
-      if (runningTotal[CombatAttribute.ArmorClass]) {
-        runningTotal[CombatAttribute.ArmorClass] = Math.max(
-          runningTotal[CombatAttribute.ArmorClass] - item.getModifiedArmorClass(),
-          0
-        );
+    const unmetRequirementsEquipment: Equipment[] = [];
+    for (const equipment of allEquippedItems) {
+      const equippedItemIsUsable =
+        Item.requirementsMet(equipment, runningTotal) && !equipment.isBroken();
+      if (!equippedItemIsUsable) {
+        unmetRequirementsEquipment.push(equipment);
       }
     }
+    const attributesFromUnmetRequirementsEquipment = Equipment.getAttributesOnEquipmentList(
+      unmetRequirementsEquipment
+    );
+    removeAttributesFromAccumulator(attributesFromUnmetRequirementsEquipment, runningTotal);
   }
 
   getTotalAttributes(): Record<CombatAttribute, number> {

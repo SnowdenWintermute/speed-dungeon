@@ -38,11 +38,12 @@ export class AnalysisPartyDriver {
   constructor(
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
-    private affixValueMultiplier: NormalizedPercentage
+    private discretionaryValueMultiplier: NormalizedPercentage
   ) {
     this.dungeonExplorationManager = party.dungeonExplorationManager;
 
     this.modifyAffixValueGeneration();
+    this.modifyAllocatedAttributeContribution();
 
     this.dungeonGenerationPolicy = new RandomDungeonGenerationPolicy(
       this.idGenerator,
@@ -75,19 +76,39 @@ export class AnalysisPartyDriver {
       for (const attribute of COMBAT_ATTRIBUTES) {
         const value = affix.combatAttributes[attribute];
         if (value !== undefined) {
-          affix.combatAttributes[attribute] = Math.round(value * this.affixValueMultiplier);
+          affix.combatAttributes[attribute] = value * this.discretionaryValueMultiplier;
         }
       }
 
       for (const traitType of DAMAGE_TRAITS) {
         const trait = affix.equipmentTraits[traitType];
         if (trait !== undefined) {
-          trait.value = Math.round(trait.value * this.affixValueMultiplier);
+          trait.value = trait.value * this.discretionaryValueMultiplier;
         }
       }
 
       return affix;
     };
+  }
+
+  private modifyAllocatedAttributeContribution() {
+    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
+      const { attributeProperties } = combatant.getCombatantProperties();
+      const getAllocatedAttributeContribution =
+        attributeProperties.getAllocatedAttributeContribution.bind(attributeProperties);
+
+      attributeProperties.getAllocatedAttributeContribution = () => {
+        const contribution = getAllocatedAttributeContribution();
+        for (const attribute of COMBAT_ATTRIBUTES) {
+          const value = contribution[attribute];
+          if (value !== undefined) {
+            contribution[attribute] = value * this.discretionaryValueMultiplier;
+          }
+        }
+
+        return contribution;
+      };
+    }
   }
 
   moveToNextRoom(options: { isDescending: boolean }) {
