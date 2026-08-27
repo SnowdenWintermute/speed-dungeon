@@ -56,7 +56,9 @@ export function StudyPanel<
           isRunning={state.isRunning}
           runsFinished={state.runsFinished}
           runsRequested={state.runsRequested}
-          onRun={(runCount) => run(DEFAULT_ANALYSIS_CHARACTER_SPECS, runCount)}
+          onRun={(runCount, discretionaryShare) =>
+            run(DEFAULT_ANALYSIS_CHARACTER_SPECS, runCount, discretionaryShare)
+          }
         />
       </div>
 

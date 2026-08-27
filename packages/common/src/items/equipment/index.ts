@@ -154,7 +154,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   /** Armor class on equipment is owned by getModifiedArmorClass, which already folds in the
    * FlatArmorClass affix and applies any percent modifier to it. Letting the same affix through the
    * attribute accumulator as well would count it twice. */
-  private affixAttributesOtherThanArmorClass(affix: {
+  private static affixAttributesOtherThanArmorClass(affix: {
     combatAttributes: CombatantAttributeRecord;
   }): CombatantAttributeRecord {
     const attributes = { ...affix.combatAttributes };
@@ -167,7 +167,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     // @TODO - @PERF - can this be faster if simply iterate a const of all affixes?
     for (const category of Object.values(this.affixes)) {
       for (const affix of Object.values(category)) {
-        addAttributesToAccumulator(this.affixAttributesOtherThanArmorClass(affix), attributes);
+        addAttributesToAccumulator(Equipment.affixAttributesOtherThanArmorClass(affix), attributes);
       }
     }
 

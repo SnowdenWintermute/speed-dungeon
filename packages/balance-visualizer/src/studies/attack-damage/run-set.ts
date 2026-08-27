@@ -1,4 +1,4 @@
-import { EquipmentSlotId } from "@speed-dungeon/common";
+import { EquipmentSlotId, NormalizedPercentage } from "@speed-dungeon/common";
 import { AnalysisSampleCollectingRunSet } from "@/analysis-runs/run-set";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { attackDamageAnalysisRun } from "./run";
@@ -13,9 +13,12 @@ function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): Sam
   };
 }
 
-export function attackDamageRunSet(characterSpecs: AnalysisCharacterSpecification[]) {
+export function attackDamageRunSet(
+  characterSpecs: AnalysisCharacterSpecification[],
+  discretionaryShare: NormalizedPercentage
+) {
   return new AnalysisSampleCollectingRunSet<AttackDamageCombatantReport, AttackDamageSample>(
-    () => attackDamageAnalysisRun(characterSpecs),
+    () => attackDamageAnalysisRun(characterSpecs, discretionaryShare),
     (dimensions, combatantReport) => {
       const { heldEquipment } = combatantReport;
       return {

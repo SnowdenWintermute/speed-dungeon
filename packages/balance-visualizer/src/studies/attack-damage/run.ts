@@ -1,4 +1,4 @@
-import { CombatAttribute } from "@speed-dungeon/common";
+import { CombatAttribute, NormalizedPercentage } from "@speed-dungeon/common";
 import { AnalysisRun } from "@/analysis-runs";
 import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
@@ -8,7 +8,10 @@ import { EQUIPMENT_SCORE_DOMINATION_AXES } from "@/solvers/equipment-score-domin
 import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./goal-performance-checker";
 import { AttackDamageCombatantReport, AttackDamageRunReporter } from "./run-reporter";
 
-export function attackDamageAnalysisRun(characterSpecs: AnalysisCharacterSpecification[]) {
+export function attackDamageAnalysisRun(
+  characterSpecs: AnalysisCharacterSpecification[],
+  discretionaryShare: NormalizedPercentage
+) {
   const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
   const goalPerformanceChecker = new SampledDamageOnTargetDummyGoalPerformanceChecker();
@@ -23,12 +26,16 @@ export function attackDamageAnalysisRun(characterSpecs: AnalysisCharacterSpecifi
       EQUIPMENT_SCORE_DOMINATION_AXES.nonWeaponFlatDamage,
       EQUIPMENT_SCORE_DOMINATION_AXES.weaponDamageAverage,
     ]),
-    new AttributeAllocationSolver(party, analysisSpecsHolder, goalPerformanceChecker, [
-      CombatAttribute.Strength,
-      CombatAttribute.Dexterity,
-    ]),
+    new AttributeAllocationSolver(
+      party,
+      analysisSpecsHolder,
+      goalPerformanceChecker,
+      [CombatAttribute.Strength, CombatAttribute.Dexterity],
+      discretionaryShare
+    ),
     goalPerformanceChecker,
-    new AttackDamageRunReporter(party, goalPerformanceChecker)
+    new AttackDamageRunReporter(party, goalPerformanceChecker),
+    discretionaryShare
   );
 
   const report = runner.simulateRun();

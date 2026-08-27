@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { NormalizedPercentage } from "@speed-dungeon/common";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import {
   AnalysisRunSetWorkerMessage,
@@ -38,7 +39,11 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(analy
 
   // a fresh worker per request, so starting a set cancels one already in flight
   const run = useCallback(
-    (characterSpecs: AnalysisCharacterSpecification[], runCount: number) => {
+    (
+      characterSpecs: AnalysisCharacterSpecification[],
+      runCount: number,
+      discretionaryShare: NormalizedPercentage
+    ) => {
       workerRef.current?.terminate();
 
       const worker = new Worker(new URL("../analysis-runs/run-set-worker.ts", import.meta.url), {
@@ -86,6 +91,7 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(analy
         analysis,
         characterSpecs: characterSpecs.map((spec) => spec.toSerialized()),
         runCount,
+        discretionaryShare,
       });
     },
     [analysis]

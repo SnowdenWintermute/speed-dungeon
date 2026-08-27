@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
@@ -11,8 +12,17 @@ interface Props {
   isRunning: boolean;
   runsFinished: number;
   runsRequested: number;
-  onRun: (runCount: number) => void;
+  onRun: (runCount: number, discretionaryShare: NormalizedPercentage) => void;
 }
+
+const DEFAULT_DISCRETIONARY_SHARE = 1 as NormalizedPercentage;
+
+const DISCRETIONARY_SHARE_OPTIONS = [
+  { title: "100%", value: 1 as NormalizedPercentage },
+  { title: "80%", value: 0.8 as NormalizedPercentage },
+  { title: "60%", value: 0.6 as NormalizedPercentage },
+  { title: "40%", value: 0.4 as NormalizedPercentage },
+];
 
 const RUN_COUNT_OPTIONS = [
   {
@@ -31,6 +41,7 @@ const RUN_COUNT_OPTIONS = [
 
 export function AnalysisRunControls(props: Props) {
   const [runCountText, setRunCountText] = useState(`${props.defaultRunCount}`);
+  const [discretionaryShare, setDiscretionaryShare] = useState(DEFAULT_DISCRETIONARY_SHARE);
 
   const runCount = Number(runCountText);
   const runCountIsUsable = Number.isInteger(runCount) && runCount >= MIN_RUN_COUNT;
@@ -39,46 +50,59 @@ export function AnalysisRunControls(props: Props) {
     if (!runCountIsUsable || props.isRunning) {
       return;
     }
-    props.onRun(runCount);
+    props.onRun(runCount, discretionaryShare);
   }
 
   return (
-    <div className="flex items-end gap-4">
+    <div className="">
       <div className="flex flex-col text-sm text-theme-muted">
-        <span className="mb-1">runs</span>
+        <span className="mb-1">discretionary share</span>
 
         <RadioGroup
-          title="run count presets"
+          title="discretionary share presets"
           extraStyles="mb-2"
-          value={runCount}
-          setValue={(presetRunCount) => setRunCountText(`${presetRunCount}`)}
-          options={RUN_COUNT_OPTIONS}
+          value={discretionaryShare}
+          setValue={setDiscretionaryShare}
+          options={DISCRETIONARY_SHARE_OPTIONS}
+        />
+      </div>
+      <div className="flex items-end gap-4">
+        <div className="flex flex-col text-sm text-theme-muted">
+          <span className="mb-1">runs</span>
+
+          <RadioGroup
+            title="run count presets"
+            extraStyles="mb-2"
+            value={runCount}
+            setValue={(presetRunCount) => setRunCountText(`${presetRunCount}`)}
+            options={RUN_COUNT_OPTIONS}
+          />
+        </div>
+
+        <NumberInput
+          name="run count"
+          value={runCountText}
+          onChange={setRunCountText}
+          min={MIN_RUN_COUNT}
+          max={MAX_RUN_COUNT}
+          onEnter={handleRun}
+          className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
         />
 
+        <ButtonBasic
+          onClick={handleRun}
+          disabled={props.isRunning || !runCountIsUsable}
+          extraStyles="bg-theme-base"
+        >
+          {props.isRunning ? "running..." : "run set"}
+        </ButtonBasic>
+
+        {props.isRunning && (
+          <span className="h-10 flex items-center text-sm text-theme-muted">
+            {props.runsFinished} / {props.runsRequested} runs walked
+          </span>
+        )}
       </div>
-      <NumberInput
-      name="run count"
-      value={runCountText}
-      onChange={setRunCountText}
-      min={MIN_RUN_COUNT}
-      max={MAX_RUN_COUNT}
-      onEnter={handleRun}
-      className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
-      />
-
-      <ButtonBasic
-        onClick={handleRun}
-        disabled={props.isRunning || !runCountIsUsable}
-        extraStyles="bg-theme-base"
-      >
-        {props.isRunning ? "running..." : "run set"}
-      </ButtonBasic>
-
-      {props.isRunning && (
-        <span className="h-10 flex items-center text-sm text-theme-muted">
-          {props.runsFinished} / {props.runsRequested} runs walked
-        </span>
-      )}
     </div>
   );
 }

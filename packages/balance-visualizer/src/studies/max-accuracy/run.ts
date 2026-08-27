@@ -1,4 +1,4 @@
-import { CombatAttribute } from "@speed-dungeon/common";
+import { CombatAttribute, NormalizedPercentage } from "@speed-dungeon/common";
 import { AnalysisRun } from "@/analysis-runs";
 import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
@@ -8,7 +8,10 @@ import { EQUIPMENT_SCORE_DOMINATION_AXES } from "@/solvers/equipment-score-domin
 import { TotalAccuracyGoalPerformanceChecker } from "./goal-performance-checker";
 import { MaxAccuracyCombatantReport, MaxAccuracyRunReporter } from "./run-reporter";
 
-export function maxAccuracyAnalysisRun(characterSpecs: AnalysisCharacterSpecification[]) {
+export function maxAccuracyAnalysisRun(
+  characterSpecs: AnalysisCharacterSpecification[],
+  discretionaryShare: NormalizedPercentage
+) {
   const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
 
   const goalPerformanceChecker = new TotalAccuracyGoalPerformanceChecker();
@@ -23,11 +26,16 @@ export function maxAccuracyAnalysisRun(characterSpecs: AnalysisCharacterSpecific
       EQUIPMENT_SCORE_DOMINATION_AXES.accuracy,
     ]),
     // accuracy is not point assignable, so dexterity is the only allocation that moves it
-    new AttributeAllocationSolver(party, analysisSpecsHolder, goalPerformanceChecker, [
-      CombatAttribute.Dexterity,
-    ]),
+    new AttributeAllocationSolver(
+      party,
+      analysisSpecsHolder,
+      goalPerformanceChecker,
+      [CombatAttribute.Dexterity],
+      discretionaryShare
+    ),
     goalPerformanceChecker,
-    new MaxAccuracyRunReporter(party)
+    new MaxAccuracyRunReporter(party),
+    discretionaryShare
   );
 
   const report = runner.simulateRun();

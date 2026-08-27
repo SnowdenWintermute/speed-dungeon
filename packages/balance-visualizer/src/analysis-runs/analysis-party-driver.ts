@@ -24,10 +24,7 @@ import {
  * pristine attributes rather than ones the first driver already scaled */
 const getAttributesOnEquipmentList = Equipment.getAttributesOnEquipmentList.bind(Equipment);
 
-const DAMAGE_TRAITS = [
-  EquipmentTraitType.DamagePercentage,
-  EquipmentTraitType.FlatDamageAdditive,
-];
+const DAMAGE_TRAITS = [EquipmentTraitType.DamagePercentage, EquipmentTraitType.FlatDamageAdditive];
 
 export class AnalysisPartyDriver {
   private dungeonGenerationPolicy: DungeonGenerationPolicy;
@@ -61,6 +58,10 @@ export class AnalysisPartyDriver {
     return !this.dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
   }
 
+  /** although we modify most equipment attribute reads by replacing the
+   * Equipment.getAttributesOnEquipmentList, some relevant affix values are not
+   * combat attributes */
+
   private modifyAffixValueGeneration() {
     const rollAffixTierAndValue = this.affixGenerator.rollAffixTierAndValue.bind(
       this.affixGenerator
@@ -72,12 +73,7 @@ export class AnalysisPartyDriver {
       maxTierLimiter: number,
       equipmentType: EquipmentType
     ) => {
-      const affix = rollAffixTierAndValue(
-        template,
-        taggedAffixType,
-        maxTierLimiter,
-        equipmentType
-      );
+      const affix = rollAffixTierAndValue(template, taggedAffixType, maxTierLimiter, equipmentType);
       for (const traitType of DAMAGE_TRAITS) {
         const trait = affix.equipmentTraits[traitType];
         if (trait !== undefined) {

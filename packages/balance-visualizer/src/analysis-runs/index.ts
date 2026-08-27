@@ -3,6 +3,7 @@ import {
   DEEPEST_FLOOR,
   DungeonRoomType,
   Equipment,
+  NormalizedPercentage,
   SpeedDungeonGame,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
@@ -21,10 +22,11 @@ export class AnalysisRun<TCombatantReport> {
     private equipmentSolver: BestImprovementEquipmentSolver,
     private attributeAllocationSolver: AttributeAllocationSolver,
     private goalPerformanceChecker: GoalPerformanceChecker,
-    private runReporter: AnalysisRunReporter<TCombatantReport>
+    private runReporter: AnalysisRunReporter<TCombatantReport>,
+    discretionaryShare: NormalizedPercentage
   ) {
     this.game.addParty(this.party);
-    this.partyDriver = new AnalysisPartyDriver(this.game, this.party, 1);
+    this.partyDriver = new AnalysisPartyDriver(this.game, this.party, discretionaryShare);
   }
 
   private removeRequirementsFrom(equipment: Equipment[]) {

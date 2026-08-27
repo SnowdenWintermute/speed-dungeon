@@ -1,4 +1,4 @@
-import { SerializedOf } from "@speed-dungeon/common";
+import { NormalizedPercentage, SerializedOf } from "@speed-dungeon/common";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./types";
 
@@ -6,6 +6,7 @@ export interface AnalysisRunSetWorkerRequest {
   analysis: DungeonRunAnalysis;
   characterSpecs: SerializedOf<AnalysisCharacterSpecification>[];
   runCount: number;
+  discretionaryShare: NormalizedPercentage;
 }
 
 export enum AnalysisRunSetWorkerMessageType {
