@@ -6,6 +6,7 @@ import {
   DungeonExplorationManager,
   DungeonGenerationPolicy,
   EquipmentGenerationTemplate,
+  Equipment,
   EquipmentRandomizer,
   EquipmentTraitType,
   EquipmentType,
@@ -18,6 +19,10 @@ import {
   SpeedDungeonGame,
   TaggedAffixType,
 } from "@speed-dungeon/common";
+
+/** captured before any driver installs its wrapper, so that constructing a second driver scales the
+ * pristine attributes rather than ones the first driver already scaled */
+const getAttributesOnEquipmentList = Equipment.getAttributesOnEquipmentList.bind(Equipment);
 
 const DAMAGE_TRAITS = [
   EquipmentTraitType.DamagePercentage,
@@ -43,7 +48,7 @@ export class AnalysisPartyDriver {
     this.dungeonExplorationManager = party.dungeonExplorationManager;
 
     this.modifyAffixValueGeneration();
-    this.modifyAllocatedAttributeContribution();
+    this.modifyWornEquipmentAttributes();
 
     this.dungeonGenerationPolicy = new RandomDungeonGenerationPolicy(
       this.idGenerator,
@@ -73,13 +78,6 @@ export class AnalysisPartyDriver {
         maxTierLimiter,
         equipmentType
       );
-      for (const attribute of COMBAT_ATTRIBUTES) {
-        const value = affix.combatAttributes[attribute];
-        if (value !== undefined) {
-          affix.combatAttributes[attribute] = value * this.discretionaryValueMultiplier;
-        }
-      }
-
       for (const traitType of DAMAGE_TRAITS) {
         const trait = affix.equipmentTraits[traitType];
         if (trait !== undefined) {
@@ -91,24 +89,15 @@ export class AnalysisPartyDriver {
     };
   }
 
-  private modifyAllocatedAttributeContribution() {
-    for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      const { attributeProperties } = combatant.getCombatantProperties();
-      const getAllocatedAttributeContribution =
-        attributeProperties.getAllocatedAttributeContribution.bind(attributeProperties);
+  private modifyWornEquipmentAttributes() {
+    Equipment.getAttributesOnEquipmentList = (list: Equipment[]) => {
+      const attributes = getAttributesOnEquipmentList(list);
+      for (const attribute of COMBAT_ATTRIBUTES) {
+        attributes[attribute] *= this.discretionaryValueMultiplier;
+      }
 
-      attributeProperties.getAllocatedAttributeContribution = () => {
-        const contribution = getAllocatedAttributeContribution();
-        for (const attribute of COMBAT_ATTRIBUTES) {
-          const value = contribution[attribute];
-          if (value !== undefined) {
-            contribution[attribute] = value * this.discretionaryValueMultiplier;
-          }
-        }
-
-        return contribution;
-      };
-    }
+      return attributes;
+    };
   }
 
   moveToNextRoom(options: { isDescending: boolean }) {

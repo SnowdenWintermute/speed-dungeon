@@ -249,9 +249,13 @@ export class CombatantAttributeProperties
     // requirements, if so, remove it's attributes from the total
     const unmetRequirementsEquipment: Equipment[] = [];
     for (const equipment of allEquippedItems) {
-      const equippedItemIsUsable =
-        Item.requirementsMet(equipment, runningTotal) && !equipment.isBroken();
-      if (!equippedItemIsUsable) {
+      if (equipment.isBroken()) {
+        // broken items are never added to the total, so we shoudn't count them
+        // for removal either
+        continue;
+      }
+
+      if (!Item.requirementsMet(equipment, runningTotal)) {
         unmetRequirementsEquipment.push(equipment);
       }
     }

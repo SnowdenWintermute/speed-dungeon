@@ -184,6 +184,9 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   static getAttributesOnEquipmentList(list: Equipment[]) {
     const attributes = initializeCombatAttributeRecord();
     for (const equipment of list) {
+      if (equipment.isBroken()) {
+        continue;
+      }
       addAttributesToAccumulator(equipment.getAttributes(), attributes);
     }
 
