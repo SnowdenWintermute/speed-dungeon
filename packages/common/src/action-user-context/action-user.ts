@@ -11,7 +11,6 @@ import { Battle } from "../battle/index.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Item } from "../items/index.js";
 import { Equipment } from "../items/equipment/index.js";
-import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 import { EntityId } from "../aliases.js";
@@ -22,6 +21,7 @@ import { Inventory } from "../combatants/inventory/index.js";
 import { WeaponProperties } from "../items/equipment/equipment-properties/index.js";
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { EquipmentSlotId, HoldableSlotId } from "../combatants/combatant-equipment/types.js";
+import { CombatantAttributeRecord } from "../combatants/attributes/combatant-attribute-record.js";
 
 export enum ActionUserType {
   Combatant,

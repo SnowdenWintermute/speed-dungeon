@@ -11,6 +11,10 @@ export type AverageContributingAttributes = Record<
 
 export interface AttackDamageTableRow extends AnalysisTableRow {
   damageOnDummy: Distribution;
+  /** normalized share of the room's main hand swings that landed, off hand swings excluded */
+  mainHandHitRate: number;
+  /** normalized share of the room's landed main hand hits that crit, off hand swings excluded */
+  mainHandCriticalHitRate: number;
   averageTooltipDamage: {
     mainHand: NumberRange;
     /** null when no matched character had an off hand attack to quote */

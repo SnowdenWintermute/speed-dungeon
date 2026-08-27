@@ -18,9 +18,9 @@ export enum CombatAttribute {
   Mp,
 }
 
-// for...in over an attribute record is expensive as measured in balance analyzer
-// and getting a combatant's attributes often needs to iterate them. So we now do
-// for (const attribute of COMBAT_ATTRIBUTES) {} instead
+/** for...in over an attribute record is expensive as measured in balance analyzer
+ and getting a combatant's attributes often needs to iterate them. So we now do
+ for (const attribute of COMBAT_ATTRIBUTES) {} instead */
 export const COMBAT_ATTRIBUTES = iterateNumericEnum(CombatAttribute);
 
 export const CORE_ATTRIBUTES = [

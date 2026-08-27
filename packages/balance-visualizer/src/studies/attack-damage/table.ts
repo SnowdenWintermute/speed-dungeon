@@ -3,6 +3,7 @@ import {
   EquipmentBaseItem,
   EquipmentSlotId,
   HOLDABLE_SLOT_IDS,
+  invariant,
   NumberRange,
   SerializedOf,
 } from "@speed-dungeon/common";
@@ -68,6 +69,24 @@ export class AttackDamageTable extends AnalysisSampleTable<
     };
   }
 
+  /**
+   * Pooled rather than averaged per character: a character who landed two hits should weigh half as
+   * much as one who landed four, which a mean of their two rates would not do.
+   */
+  private mainHandRates(samples: AttackDamageSample[]) {
+    let swings = 0;
+    let landedHits = 0;
+    let criticalHits = 0;
+    for (const sample of samples) {
+      swings += sample.mainHandSwingCount;
+      landedHits += sample.mainHandLandedHitCount;
+      criticalHits += sample.mainHandCriticalHitCount;
+    }
+    invariant(landedHits > 0, "expected a room's matched characters to land at least one attack");
+
+    return { hit: landedHits / swings, critical: criticalHits / landedHits };
+  }
+
   /** counted once per character even when both hands hold the same base item */
   private wornHoldablePercentages(samples: AttackDamageSample[]) {
     const tally = new EquipmentBaseItemTally();
@@ -90,9 +109,12 @@ export class AttackDamageTable extends AnalysisSampleTable<
 
   protected selectRow(room: SampledRoom<AttackDamageSample>): AttackDamageTableRow {
     const { samples } = room;
+    const mainHandRates = this.mainHandRates(samples);
     return {
       ...this.commonRowFields(room),
       damageOnDummy: Distribution.of(samples.map((sample) => sample.sampledDamageOnDummy)),
+      mainHandHitRate: mainHandRates.hit,
+      mainHandCriticalHitRate: mainHandRates.critical,
       averageTooltipDamage: this.averageTooltipDamage(samples),
       averageContributingAttributes: this.averageContributingAttributes(samples),
       wornHoldablePercentages: this.wornHoldablePercentages(samples),

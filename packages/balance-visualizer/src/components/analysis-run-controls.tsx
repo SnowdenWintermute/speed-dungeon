@@ -55,16 +55,16 @@ export function AnalysisRunControls(props: Props) {
           options={RUN_COUNT_OPTIONS}
         />
 
-        <NumberInput
-          name="run count"
-          value={runCountText}
-          onChange={setRunCountText}
-          min={MIN_RUN_COUNT}
-          max={MAX_RUN_COUNT}
-          onEnter={handleRun}
-          className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
-        />
       </div>
+      <NumberInput
+      name="run count"
+      value={runCountText}
+      onChange={setRunCountText}
+      min={MIN_RUN_COUNT}
+      max={MAX_RUN_COUNT}
+      onEnter={handleRun}
+      className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
+      />
 
       <ButtonBasic
         onClick={handleRun}

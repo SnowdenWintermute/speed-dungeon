@@ -11,7 +11,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { ARROW_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { CombatantProperties } from "../combatants/combatant-properties.js";
 import { Battle } from "../battle/index.js";
-import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { CombatantAttributeRecord } from "../combatants/attributes/combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 import { ConditionTickProperties } from "../conditions/condition-tick-properties.js";
 import { ActionRank, EntityId, EntityName } from "../aliases.js";

@@ -2,8 +2,8 @@
 // import from a value one — so the types have to say so
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
-  ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
   COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
+  GAME_CONFIG,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import type {
@@ -21,7 +21,9 @@ export class SeedAttributeAllocation {
     const { attributeProperties, classProgressionProperties, resources } =
       combatant.combatantProperties;
     const { level } = classProgressionProperties.getMainClass();
-    attributeProperties.changeUnspentPoints(ATTRIBUTE_POINTS_AWARDED_PER_LEVEL * (level - 1));
+    attributeProperties.changeUnspentPoints(
+      GAME_CONFIG.ATTRIBUTE_POINTS_AWARDED_PER_LEVEL * (level - 1)
+    );
 
     this.spendOnEquipmentRequirements(combatant);
     this.spendRemainderOnClassGrowth(combatant);

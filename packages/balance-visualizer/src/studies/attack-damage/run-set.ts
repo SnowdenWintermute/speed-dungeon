@@ -21,6 +21,9 @@ export function attackDamageRunSet(characterSpecs: AnalysisCharacterSpecificatio
       return {
         ...dimensions,
         sampledDamageOnDummy: combatantReport.sampledDamageOnDummy,
+        mainHandSwingCount: combatantReport.mainHandSwingCount,
+        mainHandLandedHitCount: combatantReport.mainHandLandedHitCount,
+        mainHandCriticalHitCount: combatantReport.mainHandCriticalHitCount,
         tooltipDamage: toSampleTooltipDamage(combatantReport.tooltipDamage),
         wornHoldables: {
           [EquipmentSlotId.MainHand]:

@@ -2,9 +2,9 @@ import cloneDeep from "lodash.clonedeep";
 import { COMBAT_ATTRIBUTES, CombatAttribute } from "../combatants/attributes/index.js";
 import { Consumable } from "./consumables/index.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
-import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
 import { ConsumableType } from "./consumables/consumable-types.js";
 import { ItemId } from "../aliases.js";
+import { CombatantAttributeRecord } from "../combatants/attributes/combatant-attribute-record.js";
 
 export enum ItemType {
   Consumable,

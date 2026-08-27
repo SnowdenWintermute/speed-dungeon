@@ -21,11 +21,11 @@ import {
   SerializedOf,
 } from "../serialization/index.js";
 import { Inventory } from "./inventory/index.js";
-import { CombatantAttributeProperties } from "./attribute-properties.js";
 import { CombatantClass } from "./combatant-class/classes.js";
 import { EntityId } from "../aliases.js";
 import { removeUndefinedFields } from "../utils/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
+import { CombatantAttributeProperties } from "./attributes/combatant-attribute-properties.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;

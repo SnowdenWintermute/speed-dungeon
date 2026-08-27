@@ -1,3 +1,3 @@
-import { CombatAttribute } from "./attributes/index.js";
+import { CombatAttribute } from "./index.js";
 
 export type CombatantAttributeRecord = Partial<Record<CombatAttribute, number>>;

@@ -105,31 +105,25 @@ export class EquipmentRandomizer {
     const suffixTypes = this.affixGenerator.getRandomValidSuffixTypes(template, suffixCount);
 
     for (const prefixType of prefixTypes) {
-      const affixResult = this.affixGenerator.rollAffixTierAndValue(
+      const affix = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Prefix, prefixType },
         itemLevel,
         equipmentType
       );
-      if (affixResult instanceof Error) {
-        continue;
-      }
       invariant(affixes[AffixCategory.Prefix] !== undefined);
-      affixes[AffixCategory.Prefix][prefixType] = affixResult;
+      affixes[AffixCategory.Prefix][prefixType] = affix;
     }
 
     for (const suffixType of suffixTypes) {
-      const affixResult = this.affixGenerator.rollAffixTierAndValue(
+      const affix = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Suffix, suffixType },
         itemLevel,
         equipmentType
       );
-      if (affixResult instanceof Error) {
-        continue;
-      }
       invariant(affixes[AffixCategory.Suffix] !== undefined);
-      affixes[AffixCategory.Suffix][suffixType] = affixResult;
+      affixes[AffixCategory.Suffix][suffixType] = affix;
     }
 
     return affixes;

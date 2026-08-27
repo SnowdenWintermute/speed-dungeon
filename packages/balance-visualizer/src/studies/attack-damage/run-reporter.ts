@@ -1,4 +1,5 @@
 import {
+  AdventuringParty,
   AffixType,
   COMBAT_ACTIONS,
   Combatant,
@@ -19,6 +20,7 @@ import {
   RoomReportingRunReporter,
 } from "@/analysis-runs/analysis-run-reporter";
 import { numericEnumKeyedRecord } from "@/utils/numeric-enum-record";
+import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./goal-performance-checker";
 
 export enum AttackDamageContributingAttribute {
   Strength,
@@ -43,12 +45,23 @@ export type CombatantAttackContributingAttributes = Record<
 
 export interface AttackDamageCombatantReport extends AnalysisCombatantReport {
   sampledDamageOnDummy: number;
+  /** over the same sampled attacks the damage came from, off hand swings excluded */
+  mainHandSwingCount: number;
+  mainHandLandedHitCount: number;
+  mainHandCriticalHitCount: number;
   tooltipDamage: CombatantReportTooltipDamage;
   heldEquipment: Record<HoldableSlotId, Equipment | null>;
   contributingAttributes: CombatantAttackContributingAttributes;
 }
 
 export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDamageCombatantReport> {
+  constructor(
+    party: AdventuringParty,
+    private goalPerformanceChecker: SampledDamageOnTargetDummyGoalPerformanceChecker
+  ) {
+    super(party);
+  }
+
   private tooltipRangeForHand(
     combatant: Combatant,
     weaponPropertiesOption: WeaponProperties | undefined,
@@ -169,8 +182,19 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
     const combatantProperties = combatant.getCombatantProperties();
     const { classProgressionProperties } = combatantProperties;
 
+    // the combatant has not changed since the solvers last scored it, so this re-reads the same
+    // attacks sampledDamageOnDummy was averaged from rather than rolling new ones
+    const { mainHandSwingCount, mainHandLandedHitCount, mainHandCriticalHitCount } =
+      this.goalPerformanceChecker.sampleAttacksOnTargetDummy(
+        combatant,
+        this.party.dungeonExplorationManager.getCurrentFloor()
+      );
+
     return {
       sampledDamageOnDummy,
+      mainHandSwingCount,
+      mainHandLandedHitCount,
+      mainHandCriticalHitCount,
       tooltipDamage: this.getTooltipDamage(combatant),
       heldEquipment: this.getHeldEquipment(combatantProperties),
       contributingAttributes: this.getContributingAttributes(combatantProperties),

@@ -25,6 +25,15 @@ import {
 } from "@speed-dungeon/common";
 import { GoalPerformance, GoalPerformanceChecker } from "@/goal-performance-checkers";
 
+/** the counts are raw so a caller pooling several of these divides once, at the end */
+export interface SampledAttacksOnTargetDummy {
+  averageDamage: number;
+  /** off hand swings are excluded from every count */
+  mainHandSwingCount: number;
+  mainHandLandedHitCount: number;
+  mainHandCriticalHitCount: number;
+}
+
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
   // when rolling attacks on the target dummy to check effectiveness of an equipment, we want to
   // use the same rolls for each equipment tried on or else lucky attack rolls might make an equipment
@@ -65,30 +74,32 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     return created;
   }
 
-  private getAttackActions(weapons: ActionUserHeldWeapons) {
+  private getAttackActions(combatant: Combatant, weapons: ActionUserHeldWeapons) {
     const mainHandEquipmentOption = weapons[EquipmentSlotId.MainHand];
-    const offhandEquipmentOption = weapons[EquipmentSlotId.OffHand];
+    // read from the slot, not from `weapons`: getWeaponsInSlots drops anything that is not a weapon,
+    // so a shield is absent there and the isShield check inside would never fire
+    const offhandEquipmentOption = combatant
+      .getCombatantProperties()
+      .equipment.getEquipmentInSlot(EquipmentSlotId.OffHand);
     const mainHandAttackActionName = getAttackActionName(
       mainHandEquipmentOption?.weaponProperties,
       { isOffHand: false }
     );
     const offhandAttackActionNameOption = getOffhandAttackActionNameOption(
       mainHandEquipmentOption?.equipment,
-      offhandEquipmentOption?.equipment
+      offhandEquipmentOption ?? undefined
     );
 
-    const mainhandAttackAction = COMBAT_ACTIONS[mainHandAttackActionName];
-
-    const result = [mainhandAttackAction];
-
-    if (offhandAttackActionNameOption !== null) {
-      result.push(COMBAT_ACTIONS[offhandAttackActionNameOption]);
-    }
-
-    return result;
+    return {
+      mainHand: COMBAT_ACTIONS[mainHandAttackActionName],
+      offHand:
+        offhandAttackActionNameOption === null
+          ? null
+          : COMBAT_ACTIONS[offhandAttackActionNameOption],
+    };
   }
 
-  private sampleActionDamage(
+  private sampleActionOutcome(
     user: Combatant,
     action: CombatActionComponent,
     actionRank: ActionRank,
@@ -132,11 +143,16 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
       hitOutcomes
     );
 
-    const finalDamage = Math.abs(
-      hitOutcomes.resourceChanges?.[CombatActionResource.HitPoints]?.getRecords()[0]?.[1].value || 0
-    );
+    const hitPointChangeOption =
+      hitOutcomes.resourceChanges?.[CombatActionResource.HitPoints]?.getRecords()[0]?.[1];
 
-    return finalDamage;
+    // the calculator writes no resource change when the swing was not a hit, so the record standing
+    // in for the swing landing is the same thing that says whether it crit
+    return {
+      damage: Math.abs(hitPointChangeOption?.value || 0),
+      landedHit: hitPointChangeOption !== undefined,
+      isCrit: hitPointChangeOption?.isCrit ?? false,
+    };
   }
 
   checkPerformance(
@@ -146,21 +162,30 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
   ): GoalPerformance {
     invariant(combatantAnalysisSpec !== undefined);
 
-    // the combatant does not change while it is being sampled, so its attributes are derived once
-    // instead of on every read the samples make. solvers mutate it between checks, so the hold ends
-    // with the read
-    const score = this.requireAttributesMemo(combatant).holdWhile(() =>
-      this.sampleAverageDamage(combatant, partyCurrentFloor)
-    );
+    const { averageDamage } = this.sampleAttacksOnTargetDummy(combatant, partyCurrentFloor);
 
     return {
-      score,
+      score: averageDamage,
       meetsBuildSpecification:
         combatantAnalysisSpec.combatantIsWearingDesiredEquipmentType(combatant),
     };
   }
 
-  private sampleAverageDamage(combatant: Combatant, partyCurrentFloor: number) {
+  /**
+   * The rolls reset with every call, so sampling a combatant that has not changed since its
+   * performance was checked reproduces the very attacks that performance was read from.
+   */
+  sampleAttacksOnTargetDummy(combatant: Combatant, partyCurrentFloor: number) {
+    // the combatant does not change while it is being sampled
+    return this.requireAttributesMemo(combatant).holdWhile(() =>
+      this.rollAttackSamples(combatant, partyCurrentFloor)
+    );
+  }
+
+  private rollAttackSamples(
+    combatant: Combatant,
+    partyCurrentFloor: number
+  ): SampledAttacksOnTargetDummy {
     this.rng.reset();
 
     const targetDummy = this.targetDummiesByFloor.get(partyCurrentFloor);
@@ -171,27 +196,45 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
       { usableWeaponsOnly: true }
     );
 
-    const attackActions = this.getAttackActions(weapons);
+    const attackActions = this.getAttackActions(combatant, weapons);
 
     const ATTACK_ACTION_RANK = 1 as ActionRank;
 
-    const samples: number[] = [];
+    const damageSamples: number[] = [];
+    let mainHandLandedHitCount = 0;
+    let mainHandCriticalHitCount = 0;
     for (let sampleIndex = 0; sampleIndex < this.sampleCount; sampleIndex += 1) {
-      let totalDamageForThisSample = 0;
-      for (const action of attackActions) {
-        const finalDamage = this.sampleActionDamage(
-          combatant,
-          action,
-          ATTACK_ACTION_RANK,
-          targetDummy
-        );
-
-        totalDamageForThisSample += finalDamage;
+      const mainHandOutcome = this.sampleActionOutcome(
+        combatant,
+        attackActions.mainHand,
+        ATTACK_ACTION_RANK,
+        targetDummy
+      );
+      if (mainHandOutcome.landedHit) {
+        mainHandLandedHitCount += 1;
+      }
+      if (mainHandOutcome.isCrit) {
+        mainHandCriticalHitCount += 1;
       }
 
-      samples.push(totalDamageForThisSample);
+      let totalDamageForThisSample = mainHandOutcome.damage;
+      if (attackActions.offHand !== null) {
+        totalDamageForThisSample += this.sampleActionOutcome(
+          combatant,
+          attackActions.offHand,
+          ATTACK_ACTION_RANK,
+          targetDummy
+        ).damage;
+      }
+
+      damageSamples.push(totalDamageForThisSample);
     }
 
-    return ArrayUtils.average(samples);
+    return {
+      averageDamage: ArrayUtils.average(damageSamples),
+      mainHandSwingCount: this.sampleCount,
+      mainHandLandedHitCount,
+      mainHandCriticalHitCount,
+    };
   }
 }

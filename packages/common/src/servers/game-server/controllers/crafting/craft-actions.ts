@@ -70,16 +70,14 @@ export class ItemCrafter {
       if (prefixType === undefined) {
         throw new Error("Couldn't generate affix type");
       }
-      const affixResult = this.affixGenerator.rollAffixTierAndValue(
+      const affix = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Prefix, prefixType },
         effectiveItemLevel,
         equipment.equipmentBaseItemProperties.equipmentType
       );
-      if (affixResult instanceof Error) {
-        throw affixResult;
-      }
-      equipment.insertOrReplaceAffix(AffixCategory.Prefix, prefixType, affixResult);
+
+      equipment.insertOrReplaceAffix(AffixCategory.Prefix, prefixType, affix);
     }
 
     if (missingSuffix) {
@@ -87,16 +85,14 @@ export class ItemCrafter {
       if (suffixType === undefined) {
         throw new Error("Couldn't generate affix type");
       }
-      const affixResult = this.affixGenerator.rollAffixTierAndValue(
+      const affix = this.affixGenerator.rollAffixTierAndValue(
         template,
         { affixCategory: AffixCategory.Suffix, suffixType },
         effectiveItemLevel,
         equipment.equipmentBaseItemProperties.equipmentType
       );
-      if (affixResult instanceof Error) {
-        throw affixResult;
-      }
-      equipment.insertOrReplaceAffix(AffixCategory.Suffix, suffixType, affixResult);
+
+      equipment.insertOrReplaceAffix(AffixCategory.Suffix, suffixType, affix);
     }
 
     this.updateEquipmentName(equipment);

@@ -10,7 +10,7 @@ import { Battle } from "../battle/index.js";
 import { CombatantProperties } from "./combatant-properties.js";
 import { Item } from "../items/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
-import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
+import { CombatantAttributeRecord } from "./attributes/combatant-attribute-record.js";
 import { ConditionAppliedBy } from "../conditions/condition-applied-by.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatantId, EntityId } from "../aliases.js";

@@ -28,7 +28,7 @@ export function attackDamageAnalysisRun(characterSpecs: AnalysisCharacterSpecifi
       CombatAttribute.Dexterity,
     ]),
     goalPerformanceChecker,
-    new AttackDamageRunReporter(party)
+    new AttackDamageRunReporter(party, goalPerformanceChecker)
   );
 
   const report = runner.simulateRun();

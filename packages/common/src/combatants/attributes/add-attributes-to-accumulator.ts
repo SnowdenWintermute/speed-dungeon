@@ -1,4 +1,4 @@
-import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
+import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 import { COMBAT_ATTRIBUTES, CombatAttribute } from "./index.js";
 
 export function addAttributesToAccumulator(
@@ -24,6 +24,25 @@ export function addMultipliedAttributesToAccumulator(
       acc[attribute] = multiplied;
     } else {
       acc[attribute] = existing + multiplied;
+    }
+  }
+}
+
+export function removeAttributesFromAccumulator(
+  toRemove: CombatantAttributeRecord,
+  acc: CombatantAttributeRecord
+) {
+  for (const attribute of COMBAT_ATTRIBUTES) {
+    const value = toRemove[attribute];
+    const existing = acc[attribute];
+    if (value === undefined || existing === undefined) {
+      continue;
+    }
+    const remaining = existing - value;
+    if (remaining < 0) {
+      delete acc[attribute];
+    } else {
+      acc[attribute] = remaining;
     }
   }
 }

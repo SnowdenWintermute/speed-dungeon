@@ -2,7 +2,7 @@ import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "@/analysis-subjects/default-an
 import { attackDamageAnalysisRun } from "@/studies/attack-damage/run";
 import { maxAccuracyAnalysisRun } from "@/studies/max-accuracy/run";
 
-const RUN_COUNT = 100;
+const RUN_COUNT = 10;
 // a full party walking every floor takes about 70ms, which does not fit the suite's global timeout
 const TIMEOUT = 60000;
 

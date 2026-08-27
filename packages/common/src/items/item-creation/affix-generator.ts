@@ -36,8 +36,11 @@ export class AffixGenerator {
       taggedAffixType.affixCategory === AffixCategory.Prefix
         ? template.possibleAffixes.prefix[taggedAffixType.prefixType]
         : template.possibleAffixes.suffix[taggedAffixType.suffixType];
-    if (maxTierOption === undefined)
-      return new Error("invalid template - selected affix type that doesn't exist on template");
+
+    if (maxTierOption === undefined) {
+      throw new Error("invalid template - selected affix type that doesn't exist on template");
+    }
+
     const rolledTier = this.rollAffixTier(maxTierOption, maxTierLimiter);
 
     let multiplier = 1;

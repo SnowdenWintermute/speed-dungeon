@@ -3,4 +3,4 @@
 export { CombatAttribute } from "./index.js";
 export { CombatantClass } from "../combatant-class/classes.js";
 export { MonsterType } from "../../monsters/monster-types.js";
-export type { CombatantAttributeRecord } from "../combatant-attribute-record.js";
+export type { CombatantAttributeRecord } from "../attributes/combatant-attribute-record.js";

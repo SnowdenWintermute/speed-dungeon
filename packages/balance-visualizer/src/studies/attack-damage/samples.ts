@@ -18,6 +18,9 @@ export interface SampleTooltipDamage {
 /** One denormalized row per run, room and character. */
 export interface AttackDamageSample extends AnalysisSampleDimensions {
   sampledDamageOnDummy: number;
+  mainHandSwingCount: number;
+  mainHandLandedHitCount: number;
+  mainHandCriticalHitCount: number;
   tooltipDamage: SampleTooltipDamage;
   wornHoldables: Record<HoldableSlotId, EquipmentBaseItem | null>;
   contributingAttributes: CombatantAttackContributingAttributes;

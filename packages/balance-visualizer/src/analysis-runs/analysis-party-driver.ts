@@ -2,32 +2,48 @@ import {
   AdventuringParty,
   AffixGenerator,
   ClassProgressionProperties,
+  COMBAT_ATTRIBUTES,
   DungeonExplorationManager,
   DungeonGenerationPolicy,
+  EquipmentGenerationTemplate,
   EquipmentRandomizer,
+  EquipmentTraitType,
+  EquipmentType,
   IdGeneratorRandom,
   ItemBuilder,
   LootGenerator,
+  NormalizedPercentage,
   RandomDungeonGenerationPolicy,
   RandomNumberGenerationPolicyFactory,
   SpeedDungeonGame,
+  TaggedAffixType,
 } from "@speed-dungeon/common";
+
+const DAMAGE_TRAITS = [
+  EquipmentTraitType.DamagePercentage,
+  EquipmentTraitType.FlatDamageAdditive,
+];
 
 export class AnalysisPartyDriver {
   private dungeonGenerationPolicy: DungeonGenerationPolicy;
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
   private rngPolicy = RandomNumberGenerationPolicyFactory.allRandomPolicy();
+  private affixGenerator = new AffixGenerator(this.rngPolicy);
   private itemBuilder = new ItemBuilder(
-    new EquipmentRandomizer(this.rngPolicy, new AffixGenerator(this.rngPolicy))
+    new EquipmentRandomizer(this.rngPolicy, this.affixGenerator)
   );
   private dungeonExplorationManager: DungeonExplorationManager;
   private lootGenerator = new LootGenerator(this.itemBuilder, this.idGenerator, this.rngPolicy);
 
   constructor(
     private game: SpeedDungeonGame,
-    private party: AdventuringParty
+    private party: AdventuringParty,
+    private affixValueMultiplier: NormalizedPercentage
   ) {
     this.dungeonExplorationManager = party.dungeonExplorationManager;
+
+    this.modifyAffixValueGeneration();
+
     this.dungeonGenerationPolicy = new RandomDungeonGenerationPolicy(
       this.idGenerator,
       this.itemBuilder,
@@ -37,6 +53,41 @@ export class AnalysisPartyDriver {
 
   get reachedEndOfFloor() {
     return !this.dungeonExplorationManager.unexploredRoomsExistOnCurrentFloor();
+  }
+
+  private modifyAffixValueGeneration() {
+    const rollAffixTierAndValue = this.affixGenerator.rollAffixTierAndValue.bind(
+      this.affixGenerator
+    );
+
+    this.affixGenerator.rollAffixTierAndValue = (
+      template: EquipmentGenerationTemplate,
+      taggedAffixType: TaggedAffixType,
+      maxTierLimiter: number,
+      equipmentType: EquipmentType
+    ) => {
+      const affix = rollAffixTierAndValue(
+        template,
+        taggedAffixType,
+        maxTierLimiter,
+        equipmentType
+      );
+      for (const attribute of COMBAT_ATTRIBUTES) {
+        const value = affix.combatAttributes[attribute];
+        if (value !== undefined) {
+          affix.combatAttributes[attribute] = Math.round(value * this.affixValueMultiplier);
+        }
+      }
+
+      for (const traitType of DAMAGE_TRAITS) {
+        const trait = affix.equipmentTraits[traitType];
+        if (trait !== undefined) {
+          trait.value = Math.round(trait.value * this.affixValueMultiplier);
+        }
+      }
+
+      return affix;
+    };
   }
 
   moveToNextRoom(options: { isDescending: boolean }) {

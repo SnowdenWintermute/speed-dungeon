@@ -41,7 +41,7 @@ export abstract class RoomReportingRunReporter<TCombatantReport extends Analysis
   private _runReport: RunReport<TCombatantReport> = [];
   private cumulativeAvailableEquipment = new EquipmentBaseItemTally();
 
-  constructor(private party: AdventuringParty) {}
+  constructor(protected party: AdventuringParty) {}
 
   get runReport() {
     return this._runReport;

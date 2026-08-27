@@ -13,6 +13,10 @@ function totalContributionColumn(
   };
 }
 
+function percentCell(normalizedRate: number) {
+  return `${Math.round(normalizedRate * 100)}%`;
+}
+
 export const ATTACK_DAMAGE_TABLE_COLUMNS: DataTableColumn<AttackDamageTableRow>[] = [
   { header: "Room", renderCell: (row) => `${row.floor}-${row.room}` },
   { header: "lvlMain", renderCell: (row) => row.averageMainClassLevel },
@@ -30,6 +34,14 @@ export const ATTACK_DAMAGE_TABLE_COLUMNS: DataTableColumn<AttackDamageTableRow>[
   {
     header: "p90",
     renderCell: (row) => Math.floor(row.damageOnDummy.ninetiethPercentileAverage),
+  },
+  {
+    header: "hit",
+    renderCell: (row) => percentCell(row.mainHandHitRate),
+  },
+  {
+    header: "crit",
+    renderCell: (row) => percentCell(row.mainHandCriticalHitRate),
   },
   {
     header: "mhTooltip",

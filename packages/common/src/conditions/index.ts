@@ -1,7 +1,7 @@
 import { FriendOrFoe } from "../combat/combat-actions/targeting-schemes-and-categories.js";
 import { EntityProperties } from "../primatives/entity-properties.js";
 import { CombatActionIntent } from "../combat/combat-actions/combat-action-intent.js";
-import { CombatantAttributeRecord } from "../combatants/combatant-attribute-record.js";
+import { CombatantAttributeRecord } from "../combatants/attributes/combatant-attribute-record.js";
 import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./condition-names.js";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";

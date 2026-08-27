@@ -4,7 +4,7 @@ import { Equipment } from "../../items/equipment/index.js";
 import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derrived-attribute-ratios.js";
 import { addAttributesToAccumulator } from "./add-attributes-to-accumulator.js";
 import { CombatantProperties } from "../combatant-properties.js";
-import { CombatantAttributeRecord } from "../combatant-attribute-record.js";
+import { CombatantAttributeRecord } from "./combatant-attribute-record.js";
 
 export function getCombatantTotalAttributes(
   combatantProperties: CombatantProperties
@@ -40,9 +40,11 @@ export function getCombatantTotalAttributes(
       }
     }
     const modifiedArmorClass = item.getModifiedArmorClass();
-    if (totalAttributes[CombatAttribute.ArmorClass])
+    if (totalAttributes[CombatAttribute.ArmorClass]) {
       totalAttributes[CombatAttribute.ArmorClass] += modifiedArmorClass;
-    else totalAttributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
+    } else {
+      totalAttributes[CombatAttribute.ArmorClass] = modifiedArmorClass;
+    }
   }
 
   // after adding up attributes, determine if any equipped item still doesn't meet attribute

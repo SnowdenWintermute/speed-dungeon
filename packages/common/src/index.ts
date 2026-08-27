@@ -108,7 +108,7 @@ export * from "./combatants/attributes/index.js";
 export * from "./combatants/attributes/add-attributes-to-accumulator.js";
 export * from "./combatants/attributes/derrived-attribute-ratios.js";
 export * from "./combatants/attributes/get-combatant-total-attributes.js";
-export * from "./combatants/combatant-attribute-record.js";
+export * from "./combatants/attributes/combatant-attribute-record.js";
 export * from "./combatants/inventory/index.js";
 export * from "./combatants/combatant-controllers.js";
 
@@ -129,7 +129,7 @@ export * from "./combatants/combatant-traits/index.js";
 export * from "./combatants/combatant-abilities/combatant-ability-properties.js";
 
 export * from "./combatants/attributes/index.js";
-export * from "./combatants/attribute-properties.js";
+export * from "./combatants/attributes/combatant-attribute-properties.js";
 export * from "./combatants/class-progression-properties.js";
 export * from "./combatants/attributes/initialize-combat-attribute-record.js";
 

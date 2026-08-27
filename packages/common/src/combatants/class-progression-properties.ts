@@ -2,12 +2,7 @@ import makeAutoObservable from "mobx-store-inheritance";
 import { AbilityUtils } from "../abilities/ability-utils.js";
 import { AbilityTreeAbility } from "../abilities/index.js";
 import { ABILITY_TREES } from "./ability-tree/set-up-ability-trees.js";
-import {
-  ABILITY_POINTS_AWARDED_PER_LEVEL,
-  ATTRIBUTE_POINTS_AWARDED_PER_LEVEL,
-  ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL,
-  COMBATANT_MAX_LEVEL,
-} from "../app-consts.js";
+import { GAME_CONFIG, COMBATANT_MAX_LEVEL } from "../app-consts.js";
 import { iterateNumericEnum } from "../utils/index.js";
 import { CombatantSubsystem } from "./combatant-subsystem.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
@@ -140,8 +135,8 @@ export class ClassProgressionProperties
 
     for (let levelup = 0; levelup < levelupCount; levelup += 1) {
       this.getMainClass().level += 1;
-      abilityProperties.changeUnspentAbilityPoints(ABILITY_POINTS_AWARDED_PER_LEVEL);
-      attributeProperties.changeUnspentPoints(ATTRIBUTE_POINTS_AWARDED_PER_LEVEL);
+      abilityProperties.changeUnspentAbilityPoints(GAME_CONFIG.ABILITY_POINTS_AWARDED_PER_LEVEL);
+      attributeProperties.changeUnspentPoints(GAME_CONFIG.ATTRIBUTE_POINTS_AWARDED_PER_LEVEL);
 
       resources.setToMax();
     }
@@ -162,10 +157,10 @@ export class ClassProgressionProperties
     combatantProperties.resources.maintainResourcePercentagesAfterEffect(() => {
       this.changeSupportClassLevel(supportClass, 1);
       combatantProperties.abilityProperties.changeUnspentAbilityPoints(
-        ABILITY_POINTS_AWARDED_PER_LEVEL
+        GAME_CONFIG.ABILITY_POINTS_AWARDED_PER_LEVEL
       );
       combatantProperties.attributeProperties.changeUnspentPoints(
-        ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL
+        GAME_CONFIG.ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL
       );
     });
   }

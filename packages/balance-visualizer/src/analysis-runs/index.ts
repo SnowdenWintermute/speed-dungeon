@@ -24,7 +24,7 @@ export class AnalysisRun<TCombatantReport> {
     private runReporter: AnalysisRunReporter<TCombatantReport>
   ) {
     this.game.addParty(this.party);
-    this.partyDriver = new AnalysisPartyDriver(this.game, this.party);
+    this.partyDriver = new AnalysisPartyDriver(this.game, this.party, 1);
   }
 
   private removeRequirementsFrom(equipment: Equipment[]) {
