@@ -4,6 +4,7 @@ import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { ERROR_MESSAGES } from "../../../errors/index.js";
 import { NumberRange } from "../../../primatives/number-range.js";
 import { invariant, iterateNumericEnumKeyedRecord } from "../../../utils/index.js";
+import { MapUtils } from "../../../utils/map-utils.js";
 import { PrefixType, SuffixType } from "../../equipment/affixes.js";
 import { ArmorCategory } from "../../equipment/equipment-properties/armor-properties.js";
 import { ShieldSize } from "../../equipment/equipment-properties/shield-properties.js";
@@ -57,7 +58,10 @@ export class EquipmentTemplateCatalog {
     [EquipmentType.Shield]: new Map(),
   };
 
-  constructor(specs: EquipmentTemplateSpec[], derivedRequirementsByStudy: EquipmentRequirementEntry[][]) {
+  constructor(
+    specs: EquipmentTemplateSpec[],
+    derivedRequirementsByStudy: EquipmentRequirementEntry[][]
+  ) {
     const derivedRequirements = mergeDerivedRequirements(derivedRequirementsByStudy);
 
     for (const spec of specs) {
@@ -170,8 +174,11 @@ function mergeDerivedRequirements(derivedRequirementsByStudy: EquipmentRequireme
 
   for (const entries of derivedRequirementsByStudy) {
     for (const { baseItem, requirements } of entries) {
-      const forType = merged[baseItem.equipmentType];
-      const forBaseItem = forType.get(baseItem.baseItemType) ?? {};
+      const forBaseItem = MapUtils.getOrCreate(
+        merged[baseItem.equipmentType],
+        baseItem.baseItemType,
+        (): Partial<Record<CombatAttribute, number>> => ({})
+      );
 
       for (const [attribute, value] of iterateNumericEnumKeyedRecord(requirements)) {
         invariant(
@@ -181,8 +188,6 @@ function mergeDerivedRequirements(derivedRequirementsByStudy: EquipmentRequireme
         );
         forBaseItem[attribute] = value;
       }
-
-      forType.set(baseItem.baseItemType, forBaseItem);
     }
   }
 

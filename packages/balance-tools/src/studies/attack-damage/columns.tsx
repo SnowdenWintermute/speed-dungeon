@@ -34,15 +34,13 @@ function sourceSplitColumn(
 }
 
 /** flat damage is not a CombatAttribute, so it has no combatant total and stays attributed */
-function flatDamageColumn(): DataTableColumn<AttackDamageTableRow> {
-  return {
-    header: "Flat",
-    renderCell: (row) =>
-      `${Math.round(
-        row.averageContributingAttributes[AttackDamageContributingAttribute.FlatDamage].total
-      )}`,
-  };
-}
+const FLAT_DAMAGE_COLUMN: DataTableColumn<AttackDamageTableRow> = {
+  header: "Flat",
+  renderCell: (row) =>
+    `${Math.round(
+      row.averageContributingAttributes[AttackDamageContributingAttribute.FlatDamage].total
+    )}`,
+};
 
 function percentCell(normalizedRate: number) {
   return `${Math.round(normalizedRate * 100)}%`;
@@ -88,7 +86,7 @@ export const ATTACK_DAMAGE_TABLE_COLUMNS: DataTableColumn<AttackDamageTableRow>[
   sourceSplitColumn("Dex g/a/i", AttackDamageContributingAttribute.Dexterity),
   totalAttributeColumn("Acc", CombatAttribute.Accuracy),
   sourceSplitColumn("Acc g/a/i", AttackDamageContributingAttribute.Accuracy),
-  flatDamageColumn(),
+  FLAT_DAMAGE_COLUMN,
   {
     header: "worn",
     cellLayoutOption: DataTableCellLayout.Stacked,

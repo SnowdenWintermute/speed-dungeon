@@ -37,7 +37,7 @@ export function WriteFileButton({ label, write, disabled, noteAfterWrite }: Prop
   }
 
   return (
-    <div className="">
+    <div>
       <ButtonBasic
         onClick={handleClick}
         disabled={disabled || isWriting}

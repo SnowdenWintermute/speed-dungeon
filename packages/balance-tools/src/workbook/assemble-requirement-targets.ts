@@ -42,14 +42,13 @@ export function assembleRequirementTargets(
 
     const equipmentType = row.getEnumMember("equipmentType", EQUIPMENT_TYPES_BY_NAME);
     const baseItem = parseBaseItem(equipmentType, row);
-    const studyName = studyNameOption;
-    const attributes = readAttributes(row, studyName);
+    const attributes = readAttributes(row, studyNameOption);
 
-    claimEach(claimedBy, baseItem, attributes, row);
+    assertAttributesNotAlreadyClaimed(claimedBy, baseItem, attributes, row);
 
     targets.push({
       baseItem,
-      studyName,
+      studyName: studyNameOption,
       attributes,
       buildSlice: readBuildSlice(row),
       availabilityPercentile: readAvailabilityPercentile(row),
@@ -77,7 +76,7 @@ function assertNothingElseIsFilledIn(row: SheetRow) {
  * whichever generated last would win silently. Caught here rather than at boot so the message can
  * name the row you would have to go and fix.
  */
-function claimEach(
+function assertAttributesNotAlreadyClaimed(
   claimedBy: Map<string, string>,
   baseItem: EquipmentBaseItem,
   attributes: CombatAttribute[],

@@ -3,11 +3,11 @@ import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
+import { FULL_ALLOCATION_INTENSITY } from "@/analysis-runs/allocation-intensity";
 import { AnalysisRunSetOptions } from "@/analysis-runs/run-set-worker-messages";
 
 const MIN_RUN_COUNT = 1;
 const MAX_RUN_COUNT = 2000;
-const DEFAULT_ALLOCATION_INTENSITY: NormalizedPercentage = 1;
 
 interface Props {
   defaultRunCount: number;
@@ -21,58 +21,48 @@ interface Props {
 }
 
 const ALLOCATION_INTENSITY_OPTIONS: { title: string; value: NormalizedPercentage }[] = [
-  { title: "100%", value: 1 },
+  { title: "100%", value: FULL_ALLOCATION_INTENSITY },
   { title: "80%", value: 0.8 },
   { title: "60%", value: 0.6 },
   { title: "40%", value: 0.4 },
 ];
 
 const RUN_COUNT_OPTIONS = [
-  {
-    title: "500",
-    value: 500,
-  },
-  {
-    title: "100",
-    value: 100,
-  },
-  {
-    title: "10",
-    value: 10,
-  },
+  { title: "500", value: 500 },
+  { title: "100", value: 100 },
+  { title: "10", value: 10 },
 ];
 
-export function AnalysisRunControls(props: Props) {
-  const [runCountText, setRunCountText] = useState(`${props.defaultRunCount}`);
-
-  let initialAllocationIntensity = props.fixedAllocationIntensity;
-  if (initialAllocationIntensity === undefined) {
-    initialAllocationIntensity = props.defaultAllocationIntensity;
-  }
-  if (initialAllocationIntensity === undefined) {
-    initialAllocationIntensity = DEFAULT_ALLOCATION_INTENSITY;
-  }
-
+export function AnalysisRunControls({
+  defaultRunCount,
+  isRunning,
+  runsFinished,
+  runsRequested,
+  defaultAllocationIntensity,
+  fixedAllocationIntensity,
+  onRun,
+}: Props) {
+  const [runCountText, setRunCountText] = useState(`${defaultRunCount}`);
   const [chosenAllocationIntensity, setChosenAllocationIntensity] = useState(
-    initialAllocationIntensity
+    fixedAllocationIntensity ?? defaultAllocationIntensity ?? FULL_ALLOCATION_INTENSITY
   );
   const [honorsEquipmentRequirements, setHonorsEquipmentRequirements] = useState(false);
 
-  const intensityIsFixed = props.fixedAllocationIntensity !== undefined;
-  const allocationIntensity = props.fixedAllocationIntensity ?? chosenAllocationIntensity;
+  const intensityIsFixed = fixedAllocationIntensity !== undefined;
+  const allocationIntensity = fixedAllocationIntensity ?? chosenAllocationIntensity;
 
   const runCount = Number(runCountText);
   const runCountIsUsable = Number.isInteger(runCount) && runCount >= MIN_RUN_COUNT;
 
   function handleRun() {
-    if (!runCountIsUsable || props.isRunning) {
+    if (!runCountIsUsable || isRunning) {
       return;
     }
-    props.onRun({ runCount, allocationIntensity, honorsEquipmentRequirements });
+    onRun({ runCount, allocationIntensity, honorsEquipmentRequirements });
   }
 
   return (
-    <div className="">
+    <div>
       <div className="flex flex-col text-sm text-theme-muted">
         <RadioGroup
           title="allocation intensity presets"
@@ -108,10 +98,10 @@ export function AnalysisRunControls(props: Props) {
 
         <ButtonBasic
           onClick={handleRun}
-          disabled={props.isRunning || !runCountIsUsable}
+          disabled={isRunning || !runCountIsUsable}
           extraStyles="bg-theme-base"
         >
-          {props.isRunning ? "running..." : "run set"}
+          {isRunning ? "running..." : "run set"}
         </ButtonBasic>
 
         <label className="h-10 flex items-center gap-2 text-sm text-theme-muted">
@@ -123,9 +113,9 @@ export function AnalysisRunControls(props: Props) {
           honor equipment requirements
         </label>
 
-        {props.isRunning && (
+        {isRunning && (
           <span className="h-10 flex items-center text-sm text-theme-muted">
-            {props.runsFinished} / {props.runsRequested} runs walked
+            {runsFinished} / {runsRequested} runs walked
           </span>
         )}
       </div>

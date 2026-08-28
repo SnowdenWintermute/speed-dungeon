@@ -59,7 +59,7 @@ export function StudyPanel<
   const rows = useMemo(() => (table === null ? [] : table.selectRows(slice)), [table, slice]);
 
   return (
-    <div className="">
+    <div>
       <div className="mb-4">
         <AnalysisRunControls
           defaultRunCount={DEFAULT_RUN_COUNT}
