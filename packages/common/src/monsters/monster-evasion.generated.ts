@@ -1,6 +1,6 @@
 // GENERATED FILE — do not edit by hand.
-// Source: the Max accuracy study in packages/balance-tools
-// Regenerate by running that study and pressing "generate monster evasion".
+// Source: the max-accuracy-mixed study in packages/balance-tools
+// Regenerate: run that study and press "generate monster evasion"
 import type { FloorNumber } from "../aliases.js";
 
 export const MONSTER_EVASION_BY_FLOOR: Record<FloorNumber, number> = {

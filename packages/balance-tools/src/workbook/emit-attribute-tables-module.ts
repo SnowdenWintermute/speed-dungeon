@@ -2,8 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { CombatAttribute, invariant, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import type { CombatantAttributeRecord } from "@speed-dungeon/common";
+import { emitGeneratedModuleHeader } from "../generated-module-header.ts";
 import type { AttributeTable } from "./assemble-attribute-tables.ts";
-import { PACKAGE_ROOT } from "./game-data-paths.ts";
+import { PACKAGE_ROOT, WORKBOOK_SOURCE, WORKBOOK_SYNC_COMMAND } from "./game-data-paths.ts";
 
 export const GENERATED_ATTRIBUTE_TABLES_PATH = path.join(
   PACKAGE_ROOT,
@@ -16,17 +17,19 @@ export const GENERATED_ATTRIBUTE_TABLES_PATH = path.join(
 );
 
 function emitHeader(tables: AttributeTable[]) {
-  const keyTypeNames = [...new Set(tables.map((table) => table.schema.keyTypeName))].sort();
+  const keyTypeNames = tables.map((table) => table.schema.keyTypeName);
 
-  return `// GENERATED FILE — do not edit by hand.
-// Source: packages/balance-tools/game-data.xlsx
-// Regenerate with: yarn workspace @speed-dungeon/balance-tools sync
-import {
-  CombatAttribute,
-${keyTypeNames.map((name) => `  ${name},`).join("\n")}
-} from "./attribute-table-dependencies.js";
-import type { CombatantAttributeRecord } from "./attribute-table-dependencies.js";
-`;
+  return emitGeneratedModuleHeader({
+    source: WORKBOOK_SOURCE,
+    regenerate: WORKBOOK_SYNC_COMMAND,
+    imports: [
+      {
+        from: "./attribute-table-dependencies.js",
+        names: [...new Set(["CombatAttribute", ...keyTypeNames])].sort(),
+        typeNames: ["CombatantAttributeRecord"],
+      },
+    ],
+  });
 }
 
 function emitAttributeRecord(record: CombatantAttributeRecord) {

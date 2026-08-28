@@ -3,8 +3,7 @@ import { iterateNumericEnum } from "@speed-dungeon/common";
 import { UiProvider } from "@speed-dungeon/ui/ui-context";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 import { ZIndexLayers } from "./z-index-layers";
-import { DungeonRunAnalysis } from "./analysis-runs/dungeon-run-analysis";
-import { STUDY_ANALYSES, STUDY_NAME_SLUGS, StudyName } from "./studies/study-name";
+import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name";
 import { MaxAccuracyPanel } from "./studies/max-accuracy/panel";
 import { AttackDamagePanel } from "./studies/attack-damage/panel";
 
@@ -15,17 +14,14 @@ const STUDY_OPTIONS = iterateNumericEnum(StudyName).map((studyName) => ({
   value: studyName,
 }));
 
-const ANALYSIS_PANELS: Record<
-  DungeonRunAnalysis,
-  (props: { studyName: StudyName }) => ReactElement
-> = {
-  [DungeonRunAnalysis.MaxAccuracy]: MaxAccuracyPanel,
-  [DungeonRunAnalysis.AttackDamage]: AttackDamagePanel,
+const STUDY_PANELS: Record<StudyName, () => ReactElement> = {
+  [StudyName.MaxAccuracyMixed]: MaxAccuracyPanel,
+  [StudyName.AttackDamageMixed]: AttackDamagePanel,
 };
 
 export function App() {
   const [studyName, setStudyName] = useState(StudyName.AttackDamageMixed);
-  const Panel = ANALYSIS_PANELS[STUDY_ANALYSES[studyName]];
+  const Panel = STUDY_PANELS[studyName];
 
   return (
     <UiProvider layers={UI_LAYERS}>
@@ -42,7 +38,7 @@ export function App() {
           />
         </div>
 
-        <Panel studyName={studyName} />
+        <Panel />
       </main>
     </UiProvider>
   );

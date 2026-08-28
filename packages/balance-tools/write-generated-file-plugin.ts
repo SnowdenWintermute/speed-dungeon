@@ -2,7 +2,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Plugin } from "vite";
-import { READ_SAVED_RUN_ROUTE, WRITE_GENERATED_FILE_ROUTE } from "./src/generated-file-route";
+import {
+  DERIVED_REQUIREMENTS_DIRECTORY,
+  DERIVED_REQUIREMENTS_PREFIX,
+  READ_SAVED_RUN_ROUTE,
+  SAVED_RUN_DIRECTORY,
+  SAVED_RUN_FILE_NAME_PATTERN,
+  WRITE_GENERATED_FILE_ROUTE,
+  isDerivedRequirementsFileName,
+} from "./src/generated-file-contract";
 
 const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
@@ -10,31 +18,21 @@ const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const WRITABLE_PATHS = ["packages/common/src/monsters/monster-evasion.generated.ts"];
 
 /**
- * Saved runs and per-study requirement modules are named after studies, which is app-side data this
- * plugin has no way to import. So these two are allowed by shape rather than listed, and the checks
- * in isWritable are what keep that from meaning "anywhere".
- */
-const SAVED_RUN_DIRECTORY = "packages/balance-tools/saved-runs";
-const REQUIREMENTS_DIRECTORY = "packages/common/src/items/item-creation/equipment-templates";
-const REQUIREMENTS_PREFIX = "requirements-from-";
-
-/** a study slug plus .json, which is the only shape either saved-run route accepts */
-const SAVED_RUN_FILE_NAME = /^[a-z0-9-]+\.json$/;
-
-/**
  * Only the modules the *browser* writes. A sync-written one — game data, attribute tables, the
  * requirement targets — should still reload the page, or the app goes on running against a workbook
  * you have already changed. The app loads the compiled copy, so this has to catch the .js and .d.ts
- * beside every src module.
+ * beside every src module, which is why this matches the prefix rather than the whole file name.
  */
 function isBrowserWrittenModule(file: string) {
   const name = path.basename(file);
   return (
-    name.startsWith(REQUIREMENTS_PREFIX) ||
+    name.startsWith(DERIVED_REQUIREMENTS_PREFIX) ||
     WRITABLE_PATHS.some((writable) => name.startsWith(path.basename(writable, ".ts")))
   );
 }
 
+// saved runs and per-study requirement modules are named after studies, so they are allowed by
+// shape rather than listed; the directory checks are what keep that from meaning "anywhere"
 function isWritable(generatedPath: string) {
   if (generatedPath.includes("..")) {
     return false;
@@ -47,13 +45,9 @@ function isWritable(generatedPath: string) {
   const name = path.basename(generatedPath);
 
   if (directory === SAVED_RUN_DIRECTORY) {
-    return SAVED_RUN_FILE_NAME.test(name);
+    return SAVED_RUN_FILE_NAME_PATTERN.test(name);
   }
-  return (
-    directory === REQUIREMENTS_DIRECTORY &&
-    name.startsWith(REQUIREMENTS_PREFIX) &&
-    name.endsWith(".generated.ts")
-  );
+  return directory === DERIVED_REQUIREMENTS_DIRECTORY && isDerivedRequirementsFileName(name);
 }
 
 async function readBody(request: { on: NodeJS.ReadableStream["on"] }) {
@@ -90,7 +84,7 @@ export function writeGeneratedFilePlugin(): Plugin {
 
         // middlewares.use strips the mount path, leaving a leading slash and any query string
         const name = (request.url ?? "").split("?")[0]?.replace(/^\//, "") ?? "";
-        if (!SAVED_RUN_FILE_NAME.test(name)) {
+        if (!SAVED_RUN_FILE_NAME_PATTERN.test(name)) {
           response.statusCode = 400;
           return response.end(`${name} is not a saved run file name`);
         }

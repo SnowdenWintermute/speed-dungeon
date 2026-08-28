@@ -5,9 +5,9 @@ import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-
 import type { EquipmentRequirementTarget } from "../studies/requirement-target.ts";
 import { StudyName } from "../studies/study-name.ts";
 import type { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
+import { emitGeneratedModuleHeader, selectUsedImports } from "../generated-module-header.ts";
 import { BASE_ITEM_IMPORT_CANDIDATES, getBaseItemReference } from "./base-item-reference.ts";
-import { emitImportList, selectUsedImports } from "./emitted-imports.ts";
-import { PACKAGE_ROOT } from "./game-data-paths.ts";
+import { PACKAGE_ROOT, WORKBOOK_SOURCE, WORKBOOK_SYNC_COMMAND } from "./game-data-paths.ts";
 
 export const GENERATED_REQUIREMENT_TARGETS_PATH = path.join(
   PACKAGE_ROOT,
@@ -25,18 +25,19 @@ const COMMON_IMPORT_CANDIDATES = {
 };
 
 function emitHeader(body: string) {
-  const fromCommon = selectUsedImports(COMMON_IMPORT_CANDIDATES, body);
-  const specialtyImport =
-    selectUsedImports({ CharacterWeaponSpecialty }, body).length > 0
-      ? `import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";\n`
-      : "";
-
-  return `// GENERATED FILE — do not edit by hand.
-// Source: packages/balance-tools/game-data.xlsx
-// Regenerate with: yarn workspace @speed-dungeon/balance-tools sync
-${emitImportList(fromCommon, "@speed-dungeon/common")}${specialtyImport}import type { EquipmentRequirementTarget } from "./requirement-target.ts";
-import { StudyName } from "./study-name.ts";
-`;
+  return emitGeneratedModuleHeader({
+    source: WORKBOOK_SOURCE,
+    regenerate: WORKBOOK_SYNC_COMMAND,
+    imports: [
+      { from: "@speed-dungeon/common", names: selectUsedImports(COMMON_IMPORT_CANDIDATES, body) },
+      {
+        from: "../analysis-subjects/character-weapon-specialty.ts",
+        names: selectUsedImports({ CharacterWeaponSpecialty }, body),
+      },
+      { from: "./requirement-target.ts", typeNames: ["EquipmentRequirementTarget"] },
+      { from: "./study-name.ts", names: ["StudyName"] },
+    ],
+  });
 }
 
 function emitBuildSlice(slice: AnalysisSlice) {

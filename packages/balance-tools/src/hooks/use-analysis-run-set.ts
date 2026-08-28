@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import {
-  AnalysisRunOptions,
+  AnalysisRunSetOptions,
   AnalysisRunSetWorkerMessage,
   AnalysisRunSetWorkerMessageType,
   AnalysisRunSetWorkerRequest,
@@ -85,7 +85,7 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(
   }, [studyName]);
 
   const run = useCallback(
-    (characterSpecs: AnalysisCharacterSpecification[], options: AnalysisRunOptions) => {
+    (characterSpecs: AnalysisCharacterSpecification[], options: AnalysisRunSetOptions) => {
       const { runCount } = options;
       workerRef.current?.terminate();
 

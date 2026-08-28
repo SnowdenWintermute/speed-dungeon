@@ -82,8 +82,8 @@ export class RoomAvailabilityIndex {
    * narrowed to what any build uses, unlike the holdable percentages above: an item's drop rate is a
    * fact about the dungeon, not about who wants it.
    *
-   * Non-decreasing, because a run's availability is everything dropped since it began, so the last
-   * room's value is the most this item ever reaches.
+   * Each room divides by the runs that reached it, so a room only some runs report can read lower
+   * than the room before it — read the ceiling off the whole curve, not off its last point.
    */
   selectAvailabilityCurve(baseItem: EquipmentBaseItem): AvailabilityPoint[] {
     const points: AvailabilityPoint[] = [];

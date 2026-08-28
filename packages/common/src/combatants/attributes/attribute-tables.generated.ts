@@ -1,6 +1,6 @@
 // GENERATED FILE — do not edit by hand.
 // Source: packages/balance-tools/game-data.xlsx
-// Regenerate with: yarn workspace @speed-dungeon/balance-tools sync
+// Regenerate: yarn workspace @speed-dungeon/balance-tools sync
 import {
   CombatAttribute,
   CombatantClass,

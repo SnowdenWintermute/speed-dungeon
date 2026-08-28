@@ -14,9 +14,9 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import type { EquipmentTemplateSpec } from "@speed-dungeon/common";
+import { emitGeneratedModuleHeader, selectUsedImports } from "../generated-module-header.ts";
 import { BASE_ITEM_IMPORT_CANDIDATES, getBaseItemReference } from "./base-item-reference.ts";
-import { emitImportList, selectUsedImports } from "./emitted-imports.ts";
-import { PACKAGE_ROOT } from "./game-data-paths.ts";
+import { PACKAGE_ROOT, WORKBOOK_SOURCE, WORKBOOK_SYNC_COMMAND } from "./game-data-paths.ts";
 
 export const GENERATED_MODULE_PATH = path.join(
   PACKAGE_ROOT,
@@ -47,11 +47,17 @@ const IMPORT_CANDIDATES = {
 // EquipmentTemplateSpec annotates the generated export, so it is the one name with no `Name.` use
 // to detect and the one that cannot be shorthand — a type has no binding to reference
 function emitHeader(body: string) {
-  return `// GENERATED FILE — do not edit by hand.
-// Source: packages/balance-tools/game-data.xlsx
-// Regenerate with: yarn workspace @speed-dungeon/balance-tools sync
-${emitImportList(selectUsedImports(IMPORT_CANDIDATES, body).sort(), "./game-data-dependencies.js")}import type { EquipmentTemplateSpec } from "./game-data-dependencies.js";
-`;
+  return emitGeneratedModuleHeader({
+    source: WORKBOOK_SOURCE,
+    regenerate: WORKBOOK_SYNC_COMMAND,
+    imports: [
+      {
+        from: "./game-data-dependencies.js",
+        names: selectUsedImports(IMPORT_CANDIDATES, body),
+        typeNames: ["EquipmentTemplateSpec"],
+      },
+    ],
+  });
 }
 
 function emitNumberRange(range: NumberRange) {

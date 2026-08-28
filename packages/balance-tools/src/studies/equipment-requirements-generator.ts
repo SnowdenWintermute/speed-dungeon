@@ -1,5 +1,4 @@
 import {
-  ArrayUtils,
   COMBATANT_CLASS_NAME_STRINGS,
   EQUIPMENT_TYPE_STRINGS,
   Equipment,
@@ -61,7 +60,7 @@ function selectAnchorRoom(table: RequirementSourceTable, target: EquipmentRequir
   const curve = table.selectAvailabilityCurve(target.baseItem);
   invariant(curve.length > 0, `the run set reached no rooms, so ${name} has no drop curve`);
 
-  const highest = ArrayUtils.getExpectedAtIndex(curve, curve.length - 1).percentOfRuns;
+  const highest = Math.max(...curve.map((point) => point.percentOfRuns));
   invariant(highest > 0, `${name} never dropped in any run, so there is no room to read a build from`);
 
   // the > 0 is what makes a percentile of 0 mean the first room it ever dropped in, not room one

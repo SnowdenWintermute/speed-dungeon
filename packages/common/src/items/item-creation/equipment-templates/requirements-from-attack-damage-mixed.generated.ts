@@ -1,6 +1,6 @@
 // GENERATED FILE — do not edit by hand.
 // Source: the attack-damage-mixed study in packages/balance-tools
-// Regenerate by running that study and pressing "generate equipment requirements".
+// Regenerate: run that study and press "generate equipment requirements"
 import {
   BodyArmor,
   CombatAttribute,

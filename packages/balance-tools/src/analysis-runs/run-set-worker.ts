@@ -2,6 +2,7 @@ import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-cha
 import { attackDamageRunSet } from "@/studies/attack-damage/run-set";
 import { maxAccuracyRunSet } from "@/studies/max-accuracy/run-set";
 import { AllocationIntensity } from "./allocation-intensity";
+import { AnalysisRunOptions } from "./analysis-run-options";
 import { AnalysisRunSet } from "./run-set";
 import {
   AnalysisRunSetWorkerMessage,
@@ -15,7 +16,7 @@ const RUN_SET_FACTORIES: {
   [AnalysisType in DungeonRunAnalysis]: (
     characterSpecs: AnalysisCharacterSpecification[],
     allocationIntensity: AllocationIntensity,
-    options: { honorsEquipmentRequirements: boolean }
+    options: AnalysisRunOptions
   ) => AnalysisRunSet<DungeonRunAnalysisResults[AnalysisType]>;
 } = {
   [DungeonRunAnalysis.AttackDamage]: attackDamageRunSet,

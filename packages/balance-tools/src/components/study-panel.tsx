@@ -1,15 +1,14 @@
 import { ReactNode, useMemo, useState } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableColumn, DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { NormalizedPercentage, invariant } from "@speed-dungeon/common";
+import { NormalizedPercentage } from "@speed-dungeon/common";
 import { roomKey } from "@/analysis-runs/analysis-sample";
 import { AnalysisSlice } from "@/analysis-runs/analysis-slice";
 import { AnalysisTableRow } from "@/analysis-runs/analysis-sample-table";
 import { useAnalysisRunSet } from "@/hooks/use-analysis-run-set";
-import { DungeonRunAnalysis } from "@/analysis-runs/dungeon-run-analysis";
 import { DungeonRunAnalysisResults } from "@/analysis-runs/types";
 import { STUDY_CONFIGURATIONS } from "@/studies/study-configurations";
-import { STUDY_ANALYSES, STUDY_NAME_SLUGS, StudyName } from "@/studies/study-name";
+import { AnalysisOfStudy, STUDY_ANALYSES, STUDY_NAME_SLUGS, StudyName } from "@/studies/study-name";
 import { AnalysisRunControls } from "./analysis-run-controls";
 import { AnalysisSliceControls } from "./analysis-slice-controls";
 import { WriteFileButton } from "./write-file-button";
@@ -21,16 +20,14 @@ interface StudyTable<TRow> {
 }
 
 interface Props<
-  AnalysisType extends DungeonRunAnalysis,
+  TStudy extends StudyName,
   TRow extends AnalysisTableRow,
   TTable extends StudyTable<TRow>,
 > {
-  studyName: StudyName;
-  /** the panel names this so it can parameterize the types the run set and table are read at */
-  analysis: AnalysisType;
+  studyName: TStudy;
   columns: DataTableColumn<TRow>[];
   /** the class itself, so the memo below is not rebuilt by a new closure on every render */
-  tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisType]) => TTable;
+  tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisOfStudy<TStudy>]) => TTable;
   /** set by a study whose derivation only means anything at one intensity */
   fixedAllocationIntensity?: NormalizedPercentage;
   defaultAllocationIntensity?: NormalizedPercentage;
@@ -39,25 +36,19 @@ interface Props<
 }
 
 export function StudyPanel<
-  AnalysisType extends DungeonRunAnalysis,
+  TStudy extends StudyName,
   TRow extends AnalysisTableRow,
   TTable extends StudyTable<TRow>,
 >({
   studyName,
-  analysis,
   columns,
   tableConstructor: TableConstructor,
   fixedAllocationIntensity,
   defaultAllocationIntensity,
   renderTableActions,
-}: Props<AnalysisType, TRow, TTable>) {
+}: Props<TStudy, TRow, TTable>) {
   const configuration = STUDY_CONFIGURATIONS[studyName];
-  invariant(
-    STUDY_ANALYSES[studyName] === analysis,
-    `study ${STUDY_NAME_SLUGS[studyName]} is configured for a different analysis than the panel rendering it`
-  );
-
-  const { state, run, save } = useAnalysisRunSet(studyName, analysis);
+  const { state, run, save } = useAnalysisRunSet(studyName, STUDY_ANALYSES[studyName]);
   const [slice, setSlice] = useState<AnalysisSlice>({});
 
   const table = useMemo(

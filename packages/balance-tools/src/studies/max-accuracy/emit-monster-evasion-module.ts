@@ -1,15 +1,17 @@
 import { DEEPEST_FLOOR, FloorNumber, invariant } from "@speed-dungeon/common";
+import { emitGeneratedModuleHeader } from "@/generated-module-header";
+import { STUDY_NAME_SLUGS, StudyName } from "@/studies/study-name";
 
 // no node imports: the browser renders the text and the dev server only writes it
 
 export const GENERATED_MONSTER_EVASION_MODULE_PATH =
   "packages/common/src/monsters/monster-evasion.generated.ts";
 
-const HEADER = `// GENERATED FILE — do not edit by hand.
-// Source: the Max accuracy study in packages/balance-tools
-// Regenerate by running that study and pressing "generate monster evasion".
-import type { FloorNumber } from "../aliases.js";
-
+const HEADER = `${emitGeneratedModuleHeader({
+  source: `the ${STUDY_NAME_SLUGS[StudyName.MaxAccuracyMixed]} study in packages/balance-tools`,
+  regenerate: `run that study and press "generate monster evasion"`,
+  imports: [{ from: "../aliases.js", typeNames: ["FloorNumber"] }],
+})}
 export const MONSTER_EVASION_BY_FLOOR: Record<FloorNumber, number> = {`;
 
 export function emitMonsterEvasionModule(evasionByFloor: Map<FloorNumber, number>) {

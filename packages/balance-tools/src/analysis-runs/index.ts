@@ -7,6 +7,7 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { AllocationIntensity } from "./allocation-intensity";
+import { AnalysisRunOptions } from "./analysis-run-options";
 import { AnalysisPartyDriver } from "./analysis-party-driver";
 import { AnalysisRunReporter } from "./analysis-run-reporter";
 import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
@@ -24,7 +25,7 @@ export class AnalysisRun<TCombatantReport> {
     private goalPerformanceChecker: GoalPerformanceChecker,
     private runReporter: AnalysisRunReporter<TCombatantReport>,
     allocationIntensity: AllocationIntensity,
-    private options: { honorsEquipmentRequirements: boolean }
+    private options: AnalysisRunOptions
   ) {
     this.game.addParty(this.party);
     this.partyDriver = new AnalysisPartyDriver(this.game, this.party, allocationIntensity);

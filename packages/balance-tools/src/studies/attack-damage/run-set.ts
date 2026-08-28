@@ -1,5 +1,6 @@
 import { EquipmentSlotId } from "@speed-dungeon/common";
 import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
+import { AnalysisRunOptions } from "@/analysis-runs/analysis-run-options";
 import { AnalysisSampleCollectingRunSet } from "@/analysis-runs/run-set";
 import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
 import { attackDamageAnalysisRun } from "./run";
@@ -17,7 +18,7 @@ function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): Sam
 export function attackDamageRunSet(
   characterSpecs: AnalysisCharacterSpecification[],
   allocationIntensity: AllocationIntensity,
-  options: { honorsEquipmentRequirements: boolean }
+  options: AnalysisRunOptions
 ) {
   return new AnalysisSampleCollectingRunSet<AttackDamageCombatantReport, AttackDamageSample>(
     () => attackDamageAnalysisRun(characterSpecs, allocationIntensity, options),

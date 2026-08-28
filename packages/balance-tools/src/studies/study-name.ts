@@ -21,7 +21,11 @@ export const STUDY_NAME_SLUGS: Record<StudyName, string> = {
 };
 
 /** kept apart from the party in study-configurations.ts, which node cannot load */
-export const STUDY_ANALYSES: Record<StudyName, DungeonRunAnalysis> = {
+export const STUDY_ANALYSES = {
   [StudyName.MaxAccuracyMixed]: DungeonRunAnalysis.MaxAccuracy,
   [StudyName.AttackDamageMixed]: DungeonRunAnalysis.AttackDamage,
-};
+} as const satisfies Record<StudyName, DungeonRunAnalysis>;
+
+// `as const` above so a panel can be parameterized by its study alone: this resolves which result
+// type that study's table is constructed from, leaving nothing for a caller to get wrong
+export type AnalysisOfStudy<TStudy extends StudyName> = (typeof STUDY_ANALYSES)[TStudy];

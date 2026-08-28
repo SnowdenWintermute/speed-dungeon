@@ -3,7 +3,7 @@ import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
-import { AnalysisRunOptions } from "@/analysis-runs/run-set-worker-messages";
+import { AnalysisRunSetOptions } from "@/analysis-runs/run-set-worker-messages";
 
 const MIN_RUN_COUNT = 1;
 const MAX_RUN_COUNT = 2000;
@@ -17,7 +17,7 @@ interface Props {
   defaultAllocationIntensity?: NormalizedPercentage;
   /** set by a study whose derivation only means anything at one intensity; absent lets the user pick */
   fixedAllocationIntensity?: NormalizedPercentage;
-  onRun: (options: AnalysisRunOptions) => void;
+  onRun: (options: AnalysisRunSetOptions) => void;
 }
 
 const ALLOCATION_INTENSITY_OPTIONS: { title: string; value: NormalizedPercentage }[] = [
