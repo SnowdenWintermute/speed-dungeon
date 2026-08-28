@@ -1095,7 +1095,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 7),
     maxDurability: 18,
-    requirements: { [CombatAttribute.Strength]: 8, [CombatAttribute.Dexterity]: 8 },
+    requirements: { [CombatAttribute.Strength]: 17, [CombatAttribute.Dexterity]: 20 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1114,7 +1114,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(6, 8),
     maxDurability: 24,
-    requirements: { [CombatAttribute.Dexterity]: 33 },
+    requirements: { [CombatAttribute.Dexterity]: 42 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1133,7 +1133,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 36,
-    requirements: { [CombatAttribute.Dexterity]: 21, [CombatAttribute.Spirit]: 21 },
+    requirements: { [CombatAttribute.Dexterity]: 55 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1304,7 +1304,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 52,
-    requirements: { [CombatAttribute.Dexterity]: 55 },
+    requirements: { [CombatAttribute.Dexterity]: 35, [CombatAttribute.Spirit]: 35 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },

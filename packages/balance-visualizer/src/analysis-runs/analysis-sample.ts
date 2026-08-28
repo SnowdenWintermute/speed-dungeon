@@ -1,11 +1,6 @@
 import { CombatantClass, MapUtils } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "@/analysis-subjects/analysis-character-specification";
 
-/**
- * What every study records about the character a sample came from and where it was taken. The
- * dimensions travel with the row so a table can slice on any subset of them without the collection
- * stage having chosen a key.
- */
 export interface AnalysisSampleDimensions {
   runIndex: number;
   floor: number;
@@ -17,7 +12,7 @@ export interface AnalysisSampleDimensions {
   supportClassLevel: number | null;
 }
 
-/** an omitted dimension means "any", so dropping one widens the slice without a re-run */
+/** an omitted dimension means "any" */
 export interface AnalysisSlice {
   weaponSpecialty?: CharacterWeaponSpecialty;
   mainClass?: CombatantClass;

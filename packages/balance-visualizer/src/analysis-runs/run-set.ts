@@ -4,14 +4,9 @@ import { AnalysisSampleDimensions } from "./analysis-sample";
 import { RoomAvailability } from "./room-availability";
 
 export interface AnalysisRunSetResult {
-  /** runs that threw and contributed nothing, so a short set is visible rather than silent */
   runsFailed: number;
 }
 
-/**
- * A study's set of walks. Implementations flatten each run's report as it finishes, so the report,
- * which holds live Equipment, can be dropped instead of retained across the whole set.
- */
 export interface AnalysisRunSet<TResult extends AnalysisRunSetResult> {
   executeSet(runCount: number, onRunFinished: (runsFinished: number) => void): void;
   result: TResult;
@@ -27,10 +22,6 @@ export type AnalysisRunExecutor<TCombatantReport> = () => {
   analysisSpecsHolder: AnalysisSpecHolder;
 };
 
-/**
- * Walks a study's runs and flattens each report into one row per run, room and character. Only the
- * projection from a combatant's report to a sample varies by study, so that is all a study supplies.
- */
 export class AnalysisSampleCollectingRunSet<
   TCombatantReport extends AnalysisCombatantReport,
   TSample extends AnalysisSampleDimensions,
