@@ -39,3 +39,4 @@ packages/balance-tools/xl/
 
 # claude code personal settings
 .claude/settings.local.json
+packages/balance-tools/saved-runs/

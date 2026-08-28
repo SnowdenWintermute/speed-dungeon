@@ -1,18 +1,33 @@
 {
   "name": "@speed-dungeon/balance-tools",
   "version": "1.0.0",
+  "description": "Tuning tables that run real game code against generated builds, and the workbook sync that feeds them",
   "private": true,
-  "description": "Dev-only tooling for moving game balance data between the code and spreadsheets",
   "type": "module",
-  "license": "ISC",
   "scripts": {
-    "checkTs": "npx tsc --noEmit --watch --preserveWatchOutput",
-    "sync": "node --experimental-strip-types src/sync-game-data.ts",
-    "sync:watch": "node --experimental-strip-types src/watch-game-data.ts"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "checkTs": "npx tsc --noEmit --watch",
+    "sync": "node --experimental-transform-types src/workbook/sync-game-data.ts",
+    "sync:watch": "node --experimental-transform-types src/workbook/watch-game-data.ts"
   },
   "dependencies": {
-    "@speed-dungeon/common": "1.0.0",
-    "exceljs": "^4.4.0"
+    "@speed-dungeon/common": "*",
+    "exceljs": "^4.4.0",
+    "lodash.clonedeep": "4.5.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "vitest": "^3.1.4",
+    "@types/lodash.clonedeep": "4.5.9",
+    "@types/react": "19.1.9",
+    "@types/react-dom": "19.1.7",
+    "@vitejs/plugin-react": "^5.0.4",
+    "tailwindcss": "3.4.1",
+    "typescript": "^5.8.3",
+    "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.28.0"
+  }
 }

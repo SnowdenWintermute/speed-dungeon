@@ -1,5 +1,5 @@
 // GENERATED FILE — do not edit by hand.
-// Source: the Max accuracy study in packages/balance-visualizer
+// Source: the Max accuracy study in packages/balance-tools
 // Regenerate by running that study and pressing "generate monster evasion".
 import type { FloorNumber } from "../aliases.js";
 

@@ -21,4 +21,7 @@ export { TwoHandedMeleeWeapon } from "../../equipment/equipment-types/two-handed
 export { TwoHandedRangedWeapon } from "../../equipment/equipment-types/two-handed-ranged-weapon.js";
 
 // type-only: the repository imports the generated module, so a value import would close a cycle
-export type { EquipmentTemplateSpec } from "./equipment-template-catalog.js";
+export type {
+  EquipmentRequirementEntry,
+  EquipmentTemplateSpec,
+} from "./equipment-template-catalog.js";

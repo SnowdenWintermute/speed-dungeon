@@ -8,9 +8,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "derive:evasion": "npx vite-node packages/balance-visualizer/src/analysis/monster-attributes/derive-monster-evasion.ts --",
     "test:watch": "vitest watch --reporter=verbose",
-    "watch": "concurrently --names build,types,balance,visualizer,seed,workbook,frontend,ui --prefix-colors cyan,magenta,yellow,red,blue,green,white,cyanBright \"yarn workspace @speed-dungeon/server build:watch\" \"yarn workspace @speed-dungeon/integration-tests checkTs\" \"yarn workspace @speed-dungeon/balance-tools checkTs\" \"yarn workspace @speed-dungeon/balance-visualizer checkTs\" \"yarn workspace @speed-dungeon/seed-data checkTs\" \"yarn workspace @speed-dungeon/balance-tools sync:watch\" \"yarn workspace @speed-dungeon/frontend checkTs\" \"yarn workspace @speed-dungeon/ui checkTs\""
+    "watch": "concurrently --names build,types,balance,seed,workbook,frontend,ui --prefix-colors cyan,magenta,yellow,blue,green,white,cyanBright \"yarn workspace @speed-dungeon/server build:watch\" \"yarn workspace @speed-dungeon/integration-tests checkTs\" \"yarn workspace @speed-dungeon/balance-tools checkTs\" \"yarn workspace @speed-dungeon/seed-data checkTs\" \"yarn workspace @speed-dungeon/balance-tools sync:watch\" \"yarn workspace @speed-dungeon/frontend checkTs\" \"yarn workspace @speed-dungeon/ui checkTs\""
   },
   "devDependencies": {
     "@types/ws": "^8.18.1",

@@ -10,6 +10,7 @@ import { getPlayerCharacterStartingActions } from "../combatants/combatant-class
 import { TwoHandedMeleeWeapon } from "../items/equipment/equipment-types/two-handed-melee-weapon.js";
 import { CharacterCreationPolicy } from "./character-creation-policy.js";
 import { CombatantWithPets } from "../types.js";
+import { givePlaytestingItems } from "./give-playtesting-items.js";
 
 const HP_INJECTOR_COUNT = 2;
 const MP_INJECTOR_COUNT = 0;
@@ -43,7 +44,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
 
     // result.combatantProperties.inventory.changeShards(400);
     // setPlaytestingCombatantProperties(result.combatantProperties);
-    // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
+    givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
     const character: CombatantWithPets = { combatant: result, pets: [] };
 

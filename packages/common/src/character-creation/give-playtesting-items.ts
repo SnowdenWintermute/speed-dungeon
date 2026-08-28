@@ -1,5 +1,6 @@
 import {
   AffixType,
+  BodyArmor,
   CombatantProperties,
   CombatAttribute,
   EquipmentTraitType,
@@ -28,82 +29,82 @@ export function givePlaytestingItems(
   itemBuilder: ItemBuilder
 ) {
   const { inventory } = combatantProperties;
-  inventory.changeShards(200);
+  // inventory.changeShards(200);
 
-  const tradeableItem = itemBuilder
-    .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
-    .durability(0)
-    .suffix(AffixType.Strength, {
-      combatAttributes: { [CombatAttribute.Strength]: 1 },
-      equipmentTraits: {},
-      tier: 1,
-    })
-    .build(idGenerator);
+  // const tradeableItem = itemBuilder
+  //   .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+  //   .durability(0)
+  //   .suffix(AffixType.Strength, {
+  //     combatAttributes: { [CombatAttribute.Strength]: 1 },
+  //     equipmentTraits: {},
+  //     tier: 1,
+  //   })
+  //   .build(idGenerator);
 
-  inventory.equipment.push(tradeableItem);
+  // inventory.equipment.push(tradeableItem);
 
-  inventory.equipment.push(
-    itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.RuneSword).build(idGenerator)
-  );
-  inventory.equipment.push(
-    itemBuilder.twoHandedMeleeWeapon(TwoHandedMeleeWeapon.ElementalStaff).build(idGenerator)
-  );
-  inventory.equipment.push(itemBuilder.shield(Shield.GothicShield).build(idGenerator));
-  inventory.equipment.push(itemBuilder.shield(Shield.AncientBuckler).build(idGenerator));
-  inventory.equipment.push(itemBuilder.shield(Shield.TowerShield).build(idGenerator));
-  inventory.equipment.push(
-    itemBuilder
-      .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
-      // .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
-      .build(idGenerator)
-  );
-  inventory.equipment.push(
-    itemBuilder
-      .ring()
-      .prefix(AffixType.LifeSteal, {
-        combatAttributes: {},
-        tier: 1,
-        equipmentTraits: {
-          [EquipmentTraitType.LifeSteal]: {
-            equipmentTraitType: EquipmentTraitType.LifeSteal,
-            value: 10,
-          },
-        },
-      })
-      .build(idGenerator)
-  );
-  inventory.equipment.push(
-    itemBuilder
-      .ring()
-      .suffix(AffixType.FlatDamage, {
-        combatAttributes: {},
-        tier: 1,
-        equipmentTraits: {
-          [EquipmentTraitType.FlatDamageAdditive]: {
-            equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
-            value: 10,
-          },
-        },
-      })
-      .build(idGenerator)
-  );
+  // inventory.equipment.push(
+  //   itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.RuneSword).build(idGenerator)
+  // );
+  // inventory.equipment.push(
+  //   itemBuilder.twoHandedMeleeWeapon(TwoHandedMeleeWeapon.ElementalStaff).build(idGenerator)
+  // );
+  // inventory.equipment.push(itemBuilder.shield(Shield.GothicShield).build(idGenerator));
+  // inventory.equipment.push(itemBuilder.shield(Shield.AncientBuckler).build(idGenerator));
+  // inventory.equipment.push(itemBuilder.shield(Shield.TowerShield).build(idGenerator));
+  // inventory.equipment.push(
+  //   itemBuilder
+  //     .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+  //     // .prefix(AffixType.LifeSteal, LIFESTEAL_PREFIX)
+  //     .build(idGenerator)
+  // );
+  // inventory.equipment.push(
+  //   itemBuilder
+  //     .ring()
+  //     .prefix(AffixType.LifeSteal, {
+  //       combatAttributes: {},
+  //       tier: 1,
+  //       equipmentTraits: {
+  //         [EquipmentTraitType.LifeSteal]: {
+  //           equipmentTraitType: EquipmentTraitType.LifeSteal,
+  //           value: 10,
+  //         },
+  //       },
+  //     })
+  //     .build(idGenerator)
+  // );
+  // inventory.equipment.push(
+  //   itemBuilder
+  //     .ring()
+  //     .suffix(AffixType.FlatDamage, {
+  //       combatAttributes: {},
+  //       tier: 1,
+  //       equipmentTraits: {
+  //         [EquipmentTraitType.FlatDamageAdditive]: {
+  //           equipmentTraitType: EquipmentTraitType.FlatDamageAdditive,
+  //           value: 10,
+  //         },
+  //       },
+  //     })
+  //     .build(idGenerator)
+  // );
 
-  for (let i = 0; i < 20; i += 1) {
-    inventory.equipment.push(
-      itemBuilder
-        .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Blade)
-        .itemLevel(7)
-        .randomizeAffixes()
-        .build(idGenerator)
-    );
-  }
-  inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));
+  // for (let i = 0; i < 20; i += 1) {
+  //   inventory.equipment.push(
+  //     itemBuilder
+  //       .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Blade)
+  //       .itemLevel(7)
+  //       .randomizeAffixes()
+  //       .build(idGenerator)
+  //   );
+  // }
+  // inventory.equipment.push(itemBuilder.amulet().randomizeAffixes().build(idGenerator));
 
-  const item = itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Stick).build(idGenerator);
+  const item = itemBuilder.bodyArmor(BodyArmor.LeatherVest).build(idGenerator);
   inventory.insertItem(item);
 
   // @TESTING
-  giveHotswapSlotEquipment(combatantProperties, idGenerator, itemBuilder);
+  // giveHotswapSlotEquipment(combatantProperties, idGenerator, itemBuilder);
 }
 
 function giveHotswapSlotEquipment(

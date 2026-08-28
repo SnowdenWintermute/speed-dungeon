@@ -7,7 +7,6 @@ import {
   ArmorCategory,
   BodyArmor,
   CombatAttribute,
-  EquipmentTemplateSpec,
   EquipmentType,
   HeadGear,
   KineticDamageType,
@@ -22,6 +21,7 @@ import {
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "./game-data-dependencies.js";
+import type { EquipmentTemplateSpec } from "./game-data-dependencies.js";
 
 export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
   {
@@ -1076,7 +1076,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 5),
     maxDurability: 16,
-    requirements: { [CombatAttribute.Dexterity]: 16 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },

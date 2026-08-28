@@ -15,6 +15,7 @@ import {
   WeaponGenerationTemplate,
 } from "./base-templates.js";
 import { EQUIPMENT_TEMPLATE_SPECS } from "./game-data.generated.js";
+import { EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED } from "./requirements-from-attack-damage-mixed.generated.js";
 
 /** the compiler checks this shape; the repository checks the things a type cannot express */
 export interface EquipmentTemplateSpec {
@@ -34,6 +35,16 @@ export interface EquipmentTemplateSpec {
   shieldSize: null | ShieldSize;
 }
 
+/**
+ * One base item's requirements as a study derived them. Each study owns one generated module and
+ * rewrites it whole, so two studies never contend for the same file — but they can still contend for
+ * the same attribute on the same base item, which the merge below refuses.
+ */
+export interface EquipmentRequirementEntry {
+  baseItem: EquipmentBaseItem;
+  requirements: Partial<Record<CombatAttribute, number>>;
+}
+
 export class EquipmentTemplateCatalog {
   private templatesByType: Record<EquipmentType, Map<number, EquipmentGenerationTemplate>> = {
     [EquipmentType.BodyArmor]: new Map(),
@@ -46,7 +57,9 @@ export class EquipmentTemplateCatalog {
     [EquipmentType.Shield]: new Map(),
   };
 
-  constructor(specs: EquipmentTemplateSpec[]) {
+  constructor(specs: EquipmentTemplateSpec[], derivedRequirementsByStudy: EquipmentRequirementEntry[][]) {
+    const derivedRequirements = mergeDerivedRequirements(derivedRequirementsByStudy);
+
     for (const spec of specs) {
       assertSpecIsCoherent(spec);
       const { equipmentType, baseItemType } = spec.baseItem;
@@ -54,7 +67,10 @@ export class EquipmentTemplateCatalog {
         !this.templatesByType[equipmentType].has(baseItemType),
         `${describeBaseItem(spec.baseItem)} has more than one game data entry`
       );
-      this.templatesByType[equipmentType].set(baseItemType, assembleTemplate(spec));
+      this.templatesByType[equipmentType].set(
+        baseItemType,
+        assembleTemplate(spec, derivedRequirements[equipmentType].get(baseItemType) ?? {})
+      );
     }
   }
 
@@ -76,7 +92,10 @@ let catalog: null | EquipmentTemplateCatalog = null;
  * game data validation */
 export function getEquipmentTemplateCatalog() {
   if (catalog === null) {
-    catalog = new EquipmentTemplateCatalog(EQUIPMENT_TEMPLATE_SPECS);
+    // one entry per study that derives requirements; each owns the module it is read from
+    catalog = new EquipmentTemplateCatalog(EQUIPMENT_TEMPLATE_SPECS, [
+      EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED,
+    ]);
   }
   return catalog;
 }
@@ -124,12 +143,63 @@ function assertAffixTierIsRollable(maxTier: number, name: string) {
   invariant(maxTier >= 1, `${name} has an affix max tier of ${maxTier}`);
 }
 
-function assembleTemplate(spec: EquipmentTemplateSpec) {
+function emptyRequirementsByType(): Record<
+  EquipmentType,
+  Map<number, Partial<Record<CombatAttribute, number>>>
+> {
+  return {
+    [EquipmentType.BodyArmor]: new Map(),
+    [EquipmentType.HeadGear]: new Map(),
+    [EquipmentType.Ring]: new Map(),
+    [EquipmentType.Amulet]: new Map(),
+    [EquipmentType.OneHandedMeleeWeapon]: new Map(),
+    [EquipmentType.TwoHandedMeleeWeapon]: new Map(),
+    [EquipmentType.TwoHandedRangedWeapon]: new Map(),
+    [EquipmentType.Shield]: new Map(),
+  };
+}
+
+/**
+ * Two studies both deriving, say, strength for the same body armor would each be right on their own
+ * terms and disagree, and the file generated last would win silently. The workbook rejects that when
+ * the target rows are read; this catches the case where one study's module was regenerated and the
+ * other's was not.
+ */
+function mergeDerivedRequirements(derivedRequirementsByStudy: EquipmentRequirementEntry[][]) {
+  const merged = emptyRequirementsByType();
+
+  for (const entries of derivedRequirementsByStudy) {
+    for (const { baseItem, requirements } of entries) {
+      const forType = merged[baseItem.equipmentType];
+      const forBaseItem = forType.get(baseItem.baseItemType) ?? {};
+
+      for (const [attribute, value] of iterateNumericEnumKeyedRecord(requirements)) {
+        invariant(
+          forBaseItem[attribute] === undefined,
+          `${describeBaseItem(baseItem)} has ${CombatAttribute[attribute]} derived by more than ` +
+            `one study — regenerate them so only one does`
+        );
+        forBaseItem[attribute] = value;
+      }
+
+      forType.set(baseItem.baseItemType, forBaseItem);
+    }
+  }
+
+  return merged;
+}
+
+function assembleTemplate(
+  spec: EquipmentTemplateSpec,
+  derivedRequirements: Partial<Record<CombatAttribute, number>>
+) {
   const template = assembleTemplateOfType(spec);
 
   template.levelRange = spec.levelRange;
   template.maxDurability = spec.maxDurability;
-  template.requirements = spec.requirements;
+  // the workbook's own columns are manual overrides, so they win per attribute over what a study
+  // derived. a blank cell leaves no key and changes nothing
+  template.requirements = { ...derivedRequirements, ...spec.requirements };
   template.possibleAffixes = spec.possibleAffixes;
 
   return template;

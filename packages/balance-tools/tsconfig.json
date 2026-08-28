@@ -1,15 +1,18 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    // this package is never built to dist: its scripts run straight from source under node's type
-    // stripping, which is also why relative imports here carry a .ts extension rather than the .js
-    // the emitted packages use
     "noEmit": true,
-    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "moduleResolution": "bundler",
-    "types": ["node"],
+    // the workbook scripts under src/workbook run straight from source under node, which resolves
+    // neither the @/ alias nor an extensionless specifier — so their relative imports, and any
+    // module they reach, carry a .ts extension. the app code beside them keeps the @/ alias
+    "allowImportingTsExtensions": true,
+    "types": ["node", "vite/client", "vitest/globals"],
     "paths": {
-      "@speed-dungeon/*": ["../packages/*"]
+      "@speed-dungeon/ui/*": ["../ui/src/*"],
+      "@/*": ["./src/*"]
     }
   },
   "references": [
@@ -17,5 +20,5 @@
       "path": "../common"
     }
   ],
-  "include": ["src"]
+  "include": ["src", "vite.config.ts", "tailwind.config.ts"]
 }
