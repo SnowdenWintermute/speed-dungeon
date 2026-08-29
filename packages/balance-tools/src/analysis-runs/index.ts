@@ -12,7 +12,7 @@ import { AnalysisPartyDriver } from "./analysis-party-driver.ts";
 import { AnalysisRunReporter } from "./analysis-run-reporter.ts";
 import { AttributeAllocationSolver } from "../solvers/attribute-allocation.ts";
 import { BestImprovementEquipmentSolver } from "../solvers/best-improvement.ts";
-import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
+import { SeededRandomNumberGeneratorScopeProvider } from "./seeded-random-number-generator-scope-provider.ts";
 
 export class AnalysisRun<TCombatantReport> {
   private partyDriver: AnalysisPartyDriver;
@@ -22,7 +22,7 @@ export class AnalysisRun<TCombatantReport> {
     private party: AdventuringParty,
     private equipmentSolver: BestImprovementEquipmentSolver,
     private attributeAllocationSolver: AttributeAllocationSolver,
-    private goalPerformanceChecker: GoalPerformanceChecker,
+    private scopeProvider: SeededRandomNumberGeneratorScopeProvider,
     private runReporter: AnalysisRunReporter<TCombatantReport>,
     allocationIntensity: AllocationIntensity,
     private options: AnalysisRunOptions
@@ -56,7 +56,7 @@ export class AnalysisRun<TCombatantReport> {
         const equipmentDroppedThisRoom = [...this.party.currentRoom.inventory.equipment];
         this.removeRequirementsFrom(equipmentDroppedThisRoom);
 
-        this.goalPerformanceChecker.beginComparisonScope();
+        this.scopeProvider.beginScope();
         this.attributeAllocationSolver.solve();
         const { performanceByCharacter } = this.equipmentSolver.solve();
 

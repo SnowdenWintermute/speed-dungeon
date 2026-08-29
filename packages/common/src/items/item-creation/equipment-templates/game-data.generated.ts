@@ -905,7 +905,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 4),
     maxDurability: 14,
-    requirements: { [CombatAttribute.Spirit]: 15 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 3, [AffixType.Agility]: 3 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -924,7 +924,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 7),
     maxDurability: 20,
-    requirements: { [CombatAttribute.Spirit]: 30 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 3, [AffixType.Agility]: 3 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -943,7 +943,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(6, 9),
     maxDurability: 22,
-    requirements: { [CombatAttribute.Spirit]: 40 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 3, [AffixType.Agility]: 3 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -962,7 +962,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 28,
-    requirements: { [CombatAttribute.Spirit]: 52 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 3, [AffixType.Agility]: 3 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1228,7 +1228,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(3, 5),
     maxDurability: 19,
-    requirements: { [CombatAttribute.Strength]: 10, [CombatAttribute.Spirit]: 10 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1247,7 +1247,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(4, 6),
     maxDurability: 21,
-    requirements: { [CombatAttribute.Strength]: 18, [CombatAttribute.Dexterity]: 18 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1266,7 +1266,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 7),
     maxDurability: 25,
-    requirements: { [CombatAttribute.Dexterity]: 45 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1283,9 +1283,9 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FeatherMail,
     },
-    levelRange: new NumberRange(5, 9),
+    levelRange: new NumberRange(6, 9),
     maxDurability: 29,
-    requirements: { [CombatAttribute.Dexterity]: 27, [CombatAttribute.Spirit]: 27 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1304,7 +1304,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 52,
-    requirements: { [CombatAttribute.Dexterity]: 35, [CombatAttribute.Spirit]: 35 },
+    requirements: { [CombatAttribute.Strength]: 35, [CombatAttribute.Dexterity]: 35 },
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },

@@ -10,5 +10,11 @@ export const DERIVABLE_REQUIREMENT_ATTRIBUTES: Record<DungeonRunAnalysis, Combat
   // measures the accuracy ceiling a build can reach, which is not what a build is worth for wearing
   // things — it has no requirement to offer
   [DungeonRunAnalysis.MaxAccuracy]: [],
-  [DungeonRunAnalysis.AttackDamage]: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+  // spirit belongs here because a sampled damage run can seat a caster: it is only honest for a
+  // target whose slice names a goal that actually optimizes it, which is what the goal slice is for
+  [DungeonRunAnalysis.SampledDamage]: [
+    CombatAttribute.Strength,
+    CombatAttribute.Dexterity,
+    CombatAttribute.Spirit,
+  ],
 };

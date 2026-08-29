@@ -1,10 +1,10 @@
-import type { AttackDamageRunSetResult } from "../studies/attack-damage/samples.ts";
+import type { SampledDamageRunSetResult } from "../studies/sampled-damage/samples.ts";
 import type { MaxAccuracyRunSetResult } from "../studies/max-accuracy/samples.ts";
 import type { AnalysisRunSetResult } from "./run-set.ts";
 
 export enum DungeonRunAnalysis {
   MaxAccuracy,
-  AttackDamage,
+  SampledDamage,
 }
 
 // import type above, not a plain import: the workbook sync reaches this module and has no reason to
@@ -13,5 +13,5 @@ export enum DungeonRunAnalysis {
 export interface DungeonRunAnalysisResults
   extends Record<DungeonRunAnalysis, AnalysisRunSetResult> {
   [DungeonRunAnalysis.MaxAccuracy]: MaxAccuracyRunSetResult;
-  [DungeonRunAnalysis.AttackDamage]: AttackDamageRunSetResult;
+  [DungeonRunAnalysis.SampledDamage]: SampledDamageRunSetResult;
 }

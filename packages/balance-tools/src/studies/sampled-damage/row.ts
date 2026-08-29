@@ -2,23 +2,23 @@ import { NumberRange } from "@speed-dungeon/common";
 import { AnalysisTableRow } from "../../analysis-runs/analysis-sample-table.ts";
 import { Distribution } from "../../statistics/distribution.ts";
 import { HoldableAndPercent } from "../../analysis-subjects/equipment-base-item-tally.ts";
-import { AttackDamageContributingAttribute } from "./run-reporter.ts";
+import { SampledDamageContributingAttribute } from "./run-reporter.ts";
 
 export type AverageContributingAttributes = Record<
-  AttackDamageContributingAttribute,
+  SampledDamageContributingAttribute,
   { fromGear: number; allocated: number; inherent: number; total: number }
 >;
 
-export interface AttackDamageTableRow extends AnalysisTableRow {
+export interface SampledDamageTableRow extends AnalysisTableRow {
   damageOnDummy: Distribution;
-  /** normalized share of the room's main hand swings that landed, off hand swings excluded */
-  mainHandHitRate: number;
-  /** normalized share of the room's landed main hand hits that crit, off hand swings excluded */
-  mainHandCriticalHitRate: number;
+  /** normalized share of the room's primary action uses that landed, additional ones excluded */
+  primaryHitRate: number;
+  /** normalized share of the room's landed primary hits that crit, additional ones excluded */
+  primaryCriticalHitRate: number;
   averageTooltipDamage: {
-    mainHand: NumberRange;
-    /** null when no matched character had an off hand attack to quote */
-    offHand: NumberRange | null;
+    primary: NumberRange;
+    /** null when no matched character had an additional action to quote, such as an off hand swing */
+    additional: NumberRange | null;
   };
   averageContributingAttributes: AverageContributingAttributes;
   /** percent of matched characters that were holding it in this room */

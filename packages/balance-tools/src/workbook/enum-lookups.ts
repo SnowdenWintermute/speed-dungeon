@@ -23,6 +23,7 @@ import {
 import type { EquipmentBaseItem, PrefixType } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
 import { StudyName } from "../studies/study-name.ts";
+import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 import { SheetRow, assembleEnumMemberLookup } from "./workbook-reader.ts";
 
 export const EQUIPMENT_TYPES_BY_NAME = assembleEnumMemberLookup(EquipmentType);
@@ -32,6 +33,7 @@ export const AFFIX_TYPES_BY_NAME = assembleEnumMemberLookup(AffixType);
 export const COMBAT_ATTRIBUTES_BY_NAME = assembleEnumMemberLookup(CombatAttribute);
 export const COMBATANT_CLASSES_BY_NAME = assembleEnumMemberLookup(CombatantClass);
 export const STUDY_NAMES_BY_NAME = assembleEnumMemberLookup(StudyName);
+export const ANALYSIS_GOALS_BY_NAME = assembleEnumMemberLookup(AnalysisGoal);
 export const CHARACTER_WEAPON_SPECIALTIES_BY_NAME =
   assembleEnumMemberLookup(CharacterWeaponSpecialty);
 const PREFIX_TYPE_VALUES = new Set<AffixType>(PREFIX_TYPES);

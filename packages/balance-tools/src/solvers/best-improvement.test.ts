@@ -13,17 +13,28 @@ import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-tes
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
 import { AnalysisPartyBuilder } from "../analysis-runs/analysis-party-builder.ts";
+import {
+  GoalPerformanceChecker,
+  GoalPerformanceUnit,
+} from "../goal-performance-checkers/index.ts";
+import { GoalPerformanceCheckerConstructor } from "../goal-performance-checkers/constructors.ts";
+import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 
 const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
 
-const dexterityPerformance = {
+const dexterityPerformance: GoalPerformanceChecker = {
+  scoreUnit: GoalPerformanceUnit.TotalAccuracy,
+  allocatableAttributes: [CombatAttribute.Dexterity],
+  equipmentScoreAxes: [totalDexterity],
   checkPerformance: (combatant: Combatant) => ({
     score: combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
     meetsBuildSpecification: true,
   }),
-  beginComparisonScope: () => {},
 };
+
+/** every goal scores dexterity, so the solver is exercised without an attribute formula in the way */
+const constructDexterityChecker: GoalPerformanceCheckerConstructor = () => dexterityPerformance;
 
 class BestImprovementFixture {
   private idGenerator = new IdGeneratorSequential({ saveHistory: false });
@@ -35,24 +46,26 @@ class BestImprovementFixture {
     const characterSpecs = [];
     for (let i = 0; i < PARTY_CHARACTER_COUNT; i += 1) {
       characterSpecs.push(
-        new AnalysisCharacterSpecification("character 1", {
-          mainClass: CombatantClass.Warrior,
-          supportClass: CombatantClass.Rogue,
-          weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
-        })
+        new AnalysisCharacterSpecification(
+          "character 1",
+          {
+            mainClass: CombatantClass.Warrior,
+            supportClass: CombatantClass.Rogue,
+            weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
+          },
+          AnalysisGoal.TotalAccuracy
+        )
       );
     }
 
-    const { game, party, analysisSpecsHolder } = new AnalysisPartyBuilder().build(characterSpecs);
+    const { game, party, analysisSpecContext } = new AnalysisPartyBuilder().build(
+      characterSpecs,
+      constructDexterityChecker
+    );
 
     this.party = party;
 
-    this.solver = new BestImprovementEquipmentSolver(
-      this.party,
-      analysisSpecsHolder,
-      dexterityPerformance,
-      [totalDexterity]
-    );
+    this.solver = new BestImprovementEquipmentSolver(this.party, analysisSpecContext);
   }
 
   dropInRoom(equipment: Equipment) {

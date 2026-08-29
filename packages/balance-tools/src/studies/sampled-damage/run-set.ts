@@ -3,33 +3,32 @@ import { AllocationIntensity } from "../../analysis-runs/allocation-intensity.ts
 import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts";
 import { AnalysisSampleCollectingRunSet } from "../../analysis-runs/run-set.ts";
 import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
-import { attackDamageAnalysisRun } from "./run.ts";
-import { AttackDamageCombatantReport, CombatantReportTooltipDamage } from "./run-reporter.ts";
-import { AttackDamageSample, SampleTooltipDamage } from "./samples.ts";
+import { sampledDamageAnalysisRun } from "./run.ts";
+import { SampledDamageCombatantReport, CombatantReportTooltipDamage } from "./run-reporter.ts";
+import { SampledDamageSample, SampleTooltipDamage } from "./samples.ts";
 
 function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): SampleTooltipDamage {
-  const offHand = tooltipDamage[EquipmentSlotId.OffHand];
   return {
-    [EquipmentSlotId.MainHand]: tooltipDamage[EquipmentSlotId.MainHand].toSerialized(),
-    [EquipmentSlotId.OffHand]: offHand === null ? null : offHand.toSerialized(),
+    primary: tooltipDamage.primary.toSerialized(),
+    additional: tooltipDamage.additional.map((range) => range.toSerialized()),
   };
 }
 
-export function attackDamageRunSet(
+export function sampledDamageRunSet(
   characterSpecs: AnalysisCharacterSpecification[],
   allocationIntensity: AllocationIntensity,
   options: AnalysisRunOptions
 ) {
-  return new AnalysisSampleCollectingRunSet<AttackDamageCombatantReport, AttackDamageSample>(
-    () => attackDamageAnalysisRun(characterSpecs, allocationIntensity, options),
+  return new AnalysisSampleCollectingRunSet<SampledDamageCombatantReport, SampledDamageSample>(
+    () => sampledDamageAnalysisRun(characterSpecs, allocationIntensity, options),
     (dimensions, combatantReport) => {
       const { heldEquipment } = combatantReport;
       return {
         ...dimensions,
         sampledDamageOnDummy: combatantReport.sampledDamageOnDummy,
-        mainHandSwingCount: combatantReport.mainHandSwingCount,
-        mainHandLandedHitCount: combatantReport.mainHandLandedHitCount,
-        mainHandCriticalHitCount: combatantReport.mainHandCriticalHitCount,
+        primaryUseCount: combatantReport.primaryUseCount,
+        primaryLandedHitCount: combatantReport.primaryLandedHitCount,
+        primaryCriticalHitCount: combatantReport.primaryCriticalHitCount,
         tooltipDamage: toSampleTooltipDamage(combatantReport.tooltipDamage),
         wornHoldables: {
           [EquipmentSlotId.MainHand]:

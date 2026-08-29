@@ -1,72 +1,49 @@
-import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
-import { CombatantAttributesMemo } from "../../analysis-subjects/combatant-attributes-memo.ts";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
+import { CombatantAttributesMemo } from "../analysis-subjects/combatant-attributes-memo.ts";
 import {
   ActionRank,
-  ActionUserHeldWeapons,
   ArrayUtils,
-  COMBAT_ACTIONS,
+  AttributePointAssignableAttributes,
   CombatActionComponent,
   CombatActionHitOutcomes,
   CombatActionResource,
   Combatant,
   CombatantId,
-  DEEPEST_FLOOR,
-  EquipmentSlotId,
-  getAttackActionName,
-  getOffhandAttackActionNameOption,
+  Equipment,
   HitOutcomeCalculator,
   HitOutcomeMitigationCalculator,
   IncomingResourceChangesCalculator,
   invariant,
-  RandomNumberGenerationPolicyFactory,
   RealResourceChangePropertiesStrategy,
-  SeededNumberGenerator,
-  TargetDummyFactory,
 } from "@speed-dungeon/common";
-import {
-  GoalPerformance,
-  GoalPerformanceChecker,
-  GoalPerformanceCheckerType,
-} from "../../goal-performance-checkers/index.ts";
+import { GoalPerformance, GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
+import { SampledActionSelector } from "./sampled-action-selection.ts";
+import { SeededRandomNumberGeneratorScopeProvider } from "../analysis-runs/seeded-random-number-generator-scope-provider.ts";
+import { TargetDummyProvider } from "../analysis-runs/target-dummy-provider.ts";
 
 /** the counts are raw so a caller pooling several of these divides once, at the end */
-export interface SampledAttacksOnTargetDummy {
+export interface SampledActionsOnTargetDummy {
   averageDamage: number;
-  /** off hand swings are excluded from every count */
-  mainHandSwingCount: number;
-  mainHandLandedHitCount: number;
-  mainHandCriticalHitCount: number;
+  /** every count covers the primary action only, never the additional ones sampled alongside it */
+  primaryUseCount: number;
+  primaryLandedHitCount: number;
+  primaryCriticalHitCount: number;
 }
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
-  readonly type = GoalPerformanceCheckerType.SampledAttackDamageOnTargetDummy;
-  // when rolling attacks on the target dummy to check effectiveness of an equipment, we want to
-  // use the same rolls for each equipment tried on or else lucky attack rolls might make an equipment
-  // seem better than it really is
-  private rng = SeededNumberGenerator.withRandomSeed();
-  private rngPolicy = RandomNumberGenerationPolicyFactory.policyFromGenerator(this.rng);
+  readonly scoreUnit = GoalPerformanceUnit.SampledDamage;
   private resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();
-  private targetDummyFactory = new TargetDummyFactory();
-  private targetDummiesByFloor = new Map<number, Combatant>();
   private attributesMemosByCombatantId = new Map<CombatantId, CombatantAttributesMemo>();
 
-  constructor() {
-    this.initializeTargetDummies();
-  }
+  constructor(
+    private selectActions: SampledActionSelector,
+    readonly allocatableAttributes: AttributePointAssignableAttributes[],
+    readonly equipmentScoreAxes: ((equipment: Equipment) => number)[],
+    private scopeProvider: SeededRandomNumberGeneratorScopeProvider,
+    private targetDummyProvider: TargetDummyProvider
+  ) {}
 
   private sampleCount = 5;
-
-  beginComparisonScope() {
-    this.rng.setRandomSeed();
-  }
-
-  private initializeTargetDummies() {
-    for (let floor = 1; floor <= DEEPEST_FLOOR; floor += 1) {
-      const targetDummy = this.targetDummyFactory.createOnFloor(floor);
-      new CombatantAttributesMemo(targetDummy).holdIndefinitely();
-      this.targetDummiesByFloor.set(floor, targetDummy);
-    }
-  }
 
   private requireAttributesMemo(combatant: Combatant) {
     const combatantId = combatant.getEntityId();
@@ -77,31 +54,6 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     const created = new CombatantAttributesMemo(combatant);
     this.attributesMemosByCombatantId.set(combatantId, created);
     return created;
-  }
-
-  private getAttackActions(combatant: Combatant, weapons: ActionUserHeldWeapons) {
-    const mainHandEquipmentOption = weapons[EquipmentSlotId.MainHand];
-    // read from the slot, not from `weapons`: getWeaponsInSlots drops anything that is not a weapon,
-    // so a shield is absent there and the isShield check inside would never fire
-    const offhandEquipmentOption = combatant
-      .getCombatantProperties()
-      .equipment.getEquipmentInSlot(EquipmentSlotId.OffHand);
-    const mainHandAttackActionName = getAttackActionName(
-      mainHandEquipmentOption?.weaponProperties,
-      { isOffHand: false }
-    );
-    const offhandAttackActionNameOption = getOffhandAttackActionNameOption(
-      mainHandEquipmentOption?.equipment,
-      offhandEquipmentOption ?? undefined
-    );
-
-    return {
-      mainHand: COMBAT_ACTIONS[mainHandAttackActionName],
-      offHand:
-        offhandAttackActionNameOption === null
-          ? null
-          : COMBAT_ACTIONS[offhandAttackActionNameOption],
-    };
   }
 
   private sampleActionOutcome(
@@ -119,7 +71,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
         targetDummy.combatantProperties,
         CombatActionResource.HitPoints,
         this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(action.name),
-        this.rng
+        this.scopeProvider.getGenerator()
       );
     invariant(incomingRolledDamage !== null, "expect attack action to roll incoming damage");
 
@@ -136,7 +88,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
       user,
       targetDummy,
       incomingResourceChanges,
-      this.rngPolicy,
+      this.scopeProvider.getPolicy(),
       this.resourceChangePropertiesStrategy
     );
     const hitOutcomes = new CombatActionHitOutcomes();
@@ -167,7 +119,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
   ): GoalPerformance {
     invariant(combatantAnalysisSpec !== undefined);
 
-    const { averageDamage } = this.sampleAttacksOnTargetDummy(combatant, partyCurrentFloor);
+    const { averageDamage } = this.sampleActionsOnTargetDummy(combatant, partyCurrentFloor);
 
     return {
       score: averageDamage,
@@ -180,54 +132,50 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
    * The rolls reset with every call, so sampling a combatant that has not changed since its
    * performance was checked reproduces the very attacks that performance was read from.
    */
-  sampleAttacksOnTargetDummy(combatant: Combatant, partyCurrentFloor: number) {
+  /** what this goal has the combatant using, so a report can quote tooltips for the same actions */
+  getSampledActions(combatant: Combatant) {
+    return this.selectActions(combatant);
+  }
+
+  sampleActionsOnTargetDummy(combatant: Combatant, partyCurrentFloor: number) {
     // the combatant does not change while it is being sampled
     return this.requireAttributesMemo(combatant).holdWhile(() =>
-      this.rollAttackSamples(combatant, partyCurrentFloor)
+      this.rollSamples(combatant, partyCurrentFloor)
     );
   }
 
-  private rollAttackSamples(
+  private rollSamples(
     combatant: Combatant,
     partyCurrentFloor: number
-  ): SampledAttacksOnTargetDummy {
-    this.rng.reset();
+  ): SampledActionsOnTargetDummy {
+    this.scopeProvider.rewindToScopeStart();
 
-    const targetDummy = this.targetDummiesByFloor.get(partyCurrentFloor);
-    invariant(targetDummy !== undefined, "no target dummy");
-
-    const weapons = combatant.getWeaponsInSlots(
-      [EquipmentSlotId.MainHand, EquipmentSlotId.OffHand],
-      { usableWeaponsOnly: true }
-    );
-
-    const attackActions = this.getAttackActions(combatant, weapons);
-
-    const ATTACK_ACTION_RANK = 1 as ActionRank;
+    const targetDummy = this.targetDummyProvider.requireForFloor(partyCurrentFloor);
+    const { primary, additional } = this.selectActions(combatant);
 
     const damageSamples: number[] = [];
-    let mainHandLandedHitCount = 0;
-    let mainHandCriticalHitCount = 0;
+    let primaryLandedHitCount = 0;
+    let primaryCriticalHitCount = 0;
     for (let sampleIndex = 0; sampleIndex < this.sampleCount; sampleIndex += 1) {
-      const mainHandOutcome = this.sampleActionOutcome(
+      const primaryOutcome = this.sampleActionOutcome(
         combatant,
-        attackActions.mainHand,
-        ATTACK_ACTION_RANK,
+        primary.action,
+        primary.rank,
         targetDummy
       );
-      if (mainHandOutcome.landedHit) {
-        mainHandLandedHitCount += 1;
+      if (primaryOutcome.landedHit) {
+        primaryLandedHitCount += 1;
       }
-      if (mainHandOutcome.isCrit) {
-        mainHandCriticalHitCount += 1;
+      if (primaryOutcome.isCrit) {
+        primaryCriticalHitCount += 1;
       }
 
-      let totalDamageForThisSample = mainHandOutcome.damage;
-      if (attackActions.offHand !== null) {
+      let totalDamageForThisSample = primaryOutcome.damage;
+      for (const { action, rank } of additional) {
         totalDamageForThisSample += this.sampleActionOutcome(
           combatant,
-          attackActions.offHand,
-          ATTACK_ACTION_RANK,
+          action,
+          rank,
           targetDummy
         ).damage;
       }
@@ -237,9 +185,9 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
 
     return {
       averageDamage: ArrayUtils.average(damageSamples),
-      mainHandSwingCount: this.sampleCount,
-      mainHandLandedHitCount,
-      mainHandCriticalHitCount,
+      primaryUseCount: this.sampleCount,
+      primaryLandedHitCount,
+      primaryCriticalHitCount,
     };
   }
 }

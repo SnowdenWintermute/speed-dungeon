@@ -1,7 +1,7 @@
 import { CombatAttribute } from "@speed-dungeon/common";
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { AttackDamageContributingAttribute } from "./run-reporter.ts";
-import { AttackDamageTableRow } from "./row.ts";
+import { SampledDamageContributingAttribute } from "./run-reporter.ts";
+import { SampledDamageTableRow } from "./row.ts";
 import { AttributeSourceSplit } from "./attribute-source-split.tsx";
 import { HoldablePercentList } from "../../components/holdable-percent-list.tsx";
 
@@ -13,7 +13,7 @@ import { HoldablePercentList } from "../../components/holdable-percent-list.tsx"
 function totalAttributeColumn(
   header: string,
   attribute: CombatAttribute
-): DataTableColumn<AttackDamageTableRow> {
+): DataTableColumn<SampledDamageTableRow> {
   return {
     header,
     renderCell: (row) => `${Math.round(row.totalAttributes[attribute].mean)}`,
@@ -23,8 +23,8 @@ function totalAttributeColumn(
 /** gear / allocated / inherent, so a total can be read as loot luck versus levelling */
 function sourceSplitColumn(
   header: string,
-  attribute: AttackDamageContributingAttribute
-): DataTableColumn<AttackDamageTableRow> {
+  attribute: SampledDamageContributingAttribute
+): DataTableColumn<SampledDamageTableRow> {
   return {
     header,
     renderCell: (row) => (
@@ -34,11 +34,11 @@ function sourceSplitColumn(
 }
 
 /** flat damage is not a CombatAttribute, so it has no combatant total and stays attributed */
-const FLAT_DAMAGE_COLUMN: DataTableColumn<AttackDamageTableRow> = {
+const FLAT_DAMAGE_COLUMN: DataTableColumn<SampledDamageTableRow> = {
   header: "Flat",
   renderCell: (row) =>
     `${Math.round(
-      row.averageContributingAttributes[AttackDamageContributingAttribute.FlatDamage].total
+      row.averageContributingAttributes[SampledDamageContributingAttribute.FlatDamage].total
     )}`,
 };
 
@@ -46,7 +46,7 @@ function percentCell(normalizedRate: number) {
   return `${Math.round(normalizedRate * 100)}%`;
 }
 
-export const ATTACK_DAMAGE_TABLE_COLUMNS: DataTableColumn<AttackDamageTableRow>[] = [
+export const SAMPLED_DAMAGE_TABLE_COLUMNS: DataTableColumn<SampledDamageTableRow>[] = [
   { header: "Room", renderCell: (row) => `${row.floor}-${row.room}` },
   { header: "lvlMain", renderCell: (row) => row.averageMainClassLevel },
   {
@@ -66,26 +66,28 @@ export const ATTACK_DAMAGE_TABLE_COLUMNS: DataTableColumn<AttackDamageTableRow>[
   },
   {
     header: "hit",
-    renderCell: (row) => percentCell(row.mainHandHitRate),
+    renderCell: (row) => percentCell(row.primaryHitRate),
   },
   {
     header: "crit",
-    renderCell: (row) => percentCell(row.mainHandCriticalHitRate),
+    renderCell: (row) => percentCell(row.primaryCriticalHitRate),
   },
   {
-    header: "mhTooltip",
-    renderCell: (row) => row.averageTooltipDamage.mainHand.toString(),
+    header: "tooltip",
+    renderCell: (row) => row.averageTooltipDamage.primary.toString(),
   },
   {
-    header: "ohTooltip",
-    renderCell: (row) => row.averageTooltipDamage.offHand?.toString() ?? "-",
+    header: "+tooltip",
+    renderCell: (row) => row.averageTooltipDamage.additional?.toString() ?? "-",
   },
   totalAttributeColumn("Str", CombatAttribute.Strength),
-  sourceSplitColumn("Str g/a/i", AttackDamageContributingAttribute.Strength),
+  sourceSplitColumn("Str g/a/i", SampledDamageContributingAttribute.Strength),
   totalAttributeColumn("Dex", CombatAttribute.Dexterity),
-  sourceSplitColumn("Dex g/a/i", AttackDamageContributingAttribute.Dexterity),
+  sourceSplitColumn("Dex g/a/i", SampledDamageContributingAttribute.Dexterity),
+  totalAttributeColumn("Spr", CombatAttribute.Spirit),
+  sourceSplitColumn("Spr g/a/i", SampledDamageContributingAttribute.Spirit),
   totalAttributeColumn("Acc", CombatAttribute.Accuracy),
-  sourceSplitColumn("Acc g/a/i", AttackDamageContributingAttribute.Accuracy),
+  sourceSplitColumn("Acc g/a/i", SampledDamageContributingAttribute.Accuracy),
   FLAT_DAMAGE_COLUMN,
   {
     header: "worn",

@@ -20,7 +20,8 @@ import {
   SpeedDungeonPlayer,
   Username,
 } from "@speed-dungeon/common";
-import { AnalysisSpecHolder } from "./analysis-spec-holder.ts";
+import { AnalysisSpecContext } from "./analysis-spec-context.ts";
+import { GoalPerformanceCheckerConstructor } from "../goal-performance-checkers/constructors.ts";
 
 export class AnalysisPartyBuilder {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
@@ -91,7 +92,10 @@ export class AnalysisPartyBuilder {
     return characterWithPets.combatant;
   }
 
-  build(analysisSpecs: AnalysisCharacterSpecification[]) {
+  build(
+    analysisSpecs: AnalysisCharacterSpecification[],
+    constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor
+  ) {
     invariant(
       analysisSpecs.length > 0 && analysisSpecs.length <= MAX_PARTY_SIZE,
       "must provide a list of character specifications greater than zero and less than MAX_PARTY_SIZE"
@@ -105,8 +109,11 @@ export class AnalysisPartyBuilder {
       analysisSpecsByCombatantId.set(character.getEntityId(), spec);
     }
 
-    const analysisSpecsHolder = new AnalysisSpecHolder(analysisSpecsByCombatantId);
+    const analysisSpecContext = new AnalysisSpecContext(
+      analysisSpecsByCombatantId,
+      constructGoalPerformanceChecker
+    );
 
-    return { game, party, analysisSpecsHolder };
+    return { game, party, analysisSpecContext };
   }
 }

@@ -7,11 +7,11 @@ import {
 import { generateEquipmentRequirements } from "../equipment-requirements-generator.ts";
 import { EQUIPMENT_REQUIREMENT_TARGETS } from "../requirement-targets.generated.ts";
 import { StudyName } from "../study-name.ts";
-import { AttackDamageTable } from "./table.ts";
+import { SampledDamageTable } from "./table.ts";
 
 interface Props {
   studyName: StudyName;
-  table: AttackDamageTable;
+  table: SampledDamageTable;
 }
 
 export function GenerateEquipmentRequirements({ studyName, table }: Props) {

@@ -1,4 +1,4 @@
-import { AnalysisSpecHolder } from "./analysis-spec-holder.ts";
+import { AnalysisSpecContext } from "./analysis-spec-context.ts";
 import { AnalysisCombatantReport, RunReport } from "./analysis-run-reporter.ts";
 import { AnalysisSampleDimensions } from "./analysis-sample.ts";
 import { RoomAvailability } from "./room-availability.ts";
@@ -19,7 +19,7 @@ export interface AnalysisSampleRunSetResult<TSample> extends AnalysisRunSetResul
 
 export type AnalysisRunExecutor<TCombatantReport> = () => {
   report: RunReport<TCombatantReport>;
-  analysisSpecsHolder: AnalysisSpecHolder;
+  analysisSpecContext: AnalysisSpecContext;
 };
 
 export class AnalysisSampleCollectingRunSet<
@@ -44,7 +44,7 @@ export class AnalysisSampleCollectingRunSet<
     return { samples: this.samples, availability: this.availability, runsFailed: this.runsFailed };
   }
 
-  private collectRun(runReport: RunReport<TCombatantReport>, specHolder: AnalysisSpecHolder) {
+  private collectRun(runReport: RunReport<TCombatantReport>, specContext: AnalysisSpecContext) {
     const runIndex = this.runsCollected;
     this.runsCollected += 1;
 
@@ -59,12 +59,13 @@ export class AnalysisSampleCollectingRunSet<
       });
 
       for (const [combatantId, combatantReport] of combatantReports) {
-        const { characterBuildSpec } = specHolder.requireSpec(combatantId);
+        const { characterBuildSpec, goal } = specContext.requireSpec(combatantId);
 
         const dimensions: AnalysisSampleDimensions = {
           runIndex,
           floor,
           room,
+          goal,
           weaponSpecialty: characterBuildSpec.weaponSpecialty,
           mainClass: characterBuildSpec.mainClass,
           supportClass: characterBuildSpec.supportClass,
@@ -81,8 +82,8 @@ export class AnalysisSampleCollectingRunSet<
   executeSet(runCount: number, onRunFinished: (runsFinished: number) => void) {
     for (let i = 0; i < runCount; i += 1) {
       try {
-        const { report, analysisSpecsHolder } = this.executeRun();
-        this.collectRun(report, analysisSpecsHolder);
+        const { report, analysisSpecContext } = this.executeRun();
+        this.collectRun(report, analysisSpecContext);
       } catch (probablyError) {
         this.runsFailed += 1;
         console.error(probablyError);

@@ -1,6 +1,7 @@
 import { CombatAttribute, CombatantClass, MapUtils } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
 import { AnalysisSlice } from "./analysis-slice.ts";
+import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 
 export interface AnalysisSampleDimensions {
   runIndex: number;
@@ -11,6 +12,8 @@ export interface AnalysisSampleDimensions {
   supportClass: CombatantClass | null;
   mainClassLevel: number;
   supportClassLevel: number | null;
+  /** what this character was solving for, so a mixed run's table can be read one goal at a time */
+  goal: AnalysisGoal;
   /** every study carries these, so a reader of any table can ask what a build was worth in a room */
   totalAttributes: Record<CombatAttribute, number>;
 }
@@ -33,7 +36,8 @@ export class RoomGroupedSamples<TSample extends AnalysisSampleDimensions> {
     return (
       (slice.weaponSpecialty === undefined || sample.weaponSpecialty === slice.weaponSpecialty) &&
       (slice.mainClass === undefined || sample.mainClass === slice.mainClass) &&
-      (slice.supportClass === undefined || sample.supportClass === slice.supportClass)
+      (slice.supportClass === undefined || sample.supportClass === slice.supportClass) &&
+      (slice.goal === undefined || sample.goal === slice.goal)
     );
   }
 

@@ -1,24 +1,23 @@
 import {
   Combatant,
   CombatantClass,
-  EntityName,
   EquipmentSlotId,
   EquipmentType,
   HOLDABLE_EQUIPMENT_TYPES,
   HOLDABLE_SLOT_IDS,
-  Serializable,
-  SerializedOf,
 } from "@speed-dungeon/common";
+// the workbook sync reaches this module and runs under node's type stripping, which cannot erase a
+// type-only export imported as a value
+import type { EntityName, Serializable, SerializedOf } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "./character-weapon-specialty.ts";
-import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
-import { GOAL_PERFORMANCE_CONSTRUCTORS } from "../goal-performance-checkers/constructors.ts";
+import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 
 export class AnalysisCharacterSpecification implements Serializable {
   public characterName: EntityName;
   constructor(
     public readonly name: string,
     public readonly characterBuildSpec: CharacterBuildSpecification,
-    public readonly goalPerformanceChecker: GoalPerformanceChecker
+    public readonly goal: AnalysisGoal
   ) {
     this.characterName = name as EntityName;
   }
@@ -27,7 +26,7 @@ export class AnalysisCharacterSpecification implements Serializable {
     return {
       name: this.characterName,
       characterBuildSpec: this.characterBuildSpec,
-      goalPerformanceCheckerType: this.goalPerformanceChecker.type,
+      goal: this.goal,
     };
   }
 
@@ -35,7 +34,7 @@ export class AnalysisCharacterSpecification implements Serializable {
     return new AnalysisCharacterSpecification(
       serialized.name,
       serialized.characterBuildSpec,
-      new GOAL_PERFORMANCE_CONSTRUCTORS[serialized.goalPerformanceCheckerType]()
+      serialized.goal
     );
   }
 

@@ -6,7 +6,10 @@ import type { EquipmentRequirementTarget } from "../studies/requirement-target.t
 import { STUDY_ANALYSES, STUDY_NAME_SLUGS } from "../studies/study-name.ts";
 import type { StudyName } from "../studies/study-name.ts";
 import type { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
+import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
+import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 import {
+  ANALYSIS_GOALS_BY_NAME,
   CHARACTER_WEAPON_SPECIALTIES_BY_NAME,
   COMBATANT_CLASSES_BY_NAME,
   COMBAT_ATTRIBUTES_BY_NAME,
@@ -50,7 +53,7 @@ export function assembleRequirementTargets(
       baseItem,
       studyName: studyNameOption,
       attributes,
-      buildSlice: readBuildSlice(row),
+      buildSlice: readBuildSlice(row, studyNameOption),
       availabilityPercentile: readAvailabilityPercentile(row),
     });
   }
@@ -124,9 +127,30 @@ function readAttributes(row: SheetRow, studyName: StudyName) {
   return attributes;
 }
 
+/**
+ * A goal naming nothing in the study's party would quietly match no samples, and the anchor row
+ * lookup would then blame the room for having no data rather than blaming the typo.
+ */
+function assertGoalIsInStudysParty(row: SheetRow, studyName: StudyName, goal: AnalysisGoal) {
+  const goalsInParty = STUDY_CONFIGURATIONS[studyName].characterSpecs.map((spec) => spec.goal);
+
+  invariant(
+    goalsInParty.includes(goal),
+    `${row.describe("goal")}: ${STUDY_NAME_SLUGS[studyName]} seats no character chasing ` +
+      `${AnalysisGoal[goal]}. its party chases: ` +
+      [...new Set(goalsInParty)].map((each) => AnalysisGoal[each]).join(", ")
+  );
+}
+
 /** a blank cell means "any", the same way an omitted dimension does when slicing a table */
-function readBuildSlice(row: SheetRow): AnalysisSlice {
+function readBuildSlice(row: SheetRow, studyName: StudyName): AnalysisSlice {
   const slice: AnalysisSlice = {};
+
+  const goal = row.getEnumMemberOption("goal", ANALYSIS_GOALS_BY_NAME);
+  if (goal !== null) {
+    assertGoalIsInStudysParty(row, studyName, goal);
+    slice.goal = goal;
+  }
 
   const weaponSpecialty = row.getEnumMemberOption(
     "weaponSpecialty",

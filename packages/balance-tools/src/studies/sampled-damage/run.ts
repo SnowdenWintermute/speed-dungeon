@@ -2,16 +2,16 @@ import { AllocationIntensity } from "../../analysis-runs/allocation-intensity.ts
 import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts";
 import { analysisRun } from "../../analysis-runs/analysis-run-factory.ts";
 import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
-import { MaxAccuracyCombatantReport, MaxAccuracyRunReporter } from "./run-reporter.ts";
+import { SampledDamageCombatantReport, SampledDamageRunReporter } from "./run-reporter.ts";
 
-export function maxAccuracyAnalysisRun(
+export function sampledDamageAnalysisRun(
   characterSpecs: AnalysisCharacterSpecification[],
   allocationIntensity: AllocationIntensity,
   options: AnalysisRunOptions
 ) {
-  return analysisRun<MaxAccuracyCombatantReport>(
+  return analysisRun<SampledDamageCombatantReport>(
     characterSpecs,
-    (party) => new MaxAccuracyRunReporter(party),
+    (party, analysisSpecContext) => new SampledDamageRunReporter(party, analysisSpecContext),
     allocationIntensity,
     options
   );

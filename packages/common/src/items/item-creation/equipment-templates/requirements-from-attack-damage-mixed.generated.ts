@@ -22,7 +22,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.HardLeather,
     },
-    requirements: { [CombatAttribute.Strength]: 20, [CombatAttribute.Dexterity]: 21 },
+    requirements: { [CombatAttribute.Dexterity]: 34 },
   },
   {
     baseItem: {
@@ -43,7 +43,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.Eyepatch,
     },
-    requirements: { [CombatAttribute.Dexterity]: 9 },
+    requirements: { [CombatAttribute.Dexterity]: 8 },
   },
   {
     baseItem: {
@@ -57,7 +57,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.LeatherHelm,
     },
-    requirements: { [CombatAttribute.Dexterity]: 33 },
+    requirements: { [CombatAttribute.Dexterity]: 38 },
   },
   {
     baseItem: {
@@ -65,6 +65,41 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       baseItemType: HeadGear.DemonsaurHelm,
     },
     requirements: { [CombatAttribute.Dexterity]: 58 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.RingMail,
+    },
+    requirements: { [CombatAttribute.Strength]: 10 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.ChainMail,
+    },
+    requirements: { [CombatAttribute.Strength]: 13, [CombatAttribute.Dexterity]: 17 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.SplintMail,
+    },
+    requirements: { [CombatAttribute.Strength]: 23, [CombatAttribute.Dexterity]: 25 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.FeatherMail,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 28 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.OhmushellMail,
+    },
+    requirements: { [CombatAttribute.Strength]: 38, [CombatAttribute.Dexterity]: 34 },
   },
   {
     baseItem: {
@@ -85,21 +120,21 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.GothicPlate,
     },
-    requirements: { [CombatAttribute.Strength]: 42 },
+    requirements: { [CombatAttribute.Strength]: 41 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FullPlate,
     },
-    requirements: { [CombatAttribute.Strength]: 59 },
+    requirements: { [CombatAttribute.Strength]: 57 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.Circlet,
     },
-    requirements: { [CombatAttribute.Strength]: 9 },
+    requirements: { [CombatAttribute.Strength]: 10 },
   },
   {
     baseItem: {
@@ -113,13 +148,13 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.FullHelm,
     },
-    requirements: { [CombatAttribute.Strength]: 44 },
+    requirements: { [CombatAttribute.Strength]: 43 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.GreatHelm,
     },
-    requirements: { [CombatAttribute.Strength]: 60 },
+    requirements: { [CombatAttribute.Strength]: 57 },
   },
 ];

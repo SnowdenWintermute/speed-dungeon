@@ -10,8 +10,8 @@ import {
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
 import { EquipmentScoreDominationSolver } from "./equipment-score-domination.ts";
-import { GoalPerformance, GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
-import { AnalysisSpecHolder } from "../analysis-runs/analysis-spec-holder.ts";
+import { GoalPerformance } from "../goal-performance-checkers/index.ts";
+import { AnalysisSpecContext } from "../analysis-runs/analysis-spec-context.ts";
 import { PerformanceComparison } from "./performance-comparison.ts";
 
 export class BestImprovementEquipmentSolver {
@@ -21,21 +21,28 @@ export class BestImprovementEquipmentSolver {
 
   constructor(
     private party: AdventuringParty,
-    private analysisSpecsHolder: AnalysisSpecHolder,
-    //  - measure current goal performance
-    //    - for auto-attack damage this is "average damage on target dummy sampled over x attacks"
-    //      and for weapons "does this weapon fit this character archetype specification"
-    //    - filter weapons by character archetype specification
-    //    - for basic spirit users this is "total spirit"
-    private goalPerformanceChecker: GoalPerformanceChecker,
-    equipmentScoreAxisCheckers: ((equipment: Equipment) => number)[]
+    private analysisSpecContext: AnalysisSpecContext
   ) {
     this.scoreDominationSolver = new EquipmentScoreDominationSolver(
       BestImprovementEquipmentSolver.getCombatantGroupEquipmentCapacities(
         party.combatantManager.getPartyMemberCharacters()
       ),
-      equipmentScoreAxisCheckers
+      BestImprovementEquipmentSolver.unionEquipmentScoreAxes(analysisSpecContext)
     );
+  }
+
+  /**
+   * Every axis any goal in the party scores on. Union, because an item is pruned when it scores on
+   * none of them: scoring only the axes of one goal would delete the gear another was walking for.
+   */
+  private static unionEquipmentScoreAxes(analysisSpecContext: AnalysisSpecContext) {
+    const axes = new Set<(equipment: Equipment) => number>();
+    for (const checker of analysisSpecContext.getGoalPerformanceCheckers()) {
+      for (const axis of checker.equipmentScoreAxes) {
+        axes.add(axis);
+      }
+    }
+    return [...axes];
   }
 
   private getBaselinePerformance(combatant: Combatant) {
@@ -45,8 +52,10 @@ export class BestImprovementEquipmentSolver {
     }
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
 
-    const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
-    const performance = this.goalPerformanceChecker.checkPerformance(combatant, spec, currentFloor);
+    const spec = this.analysisSpecContext.requireSpec(combatant.getEntityId());
+    const performance = this.analysisSpecContext
+      .requireGoalPerformanceChecker(combatant.getEntityId())
+      .checkPerformance(combatant, spec, currentFloor);
     this.currentPerformanceByCharacter.set(combatant.getEntityId(), performance);
     return performance;
   }
@@ -75,7 +84,7 @@ export class BestImprovementEquipmentSolver {
     const combatantEquipment = combatantProperties.equipment;
     const roomInventory = this.party.currentRoom.inventory;
 
-    const characterSpec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
+    const characterSpec = this.analysisSpecContext.requireSpec(combatant.getEntityId());
     const { equipmentType } = equipmentToCheck.equipmentBaseItemProperties;
     if (!characterSpec.combatantWouldConsiderEquipmentTypeInSlot(equipmentType, slotId)) {
       return null;
@@ -91,22 +100,19 @@ export class BestImprovementEquipmentSolver {
 
     // use the checker directly, not the maybe-cached value
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const performanceAfter = this.goalPerformanceChecker.checkPerformance(
-      combatant,
-      characterSpec,
-      currentFloor
-    );
+    const performanceAfter = this.analysisSpecContext
+      .requireGoalPerformanceChecker(combatant.getEntityId())
+      .checkPerformance(combatant, characterSpec, currentFloor);
     const comparison = PerformanceComparison.between(performanceBefore, performanceAfter);
 
-    // put back original equipment
+    // undoing a hypothetical, so each item goes straight back to the slot it came out of rather
+    // than through equipItem. requirements are checked against current *total* attributes, which
+    // include worn gear, so re-equipping one at a time can find an item unwearable partway through
+    // the restore even though the character was wearing all of them a moment ago
     combatantEquipment.unequipSlots([slotId]);
     for (const { equipmentId, fromSlotId } of displaced.unequipped) {
-      // a slot is only "alternate" relative to the equipment going into it: the offhand slot is
-      // a shield's main slot but a one handed weapon's alternate
-      const displacedEquipment = combatantProperties.inventory.requireEquipmentById(equipmentId);
-      const cameFromAltSlot =
-        displacedEquipment.getCompatibleSlots().compatibleSlotIds.alternate === fromSlotId;
-      combatantEquipment.equipItem(equipmentId, cameFromAltSlot);
+      const displacedEquipment = combatantProperties.inventory.removeExpectedEquipment(equipmentId);
+      combatantEquipment.putEquipmentInSlot(displacedEquipment, fromSlotId);
     }
     combatantProperties.inventory.dropAll(this.party);
 
@@ -235,14 +241,16 @@ export class BestImprovementEquipmentSolver {
   solve() {
     this.dropAllCharacterItemsOnGround({ includeEquipped: false });
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
-      const spec = this.analysisSpecsHolder.requireSpec(combatant.getEntityId());
+      const spec = this.analysisSpecContext.requireSpec(combatant.getEntityId());
       this.currentPerformanceByCharacter.set(
         combatant.getEntityId(),
-        this.goalPerformanceChecker.checkPerformance(
-          combatant,
-          spec,
-          this.party.dungeonExplorationManager.getCurrentFloor()
-        )
+        this.analysisSpecContext
+          .requireGoalPerformanceChecker(combatant.getEntityId())
+          .checkPerformance(
+            combatant,
+            spec,
+            this.party.dungeonExplorationManager.getCurrentFloor()
+          )
       );
     }
 

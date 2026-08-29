@@ -1,5 +1,5 @@
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
-import { attackDamageRunSet } from "../studies/attack-damage/run-set.ts";
+import { sampledDamageRunSet } from "../studies/sampled-damage/run-set.ts";
 import { maxAccuracyRunSet } from "../studies/max-accuracy/run-set.ts";
 import { AllocationIntensity } from "./allocation-intensity.ts";
 import { AnalysisRunOptions } from "./analysis-run-options.ts";
@@ -18,7 +18,7 @@ const RUN_SET_FACTORIES: {
     options: AnalysisRunOptions
   ) => AnalysisRunSet<DungeonRunAnalysisResults[AnalysisType]>;
 } = {
-  [DungeonRunAnalysis.AttackDamage]: attackDamageRunSet,
+  [DungeonRunAnalysis.SampledDamage]: sampledDamageRunSet,
   [DungeonRunAnalysis.MaxAccuracy]: maxAccuracyRunSet,
 };
 

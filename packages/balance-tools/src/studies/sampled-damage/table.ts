@@ -12,9 +12,9 @@ import { AnalysisSampleTable } from "../../analysis-runs/analysis-sample-table.t
 import { baseItemKey, EquipmentBaseItemTally } from "../../analysis-subjects/equipment-base-item-tally.ts";
 import { Distribution } from "../../statistics/distribution.ts";
 import { numericEnumKeyedRecord } from "../../utils/numeric-enum-record.ts";
-import { AttackDamageContributingAttribute } from "./run-reporter.ts";
-import { AttackDamageSample } from "./samples.ts";
-import { AttackDamageTableRow, AverageContributingAttributes } from "./row.ts";
+import { SampledDamageContributingAttribute } from "./run-reporter.ts";
+import { SampledDamageSample } from "./samples.ts";
+import { SampledDamageTableRow, AverageContributingAttributes } from "./row.ts";
 
 function averageDamageRange(ranges: SerializedOf<NumberRange>[]) {
   return new NumberRange(
@@ -23,13 +23,13 @@ function averageDamageRange(ranges: SerializedOf<NumberRange>[]) {
   );
 }
 
-export class AttackDamageTable extends AnalysisSampleTable<
-  AttackDamageSample,
-  AttackDamageTableRow
+export class SampledDamageTable extends AnalysisSampleTable<
+  SampledDamageSample,
+  SampledDamageTableRow
 > {
   private averageContribution(
-    samples: AttackDamageSample[],
-    attribute: AttackDamageContributingAttribute
+    samples: SampledDamageSample[],
+    attribute: SampledDamageContributingAttribute
   ) {
     let fromGear = 0;
     let allocated = 0;
@@ -49,23 +49,19 @@ export class AttackDamageTable extends AnalysisSampleTable<
   }
 
   private averageContributingAttributes(
-    samples: AttackDamageSample[]
+    samples: SampledDamageSample[]
   ): AverageContributingAttributes {
-    return numericEnumKeyedRecord(AttackDamageContributingAttribute, (attribute) =>
+    return numericEnumKeyedRecord(SampledDamageContributingAttribute, (attribute) =>
       this.averageContribution(samples, attribute)
     );
   }
 
-  private averageTooltipDamage(samples: AttackDamageSample[]) {
-    const offHandRanges = samples
-      .map((sample) => sample.tooltipDamage[EquipmentSlotId.OffHand])
-      .filter((range) => range !== null);
+  private averageTooltipDamage(samples: SampledDamageSample[]) {
+    const additionalRanges = samples.flatMap((sample) => sample.tooltipDamage.additional);
 
     return {
-      mainHand: averageDamageRange(
-        samples.map((sample) => sample.tooltipDamage[EquipmentSlotId.MainHand])
-      ),
-      offHand: offHandRanges.length === 0 ? null : averageDamageRange(offHandRanges),
+      primary: averageDamageRange(samples.map((sample) => sample.tooltipDamage.primary)),
+      additional: additionalRanges.length === 0 ? null : averageDamageRange(additionalRanges),
     };
   }
 
@@ -73,22 +69,22 @@ export class AttackDamageTable extends AnalysisSampleTable<
    * Pooled rather than averaged per character: a character who landed two hits should weigh half as
    * much as one who landed four, which a mean of their two rates would not do.
    */
-  private mainHandRates(samples: AttackDamageSample[]) {
-    let swings = 0;
+  private primaryRates(samples: SampledDamageSample[]) {
+    let uses = 0;
     let landedHits = 0;
     let criticalHits = 0;
     for (const sample of samples) {
-      swings += sample.mainHandSwingCount;
-      landedHits += sample.mainHandLandedHitCount;
-      criticalHits += sample.mainHandCriticalHitCount;
+      uses += sample.primaryUseCount;
+      landedHits += sample.primaryLandedHitCount;
+      criticalHits += sample.primaryCriticalHitCount;
     }
-    invariant(landedHits > 0, "expected a room's matched characters to land at least one attack");
+    invariant(landedHits > 0, "expected a room's matched characters to land at least one hit");
 
-    return { hit: landedHits / swings, critical: criticalHits / landedHits };
+    return { hit: landedHits / uses, critical: criticalHits / landedHits };
   }
 
   /** counted once per character even when both hands hold the same base item */
-  private wornHoldablePercentages(samples: AttackDamageSample[]) {
+  private wornHoldablePercentages(samples: SampledDamageSample[]) {
     const tally = new EquipmentBaseItemTally();
 
     for (const sample of samples) {
@@ -107,14 +103,14 @@ export class AttackDamageTable extends AnalysisSampleTable<
     return tally.toPercentages(samples.length);
   }
 
-  protected selectRow(room: SampledRoom<AttackDamageSample>): AttackDamageTableRow {
+  protected selectRow(room: SampledRoom<SampledDamageSample>): SampledDamageTableRow {
     const { samples } = room;
-    const mainHandRates = this.mainHandRates(samples);
+    const primaryRates = this.primaryRates(samples);
     return {
       ...this.commonRowFields(room),
       damageOnDummy: Distribution.of(samples.map((sample) => sample.sampledDamageOnDummy)),
-      mainHandHitRate: mainHandRates.hit,
-      mainHandCriticalHitRate: mainHandRates.critical,
+      primaryHitRate: primaryRates.hit,
+      primaryCriticalHitRate: primaryRates.critical,
       averageTooltipDamage: this.averageTooltipDamage(samples),
       averageContributingAttributes: this.averageContributingAttributes(samples),
       wornHoldablePercentages: this.wornHoldablePercentages(samples),

@@ -94,6 +94,7 @@ const STUDY_COLUMN = "study";
 /** only meaningful on a row that names a study, so a row with one of these and no study is an error */
 const TARGET_COLUMNS = [
   "attributes",
+  "goal",
   "weaponSpecialty",
   "mainClass",
   "supportClass",

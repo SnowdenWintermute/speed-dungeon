@@ -1,102 +1,95 @@
 import {
   AdventuringParty,
-  COMBAT_ACTIONS,
   Combatant,
   CombatantProperties,
   CombatAttribute,
   DEX_TO_ACCURACY_RATIO,
   Equipment,
   EquipmentSlotId,
-  getAttackActionName,
   getTooltipOffensiveSpec,
   HoldableSlotId,
   invariant,
   NumberRange,
-  WeaponProperties,
 } from "@speed-dungeon/common";
 import {
   AnalysisCombatantReport,
   RoomReportingRunReporter,
 } from "../../analysis-runs/analysis-run-reporter.ts";
 import { numericEnumKeyedRecord } from "../../utils/numeric-enum-record.ts";
-import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./goal-performance-checker.ts";
+import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "../../goal-performance-checkers/sampled-damage-on-target-dummy.ts";
+import { AnalysisSpecContext } from "../../analysis-runs/analysis-spec-context.ts";
+import { SampledAction } from "../../goal-performance-checkers/sampled-action-selection.ts";
 
-export enum AttackDamageContributingAttribute {
+export enum SampledDamageContributingAttribute {
   Strength,
   Dexterity,
+  Spirit,
   Accuracy,
   FlatDamage,
 }
 
-// not a Record over HoldableSlotId like the equipment below it: a combatant always has a main hand
-// attack to quote, even bare handed, and only the off hand one is conditional
+/** quoted for whatever the character's goal has it using, which is not always a weapon attack */
 export interface CombatantReportTooltipDamage {
-  [EquipmentSlotId.MainHand]: NumberRange;
-  [EquipmentSlotId.OffHand]: NumberRange | null;
+  primary: NumberRange;
+  additional: NumberRange[];
 }
 
-type ContributionsByAttribute = Record<AttackDamageContributingAttribute, number>;
+type ContributionsByAttribute = Record<SampledDamageContributingAttribute, number>;
 
 export type CombatantAttackContributingAttributes = Record<
-  AttackDamageContributingAttribute,
+  SampledDamageContributingAttribute,
   { fromGear: number; allocated: number; inherent: number }
 >;
 
-export interface AttackDamageCombatantReport extends AnalysisCombatantReport {
+export interface SampledDamageCombatantReport extends AnalysisCombatantReport {
   sampledDamageOnDummy: number;
-  /** over the same sampled attacks the damage came from, off hand swings excluded */
-  mainHandSwingCount: number;
-  mainHandLandedHitCount: number;
-  mainHandCriticalHitCount: number;
+  /** over the same samples the damage came from; additional actions are excluded from every count */
+  primaryUseCount: number;
+  primaryLandedHitCount: number;
+  primaryCriticalHitCount: number;
   tooltipDamage: CombatantReportTooltipDamage;
   heldEquipment: Record<HoldableSlotId, Equipment | null>;
   contributingAttributes: CombatantAttackContributingAttributes;
 }
 
-export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDamageCombatantReport> {
+export class SampledDamageRunReporter extends RoomReportingRunReporter<SampledDamageCombatantReport> {
   constructor(
     party: AdventuringParty,
-    private goalPerformanceChecker: SampledDamageOnTargetDummyGoalPerformanceChecker
+    private analysisSpecContext: AnalysisSpecContext
   ) {
     super(party);
   }
 
-  private tooltipRangeForHand(
-    combatant: Combatant,
-    weaponPropertiesOption: WeaponProperties | undefined,
-    options: { isOffHand: boolean }
-  ) {
-    const attackActionName = getAttackActionName(weaponPropertiesOption, options);
-    const tooltip = getTooltipOffensiveSpec(COMBAT_ACTIONS[attackActionName], combatant);
-    invariant(tooltip?.hpChangeRange !== undefined);
+  /**
+   * The character's own goal, so the counts come off the instance and seed that produced the score
+   * rather than a second sampler rolling its own numbers.
+   */
+  private requireSampler(combatant: Combatant) {
+    const checker = this.analysisSpecContext.requireGoalPerformanceChecker(combatant.getEntityId());
+    invariant(
+      checker instanceof SampledDamageOnTargetDummyGoalPerformanceChecker,
+      "the attack damage report reads swings off a sampled damage goal"
+    );
+    return checker;
+  }
+
+  private tooltipRangeForAction(combatant: Combatant, { action }: SampledAction) {
+    const tooltip = getTooltipOffensiveSpec(action, combatant);
+    invariant(
+      tooltip?.hpChangeRange !== undefined,
+      `${action.getStringName()} quotes no damage range`
+    );
     return tooltip.hpChangeRange;
   }
 
   private getTooltipDamage(combatant: Combatant): CombatantReportTooltipDamage {
-    const weaponsHeld = combatant.getWeaponsInSlots(
-      [EquipmentSlotId.MainHand, EquipmentSlotId.OffHand],
-      { usableWeaponsOnly: false }
-    );
-    const mainHandOption = weaponsHeld[EquipmentSlotId.MainHand];
-    const offHandEquipmentOption = combatant
-      .getCombatantProperties()
-      .equipment.getEquipmentInSlot(EquipmentSlotId.OffHand);
-    const hasOffHandAttack =
-      !mainHandOption?.equipment.isTwoHanded() && !offHandEquipmentOption?.isShield();
+    const { primary, additional } = this.requireSampler(combatant).getSampledActions(combatant);
 
     return {
-      [EquipmentSlotId.MainHand]: this.tooltipRangeForHand(
-        combatant,
-        mainHandOption?.weaponProperties,
-        { isOffHand: false }
+      primary: this.tooltipRangeForAction(combatant, primary),
+      additional: additional.map((sampledAction) =>
+        this.tooltipRangeForAction(combatant, sampledAction)
       ),
-      [EquipmentSlotId.OffHand]: hasOffHandAttack
-        ? this.tooltipRangeForHand(
-            combatant,
-            weaponsHeld[EquipmentSlotId.OffHand]?.weaponProperties,
-            { isOffHand: true }
-          )
-        : null,
     };
   }
 
@@ -116,15 +109,16 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
    * skips broken items and counts non-affix attributes, both of which the combatant does too.
    */
   private getGearContributions(combatantProperties: CombatantProperties): ContributionsByAttribute {
-    const result = numericEnumKeyedRecord(AttackDamageContributingAttribute, () => 0);
+    const result = numericEnumKeyedRecord(SampledDamageContributingAttribute, () => 0);
     const equippedItems = [
       ...combatantProperties.equipment.getAllEquippedItems({ includeUnselectedHotswapSlots: false }),
     ];
     const fromEquipment = Equipment.getAttributesOnEquipmentList(equippedItems);
 
-    result[AttackDamageContributingAttribute.Strength] = fromEquipment[CombatAttribute.Strength];
-    result[AttackDamageContributingAttribute.Dexterity] = fromEquipment[CombatAttribute.Dexterity];
-    result[AttackDamageContributingAttribute.Accuracy] =
+    result[SampledDamageContributingAttribute.Strength] = fromEquipment[CombatAttribute.Strength];
+    result[SampledDamageContributingAttribute.Dexterity] = fromEquipment[CombatAttribute.Dexterity];
+    result[SampledDamageContributingAttribute.Spirit] = fromEquipment[CombatAttribute.Spirit];
+    result[SampledDamageContributingAttribute.Accuracy] =
       fromEquipment[CombatAttribute.Accuracy] +
       fromEquipment[CombatAttribute.Dexterity] * DEX_TO_ACCURACY_RATIO;
 
@@ -132,7 +126,7 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
     // inside the weapon's damage range, so only rings and amulets with +damage are counted here
     for (const equipment of equippedItems) {
       if (!equipment.isWeapon()) {
-        result[AttackDamageContributingAttribute.FlatDamage] += equipment.getFlatDamageBonus();
+        result[SampledDamageContributingAttribute.FlatDamage] += equipment.getFlatDamageBonus();
       }
     }
 
@@ -143,14 +137,15 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
     attributes: Record<CombatAttribute, number>
   ): ContributionsByAttribute {
     return {
-      [AttackDamageContributingAttribute.Strength]: attributes[CombatAttribute.Strength],
-      [AttackDamageContributingAttribute.Dexterity]: attributes[CombatAttribute.Dexterity],
+      [SampledDamageContributingAttribute.Strength]: attributes[CombatAttribute.Strength],
+      [SampledDamageContributingAttribute.Dexterity]: attributes[CombatAttribute.Dexterity],
+      [SampledDamageContributingAttribute.Spirit]: attributes[CombatAttribute.Spirit],
       // you can't allocate to accuracy, but reading it the same way as inherent keeps the two
       // sources comparable
-      [AttackDamageContributingAttribute.Accuracy]:
+      [SampledDamageContributingAttribute.Accuracy]:
         attributes[CombatAttribute.Accuracy] +
         attributes[CombatAttribute.Dexterity] * DEX_TO_ACCURACY_RATIO,
-      [AttackDamageContributingAttribute.FlatDamage]: 0,
+      [SampledDamageContributingAttribute.FlatDamage]: 0,
     };
   }
 
@@ -164,7 +159,7 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
     );
     const inherent = this.contributionsFromAttributes(attributeProperties.getInherentAttributes());
 
-    return numericEnumKeyedRecord(AttackDamageContributingAttribute, (attribute) => ({
+    return numericEnumKeyedRecord(SampledDamageContributingAttribute, (attribute) => ({
       fromGear: fromGear[attribute],
       allocated: allocated[attribute],
       inherent: inherent[attribute],
@@ -174,13 +169,14 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
   protected getCombatantReport(
     combatant: Combatant,
     sampledDamageOnDummy: number
-  ): AttackDamageCombatantReport {
+  ): SampledDamageCombatantReport {
     const combatantProperties = combatant.getCombatantProperties();
 
     // the combatant has not changed since the solvers last scored it, so this re-reads the same
     // attacks sampledDamageOnDummy was averaged from rather than rolling new ones
-    const { mainHandSwingCount, mainHandLandedHitCount, mainHandCriticalHitCount } =
-      this.goalPerformanceChecker.sampleAttacksOnTargetDummy(
+    const { primaryUseCount, primaryLandedHitCount, primaryCriticalHitCount } = this
+      .requireSampler(combatant)
+      .sampleActionsOnTargetDummy(
         combatant,
         this.party.dungeonExplorationManager.getCurrentFloor()
       );
@@ -188,9 +184,9 @@ export class AttackDamageRunReporter extends RoomReportingRunReporter<AttackDama
     return {
       ...this.commonCombatantFields(combatant),
       sampledDamageOnDummy,
-      mainHandSwingCount,
-      mainHandLandedHitCount,
-      mainHandCriticalHitCount,
+      primaryUseCount,
+      primaryLandedHitCount,
+      primaryCriticalHitCount,
       tooltipDamage: this.getTooltipDamage(combatant),
       heldEquipment: this.getHeldEquipment(combatantProperties),
       contributingAttributes: this.getContributingAttributes(combatantProperties),

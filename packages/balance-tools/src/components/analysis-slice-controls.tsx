@@ -6,6 +6,10 @@ import {
 import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
 import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import {
+  ANALYSIS_GOAL_STRINGS,
+  AnalysisGoal,
+} from "../goal-performance-checkers/analysis-goal.ts";
+import {
   CHARACTER_WEAPON_SPECIALTY_STRINGS,
   CharacterWeaponSpecialty,
 } from "../analysis-subjects/character-weapon-specialty.ts";
@@ -51,13 +55,27 @@ function SliceDropdown<T>({
 
 export function AnalysisSliceControls({
   slice,
+  goalsInParty,
   onChange,
 }: {
   slice: AnalysisSlice;
+  /** every goal the study's party holds; a party chasing one thing has nothing to separate */
+  goalsInParty: AnalysisGoal[];
   onChange: (slice: AnalysisSlice) => void;
 }) {
   return (
     <div className="mb-4 flex items-end gap-2">
+      {goalsInParty.length > 1 && (
+        <SliceDropdown
+          title="Goal"
+          value={slice.goal}
+          options={goalsInParty.map((goal) => ({
+            title: ANALYSIS_GOAL_STRINGS[goal],
+            value: goal,
+          }))}
+          onChange={(goal) => onChange({ ...slice, goal })}
+        />
+      )}
       <SliceDropdown
         title="Specialty"
         value={slice.weaponSpecialty}

@@ -58,6 +58,11 @@ export function StudyPanel<
 
   const rows = useMemo(() => (table === null ? [] : table.selectRows(slice)), [table, slice]);
 
+  const goalsInParty = useMemo(
+    () => [...new Set(configuration.characterSpecs.map((spec) => spec.goal))],
+    [configuration]
+  );
+
   return (
     <div>
       <div className="mb-4">
@@ -89,7 +94,7 @@ export function StudyPanel<
         </p>
       )}
 
-      <AnalysisSliceControls slice={slice} onChange={setSlice} />
+      <AnalysisSliceControls slice={slice} goalsInParty={goalsInParty} onChange={setSlice} />
 
       <div className="mb-4 flex items-center gap-4">
         <WriteFileButton label="save run" disabled={state.result === null} write={save} />
