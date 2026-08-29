@@ -1,6 +1,6 @@
 import { CombatAttribute, CombatantClass, MapUtils } from "@speed-dungeon/common";
-import { CharacterWeaponSpecialty } from "@/analysis-subjects/character-weapon-specialty";
-import { AnalysisSlice } from "./analysis-slice";
+import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
+import { AnalysisSlice } from "./analysis-slice.ts";
 
 export interface AnalysisSampleDimensions {
   runIndex: number;

@@ -5,14 +5,13 @@
     "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "moduleResolution": "bundler",
-    // the workbook scripts under src/workbook run straight from source under node, which resolves
-    // neither the @/ alias nor an extensionless specifier — so their relative imports, and any
-    // module they reach, carry a .ts extension. the app code beside them keeps the @/ alias
+    // relative imports here carry their extension, and no path alias is defined: the workbook
+    // scripts run straight from source under node, which resolves neither. one convention for the
+    // whole package means nothing has to track which modules those scripts can reach
     "allowImportingTsExtensions": true,
     "types": ["node", "vite/client", "vitest/globals"],
     "paths": {
-      "@speed-dungeon/ui/*": ["../ui/src/*"],
-      "@/*": ["./src/*"]
+      "@speed-dungeon/ui/*": ["../ui/src/*"]
     }
   },
   "references": [

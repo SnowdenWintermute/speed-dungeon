@@ -8,9 +8,9 @@ import {
 import {
   EquipmentBaseItemTally,
   TalliedBaseItem,
-} from "@/analysis-subjects/equipment-base-item-tally";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { AnalysisSampleDimensions, roomKey } from "./analysis-sample";
+} from "../analysis-subjects/equipment-base-item-tally.ts";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
+import { AnalysisSampleDimensions, roomKey } from "./analysis-sample.ts";
 
 /**
  * What dropped is a fact about the party, not about any one character, so availability is recorded

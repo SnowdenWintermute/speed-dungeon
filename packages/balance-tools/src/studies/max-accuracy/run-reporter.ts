@@ -8,7 +8,7 @@ import {
 import {
   AnalysisCombatantReport,
   RoomReportingRunReporter,
-} from "@/analysis-runs/analysis-run-reporter";
+} from "../../analysis-runs/analysis-run-reporter.ts";
 
 /** every field is accuracy, including the ones dexterity supplies, so they read against each other */
 export interface AccuracyBySource {

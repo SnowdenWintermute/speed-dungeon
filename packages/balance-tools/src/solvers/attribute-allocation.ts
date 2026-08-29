@@ -1,6 +1,6 @@
-import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
-import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
-import { GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { AllocationIntensity } from "../analysis-runs/allocation-intensity.ts";
+import { AnalysisSpecHolder } from "../analysis-runs/analysis-spec-holder.ts";
+import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
 import {
   AdventuringParty,
   AttributePointAssignableAttributes,

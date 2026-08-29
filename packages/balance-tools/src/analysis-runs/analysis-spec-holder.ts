@@ -1,4 +1,4 @@
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { CombatantId, invariant } from "@speed-dungeon/common";
 
 export class AnalysisSpecHolder {

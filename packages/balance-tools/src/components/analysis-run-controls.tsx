@@ -3,8 +3,8 @@ import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
-import { FULL_ALLOCATION_INTENSITY } from "@/analysis-runs/allocation-intensity";
-import { AnalysisRunSetOptions } from "@/analysis-runs/run-set-worker-messages";
+import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
+import { AnalysisRunSetOptions } from "../analysis-runs/run-set-worker-messages.ts";
 
 const MIN_RUN_COUNT = 1;
 const MAX_RUN_COUNT = 2000;

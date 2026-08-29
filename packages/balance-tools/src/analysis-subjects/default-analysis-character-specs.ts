@@ -1,6 +1,6 @@
 import { CombatantClass } from "@speed-dungeon/common";
-import { AnalysisCharacterSpecification } from "./analysis-character-specification";
-import { CharacterWeaponSpecialty } from "./character-weapon-specialty";
+import { AnalysisCharacterSpecification } from "./analysis-character-specification.ts";
+import { CharacterWeaponSpecialty } from "./character-weapon-specialty.ts";
 
 /** the party every study walks with, so their tables are read against the same builds */
 export const DEFAULT_ANALYSIS_CHARACTER_SPECS = [

@@ -7,11 +7,11 @@ import {
   MapUtils,
   invariant,
 } from "@speed-dungeon/common";
-import { AnalysisTableRow } from "@/analysis-runs/analysis-sample-table";
-import { AnalysisSlice } from "@/analysis-runs/analysis-slice";
-import { AvailabilityPoint } from "@/analysis-runs/room-availability";
-import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "@/analysis-subjects/character-weapon-specialty";
-import { EquipmentRequirementTarget } from "./requirement-target";
+import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
+import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
+import { AvailabilityPoint } from "../analysis-runs/room-availability.ts";
+import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "../analysis-subjects/character-weapon-specialty.ts";
+import { EquipmentRequirementTarget } from "./requirement-target.ts";
 
 /**
  * How much of what a targeted build is actually worth to ask of it. At 1 the requirement is the mean,

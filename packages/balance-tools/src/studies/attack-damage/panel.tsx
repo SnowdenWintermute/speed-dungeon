@@ -1,8 +1,8 @@
-import { StudyPanel } from "@/components/study-panel";
-import { StudyName } from "@/studies/study-name";
-import { ATTACK_DAMAGE_TABLE_COLUMNS } from "./columns";
-import { AttackDamageTable } from "./table";
-import { GenerateEquipmentRequirements } from "./generate-equipment-requirements";
+import { StudyPanel } from "../../components/study-panel.tsx";
+import { StudyName } from "../study-name.ts";
+import { ATTACK_DAMAGE_TABLE_COLUMNS } from "./columns.tsx";
+import { AttackDamageTable } from "./table.ts";
+import { GenerateEquipmentRequirements } from "./generate-equipment-requirements.tsx";
 
 const STUDY_NAME = StudyName.AttackDamageMixed;
 

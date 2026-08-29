@@ -1,11 +1,11 @@
 import { EquipmentSlotId } from "@speed-dungeon/common";
-import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
-import { AnalysisRunOptions } from "@/analysis-runs/analysis-run-options";
-import { AnalysisSampleCollectingRunSet } from "@/analysis-runs/run-set";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { attackDamageAnalysisRun } from "./run";
-import { AttackDamageCombatantReport, CombatantReportTooltipDamage } from "./run-reporter";
-import { AttackDamageSample, SampleTooltipDamage } from "./samples";
+import { AllocationIntensity } from "../../analysis-runs/allocation-intensity.ts";
+import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts";
+import { AnalysisSampleCollectingRunSet } from "../../analysis-runs/run-set.ts";
+import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
+import { attackDamageAnalysisRun } from "./run.ts";
+import { AttackDamageCombatantReport, CombatantReportTooltipDamage } from "./run-reporter.ts";
+import { AttackDamageSample, SampleTooltipDamage } from "./samples.ts";
 
 function toSampleTooltipDamage(tooltipDamage: CombatantReportTooltipDamage): SampleTooltipDamage {
   const offHand = tooltipDamage[EquipmentSlotId.OffHand];

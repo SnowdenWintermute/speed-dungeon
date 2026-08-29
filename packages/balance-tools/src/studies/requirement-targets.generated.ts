@@ -22,4 +22,74 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
     availabilityPercentile: 0.5,
   },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.HardLeather,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity, CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.Shields, mainClass: CombatantClass.Mage, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.33,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.StuddedLeather,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.DemonsaurLeather,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.BreastPlate,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.66,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.FieldPlate,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.GothicPlate,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.75,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.BodyArmor,
+      baseItemType: BodyArmor.FullPlate,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.75,
+  },
 ];

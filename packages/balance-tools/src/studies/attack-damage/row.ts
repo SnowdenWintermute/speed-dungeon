@@ -1,8 +1,8 @@
 import { NumberRange } from "@speed-dungeon/common";
-import { AnalysisTableRow } from "@/analysis-runs/analysis-sample-table";
-import { Distribution } from "@/statistics/distribution";
-import { HoldableAndPercent } from "@/analysis-subjects/equipment-base-item-tally";
-import { AttackDamageContributingAttribute } from "./run-reporter";
+import { AnalysisTableRow } from "../../analysis-runs/analysis-sample-table.ts";
+import { Distribution } from "../../statistics/distribution.ts";
+import { HoldableAndPercent } from "../../analysis-subjects/equipment-base-item-tally.ts";
+import { AttackDamageContributingAttribute } from "./run-reporter.ts";
 
 export type AverageContributingAttributes = Record<
   AttackDamageContributingAttribute,

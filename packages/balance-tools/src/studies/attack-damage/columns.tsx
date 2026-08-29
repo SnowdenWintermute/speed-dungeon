@@ -1,9 +1,9 @@
 import { CombatAttribute } from "@speed-dungeon/common";
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { AttackDamageContributingAttribute } from "./run-reporter";
-import { AttackDamageTableRow } from "./row";
-import { AttributeSourceSplit } from "./attribute-source-split";
-import { HoldablePercentList } from "@/components/holdable-percent-list";
+import { AttackDamageContributingAttribute } from "./run-reporter.ts";
+import { AttackDamageTableRow } from "./row.ts";
+import { AttributeSourceSplit } from "./attribute-source-split.tsx";
+import { HoldablePercentList } from "../../components/holdable-percent-list.tsx";
 
 /**
  * What the combatant actually had, read off the combatant. Summing the per-source attribution

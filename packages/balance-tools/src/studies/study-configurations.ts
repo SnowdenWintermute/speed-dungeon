@@ -1,6 +1,6 @@
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "@/analysis-subjects/default-analysis-character-specs";
-import { StudyName } from "./study-name";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
+import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "../analysis-subjects/default-analysis-character-specs.ts";
+import { StudyName } from "./study-name.ts";
 
 export interface StudyConfiguration {
   characterSpecs: AnalysisCharacterSpecification[];

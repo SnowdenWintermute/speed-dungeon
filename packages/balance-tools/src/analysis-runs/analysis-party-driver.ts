@@ -18,7 +18,7 @@ import {
   SpeedDungeonGame,
   TaggedAffixType,
 } from "@speed-dungeon/common";
-import { AllocationIntensity } from "./allocation-intensity";
+import { AllocationIntensity } from "./allocation-intensity.ts";
 
 /** the scaled reader is only installed for the length of a walk, so this is both the one it reads
  * through and the one it puts back */

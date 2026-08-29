@@ -1,14 +1,14 @@
 import { CombatAttribute } from "@speed-dungeon/common";
-import { AnalysisRun } from "@/analysis-runs";
-import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
-import { AnalysisRunOptions } from "@/analysis-runs/analysis-run-options";
-import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
-import { BestImprovementEquipmentSolver } from "@/solvers/best-improvement";
-import { EQUIPMENT_SCORE_DOMINATION_AXES } from "@/solvers/equipment-score-domination-axes";
-import { TotalAccuracyGoalPerformanceChecker } from "./goal-performance-checker";
-import { MaxAccuracyCombatantReport, MaxAccuracyRunReporter } from "./run-reporter";
+import { AnalysisRun } from "../../analysis-runs/index.ts";
+import { AllocationIntensity } from "../../analysis-runs/allocation-intensity.ts";
+import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts";
+import { AnalysisPartyBuilder } from "../../analysis-runs/analysis-party-builder.ts";
+import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
+import { AttributeAllocationSolver } from "../../solvers/attribute-allocation.ts";
+import { BestImprovementEquipmentSolver } from "../../solvers/best-improvement.ts";
+import { EQUIPMENT_SCORE_DOMINATION_AXES } from "../../solvers/equipment-score-domination-axes.ts";
+import { TotalAccuracyGoalPerformanceChecker } from "./goal-performance-checker.ts";
+import { MaxAccuracyCombatantReport, MaxAccuracyRunReporter } from "./run-reporter.ts";
 
 export function maxAccuracyAnalysisRun(
   characterSpecs: AnalysisCharacterSpecification[],

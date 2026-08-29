@@ -6,13 +6,13 @@ import {
   SpeedDungeonGame,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
-import { AllocationIntensity } from "./allocation-intensity";
-import { AnalysisRunOptions } from "./analysis-run-options";
-import { AnalysisPartyDriver } from "./analysis-party-driver";
-import { AnalysisRunReporter } from "./analysis-run-reporter";
-import { AttributeAllocationSolver } from "@/solvers/attribute-allocation";
-import { BestImprovementEquipmentSolver } from "@/solvers/best-improvement";
-import { GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { AllocationIntensity } from "./allocation-intensity.ts";
+import { AnalysisRunOptions } from "./analysis-run-options.ts";
+import { AnalysisPartyDriver } from "./analysis-party-driver.ts";
+import { AnalysisRunReporter } from "./analysis-run-reporter.ts";
+import { AttributeAllocationSolver } from "../solvers/attribute-allocation.ts";
+import { BestImprovementEquipmentSolver } from "../solvers/best-improvement.ts";
+import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
 
 export class AnalysisRun<TCombatantReport> {
   private partyDriver: AnalysisPartyDriver;

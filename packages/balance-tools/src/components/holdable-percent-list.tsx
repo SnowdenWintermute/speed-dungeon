@@ -1,5 +1,5 @@
 import { Equipment } from "@speed-dungeon/common";
-import { baseItemKey, HoldableAndPercent } from "@/analysis-subjects/equipment-base-item-tally";
+import { baseItemKey, HoldableAndPercent } from "../analysis-subjects/equipment-base-item-tally.ts";
 
 export function HoldablePercentList({ holdables }: { holdables: HoldableAndPercent[] }) {
   if (holdables.length === 0) {

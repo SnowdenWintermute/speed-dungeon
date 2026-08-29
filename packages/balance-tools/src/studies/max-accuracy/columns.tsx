@@ -1,7 +1,7 @@
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
-import { AccuracyBySource } from "./run-reporter";
-import { MaxAccuracyTableRow } from "./row";
-import { HoldablePercentList } from "@/components/holdable-percent-list";
+import { AccuracyBySource } from "./run-reporter.ts";
+import { MaxAccuracyTableRow } from "./row.ts";
+import { HoldablePercentList } from "../../components/holdable-percent-list.tsx";
 
 function bySourceColumn(
   header: string,

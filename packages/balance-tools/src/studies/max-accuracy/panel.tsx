@@ -1,9 +1,9 @@
-import { StudyPanel } from "@/components/study-panel";
-import { FULL_ALLOCATION_INTENSITY } from "@/analysis-runs/allocation-intensity";
-import { StudyName } from "@/studies/study-name";
-import { MAX_ACCURACY_TABLE_COLUMNS } from "./columns";
-import { MaxAccuracyTable } from "./table";
-import { GenerateMonsterEvasionFromAccuracyTable } from "./generate-monster-evasion-from-accuracy-table";
+import { StudyPanel } from "../../components/study-panel.tsx";
+import { FULL_ALLOCATION_INTENSITY } from "../../analysis-runs/allocation-intensity.ts";
+import { StudyName } from "../study-name.ts";
+import { MAX_ACCURACY_TABLE_COLUMNS } from "./columns.tsx";
+import { MaxAccuracyTable } from "./table.ts";
+import { GenerateMonsterEvasionFromAccuracyTable } from "./generate-monster-evasion-from-accuracy-table.tsx";
 
 export function MaxAccuracyPanel() {
   return (

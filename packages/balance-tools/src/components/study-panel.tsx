@@ -2,16 +2,16 @@ import { ReactNode, useMemo, useState } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableColumn, DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { NormalizedPercentage } from "@speed-dungeon/common";
-import { roomKey } from "@/analysis-runs/analysis-sample";
-import { AnalysisSlice } from "@/analysis-runs/analysis-slice";
-import { AnalysisTableRow } from "@/analysis-runs/analysis-sample-table";
-import { useAnalysisRunSet } from "@/hooks/use-analysis-run-set";
-import { DungeonRunAnalysisResults } from "@/analysis-runs/types";
-import { STUDY_CONFIGURATIONS } from "@/studies/study-configurations";
-import { AnalysisOfStudy, STUDY_ANALYSES, STUDY_NAME_SLUGS, StudyName } from "@/studies/study-name";
-import { AnalysisRunControls } from "./analysis-run-controls";
-import { AnalysisSliceControls } from "./analysis-slice-controls";
-import { WriteFileButton } from "./write-file-button";
+import { roomKey } from "../analysis-runs/analysis-sample.ts";
+import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
+import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
+import { useAnalysisRunSet } from "../hooks/use-analysis-run-set.ts";
+import { DungeonRunAnalysisResults } from "../analysis-runs/dungeon-run-analysis.ts";
+import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
+import { AnalysisOfStudy, STUDY_ANALYSES, STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
+import { AnalysisRunControls } from "./analysis-run-controls.tsx";
+import { AnalysisSliceControls } from "./analysis-slice-controls.tsx";
+import { WriteFileButton } from "./write-file-button.tsx";
 
 const DEFAULT_RUN_COUNT = 500;
 

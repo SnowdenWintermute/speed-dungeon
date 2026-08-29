@@ -1,4 +1,4 @@
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import {
   AdventuringParty,
   AffixGenerator,
@@ -20,7 +20,7 @@ import {
   SpeedDungeonPlayer,
   Username,
 } from "@speed-dungeon/common";
-import { AnalysisSpecHolder } from "./analysis-spec-holder";
+import { AnalysisSpecHolder } from "./analysis-spec-holder.ts";
 
 export class AnalysisPartyBuilder {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });

@@ -1,8 +1,7 @@
 import { NormalizedPercentage, SerializedOf } from "@speed-dungeon/common";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { AnalysisRunOptions } from "./analysis-run-options";
-import { DungeonRunAnalysis } from "./dungeon-run-analysis";
-import { DungeonRunAnalysisResults } from "./types";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
+import { AnalysisRunOptions } from "./analysis-run-options.ts";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis.ts";
 
 /** everything the run controls decide, which is also everything the request adds a study to */
 export interface AnalysisRunSetOptions extends AnalysisRunOptions {

@@ -8,11 +8,11 @@ import {
   IdGeneratorSequential,
   invariant,
 } from "@speed-dungeon/common";
-import { BestImprovementEquipmentSolver } from "./best-improvement";
-import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-test-items";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { CharacterWeaponSpecialty } from "@/analysis-subjects/character-weapon-specialty";
-import { AnalysisPartyBuilder } from "@/analysis-runs/analysis-party-builder";
+import { BestImprovementEquipmentSolver } from "./best-improvement.ts";
+import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-test-items.ts";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
+import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
+import { AnalysisPartyBuilder } from "../analysis-runs/analysis-party-builder.ts";
 
 const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];

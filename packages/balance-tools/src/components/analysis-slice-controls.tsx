@@ -4,11 +4,11 @@ import {
   iterateNumericEnum,
 } from "@speed-dungeon/common";
 import { SelectDropdown } from "@speed-dungeon/ui/atoms/SelectDropdown";
-import { AnalysisSlice } from "@/analysis-runs/analysis-slice";
+import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import {
   CHARACTER_WEAPON_SPECIALTY_STRINGS,
   CharacterWeaponSpecialty,
-} from "@/analysis-subjects/character-weapon-specialty";
+} from "../analysis-subjects/character-weapon-specialty.ts";
 
 const ANY_OPTION_VALUE = "any";
 const ANY_OPTION = { title: "Any", value: ANY_OPTION_VALUE };

@@ -1,6 +1,3 @@
-// kept out of analysis-character-specification.ts so the workbook sync can name a specialty without
-// loading a serializable domain class to get at one enum
-
 export enum CharacterWeaponSpecialty {
   TwoHandedMelee,
   TwoHandedRanged,

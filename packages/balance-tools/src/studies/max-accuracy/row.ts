@@ -1,6 +1,6 @@
-import { AnalysisTableRow } from "@/analysis-runs/analysis-sample-table";
-import { Distribution } from "@/statistics/distribution";
-import { AccuracyBySource } from "./run-reporter";
+import { AnalysisTableRow } from "../../analysis-runs/analysis-sample-table.ts";
+import { Distribution } from "../../statistics/distribution.ts";
+import { AccuracyBySource } from "./run-reporter.ts";
 
 export interface MaxAccuracyTableRow extends AnalysisTableRow {
   /** the most accuracy the solvers could assemble for a character standing in this room */

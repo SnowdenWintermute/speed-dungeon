@@ -9,7 +9,7 @@ import {
 import {
   EquipmentBaseItemTally,
   TalliedBaseItem,
-} from "@/analysis-subjects/equipment-base-item-tally";
+} from "../analysis-subjects/equipment-base-item-tally.ts";
 
 /** What every study records about a character, whatever else its own report adds. */
 export interface AnalysisCombatantReport {

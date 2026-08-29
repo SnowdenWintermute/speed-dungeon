@@ -6,13 +6,13 @@ import {
   IdGeneratorSequential,
   Username,
 } from "@speed-dungeon/common";
-import { BestImprovementEquipmentSolver } from "./best-improvement";
-import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
+import { BestImprovementEquipmentSolver } from "./best-improvement.ts";
+import { EquipmentScoreDominationSolver } from "./equipment-score-domination.ts";
 import {
   EquipmentSolverTestItems,
   totalDexterity,
   totalStrength,
-} from "./equipment-solver-test-items";
+} from "./equipment-solver-test-items.ts";
 
 const PARTY_CHARACTER_COUNT = 3;
 

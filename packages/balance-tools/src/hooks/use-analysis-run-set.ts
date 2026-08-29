@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import {
   AnalysisRunSetOptions,
   AnalysisRunSetWorkerMessage,
   AnalysisRunSetWorkerMessageType,
   AnalysisRunSetWorkerRequest,
-} from "@/analysis-runs/run-set-worker-messages";
-import { savedRunFetchUrl, savedRunWritePath } from "@/analysis-runs/saved-run-paths";
-import { DungeonRunAnalysis } from "@/analysis-runs/dungeon-run-analysis";
-import { DungeonRunAnalysisResults } from "@/analysis-runs/types";
-import { StudyName } from "@/studies/study-name";
-import { writeGeneratedFile } from "@/write-generated-file";
+} from "../analysis-runs/run-set-worker-messages.ts";
+import { savedRunFetchUrl, savedRunWritePath } from "../analysis-runs/saved-run-paths.ts";
+import {
+  DungeonRunAnalysis,
+  DungeonRunAnalysisResults,
+} from "../analysis-runs/dungeon-run-analysis.ts";
+import { StudyName } from "../studies/study-name.ts";
+import { writeGeneratedFile } from "../write-generated-file.ts";
 
 export interface AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
   result: null | DungeonRunAnalysisResults[AnalysisType];

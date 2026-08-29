@@ -1,10 +1,10 @@
 import { ArrayUtils } from "@speed-dungeon/common";
-import { SampledRoom } from "@/analysis-runs/analysis-sample";
-import { AnalysisSampleTable } from "@/analysis-runs/analysis-sample-table";
-import { Distribution } from "@/statistics/distribution";
-import { AccuracyBySource } from "./run-reporter";
-import { MaxAccuracySample } from "./samples";
-import { MaxAccuracyTableRow } from "./row";
+import { SampledRoom } from "../../analysis-runs/analysis-sample.ts";
+import { AnalysisSampleTable } from "../../analysis-runs/analysis-sample-table.ts";
+import { Distribution } from "../../statistics/distribution.ts";
+import { AccuracyBySource } from "./run-reporter.ts";
+import { MaxAccuracySample } from "./samples.ts";
+import { MaxAccuracyTableRow } from "./row.ts";
 
 export class MaxAccuracyTable extends AnalysisSampleTable<MaxAccuracySample, MaxAccuracyTableRow> {
   private averageAccuracyBySource(samples: MaxAccuracySample[]): AccuracyBySource {

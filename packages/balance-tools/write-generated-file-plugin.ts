@@ -10,7 +10,7 @@ import {
   SAVED_RUN_FILE_NAME_PATTERN,
   WRITE_GENERATED_FILE_ROUTE,
   isDerivedRequirementsFileName,
-} from "./src/generated-file-contract";
+} from "./src/generated-file-contract.ts";
 
 const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 

@@ -2,10 +2,10 @@ import { ReactElement, useState } from "react";
 import { iterateNumericEnum } from "@speed-dungeon/common";
 import { UiProvider } from "@speed-dungeon/ui/ui-context";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
-import { ZIndexLayers } from "./z-index-layers";
-import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name";
-import { MaxAccuracyPanel } from "./studies/max-accuracy/panel";
-import { AttackDamagePanel } from "./studies/attack-damage/panel";
+import { ZIndexLayers } from "./z-index-layers.ts";
+import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name.ts";
+import { MaxAccuracyPanel } from "./studies/max-accuracy/panel.tsx";
+import { AttackDamagePanel } from "./studies/attack-damage/panel.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 

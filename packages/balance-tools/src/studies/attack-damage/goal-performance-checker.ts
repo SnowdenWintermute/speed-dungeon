@@ -1,5 +1,5 @@
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { CombatantAttributesMemo } from "@/analysis-subjects/combatant-attributes-memo";
+import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
+import { CombatantAttributesMemo } from "../../analysis-subjects/combatant-attributes-memo.ts";
 import {
   ActionRank,
   ActionUserHeldWeapons,
@@ -23,7 +23,7 @@ import {
   SeededNumberGenerator,
   TargetDummyFactory,
 } from "@speed-dungeon/common";
-import { GoalPerformance, GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { GoalPerformance, GoalPerformanceChecker } from "../../goal-performance-checkers/index.ts";
 
 /** the counts are raw so a caller pooling several of these divides once, at the end */
 export interface SampledAttacksOnTargetDummy {

@@ -9,10 +9,10 @@ import {
   iterateNumericEnum,
   throwIfLoopLimitReached,
 } from "@speed-dungeon/common";
-import { EquipmentScoreDominationSolver } from "./equipment-score-domination";
-import { GoalPerformance, GoalPerformanceChecker } from "@/goal-performance-checkers";
-import { AnalysisSpecHolder } from "@/analysis-runs/analysis-spec-holder";
-import { PerformanceComparison } from "./performance-comparison";
+import { EquipmentScoreDominationSolver } from "./equipment-score-domination.ts";
+import { GoalPerformance, GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
+import { AnalysisSpecHolder } from "../analysis-runs/analysis-spec-holder.ts";
+import { PerformanceComparison } from "./performance-comparison.ts";
 
 export class BestImprovementEquipmentSolver {
   private scoreDominationSolver: EquipmentScoreDominationSolver;

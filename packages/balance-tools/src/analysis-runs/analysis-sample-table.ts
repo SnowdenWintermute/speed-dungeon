@@ -1,11 +1,11 @@
 import { ArrayUtils, CombatAttribute, EquipmentBaseItem } from "@speed-dungeon/common";
-import { HoldableAndPercent } from "@/analysis-subjects/equipment-base-item-tally";
-import { Distribution } from "@/statistics/distribution";
-import { numericEnumKeyedRecord } from "@/utils/numeric-enum-record";
-import { AnalysisSampleDimensions, RoomGroupedSamples, SampledRoom } from "./analysis-sample";
-import { AnalysisSlice } from "./analysis-slice";
-import { RoomAvailabilityIndex } from "./room-availability";
-import { AnalysisSampleRunSetResult } from "./run-set";
+import { HoldableAndPercent } from "../analysis-subjects/equipment-base-item-tally.ts";
+import { Distribution } from "../statistics/distribution.ts";
+import { numericEnumKeyedRecord } from "../utils/numeric-enum-record.ts";
+import { AnalysisSampleDimensions, RoomGroupedSamples, SampledRoom } from "./analysis-sample.ts";
+import { AnalysisSlice } from "./analysis-slice.ts";
+import { RoomAvailabilityIndex } from "./room-availability.ts";
+import { AnalysisSampleRunSetResult } from "./run-set.ts";
 
 /** What every study's table reports about a room, whatever else its own row adds. */
 export interface AnalysisTableRow {

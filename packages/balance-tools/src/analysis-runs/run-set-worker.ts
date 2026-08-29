@@ -1,16 +1,15 @@
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { attackDamageRunSet } from "@/studies/attack-damage/run-set";
-import { maxAccuracyRunSet } from "@/studies/max-accuracy/run-set";
-import { AllocationIntensity } from "./allocation-intensity";
-import { AnalysisRunOptions } from "./analysis-run-options";
-import { AnalysisRunSet } from "./run-set";
+import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
+import { attackDamageRunSet } from "../studies/attack-damage/run-set.ts";
+import { maxAccuracyRunSet } from "../studies/max-accuracy/run-set.ts";
+import { AllocationIntensity } from "./allocation-intensity.ts";
+import { AnalysisRunOptions } from "./analysis-run-options.ts";
+import { AnalysisRunSet } from "./run-set.ts";
 import {
   AnalysisRunSetWorkerMessage,
   AnalysisRunSetWorkerMessageType,
   AnalysisRunSetWorkerRequest,
-} from "./run-set-worker-messages";
-import { DungeonRunAnalysis } from "./dungeon-run-analysis";
-import { DungeonRunAnalysisResults } from "./types";
+} from "./run-set-worker-messages.ts";
+import { DungeonRunAnalysis, DungeonRunAnalysisResults } from "./dungeon-run-analysis.ts";
 
 const RUN_SET_FACTORIES: {
   [AnalysisType in DungeonRunAnalysis]: (

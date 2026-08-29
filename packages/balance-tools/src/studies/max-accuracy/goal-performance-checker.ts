@@ -1,5 +1,5 @@
 import { CombatAttribute, Combatant } from "@speed-dungeon/common";
-import { GoalPerformance, GoalPerformanceChecker } from "@/goal-performance-checkers";
+import { GoalPerformance, GoalPerformanceChecker } from "../../goal-performance-checkers/index.ts";
 
 /**
  * How much accuracy a character could have, so the solvers take whatever raises it and nothing else.

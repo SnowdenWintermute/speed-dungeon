@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { invariant } from "@speed-dungeon/common";
 import { applyTheme } from "@speed-dungeon/ui/theme";
-import { App } from "./App";
+import { App } from "./App.tsx";
 import "./index.css";
 
 const rootElement = document.getElementById("root");

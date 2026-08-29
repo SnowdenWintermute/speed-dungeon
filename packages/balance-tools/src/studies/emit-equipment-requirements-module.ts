@@ -7,13 +7,13 @@ import {
 import {
   DERIVED_REQUIREMENTS_DIRECTORY,
   derivedRequirementsFileName,
-} from "@/generated-file-contract";
-import { emitGeneratedModuleHeader, selectUsedImports } from "@/generated-module-header";
+} from "../generated-file-contract.ts";
+import { emitGeneratedModuleHeader, selectUsedImports } from "../generated-module-header.ts";
 import {
   BASE_ITEM_IMPORT_CANDIDATES,
   getBaseItemReference,
-} from "@/workbook/base-item-reference";
-import { STUDY_NAME_SLUGS, StudyName } from "./study-name";
+} from "../workbook/base-item-reference.ts";
+import { STUDY_NAME_SLUGS, StudyName } from "./study-name.ts";
 
 // no node imports: the browser renders the text and the dev server only writes it
 

@@ -7,14 +7,14 @@ import {
   NumberRange,
   SerializedOf,
 } from "@speed-dungeon/common";
-import { SampledRoom } from "@/analysis-runs/analysis-sample";
-import { AnalysisSampleTable } from "@/analysis-runs/analysis-sample-table";
-import { baseItemKey, EquipmentBaseItemTally } from "@/analysis-subjects/equipment-base-item-tally";
-import { Distribution } from "@/statistics/distribution";
-import { numericEnumKeyedRecord } from "@/utils/numeric-enum-record";
-import { AttackDamageContributingAttribute } from "./run-reporter";
-import { AttackDamageSample } from "./samples";
-import { AttackDamageTableRow, AverageContributingAttributes } from "./row";
+import { SampledRoom } from "../../analysis-runs/analysis-sample.ts";
+import { AnalysisSampleTable } from "../../analysis-runs/analysis-sample-table.ts";
+import { baseItemKey, EquipmentBaseItemTally } from "../../analysis-subjects/equipment-base-item-tally.ts";
+import { Distribution } from "../../statistics/distribution.ts";
+import { numericEnumKeyedRecord } from "../../utils/numeric-enum-record.ts";
+import { AttackDamageContributingAttribute } from "./run-reporter.ts";
+import { AttackDamageSample } from "./samples.ts";
+import { AttackDamageTableRow, AverageContributingAttributes } from "./row.ts";
 
 function averageDamageRange(ranges: SerializedOf<NumberRange>[]) {
   return new NumberRange(

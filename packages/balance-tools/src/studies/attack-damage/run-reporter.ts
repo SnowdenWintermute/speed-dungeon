@@ -17,9 +17,9 @@ import {
 import {
   AnalysisCombatantReport,
   RoomReportingRunReporter,
-} from "@/analysis-runs/analysis-run-reporter";
-import { numericEnumKeyedRecord } from "@/utils/numeric-enum-record";
-import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./goal-performance-checker";
+} from "../../analysis-runs/analysis-run-reporter.ts";
+import { numericEnumKeyedRecord } from "../../utils/numeric-enum-record.ts";
+import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./goal-performance-checker.ts";
 
 export enum AttackDamageContributingAttribute {
   Strength,

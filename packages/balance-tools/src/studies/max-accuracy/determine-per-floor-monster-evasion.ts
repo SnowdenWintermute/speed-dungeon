@@ -1,5 +1,5 @@
 import { FloorNumber, MapUtils, RoomNumber } from "@speed-dungeon/common";
-import { MaxAccuracyTable } from "./table";
+import { MaxAccuracyTable } from "./table.ts";
 
 const TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
 const TARGET_ACC_INVESTMENT_PERCENTAGE = 1 / 5;

@@ -1,8 +1,8 @@
 import { NormalizedPercentage } from "@speed-dungeon/common";
-import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
-import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "@/analysis-subjects/default-analysis-character-specs";
-import { attackDamageAnalysisRun } from "@/studies/attack-damage/run";
-import { maxAccuracyAnalysisRun } from "@/studies/max-accuracy/run";
+import { AllocationIntensity } from "../analysis-runs/allocation-intensity.ts";
+import { DEFAULT_ANALYSIS_CHARACTER_SPECS } from "../analysis-subjects/default-analysis-character-specs.ts";
+import { attackDamageAnalysisRun } from "../studies/attack-damage/run.ts";
+import { maxAccuracyAnalysisRun } from "../studies/max-accuracy/run.ts";
 
 const RUN_COUNT = 10;
 // a full party walking every floor takes about 70ms, which does not fit the suite's global timeout

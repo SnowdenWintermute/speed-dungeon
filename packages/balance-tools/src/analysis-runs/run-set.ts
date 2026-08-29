@@ -1,7 +1,7 @@
-import { AnalysisSpecHolder } from "./analysis-spec-holder";
-import { AnalysisCombatantReport, RunReport } from "./analysis-run-reporter";
-import { AnalysisSampleDimensions } from "./analysis-sample";
-import { RoomAvailability } from "./room-availability";
+import { AnalysisSpecHolder } from "./analysis-spec-holder.ts";
+import { AnalysisCombatantReport, RunReport } from "./analysis-run-reporter.ts";
+import { AnalysisSampleDimensions } from "./analysis-sample.ts";
+import { RoomAvailability } from "./room-availability.ts";
 
 export interface AnalysisRunSetResult {
   runsFailed: number;

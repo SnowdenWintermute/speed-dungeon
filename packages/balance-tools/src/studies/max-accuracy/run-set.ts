@@ -1,10 +1,10 @@
-import { AllocationIntensity } from "@/analysis-runs/allocation-intensity";
-import { AnalysisRunOptions } from "@/analysis-runs/analysis-run-options";
-import { AnalysisSampleCollectingRunSet } from "@/analysis-runs/run-set";
-import { AnalysisCharacterSpecification } from "@/analysis-subjects/analysis-character-specification";
-import { maxAccuracyAnalysisRun } from "./run";
-import { MaxAccuracyCombatantReport } from "./run-reporter";
-import { MaxAccuracySample } from "./samples";
+import { AllocationIntensity } from "../../analysis-runs/allocation-intensity.ts";
+import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts";
+import { AnalysisSampleCollectingRunSet } from "../../analysis-runs/run-set.ts";
+import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
+import { maxAccuracyAnalysisRun } from "./run.ts";
+import { MaxAccuracyCombatantReport } from "./run-reporter.ts";
+import { MaxAccuracySample } from "./samples.ts";
 
 export function maxAccuracyRunSet(
   characterSpecs: AnalysisCharacterSpecification[],

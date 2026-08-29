@@ -4,17 +4,11 @@ import { invariant } from "@speed-dungeon/common";
 import { WORKBOOK_PATH } from "./game-data-paths.ts";
 
 export class SheetRow {
-  // fields declared rather than parameter properties, from back when these scripts ran under node's
-  // strip-only mode, which rejected those. --experimental-transform-types accepts them now
-  private cells: Map<string, string>;
-  private sheetName: string;
-  private rowNumber: number;
-
-  constructor(cells: Map<string, string>, sheetName: string, rowNumber: number) {
-    this.cells = cells;
-    this.sheetName = sheetName;
-    this.rowNumber = rowNumber;
-  }
+  constructor(
+    private cells: Map<string, string>,
+    private sheetName: string,
+    private rowNumber: number
+  ) {}
 
   describe(column?: string) {
     const columnPart = column === undefined ? "" : `, column "${column}"`;

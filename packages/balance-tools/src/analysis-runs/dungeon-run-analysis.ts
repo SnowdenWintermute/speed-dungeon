@@ -1,7 +1,17 @@
-// kept apart from types.ts, which the workbook sync scripts cannot load: that module imports study
-// samples through the @/ alias, and node resolves neither that nor an extensionless specifier
+import type { AttackDamageRunSetResult } from "../studies/attack-damage/samples.ts";
+import type { MaxAccuracyRunSetResult } from "../studies/max-accuracy/samples.ts";
+import type { AnalysisRunSetResult } from "./run-set.ts";
 
 export enum DungeonRunAnalysis {
   MaxAccuracy,
   AttackDamage,
+}
+
+// import type above, not a plain import: the workbook sync reaches this module and has no reason to
+// load a study's reporting machinery to read a spreadsheet
+/** the registry the worker and the hook are generic over: an analysis is its enum member plus its result */
+export interface DungeonRunAnalysisResults
+  extends Record<DungeonRunAnalysis, AnalysisRunSetResult> {
+  [DungeonRunAnalysis.MaxAccuracy]: MaxAccuracyRunSetResult;
+  [DungeonRunAnalysis.AttackDamage]: AttackDamageRunSetResult;
 }

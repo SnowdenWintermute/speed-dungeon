@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import uiPreset from "../ui/src/theme/tailwind-preset";
+import uiPreset from "../ui/src/theme/tailwind-preset.ts";
 
 // ui's source has to be scanned here too, or its components render unstyled
 const config: Config = {

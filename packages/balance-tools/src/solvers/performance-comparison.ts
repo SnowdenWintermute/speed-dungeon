@@ -1,4 +1,4 @@
-import { GoalPerformance } from "@/goal-performance-checkers";
+import { GoalPerformance } from "../goal-performance-checkers/index.ts";
 
 /**
  * One candidate loadout weighed against the one it would replace. Reaching the build the study

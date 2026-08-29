@@ -2,8 +2,8 @@ import {
   READ_SAVED_RUN_ROUTE,
   SAVED_RUN_DIRECTORY,
   savedRunFileName,
-} from "@/generated-file-contract";
-import { STUDY_NAME_SLUGS, StudyName } from "@/studies/study-name";
+} from "../generated-file-contract.ts";
+import { STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
 
 /** where the dev server writes it, repo-relative, which is what the write route expects */
 export function savedRunWritePath(studyName: StudyName) {

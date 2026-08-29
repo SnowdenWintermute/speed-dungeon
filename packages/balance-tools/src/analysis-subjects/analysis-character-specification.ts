@@ -9,7 +9,7 @@ import {
   Serializable,
   SerializedOf,
 } from "@speed-dungeon/common";
-import { CharacterWeaponSpecialty } from "./character-weapon-specialty";
+import { CharacterWeaponSpecialty } from "./character-weapon-specialty.ts";
 
 export class AnalysisCharacterSpecification implements Serializable {
   public characterName: EntityName;
