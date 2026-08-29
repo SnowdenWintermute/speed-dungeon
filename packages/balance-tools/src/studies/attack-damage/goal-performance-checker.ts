@@ -23,7 +23,11 @@ import {
   SeededNumberGenerator,
   TargetDummyFactory,
 } from "@speed-dungeon/common";
-import { GoalPerformance, GoalPerformanceChecker } from "../../goal-performance-checkers/index.ts";
+import {
+  GoalPerformance,
+  GoalPerformanceChecker,
+  GoalPerformanceCheckerType,
+} from "../../goal-performance-checkers/index.ts";
 
 /** the counts are raw so a caller pooling several of these divides once, at the end */
 export interface SampledAttacksOnTargetDummy {
@@ -35,6 +39,7 @@ export interface SampledAttacksOnTargetDummy {
 }
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
+  readonly type = GoalPerformanceCheckerType.SampledAttackDamageOnTargetDummy;
   // when rolling attacks on the target dummy to check effectiveness of an equipment, we want to
   // use the same rolls for each equipment tried on or else lucky attack rolls might make an equipment
   // seem better than it really is

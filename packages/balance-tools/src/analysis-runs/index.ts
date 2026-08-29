@@ -49,15 +49,13 @@ export class AnalysisRun<TCombatantReport> {
       while (this.party.dungeonExplorationManager.getCurrentFloor() <= toIncludedFloor) {
         throwIfLoopLimitReached((safetyCounter += 1));
 
-        // clearing the room removes the monsters, so ask before it runs. a room with none neither
-        // drops loot nor awards experience, so it would report the same numbers as the room before it
         const roomHasMonsters = this.party.combatantManager.monstersArePresent();
 
         this.partyDriver.clearCurrentRoom();
-        // the solver deletes what it doesn't equip, so capture the drops before it runs
+
         const equipmentDroppedThisRoom = [...this.party.currentRoom.inventory.equipment];
         this.removeRequirementsFrom(equipmentDroppedThisRoom);
-        // both solvers compare against baselines they take partway through, so they share one scope
+
         this.goalPerformanceChecker.beginComparisonScope();
         this.attributeAllocationSolver.solve();
         const { performanceByCharacter } = this.equipmentSolver.solve();

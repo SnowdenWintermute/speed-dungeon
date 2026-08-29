@@ -1,28 +1,24 @@
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { Combatant } from "@speed-dungeon/common";
 
+export enum GoalPerformanceCheckerType {
+  TotalAccuracy,
+  SampledAttackDamageOnTargetDummy,
+}
+
 export interface GoalPerformance {
-  /** what the combatant achieves with what it is wearing, whether or not that is its build */
   score: number;
-  /**
-   * Whether the loadout that produced the score is the build the study set out to measure. A
-   * character reaching its build outranks any score it gives up doing so: a shield build holding a
-   * two handed weapon loses damage by picking up its first shield, and would never pick one up if
-   * the two were compared on score.
-   */
+  /** Meeting build spec overrides not meeting it, but we still want to record the score. */
   meetsBuildSpecification: boolean;
 }
 
 export interface GoalPerformanceChecker {
+  type: GoalPerformanceCheckerType;
   checkPerformance(
     combatant: Combatant,
     combatantAnalysisSpec: AnalysisCharacterSpecification,
     partyCurrentFloor: number
   ): GoalPerformance;
-  /**
-   * Starts a scope within which every checkPerformance draws the same random numbers, so a
-   * difference between two checks reflects the build change instead of the rolls. Solvers compare
-   * against baselines they took earlier in the scope, so it has to cover all of their measurements.
-   */
+  // sets a seeded RNG so all tries on a comparison get same numbers rolled
   beginComparisonScope(): void;
 }

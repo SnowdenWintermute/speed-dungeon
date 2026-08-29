@@ -10,22 +10,33 @@ import {
   SerializedOf,
 } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "./character-weapon-specialty.ts";
+import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
+import { GOAL_PERFORMANCE_CONSTRUCTORS } from "../goal-performance-checkers/constructors.ts";
 
 export class AnalysisCharacterSpecification implements Serializable {
   public characterName: EntityName;
   constructor(
-    name: string,
-    public readonly characterBuildSpec: CharacterBuildSpecification
+    public readonly name: string,
+    public readonly characterBuildSpec: CharacterBuildSpecification,
+    public readonly goalPerformanceChecker: GoalPerformanceChecker
   ) {
     this.characterName = name as EntityName;
   }
 
   toSerialized() {
-    return { name: this.characterName, characterBuildSpec: this.characterBuildSpec };
+    return {
+      name: this.characterName,
+      characterBuildSpec: this.characterBuildSpec,
+      goalPerformanceCheckerType: this.goalPerformanceChecker.type,
+    };
   }
 
   static fromSerialized(serialized: SerializedOf<AnalysisCharacterSpecification>) {
-    return new AnalysisCharacterSpecification(serialized.name, serialized.characterBuildSpec);
+    return new AnalysisCharacterSpecification(
+      serialized.name,
+      serialized.characterBuildSpec,
+      new GOAL_PERFORMANCE_CONSTRUCTORS[serialized.goalPerformanceCheckerType]()
+    );
   }
 
   combatantIsWearingDesiredEquipmentType(combatant: Combatant) {
