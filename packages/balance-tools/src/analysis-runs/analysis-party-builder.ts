@@ -69,6 +69,11 @@ export class AnalysisPartyBuilder {
       AnalysisPartyBuilder.playerName
     );
 
+    // an analysis subject starts with only what its spec asks for. the creation policy hands out
+    // playtesting items, and the equipment solver drops every carried item into the room, so
+    // anything left here would be scored and reported as loot the run never generated
+    characterWithPets.combatant.getCombatantProperties().inventory.deleteAllItems();
+
     const { supportClass } = spec.characterBuildSpec;
     if (supportClass !== null) {
       characterWithPets.combatant

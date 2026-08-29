@@ -24,6 +24,15 @@
 //   - automatically assign by the armor's availability by room
 //     and a given combatant spec's average attributes in the room
 //     which is the median of rooms in which the item could drop
+//     or some other availabilityPercentile
+//
+// - assign attribute requirements for weapons based on study's
+//   combatant average attributes when the weapons are available
+// - re-run the attack damage study with attribute requirements active
+// - compare to previous study without attribute requirements
+// - possibly tune requirements if average attributes are significantly lowered
+//
+//
 
 //
 // 55 95 166 vs 70 111 175

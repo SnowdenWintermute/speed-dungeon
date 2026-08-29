@@ -6,6 +6,7 @@ import {
   CombatAttribute,
   CombatantClass,
   EquipmentType,
+  HeadGear,
 } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
 import type { EquipmentRequirementTarget } from "./requirement-target.ts";
@@ -54,6 +55,46 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
   },
   {
     baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.Eyepatch,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.LeatherHat,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
+    availabilityPercentile: 0.33,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.LeatherHelm,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.DemonsaurHelm,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.BreastPlate,
     },
@@ -86,6 +127,46 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FullPlate,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.75,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.Circlet,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.Crown,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.FullHelm,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.75,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.GreatHelm,
     },
     studyName: StudyName.AttackDamageMixed,
     attributes: [CombatAttribute.Strength],

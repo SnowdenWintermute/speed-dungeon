@@ -31,11 +31,6 @@ export class AnalysisRun<TCombatantReport> {
     this.partyDriver = new AnalysisPartyDriver(this.game, this.party, allocationIntensity);
   }
 
-  /**
-   * Requirements are an output of these studies, so deriving them has to read a build that no
-   * requirement constrained. Honoring them instead is how you check whether that first pass moved:
-   * once gates exist, builds allocate differently, and the study should be re-read to see how far.
-   */
   private removeRequirementsFrom(equipment: Equipment[]) {
     if (this.options.honorsEquipmentRequirements) {
       return;

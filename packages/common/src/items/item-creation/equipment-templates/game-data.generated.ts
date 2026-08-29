@@ -1399,7 +1399,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(2, 4),
     maxDurability: 20,
-    requirements: { [CombatAttribute.Strength]: 18 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1418,7 +1418,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(4, 6),
     maxDurability: 24,
-    requirements: { [CombatAttribute.Strength]: 35 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1437,7 +1437,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(5, 8),
     maxDurability: 34,
-    requirements: { [CombatAttribute.Strength]: 50 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
@@ -1456,7 +1456,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 42,
-    requirements: { [CombatAttribute.Strength]: 60 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 3, [AffixType.FlatArmorClass]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 3, [AffixType.Dexterity]: 3, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },
