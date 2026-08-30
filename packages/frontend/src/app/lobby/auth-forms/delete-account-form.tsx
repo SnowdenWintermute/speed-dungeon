@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { AuthForm } from "./AuthForm";
 import { HTTP_REQUEST_NAMES } from "@/client-consts";
 import useHttpResponseErrors from "@/hooks/use-http-response-errors";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import { Checkbox } from "@speed-dungeon/ui/atoms/Checkbox";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { observer } from "mobx-react-lite";
+
+const CONFIRM_DELETION_LABEL = "Check the box to confirm your intent to delete your account";
 
 export const DeleteAccountForm = observer(() => {
   const httpRequestTrackerName = HTTP_REQUEST_NAMES.DELETE_ACCOUNT;
@@ -13,6 +15,7 @@ export const DeleteAccountForm = observer(() => {
   const responseTracker = httpRequests.requests[httpRequestTrackerName];
   const [fieldErrors, setFieldErrors, nonFieldErrors] = useHttpResponseErrors(responseTracker);
   const [confirmDeletion, setConfirmDeletion] = useState(false);
+  const confirmDeletionId = useId();
 
   return (
     <AuthForm
@@ -31,16 +34,15 @@ export const DeleteAccountForm = observer(() => {
       successMessage="Your account has been deleted"
     >
       <div className="flex justify-between align-middle text-red-500 mb-2">
-        <span>Check the box to confirm your intent to delete your account</span>
-        <button
-          className="h-10 w-10 p-2 border border-slate-400 hover:bg-slate-950"
-          type="button"
-          onClick={() => {
-            setConfirmDeletion(!confirmDeletion);
-          }}
-        >
-          {confirmDeletion && <XShape className="fill-white" />}
-        </button>
+        <label htmlFor={confirmDeletionId} className="cursor-pointer">
+          {CONFIRM_DELETION_LABEL}
+        </label>
+        <Checkbox
+          id={confirmDeletionId}
+          ariaLabel={CONFIRM_DELETION_LABEL}
+          checked={confirmDeletion}
+          setChecked={setConfirmDeletion}
+        />
       </div>
       <ButtonBasic
         buttonType="submit"

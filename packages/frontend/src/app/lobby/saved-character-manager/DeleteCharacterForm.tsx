@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import { Checkbox } from "@speed-dungeon/ui/atoms/Checkbox";
 import { ClientIntentType, Combatant } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
+
+const CONFIRM_DELETION_LABEL = "Check the box to enable deletion";
 
 export default function DeleteCharacterForm({ character }: { character: Combatant }) {
   const [confirmDeletion, setConfirmDeletion] = useState(false);
   const { lobbyClientRef, uiStore } = useClientApplication();
   const { keybinds } = uiStore;
+  const confirmDeletionId = useId();
 
   function deleteCharacter() {
     lobbyClientRef.get().dispatchIntent({
@@ -22,16 +25,16 @@ export default function DeleteCharacterForm({ character }: { character: Combatan
   return (
     <form className="bg-slate-700 border border-slate-400 p-2 flex flex-col pointer-events-auto">
       <div className="flex justify-between align-middle text-slate-400 mb-2">
-        <span>Check the box to enable deletion</span>
-        <HotkeyButton
-          className="h-10 w-10 p-2 border border-slate-400 hover:bg-slate-950"
+        <label htmlFor={confirmDeletionId} className="cursor-pointer">
+          {CONFIRM_DELETION_LABEL}
+        </label>
+        <Checkbox
+          id={confirmDeletionId}
+          ariaLabel={CONFIRM_DELETION_LABEL}
+          checked={confirmDeletion}
+          setChecked={setConfirmDeletion}
           hotkeys={keybinds.getKeybind(HotkeyButtonTypes.ToggleDeletionConfirmation)}
-          onClick={() => {
-            setConfirmDeletion(!confirmDeletion);
-          }}
-        >
-          {confirmDeletion && <XShape className="fill-white" />}
-        </HotkeyButton>
+        />
       </div>
       <HotkeyButton
         className={`${confirmDeletion && "bg-red-800"} h-10 w-full p-2 border border-slate-400 disabled:opacity-50`}

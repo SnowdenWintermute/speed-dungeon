@@ -38,6 +38,14 @@
 // - prunes equipment by requirements and armorclass
 // - wants highest armor class
 //
+// shield warrior
+// 	37	64	89
+// shield mage
+//  19	42	64
+// bow rogue
+// 	6   18	32
+// staff ice bolt mage
+// 	8 	25	41
 //
 // to determine
 // - monster armor class

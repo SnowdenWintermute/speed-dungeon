@@ -9,7 +9,7 @@ import {
   INFO_UNICODE_SYMBOL,
   AttributePointAssignableAttributes,
 } from "@speed-dungeon/common";
-import StarShape from "../../../../public/img/basic-shapes/star.svg";
+import StarShape from "@speed-dungeon/ui/assets/basic-shapes/star.svg";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { useCharacterSheetSubject } from "./character-sheet-subject-context";
 import { observer } from "mobx-react-lite";

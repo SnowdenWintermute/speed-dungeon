@@ -34,6 +34,13 @@
       "path": "../common"
     }
   ],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  // ui's svg declaration is ambient, so it has to be in the program rather than merely reachable
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "../ui/src/assets/svg.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

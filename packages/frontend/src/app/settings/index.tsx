@@ -2,7 +2,7 @@
 import { HTTP_REQUEST_NAMES, SPACING_REM_SMALL } from "@/client-consts";
 import React, { useState } from "react";
 import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
-import XShape from "../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
 import { ZIndexLayers } from "../z-index-layers";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

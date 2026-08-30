@@ -6,7 +6,7 @@ import { SignUpWithCredentialsForm } from "./sign-up-with-credentials-form";
 import { LoginWithCredentialsForm } from "./login-with-credentials-form";
 import { PasswordResetEmailForm } from "./password-reset-email-form";
 import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
 import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import LogInWithGoogleButton from "./login-in-with-google-button";
 import { observer } from "mobx-react-lite";

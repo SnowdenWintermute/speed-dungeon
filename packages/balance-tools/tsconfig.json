@@ -19,5 +19,6 @@
       "path": "../common"
     }
   ],
-  "include": ["src", "vite.config.ts", "tailwind.config.ts"]
+  // ui's svg declaration is ambient, so it has to be in the program rather than merely reachable
+  "include": ["src", "vite.config.ts", "tailwind.config.ts", "../ui/src/assets/svg.d.ts"]
 }

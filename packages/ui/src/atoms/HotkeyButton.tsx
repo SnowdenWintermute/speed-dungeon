@@ -1,7 +1,7 @@
 import React from "react";
-import { FocusEventHandler, MouseEventHandler, PointerEventHandler, useEffect, useRef } from "react";
-import { normalizeKeyValue } from "@speed-dungeon/common";
+import { FocusEventHandler, MouseEventHandler, PointerEventHandler } from "react";
 import { useHotkeysDisabled } from "../ui-context";
+import { useHotkeys } from "../hooks/use-hotkeys";
 
 interface Props {
   className?: string;
@@ -24,37 +24,17 @@ interface Props {
 
 export function HotkeyButton(props: Props) {
   const hotkeysDisabled = useHotkeysDisabled();
-  const keydownListenerRef = useRef<(e: KeyboardEvent) => void | null>(null);
   const disabled = props.alwaysEnabled === true ? false : props.disabled || hotkeysDisabled;
-  const listenerType = props.keyUp ? "keyup" : "keydown";
 
-  useEffect(() => {
-    if (props.hotkeys !== undefined) {
-      keydownListenerRef.current = (e: KeyboardEvent) => {
-        for (const hotkey of props.hotkeys!) {
-          if (
-            normalizeKeyValue(e.key) === normalizeKeyValue(hotkey) &&
-            !disabled &&
-            !props.ariaDisabled
-          ) {
-            // consume the keystroke so it can't also be typed into an input that this
-            // action focuses (e.g. opening a modal whose field auto-focuses)
-            e.preventDefault();
-            //@ts-ignore
-            props.onClick(new MouseEvent("mouseup"));
-          }
-        }
-      };
-
-      window.addEventListener(listenerType, keydownListenerRef.current);
-    }
-
-    return () => {
-      if (keydownListenerRef.current) {
-        window.removeEventListener(listenerType, keydownListenerRef.current);
-      }
-    };
-  }, [props.onClick, hotkeysDisabled, disabled, listenerType, props.hotkeys]);
+  useHotkeys({
+    hotkeys: props.hotkeys,
+    disabled: disabled || props.ariaDisabled === true,
+    keyUp: props.keyUp,
+    onActivate: () => {
+      //@ts-ignore
+      props.onClick(new MouseEvent("mouseup"));
+    },
+  });
 
   return (
     <button

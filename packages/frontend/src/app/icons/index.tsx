@@ -33,8 +33,8 @@ import HandHoldingStick from "../../../public/img/game-ui-icons/hand-holding-sti
 import Book from "../../../public/img/game-ui-icons/book.svg";
 import Sword from "../../../public/img/equipment-icons/1h-sword-a.svg";
 import Camera from "../../../public/img/game-ui-icons/camera-1.svg";
-import XShape from "../../../public/img/basic-shapes/x-shape.svg";
-import Chevron from "../../../public/img/basic-shapes/chevron.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
+import Chevron from "@speed-dungeon/ui/assets/basic-shapes/chevron.svg";
 import Model3DIcon from "../../../public/img/menu-icons/3d-model-icon.svg";
 import Whistle from "../../../public/img/game-ui-icons/whistle.svg";
 import EditPencil from "../../../public/img/menu-icons//edit-pencil.svg";

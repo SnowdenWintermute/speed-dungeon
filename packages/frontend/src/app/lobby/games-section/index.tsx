@@ -1,7 +1,7 @@
 // @refresh reset
 "use client";
 import { HotkeyButtonTypes } from "@/client-application/ui/keybind-config";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
 import { useEffect, useRef, useState } from "react";
 import {
   ClientIntentType,

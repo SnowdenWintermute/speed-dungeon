@@ -1,7 +1,7 @@
 import { BUTTON_HEIGHT_SMALL, SPACING_REM_SMALL } from "@/client-consts";
 import React from "react";
 import { CharacterSheetCharacterSelectionButton } from "./CharacterSheetCharacterSelectionButton";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
 import { CombatantId } from "@speed-dungeon/common";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 

@@ -1,6 +1,6 @@
 import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
 import { COMBATANT_CLASS_NAME_STRINGS, ClientIntentType, Combatant } from "@speed-dungeon/common";
-import XShape from "../../../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
 import { getCombatantClassIcon } from "@/utils/get-combatant-class-icon";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";

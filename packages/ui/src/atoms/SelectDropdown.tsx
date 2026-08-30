@@ -1,13 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import Triangle from "@speed-dungeon/ui/assets/basic-shapes/triangle.svg";
 import { useSuspendHotkeys, useUiLayers } from "../ui-context";
-
-function Triangle({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 20 13" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M9.99991 0L19.5262 12.75H0.473633L9.99991 0Z" fill="current" />
-    </svg>
-  );
-}
 
 interface Props {
   title: string;

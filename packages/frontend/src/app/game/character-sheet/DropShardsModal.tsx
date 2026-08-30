@@ -1,5 +1,5 @@
 import Divider from "@speed-dungeon/ui/atoms/Divider";
-import XShape from "../../../../public/img/basic-shapes/x-shape.svg";
+import XShape from "@speed-dungeon/ui/assets/basic-shapes/x-shape.svg";
 import React, { useEffect, useState } from "react";
 import { BUTTON_HEIGHT_SMALL } from "@/client-consts";
 import { HotkeyButton } from "@speed-dungeon/ui/atoms/HotkeyButton";
