@@ -37,7 +37,33 @@ export const DEFAULT_ANALYSIS_CHARACTER_BUILDS: NamedAnalysisCharacterBuild[] = 
   },
 ];
 
-/** the whole default party chasing one goal, which is what a single goal study walks with */
+export const CASTER_DUAL_WIELD_RANGED_ANALYSIS_CHARACTER_BUILDS: NamedAnalysisCharacterBuild[] = [
+  {
+    name: "character 1",
+    build: {
+      mainClass: CombatantClass.Warrior,
+      supportClass: CombatantClass.Rogue,
+      weaponSpecialty: CharacterWeaponSpecialty.DualWield,
+    },
+  },
+  {
+    name: "character 2",
+    build: {
+      mainClass: CombatantClass.Rogue,
+      supportClass: CombatantClass.Warrior,
+      weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged,
+    },
+  },
+  {
+    name: "character 3",
+    build: {
+      mainClass: CombatantClass.Mage,
+      supportClass: CombatantClass.Rogue,
+      weaponSpecialty: CharacterWeaponSpecialty.Shields,
+    },
+  },
+];
+
 export function defaultAnalysisCharacterSpecs(goal: AnalysisGoal) {
   return DEFAULT_ANALYSIS_CHARACTER_BUILDS.map(
     ({ name, build }) => new AnalysisCharacterSpecification(name, build, goal)

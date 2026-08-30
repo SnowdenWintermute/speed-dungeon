@@ -6,6 +6,8 @@ import {
   CombatAttribute,
   EquipmentType,
   HeadGear,
+  TwoHandedMeleeWeapon,
+  TwoHandedRangedWeapon,
 } from "./game-data-dependencies.js";
 import type { EquipmentRequirementEntry } from "./game-data-dependencies.js";
 
@@ -22,14 +24,14 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.HardLeather,
     },
-    requirements: { [CombatAttribute.Dexterity]: 34 },
+    requirements: { [CombatAttribute.Dexterity]: 33 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.StuddedLeather,
     },
-    requirements: { [CombatAttribute.Dexterity]: 41 },
+    requirements: { [CombatAttribute.Dexterity]: 40 },
   },
   {
     baseItem: {
@@ -43,21 +45,21 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.Eyepatch,
     },
-    requirements: { [CombatAttribute.Dexterity]: 8 },
+    requirements: { [CombatAttribute.Dexterity]: 6 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.LeatherHat,
     },
-    requirements: { [CombatAttribute.Dexterity]: 22 },
+    requirements: { [CombatAttribute.Dexterity]: 19 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.LeatherHelm,
     },
-    requirements: { [CombatAttribute.Dexterity]: 38 },
+    requirements: { [CombatAttribute.Dexterity]: 34 },
   },
   {
     baseItem: {
@@ -103,6 +105,27 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
   },
   {
     baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.Skullcap,
+    },
+    requirements: { [CombatAttribute.Strength]: 14, [CombatAttribute.Dexterity]: 18 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.Coif,
+    },
+    requirements: { [CombatAttribute.Strength]: 23, [CombatAttribute.Dexterity]: 25 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.HeadGear,
+      baseItemType: HeadGear.OhmushellMask,
+    },
+    requirements: { [CombatAttribute.Strength]: 30, [CombatAttribute.Dexterity]: 28 },
+  },
+  {
+    baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.BreastPlate,
     },
@@ -127,7 +150,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FullPlate,
     },
-    requirements: { [CombatAttribute.Strength]: 57 },
+    requirements: { [CombatAttribute.Strength]: 54 },
   },
   {
     baseItem: {
@@ -156,5 +179,82 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       baseItemType: HeadGear.GreatHelm,
     },
     requirements: { [CombatAttribute.Strength]: 57 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.BoStaff,
+    },
+    requirements: { [CombatAttribute.Strength]: 2, [CombatAttribute.Dexterity]: 1 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.Bardiche,
+    },
+    requirements: { [CombatAttribute.Strength]: 14, [CombatAttribute.Dexterity]: 9 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.Maul,
+    },
+    requirements: { [CombatAttribute.Strength]: 34 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.ElementalStaff,
+    },
+    requirements: { [CombatAttribute.Strength]: 36, [CombatAttribute.Dexterity]: 21 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.Trident,
+    },
+    requirements: { [CombatAttribute.Strength]: 43, [CombatAttribute.Dexterity]: 24 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.GreatAxe,
+    },
+    requirements: { [CombatAttribute.Strength]: 52, [CombatAttribute.Dexterity]: 30 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedMeleeWeapon,
+      baseItemType: TwoHandedMeleeWeapon.GravityHammer,
+    },
+    requirements: { [CombatAttribute.Strength]: 57 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.ShortBow,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 2 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.RecurveBow,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 22 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.CompositeBow,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 29 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.TwoHandedRangedWeapon,
+      baseItemType: TwoHandedRangedWeapon.MilitaryBow,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 55 },
   },
 ];

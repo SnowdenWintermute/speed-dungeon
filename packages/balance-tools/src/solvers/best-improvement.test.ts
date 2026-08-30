@@ -13,6 +13,7 @@ import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-tes
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
 import { AnalysisPartyBuilder } from "../analysis-runs/analysis-party-builder.ts";
+import { AnalysisSubjects } from "../analysis-runs/analysis-subjects.ts";
 import {
   GoalPerformanceChecker,
   GoalPerformanceUnit,
@@ -23,7 +24,7 @@ import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
 
-const dexterityPerformance: GoalPerformanceChecker = {
+const dexterityChecker: GoalPerformanceChecker = {
   scoreUnit: GoalPerformanceUnit.TotalAccuracy,
   allocatableAttributes: [CombatAttribute.Dexterity],
   equipmentScoreAxes: [totalDexterity],
@@ -34,7 +35,7 @@ const dexterityPerformance: GoalPerformanceChecker = {
 };
 
 /** every goal scores dexterity, so the solver is exercised without an attribute formula in the way */
-const constructDexterityChecker: GoalPerformanceCheckerConstructor = () => dexterityPerformance;
+const constructDexterityChecker: GoalPerformanceCheckerConstructor = () => dexterityChecker;
 
 class BestImprovementFixture {
   private idGenerator = new IdGeneratorSequential({ saveHistory: false });
@@ -58,14 +59,15 @@ class BestImprovementFixture {
       );
     }
 
-    const { game, party, analysisSpecContext } = new AnalysisPartyBuilder().build(
-      characterSpecs,
+    const { party, analysisSpecsByCombatantId } = new AnalysisPartyBuilder().build(characterSpecs);
+    const analysisSubjects = new AnalysisSubjects(
+      analysisSpecsByCombatantId,
       constructDexterityChecker
     );
 
     this.party = party;
 
-    this.solver = new BestImprovementEquipmentSolver(this.party, analysisSpecContext);
+    this.solver = new BestImprovementEquipmentSolver(this.party, analysisSubjects);
   }
 
   dropInRoom(equipment: Equipment) {

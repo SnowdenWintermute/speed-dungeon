@@ -1,7 +1,6 @@
 import {
   ArrayUtils,
   EquipmentBaseItem,
-  EquipmentSlotId,
   HOLDABLE_SLOT_IDS,
   invariant,
   NumberRange,

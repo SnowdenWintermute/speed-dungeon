@@ -1304,7 +1304,7 @@ export const EQUIPMENT_TEMPLATE_SPECS: EquipmentTemplateSpec[] = [
     },
     levelRange: new NumberRange(8, 10),
     maxDurability: 52,
-    requirements: { [CombatAttribute.Strength]: 35, [CombatAttribute.Dexterity]: 35 },
+    requirements: {},
     possibleAffixes: {
       prefix: { [AffixType.Mp]: 5, [AffixType.FlatArmorClass]: 5, [AffixType.Evasion]: 5, [AffixType.Agility]: 5 },
       suffix: { [AffixType.Strength]: 5, [AffixType.Spirit]: 5, [AffixType.Dexterity]: 5, [AffixType.Vitality]: 5, [AffixType.Hp]: 5, [AffixType.Durability]: 5, [AffixType.PercentArmorClass]: 5 },

@@ -18,9 +18,8 @@ export interface SampledAction {
 }
 
 export interface SampledActions {
-  /** the one whose landed and critical counts a report quotes */
   primary: SampledAction;
-  /** rolled into the same sample's damage with their counts untracked, such as an off hand swing */
+  // ex: off hand swing
   additional: SampledAction[];
 }
 
@@ -47,8 +46,7 @@ function selectWeaponAttacks(combatant: Combatant): SampledActions {
     usableWeaponsOnly: true,
   });
   const mainHandEquipmentOption = weapons[EquipmentSlotId.MainHand];
-  // read from the slot, not from `weapons`: getWeaponsInSlots drops anything that is not a weapon,
-  // so a shield is absent there and the isShield check inside would never fire
+
   const offhandEquipmentOption = combatant
     .getCombatantProperties()
     .equipment.getEquipmentInSlot(EquipmentSlotId.OffHand);
@@ -78,7 +76,7 @@ export function selectSampledActions(config: SampledActionSelectionConfig): Samp
       const [primaryActionName, ...additionalActionNames] = config.actionNames;
       invariant(primaryActionName !== undefined, "a named action selection needs an action");
       const { rank } = config;
-      // nothing here reads the combatant, so the actions resolve once rather than per sample
+
       const selected: SampledActions = {
         primary: { action: COMBAT_ACTIONS[primaryActionName], rank },
         additional: additionalActionNames.map((actionName) => ({

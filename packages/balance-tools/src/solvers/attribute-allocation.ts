@@ -1,8 +1,7 @@
 import { AllocationIntensity } from "../analysis-runs/allocation-intensity.ts";
-import { AnalysisSpecContext } from "../analysis-runs/analysis-spec-context.ts";
+import { AnalysisSubjects } from "../analysis-runs/analysis-subjects.ts";
 import {
   AdventuringParty,
-  AttributePointAssignableAttributes,
   COMBAT_ATTRIBUTES,
   Combatant,
   CombatAttribute,
@@ -12,7 +11,7 @@ import {
 export class AttributeAllocationSolver {
   constructor(
     private party: AdventuringParty,
-    private analysisSpecContext: AnalysisSpecContext,
+    private analysisSubjects: AnalysisSubjects,
     private allocationIntensity: AllocationIntensity
   ) {}
 
@@ -50,11 +49,11 @@ export class AttributeAllocationSolver {
       currentAllocatedValue + pointsToAllocate
     );
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const spec = this.analysisSpecContext.requireSpec(combatant.getEntityId());
     // allocation moves no equipment, so it can't change whether the build specification is met
-    const { score: performanceAfter } = this.analysisSpecContext
-      .requireGoalPerformanceChecker(combatant.getEntityId())
-      .checkPerformance(combatant, spec, currentFloor);
+    const { score: performanceAfter } = this.analysisSubjects.checkPerformance(
+      combatant,
+      currentFloor
+    );
     const difference = performanceAfter - performanceBefore;
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue);
     return difference;
@@ -68,16 +67,13 @@ export class AttributeAllocationSolver {
 
     const { attributeProperties } = combatant.getCombatantProperties();
     const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const spec = this.analysisSpecContext.requireSpec(combatant.getEntityId());
-    const goalPerformanceChecker = this.analysisSpecContext.requireGoalPerformanceChecker(
+    const { allocatableAttributes } = this.analysisSubjects.requireGoalPerformanceChecker(
       combatant.getEntityId()
     );
-    const { allocatableAttributes } = goalPerformanceChecker;
-    invariant(allocatableAttributes.length > 0);
+    invariant(allocatableAttributes.length > 0, "a goal with nothing to allocate to cannot improve");
 
-    const { score: performanceBefore } = goalPerformanceChecker.checkPerformance(
+    const { score: performanceBefore } = this.analysisSubjects.checkPerformance(
       combatant,
-      spec,
       currentFloor
     );
     let bestImprovementAttribute: { attribute: CombatAttribute; score: number } | null = null;

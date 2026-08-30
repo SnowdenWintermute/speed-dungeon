@@ -1,4 +1,4 @@
-import { AnalysisSpecContext } from "./analysis-spec-context.ts";
+import { AnalysisSubjects } from "./analysis-subjects.ts";
 import { AnalysisCombatantReport, RunReport } from "./analysis-run-reporter.ts";
 import { AnalysisSampleDimensions } from "./analysis-sample.ts";
 import { RoomAvailability } from "./room-availability.ts";
@@ -19,7 +19,7 @@ export interface AnalysisSampleRunSetResult<TSample> extends AnalysisRunSetResul
 
 export type AnalysisRunExecutor<TCombatantReport> = () => {
   report: RunReport<TCombatantReport>;
-  analysisSpecContext: AnalysisSpecContext;
+  analysisSubjects: AnalysisSubjects;
 };
 
 export class AnalysisSampleCollectingRunSet<
@@ -44,7 +44,7 @@ export class AnalysisSampleCollectingRunSet<
     return { samples: this.samples, availability: this.availability, runsFailed: this.runsFailed };
   }
 
-  private collectRun(runReport: RunReport<TCombatantReport>, specContext: AnalysisSpecContext) {
+  private collectRun(runReport: RunReport<TCombatantReport>, analysisSubjects: AnalysisSubjects) {
     const runIndex = this.runsCollected;
     this.runsCollected += 1;
 
@@ -59,7 +59,7 @@ export class AnalysisSampleCollectingRunSet<
       });
 
       for (const [combatantId, combatantReport] of combatantReports) {
-        const { characterBuildSpec, goal } = specContext.requireSpec(combatantId);
+        const { characterBuildSpec, goal } = analysisSubjects.requireSpec(combatantId);
 
         const dimensions: AnalysisSampleDimensions = {
           runIndex,
@@ -82,8 +82,8 @@ export class AnalysisSampleCollectingRunSet<
   executeSet(runCount: number, onRunFinished: (runsFinished: number) => void) {
     for (let i = 0; i < runCount; i += 1) {
       try {
-        const { report, analysisSpecContext } = this.executeRun();
-        this.collectRun(report, analysisSpecContext);
+        const { report, analysisSubjects } = this.executeRun();
+        this.collectRun(report, analysisSubjects);
       } catch (probablyError) {
         this.runsFailed += 1;
         console.error(probablyError);

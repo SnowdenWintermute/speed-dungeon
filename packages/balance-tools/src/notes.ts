@@ -31,23 +31,10 @@
 // - re-run the attack damage study with attribute requirements active
 // - compare to previous study without attribute requirements
 // - possibly tune requirements if average attributes are significantly lowered
+// 	31	66	108	85%	28%	54-68	-	60	11 / 22 / 28	34	5 / 6 / 24	8	1 / 0 / 8	138	15 / 9 / 115	2
 //
 //
 
-//
-// 55 95 166 vs 70 111 175
-//
-// No evasion (500 runs)
-// 72	105	176	66-79
-// With Evasion
-// 59	92 147 63-75
-// Rogue Bow
-// 66	85	111	29%	69-82
-// Warrior 2h
-// 51	98	162	36%	66-81
-// Mage 1H
-// 61	101	162	37%	51-61
-//
 // to determine
 // - monster armor class
 //  - derive from character armor class
@@ -65,29 +52,3 @@
 //
 // - character hp
 //
-// AnalysisRun distinguished by
-// - what it reports
-// - what it can export based on its report
-//
-// - instead of the instance, can store the type
-//   of goal performance checker on the AnalysisCharacterSpecification
-//   to survive worker boundary and allow for shareable
-//   seeded rng and target dummy when constructed by the run
-// - will likely need type and config object for saying
-//   "sample these actions, at this rank". Attack currently
-//   needs to customly sample main and offhand attack actions
-//   so might need a (config:Config) => samplerFunction map
-// - share the beginComparisonScope()
-//   between goal performance checkers
-//   so the RNG is same, regargdless of the goal
-// - type the goal performance units with tagged union
-//   so for now we only allow compatible (same for now)
-//   types in a run and throw if not. Later can make conversion
-//   ratios between types. Proportional won't work without knowing
-//   the ratios, like Chris Wilson's "Effectiveness" from
-//   https://www.pathofexile.com/forum/view-thread/55099
-//
-// - agree, goal must own attributesToTry, equipmentDominationAxes
-//   and merge domination axes from all goals in the solver
-// - agree, view slicing by goal in AnalysisSampleDimensions
-//   is good idea

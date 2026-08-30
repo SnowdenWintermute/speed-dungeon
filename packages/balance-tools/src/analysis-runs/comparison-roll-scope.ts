@@ -7,7 +7,7 @@ import {
  * One roll stream shared by every goal that rolls, so a difference between two measurements
  * reflects the build change instead of the rolls, whatever the goals were measuring.
  */
-export class SeededRandomNumberGeneratorScopeProvider {
+export class ComparisonRollScope {
   private generator = SeededNumberGenerator.withRandomSeed();
   private policy = RandomNumberGenerationPolicyFactory.policyFromGenerator(this.generator);
 
@@ -23,11 +23,11 @@ export class SeededRandomNumberGeneratorScopeProvider {
    * Starts a scope within which every measurement draws the same numbers. Solvers compare against
    * baselines they took earlier in the scope, so it has to cover all of their measurements.
    */
-  beginScope() {
+  begin() {
     this.generator.setRandomSeed();
   }
 
-  rewindToScopeStart() {
+  rewind() {
     this.generator.reset();
   }
 }

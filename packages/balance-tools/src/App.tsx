@@ -5,8 +5,7 @@ import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 import { ZIndexLayers } from "./z-index-layers.ts";
 import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name.ts";
 import { MaxAccuracyPanel } from "./studies/max-accuracy/panel.tsx";
-import { AttackDamagePanel } from "./studies/sampled-damage/panel.tsx";
-import { CasterDamagePanel } from "./studies/caster-damage/panel.tsx";
+import { SampledDamagePanel } from "./studies/sampled-damage/panel.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 
@@ -17,8 +16,9 @@ const STUDY_OPTIONS = iterateNumericEnum(StudyName).map((studyName) => ({
 
 const STUDY_PANELS: Record<StudyName, () => ReactElement> = {
   [StudyName.MaxAccuracyMixed]: MaxAccuracyPanel,
-  [StudyName.AttackDamageMixed]: AttackDamagePanel,
-  [StudyName.CasterDamageMixed]: CasterDamagePanel,
+  [StudyName.AttackDamageMixed]: () => SampledDamagePanel(StudyName.AttackDamageMixed),
+  [StudyName.CasterDamageMixed]: () => SampledDamagePanel(StudyName.CasterDamageMixed),
+  [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
 };
 
 export function App() {

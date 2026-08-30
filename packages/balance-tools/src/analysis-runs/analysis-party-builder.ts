@@ -20,8 +20,6 @@ import {
   SpeedDungeonPlayer,
   Username,
 } from "@speed-dungeon/common";
-import { AnalysisSpecContext } from "./analysis-spec-context.ts";
-import { GoalPerformanceCheckerConstructor } from "../goal-performance-checkers/constructors.ts";
 
 export class AnalysisPartyBuilder {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
@@ -37,7 +35,7 @@ export class AnalysisPartyBuilder {
 
   private static playerName = "player name" as Username;
 
-  private initializePartyContext() {
+  private createGameAndParty() {
     const game = new SpeedDungeonGame(
       "game id" as GameId,
       "game name" as GameName,
@@ -92,16 +90,13 @@ export class AnalysisPartyBuilder {
     return characterWithPets.combatant;
   }
 
-  build(
-    analysisSpecs: AnalysisCharacterSpecification[],
-    constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor
-  ) {
+  build(analysisSpecs: AnalysisCharacterSpecification[]) {
     invariant(
       analysisSpecs.length > 0 && analysisSpecs.length <= MAX_PARTY_SIZE,
       "must provide a list of character specifications greater than zero and less than MAX_PARTY_SIZE"
     );
 
-    const { game, party } = this.initializePartyContext();
+    const { game, party } = this.createGameAndParty();
 
     const analysisSpecsByCombatantId = new Map<CombatantId, AnalysisCharacterSpecification>();
     for (const spec of analysisSpecs) {
@@ -109,11 +104,6 @@ export class AnalysisPartyBuilder {
       analysisSpecsByCombatantId.set(character.getEntityId(), spec);
     }
 
-    const analysisSpecContext = new AnalysisSpecContext(
-      analysisSpecsByCombatantId,
-      constructGoalPerformanceChecker
-    );
-
-    return { game, party, analysisSpecContext };
+    return { game, party, analysisSpecsByCombatantId };
   }
 }

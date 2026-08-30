@@ -7,6 +7,5 @@ export interface AnalysisSlice {
   weaponSpecialty?: CharacterWeaponSpecialty;
   mainClass?: CombatantClass;
   supportClass?: CombatantClass | null;
-  /** so a mixed party's table reads one goal at a time */
   goal?: AnalysisGoal;
 }

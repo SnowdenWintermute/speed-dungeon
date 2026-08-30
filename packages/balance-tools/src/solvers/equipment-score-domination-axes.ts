@@ -1,18 +1,19 @@
 import { AffixType, CombatAttribute, Equipment } from "@speed-dungeon/common";
+import { EquipmentScoreDominationAxis } from "./equipment-score-domination-axis.ts";
 
-/** named so a goal can carry its axes as data across the worker boundary, where functions cannot go */
-export type EquipmentScoreDominationAxisName = keyof typeof EQUIPMENT_SCORE_DOMINATION_AXES;
-
-export const EQUIPMENT_SCORE_DOMINATION_AXES = {
-  strength: (equipment: Equipment) =>
+export const EQUIPMENT_SCORE_DOMINATION_AXES: Record<
+  EquipmentScoreDominationAxis,
+  (equipment: Equipment) => number
+> = {
+  [EquipmentScoreDominationAxis.Strength]: (equipment) =>
     equipment.getAffixAttributeValue(AffixType.Strength, CombatAttribute.Strength),
-  dexterity: (equipment: Equipment) =>
+  [EquipmentScoreDominationAxis.Dexterity]: (equipment) =>
     equipment.getAffixAttributeValue(AffixType.Dexterity, CombatAttribute.Dexterity),
-  spirit: (equipment: Equipment) =>
+  [EquipmentScoreDominationAxis.Spirit]: (equipment) =>
     equipment.getAffixAttributeValue(AffixType.Spirit, CombatAttribute.Spirit),
-  accuracy: (equipment: Equipment) =>
+  [EquipmentScoreDominationAxis.Accuracy]: (equipment) =>
     equipment.getAffixAttributeValue(AffixType.Accuracy, CombatAttribute.Accuracy),
-  nonWeaponFlatDamage: (equipment: Equipment) => {
+  [EquipmentScoreDominationAxis.NonWeaponFlatDamage]: (equipment) => {
     if (equipment.isWeapon()) {
       // checked by the actual weapon's final damage
       return 0;
@@ -20,7 +21,7 @@ export const EQUIPMENT_SCORE_DOMINATION_AXES = {
       return equipment.getFlatDamageBonus();
     }
   },
-  weaponDamageAverage: (equipment: Equipment) => {
+  [EquipmentScoreDominationAxis.WeaponDamageAverage]: (equipment) => {
     if (!equipment.isWeapon()) {
       return 0;
     } else {

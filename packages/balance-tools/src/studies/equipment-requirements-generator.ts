@@ -1,21 +1,25 @@
 import {
   COMBATANT_CLASS_NAME_STRINGS,
   EQUIPMENT_TYPE_STRINGS,
+  CombatAttribute,
   Equipment,
   EquipmentBaseItem,
   EquipmentRequirementEntry,
   MapUtils,
+  NormalizedPercentage,
   invariant,
 } from "@speed-dungeon/common";
 import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
 import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
+import { AvailabilityCurve } from "../analysis-runs/availability-curve.ts";
 import { AvailabilityPoint } from "../analysis-runs/room-availability.ts";
 import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "../analysis-subjects/character-weapon-specialty.ts";
+import { ANALYSIS_GOAL_STRINGS } from "../goal-performance-checkers/analysis-goal.ts";
 import { EquipmentRequirementTarget } from "./requirement-target.ts";
 
 /**
  * How much of what a targeted build is actually worth to ask of it. At 1 the requirement is the mean,
- * which means half of that build cannot wear the item in the room it most likely drops in — a design
+ * which means half of that build cannot wear the item where it anchors on the drop curve — a design
  * decision, so it sits here rather than inside a call to `.mean`. Lower it to gate more gently.
  */
 const REQUIREMENT_SHARE_OF_MEAN = 1;
@@ -26,6 +30,13 @@ interface RequirementSourceTable {
   selectAvailabilityCurve(baseItem: EquipmentBaseItem): AvailabilityPoint[];
 }
 
+/** the rooms a target's percentile straddles, resolved to what the targeted build was worth in each */
+interface AnchoredRows {
+  earlier: AnalysisTableRow | null;
+  later: AnalysisTableRow;
+  weightOfLater: NormalizedPercentage;
+}
+
 export function generateEquipmentRequirements(
   table: RequirementSourceTable,
   targets: EquipmentRequirementTarget[]
@@ -33,7 +44,7 @@ export function generateEquipmentRequirements(
   const byBaseItem = new Map<string, EquipmentRequirementEntry>();
 
   for (const target of targets) {
-    const row = selectAnchorRow(table, target);
+    const anchor = selectAnchoredRows(table, target);
     const entry = MapUtils.getOrCreate(
       byBaseItem,
       describeBaseItem(target.baseItem),
@@ -42,7 +53,7 @@ export function generateEquipmentRequirements(
 
     for (const attribute of target.attributes) {
       entry.requirements[attribute] = Math.round(
-        row.totalAttributes[attribute].mean * REQUIREMENT_SHARE_OF_MEAN
+        readAnchoredMean(anchor, attribute) * REQUIREMENT_SHARE_OF_MEAN
       );
     }
   }
@@ -51,40 +62,60 @@ export function generateEquipmentRequirements(
 }
 
 /**
- * The room to read the targeted build from: where the item's drop curve first reaches the chosen
- * fraction of everything it ever reaches. Measured against that ceiling rather than against 100%, so
- * an item too rare to ever be likely still anchors somewhere sensible.
+ * The build to gate on, read where the item's drop curve reaches the chosen fraction of everything
+ * it ever reaches. That point lands between two rooms far more often than on one, so both are kept
+ * and blended below — anchoring on the room that crossed the threshold would round the requirement
+ * up to the next whole allocation step.
  */
-function selectAnchorRoom(table: RequirementSourceTable, target: EquipmentRequirementTarget) {
-  const name = describeBaseItem(target.baseItem);
-  const curve = table.selectAvailabilityCurve(target.baseItem);
-  invariant(curve.length > 0, `the run set reached no rooms, so ${name} has no drop curve`);
+function selectAnchoredRows(
+  table: RequirementSourceTable,
+  target: EquipmentRequirementTarget
+): AnchoredRows {
+  const curve = new AvailabilityCurve(
+    table.selectAvailabilityCurve(target.baseItem),
+    describeBaseItem(target.baseItem)
+  );
+  const { earlier, later, weightOfLater } = curve.selectAnchor(target.availabilityPercentile);
+  const rows = table.selectRows(target.buildSlice);
 
-  const highest = Math.max(...curve.map((point) => point.percentOfRuns));
-  invariant(highest > 0, `${name} never dropped in any run, so there is no room to read a build from`);
-
-  // the > 0 is what makes a percentile of 0 mean the first room it ever dropped in, not room one
-  const threshold = highest * target.availabilityPercentile;
-  const anchor = curve.find((point) => point.percentOfRuns > 0 && point.percentOfRuns >= threshold);
-  invariant(anchor !== undefined, `${name} reached no room at or above ${threshold} of its runs`);
-
-  return anchor;
+  return {
+    earlier: earlier === null ? null : selectRowInRoom(rows, earlier, target),
+    later: selectRowInRoom(rows, later, target),
+    weightOfLater,
+  };
 }
 
-function selectAnchorRow(table: RequirementSourceTable, target: EquipmentRequirementTarget) {
-  const { floor, room } = selectAnchorRoom(table, target);
-  const row = table
-    .selectRows(target.buildSlice)
-    .find((candidate) => candidate.floor === floor && candidate.room === room);
+function selectRowInRoom(
+  rows: AnalysisTableRow[],
+  location: { floor: number; room: number },
+  target: EquipmentRequirementTarget
+) {
+  const { floor, room } = location;
+  const row = rows.find((candidate) => candidate.floor === floor && candidate.room === room);
 
   invariant(
     row !== undefined,
-    `${describeBaseItem(target.baseItem)} anchors on floor ${floor} room ${room}, where this run ` +
-      `set has no samples for ${describeSlice(target.buildSlice)} — either the study's party never ` +
-      `seats that build, or it did not reach that room`
+    `${describeBaseItem(target.baseItem)} anchors across floor ${floor} room ${room}, where this ` +
+      `run set has no samples for ${describeSlice(target.buildSlice)} — either the study's party ` +
+      `never seats that build, or it did not reach that room`
   );
 
   return row;
+}
+
+function readAnchoredMean(
+  { earlier, later, weightOfLater }: AnchoredRows,
+  attribute: CombatAttribute
+) {
+  const meanAtLater = later.totalAttributes[attribute].mean;
+
+  if (earlier === null) {
+    return meanAtLater;
+  }
+
+  const meanAtEarlier = earlier.totalAttributes[attribute].mean;
+
+  return meanAtEarlier + (meanAtLater - meanAtEarlier) * weightOfLater;
 }
 
 function describeBaseItem(baseItem: EquipmentBaseItem) {
@@ -94,6 +125,9 @@ function describeBaseItem(baseItem: EquipmentBaseItem) {
 function describeSlice(slice: AnalysisSlice) {
   const parts: string[] = [];
 
+  if (slice.goal !== undefined) {
+    parts.push(ANALYSIS_GOAL_STRINGS[slice.goal]);
+  }
   if (slice.weaponSpecialty !== undefined) {
     parts.push(CHARACTER_WEAPON_SPECIALTY_STRINGS[slice.weaponSpecialty]);
   }

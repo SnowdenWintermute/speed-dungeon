@@ -1,24 +1,21 @@
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
-import { CombatantId, invariant } from "@speed-dungeon/common";
+import { Combatant, CombatantId, Equipment, invariant } from "@speed-dungeon/common";
 import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
 import { GoalPerformanceCheckerConstructor } from "../goal-performance-checkers/constructors.ts";
-import {
-  AnalysisGoal,
-  ANALYSIS_GOAL_SPECS,
-} from "../goal-performance-checkers/analysis-goal.ts";
-import { SeededRandomNumberGeneratorScopeProvider } from "./seeded-random-number-generator-scope-provider.ts";
+import { AnalysisGoal, ANALYSIS_GOAL_SPECS } from "../goal-performance-checkers/analysis-goal.ts";
+import { ComparisonRollScope } from "./comparison-roll-scope.ts";
 import { TargetDummyProvider } from "./target-dummy-provider.ts";
 
-export class AnalysisSpecContext {
-  private scopeProvider = new SeededRandomNumberGeneratorScopeProvider();
+export class AnalysisSubjects {
+  private comparisonRollScope = new ComparisonRollScope();
   private goalPerformanceCheckersByGoal = new Map<AnalysisGoal, GoalPerformanceChecker>();
 
   constructor(
-    private _analysisSpecsByCombatantId: Map<CombatantId, AnalysisCharacterSpecification>,
+    private analysisSpecsByCombatantId: Map<CombatantId, AnalysisCharacterSpecification>,
     constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor
   ) {
     this.buildGoalPerformanceCheckers(constructGoalPerformanceChecker);
-    this.throwIfScoreUnitsDisagree();
+    this.assertScoreUnitsAgree();
   }
 
   /**
@@ -27,9 +24,9 @@ export class AnalysisSpecContext {
    * party shares one, and a study configuration that mixes them is a bug worth hearing about before
    * the first room rather than after forty.
    */
-  private throwIfScoreUnitsDisagree() {
+  private assertScoreUnitsAgree() {
     const unitsInParty = new Set(
-      this.getGoalPerformanceCheckers().map((checker) => checker.scoreUnit)
+      [...this.goalPerformanceCheckersByGoal.values()].map((checker) => checker.scoreUnit)
     );
     invariant(
       unitsInParty.size <= 1,
@@ -45,11 +42,11 @@ export class AnalysisSpecContext {
     constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor
   ) {
     const resources = {
-      scopeProvider: this.scopeProvider,
+      comparisonRollScope: this.comparisonRollScope,
       targetDummyProvider: new TargetDummyProvider(),
     };
 
-    for (const { goal } of this._analysisSpecsByCombatantId.values()) {
+    for (const { goal } of this.analysisSpecsByCombatantId.values()) {
       if (this.goalPerformanceCheckersByGoal.has(goal)) {
         continue;
       }
@@ -60,20 +57,26 @@ export class AnalysisSpecContext {
     }
   }
 
-  get analysisSpecsByCombatantId() {
-    return this._analysisSpecsByCombatantId;
+  getComparisonRollScope() {
+    return this.comparisonRollScope;
   }
 
-  getScopeProvider() {
-    return this.scopeProvider;
-  }
-
-  getGoalPerformanceCheckers() {
-    return [...this.goalPerformanceCheckersByGoal.values()];
+  /**
+   * Every axis any goal in the party scores on. Union, because an item is pruned when it scores on
+   * none of them: scoring only the axes of one goal would delete the gear another was walking for.
+   */
+  getEquipmentScoreAxes() {
+    const axes = new Set<(equipment: Equipment) => number>();
+    for (const checker of this.goalPerformanceCheckersByGoal.values()) {
+      for (const axis of checker.equipmentScoreAxes) {
+        axes.add(axis);
+      }
+    }
+    return [...axes];
   }
 
   requireSpec(combatantId: CombatantId) {
-    const specOption = this._analysisSpecsByCombatantId.get(combatantId);
+    const specOption = this.analysisSpecsByCombatantId.get(combatantId);
     invariant(specOption !== undefined, "no spec by that id");
     return specOption;
   }
@@ -82,5 +85,15 @@ export class AnalysisSpecContext {
     const checkerOption = this.goalPerformanceCheckersByGoal.get(this.requireSpec(combatantId).goal);
     invariant(checkerOption !== undefined, "no goal performance checker for that spec");
     return checkerOption;
+  }
+
+  /** scores a combatant against its own goal, which is the only pairing that ever makes sense */
+  checkPerformance(combatant: Combatant, partyCurrentFloor: number) {
+    const combatantId = combatant.getEntityId();
+    return this.requireGoalPerformanceChecker(combatantId).checkPerformance(
+      combatant,
+      this.requireSpec(combatantId),
+      partyCurrentFloor
+    );
   }
 }

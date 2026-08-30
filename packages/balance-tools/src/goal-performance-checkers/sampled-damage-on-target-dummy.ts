@@ -18,7 +18,7 @@ import {
 } from "@speed-dungeon/common";
 import { GoalPerformance, GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
 import { SampledActionSelector } from "./sampled-action-selection.ts";
-import { SeededRandomNumberGeneratorScopeProvider } from "../analysis-runs/seeded-random-number-generator-scope-provider.ts";
+import { ComparisonRollScope } from "../analysis-runs/comparison-roll-scope.ts";
 import { TargetDummyProvider } from "../analysis-runs/target-dummy-provider.ts";
 
 /** the counts are raw so a caller pooling several of these divides once, at the end */
@@ -34,16 +34,15 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
   readonly scoreUnit = GoalPerformanceUnit.SampledDamage;
   private resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();
   private attributesMemosByCombatantId = new Map<CombatantId, CombatantAttributesMemo>();
+  private sampleCount = 5;
 
   constructor(
     private selectActions: SampledActionSelector,
     readonly allocatableAttributes: AttributePointAssignableAttributes[],
     readonly equipmentScoreAxes: ((equipment: Equipment) => number)[],
-    private scopeProvider: SeededRandomNumberGeneratorScopeProvider,
+    private comparisonRollScope: ComparisonRollScope,
     private targetDummyProvider: TargetDummyProvider
   ) {}
-
-  private sampleCount = 5;
 
   private requireAttributesMemo(combatant: Combatant) {
     const combatantId = combatant.getEntityId();
@@ -71,7 +70,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
         targetDummy.combatantProperties,
         CombatActionResource.HitPoints,
         this.resourceChangePropertiesStrategy.getResourceChangePropertiesGetters(action.name),
-        this.scopeProvider.getGenerator()
+        this.comparisonRollScope.getGenerator()
       );
     invariant(incomingRolledDamage !== null, "expect attack action to roll incoming damage");
 
@@ -88,7 +87,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
       user,
       targetDummy,
       incomingResourceChanges,
-      this.scopeProvider.getPolicy(),
+      this.comparisonRollScope.getPolicy(),
       this.resourceChangePropertiesStrategy
     );
     const hitOutcomes = new CombatActionHitOutcomes();
@@ -117,8 +116,6 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     combatantAnalysisSpec: AnalysisCharacterSpecification,
     partyCurrentFloor: number
   ): GoalPerformance {
-    invariant(combatantAnalysisSpec !== undefined);
-
     const { averageDamage } = this.sampleActionsOnTargetDummy(combatant, partyCurrentFloor);
 
     return {
@@ -128,15 +125,15 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     };
   }
 
-  /**
-   * The rolls reset with every call, so sampling a combatant that has not changed since its
-   * performance was checked reproduces the very attacks that performance was read from.
-   */
   /** what this goal has the combatant using, so a report can quote tooltips for the same actions */
   getSampledActions(combatant: Combatant) {
     return this.selectActions(combatant);
   }
 
+  /**
+   * The rolls reset with every call, so sampling a combatant that has not changed since its
+   * performance was checked reproduces the very attacks that performance was read from.
+   */
   sampleActionsOnTargetDummy(combatant: Combatant, partyCurrentFloor: number) {
     // the combatant does not change while it is being sampled
     return this.requireAttributesMemo(combatant).holdWhile(() =>
@@ -148,7 +145,7 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     combatant: Combatant,
     partyCurrentFloor: number
   ): SampledActionsOnTargetDummy {
-    this.scopeProvider.rewindToScopeStart();
+    this.comparisonRollScope.rewind();
 
     const targetDummy = this.targetDummyProvider.requireForFloor(partyCurrentFloor);
     const { primary, additional } = this.selectActions(combatant);

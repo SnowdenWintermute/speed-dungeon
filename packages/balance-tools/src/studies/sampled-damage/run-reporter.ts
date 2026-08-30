@@ -17,7 +17,7 @@ import {
 } from "../../analysis-runs/analysis-run-reporter.ts";
 import { numericEnumKeyedRecord } from "../../utils/numeric-enum-record.ts";
 import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "../../goal-performance-checkers/sampled-damage-on-target-dummy.ts";
-import { AnalysisSpecContext } from "../../analysis-runs/analysis-spec-context.ts";
+import { AnalysisSubjects } from "../../analysis-runs/analysis-subjects.ts";
 import { SampledAction } from "../../goal-performance-checkers/sampled-action-selection.ts";
 
 export enum SampledDamageContributingAttribute {
@@ -36,7 +36,7 @@ export interface CombatantReportTooltipDamage {
 
 type ContributionsByAttribute = Record<SampledDamageContributingAttribute, number>;
 
-export type CombatantAttackContributingAttributes = Record<
+export type CombatantContributingAttributes = Record<
   SampledDamageContributingAttribute,
   { fromGear: number; allocated: number; inherent: number }
 >;
@@ -49,13 +49,13 @@ export interface SampledDamageCombatantReport extends AnalysisCombatantReport {
   primaryCriticalHitCount: number;
   tooltipDamage: CombatantReportTooltipDamage;
   heldEquipment: Record<HoldableSlotId, Equipment | null>;
-  contributingAttributes: CombatantAttackContributingAttributes;
+  contributingAttributes: CombatantContributingAttributes;
 }
 
 export class SampledDamageRunReporter extends RoomReportingRunReporter<SampledDamageCombatantReport> {
   constructor(
     party: AdventuringParty,
-    private analysisSpecContext: AnalysisSpecContext
+    private analysisSubjects: AnalysisSubjects
   ) {
     super(party);
   }
@@ -65,10 +65,10 @@ export class SampledDamageRunReporter extends RoomReportingRunReporter<SampledDa
    * rather than a second sampler rolling its own numbers.
    */
   private requireSampler(combatant: Combatant) {
-    const checker = this.analysisSpecContext.requireGoalPerformanceChecker(combatant.getEntityId());
+    const checker = this.analysisSubjects.requireGoalPerformanceChecker(combatant.getEntityId());
     invariant(
       checker instanceof SampledDamageOnTargetDummyGoalPerformanceChecker,
-      "the attack damage report reads swings off a sampled damage goal"
+      "the sampled damage report reads its counts off a sampled damage goal"
     );
     return checker;
   }
@@ -151,7 +151,7 @@ export class SampledDamageRunReporter extends RoomReportingRunReporter<SampledDa
 
   private getContributingAttributes(
     combatantProperties: CombatantProperties
-  ): CombatantAttackContributingAttributes {
+  ): CombatantContributingAttributes {
     const { attributeProperties } = combatantProperties;
     const fromGear = this.getGearContributions(combatantProperties);
     const allocated = this.contributionsFromAttributes(
