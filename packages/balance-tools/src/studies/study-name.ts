@@ -2,33 +2,36 @@ import { DungeonRunAnalysis } from "../analysis-runs/dungeon-run-analysis.ts";
 
 export enum StudyName {
   MaxAccuracyMixed,
-  AttackDamageMixed,
+  AttackDamageGroupOne,
   CasterDamageMixed,
+  MixedDamageGroupThree,
   CasterDualWieldRanged,
   ArmorClassMixed,
-  ArmorClassDualWield,
+  ArmorClassGroupThree,
 }
 
 /** used for generated file names and as the study's label; the workbook holds the enum member name */
 export const STUDY_NAME_SLUGS: Record<StudyName, string> = {
   [StudyName.MaxAccuracyMixed]: "max-accuracy-mixed",
-  [StudyName.AttackDamageMixed]: "attack-damage-mixed",
+  [StudyName.AttackDamageGroupOne]: "attack-damage-group-one",
   [StudyName.CasterDamageMixed]: "caster-damage-mixed",
+  [StudyName.MixedDamageGroupThree]: "mixed-damage-group-three",
   [StudyName.CasterDualWieldRanged]: "caster-dual-ranged",
   [StudyName.ArmorClassMixed]: "armor-class-mixed",
-  [StudyName.ArmorClassDualWield]: "armor-class-dual-wield",
+  [StudyName.ArmorClassGroupThree]: "armor-class-group-three",
 };
 
 export const STUDY_ANALYSES = {
   [StudyName.MaxAccuracyMixed]: DungeonRunAnalysis.MaxAccuracy,
-  [StudyName.AttackDamageMixed]: DungeonRunAnalysis.SampledDamage,
+  [StudyName.AttackDamageGroupOne]: DungeonRunAnalysis.SampledDamage,
   [StudyName.CasterDualWieldRanged]: DungeonRunAnalysis.SampledDamage,
   // the same table as the attack damage study: sampled damage per room with the attributes behind
   // it. its party is what differs, seating a caster whose spirit the attack study never gates on
   [StudyName.CasterDamageMixed]: DungeonRunAnalysis.SampledDamage,
+  [StudyName.MixedDamageGroupThree]: DungeonRunAnalysis.SampledDamage,
   [StudyName.ArmorClassMixed]: DungeonRunAnalysis.ArmorClass,
   // one table, two parties: between them every weapon specialty is measured
-  [StudyName.ArmorClassDualWield]: DungeonRunAnalysis.ArmorClass,
+  [StudyName.ArmorClassGroupThree]: DungeonRunAnalysis.ArmorClass,
 } as const satisfies Record<StudyName, DungeonRunAnalysis>;
 
 // `as const` above so a panel can be parameterized by its study alone: this resolves which result

@@ -1,7 +1,7 @@
 import { CombatAttribute, EquipmentSlotId } from "@speed-dungeon/common";
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { BaseItemPercentList } from "../../components/base-item-percent-list.tsx";
-import { ArmorClassSlotId } from "./run-reporter.ts";
+import { ArmorClassSlotId } from "./slots.ts";
 import { ArmorClassTableRow } from "./row.ts";
 
 function bySlotColumn(header: string, slotId: ArmorClassSlotId): DataTableColumn<ArmorClassTableRow> {
@@ -11,7 +11,6 @@ function bySlotColumn(header: string, slotId: ArmorClassSlotId): DataTableColumn
   };
 }
 
-/** what the character was allowed to wear with, copied from the study named by its spec */
 function copiedAttributeColumn(
   header: string,
   attribute: CombatAttribute

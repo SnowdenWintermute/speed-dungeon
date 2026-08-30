@@ -43,7 +43,6 @@ export async function testPetSlotLimitations(testFixture: IntegrationTestFixture
   await gameClientHarness.useCombatAction(CombatActionName.Attack, 1);
 
   const petTamer = combatantFocus.requireFocusedCharacter();
-  console.log("pet tamer id:", petTamer.getEntityId());
 
   expect(party.petManager.getAllPetsByOwnerId(petTamer.getEntityId()).length).toBe(1);
   await gameClientHarness.useCombatAction(CombatActionName.ReleasePet, 1);

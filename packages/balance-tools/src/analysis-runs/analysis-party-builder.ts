@@ -8,6 +8,7 @@ import {
   DefaultCharacterCreationPolicy,
   EquipmentSlotId,
   EquipmentRandomizer,
+  EquipmentType,
   GameId,
   GameMode,
   GameName,
@@ -63,9 +64,10 @@ export class AnalysisPartyBuilder {
    * The creation policy dresses a character for its class, not for the build its spec asks for, so a
    * warrior arrives holding a shield whatever it specializes in. The solver would never hand it one,
    * and nothing displaces a starting item a goal has no reason to replace — a two handed build would
-   * report that shield's armor class for the whole run.
+   * report that shield's armor class for the whole run. Starting weapons are left on: what a build
+   * does before its own weapon drops is a real measurement.
    */
-  private static unequipWhatTheBuildWouldNotConsider(
+  private static unequipShieldsTheBuildWouldNotUse(
     combatant: Combatant,
     spec: AnalysisCharacterSpecification
   ) {
@@ -78,6 +80,9 @@ export class AnalysisPartyBuilder {
         continue;
       }
       const { equipmentType } = equipped.equipmentBaseItemProperties;
+      if (equipmentType !== EquipmentType.Shield) {
+        continue;
+      }
       if (!spec.combatantWouldConsiderEquipmentTypeInSlot(equipmentType, slotId)) {
         slotIdsToUnequip.push(slotId);
       }
@@ -100,7 +105,7 @@ export class AnalysisPartyBuilder {
     // an analysis subject starts with only what its spec asks for. the creation policy hands out
     // playtesting items, and the equipment solver drops every carried item into the room, so
     // anything left here would be scored and reported as loot the run never generated
-    AnalysisPartyBuilder.unequipWhatTheBuildWouldNotConsider(characterWithPets.combatant, spec);
+    AnalysisPartyBuilder.unequipShieldsTheBuildWouldNotUse(characterWithPets.combatant, spec);
     characterWithPets.combatant.getCombatantProperties().inventory.deleteAllItems();
 
     const { supportClass } = spec.characterBuildSpec;

@@ -68,19 +68,19 @@ export const ANALYSIS_CHARACTER_BUILDS: Record<
     build: {
       mainClass: CombatantClass.Mage,
       supportClass: CombatantClass.Rogue,
-      weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged,
+      weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
     },
   },
 };
 
 /** the builds every study walks with, so their tables are read against the same characters */
-export const DEFAULT_ANALYSIS_CHARACTER_BUILDS: NamedAnalysisCharacterBuild[] = [
+export const CHARACTER_BUILDS_GROUP_ONE: NamedAnalysisCharacterBuild[] = [
   ANALYSIS_CHARACTER_BUILDS[AnalysisCharacterBuildTypes.TwoHandedMeleeWarrior],
   ANALYSIS_CHARACTER_BUILDS[AnalysisCharacterBuildTypes.BowRogue],
   ANALYSIS_CHARACTER_BUILDS[AnalysisCharacterBuildTypes.ShieldMage],
 ];
 
-export const CASTER_DUAL_WIELD_RANGED_ANALYSIS_CHARACTER_BUILDS: NamedAnalysisCharacterBuild[] = [
+export const CHARACTER_BUILDS_GROUP_TWO: NamedAnalysisCharacterBuild[] = [
   ANALYSIS_CHARACTER_BUILDS[AnalysisCharacterBuildTypes.DualWieldWarrior],
   ANALYSIS_CHARACTER_BUILDS[AnalysisCharacterBuildTypes.BowRogue],
   ANALYSIS_CHARACTER_BUILDS[AnalysisCharacterBuildTypes.ShieldMage],
@@ -93,7 +93,7 @@ export const CHARACTER_BUILDS_GROUP_THREE: NamedAnalysisCharacterBuild[] = [
 ];
 
 export function defaultAnalysisCharacterSpecs(goal: AnalysisGoal) {
-  return DEFAULT_ANALYSIS_CHARACTER_BUILDS.map(
+  return CHARACTER_BUILDS_GROUP_ONE.map(
     ({ name, build }) =>
       new AnalysisCharacterSpecification(name, build, goal, ALLOCATED_TOWARD_GOAL)
   );

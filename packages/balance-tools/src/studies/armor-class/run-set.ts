@@ -3,7 +3,8 @@ import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts"
 import { AnalysisSampleCollectingRunSet } from "../../analysis-runs/run-set.ts";
 import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
 import { armorClassAnalysisRun } from "./run.ts";
-import { ArmorClassCombatantReport, armorClassSlotRecord } from "./run-reporter.ts";
+import { ArmorClassCombatantReport } from "./run-reporter.ts";
+import { armorClassSlotRecord } from "./slots.ts";
 import { ArmorClassSample } from "./samples.ts";
 
 export function armorClassRunSet(

@@ -14,12 +14,8 @@ export type GoalPerformanceCheckerTypeConfig =
 export interface GoalPerformanceCheckerSpec {
   allocatableAttributes: AttributePointAssignableAttributes[];
   equipmentScoreAxes: EquipmentScoreDominationAxis[];
-  /**
-   * Whether holding the build's own equipment type is part of being the build at all. When it is,
-   * reaching it outranks any score difference and giving it up is refused, so a build that must give
-   * up damage to hold its first shield still picks the shield up. When it is not, what a character
-   * ends up holding is only worth what it scores.
-   */
-  buildIsDefinedByHeldEquipment: boolean;
+  /** when set, reaching the build's holdable specialty outranks any score difference and giving it
+   * up is refused, so a build that must lose damage to hold its first shield still takes it */
+  requiresHoldableSpecialty: boolean;
   typeConfig: GoalPerformanceCheckerTypeConfig;
 }

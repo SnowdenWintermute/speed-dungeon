@@ -16,7 +16,7 @@ import {
   WeaponGenerationTemplate,
 } from "./base-templates.js";
 import { EQUIPMENT_TEMPLATE_SPECS } from "./game-data.generated.js";
-import { EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED } from "./requirements-from-attack-damage-mixed.generated.js";
+import { EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_GROUP_ONE } from "./requirements-from-attack-damage-group-one.generated.js";
 import { EQUIPMENT_REQUIREMENTS_FROM_CASTER_DAMAGE_MIXED } from "./requirements-from-caster-damage-mixed.generated.js";
 import { EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED } from "./requirements-from-caster-dual-ranged.generated.js";
 
@@ -100,7 +100,7 @@ export function getEquipmentTemplateCatalog() {
   if (catalog === null) {
     // one entry per study that derives requirements; each owns the module it is read from
     catalog = new EquipmentTemplateCatalog(EQUIPMENT_TEMPLATE_SPECS, [
-      EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED,
+      EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_GROUP_ONE,
       EQUIPMENT_REQUIREMENTS_FROM_CASTER_DAMAGE_MIXED,
       EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED,
     ]);

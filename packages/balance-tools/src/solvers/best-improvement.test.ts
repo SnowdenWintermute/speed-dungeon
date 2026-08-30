@@ -15,10 +15,7 @@ import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-
 import { ALLOCATED_TOWARD_GOAL } from "../analysis-subjects/attribute-source.ts";
 import { AnalysisPartyBuilder } from "../analysis-runs/analysis-party-builder.ts";
 import { AnalysisSubjects } from "../analysis-runs/analysis-subjects.ts";
-import {
-  GoalPerformanceChecker,
-  GoalPerformanceUnit,
-} from "../goal-performance-checkers/index.ts";
+import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
 import { GoalPerformanceCheckerConstructor } from "../goal-performance-checkers/constructors.ts";
 import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
 
@@ -26,7 +23,6 @@ const PARTY_CHARACTER_COUNT = 2;
 const FINGER_SLOT_IDS = [EquipmentSlotId.FingerMain, EquipmentSlotId.FingerAlternate];
 
 const dexterityChecker: GoalPerformanceChecker = {
-  scoreUnit: GoalPerformanceUnit.TotalAccuracy,
   allocatableAttributes: [CombatAttribute.Dexterity],
   equipmentScoreAxes: [totalDexterity],
   checkPerformance: (combatant: Combatant) =>

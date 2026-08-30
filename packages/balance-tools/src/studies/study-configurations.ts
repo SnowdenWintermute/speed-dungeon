@@ -6,8 +6,10 @@ import {
 } from "../analysis-subjects/attribute-source.ts";
 import type { AttributeSource } from "../analysis-subjects/attribute-source.ts";
 import {
-  CASTER_DUAL_WIELD_RANGED_ANALYSIS_CHARACTER_BUILDS,
-  DEFAULT_ANALYSIS_CHARACTER_BUILDS,
+  ANALYSIS_CHARACTER_BUILDS,
+  CHARACTER_BUILDS_GROUP_ONE,
+  CHARACTER_BUILDS_GROUP_THREE,
+  CHARACTER_BUILDS_GROUP_TWO,
   defaultAnalysisCharacterSpecs,
 } from "../analysis-subjects/default-analysis-character-specs.ts";
 import type { NamedAnalysisCharacterBuild } from "../analysis-subjects/default-analysis-character-specs.ts";
@@ -36,11 +38,6 @@ function mixedCasterCharacterSpecs(builds: NamedAnalysisCharacterBuild[]) {
   );
 }
 
-/**
- * An armor character earns nothing of its own: it walks with the attributes the same build was worth
- * in the study that its armor's requirements were derived against, so what it can wear in a room is
- * what a real build could have worn there.
- */
 function copiedFrom(
   studyName: StudyName,
   build: NamedAnalysisCharacterBuild["build"],
@@ -79,30 +76,29 @@ export const STUDY_CONFIGURATIONS: Record<StudyName, StudyConfiguration> = {
   [StudyName.MaxAccuracyMixed]: {
     characterSpecs: defaultAnalysisCharacterSpecs(AnalysisGoal.TotalAccuracy),
   },
-  [StudyName.AttackDamageMixed]: {
+  [StudyName.AttackDamageGroupOne]: {
     characterSpecs: defaultAnalysisCharacterSpecs(AnalysisGoal.WeaponAttackDamage),
   },
   [StudyName.CasterDamageMixed]: {
-    characterSpecs: mixedCasterCharacterSpecs(DEFAULT_ANALYSIS_CHARACTER_BUILDS),
+    characterSpecs: mixedCasterCharacterSpecs(CHARACTER_BUILDS_GROUP_ONE),
+  },
+  [StudyName.MixedDamageGroupThree]: {
+    characterSpecs: mixedCasterCharacterSpecs(CHARACTER_BUILDS_GROUP_THREE),
   },
   [StudyName.CasterDualWieldRanged]: {
-    characterSpecs: mixedCasterCharacterSpecs(CASTER_DUAL_WIELD_RANGED_ANALYSIS_CHARACTER_BUILDS),
+    characterSpecs: mixedCasterCharacterSpecs(CHARACTER_BUILDS_GROUP_TWO),
   },
-
-  // the caster copies from the study that measured it casting, since that is the run its cloth was
-  // gated against; the two weapon users copy from the one that measured them swinging
   [StudyName.ArmorClassMixed]: {
-    characterSpecs: armorClassCharacterSpecs(DEFAULT_ANALYSIS_CHARACTER_BUILDS, (build) =>
+    characterSpecs: armorClassCharacterSpecs(CHARACTER_BUILDS_GROUP_ONE, (build) =>
       build.mainClass === CombatantClass.Mage
         ? StudyName.CasterDamageMixed
-        : StudyName.AttackDamageMixed
+        : StudyName.AttackDamageGroupOne
     ),
   },
-  // the party the mixed study leaves out, so dual wield is measured too
-  [StudyName.ArmorClassDualWield]: {
+  [StudyName.ArmorClassGroupThree]: {
     characterSpecs: armorClassCharacterSpecs(
-      CASTER_DUAL_WIELD_RANGED_ANALYSIS_CHARACTER_BUILDS,
-      () => StudyName.CasterDualWieldRanged
+      CHARACTER_BUILDS_GROUP_THREE,
+      () => StudyName.MixedDamageGroupThree
     ),
   },
 };

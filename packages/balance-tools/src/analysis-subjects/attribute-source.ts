@@ -14,12 +14,8 @@ export interface CopiedAttributeProfileRoom {
   attributes: Partial<Record<CombatAttribute, number>>;
 }
 
-/**
- * Where a character's attributes come from. Allocating toward its own goal is what every study did
- * before this one; copying is for a goal that cannot be allocated toward — armor class comes off
- * equipment alone, so what decides an armor character's numbers is what it is allowed to wear, and
- * that is a real build's attributes read out of another study room by room.
- */
+/** copying is for a goal that cannot be allocated toward: armor class comes off equipment alone, so
+ * what decides an armor character's numbers is what a real build was allowed to wear */
 export type AttributeSource =
   | { type: AttributeSourceType.AllocatedTowardGoal }
   | {

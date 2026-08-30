@@ -1,19 +1,22 @@
-import { invariant, iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
+import {
+  ArrayUtils,
+  COMBAT_ATTRIBUTES,
+  CombatAttribute,
+  invariant,
+  iterateNumericEnumKeyedRecord,
+} from "@speed-dungeon/common";
 import type { Combatant } from "@speed-dungeon/common";
-import { roomKey } from "../analysis-runs/analysis-sample.ts";
+import { AnalysisSampleDimensions, RoomGroupedSamples } from "../analysis-runs/analysis-sample.ts";
+import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import type { CopiedAttributeProfileRoom } from "./attribute-source.ts";
 
 /**
- * One character's attributes as another study measured them, room by room. The character is switched
- * to explicit attributes, so what it reports is this profile and nothing else: not its class tables,
- * not the gear it is wearing. That is the point — the copied numbers already include what the
- * measured build's own gear gave it, so counting this character's gear again would pay for it twice,
- * and the requirement gate is meant to ask what a real build could wear here, not what this fiction
- * bootstrapped itself into.
+ * The copied numbers already include what the measured build's own gear gave it, so the character is
+ * switched to explicit attributes rather than left to total its own — counting the gear it is
+ * standing in would pay for that gear twice.
  */
 export class CopiedAttributeProfile {
-  private roomsByKey = new Map<string, CopiedAttributeProfileRoom>();
-  private lastRoomByFloor = new Map<number, CopiedAttributeProfileRoom>();
+  private roomsByFloor = new Map<number, CopiedAttributeProfileRoom[]>();
 
   constructor(
     private combatant: Combatant,
@@ -27,38 +30,84 @@ export class CopiedAttributeProfile {
     );
 
     for (const room of rooms) {
-      this.roomsByKey.set(roomKey(room), room);
-      const lastOnFloor = this.lastRoomByFloor.get(room.floor);
-      if (lastOnFloor === undefined || lastOnFloor.room < room.room) {
-        this.lastRoomByFloor.set(room.floor, room);
+      const roomsOnFloor = this.roomsByFloor.get(room.floor);
+      if (roomsOnFloor === undefined) {
+        this.roomsByFloor.set(room.floor, [room]);
+      } else {
+        roomsOnFloor.push(room);
       }
+    }
+
+    for (const roomsOnFloor of this.roomsByFloor.values()) {
+      roomsOnFloor.sort((a, b) => a.room - b.room);
     }
 
     combatant.getCombatantProperties().attributeProperties.setUseExplicitAttributes();
   }
 
-  /** a run can out-walk the rooms its source reached on a floor, which the last row there covers */
-  private requireForRoom(location: { floor: number; room: number }) {
-    const exact = this.roomsByKey.get(roomKey(location));
-    if (exact !== undefined) {
-      return exact;
-    }
-
-    const lastOnFloor = this.lastRoomByFloor.get(location.floor);
+  private selectNearestRoomAtOrBelow(location: { floor: number; room: number }) {
+    const roomsOnFloor = this.roomsByFloor.get(location.floor) ?? [];
+    const [firstOnFloor] = roomsOnFloor;
     invariant(
-      lastOnFloor !== undefined,
+      firstOnFloor !== undefined,
       `${this.describeSource} reached floor ${location.floor} where its source study has no samples`
     );
 
-    return lastOnFloor;
+    let nearest = null;
+    for (const room of roomsOnFloor) {
+      if (room.room > location.room) {
+        break;
+      }
+      nearest = room;
+    }
+
+    return nearest ?? firstOnFloor;
   }
 
   applyForRoom(location: { floor: number; room: number }) {
     const { attributeProperties } = this.combatant.getCombatantProperties();
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(
-      this.requireForRoom(location).attributes
+      this.selectNearestRoomAtOrBelow(location).attributes
     )) {
       attributeProperties.setSpeccedAttributeValue(attribute, value);
     }
+  }
+
+  /**
+   * Every sample carries the attributes behind whatever its own study measured, so reading a profile
+   * out of another study needs none of that study's table.
+   */
+  static selectRooms(
+    samples: readonly AnalysisSampleDimensions[],
+    slice: AnalysisSlice
+  ): CopiedAttributeProfileRoom[] {
+    return new RoomGroupedSamples(samples)
+      .selectRooms(slice)
+      .map(({ floor, room, samples: samplesInRoom }) => ({
+        floor,
+        room,
+        attributes: CopiedAttributeProfile.meanAttributes(samplesInRoom),
+      }));
+  }
+
+  /**
+   * Rounded rather than floored, because the requirement generator rounds the same means when it
+   * turns them into gates — a character pinned to the floor of a mean it was gated on would miss its
+   * own requirement by a point in the room that requirement was anchored to. Armor class is left out
+   * because it is what a copying study measures.
+   */
+  private static meanAttributes(samples: AnalysisSampleDimensions[]) {
+    const attributes: Partial<Record<CombatAttribute, number>> = {};
+
+    for (const attribute of COMBAT_ATTRIBUTES) {
+      if (attribute === CombatAttribute.ArmorClass) {
+        continue;
+      }
+      attributes[attribute] = Math.round(
+        ArrayUtils.average(samples.map((sample) => sample.totalAttributes[attribute]))
+      );
+    }
+
+    return attributes;
   }
 }

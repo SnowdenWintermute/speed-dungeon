@@ -17,15 +17,16 @@ const STUDY_OPTIONS = iterateNumericEnum(StudyName).map((studyName) => ({
 
 const STUDY_PANELS: Record<StudyName, () => ReactElement> = {
   [StudyName.MaxAccuracyMixed]: MaxAccuracyPanel,
-  [StudyName.AttackDamageMixed]: () => SampledDamagePanel(StudyName.AttackDamageMixed),
+  [StudyName.AttackDamageGroupOne]: () => SampledDamagePanel(StudyName.AttackDamageGroupOne),
   [StudyName.CasterDamageMixed]: () => SampledDamagePanel(StudyName.CasterDamageMixed),
+  [StudyName.MixedDamageGroupThree]: () => SampledDamagePanel(StudyName.MixedDamageGroupThree),
   [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
   [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
-  [StudyName.ArmorClassDualWield]: () => ArmorClassPanel(StudyName.ArmorClassDualWield),
+  [StudyName.ArmorClassGroupThree]: () => ArmorClassPanel(StudyName.ArmorClassGroupThree),
 };
 
 export function App() {
-  const [studyName, setStudyName] = useState(StudyName.AttackDamageMixed);
+  const [studyName, setStudyName] = useState(StudyName.AttackDamageGroupOne);
   const Panel = STUDY_PANELS[studyName];
 
   return (

@@ -37,28 +37,28 @@ export const EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED: EquipmentRequiremen
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.WarHammer,
     },
-    requirements: { [CombatAttribute.Strength]: 53 },
+    requirements: { [CombatAttribute.Strength]: 50 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.ShortSword,
     },
-    requirements: { [CombatAttribute.Strength]: 11, [CombatAttribute.Dexterity]: 6 },
+    requirements: { [CombatAttribute.Strength]: 11, [CombatAttribute.Dexterity]: 7 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Blade,
     },
-    requirements: { [CombatAttribute.Strength]: 17, [CombatAttribute.Dexterity]: 11 },
+    requirements: { [CombatAttribute.Strength]: 16, [CombatAttribute.Dexterity]: 9 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.BroadSword,
     },
-    requirements: { [CombatAttribute.Strength]: 33, [CombatAttribute.Dexterity]: 20 },
+    requirements: { [CombatAttribute.Strength]: 35, [CombatAttribute.Dexterity]: 22 },
   },
   {
     baseItem: {
@@ -72,14 +72,14 @@ export const EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED: EquipmentRequiremen
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Dagger,
     },
-    requirements: { [CombatAttribute.Strength]: 7, [CombatAttribute.Dexterity]: 4 },
+    requirements: { [CombatAttribute.Strength]: 6, [CombatAttribute.Dexterity]: 3 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.OneHandedMeleeWeapon,
       baseItemType: OneHandedMeleeWeapon.Rapier,
     },
-    requirements: { [CombatAttribute.Strength]: 19, [CombatAttribute.Dexterity]: 12 },
+    requirements: { [CombatAttribute.Strength]: 21, [CombatAttribute.Dexterity]: 13 },
   },
   {
     baseItem: {
@@ -100,14 +100,14 @@ export const EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED: EquipmentRequiremen
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.SplittingMaul,
     },
-    requirements: { [CombatAttribute.Strength]: 22, [CombatAttribute.Dexterity]: 14 },
+    requirements: { [CombatAttribute.Strength]: 21, [CombatAttribute.Dexterity]: 14 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.BattleAxe,
     },
-    requirements: { [CombatAttribute.Strength]: 33, [CombatAttribute.Dexterity]: 20 },
+    requirements: { [CombatAttribute.Strength]: 32, [CombatAttribute.Dexterity]: 20 },
   },
   {
     baseItem: {
@@ -121,7 +121,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED: EquipmentRequiremen
       equipmentType: EquipmentType.Shield,
       baseItemType: Shield.CabinetDoor,
     },
-    requirements: { [CombatAttribute.Strength]: 6, [CombatAttribute.Dexterity]: 4 },
+    requirements: { [CombatAttribute.Strength]: 6, [CombatAttribute.Dexterity]: 3 },
   },
   {
     baseItem: {
@@ -135,7 +135,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED: EquipmentRequiremen
       equipmentType: EquipmentType.Shield,
       baseItemType: Shield.Aspis,
     },
-    requirements: { [CombatAttribute.Strength]: 31, [CombatAttribute.Dexterity]: 18 },
+    requirements: { [CombatAttribute.Strength]: 29, [CombatAttribute.Dexterity]: 17 },
   },
   {
     baseItem: {

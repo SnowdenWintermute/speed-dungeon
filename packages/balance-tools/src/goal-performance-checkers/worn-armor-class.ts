@@ -4,17 +4,11 @@ import {
   Combatant,
   Equipment,
 } from "@speed-dungeon/common";
-import { GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
+import { GoalPerformanceChecker } from "./index.ts";
 
-/**
- * Read off the equipment rather than off the combatant: a character copying its attributes from
- * another study reports them explicitly, and an explicit total is the specced record alone — worn
- * equipment never reaches it. The static is the right reader anyway. It skips broken items, and it
- * is the one the analysis driver swaps to scale what a party earns.
- */
+/** read off the equipment rather than off the combatant, whose explicit total is the specced record
+ * alone — worn equipment never reaches it */
 export class WornArmorClassGoalPerformanceChecker implements GoalPerformanceChecker {
-  readonly scoreUnit = GoalPerformanceUnit.WornArmorClass;
-
   constructor(
     readonly allocatableAttributes: AttributePointAssignableAttributes[],
     readonly equipmentScoreAxes: ((equipment: Equipment) => number)[]

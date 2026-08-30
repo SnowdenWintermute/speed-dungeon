@@ -4,11 +4,9 @@ import {
   Combatant,
   Equipment,
 } from "@speed-dungeon/common";
-import { GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
+import { GoalPerformanceChecker } from "./index.ts";
 
 export class TotalAccuracyGoalPerformanceChecker implements GoalPerformanceChecker {
-  readonly scoreUnit = GoalPerformanceUnit.TotalAccuracy;
-
   constructor(
     readonly allocatableAttributes: AttributePointAssignableAttributes[],
     readonly equipmentScoreAxes: ((equipment: Equipment) => number)[]

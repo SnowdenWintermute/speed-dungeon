@@ -15,22 +15,24 @@ export class AnalysisSubjects {
     constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor
   ) {
     this.buildGoalPerformanceCheckers(constructGoalPerformanceChecker);
-    this.assertScoreUnitsAgree();
+    this.assertGoalsScoreTheSameWay();
   }
 
   /**
    * Loot goes to whichever character a candidate improves most, which compares their scores against
-   * each other. Until there are conversion ratios between units that only means anything when the
-   * party shares one, and a study configuration that mixes them is a bug worth hearing about before
-   * the first room rather than after forty.
+   * each other. Until there are conversion ratios between them that only means anything when the
+   * party's goals all score through one checker, and a study configuration that mixes them is a bug
+   * worth hearing about before the first room rather than after forty.
    */
-  private assertScoreUnitsAgree() {
-    const unitsInParty = new Set(
-      [...this.goalPerformanceCheckersByGoal.values()].map((checker) => checker.scoreUnit)
+  private assertGoalsScoreTheSameWay() {
+    const checkerTypesInParty = new Set(
+      [...this.goalPerformanceCheckersByGoal.keys()].map(
+        (goal) => ANALYSIS_GOAL_SPECS[goal].typeConfig.type
+      )
     );
     invariant(
-      unitsInParty.size <= 1,
-      "every goal in a party must score in the same unit to be weighed against the others"
+      checkerTypesInParty.size <= 1,
+      "every goal in a party must score the same way to be weighed against the others"
     );
   }
 
@@ -87,24 +89,18 @@ export class AnalysisSubjects {
     return checkerOption;
   }
 
-  /**
-   * Scores a combatant against its own goal, which is the only pairing that ever makes sense, and is
-   * also where a score is paired with whether the character is holding what its build is defined by.
-   * A checker only knows how to score; whether holding the specialty matters is declared once per
-   * goal, so a goal that has no such equipment never has to say anything about it.
-   */
   checkPerformance(combatant: Combatant, partyCurrentFloor: number): GoalPerformance {
     const combatantId = combatant.getEntityId();
     const analysisSpec = this.requireSpec(combatantId);
-    const { buildIsDefinedByHeldEquipment } = ANALYSIS_GOAL_SPECS[analysisSpec.goal];
+    const { requiresHoldableSpecialty } = ANALYSIS_GOAL_SPECS[analysisSpec.goal];
 
     return {
       score: this.requireGoalPerformanceChecker(combatantId).checkPerformance(
         combatant,
         partyCurrentFloor
       ),
-      holdsBuildDefiningEquipment:
-        !buildIsDefinedByHeldEquipment ||
+      isWearingHoldableSpecialty:
+        !requiresHoldableSpecialty ||
         analysisSpec.combatantIsWearingDesiredEquipmentType(combatant),
     };
   }

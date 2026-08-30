@@ -1,12 +1,17 @@
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableColumn, DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { NormalizedPercentage } from "@speed-dungeon/common";
 import { roomKey } from "../analysis-runs/analysis-sample.ts";
 import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
 import { useAnalysisRunSet } from "../hooks/use-analysis-run-set.ts";
-import { useCopiedAttributeProfiles } from "../hooks/use-copied-attribute-profiles.ts";
+import {
+  CopiedAttributeProfilesType,
+  describeCopiedAttributeProfilesBlock,
+  useCopiedAttributeProfiles,
+} from "../hooks/use-copied-attribute-profiles.ts";
 import { DungeonRunAnalysisResults } from "../analysis-runs/dungeon-run-analysis.ts";
 import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
 import {
@@ -60,17 +65,35 @@ export function StudyPanel<
   const { state, run, save } = useAnalysisRunSet(studyName, STUDY_ANALYSES[studyName]);
   const [slice, setSlice] = useState<AnalysisSlice>({});
 
-  // a no-op for a study whose characters earn their own attributes, which is most of them
-  const { characterSpecs, blockedReason } = useCopiedAttributeProfiles(
-    configuration.characterSpecs
-  );
+  const copiedProfiles = useCopiedAttributeProfiles(configuration.characterSpecs);
 
-  const table = useMemo(
-    () => (state.result === null ? null : new TableConstructor(state.result)),
-    [state.result, TableConstructor]
-  );
+  const [table, setTable] = useState<null | TTable>(null);
+
+  // building a table off 100MB of samples blocks, so it is queued behind the render that puts the
+  // spinner up rather than done while rendering, where it would freeze an empty table into view
+  const { result } = state;
+  useEffect(() => {
+    setTable(null);
+    if (result === null) {
+      return;
+    }
+
+    let isCurrent = true;
+    const timeout = setTimeout(() => {
+      if (isCurrent) {
+        setTable(new TableConstructor(result));
+      }
+    }, 0);
+
+    return () => {
+      isCurrent = false;
+      clearTimeout(timeout);
+    };
+  }, [result, TableConstructor]);
 
   const rows = useMemo(() => (table === null ? [] : table.selectRows(slice)), [table, slice]);
+
+  const isPreparingTable = state.isLoadingSavedRun || (result !== null && table === null);
 
   const goalsInParty = useMemo(
     () => [...new Set(configuration.characterSpecs.map((spec) => spec.goal))],
@@ -88,10 +111,12 @@ export function StudyPanel<
           fixedAllocationIntensity={fixedAllocationIntensity}
           defaultAllocationIntensity={defaultAllocationIntensity}
           fixedHonorsEquipmentRequirements={fixedHonorsEquipmentRequirements}
-          runBlockedReason={
-            blockedReason ?? (characterSpecs === null ? "reading copied attributes..." : null)
-          }
-          onRun={(options) => characterSpecs !== null && run(characterSpecs, options)}
+          runBlockedReason={describeCopiedAttributeProfilesBlock(copiedProfiles)}
+          onRun={(options) => {
+            if (copiedProfiles.type === CopiedAttributeProfilesType.Ready) {
+              run(copiedProfiles.characterSpecs, options);
+            }
+          }}
         />
       </div>
 
@@ -107,22 +132,35 @@ export function StudyPanel<
 
       {state.resultIsFromSavedRun && (
         <p className="mb-4 text-theme-muted">
-          Showing the saved run for {STUDY_NAME_SLUGS[studyName]} ({state.runCountShown} runs). Run
-          a set to replace it.
+          Showing the saved run for {STUDY_NAME_SLUGS[studyName]} ({state.runCountShown} runs
+          {state.optionsShown !== null &&
+            `, ${Math.round(state.optionsShown.allocationIntensity * 100)}% intensity, ` +
+              `requirements ${state.optionsShown.honorsEquipmentRequirements ? "on" : "off"}`}
+          ). Run a set to replace it.
         </p>
       )}
 
-      <AnalysisSliceControls slice={slice} goalsInParty={goalsInParty} onChange={setSlice} />
-
-      <div className="mb-4 flex items-center gap-4">
-        <WriteFileButton label="save run" disabled={state.result === null} write={save} />
-        {table !== null && renderTableActions !== undefined && renderTableActions(table)}
-      </div>
+      {isPreparingTable ? (
+        <div className="h-10 flex items-center gap-3 text-sm text-theme-muted">
+          <div className="h-5 w-5">
+            <LoadingSpinner />
+          </div>
+          {state.isLoadingSavedRun ? "reading the saved run..." : "building the table..."}
+        </div>
+      ) : (
+        <div>
+          <AnalysisSliceControls slice={slice} goalsInParty={goalsInParty} onChange={setSlice} />
+          <div className="mb-4 flex items-center gap-4">
+            <WriteFileButton label="save run" disabled={state.result === null} write={save} />
+            {table !== null && renderTableActions !== undefined && renderTableActions(table)}
+          </div>
+        </div>
+      )}
 
       <div className="bg-theme-base p-2 border border-theme-muted overflow-auto">
         <DataTable
           columns={columns}
-          entries={rows}
+          entries={rows.toReversed()}
           keyOf={roomKey}
           emptyMessage={table === null ? "no runs yet" : "no samples match this slice"}
           layoutOption={DataTableLayout.FitContent}

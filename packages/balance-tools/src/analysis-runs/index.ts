@@ -40,6 +40,12 @@ export class AnalysisRun<TCombatantReport> {
     }
   }
 
+  private solveAttributes() {
+    for (const attributeSolver of this.attributeSolvers) {
+      attributeSolver.solve();
+    }
+  }
+
   /** returns dungeon run analysis report */
   simulateRun(toIncludedFloor: number = DEEPEST_FLOOR) {
     try {
@@ -49,7 +55,7 @@ export class AnalysisRun<TCombatantReport> {
       while (this.party.dungeonExplorationManager.getCurrentFloor() <= toIncludedFloor) {
         throwIfLoopLimitReached((safetyCounter += 1));
 
-        const roomHasMonsters = this.party.combatantManager.monstersArePresent();
+        const roomHoldsLootAuction = this.party.combatantManager.monstersArePresent();
 
         this.partyDriver.clearCurrentRoom();
 
@@ -57,12 +63,12 @@ export class AnalysisRun<TCombatantReport> {
         this.removeRequirementsFrom(equipmentDroppedThisRoom);
 
         this.comparisonRollScope.begin();
-        for (const attributeSolver of this.attributeSolvers) {
-          attributeSolver.solve();
+        if (roomHoldsLootAuction) {
+          this.solveAttributes();
         }
         const { performanceByCharacter } = this.equipmentSolver.solve();
 
-        if (roomHasMonsters) {
+        if (roomHoldsLootAuction) {
           this.runReporter.updateReport(performanceByCharacter, equipmentDroppedThisRoom);
         }
 

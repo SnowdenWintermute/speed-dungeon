@@ -6,8 +6,9 @@ import { GenerateEquipmentRequirements } from "./generate-equipment-requirements
 
 type SampledDamageStudyName =
   | StudyName.CasterDualWieldRanged
-  | StudyName.AttackDamageMixed
-  | StudyName.CasterDamageMixed;
+  | StudyName.AttackDamageGroupOne
+  | StudyName.CasterDamageMixed
+  | StudyName.MixedDamageGroupThree;
 
 export function SampledDamagePanel(studyName: SampledDamageStudyName) {
   return (

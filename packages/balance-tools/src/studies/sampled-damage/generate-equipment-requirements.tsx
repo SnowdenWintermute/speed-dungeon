@@ -15,9 +15,7 @@ interface Props {
 }
 
 export function GenerateEquipmentRequirements({ studyName, table }: Props) {
-  const targets = EQUIPMENT_REQUIREMENT_TARGETS.filter(
-    (target) => target.studyName === studyName
-  );
+  const targets = EQUIPMENT_REQUIREMENT_TARGETS.filter((target) => target.studyName === studyName);
 
   return (
     <WriteFileButton
@@ -27,10 +25,7 @@ export function GenerateEquipmentRequirements({ studyName, table }: Props) {
       write={() =>
         writeGeneratedFile(
           generatedRequirementsModulePath(studyName),
-          emitEquipmentRequirementsModule(
-            studyName,
-            generateEquipmentRequirements(table, targets)
-          )
+          emitEquipmentRequirementsModule(studyName, generateEquipmentRequirements(table, targets))
         )
       }
     />

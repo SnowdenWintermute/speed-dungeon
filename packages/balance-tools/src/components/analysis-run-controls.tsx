@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
+import { Checkbox } from "@speed-dungeon/ui/atoms/Checkbox";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
 import { AnalysisRunSetOptions } from "../analysis-runs/run-set-worker-messages.ts";
+import { useFixableState } from "../hooks/use-fixable-state.ts";
 
 const MIN_RUN_COUNT = 1;
 const MAX_RUN_COUNT = 2000;
+const HONOR_REQUIREMENTS_LABEL = "honor equipment requirements";
 
 interface Props {
   defaultRunCount: number;
@@ -49,18 +52,16 @@ export function AnalysisRunControls({
   onRun,
 }: Props) {
   const [runCountText, setRunCountText] = useState(`${defaultRunCount}`);
-  const [chosenAllocationIntensity, setChosenAllocationIntensity] = useState(
-    fixedAllocationIntensity ?? defaultAllocationIntensity ?? FULL_ALLOCATION_INTENSITY
+  const honorRequirementsId = useId();
+
+  const intensity = useFixableState(
+    fixedAllocationIntensity,
+    defaultAllocationIntensity ?? FULL_ALLOCATION_INTENSITY
   );
-  const [chosenHonorsEquipmentRequirements, setChosenHonorsEquipmentRequirements] =
-    useState(false);
+  const requirementHandling = useFixableState(fixedHonorsEquipmentRequirements, false);
 
-  const intensityIsFixed = fixedAllocationIntensity !== undefined;
-  const allocationIntensity = fixedAllocationIntensity ?? chosenAllocationIntensity;
-
-  const requirementHandlingIsFixed = fixedHonorsEquipmentRequirements !== undefined;
-  const honorsEquipmentRequirements =
-    fixedHonorsEquipmentRequirements ?? chosenHonorsEquipmentRequirements;
+  const allocationIntensity = intensity.value;
+  const honorsEquipmentRequirements = requirementHandling.value;
 
   const runCount = Number(runCountText);
   const runCountIsUsable = Number.isInteger(runCount) && runCount >= MIN_RUN_COUNT;
@@ -81,9 +82,9 @@ export function AnalysisRunControls({
           title="allocation intensity presets"
           extraStyles="mb-2"
           value={allocationIntensity}
-          setValue={setChosenAllocationIntensity}
+          setValue={intensity.setChosen}
           options={ALLOCATION_INTENSITY_OPTIONS}
-          disabled={intensityIsFixed}
+          disabled={intensity.isFixed}
         />
       </div>
       <div className="flex items-end gap-4">
@@ -113,15 +114,22 @@ export function AnalysisRunControls({
           {isRunning ? "running..." : "run set"}
         </ButtonBasic>
 
-        <label className="h-10 flex items-center gap-2 text-sm text-theme-muted">
-          <input
-            type="checkbox"
+        <div className="h-10 flex items-center gap-2 text-sm text-theme-muted">
+          <Checkbox
+            extraStyles="h-5 w-5"
+            id={honorRequirementsId}
+            ariaLabel={HONOR_REQUIREMENTS_LABEL}
             checked={honorsEquipmentRequirements}
-            disabled={requirementHandlingIsFixed}
-            onChange={(event) => setChosenHonorsEquipmentRequirements(event.target.checked)}
+            disabled={requirementHandling.isFixed}
+            setChecked={requirementHandling.setChosen}
           />
-          honor equipment requirements
-        </label>
+          <label
+            htmlFor={honorRequirementsId}
+            className={`cursor-pointer ${requirementHandling.isFixed ? "opacity-50 cursor-auto" : ""}`}
+          >
+            {HONOR_REQUIREMENTS_LABEL}
+          </label>
+        </div>
 
         {isRunning && (
           <span className="h-10 flex items-center text-sm text-theme-muted">

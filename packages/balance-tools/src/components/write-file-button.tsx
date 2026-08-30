@@ -11,16 +11,10 @@ interface Props {
   noteAfterWrite?: string;
 }
 
-/**
- * A write builds what it writes synchronously, so raising the writing flag is not enough on its own
- * — without letting the browser all the way through a paint, the spinner and the disabled state
- * would only appear once there was nothing left to wait for. Half a second of blocking hides them
- * just as completely as five would.
- */
-function waitForPaint() {
-  return new Promise<void>((resolve) =>
-    requestAnimationFrame(() => setTimeout(() => resolve(), 0))
-  );
+/** a write builds what it writes synchronously, so it is queued behind the render that raises the
+ * writing flag — otherwise the spinner first appears once there is nothing left to wait for */
+function afterWritingFlagRenders() {
+  return new Promise<void>((resolve) => setTimeout(resolve, 0));
 }
 
 /** the route only exists under `vite dev`, so these buttons are absent from a build */
@@ -37,7 +31,7 @@ export function WriteFileButton({ label, write, disabled, noteAfterWrite }: Prop
     setOutcome(null);
     setFailureReason(null);
     setIsWriting(true);
-    await waitForPaint();
+    await afterWritingFlagRenders();
 
     try {
       setOutcome(await write());

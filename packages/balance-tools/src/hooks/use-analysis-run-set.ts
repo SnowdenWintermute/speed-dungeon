@@ -6,7 +6,11 @@ import {
   AnalysisRunSetWorkerMessageType,
   AnalysisRunSetWorkerRequest,
 } from "../analysis-runs/run-set-worker-messages.ts";
-import { savedRunFetchUrl, savedRunWritePath } from "../analysis-runs/saved-run-paths.ts";
+import {
+  SavedRun,
+  savedRunFetchUrl,
+  savedRunWritePath,
+} from "../analysis-runs/saved-run-paths.ts";
 import {
   DungeonRunAnalysis,
   DungeonRunAnalysisResults,
@@ -17,10 +21,14 @@ import { writeGeneratedFile } from "../write-generated-file.ts";
 export interface AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
   result: null | DungeonRunAnalysisResults[AnalysisType];
   runCountShown: null | number;
+  /** what the shown result was walked at; null for a saved run from before these were recorded */
+  optionsShown: null | AnalysisRunSetOptions;
   runsFinished: number;
   runsRequested: number;
   runsFailed: number;
   isRunning: boolean;
+  /** a saved run is 100MB of json, so the wait is long enough to need saying */
+  isLoadingSavedRun: boolean;
   failureReason: null | string;
   /** so a run loaded from disk is never mistaken for one just walked */
   resultIsFromSavedRun: boolean;
@@ -32,18 +40,15 @@ function initialState<
   return {
     result: null,
     runCountShown: null,
+    optionsShown: null,
     runsFinished: 0,
     runsRequested: 0,
     runsFailed: 0,
     isRunning: false,
+    isLoadingSavedRun: false,
     failureReason: null,
     resultIsFromSavedRun: false,
   };
-}
-
-interface SavedRun<AnalysisType extends DungeonRunAnalysis> {
-  runCount: number;
-  result: DungeonRunAnalysisResults[AnalysisType];
 }
 
 export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(
@@ -59,27 +64,33 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(
   // no saved run is the ordinary first-use case, so a miss is silent
   useEffect(() => {
     let isCurrent = true;
-    setState(initialState<AnalysisType>());
+    setState({ ...initialState<AnalysisType>(), isLoadingSavedRun: true });
 
     fetch(savedRunFetchUrl(studyName))
       .then((response) => (response.ok ? response.json() : null))
       .then((saved: null | SavedRun<AnalysisType>) => {
-        if (!isCurrent || saved === null) {
+        if (!isCurrent) {
           return;
         }
         setState((current) =>
-          current.result !== null || current.isRunning
-            ? current
+          saved === null || current.result !== null || current.isRunning
+            ? { ...current, isLoadingSavedRun: false }
             : {
                 ...current,
                 result: saved.result,
                 runCountShown: saved.runCount,
+                optionsShown: saved.options ?? null,
                 runsFailed: saved.result.runsFailed,
+                isLoadingSavedRun: false,
                 resultIsFromSavedRun: true,
               }
         );
       })
-      .catch(() => {});
+      .catch(() => {
+        if (isCurrent) {
+          setState((current) => ({ ...current, isLoadingSavedRun: false }));
+        }
+      });
 
     return () => {
       isCurrent = false;
@@ -115,6 +126,7 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(
               ...current,
               result: data.result,
               runCountShown: current.runsRequested,
+              optionsShown: options,
               runsFailed: data.result.runsFailed,
               isRunning: false,
               resultIsFromSavedRun: false,
@@ -147,11 +159,15 @@ export function useAnalysisRunSet<AnalysisType extends DungeonRunAnalysis>(
 
   // nothing saves on its own: a comparison run must never overwrite the run a generated file came from
   const save = useCallback(async () => {
-    const { result, runCountShown } = state;
+    const { result, runCountShown, optionsShown } = state;
     if (result === null || runCountShown === null) {
       throw new Error("there is no run to save");
     }
-    const saved: SavedRun<AnalysisType> = { runCount: runCountShown, result };
+    const saved: SavedRun<AnalysisType> = {
+      runCount: runCountShown,
+      result,
+      ...(optionsShown === null ? {} : { options: optionsShown }),
+    };
     return writeGeneratedFile(savedRunWritePath(studyName), JSON.stringify(saved));
   }, [state, studyName]);
 

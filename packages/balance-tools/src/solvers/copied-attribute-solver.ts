@@ -6,7 +6,6 @@ import { ANALYSIS_GOAL_STRINGS } from "../goal-performance-checkers/analysis-goa
 import { STUDY_NAME_SLUGS } from "../studies/study-name.ts";
 import { AnalysisAttributeSolver } from "./analysis-attribute-solver.ts";
 
-/** the counterpart to allocating: a character that earns no attributes is handed a real build's */
 export class CopiedAttributeSolver implements AnalysisAttributeSolver {
   private profiles: CopiedAttributeProfile[] = [];
 

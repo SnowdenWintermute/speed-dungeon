@@ -3,7 +3,7 @@ import { SampledRoom } from "../../analysis-runs/analysis-sample.ts";
 import { AnalysisSampleTable } from "../../analysis-runs/analysis-sample-table.ts";
 import { EquipmentBaseItemTally } from "../../analysis-subjects/equipment-base-item-tally.ts";
 import { Distribution } from "../../statistics/distribution.ts";
-import { ARMOR_CLASS_SLOT_IDS, armorClassSlotRecord } from "./run-reporter.ts";
+import { ARMOR_CLASS_SLOT_IDS, armorClassSlotRecord } from "./slots.ts";
 import { ArmorClassSample } from "./samples.ts";
 import { ArmorClassTableRow } from "./row.ts";
 

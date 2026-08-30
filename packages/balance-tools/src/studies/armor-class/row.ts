@@ -1,7 +1,7 @@
 import { AnalysisTableRow } from "../../analysis-runs/analysis-sample-table.ts";
 import { BaseItemAndPercent } from "../../analysis-subjects/equipment-base-item-tally.ts";
 import { Distribution } from "../../statistics/distribution.ts";
-import { ArmorClassSlotId } from "./run-reporter.ts";
+import { ArmorClassSlotId } from "./slots.ts";
 
 export interface ArmorClassTableRow extends AnalysisTableRow {
   /** the most armor class the solver could dress a character in while standing in this room */

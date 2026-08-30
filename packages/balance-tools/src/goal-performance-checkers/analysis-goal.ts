@@ -27,7 +27,7 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
     allocatableAttributes: [CombatAttribute.Dexterity],
     // every build starts holding something other than its specialty, so requiring it here would zero
     // out inherent, allocated and ring accuracy in exactly the rooms no specialty weapon dropped in
-    buildIsDefinedByHeldEquipment: false,
+    requiresHoldableSpecialty: false,
     equipmentScoreAxes: [
       EquipmentScoreDominationAxis.Dexterity,
       EquipmentScoreDominationAxis.Accuracy,
@@ -40,7 +40,7 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
       actionSelection: { type: SampledActionSelectionType.WeaponAttacks },
     },
     allocatableAttributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
-    buildIsDefinedByHeldEquipment: true,
+    requiresHoldableSpecialty: true,
     equipmentScoreAxes: [
       EquipmentScoreDominationAxis.Strength,
       EquipmentScoreDominationAxis.Dexterity,
@@ -66,7 +66,7 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
     },
 
     allocatableAttributes: [CombatAttribute.Spirit, CombatAttribute.Dexterity],
-    buildIsDefinedByHeldEquipment: true,
+    requiresHoldableSpecialty: true,
     equipmentScoreAxes: [
       EquipmentScoreDominationAxis.Spirit,
       EquipmentScoreDominationAxis.Accuracy,
@@ -76,13 +76,13 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
 
   /**
    * Nothing is allocated: armor class comes off equipment alone, and this goal's attributes are
-   * copied from another study rather than earned. Nothing is defining to hold either — a shield is
-   * pure gain and needs no ratchet to be picked up, and the other builds end a run empty handed.
+   * copied from another study rather than earned. No specialty is required either — a shield is pure
+   * gain and needs no ratchet to be picked up, and the other builds end a run empty handed.
    */
   [AnalysisGoal.ArmorClass]: {
     typeConfig: { type: GoalPerformanceCheckerType.WornArmorClass },
     allocatableAttributes: [],
-    buildIsDefinedByHeldEquipment: false,
+    requiresHoldableSpecialty: false,
     equipmentScoreAxes: [EquipmentScoreDominationAxis.ArmorClass],
   },
 };

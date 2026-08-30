@@ -11,7 +11,11 @@ import {
 // type-only export imported as a value
 import type { EntityName, Serializable, SerializedOf } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "./character-weapon-specialty.ts";
-import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
+import {
+  AnalysisGoal,
+  ANALYSIS_GOAL_SPECS,
+  ANALYSIS_GOAL_STRINGS,
+} from "../goal-performance-checkers/analysis-goal.ts";
 import { AttributeSourceType } from "./attribute-source.ts";
 import type { AttributeSource, CopiedAttributeProfileRoom } from "./attribute-source.ts";
 
@@ -24,6 +28,13 @@ export class AnalysisCharacterSpecification implements Serializable {
     public readonly attributeSource: AttributeSource
   ) {
     this.characterName = name as EntityName;
+
+    invariant(
+      ANALYSIS_GOAL_SPECS[goal].allocatableAttributes.length > 0 ||
+        attributeSource.type !== AttributeSourceType.AllocatedTowardGoal,
+      `${name} chases ${ANALYSIS_GOAL_STRINGS[goal]}, which has no attributes to allocate ` +
+        `toward, so it has to copy them from another study rather than earn them`
+    );
   }
 
   toSerialized() {
@@ -44,7 +55,6 @@ export class AnalysisCharacterSpecification implements Serializable {
     );
   }
 
-  /** the rows only exist once a source study's saved run has been read, which the panel does */
   withCopiedProfileRooms(rooms: CopiedAttributeProfileRoom[]) {
     const { attributeSource } = this;
     invariant(

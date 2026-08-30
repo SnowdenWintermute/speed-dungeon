@@ -116,7 +116,6 @@ export class BestImprovementEquipmentSolver {
       const combatantEquipment = combatantProperties.equipment;
 
       if (!combatantEquipment.canEquip(equipmentToCheck).allowed) {
-        console.log("combatant couldn't equip", equipmentToCheck.entityProperties.name);
         continue;
       }
 

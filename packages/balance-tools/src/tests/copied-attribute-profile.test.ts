@@ -1,6 +1,7 @@
 import {
   AffixGenerator,
   BodyArmor,
+  Combatant,
   CombatantClass,
   CombatAttribute,
   EquipmentRandomizer,
@@ -22,8 +23,18 @@ import { StudyName } from "../studies/study-name.ts";
 const COPIED_STRENGTH = 37;
 const ARMOR_CLASS_ON_THE_ARMOR = 12;
 
-function copiedRoom(floor: number, room: number): CopiedAttributeProfileRoom {
-  return { floor, room, attributes: { [CombatAttribute.Strength]: COPIED_STRENGTH } };
+function copiedRoom(
+  floor: number,
+  room: number,
+  strength: number = COPIED_STRENGTH
+): CopiedAttributeProfileRoom {
+  return { floor, room, attributes: { [CombatAttribute.Strength]: strength } };
+}
+
+function strengthOf(combatant: Combatant) {
+  return combatant
+    .getCombatantProperties()
+    .attributeProperties.getAttributeValue(CombatAttribute.Strength);
 }
 
 function buildCopyingCharacter(rooms: CopiedAttributeProfileRoom[]) {
@@ -37,7 +48,7 @@ function buildCopyingCharacter(rooms: CopiedAttributeProfileRoom[]) {
     AnalysisGoal.ArmorClass,
     {
       type: AttributeSourceType.CopiedFromStudyTable,
-      studyName: StudyName.AttackDamageMixed,
+      studyName: StudyName.AttackDamageGroupOne,
       slice: {},
       rooms,
     }
@@ -77,13 +88,38 @@ it("reports the copied attributes as its total while its armor still scores armo
   );
 });
 
-it("falls back to the last room its source study reached on a floor", () => {
-  const { combatant, profile } = buildCopyingCharacter([copiedRoom(1, 1), copiedRoom(1, 2)]);
+it("falls back to the nearest room at or below the one asked for", () => {
+  const { combatant, profile } = buildCopyingCharacter([
+    copiedRoom(1, 1, 10),
+    copiedRoom(1, 3, 20),
+    copiedRoom(1, 6, 30),
+  ]);
 
-  expect(() => profile.applyForRoom({ floor: 1, room: 5 })).not.toThrow();
-  expect(
-    combatant.getCombatantProperties().attributeProperties.getAttributeValue(CombatAttribute.Strength)
-  ).toBe(COPIED_STRENGTH);
+  profile.applyForRoom({ floor: 1, room: 4 });
+  expect(strengthOf(combatant)).toBe(20);
+
+  profile.applyForRoom({ floor: 1, room: 3 });
+  expect(strengthOf(combatant)).toBe(20);
+});
+
+it("uses a floor's first sampled room for one below anything its source reached", () => {
+  const { combatant, profile } = buildCopyingCharacter([
+    copiedRoom(1, 4, 10),
+    copiedRoom(1, 6, 30),
+  ]);
+
+  profile.applyForRoom({ floor: 1, room: 2 });
+  expect(strengthOf(combatant)).toBe(10);
+});
+
+it("out-walking its source on a floor holds that floor's last sampled room", () => {
+  const { combatant, profile } = buildCopyingCharacter([
+    copiedRoom(1, 1, 10),
+    copiedRoom(1, 2, 20),
+  ]);
+
+  profile.applyForRoom({ floor: 1, room: 5 });
+  expect(strengthOf(combatant)).toBe(20);
 });
 
 it("refuses a floor its source study never reached", () => {

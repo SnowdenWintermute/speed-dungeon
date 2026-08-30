@@ -15,7 +15,7 @@ import {
   invariant,
   RealResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
-import { GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
+import { GoalPerformanceChecker } from "./index.ts";
 import { SampledActionSelector } from "./sampled-action-selection.ts";
 import { ComparisonRollScope } from "../analysis-runs/comparison-roll-scope.ts";
 import { TargetDummyProvider } from "../analysis-runs/target-dummy-provider.ts";
@@ -30,7 +30,6 @@ export interface SampledActionsOnTargetDummy {
 }
 
 export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPerformanceChecker {
-  readonly scoreUnit = GoalPerformanceUnit.SampledDamage;
   private resourceChangePropertiesStrategy = new RealResourceChangePropertiesStrategy();
   private attributesMemosByCombatantId = new Map<CombatantId, CombatantAttributesMemo>();
   private sampleCount = 5;
