@@ -114,7 +114,9 @@ export class BestImprovementEquipmentSolver {
     for (const combatant of combatantManager.getPartyMemberCharacters()) {
       const combatantProperties = combatant.getCombatantProperties();
       const combatantEquipment = combatantProperties.equipment;
+
       if (!combatantEquipment.canEquip(equipmentToCheck).allowed) {
+        console.log("combatant couldn't equip", equipmentToCheck.entityProperties.name);
         continue;
       }
 

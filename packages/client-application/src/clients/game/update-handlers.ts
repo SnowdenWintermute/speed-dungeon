@@ -282,9 +282,6 @@ export function createGameUpdateHandlers(
       const { equipment } = combatant.combatantProperties;
 
       const unequippedResult = equipment.equipItem(itemId, equipToAlternateSlot);
-      if (unequippedResult instanceof Error) {
-        throw unequippedResult;
-      }
 
       const slot = equipment.getSlotItemIsEquippedTo(itemId);
       if (slot !== null) {
@@ -333,14 +330,7 @@ export function createGameUpdateHandlers(
       const { combatant, party } = gameContext.requireCombatantContext(characterId);
       const { equipment } = combatant.combatantProperties;
 
-      const equipResult = equipment.equipItemFromGround(
-        itemId,
-        party.currentRoom.inventory,
-        equipToAlternateSlot
-      );
-      if (equipResult instanceof Error) {
-        throw equipResult;
-      }
+      equipment.equipItemFromGround(itemId, party.currentRoom.inventory, equipToAlternateSlot);
 
       // the item just vanished from under the pointer, so a mouseleave will never arrive to unhover it
       if (detailableEntityFocus.entityIsHovered(itemId)) {
@@ -359,10 +349,7 @@ export function createGameUpdateHandlers(
 
       const sourceSlot = combatantEquipment.getSlotById(sourceSlotId);
       const destinationSlot = combatantEquipment.getSlotById(destinationSlotId);
-      const moveResult = combatantEquipment.moveEquippedItemToSlot(sourceSlot, destinationSlot);
-      if (moveResult instanceof Error) {
-        throw moveResult;
-      }
+      combatantEquipment.moveEquippedItemToSlot(sourceSlot, destinationSlot);
 
       sequentialEventProcessor.scheduleEvent({
         type: ClientSequentialEventType.SynchronizeCombatantEquipmentModels,

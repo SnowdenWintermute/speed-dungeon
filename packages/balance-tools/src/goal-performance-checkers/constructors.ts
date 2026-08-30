@@ -2,6 +2,7 @@ import { GoalPerformanceChecker, GoalPerformanceCheckerType } from "./index.ts";
 import { GoalPerformanceCheckerSpec } from "./spec.ts";
 import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./sampled-damage-on-target-dummy.ts";
 import { TotalAccuracyGoalPerformanceChecker } from "./total-accuracy.ts";
+import { WornArmorClassGoalPerformanceChecker } from "./worn-armor-class.ts";
 import { selectSampledActions } from "./sampled-action-selection.ts";
 import { EQUIPMENT_SCORE_DOMINATION_AXES } from "../solvers/equipment-score-domination-axes.ts";
 import { ComparisonRollScope } from "../analysis-runs/comparison-roll-scope.ts";
@@ -28,6 +29,11 @@ export const constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor 
   switch (spec.typeConfig.type) {
     case GoalPerformanceCheckerType.TotalAccuracy:
       return new TotalAccuracyGoalPerformanceChecker(
+        spec.allocatableAttributes,
+        equipmentScoreAxes
+      );
+    case GoalPerformanceCheckerType.WornArmorClass:
+      return new WornArmorClassGoalPerformanceChecker(
         spec.allocatableAttributes,
         equipmentScoreAxes
       );

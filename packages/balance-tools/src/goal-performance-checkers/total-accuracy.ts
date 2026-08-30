@@ -4,7 +4,7 @@ import {
   Combatant,
   Equipment,
 } from "@speed-dungeon/common";
-import { GoalPerformance, GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
+import { GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
 
 export class TotalAccuracyGoalPerformanceChecker implements GoalPerformanceChecker {
   readonly scoreUnit = GoalPerformanceUnit.TotalAccuracy;
@@ -14,12 +14,9 @@ export class TotalAccuracyGoalPerformanceChecker implements GoalPerformanceCheck
     readonly equipmentScoreAxes: ((equipment: Equipment) => number)[]
   ) {}
 
-  checkPerformance(combatant: Combatant): GoalPerformance {
-    return {
-      score: combatant
-        .getCombatantProperties()
-        .attributeProperties.getAttributeValue(CombatAttribute.Accuracy),
-      meetsBuildSpecification: true,
-    };
+  checkPerformance(combatant: Combatant) {
+    return combatant
+      .getCombatantProperties()
+      .attributeProperties.getAttributeValue(CombatAttribute.Accuracy);
   }
 }

@@ -6,4 +6,5 @@ export enum EquipmentScoreDominationAxis {
   Accuracy,
   NonWeaponFlatDamage,
   WeaponDamageAverage,
+  ArmorClass,
 }

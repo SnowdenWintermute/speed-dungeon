@@ -9,3 +9,14 @@ export interface AnalysisSlice {
   supportClass?: CombatantClass | null;
   goal?: AnalysisGoal;
 }
+
+/**
+ * Named dimensions rather than a stringified object, so a key cannot turn on property order, and
+ * `String` rather than a bare join, since a support class of null means having none at all while
+ * undefined means any — the two join to the same empty text.
+ */
+export function sliceKey(slice: AnalysisSlice) {
+  return [slice.weaponSpecialty, slice.mainClass, slice.supportClass, slice.goal]
+    .map(String)
+    .join("-");
+}

@@ -6,9 +6,15 @@ import { roomKey } from "../analysis-runs/analysis-sample.ts";
 import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
 import { useAnalysisRunSet } from "../hooks/use-analysis-run-set.ts";
+import { useCopiedAttributeProfiles } from "../hooks/use-copied-attribute-profiles.ts";
 import { DungeonRunAnalysisResults } from "../analysis-runs/dungeon-run-analysis.ts";
 import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
-import { AnalysisOfStudy, STUDY_ANALYSES, STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
+import {
+  AnalysisOfStudy,
+  STUDY_ANALYSES,
+  STUDY_NAME_SLUGS,
+  StudyName,
+} from "../studies/study-name.ts";
 import { AnalysisRunControls } from "./analysis-run-controls.tsx";
 import { AnalysisSliceControls } from "./analysis-slice-controls.tsx";
 import { WriteFileButton } from "./write-file-button.tsx";
@@ -31,6 +37,8 @@ interface Props<
   /** set by a study whose derivation only means anything at one intensity */
   fixedAllocationIntensity?: NormalizedPercentage;
   defaultAllocationIntensity?: NormalizedPercentage;
+  /** set by a study that is only itself with requirements handled one way */
+  fixedHonorsEquipmentRequirements?: boolean;
   /** whatever the study does with a finished table, such as generating a module from it */
   renderTableActions?: (table: TTable) => ReactNode;
 }
@@ -45,11 +53,17 @@ export function StudyPanel<
   tableConstructor: TableConstructor,
   fixedAllocationIntensity,
   defaultAllocationIntensity,
+  fixedHonorsEquipmentRequirements,
   renderTableActions,
 }: Props<TStudy, TRow, TTable>) {
   const configuration = STUDY_CONFIGURATIONS[studyName];
   const { state, run, save } = useAnalysisRunSet(studyName, STUDY_ANALYSES[studyName]);
   const [slice, setSlice] = useState<AnalysisSlice>({});
+
+  // a no-op for a study whose characters earn their own attributes, which is most of them
+  const { characterSpecs, blockedReason } = useCopiedAttributeProfiles(
+    configuration.characterSpecs
+  );
 
   const table = useMemo(
     () => (state.result === null ? null : new TableConstructor(state.result)),
@@ -73,7 +87,11 @@ export function StudyPanel<
           runsRequested={state.runsRequested}
           fixedAllocationIntensity={fixedAllocationIntensity}
           defaultAllocationIntensity={defaultAllocationIntensity}
-          onRun={(options) => run(configuration.characterSpecs, options)}
+          fixedHonorsEquipmentRequirements={fixedHonorsEquipmentRequirements}
+          runBlockedReason={
+            blockedReason ?? (characterSpecs === null ? "reading copied attributes..." : null)
+          }
+          onRun={(options) => characterSpecs !== null && run(characterSpecs, options)}
         />
       </div>
 

@@ -5,19 +5,23 @@ import {
   EquipmentType,
   HOLDABLE_EQUIPMENT_TYPES,
   HOLDABLE_SLOT_IDS,
+  invariant,
 } from "@speed-dungeon/common";
 // the workbook sync reaches this module and runs under node's type stripping, which cannot erase a
 // type-only export imported as a value
 import type { EntityName, Serializable, SerializedOf } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "./character-weapon-specialty.ts";
 import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
+import { AttributeSourceType } from "./attribute-source.ts";
+import type { AttributeSource, CopiedAttributeProfileRoom } from "./attribute-source.ts";
 
 export class AnalysisCharacterSpecification implements Serializable {
   public characterName: EntityName;
   constructor(
     public readonly name: string,
     public readonly characterBuildSpec: CharacterBuildSpecification,
-    public readonly goal: AnalysisGoal
+    public readonly goal: AnalysisGoal,
+    public readonly attributeSource: AttributeSource
   ) {
     this.characterName = name as EntityName;
   }
@@ -27,6 +31,7 @@ export class AnalysisCharacterSpecification implements Serializable {
       name: this.characterName,
       characterBuildSpec: this.characterBuildSpec,
       goal: this.goal,
+      attributeSource: this.attributeSource,
     };
   }
 
@@ -34,8 +39,23 @@ export class AnalysisCharacterSpecification implements Serializable {
     return new AnalysisCharacterSpecification(
       serialized.name,
       serialized.characterBuildSpec,
-      serialized.goal
+      serialized.goal,
+      serialized.attributeSource
     );
+  }
+
+  /** the rows only exist once a source study's saved run has been read, which the panel does */
+  withCopiedProfileRooms(rooms: CopiedAttributeProfileRoom[]) {
+    const { attributeSource } = this;
+    invariant(
+      attributeSource.type === AttributeSourceType.CopiedFromStudyTable,
+      "only a character copying its attributes has profile rooms to fill"
+    );
+
+    return new AnalysisCharacterSpecification(this.name, this.characterBuildSpec, this.goal, {
+      ...attributeSource,
+      rooms,
+    });
   }
 
   combatantIsWearingDesiredEquipmentType(combatant: Combatant) {

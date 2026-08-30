@@ -10,7 +10,7 @@ export interface TalliedBaseItem {
   count: number;
 }
 
-export interface HoldableAndPercent {
+export interface BaseItemAndPercent {
   baseItem: EquipmentBaseItem;
   /** the denominator differs by column, so read it off the row field this came from */
   percent: NormalizedPercentage;
@@ -43,7 +43,7 @@ export class EquipmentBaseItemTally {
     return [...this.tallied.values()].map(({ baseItem, count }) => ({ baseItem, count }));
   }
 
-  toPercentages(total: number): HoldableAndPercent[] {
+  toPercentages(total: number): BaseItemAndPercent[] {
     return this.entries()
       .map(({ baseItem, count }) => ({ baseItem, percent: count / total }))
       .sort((a, b) => b.percent - a.percent);

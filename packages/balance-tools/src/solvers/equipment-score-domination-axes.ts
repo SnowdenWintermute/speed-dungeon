@@ -21,6 +21,9 @@ export const EQUIPMENT_SCORE_DOMINATION_AXES: Record<
       return equipment.getFlatDamageBonus();
     }
   },
+  // base armor class folded together with the flat and percent armor class affixes, which is what a
+  // wearer actually gets. zero for anything but body armor, head gear and shields
+  [EquipmentScoreDominationAxis.ArmorClass]: (equipment) => equipment.getModifiedArmorClass(),
   [EquipmentScoreDominationAxis.WeaponDamageAverage]: (equipment) => {
     if (!equipment.isWeapon()) {
       return 0;

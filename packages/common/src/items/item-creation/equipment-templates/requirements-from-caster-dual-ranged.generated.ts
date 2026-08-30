@@ -5,6 +5,7 @@ import {
   CombatAttribute,
   EquipmentType,
   OneHandedMeleeWeapon,
+  Shield,
   TwoHandedMeleeWeapon,
 } from "./game-data-dependencies.js";
 import type { EquipmentRequirementEntry } from "./game-data-dependencies.js";
@@ -114,5 +115,40 @@ export const EQUIPMENT_REQUIREMENTS_FROM_CASTER_DUAL_RANGED: EquipmentRequiremen
       baseItemType: TwoHandedMeleeWeapon.Glaive,
     },
     requirements: { [CombatAttribute.Strength]: 38, [CombatAttribute.Dexterity]: 23 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.CabinetDoor,
+    },
+    requirements: { [CombatAttribute.Strength]: 6, [CombatAttribute.Dexterity]: 4 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Heater,
+    },
+    requirements: { [CombatAttribute.Strength]: 14, [CombatAttribute.Dexterity]: 8 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Aspis,
+    },
+    requirements: { [CombatAttribute.Strength]: 31, [CombatAttribute.Dexterity]: 18 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.KiteShield,
+    },
+    requirements: { [CombatAttribute.Strength]: 37, [CombatAttribute.Dexterity]: 22 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.GothicShield,
+    },
+    requirements: { [CombatAttribute.Strength]: 52, [CombatAttribute.Dexterity]: 31 },
   },
 ];

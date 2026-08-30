@@ -50,16 +50,41 @@ export class RoomAvailabilityIndex {
     samples: AnalysisSampleDimensions[]
   ) {
     const usedHoldableTypes = new Set<EquipmentType>();
-    const matchedRunIndexes = new Set<number>();
-
     for (const sample of samples) {
       for (const equipmentType of AnalysisCharacterSpecification.getUsedHoldableTypes(
         sample.weaponSpecialty
       )) {
         usedHoldableTypes.add(equipmentType);
       }
-      matchedRunIndexes.add(sample.runIndex);
     }
+
+    return this.selectPercentagesOfTypes(location, samples, usedHoldableTypes);
+  }
+
+  /** the armor a study of armor cares about: worn on the body or head, or held as a shield */
+  selectArmorPercentages(
+    location: { floor: number; room: number },
+    samples: AnalysisSampleDimensions[]
+  ) {
+    const armorTypes = new Set([EquipmentType.BodyArmor, EquipmentType.HeadGear]);
+    for (const sample of samples) {
+      const usesShields = AnalysisCharacterSpecification.getUsedHoldableTypes(
+        sample.weaponSpecialty
+      ).includes(EquipmentType.Shield);
+      if (usesShields) {
+        armorTypes.add(EquipmentType.Shield);
+      }
+    }
+
+    return this.selectPercentagesOfTypes(location, samples, armorTypes);
+  }
+
+  private selectPercentagesOfTypes(
+    location: { floor: number; room: number },
+    samples: AnalysisSampleDimensions[],
+    countedTypes: Set<EquipmentType>
+  ) {
+    const matchedRunIndexes = new Set(samples.map((sample) => sample.runIndex));
 
     const roomAvailability = (this.byRoom.get(roomKey(location)) ?? []).filter(({ runIndex }) =>
       matchedRunIndexes.has(runIndex)
@@ -68,7 +93,7 @@ export class RoomAvailabilityIndex {
     const tally = new EquipmentBaseItemTally();
     for (const { availableEquipment } of roomAvailability) {
       for (const { baseItem } of availableEquipment) {
-        if (usedHoldableTypes.has(baseItem.equipmentType)) {
+        if (countedTypes.has(baseItem.equipmentType)) {
           tally.add(baseItem);
         }
       }

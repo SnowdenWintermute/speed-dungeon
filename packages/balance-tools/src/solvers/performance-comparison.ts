@@ -8,28 +8,29 @@ import { GoalPerformance } from "../goal-performance-checkers/index.ts";
  */
 export class PerformanceComparison {
   private constructor(
-    readonly meetsBuildSpecificationFirstTime: boolean,
+    readonly reachesBuildDefiningEquipment: boolean,
     readonly scoreDifference: number
   ) {}
 
   static between(before: GoalPerformance, after: GoalPerformance) {
-    const wouldLeaveTheBuild = before.meetsBuildSpecification && !after.meetsBuildSpecification;
+    const wouldLeaveTheBuild =
+      before.holdsBuildDefiningEquipment && !after.holdsBuildDefiningEquipment;
     if (wouldLeaveTheBuild) {
       return new PerformanceComparison(false, -1);
     }
     return new PerformanceComparison(
-      !before.meetsBuildSpecification && after.meetsBuildSpecification,
+      !before.holdsBuildDefiningEquipment && after.holdsBuildDefiningEquipment,
       after.score - before.score
     );
   }
 
   isImprovement() {
-    return this.meetsBuildSpecificationFirstTime || this.scoreDifference > 0;
+    return this.reachesBuildDefiningEquipment || this.scoreDifference > 0;
   }
 
   beats(other: PerformanceComparison) {
-    if (this.meetsBuildSpecificationFirstTime !== other.meetsBuildSpecificationFirstTime) {
-      return this.meetsBuildSpecificationFirstTime;
+    if (this.reachesBuildDefiningEquipment !== other.reachesBuildDefiningEquipment) {
+      return this.reachesBuildDefiningEquipment;
     }
     return this.scoreDifference > other.scoreDifference;
   }

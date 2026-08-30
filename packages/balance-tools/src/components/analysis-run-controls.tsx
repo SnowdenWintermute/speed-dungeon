@@ -17,6 +17,10 @@ interface Props {
   defaultAllocationIntensity?: NormalizedPercentage;
   /** set by a study whose derivation only means anything at one intensity; absent lets the user pick */
   fixedAllocationIntensity?: NormalizedPercentage;
+  /** set by a study that is only itself with requirements handled one way; absent lets the user pick */
+  fixedHonorsEquipmentRequirements?: boolean;
+  /** why a set cannot be walked yet, such as a source study this one copies from not being saved */
+  runBlockedReason?: null | string;
   onRun: (options: AnalysisRunSetOptions) => void;
 }
 
@@ -40,22 +44,31 @@ export function AnalysisRunControls({
   runsRequested,
   defaultAllocationIntensity,
   fixedAllocationIntensity,
+  fixedHonorsEquipmentRequirements,
+  runBlockedReason = null,
   onRun,
 }: Props) {
   const [runCountText, setRunCountText] = useState(`${defaultRunCount}`);
   const [chosenAllocationIntensity, setChosenAllocationIntensity] = useState(
     fixedAllocationIntensity ?? defaultAllocationIntensity ?? FULL_ALLOCATION_INTENSITY
   );
-  const [honorsEquipmentRequirements, setHonorsEquipmentRequirements] = useState(false);
+  const [chosenHonorsEquipmentRequirements, setChosenHonorsEquipmentRequirements] =
+    useState(false);
 
   const intensityIsFixed = fixedAllocationIntensity !== undefined;
   const allocationIntensity = fixedAllocationIntensity ?? chosenAllocationIntensity;
 
+  const requirementHandlingIsFixed = fixedHonorsEquipmentRequirements !== undefined;
+  const honorsEquipmentRequirements =
+    fixedHonorsEquipmentRequirements ?? chosenHonorsEquipmentRequirements;
+
   const runCount = Number(runCountText);
   const runCountIsUsable = Number.isInteger(runCount) && runCount >= MIN_RUN_COUNT;
 
+  const canRun = runCountIsUsable && !isRunning && runBlockedReason === null;
+
   function handleRun() {
-    if (!runCountIsUsable || isRunning) {
+    if (!canRun) {
       return;
     }
     onRun({ runCount, allocationIntensity, honorsEquipmentRequirements });
@@ -96,11 +109,7 @@ export function AnalysisRunControls({
           className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
         />
 
-        <ButtonBasic
-          onClick={handleRun}
-          disabled={isRunning || !runCountIsUsable}
-          extraStyles="bg-theme-base"
-        >
+        <ButtonBasic onClick={handleRun} disabled={!canRun} extraStyles="bg-theme-base">
           {isRunning ? "running..." : "run set"}
         </ButtonBasic>
 
@@ -108,7 +117,8 @@ export function AnalysisRunControls({
           <input
             type="checkbox"
             checked={honorsEquipmentRequirements}
-            onChange={(event) => setHonorsEquipmentRequirements(event.target.checked)}
+            disabled={requirementHandlingIsFixed}
+            onChange={(event) => setChosenHonorsEquipmentRequirements(event.target.checked)}
           />
           honor equipment requirements
         </label>
@@ -116,6 +126,12 @@ export function AnalysisRunControls({
         {isRunning && (
           <span className="h-10 flex items-center text-sm text-theme-muted">
             {runsFinished} / {runsRequested} runs walked
+          </span>
+        )}
+
+        {runBlockedReason !== null && (
+          <span className="h-10 flex items-center text-sm text-theme-muted">
+            {runBlockedReason}
           </span>
         )}
       </div>

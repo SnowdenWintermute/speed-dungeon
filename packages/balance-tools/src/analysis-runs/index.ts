@@ -10,7 +10,7 @@ import { AllocationIntensity } from "./allocation-intensity.ts";
 import { AnalysisRunOptions } from "./analysis-run-options.ts";
 import { AnalysisPartyDriver } from "./analysis-party-driver.ts";
 import { AnalysisRunReporter } from "./analysis-run-reporter.ts";
-import { AttributeAllocationSolver } from "../solvers/attribute-allocation.ts";
+import { AnalysisAttributeSolver } from "../solvers/analysis-attribute-solver.ts";
 import { BestImprovementEquipmentSolver } from "../solvers/best-improvement.ts";
 import { ComparisonRollScope } from "./comparison-roll-scope.ts";
 
@@ -21,7 +21,7 @@ export class AnalysisRun<TCombatantReport> {
     private game: SpeedDungeonGame,
     private party: AdventuringParty,
     private equipmentSolver: BestImprovementEquipmentSolver,
-    private attributeAllocationSolver: AttributeAllocationSolver,
+    private attributeSolvers: AnalysisAttributeSolver[],
     private comparisonRollScope: ComparisonRollScope,
     private runReporter: AnalysisRunReporter<TCombatantReport>,
     allocationIntensity: AllocationIntensity,
@@ -57,7 +57,9 @@ export class AnalysisRun<TCombatantReport> {
         this.removeRequirementsFrom(equipmentDroppedThisRoom);
 
         this.comparisonRollScope.begin();
-        this.attributeAllocationSolver.solve();
+        for (const attributeSolver of this.attributeSolvers) {
+          attributeSolver.solve();
+        }
         const { performanceByCharacter } = this.equipmentSolver.solve();
 
         if (roomHasMonsters) {

@@ -8,6 +8,7 @@ import {
   EquipmentType,
   HeadGear,
   OneHandedMeleeWeapon,
+  Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
@@ -745,5 +746,105 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     attributes: [CombatAttribute.Dexterity, CombatAttribute.Spirit],
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.Shields, mainClass: CombatantClass.Mage, supportClass: CombatantClass.Rogue },
     availabilityPercentile: 0.25,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Buckler,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.Shields, mainClass: CombatantClass.Mage, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.33,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.LanternShield,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity, CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.Shields, mainClass: CombatantClass.Mage, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.AncientBuckler,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.Shields, mainClass: CombatantClass.Mage, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.CabinetDoor,
+    },
+    studyName: StudyName.CasterDualWieldRanged,
+    attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.66,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Heater,
+    },
+    studyName: StudyName.CasterDualWieldRanged,
+    attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Aspis,
+    },
+    studyName: StudyName.CasterDualWieldRanged,
+    attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.KiteShield,
+    },
+    studyName: StudyName.CasterDualWieldRanged,
+    attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.GothicShield,
+    },
+    studyName: StudyName.CasterDualWieldRanged,
+    attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Pavise,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.TowerShield,
+    },
+    studyName: StudyName.AttackDamageMixed,
+    attributes: [CombatAttribute.Strength],
+    buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
+    availabilityPercentile: 0.5,
   },
 ];

@@ -6,6 +6,7 @@ import { ZIndexLayers } from "./z-index-layers.ts";
 import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name.ts";
 import { MaxAccuracyPanel } from "./studies/max-accuracy/panel.tsx";
 import { SampledDamagePanel } from "./studies/sampled-damage/panel.tsx";
+import { ArmorClassPanel } from "./studies/armor-class/panel.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 
@@ -19,6 +20,8 @@ const STUDY_PANELS: Record<StudyName, () => ReactElement> = {
   [StudyName.AttackDamageMixed]: () => SampledDamagePanel(StudyName.AttackDamageMixed),
   [StudyName.CasterDamageMixed]: () => SampledDamagePanel(StudyName.CasterDamageMixed),
   [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
+  [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
+  [StudyName.ArmorClassDualWield]: () => ArmorClassPanel(StudyName.ArmorClassDualWield),
 };
 
 export function App() {

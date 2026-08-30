@@ -1,4 +1,3 @@
-import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { CombatantAttributesMemo } from "../analysis-subjects/combatant-attributes-memo.ts";
 import {
   ActionRank,
@@ -16,7 +15,7 @@ import {
   invariant,
   RealResourceChangePropertiesStrategy,
 } from "@speed-dungeon/common";
-import { GoalPerformance, GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
+import { GoalPerformanceChecker, GoalPerformanceUnit } from "./index.ts";
 import { SampledActionSelector } from "./sampled-action-selection.ts";
 import { ComparisonRollScope } from "../analysis-runs/comparison-roll-scope.ts";
 import { TargetDummyProvider } from "../analysis-runs/target-dummy-provider.ts";
@@ -111,18 +110,8 @@ export class SampledDamageOnTargetDummyGoalPerformanceChecker implements GoalPer
     };
   }
 
-  checkPerformance(
-    combatant: Combatant,
-    combatantAnalysisSpec: AnalysisCharacterSpecification,
-    partyCurrentFloor: number
-  ): GoalPerformance {
-    const { averageDamage } = this.sampleActionsOnTargetDummy(combatant, partyCurrentFloor);
-
-    return {
-      score: averageDamage,
-      meetsBuildSpecification:
-        combatantAnalysisSpec.combatantIsWearingDesiredEquipmentType(combatant),
-    };
+  checkPerformance(combatant: Combatant, partyCurrentFloor: number) {
+    return this.sampleActionsOnTargetDummy(combatant, partyCurrentFloor).averageDamage;
   }
 
   /** what this goal has the combatant using, so a report can quote tooltips for the same actions */

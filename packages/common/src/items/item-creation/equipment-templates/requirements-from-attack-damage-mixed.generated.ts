@@ -6,6 +6,7 @@ import {
   CombatAttribute,
   EquipmentType,
   HeadGear,
+  Shield,
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "./game-data-dependencies.js";
@@ -24,7 +25,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.HardLeather,
     },
-    requirements: { [CombatAttribute.Dexterity]: 33 },
+    requirements: { [CombatAttribute.Dexterity]: 31 },
   },
   {
     baseItem: {
@@ -38,21 +39,21 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.DemonsaurLeather,
     },
-    requirements: { [CombatAttribute.Dexterity]: 58 },
+    requirements: { [CombatAttribute.Dexterity]: 57 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.Eyepatch,
     },
-    requirements: { [CombatAttribute.Dexterity]: 6 },
+    requirements: { [CombatAttribute.Dexterity]: 7 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.LeatherHat,
     },
-    requirements: { [CombatAttribute.Dexterity]: 19 },
+    requirements: { [CombatAttribute.Dexterity]: 22 },
   },
   {
     baseItem: {
@@ -66,7 +67,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.DemonsaurHelm,
     },
-    requirements: { [CombatAttribute.Dexterity]: 58 },
+    requirements: { [CombatAttribute.Dexterity]: 57 },
   },
   {
     baseItem: {
@@ -87,28 +88,28 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.SplintMail,
     },
-    requirements: { [CombatAttribute.Strength]: 23, [CombatAttribute.Dexterity]: 25 },
+    requirements: { [CombatAttribute.Strength]: 22, [CombatAttribute.Dexterity]: 23 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FeatherMail,
     },
-    requirements: { [CombatAttribute.Dexterity]: 28 },
+    requirements: { [CombatAttribute.Dexterity]: 27 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.OhmushellMail,
     },
-    requirements: { [CombatAttribute.Strength]: 38, [CombatAttribute.Dexterity]: 34 },
+    requirements: { [CombatAttribute.Strength]: 37, [CombatAttribute.Dexterity]: 34 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.Skullcap,
     },
-    requirements: { [CombatAttribute.Strength]: 14, [CombatAttribute.Dexterity]: 18 },
+    requirements: { [CombatAttribute.Strength]: 14, [CombatAttribute.Dexterity]: 17 },
   },
   {
     baseItem: {
@@ -122,7 +123,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.OhmushellMask,
     },
-    requirements: { [CombatAttribute.Strength]: 30, [CombatAttribute.Dexterity]: 28 },
+    requirements: { [CombatAttribute.Strength]: 30, [CombatAttribute.Dexterity]: 27 },
   },
   {
     baseItem: {
@@ -136,7 +137,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FieldPlate,
     },
-    requirements: { [CombatAttribute.Strength]: 27 },
+    requirements: { [CombatAttribute.Strength]: 26 },
   },
   {
     baseItem: {
@@ -150,7 +151,7 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.BodyArmor,
       baseItemType: BodyArmor.FullPlate,
     },
-    requirements: { [CombatAttribute.Strength]: 54 },
+    requirements: { [CombatAttribute.Strength]: 53 },
   },
   {
     baseItem: {
@@ -171,14 +172,14 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.FullHelm,
     },
-    requirements: { [CombatAttribute.Strength]: 43 },
+    requirements: { [CombatAttribute.Strength]: 42 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.HeadGear,
       baseItemType: HeadGear.GreatHelm,
     },
-    requirements: { [CombatAttribute.Strength]: 57 },
+    requirements: { [CombatAttribute.Strength]: 56 },
   },
   {
     baseItem: {
@@ -199,35 +200,35 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.Maul,
     },
-    requirements: { [CombatAttribute.Strength]: 34 },
+    requirements: { [CombatAttribute.Strength]: 32 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.ElementalStaff,
     },
-    requirements: { [CombatAttribute.Strength]: 36, [CombatAttribute.Dexterity]: 21 },
+    requirements: { [CombatAttribute.Strength]: 35, [CombatAttribute.Dexterity]: 21 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.Trident,
     },
-    requirements: { [CombatAttribute.Strength]: 43, [CombatAttribute.Dexterity]: 24 },
+    requirements: { [CombatAttribute.Strength]: 42, [CombatAttribute.Dexterity]: 24 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.GreatAxe,
     },
-    requirements: { [CombatAttribute.Strength]: 52, [CombatAttribute.Dexterity]: 30 },
+    requirements: { [CombatAttribute.Strength]: 51, [CombatAttribute.Dexterity]: 30 },
   },
   {
     baseItem: {
       equipmentType: EquipmentType.TwoHandedMeleeWeapon,
       baseItemType: TwoHandedMeleeWeapon.GravityHammer,
     },
-    requirements: { [CombatAttribute.Strength]: 57 },
+    requirements: { [CombatAttribute.Strength]: 56 },
   },
   {
     baseItem: {
@@ -256,5 +257,40 @@ export const EQUIPMENT_REQUIREMENTS_FROM_ATTACK_DAMAGE_MIXED: EquipmentRequireme
       baseItemType: TwoHandedRangedWeapon.MilitaryBow,
     },
     requirements: { [CombatAttribute.Dexterity]: 55 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Buckler,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 14 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.LanternShield,
+    },
+    requirements: { [CombatAttribute.Strength]: 17, [CombatAttribute.Dexterity]: 19 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.AncientBuckler,
+    },
+    requirements: { [CombatAttribute.Dexterity]: 31 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.Pavise,
+    },
+    requirements: { [CombatAttribute.Strength]: 26 },
+  },
+  {
+    baseItem: {
+      equipmentType: EquipmentType.Shield,
+      baseItemType: Shield.TowerShield,
+    },
+    requirements: { [CombatAttribute.Strength]: 42 },
   },
 ];

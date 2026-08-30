@@ -3,6 +3,7 @@ import {
   AffixGenerator,
   ClassProgressionProperties,
   COMBAT_ATTRIBUTES,
+  CombatAttribute,
   DungeonExplorationManager,
   DungeonGenerationPolicy,
   EquipmentGenerationTemplate,
@@ -24,7 +25,11 @@ import { AllocationIntensity } from "./allocation-intensity.ts";
  * through and the one it puts back */
 const getAttributesOnEquipmentList = Equipment.getAttributesOnEquipmentList.bind(Equipment);
 
-const DAMAGE_TRAITS = [EquipmentTraitType.DamagePercentage, EquipmentTraitType.FlatDamageAdditive];
+const SCALED_TRAITS = [
+  EquipmentTraitType.DamagePercentage,
+  EquipmentTraitType.FlatDamageAdditive,
+  EquipmentTraitType.ArmorClassPercentage,
+];
 
 export class AnalysisPartyDriver {
   private dungeonGenerationPolicy: DungeonGenerationPolicy;
@@ -60,7 +65,7 @@ export class AnalysisPartyDriver {
 
   /** although we modify most equipment attribute reads by replacing the
    * Equipment.getAttributesOnEquipmentList, some relevant affix values are not
-   * combat attributes */
+   * combat attributes, and armor class has to be scaled here rather than there */
   private modifyAffixValueGeneration() {
     const rollAffixTierAndValue = this.affixGenerator.rollAffixTierAndValue.bind(
       this.affixGenerator
@@ -73,23 +78,37 @@ export class AnalysisPartyDriver {
       equipmentType: EquipmentType
     ) => {
       const affix = rollAffixTierAndValue(template, taggedAffixType, maxTierLimiter, equipmentType);
-      for (const traitType of DAMAGE_TRAITS) {
+      for (const traitType of SCALED_TRAITS) {
         const trait = affix.equipmentTraits[traitType];
         if (trait !== undefined) {
           trait.value = this.allocationIntensity.scaleValue(trait.value);
         }
       }
 
+      const rolledArmorClass = affix.combatAttributes[CombatAttribute.ArmorClass];
+      if (rolledArmorClass !== undefined) {
+        affix.combatAttributes[CombatAttribute.ArmorClass] =
+          this.allocationIntensity.scaleValue(rolledArmorClass);
+      }
+
       return affix;
     };
   }
 
-  /** attributes on worn equipment are read through a static, so scaling them for this party means
-   * swapping it */
+  /**
+   * Attributes on worn equipment are read through a static, so scaling them for this party means
+   * swapping it. Armor class is left out: what a piece of armor reports is its base armor class with
+   * its affixes folded in, and only the affixes are earned — the base is what the item is, so a
+   * party that spends less of what it finds on defense still gets the whole plate mail. Those
+   * affixes are scaled where they are rolled instead.
+   */
   private modifyWornEquipmentAttributes() {
     Equipment.getAttributesOnEquipmentList = (list: Equipment[]) => {
       const attributes = getAttributesOnEquipmentList(list);
       for (const attribute of COMBAT_ATTRIBUTES) {
+        if (attribute === CombatAttribute.ArmorClass) {
+          continue;
+        }
         attributes[attribute] = this.allocationIntensity.scaleValue(attributes[attribute]);
       }
 

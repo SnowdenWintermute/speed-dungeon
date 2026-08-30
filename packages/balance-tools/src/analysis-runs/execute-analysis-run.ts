@@ -8,6 +8,7 @@ import { AnalysisSubjects } from "./analysis-subjects.ts";
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { AttributeAllocationSolver } from "../solvers/attribute-allocation.ts";
 import { BestImprovementEquipmentSolver } from "../solvers/best-improvement.ts";
+import { CopiedAttributeSolver } from "../solvers/copied-attribute-solver.ts";
 import { constructGoalPerformanceChecker } from "../goal-performance-checkers/constructors.ts";
 
 /**
@@ -36,7 +37,10 @@ export function analysisRun<TCombatantReport>(
     game,
     party,
     new BestImprovementEquipmentSolver(party, analysisSubjects),
-    new AttributeAllocationSolver(party, analysisSubjects, allocationIntensity),
+    [
+      new AttributeAllocationSolver(party, analysisSubjects, allocationIntensity),
+      new CopiedAttributeSolver(party, analysisSubjects),
+    ],
     analysisSubjects.getComparisonRollScope(),
     createRunReporter(party, analysisSubjects),
     allocationIntensity,

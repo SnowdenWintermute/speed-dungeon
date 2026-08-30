@@ -12,6 +12,7 @@ import { BestImprovementEquipmentSolver } from "./best-improvement.ts";
 import { EquipmentSolverTestItems, totalDexterity } from "./equipment-solver-test-items.ts";
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
+import { ALLOCATED_TOWARD_GOAL } from "../analysis-subjects/attribute-source.ts";
 import { AnalysisPartyBuilder } from "../analysis-runs/analysis-party-builder.ts";
 import { AnalysisSubjects } from "../analysis-runs/analysis-subjects.ts";
 import {
@@ -28,10 +29,8 @@ const dexterityChecker: GoalPerformanceChecker = {
   scoreUnit: GoalPerformanceUnit.TotalAccuracy,
   allocatableAttributes: [CombatAttribute.Dexterity],
   equipmentScoreAxes: [totalDexterity],
-  checkPerformance: (combatant: Combatant) => ({
-    score: combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
-    meetsBuildSpecification: true,
-  }),
+  checkPerformance: (combatant: Combatant) =>
+    combatant.getTotalAttributes()[CombatAttribute.Dexterity] ?? 0,
 };
 
 /** every goal scores dexterity, so the solver is exercised without an attribute formula in the way */
@@ -54,7 +53,8 @@ class BestImprovementFixture {
             supportClass: CombatantClass.Rogue,
             weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
           },
-          AnalysisGoal.TotalAccuracy
+          AnalysisGoal.TotalAccuracy,
+          ALLOCATED_TOWARD_GOAL
         )
       );
     }

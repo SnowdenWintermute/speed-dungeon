@@ -1,7 +1,7 @@
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { AccuracyBySource } from "./run-reporter.ts";
 import { MaxAccuracyTableRow } from "./row.ts";
-import { HoldablePercentList } from "../../components/holdable-percent-list.tsx";
+import { BaseItemPercentList } from "../../components/base-item-percent-list.tsx";
 
 function bySourceColumn(
   header: string,
@@ -35,6 +35,6 @@ export const MAX_ACCURACY_TABLE_COLUMNS: DataTableColumn<MaxAccuracyTableRow>[] 
   {
     header: "available",
     cellLayoutOption: DataTableCellLayout.Stacked,
-    renderCell: (row) => <HoldablePercentList holdables={row.availableHoldablePercentages} />,
+    renderCell: (row) => <BaseItemPercentList baseItems={row.availableHoldablePercentages} />,
   },
 ];

@@ -210,13 +210,7 @@ export class ItemManagementController {
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
     }
 
-    const equipItemResult = character.combatantProperties.equipment.equipItem(
-      itemId,
-      equipToAlternateSlot
-    );
-    if (equipItemResult instanceof Error) {
-      throw equipItemResult;
-    }
+    character.combatantProperties.equipment.equipItem(itemId, equipToAlternateSlot);
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {
@@ -273,14 +267,11 @@ export class ItemManagementController {
       throw new Error(ERROR_MESSAGES.COMBAT_ACTIONS.NOT_USABLE_IN_COMBAT);
     }
 
-    const equipItemResult = character.combatantProperties.equipment.equipItemFromGround(
+    character.combatantProperties.equipment.equipItemFromGround(
       itemId,
       party.currentRoom.inventory,
       equipToAlternateSlot
     );
-    if (equipItemResult instanceof Error) {
-      throw equipItemResult;
-    }
 
     const outbox = new MessageDispatchOutbox<GameStateUpdate>(this.updateDispatchFactory);
     outbox.pushToChannel(getPartyChannelName(game.name, party.name), {

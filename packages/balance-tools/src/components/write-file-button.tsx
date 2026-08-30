@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
+import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 
 interface Props {
   label: string;
@@ -8,6 +9,18 @@ interface Props {
   disabled: boolean;
   /** anything the reader has to do before the write takes effect */
   noteAfterWrite?: string;
+}
+
+/**
+ * A write builds what it writes synchronously, so raising the writing flag is not enough on its own
+ * — without letting the browser all the way through a paint, the spinner and the disabled state
+ * would only appear once there was nothing left to wait for. Half a second of blocking hides them
+ * just as completely as five would.
+ */
+function waitForPaint() {
+  return new Promise<void>((resolve) =>
+    requestAnimationFrame(() => setTimeout(() => resolve(), 0))
+  );
 }
 
 /** the route only exists under `vite dev`, so these buttons are absent from a build */
@@ -24,6 +37,7 @@ export function WriteFileButton({ label, write, disabled, noteAfterWrite }: Prop
     setOutcome(null);
     setFailureReason(null);
     setIsWriting(true);
+    await waitForPaint();
 
     try {
       setOutcome(await write());
@@ -43,7 +57,16 @@ export function WriteFileButton({ label, write, disabled, noteAfterWrite }: Prop
         disabled={disabled || isWriting}
         extraStyles="bg-theme-recessed"
       >
-        {isWriting ? "writing..." : label}
+        {isWriting ? (
+          <span className="flex items-center gap-2">
+            <span className="h-4 w-4">
+              <LoadingSpinner />
+            </span>
+            writing...
+          </span>
+        ) : (
+          label
+        )}
       </ButtonBasic>
 
       <div className="h-10">

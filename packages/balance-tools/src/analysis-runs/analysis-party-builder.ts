@@ -3,8 +3,10 @@ import {
   AdventuringParty,
   AffixGenerator,
   CharacterControlScheme,
+  Combatant,
   CombatantId,
   DefaultCharacterCreationPolicy,
+  EquipmentSlotId,
   EquipmentRandomizer,
   GameId,
   GameMode,
@@ -57,6 +59,33 @@ export class AnalysisPartyBuilder {
     return game.getExpectedPlayer(AnalysisPartyBuilder.playerName);
   }
 
+  /**
+   * The creation policy dresses a character for its class, not for the build its spec asks for, so a
+   * warrior arrives holding a shield whatever it specializes in. The solver would never hand it one,
+   * and nothing displaces a starting item a goal has no reason to replace — a two handed build would
+   * report that shield's armor class for the whole run.
+   */
+  private static unequipWhatTheBuildWouldNotConsider(
+    combatant: Combatant,
+    spec: AnalysisCharacterSpecification
+  ) {
+    const { equipment } = combatant.getCombatantProperties();
+
+    const slotIdsToUnequip: EquipmentSlotId[] = [];
+    for (const [slotId, slot] of equipment.getAllActiveSlots()) {
+      const equipped = slot.equipmentInSlot;
+      if (equipped === null) {
+        continue;
+      }
+      const { equipmentType } = equipped.equipmentBaseItemProperties;
+      if (!spec.combatantWouldConsiderEquipmentTypeInSlot(equipmentType, slotId)) {
+        slotIdsToUnequip.push(slotId);
+      }
+    }
+
+    equipment.unequipSlots(slotIdsToUnequip);
+  }
+
   private addCharacter(
     game: SpeedDungeonGame,
     party: AdventuringParty,
@@ -71,6 +100,7 @@ export class AnalysisPartyBuilder {
     // an analysis subject starts with only what its spec asks for. the creation policy hands out
     // playtesting items, and the equipment solver drops every carried item into the room, so
     // anything left here would be scored and reported as loot the run never generated
+    AnalysisPartyBuilder.unequipWhatTheBuildWouldNotConsider(characterWithPets.combatant, spec);
     characterWithPets.combatant.getCombatantProperties().inventory.deleteAllItems();
 
     const { supportClass } = spec.characterBuildSpec;

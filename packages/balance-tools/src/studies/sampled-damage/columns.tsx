@@ -3,7 +3,7 @@ import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/Da
 import { SampledDamageContributingAttribute } from "./run-reporter.ts";
 import { SampledDamageTableRow } from "./row.ts";
 import { AttributeSourceSplit } from "./attribute-source-split.tsx";
-import { HoldablePercentList } from "../../components/holdable-percent-list.tsx";
+import { BaseItemPercentList } from "../../components/base-item-percent-list.tsx";
 
 /**
  * What the combatant actually had, read off the combatant. Summing the per-source attribution
@@ -92,11 +92,11 @@ export const SAMPLED_DAMAGE_TABLE_COLUMNS: DataTableColumn<SampledDamageTableRow
   {
     header: "worn",
     cellLayoutOption: DataTableCellLayout.Stacked,
-    renderCell: (row) => <HoldablePercentList holdables={row.wornHoldablePercentages} />,
+    renderCell: (row) => <BaseItemPercentList baseItems={row.wornHoldablePercentages} />,
   },
   {
     header: "available",
     cellLayoutOption: DataTableCellLayout.Stacked,
-    renderCell: (row) => <HoldablePercentList holdables={row.availableHoldablePercentages} />,
+    renderCell: (row) => <BaseItemPercentList baseItems={row.availableHoldablePercentages} />,
   },
 ];

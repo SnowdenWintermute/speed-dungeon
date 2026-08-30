@@ -1,6 +1,6 @@
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { Combatant, CombatantId, Equipment, invariant } from "@speed-dungeon/common";
-import { GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
+import { GoalPerformance, GoalPerformanceChecker } from "../goal-performance-checkers/index.ts";
 import { GoalPerformanceCheckerConstructor } from "../goal-performance-checkers/constructors.ts";
 import { AnalysisGoal, ANALYSIS_GOAL_SPECS } from "../goal-performance-checkers/analysis-goal.ts";
 import { ComparisonRollScope } from "./comparison-roll-scope.ts";
@@ -87,13 +87,25 @@ export class AnalysisSubjects {
     return checkerOption;
   }
 
-  /** scores a combatant against its own goal, which is the only pairing that ever makes sense */
-  checkPerformance(combatant: Combatant, partyCurrentFloor: number) {
+  /**
+   * Scores a combatant against its own goal, which is the only pairing that ever makes sense, and is
+   * also where a score is paired with whether the character is holding what its build is defined by.
+   * A checker only knows how to score; whether holding the specialty matters is declared once per
+   * goal, so a goal that has no such equipment never has to say anything about it.
+   */
+  checkPerformance(combatant: Combatant, partyCurrentFloor: number): GoalPerformance {
     const combatantId = combatant.getEntityId();
-    return this.requireGoalPerformanceChecker(combatantId).checkPerformance(
-      combatant,
-      this.requireSpec(combatantId),
-      partyCurrentFloor
-    );
+    const analysisSpec = this.requireSpec(combatantId);
+    const { buildIsDefinedByHeldEquipment } = ANALYSIS_GOAL_SPECS[analysisSpec.goal];
+
+    return {
+      score: this.requireGoalPerformanceChecker(combatantId).checkPerformance(
+        combatant,
+        partyCurrentFloor
+      ),
+      holdsBuildDefiningEquipment:
+        !buildIsDefinedByHeldEquipment ||
+        analysisSpec.combatantIsWearingDesiredEquipmentType(combatant),
+    };
   }
 }

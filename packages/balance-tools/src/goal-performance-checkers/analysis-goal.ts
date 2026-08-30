@@ -9,12 +9,14 @@ export enum AnalysisGoal {
   TotalAccuracy,
   WeaponAttackDamage,
   IceBoltDamage,
+  ArmorClass,
 }
 
 export const ANALYSIS_GOAL_STRINGS: Record<AnalysisGoal, string> = {
   [AnalysisGoal.TotalAccuracy]: "total accuracy",
   [AnalysisGoal.WeaponAttackDamage]: "weapon attack damage",
   [AnalysisGoal.IceBoltDamage]: "ice bolt damage",
+  [AnalysisGoal.ArmorClass]: "armor class",
 };
 
 const ICE_BOLT_RANK = 1 as ActionRank;
@@ -23,6 +25,9 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
   [AnalysisGoal.TotalAccuracy]: {
     typeConfig: { type: GoalPerformanceCheckerType.TotalAccuracy },
     allocatableAttributes: [CombatAttribute.Dexterity],
+    // every build starts holding something other than its specialty, so requiring it here would zero
+    // out inherent, allocated and ring accuracy in exactly the rooms no specialty weapon dropped in
+    buildIsDefinedByHeldEquipment: false,
     equipmentScoreAxes: [
       EquipmentScoreDominationAxis.Dexterity,
       EquipmentScoreDominationAxis.Accuracy,
@@ -35,6 +40,7 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
       actionSelection: { type: SampledActionSelectionType.WeaponAttacks },
     },
     allocatableAttributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
+    buildIsDefinedByHeldEquipment: true,
     equipmentScoreAxes: [
       EquipmentScoreDominationAxis.Strength,
       EquipmentScoreDominationAxis.Dexterity,
@@ -60,10 +66,23 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
     },
 
     allocatableAttributes: [CombatAttribute.Spirit, CombatAttribute.Dexterity],
+    buildIsDefinedByHeldEquipment: true,
     equipmentScoreAxes: [
       EquipmentScoreDominationAxis.Spirit,
       EquipmentScoreDominationAxis.Accuracy,
       EquipmentScoreDominationAxis.Dexterity,
     ],
+  },
+
+  /**
+   * Nothing is allocated: armor class comes off equipment alone, and this goal's attributes are
+   * copied from another study rather than earned. Nothing is defining to hold either — a shield is
+   * pure gain and needs no ratchet to be picked up, and the other builds end a run empty handed.
+   */
+  [AnalysisGoal.ArmorClass]: {
+    typeConfig: { type: GoalPerformanceCheckerType.WornArmorClass },
+    allocatableAttributes: [],
+    buildIsDefinedByHeldEquipment: false,
+    equipmentScoreAxes: [EquipmentScoreDominationAxis.ArmorClass],
   },
 };

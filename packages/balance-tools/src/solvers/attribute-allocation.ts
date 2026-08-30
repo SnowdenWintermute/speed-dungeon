@@ -1,5 +1,7 @@
 import { AllocationIntensity } from "../analysis-runs/allocation-intensity.ts";
 import { AnalysisSubjects } from "../analysis-runs/analysis-subjects.ts";
+import { AttributeSourceType } from "../analysis-subjects/attribute-source.ts";
+import { AnalysisAttributeSolver } from "./analysis-attribute-solver.ts";
 import {
   AdventuringParty,
   COMBAT_ATTRIBUTES,
@@ -8,7 +10,7 @@ import {
   invariant,
 } from "@speed-dungeon/common";
 
-export class AttributeAllocationSolver {
+export class AttributeAllocationSolver implements AnalysisAttributeSolver {
   constructor(
     private party: AdventuringParty,
     private analysisSubjects: AnalysisSubjects,
@@ -98,6 +100,10 @@ export class AttributeAllocationSolver {
   /** mutates combatants in place, assigning each their best allocation for their own goal */
   solve() {
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
+      const { attributeSource } = this.analysisSubjects.requireSpec(combatant.getEntityId());
+      if (attributeSource.type !== AttributeSourceType.AllocatedTowardGoal) {
+        continue;
+      }
       this.allocateToBestImproved(combatant);
     }
   }

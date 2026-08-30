@@ -162,7 +162,7 @@ function resolveEquipToSlot(
     return INCOMPATIBLE;
   }
 
-  if (character.combatantProperties.equipment.canEquip(item) instanceof Error) {
+  if (!character.combatantProperties.equipment.canEquip(item).allowed) {
     return BLOCKED;
   }
 
