@@ -1,6 +1,6 @@
 import { DEEPEST_FLOOR, FloorNumber, invariant } from "@speed-dungeon/common";
-import { emitGeneratedModuleHeader } from "../../generated-module-header.ts";
-import { STUDY_NAME_SLUGS, StudyName } from "../study-name.ts";
+import { emitGeneratedModuleHeader } from "../generated-module-header.ts";
+import { STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
 
 // no node imports: the browser renders the text and the dev server only writes it
 

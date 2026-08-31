@@ -5,11 +5,13 @@ import type { GoalPerformanceCheckerSpec } from "./spec.ts";
 import { SampledActionSelectionType } from "./sampled-action-selection.ts";
 import { EquipmentScoreDominationAxis } from "../solvers/equipment-score-domination-axis.ts";
 
+// appended to, never reordered: the member is written into every sample of every saved run
 export enum AnalysisGoal {
   TotalAccuracy,
   WeaponAttackDamage,
   IceBoltDamage,
   ArmorClass,
+  TotalSpeed,
 }
 
 export const ANALYSIS_GOAL_STRINGS: Record<AnalysisGoal, string> = {
@@ -17,6 +19,7 @@ export const ANALYSIS_GOAL_STRINGS: Record<AnalysisGoal, string> = {
   [AnalysisGoal.WeaponAttackDamage]: "weapon attack damage",
   [AnalysisGoal.IceBoltDamage]: "ice bolt damage",
   [AnalysisGoal.ArmorClass]: "armor class",
+  [AnalysisGoal.TotalSpeed]: "total speed",
 };
 
 const ICE_BOLT_RANK = 1 as ActionRank;
@@ -84,5 +87,18 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
     allocatableAttributes: [],
     requiresHoldableSpecialty: false,
     equipmentScoreAxes: [EquipmentScoreDominationAxis.ArmorClass],
+  },
+
+  /**
+   * Speed is bought with agility, which is also the only thing gear can offer toward it — there is
+   * no speed affix. No specialty is required for the same reason accuracy requires none: agility
+   * rides on a prefix that any base item can roll, so ratcheting a weapon would zero out every room
+   * none had dropped in.
+   */
+  [AnalysisGoal.TotalSpeed]: {
+    typeConfig: { type: GoalPerformanceCheckerType.TotalSpeed },
+    allocatableAttributes: [CombatAttribute.Agility],
+    requiresHoldableSpecialty: false,
+    equipmentScoreAxes: [EquipmentScoreDominationAxis.Agility],
   },
 };

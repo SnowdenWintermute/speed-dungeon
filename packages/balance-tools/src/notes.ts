@@ -1,3 +1,19 @@
+// purpose
+// "[numbers] don’t exist in a vacuum, but only in comparison with other numbers" - Game Balance 2022 Ian Scheiber and Brenda Romero
+// - develop an automated pipeline to allow for quickly balancing
+// any value or relationship between values in the game
+//
+// example situations
+// - we find that equipment upgrades don't feel impactful for players
+//   so we might increase the value range of affix rolls on magical
+//   equipment. Now the total attributes a character can have has increased
+//   and all monster's attributes must rebalance to account for that.
+// - We find that allocating to agility (therefore speed) contributes far
+//   more damage-per-turn than allocating equivalent points to strength/dex/spirit.
+//   We need to tune either the agility:speed ratio, or change how speed effects
+//   turn count.
+//
+//
 // order of derivation
 // - declare set of weapons with arbitrary damage ranges and no requirements
 //   - declare drop rates by encounter
@@ -11,11 +27,22 @@
 // - derive expectedAccuracy from ( availableAccuracy * designedAccuraceyAllocationPercentage )
 // - declare a designedAverageChanceToHit
 // - derive monster evasion from expectedAccuracy and designedAverageChanceToHit
-// - calculate average damage against target dummies with monsterEvasion using
+// - declare a designed allocationIntensity for character's investment in attack damage
+// - calculate average damage against target dummies, room by room, with monsterEvasion and monsterAgility using
 //   best available equipment and allocated attributes by encounter (sampledAttackDamage)
-// - declare a designedAttackDamageAllocationPercentage
-// - derive average attack damage by encounter from applying designedAttackDamageAllocationPercentage
-//   to the sampledAttackDamage study
+//   with allocated attributes and equipment affixes multiplied by designedAttackDamageAllocationIntensity
+// - declare a designedKineticDamageReductionPercentageFromAverageMonsterArmorClass
+// - derive monster armor class from averageTooltipMainHandDamage and designedKineticDamageReductionPercentageFromAverageMonsterArmorClass
+// - declare a designedAverageMonsterToCharacterTurnCountRatio (probably 1:1)
+// - calculate the total speed available to characters room by room
+// - declare a designedCharacterSpeedAllocationIntensity
+// - derive the average speed room by room for characters from
+//   designedCharacterSpeedAllocationIntensity * availableSpeed
+// - derive monster speed by room from characterSpeedByRoom, designedAverageMonsterToCharacterTurnCountRatio, and
+//   a speed difference to turn count ratio formula
+//
+// - declare a designedTurnsToKillMonsterWithAttackAction
+//
 //
 // - declare set of armor with arbitrary armor class
 //   - declare drop rates by encounter
@@ -48,12 +75,6 @@
 // 	8 	25	41
 //
 // to determine
-// - monster armor class
-//  - determine how much a "heavily armored" monster should reduce
-//    incoming physical damage by
-//  - determine how much an averagely armored monster should reduce it by
-//  - and a weakly armored (but not 0 armor) monster
-//  - use the armor class reverse function to get the range
 // - monster agility
 //  - reverse engineer from evasion
 // - monster hp

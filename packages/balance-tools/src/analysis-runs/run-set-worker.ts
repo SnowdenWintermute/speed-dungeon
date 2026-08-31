@@ -2,6 +2,7 @@ import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-ch
 import { sampledDamageRunSet } from "../studies/sampled-damage/run-set.ts";
 import { maxAccuracyRunSet } from "../studies/max-accuracy/run-set.ts";
 import { armorClassRunSet } from "../studies/armor-class/run-set.ts";
+import { maxSpeedRunSet } from "../studies/max-speed/run-set.ts";
 import { AllocationIntensity } from "./allocation-intensity.ts";
 import { AnalysisRunOptions } from "./analysis-run-options.ts";
 import { AnalysisRunSet } from "./run-set.ts";
@@ -22,6 +23,7 @@ const RUN_SET_FACTORIES: {
   [DungeonRunAnalysis.SampledDamage]: sampledDamageRunSet,
   [DungeonRunAnalysis.MaxAccuracy]: maxAccuracyRunSet,
   [DungeonRunAnalysis.ArmorClass]: armorClassRunSet,
+  [DungeonRunAnalysis.MaxSpeed]: maxSpeedRunSet,
 };
 
 // the dom lib types the ambient `self` as a Window, whose postMessage takes `any` and would check
@@ -39,7 +41,10 @@ self.onmessage = ({ data }) => {
   const runSet = RUN_SET_FACTORIES[data.analysis](
     data.characterSpecs.map(AnalysisCharacterSpecification.fromSerialized),
     new AllocationIntensity(data.allocationIntensity),
-    { honorsEquipmentRequirements: data.honorsEquipmentRequirements }
+    {
+      honorsEquipmentRequirements: data.honorsEquipmentRequirements,
+      targetDummiesHaveArmorClass: data.targetDummiesHaveArmorClass,
+    }
   );
 
   try {

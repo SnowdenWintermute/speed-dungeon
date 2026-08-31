@@ -12,7 +12,8 @@ export class AnalysisSubjects {
 
   constructor(
     private analysisSpecsByCombatantId: Map<CombatantId, AnalysisCharacterSpecification>,
-    constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor
+    constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor,
+    private targetDummiesHaveArmorClass: boolean
   ) {
     this.buildGoalPerformanceCheckers(constructGoalPerformanceChecker);
     this.assertGoalsScoreTheSameWay();
@@ -45,7 +46,7 @@ export class AnalysisSubjects {
   ) {
     const resources = {
       comparisonRollScope: this.comparisonRollScope,
-      targetDummyProvider: new TargetDummyProvider(),
+      targetDummyProvider: new TargetDummyProvider(this.targetDummiesHaveArmorClass),
     };
 
     for (const { goal } of this.analysisSpecsByCombatantId.values()) {

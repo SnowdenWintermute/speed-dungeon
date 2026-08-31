@@ -575,7 +575,7 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     studyName: StudyName.CasterDualWieldRanged,
     attributes: [CombatAttribute.Dexterity],
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
-    availabilityPercentile: 1,
+    availabilityPercentile: 0.5,
   },
   {
     baseItem: {

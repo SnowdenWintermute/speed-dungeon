@@ -41,7 +41,7 @@ export class TurnOrderManager implements Serializable, ReactiveNode {
     const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
     const delay = actionDelayMultiplier * delayAfterSpeedBonus;
     const rounded = Math.floor(delay * 10);
-    return rounded;
+    return Math.max(1, rounded);
   }
 
   getTrackers() {

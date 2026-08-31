@@ -24,7 +24,7 @@ import { AnalysisRunControls } from "./analysis-run-controls.tsx";
 import { AnalysisSliceControls } from "./analysis-slice-controls.tsx";
 import { WriteFileButton } from "./write-file-button.tsx";
 
-const DEFAULT_RUN_COUNT = 500;
+const DEFAULT_RUN_COUNT = 300;
 
 interface StudyTable<TRow> {
   selectRows(slice: AnalysisSlice): TRow[];
@@ -42,8 +42,12 @@ interface Props<
   /** set by a study whose derivation only means anything at one intensity */
   fixedAllocationIntensity?: NormalizedPercentage;
   defaultAllocationIntensity?: NormalizedPercentage;
+  /** the share the study's goal is designed to be spent at, quoted beside whatever is dialed in */
+  designedAllocationIntensity?: NormalizedPercentage;
   /** set by a study that is only itself with requirements handled one way */
   fixedHonorsEquipmentRequirements?: boolean;
+  /** set by a study whose goal never samples against a dummy, so the toggle would do nothing */
+  fixedTargetDummiesHaveArmorClass?: boolean;
   /** whatever the study does with a finished table, such as generating a module from it */
   renderTableActions?: (table: TTable) => ReactNode;
 }
@@ -58,7 +62,9 @@ export function StudyPanel<
   tableConstructor: TableConstructor,
   fixedAllocationIntensity,
   defaultAllocationIntensity,
+  designedAllocationIntensity,
   fixedHonorsEquipmentRequirements,
+  fixedTargetDummiesHaveArmorClass,
   renderTableActions,
 }: Props<TStudy, TRow, TTable>) {
   const configuration = STUDY_CONFIGURATIONS[studyName];
@@ -110,7 +116,9 @@ export function StudyPanel<
           runsRequested={state.runsRequested}
           fixedAllocationIntensity={fixedAllocationIntensity}
           defaultAllocationIntensity={defaultAllocationIntensity}
+          designedAllocationIntensity={designedAllocationIntensity}
           fixedHonorsEquipmentRequirements={fixedHonorsEquipmentRequirements}
+          fixedTargetDummiesHaveArmorClass={fixedTargetDummiesHaveArmorClass}
           runBlockedReason={describeCopiedAttributeProfilesBlock(copiedProfiles)}
           onRun={(options) => {
             if (copiedProfiles.type === CopiedAttributeProfilesType.Ready) {
@@ -135,7 +143,8 @@ export function StudyPanel<
           Showing the saved run for {STUDY_NAME_SLUGS[studyName]} ({state.runCountShown} runs
           {state.optionsShown !== null &&
             `, ${Math.round(state.optionsShown.allocationIntensity * 100)}% intensity, ` +
-              `requirements ${state.optionsShown.honorsEquipmentRequirements ? "on" : "off"}`}
+              `requirements ${state.optionsShown.honorsEquipmentRequirements ? "on" : "off"}, ` +
+              `armor class ${state.optionsShown.targetDummiesHaveArmorClass ? "on" : "off"}`}
           ). Run a set to replace it.
         </p>
       )}

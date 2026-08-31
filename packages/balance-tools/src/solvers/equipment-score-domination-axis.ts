@@ -3,6 +3,7 @@ export enum EquipmentScoreDominationAxis {
   Strength,
   Dexterity,
   Spirit,
+  Agility,
   Accuracy,
   NonWeaponFlatDamage,
   WeaponDamageAverage,

@@ -7,6 +7,7 @@ import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name.ts";
 import { MaxAccuracyPanel } from "./studies/max-accuracy/panel.tsx";
 import { SampledDamagePanel } from "./studies/sampled-damage/panel.tsx";
 import { ArmorClassPanel } from "./studies/armor-class/panel.tsx";
+import { MaxSpeedPanel } from "./studies/max-speed/panel.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 
@@ -23,6 +24,7 @@ const STUDY_PANELS: Record<StudyName, () => ReactElement> = {
   [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
   [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
   [StudyName.ArmorClassGroupThree]: () => ArmorClassPanel(StudyName.ArmorClassGroupThree),
+  [StudyName.MaxSpeedMixed]: MaxSpeedPanel,
 };
 
 export function App() {

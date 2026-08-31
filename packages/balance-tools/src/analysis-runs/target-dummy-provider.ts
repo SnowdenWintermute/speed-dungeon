@@ -1,13 +1,13 @@
 import { Combatant, MapUtils, TargetDummyFactory } from "@speed-dungeon/common";
 import { CombatantAttributesMemo } from "../analysis-subjects/combatant-attributes-memo.ts";
 
-/**
- * The dummies every sampling goal measures against. Shared, so two goals scoring in the same unit
- * are scoring against the same target rather than against equal-by-coincidence copies.
- */
 export class TargetDummyProvider {
-  private targetDummyFactory = new TargetDummyFactory();
+  private targetDummyFactory: TargetDummyFactory;
   private targetDummiesByFloor = new Map<number, Combatant>();
+
+  constructor(hasArmorClass: boolean) {
+    this.targetDummyFactory = new TargetDummyFactory({ hasArmorClass });
+  }
 
   requireForFloor(floor: number) {
     return MapUtils.getOrCreate(this.targetDummiesByFloor, floor, () => {

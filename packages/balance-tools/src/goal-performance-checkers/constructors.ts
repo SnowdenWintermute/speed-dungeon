@@ -1,7 +1,8 @@
+import { CombatAttribute } from "@speed-dungeon/common";
 import { GoalPerformanceChecker, GoalPerformanceCheckerType } from "./index.ts";
 import { GoalPerformanceCheckerSpec } from "./spec.ts";
 import { SampledDamageOnTargetDummyGoalPerformanceChecker } from "./sampled-damage-on-target-dummy.ts";
-import { TotalAccuracyGoalPerformanceChecker } from "./total-accuracy.ts";
+import { TotalAttributeGoalPerformanceChecker } from "./total-attribute.ts";
 import { WornArmorClassGoalPerformanceChecker } from "./worn-armor-class.ts";
 import { selectSampledActions } from "./sampled-action-selection.ts";
 import { EQUIPMENT_SCORE_DOMINATION_AXES } from "../solvers/equipment-score-domination-axes.ts";
@@ -27,8 +28,17 @@ export const constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor 
   );
 
   switch (spec.typeConfig.type) {
+    // one class, two checker types: AnalysisSubjects refuses a party whose goals score in different
+    // units, and points of accuracy are not points of speed
     case GoalPerformanceCheckerType.TotalAccuracy:
-      return new TotalAccuracyGoalPerformanceChecker(
+      return new TotalAttributeGoalPerformanceChecker(
+        CombatAttribute.Accuracy,
+        spec.allocatableAttributes,
+        equipmentScoreAxes
+      );
+    case GoalPerformanceCheckerType.TotalSpeed:
+      return new TotalAttributeGoalPerformanceChecker(
+        CombatAttribute.Speed,
         spec.allocatableAttributes,
         equipmentScoreAxes
       );

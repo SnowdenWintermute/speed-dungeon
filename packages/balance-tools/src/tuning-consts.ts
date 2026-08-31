@@ -1,17 +1,35 @@
-export const TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
-export const TARGET_ACC_INVESTMENT_PERCENTAGE = 1 / 5;
+export const DESIGNED_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
+export const DESIGNED_ACC_INVESTMENT_PERCENTAGE = 1 / 5;
+export const DESIGNED_AGILITY_INVESTMENT_PERCENTAGE = 1 / 10;
+export const DESIGNED_OFFENSIVE_ALLOCATION_PERCENTAGE = 0.6;
 
-export const MONTSTER_TARGET_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT = {
+export const DESIGNED_MONSTER_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT = {
   LOW: 0.1,
   MED: 0.25,
   HIGH: 0.5,
 };
 
 export const AVERAGE_MONSTER_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT =
-  MONTSTER_TARGET_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT.LOW;
+  DESIGNED_MONSTER_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT.LOW;
 
-// target investment percentages
-// - damage - 3/5
-// - acc - 1/5
-// - survivability - 2/5
-// - mana - 1/5
+export const DESIGNED_MONSTER_HIT_CHANCE_ON_TARGETS = {
+  INACURATE: 0.5,
+  AVERAGE: 0.8,
+  ACCURATE: 0.95,
+};
+
+export const DESIGNED_MONSTER_TO_CHARACTER_TURN_COUNT_RATIOS = {
+  SLOW: 0.5,
+  AVERAGE: 1,
+  FAST: 2,
+  VERY_FAST: 3,
+};
+
+// target investment percentages (melee warrior)
+// - damage - 6/10
+//   - str - 4/10
+//   - acc - 2/10
+// - survivability - 3/10
+//   - hp - 2/10
+//   - eva/speed - 1/10
+// - mana - 1/10

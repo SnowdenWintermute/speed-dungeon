@@ -4,7 +4,10 @@ import { BaseItemPercentList } from "../../components/base-item-percent-list.tsx
 import { ArmorClassSlotId } from "./slots.ts";
 import { ArmorClassTableRow } from "./row.ts";
 
-function bySlotColumn(header: string, slotId: ArmorClassSlotId): DataTableColumn<ArmorClassTableRow> {
+function bySlotColumn(
+  header: string,
+  slotId: ArmorClassSlotId
+): DataTableColumn<ArmorClassTableRow> {
   return {
     header,
     renderCell: (row) => Math.round(row.averageArmorClassBySlot[slotId]),
@@ -23,7 +26,7 @@ function copiedAttributeColumn(
 
 export const ARMOR_CLASS_TABLE_COLUMNS: DataTableColumn<ArmorClassTableRow>[] = [
   { header: "Room", renderCell: (row) => `${row.floor}-${row.room}` },
-  { header: "lvlMain", renderCell: (row) => row.averageMainClassLevel },
+  { header: "lvlMain", renderCell: (row) => Math.floor(row.averageMainClassLevel) },
   {
     header: "lvlSupp",
     renderCell: (row) =>

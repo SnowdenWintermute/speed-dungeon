@@ -15,6 +15,8 @@ export function ArmorClassPanel(studyName: ArmorClassStudyName) {
       // means which affixes you select on that gear regardless of base item
       defaultAllocationIntensity={0.4}
       fixedHonorsEquipmentRequirements={true}
+      // this study scores the party's own armor class, never damage against a dummy
+      fixedTargetDummiesHaveArmorClass={false}
     />
   );
 }

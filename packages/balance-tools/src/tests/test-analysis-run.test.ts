@@ -13,10 +13,12 @@ const RUN_COUNT = 10;
 const TIMEOUT = 60000;
 // a partial intensity as well as the whole, since the two walk different allocation and scaling paths
 const INTENSITIES_TO_TRY: NormalizedPercentage[] = [1, 0.4];
-// both, since honoring requirements is what a solver hits when an item it wants is out of reach
+// both, since honoring requirements is what a solver hits when an item it wants is out of reach.
+// armor class stays off in both: the generated table is committed empty, so arming a dummy would
+// throw, and it is a second axis this already slow test does not need to cross
 const REQUIREMENT_HANDLING_TO_TRY = [
-  { honorsEquipmentRequirements: false },
-  { honorsEquipmentRequirements: true },
+  { honorsEquipmentRequirements: false, targetDummiesHaveArmorClass: false },
+  { honorsEquipmentRequirements: true, targetDummiesHaveArmorClass: false },
 ];
 
 // the goals are per character, so this is the run where the solvers have to allocate and hand out

@@ -43,6 +43,7 @@ export * from "./monsters/monster-generator.js";
 export * from "./monsters/monster-combat-profiles.js";
 export * from "./monsters/monster-reward-profiles.js";
 export * from "./monsters/monster-evasion.generated.js";
+export * from "./monsters/monster-armor-class.generated.js";
 export * from "./combatants/attributes/attribute-tables.generated.js";
 export * from "./combatants/target-dummies/index.js";
 
@@ -148,6 +149,8 @@ export * from "./combat/combat-actions/action-implementations/generic-action-tem
 export * from "./combat/combat-actions/combat-action-origin.js";
 
 // turn order
+export * from "./combat/turn-order/turn-order-manager.js";
+export * from "./combat/turn-order/consts.js";
 export * from "./combat/turn-order/turn-trackers.js";
 export * from "./combat/turn-order/turn-schedulers.js";
 export * from "./combat/turn-order/turn-scheduler-manager.js";

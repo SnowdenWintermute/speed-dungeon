@@ -8,6 +8,7 @@ export enum StudyName {
   CasterDualWieldRanged,
   ArmorClassMixed,
   ArmorClassGroupThree,
+  MaxSpeedMixed,
 }
 
 /** used for generated file names and as the study's label; the workbook holds the enum member name */
@@ -19,6 +20,7 @@ export const STUDY_NAME_SLUGS: Record<StudyName, string> = {
   [StudyName.CasterDualWieldRanged]: "caster-dual-ranged",
   [StudyName.ArmorClassMixed]: "armor-class-mixed",
   [StudyName.ArmorClassGroupThree]: "armor-class-group-three",
+  [StudyName.MaxSpeedMixed]: "max-speed-mixed",
 };
 
 export const STUDY_ANALYSES = {
@@ -32,6 +34,7 @@ export const STUDY_ANALYSES = {
   [StudyName.ArmorClassMixed]: DungeonRunAnalysis.ArmorClass,
   // one table, two parties: between them every weapon specialty is measured
   [StudyName.ArmorClassGroupThree]: DungeonRunAnalysis.ArmorClass,
+  [StudyName.MaxSpeedMixed]: DungeonRunAnalysis.MaxSpeed,
 } as const satisfies Record<StudyName, DungeonRunAnalysis>;
 
 // `as const` above so a panel can be parameterized by its study alone: this resolves which result

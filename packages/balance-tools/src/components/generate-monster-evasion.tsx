@@ -1,17 +1,17 @@
-import { WriteFileButton } from "../../components/write-file-button.tsx";
-import { determinePerFloorMonsterEvasion } from "../../derivable-facts/determine-monster-evasion-per-floor.ts";
-import { writeGeneratedFile } from "../../write-generated-file.ts";
+import { determinePerFloorMonsterEvasion } from "../derivable-facts/determine-monster-evasion-per-floor.ts";
 import {
   emitMonsterEvasionModule,
   GENERATED_MONSTER_EVASION_MODULE_PATH,
-} from "./emit-monster-evasion-module.ts";
-import { MaxAccuracyTable } from "./table.ts";
+} from "../derivable-facts/emit-monster-evasion-module.ts";
+import { MaxAccuracyTable } from "../studies/max-accuracy/table.ts";
+import { writeGeneratedFile } from "../write-generated-file.ts";
+import { WriteFileButton } from "./write-file-button.tsx";
 
 interface Props {
   table: MaxAccuracyTable;
 }
 
-export function GenerateMonsterEvasionFromAccuracyTable({ table }: Props) {
+export function GenerateMonsterEvasion({ table }: Props) {
   return (
     <WriteFileButton
       label="generate monster evasion"

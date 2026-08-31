@@ -1,16 +1,23 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
-import { Checkbox } from "@speed-dungeon/ui/atoms/Checkbox";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
+import { Slider } from "@speed-dungeon/ui/atoms/Slider";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
 import { AnalysisRunSetOptions } from "../analysis-runs/run-set-worker-messages.ts";
 import { useFixableState } from "../hooks/use-fixable-state.ts";
+import { RunOptionCheckbox } from "./run-option-checkbox.tsx";
 
 const MIN_RUN_COUNT = 1;
 const MAX_RUN_COUNT = 2000;
 const HONOR_REQUIREMENTS_LABEL = "honor equipment requirements";
+const ARMOR_CLASS_LABEL = "target dummies have armor class";
+const INTENSITY_STEP_PERCENT = 5;
+
+function toPercent(intensity: NormalizedPercentage) {
+  return Math.round(intensity * 100);
+}
 
 interface Props {
   defaultRunCount: number;
@@ -20,22 +27,20 @@ interface Props {
   defaultAllocationIntensity?: NormalizedPercentage;
   /** set by a study whose derivation only means anything at one intensity; absent lets the user pick */
   fixedAllocationIntensity?: NormalizedPercentage;
+  /** the share the study's goal is designed to be spent at, quoted beside whatever is dialed in */
+  designedAllocationIntensity?: NormalizedPercentage;
   /** set by a study that is only itself with requirements handled one way; absent lets the user pick */
   fixedHonorsEquipmentRequirements?: boolean;
+  /** set by a study whose goal never samples against a dummy, so the toggle would do nothing */
+  fixedTargetDummiesHaveArmorClass?: boolean;
   /** why a set cannot be walked yet, such as a source study this one copies from not being saved */
   runBlockedReason?: null | string;
   onRun: (options: AnalysisRunSetOptions) => void;
 }
 
-const ALLOCATION_INTENSITY_OPTIONS: { title: string; value: NormalizedPercentage }[] = [
-  { title: "100%", value: FULL_ALLOCATION_INTENSITY },
-  { title: "80%", value: 0.8 },
-  { title: "60%", value: 0.6 },
-  { title: "40%", value: 0.4 },
-];
-
 const RUN_COUNT_OPTIONS = [
-  { title: "500", value: 500 },
+  { title: "600", value: 600 },
+  { title: "300", value: 300 },
   { title: "100", value: 100 },
   { title: "10", value: 10 },
 ];
@@ -47,21 +52,24 @@ export function AnalysisRunControls({
   runsRequested,
   defaultAllocationIntensity,
   fixedAllocationIntensity,
+  designedAllocationIntensity,
   fixedHonorsEquipmentRequirements,
+  fixedTargetDummiesHaveArmorClass,
   runBlockedReason = null,
   onRun,
 }: Props) {
   const [runCountText, setRunCountText] = useState(`${defaultRunCount}`);
-  const honorRequirementsId = useId();
 
   const intensity = useFixableState(
     fixedAllocationIntensity,
     defaultAllocationIntensity ?? FULL_ALLOCATION_INTENSITY
   );
   const requirementHandling = useFixableState(fixedHonorsEquipmentRequirements, false);
+  const armorClassHandling = useFixableState(fixedTargetDummiesHaveArmorClass, false);
 
   const allocationIntensity = intensity.value;
   const honorsEquipmentRequirements = requirementHandling.value;
+  const targetDummiesHaveArmorClass = armorClassHandling.value;
 
   const runCount = Number(runCountText);
   const runCountIsUsable = Number.isInteger(runCount) && runCount >= MIN_RUN_COUNT;
@@ -72,20 +80,32 @@ export function AnalysisRunControls({
     if (!canRun) {
       return;
     }
-    onRun({ runCount, allocationIntensity, honorsEquipmentRequirements });
+    onRun({
+      runCount,
+      allocationIntensity,
+      honorsEquipmentRequirements,
+      targetDummiesHaveArmorClass,
+    });
   }
 
   return (
     <div>
-      <div className="flex flex-col text-sm text-theme-muted">
-        <RadioGroup
-          title="allocation intensity presets"
-          extraStyles="mb-2"
-          value={allocationIntensity}
-          setValue={intensity.setChosen}
-          options={ALLOCATION_INTENSITY_OPTIONS}
+      <div className="mb-2 flex items-center gap-3 text-sm text-theme-muted">
+        <span>allocation intensity</span>
+        <Slider
+          title="allocation intensity"
+          extraStyles="w-64"
+          value={toPercent(allocationIntensity)}
+          setValue={(percent) => intensity.setChosen((percent / 100) as NormalizedPercentage)}
+          min={0}
+          max={toPercent(FULL_ALLOCATION_INTENSITY)}
+          step={INTENSITY_STEP_PERCENT}
           disabled={intensity.isFixed}
         />
+        <span className="text-theme-emphasis">{toPercent(allocationIntensity)}%</span>
+        {designedAllocationIntensity !== undefined && (
+          <span>designed {toPercent(designedAllocationIntensity)}%</span>
+        )}
       </div>
       <div className="flex items-end gap-4">
         <div className="flex flex-col text-sm text-theme-muted">
@@ -110,26 +130,23 @@ export function AnalysisRunControls({
           className="h-10 w-28 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
         />
 
-        <ButtonBasic onClick={handleRun} disabled={!canRun} extraStyles="bg-theme-base">
+        <ButtonBasic onClick={handleRun} disabled={!canRun} extraStyles="bg-theme-recessed">
           {isRunning ? "running..." : "run set"}
         </ButtonBasic>
 
-        <div className="h-10 flex items-center gap-2 text-sm text-theme-muted">
-          <Checkbox
-            extraStyles="h-5 w-5"
-            id={honorRequirementsId}
-            ariaLabel={HONOR_REQUIREMENTS_LABEL}
-            checked={honorsEquipmentRequirements}
-            disabled={requirementHandling.isFixed}
-            setChecked={requirementHandling.setChosen}
-          />
-          <label
-            htmlFor={honorRequirementsId}
-            className={`cursor-pointer ${requirementHandling.isFixed ? "opacity-50 cursor-auto" : ""}`}
-          >
-            {HONOR_REQUIREMENTS_LABEL}
-          </label>
-        </div>
+        <RunOptionCheckbox
+          label={HONOR_REQUIREMENTS_LABEL}
+          checked={honorsEquipmentRequirements}
+          isFixed={requirementHandling.isFixed}
+          setChecked={requirementHandling.setChosen}
+        />
+
+        <RunOptionCheckbox
+          label={ARMOR_CLASS_LABEL}
+          checked={targetDummiesHaveArmorClass}
+          isFixed={armorClassHandling.isFixed}
+          setChecked={armorClassHandling.setChosen}
+        />
 
         {isRunning && (
           <span className="h-10 flex items-center text-sm text-theme-muted">

@@ -58,7 +58,8 @@ class BestImprovementFixture {
     const { party, analysisSpecsByCombatantId } = new AnalysisPartyBuilder().build(characterSpecs);
     const analysisSubjects = new AnalysisSubjects(
       analysisSpecsByCombatantId,
-      constructDexterityChecker
+      constructDexterityChecker,
+      false
     );
 
     this.party = party;

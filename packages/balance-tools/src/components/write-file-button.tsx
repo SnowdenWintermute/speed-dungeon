@@ -49,7 +49,7 @@ export function WriteFileButton({ label, write, disabled, noteAfterWrite }: Prop
       <ButtonBasic
         onClick={handleClick}
         disabled={disabled || isWriting}
-        extraStyles="bg-theme-recessed"
+        extraStyles="bg-theme-base"
       >
         {isWriting ? (
           <span className="flex items-center gap-2">

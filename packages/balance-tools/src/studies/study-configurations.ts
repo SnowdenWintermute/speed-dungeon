@@ -101,4 +101,7 @@ export const STUDY_CONFIGURATIONS: Record<StudyName, StudyConfiguration> = {
       () => StudyName.MixedDamageGroupThree
     ),
   },
+  [StudyName.MaxSpeedMixed]: {
+    characterSpecs: defaultAnalysisCharacterSpecs(AnalysisGoal.TotalSpeed),
+  },
 };

@@ -1,8 +1,8 @@
 import { FloorNumber, MapUtils, RoomNumber } from "@speed-dungeon/common";
 import { MaxAccuracyTable } from "../studies/max-accuracy/table.ts";
 import {
-  TARGET_ACC_INVESTMENT_PERCENTAGE,
-  TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER,
+  DESIGNED_ACC_INVESTMENT_PERCENTAGE,
+  DESIGNED_HIT_CHANCE_FOR_AVERAGE_CHARACTER,
 } from "../tuning-consts.ts";
 
 export function determinePerFloorMonsterEvasion(table: MaxAccuracyTable) {
@@ -13,7 +13,7 @@ export function determinePerFloorMonsterEvasion(table: MaxAccuracyTable) {
     const { floor, room, averageAccuracyBySource, accuracyFromEquipment } = row;
     const { fromInherent, fromAllocated } = averageAccuracyBySource;
     const investable = fromAllocated + accuracyFromEquipment.median;
-    const expectedTotalAccuracy = fromInherent + investable * TARGET_ACC_INVESTMENT_PERCENTAGE;
+    const expectedTotalAccuracy = fromInherent + investable * DESIGNED_ACC_INVESTMENT_PERCENTAGE;
 
     const floorEntries = MapUtils.getOrCreate(
       expectedCharacterAccuracyByRoom,
@@ -34,7 +34,7 @@ export function determinePerFloorMonsterEvasion(table: MaxAccuracyTable) {
     const floorAverage = floorTotal / floorRoomCount;
 
     const monsterEvasion = Math.round(
-      Math.max(0, floorAverage - TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER)
+      Math.max(0, floorAverage - DESIGNED_HIT_CHANCE_FOR_AVERAGE_CHARACTER)
     );
 
     monsterEvasionByFloor.set(floorNumber, monsterEvasion);

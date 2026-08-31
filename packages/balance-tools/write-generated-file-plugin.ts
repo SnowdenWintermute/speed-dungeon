@@ -15,7 +15,10 @@ import {
 const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
 /** the paths the route will write, so a request carries contents and a key rather than a path */
-const WRITABLE_PATHS = ["packages/common/src/monsters/monster-evasion.generated.ts"];
+const WRITABLE_PATHS = [
+  "packages/common/src/monsters/monster-evasion.generated.ts",
+  "packages/common/src/monsters/monster-armor-class.generated.ts",
+];
 
 /**
  * Only the modules the *browser* writes. A sync-written one — game data, attribute tables, the

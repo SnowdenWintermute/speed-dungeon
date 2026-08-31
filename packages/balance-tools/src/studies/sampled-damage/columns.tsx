@@ -2,7 +2,7 @@ import { CombatAttribute } from "@speed-dungeon/common";
 import { DataTableCellLayout, DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { SampledDamageContributingAttribute } from "./run-reporter.ts";
 import { SampledDamageTableRow } from "./row.ts";
-import { AttributeSourceSplit } from "./attribute-source-split.tsx";
+import { AttributeSourceSplit } from "../../components/attribute-source-split.tsx";
 import { BaseItemPercentList } from "../../components/base-item-percent-list.tsx";
 
 /**
@@ -48,11 +48,11 @@ function percentCell(normalizedRate: number) {
 
 export const SAMPLED_DAMAGE_TABLE_COLUMNS: DataTableColumn<SampledDamageTableRow>[] = [
   { header: "Room", renderCell: (row) => `${row.floor}-${row.room}` },
-  { header: "lvlMain", renderCell: (row) => row.averageMainClassLevel },
+  { header: "lvlMain", renderCell: (row) => Math.floor(row.averageMainClassLevel) },
   {
     header: "lvlSupp",
     renderCell: (row) =>
-      row.averageSupportClassLevel === null ? "-" : row.averageSupportClassLevel,
+      row.averageSupportClassLevel === null ? "-" : Math.floor(row.averageSupportClassLevel),
   },
   {
     header: "p10",

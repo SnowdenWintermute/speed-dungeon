@@ -11,11 +11,6 @@ import { BestImprovementEquipmentSolver } from "../solvers/best-improvement.ts";
 import { CopiedAttributeSolver } from "../solvers/copied-attribute-solver.ts";
 import { constructGoalPerformanceChecker } from "../goal-performance-checkers/constructors.ts";
 
-/**
- * Every study walks the dungeon the same way. What each character is solving for rides on its
- * specification, so the reporter — the table the study is here to produce — is all that is left to
- * vary.
- */
 export function analysisRun<TCombatantReport>(
   characterSpecs: AnalysisCharacterSpecification[],
   createRunReporter: (
@@ -30,7 +25,8 @@ export function analysisRun<TCombatantReport>(
   );
   const analysisSubjects = new AnalysisSubjects(
     analysisSpecsByCombatantId,
-    constructGoalPerformanceChecker
+    constructGoalPerformanceChecker,
+    options.targetDummiesHaveArmorClass
   );
 
   const runner = new AnalysisRun<TCombatantReport>(

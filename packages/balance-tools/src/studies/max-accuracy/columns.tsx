@@ -15,7 +15,7 @@ function bySourceColumn(
 
 export const MAX_ACCURACY_TABLE_COLUMNS: DataTableColumn<MaxAccuracyTableRow>[] = [
   { header: "Room", renderCell: (row) => `${row.floor}-${row.room}` },
-  { header: "lvlMain", renderCell: (row) => row.averageMainClassLevel },
+  { header: "lvlMain", renderCell: (row) => Math.floor(row.averageMainClassLevel) },
   {
     header: "lvlSupp",
     renderCell: (row) =>

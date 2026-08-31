@@ -11,6 +11,8 @@ export const EQUIPMENT_SCORE_DOMINATION_AXES: Record<
     equipment.getAffixAttributeValue(AffixType.Dexterity, CombatAttribute.Dexterity),
   [EquipmentScoreDominationAxis.Spirit]: (equipment) =>
     equipment.getAffixAttributeValue(AffixType.Spirit, CombatAttribute.Spirit),
+  [EquipmentScoreDominationAxis.Agility]: (equipment) =>
+    equipment.getAffixAttributeValue(AffixType.Agility, CombatAttribute.Agility),
   [EquipmentScoreDominationAxis.Accuracy]: (equipment) =>
     equipment.getAffixAttributeValue(AffixType.Accuracy, CombatAttribute.Accuracy),
   [EquipmentScoreDominationAxis.NonWeaponFlatDamage]: (equipment) => {
