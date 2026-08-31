@@ -1,14 +1,9 @@
 import { FloorNumber, MapUtils, RoomNumber } from "@speed-dungeon/common";
-import { MaxAccuracyTable } from "./table.ts";
-
-const TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
-const TARGET_ACC_INVESTMENT_PERCENTAGE = 1 / 5;
-
-// target investment percentages
-// - damage - 3/5
-// - acc - 1/5
-// - survivability - 2/5
-// - mana - 1/5
+import { MaxAccuracyTable } from "../studies/max-accuracy/table.ts";
+import {
+  TARGET_ACC_INVESTMENT_PERCENTAGE,
+  TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER,
+} from "../tuning-consts.ts";
 
 export function determinePerFloorMonsterEvasion(table: MaxAccuracyTable) {
   const rows = table.selectRows({});

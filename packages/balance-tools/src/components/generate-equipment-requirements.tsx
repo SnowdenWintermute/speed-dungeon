@@ -1,13 +1,13 @@
-import { WriteFileButton } from "../../components/write-file-button.tsx";
-import { writeGeneratedFile } from "../../write-generated-file.ts";
 import {
   emitEquipmentRequirementsModule,
   generatedRequirementsModulePath,
-} from "../emit-equipment-requirements-module.ts";
-import { generateEquipmentRequirements } from "../equipment-requirements-generator.ts";
-import { EQUIPMENT_REQUIREMENT_TARGETS } from "../requirement-targets.generated.ts";
-import { StudyName } from "../study-name.ts";
-import { SampledDamageTable } from "./table.ts";
+} from "../derivable-facts/equipment-requirements/emit-module.ts";
+import { generateEquipmentRequirements } from "../derivable-facts/equipment-requirements/equipment-requirements-generator.ts";
+import { StudyName } from "../studies/study-name.ts";
+import { writeGeneratedFile } from "../write-generated-file.ts";
+import { WriteFileButton } from "./write-file-button.tsx";
+import { SampledDamageTable } from "../studies/sampled-damage/table.ts";
+import { EQUIPMENT_REQUIREMENT_TARGETS } from "../derivable-facts/equipment-requirements/requirement-targets.generated.ts";
 
 interface Props {
   studyName: StudyName;

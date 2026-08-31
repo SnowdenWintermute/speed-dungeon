@@ -12,9 +12,9 @@ import {
   TwoHandedMeleeWeapon,
   TwoHandedRangedWeapon,
 } from "@speed-dungeon/common";
-import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
-import type { EquipmentRequirementTarget } from "./requirement-target.ts";
-import { StudyName } from "./study-name.ts";
+import { CharacterWeaponSpecialty } from "../../analysis-subjects/character-weapon-specialty.ts";
+import type { EquipmentRequirementTarget } from "./equipment-requirement-target.ts";
+import { StudyName } from "../../studies/study-name.ts";
 
 export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
   {

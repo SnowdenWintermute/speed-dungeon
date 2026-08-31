@@ -1,10 +1,9 @@
 import ExcelJS from "exceljs";
 import { CombatAttribute, invariant } from "@speed-dungeon/common";
 import type { EquipmentBaseItem } from "@speed-dungeon/common";
-import { DERIVABLE_REQUIREMENT_ATTRIBUTES } from "../studies/derivable-requirement-attributes.ts";
-import type { EquipmentRequirementTarget } from "../studies/requirement-target.ts";
-import { STUDY_ANALYSES, STUDY_NAME_SLUGS } from "../studies/study-name.ts";
-import type { StudyName } from "../studies/study-name.ts";
+import type { EquipmentRequirementTarget } from "../derivable-facts/equipment-requirements/equipment-requirement-target.ts";
+import { DERIVABLE_EQUIPMENT_REQUIREMENT_ATTRIBUTES } from "../derivable-facts/equipment-requirements/derivable-equipment-requirement-attributes.ts";
+import { STUDY_ANALYSES, STUDY_NAME_SLUGS, type StudyName } from "../studies/study-name.ts";
 import type { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
 import { AnalysisGoal } from "../goal-performance-checkers/analysis-goal.ts";
@@ -74,11 +73,7 @@ function assertNothingElseIsFilledIn(row: SheetRow) {
   }
 }
 
-/**
- * Two studies setting the same requirement on the same item would both be right and disagree, and
- * whichever generated last would win silently. Caught here rather than at boot so the message can
- * name the row you would have to go and fix.
- */
+// don't let two studies set same attribute
 function assertAttributesNotAlreadyClaimed(
   claimedBy: Map<string, string>,
   baseItem: EquipmentBaseItem,
@@ -97,7 +92,7 @@ function assertAttributesNotAlreadyClaimed(
 }
 
 function readAttributes(row: SheetRow, studyName: StudyName) {
-  const derivable = DERIVABLE_REQUIREMENT_ATTRIBUTES[STUDY_ANALYSES[studyName]];
+  const derivable = DERIVABLE_EQUIPMENT_REQUIREMENT_ATTRIBUTES[STUDY_ANALYSES[studyName]];
 
   const attributes = row
     .getText("attributes")

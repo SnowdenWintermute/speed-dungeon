@@ -1,6 +1,6 @@
 import { WriteFileButton } from "../../components/write-file-button.tsx";
+import { determinePerFloorMonsterEvasion } from "../../derivable-facts/determine-monster-evasion-per-floor.ts";
 import { writeGeneratedFile } from "../../write-generated-file.ts";
-import { determinePerFloorMonsterEvasion } from "./determine-per-floor-monster-evasion.ts";
 import {
   emitMonsterEvasionModule,
   GENERATED_MONSTER_EVASION_MODULE_PATH,

@@ -1,8 +1,8 @@
+import { GenerateEquipmentRequirements } from "../../components/generate-equipment-requirements.tsx";
 import { StudyPanel } from "../../components/study-panel.tsx";
 import { StudyName } from "../study-name.ts";
 import { SAMPLED_DAMAGE_TABLE_COLUMNS } from "./columns.tsx";
 import { SampledDamageTable } from "./table.ts";
-import { GenerateEquipmentRequirements } from "./generate-equipment-requirements.tsx";
 
 type SampledDamageStudyName =
   | StudyName.CasterDualWieldRanged

@@ -9,13 +9,13 @@ import {
   NormalizedPercentage,
   invariant,
 } from "@speed-dungeon/common";
-import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
-import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
-import { AvailabilityCurve } from "../analysis-runs/availability-curve.ts";
-import { AvailabilityPoint } from "../analysis-runs/room-availability.ts";
-import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "../analysis-subjects/character-weapon-specialty.ts";
-import { ANALYSIS_GOAL_STRINGS } from "../goal-performance-checkers/analysis-goal.ts";
-import { EquipmentRequirementTarget } from "./requirement-target.ts";
+import { AnalysisTableRow } from "../../analysis-runs/analysis-sample-table.ts";
+import { AnalysisSlice } from "../../analysis-runs/analysis-slice.ts";
+import { AvailabilityCurve } from "../../analysis-runs/availability-curve.ts";
+import { AvailabilityPoint } from "../../analysis-runs/room-availability.ts";
+import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "../../analysis-subjects/character-weapon-specialty.ts";
+import { ANALYSIS_GOAL_STRINGS } from "../../goal-performance-checkers/analysis-goal.ts";
+import { EquipmentRequirementTarget } from "./equipment-requirement-target.ts";
 
 /**
  * How much of what a targeted build is actually worth to ask of it. At 1 the requirement is the mean,

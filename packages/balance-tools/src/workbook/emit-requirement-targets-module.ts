@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { CombatAttribute, CombatantClass, EquipmentType } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty.ts";
-import type { EquipmentRequirementTarget } from "../studies/requirement-target.ts";
+import type { EquipmentRequirementTarget } from "../derivable-facts/equipment-requirements/equipment-requirement-target.ts";
 import { StudyName } from "../studies/study-name.ts";
 import type { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import { emitGeneratedModuleHeader, selectUsedImports } from "../generated-module-header.ts";
@@ -12,7 +12,8 @@ import { PACKAGE_ROOT, WORKBOOK_SOURCE, WORKBOOK_SYNC_COMMAND } from "./game-dat
 export const GENERATED_REQUIREMENT_TARGETS_PATH = path.join(
   PACKAGE_ROOT,
   "src",
-  "studies",
+  "derivable-facts",
+  "equipment-requirements",
   "requirement-targets.generated.ts"
 );
 
@@ -31,11 +32,11 @@ function emitHeader(body: string) {
     imports: [
       { from: "@speed-dungeon/common", names: selectUsedImports(COMMON_IMPORT_CANDIDATES, body) },
       {
-        from: "../analysis-subjects/character-weapon-specialty.ts",
+        from: "../../analysis-subjects/character-weapon-specialty.ts",
         names: selectUsedImports({ CharacterWeaponSpecialty }, body),
       },
-      { from: "./requirement-target.ts", typeNames: ["EquipmentRequirementTarget"] },
-      { from: "./study-name.ts", names: ["StudyName"] },
+      { from: "./equipment-requirement-target.ts", typeNames: ["EquipmentRequirementTarget"] },
+      { from: "../../studies/study-name.ts", names: ["StudyName"] },
     ],
   });
 }
@@ -54,7 +55,9 @@ function emitBuildSlice(slice: AnalysisSlice) {
   if (slice.supportClass !== undefined) {
     fields.push(
       `supportClass: ${
-        slice.supportClass === null ? "null" : `CombatantClass.${CombatantClass[slice.supportClass]}`
+        slice.supportClass === null
+          ? "null"
+          : `CombatantClass.${CombatantClass[slice.supportClass]}`
       }`
     );
   }

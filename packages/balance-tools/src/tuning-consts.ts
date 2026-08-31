@@ -1,0 +1,17 @@
+export const TARGET_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
+export const TARGET_ACC_INVESTMENT_PERCENTAGE = 1 / 5;
+
+export const MONTSTER_TARGET_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT = {
+  LOW: 0.1,
+  MED: 0.25,
+  HIGH: 0.5,
+};
+
+export const AVERAGE_MONSTER_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT =
+  MONTSTER_TARGET_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT.LOW;
+
+// target investment percentages
+// - damage - 3/5
+// - acc - 1/5
+// - survivability - 2/5
+// - mana - 1/5
