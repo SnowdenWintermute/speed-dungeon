@@ -1,4 +1,5 @@
 import {
+  AffixCategory,
   AffixGenerator,
   Combatant,
   CombatAttribute,
@@ -11,17 +12,21 @@ import {
   IdGeneratorRandom,
   ItemBuilder,
   iterateNumericEnum,
-  MapUtils,
+  iterateNumericEnumKeyedRecord,
   RandomNumberGenerationPolicyFactory,
 } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
+import cloneDeep from "lodash.clonedeep";
 
 export class BestEquipmentPerBaseItemSelector {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
   private rngPolicy = RandomNumberGenerationPolicyFactory.allFixedPolicy(1);
-  private randomizer = new EquipmentRandomizer(this.rngPolicy, new AffixGenerator(this.rngPolicy));
-  private equipmentBuilder = new ItemBuilder(this.randomizer);
-  private baseEquipmentByType = new Map<EquipmentType, Map<EquipmentBaseItem, Equipment[]>>();
+  private equipmentRandomizer = new EquipmentRandomizer(
+    this.rngPolicy,
+    new AffixGenerator(this.rngPolicy)
+  );
+  private equipmentBuilder = new ItemBuilder(this.equipmentRandomizer);
+  private baseEquipmentByType = new Map<EquipmentType, Map<EquipmentBaseItem, Equipment>>();
 
   constructor() {
     for (const equipmentType of iterateNumericEnum(EquipmentType)) {
@@ -38,13 +43,11 @@ export class BestEquipmentPerBaseItemSelector {
 
   private createOneOfEachEquipmentOfType(equipmentType: EquipmentType) {
     const baseItems: EquipmentBaseItem[] = EQUIPMENT_BASE_ITEMS_BY_TYPE[equipmentType];
-    const equipment = new Map<EquipmentBaseItem, Equipment[]>();
+    const equipment = new Map<EquipmentBaseItem, Equipment>();
 
     baseItems.map((baseItem) => {
-      const equipmentList = MapUtils.getOrCreate(equipment, baseItem, () => {
-        return [];
-      });
-      equipmentList.push(
+      equipment.set(
+        baseItem,
         this.equipmentBuilder
           .equipment(baseItem)
           .itemLevel(this.getMaxItemLevel(baseItem))
@@ -60,6 +63,24 @@ export class BestEquipmentPerBaseItemSelector {
     specialty: CharacterWeaponSpecialty,
     attribute: CombatAttribute
   ) {
+    const clonedEquipmentByBaseItemType = cloneDeep(this.baseEquipmentByType);
+    for (const [equipmentType, baseItems] of clonedEquipmentByBaseItemType) {
+      for (const [baseItem, equipment] of baseItems) {
+        const template = getEquipmentTemplateCatalog().getTemplate(baseItem);
+        const { possibleAffixes } = template;
+        const { prefix: possiblePrefixes, suffix: possibleSuffixes } = possibleAffixes;
+        // get all prefix options
+        for (const [prefixType, maxTier] of iterateNumericEnumKeyedRecord(possiblePrefixes)) {
+          // roll max each one in turn
+          const existingPrefixes = equipment.affixes[AffixCategory.Prefix] || {};
+          existingPrefixes[prefixType] = { tier: maxTier };
+          this.equipmentRandomizer.rerollAffixValues(equipment, template);
+          equipment.affixes[AffixCategory.Prefix] = existingPrefixes;
+          // try on after each one
+          // keep best scoring one
+        }
+      }
+    }
     // - sequentially build each equipment to maximize an attribute
     //   - build with each possible prefix at max tier on max floor for this equipment
     //   - try on equipment ignoring requirements
