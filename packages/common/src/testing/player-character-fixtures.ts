@@ -67,10 +67,16 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .name(characterName)
       .controllingPlayerName(playerName)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+          .withoutRequirements()
+          .build(idGenerator)
       )
       .equipMainHand(
-        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        itemBuilder
+          .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+          .withoutRequirements()
+          .build(idGenerator),
         1
       )
       .addInventoryConsumable(
@@ -87,10 +93,16 @@ export const PLAYER_CHARACTER_FIXTURES = {
       .name(characterName)
       .controllingPlayerName(playerName)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger)
+          .withoutRequirements()
+          .build(idGenerator)
       )
       .equipMainHand(
-        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        itemBuilder
+          .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+          .withoutRequirements()
+          .build(idGenerator),
         1
       )
       .addInventoryConsumable(
@@ -123,9 +135,12 @@ export const SHIELD_BEARING_PLAYER_CHARACTER_FIXTURES = {
       .name(characterName)
       .controllingPlayerName(playerName)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+          .withoutRequirements()
+          .build(idGenerator)
       )
-      .equipOffHand(itemBuilder.shield(Shield.Buckler).build(idGenerator))
+      .equipOffHand(itemBuilder.shield(Shield.Buckler).withoutRequirements().build(idGenerator))
       .build(idGenerator),
 };
 
@@ -141,10 +156,16 @@ export const HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES = {
       .controllingPlayerName(playerName)
       .level(10)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+          .withoutRequirements()
+          .build(idGenerator)
       )
       .equipMainHand(
-        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        itemBuilder
+          .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+          .withoutRequirements()
+          .build(idGenerator),
         1
       )
       .addInventoryConsumable(
@@ -162,10 +183,16 @@ export const HIGH_LEVEL_PLAYER_CHARACTER_FIXTURES = {
       .controllingPlayerName(playerName)
       .level(10)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger)
+          .withoutRequirements()
+          .build(idGenerator)
       )
       .equipMainHand(
-        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        itemBuilder
+          .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+          .withoutRequirements()
+          .build(idGenerator),
         1
       )
       .addInventoryConsumable(
@@ -200,10 +227,16 @@ export const LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES = {
       .controllingPlayerName(playerName)
       .attribute(CombatAttribute.Hp, 1)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+          .withoutRequirements()
+          .build(idGenerator)
       )
       .equipMainHand(
-        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        itemBuilder
+          .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+          .withoutRequirements()
+          .build(idGenerator),
         1
       )
       .addInventoryConsumable(
@@ -221,10 +254,16 @@ export const LOW_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES = {
       .controllingPlayerName(playerName)
       .attribute(CombatAttribute.Hp, 1)
       .equipMainHand(
-        itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger).build(idGenerator)
+        itemBuilder
+          .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger)
+          .withoutRequirements()
+          .build(idGenerator)
       )
       .equipMainHand(
-        itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+        itemBuilder
+          .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+          .withoutRequirements()
+          .build(idGenerator),
         1
       )
       .addInventoryConsumable(
@@ -261,10 +300,16 @@ export const SET_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES = (hp: number) => {
         .attribute(CombatAttribute.Hp, hp)
         .level(10)
         .equipMainHand(
-          itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword).build(idGenerator)
+          itemBuilder
+            .oneHandedMeleeWeapon(OneHandedMeleeWeapon.ShortSword)
+            .withoutRequirements()
+            .build(idGenerator)
         )
         .equipMainHand(
-          itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+          itemBuilder
+            .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+            .withoutRequirements()
+            .build(idGenerator),
           1
         )
         .addInventoryConsumable(
@@ -283,10 +328,16 @@ export const SET_HP_PLAYER_CHARACTER_FIXTURE_FACTORIES = (hp: number) => {
         .attribute(CombatAttribute.Hp, hp)
         .level(10)
         .equipMainHand(
-          itemBuilder.oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger).build(idGenerator)
+          itemBuilder
+            .oneHandedMeleeWeapon(OneHandedMeleeWeapon.Dagger)
+            .withoutRequirements()
+            .build(idGenerator)
         )
         .equipMainHand(
-          itemBuilder.twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow).build(idGenerator),
+          itemBuilder
+            .twoHandedRangedWeapon(TwoHandedRangedWeapon.ShortBow)
+            .withoutRequirements()
+            .build(idGenerator),
           1
         )
         .addInventoryConsumable(

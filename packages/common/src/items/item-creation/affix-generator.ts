@@ -83,7 +83,9 @@ export class AffixGenerator {
     if (attributeOption !== undefined) {
       const range = this.getAffixValueRange(affixType, tier, rangeMultiplier);
       const value = randBetween(range.min, range.max, this.rngPolicy.affixValue);
-      affix.combatAttributes[attributeOption] = value;
+      const combatAttributes = affix.combatAttributes ?? {};
+      combatAttributes[attributeOption] = value;
+      affix.combatAttributes = combatAttributes;
     }
 
     const traitTypeOption = TRAIT_AFFIX_TRAITS[affixType];
@@ -113,10 +115,12 @@ export class AffixGenerator {
 
       const value = randBetween(min, max, this.rngPolicy.affixValue);
 
-      affix.equipmentTraits[traitTypeOption] = {
+      const equipmentTraits = affix.equipmentTraits ?? {};
+      equipmentTraits[traitTypeOption] = {
         equipmentTraitType: traitTypeOption,
         value,
       };
+      affix.equipmentTraits = equipmentTraits;
     }
 
     return affix;

@@ -99,3 +99,15 @@
 //
 // - character hp
 //
+// SPEED
+// - casting haste should increase even a fast character's turn ratio vs monsters
+// - speed must not become strictly better than other attributes by affording too much turn ratio
+// - the most important breakpoint is enough speed to move first in the battle before monsters
+// - longer battles allow small speed differences to matter eventually (trade turns with monster
+//   until third turn then you move twice before their  fourth turn)
+// - bosses (single enemies) need at least 3:1 turn ratio to average player characters in 3v1 fights
+// - fastest a single run (average access to speed but fully allocating all available) player character
+//   should be is 2x the average monsters (hasted)
+// - moderately allocated speed character 1.25 turns of average monster
+// - fast monsters about 1.75x speed to average characters
+// - slow monsters .8

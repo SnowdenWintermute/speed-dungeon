@@ -8,6 +8,7 @@ import { MaxAccuracyPanel } from "./studies/max-accuracy/panel.tsx";
 import { SampledDamagePanel } from "./studies/sampled-damage/panel.tsx";
 import { ArmorClassPanel } from "./studies/armor-class/panel.tsx";
 import { MaxSpeedPanel } from "./studies/max-speed/panel.tsx";
+import { AttributeViewer } from "./attribute-viewer/index.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 
@@ -35,6 +36,7 @@ export function App() {
     <UiProvider layers={UI_LAYERS}>
       <main className="min-h-screen bg-theme-sunken text-theme-emphasis p-8">
         <h1 className="text-2xl mb-4">Speed Dungeon Balance</h1>
+        <AttributeViewer />
 
         <div className="mb-4">
           <span className="block mb-1 text-theme-muted">Study</span>

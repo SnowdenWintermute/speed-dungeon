@@ -66,8 +66,8 @@ export type TaggedAffixType =
   | { affixCategory: AffixCategory.Suffix; suffixType: SuffixType };
 
 export interface Affix {
-  combatAttributes: Partial<Record<CombatAttribute, number>>;
-  equipmentTraits: Partial<Record<EquipmentTraitType, EquipmentTrait>>;
+  combatAttributes?: Partial<Record<CombatAttribute, number>>;
+  equipmentTraits?: Partial<Record<EquipmentTraitType, EquipmentTrait>>;
   tier: number;
 }
 

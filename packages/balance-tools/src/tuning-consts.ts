@@ -18,11 +18,9 @@ export const DESIGNED_MONSTER_HIT_CHANCE_ON_TARGETS = {
   ACCURATE: 0.95,
 };
 
-export const DESIGNED_MONSTER_TO_CHARACTER_TURN_COUNT_RATIOS = {
-  SLOW: 0.5,
-  AVERAGE: 1,
-  FAST: 2,
-  VERY_FAST: 3,
+export const DESIGNED_COMBATANT_TURN_COUNT_RATIOS = {
+  SLOWEST_TO_FASTEST: 0.33,
+  SLOWEST_TO_AVERAGE: 0.5,
 };
 
 // target investment percentages (melee warrior)

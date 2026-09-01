@@ -145,6 +145,10 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
       return 0;
     }
 
+    if (!affixOption.combatAttributes) {
+      return 0;
+    }
+
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(affixOption.combatAttributes)) {
       if (attribute === attributeToFind) return value;
     }
@@ -155,7 +159,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
    * FlatArmorClass affix and applies any percent modifier to it. Letting the same affix through the
    * attribute accumulator as well would count it twice. */
   private static affixAttributesOtherThanArmorClass(affix: {
-    combatAttributes: CombatantAttributeRecord;
+    combatAttributes?: CombatantAttributeRecord;
   }): CombatantAttributeRecord {
     const attributes = { ...affix.combatAttributes };
     delete attributes[CombatAttribute.ArmorClass];
@@ -205,7 +209,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
 
     if (this.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]) {
       const traitPercentage =
-        this.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass].equipmentTraits[
+        this.affixes[AffixCategory.Suffix]?.[AffixType.PercentArmorClass]?.equipmentTraits?.[
           EquipmentTraitType.ArmorClassPercentage
         ]?.value || 0;
       percentModifier += traitPercentage / 100;
@@ -220,7 +224,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     const { inherentMax, current } = durability;
     let additive = 0;
     const durabilityTraitOption =
-      this.affixes[AffixCategory.Suffix]?.[AffixType.Durability]?.equipmentTraits[
+      this.affixes[AffixCategory.Suffix]?.[AffixType.Durability]?.equipmentTraits?.[
         EquipmentTraitType.FlatDurabilityAdditive
       ];
     if (durabilityTraitOption) additive = durabilityTraitOption.value;
@@ -249,7 +253,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     if (!lifestealAffixOption) return 0;
 
     const lifestealPercentageTrait =
-      lifestealAffixOption.equipmentTraits[EquipmentTraitType.LifeSteal];
+      lifestealAffixOption.equipmentTraits?.[EquipmentTraitType.LifeSteal];
     if (!lifestealPercentageTrait) return 0;
 
     return lifestealPercentageTrait.value;
@@ -260,7 +264,7 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
     if (!flatDamageAffixOption) return 0;
 
     const flatDamageTrait =
-      flatDamageAffixOption.equipmentTraits[EquipmentTraitType.FlatDamageAdditive];
+      flatDamageAffixOption.equipmentTraits?.[EquipmentTraitType.FlatDamageAdditive];
     if (!flatDamageTrait) return 0;
 
     return flatDamageTrait.value;
@@ -324,8 +328,14 @@ export class Equipment extends Item implements Serializable, ReactiveNode {
   /** If the equipment has ANY of the passed attributes, returns true */
   hasAffixWithAttributes(attributes: CombatAttribute[]) {
     for (const affix of this.iterateAffixes()) {
+      if (!affix.combatAttributes) {
+        continue;
+      }
+
       for (const [attributeType, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
-        if (attributes.includes(attributeType)) return true;
+        if (attributes.includes(attributeType)) {
+          return true;
+        }
       }
     }
   }

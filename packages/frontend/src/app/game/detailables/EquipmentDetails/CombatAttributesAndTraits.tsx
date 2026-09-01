@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const CombatAttributesAndTraits = observer(({ equipment }: Props) => {
-  let equipmentModDisplaysInPrefixSuffixOrder: string[] = [];
+  const equipmentModDisplaysInPrefixSuffixOrder: string[] = [];
   const affixBonusText: Record<AffixCategory, { attributes: string[]; traits: string[] }> = {
     [AffixCategory.Prefix]: {
       attributes: [],
@@ -59,30 +59,24 @@ function formatAffixCombatAttributeBonuses(
   affixCategory: AffixCategory,
   prefixOrSuffixType: PrefixType | SuffixType
 ): Error | string[] {
+  if (!affix.combatAttributes) {
+    return [];
+  }
+
   const toReturn = [];
 
-  // if (affixCategory === AffixCategory.Suffix && prefixOrSuffixType === AffixType.AllBase) {
-  //   let lastCoreAttributeValue = null;
-  //   for (const attribute of CORE_ATTRIBUTES) {
-  //     const coreAttributeValueOnThisAffix = affix.combatAttributes[attribute];
-  //     if (typeof coreAttributeValueOnThisAffix === undefined)
-  //       return new Error("invalid use of the AllBase suffix");
-  //     if (lastCoreAttributeValue === null) lastCoreAttributeValue = coreAttributeValueOnThisAffix;
-  //     else if (coreAttributeValueOnThisAffix !== lastCoreAttributeValue)
-  //       new Error("invalid use of the AllBase suffix");
-  //   }
-
-  //   toReturn.push(`+${lastCoreAttributeValue} to core attributes`);
-  // } else {
   for (const [attribute, value] of iterateNumericEnumKeyedRecord(affix.combatAttributes)) {
     toReturn.push(`+${value} ${COMBAT_ATTRIBUTE_STRINGS[attribute]}`);
-    // }
   }
 
   return toReturn;
 }
 
 function formatAffixEquipmentTraits(affix: Affix): string[] {
+  if (!affix.equipmentTraits) {
+    return [];
+  }
+
   const toReturn = [];
   for (const equipmentTrait of Object.values(affix.equipmentTraits)) {
     switch (equipmentTrait.equipmentTraitType) {

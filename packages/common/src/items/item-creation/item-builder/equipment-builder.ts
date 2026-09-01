@@ -21,11 +21,12 @@ import { EquipmentRandomizer } from "./equipment-randomizer.js";
 import { addAffixesToEquipmentName } from "./build-equipment-name.js";
 
 export abstract class EquipmentBuilder<K extends EquipmentType = EquipmentType> {
-  protected template: EquipmentGenerationTemplate;
+  public readonly template: EquipmentGenerationTemplate;
   protected _itemLevel: number = 1;
   protected _name: string | null = null;
   protected _currentDurability: number | null = null;
   protected _indestructible: boolean = false;
+  protected _requirementFree: boolean = false;
   protected _affixes: EquipmentAffixes = {};
 
   constructor(
@@ -52,6 +53,11 @@ export abstract class EquipmentBuilder<K extends EquipmentType = EquipmentType> 
 
   indestructible() {
     this._indestructible = true;
+    return this;
+  }
+
+  withoutRequirements(): this {
+    this._requirementFree = true;
     return this;
   }
 
@@ -117,7 +123,7 @@ export abstract class EquipmentBuilder<K extends EquipmentType = EquipmentType> 
     const equipment = new Equipment(
       { id, name: name as EntityName },
       this._itemLevel,
-      this.template.requirements,
+      this._requirementFree ? {} : this.template.requirements,
       this.buildEquipmentBaseItemProperties(),
       this.buildDurability()
     );
