@@ -1,3 +1,5 @@
+import type { EquipmentBaseItemOfType } from "../equipment-properties/equipment-properties.js";
+import { iterateNumericEnum } from "../../../utils/numeric-enum-iteration.js";
 import { BodyArmor } from "./body-armor.js";
 import { HeadGear } from "./head-gear.js";
 import { Amulet, Ring } from "./jewelry.js";
@@ -26,17 +28,6 @@ export type EquipmentBaseItemEnum =
   | typeof Shield
   | typeof Ring
   | typeof Amulet;
-
-export const BASE_ITEMS_BY_EQUIPMENT_TYPE: Record<EquipmentType, EquipmentBaseItemEnum> = {
-  [EquipmentType.BodyArmor]: BodyArmor,
-  [EquipmentType.HeadGear]: HeadGear,
-  [EquipmentType.OneHandedMeleeWeapon]: OneHandedMeleeWeapon,
-  [EquipmentType.TwoHandedMeleeWeapon]: TwoHandedMeleeWeapon,
-  [EquipmentType.TwoHandedRangedWeapon]: TwoHandedRangedWeapon,
-  [EquipmentType.Shield]: Shield,
-  [EquipmentType.Ring]: Ring,
-  [EquipmentType.Amulet]: Amulet,
-};
 
 export interface BodyArmorBaseItemType {
   equipmentType: EquipmentType.BodyArmor;
@@ -90,6 +81,42 @@ export type EquipmentBaseItem =
   | ShieldBaseItemType
   | AmuletBaseItemType
   | RingBaseItemType;
+
+/** every base item in the game, tagged with its equipment type so it can be built or looked up
+ * without reconstructing the pair from a bare enum key */
+export const EQUIPMENT_BASE_ITEMS_BY_TYPE: {
+  [K in EquipmentType]: EquipmentBaseItemOfType<K>[];
+} = {
+  [EquipmentType.BodyArmor]: iterateNumericEnum(BodyArmor).map((baseItemType) => ({
+    equipmentType: EquipmentType.BodyArmor,
+    baseItemType,
+  })),
+  [EquipmentType.HeadGear]: iterateNumericEnum(HeadGear).map((baseItemType) => ({
+    equipmentType: EquipmentType.HeadGear,
+    baseItemType,
+  })),
+  [EquipmentType.Ring]: iterateNumericEnum(Ring).map((baseItemType) => ({
+    equipmentType: EquipmentType.Ring,
+    baseItemType,
+  })),
+  [EquipmentType.Amulet]: iterateNumericEnum(Amulet).map((baseItemType) => ({
+    equipmentType: EquipmentType.Amulet,
+    baseItemType,
+  })),
+  [EquipmentType.OneHandedMeleeWeapon]: iterateNumericEnum(OneHandedMeleeWeapon).map(
+    (baseItemType) => ({ equipmentType: EquipmentType.OneHandedMeleeWeapon, baseItemType })
+  ),
+  [EquipmentType.TwoHandedMeleeWeapon]: iterateNumericEnum(TwoHandedMeleeWeapon).map(
+    (baseItemType) => ({ equipmentType: EquipmentType.TwoHandedMeleeWeapon, baseItemType })
+  ),
+  [EquipmentType.TwoHandedRangedWeapon]: iterateNumericEnum(TwoHandedRangedWeapon).map(
+    (baseItemType) => ({ equipmentType: EquipmentType.TwoHandedRangedWeapon, baseItemType })
+  ),
+  [EquipmentType.Shield]: iterateNumericEnum(Shield).map((baseItemType) => ({
+    equipmentType: EquipmentType.Shield,
+    baseItemType,
+  })),
+};
 
 export const EQUIPMENT_TYPE_STRINGS: Record<EquipmentType, string> = {
   [EquipmentType.BodyArmor]: "Body Armor",

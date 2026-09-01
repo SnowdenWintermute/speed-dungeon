@@ -7,14 +7,13 @@ import { Consumable } from "../consumables/index.js";
 import { GuaranteedAffixes } from "../equipment/affixes.js";
 import { Equipment } from "../equipment/index.js";
 import {
-  BASE_ITEMS_BY_EQUIPMENT_TYPE,
+  EQUIPMENT_BASE_ITEMS_BY_TYPE,
   EquipmentBaseItem,
   EquipmentType,
 } from "../equipment/equipment-types/index.js";
 import { getEquipmentTemplateCatalog } from "../item-creation/equipment-templates/equipment-template-catalog.js";
 import { ItemBuilder } from "../item-creation/item-builder/index.js";
-import { EquipmentBuilder } from "../item-creation/item-builder/equipment-builder.js";
-import { getNumericEnumValues } from "../../utils/index.js";
+import { getNumericEnumValues, iterateNumericEnumKeyedRecord } from "../../utils/index.js";
 import { Item } from "../index.js";
 import {
   LootItemLevel,
@@ -181,36 +180,8 @@ export class LootGenerator {
     itemLevel: number,
     guaranteedAffixes?: GuaranteedAffixes
   ): Equipment {
-    let builder: EquipmentBuilder;
-
-    switch (baseItem.equipmentType) {
-      case EquipmentType.OneHandedMeleeWeapon:
-        builder = this.itemBuilder.oneHandedMeleeWeapon(baseItem.baseItemType);
-        break;
-      case EquipmentType.TwoHandedMeleeWeapon:
-        builder = this.itemBuilder.twoHandedMeleeWeapon(baseItem.baseItemType);
-        break;
-      case EquipmentType.TwoHandedRangedWeapon:
-        builder = this.itemBuilder.twoHandedRangedWeapon(baseItem.baseItemType);
-        break;
-      case EquipmentType.BodyArmor:
-        builder = this.itemBuilder.bodyArmor(baseItem.baseItemType);
-        break;
-      case EquipmentType.HeadGear:
-        builder = this.itemBuilder.headGear(baseItem.baseItemType);
-        break;
-      case EquipmentType.Shield:
-        builder = this.itemBuilder.shield(baseItem.baseItemType);
-        break;
-      case EquipmentType.Ring:
-        builder = this.itemBuilder.ring();
-        break;
-      case EquipmentType.Amulet:
-        builder = this.itemBuilder.amulet();
-        break;
-    }
-
-    return builder
+    return this.itemBuilder
+      .equipment(baseItem)
       .itemLevel(itemLevel)
       .randomizeAffixes(guaranteedAffixes)
       .randomizeBaseProperties()
@@ -228,23 +199,9 @@ export class LootGenerator {
 }
 
 function buildEquipmentTypeEntries(): EquipmentTypeEntry[] {
-  const entries: EquipmentTypeEntry[] = [];
+  const baseItemsByType: Record<EquipmentType, EquipmentBaseItem[]> = EQUIPMENT_BASE_ITEMS_BY_TYPE;
 
-  for (const equipmentType of getNumericEnumValues(EquipmentType)) {
-    const baseItemEnum = BASE_ITEMS_BY_EQUIPMENT_TYPE[equipmentType as EquipmentType];
-    const baseItems: EquipmentBaseItem[] = [];
-
-    for (const baseItemType of getNumericEnumValues(baseItemEnum)) {
-      baseItems.push({
-        equipmentType,
-        baseItemType,
-      } as EquipmentBaseItem);
-    }
-
-    if (baseItems.length > 0) {
-      entries.push({ equipmentType: equipmentType as EquipmentType, baseItems });
-    }
-  }
-
-  return entries;
+  return iterateNumericEnumKeyedRecord(baseItemsByType)
+    .map(([equipmentType, baseItems]) => ({ equipmentType, baseItems }))
+    .filter((entry) => entry.baseItems.length > 0);
 }

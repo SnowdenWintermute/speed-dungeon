@@ -1,4 +1,5 @@
-import { EquipmentType } from "../../equipment/equipment-types/index.js";
+import { EquipmentBaseItem, EquipmentType } from "../../equipment/equipment-types/index.js";
+import { EquipmentBuilder } from "./equipment-builder.js";
 import { BodyArmor } from "../../equipment/equipment-types/body-armor.js";
 import { HeadGear } from "../../equipment/equipment-types/head-gear.js";
 import { OneHandedMeleeWeapon } from "../../equipment/equipment-types/one-handed-melee-weapon.js";
@@ -23,6 +24,23 @@ export { EquipmentRandomizer } from "./equipment-randomizer.js";
 
 export class ItemBuilder {
   constructor(private randomizer: EquipmentRandomizer) {}
+
+  equipment(baseItem: EquipmentBaseItem): EquipmentBuilder {
+    switch (baseItem.equipmentType) {
+      case EquipmentType.OneHandedMeleeWeapon:
+      case EquipmentType.TwoHandedMeleeWeapon:
+      case EquipmentType.TwoHandedRangedWeapon:
+        return new WeaponBuilder(baseItem, this.randomizer);
+      case EquipmentType.BodyArmor:
+      case EquipmentType.HeadGear:
+        return new ArmorBuilder(baseItem, this.randomizer);
+      case EquipmentType.Shield:
+        return new ShieldBuilder(baseItem, this.randomizer);
+      case EquipmentType.Ring:
+      case EquipmentType.Amulet:
+        return new JewelryBuilder(baseItem, this.randomizer);
+    }
+  }
 
   oneHandedMeleeWeapon(baseItem: OneHandedMeleeWeapon): WeaponBuilder {
     return new WeaponBuilder(

@@ -121,7 +121,7 @@
 //
 // MAX ATTAINABLE ATTRIBUTES
 // - sequentially build each equipment to maximize an attribute
-//   - build with each possible prefix
+//   - build with each possible prefix at max tier on max floor for this equipment
 //   - try on equipment ignoring requirements
 //   - check if beats current best
 //   - try with each possible suffix

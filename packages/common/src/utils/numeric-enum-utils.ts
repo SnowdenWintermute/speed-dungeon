@@ -1,4 +1,4 @@
-import { iterateNumericEnumKeyedRecord } from "./index.js";
+import { iterateNumericEnumKeyedRecord } from "./numeric-enum-iteration.js";
 import { Serializable, SerializedOf } from "../serialization/index.js";
 
 interface NumericEnumLike {

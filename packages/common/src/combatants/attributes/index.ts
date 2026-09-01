@@ -1,4 +1,4 @@
-import { iterateNumericEnum } from "../../utils/index.js";
+import { iterateNumericEnum } from "../../utils/numeric-enum-iteration.js";
 
 export enum CombatAttribute {
   Strength,
