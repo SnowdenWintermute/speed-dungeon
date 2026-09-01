@@ -1,11 +1,14 @@
 import {
+  ArrayUtils,
   Combatant,
   CombatantClass,
+  COMPATIBLE_ITEMS_BY_SLOT_TYPE,
   EquipmentSlotId,
   EquipmentType,
   HOLDABLE_EQUIPMENT_TYPES,
   HOLDABLE_SLOT_IDS,
   invariant,
+  SLOT_TYPE_BY_SLOT_ID,
 } from "@speed-dungeon/common";
 // the workbook sync reaches this module and runs under node's type stripping, which cannot erase a
 // type-only export imported as a value
@@ -117,27 +120,46 @@ export class AnalysisCharacterSpecification implements Serializable {
     equipmentType: EquipmentType,
     slotId: EquipmentSlotId
   ) {
-    switch (equipmentType) {
-      case EquipmentType.BodyArmor:
-      case EquipmentType.HeadGear:
-      case EquipmentType.Ring:
-      case EquipmentType.Amulet:
-        return true;
-      case EquipmentType.OneHandedMeleeWeapon:
-        if (weaponSpecialty === CharacterWeaponSpecialty.Shields) {
-          return slotId !== EquipmentSlotId.OffHand;
+    const compatibleEquipmentTypesInSlot =
+      AnalysisCharacterSpecification.equipmentSpecialtyCompatibleEquipmentTypesForSlot(
+        weaponSpecialty,
+        slotId
+      );
+
+    return compatibleEquipmentTypesInSlot.includes(equipmentType);
+  }
+
+  static equipmentSpecialtyCompatibleEquipmentTypesForSlot(
+    specialty: CharacterWeaponSpecialty,
+    slotId: EquipmentSlotId
+  ) {
+    const slotType = SLOT_TYPE_BY_SLOT_ID[slotId];
+    const compatible = [...COMPATIBLE_ITEMS_BY_SLOT_TYPE[slotType]];
+    switch (specialty) {
+      case CharacterWeaponSpecialty.TwoHandedMelee:
+      case CharacterWeaponSpecialty.TwoHandedRanged: {
+        if (slotId === EquipmentSlotId.OffHand) {
+          compatible.length = 0;
         }
-        return (
-          weaponSpecialty !== CharacterWeaponSpecialty.TwoHandedMelee &&
-          weaponSpecialty !== CharacterWeaponSpecialty.TwoHandedRanged
-        );
-      case EquipmentType.TwoHandedMeleeWeapon:
-        return weaponSpecialty === CharacterWeaponSpecialty.TwoHandedMelee;
-      case EquipmentType.TwoHandedRangedWeapon:
-        return weaponSpecialty === CharacterWeaponSpecialty.TwoHandedRanged;
-      case EquipmentType.Shield:
-        return weaponSpecialty === CharacterWeaponSpecialty.Shields;
+        break;
+      }
+      case CharacterWeaponSpecialty.DualWield: {
+        ArrayUtils.removeElement(compatible, EquipmentType.TwoHandedMeleeWeapon);
+        ArrayUtils.removeElement(compatible, EquipmentType.TwoHandedRangedWeapon);
+        ArrayUtils.removeElement(compatible, EquipmentType.Shield);
+        break;
+      }
+      case CharacterWeaponSpecialty.Shields: {
+        ArrayUtils.removeElement(compatible, EquipmentType.TwoHandedMeleeWeapon);
+        ArrayUtils.removeElement(compatible, EquipmentType.TwoHandedRangedWeapon);
+        if (slotId === EquipmentSlotId.OffHand) {
+          ArrayUtils.removeElement(compatible, EquipmentType.OneHandedMeleeWeapon);
+        }
+        break;
+      }
     }
+
+    return compatible;
   }
 }
 

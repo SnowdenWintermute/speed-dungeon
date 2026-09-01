@@ -18,6 +18,7 @@ import {
   RandomNumberGenerationPolicyFactory,
   SpeedDungeonGame,
   TaggedAffixType,
+  invariant,
 } from "@speed-dungeon/common";
 import { AllocationIntensity } from "./allocation-intensity.ts";
 
@@ -79,14 +80,15 @@ export class AnalysisPartyDriver {
     ) => {
       const affix = rollAffixTierAndValue(template, taggedAffixType, maxTierLimiter, equipmentType);
       for (const traitType of SCALED_TRAITS) {
-        const trait = affix.equipmentTraits[traitType];
+        const trait = affix.equipmentTraits?.[traitType];
         if (trait !== undefined) {
           trait.value = this.allocationIntensity.scaleValue(trait.value);
         }
       }
 
-      const rolledArmorClass = affix.combatAttributes[CombatAttribute.ArmorClass];
+      const rolledArmorClass = affix.combatAttributes?.[CombatAttribute.ArmorClass];
       if (rolledArmorClass !== undefined) {
+        invariant(affix.combatAttributes !== undefined);
         affix.combatAttributes[CombatAttribute.ArmorClass] =
           this.allocationIntensity.scaleValue(rolledArmorClass);
       }

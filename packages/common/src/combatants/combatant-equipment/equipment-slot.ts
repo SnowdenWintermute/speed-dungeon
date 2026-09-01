@@ -5,7 +5,7 @@ import { EquipmentSlotId, EquipmentSlotType, SLOT_TYPE_BY_SLOT_ID } from "./type
 import { EquipmentType } from "../../items/equipment/equipment-types/index.js";
 import { invariant } from "../../utils/index.js";
 
-const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotType, EquipmentType[]> = {
+export const COMPATIBLE_ITEMS_BY_SLOT_TYPE: Record<EquipmentSlotType, EquipmentType[]> = {
   [EquipmentSlotType.Head]: [EquipmentType.HeadGear],
   [EquipmentSlotType.Body]: [EquipmentType.BodyArmor],
   [EquipmentSlotType.Finger]: [EquipmentType.Ring],

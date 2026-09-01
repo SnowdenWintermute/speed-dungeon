@@ -14,7 +14,8 @@
 //   turn count.
 //
 //
-// order of derivation
+// Auto Balancing Pipeline - order of derivation
+// BASELINE/FLAVOR
 // - declare set of weapons with arbitrary damage ranges and no requirements
 //   - declare drop rates by encounter
 // - make attributes with arbitrary effects on attack damage
@@ -22,25 +23,28 @@
 //     - equipment affixes
 //     - discretionary points
 //     - inherent
+// PLAYER ACCURACY
 // - calculate total accuracy available to a combatant by encounter
 // - declare a designedAccuracyAllocationPercentage
 // - derive expectedAccuracy from ( availableAccuracy * designedAccuraceyAllocationPercentage )
 // - declare a designedAverageChanceToHit
+// MONSTER EVASION
 // - derive monster evasion from expectedAccuracy and designedAverageChanceToHit
 // - declare a designed allocationIntensity for character's investment in attack damage
-// - calculate average damage against target dummies, room by room, with monsterEvasion and monsterAgility using
+// MONSTER ARMOR CLASS
+// - calculate average damage against target dummies, room by room, with monsterEvasion using
 //   best available equipment and allocated attributes by encounter (sampledAttackDamage)
 //   with allocated attributes and equipment affixes multiplied by designedAttackDamageAllocationIntensity
 // - declare a designedKineticDamageReductionPercentageFromAverageMonsterArmorClass
-// - derive monster armor class from averageTooltipMainHandDamage and designedKineticDamageReductionPercentageFromAverageMonsterArmorClass
+// - derive monster armor class from averageTooltipMainHandDamage and
+//   designedKineticDamageReductionPercentageFromAverageMonsterArmorClass
+// SPEED
 // - declare a designedAverageMonsterToCharacterTurnCountRatio (probably 1:1)
 // - calculate the total speed available to characters room by room
 // - declare a designedCharacterSpeedAllocationIntensity
-// - derive the average speed room by room for characters from
+// - derive averageCharacterSpeedByRoom from
 //   designedCharacterSpeedAllocationIntensity * availableSpeed
-// - derive monster speed by room from characterSpeedByRoom, designedAverageMonsterToCharacterTurnCountRatio, and
-//   a speed difference to turn count ratio formula
-//
+// - derive averageMonsterSpeedByRoom from characterSpeedByRoom
 // - declare a designedTurnsToKillMonsterWithAttackAction
 //
 //
@@ -111,3 +115,31 @@
 // - moderately allocated speed character 1.25 turns of average monster
 // - fast monsters about 1.75x speed to average characters
 // - slow monsters .8
+// - need to know the max attainable speed in the game
+// - need to determine the effect of speed on a combatant's attackDamagePerTurn and a combatant's turnsPerBattleCombatantCountTurns
+//   in a battle of six combatants
+//
+// MAX ATTAINABLE ATTRIBUTES
+// - sequentially build each equipment to maximize an attribute
+//   - build with each possible prefix
+//   - try on equipment ignoring requirements
+//   - check if beats current best
+//   - try with each possible suffix
+// - we should now have one of each equipment with maximum contribution
+//   to the chosen attribute
+// - figure out at what threshold of each requirement attribute
+//   which equipment become available
+//     - at 5 strength: [ short sword ]
+//     - at 5 strength 3 dex: [short sword, blade ]
+//     - at 10 strength 5 dex:[short sword, blade , broad sword]
+// - for each threshold, get the best in slot for all slots
+//   which serve the chased attribute
+// - rank the thresholds by their best in slot sets' total chased attribute
+// - for each threshold's best in slot set's attribute, if the threshold requirements
+//   include attributes that don't contribute to the chased attribute, and another
+//   discretionary attribute could have contributed to it, reduce its score by that amount
+//   (example, we are chasing Hp, a set with +50 hp is at a threshold that requires 10 strength and 5 dex. We could have
+//   put those 15 points into Vitality instead, thereby increasing Hp by the Vitalit:Hp ratio, so
+//   reduce the score of this set by that amount) (example 2: we're chasing accuracy, a set with +10 accuracy
+//   requires 10 strength and 5 dex to wear. We reduce score by 10*dex:accuracy ratio, since the required dex
+//   is contributing to our chased attribute)

@@ -190,6 +190,7 @@ export class CombatantEquipment extends CombatantSubsystem implements Serializab
     const idsOfUnequippedItems: { equipmentId: ItemId; fromSlotId: EquipmentSlotId }[] = [];
     const { equipmentType } = equipment.equipmentBaseItemProperties;
     const possibleSlots = COMPATIBLE_SLOT_IDS_BY_EQUIPMENT_TYPE[equipmentType];
+
     const destinationSlotId = equipToAltSlot ? possibleSlots.alternate : possibleSlots.main;
     invariant(destinationSlotId !== undefined, "expected destinationSlotId to be defined");
 
