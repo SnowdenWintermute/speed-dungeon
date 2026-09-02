@@ -6,6 +6,11 @@ export enum AffixCategory {
   Suffix,
 }
 
+export const AFFIX_CATEGORY_STRINGS: Record<AffixCategory, string> = {
+  [AffixCategory.Prefix]: "Prefix",
+  [AffixCategory.Suffix]: "Suffix",
+};
+
 export interface WeightedAffixCategory {
   affixCategory: AffixCategory;
   weight: number;
@@ -34,6 +39,25 @@ export enum AffixType {
   Durability,
   PercentArmorClass,
 }
+
+export const AFFIX_TYPE_STRINGS: Record<AffixType, string> = {
+  [AffixType.Mp]: "Mp",
+  [AffixType.FlatArmorClass]: "FlatArmorClass",
+  [AffixType.Accuracy]: "Accuracy",
+  [AffixType.PercentDamage]: "PercentDamage",
+  [AffixType.LifeSteal]: "LifeSteal",
+  [AffixType.Evasion]: "Evasion",
+  [AffixType.ArmorPenetration]: "ArmorPenetration",
+  [AffixType.Agility]: "Agility",
+  [AffixType.Strength]: "Strength",
+  [AffixType.Spirit]: "Spirit",
+  [AffixType.Dexterity]: "Dexterity",
+  [AffixType.Vitality]: "Vitality",
+  [AffixType.Hp]: "Hp",
+  [AffixType.FlatDamage]: "FlatDamage",
+  [AffixType.Durability]: "Durability",
+  [AffixType.PercentArmorClass]: "PercentArmorClass",
+};
 
 export const PREFIX_TYPES = [
   AffixType.Mp,
