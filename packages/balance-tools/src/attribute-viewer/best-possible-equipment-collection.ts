@@ -69,6 +69,8 @@ export class BestPossibleEquipmentCollection {
     baseItem: EquipmentBaseItem,
     equipment: Equipment
   ) {
+    // remove requirements while trying item, put back after
+    const savedRequirements = equipment.requirements;
     equipment.requirements = {};
     const template = getEquipmentTemplateCatalog().getTemplate(baseItem);
     const { possibleAffixes } = template;
@@ -118,6 +120,7 @@ export class BestPossibleEquipmentCollection {
     }
 
     combatantProperties.equipment.unequipAll();
+    equipment.requirements = savedRequirements;
 
     // assign best affixes to the equipment
     for (const [category, bestAffixOption] of iterateNumericEnumKeyedRecord(bestAffixByCategory)) {
@@ -146,5 +149,6 @@ export class BestPossibleEquipmentCollection {
     }
 
     this.equipmentWithBestAffixesForChased = clonedEquipmentByBaseItemType;
+    return clonedEquipmentByBaseItemType;
   }
 }
