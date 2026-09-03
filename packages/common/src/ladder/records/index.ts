@@ -31,7 +31,7 @@ export interface LadderGameParticipationRecord {
   abandonedAtOption?: Milliseconds;
 }
 
-// - Winner derrived from party records timeOfEscape
+// - Winner derived from party records timeOfEscape
 //    .can rank them by time escaped for 2nd, 3rd place)
 //    .only races would have a winner
 // - can infer time ended or "in progress" status from party fate records

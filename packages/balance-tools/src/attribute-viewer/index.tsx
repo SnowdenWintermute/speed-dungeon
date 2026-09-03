@@ -3,6 +3,7 @@ import {
   AFFIX_CATEGORY_STRINGS,
   AFFIX_TYPE_STRINGS,
   ClassProgressionProperties,
+  COMBATANT_MAX_LEVEL,
   CombatantBuilder,
   CombatantClass,
   CombatAttribute,
@@ -18,6 +19,7 @@ import { EquipmentByRequirementThresholds } from "./equipment-set-requirement-th
 import { ThresholdEquipmentSetScores } from "./threshold-equipment-set-scores";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
 import { useState } from "react";
+import { AttainableAttributeCalculator } from "./attainable-attribute-calculator";
 
 export function AttributeViewer() {
   const [sorted, setSorted] = useState<
@@ -31,38 +33,13 @@ export function AttributeViewer() {
   >([]);
 
   function handleClick() {
-    const bestEquipmentPerBaseItemSelector = new BestPossibleEquipmentCollection();
-
-    const combatantLevel = 10;
-    const chasedAttribute = CombatAttribute.Speed;
-    const combatant = CombatantBuilder.playerCharacter(CombatantClass.Rogue, "" as Username)
-      .level(combatantLevel)
-      .supportClass(
-        CombatantClass.Warrior,
-        ClassProgressionProperties.maxSupportClassLevel(combatantLevel)
-      )
-      .build(new IdGeneratorSequential({ saveHistory: false }));
-
-    const equipmentList =
-      bestEquipmentPerBaseItemSelector.buildEquipmentOptionsForCombatantChasingAttribute(
-        combatant,
-        chasedAttribute
-      );
-
-    const equipmentThresholdSets = new EquipmentByRequirementThresholds(equipmentList);
-    const thresholdEquipmentSetScores = new ThresholdEquipmentSetScores(
-      combatant,
-      CharacterWeaponSpecialty.DualWield,
-      chasedAttribute,
-      equipmentThresholdSets
-    ).getScoredSets();
-
-    const toSort = [...thresholdEquipmentSetScores];
-    const sorted = toSort.sort(
-      ([thresholdA, equipmentSetA], [thresholdB, equipmentSetB]) =>
-        equipmentSetB.score - equipmentSetA.score
-    );
-
+    const sorted = new AttainableAttributeCalculator().getSortedEquipmentSetsWithAttributeScores({
+      mainClass: CombatantClass.Rogue,
+      supportClassOption: CombatantClass.Warrior,
+      attribute: CombatAttribute.Speed,
+      level: COMBATANT_MAX_LEVEL,
+      specialty: CharacterWeaponSpecialty.TwoHandedMelee,
+    });
     setSorted(sorted);
   }
 

@@ -1,8 +1,11 @@
 import {
+  ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
+  AttributePointAssignableAttributes,
   Combatant,
   CombatAttribute,
   Equipment,
   EquipmentSlotId,
+  INVERTED_DERIVED_ATTRIBUTE_RATIOS,
   iterateNumericEnum,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
@@ -110,6 +113,49 @@ export class ThresholdEquipmentSetScores {
     return score;
   }
 
+  private allocateRemainingTo(attribute: CombatAttribute) {
+    const { attributeProperties } = this.combatant.combatantProperties;
+    const unspent = attributeProperties.getUnspentPoints();
+    for (let remaining = unspent; remaining > 0; remaining -= 1) {
+      attributeProperties.allocatePoint(attribute);
+    }
+  }
+
+  private getBestAttributeToResultInHighestDerived(
+    ratios: Partial<Record<CombatAttribute, number>>
+  ) {
+    let currentBest: null | { attribute: CombatAttribute; ratio: number } = null;
+
+    for (const [attribute, ratio] of iterateNumericEnumKeyedRecord(ratios)) {
+      if (currentBest === null || ratio < currentBest.ratio) {
+        currentBest = { attribute, ratio };
+      }
+    }
+
+    return currentBest?.attribute;
+  }
+
+  private allocateAllPointsTowardChasedAttribute() {
+    const chasedAttributeIsDirectlyAllocatable = ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES.includes(
+      this.chasedAttribute as AttributePointAssignableAttributes
+    );
+
+    const chasedAttributeIsDerivedFromOption =
+      INVERTED_DERIVED_ATTRIBUTE_RATIOS[this.chasedAttribute];
+
+    if (chasedAttributeIsDirectlyAllocatable) {
+      this.allocateRemainingTo(this.chasedAttribute);
+    } else if (chasedAttributeIsDerivedFromOption !== undefined) {
+      const attributeOption = this.getBestAttributeToResultInHighestDerived(
+        chasedAttributeIsDerivedFromOption
+      );
+
+      if (attributeOption !== undefined) {
+        this.allocateRemainingTo(attributeOption);
+      }
+    }
+  }
+
   getScoredSets() {
     const { attributeProperties } = this.combatant.combatantProperties;
     const unspentAttributePointsBeforeAllocation = attributeProperties.getUnspentPoints();
@@ -125,9 +171,9 @@ export class ThresholdEquipmentSetScores {
       if (!possibleToMeetThresholdRequirements) {
         scoredSets.set(threshold, { set: equipmentSet, score: 0 });
       } else {
-        // allocate all remaining points toward goal
+        // points not used for requirements may be used to chase
+        this.allocateAllPointsTowardChasedAttribute();
 
-        //
         scoredSets.set(threshold, {
           set: equipmentSet,
           score: this.getThresholdSetScore(equipmentSet),

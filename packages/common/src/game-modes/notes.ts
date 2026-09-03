@@ -24,11 +24,11 @@
 //   all players that were in the run have a matching UserSession before game starts
 //
 // Ladder Record Design Notes
-// - a race game's winner can be derrived from the records
+// - a race game's winner can be derived from the records
 // - a user account can derrive a winrate from the records
 // - a user account can derrive a game history view over the records
 // - user account most played character class
-// - various stats can be derrived like
+// - various stats can be derived like
 //   .combatant classes more likely to win races
 //   .average character level at floor x
 //   .other data useful for balance changes

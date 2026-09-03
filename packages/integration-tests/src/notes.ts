@@ -15,7 +15,7 @@
 // CHARACTER PROGRESSION
 // allocate attribute points
 // allocate ability points
-// attribute points affect derrived attributes and resources
+// attribute points affect derived attributes and resources
 //
 // VENDING MACHINE
 // operate vending machine

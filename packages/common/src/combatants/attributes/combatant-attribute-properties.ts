@@ -22,7 +22,7 @@ import {
   MONSTER_STARTING_ATTRIBUTES,
 } from "./attribute-tables.generated.js";
 import { MonsterType } from "../../monsters/monster-types.js";
-import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derrived-attribute-ratios.js";
+import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derived-attribute-ratios.js";
 import { Equipment } from "../../items/equipment/index.js";
 import { EquipmentSlot } from "../combatant-equipment/equipment-slot.js";
 
@@ -231,10 +231,10 @@ export class CombatantAttributeProperties
       if (!totalMainAttributeOption) {
         continue;
       }
-      const totalDerrived = runningTotal[derivedAttribute] || 0;
-      const derrivedToAdd = Math.floor(totalMainAttributeOption * ratio);
-      const newTotalDerrived = totalDerrived + derrivedToAdd;
-      runningTotal[derivedAttribute] = newTotalDerrived;
+      const totalDerived = runningTotal[derivedAttribute] || 0;
+      const derivedToAdd = Math.floor(totalMainAttributeOption * ratio);
+      const newTotalDerived = totalDerived + derivedToAdd;
+      runningTotal[derivedAttribute] = newTotalDerived;
     }
   }
 

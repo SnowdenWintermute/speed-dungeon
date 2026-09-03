@@ -189,7 +189,7 @@ Unknowns to determine
   - How should armor class ranges be adjusted to meet desired outcomes
   - What attributes are characters likely to have room-by-room
     - and therefore what are reasonable attribute requirements for each equipment
-  - How should derrived attributes be adjusted such as agility to evasion, dex to accuracy
+  - How should derived attributes be adjusted such as agility to evasion, dex to accuracy
   Hypothetical ranges and limits of power
     - How much stronger are parties with gear access in the high end 2nd and 3rd standard deviations
     - How much weaker are parties with gear access in the low end 2nd and 3rd standard deviations
