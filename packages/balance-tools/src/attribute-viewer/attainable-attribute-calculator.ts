@@ -5,15 +5,12 @@ import {
   IdGeneratorRandom,
   Username,
 } from "@speed-dungeon/common";
-import type { AttributePointAssignableAttributes } from "@speed-dungeon/common";
 import { CharacterBuildSpecification } from "../analysis-subjects/analysis-character-specification";
 import { BestPossibleEquipmentCollection } from "./best-possible-equipment-collection";
-import { EquipmentByRequirementThresholds } from "./equipment-set-requirement-thresholds";
 import { ScoredEquipmentSet, ThresholdEquipmentSetScores } from "./threshold-equipment-set-scores";
 
 export interface AttainableAttributeSpecification {
   attribute: CombatAttribute;
-  allocatableAttributes: AttributePointAssignableAttributes[];
   buildSpec: CharacterBuildSpecification;
   level: number;
 }
@@ -54,7 +51,7 @@ export class AttainableAttributeCalculator {
   getSortedEquipmentSetsWithAttributeScores(
     specification: AttainableAttributeSpecification
   ): ScoredEquipmentSet[] {
-    const { attribute, allocatableAttributes, buildSpec } = specification;
+    const { attribute, buildSpec } = specification;
 
     const combatant = this.buildCombatant(specification);
 
@@ -66,10 +63,9 @@ export class AttainableAttributeCalculator {
 
     const scoredSets = new ThresholdEquipmentSetScores(
       combatant,
-      buildSpec.weaponSpecialty,
       attribute,
-      allocatableAttributes,
-      new EquipmentByRequirementThresholds(equipmentList)
+      buildSpec.weaponSpecialty,
+      equipmentList
     ).getScoredSets();
 
     return scoredSets.sort((a, b) => b.score - a.score);

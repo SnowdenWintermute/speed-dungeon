@@ -21,7 +21,7 @@ export class BestImprovementAttributeAllocation {
 
   static allocate(
     combatant: Combatant,
-    allocatableAttributes: AttributePointAssignableAttributes[],
+    allocatableAttributes: readonly AttributePointAssignableAttributes[],
     pointsCount: number,
     checkPerformance: () => number
   ) {

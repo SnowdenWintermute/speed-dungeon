@@ -9,7 +9,6 @@ import {
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
-import { AnalysisGoal, ANALYSIS_GOAL_SPECS } from "../goal-performance-checkers/analysis-goal";
 import { useState } from "react";
 import { AttainableAttributeCalculator } from "./attainable-attribute-calculator";
 import { ScoredEquipmentSet } from "./threshold-equipment-set-scores";
@@ -18,18 +17,19 @@ export function AttributeViewer() {
   const [sorted, setSorted] = useState<ScoredEquipmentSet[]>([]);
 
   function handleClick() {
-    setSorted(
-      new AttainableAttributeCalculator().getSortedEquipmentSetsWithAttributeScores({
-        attribute: CombatAttribute.Speed,
-        allocatableAttributes: ANALYSIS_GOAL_SPECS[AnalysisGoal.TotalSpeed].allocatableAttributes,
-        buildSpec: {
-          mainClass: CombatantClass.Rogue,
-          supportClass: CombatantClass.Warrior,
-          weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
-        },
-        level: COMBATANT_MAX_LEVEL,
-      })
-    );
+    const sorted = new AttainableAttributeCalculator().getSortedEquipmentSetsWithAttributeScores({
+      attribute: CombatAttribute.Speed,
+      buildSpec: {
+        mainClass: CombatantClass.Rogue,
+        supportClass: CombatantClass.Warrior,
+        weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
+      },
+      level: COMBATANT_MAX_LEVEL,
+    });
+
+    console.log("sorted count:", sorted.length);
+
+    setSorted(sorted);
   }
 
   return (
