@@ -37,9 +37,10 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
     return Math.min(Math.max(targetAllocatedPoints - allocatedPoints, 0), unspentPoints);
   }
 
-  private tryAllocation(
+  static tryAllocation(
     combatant: Combatant,
     attribute: CombatAttribute,
+    checkPerformance: () => number,
     performanceBefore: number,
     pointsToAllocate: number
   ) {
@@ -50,37 +51,39 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
       attribute,
       currentAllocatedValue + pointsToAllocate
     );
-    const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
     // allocation moves no equipment, so it can't change whether the build specification is met
-    const { score: performanceAfter } = this.analysisSubjects.checkPerformance(
-      combatant,
-      currentFloor
-    );
+    const performanceAfter = checkPerformance();
     const difference = performanceAfter - performanceBefore;
     attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue);
     return difference;
   }
 
-  private allocateToBestImproved(combatant: Combatant) {
-    const pointsToAllocate = this.getPointsToAllocate(combatant);
-    if (pointsToAllocate < 1) {
+  static allocateToBestImproved(
+    combatant: Combatant,
+    allocatableAttributes: CombatAttribute[],
+    pointsCount: number,
+    checkPerformance: () => number
+  ) {
+    if (pointsCount < 1) {
       return;
     }
 
     const { attributeProperties } = combatant.getCombatantProperties();
-    const currentFloor = this.party.dungeonExplorationManager.getCurrentFloor();
-    const { allocatableAttributes } = this.analysisSubjects.requireGoalPerformanceChecker(
-      combatant.getEntityId()
+    invariant(
+      allocatableAttributes.length > 0,
+      "a goal with nothing to allocate to cannot improve"
     );
-    invariant(allocatableAttributes.length > 0, "a goal with nothing to allocate to cannot improve");
 
-    const { score: performanceBefore } = this.analysisSubjects.checkPerformance(
-      combatant,
-      currentFloor
-    );
+    const performanceBefore = checkPerformance();
     let bestImprovementAttribute: { attribute: CombatAttribute; score: number } | null = null;
     for (const attribute of allocatableAttributes) {
-      const score = this.tryAllocation(combatant, attribute, performanceBefore, pointsToAllocate);
+      const score = AttributeAllocationSolver.tryAllocation(
+        combatant,
+        attribute,
+        checkPerformance,
+        performanceBefore,
+        pointsCount
+      );
       const scoreIsPositive = score > 0;
       const scoreBeatsPreviousTry =
         bestImprovementAttribute === null || bestImprovementAttribute.score < score;
@@ -91,7 +94,7 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
     }
 
     if (bestImprovementAttribute) {
-      for (let i = 0; i < pointsToAllocate; i += 1) {
+      for (let i = 0; i < pointsCount; i += 1) {
         attributeProperties.allocatePoint(bestImprovementAttribute.attribute);
       }
     }
@@ -104,7 +107,24 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
       if (attributeSource.type !== AttributeSourceType.AllocatedTowardGoal) {
         continue;
       }
-      this.allocateToBestImproved(combatant);
+
+      const pointsToAllocate = this.getPointsToAllocate(combatant);
+
+      const checkPerformance = () =>
+        this.analysisSubjects.checkPerformance(
+          combatant,
+          this.party.dungeonExplorationManager.getCurrentFloor()
+        ).score;
+      const { allocatableAttributes } = this.analysisSubjects.requireGoalPerformanceChecker(
+        combatant.getEntityId()
+      );
+
+      AttributeAllocationSolver.allocateToBestImproved(
+        combatant,
+        allocatableAttributes,
+        pointsToAllocate,
+        checkPerformance
+      );
     }
   }
 }

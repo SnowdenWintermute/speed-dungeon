@@ -11,7 +11,7 @@ import { BestPossibleEquipmentCollection } from "./best-possible-equipment-colle
 import { EquipmentByRequirementThresholds } from "./equipment-set-requirement-thresholds";
 import { ThresholdEquipmentSetScores } from "./threshold-equipment-set-scores";
 
-interface MaxAttainableAttributeSpecification {
+export interface MaxAttainableAttributeSpecification {
   attribute: CombatAttribute;
   mainClass: CombatantClass;
   supportClassOption: null | CombatantClass;

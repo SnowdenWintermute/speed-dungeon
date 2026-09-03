@@ -1,0 +1,28 @@
+// MECHANICS
+// - fastest a single run (average access to speed but fully allocating all available) player character
+//   should be is 1.51x the average monsters (2.32 hasted) - tweak numbers to create TURN_RATIO_CAPS
+// - casting haste or slow should raise the turn ratio cap, allowing for greater
+//   ratios to exist between affected combatants and other combatants
+// - moderately allocated speed character 1.26 turns of average monster (get's double turn on 4th round)
+//   (tweak ratio to get DESIGNED_FAST_CHARACTER_TARGET_RATIO), et al for "slow" and "average" speed characters
+//   - fast monsters about 1.75x speed to average characters
+//   - slow monsters .8
+// - bosses (single enemies) need at least 3:1 turn ratio to average player characters in 3v1 fights
+
+// TENETS
+// - speed must not become strictly better than other attributes by affording too much turn ratio
+// - It should be reasonably easy to get the party's fastest character to be first to act in battles
+//   against average speed monsters
+
+// INSIGHTS
+// - it is probably the most fun if players and monster mostly get even amount of turns
+// - the most important breakpoint is enough speed to move first in the battle before monsters
+// - longer battles allow small speed differences to matter eventually (trade turns with monster
+//   until third turn then you move twice before their fourth turn)
+
+// Speed Breakpoints
+// - At what value will character act first vs monster
+// - At current value, after how many monster/character turn pairs will the monster get two turns in a row
+// - At current value, after how many character/monster turn pairs will the character get two turns in a row
+// - need to determine the effect of speed on a combatant's attackDamagePerTurn and a combatant's
+//   turnsPerBattleCombatantCountTurns in a battle of six combatants
