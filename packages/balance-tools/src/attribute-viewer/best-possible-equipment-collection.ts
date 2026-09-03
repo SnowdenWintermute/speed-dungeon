@@ -100,7 +100,13 @@ export class BestPossibleEquipmentCollection {
         // roll max each one in turn
         const existingAffixes = equipment.affixes[category] || {};
         equipment.affixes[category] = existingAffixes;
-        existingAffixes[affixType] = { tier: maxTier };
+
+        const maxTierModifiedByItemLevel = Math.round(
+          AffixGenerator.getMaxTierModifiedByItemLevel(maxTier, equipment.itemLevel)
+        );
+
+        existingAffixes[affixType] = { tier: maxTierModifiedByItemLevel };
+        // existingAffixes[affixType] = { tier: maxTier };
         this.equipmentRandomizer.rerollAffixValues(equipment, template);
         // try on after each one
         const totalWithAffix = attributeProperties.getAttributeValue(chasedAttribute);
@@ -133,7 +139,6 @@ export class BestPossibleEquipmentCollection {
     chasedAttribute: CombatAttribute
   ) {
     const { combatantProperties } = combatant;
-    const { attributeProperties } = combatantProperties;
     combatantProperties.equipment.unequipAll();
     const clonedEquipmentByBaseItemType = cloneDeep(this.baseEquipmentByType);
 

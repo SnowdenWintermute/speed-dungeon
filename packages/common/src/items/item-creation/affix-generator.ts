@@ -49,11 +49,15 @@ export class AffixGenerator {
     return this.rollAffix(taggedAffixType, rolledTier, multiplier, template);
   }
 
-  rollAffixTier(maxTier: number, itemLevel: number) {
+  static getMaxTierModifiedByItemLevel(maxTier: number, itemLevel: number) {
     const maxTierModifier = itemLevel / DEEPEST_FLOOR;
-    const minTierModifier = maxTierModifier / 2.0;
-    const maxTierOnLevel = maxTier * maxTierModifier;
-    const minTierOnLevel = maxTier * minTierModifier;
+    return maxTier * maxTierModifier;
+  }
+
+  rollAffixTier(maxTier: number, itemLevel: number) {
+    const maxTierOnLevel = AffixGenerator.getMaxTierModifiedByItemLevel(maxTier, itemLevel);
+    const minTierOnLevel = maxTierOnLevel / 2;
+
     return Math.max(
       1,
       Math.round(randBetween(minTierOnLevel, maxTierOnLevel, this.rngPolicy.affixTier))

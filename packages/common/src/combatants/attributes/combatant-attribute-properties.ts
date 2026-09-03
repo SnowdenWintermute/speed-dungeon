@@ -90,6 +90,10 @@ export class CombatantAttributeProperties
     this._unspentAttributePoints += value;
   }
 
+  set unspentPointsAttributePoints(value: number) {
+    this._unspentAttributePoints = value;
+  }
+
   getUnspentPoints() {
     return this._unspentAttributePoints;
   }

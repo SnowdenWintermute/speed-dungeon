@@ -4,23 +4,24 @@ import {
   Equipment,
   EquipmentSlotId,
   iterateNumericEnum,
+  iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
-import { EquipmentByRequirementThresholds } from "./equipment-set-requirement-thresholds";
+import {
+  AttributeRequirmentThreshold,
+  EquipmentByRequirementThresholds,
+} from "./equipment-set-requirement-thresholds";
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification";
 
 export class ThresholdEquipmentSetScores {
   constructor(
     private combatant: Combatant,
+    private combatantSpecialty: CharacterWeaponSpecialty,
     private chasedAttribute: CombatAttribute,
     private equipmentByRequirementThresholds: EquipmentByRequirementThresholds
   ) {}
 
-  private getBestInSlot(
-    slotId: EquipmentSlotId,
-    combatantSpecialty: CharacterWeaponSpecialty,
-    equipmentList: Set<Equipment>
-  ) {
+  private getBestInSlot(slotId: EquipmentSlotId, equipmentList: Set<Equipment>) {
     let currentBest: { equipment: Equipment; score: number } | null = null;
 
     const { combatantProperties } = this.combatant;
@@ -29,7 +30,7 @@ export class ThresholdEquipmentSetScores {
 
     for (const equipment of equipmentList) {
       const isCompatibleWithSpec = AnalysisCharacterSpecification.wouldConsiderEquipmentTypeInSlot(
-        combatantSpecialty,
+        this.combatantSpecialty,
         equipment.equipmentBaseItemProperties.equipmentType,
         slotId
       );
@@ -41,7 +42,7 @@ export class ThresholdEquipmentSetScores {
       // try on equipment to measure score, thereby measuring derived attributes if any
       equipment.requirements = {};
       combatantProperties.equipment.putEquipmentInSlot(equipment, slotId);
-      const score = baselineScore - attributeProperties.getAttributeValue(this.chasedAttribute);
+      const score = attributeProperties.getAttributeValue(this.chasedAttribute) - baselineScore;
       combatantProperties.equipment.unequipAll();
 
       if (score > 0 && (currentBest === null || score > currentBest.score)) {
@@ -49,24 +50,96 @@ export class ThresholdEquipmentSetScores {
       }
     }
 
-    return currentBest?.equipment;
+    return currentBest;
   }
 
-  getBestInSlotByThreshold(combatantSpecialty: CharacterWeaponSpecialty) {
+  private getBestInSlotByThreshold() {
     const { equipmentByRequirementThreshold } = this.equipmentByRequirementThresholds;
+    const bestInSlotByThreshold = new Map<
+      AttributeRequirmentThreshold,
+      Partial<Record<EquipmentSlotId, Equipment>>
+    >();
 
     for (const [threshold, equipmentList] of equipmentByRequirementThreshold) {
       for (const slotId of iterateNumericEnum(EquipmentSlotId)) {
-        const bestInSlotOption = this.getBestInSlot(slotId, combatantSpecialty, equipmentList);
-        //
+        const bestInSlotOption = this.getBestInSlot(slotId, equipmentList);
+        if (bestInSlotOption === null) {
+          continue;
+        }
+
+        const thresholdBisSet = bestInSlotByThreshold.get(threshold) || {};
+        thresholdBisSet[slotId] = bestInSlotOption.equipment;
+        bestInSlotByThreshold.set(threshold, thresholdBisSet);
       }
     }
+
+    return bestInSlotByThreshold;
   }
-  // For each ThresholdEquipmentList,
-  // - get the best-in-slot equipment in each slot
-  // - sum the scores for each slot
-  // - for each required attribute in the threshold, if that attribute does not contribute to the
-  //   chased attribute AND that attribute could have been allocated to another attribute that could
-  //   have contributed to the chased attribute, subtract the amount it could have contributed from
-  //   the threshold set's score
+
+  private tryAllocateUntilThresholdMet(threshold: AttributeRequirmentThreshold) {
+    const { attributeProperties } = this.combatant.combatantProperties;
+    const totalAttributes = attributeProperties.getTotalAttributes();
+    for (const [attribute, required] of iterateNumericEnumKeyedRecord(threshold)) {
+      const current = totalAttributes[attribute];
+      if (current >= required) {
+        continue;
+      }
+
+      const needed = required - current;
+      if (needed > attributeProperties.getUnspentPoints()) {
+        return { possibleToMeetThresholdRequirements: false };
+      }
+
+      attributeProperties.changeUnspentPoints(-needed);
+      attributeProperties.setSpeccedAttributeValue(attribute, needed);
+    }
+
+    return { possibleToMeetThresholdRequirements: true };
+  }
+
+  private getThresholdSetScore(equipmentSet: Partial<Record<EquipmentSlotId, Equipment>>) {
+    const { equipment, attributeProperties } = this.combatant.combatantProperties;
+    for (const [slotId, equipmentToTry] of iterateNumericEnumKeyedRecord(equipmentSet)) {
+      equipment.putEquipmentInSlot(equipmentToTry, slotId);
+    }
+
+    const score = attributeProperties.getAttributeValue(this.chasedAttribute);
+
+    equipment.unequipAll();
+
+    return score;
+  }
+
+  getScoredSets() {
+    const { attributeProperties } = this.combatant.combatantProperties;
+    const unspentAttributePointsBeforeAllocation = attributeProperties.getUnspentPoints();
+
+    const scoredSets = new Map<
+      Partial<Record<CombatAttribute, number>>,
+      { set: Partial<Record<EquipmentSlotId, Equipment>>; score: number }
+    >();
+
+    const bestInSlotByThreshold = this.getBestInSlotByThreshold();
+    for (const [threshold, equipmentSet] of bestInSlotByThreshold) {
+      const { possibleToMeetThresholdRequirements } = this.tryAllocateUntilThresholdMet(threshold);
+      if (!possibleToMeetThresholdRequirements) {
+        scoredSets.set(threshold, { set: equipmentSet, score: 0 });
+      } else {
+        // allocate all remaining points toward goal
+
+        //
+        scoredSets.set(threshold, {
+          set: equipmentSet,
+          score: this.getThresholdSetScore(equipmentSet),
+        });
+      }
+
+      attributeProperties.unspentPointsAttributePoints = unspentAttributePointsBeforeAllocation;
+      for (const [attribute, _] of iterateNumericEnumKeyedRecord(threshold)) {
+        attributeProperties.setSpeccedAttributeValue(attribute, 0);
+      }
+    }
+
+    return scoredSets;
+  }
 }
