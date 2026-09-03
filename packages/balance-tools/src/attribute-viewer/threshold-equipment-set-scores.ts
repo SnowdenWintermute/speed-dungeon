@@ -16,6 +16,7 @@ import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-
 import { BestImprovementAttributeAllocation } from "../solvers/best-improvement-attribute-allocation";
 import { AttainableRequirementThresholds } from "./attainable-requirement-thresholds";
 import { AttributeRequirementThreshold } from "./attribute-requirement-threshold";
+import { ChasedAttributeMeter } from "./chased-attribute-meter";
 import { RequirementThresholdSetEquipmentSlotCandidateRankings } from "./requirement-threshold-set-equipment-slot-candidate-rankings";
 
 export interface ScoredEquipmentSet {
@@ -30,25 +31,20 @@ interface CapturedAllocations {
 }
 
 export class ThresholdEquipmentSetScores {
+  private meter: ChasedAttributeMeter;
   private rankings: RequirementThresholdSetEquipmentSlotCandidateRankings;
 
   constructor(
     private combatant: Combatant,
-    private chasedAttribute: CombatAttribute,
+    chasedAttribute: CombatAttribute,
     specialty: CharacterWeaponSpecialty,
     equipmentByType: Map<EquipmentType, Map<EquipmentBaseItem, Equipment>>
   ) {
+    this.meter = new ChasedAttributeMeter(combatant, chasedAttribute);
     this.rankings = new RequirementThresholdSetEquipmentSlotCandidateRankings(
-      combatant,
-      chasedAttribute,
+      this.meter,
       specialty,
       equipmentByType
-    );
-  }
-
-  private getChasedAttributeValue() {
-    return this.combatant.combatantProperties.attributeProperties.getAttributeValue(
-      this.chasedAttribute
     );
   }
 
@@ -99,6 +95,10 @@ export class ThresholdEquipmentSetScores {
         continue;
       }
 
+      // a requirement on a derived attribute cannot be bought directly, and speccing one anyway
+      // would report a set as attainable that no player could ever put together
+      attributeProperties.requireAttributeAllocatable(attribute);
+
       const needed = required - current;
       invariant(
         needed <= attributeProperties.getUnspentPoints(),
@@ -120,23 +120,22 @@ export class ThresholdEquipmentSetScores {
       this.combatant,
       ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
       attributeProperties.getUnspentPoints(),
-      () => this.getChasedAttributeValue()
+      () => this.meter.getValue()
     );
   }
 
-  private scoreSet(set: Partial<Record<EquipmentSlotId, Equipment>>) {
-    const { equipment, inventory } = this.combatant.combatantProperties;
+  // both allocations happen with the set already worn, so the leftover points are spent against the
+  // attributes the outfit actually produces rather than against a naked character's
+  private wearAndAllocate(
+    set: Partial<Record<EquipmentSlotId, Equipment>>,
+    requirements: AttributeRequirementThreshold
+  ) {
+    return this.meter.wearing(set, () => {
+      this.allocateToMeet(requirements);
+      this.allocateRemainingTowardChasedAttribute();
 
-    for (const [slotId, equipmentToTry] of iterateNumericEnumKeyedRecord(set)) {
-      equipment.putEquipmentInSlot(equipmentToTry, slotId);
-    }
-
-    const score = this.getChasedAttributeValue();
-
-    equipment.unequipAll();
-    inventory.deleteAllItems();
-
-    return score;
+      return this.meter.getValue();
+    });
   }
 
   private captureAllocations(): CapturedAllocations {
@@ -149,10 +148,10 @@ export class ThresholdEquipmentSetScores {
 
   private restoreAllocations(captured: CapturedAllocations) {
     const { attributeProperties } = this.combatant.combatantProperties;
+    attributeProperties.resetAllocations(captured.unspentPoints);
     for (const attribute of COMBAT_ATTRIBUTES) {
       attributeProperties.setSpeccedAttributeValue(attribute, captured.allocated[attribute]);
     }
-    attributeProperties.unspentPointsAttributePoints = captured.unspentPoints;
   }
 
   private logSelectionVariety(
@@ -193,10 +192,8 @@ export class ThresholdEquipmentSetScores {
       }
 
       const requirements = this.getSetRequirements(set);
-      this.allocateToMeet(requirements);
-      this.allocateRemainingTowardChasedAttribute();
-
-      scoredBySetKey.set(setKey, { requirements, set, score: this.scoreSet(set) });
+      const score = this.wearAndAllocate(set, requirements);
+      scoredBySetKey.set(setKey, { requirements, set, score });
 
       this.restoreAllocations(allocationsBeforeScoring);
     }

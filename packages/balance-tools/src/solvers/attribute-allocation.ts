@@ -41,6 +41,9 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
       }
 
       const pointsToAllocate = this.getPointsToAllocate(combatant);
+      if (pointsToAllocate < 1) {
+        continue;
+      }
 
       // allocation moves no equipment, so it can't change whether the build specification is met
       const checkPerformance = () =>

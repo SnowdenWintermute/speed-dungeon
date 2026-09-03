@@ -13,6 +13,8 @@
 // - speed must not become strictly better than other attributes by affording too much turn ratio
 // - It should be reasonably easy to get the party's fastest character to be first to act in battles
 //   against average speed monsters
+// - players should have compelling reasons to not "always fulfil the turn ratio max cap before all else"
+//   and instead get other attributes
 
 // INSIGHTS
 // - starting level 1 characters with a large baseline speed offsets the effect of adding

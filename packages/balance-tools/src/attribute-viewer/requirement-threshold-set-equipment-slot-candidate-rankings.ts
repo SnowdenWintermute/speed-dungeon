@@ -1,6 +1,4 @@
 import {
-  Combatant,
-  CombatAttribute,
   Equipment,
   EquipmentBaseItem,
   EquipmentSlotId,
@@ -10,6 +8,7 @@ import {
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification";
 import { AttributeRequirementThreshold } from "./attribute-requirement-threshold";
+import { ChasedAttributeMeter } from "./chased-attribute-meter";
 
 interface RequirementThresholdSetEquipmentSlotCandidate {
   equipment: Equipment;
@@ -24,15 +23,14 @@ export class RequirementThresholdSetEquipmentSlotCandidateRankings {
   >();
 
   constructor(
-    private combatant: Combatant,
-    private chasedAttribute: CombatAttribute,
+    private meter: ChasedAttributeMeter,
     specialty: CharacterWeaponSpecialty,
     equipmentByType: Map<EquipmentType, Map<EquipmentBaseItem, Equipment>>
   ) {
     const allEquipment = [...equipmentByType.values()].flatMap((byBaseItem) => [
       ...byBaseItem.values(),
     ]);
-    const baselineScore = this.getChasedAttributeValue();
+    const baselineScore = this.meter.getValue();
 
     for (const slotId of iterateNumericEnum(EquipmentSlotId)) {
       const candidates: RequirementThresholdSetEquipmentSlotCandidate[] = [];
@@ -68,28 +66,16 @@ export class RequirementThresholdSetEquipmentSlotCandidateRankings {
     }
   }
 
-  private getChasedAttributeValue() {
-    return this.combatant.combatantProperties.attributeProperties.getAttributeValue(
-      this.chasedAttribute
-    );
-  }
-
-  // what the item is worth on its own, so the same measurement is never repeated per threshold.
-  // requirements come off for the measurement because meeting them is the threshold's job
+  // what the item is worth on its own, so the same measurement is never repeated per threshold
   private measureContribution(
     equipment: Equipment,
     slotId: EquipmentSlotId,
     baselineScore: number
   ) {
-    const { combatantProperties } = this.combatant;
-
-    const savedRequirements = equipment.requirements;
-    equipment.requirements = {};
-    combatantProperties.equipment.putEquipmentInSlot(equipment, slotId);
-    const scoreWithEquipment = this.getChasedAttributeValue();
-    combatantProperties.equipment.unequipAll();
-    combatantProperties.inventory.deleteAllItems();
-    equipment.requirements = savedRequirements;
+    const set: Partial<Record<EquipmentSlotId, Equipment>> = { [slotId]: equipment };
+    const scoreWithEquipment = ChasedAttributeMeter.ignoringRequirements(equipment, () =>
+      this.meter.wearing(set, () => this.meter.getValue())
+    );
 
     return scoreWithEquipment - baselineScore;
   }

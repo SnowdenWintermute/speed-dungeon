@@ -90,8 +90,11 @@ export class CombatantAttributeProperties
     this._unspentAttributePoints += value;
   }
 
-  set unspentPointsAttributePoints(value: number) {
-    this._unspentAttributePoints = value;
+  /** the state a levelup leaves behind: the given points granted and none of them spent. safe on a
+   * combatant that already allocated, so granting is never a double grant */
+  resetAllocations(unspentPoints: number) {
+    this._speccedAttributes = {};
+    this._unspentAttributePoints = unspentPoints;
   }
 
   getUnspentPoints() {

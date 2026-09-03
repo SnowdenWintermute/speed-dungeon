@@ -18,6 +18,7 @@ import {
   RandomNumberGenerationPolicyFactory,
 } from "@speed-dungeon/common";
 import cloneDeep from "lodash.clonedeep";
+import { ChasedAttributeMeter } from "./chased-attribute-meter";
 
 export class BestPossibleEquipmentCollection {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
@@ -65,9 +66,21 @@ export class BestPossibleEquipmentCollection {
     baseItem: EquipmentBaseItem,
     equipment: Equipment
   ) {
-    // remove requirements while trying item, put back after
-    const savedRequirements = equipment.requirements;
-    equipment.requirements = {};
+    const bestAffixByCategory = ChasedAttributeMeter.ignoringRequirements(equipment, () =>
+      this.findBestAffixByCategory(combatant, chasedAttribute, baseItem, equipment)
+    );
+
+    for (const [category, bestAffixOption] of iterateNumericEnumKeyedRecord(bestAffixByCategory)) {
+      equipment.affixes[category] = { [bestAffixOption.affixType]: bestAffixOption.affix };
+    }
+  }
+
+  private findBestAffixByCategory(
+    combatant: Combatant,
+    chasedAttribute: CombatAttribute,
+    baseItem: EquipmentBaseItem,
+    equipment: Equipment
+  ) {
     const template = getEquipmentTemplateCatalog().getTemplate(baseItem);
     const { possibleAffixes } = template;
     const { prefix: possiblePrefixes, suffix: possibleSuffixes } = possibleAffixes;
@@ -123,12 +136,8 @@ export class BestPossibleEquipmentCollection {
 
     combatantProperties.equipment.unequipAll();
     combatantProperties.inventory.deleteAllItems();
-    equipment.requirements = savedRequirements;
 
-    // assign best affixes to the equipment
-    for (const [category, bestAffixOption] of iterateNumericEnumKeyedRecord(bestAffixByCategory)) {
-      equipment.affixes[category] = { [bestAffixOption.affixType]: bestAffixOption.affix };
-    }
+    return bestAffixByCategory;
   }
 
   buildEquipmentOptionsForCombatantChasingAttribute(

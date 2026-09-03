@@ -41,7 +41,7 @@ export class AttainableAttributeCalculator {
     // levels handed out by the builder never ran a levelup, so the points one would have awarded
     // have to be granted here or nothing can be spent on requirements
     const { attributeProperties, classProgressionProperties } = combatant.combatantProperties;
-    attributeProperties.changeUnspentPoints(
+    attributeProperties.resetAllocations(
       classProgressionProperties.getAttributePointsAwardedForLevels()
     );
 

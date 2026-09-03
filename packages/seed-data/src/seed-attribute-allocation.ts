@@ -19,7 +19,7 @@ export class SeedAttributeAllocation {
   allocate(combatant: Combatant): void {
     const { attributeProperties, classProgressionProperties, resources } =
       combatant.combatantProperties;
-    attributeProperties.changeUnspentPoints(
+    attributeProperties.resetAllocations(
       classProgressionProperties.getAttributePointsAwardedForLevels()
     );
 
