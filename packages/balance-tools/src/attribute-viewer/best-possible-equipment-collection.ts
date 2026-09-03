@@ -28,10 +28,6 @@ export class BestPossibleEquipmentCollection {
   );
   private equipmentBuilder = new ItemBuilder(this.equipmentRandomizer);
   private baseEquipmentByType = new Map<EquipmentType, Map<EquipmentBaseItem, Equipment>>();
-  private equipmentWithBestAffixesForChased: Map<
-    EquipmentType,
-    Map<EquipmentBaseItem, Equipment>
-  > | null = null;
 
   constructor() {
     for (const equipmentType of iterateNumericEnum(EquipmentType)) {
@@ -126,6 +122,7 @@ export class BestPossibleEquipmentCollection {
     }
 
     combatantProperties.equipment.unequipAll();
+    combatantProperties.inventory.deleteAllItems();
     equipment.requirements = savedRequirements;
 
     // assign best affixes to the equipment
@@ -153,7 +150,6 @@ export class BestPossibleEquipmentCollection {
       }
     }
 
-    this.equipmentWithBestAffixesForChased = clonedEquipmentByBaseItemType;
     return clonedEquipmentByBaseItemType;
   }
 }

@@ -15,6 +15,9 @@
 //   against average speed monsters
 
 // INSIGHTS
+// - starting level 1 characters with a large baseline speed offsets the effect of adding
+//   your first point. If you start with 1 point and add 1, thats a 100% increase. If you
+//   start with 100 and add 1 that's an increase of 1%
 // - it is probably the most fun if players and monster mostly get even amount of turns
 // - the most important breakpoint is enough speed to move first in the battle before monsters
 // - longer battles allow small speed differences to matter eventually (trade turns with monster

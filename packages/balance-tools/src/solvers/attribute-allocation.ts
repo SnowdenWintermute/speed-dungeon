@@ -2,13 +2,8 @@ import { AllocationIntensity } from "../analysis-runs/allocation-intensity.ts";
 import { AnalysisSubjects } from "../analysis-runs/analysis-subjects.ts";
 import { AttributeSourceType } from "../analysis-subjects/attribute-source.ts";
 import { AnalysisAttributeSolver } from "./analysis-attribute-solver.ts";
-import {
-  AdventuringParty,
-  COMBAT_ATTRIBUTES,
-  Combatant,
-  CombatAttribute,
-  invariant,
-} from "@speed-dungeon/common";
+import { BestImprovementAttributeAllocation } from "./best-improvement-attribute-allocation.ts";
+import { AdventuringParty, COMBAT_ATTRIBUTES, Combatant } from "@speed-dungeon/common";
 
 export class AttributeAllocationSolver implements AnalysisAttributeSolver {
   constructor(
@@ -37,69 +32,6 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
     return Math.min(Math.max(targetAllocatedPoints - allocatedPoints, 0), unspentPoints);
   }
 
-  static tryAllocation(
-    combatant: Combatant,
-    attribute: CombatAttribute,
-    checkPerformance: () => number,
-    performanceBefore: number,
-    pointsToAllocate: number
-  ) {
-    const { attributeProperties } = combatant.getCombatantProperties();
-
-    const currentAllocatedValue = attributeProperties.getAllocatedAttributes()[attribute];
-    attributeProperties.setSpeccedAttributeValue(
-      attribute,
-      currentAllocatedValue + pointsToAllocate
-    );
-    // allocation moves no equipment, so it can't change whether the build specification is met
-    const performanceAfter = checkPerformance();
-    const difference = performanceAfter - performanceBefore;
-    attributeProperties.setSpeccedAttributeValue(attribute, currentAllocatedValue);
-    return difference;
-  }
-
-  static allocateToBestImproved(
-    combatant: Combatant,
-    allocatableAttributes: CombatAttribute[],
-    pointsCount: number,
-    checkPerformance: () => number
-  ) {
-    if (pointsCount < 1) {
-      return;
-    }
-
-    const { attributeProperties } = combatant.getCombatantProperties();
-    invariant(
-      allocatableAttributes.length > 0,
-      "a goal with nothing to allocate to cannot improve"
-    );
-
-    const performanceBefore = checkPerformance();
-    let bestImprovementAttribute: { attribute: CombatAttribute; score: number } | null = null;
-    for (const attribute of allocatableAttributes) {
-      const score = AttributeAllocationSolver.tryAllocation(
-        combatant,
-        attribute,
-        checkPerformance,
-        performanceBefore,
-        pointsCount
-      );
-      const scoreIsPositive = score > 0;
-      const scoreBeatsPreviousTry =
-        bestImprovementAttribute === null || bestImprovementAttribute.score < score;
-
-      if (scoreIsPositive && scoreBeatsPreviousTry) {
-        bestImprovementAttribute = { attribute, score };
-      }
-    }
-
-    if (bestImprovementAttribute) {
-      for (let i = 0; i < pointsCount; i += 1) {
-        attributeProperties.allocatePoint(bestImprovementAttribute.attribute);
-      }
-    }
-  }
-
   /** mutates combatants in place, assigning each their best allocation for their own goal */
   solve() {
     for (const combatant of this.party.combatantManager.getPartyMemberCharacters()) {
@@ -110,6 +42,7 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
 
       const pointsToAllocate = this.getPointsToAllocate(combatant);
 
+      // allocation moves no equipment, so it can't change whether the build specification is met
       const checkPerformance = () =>
         this.analysisSubjects.checkPerformance(
           combatant,
@@ -119,7 +52,7 @@ export class AttributeAllocationSolver implements AnalysisAttributeSolver {
         combatant.getEntityId()
       );
 
-      AttributeAllocationSolver.allocateToBestImproved(
+      BestImprovementAttributeAllocation.allocate(
         combatant,
         allocatableAttributes,
         pointsToAllocate,

@@ -1,5 +1,4 @@
 import { iterateNumericEnumKeyedRecord } from "../../utils/index.js";
-import { invertRecordRatios } from "../../utils/record-utils.js";
 import { CombatAttribute } from "./index.js";
 
 export const DERIVED_ATTRIBUTE_RATIOS: Partial<
@@ -19,8 +18,6 @@ export const DERIVED_ATTRIBUTE_RATIOS: Partial<
     [CombatAttribute.Hp]: 2,
   },
 };
-
-export const INVERTED_DERIVED_ATTRIBUTE_RATIOS = invertRecordRatios(DERIVED_ATTRIBUTE_RATIOS);
 
 export const DEX_TO_ACCURACY_RATIO =
   DERIVED_ATTRIBUTE_RATIOS?.[CombatAttribute.Dexterity]?.[CombatAttribute.Accuracy] || 1;

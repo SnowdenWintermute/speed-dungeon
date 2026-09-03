@@ -3,7 +3,6 @@
 import {
   ATTRIBUTE_POINT_ASSIGNABLE_ATTRIBUTES,
   COMBATANT_CLASS_ATTRIBUTES_BY_LEVEL,
-  GAME_CONFIG,
   iterateNumericEnumKeyedRecord,
 } from "@speed-dungeon/common";
 import type {
@@ -20,9 +19,8 @@ export class SeedAttributeAllocation {
   allocate(combatant: Combatant): void {
     const { attributeProperties, classProgressionProperties, resources } =
       combatant.combatantProperties;
-    const { level } = classProgressionProperties.getMainClass();
     attributeProperties.changeUnspentPoints(
-      GAME_CONFIG.ATTRIBUTE_POINTS_AWARDED_PER_LEVEL * (level - 1)
+      classProgressionProperties.getAttributePointsAwardedForLevels()
     );
 
     this.spendOnEquipmentRequirements(combatant);

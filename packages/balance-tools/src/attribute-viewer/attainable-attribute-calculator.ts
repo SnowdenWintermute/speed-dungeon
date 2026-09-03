@@ -1,65 +1,77 @@
 import {
   ClassProgressionProperties,
   CombatantBuilder,
-  CombatantClass,
   CombatAttribute,
   IdGeneratorRandom,
   Username,
 } from "@speed-dungeon/common";
-import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
+import type { AttributePointAssignableAttributes } from "@speed-dungeon/common";
+import { CharacterBuildSpecification } from "../analysis-subjects/analysis-character-specification";
 import { BestPossibleEquipmentCollection } from "./best-possible-equipment-collection";
 import { EquipmentByRequirementThresholds } from "./equipment-set-requirement-thresholds";
-import { ThresholdEquipmentSetScores } from "./threshold-equipment-set-scores";
+import { ScoredEquipmentSet, ThresholdEquipmentSetScores } from "./threshold-equipment-set-scores";
 
-export interface MaxAttainableAttributeSpecification {
+export interface AttainableAttributeSpecification {
   attribute: CombatAttribute;
-  mainClass: CombatantClass;
-  supportClassOption: null | CombatantClass;
+  allocatableAttributes: AttributePointAssignableAttributes[];
+  buildSpec: CharacterBuildSpecification;
   level: number;
-  specialty: CharacterWeaponSpecialty;
 }
+
+const ANALYSIS_CHARACTER_NAME = "attainable attribute subject" as Username;
 
 export class AttainableAttributeCalculator {
   private idGenerator = new IdGeneratorRandom({ saveHistory: false });
+  private equipmentCollection = new BestPossibleEquipmentCollection();
 
-  getSortedEquipmentSetsWithAttributeScores(specification: MaxAttainableAttributeSpecification) {
-    const bestEquipmentPerBaseItemSelector = new BestPossibleEquipmentCollection();
+  private buildCombatant(specification: AttainableAttributeSpecification) {
+    const { level, buildSpec } = specification;
 
-    const { attribute, mainClass, supportClassOption, level, specialty } = specification;
+    const combatantBuilder = CombatantBuilder.playerCharacter(
+      buildSpec.mainClass,
+      ANALYSIS_CHARACTER_NAME
+    ).level(level);
 
-    const combatantBuilder = CombatantBuilder.playerCharacter(mainClass, "" as Username).level(
-      level
-    );
-
-    if (supportClassOption !== null) {
+    if (buildSpec.supportClass !== null) {
       combatantBuilder.supportClass(
-        supportClassOption,
+        buildSpec.supportClass,
         ClassProgressionProperties.maxSupportClassLevel(level)
       );
     }
 
     const combatant = combatantBuilder.build(this.idGenerator);
 
+    // levels handed out by the builder never ran a levelup, so the points one would have awarded
+    // have to be granted here or nothing can be spent on requirements
+    const { attributeProperties, classProgressionProperties } = combatant.combatantProperties;
+    attributeProperties.changeUnspentPoints(
+      classProgressionProperties.getAttributePointsAwardedForLevels()
+    );
+
+    return combatant;
+  }
+
+  getSortedEquipmentSetsWithAttributeScores(
+    specification: AttainableAttributeSpecification
+  ): ScoredEquipmentSet[] {
+    const { attribute, allocatableAttributes, buildSpec } = specification;
+
+    const combatant = this.buildCombatant(specification);
+
     const equipmentList =
-      bestEquipmentPerBaseItemSelector.buildEquipmentOptionsForCombatantChasingAttribute(
+      this.equipmentCollection.buildEquipmentOptionsForCombatantChasingAttribute(
         combatant,
         attribute
       );
 
-    const equipmentThresholdSets = new EquipmentByRequirementThresholds(equipmentList);
-    const thresholdEquipmentSetScores = new ThresholdEquipmentSetScores(
+    const scoredSets = new ThresholdEquipmentSetScores(
       combatant,
-      specialty,
+      buildSpec.weaponSpecialty,
       attribute,
-      equipmentThresholdSets
+      allocatableAttributes,
+      new EquipmentByRequirementThresholds(equipmentList)
     ).getScoredSets();
 
-    const toSort = [...thresholdEquipmentSetScores];
-    const sorted = toSort.sort(
-      ([thresholdA, equipmentSetA], [thresholdB, equipmentSetB]) =>
-        equipmentSetB.score - equipmentSetA.score
-    );
-
-    return sorted;
+    return scoredSets.sort((a, b) => b.score - a.score);
   }
 }

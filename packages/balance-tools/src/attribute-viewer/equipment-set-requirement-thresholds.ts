@@ -7,11 +7,11 @@ import {
 } from "@speed-dungeon/common";
 import isEqual from "lodash.isequal";
 
-export type AttributeRequirmentThreshold = Partial<Record<CombatAttribute, number>>;
+export type AttributeRequirementThreshold = Partial<Record<CombatAttribute, number>>;
 
 export class EquipmentByRequirementThresholds {
   private _equipmentByRequirementThreshold = new Map<
-    AttributeRequirmentThreshold,
+    AttributeRequirementThreshold,
     Set<Equipment>
   >();
 
@@ -19,13 +19,13 @@ export class EquipmentByRequirementThresholds {
     this.makeSets(equipmentByType);
   }
 
-  private thresholdsAreEqual(a: AttributeRequirmentThreshold, b: AttributeRequirmentThreshold) {
+  private thresholdsAreEqual(a: AttributeRequirementThreshold, b: AttributeRequirementThreshold) {
     return isEqual(a, b);
   }
 
   private thresholdCoversOther(
-    threshold: AttributeRequirmentThreshold,
-    other: AttributeRequirmentThreshold
+    threshold: AttributeRequirementThreshold,
+    other: AttributeRequirementThreshold
   ) {
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(other)) {
       const thresholdAttribute = threshold[attribute] || 0;
@@ -38,7 +38,7 @@ export class EquipmentByRequirementThresholds {
     return true;
   }
 
-  private getThresholdSetIfExists(requirements: AttributeRequirmentThreshold) {
+  private getThresholdSetIfExists(requirements: AttributeRequirementThreshold) {
     for (const [threshold, set] of this._equipmentByRequirementThreshold) {
       if (this.thresholdsAreEqual(requirements, threshold)) {
         return set;

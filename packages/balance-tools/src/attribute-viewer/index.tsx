@@ -2,45 +2,34 @@ import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import {
   AFFIX_CATEGORY_STRINGS,
   AFFIX_TYPE_STRINGS,
-  ClassProgressionProperties,
   COMBATANT_MAX_LEVEL,
-  CombatantBuilder,
   CombatantClass,
   CombatAttribute,
-  Equipment,
   EQUIPMENT_SLOT_ID_STRINGS,
-  EquipmentSlotId,
-  IdGeneratorSequential,
   iterateNumericEnumKeyedRecord,
-  Username,
 } from "@speed-dungeon/common";
-import { BestPossibleEquipmentCollection } from "./best-possible-equipment-collection";
-import { EquipmentByRequirementThresholds } from "./equipment-set-requirement-thresholds";
-import { ThresholdEquipmentSetScores } from "./threshold-equipment-set-scores";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
+import { AnalysisGoal, ANALYSIS_GOAL_SPECS } from "../goal-performance-checkers/analysis-goal";
 import { useState } from "react";
 import { AttainableAttributeCalculator } from "./attainable-attribute-calculator";
+import { ScoredEquipmentSet } from "./threshold-equipment-set-scores";
 
 export function AttributeViewer() {
-  const [sorted, setSorted] = useState<
-    [
-      Partial<Record<CombatAttribute, number>>,
-      {
-        set: Partial<Record<EquipmentSlotId, Equipment>>;
-        score: number;
-      },
-    ][]
-  >([]);
+  const [sorted, setSorted] = useState<ScoredEquipmentSet[]>([]);
 
   function handleClick() {
-    const sorted = new AttainableAttributeCalculator().getSortedEquipmentSetsWithAttributeScores({
-      mainClass: CombatantClass.Rogue,
-      supportClassOption: CombatantClass.Warrior,
-      attribute: CombatAttribute.Speed,
-      level: COMBATANT_MAX_LEVEL,
-      specialty: CharacterWeaponSpecialty.TwoHandedMelee,
-    });
-    setSorted(sorted);
+    setSorted(
+      new AttainableAttributeCalculator().getSortedEquipmentSetsWithAttributeScores({
+        attribute: CombatAttribute.Speed,
+        allocatableAttributes: ANALYSIS_GOAL_SPECS[AnalysisGoal.TotalSpeed].allocatableAttributes,
+        buildSpec: {
+          mainClass: CombatantClass.Rogue,
+          supportClass: CombatantClass.Warrior,
+          weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
+        },
+        level: COMBATANT_MAX_LEVEL,
+      })
+    );
   }
 
   return (
@@ -50,25 +39,25 @@ export function AttributeViewer() {
         <ButtonBasic onClick={handleClick}>click me</ButtonBasic>
       </div>
       <ul className="w-full">
-        {sorted.map(([threshold, { set, score }]) => {
+        {sorted.map(({ set, score }, setIndex) => {
           return (
-            <li className="w-full">
+            <li className="w-full" key={setIndex}>
               <div>Score:{score}</div>
               <div className="w-full">
                 {iterateNumericEnumKeyedRecord(set).map(([slotId, equipment]) => {
                   return (
-                    <div className="flex justify-between w-full border">
+                    <div className="flex justify-between w-full border" key={slotId}>
                       <div>{EQUIPMENT_SLOT_ID_STRINGS[slotId]}</div>
                       <div>{equipment.entityProperties.name}</div>
                       <div>
                         {iterateNumericEnumKeyedRecord(equipment.affixes).map(
                           ([affixCategory, affixes]) => (
-                            <div>
+                            <div key={affixCategory}>
                               <div>{AFFIX_CATEGORY_STRINGS[affixCategory]}</div>
                               <div>
                                 {iterateNumericEnumKeyedRecord(affixes).map(
                                   ([affixType, affix]) => (
-                                    <div>
+                                    <div key={affixType}>
                                       <div>{AFFIX_TYPE_STRINGS[affixType]}</div>
                                       <div>{affix.tier}</div>
                                     </div>

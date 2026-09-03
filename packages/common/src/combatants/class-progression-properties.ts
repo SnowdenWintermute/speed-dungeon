@@ -78,6 +78,16 @@ export class ClassProgressionProperties
     this.supportClass = new CombatantClassProperties(level, combatantClass);
   }
 
+  /** what a character who earned these levels would have been awarded, for the ones who were
+   * assigned their levels instead and so never ran a levelup */
+  getAttributePointsAwardedForLevels() {
+    const supportClassLevel = this.supportClass?.level ?? 0;
+    return (
+      GAME_CONFIG.ATTRIBUTE_POINTS_AWARDED_PER_LEVEL * (this.mainClass.level - 1) +
+      GAME_CONFIG.ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL * supportClassLevel
+    );
+  }
+
   private convertExperienceToClassLevels() {
     let levelupCount = 0;
 
