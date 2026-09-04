@@ -20,6 +20,10 @@ export interface AnalysisTableRow {
   totalAttributes: Record<CombatAttribute, Distribution>;
 }
 
+export interface StudyTable<TRow extends AnalysisTableRow> {
+  selectRows(slice: AnalysisSlice): TRow[];
+}
+
 export abstract class AnalysisSampleTable<
   TSample extends AnalysisSampleDimensions,
   TRow extends AnalysisTableRow,

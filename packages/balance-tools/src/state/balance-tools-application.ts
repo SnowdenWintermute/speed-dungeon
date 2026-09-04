@@ -28,8 +28,8 @@ export class BalanceToolsApplication {
     this.tab = tab;
   }
 
-  /** stored selections are applied before anything reacts to them, so what a restored selection
-   * sets in motion is what choosing it would have */
+  /** stored selections are applied before anything reacts to them, so a restored selection sets
+   * in motion what choosing it would have */
   initialize() {
     this.applySerialized(readPersistedUiState());
     this.studies.initialize();

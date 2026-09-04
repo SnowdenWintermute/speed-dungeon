@@ -22,7 +22,7 @@ function describeBuild(buildSpec: CharacterBuildSpecification) {
 
 export const AttainableAttributesTab = observer(() => {
   const { attainableAttributes } = useBalanceToolsApplication();
-  const { calculation, isCalculating } = attainableAttributes;
+  const { calculation, isCalculating, failureReason } = attainableAttributes;
 
   return (
     <div>
@@ -46,6 +46,10 @@ export const AttainableAttributesTab = observer(() => {
           </div>
         )}
       </div>
+
+      {failureReason !== null && (
+        <p className="mb-4 text-theme-danger">calculation failed: {failureReason}</p>
+      )}
 
       {calculation !== null && (
         <div className="mb-4">

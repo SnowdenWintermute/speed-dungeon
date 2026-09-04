@@ -1,6 +1,6 @@
-import { NormalizedPercentage, isNumericEnumMember } from "@speed-dungeon/common";
+import { CombatAttribute, NormalizedPercentage, isNumericEnumMember } from "@speed-dungeon/common";
 import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
-import { AttainableAttributeSpecification } from "../attribute-viewer/attainable-attribute-calculator.ts";
+import { CharacterBuildSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import { StudyName } from "../studies/study-name.ts";
 import { BalanceToolsTab } from "../tabs.ts";
 
@@ -16,11 +16,15 @@ export interface PersistedStudyPanelState {
 
 export interface PersistedStudiesTabState {
   studyName: StudyName;
-  panelsByStudy: Partial<Record<StudyName, PersistedStudyPanelState>>;
+  /** by slug rather than by the StudyName ordinal, which moves whenever a study is added anywhere
+   * but the end of the enum */
+  panelsByStudy: Record<string, PersistedStudyPanelState>;
 }
 
+/** no level: nothing selects it, so it stays whatever COMBATANT_MAX_LEVEL is now */
 export interface PersistedAttainableAttributesTabState {
-  specification: AttainableAttributeSpecification;
+  attribute: CombatAttribute;
+  buildSpec: CharacterBuildSpecification;
 }
 
 export interface PersistedUiState {
@@ -29,8 +33,8 @@ export interface PersistedUiState {
   attainableAttributes: PersistedAttainableAttributesTabState;
 }
 
-/** anything stored is whatever the last version of the app wrote, so it is read as unknown and
- * every value checked; a selection that no longer parses leaves its default standing */
+/** whatever the last version of the app wrote, so every value is checked before it is used and a
+ * selection that no longer parses leaves its default standing */
 export function readPersistedUiState(): unknown {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -65,8 +69,16 @@ export function readStoredNumber(stored: unknown) {
   return typeof stored === "number" && Number.isFinite(stored) ? stored : undefined;
 }
 
-/** a numeric enum whose member was dropped or renumbered since the value was stored reads as
- * absent rather than as a member the app has no case for */
+/** clamped rather than dropped, so a bound that moved in code leaves the nearest selection
+ * standing instead of the default */
+export function readStoredNumberInRange(stored: unknown, min: number, max: number) {
+  const value = readStoredNumber(stored);
+
+  return value === undefined ? undefined : Math.min(Math.max(value, min), max);
+}
+
+/** renumbering is not caught and cannot be: the stored number is still a member, just a different
+ * one, which is why anything keyed by a study is keyed by its slug instead */
 export function isStoredEnumMember<TMember extends number>(
   enumObject: Record<number, string>,
   stored: unknown

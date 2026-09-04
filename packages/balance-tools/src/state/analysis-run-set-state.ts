@@ -17,7 +17,7 @@ import { writeGeneratedFile } from "../write-generated-file.ts";
 export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
   result: null | DungeonRunAnalysisResults[AnalysisType] = null;
   runCountShown: null | number = null;
-  /** what the shown result was walked at; null for a saved run from before these were recorded */
+  /** null for a saved run from before these were recorded */
   optionsShown: null | AnalysisRunSetOptions = null;
   runsFinished = 0;
   runsRequested = 0;
@@ -26,7 +26,6 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
   /** a saved run is 100MB of json, so the wait is long enough to need saying */
   isLoadingSavedRun = false;
   failureReason: null | string = null;
-  /** so a run loaded from disk is never mistaken for one just walked */
   resultIsFromSavedRun = false;
   private worker: null | Worker = null;
   /** a saved run read that a later retarget outran must not land on the study now selected */
@@ -63,7 +62,6 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
     this.resultIsFromSavedRun = false;
   }
 
-  // a study's last saved run stands in until one is walked, so a reload does not cost a set.
   // no saved run is the ordinary first-use case, so a miss is silent
   async loadSavedRun() {
     this.savedRunReadId++;
@@ -110,6 +108,8 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
     this.runsFailed = 0;
     this.isRunning = true;
     this.failureReason = null;
+    this.isLoadingSavedRun = false;
+    this.savedRunReadId++;
 
     worker.onmessage = ({ data }: MessageEvent<AnalysisRunSetWorkerMessage<AnalysisType>>) => {
       runInAction(() => {

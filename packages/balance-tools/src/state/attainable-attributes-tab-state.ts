@@ -11,7 +11,6 @@ import {
   isStoredEnumMember,
   isStoredRecord,
   PersistedAttainableAttributesTabState,
-  readStoredNumber,
 } from "./persisted-ui-state.ts";
 
 const DEFAULT_SPECIFICATION: AttainableAttributeSpecification = {
@@ -24,8 +23,7 @@ const DEFAULT_SPECIFICATION: AttainableAttributeSpecification = {
   level: COMBATANT_MAX_LEVEL,
 };
 
-// what the shown numbers came from, which is the specification as it was when calculate was
-// pressed rather than whatever is dialed in now
+// the specification as it was when calculate was pressed, not whatever is dialed in now
 interface Calculation {
   specification: AttainableAttributeSpecification;
   scoredSets: ScoredEquipmentSets;
@@ -35,6 +33,7 @@ export class AttainableAttributesTabState {
   specification = DEFAULT_SPECIFICATION;
   calculation: null | Calculation = null;
   isCalculating = false;
+  failureReason: null | string = null;
 
   constructor() {
     makeAutoObservable(this, {
@@ -45,10 +44,6 @@ export class AttainableAttributesTabState {
     });
   }
 
-  setSpecification(specification: AttainableAttributeSpecification) {
-    this.specification = specification;
-  }
-
   setAttribute(attribute: CombatAttribute) {
     this.specification = { ...this.specification, attribute };
   }
@@ -57,8 +52,7 @@ export class AttainableAttributesTabState {
     this.specification = { ...this.specification, buildSpec };
   }
 
-  // a character supports itself with any class but the one it already mains, so taking a new main
-  // class has to give up a support selection that just became the same class
+  // a character supports itself with any class but the one it already mains
   setMainClass(mainClass: CombatantClass) {
     const { buildSpec } = this.specification;
     this.setBuildSpec({
@@ -70,44 +64,56 @@ export class AttainableAttributesTabState {
 
   calculate() {
     this.isCalculating = true;
+    this.failureReason = null;
     const { specification } = this;
 
-    // fitting every set blocks, so it is queued behind the render that puts the spinner up rather
-    // than done in the handler, where the spinner would never paint
+    // fitting every set blocks, so it is queued behind the render that puts the spinner up
     setTimeout(() => {
-      const scoredSets = new AttainableAttributeCalculator().getScoredEquipmentSets(specification);
+      let calculation: null | Calculation = null;
+      let failureReason: null | string = null;
+      try {
+        const scoredSets = new AttainableAttributeCalculator().getScoredEquipmentSets(specification);
+        calculation = { specification, scoredSets };
+      } catch (probablyError) {
+        failureReason = probablyError instanceof Error ? probablyError.message : String(probablyError);
+      }
+
       runInAction(() => {
-        this.calculation = { specification, scoredSets };
+        // a fit that threw leaves the last numbers standing rather than blanking the table
+        if (calculation !== null) {
+          this.calculation = calculation;
+        }
+        this.failureReason = failureReason;
+        // every control on the tab is disabled while this is set
         this.isCalculating = false;
       });
     }, 0);
   }
 
   toSerialized(): PersistedAttainableAttributesTabState {
-    return { specification: this.specification };
+    const { attribute, buildSpec } = this.specification;
+
+    return { attribute, buildSpec };
   }
 
   applySerialized(stored: unknown) {
     if (!isStoredRecord(stored)) {
       return;
     }
-    const specification = readStoredSpecification(stored.specification);
+    const specification = readStoredSpecification(stored);
     if (specification !== undefined) {
       this.specification = specification;
     }
   }
 }
 
-/** a partly readable specification is discarded rather than half applied: a build spec is only
- * meaningful whole, and a mismatched pair would silently score something never selected */
-function readStoredSpecification(stored: unknown): undefined | AttainableAttributeSpecification {
-  if (!isStoredRecord(stored)) {
-    return undefined;
-  }
-  const { attribute, buildSpec, level } = stored;
-  const readLevel = readStoredNumber(level);
-
-  if (!isStoredEnumMember<CombatAttribute>(CombatAttribute, attribute) || readLevel === undefined) {
+/** a build spec is only meaningful whole, so a mismatched pair would silently score something
+ * never selected */
+function readStoredSpecification(
+  stored: Record<string, unknown>
+): undefined | AttainableAttributeSpecification {
+  const { attribute, buildSpec } = stored;
+  if (!isStoredEnumMember<CombatAttribute>(CombatAttribute, attribute)) {
     return undefined;
   }
   const readBuildSpec = readStoredBuildSpec(buildSpec);
@@ -115,7 +121,7 @@ function readStoredSpecification(stored: unknown): undefined | AttainableAttribu
     return undefined;
   }
 
-  return { attribute, buildSpec: readBuildSpec, level: readLevel };
+  return { attribute, buildSpec: readBuildSpec, level: DEFAULT_SPECIFICATION.level };
 }
 
 function readStoredBuildSpec(stored: unknown): undefined | CharacterBuildSpecification {

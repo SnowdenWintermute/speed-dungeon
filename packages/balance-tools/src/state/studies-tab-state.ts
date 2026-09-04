@@ -1,6 +1,11 @@
 import { makeAutoObservable, reaction } from "mobx";
 import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
-import { AnalysisOfStudy, STUDY_ANALYSES, StudyName } from "../studies/study-name.ts";
+import {
+  AnalysisOfStudy,
+  STUDY_ANALYSES,
+  STUDY_NAME_SLUGS,
+  StudyName,
+} from "../studies/study-name.ts";
 import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
 import {
   isStoredEnumMember,
@@ -12,7 +17,6 @@ import { StudyPanelState } from "./study-panel-state.ts";
 
 type StudyPanelStates = { [TStudy in StudyName]: StudyPanelState<AnalysisOfStudy<TStudy>> };
 
-/** the panel of whichever study, for the reads that treat every study alike */
 type AnyStudyPanelState = StudyPanelStates[StudyName];
 
 function panelStateFor<TStudy extends StudyName>(
@@ -43,7 +47,6 @@ export class StudiesTabState {
     makeAutoObservable<this, "panels">(this, { panels: false });
   }
 
-  /** generic over the study so a panel's run set is typed to that study's analysis result */
   panelFor<TStudy extends StudyName>(studyName: TStudy) {
     return this.panels[studyName];
   }
@@ -52,17 +55,16 @@ export class StudiesTabState {
     this.studyName = studyName;
   }
 
-  /** choosing a study reads its saved run and the saved runs of any study it copies attributes
-   * from. firing immediately means a study restored from storage takes that same path, so there is
-   * no separate hydration branch to keep in step with this one */
+  /** firing immediately means a study restored from storage takes the same path as one just
+   * chosen, so there is no separate hydration branch to keep in step with this one */
   initialize() {
     reaction(
       () => this.studyName,
       (studyName, previousStudyName) => {
         if (previousStudyName !== undefined) {
-          // only the selected study holds a result: they are large enough that keeping the ones
-          // walked earlier would cost more memory than the tool has to spend
-          this.panels[previousStudyName].runSet.clear();
+          // a result and its table are large enough that keeping the ones walked earlier would
+          // cost more memory than the tool has to spend
+          this.panels[previousStudyName].clear();
         }
         const panel = this.panels[studyName];
         panel.runSet.loadSavedRun();
@@ -73,11 +75,11 @@ export class StudiesTabState {
   }
 
   toSerialized(): PersistedStudiesTabState {
-    const panelsByStudy: Partial<Record<StudyName, PersistedStudyPanelState>> = {};
+    const panelsByStudy: Record<string, PersistedStudyPanelState> = {};
     for (const [studyName, panel] of iterateNumericEnumKeyedRecord<StudyName, AnyStudyPanelState>(
       this.panels
     )) {
-      panelsByStudy[studyName] = panel.toSerialized();
+      panelsByStudy[STUDY_NAME_SLUGS[studyName]] = panel.toSerialized();
     }
 
     return { studyName: this.studyName, panelsByStudy };
@@ -97,7 +99,7 @@ export class StudiesTabState {
     for (const [studyName, panel] of iterateNumericEnumKeyedRecord<StudyName, AnyStudyPanelState>(
       this.panels
     )) {
-      panel.applySerialized(panelsByStudy[studyName]);
+      panel.applySerialized(panelsByStudy[STUDY_NAME_SLUGS[studyName]]);
     }
   }
 }

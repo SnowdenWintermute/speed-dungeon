@@ -27,7 +27,6 @@ export class CopiedAttributeProfilesState {
     });
   }
 
-  /** why a set cannot be walked yet, such as a source study this one copies from not being saved */
   get blockedReason() {
     switch (this.profiles.type) {
       case CopiedAttributeProfilesType.Ready:

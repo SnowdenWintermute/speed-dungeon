@@ -6,11 +6,9 @@ import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 import { Slider } from "@speed-dungeon/ui/atoms/Slider";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
 import { DungeonRunAnalysis } from "../analysis-runs/dungeon-run-analysis.ts";
-import { StudyPanelState } from "../state/study-panel-state.ts";
+import { MAX_RUN_COUNT, MIN_RUN_COUNT, StudyPanelState } from "../state/study-panel-state.ts";
 import { RunOptionCheckbox } from "./run-option-checkbox.tsx";
 
-const MIN_RUN_COUNT = 1;
-const MAX_RUN_COUNT = 2000;
 const HONOR_REQUIREMENTS_LABEL = "honor equipment requirements";
 const ARMOR_CLASS_LABEL = "target dummies have armor class";
 const INTENSITY_STEP_PERCENT = 5;

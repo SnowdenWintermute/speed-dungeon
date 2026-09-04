@@ -104,6 +104,12 @@ export class AffixGenerator {
         max = 10 * tier;
       }
 
+      if (traitTypeOption === EquipmentTraitType.FlatDamageAdditive) {
+        const range = this.getAffixValueRange(affixType, tier, rangeMultiplier);
+        min = range.min;
+        max = range.max;
+      }
+
       // lifesteal handled uniquely: tier 1 lands around 5-10%, the highest tier (5) around 15-20%.
       // two-handed weapons get the doubled rangeMultiplier so they aren't overshadowed by dual wielding
       if (traitTypeOption === EquipmentTraitType.LifeSteal) {
