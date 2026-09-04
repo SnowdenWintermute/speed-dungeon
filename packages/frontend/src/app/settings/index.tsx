@@ -7,8 +7,8 @@ import { ZIndexLayers } from "../z-index-layers";
 import { observer } from "mobx-react-lite";
 import { useClientApplication } from "@/hooks/create-client-application-context";
 import { DialogElementName } from "@/client-application/ui/dialogs";
-import { SETTINGS_TAB_REQUIRES_AUTH, SettingsTab } from "./tabs";
-import { SettingsTabBar } from "./SettingsTabBar";
+import { TabBar } from "@speed-dungeon/ui/atoms/TabBar";
+import { SETTINGS_TAB_REQUIRES_AUTH, SETTINGS_TAB_STRINGS, SettingsTab } from "./tabs";
 import { AccountSection } from "./sections/account";
 import { KeybindsSection } from "./sections/keybinds";
 import { AssetsSection } from "./sections/assets";
@@ -28,6 +28,7 @@ export const Settings = observer(() => {
   const visibleTabs = iterateNumericEnumKeyedRecord(SETTINGS_TAB_REQUIRES_AUTH)
     .filter(([, requiresAuth]) => isLoggedIn || !requiresAuth)
     .map(([tab]) => tab);
+  const tabOptions = visibleTabs.map((tab) => ({ title: SETTINGS_TAB_STRINGS[tab], value: tab }));
 
   const defaultTab = SettingsTab.Keybinds;
   const selectedTab =
@@ -58,7 +59,12 @@ export const Settings = observer(() => {
           <XShape className="h-full w-full fill-slate-400" />
         </HotkeyButton>
       </div>
-      <SettingsTabBar tabs={visibleTabs} selectedTab={selectedTab} onSelectTab={setSelectedTab} />
+      <TabBar
+        title="settings sections"
+        value={selectedTab}
+        setValue={setSelectedTab}
+        options={tabOptions}
+      />
       <div
         className="flex flex-col flex-1 min-h-0 overflow-y-auto"
         style={{ padding: `${SPACING_REM_SMALL}rem` }}

@@ -45,7 +45,10 @@ export class AffixGenerator {
 
     let multiplier = 1;
     const equipmentIsTwoHandedWeapon = Equipment.isTwoHandedWeaponType(equipmentType);
-    if (equipmentIsTwoHandedWeapon) multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
+    if (equipmentIsTwoHandedWeapon) {
+      multiplier = TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER;
+    }
+
     return this.rollAffix(taggedAffixType, rolledTier, multiplier, template);
   }
 
@@ -101,6 +104,11 @@ export class AffixGenerator {
       if (traitTypeOption === EquipmentTraitType.FlatDurabilityAdditive) {
         min = 5 * tier;
         max = 10 * tier;
+      }
+
+      if (affixType === AffixType.ArmorPenetration) {
+        min = 8 * tier;
+        max = 16 * tier;
       }
 
       // flat damage handled uniquely

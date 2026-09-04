@@ -3,6 +3,7 @@ import {
   CombatantBuilder,
   CombatAttribute,
   IdGeneratorRandom,
+  invariant,
   Username,
 } from "@speed-dungeon/common";
 import { CharacterBuildSpecification } from "../analysis-subjects/analysis-character-specification";
@@ -13,6 +14,12 @@ export interface AttainableAttributeSpecification {
   attribute: CombatAttribute;
   buildSpec: CharacterBuildSpecification;
   level: number;
+}
+
+export interface ScoredEquipmentSets {
+  /** the answer to what a build can attain; a caller sweeping builds reads only this */
+  best: ScoredEquipmentSet;
+  sortedByScore: ScoredEquipmentSet[];
 }
 
 const ANALYSIS_CHARACTER_NAME = "attainable attribute subject" as Username;
@@ -48,9 +55,7 @@ export class AttainableAttributeCalculator {
     return combatant;
   }
 
-  getSortedEquipmentSetsWithAttributeScores(
-    specification: AttainableAttributeSpecification
-  ): ScoredEquipmentSet[] {
+  getScoredEquipmentSets(specification: AttainableAttributeSpecification): ScoredEquipmentSets {
     const { attribute, buildSpec } = specification;
 
     const combatant = this.buildCombatant(specification);
@@ -61,13 +66,21 @@ export class AttainableAttributeCalculator {
         attribute
       );
 
-    const scoredSets = new ThresholdEquipmentSetScores(
+    const sortedByScore = new ThresholdEquipmentSetScores(
       combatant,
       attribute,
       buildSpec.weaponSpecialty,
       equipmentList
-    ).getScoredSets();
+    )
+      .getScoredSets()
+      .sort((a, b) => b.score - a.score);
 
-    return scoredSets.sort((a, b) => b.score - a.score);
+    const [best] = sortedByScore;
+    invariant(
+      best !== undefined,
+      "leaving every slot empty is always one of the sets, so there is always a best"
+    );
+
+    return { best, sortedByScore };
   }
 }

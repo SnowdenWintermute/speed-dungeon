@@ -5,12 +5,10 @@ import {
   CombatAttribute,
   Equipment,
   EquipmentBaseItem,
-  EQUIPMENT_SLOT_ID_STRINGS,
   EquipmentSlotId,
   EquipmentType,
   invariant,
   iterateNumericEnumKeyedRecord,
-  MapUtils,
 } from "@speed-dungeon/common";
 import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-specialty";
 import { BestImprovementAttributeAllocation } from "../solvers/best-improvement-attribute-allocation";
@@ -20,6 +18,8 @@ import { ChasedAttributeMeter } from "./chased-attribute-meter";
 import { RequirementThresholdSetEquipmentSlotCandidateRankings } from "./requirement-threshold-set-equipment-slot-candidate-rankings";
 
 export interface ScoredEquipmentSet {
+  /** identifies the outfit itself, so two thresholds that select the same pieces score once */
+  setKey: string;
   requirements: AttributeRequirementThreshold;
   set: Partial<Record<EquipmentSlotId, Equipment>>;
   score: number;
@@ -154,27 +154,6 @@ export class ThresholdEquipmentSetScores {
     }
   }
 
-  private logSelectionVariety(
-    thresholdCount: number,
-    scoredSets: ScoredEquipmentSet[]
-  ) {
-    const selectedNamesBySlot = new Map<EquipmentSlotId, Set<string>>();
-
-    for (const { set } of scoredSets) {
-      for (const [slotId, equipment] of iterateNumericEnumKeyedRecord(set)) {
-        const names = MapUtils.getOrCreate(selectedNamesBySlot, slotId, () => new Set<string>());
-        names.add(equipment.entityProperties.name);
-      }
-    }
-
-    console.log(`thresholds: ${thresholdCount}, distinct sets: ${scoredSets.length}`);
-    for (const [slotId, names] of selectedNamesBySlot) {
-      console.log(
-        `  ${EQUIPMENT_SLOT_ID_STRINGS[slotId]}: ${names.size} ever selected [${[...names].join(", ")}]`
-      );
-    }
-  }
-
   getScoredSets(): ScoredEquipmentSet[] {
     const thresholds = new AttainableRequirementThresholds(
       this.combatant,
@@ -193,14 +172,11 @@ export class ThresholdEquipmentSetScores {
 
       const requirements = this.getSetRequirements(set);
       const score = this.wearAndAllocate(set, requirements);
-      scoredBySetKey.set(setKey, { requirements, set, score });
+      scoredBySetKey.set(setKey, { setKey, requirements, set, score });
 
       this.restoreAllocations(allocationsBeforeScoring);
     }
 
-    const scoredSets = [...scoredBySetKey.values()];
-    this.logSelectionVariety(thresholds.length, scoredSets);
-
-    return scoredSets;
+    return [...scoredBySetKey.values()];
   }
 }

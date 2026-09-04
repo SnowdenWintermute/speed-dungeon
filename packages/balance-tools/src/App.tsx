@@ -1,52 +1,39 @@
 import { ReactElement, useState } from "react";
-import { iterateNumericEnum } from "@speed-dungeon/common";
+import { iterateNumericEnumKeyedRecord } from "@speed-dungeon/common";
 import { UiProvider } from "@speed-dungeon/ui/ui-context";
-import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
+import { TabBar } from "@speed-dungeon/ui/atoms/TabBar";
 import { ZIndexLayers } from "./z-index-layers.ts";
-import { STUDY_NAME_SLUGS, StudyName } from "./studies/study-name.ts";
-import { MaxAccuracyPanel } from "./studies/max-accuracy/panel.tsx";
-import { SampledDamagePanel } from "./studies/sampled-damage/panel.tsx";
-import { ArmorClassPanel } from "./studies/armor-class/panel.tsx";
-import { MaxSpeedPanel } from "./studies/max-speed/panel.tsx";
-import { AttributeViewer } from "./attribute-viewer/index.tsx";
+import { BALANCE_TOOLS_TAB_STRINGS, BalanceToolsTab } from "./tabs.ts";
+import { StudiesTab } from "./components/studies-tab.tsx";
+import { AttainableAttributesTab } from "./attribute-viewer/tab/index.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
 
-const STUDY_OPTIONS = iterateNumericEnum(StudyName).map((studyName) => ({
-  title: STUDY_NAME_SLUGS[studyName],
-  value: studyName,
-}));
+const TAB_OPTIONS = iterateNumericEnumKeyedRecord(BALANCE_TOOLS_TAB_STRINGS).map(
+  ([tab, title]) => ({ title, value: tab })
+);
 
-const STUDY_PANELS: Record<StudyName, () => ReactElement> = {
-  [StudyName.MaxAccuracyMixed]: MaxAccuracyPanel,
-  [StudyName.AttackDamageGroupOne]: () => SampledDamagePanel(StudyName.AttackDamageGroupOne),
-  [StudyName.CasterDamageMixed]: () => SampledDamagePanel(StudyName.CasterDamageMixed),
-  [StudyName.MixedDamageGroupThree]: () => SampledDamagePanel(StudyName.MixedDamageGroupThree),
-  [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
-  [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
-  [StudyName.ArmorClassGroupThree]: () => ArmorClassPanel(StudyName.ArmorClassGroupThree),
-  [StudyName.MaxSpeedMixed]: MaxSpeedPanel,
+const TAB_PANELS: Record<BalanceToolsTab, () => ReactElement> = {
+  [BalanceToolsTab.Studies]: StudiesTab,
+  [BalanceToolsTab.AttainableAttributes]: AttainableAttributesTab,
 };
 
 export function App() {
-  const [studyName, setStudyName] = useState(StudyName.AttackDamageGroupOne);
-  const Panel = STUDY_PANELS[studyName];
+  const [tab, setTab] = useState(BalanceToolsTab.Studies);
+  const Panel = TAB_PANELS[tab];
 
   return (
     <UiProvider layers={UI_LAYERS}>
       <main className="min-h-screen bg-theme-sunken text-theme-emphasis p-8">
         <h1 className="text-2xl mb-4">Speed Dungeon Balance</h1>
-        <AttributeViewer />
 
-        <div className="mb-4">
-          <span className="block mb-1 text-theme-muted">Study</span>
-          <RadioGroup
-            title="Study"
-            value={studyName}
-            setValue={setStudyName}
-            options={STUDY_OPTIONS}
-          />
-        </div>
+        <TabBar
+          title="balance tools sections"
+          extraStyles="mb-4"
+          value={tab}
+          setValue={setTab}
+          options={TAB_OPTIONS}
+        />
 
         <Panel />
       </main>
