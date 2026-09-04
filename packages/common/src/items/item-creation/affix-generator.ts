@@ -1,8 +1,6 @@
 import {
   ATTRIBUTE_AFFIX_TIER_ONE_RANGE_WIDTH,
   DEEPEST_FLOOR,
-  DERIVED_ATTRIBUTE_AFFIX_RANGE_MULTIPLIER,
-  FLAT_DAMAGE_AFFIX_RANGE_MULTIPLIER,
   TWO_HANDED_WEAPON_AFFIX_VALUE_MULTIPILER,
 } from "../../app-consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
@@ -106,18 +104,6 @@ export class AffixGenerator {
         max = 10 * tier;
       }
 
-      if (affixType === AffixType.ArmorPenetration) {
-        min = 8 * tier;
-        max = 16 * tier;
-      }
-
-      // flat damage handled uniquely
-      if (affixType === AffixType.FlatDamage) {
-        const range = this.getAffixValueRange(affixType, tier, rangeMultiplier);
-        min = range.min;
-        max = range.max;
-      }
-
       // lifesteal handled uniquely: tier 1 lands around 5-10%, the highest tier (5) around 15-20%.
       // two-handed weapons get the doubled rangeMultiplier so they aren't overshadowed by dual wielding
       if (traitTypeOption === EquipmentTraitType.LifeSteal) {
@@ -176,19 +162,9 @@ export class AffixGenerator {
       return this.getAttributeAffixValueRange(tier, [rangeMultiplier]);
     }
 
-    if (affixType === AffixType.FlatDamage) {
-      return this.getAttributeAffixValueRange(tier, [
-        rangeMultiplier,
-        FLAT_DAMAGE_AFFIX_RANGE_MULTIPLIER,
-      ]);
-    }
-
-    const isDerivedAttributeAffix = DERIVED_ATTRIBUTE_AFFIXES.includes(affixType);
-    if (isDerivedAttributeAffix) {
-      return this.getAttributeAffixValueRange(tier, [
-        rangeMultiplier,
-        DERIVED_ATTRIBUTE_AFFIX_RANGE_MULTIPLIER,
-      ]);
+    const customMultiplierOption = CUSTOM_ATTRIBUTE_AFFIX_MULTIPLIERS[affixType];
+    if (customMultiplierOption !== undefined) {
+      return this.getAttributeAffixValueRange(tier, [rangeMultiplier, customMultiplierOption]);
     }
 
     throw new Error("no number range defined for this affix type");
@@ -217,14 +193,15 @@ const CORE_ATTRIBUTE_AFFIXES = [
   AffixType.Agility,
 ];
 
-const DERIVED_ATTRIBUTE_AFFIXES = [
-  AffixType.Mp,
-  AffixType.FlatArmorClass,
-  AffixType.Accuracy,
-  AffixType.Evasion,
-  AffixType.ArmorPenetration,
-  AffixType.Hp,
-];
+const CUSTOM_ATTRIBUTE_AFFIX_MULTIPLIERS: Partial<Record<AffixType, number>> = {
+  [AffixType.Accuracy]: 1.5,
+  [AffixType.Evasion]: 1.5,
+  [AffixType.FlatDamage]: 0.5,
+  [AffixType.Mp]: 2,
+  [AffixType.Hp]: 2.5,
+  [AffixType.ArmorPenetration]: 2.5,
+  [AffixType.FlatArmorClass]: 2.5,
+};
 
 const ATTRIBUTE_AFFIX_ATTRIBUTES: Partial<Record<AffixType, CombatAttribute>> = {
   [AffixType.Mp]: CombatAttribute.Mp,

@@ -160,7 +160,10 @@ export class HitOutcomeMitigationCalculator {
           roll: blockRoll,
           successChance: normalizedPercentChanceToBlock,
         });
-        if (isBlocked) flagsToReturn.push(HitOutcome.ShieldBlock);
+
+        if (isBlocked) {
+          flagsToReturn.push(HitOutcome.ShieldBlock);
+        }
       }
     }
 

@@ -1,30 +1,18 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
+import { observer } from "mobx-react-lite";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableColumn, DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
 import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
-import { NormalizedPercentage } from "@speed-dungeon/common";
 import { roomKey } from "../analysis-runs/analysis-sample.ts";
 import { AnalysisSlice } from "../analysis-runs/analysis-slice.ts";
 import { AnalysisTableRow } from "../analysis-runs/analysis-sample-table.ts";
-import { useAnalysisRunSet } from "../hooks/use-analysis-run-set.ts";
-import {
-  CopiedAttributeProfilesType,
-  describeCopiedAttributeProfilesBlock,
-  useCopiedAttributeProfiles,
-} from "../hooks/use-copied-attribute-profiles.ts";
 import { DungeonRunAnalysisResults } from "../analysis-runs/dungeon-run-analysis.ts";
-import { STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
-import {
-  AnalysisOfStudy,
-  STUDY_ANALYSES,
-  STUDY_NAME_SLUGS,
-  StudyName,
-} from "../studies/study-name.ts";
+import { useBalanceToolsApplication } from "../state/context.tsx";
+import { AnalysisOfStudy, StudyName } from "../studies/study-name.ts";
 import { AnalysisRunControls } from "./analysis-run-controls.tsx";
 import { AnalysisSliceControls } from "./analysis-slice-controls.tsx";
+import { RunSetStatusMessages } from "./run-set-status-messages.tsx";
 import { WriteFileButton } from "./write-file-button.tsx";
-
-const DEFAULT_RUN_COUNT = 300;
 
 interface StudyTable<TRow> {
   selectRows(slice: AnalysisSlice): TRow[];
@@ -39,20 +27,11 @@ interface Props<
   columns: DataTableColumn<TRow>[];
   /** the class itself, so the memo below is not rebuilt by a new closure on every render */
   tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisOfStudy<TStudy>]) => TTable;
-  /** set by a study whose derivation only means anything at one intensity */
-  fixedAllocationIntensity?: NormalizedPercentage;
-  defaultAllocationIntensity?: NormalizedPercentage;
-  /** the share the study's goal is designed to be spent at, quoted beside whatever is dialed in */
-  designedAllocationIntensity?: NormalizedPercentage;
-  /** set by a study that is only itself with requirements handled one way */
-  fixedHonorsEquipmentRequirements?: boolean;
-  /** set by a study whose goal never samples against a dummy, so the toggle would do nothing */
-  fixedTargetDummiesHaveArmorClass?: boolean;
   /** whatever the study does with a finished table, such as generating a module from it */
   renderTableActions?: (table: TTable) => ReactNode;
 }
 
-export function StudyPanel<
+function StudyPanelComponent<
   TStudy extends StudyName,
   TRow extends AnalysisTableRow,
   TTable extends StudyTable<TRow>,
@@ -60,24 +39,15 @@ export function StudyPanel<
   studyName,
   columns,
   tableConstructor: TableConstructor,
-  fixedAllocationIntensity,
-  defaultAllocationIntensity,
-  designedAllocationIntensity,
-  fixedHonorsEquipmentRequirements,
-  fixedTargetDummiesHaveArmorClass,
   renderTableActions,
 }: Props<TStudy, TRow, TTable>) {
-  const configuration = STUDY_CONFIGURATIONS[studyName];
-  const { state, run, save } = useAnalysisRunSet(studyName, STUDY_ANALYSES[studyName]);
-  const [slice, setSlice] = useState<AnalysisSlice>({});
-
-  const copiedProfiles = useCopiedAttributeProfiles(configuration.characterSpecs);
-
+  const panel = useBalanceToolsApplication().studies.panelFor(studyName);
+  const { runSet, slice } = panel;
   const [table, setTable] = useState<null | TTable>(null);
 
   // building a table off 100MB of samples blocks, so it is queued behind the render that puts the
   // spinner up rather than done while rendering, where it would freeze an empty table into view
-  const { result } = state;
+  const { result } = runSet;
   useEffect(() => {
     setTable(null);
     if (result === null) {
@@ -99,68 +69,32 @@ export function StudyPanel<
 
   const rows = useMemo(() => (table === null ? [] : table.selectRows(slice)), [table, slice]);
 
-  const isPreparingTable = state.isLoadingSavedRun || (result !== null && table === null);
-
-  const goalsInParty = useMemo(
-    () => [...new Set(configuration.characterSpecs.map((spec) => spec.goal))],
-    [configuration]
-  );
+  const isPreparingTable = runSet.isLoadingSavedRun || (result !== null && table === null);
 
   return (
     <div>
       <div className="mb-4">
-        <AnalysisRunControls
-          defaultRunCount={DEFAULT_RUN_COUNT}
-          isRunning={state.isRunning}
-          runsFinished={state.runsFinished}
-          runsRequested={state.runsRequested}
-          fixedAllocationIntensity={fixedAllocationIntensity}
-          defaultAllocationIntensity={defaultAllocationIntensity}
-          designedAllocationIntensity={designedAllocationIntensity}
-          fixedHonorsEquipmentRequirements={fixedHonorsEquipmentRequirements}
-          fixedTargetDummiesHaveArmorClass={fixedTargetDummiesHaveArmorClass}
-          runBlockedReason={describeCopiedAttributeProfilesBlock(copiedProfiles)}
-          onRun={(options) => {
-            if (copiedProfiles.type === CopiedAttributeProfilesType.Ready) {
-              run(copiedProfiles.characterSpecs, options);
-            }
-          }}
-        />
+        <AnalysisRunControls panel={panel} />
       </div>
 
-      {state.failureReason !== null && (
-        <p className="mb-4 text-theme-danger">run set failed: {state.failureReason}</p>
-      )}
-
-      {state.runsFailed > 0 && (
-        <p className="mb-4 text-theme-muted">
-          {state.runsFailed} of {state.runCountShown} runs threw and were left out
-        </p>
-      )}
-
-      {state.resultIsFromSavedRun && (
-        <p className="mb-4 text-theme-muted">
-          Showing the saved run for {STUDY_NAME_SLUGS[studyName]} ({state.runCountShown} runs
-          {state.optionsShown !== null &&
-            `, ${Math.round(state.optionsShown.allocationIntensity * 100)}% intensity, ` +
-              `requirements ${state.optionsShown.honorsEquipmentRequirements ? "on" : "off"}, ` +
-              `armor class ${state.optionsShown.targetDummiesHaveArmorClass ? "on" : "off"}`}
-          ). Run a set to replace it.
-        </p>
-      )}
+      <RunSetStatusMessages runSet={runSet} studyName={studyName} />
 
       {isPreparingTable ? (
         <div className="h-10 flex items-center gap-3 text-sm text-theme-muted">
           <div className="h-5 w-5">
             <LoadingSpinner />
           </div>
-          {state.isLoadingSavedRun ? "reading the saved run..." : "building the table..."}
+          {runSet.isLoadingSavedRun ? "reading the saved run..." : "building the table..."}
         </div>
       ) : (
         <div>
-          <AnalysisSliceControls slice={slice} goalsInParty={goalsInParty} onChange={setSlice} />
+          <AnalysisSliceControls panel={panel} />
           <div className="mb-4 flex items-center gap-4">
-            <WriteFileButton label="save run" disabled={state.result === null} write={save} />
+            <WriteFileButton
+              label="save run"
+              disabled={result === null}
+              write={() => runSet.save()}
+            />
             {table !== null && renderTableActions !== undefined && renderTableActions(table)}
           </div>
         </div>
@@ -178,3 +112,7 @@ export function StudyPanel<
     </div>
   );
 }
+
+// observer() resolves a generic component's type parameters to their constraints, so the wrapped
+// component is given back the signature it was written with. it is the same function either way
+export const StudyPanel = observer(StudyPanelComponent) as typeof StudyPanelComponent;

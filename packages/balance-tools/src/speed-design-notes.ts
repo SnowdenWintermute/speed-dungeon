@@ -8,6 +8,7 @@
 //   - fast monsters about 1.75x speed to average characters
 //   - slow monsters .8
 // - bosses (single enemies) need at least 3:1 turn ratio to average player characters in 3v1 fights
+// - slow monster on floor should be just below the slowest character's inherent speed on that floor
 
 // TENETS
 // - speed must not become strictly better than other attributes by affording too much turn ratio

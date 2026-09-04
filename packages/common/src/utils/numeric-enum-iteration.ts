@@ -27,3 +27,9 @@ export function iterateNumericEnumKeyedRecord<T extends string | number, U>(
 
   return entries;
 }
+
+// a numeric enum object holds its own reverse mapping, so a member is a key of it and a value that
+// was never declared is not
+export function isNumericEnumMember(enumObject: Record<number, string>, value: number): boolean {
+  return enumObject[value] !== undefined;
+}

@@ -11,12 +11,6 @@ export function ArmorClassPanel(studyName: ArmorClassStudyName) {
       studyName={studyName}
       columns={ARMOR_CLASS_TABLE_COLUMNS}
       tableConstructor={ArmorClassTable}
-      // only scales the armor class affixes, since "allocation" on gear
-      // means which affixes you select on that gear regardless of base item
-      defaultAllocationIntensity={0.4}
-      fixedHonorsEquipmentRequirements={true}
-      // this study scores the party's own armor class, never damage against a dummy
-      fixedTargetDummiesHaveArmorClass={false}
     />
   );
 }

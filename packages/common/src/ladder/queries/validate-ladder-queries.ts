@@ -5,6 +5,7 @@ import {
   USER_GAME_HISTORY_PAGE_SIZE,
 } from "../../app-consts.js";
 import { ERROR_MESSAGES } from "../../errors/index.js";
+import { isNumericEnumMember } from "../../utils/numeric-enum-iteration.js";
 import { CharacterControlScheme, GameMode } from "../../game-modes/index.js";
 import { PagedLadderQuery, pageSizeOf } from "./ladder-page.js";
 import {
@@ -138,10 +139,4 @@ function validateFloorClearSort(sort: FloorClearSort): void {
   if (typeof sort.isDescending !== "boolean") {
     throw new Error(ERROR_MESSAGES.LADDER.INVALID_SORT_DIRECTION);
   }
-}
-
-// a numeric enum object holds its own reverse mapping, so a member is a key of it and a value that
-// was never declared is not
-function isNumericEnumMember(enumObject: Record<number, string>, value: number): boolean {
-  return enumObject[value] !== undefined;
 }

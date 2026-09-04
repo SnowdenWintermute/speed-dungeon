@@ -1,44 +1,14 @@
-import { useState } from "react";
-import {
-  COMBAT_ATTRIBUTE_STRINGS,
-  COMBATANT_CLASS_NAME_STRINGS,
-  COMBATANT_MAX_LEVEL,
-  CombatantClass,
-  CombatAttribute,
-} from "@speed-dungeon/common";
+import { observer } from "mobx-react-lite";
+import { COMBAT_ATTRIBUTE_STRINGS, COMBATANT_CLASS_NAME_STRINGS } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import { DataTable } from "@speed-dungeon/ui/atoms/DataTable";
 import { DataTableLayout } from "@speed-dungeon/ui/atoms/DataTable/column";
 import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { CharacterBuildSpecification } from "../../analysis-subjects/analysis-character-specification";
-import {
-  CHARACTER_WEAPON_SPECIALTY_STRINGS,
-  CharacterWeaponSpecialty,
-} from "../../analysis-subjects/character-weapon-specialty";
-import {
-  AttainableAttributeCalculator,
-  AttainableAttributeSpecification,
-  ScoredEquipmentSets,
-} from "../attainable-attribute-calculator";
+import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "../../analysis-subjects/character-weapon-specialty";
+import { useBalanceToolsApplication } from "../../state/context";
 import { BuildSpecificationControls } from "./build-specification-controls";
 import { SCORED_EQUIPMENT_SET_COLUMNS } from "./scored-equipment-set-columns";
-
-const DEFAULT_SPECIFICATION: AttainableAttributeSpecification = {
-  attribute: CombatAttribute.Speed,
-  buildSpec: {
-    mainClass: CombatantClass.Rogue,
-    supportClass: CombatantClass.Warrior,
-    weaponSpecialty: CharacterWeaponSpecialty.TwoHandedMelee,
-  },
-  level: COMBATANT_MAX_LEVEL,
-};
-
-// what the shown numbers came from, which is the specification as it was when calculate was
-// pressed rather than whatever is dialed in now
-interface Calculation {
-  specification: AttainableAttributeSpecification;
-  scoredSets: ScoredEquipmentSets;
-}
 
 function describeBuild(buildSpec: CharacterBuildSpecification) {
   const { mainClass, supportClass, weaponSpecialty } = buildSpec;
@@ -50,34 +20,17 @@ function describeBuild(buildSpec: CharacterBuildSpecification) {
   return `${classes}, ${CHARACTER_WEAPON_SPECIALTY_STRINGS[weaponSpecialty]}`;
 }
 
-export function AttainableAttributesTab() {
-  const [specification, setSpecification] = useState(DEFAULT_SPECIFICATION);
-  const [calculation, setCalculation] = useState<null | Calculation>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-
-  function handleCalculate() {
-    setIsCalculating(true);
-
-    // fitting every set blocks, so it is queued behind the render that puts the spinner up rather
-    // than done in the handler, where the spinner would never paint
-    setTimeout(() => {
-      const scoredSets = new AttainableAttributeCalculator().getScoredEquipmentSets(specification);
-      setCalculation({ specification, scoredSets });
-      setIsCalculating(false);
-    }, 0);
-  }
+export const AttainableAttributesTab = observer(() => {
+  const { attainableAttributes } = useBalanceToolsApplication();
+  const { calculation, isCalculating } = attainableAttributes;
 
   return (
     <div>
-      <BuildSpecificationControls
-        specification={specification}
-        setSpecification={setSpecification}
-        disabled={isCalculating}
-      />
+      <BuildSpecificationControls />
 
       <div className="mb-4 flex items-center gap-4">
         <ButtonBasic
-          onClick={handleCalculate}
+          onClick={() => attainableAttributes.calculate()}
           disabled={isCalculating}
           extraStyles="bg-theme-recessed"
         >
@@ -118,4 +71,4 @@ export function AttainableAttributesTab() {
       </div>
     </div>
   );
-}
+});

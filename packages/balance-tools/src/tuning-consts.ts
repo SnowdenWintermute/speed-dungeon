@@ -2,6 +2,9 @@ export const DESIGNED_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
 export const DESIGNED_ACC_INVESTMENT_PERCENTAGE = 1 / 5;
 export const DESIGNED_AGILITY_INVESTMENT_PERCENTAGE = 1 / 10;
 export const DESIGNED_OFFENSIVE_ALLOCATION_PERCENTAGE = 0.6;
+// only scales the armor class affixes, since "allocation" on gear means which affixes you select
+// on that gear regardless of base item
+export const DESIGNED_ARMOR_CLASS_ALLOCATION_PERCENTAGE = 0.4;
 
 export const DESIGNED_MONSTER_ARMOR_CLASS_DAMAGE_REDUCTION_PERCENT = {
   LOW: 0.1,
