@@ -146,11 +146,11 @@ export const HostGameForm = observer(() => {
                 hotkeys={[numberKeyValue(4)]}
                 disabled={!isLoggedIn}
                 onClick={() => {
-                  setSelectedGameMode(GameMode.UnrankedRace);
+                  setSelectedGameMode(GameMode.RankedRace);
                   setIsRanked(true);
                 }}
                 className={`flex-1 h-10 w-full border border-slate-400
-                        ${selectedGameMode === GameMode.UnrankedRace && isRanked ? "bg-slate-950" : "bg-slate-700"}
+                        ${selectedGameMode === GameMode.RankedRace && isRanked ? "bg-slate-950" : "bg-slate-700"}
                         disabled:opacity-50
                         `}
               >

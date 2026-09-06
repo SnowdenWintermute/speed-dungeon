@@ -20,7 +20,7 @@ const STUDY_PANELS: Record<StudyName, FunctionComponent> = {
   [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
   [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
   [StudyName.ArmorClassGroupThree]: () => ArmorClassPanel(StudyName.ArmorClassGroupThree),
-  [StudyName.MaxSpeedMixed]: MaxSpeedPanel,
+  [StudyName.MaxSpeedMixed]: MaxSpeedPanel ,
 };
 
 export const StudiesTab = observer(() => {

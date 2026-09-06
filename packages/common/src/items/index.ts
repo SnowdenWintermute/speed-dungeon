@@ -44,7 +44,7 @@ export abstract class Item {
   static requirementsMet(item: Item, combatantAttributes: CombatantAttributeRecord) {
     for (const attribute of COMBAT_ATTRIBUTES) {
       const requiredValue = item.requirements[attribute];
-      if (requiredValue === undefined) {
+      if (requiredValue === undefined || requiredValue === 0) {
         continue;
       }
       const combatantAttributeValue = combatantAttributes[attribute];

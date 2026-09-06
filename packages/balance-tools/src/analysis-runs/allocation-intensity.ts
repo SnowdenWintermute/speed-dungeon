@@ -1,4 +1,4 @@
-import { NormalizedPercentage } from "@speed-dungeon/common";
+import type { NormalizedPercentage } from "@speed-dungeon/common";
 
 /** everything a party earns goes toward the goal, which is the ceiling a study measures against */
 export const FULL_ALLOCATION_INTENSITY: NormalizedPercentage = 1;

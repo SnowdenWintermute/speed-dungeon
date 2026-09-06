@@ -1,4 +1,5 @@
-import { CombatantClass, NormalizedPercentage } from "@speed-dungeon/common";
+import { CombatantClass } from "@speed-dungeon/common";
+import type { NormalizedPercentage } from "@speed-dungeon/common";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
 import {
   DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
@@ -12,7 +13,6 @@ import {
 } from "../analysis-subjects/attribute-source.ts";
 import type { AttributeSource } from "../analysis-subjects/attribute-source.ts";
 import {
-  ANALYSIS_CHARACTER_BUILDS,
   CHARACTER_BUILDS_GROUP_ONE,
   CHARACTER_BUILDS_GROUP_THREE,
   CHARACTER_BUILDS_GROUP_TWO,

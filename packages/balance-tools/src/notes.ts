@@ -102,3 +102,4 @@
 // - parry chance effect
 //
 // - character hp
+//

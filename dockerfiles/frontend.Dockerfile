@@ -1,11 +1,12 @@
 # The Next.js frontend (packages/frontend, @speed-dungeon/frontend).
 #
-# It pulls in three sibling workspaces, two different ways:
+# It pulls in four sibling workspaces, two different ways:
 #   - @speed-dungeon/common       via the node_modules symlink -> its built dist
 #   - @/client-application        via tsconfig paths -> its src (next transpiles it)
 #   - @/game-world-view           via tsconfig paths -> its src (next transpiles it)
+#   - @speed-dungeon/ui           via tsconfig paths -> its src (next transpiles it)
 # plus a few deep @speed-dungeon/client-application/src/... imports that resolve through the
-# same symlink into source. So only `common` needs compiling; the other two ship as source.
+# same symlink into source. So only `common` needs compiling; the other three ship as source.
 
 # keep the major in step with "engines" in the root package.json
 ARG NODE_VERSION=22-alpine
@@ -17,6 +18,7 @@ COPY package.json yarn.lock ./
 COPY packages/common/package.json ./packages/common/
 COPY packages/client-application/package.json ./packages/client-application/
 COPY packages/game-world-view/package.json ./packages/game-world-view/
+COPY packages/ui/package.json ./packages/ui/
 COPY packages/frontend/package.json ./packages/frontend/
 RUN yarn install --pure-lockfile --non-interactive
 
@@ -27,6 +29,9 @@ COPY packages/client-application/src ./packages/client-application/src
 COPY packages/client-application/tsconfig.json ./packages/client-application/
 COPY packages/game-world-view/src ./packages/game-world-view/src
 COPY packages/game-world-view/tsconfig.json ./packages/game-world-view/
+# ui ships its svg assets and the tailwind preset from src, both read during the next build
+COPY packages/ui/src ./packages/ui/src
+COPY packages/ui/tsconfig.json ./packages/ui/
 COPY packages/frontend ./packages/frontend
 
 # common must exist as dist before next resolves @speed-dungeon/common

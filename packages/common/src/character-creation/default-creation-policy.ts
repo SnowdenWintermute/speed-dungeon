@@ -44,7 +44,7 @@ export class DefaultCharacterCreationPolicy extends CharacterCreationPolicy {
 
     // result.combatantProperties.inventory.changeShards(400);
     // setPlaytestingCombatantProperties(result.combatantProperties);
-    givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
+    // givePlaytestingItems(result.combatantProperties, this.idGenerator, this.itemBuilder);
 
     const character: CombatantWithPets = { combatant: result, pets: [] };
 

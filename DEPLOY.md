@@ -11,16 +11,23 @@ Replace the `<PLACEHOLDERS>` (ssh host, compose dir path, docker project name) w
 ## 1. Dev machine — push the images
 
 ```bash
-docker login                                      # as snowd3n
-docker push snowd3n/speed-dungeon:server
-docker push snowd3n/speed-dungeon:asset-server
-docker push snowd3n/speed-dungeon:frontend
+docker login          # as snowd3n
+./build-and-push.sh   # builds all 3 images, then pushes all 3
 ```
 
-(Rebuild first only if code changed since they were built:
-`docker build --target server -f dockerfiles/server.Dockerfile -t snowd3n/speed-dungeon:server .`,
-`--target asset-server ... -t snowd3n/speed-dungeon:asset-server`, and
-`docker build --target frontend -f dockerfiles/frontend.Dockerfile -t snowd3n/speed-dungeon:frontend .`)
+`build-and-push.sh` builds every image before pushing any, so a broken build can't ship one image of
+a mismatched set. It runs the three builds below; `server` and `asset-server` are two final targets
+of the same Dockerfile (`asset-server` is `server` plus the 16M asset set and a different CMD), so
+they differ only in `--target` and `-t`:
+
+```bash
+docker build --target server       -f dockerfiles/server.Dockerfile   -t snowd3n/speed-dungeon:server .
+docker build --target asset-server -f dockerfiles/server.Dockerfile   -t snowd3n/speed-dungeon:asset-server .
+docker build --target frontend     -f dockerfiles/frontend.Dockerfile -t snowd3n/speed-dungeon:frontend .
+```
+
+The frontend build bakes `packages/frontend/.env.production` (the `NEXT_PUBLIC_*` urls) into the
+image, so check that file is current before building.
 
 ## 2. Dev machine — copy config to the box
 

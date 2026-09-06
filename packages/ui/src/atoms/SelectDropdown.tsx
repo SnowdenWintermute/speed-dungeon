@@ -58,8 +58,8 @@ export function SelectDropdown(props: Props) {
   }, [value]);
 
   function handleBlur() {
-    releaseHotkeysRef.current?.();
-    releaseHotkeysRef.current = null;
+    // releaseHotkeysRef.current?.();
+    // releaseHotkeysRef.current = null;
     setIsFocused(false);
     setIsOpen(false);
     // const activeElement = document.activeElement as HTMLElement;
@@ -71,8 +71,8 @@ export function SelectDropdown(props: Props) {
   function handleFocus() {
     if (!selectInputRef.current) return;
     setIsFocused(true);
-    if (releaseHotkeysRef.current) return;
-    releaseHotkeysRef.current = suspendHotkeys();
+    // if (releaseHotkeysRef.current) return;
+    // releaseHotkeysRef.current = suspendHotkeys();
   }
 
   function handleUserKeydown(e: KeyboardEvent) {

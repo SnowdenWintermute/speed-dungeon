@@ -11,6 +11,7 @@ type SampledDamageStudyName =
   | StudyName.CasterDamageMixed
   | StudyName.MixedDamageGroupThree;
 
+/** ayy */
 export function SampledDamagePanel(studyName: SampledDamageStudyName) {
   return (
     <StudyPanel

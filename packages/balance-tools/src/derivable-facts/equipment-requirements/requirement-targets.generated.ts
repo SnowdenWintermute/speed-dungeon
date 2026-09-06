@@ -145,7 +145,7 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     studyName: StudyName.AttackDamageGroupOne,
     attributes: [CombatAttribute.Dexterity],
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.TwoHandedRanged, mainClass: CombatantClass.Rogue, supportClass: CombatantClass.Warrior },
-    availabilityPercentile: 0.5,
+    availabilityPercentile: 0,
   },
   {
     baseItem: {
@@ -385,7 +385,7 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     studyName: StudyName.CasterDualWieldRanged,
     attributes: [CombatAttribute.Strength],
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
-    availabilityPercentile: 0.5,
+    availabilityPercentile: 0.1,
   },
   {
     baseItem: {
@@ -465,7 +465,7 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     studyName: StudyName.CasterDualWieldRanged,
     attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
-    availabilityPercentile: 0.5,
+    availabilityPercentile: 0,
   },
   {
     baseItem: {
@@ -785,7 +785,7 @@ export const EQUIPMENT_REQUIREMENT_TARGETS: EquipmentRequirementTarget[] = [
     studyName: StudyName.CasterDualWieldRanged,
     attributes: [CombatAttribute.Strength, CombatAttribute.Dexterity],
     buildSlice: { weaponSpecialty: CharacterWeaponSpecialty.DualWield, mainClass: CombatantClass.Warrior, supportClass: CombatantClass.Rogue },
-    availabilityPercentile: 0.66,
+    availabilityPercentile: 0.1,
   },
   {
     baseItem: {

@@ -123,7 +123,7 @@ export const MAX_BLOCK_REDUCTION = 1;
 
 // 3D MODELS
 export const GRAVITY = -9.81;
-export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.8; // default is 1, higher is slower;
+export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 1; // default is 1, higher is slower;
 // export const DEBUG_ANIMATION_SPEED_MULTIPLIER = 0.3; // default is 1, higher is slower;
 
 export const COMBATANT_POSITION_SPACING_SIDE: Meters = 1.6;

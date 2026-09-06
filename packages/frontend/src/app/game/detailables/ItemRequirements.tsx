@@ -24,6 +24,10 @@ export const ItemRequirements = observer(({ attributeRequirements }: Props) => {
 
   let i = 0;
   for (const [attributeKey, requirementValue] of Object.entries(attributeRequirements)) {
+    if(requirementValue === 0){
+      continue;
+    }
+
     const attribute = parseInt(attributeKey) as CombatAttribute;
     if (i === 0) displays.push(<div key={-1}>Requirements: </div>);
 
