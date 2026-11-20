@@ -13,8 +13,8 @@ export interface PagedLadderQuery {
   pageSizeOption?: number;
 }
 
-// one place decides what an unstated page size means, so a strategy, a projection and a rank can
-// never disagree about how big a page was
+// one place decides what an unstated page size means, so a strategy, the read-model assembly and a
+// rank can never disagree about how big a page was
 export function pageSizeOf(query: PagedLadderQuery): number {
   return query.pageSizeOption ?? LADDER_MAX_PAGE_SIZE;
 }

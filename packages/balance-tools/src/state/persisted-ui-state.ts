@@ -11,6 +11,7 @@ export interface PersistedStudyPanelState {
   chosenAllocationIntensity: NormalizedPercentage;
   chosenHonorsEquipmentRequirements: boolean;
   chosenTargetDummiesHaveArmorClass: boolean;
+  batchIntensitiesText: string;
   slice: AnalysisSlice;
 }
 

@@ -1,10 +1,11 @@
 import { observer } from "mobx-react-lite";
-import { NormalizedPercentage } from "@speed-dungeon/common";
 import ButtonBasic from "@speed-dungeon/ui/atoms/ButtonBasic";
 import NumberInput from "@speed-dungeon/ui/atoms/NumberInput";
+import TextInput from "@speed-dungeon/ui/atoms/TextInput";
 import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 import { Slider } from "@speed-dungeon/ui/atoms/Slider";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
+import { intensityPercent } from "../analysis-runs/saved-run-paths.ts";
 import { DungeonRunAnalysis } from "../analysis-runs/dungeon-run-analysis.ts";
 import { MAX_RUN_COUNT, MIN_RUN_COUNT, StudyPanelState } from "../state/study-panel-state.ts";
 import { RunOptionCheckbox } from "./run-option-checkbox.tsx";
@@ -20,16 +21,12 @@ const RUN_COUNT_OPTIONS = [
   { title: "10", value: 10 },
 ];
 
-function toPercent(intensity: NormalizedPercentage) {
-  return Math.round(intensity * 100);
-}
-
 interface Props {
   panel: StudyPanelState<DungeonRunAnalysis>;
 }
 
 export const AnalysisRunControls = observer(({ panel }: Props) => {
-  const { runControls, runSet } = panel;
+  const { runControls } = panel;
 
   return (
     <div>
@@ -38,16 +35,16 @@ export const AnalysisRunControls = observer(({ panel }: Props) => {
         <Slider
           title="allocation intensity"
           extraStyles="w-64"
-          value={toPercent(panel.allocationIntensity)}
+          value={intensityPercent(panel.allocationIntensity)}
           setValue={(percent) => panel.setChosenAllocationIntensity(percent / 100)}
           min={0}
-          max={toPercent(FULL_ALLOCATION_INTENSITY)}
+          max={intensityPercent(FULL_ALLOCATION_INTENSITY)}
           step={INTENSITY_STEP_PERCENT}
           disabled={runControls.fixedAllocationIntensity !== undefined}
         />
-        <span className="text-theme-emphasis">{toPercent(panel.allocationIntensity)}%</span>
+        <span className="text-theme-emphasis">{intensityPercent(panel.allocationIntensity)}%</span>
         {runControls.designedAllocationIntensity !== undefined && (
-          <span>designed {toPercent(runControls.designedAllocationIntensity)}%</span>
+          <span>designed {intensityPercent(runControls.designedAllocationIntensity)}%</span>
         )}
       </div>
       <div className="flex items-end gap-4">
@@ -78,8 +75,30 @@ export const AnalysisRunControls = observer(({ panel }: Props) => {
           disabled={!panel.canRun}
           extraStyles="bg-theme-recessed"
         >
-          {runSet.isRunning ? "running..." : "run set"}
+          run set
         </ButtonBasic>
+
+        {runControls.fixedAllocationIntensity === undefined && (
+          <div className="flex items-end gap-2">
+            <div className="flex flex-col text-sm text-theme-muted">
+              <span className="mb-1">run at %</span>
+              <TextInput
+                name="intensities to run"
+                placeholder="10, 30, 100"
+                value={panel.batchIntensitiesText}
+                onChange={(event) => panel.setBatchIntensitiesText(event.target.value)}
+                className="h-10 w-36 bg-theme-base border border-theme-muted text-theme-emphasis px-2"
+              />
+            </div>
+            <ButtonBasic
+              onClick={() => panel.runBatchIfPossible()}
+              disabled={!panel.canRunBatch}
+              extraStyles="bg-theme-recessed"
+            >
+              run all
+            </ButtonBasic>
+          </div>
+        )}
 
         <RunOptionCheckbox
           label={HONOR_REQUIREMENTS_LABEL}
@@ -95,11 +114,17 @@ export const AnalysisRunControls = observer(({ panel }: Props) => {
           setChecked={(checked) => panel.setChosenTargetDummiesHaveArmorClass(checked)}
         />
 
-        {runSet.isRunning && (
-          <span className="h-10 flex items-center text-sm text-theme-muted">
-            {runSet.runsFinished} / {runSet.runsRequested} runs walked
-          </span>
-        )}
+        {panel.runSets
+          .filter((runSet) => runSet.isRunning)
+          .map((runSet) => (
+            <span
+              key={runSet.intensity}
+              className="h-10 flex items-center text-sm text-theme-muted"
+            >
+              {intensityPercent(runSet.intensity)}%: {runSet.runsFinished} /{" "}
+              {runSet.runsRequested} runs walked
+            </span>
+          ))}
 
         {panel.copiedProfiles.blockedReason !== null && (
           <span className="h-10 flex items-center text-sm text-theme-muted">

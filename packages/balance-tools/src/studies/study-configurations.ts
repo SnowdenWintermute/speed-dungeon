@@ -3,6 +3,7 @@ import type { NormalizedPercentage } from "@speed-dungeon/common";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
 import {
   DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
+  FAST_AGILITY_INVESTMENT_PERCENTAGE,
   DESIGNED_ARMOR_CLASS_ALLOCATION_PERCENTAGE,
   DESIGNED_OFFENSIVE_ALLOCATION_PERCENTAGE,
 } from "../tuning-consts.ts";
@@ -27,12 +28,23 @@ export interface StudyRunControlPins {
   /** set by a study whose derivation only means anything at one intensity; absent lets the user pick */
   fixedAllocationIntensity?: NormalizedPercentage;
   defaultAllocationIntensity?: NormalizedPercentage;
+  /** what run all opens at, for a study read across several intensities at once */
+  defaultBatchAllocationIntensities?: NormalizedPercentage[];
   /** the share the study's goal is designed to be spent at, quoted beside whatever is dialed in */
   designedAllocationIntensity?: NormalizedPercentage;
   /** set by a study that is only itself with requirements handled one way; absent lets the user pick */
   fixedHonorsEquipmentRequirements?: boolean;
   /** set by a study whose goal never samples against a dummy, so the toggle would do nothing */
   fixedTargetDummiesHaveArmorClass?: boolean;
+}
+
+/** what the slider opens at, and the run another study reads when it reads this one's saved run */
+export function ownAllocationIntensity(runControls: StudyRunControlPins) {
+  return (
+    runControls.fixedAllocationIntensity ??
+    runControls.defaultAllocationIntensity ??
+    FULL_ALLOCATION_INTENSITY
+  );
 }
 
 export interface StudyConfiguration {
@@ -153,6 +165,27 @@ export const STUDY_CONFIGURATIONS: Record<StudyName, StudyConfiguration> = {
       defaultAllocationIntensity: FULL_ALLOCATION_INTENSITY,
       designedAllocationIntensity: DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
       // a speed read never touches a dummy, so arming one would only mislead
+      fixedTargetDummiesHaveArmorClass: false,
+    },
+  },
+  [StudyName.MaxAgilityGroupThree]: {
+    characterSpecs: CHARACTER_BUILDS_GROUP_THREE.map(
+      ({ name, build }) =>
+        new AnalysisCharacterSpecification(
+          name,
+          build,
+          AnalysisGoal.TotalAgility,
+          ALLOCATED_TOWARD_GOAL
+        )
+    ),
+    runControls: {
+      defaultAllocationIntensity: DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
+      designedAllocationIntensity: DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
+      defaultBatchAllocationIntensities: [
+        DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
+        FAST_AGILITY_INVESTMENT_PERCENTAGE,
+        FULL_ALLOCATION_INTENSITY,
+      ],
       fixedTargetDummiesHaveArmorClass: false,
     },
   },

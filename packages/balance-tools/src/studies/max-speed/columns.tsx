@@ -1,34 +1,10 @@
-import { CombatAttribute } from "@speed-dungeon/common";
+import { BASE_ACTION_DELAY_MULTIPLIER, CombatAttribute, TurnOrderManager } from "@speed-dungeon/common";
 import { DataTableColumn } from "@speed-dungeon/ui/atoms/DataTable/column";
 import { AttributeSourceSplit } from "../../components/attribute-source-split.tsx";
 import { MaxSpeedTableRow } from "./row.ts";
-import { TurnComparison } from "./turn-comparison.tsx";
-import {
-  COMPARISON_SPEED_SHARES,
-  actionDelayCostAtSpeed,
-  comparisonSpeed,
-  turnsPerOpponentTurn,
-} from "./turn-frequency.ts";
 
-/** loot drives a good share of agility, so the speed every turn column is read at is the median */
-function speedOf(row: MaxSpeedTableRow) {
+function medianSpeedOf(row: MaxSpeedTableRow) {
   return Math.floor(row.totalAttributes[CombatAttribute.Speed].median);
-}
-
-function comparisonColumn(share: number): DataTableColumn<MaxSpeedTableRow> {
-  return {
-    header: `vs${Math.round(share * 100)}%`,
-    renderCell: (row) => {
-      const speed = speedOf(row);
-      const opponentSpeed = comparisonSpeed(speed, share);
-      return (
-        <TurnComparison
-          opponentSpeed={opponentSpeed}
-          turnsPerOpponentTurn={turnsPerOpponentTurn(speed, opponentSpeed)}
-        />
-      );
-    },
-  };
 }
 
 export const MAX_SPEED_TABLE_COLUMNS: DataTableColumn<MaxSpeedTableRow>[] = [
@@ -57,9 +33,20 @@ export const MAX_SPEED_TABLE_COLUMNS: DataTableColumn<MaxSpeedTableRow>[] = [
     header: "agi g/a/i",
     renderCell: (row) => <AttributeSourceSplit split={row.averageAgilityBySource} />,
   },
-  { header: "spd", renderCell: speedOf },
-  // the delay cost is a small integer, so speeds far apart can share one and buy the same turns.
-  // quoted beside the ratios rather than left to be inferred from them
-  { header: "dly", renderCell: (row) => actionDelayCostAtSpeed(speedOf(row)) },
-  ...COMPARISON_SPEED_SHARES.map(comparisonColumn),
+  {
+    header: "spdLow",
+    renderCell: (row) =>
+      Math.floor(row.totalAttributes[CombatAttribute.Speed].tenthPercentileAverage),
+  },
+  { header: "spdMed", renderCell: medianSpeedOf },
+  {
+    header: "spdHigh",
+    renderCell: (row) =>
+      Math.floor(row.totalAttributes[CombatAttribute.Speed].ninetiethPercentileAverage),
+  },
+  {
+    header: "dly",
+    renderCell: (row) =>
+      TurnOrderManager.getActionDelayCost(medianSpeedOf(row), BASE_ACTION_DELAY_MULTIPLIER),
+  },
 ];

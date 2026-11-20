@@ -20,7 +20,8 @@ const STUDY_PANELS: Record<StudyName, FunctionComponent> = {
   [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
   [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
   [StudyName.ArmorClassGroupThree]: () => ArmorClassPanel(StudyName.ArmorClassGroupThree),
-  [StudyName.MaxSpeedMixed]: MaxSpeedPanel ,
+  [StudyName.MaxSpeedMixed]: () => MaxSpeedPanel(StudyName.MaxSpeedMixed),
+  [StudyName.MaxAgilityGroupThree]: () => MaxSpeedPanel(StudyName.MaxAgilityGroupThree),
 };
 
 export const StudiesTab = observer(() => {
@@ -40,6 +41,7 @@ export const StudiesTab = observer(() => {
               options={[
                 studyRadioOption(StudyName.MaxAccuracyMixed),
                 studyRadioOption(StudyName.MaxSpeedMixed),
+                studyRadioOption(StudyName.MaxAgilityGroupThree),
               ]}
             />
           </StudySelectionGroup>

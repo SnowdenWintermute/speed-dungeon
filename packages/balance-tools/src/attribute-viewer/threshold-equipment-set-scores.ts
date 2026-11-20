@@ -14,7 +14,7 @@ import { CharacterWeaponSpecialty } from "../analysis-subjects/character-weapon-
 import { BestImprovementAttributeAllocation } from "../solvers/best-improvement-attribute-allocation";
 import { AttainableRequirementThresholds } from "./attainable-requirement-thresholds";
 import { AttributeRequirementThreshold } from "./attribute-requirement-threshold";
-import { ChasedAttributeMeter } from "./chased-attribute-meter";
+import { AttributeSourceContributions, ChasedAttributeMeter } from "./chased-attribute-meter";
 import { RequirementThresholdSetEquipmentSlotCandidateRankings } from "./requirement-threshold-set-equipment-slot-candidate-rankings";
 
 export interface ScoredEquipmentSet {
@@ -23,6 +23,7 @@ export interface ScoredEquipmentSet {
   requirements: AttributeRequirementThreshold;
   set: Partial<Record<EquipmentSlotId, Equipment>>;
   score: number;
+  contributions: AttributeSourceContributions;
 }
 
 interface CapturedAllocations {
@@ -134,7 +135,10 @@ export class ThresholdEquipmentSetScores {
       this.allocateToMeet(requirements);
       this.allocateRemainingTowardChasedAttribute();
 
-      return this.meter.getValue();
+      return {
+        score: this.meter.getValue(),
+        contributions: this.meter.getSourceContributions(set),
+      };
     });
   }
 
@@ -171,8 +175,8 @@ export class ThresholdEquipmentSetScores {
       }
 
       const requirements = this.getSetRequirements(set);
-      const score = this.wearAndAllocate(set, requirements);
-      scoredBySetKey.set(setKey, { setKey, requirements, set, score });
+      const { score, contributions } = this.wearAndAllocate(set, requirements);
+      scoredBySetKey.set(setKey, { setKey, requirements, set, score, contributions });
 
       this.restoreAllocations(allocationsBeforeScoring);
     }

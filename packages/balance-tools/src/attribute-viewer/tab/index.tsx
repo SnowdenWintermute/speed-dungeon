@@ -7,6 +7,7 @@ import LoadingSpinner from "@speed-dungeon/ui/atoms/LoadingSpinner";
 import { CharacterBuildSpecification } from "../../analysis-subjects/analysis-character-specification";
 import { CHARACTER_WEAPON_SPECIALTY_STRINGS } from "../../analysis-subjects/character-weapon-specialty";
 import { useBalanceToolsApplication } from "../../state/context";
+import { AttributeSourceBreakdown } from "./attribute-source-breakdown";
 import { BuildSpecificationControls } from "./build-specification-controls";
 import { SCORED_EQUIPMENT_SET_COLUMNS } from "./scored-equipment-set-columns";
 
@@ -57,10 +58,11 @@ export const AttainableAttributesTab = observer(() => {
             max attainable {COMBAT_ATTRIBUTE_STRINGS[calculation.specification.attribute]}
           </span>
           <span className="block text-4xl">{Math.floor(calculation.scoredSets.best.score)}</span>
-          <span className="block text-sm text-theme-muted">
+          <span className="mb-4 block text-sm text-theme-muted">
             {describeBuild(calculation.specification.buildSpec)}, level{" "}
             {calculation.specification.level}
           </span>
+          <AttributeSourceBreakdown contributions={calculation.scoredSets.best.contributions} />
         </div>
       )}
 

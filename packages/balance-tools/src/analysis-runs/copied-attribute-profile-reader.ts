@@ -2,9 +2,10 @@ import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-ch
 import { AttributeSourceType } from "../analysis-subjects/attribute-source.ts";
 import { CopiedAttributeProfile } from "../analysis-subjects/copied-attribute-profile.ts";
 import { STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
+import { ownAllocationIntensity, STUDY_CONFIGURATIONS } from "../studies/study-configurations.ts";
 import { AnalysisSampleDimensions } from "./analysis-sample.ts";
 import { DungeonRunAnalysis } from "./dungeon-run-analysis.ts";
-import { SavedRun, savedRunFetchUrl } from "./saved-run-paths.ts";
+import { intensityPercent, SavedRun, savedRunFetchUrl } from "./saved-run-paths.ts";
 
 /**
  * A study whose characters copy their attributes cannot run until the studies they copy from have
@@ -30,11 +31,12 @@ export class CopiedAttributeProfileReader {
     const samplesByStudy = new Map<StudyName, AnalysisSampleDimensions[]>();
 
     for (const studyName of studyNames) {
-      const response = await fetch(savedRunFetchUrl(studyName));
+      const intensity = ownAllocationIntensity(STUDY_CONFIGURATIONS[studyName].runControls);
+      const response = await fetch(savedRunFetchUrl(studyName, intensity));
       if (!response.ok) {
         throw new Error(
-          `no saved run for ${STUDY_NAME_SLUGS[studyName]} to copy attributes from — run that ` +
-            `study and save it first`
+          `no saved run for ${STUDY_NAME_SLUGS[studyName]} at ${intensityPercent(intensity)}% ` +
+            `to copy attributes from — run that study at that intensity and save it first`
         );
       }
       const saved: SavedRun<DungeonRunAnalysis> = await response.json();

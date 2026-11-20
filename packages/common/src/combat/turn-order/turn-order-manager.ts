@@ -1,7 +1,7 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../aliases.js";
-import { BASE_ACTION_DELAY, SPEED_DELAY_RECOVERY_WEIGHT } from "./consts.js";
+import { ACTION_DELAY_AT_ONE_SPEED, ACTION_DELAY_SPEED_EXPONENT } from "./consts.js";
 import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
 import { TurnTracker } from "./turn-trackers.js";
 import { makeAutoObservable } from "mobx";
@@ -37,11 +37,11 @@ export class TurnOrderManager implements Serializable, ReactiveNode {
     if (speed === 0) {
       return Infinity;
     }
-    const speedBonus = speed * SPEED_DELAY_RECOVERY_WEIGHT;
-    const delayAfterSpeedBonus = BASE_ACTION_DELAY / (BASE_ACTION_DELAY + speedBonus);
-    const delay = actionDelayMultiplier * delayAfterSpeedBonus;
-    const rounded = Math.floor(delay * 10);
-    return Math.max(1, rounded);
+    // floored so equal speeds tie exactly
+    const delay =
+      (actionDelayMultiplier * ACTION_DELAY_AT_ONE_SPEED) /
+      Math.pow(speed, ACTION_DELAY_SPEED_EXPONENT);
+    return Math.max(1, Math.floor(delay));
   }
 
   getTrackers() {

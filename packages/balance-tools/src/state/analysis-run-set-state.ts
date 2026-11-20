@@ -1,4 +1,5 @@
 import { makeAutoObservable, observable, runInAction } from "mobx";
+import { NormalizedPercentage } from "@speed-dungeon/common";
 import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-character-specification.ts";
 import {
   AnalysisRunSetOptions,
@@ -17,7 +18,6 @@ import { writeGeneratedFile } from "../write-generated-file.ts";
 export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
   result: null | DungeonRunAnalysisResults[AnalysisType] = null;
   runCountShown: null | number = null;
-  /** null for a saved run from before these were recorded */
   optionsShown: null | AnalysisRunSetOptions = null;
   runsFinished = 0;
   runsRequested = 0;
@@ -33,7 +33,8 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
 
   constructor(
     private readonly studyName: StudyName,
-    private readonly analysis: AnalysisType
+    private readonly analysis: AnalysisType,
+    readonly intensity: NormalizedPercentage
   ) {
     makeAutoObservable<this, "worker" | "savedRunReadId" | "studyName" | "analysis">(this, {
       // a result is a sample graph large enough that deep proxying it would cost more than walking
@@ -43,7 +44,12 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
       savedRunReadId: false,
       studyName: false,
       analysis: false,
+      intensity: false,
     });
+  }
+
+  get holdsUnsavedResult() {
+    return this.result !== null && !this.resultIsFromSavedRun;
   }
 
   clear() {
@@ -69,7 +75,7 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
     this.isLoadingSavedRun = true;
 
     try {
-      const response = await fetch(savedRunFetchUrl(this.studyName));
+      const response = await fetch(savedRunFetchUrl(this.studyName, this.intensity));
       const saved: null | SavedRun<AnalysisType> = response.ok ? await response.json() : null;
       runInAction(() => {
         if (readId !== this.savedRunReadId) {
@@ -81,7 +87,7 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
         }
         this.result = saved.result;
         this.runCountShown = saved.runCount;
-        this.optionsShown = saved.options ?? null;
+        this.optionsShown = saved.options;
         this.runsFailed = saved.result.runsFailed;
         this.resultIsFromSavedRun = true;
       });
@@ -94,7 +100,12 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
     }
   }
 
-  run(characterSpecs: AnalysisCharacterSpecification[], options: AnalysisRunSetOptions) {
+  /** the intensity is this run set's own, so options carry the rest of the controls */
+  run(
+    characterSpecs: AnalysisCharacterSpecification[],
+    controls: Omit<AnalysisRunSetOptions, "allocationIntensity">
+  ) {
+    const options: AnalysisRunSetOptions = { ...controls, allocationIntensity: this.intensity };
     const { runCount } = options;
     this.worker?.terminate();
 
@@ -156,14 +167,17 @@ export class AnalysisRunSetState<AnalysisType extends DungeonRunAnalysis> {
   // nothing saves on its own: a comparison run must never overwrite the run a generated file came from
   async save() {
     const { result, runCountShown, optionsShown } = this;
-    if (result === null || runCountShown === null) {
+    if (result === null || runCountShown === null || optionsShown === null) {
       throw new Error("there is no run to save");
     }
-    const saved: SavedRun<AnalysisType> = {
-      runCount: runCountShown,
-      result,
-      ...(optionsShown === null ? {} : { options: optionsShown }),
-    };
-    return writeGeneratedFile(savedRunWritePath(this.studyName), JSON.stringify(saved));
+    const saved: SavedRun<AnalysisType> = { runCount: runCountShown, result, options: optionsShown };
+    const written = await writeGeneratedFile(
+      savedRunWritePath(this.studyName, this.intensity),
+      JSON.stringify(saved)
+    );
+    runInAction(() => {
+      this.resultIsFromSavedRun = true;
+    });
+    return written;
   }
 }

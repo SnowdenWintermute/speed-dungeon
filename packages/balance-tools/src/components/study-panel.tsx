@@ -8,6 +8,8 @@ import { AnalysisTableRow, StudyTable } from "../analysis-runs/analysis-sample-t
 import { DungeonRunAnalysisResults } from "../analysis-runs/dungeon-run-analysis.ts";
 import { useBalanceToolsApplication } from "../state/context.tsx";
 import { AnalysisOfStudy, StudyName } from "../studies/study-name.ts";
+import { intensityPercent } from "../analysis-runs/saved-run-paths.ts";
+import { RadioGroup } from "@speed-dungeon/ui/atoms/RadioGroup";
 import { AnalysisRunControls } from "./analysis-run-controls.tsx";
 import { AnalysisSliceControls } from "./analysis-slice-controls.tsx";
 import { RunSetStatusMessages } from "./run-set-status-messages.tsx";
@@ -22,6 +24,7 @@ interface Props<
   columns: DataTableColumn<TRow>[];
   tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisOfStudy<TStudy>]) => TTable;
   renderTableActions?: (table: TTable) => ReactNode;
+  aboveTable?: ReactNode;
 }
 
 function StudyPanelComponent<
@@ -33,6 +36,7 @@ function StudyPanelComponent<
   columns,
   tableConstructor: TableConstructor,
   renderTableActions,
+  aboveTable,
 }: Props<TStudy, TRow, TTable>) {
   const panel = useBalanceToolsApplication().studies.panelFor(studyName);
   const { runSet, slice } = panel;
@@ -55,6 +59,22 @@ function StudyPanelComponent<
         <AnalysisRunControls panel={panel} />
       </div>
 
+      {panel.showableIntensityPercents.length > 0 && (
+        <div className="mb-4 flex items-center gap-3 text-sm text-theme-muted">
+          <span>showing</span>
+          <RadioGroup
+            title="intensity shown"
+            value={intensityPercent(panel.shownIntensity)}
+            setValue={(percent) => panel.showIntensity(percent / 100)}
+            options={panel.showableIntensityPercents.map((percent) => ({
+              title: panel.savedIntensityPercents.includes(percent) ? `${percent}%` : `${percent}%*`,
+              value: percent,
+            }))}
+          />
+          <span>* not saved</span>
+        </div>
+      )}
+
       <RunSetStatusMessages runSet={runSet} studyName={studyName} />
 
       {isPreparingTable ? (
@@ -70,13 +90,20 @@ function StudyPanelComponent<
           <div className="mb-4 flex items-center gap-4">
             <WriteFileButton
               label="save run"
-              disabled={result === null}
-              write={() => runSet.save()}
+              disabled={!runSet.holdsUnsavedResult}
+              write={() => panel.saveShown()}
+            />
+            <WriteFileButton
+              label="save all"
+              disabled={!panel.holdsUnsavedResults || panel.isAnyRunning}
+              write={() => panel.saveAll()}
             />
             {table !== null && renderTableActions !== undefined && renderTableActions(table)}
           </div>
         </div>
       )}
+
+      {aboveTable}
 
       <div className="bg-theme-base p-2 border border-theme-muted overflow-auto">
         <DataTable

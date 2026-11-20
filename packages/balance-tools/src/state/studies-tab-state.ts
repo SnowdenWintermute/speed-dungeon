@@ -14,6 +14,7 @@ import {
   PersistedStudyPanelState,
 } from "./persisted-ui-state.ts";
 import { StudyPanelState } from "./study-panel-state.ts";
+import { SpeedCurveState } from "./speed-curve-state.ts";
 
 type StudyPanelStates = { [TStudy in StudyName]: StudyPanelState<AnalysisOfStudy<TStudy>> };
 
@@ -36,15 +37,17 @@ function studyPanelStates(): StudyPanelStates {
     [StudyName.ArmorClassMixed]: panelStateFor(StudyName.ArmorClassMixed),
     [StudyName.ArmorClassGroupThree]: panelStateFor(StudyName.ArmorClassGroupThree),
     [StudyName.MaxSpeedMixed]: panelStateFor(StudyName.MaxSpeedMixed),
+    [StudyName.MaxAgilityGroupThree]: panelStateFor(StudyName.MaxAgilityGroupThree),
   };
 }
 
 export class StudiesTabState {
   studyName = StudyName.AttackDamageGroupOne;
   private readonly panels = studyPanelStates();
+  readonly speedCurve = new SpeedCurveState();
 
   constructor() {
-    makeAutoObservable<this, "panels">(this, { panels: false });
+    makeAutoObservable<this, "panels">(this, { panels: false, speedCurve: false });
   }
 
   panelFor<TStudy extends StudyName>(studyName: TStudy) {
@@ -67,7 +70,7 @@ export class StudiesTabState {
           this.panels[previousStudyName].clear();
         }
         const panel = this.panels[studyName];
-        panel.runSet.loadSavedRun();
+        panel.loadSavedRuns();
         panel.copiedProfiles.read();
       },
       { fireImmediately: true }

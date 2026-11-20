@@ -10,12 +10,20 @@ export const WRITE_GENERATED_FILE_ROUTE = "/__write-generated-file";
  * index.html with a 200, which makes a missing run indistinguishable from a present one by status.
  */
 export const READ_SAVED_RUN_ROUTE = "/__saved-run";
+/** answers with the intensity percents a study has saved runs at */
+export const LIST_SAVED_RUNS_ROUTE = "/__saved-run-list";
 
 export const SAVED_RUN_DIRECTORY = "packages/balance-tools/saved-runs";
 export const SAVED_RUN_FILE_NAME_PATTERN = /^[a-z0-9-]+\.json$/;
 
-export function savedRunFileName(studySlug: string) {
-  return `${studySlug}.json`;
+export function savedRunFileName(studySlug: string, intensityPercent: number) {
+  return `${studySlug}-i${intensityPercent}.json`;
+}
+
+/** null for a file belonging to another study */
+export function readSavedRunIntensityPercent(studySlug: string, fileName: string) {
+  const match = new RegExp(`^${studySlug}-i(\\d+)\\.json$`).exec(fileName);
+  return match === null ? null : Number(match[1]);
 }
 
 export const DERIVED_REQUIREMENTS_DIRECTORY =

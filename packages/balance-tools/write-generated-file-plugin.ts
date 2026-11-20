@@ -5,11 +5,13 @@ import type { Plugin } from "vite";
 import {
   DERIVED_REQUIREMENTS_DIRECTORY,
   DERIVED_REQUIREMENTS_PREFIX,
+  LIST_SAVED_RUNS_ROUTE,
   READ_SAVED_RUN_ROUTE,
   SAVED_RUN_DIRECTORY,
   SAVED_RUN_FILE_NAME_PATTERN,
   WRITE_GENERATED_FILE_ROUTE,
   isDerivedRequirementsFileName,
+  readSavedRunIntensityPercent,
 } from "./src/generated-file-contract.ts";
 
 const REPO_ROOT = fileURLToPath(new URL("../..", import.meta.url));
@@ -102,6 +104,29 @@ export function writeGeneratedFilePlugin(): Plugin {
         response.statusCode = 200;
         response.setHeader("content-type", "application/json");
         fs.createReadStream(source).pipe(response);
+      });
+
+      server.middlewares.use(LIST_SAVED_RUNS_ROUTE, (request, response, next) => {
+        if (request.method !== "GET") {
+          return next();
+        }
+
+        const studySlug = (request.url ?? "").split("?")[0]?.replace(/^\//, "") ?? "";
+        if (!/^[a-z0-9-]+$/.test(studySlug)) {
+          response.statusCode = 400;
+          return response.end(`${studySlug} is not a study slug`);
+        }
+
+        const directory = path.join(REPO_ROOT, SAVED_RUN_DIRECTORY);
+        const fileNames = fs.existsSync(directory) ? fs.readdirSync(directory) : [];
+        const percents = fileNames.flatMap((fileName) => {
+          const percent = readSavedRunIntensityPercent(studySlug, fileName);
+          return percent === null ? [] : [percent];
+        });
+
+        response.statusCode = 200;
+        response.setHeader("content-type", "application/json");
+        response.end(JSON.stringify(percents.sort((a, b) => a - b)));
       });
 
       server.middlewares.use(WRITE_GENERATED_FILE_ROUTE, (request, response, next) => {

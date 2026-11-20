@@ -1,12 +1,8 @@
-/** Owns an IndexedDB connection and wraps its request objects in promises. Held as a field by
- * stores that persist to IndexedDB, which extend their own domain port rather than this.
- *
- * Every store it creates takes keys chosen by the caller, so a record is found by the same key
- * it was written with. Stores that let IndexedDB derive or generate keys are not served here.
- *
- * A version bump drops and recreates every store, so only disposable data belongs here. */
 export class IndexedDbConnection {
-  private dbPromise: Promise<IDBDatabase>;
+  private connectionPromise: null | Promise<IDBDatabase> = null;
+  private connectedDb: null | IDBDatabase = null;
+  private operations = new Set<Promise<unknown>>();
+  private deletion: null | Promise<void> = null;
   private disposed = false;
 
   constructor(
@@ -14,77 +10,62 @@ export class IndexedDbConnection {
     private readonly dbName: string,
     private readonly dbVersion: number,
     private readonly storeNames: string[]
-  ) {
-    this.dbPromise = this.open();
-  }
+  ) {}
 
-  /** for reads that need a cursor or an index rather than a single key lookup */
-  requireDb() {
-    return this.dbPromise;
+  /** for reads that need a cursor or an index rather than a single key lookup. the transaction
+   * opened this way isn't tracked, so a deletion issued once it's open won't wait for it */
+  async requireDb(): Promise<IDBDatabase> {
+    await this.awaitDeletion();
+    return this.connect();
   }
 
   async getOption<T>(storeName: string, key: IDBValidKey): Promise<T | undefined> {
-    const db = await this.dbPromise;
-    return this.awaitRequest<T | undefined>(
-      db.transaction(storeName, "readonly").objectStore(storeName).get(key)
-    );
+    return this.read<T | undefined>(storeName, (store) => store.get(key));
   }
 
   async getAll<T>(storeName: string): Promise<T[]> {
-    const db = await this.dbPromise;
-    return this.awaitRequest<T[]>(
-      db.transaction(storeName, "readonly").objectStore(storeName).getAll()
-    );
+    return this.read<T[]>(storeName, (store) => store.getAll());
   }
 
   async getAllKeys<T extends IDBValidKey>(storeName: string): Promise<T[]> {
-    const db = await this.dbPromise;
-    const keys = await this.awaitRequest(
-      db.transaction(storeName, "readonly").objectStore(storeName).getAllKeys()
-    );
+    const keys = await this.read(storeName, (store) => store.getAllKeys());
     return keys as T[];
   }
 
   /** for stores created without a keyPath or autoIncrement, whose keys live outside the value */
   async put(storeName: string, key: IDBValidKey, value: unknown) {
-    const db = await this.dbPromise;
-    const store = db.transaction(storeName, "readwrite").objectStore(storeName);
-    await this.awaitRequest(store.put(value, key));
+    await this.write(storeName, (store) => store.put(value, key));
   }
 
   async delete(storeName: string, key: IDBValidKey) {
-    const db = await this.dbPromise;
-    await this.awaitRequest(
-      db.transaction(storeName, "readwrite").objectStore(storeName).delete(key)
-    );
+    await this.write(storeName, (store) => store.delete(key));
   }
 
   async clear(storeName: string) {
-    const db = await this.dbPromise;
-    await this.awaitRequest(db.transaction(storeName, "readwrite").objectStore(storeName).clear());
+    await this.write(storeName, (store) => store.clear());
   }
 
-  /** closes the connection, drops the whole database, then reconnects */
+  /** waits for the operations already in flight, drops the whole database, and leaves the next
+   * operation to reconnect. operations issued meanwhile queue behind it and land in the new
+   * database */
   async deleteDatabase() {
     if (this.disposed) {
       return;
     }
-    const db = await this.dbPromise;
-    db.close();
-
-    await new Promise<void>((resolve, reject) => {
-      const request = this.indexedDB.deleteDatabase(this.dbName);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-      request.onblocked = () => reject(new Error(`Deletion blocked for database: ${this.dbName}`));
-    });
-
-    this.dbPromise = this.open();
+    if (this.deletion === null) {
+      this.deletion = this.runDeletion().finally(() => {
+        this.deletion = null;
+      });
+    }
+    return this.deletion;
   }
 
   dispose() {
     this.disposed = true;
-    this.dbPromise.then((db) => db.close()).catch(() => {});
+    const connection = this.connectionPromise;
+    this.connectionPromise = null;
+    this.connectedDb = null;
+    connection?.then((db) => db.close()).catch(() => {});
   }
 
   awaitRequest<T>(request: IDBRequest<T>): Promise<T> {
@@ -94,9 +75,98 @@ export class IndexedDbConnection {
     });
   }
 
+  private async read<T>(
+    storeName: string,
+    issue: (store: IDBObjectStore) => IDBRequest<T>
+  ): Promise<T> {
+    return this.operate((db) => {
+      const store = db.transaction(storeName, "readonly").objectStore(storeName);
+      return this.awaitRequest(issue(store));
+    });
+  }
+
+  /** resolves on commit rather than on the request, so a transaction that aborts as it commits -
+   * exceeding the storage quota, most likely - can't be reported as a successful write */
+  private async write(
+    storeName: string,
+    issue: (store: IDBObjectStore) => IDBRequest
+  ): Promise<void> {
+    return this.operate((db) => {
+      const transaction = db.transaction(storeName, "readwrite");
+      const request = issue(transaction.objectStore(storeName));
+
+      return new Promise<void>((resolve, reject) => {
+        request.onerror = () => reject(request.error);
+        transaction.oncomplete = () => resolve();
+        transaction.onabort = () =>
+          reject(transaction.error ?? new Error(`Write aborted on database: ${this.dbName}`));
+      });
+    });
+  }
+
+  /** only tracked once it holds a transaction, so a deletion waiting on the tracked operations
+   * can't end up waiting on one that is itself waiting on that deletion */
+  private async operate<T>(run: (db: IDBDatabase) => Promise<T>): Promise<T> {
+    await this.awaitDeletion();
+    const db = await this.connect();
+    if (this.deletion !== null) {
+      return this.operate(run);
+    }
+
+    const operation = run(db);
+    this.operations.add(operation);
+    return operation.finally(() => {
+      this.operations.delete(operation);
+    });
+  }
+
+  private async awaitDeletion() {
+    while (this.deletion !== null) {
+      await this.deletion.catch(() => {});
+    }
+  }
+
+  private async runDeletion() {
+    // taken before the first await, so it holds only the transactions already open. anything
+    // newer waits on this deletion instead, and awaiting those here would deadlock
+    const inFlight = [...this.operations];
+    await Promise.allSettled(inFlight);
+    this.closeConnection();
+
+    await new Promise<void>((resolve, reject) => {
+      const request = this.indexedDB.deleteDatabase(this.dbName);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+      // the request stays pending until the connections holding it up close, so it still has a
+      // success or an error left to deliver
+      request.onblocked = () =>
+        console.warn(`Deletion blocked by another connection to database: ${this.dbName}`);
+    });
+  }
+
+  private connect(): Promise<IDBDatabase> {
+    if (this.disposed) {
+      throw new Error(`Connection disposed for database: ${this.dbName}`);
+    }
+
+    if (this.connectionPromise === null) {
+      const connection = this.open().catch((error) => {
+        // a failed open isn't kept, so the next operation gets a fresh attempt
+        if (this.connectionPromise === connection) {
+          this.connectionPromise = null;
+        }
+        throw error;
+      });
+      this.connectionPromise = connection;
+    }
+
+    return this.connectionPromise;
+  }
+
   private open(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       const request = this.indexedDB.open(this.dbName, this.dbVersion);
+      let settled = false;
 
       request.onupgradeneeded = () => {
         const db = request.result;
@@ -110,11 +180,60 @@ export class IndexedDbConnection {
 
       request.onsuccess = () => {
         const db = request.result;
-        db.onversionchange = () => db.close();
+        // the open outlived the promise it was made for, so nothing else will ever close it
+        if (settled) {
+          db.close();
+          return;
+        }
+        settled = true;
+
+        const missingStoreNames = this.storeNames.filter(
+          (storeName) => !db.objectStoreNames.contains(storeName)
+        );
+        if (missingStoreNames.length) {
+          db.close();
+          reject(
+            new Error(
+              `Database ${this.dbName} at version ${this.dbVersion} is missing stores: ` +
+                `${missingStoreNames.join(", ")}. Bump its version to create them.`
+            )
+          );
+          return;
+        }
+
+        db.onversionchange = () => {
+          db.close();
+          this.forget(db);
+        };
+        db.onclose = () => this.forget(db);
+
+        this.connectedDb = db;
         resolve(db);
       };
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        settled = true;
+        reject(request.error);
+      };
+
+      request.onblocked = () => {
+        settled = true;
+        reject(new Error(`Connection blocked for database: ${this.dbName}`));
+      };
     });
+  }
+
+  private closeConnection() {
+    this.connectedDb?.close();
+    this.connectedDb = null;
+    this.connectionPromise = null;
+  }
+
+  private forget(db: IDBDatabase) {
+    if (this.connectedDb !== db) {
+      return;
+    }
+    this.connectedDb = null;
+    this.connectionPromise = null;
   }
 }

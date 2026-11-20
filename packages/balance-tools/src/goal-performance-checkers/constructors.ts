@@ -28,7 +28,7 @@ export const constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor 
   );
 
   switch (spec.typeConfig.type) {
-    // one class, two checker types: AnalysisSubjects refuses a party whose goals score in different
+    // one class, several checker types: AnalysisSubjects refuses a party whose goals score in different
     // units, and points of accuracy are not points of speed
     case GoalPerformanceCheckerType.TotalAccuracy:
       return new TotalAttributeGoalPerformanceChecker(
@@ -39,6 +39,12 @@ export const constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor 
     case GoalPerformanceCheckerType.TotalSpeed:
       return new TotalAttributeGoalPerformanceChecker(
         CombatAttribute.Speed,
+        spec.allocatableAttributes,
+        equipmentScoreAxes
+      );
+    case GoalPerformanceCheckerType.TotalAgility:
+      return new TotalAttributeGoalPerformanceChecker(
+        CombatAttribute.Agility,
         spec.allocatableAttributes,
         equipmentScoreAxes
       );

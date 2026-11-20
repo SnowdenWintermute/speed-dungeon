@@ -2,6 +2,7 @@ import { observer } from "mobx-react-lite";
 import { DungeonRunAnalysis } from "../analysis-runs/dungeon-run-analysis.ts";
 import { AnalysisRunSetState } from "../state/analysis-run-set-state.ts";
 import { STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
+import { intensityPercent } from "../analysis-runs/saved-run-paths.ts";
 
 interface Props {
   runSet: AnalysisRunSetState<DungeonRunAnalysis>;
@@ -15,7 +16,7 @@ function describeOptionsShown(runSet: AnalysisRunSetState<DungeonRunAnalysis>) {
   }
 
   return (
-    `, ${Math.round(optionsShown.allocationIntensity * 100)}% intensity, ` +
+    `, ${intensityPercent(optionsShown.allocationIntensity)}% intensity, ` +
     `requirements ${optionsShown.honorsEquipmentRequirements ? "on" : "off"}, ` +
     `armor class ${optionsShown.targetDummiesHaveArmorClass ? "on" : "off"}`
   );

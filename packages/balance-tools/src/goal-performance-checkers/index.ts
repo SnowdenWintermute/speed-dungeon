@@ -9,6 +9,7 @@ export enum GoalPerformanceCheckerType {
   SampledDamageOnTargetDummy,
   WornArmorClass,
   TotalSpeed,
+  TotalAgility,
 }
 
 export interface GoalPerformance {
