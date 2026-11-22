@@ -14,7 +14,6 @@ import {
   PersistedStudyPanelState,
 } from "./persisted-ui-state.ts";
 import { StudyPanelState } from "./study-panel-state.ts";
-import { SpeedCurveState } from "./speed-curve-state.ts";
 
 type StudyPanelStates = { [TStudy in StudyName]: StudyPanelState<AnalysisOfStudy<TStudy>> };
 
@@ -44,10 +43,9 @@ function studyPanelStates(): StudyPanelStates {
 export class StudiesTabState {
   studyName = StudyName.AttackDamageGroupOne;
   private readonly panels = studyPanelStates();
-  readonly speedCurve = new SpeedCurveState();
 
   constructor() {
-    makeAutoObservable<this, "panels">(this, { panels: false, speedCurve: false });
+    makeAutoObservable<this, "panels">(this, { panels: false });
   }
 
   panelFor<TStudy extends StudyName>(studyName: TStudy) {

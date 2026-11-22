@@ -1,12 +1,6 @@
 export const DESIGNED_HIT_CHANCE_FOR_AVERAGE_CHARACTER = 90;
 export const DESIGNED_ACC_INVESTMENT_PERCENTAGE = 1 / 5;
 export const DESIGNED_AGILITY_INVESTMENT_PERCENTAGE = 1 / 10;
-export const FAST_AGILITY_INVESTMENT_PERCENTAGE = 0.3;
-// turns taken by each speed tier for every turn the slow tier takes
-export const DESIGNED_AVERAGE_TO_SLOW_TURN_RATIO = 1.34;
-export const DESIGNED_FAST_TO_SLOW_TURN_RATIO = 1.66;
-export const DESIGNED_FULLY_ALLOCATED_TO_SLOW_TURN_RATIO = 2.49;
-export const DESIGNED_MAX_ATTAINABLE_TO_SLOWEST_TURN_RATIO = 3;
 export const DESIGNED_OFFENSIVE_ALLOCATION_PERCENTAGE = 0.6;
 // only scales the armor class affixes, since "allocation" on gear means which affixes you select
 // on that gear regardless of base item

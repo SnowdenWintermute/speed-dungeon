@@ -9,10 +9,11 @@ import { TurnOrderManager } from "./turn-order-manager.js";
 import { TurnSchedulerFactory } from "./turn-scheduler-factory.js";
 import { ITurnScheduler } from "./turn-schedulers.js";
 import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
-import { CombatantTurnTracker, TurnTracker } from "./turn-trackers.js";
+import { TurnTracker } from "./turn-trackers/index.js";
 import { Serializable, SerializedOf } from "../../serialization/index.js";
 import { ActionUserType } from "../../action-user-context/action-user.js";
 import { invariant } from "../../utils/index.js";
+import { CombatantTurnTracker } from "./turn-trackers/combatant-turn-tracker.js";
 
 export class TurnSchedulerManager implements Serializable {
   private schedulers: ITurnScheduler[] = [];

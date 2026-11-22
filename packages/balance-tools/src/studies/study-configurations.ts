@@ -3,7 +3,6 @@ import type { NormalizedPercentage } from "@speed-dungeon/common";
 import { FULL_ALLOCATION_INTENSITY } from "../analysis-runs/allocation-intensity.ts";
 import {
   DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
-  FAST_AGILITY_INVESTMENT_PERCENTAGE,
   DESIGNED_ARMOR_CLASS_ALLOCATION_PERCENTAGE,
   DESIGNED_OFFENSIVE_ALLOCATION_PERCENTAGE,
 } from "../tuning-consts.ts";
@@ -28,8 +27,6 @@ export interface StudyRunControlPins {
   /** set by a study whose derivation only means anything at one intensity; absent lets the user pick */
   fixedAllocationIntensity?: NormalizedPercentage;
   defaultAllocationIntensity?: NormalizedPercentage;
-  /** what run all opens at, for a study read across several intensities at once */
-  defaultBatchAllocationIntensities?: NormalizedPercentage[];
   /** the share the study's goal is designed to be spent at, quoted beside whatever is dialed in */
   designedAllocationIntensity?: NormalizedPercentage;
   /** set by a study that is only itself with requirements handled one way; absent lets the user pick */
@@ -181,11 +178,6 @@ export const STUDY_CONFIGURATIONS: Record<StudyName, StudyConfiguration> = {
     runControls: {
       defaultAllocationIntensity: DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
       designedAllocationIntensity: DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
-      defaultBatchAllocationIntensities: [
-        DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
-        FAST_AGILITY_INVESTMENT_PERCENTAGE,
-        FULL_ALLOCATION_INTENSITY,
-      ],
       fixedTargetDummiesHaveArmorClass: false,
     },
   },

@@ -24,7 +24,6 @@ import {
 import { MonsterType } from "../../monsters/monster-types.js";
 import { DERIVED_ATTRIBUTE_RATIO_LIST } from "./derived-attribute-ratios.js";
 import { Equipment } from "../../items/equipment/index.js";
-import { EquipmentSlot } from "../combatant-equipment/equipment-slot.js";
 
 export class CombatantAttributeProperties
   extends CombatantSubsystem

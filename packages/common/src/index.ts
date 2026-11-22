@@ -151,7 +151,7 @@ export * from "./combat/combat-actions/combat-action-origin.js";
 // turn order
 export * from "./combat/turn-order/turn-order-manager.js";
 export * from "./combat/turn-order/consts.js";
-export * from "./combat/turn-order/turn-trackers.js";
+export * from "./combat/turn-order/turn-trackers/index.js";
 export * from "./combat/turn-order/turn-schedulers.js";
 export * from "./combat/turn-order/turn-scheduler-manager.js";
 export * from "./combat/turn-order/combatant-turn-scheduler.js";

@@ -1,9 +1,9 @@
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../aliases.js";
-import { ACTION_DELAY_AT_ONE_SPEED, ACTION_DELAY_SPEED_EXPONENT } from "./consts.js";
+import { ACTION_DELAY_AT_ONE_SPEED } from "./consts.js";
 import { TurnSchedulerManager } from "./turn-scheduler-manager.js";
-import { TurnTracker } from "./turn-trackers.js";
+import { TurnTracker } from "./turn-trackers/index.js";
 import { makeAutoObservable } from "mobx";
 import { ERROR_MESSAGES } from "../../errors/index.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../../serialization/index.js";
@@ -34,13 +34,11 @@ export class TurnOrderManager implements Serializable, ReactiveNode {
   }
 
   static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
-    if (speed === 0) {
+    if (speed <= 0) {
       return Infinity;
     }
     // floored so equal speeds tie exactly
-    const delay =
-      (actionDelayMultiplier * ACTION_DELAY_AT_ONE_SPEED) /
-      Math.pow(speed, ACTION_DELAY_SPEED_EXPONENT);
+    const delay = (actionDelayMultiplier * ACTION_DELAY_AT_ONE_SPEED) / speed;
     return Math.max(1, Math.floor(delay));
   }
 

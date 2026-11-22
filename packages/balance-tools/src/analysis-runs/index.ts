@@ -73,6 +73,9 @@ export class AnalysisRun<TCombatantReport> {
         }
 
         if (this.party.currentRoom.roomType === DungeonRoomType.Staircase) {
+          if (this.party.dungeonExplorationManager.getCurrentFloor() === toIncludedFloor) {
+            break;
+          }
           this.partyDriver.descend();
         } else {
           this.partyDriver.moveToNextRoom({ isDescending: false });

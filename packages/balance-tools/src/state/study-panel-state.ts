@@ -71,9 +71,7 @@ export class StudyPanelState<AnalysisType extends DungeonRunAnalysis> {
     this.chosenAllocationIntensity = ownAllocationIntensity(runControls);
     this.chosenHonorsEquipmentRequirements = runControls.fixedHonorsEquipmentRequirements ?? false;
     this.chosenTargetDummiesHaveArmorClass = runControls.fixedTargetDummiesHaveArmorClass ?? false;
-    this.batchIntensitiesText = (runControls.defaultBatchAllocationIntensities ?? [])
-      .map(intensityPercent)
-      .join(", ");
+    this.batchIntensitiesText = "";
     this.shownIntensity = this.allocationIntensity;
     this.copiedProfiles = new CopiedAttributeProfilesState(configuration.characterSpecs);
 

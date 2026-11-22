@@ -68,20 +68,6 @@
 // - Slow to Fully Allocated: 1:2.49
 // - Slowest speed in game to Max attainable in game with perfect gear: 1:3
 //
-// slowestMonsterSpeedInGame = a number chosen by us, presumably lower than speed of lowest speed character at level 1
-// averageUnallocatedCharacterSpeed = known, taken from average of all characters (with support class), room by room
-// fastestCharacterAttainableSpeed = known
-// delayAfterActionUse = ?
-//
-// must be tweakable
-// slowMonsterToUnallocatedSlowCharacterTurnRatio 1:1.15
-// unallocatedSlowCharacterToAverageTurnRatio 1.1.15
-// slowToAverageTurnRatio = 1:1.34
-// averageToFastTurnRatio = 1:1.34
-// slowToFastTurnRatio = 1:66
-// slowToFullyAllocatedTurnRatio = 1:2
-// allocationIntensityToReachAverageTier = 0.1
-// allocationIntensityToReachFastTier = 0.4
 //
 // Monster Speed Tiers - we define or derive speed values
 // - slow monster
@@ -96,3 +82,15 @@
 //
 // DESIGNED_AVERAGE_CHARACTER_AGILITY_ALLOCATION_INTENSITY = 0.1
 // DESIGNED_FAST_CHARACTER_AGILITY_ALLOCATION_INTENSITY = 0.4
+//
+// Unlink agility from speed
+// Create speed tiers
+//          Fastest Faster Fast Average Slow Slower Slowest
+// Fastest     1
+// Faster
+// Fast
+// Average
+// Slow
+// Slower
+// Slowest
+//

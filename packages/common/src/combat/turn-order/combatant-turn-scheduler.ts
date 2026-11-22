@@ -2,7 +2,7 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantId } from "../../aliases.js";
 import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
 import { SpeedDungeonGame } from "../../game/index.js";
-import { CombatantTurnTracker } from "./turn-trackers.js";
+import { CombatantTurnTracker } from "./turn-trackers/combatant-turn-tracker.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { ActionUserType } from "../../action-user-context/action-user.js";
 import { TaggedCombatantTurnTrackerCombatantId } from "./turn-tracker-tagged-tracked-entity-ids.js";

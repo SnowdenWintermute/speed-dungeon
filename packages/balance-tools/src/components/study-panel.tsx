@@ -24,7 +24,6 @@ interface Props<
   columns: DataTableColumn<TRow>[];
   tableConstructor: new (result: DungeonRunAnalysisResults[AnalysisOfStudy<TStudy>]) => TTable;
   renderTableActions?: (table: TTable) => ReactNode;
-  aboveTable?: ReactNode;
 }
 
 function StudyPanelComponent<
@@ -36,7 +35,6 @@ function StudyPanelComponent<
   columns,
   tableConstructor: TableConstructor,
   renderTableActions,
-  aboveTable,
 }: Props<TStudy, TRow, TTable>) {
   const panel = useBalanceToolsApplication().studies.panelFor(studyName);
   const { runSet, slice } = panel;
@@ -102,8 +100,6 @@ function StudyPanelComponent<
           </div>
         </div>
       )}
-
-      {aboveTable}
 
       <div className="bg-theme-base p-2 border border-theme-muted overflow-auto">
         <DataTable
