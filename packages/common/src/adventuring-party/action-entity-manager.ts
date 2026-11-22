@@ -39,14 +39,15 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
     const turnOrderSpeedOption = entity.actionEntityProperties.actionOriginData?.turnOrderSpeed;
     if (battleOption && turnOrderSpeedOption !== undefined) {
       // account for how long the battle has been going for
-      const fastestSchedulerDelay =
-        battleOption.turnOrderManager.turnSchedulerManager.getFirstScheduler().accumulatedDelay;
+      const currentFastestActorDelay =
+        battleOption.turnOrderManager.getFastestActorTurnOrderTracker().timeOfNextMove;
 
-      const startingDelay = turnOrderSpeedOption + fastestSchedulerDelay;
+      const startingDelay = turnOrderSpeedOption + currentFastestActorDelay;
 
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         { type: ActionUserType.ActionEntity, actionEntityId: entity.entityProperties.id },
-        startingDelay
+        startingDelay,
+        0
       );
     }
   }

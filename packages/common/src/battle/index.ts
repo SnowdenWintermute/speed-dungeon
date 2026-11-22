@@ -11,6 +11,7 @@ import {
   invariant,
   PartyFateType,
   ThreatChanges,
+  TurnSchedulerIdentifier,
 } from "../index.js";
 import { CombatantId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
@@ -91,20 +92,21 @@ export class Battle implements Serializable, ReactiveNode {
   }
 
   handleTurnEnded(
-    actionUserOption: IActionUser | undefined,
+    turnSchedulerIdentifier: TurnSchedulerIdentifier,
     delay: number,
     threatChanges?: ThreatChanges
   ) {
     const { turnSchedulerManager } = this.turnOrderManager;
 
-    const turnSchedulerOption = actionUserOption
-      ? turnSchedulerManager.getSchedulerOptionByEntityId(actionUserOption.getEntityId())
-      : undefined;
+    const turnSchedulerOption =
+      turnSchedulerManager.getTurnSchedulerOption(turnSchedulerIdentifier);
 
     if (turnSchedulerOption) {
       turnSchedulerOption.addDelay(delay);
       this.turnOrderManager.updateTrackers(this.game, this.party);
     }
+
+    const actionUserOption = this.party.getActionUserById(turnSchedulerIdentifier.turnTakerId);
 
     actionUserOption?.handleTurnEnded();
 

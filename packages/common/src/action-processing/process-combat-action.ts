@@ -16,6 +16,7 @@ import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatantId } from "../aliases.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { ResourceChangePropertiesStrategy } from "../combat/combat-actions/action-implementations/resource-change-properties-strategy.js";
+import { TurnSchedulerIdentifier } from "../combat/turn-order/turn-scheduler-manager.js";
 
 export function processCombatAction(
   actionExecutionIntent: CombatActionExecutionIntent,
@@ -39,6 +40,18 @@ export function processCombatAction(
   );
 
   const rootReplayNode: NestedNodeReplayEvent = { type: ReplayEventType.NestedNode, events: [] };
+
+  const battleOption = party.getBattleOption(game);
+  if (battleOption !== null) {
+    const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
+    const schedulerIdentiferOfFastestActor: TurnSchedulerIdentifier = {
+      turnTakerId: fastestTracker.getEntityId(),
+      schedulerIndex: fastestTracker.schedulerIndex,
+    };
+    battleOption.turnOrderManager.turnSchedulerManager.markSchedulerAsCurrentlyTakingTurn(
+      schedulerIdentiferOfFastestActor
+    );
+  }
 
   const initialGameUpdateOption = registry.registerAction(
     actionExecutionIntent,

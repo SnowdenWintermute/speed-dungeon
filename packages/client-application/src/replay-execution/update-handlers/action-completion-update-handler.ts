@@ -13,14 +13,12 @@ export async function actionCompletionGameUpdateHandler(
   const { command } = update;
 
   if (battleOption && command.addDelayToTurnScheduler) {
-    const actionUserId = command.addDelayToTurnScheduler.schedulerId;
-    const actionUserOption = party.getActionUserById(actionUserId);
     const { threatChanges } = command;
     const deserializedThreatChangesOption = threatChanges
       ? ThreatChanges.fromSerialized(threatChanges)
       : undefined;
     battleOption.handleTurnEnded(
-      actionUserOption,
+      command.addDelayToTurnScheduler.schedulerIdentifier,
       command.addDelayToTurnScheduler.delay,
       deserializedThreatChangesOption
     );

@@ -1,10 +1,10 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { EntityId } from "../../aliases.js";
-import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
-import { ActionEntityTurnTracker } from "./turn-trackers/action-entity-turn-tracker.js";
-import { ActionUserType } from "../../action-user-context/action-user.js";
-import { TaggedActionEntityTurnTrackerActionEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { EntityId } from "../../../aliases.js";
+import { ITurnScheduler, TurnScheduler } from "./index.js";
+import { ActionEntityTurnTracker } from "../turn-trackers/action-entity-turn-tracker.js";
+import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { TaggedActionEntityTurnTrackerActionEntityId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnScheduler {
   actionUserType = ActionUserType.ActionEntity;
@@ -15,8 +15,11 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
     };
   };
 
-  constructor(public readonly actionEntityId: EntityId) {
-    super();
+  constructor(
+    public readonly actionEntityId: EntityId,
+    index: number
+  ) {
+    super(index);
   }
   getTurnTakerId = () => this.actionEntityId;
 
@@ -66,6 +69,6 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
     const numberOfTurnsConsumed = 1;
     this.predictedConsumedStacks += numberOfTurnsConsumed;
 
-    return new ActionEntityTurnTracker(actionEntityId, timeOfNextMove);
+    return new ActionEntityTurnTracker(actionEntityId, timeOfNextMove, this.index);
   }
 }

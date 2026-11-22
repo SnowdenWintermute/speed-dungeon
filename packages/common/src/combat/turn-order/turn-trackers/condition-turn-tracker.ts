@@ -1,8 +1,8 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../aliases.js";
-import { ConditionTurnScheduler } from "../condition-turn-scheduler.js";
+import { ConditionTurnScheduler } from "../turn-schedulers/condition-turn-scheduler.js";
 import { TaggedConditionTurnTrackerConditionAndCombatantId } from "../turn-tracker-tagged-tracked-entity-ids.js";
-import { ITurnScheduler } from "../turn-schedulers.js";
+import { ITurnScheduler } from "../turn-schedulers/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
@@ -13,9 +13,10 @@ export class ConditionTurnTracker extends TurnTracker {
   constructor(
     private combatantId: EntityId,
     private conditionId: EntityId,
-    public readonly timeOfNextMove: number
+    public readonly timeOfNextMove: number,
+    schedulerIndex: number
   ) {
-    super(timeOfNextMove);
+    super(timeOfNextMove, schedulerIndex);
   }
 
   getTaggedIdOfTrackedEntity(): TaggedConditionTurnTrackerConditionAndCombatantId {
@@ -43,7 +44,10 @@ export class ConditionTurnTracker extends TurnTracker {
 
   getMatchingScheduler(schedulers: ITurnScheduler[]) {
     return schedulers.find(
-      (item) => item instanceof ConditionTurnScheduler && item.conditionId === this.conditionId
+      (item) =>
+        item instanceof ConditionTurnScheduler &&
+        item.conditionId === this.conditionId &&
+        item.index === this.schedulerIndex
     );
   }
 

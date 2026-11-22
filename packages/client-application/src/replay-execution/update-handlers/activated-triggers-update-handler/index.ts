@@ -331,7 +331,10 @@ export class ActionEffectsApplyerCommand {
 
   private applyConditions(
     appliedConditions?: Partial<
-      Record<HitOutcome, Record<string, SerializedOf<CombatantCondition>[]>>
+      Record<
+        HitOutcome,
+        Record<string, { condition: SerializedOf<CombatantCondition>; startingDelay?: number }[]>
+      >
     >
   ) {
     if (!appliedConditions) return;
@@ -341,7 +344,7 @@ export class ActionEffectsApplyerCommand {
     )) {
       for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
         const combatantResult = this.party.combatantManager.getExpectedCombatant(entityId);
-        for (const condition of conditions) {
+        for (const { condition, startingDelay } of conditions) {
           const deserializedCondition = deserializeCondition(condition);
           deserializedCondition.makeObservable();
 
@@ -360,8 +363,8 @@ export class ActionEffectsApplyerCommand {
           }
 
           this.battleOption?.turnOrderManager.turnSchedulerManager.addConditionToTurnOrder(
-            this.party,
-            deserializedCondition
+            deserializedCondition,
+            startingDelay
           );
         }
       }

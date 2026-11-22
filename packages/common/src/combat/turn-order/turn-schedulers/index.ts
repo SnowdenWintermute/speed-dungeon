@@ -1,10 +1,10 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { TurnTracker } from "./turn-trackers/index.js";
-import { TurnOrderManager } from "./turn-order-manager.js";
-import { ActionUserType } from "../../action-user-context/action-user.js";
-import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { BASE_ACTION_DELAY_MULTIPLIER } from "../consts.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { TurnTracker } from "../turn-trackers/index.js";
+import { TurnOrderManager } from "../turn-order-manager.js";
+import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { TaggedTurnTrackerTrackedEntityId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export interface ITurnScheduler {
   actionUserType: ActionUserType;
@@ -18,12 +18,14 @@ export interface ITurnScheduler {
   isMatch: (otherScheduler: ITurnScheduler) => boolean;
   reset: (speed: number) => void;
   createTurnTrackerOption: (game: SpeedDungeonGame, party: AdventuringParty) => null | TurnTracker;
+  index: number; // used to identify scheduler in case there are multiple for an action user, such as a boss monster
 }
 
 export abstract class TurnScheduler implements ITurnScheduler {
   timeOfNextMove = 0;
   accumulatedDelay = 0;
   protected predictedConsumedStacks = 0;
+  constructor(public readonly index: number) {}
 
   addDelay(delay: number) {
     this.accumulatedDelay += delay;

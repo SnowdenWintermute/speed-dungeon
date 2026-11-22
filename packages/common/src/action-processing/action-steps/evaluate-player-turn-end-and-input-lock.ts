@@ -1,8 +1,10 @@
 import { EntityId } from "../../aliases.js";
 import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { TurnSchedulerIdentifier } from "../../combat/turn-order/turn-scheduler-manager.js";
 import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
+import { invariant } from "../../utils/index.js";
 import { ActionCompletionUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import {
   ActionIntentAndUser,
@@ -55,7 +57,8 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   // FOR SERVER
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
   // FOR BOTH
-  let tellClientDelayAdded: { delay: number; schedulerId: EntityId } | undefined = undefined;
+  let tellClientDelayAdded:
+    { delay: number; schedulerIdentifier: TurnSchedulerIdentifier } | undefined = undefined;
 
   // only decay threat for combatant turns ending
   // not for conditions or action entities
@@ -74,8 +77,10 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   if (shouldEndTurn) {
     const { actionName } = tracker.actionExecutionIntent;
     const delay = actionUser.getDelayForActionUse(actionName);
-    tellClientDelayAdded = { schedulerId: actionUser.getEntityId(), delay };
-    battleOption.handleTurnEnded(actionUser, delay, threatChanges);
+    const schedulerTakingTurnIdentifier =
+      battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerIdentifierTakingTurn();
+    tellClientDelayAdded = { schedulerIdentifier: schedulerTakingTurnIdentifier, delay };
+    battleOption.handleTurnEnded(schedulerTakingTurnIdentifier, delay, threatChanges);
     sequentialActionManagerRegistry.setTurnEnded();
   }
 

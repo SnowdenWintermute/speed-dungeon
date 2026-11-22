@@ -7,7 +7,8 @@ export function addConditionToUpdate(
   condition: CombatantCondition,
   update: ActivatedTriggersGameUpdateCommand,
   targetCombatantId: EntityId,
-  triggeredBy: HitOutcome
+  triggeredBy: HitOutcome,
+  startingDelay?: number
 ) {
   if (!update.appliedConditions) update.appliedConditions = {};
 
@@ -18,7 +19,7 @@ export function addConditionToUpdate(
   let thisCombatantConditions = conditionsTriggeredByOutcome[targetCombatantId];
 
   if (!thisCombatantConditions) thisCombatantConditions = [];
-  thisCombatantConditions.push(condition.toSerialized());
+  thisCombatantConditions.push({ condition: condition.toSerialized(), startingDelay });
 
   conditionsTriggeredByOutcome[targetCombatantId] = thisCombatantConditions;
 

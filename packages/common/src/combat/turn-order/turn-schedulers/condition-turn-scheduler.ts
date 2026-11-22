@@ -1,11 +1,11 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { EntityId } from "../../aliases.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
-import { ConditionTurnTracker } from "./turn-trackers/condition-turn-tracker.js";
-import { ActionUserContext } from "../../action-user-context/index.js";
-import { ActionUserType } from "../../action-user-context/action-user.js";
-import { TaggedConditionTurnTrackerConditionAndCombatantId } from "./turn-tracker-tagged-tracked-entity-ids.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { EntityId } from "../../../aliases.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { ITurnScheduler, TurnScheduler } from "./index.js";
+import { ConditionTurnTracker } from "../turn-trackers/condition-turn-tracker.js";
+import { ActionUserContext } from "../../../action-user-context/index.js";
+import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { TaggedConditionTurnTrackerConditionAndCombatantId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export class ConditionTurnScheduler extends TurnScheduler implements ITurnScheduler {
   actionUserType = ActionUserType.Condition;
@@ -20,9 +20,10 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
 
   constructor(
     public readonly combatantId: EntityId,
-    public readonly conditionId: EntityId
+    public readonly conditionId: EntityId,
+    index: number
   ) {
-    super();
+    super(index);
   }
   getTurnTakerId = () => this.conditionId;
   getSpeed(party: AdventuringParty) {
@@ -83,7 +84,7 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
         ).numStacksRemoved;
 
         this.predictedConsumedStacks += ticksPredicted;
-        return new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove);
+        return new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove, this.index);
       }
     }
 

@@ -5,7 +5,10 @@
     "outDir": "dist",
     "composite": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    // named explicitly because vitest is hoisted to the root rather than installed here, so its
+    // globals are never picked up ambiently the way @types packages are
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src"]
 }

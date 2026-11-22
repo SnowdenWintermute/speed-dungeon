@@ -1,8 +1,8 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { EntityId } from "../../../aliases.js";
-import { ActionEntityTurnScheduler } from "../action-entity-turn-scheduler.js";
+import { ActionEntityTurnScheduler } from "../turn-schedulers/action-entity-turn-scheduler.js";
 import { TaggedActionEntityTurnTrackerActionEntityId } from "../turn-tracker-tagged-tracked-entity-ids.js";
-import { ITurnScheduler } from "../turn-schedulers.js";
+import { ITurnScheduler } from "../turn-schedulers/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../../action-entities/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
@@ -13,9 +13,10 @@ import { ActionIntentOptionAndUser } from "../../../action-processing/action-ste
 export class ActionEntityTurnTracker extends TurnTracker {
   constructor(
     private actionEntityId: EntityId,
-    public readonly timeOfNextMove: number
+    public readonly timeOfNextMove: number,
+    schedulerIndex: number
   ) {
-    super(timeOfNextMove);
+    super(timeOfNextMove, schedulerIndex);
   }
 
   getActionEntity(party: AdventuringParty) {
@@ -41,7 +42,9 @@ export class ActionEntityTurnTracker extends TurnTracker {
   getMatchingScheduler(schedulers: ITurnScheduler[]) {
     return schedulers.find(
       (item) =>
-        item instanceof ActionEntityTurnScheduler && item.actionEntityId === this.actionEntityId
+        item instanceof ActionEntityTurnScheduler &&
+        item.actionEntityId === this.actionEntityId &&
+        item.index === this.schedulerIndex
     );
   }
 

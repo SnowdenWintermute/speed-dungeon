@@ -32,6 +32,7 @@ import { SerializedOf } from "../serialization/index.js";
 import { BattleConclusion } from "../battle/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { Consumable } from "../items/consumables/index.js";
+import { TurnSchedulerIdentifier } from "../combat/turn-order/turn-scheduler-manager.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -159,8 +160,7 @@ export interface ActionEntityMotionGameUpdateCommand extends IGameUpdateCommand 
 }
 
 export type EntityMotionUpdateCommand =
-  | CombatantMotionGameUpdateCommand
-  | ActionEntityMotionGameUpdateCommand;
+  CombatantMotionGameUpdateCommand | ActionEntityMotionGameUpdateCommand;
 
 export interface ResourcesPaidGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ResourcesPaid;
@@ -180,7 +180,10 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   threatChanges?: ThreatChanges;
 
   appliedConditions?: Partial<
-    Record<HitOutcome, Record<EntityId, SerializedOf<CombatantCondition>[]>>
+    Record<
+      HitOutcome,
+      Record<EntityId, { condition: SerializedOf<CombatantCondition>; startingDelay?: number }[]>
+    >
   >;
   removedConditionStacks?: Record<CombatantId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<CombatantId, EntityId[]>;
@@ -206,7 +209,7 @@ export interface HitOutcomesGameUpdateCommand extends IGameUpdateCommand {
 export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
   unlockInput?: boolean;
-  addDelayToTurnScheduler?: { delay: number; schedulerId: EntityId };
+  addDelayToTurnScheduler?: { delay: number; schedulerIdentifier: TurnSchedulerIdentifier };
   threatChanges?: SerializedOf<ThreatChanges>;
 }
 

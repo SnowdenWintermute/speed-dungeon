@@ -77,18 +77,20 @@ export function handleHit(
 
       const { conditionManager } = targetCombatant.combatantProperties;
       conditionManager.applyCondition(condition);
+      let delayForClient: undefined | number;
       if (battleOption !== null) {
-        battleOption.turnOrderManager.turnSchedulerManager.addConditionToTurnOrder(
-          party,
-          condition
-        );
+        const { turnSchedulerManager } = battleOption.turnOrderManager;
+        const startingDelay = turnSchedulerManager.computeNewConditionStartingDelay(party);
+        delayForClient = startingDelay;
+        turnSchedulerManager.addConditionToTurnOrder(condition, startingDelay);
       }
 
       addConditionToUpdate(
         condition,
         gameUpdateCommand,
         targetCombatant.entityProperties.id,
-        HitOutcome.Hit
+        HitOutcome.Hit,
+        delayForClient
       );
     }
 

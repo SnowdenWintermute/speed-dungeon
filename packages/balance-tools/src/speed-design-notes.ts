@@ -94,3 +94,23 @@
 // Slower
 // Slowest
 //
+//
+// At battle start
+// - For each combatant, create one or more turn schedulers
+// - Roll an initial delay for each combatant scheduler between 0 and 0.33 the delay of an average speed combatant
+//   plus the schedulers standard delay based on its speed tier
+// - For each condition, create their turn scheduler, but do not add random delay
+//
+// On turn end
+// - Add delay to the active turn scheduler based on its action user's speed tier
+//
+// Open questions
+// - what decides a character's speed tier? monsters can be assigned tiers, but what is a fun
+// design which allows player expression and is still balanced, considering speed and turn order
+// is very powerful
+// - how can we account for conditions that should have very long times between ticks?
+//
+// What decides speed tier
+// - all classes start at average tier
+// - heavy armor imposes speed tier penalties
+// - agility can mitigate speed penalties

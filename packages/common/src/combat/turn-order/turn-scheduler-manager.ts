@@ -2,12 +2,11 @@ import { AdventuringParty } from "../../adventuring-party/index.js";
 import { CombatantCondition } from "../../conditions/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../aliases.js";
-import { CombatantTurnScheduler } from "./combatant-turn-scheduler.js";
-import { ConditionTurnScheduler } from "./condition-turn-scheduler.js";
+import { CombatantTurnScheduler } from "./turn-schedulers/combatant-turn-scheduler.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
 import { TurnOrderManager } from "./turn-order-manager.js";
 import { TurnSchedulerFactory } from "./turn-scheduler-factory.js";
-import { ITurnScheduler } from "./turn-schedulers.js";
+import { ITurnScheduler } from "./turn-schedulers/index.js";
 import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnTracker } from "./turn-trackers/index.js";
 import { Serializable, SerializedOf } from "../../serialization/index.js";
@@ -15,8 +14,14 @@ import { ActionUserType } from "../../action-user-context/action-user.js";
 import { invariant } from "../../utils/index.js";
 import { CombatantTurnTracker } from "./turn-trackers/combatant-turn-tracker.js";
 
+export interface TurnSchedulerIdentifier {
+  turnTakerId: EntityId;
+  schedulerIndex: number;
+}
+
 export class TurnSchedulerManager implements Serializable {
   private schedulers: ITurnScheduler[] = [];
+  private _schedulerCurrentlyTakingTurnOption: TurnSchedulerIdentifier | undefined;
 
   constructor(private minTurnTrackersCount: number) {}
 
@@ -25,6 +30,7 @@ export class TurnSchedulerManager implements Serializable {
       return {
         taggedEntityId: scheduler.getTaggedEntityId(),
         accumulatedDelay: scheduler.accumulatedDelay,
+        schedulerIndex: scheduler.index,
       };
     });
 
@@ -34,7 +40,11 @@ export class TurnSchedulerManager implements Serializable {
   static fromSerialized(serialized: SerializedOf<TurnSchedulerManager>): TurnSchedulerManager {
     const result = new TurnSchedulerManager(serialized.minTurnTrackersCount);
     for (const scheduler of serialized.schedulers) {
-      result.addNewScheduler(scheduler.taggedEntityId, scheduler.accumulatedDelay);
+      result.addNewScheduler(
+        scheduler.taggedEntityId,
+        scheduler.accumulatedDelay,
+        scheduler.schedulerIndex
+      );
     }
     return result;
   }
@@ -42,15 +52,73 @@ export class TurnSchedulerManager implements Serializable {
   createSchedulers(party: AdventuringParty) {
     const { combatants, tickableConditions } =
       party.combatantManager.getAllTickableConditionsAndCombatants();
+    const schedulers: ITurnScheduler[] = [];
 
-    this.schedulers = [
-      ...[...combatants.values()].map(
-        (combatant) => new CombatantTurnScheduler(combatant.getEntityId())
-      ),
-      ...tickableConditions.map(
-        ({ appliedTo, condition }) => new ConditionTurnScheduler(appliedTo, condition.id)
-      ),
-    ];
+    for (const combatant of combatants.values()) {
+      const schedulersToCreateCount =
+        1 + (combatant.combatantProperties.extraTurnSchedulerCount || 0);
+      for (
+        let schedulersCreatedCount = 0;
+        schedulersCreatedCount < schedulersToCreateCount;
+        schedulersCreatedCount += 1
+      ) {
+        // @TODO -rollstarting delay
+        const startingDelay = 0;
+
+        schedulers.push(
+          TurnSchedulerFactory.create(
+            {
+              type: ActionUserType.Combatant,
+              combatantId: combatant.getEntityId(),
+            },
+            startingDelay,
+            schedulersCreatedCount
+          )
+        );
+      }
+    }
+
+    schedulers.push(
+      ...tickableConditions.map(({ appliedTo, condition }) =>
+        TurnSchedulerFactory.create(
+          {
+            type: ActionUserType.Condition,
+            combatantId: appliedTo,
+            conditionId: condition.id,
+          },
+          0,
+          0
+        )
+      )
+    );
+
+    this.schedulers = schedulers;
+  }
+
+  requireSchedulerIdentifierTakingTurn() {
+    invariant(
+      this._schedulerCurrentlyTakingTurnOption !== undefined,
+      "No turn schedulers marked as taking turn"
+    );
+    return this._schedulerCurrentlyTakingTurnOption;
+  }
+
+  getTurnSchedulerOption(identifier: TurnSchedulerIdentifier) {
+    const schedulerOption = this.schedulers.find((value) => {
+      const idsMatch = value.getTurnTakerId() === identifier.turnTakerId;
+      const indicesMatch = value.index === identifier.schedulerIndex;
+      return idsMatch && indicesMatch;
+    });
+    return schedulerOption;
+  }
+
+  getTurnSchedulerTakingTurnOption() {
+    const identifier = this.requireSchedulerIdentifierTakingTurn();
+    return this.getTurnSchedulerOption(identifier);
+  }
+
+  markSchedulerAsCurrentlyTakingTurn(identifier: TurnSchedulerIdentifier) {
+    this._schedulerCurrentlyTakingTurnOption = identifier;
   }
 
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
@@ -76,7 +144,7 @@ export class TurnSchedulerManager implements Serializable {
       iterationLimiter += 1;
       this.sortSchedulers(speedsByScheduler);
 
-      const fastestActor = this.getFirstScheduler();
+      const fastestActor = this.requireFirstScheduler();
 
       const trackerOption = fastestActor.createTurnTrackerOption(game, party);
       if (trackerOption instanceof CombatantTurnTracker) {
@@ -169,7 +237,10 @@ export class TurnSchedulerManager implements Serializable {
       if (a.timeOfNextMove !== b.timeOfNextMove) {
         return a.timeOfNextMove - b.timeOfNextMove;
       }
-      return TurnSchedulerManager.compareBySpeedThenId(speedsByScheduler, a, b);
+      if (a.getTurnTakerId() !== b.getTurnTakerId()) {
+        return TurnSchedulerManager.compareBySpeedThenId(speedsByScheduler, a, b);
+      }
+      return a.index - b.index;
     });
   }
 
@@ -186,47 +257,39 @@ export class TurnSchedulerManager implements Serializable {
     return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
   }
 
-  getFirstScheduler() {
+  requireFirstScheduler() {
     const fastest = this.schedulers[0];
-    if (fastest === undefined) throw new Error("turn scheduler list was empty");
+    invariant(fastest !== undefined, "turn scheduler list was empty");
     return fastest;
   }
 
-  addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number) {
-    const scheduler = TurnSchedulerFactory.create(from, startingDelay);
+  addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number, index: number) {
+    const scheduler = TurnSchedulerFactory.create(from, startingDelay, index);
     this.schedulers.push(scheduler);
   }
 
-  addConditionToTurnOrder(
-    party: AdventuringParty,
-    condition: CombatantCondition,
-    options?: { withCustomStartingDelay?: number }
-  ) {
+  computeNewConditionStartingDelay(party: AdventuringParty) {
+    // add ( one actions worth + 1 ) delay or else when we get to the endTurnAndEvaluateInputLock step
+    // when we search for the fastest scheduler tracker it will find this
+    // condition's tracker instead of the combatant, since we are adding the scheduler now
+    // and the combatant who's action applied this condition won't update their scheduler
+    // until a later step
+    const schedulerTakingTurn = this.getTurnSchedulerTakingTurnOption();
+    invariant(schedulerTakingTurn !== undefined, "no turn scheduler marked as current turn taker");
+    // once we start getting action delay costs that are different per each action
+    // we'll have to calculate this based on the current action
+    const predictedDelayOfTurnInProgress = TurnOrderManager.getActionDelayCost(
+      schedulerTakingTurn.getSpeed(party),
+      BASE_ACTION_DELAY_MULTIPLIER
+    );
+    return schedulerTakingTurn.accumulatedDelay + predictedDelayOfTurnInProgress + 1;
+  }
+
+  addConditionToTurnOrder(condition: CombatantCondition, startingDelay?: number) {
     const tickPropertiesOption = condition.getTickProperties();
 
-    if (!tickPropertiesOption) return;
-
-    let startingDelay = options?.withCustomStartingDelay || 0;
-
-    if (options?.withCustomStartingDelay === undefined) {
-      // add ( one actions worth + 1 ) delay or else when we get to the endTurnAndEvaluateInputLock step
-      // when we search for the fastest scheduler tracker it will find this
-      // condition's tracker instead of the combatant, since we are adding the scheduler now
-      // and the combatant who's action applied this condition won't update their scheduler
-      // until a later step
-      const appliedByScheduler = this.getSchedulerByCombatantId(
-        condition.appliedBy.entityProperties.id
-      );
-
-      // once we start getting action delay costs that are different per each action
-      // we'll have to calculate this based on the current action
-      const appliedByPredictedAdditionalDelay = TurnOrderManager.getActionDelayCost(
-        appliedByScheduler.getSpeed(party),
-        BASE_ACTION_DELAY_MULTIPLIER
-      );
-
-      const combatantApplyingAccumulatedDelay = appliedByScheduler.accumulatedDelay;
-      startingDelay = combatantApplyingAccumulatedDelay + appliedByPredictedAdditionalDelay + 1;
+    if (!tickPropertiesOption) {
+      return;
     }
 
     this.addNewScheduler(
@@ -235,7 +298,8 @@ export class TurnSchedulerManager implements Serializable {
         combatantId: condition.appliedTo,
         conditionId: condition.id,
       },
-      startingDelay
+      startingDelay || 0,
+      0
     );
   }
 }

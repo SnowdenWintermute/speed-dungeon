@@ -1,11 +1,11 @@
-import { AdventuringParty } from "../../adventuring-party/index.js";
-import { CombatantId } from "../../aliases.js";
-import { ITurnScheduler, TurnScheduler } from "./turn-schedulers.js";
-import { SpeedDungeonGame } from "../../game/index.js";
-import { CombatantTurnTracker } from "./turn-trackers/combatant-turn-tracker.js";
-import { CombatAttribute } from "../../combatants/attributes/index.js";
-import { ActionUserType } from "../../action-user-context/action-user.js";
-import { TaggedCombatantTurnTrackerCombatantId } from "./turn-tracker-tagged-tracked-entity-ids.js";
+import { AdventuringParty } from "../../../adventuring-party/index.js";
+import { CombatantId } from "../../../aliases.js";
+import { ITurnScheduler, TurnScheduler } from "./index.js";
+import { SpeedDungeonGame } from "../../../game/index.js";
+import { CombatantTurnTracker } from "../turn-trackers/combatant-turn-tracker.js";
+import { CombatAttribute } from "../../../combatants/attributes/index.js";
+import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { TaggedCombatantTurnTrackerCombatantId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
   actionUserType = ActionUserType.Combatant;
@@ -13,8 +13,11 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
     return { type: ActionUserType.Combatant, combatantId: this.combatantId };
   };
 
-  constructor(public readonly combatantId: CombatantId) {
-    super();
+  constructor(
+    public readonly combatantId: CombatantId,
+    index: number
+  ) {
+    super(index);
   }
   getTurnTakerId = () => this.combatantId;
   getSpeed(party: AdventuringParty) {
@@ -44,6 +47,6 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
 
     if (isDead) throw new Error("why is a combatant dead when trying to make its trackers");
 
-    return new CombatantTurnTracker(this.combatantId, this.timeOfNextMove);
+    return new CombatantTurnTracker(this.combatantId, this.timeOfNextMove, this.index);
   }
 }

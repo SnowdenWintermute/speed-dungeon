@@ -9,7 +9,6 @@ import {
   COST_PROPERTIES_TEMPLATE_GETTERS,
   createCostPropertiesConfig,
   getResourceCostsBasedOnOwnedRank,
-  getResourceCostsByRank,
 } from "../generic-action-templates/cost-properties-templates/index.js";
 import {
   TARGETING_PROPERTIES_TEMPLATE_GETTERS,
@@ -32,8 +31,6 @@ import { CombatActionExecutionIntent } from "../../combat-action-execution-inten
 import { invariant } from "../../../../utils/index.js";
 import { CombatActionCostPropertiesConfig } from "../../combat-action-cost-properties.js";
 import { ActionPayableResource } from "../../action-calculation-utils/action-costs.js";
-import { AbilityType } from "../../../../abilities/ability-types.js";
-import cloneDeep from "lodash.clonedeep";
 
 const stepsConfig = ACTION_STEPS_CONFIG_TEMPLATE_GETTERS.BASIC_SPELL();
 

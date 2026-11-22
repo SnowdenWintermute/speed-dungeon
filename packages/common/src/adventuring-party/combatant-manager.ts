@@ -333,21 +333,28 @@ export class CombatantManager
 
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
-      battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
-        {
-          type: ActionUserType.Combatant,
-          combatantId: combatant.getEntityId(),
-        },
-        withDelay
-      );
+      const schedulersToCreateCount =
+        1 + (combatant.combatantProperties.extraTurnSchedulerCount || 0);
+      for (
+        let schedulersCreatedCount = 0;
+        schedulersCreatedCount < schedulersToCreateCount;
+        schedulersCreatedCount += 1
+      ) {
+        battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
+          {
+            type: ActionUserType.Combatant,
+            combatantId: combatant.getEntityId(),
+          },
+          withDelay,
+          schedulersCreatedCount
+        );
+      }
 
       combatant.combatantProperties.conditionManager
         .getConditions()
         .forEach((condition, conditionIndex) => {
           const conditionStartingDelay = withDelay;
-          turnSchedulerManager.addConditionToTurnOrder(party, condition, {
-            withCustomStartingDelay: conditionStartingDelay,
-          });
+          turnSchedulerManager.addConditionToTurnOrder(condition, conditionStartingDelay);
         });
 
       battleOption.turnOrderManager.updateTrackers(game, party);
