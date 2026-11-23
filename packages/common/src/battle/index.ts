@@ -7,7 +7,6 @@ import {
   Consumable,
   Equipment,
   FriendOrFoe,
-  IActionUser,
   invariant,
   PartyFateType,
   ThreatChanges,
