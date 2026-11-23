@@ -10,16 +10,16 @@ export interface AgilityBySource {
   inherent: number;
 }
 
-export interface MaxSpeedCombatantReport extends AnalysisCombatantReport {
+export interface MaxAgilityCombatantReport extends AnalysisCombatantReport {
   /**
-   * The speed the agility bought is on `totalAttributes` already, read off the combatant. These
-   * three attribute it and will not re-sum to it exactly: the total is floored once at the end,
+   * The agility total is on `totalAttributes` already, read off the combatant. These three
+   * attribute it and will not re-sum to it exactly: the total is floored once at the end,
    * where attributing per source floors each source separately.
    */
   agilityBySource: AgilityBySource;
 }
 
-export class MaxSpeedRunReporter extends RoomReportingRunReporter<MaxSpeedCombatantReport> {
+export class MaxAgilityRunReporter extends RoomReportingRunReporter<MaxAgilityCombatantReport> {
   /**
    * Read through `Equipment.getAttributesOnEquipmentList`, which is what the combatant's own total
    * reads through, so the two agree. Summing affix values per item instead would not: the analysis
@@ -34,7 +34,7 @@ export class MaxSpeedRunReporter extends RoomReportingRunReporter<MaxSpeedCombat
     return fromEquipment[CombatAttribute.Agility];
   }
 
-  protected getCombatantReport(combatant: Combatant): MaxSpeedCombatantReport {
+  protected getCombatantReport(combatant: Combatant): MaxAgilityCombatantReport {
     const combatantProperties = combatant.getCombatantProperties();
     const { attributeProperties } = combatantProperties;
 

@@ -91,7 +91,7 @@ export class SpeedDungeonPlayer implements Serializable, ReactiveNode {
   getCharactersInParty(party: AdventuringParty) {
     const characters: Combatant[] = [];
     for (const id of this.characterIds) {
-      const characterResult = party.combatantManager.getExpectedCombatant(id);
+      const characterResult = party.combatantManager.requireCombatantById(id);
       characters.push(characterResult);
     }
     return characters;

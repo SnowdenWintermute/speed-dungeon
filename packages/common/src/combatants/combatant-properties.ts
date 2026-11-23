@@ -26,6 +26,7 @@ import { EntityId } from "../aliases.js";
 import { removeUndefinedFields } from "../utils/index.js";
 import { ERROR_MESSAGES } from "../errors/index.js";
 import { CombatantAttributeProperties } from "./attributes/combatant-attribute-properties.js";
+import { SpeedTier } from "../combat/turn-order/speed-tiers.js";
 
 export interface CombatantOnDeathProperties {
   removeConditionsApplied: boolean;
@@ -108,6 +109,7 @@ export class CombatantProperties implements Serializable, ReactiveNode {
       combatantSpecies: this.combatantSpecies,
       monsterType: this.monsterType,
       controlledBy: this.controlledBy.toSerialized(),
+      _speedTier: this._speedTier,
     };
 
     return removeUndefinedFields(result);
@@ -155,6 +157,7 @@ export class CombatantProperties implements Serializable, ReactiveNode {
     result.removeFromPartyOnDeath = serialized.removeFromPartyOnDeath;
     result.giveThreatGeneratedToId = serialized.giveThreatGeneratedToId;
     result.shouldDieWhenCombatantAttachedToDies = serialized.shouldDieWhenCombatantAttachedToDies;
+    result._speedTier = serialized._speedTier;
 
     result.initialize();
 
@@ -169,5 +172,15 @@ export class CombatantProperties implements Serializable, ReactiveNode {
     if (this.isDead()) {
       throw new Error(ERROR_MESSAGES.COMBATANT.IS_DEAD);
     }
+  }
+
+  private _speedTier = SpeedTier.Average;
+
+  get speedTier(): SpeedTier {
+    return this._speedTier;
+  }
+
+  set speedTier(tier: SpeedTier) {
+    this._speedTier = tier;
   }
 }

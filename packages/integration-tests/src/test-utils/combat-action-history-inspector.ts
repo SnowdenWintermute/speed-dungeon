@@ -71,7 +71,7 @@ export class CombatActionHistoryInspector {
     invariant(actionTaken?.actionExecutionIntent.targets.type === CombatActionTargetType.Single);
     return !this.clientApplication.gameContext
       .requireParty()
-      .combatantManager.getExpectedCombatant(actionTaken.actionExecutionIntent.targets.targetId)
+      .combatantManager.requireCombatantById(actionTaken.actionExecutionIntent.targets.targetId)
       .combatantProperties.isDead();
   }
 }

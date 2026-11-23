@@ -1,4 +1,5 @@
-export enum SpeedTiers {
+export enum SpeedTier {
+  Stopped,
   Slowest,
   Slower,
   Slow,

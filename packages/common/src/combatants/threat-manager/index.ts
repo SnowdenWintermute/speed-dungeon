@@ -96,7 +96,7 @@ export class ThreatManager implements Serializable, ReactiveNode {
     if (!newThreatTargetIdOption) return false;
     this.setPreviouslyHighestThreatId(newThreatTargetIdOption);
 
-    const newTargetCombatant = party.combatantManager.getExpectedCombatant(newThreatTargetIdOption);
+    const newTargetCombatant = party.combatantManager.requireCombatantById(newThreatTargetIdOption);
     const targetPos = newTargetCombatant.getHomePosition().clone();
 
     // don't use their Y coordinate otherwise it will look strange when ground

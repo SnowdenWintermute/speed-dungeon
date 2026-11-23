@@ -2,7 +2,7 @@ import { AnalysisCharacterSpecification } from "../analysis-subjects/analysis-ch
 import { sampledDamageRunSet } from "../studies/sampled-damage/run-set.ts";
 import { maxAccuracyRunSet } from "../studies/max-accuracy/run-set.ts";
 import { armorClassRunSet } from "../studies/armor-class/run-set.ts";
-import { maxSpeedRunSet } from "../studies/max-speed/run-set.ts";
+import { maxAgilityRunSet } from "../studies/max-agility/run-set.ts";
 import { AllocationIntensity } from "./allocation-intensity.ts";
 import { AnalysisRunOptions } from "./analysis-run-options.ts";
 import { AnalysisRunSet } from "./run-set.ts";
@@ -23,7 +23,7 @@ const RUN_SET_FACTORIES: {
   [DungeonRunAnalysis.SampledDamage]: sampledDamageRunSet,
   [DungeonRunAnalysis.MaxAccuracy]: maxAccuracyRunSet,
   [DungeonRunAnalysis.ArmorClass]: armorClassRunSet,
-  [DungeonRunAnalysis.MaxSpeed]: maxSpeedRunSet,
+  [DungeonRunAnalysis.MaxAgility]: maxAgilityRunSet,
 };
 
 // the dom lib types the ambient `self` as a Window, whose postMessage takes `any` and would check

@@ -26,6 +26,7 @@ import { CombatAttribute } from "./attributes/index.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
 import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 import { HoldableSlotId } from "./combatant-equipment/types.js";
+import { SpeedTier } from "../combat/turn-order/speed-tiers.js";
 
 export class Combatant implements IActionUser, Serializable, ReactiveNode {
   constructor(
@@ -119,18 +120,17 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     throw new Error("Method not implemented.");
   }
 
-  getSpeed() {
-    const combatantSpeed = this.combatantProperties.attributeProperties.getAttributeValue(
-      CombatAttribute.Speed
-    );
-    return combatantSpeed;
+  getSpeedTier(): SpeedTier {
+    return SpeedTier.Average;
   }
 
-  getDelayForActionUse(_actionName: CombatActionName) {
-    const speed = this.getSpeed();
-    // @TODO - get delay multiplier from action
-    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
-    return delay;
+  getDelayOnTurnEnded(delayMultiplierOption = 1) {
+    const speedTier = this.getSpeedTier();
+    if (speedTier === SpeedTier.Stopped) {
+      return Infinity;
+    }
+    // @TODO - get delay from speed tier
+    return 0;
   }
 
   handleTurnEnded(): void {

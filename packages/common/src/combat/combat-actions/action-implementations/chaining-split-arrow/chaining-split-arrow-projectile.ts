@@ -159,7 +159,7 @@ function getBouncableTargets(
       previousTargetId: previousTargetIdResult,
     };
   }
-  const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
+  const opponents = party.combatantManager.requireCombatantsById(opponentIds);
 
   const isValidTarget = (combatant: Combatant) =>
     !combatant.combatantProperties.isDead() &&

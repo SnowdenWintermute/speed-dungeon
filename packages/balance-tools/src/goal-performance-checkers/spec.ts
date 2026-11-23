@@ -5,7 +5,6 @@ import type { EquipmentScoreDominationAxis } from "../solvers/equipment-score-do
 
 export type GoalPerformanceCheckerTypeConfig =
   | { type: GoalPerformanceCheckerType.TotalAccuracy }
-  | { type: GoalPerformanceCheckerType.TotalSpeed }
   | { type: GoalPerformanceCheckerType.TotalAgility }
   | { type: GoalPerformanceCheckerType.WornArmorClass }
   | {

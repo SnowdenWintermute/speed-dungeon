@@ -74,7 +74,7 @@ export class ClientApplicationGameContext {
   }
 
   requireCombatant(combatantId: EntityId) {
-    return this.requireParty().combatantManager.getExpectedCombatant(combatantId);
+    return this.requireParty().combatantManager.requireCombatantById(combatantId);
   }
 
   requirePlayerContext(username: Username) {
@@ -90,7 +90,7 @@ export class ClientApplicationGameContext {
   requireCombatantContext(combatantId: EntityId): CombatantContext {
     const party = this.requireParty();
     const game = this.requireGame();
-    const combatant = party.combatantManager.getExpectedCombatant(combatantId);
+    const combatant = party.combatantManager.requireCombatantById(combatantId);
     return new CombatantContext(game, party, combatant);
   }
 

@@ -60,7 +60,7 @@ export class TargetFilterer {
     const filteredIds = [];
 
     for (const targetId of potentialIds) {
-      const combatantResult = party.combatantManager.getExpectedCombatant(targetId);
+      const combatantResult = party.combatantManager.requireCombatantById(targetId);
       let targetIsInProhibitedState = false;
 
       // handle webs/ensnares

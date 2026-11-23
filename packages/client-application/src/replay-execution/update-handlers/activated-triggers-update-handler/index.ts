@@ -71,7 +71,7 @@ export class ActionEffectsApplyerCommand {
     if (!supportClassLevelsGained) return;
 
     for (const [entityId, combatantClass] of Object.entries(supportClassLevelsGained)) {
-      const combatantResult = this.party.combatantManager.getExpectedCombatant(entityId);
+      const combatantResult = this.party.combatantManager.requireCombatantById(entityId);
       const { combatantProperties } = combatantResult;
       combatantProperties.classProgressionProperties.incrementSupportClassLevel(combatantClass);
     }
@@ -94,7 +94,7 @@ export class ActionEffectsApplyerCommand {
 
     for (const [entityId, conditionIdAndStacks] of Object.entries(removedConditionStacks)) {
       for (const { conditionId, numStacks } of conditionIdAndStacks) {
-        const combatantResult = this.party.combatantManager.getExpectedCombatant(entityId);
+        const combatantResult = this.party.combatantManager.requireCombatantById(entityId);
 
         const { conditionManager } = combatantResult.combatantProperties;
         const conditionRemovedOption = conditionManager.removeStacks(conditionId, numStacks);
@@ -132,7 +132,7 @@ export class ActionEffectsApplyerCommand {
     const { gameWorldView } = this.clientApplication;
     for (const [entityId, conditionIdsRemoved] of Object.entries(removedConditionIds)) {
       for (const conditionId of conditionIdsRemoved) {
-        const combatantResult = this.party.combatantManager.getExpectedCombatant(entityId);
+        const combatantResult = this.party.combatantManager.requireCombatantById(entityId);
 
         const { conditionManager } = combatantResult.combatantProperties;
         const conditionRemovedOption = conditionManager.removeConditionById(conditionId);
@@ -163,7 +163,7 @@ export class ActionEffectsApplyerCommand {
     const { petManager, combatantManager } = this.party;
 
     for (const petId of petsUnsummoned) {
-      const pet = combatantManager.getExpectedCombatant(petId);
+      const pet = combatantManager.requireCombatantById(petId);
       petManager.unsummonPet(petId, this.game);
 
       const combatantSceneEntityManager =
@@ -343,7 +343,7 @@ export class ActionEffectsApplyerCommand {
       appliedConditions
     )) {
       for (const [entityId, conditions] of Object.entries(entityAppliedConditions)) {
-        const combatantResult = this.party.combatantManager.getExpectedCombatant(entityId);
+        const combatantResult = this.party.combatantManager.requireCombatantById(entityId);
         for (const { condition, startingDelay } of conditions) {
           const deserializedCondition = deserializeCondition(condition);
           deserializedCondition.makeObservable();
@@ -381,7 +381,7 @@ export class ActionEffectsApplyerCommand {
 
       const { actionEntityManager } = this.party;
 
-      const actionEntity = actionEntityManager.getExpectedActionEntity(id);
+      const actionEntity = actionEntityManager.requireActionEntityById(id);
       let { actionOriginData } = actionEntity.actionEntityProperties;
       if (!actionOriginData) {
         actionOriginData = actionEntity.actionEntityProperties.actionOriginData =

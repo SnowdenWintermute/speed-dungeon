@@ -23,7 +23,7 @@ export async function testCombatantDiesWhilePrimedForIceBurst(testFixture: Integ
   const killerOfFirstWolfId = combatantFocus.requireFocusedCharacterId();
   await gameClientHarness.useCombatAction(CombatActionName.Attack);
   const killedWolfId = actionHistory.requireLastUsedActionSingleTargetId(killerOfFirstWolfId);
-  const killedWolf = combatantManager.getExpectedCombatant(killedWolfId);
+  const killedWolf = combatantManager.requireCombatantById(killedWolfId);
   expect(killedWolf.combatantProperties.isDead()).toBeTruthy();
   // remaining alive wolf has primed
   const monsters = combatantManager.getDungeonControlledCombatants();

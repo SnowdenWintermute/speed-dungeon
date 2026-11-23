@@ -75,8 +75,7 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   }
 
   if (shouldEndTurn) {
-    const { actionName } = tracker.actionExecutionIntent;
-    const delay = actionUser.getDelayForActionUse(actionName);
+    const delay = actionUser.getDelayOnTurnEnded();
     const schedulerTakingTurnIdentifier =
       battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerIdentifierTakingTurn();
     tellClientDelayAdded = { schedulerIdentifier: schedulerTakingTurnIdentifier, delay };

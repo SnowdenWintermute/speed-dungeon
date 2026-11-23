@@ -80,7 +80,7 @@ export class PlayerShardPool {
 
   static applyPayments(party: AdventuringParty, payments: ShardPayment[]) {
     for (const { characterId, amount } of payments) {
-      const character = party.combatantManager.getExpectedCombatant(characterId);
+      const character = party.combatantManager.requireCombatantById(characterId);
       character.combatantProperties.inventory.changeShards(amount * -1);
     }
   }

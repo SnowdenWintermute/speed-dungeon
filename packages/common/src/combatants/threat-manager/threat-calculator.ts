@@ -64,7 +64,7 @@ export class ThreatCalculator {
     if (action.hitOutcomeProperties.flatThreatGeneratedOnHit) {
       const entitiesHit = this.hitOutcomes.outcomeFlags[HitOutcome.Hit] || [];
       for (const entityId of entitiesHit) {
-        const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+        const targetCombatant = this.party.combatantManager.requireCombatantById(entityId);
         const { combatantProperties } = targetCombatant;
         const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
@@ -104,7 +104,7 @@ export class ThreatCalculator {
 
     if (!hitPointChanges) return;
     for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
-      const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+      const targetCombatant = this.party.combatantManager.requireCombatantById(entityId);
       const { combatantProperties } = targetCombatant;
       const targetIsPlayerControlled = combatantProperties.controlledBy.isPlayerControlled();
 
@@ -133,7 +133,7 @@ export class ThreatCalculator {
     }
 
     for (const entityId of entitiesHit) {
-      const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+      const targetCombatant = this.party.combatantManager.requireCombatantById(entityId);
       const { combatantProperties } = targetCombatant;
       const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
       if (targetIsAIControlled) {
@@ -163,7 +163,7 @@ export class ThreatCalculator {
 
     for (const [entityId, hitPointChange] of hitPointChanges.getRecords()) {
       if (hitPointChange.value > 0) continue; // don't add threat for monsters healing players
-      const targetCombatant = this.party.combatantManager.getExpectedCombatant(entityId);
+      const targetCombatant = this.party.combatantManager.requireCombatantById(entityId);
       const { combatantProperties } = targetCombatant;
       const targetIsAIControlled = !combatantProperties.controlledBy.isPlayerControlled();
       if (targetIsAIControlled) continue;

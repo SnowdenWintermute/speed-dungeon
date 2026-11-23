@@ -224,7 +224,7 @@ export class CombatantFocus {
     const activeTrackerId = firstActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
 
     const newlyActiveTrackerIsPlayerControlled = combatantManager
-      .getExpectedCombatant(activeTrackerId)
+      .requireCombatantById(activeTrackerId)
       .combatantProperties.controlledBy.isPlayerControlled();
 
     if (newlyActiveTrackerIsPlayerControlled) {
@@ -265,7 +265,7 @@ export class CombatantFocus {
       const activeTrackerId = newlyActiveTracker.getTaggedIdOfTrackedEntity().combatantId;
 
       const newlyActiveTrackerIsPlayerControlled = combatantManager
-        .getExpectedCombatant(activeTrackerId)
+        .requireCombatantById(activeTrackerId)
         .combatantProperties.controlledBy.isPlayerControlled();
 
       if (newlyActiveTrackerIsPlayerControlled) {

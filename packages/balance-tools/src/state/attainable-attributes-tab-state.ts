@@ -14,7 +14,7 @@ import {
 } from "./persisted-ui-state.ts";
 
 const DEFAULT_SPECIFICATION: AttainableAttributeSpecification = {
-  attribute: CombatAttribute.Speed,
+  attribute: CombatAttribute.ArmorClass,
   buildSpec: {
     mainClass: CombatantClass.Rogue,
     supportClass: CombatantClass.Warrior,
@@ -72,10 +72,13 @@ export class AttainableAttributesTabState {
       let calculation: null | Calculation = null;
       let failureReason: null | string = null;
       try {
-        const scoredSets = new AttainableAttributeCalculator().getScoredEquipmentSets(specification);
+        const scoredSets = new AttainableAttributeCalculator().getScoredEquipmentSets(
+          specification
+        );
         calculation = { specification, scoredSets };
       } catch (probablyError) {
-        failureReason = probablyError instanceof Error ? probablyError.message : String(probablyError);
+        failureReason =
+          probablyError instanceof Error ? probablyError.message : String(probablyError);
       }
 
       runInAction(() => {

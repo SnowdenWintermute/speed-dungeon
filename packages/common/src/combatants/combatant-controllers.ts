@@ -87,7 +87,7 @@ export class CombatantControlledBy
     if (this.summonedBy === undefined) {
       throw new Error("Expected this combatant to have been summoned by someone");
     }
-    return party.combatantManager.getExpectedCombatant(this.summonedBy);
+    return party.combatantManager.requireCombatantById(this.summonedBy);
   }
 
   wasSummonedByCharacterControlledByPlayer(playerName: string, party: AdventuringParty) {

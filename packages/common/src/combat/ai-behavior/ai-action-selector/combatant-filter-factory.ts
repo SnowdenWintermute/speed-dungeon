@@ -70,7 +70,7 @@ export class CombatantFilterFactory {
       }
 
       for (const combatantId of idsToFetchCombatants) {
-        const combatant = party.combatantManager.getExpectedCombatant(combatantId);
+        const combatant = party.combatantManager.requireCombatantById(combatantId);
         combatantsToConsider.push(combatant);
       }
 

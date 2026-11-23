@@ -66,7 +66,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     for (const flag of iterateNumericEnum(HitOutcome)) {
       for (const combatantId of outcomeFlags[flag] || []) {
-        const targetCombatant = party.combatantManager.getExpectedCombatant(combatantId);
+        const targetCombatant = party.combatantManager.requireCombatantById(combatantId);
 
         const hpChangeIsCrit = (() => {
           if (!hpChanges) return false;
@@ -216,7 +216,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
 
     if (petsTamed) {
       for (const { petId, tamerId } of petsTamed) {
-        const petCombatant = party.combatantManager.getExpectedCombatant(petId);
+        const petCombatant = party.combatantManager.requireCombatantById(petId);
 
         // kill any webs that were on the pet
         const attachedCombatantsDeathActionIntents = getKillAttachedCombatantsActionIntents(
@@ -247,7 +247,7 @@ export function getKillAttachedCombatantsActionIntents(
   const intents: ActionIntentAndUser[] = [];
   for (const attachedId of targetCombatant.combatantProperties.transformProperties
     .attachedCombatants) {
-    const attachedCombatant = party.combatantManager.getExpectedCombatant(attachedId);
+    const attachedCombatant = party.combatantManager.requireCombatantById(attachedId);
     if (attachedCombatant.combatantProperties.shouldDieWhenCombatantAttachedToDies) {
       intents.push({
         user: attachedCombatant,

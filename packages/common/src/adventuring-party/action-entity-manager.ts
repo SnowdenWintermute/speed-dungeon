@@ -42,12 +42,15 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
       const currentFastestActorDelay =
         battleOption.turnOrderManager.getFastestActorTurnOrderTracker().timeOfNextMove;
 
-      const startingDelay = turnOrderSpeedOption + currentFastestActorDelay;
+      const accumulatedDelay = turnOrderSpeedOption + currentFastestActorDelay;
 
       battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
         { type: ActionUserType.ActionEntity, actionEntityId: entity.entityProperties.id },
-        startingDelay,
-        0
+        0,
+        {
+          initialDelay: 0,
+          accumulatedDelay: accumulatedDelay,
+        }
       );
     }
   }
@@ -61,7 +64,7 @@ export class ActionEntityManager implements Serializable, ReactiveNode {
     return entityOption;
   }
 
-  getExpectedActionEntity(entityId: EntityId) {
+  requireActionEntityById(entityId: EntityId) {
     const entityOption = this.getActionEntityOption(entityId);
     if (entityOption === undefined) {
       throw new Error(ERROR_MESSAGES.ACTION_ENTITIES.NOT_FOUND);

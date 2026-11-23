@@ -228,7 +228,7 @@ export class TargetingCalculator {
   ) {
     const primaryTargetIdResult = this.getPrimaryTargetCombatantId(actionExecutionIntent);
     if (primaryTargetIdResult instanceof Error) return primaryTargetIdResult;
-    const primaryTarget = party.combatantManager.getExpectedCombatant(primaryTargetIdResult);
+    const primaryTarget = party.combatantManager.requireCombatantById(primaryTargetIdResult);
     return primaryTarget;
   }
 

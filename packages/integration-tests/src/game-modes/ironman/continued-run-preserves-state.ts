@@ -35,7 +35,7 @@ export async function testContinuedRunPreservesState(testFixture: IntegrationTes
   const focusedCharacterHpBeforeAction =
     focusedCharacter.combatantProperties.resources.getHitPoints();
   const currentTargetId = focusedCharacter.getTargetingProperties().requireSelectedSingleTargetId();
-  const targetCombatant = party.combatantManager.getExpectedCombatant(currentTargetId);
+  const targetCombatant = party.combatantManager.requireCombatantById(currentTargetId);
   const targetHpBeforeAttack = targetCombatant.combatantProperties.resources.getHitPoints();
   await alpha.gameClientHarness.useSelectedCombatAction();
   const targetHpAfterAttack = targetCombatant.combatantProperties.resources.getHitPoints();
@@ -60,7 +60,7 @@ export async function testContinuedRunPreservesState(testFixture: IntegrationTes
   const gameAfterGameLoad = alpha.clientApplication.gameContext.requireGame();
   const partyAfterGameLoad = alpha.clientApplication.gameContext.requireParty();
   const targetCombatantInLoadedRun =
-    partyAfterGameLoad.combatantManager.getExpectedCombatant(currentTargetId);
+    partyAfterGameLoad.combatantManager.requireCombatantById(currentTargetId);
   const targetCombatantInLoadedRunHp =
     targetCombatantInLoadedRun.combatantProperties.resources.getHitPoints();
   expect(targetCombatantInLoadedRunHp).toEqual(targetHpAfterAttack);

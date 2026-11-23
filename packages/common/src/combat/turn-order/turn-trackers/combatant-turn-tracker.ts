@@ -39,7 +39,7 @@ export class CombatantTurnTracker extends TurnTracker {
     resourceChangePropertiesStrategy: ResourceChangePropertiesStrategy
   ): ActionIntentOptionAndUser {
     const { combatantId } = this;
-    const activeCombatant = party.combatantManager.getExpectedCombatant(combatantId);
+    const activeCombatant = party.combatantManager.requireCombatantById(combatantId);
 
     const actionExecutionIntent = AISelectActionAndTarget(
       game,

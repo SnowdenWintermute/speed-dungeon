@@ -21,7 +21,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     const { party, actionUser } = context.actionUserContext;
 
     const actionTarget = actionUser.getConditionAppliedTo();
-    const primaryTarget = party.combatantManager.getExpectedCombatant(actionTarget);
+    const primaryTarget = party.combatantManager.requireCombatantById(actionTarget);
 
     const position = primaryTarget.combatantProperties.transformProperties.position.clone();
 

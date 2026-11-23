@@ -32,7 +32,7 @@ export async function battleConclusionGameUpdateHandler(
 
   if (command.revivedCharacterIds) {
     for (const id of command.revivedCharacterIds) {
-      const combatant = party.combatantManager.getExpectedCombatant(id);
+      const combatant = party.combatantManager.requireCombatantById(id);
       combatant.combatantProperties.resources.changeHitPoints(1);
     }
   }

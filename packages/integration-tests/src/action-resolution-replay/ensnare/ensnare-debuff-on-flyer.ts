@@ -26,7 +26,7 @@ export async function testEnsnareDebuffOnFlyer(testFixture: IntegrationTestFixtu
   await gameClientHarness.useCombatAction(CombatActionName.Attack);
   const attackTargetId = actionHistory.requireLastUsedActionSingleTargetId(attackUserId);
   const attackTargetCombatantProperties = combatantManager
-    .getExpectedCombatant(attackTargetId)
+    .requireCombatantById(attackTargetId)
     .getCombatantProperties();
   expect(
     attackTargetCombatantProperties.conditionManager.getConditionByName(
@@ -58,7 +58,7 @@ export async function testEnsnareDebuffOnFlyer(testFixture: IntegrationTestFixtu
   await gameClientHarness.selectCombatAction(CombatActionName.Kill, 1);
   await gameClientHarness.cycleTargets(NextOrPrevious.Previous);
   const targetWebId = webAttacker.targetingProperties.requireSelectedSingleTargetId();
-  const web = combatantManager.getExpectedCombatant(targetWebId);
+  const web = combatantManager.requireCombatantById(targetWebId);
   expect(web.combatantProperties.monsterType).toBe(MonsterType.Net);
   await gameClientHarness.useSelectedCombatAction();
   expect(

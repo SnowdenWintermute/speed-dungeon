@@ -2,11 +2,11 @@ import { ArrayUtils } from "@speed-dungeon/common";
 import { SampledRoom } from "../../analysis-runs/analysis-sample.ts";
 import { AnalysisSampleTable } from "../../analysis-runs/analysis-sample-table.ts";
 import { AgilityBySource } from "./run-reporter.ts";
-import { MaxSpeedSample } from "./samples.ts";
-import { MaxSpeedTableRow } from "./row.ts";
+import { MaxAgilitySample } from "./samples.ts";
+import { MaxAgilityTableRow } from "./row.ts";
 
-export class MaxSpeedTable extends AnalysisSampleTable<MaxSpeedSample, MaxSpeedTableRow> {
-  private averageAgilityBySource(samples: MaxSpeedSample[]): AgilityBySource {
+export class MaxAgilityTable extends AnalysisSampleTable<MaxAgilitySample, MaxAgilityTableRow> {
+  private averageAgilityBySource(samples: MaxAgilitySample[]): AgilityBySource {
     const averageOf = (readSource: (bySource: AgilityBySource) => number) =>
       ArrayUtils.average(samples.map((sample) => readSource(sample.agilityBySource)));
 
@@ -17,7 +17,7 @@ export class MaxSpeedTable extends AnalysisSampleTable<MaxSpeedSample, MaxSpeedT
     };
   }
 
-  protected selectRow(room: SampledRoom<MaxSpeedSample>): MaxSpeedTableRow {
+  protected selectRow(room: SampledRoom<MaxAgilitySample>): MaxAgilityTableRow {
     return {
       ...this.commonRowFields(room),
       averageAgilityBySource: this.averageAgilityBySource(room.samples),

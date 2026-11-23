@@ -30,7 +30,7 @@ export class EnsnaredCondition extends CombatantCondition {
   }
 
   onRemoved(this: CombatantCondition, party: AdventuringParty) {
-    const appliedToCombatant = party.combatantManager.getExpectedCombatant(this.appliedTo);
+    const appliedToCombatant = party.combatantManager.requireCombatantById(this.appliedTo);
     const triggeredActions: ActionIntentAndUser[] = [];
     const startFlyingIntentAndUser = getStartFlyingActionIntentIfAble(appliedToCombatant);
     if (startFlyingIntentAndUser !== undefined) {

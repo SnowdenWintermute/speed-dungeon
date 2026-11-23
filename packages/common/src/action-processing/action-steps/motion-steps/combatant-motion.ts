@@ -39,7 +39,7 @@ export class CombatantMotionActionResolutionStep extends EntityMotionActionResol
       if (newParent?.identifier.sceneEntityIdentifier.type === SceneEntityType.CharacterModel) {
         const combatantId = newParent?.identifier.sceneEntityIdentifier.entityId;
         context.actionUserContext.party.combatantManager
-          .getExpectedCombatant(combatantId)
+          .requireCombatantById(combatantId)
           .getCombatantProperties()
           .transformProperties.setAttachedCombatant(actionUser.getEntityId());
       }

@@ -186,7 +186,7 @@ export class BestImprovementEquipmentSolver {
       const characterNewPerformance = comparisonByCharacter.get(characterIdMostImproved);
       invariant(characterNewPerformance !== undefined);
 
-      const combatantReceiving = combatantManager.getExpectedCombatant(characterIdMostImproved);
+      const combatantReceiving = combatantManager.requireCombatantById(characterIdMostImproved);
       this.currentPerformanceByCharacter.set(
         combatantReceiving.getEntityId(),
         characterNewPerformance.total

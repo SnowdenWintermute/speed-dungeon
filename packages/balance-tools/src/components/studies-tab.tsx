@@ -5,7 +5,7 @@ import { STUDY_NAME_SLUGS, StudyName } from "../studies/study-name.ts";
 import { MaxAccuracyPanel } from "../studies/max-accuracy/panel.tsx";
 import { SampledDamagePanel } from "../studies/sampled-damage/panel.tsx";
 import { ArmorClassPanel } from "../studies/armor-class/panel.tsx";
-import { MaxSpeedPanel } from "../studies/max-speed/panel.tsx";
+import { MaxAgilityPanel } from "../studies/max-agility/panel.tsx";
 import { useBalanceToolsApplication } from "../state/context.tsx";
 
 function studyRadioOption(studyName: StudyName) {
@@ -20,8 +20,7 @@ const STUDY_PANELS: Record<StudyName, FunctionComponent> = {
   [StudyName.CasterDualWieldRanged]: () => SampledDamagePanel(StudyName.CasterDualWieldRanged),
   [StudyName.ArmorClassMixed]: () => ArmorClassPanel(StudyName.ArmorClassMixed),
   [StudyName.ArmorClassGroupThree]: () => ArmorClassPanel(StudyName.ArmorClassGroupThree),
-  [StudyName.MaxSpeedMixed]: () => MaxSpeedPanel(StudyName.MaxSpeedMixed),
-  [StudyName.MaxAgilityGroupThree]: () => MaxSpeedPanel(StudyName.MaxAgilityGroupThree),
+  [StudyName.MaxAgilityGroupThree]: MaxAgilityPanel,
 };
 
 export const StudiesTab = observer(() => {
@@ -40,7 +39,6 @@ export const StudiesTab = observer(() => {
               setValue={(studyName) => studies.setStudyName(studyName)}
               options={[
                 studyRadioOption(StudyName.MaxAccuracyMixed),
-                studyRadioOption(StudyName.MaxSpeedMixed),
                 studyRadioOption(StudyName.MaxAgilityGroupThree),
               ]}
             />

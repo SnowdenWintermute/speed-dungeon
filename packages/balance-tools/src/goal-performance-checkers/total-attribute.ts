@@ -6,8 +6,8 @@ import {
 } from "@speed-dungeon/common";
 import { GoalPerformanceChecker } from "./index.ts";
 
-/** the attribute scored is not always one that can be allocated: speed is bought with agility and
- * accuracy with dexterity, and either derivation may stop being one for one */
+/** the attribute scored is not always one that can be allocated: accuracy is bought with dexterity,
+ * and that derivation may stop being one for one */
 export class TotalAttributeGoalPerformanceChecker implements GoalPerformanceChecker {
   constructor(
     private attribute: CombatAttribute,

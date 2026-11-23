@@ -35,7 +35,6 @@ function studyPanelStates(): StudyPanelStates {
     [StudyName.CasterDualWieldRanged]: panelStateFor(StudyName.CasterDualWieldRanged),
     [StudyName.ArmorClassMixed]: panelStateFor(StudyName.ArmorClassMixed),
     [StudyName.ArmorClassGroupThree]: panelStateFor(StudyName.ArmorClassGroupThree),
-    [StudyName.MaxSpeedMixed]: panelStateFor(StudyName.MaxSpeedMixed),
     [StudyName.MaxAgilityGroupThree]: panelStateFor(StudyName.MaxAgilityGroupThree),
   };
 }

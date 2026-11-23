@@ -3,9 +3,7 @@ import { CombatantCondition } from "../../conditions/index.js";
 import { SpeedDungeonGame } from "../../game/index.js";
 import { EntityId } from "../../aliases.js";
 import { CombatantTurnScheduler } from "./turn-schedulers/combatant-turn-scheduler.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "./consts.js";
-import { TurnOrderManager } from "./turn-order-manager.js";
-import { TurnSchedulerFactory } from "./turn-scheduler-factory.js";
+import { TurnSchedulerCreationDelay, TurnSchedulerFactory } from "./turn-scheduler-factory.js";
 import { ITurnScheduler } from "./turn-schedulers/index.js";
 import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnTracker } from "./turn-trackers/index.js";
@@ -31,6 +29,7 @@ export class TurnSchedulerManager implements Serializable {
         taggedEntityId: scheduler.getTaggedEntityId(),
         accumulatedDelay: scheduler.accumulatedDelay,
         schedulerIndex: scheduler.index,
+        initialDelay: scheduler.initialDelay,
       };
     });
 
@@ -40,16 +39,15 @@ export class TurnSchedulerManager implements Serializable {
   static fromSerialized(serialized: SerializedOf<TurnSchedulerManager>): TurnSchedulerManager {
     const result = new TurnSchedulerManager(serialized.minTurnTrackersCount);
     for (const scheduler of serialized.schedulers) {
-      result.addNewScheduler(
-        scheduler.taggedEntityId,
-        scheduler.accumulatedDelay,
-        scheduler.schedulerIndex
-      );
+      result.addNewScheduler(scheduler.taggedEntityId, scheduler.schedulerIndex, {
+        initialDelay: scheduler.initialDelay,
+        accumulatedDelay: scheduler.accumulatedDelay,
+      });
     }
     return result;
   }
 
-  createSchedulers(party: AdventuringParty) {
+  createSchedulersOnBattleStart(party: AdventuringParty) {
     const { combatants, tickableConditions } =
       party.combatantManager.getAllTickableConditionsAndCombatants();
     const schedulers: ITurnScheduler[] = [];
@@ -63,7 +61,7 @@ export class TurnSchedulerManager implements Serializable {
         schedulersCreatedCount += 1
       ) {
         // @TODO -rollstarting delay
-        const startingDelay = 0;
+        const initialDelay = 0;
 
         schedulers.push(
           TurnSchedulerFactory.create(
@@ -71,13 +69,17 @@ export class TurnSchedulerManager implements Serializable {
               type: ActionUserType.Combatant,
               combatantId: combatant.getEntityId(),
             },
-            startingDelay,
-            schedulersCreatedCount
+            schedulersCreatedCount,
+            {
+              initialDelay,
+              accumulatedDelay: 0,
+            }
           )
         );
       }
     }
 
+    // @TODO - calculate condition starting delay at battle start based on condition turns between ticks
     schedulers.push(
       ...tickableConditions.map(({ appliedTo, condition }) =>
         TurnSchedulerFactory.create(
@@ -87,7 +89,10 @@ export class TurnSchedulerManager implements Serializable {
             conditionId: condition.id,
           },
           0,
-          0
+          {
+            initialDelay: 0,
+            accumulatedDelay: 0,
+          }
         )
       )
     );
@@ -124,10 +129,8 @@ export class TurnSchedulerManager implements Serializable {
   buildNewList(game: SpeedDungeonGame, party: AdventuringParty) {
     this.removeStaleTurnSchedulers(party);
 
-    const speedsByScheduler = this.mapSpeedsByScheduler(party);
-
     for (const scheduler of this.schedulers) {
-      scheduler.reset(TurnSchedulerManager.requireSpeed(speedsByScheduler, scheduler));
+      scheduler.reset();
     }
 
     const turnTrackerList: TurnTracker[] = [];
@@ -142,7 +145,7 @@ export class TurnSchedulerManager implements Serializable {
       iterationLimiter < ITERATION_LIMIT
     ) {
       iterationLimiter += 1;
-      this.sortSchedulers(speedsByScheduler);
+      this.sortSchedulers();
 
       const fastestActor = this.requireFirstScheduler();
 
@@ -155,36 +158,12 @@ export class TurnSchedulerManager implements Serializable {
         turnTrackerList.push(trackerOption);
       }
 
-      const delay = TurnOrderManager.getActionDelayCost(
-        TurnSchedulerManager.requireSpeed(speedsByScheduler, fastestActor),
-        BASE_ACTION_DELAY_MULTIPLIER
-      );
+      const delay = fastestActor.requireActionUser(party).getDelayOnTurnEnded();
 
       fastestActor.timeOfNextMove += delay;
     }
 
     return turnTrackerList;
-  }
-
-  /** calculating speed was measured to be expensive during the design and testing
-     of AnalysisRun where we run several simulated dungeon runs, so we are caching it
-     before doing the several comparisons, as opposed to directly calling .getSpeed() 
-     each time we want to read it */
-  private mapSpeedsByScheduler(party: AdventuringParty) {
-    const speedsByScheduler = new Map<ITurnScheduler, number>();
-    for (const scheduler of this.schedulers) {
-      speedsByScheduler.set(scheduler, scheduler.getSpeed(party));
-    }
-    return speedsByScheduler;
-  }
-
-  private static requireSpeed(
-    speedsByScheduler: Map<ITurnScheduler, number>,
-    scheduler: ITurnScheduler
-  ) {
-    const speed = speedsByScheduler.get(scheduler);
-    invariant(speed !== undefined, "expected a speed for every scheduler in the list");
-    return speed;
   }
 
   getSchedulerByCombatantId(entityId: EntityId) {
@@ -232,27 +211,21 @@ export class TurnSchedulerManager implements Serializable {
     });
   }
 
-  private sortSchedulers(speedsByScheduler: Map<ITurnScheduler, number>) {
+  private sortSchedulers() {
     this.schedulers.sort((a, b) => {
       if (a.timeOfNextMove !== b.timeOfNextMove) {
         return a.timeOfNextMove - b.timeOfNextMove;
       }
       if (a.getTurnTakerId() !== b.getTurnTakerId()) {
-        return TurnSchedulerManager.compareBySpeedThenId(speedsByScheduler, a, b);
+        return TurnSchedulerManager.compareByInitialDelayThenId(a, b);
       }
       return a.index - b.index;
     });
   }
 
-  private static compareBySpeedThenId(
-    speedsByScheduler: Map<ITurnScheduler, number>,
-    a: ITurnScheduler,
-    b: ITurnScheduler
-  ) {
-    const speedA = TurnSchedulerManager.requireSpeed(speedsByScheduler, a);
-    const speedB = TurnSchedulerManager.requireSpeed(speedsByScheduler, b);
-    if (speedA !== speedB) {
-      return speedB - speedA;
+  private static compareByInitialDelayThenId(a: ITurnScheduler, b: ITurnScheduler) {
+    if (a.initialDelay !== b.initialDelay) {
+      return a.initialDelay - b.initialDelay;
     }
     return a.getTurnTakerId().localeCompare(b.getTurnTakerId());
   }
@@ -263,8 +236,13 @@ export class TurnSchedulerManager implements Serializable {
     return fastest;
   }
 
-  addNewScheduler(from: TaggedTurnTrackerTrackedEntityId, startingDelay: number, index: number) {
-    const scheduler = TurnSchedulerFactory.create(from, startingDelay, index);
+  addNewScheduler(
+    from: TaggedTurnTrackerTrackedEntityId,
+    index: number,
+    delays: TurnSchedulerCreationDelay
+  ) {
+    const { initialDelay, accumulatedDelay } = delays;
+    const scheduler = TurnSchedulerFactory.create(from, index, { initialDelay, accumulatedDelay });
     this.schedulers.push(scheduler);
   }
 
@@ -278,10 +256,9 @@ export class TurnSchedulerManager implements Serializable {
     invariant(schedulerTakingTurn !== undefined, "no turn scheduler marked as current turn taker");
     // once we start getting action delay costs that are different per each action
     // we'll have to calculate this based on the current action
-    const predictedDelayOfTurnInProgress = TurnOrderManager.getActionDelayCost(
-      schedulerTakingTurn.getSpeed(party),
-      BASE_ACTION_DELAY_MULTIPLIER
-    );
+    const predictedDelayOfTurnInProgress = schedulerTakingTurn
+      .requireActionUser(party)
+      .getDelayOnTurnEnded();
     return schedulerTakingTurn.accumulatedDelay + predictedDelayOfTurnInProgress + 1;
   }
 
@@ -298,8 +275,11 @@ export class TurnSchedulerManager implements Serializable {
         combatantId: condition.appliedTo,
         conditionId: condition.id,
       },
-      startingDelay || 0,
-      0
+      0,
+      {
+        initialDelay: 0,
+        accumulatedDelay: startingDelay || 0,
+      }
     );
   }
 }

@@ -29,7 +29,7 @@ export class MiscUtilityController {
     const { game, party, player } = session.requirePlayerContext();
     const { petId, newName } = data;
 
-    const pet = party.combatantManager.getExpectedCombatant(petId);
+    const pet = party.combatantManager.requireCombatantById(petId);
 
     const { controlledBy } = pet.combatantProperties;
     const isPetOfThisPlayer = controlledBy.wasSummonedByCharacterControlledByPlayer(

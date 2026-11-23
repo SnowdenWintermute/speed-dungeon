@@ -6,7 +6,7 @@ export function applyExperiencePointChanges(
   experiencePointChanges: Record<CombatantId, number>
 ) {
   for (const [characterId, expChange] of Object.entries(experiencePointChanges)) {
-    const character = party.combatantManager.getExpectedCombatant(characterId);
+    const character = party.combatantManager.requireCombatantById(characterId);
     character.combatantProperties.classProgressionProperties.experiencePoints.changeExperience(
       expChange
     );

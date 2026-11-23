@@ -1,22 +1,21 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "../consts.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { TurnTracker } from "../turn-trackers/index.js";
-import { TurnOrderManager } from "../turn-order-manager.js";
-import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { ActionUserType, IActionUser } from "../../../action-user-context/action-user.js";
 import { TaggedTurnTrackerTrackedEntityId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export interface ITurnScheduler {
   actionUserType: ActionUserType;
   timeOfNextMove: number;
   accumulatedDelay: number; // when they take their turn, add to this
+  initialDelay: number;
   addDelay: (delay: number) => void;
-  getSpeed: (party: AdventuringParty) => number;
   getTurnTakerId: () => string;
   getTaggedEntityId: () => TaggedTurnTrackerTrackedEntityId;
+  requireActionUser: (party: AdventuringParty) => IActionUser;
   isStale: (party: AdventuringParty) => boolean;
   isMatch: (otherScheduler: ITurnScheduler) => boolean;
-  reset: (speed: number) => void;
+  reset: () => void;
   createTurnTrackerOption: (game: SpeedDungeonGame, party: AdventuringParty) => null | TurnTracker;
   index: number; // used to identify scheduler in case there are multiple for an action user, such as a boss monster
 }
@@ -24,8 +23,12 @@ export interface ITurnScheduler {
 export abstract class TurnScheduler implements ITurnScheduler {
   timeOfNextMove = 0;
   accumulatedDelay = 0;
+
   protected predictedConsumedStacks = 0;
-  constructor(public readonly index: number) {}
+  constructor(
+    public readonly index: number,
+    public readonly initialDelay: number
+  ) {}
 
   addDelay(delay: number) {
     this.accumulatedDelay += delay;
@@ -33,7 +36,6 @@ export abstract class TurnScheduler implements ITurnScheduler {
 
   abstract getTaggedEntityId: () => TaggedTurnTrackerTrackedEntityId;
   abstract actionUserType: ActionUserType;
-  abstract getSpeed(party: AdventuringParty): number;
   abstract getTurnTakerId(): string;
   abstract isStale(party: AdventuringParty): boolean;
   abstract isMatch(otherScheduler: ITurnScheduler): boolean;
@@ -42,12 +44,13 @@ export abstract class TurnScheduler implements ITurnScheduler {
     party: AdventuringParty
   ): null | TurnTracker;
 
-  reset(speed: number) {
+  abstract requireActionUser(party: AdventuringParty): IActionUser;
+
+  reset() {
     // take into account any delay they've accumulated from taking actions in this battle
     this.timeOfNextMove = this.accumulatedDelay;
-    const initialDelay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
     // start with an initial delay
-    this.timeOfNextMove += initialDelay;
+    this.timeOfNextMove += this.initialDelay;
 
     // this is how we can know to only show turns of a condition/action entity
     // until their stacks/turns would have been consumed

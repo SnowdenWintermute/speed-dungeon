@@ -42,7 +42,7 @@ const config: CombatActionComponentConfig = {
         targetingCalculator.getPrimaryTargetCombatantId(actionExecutionIntent)
       );
       const { party } = actionUserContext;
-      const targetCombatant = party.combatantManager.getExpectedCombatant(primaryTargetId);
+      const targetCombatant = party.combatantManager.requireCombatantById(primaryTargetId);
 
       return { nameOfTarget: targetCombatant.entityProperties.name };
     },

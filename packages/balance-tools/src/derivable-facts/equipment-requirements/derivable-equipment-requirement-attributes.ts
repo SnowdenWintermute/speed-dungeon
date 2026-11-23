@@ -12,5 +12,5 @@ export const DERIVABLE_EQUIPMENT_REQUIREMENT_ATTRIBUTES: Record<
     CombatAttribute.Spirit,
   ],
   [DungeonRunAnalysis.ArmorClass]: [],
-  [DungeonRunAnalysis.MaxSpeed]: [],
+  [DungeonRunAnalysis.MaxAgility]: [],
 };

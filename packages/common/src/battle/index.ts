@@ -53,7 +53,7 @@ export class Battle implements Serializable, ReactiveNode {
     this._party = party;
     party.combatantManager.refillAllCombatantActionPoints();
     game.battles.set(this.id, this);
-    this.turnOrderManager.turnSchedulerManager.createSchedulers(party);
+    this.turnOrderManager.turnSchedulerManager.createSchedulersOnBattleStart(party);
     this.turnOrderManager.updateTrackers(game, party);
   }
 

@@ -28,14 +28,7 @@ export class ConditionTurnTracker extends TurnTracker {
   }
 
   getCondition(party: AdventuringParty) {
-    return party.combatantManager.getExpectedConditionOnCombatant(
-      this.combatantId,
-      this.conditionId
-    );
-  }
-
-  getSpeed(): number {
-    return 0;
+    return party.combatantManager.requireConditionOnCombatant(this.combatantId, this.conditionId);
   }
 
   getId() {
@@ -57,10 +50,7 @@ export class ConditionTurnTracker extends TurnTracker {
     randomNumberGenerationPolicy: RandomNumberGenerationPolicy
   ) {
     const { combatantId, conditionId } = this;
-    const condition = party.combatantManager.getExpectedConditionOnCombatant(
-      combatantId,
-      conditionId
-    );
+    const condition = party.combatantManager.requireConditionOnCombatant(combatantId, conditionId);
 
     const tickPropertiesOption = condition.getTickProperties();
     if (!tickPropertiesOption) {

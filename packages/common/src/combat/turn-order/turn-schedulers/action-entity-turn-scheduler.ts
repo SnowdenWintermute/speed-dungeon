@@ -17,22 +17,12 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
 
   constructor(
     public readonly actionEntityId: EntityId,
-    index: number
+    index: number,
+    initialDelay: number
   ) {
-    super(index);
+    super(index, initialDelay);
   }
   getTurnTakerId = () => this.actionEntityId;
-
-  getSpeed(party: AdventuringParty) {
-    const { actionEntityManager } = party;
-    const entityOption = actionEntityManager.getExpectedActionEntity(this.actionEntityId);
-    const { actionEntityProperties } = entityOption;
-    const { actionOriginData } = actionEntityProperties;
-    if (actionOriginData === undefined)
-      throw new Error("expected action entity to have origin data");
-
-    return actionOriginData.turnOrderSpeed || 0;
-  }
 
   isStale(party: AdventuringParty) {
     const { actionEntityManager } = party;
@@ -51,7 +41,7 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
     const { actionEntityId, timeOfNextMove } = this;
 
     const { actionEntityManager } = party;
-    const actionEntity = actionEntityManager.getExpectedActionEntity(this.actionEntityId);
+    const actionEntity = actionEntityManager.requireActionEntityById(this.actionEntityId);
 
     const { actionOriginData } = actionEntity.actionEntityProperties;
     if (actionOriginData === undefined)
@@ -70,5 +60,9 @@ export class ActionEntityTurnScheduler extends TurnScheduler implements ITurnSch
     this.predictedConsumedStacks += numberOfTurnsConsumed;
 
     return new ActionEntityTurnTracker(actionEntityId, timeOfNextMove, this.index);
+  }
+
+  requireActionUser(party: AdventuringParty) {
+    return party.actionEntityManager.requireActionEntityById(this.actionEntityId);
   }
 }

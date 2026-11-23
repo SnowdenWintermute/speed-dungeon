@@ -21,7 +21,7 @@ export class ActionEntityTurnTracker extends TurnTracker {
 
   getActionEntity(party: AdventuringParty) {
     const { actionEntityManager } = party;
-    return actionEntityManager.getExpectedActionEntity(this.actionEntityId);
+    return actionEntityManager.requireActionEntityById(this.actionEntityId);
   }
 
   getTaggedIdOfTrackedEntity(): TaggedActionEntityTurnTrackerActionEntityId {
@@ -29,10 +29,6 @@ export class ActionEntityTurnTracker extends TurnTracker {
       type: ActionUserType.ActionEntity,
       actionEntityId: this.actionEntityId,
     };
-  }
-
-  getSpeed(): number {
-    return 0;
   }
 
   getId() {
@@ -56,7 +52,7 @@ export class ActionEntityTurnTracker extends TurnTracker {
     const { actionEntityId } = this;
 
     const { actionEntityManager } = party;
-    const actionEntityResult = actionEntityManager.getExpectedActionEntity(actionEntityId);
+    const actionEntityResult = actionEntityManager.requireActionEntityById(actionEntityId);
 
     const actionIntentGetterOption =
       ACTION_ENTITY_ACTION_INTENT_GETTERS[actionEntityResult.actionEntityProperties.name];

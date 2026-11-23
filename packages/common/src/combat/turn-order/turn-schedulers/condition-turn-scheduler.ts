@@ -21,25 +21,12 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
   constructor(
     public readonly combatantId: EntityId,
     public readonly conditionId: EntityId,
-    index: number
+    index: number,
+    initialDelay: number
   ) {
-    super(index);
+    super(index, initialDelay);
   }
   getTurnTakerId = () => this.conditionId;
-  getSpeed(party: AdventuringParty) {
-    const condition = party.combatantManager.getExpectedConditionOnCombatant(
-      this.combatantId,
-      this.conditionId
-    );
-
-    const tickPropertiesOption = condition.getTickProperties();
-
-    if (!tickPropertiesOption) {
-      throw new Error("expected condition to be tickable");
-    }
-
-    return tickPropertiesOption.getTickSpeed(condition);
-  }
 
   isStale(party: AdventuringParty) {
     const { combatantManager } = party;
@@ -65,7 +52,7 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
   createTurnTrackerOption(game: SpeedDungeonGame, party: AdventuringParty) {
     const { combatantId, conditionId, timeOfNextMove } = this;
     const { combatantManager } = party;
-    const condition = combatantManager.getExpectedConditionOnCombatant(combatantId, conditionId);
+    const condition = combatantManager.requireConditionOnCombatant(combatantId, conditionId);
 
     const stacksRemaining = condition.stacksOption?.current;
 
@@ -89,5 +76,9 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
     }
 
     return null;
+  }
+
+  requireActionUser(party: AdventuringParty) {
+    return party.combatantManager.requireConditionOnCombatant(this.combatantId, this.conditionId);
   }
 }

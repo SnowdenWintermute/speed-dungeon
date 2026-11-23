@@ -129,7 +129,7 @@ export class ClassProgressionProperties
       return true;
     }
 
-    const petOwner = party.combatantManager.getExpectedCombatant(summonedBy);
+    const petOwner = party.combatantManager.requireCombatantById(summonedBy);
     const maxPetLevel = petOwner.combatantProperties.abilityProperties.getMaxPetLevel();
     const petLevel = combatantProperties.classProgressionProperties.getMainClass().level;
     return petLevel < maxPetLevel;

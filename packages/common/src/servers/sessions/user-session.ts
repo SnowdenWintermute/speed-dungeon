@@ -192,7 +192,7 @@ export class UserSession extends ConnectionSession {
     }
   ): CharacterAssociatedData {
     const { game, party, player } = this.requirePlayerContext();
-    const character = party.combatantManager.getExpectedCombatant(characterId);
+    const character = party.combatantManager.requireCombatantById(characterId);
 
     if (options.requireInputsUnlocked) {
       game.requireInputUnlocked();

@@ -29,7 +29,7 @@ export async function testSummonedPetTurnOrder(testFixture: IntegrationTestFixtu
   expect(
     turnOrderManager.getTrackers().find((tracker) => {
       if (!(tracker instanceof CombatantTurnTracker)) return;
-      const expectedCombatant = combatantManager.getExpectedCombatant(tracker.getEntityId());
+      const expectedCombatant = combatantManager.requireCombatantById(tracker.getEntityId());
       if (expectedCombatant.combatantProperties.controlledBy.isPlayerPet()) return true;
     })
   ).toBeDefined();

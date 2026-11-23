@@ -8,7 +8,6 @@ export enum GoalPerformanceCheckerType {
   TotalAccuracy,
   SampledDamageOnTargetDummy,
   WornArmorClass,
-  TotalSpeed,
   TotalAgility,
 }
 

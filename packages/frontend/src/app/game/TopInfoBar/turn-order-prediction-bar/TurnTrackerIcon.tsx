@@ -21,7 +21,7 @@ export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantT
 
   const { combatantManager } = party;
 
-  const combatant = combatantManager.getExpectedCombatant(taggedTrackedEntityId.combatantId);
+  const combatant = combatantManager.requireCombatantById(taggedTrackedEntityId.combatantId);
 
   const combatantIsCharacter =
     taggedTrackedEntityId.type === ActionUserType.Combatant &&
@@ -46,7 +46,7 @@ export const TurnOrderTrackerIcon = observer(({ tracker }: { tracker: CombatantT
   let combatantOption;
 
   const name: string = (() => {
-    const combatant = party.combatantManager.getExpectedCombatant(
+    const combatant = party.combatantManager.requireCombatantById(
       taggedTrackedEntityId.combatantId
     );
     combatantOption = combatant;

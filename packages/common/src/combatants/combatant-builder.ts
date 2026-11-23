@@ -24,6 +24,7 @@ import { MagicalElement } from "../combat/magical-elements.js";
 import cloneDeep from "lodash.clonedeep";
 import { EquipmentSlotId, HoldableSlotId, WearableSlotId } from "./combatant-equipment/types.js";
 import { HotswapSlot } from "./combatant-equipment/hotswap-slot.js";
+import { SpeedTier } from "../combat/turn-order/speed-tiers.js";
 
 export class CombatantBuilder {
   private _name: string = "Test Combatant";
@@ -33,6 +34,7 @@ export class CombatantBuilder {
   private _monsterType: MonsterType | null = null;
   private _supportClass: { combatantClass: CombatantClass; level: number } | null = null;
   private _speccedAttributes: Partial<Record<CombatAttribute, number>> = {};
+  private _speedTier: SpeedTier = SpeedTier.Average;
   private _wearables: { slotId: WearableSlotId; equipment: Equipment }[] = [];
   private _holdables: { hotswapSlotIndex: number; slotId: HoldableSlotId; equipment: Equipment }[] =
     [];
@@ -123,6 +125,11 @@ export class CombatantBuilder {
 
   attribute(attribute: CombatAttribute, value: number): this {
     this._speccedAttributes[attribute] = value;
+    return this;
+  }
+
+  speedTier(tier: SpeedTier) {
+    this._speedTier = tier;
     return this;
   }
 
@@ -270,6 +277,8 @@ export class CombatantBuilder {
     if (this._useExplicitAttributes) {
       combatantProperties.attributeProperties.setUseExplicitAttributes();
     }
+
+    combatantProperties.speedTier = this._speedTier;
 
     for (const [attribute, value] of iterateNumericEnumKeyedRecord(this._speccedAttributes)) {
       combatantProperties.attributeProperties.setSpeccedAttributeValue(attribute, value);

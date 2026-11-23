@@ -10,19 +10,16 @@ import type { CombatantAttributeRecord } from "./attribute-table-dependencies.js
 
 export const BASE_STARTING_ATTRIBUTES: Record<CombatantClass, CombatantAttributeRecord> = {
   [CombatantClass.Warrior]: {
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 80,
     [CombatAttribute.Hp]: 20,
     [CombatAttribute.Mp]: 2,
   },
   [CombatantClass.Rogue]: {
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 90,
     [CombatAttribute.Hp]: 18,
     [CombatAttribute.Mp]: 3,
   },
   [CombatantClass.Mage]: {
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 78,
     [CombatAttribute.Hp]: 15,
     [CombatAttribute.Mp]: 4,
@@ -63,7 +60,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.Wolf]: {
     [CombatAttribute.Strength]: 100,
     [CombatAttribute.Vitality]: 1,
-    [CombatAttribute.Speed]: 2,
     [CombatAttribute.ArmorClass]: 0,
     [CombatAttribute.Accuracy]: 70,
     [CombatAttribute.Hp]: 4,
@@ -71,7 +67,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.FireMage]: {
     [CombatAttribute.Spirit]: 4,
     [CombatAttribute.Vitality]: 1.5,
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 60,
     [CombatAttribute.Hp]: 3,
   },
@@ -79,7 +74,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Strength]: 20,
     [CombatAttribute.Dexterity]: 20,
     [CombatAttribute.Spirit]: 6,
-    [CombatAttribute.Speed]: 5,
     [CombatAttribute.Accuracy]: 0,
     [CombatAttribute.Evasion]: 0,
     [CombatAttribute.Hp]: 40,
@@ -87,12 +81,10 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.MantaRay]: {
     [CombatAttribute.Spirit]: 8,
     [CombatAttribute.Vitality]: 1,
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 100,
     [CombatAttribute.Hp]: 1,
   },
   [MonsterType.Net]: {
-    [CombatAttribute.Speed]: 10,
     [CombatAttribute.Hp]: 3,
   },
   [MonsterType.Spider]: {
@@ -100,7 +92,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Dexterity]: 7,
     [CombatAttribute.Vitality]: 1.5,
     [CombatAttribute.Agility]: 2,
-    [CombatAttribute.Speed]: 2,
     [CombatAttribute.Accuracy]: 80,
     [CombatAttribute.Hp]: 35,
     [CombatAttribute.Mp]: 2,
@@ -111,7 +102,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Spirit]: 0,
     [CombatAttribute.Vitality]: 1.5,
     [CombatAttribute.Agility]: 0,
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.Accuracy]: 80,
     [CombatAttribute.Hp]: 5,
     [CombatAttribute.Mp]: 0,
@@ -119,7 +109,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.Zombie]: {
     [CombatAttribute.Strength]: 50,
     [CombatAttribute.Vitality]: 0,
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.ArmorClass]: 0,
     [CombatAttribute.Accuracy]: 55,
     [CombatAttribute.Hp]: 7,
@@ -127,7 +116,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
   [MonsterType.SkeletonWarrior]: {
     [CombatAttribute.Strength]: 2,
     [CombatAttribute.Vitality]: 2,
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.ArmorClass]: 0,
     [CombatAttribute.Accuracy]: 70,
     [CombatAttribute.Hp]: 1,
@@ -136,7 +124,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Strength]: 4,
     [CombatAttribute.Dexterity]: 1,
     [CombatAttribute.Vitality]: 2,
-    [CombatAttribute.Speed]: 1,
     [CombatAttribute.ArmorClass]: 0,
     [CombatAttribute.Accuracy]: 70,
     [CombatAttribute.Hp]: 2,
@@ -145,7 +132,6 @@ export const MONSTER_STARTING_ATTRIBUTES: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Strength]: 1,
     [CombatAttribute.Dexterity]: 2,
     [CombatAttribute.Vitality]: 0,
-    [CombatAttribute.Speed]: 2,
     [CombatAttribute.ArmorClass]: 0,
     [CombatAttribute.Accuracy]: 65,
     [CombatAttribute.Hp]: 1.5,
@@ -195,9 +181,7 @@ export const MONSTER_ATTRIBUTES_BY_LEVEL: Record<MonsterType, CombatantAttribute
     [CombatAttribute.Agility]: 1.5,
     [CombatAttribute.Hp]: 22,
   },
-  [MonsterType.Net]: {
-    [CombatAttribute.Speed]: 10,
-  },
+  [MonsterType.Net]: {},
   [MonsterType.Spider]: {
     [CombatAttribute.Strength]: 8,
     [CombatAttribute.Dexterity]: 6,

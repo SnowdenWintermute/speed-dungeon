@@ -3,6 +3,7 @@ import {
   CombatantFactory,
   FixedCharacterCreationLists,
 } from "../character-creation/character-creation-policy.js";
+import { SpeedTier } from "../combat/turn-order/speed-tiers.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantClass } from "../combatants/combatant-class/classes.js";
@@ -23,7 +24,7 @@ export const BASIC_CHARACTER_FIXTURE_BUILDERS = {
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Dexterity, 20)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 30)
+      .speedTier(SpeedTier.Average)
       .unspentAbilityPoints(2)
       .unspentAttributePoints(2)
       .appendAllActions()
@@ -36,7 +37,7 @@ export const BASIC_CHARACTER_FIXTURE_BUILDERS = {
       .attribute(CombatAttribute.Strength, 20)
       .attribute(CombatAttribute.Dexterity, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 20)
+      .speedTier(SpeedTier.Average)
       .unspentAbilityPoints(2)
       .unspentAttributePoints(2)
       .appendAllActions()
@@ -49,7 +50,7 @@ export const BASIC_CHARACTER_FIXTURE_BUILDERS = {
       .attribute(CombatAttribute.Mp, 100)
       .attribute(CombatAttribute.Strength, 20)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 20)
+      .speedTier(SpeedTier.Average)
       .unspentAbilityPoints(2)
       .unspentAttributePoints(2)
       .appendAllActions()

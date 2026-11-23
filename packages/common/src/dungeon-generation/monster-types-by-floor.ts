@@ -12,6 +12,7 @@ export interface BossSpawnEntry {
 }
 
 export const FALLBACK_MONSTER_SPAWN_TABLE: MonsterSpawnEntry[] = [
+  // { monster: MonsterType.TyrantRex, paletteWeight: 100, roomWeight: 100 },
   { monster: MonsterType.Zombie, paletteWeight: 35, roomWeight: 33 },
   { monster: MonsterType.Wolf, paletteWeight: 35, roomWeight: 33 },
   { monster: MonsterType.VampireBat, paletteWeight: 30, roomWeight: 33 },

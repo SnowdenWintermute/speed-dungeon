@@ -21,7 +21,7 @@ stepOverrides[ActionResolutionStepType.PostPrepSpawnEntity] = {
     const entityIdsByDisposition = actionUser.getAllyAndOpponentIds(party, battleOption);
 
     const opponentIds = entityIdsByDisposition[FriendOrFoe.Hostile];
-    const opponents = party.combatantManager.getExpectedCombatants(opponentIds);
+    const opponents = party.combatantManager.requireCombatantsById(opponentIds);
 
     const projectileEntitiesToSpawn = opponents
       .filter((opponent) => !opponent.combatantProperties.isDead())

@@ -46,7 +46,7 @@ export class CombatantManager
     return this.combatants.get(entityId as CombatantId);
   }
 
-  getExpectedCombatant(combatantId: EntityId) {
+  requireCombatantById(combatantId: EntityId) {
     const combatantOption = this.getCombatantOption(combatantId);
     if (combatantOption === undefined) {
       throw new Error(ERROR_MESSAGES.COMBATANT.NOT_FOUND(combatantId));
@@ -84,7 +84,7 @@ export class CombatantManager
       excludeSummonedCombatants?: boolean;
     }
   ): CombatantId[] {
-    const combatants = this.getExpectedCombatants(entityIds);
+    const combatants = this.requireCombatantsById(entityIds);
 
     const filtered = combatants.filter((combatant) => {
       const isSummoned = combatant.combatantProperties.controlledBy.wasSummoned();
@@ -125,11 +125,11 @@ export class CombatantManager
     return { combatants, tickableConditions };
   }
 
-  getExpectedCombatants(entityIds: EntityId[]) {
+  requireCombatantsById(entityIds: EntityId[]) {
     const toReturn: Combatant[] = [];
 
     for (const id of entityIds) {
-      const combatant = this.getExpectedCombatant(id);
+      const combatant = this.requireCombatantById(id);
       toReturn.push(combatant);
     }
 
@@ -201,10 +201,7 @@ export class CombatantManager
     return conditionOption;
   }
 
-  getExpectedConditionOnCombatant(
-    combatantId: EntityId,
-    conditionId: EntityId
-  ): CombatantCondition {
+  requireConditionOnCombatant(combatantId: EntityId, conditionId: EntityId): CombatantCondition {
     const conditionOption = this.getConditionOptionOnCombatant(combatantId, conditionId);
     if (conditionOption === undefined) {
       throw new Error(`combatant ${combatantId} or condition ${conditionId} not found`);
@@ -229,7 +226,7 @@ export class CombatantManager
 
   /** Pass the id of the combatant toward which the disposition should be calculated */
   getCombatantIdsByDisposition(towardsId: string): Record<FriendOrFoe, EntityId[]> {
-    const combatant = this.getExpectedCombatant(towardsId);
+    const combatant = this.requireCombatantById(towardsId);
 
     const neutralCombatantIds = this.getParty()
       .combatantManager.getNeutralCombatants()
@@ -288,14 +285,14 @@ export class CombatantManager
   }
 
   playerOwnsCharacter(playerName: string, characterId: string) {
-    const combatant = this.getExpectedCombatant(characterId);
+    const combatant = this.requireCombatantById(characterId);
     const { controllerPlayerName } = combatant.combatantProperties.controlledBy;
     return controllerPlayerName === playerName;
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */
   removeCombatant(combatantId: CombatantId, game: SpeedDungeonGame) {
-    const combatant = this.getExpectedCombatant(combatantId);
+    const combatant = this.requireCombatantById(combatantId);
     this.combatants.delete(combatantId);
     const party = this.getParty();
     const battleOption = party.getBattleOption(game);
@@ -345,8 +342,11 @@ export class CombatantManager
             type: ActionUserType.Combatant,
             combatantId: combatant.getEntityId(),
           },
-          withDelay,
-          schedulersCreatedCount
+          schedulersCreatedCount,
+          {
+            initialDelay: 0,
+            accumulatedDelay: withDelay,
+          }
         );
       }
 

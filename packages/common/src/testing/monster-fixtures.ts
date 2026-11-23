@@ -1,5 +1,6 @@
 import { AiType } from "../combat/ai-behavior/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { SpeedTier } from "../combat/turn-order/speed-tiers.js";
 import { CombatAttribute } from "../combatants/attributes/index.js";
 import { CombatantBuilder } from "../combatants/combatant-builder.js";
 import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
@@ -29,7 +30,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 20)
+      .speedTier(SpeedTier.Average)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
       .trait(CombatantTraitType.IsTameable, 1)
@@ -56,8 +57,8 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 20)
       .attribute(CombatAttribute.Mp, 20)
+      .speedTier(SpeedTier.Average)
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.IceBoltParent)
       .ownedAction(CombatActionName.Healing, 2)
@@ -88,7 +89,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 50)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 0)
+      .speedTier(SpeedTier.Stopped)
       .attribute(CombatAttribute.Mp, 20)
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.IceBoltParent)
@@ -121,7 +122,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Dexterity, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 10)
+      .speedTier(SpeedTier.Slow)
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.Ensnare, 3)
       // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
@@ -151,7 +152,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Dexterity, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 10)
+      .speedTier(SpeedTier.Slow)
       .ownedAction(CombatActionName.Attack)
       .ownedAction(CombatActionName.Ensnare, 3)
       // .aiTypes([AiType.TargetLowestHpEnemy, AiType.RandomMaliciousAction])
@@ -173,7 +174,7 @@ export const MONSTER_FIXTURES = {
       .name(MONSTER_FIXTURE_NAMES.WOLF_ZERO_SPEED)
       .explicitAttributes()
       .attribute(CombatAttribute.Hp, 50)
-      .attribute(CombatAttribute.Speed, 0)
+      .speedTier(SpeedTier.Stopped)
       .ownedAction(CombatActionName.Attack)
       .trait(CombatantTraitType.IsTameable, 1)
       .aiTypes([...BASIC_AI_PRIORITY])
@@ -191,7 +192,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 1)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 10)
+      .speedTier(SpeedTier.Slow)
       .ownedAction(CombatActionName.Attack)
       .trait(CombatantTraitType.IsTameable, 1)
       .aiTypes([...BASIC_AI_PRIORITY])
@@ -218,7 +219,7 @@ export const MONSTER_FIXTURES = {
       .attribute(CombatAttribute.Hp, 2)
       .attribute(CombatAttribute.Strength, 10)
       .attribute(CombatAttribute.Accuracy, 100)
-      .attribute(CombatAttribute.Speed, 10)
+      .speedTier(SpeedTier.Slow)
       .ownedAction(CombatActionName.Attack)
       .trait(CombatantTraitType.IsTameable, 1)
       .aiTypes([...BASIC_AI_PRIORITY])
@@ -240,7 +241,7 @@ export const MONSTER_FIXTURES = {
       .name(MONSTER_FIXTURE_NAMES.CULTIST_ZERO_SPEED)
       .explicitAttributes()
       .attribute(CombatAttribute.Hp, 50)
-      .attribute(CombatAttribute.Speed, 0)
+      .speedTier(SpeedTier.Stopped)
       .ownedAction(CombatActionName.Attack)
       .aiTypes([...BASIC_AI_PRIORITY])
       .withThreatManager();

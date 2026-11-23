@@ -163,20 +163,9 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   }
   handleTurnEnded(): void {}
 
-  getSpeed() {
-    const { actionEntityProperties } = this;
-    const { actionOriginData } = actionEntityProperties;
-    if (actionOriginData === undefined)
-      throw new Error("expected action entity to have origin data");
-
-    return actionOriginData.turnOrderSpeed || 0;
-  }
-
-  getDelayForActionUse(_actionName: CombatActionName) {
-    const speed = this.getSpeed();
-    // @TODO - get delay multiplier from action
-    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
-    return delay;
+  getDelayOnTurnEnded(delayMultiplierOption: number = 1) {
+    // @TODO - calculate based on action entity turns between ticks and average speed tier's delay
+    return 0;
   }
 
   getEntityId(): EntityId {

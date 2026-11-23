@@ -8,7 +8,6 @@ export enum StudyName {
   CasterDualWieldRanged,
   ArmorClassMixed,
   ArmorClassGroupThree,
-  MaxSpeedMixed,
   MaxAgilityGroupThree,
 }
 
@@ -21,7 +20,6 @@ export const STUDY_NAME_SLUGS: Record<StudyName, string> = {
   [StudyName.CasterDualWieldRanged]: "caster-dual-ranged",
   [StudyName.ArmorClassMixed]: "armor-class-mixed",
   [StudyName.ArmorClassGroupThree]: "armor-class-group-three",
-  [StudyName.MaxSpeedMixed]: "max-speed-mixed",
   [StudyName.MaxAgilityGroupThree]: "max-agility-group-three",
 };
 
@@ -36,9 +34,7 @@ export const STUDY_ANALYSES = {
   [StudyName.ArmorClassMixed]: DungeonRunAnalysis.ArmorClass,
   // one table, two parties: between them every weapon specialty is measured
   [StudyName.ArmorClassGroupThree]: DungeonRunAnalysis.ArmorClass,
-  [StudyName.MaxSpeedMixed]: DungeonRunAnalysis.MaxSpeed,
-  // the speed table, which already reports agility and its sources. only the goal chased differs
-  [StudyName.MaxAgilityGroupThree]: DungeonRunAnalysis.MaxSpeed,
+  [StudyName.MaxAgilityGroupThree]: DungeonRunAnalysis.MaxAgility,
 } as const satisfies Record<StudyName, DungeonRunAnalysis>;
 
 // `as const` above so a panel can be parameterized by its study alone: this resolves which result

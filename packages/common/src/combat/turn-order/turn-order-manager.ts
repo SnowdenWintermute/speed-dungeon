@@ -33,15 +33,6 @@ export class TurnOrderManager implements Serializable, ReactiveNode {
     return result;
   }
 
-  static getActionDelayCost(speed: number, actionDelayMultiplier: number) {
-    if (speed <= 0) {
-      return Infinity;
-    }
-    // floored so equal speeds tie exactly
-    const delay = (actionDelayMultiplier * ACTION_DELAY_AT_ONE_SPEED) / speed;
-    return Math.max(1, Math.floor(delay));
-  }
-
   getTrackers() {
     return this.turnTrackers;
   }
@@ -57,7 +48,7 @@ export class TurnOrderManager implements Serializable, ReactiveNode {
       return false;
     }
 
-    const expectedCombatant = party.combatantManager.getExpectedCombatant(
+    const expectedCombatant = party.combatantManager.requireCombatantById(
       taggedIdOfTrackedEntity.combatantId
     );
 

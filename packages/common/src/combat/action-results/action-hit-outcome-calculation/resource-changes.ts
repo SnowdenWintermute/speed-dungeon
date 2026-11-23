@@ -35,7 +35,7 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> implements 
     const combatantsKilled: EntityId[] = [];
 
     for (const [targetId, hpChange] of Object.entries(this.changes)) {
-      const target = party.combatantManager.getExpectedCombatant(targetId);
+      const target = party.combatantManager.requireCombatantById(targetId);
       const { combatantProperties: targetCombatantProperties } = target;
       const combatantWasAliveBeforeResourceChange = !targetCombatantProperties.isDead();
 
@@ -71,7 +71,7 @@ export class ManaChange {
 export class ManaChanges extends ResourceChanges<ManaChange> {
   applyToGame(party: AdventuringParty) {
     for (const [targetId, change] of Object.entries(this.changes)) {
-      const target = party.combatantManager.getExpectedCombatant(targetId);
+      const target = party.combatantManager.requireCombatantById(targetId);
       const { combatantProperties: targetCombatantProperties } = target;
       targetCombatantProperties.resources.changeMana(change.value);
     }
@@ -139,7 +139,7 @@ export class ThreatChanges implements Serializable {
 
   applyToGame(party: AdventuringParty): void {
     for (const [entityIdOfThreatTableToUpdate, changes] of Object.entries(this.entries)) {
-      const targetCombatant = party.combatantManager.getExpectedCombatant(
+      const targetCombatant = party.combatantManager.requireCombatantById(
         entityIdOfThreatTableToUpdate
       );
 
@@ -158,7 +158,7 @@ export class ThreatChanges implements Serializable {
     for (const [entityIdOfThreatTableToUpdate, entityIdsToRemove] of Object.entries(
       this.entriesToRemove
     )) {
-      const targetCombatant = party.combatantManager.getExpectedCombatant(
+      const targetCombatant = party.combatantManager.requireCombatantById(
         entityIdOfThreatTableToUpdate
       );
       const { combatantProperties: targetCombatantProperties } = targetCombatant;

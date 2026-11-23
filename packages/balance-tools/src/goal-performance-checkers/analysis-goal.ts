@@ -11,7 +11,6 @@ export enum AnalysisGoal {
   WeaponAttackDamage,
   IceBoltDamage,
   ArmorClass,
-  TotalSpeed,
   TotalAgility,
 }
 
@@ -20,7 +19,6 @@ export const ANALYSIS_GOAL_STRINGS: Record<AnalysisGoal, string> = {
   [AnalysisGoal.WeaponAttackDamage]: "weapon attack damage",
   [AnalysisGoal.IceBoltDamage]: "ice bolt damage",
   [AnalysisGoal.ArmorClass]: "armor class",
-  [AnalysisGoal.TotalSpeed]: "total speed",
   [AnalysisGoal.TotalAgility]: "total agility",
 };
 
@@ -92,21 +90,9 @@ export const ANALYSIS_GOAL_SPECS: Record<AnalysisGoal, GoalPerformanceCheckerSpe
   },
 
   /**
-   * Speed is bought with agility, which is also the only thing gear can offer toward it — there is
-   * no speed affix. No specialty is required for the same reason accuracy requires none: agility
-   * rolls on every weapon, shield, ring and amulet (and most armor, though not plate or the heavier
-   * helms), so ratcheting a weapon would zero out every room none had dropped in.
-   */
-  [AnalysisGoal.TotalSpeed]: {
-    typeConfig: { type: GoalPerformanceCheckerType.TotalSpeed },
-    allocatableAttributes: [CombatAttribute.Agility],
-    requiresHoldableSpecialty: false,
-    equipmentScoreAxes: [EquipmentScoreDominationAxis.Agility],
-  },
-
-  /**
-   * Speed with its source read directly. Agility now buys speed in fractions of a point, so a speed
-   * read would score many agility gains as no gain at all once floored.
+   * No specialty is required for the same reason accuracy requires none: agility rolls on every
+   * weapon, shield, ring and amulet (and most armor, though not plate or the heavier helms), so
+   * ratcheting a weapon would zero out every room none had dropped in.
    */
   [AnalysisGoal.TotalAgility]: {
     typeConfig: { type: GoalPerformanceCheckerType.TotalAgility },

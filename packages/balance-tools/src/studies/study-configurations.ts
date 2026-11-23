@@ -154,17 +154,6 @@ export const STUDY_CONFIGURATIONS: Record<StudyName, StudyConfiguration> = {
     ),
     runControls: ARMOR_CLASS_RUN_CONTROLS,
   },
-  [StudyName.MaxSpeedMixed]: {
-    characterSpecs: defaultAnalysisCharacterSpecs(AnalysisGoal.TotalSpeed),
-    runControls: {
-      // the ceiling first: what the designed share is worth is read by dialing the intensity down
-      // from it, so this study is the one that must not pin the slider
-      defaultAllocationIntensity: FULL_ALLOCATION_INTENSITY,
-      designedAllocationIntensity: DESIGNED_AGILITY_INVESTMENT_PERCENTAGE,
-      // a speed read never touches a dummy, so arming one would only mislead
-      fixedTargetDummiesHaveArmorClass: false,
-    },
-  },
   [StudyName.MaxAgilityGroupThree]: {
     characterSpecs: CHARACTER_BUILDS_GROUP_THREE.map(
       ({ name, build }) =>

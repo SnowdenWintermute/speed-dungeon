@@ -160,7 +160,7 @@ export class HitOutcomeCalculator {
     const actionRank = this.actionExecutionIntent.rank;
 
     for (const targetId of filteredTargetIds) {
-      const targetCombatant = party.combatantManager.getExpectedCombatant(targetId);
+      const targetCombatant = party.combatantManager.requireCombatantById(targetId);
       if (!mitigationCalculator) {
         mitigationCalculator = new HitOutcomeMitigationCalculator(
           this.action,

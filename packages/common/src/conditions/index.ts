@@ -197,19 +197,9 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   payResourceCosts = () => {};
   handleTurnEnded = () => {};
 
-  getSpeed() {
-    const tickPropertiesOption = this.getTickProperties();
-    if (!tickPropertiesOption) {
-      throw new Error("expected condition to be tickable");
-    }
-    return tickPropertiesOption.getTickSpeed(this);
-  }
-
-  getDelayForActionUse(_actionName: CombatActionName) {
-    const speed = this.getSpeed();
-    // @TODO - get delay multiplier from action
-    const delay = TurnOrderManager.getActionDelayCost(speed, BASE_ACTION_DELAY_MULTIPLIER);
-    return delay;
+  getDelayOnTurnEnded(delayMultiplierOption = 1) {
+    // @TODO - calculate based on condition turns between ticks and average speed tier's delay
+    return 0;
   }
 
   getEntityId = () => this.id as ConditionId;

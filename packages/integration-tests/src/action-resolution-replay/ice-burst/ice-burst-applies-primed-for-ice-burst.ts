@@ -25,7 +25,7 @@ export async function testIceBurstAppliesPrimedForIceBurst(testFixture: Integrat
   await gameClientHarness.useCombatAction(CombatActionName.IceBoltParent);
   const iceBoltTargetId = actionHistory.requireLastUsedActionSingleTargetId(iceBoltUserId);
   const iceBoltTargetCombatantProperties = combatantManager
-    .getExpectedCombatant(iceBoltTargetId)
+    .requireCombatantById(iceBoltTargetId)
     .getCombatantProperties();
   expect(iceBoltTargetCombatantProperties.isDead()).toBeFalsy();
   expect(

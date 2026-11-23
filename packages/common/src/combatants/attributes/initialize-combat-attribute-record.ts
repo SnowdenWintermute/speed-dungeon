@@ -9,7 +9,6 @@ const ALL_ATTRIBUTES_AS_ZERO: Record<CombatAttribute, number> = {
   [CombatAttribute.Spirit]: 0,
   [CombatAttribute.Vitality]: 0,
   [CombatAttribute.Agility]: 0,
-  [CombatAttribute.Speed]: 0,
   [CombatAttribute.ArmorClass]: 0,
   [CombatAttribute.ArmorPenetration]: 0,
   [CombatAttribute.Accuracy]: 0,

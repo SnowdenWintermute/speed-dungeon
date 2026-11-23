@@ -2,16 +2,16 @@ import { AllocationIntensity } from "../../analysis-runs/allocation-intensity.ts
 import { AnalysisRunOptions } from "../../analysis-runs/analysis-run-options.ts";
 import { analysisRun } from "../../analysis-runs/execute-analysis-run.ts";
 import { AnalysisCharacterSpecification } from "../../analysis-subjects/analysis-character-specification.ts";
-import { MaxSpeedCombatantReport, MaxSpeedRunReporter } from "./run-reporter.ts";
+import { MaxAgilityCombatantReport, MaxAgilityRunReporter } from "./run-reporter.ts";
 
-export function maxSpeedAnalysisRun(
+export function maxAgilityAnalysisRun(
   characterSpecs: AnalysisCharacterSpecification[],
   allocationIntensity: AllocationIntensity,
   options: AnalysisRunOptions
 ) {
-  return analysisRun<MaxSpeedCombatantReport>(
+  return analysisRun<MaxAgilityCombatantReport>(
     characterSpecs,
-    (party) => new MaxSpeedRunReporter(party),
+    (party) => new MaxAgilityRunReporter(party),
     allocationIntensity,
     options
   );

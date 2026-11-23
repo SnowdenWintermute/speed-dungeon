@@ -3,7 +3,6 @@ import { CombatantId } from "../../../aliases.js";
 import { ITurnScheduler, TurnScheduler } from "./index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatantTurnTracker } from "../turn-trackers/combatant-turn-tracker.js";
-import { CombatAttribute } from "../../../combatants/attributes/index.js";
 import { ActionUserType } from "../../../action-user-context/action-user.js";
 import { TaggedCombatantTurnTrackerCombatantId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
@@ -15,18 +14,12 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
 
   constructor(
     public readonly combatantId: CombatantId,
-    index: number
+    index: number,
+    initialDelay: number
   ) {
-    super(index);
+    super(index, initialDelay);
   }
   getTurnTakerId = () => this.combatantId;
-  getSpeed(party: AdventuringParty) {
-    const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
-    const combatantSpeed = combatant.combatantProperties.attributeProperties.getAttributeValue(
-      CombatAttribute.Speed
-    );
-    return combatantSpeed;
-  }
 
   isStale(party: AdventuringParty) {
     const combatantOption = party.combatantManager.getCombatantOption(this.combatantId);
@@ -42,11 +35,15 @@ export class CombatantTurnScheduler extends TurnScheduler implements ITurnSchedu
   }
 
   createTurnTrackerOption(game: SpeedDungeonGame, party: AdventuringParty) {
-    const combatant = party.combatantManager.getExpectedCombatant(this.combatantId);
+    const combatant = party.combatantManager.requireCombatantById(this.combatantId);
     const isDead = combatant.combatantProperties.isDead();
 
     if (isDead) throw new Error("why is a combatant dead when trying to make its trackers");
 
     return new CombatantTurnTracker(this.combatantId, this.timeOfNextMove, this.index);
+  }
+
+  requireActionUser(party: AdventuringParty) {
+    return party.combatantManager.requireCombatantById(this.combatantId);
   }
 }

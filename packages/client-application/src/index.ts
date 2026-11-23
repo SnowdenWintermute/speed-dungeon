@@ -232,7 +232,7 @@ export class ClientApplication {
 
     for (const { combatantId, actionPoints } of serializedBattleOption.combatantActionPoints) {
       party.combatantManager
-        .getExpectedCombatant(combatantId)
+        .requireCombatantById(combatantId)
         .getCombatantProperties()
         .resources.setActionPoints(actionPoints);
     }

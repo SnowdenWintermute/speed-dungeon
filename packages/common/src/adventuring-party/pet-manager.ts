@@ -123,7 +123,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
   /** returns the dismissed pet */
   unsummonPet(petId: EntityId, game: SpeedDungeonGame) {
     const party = this.getParty();
-    const expectedPet = party.combatantManager.getExpectedCombatant(petId);
+    const expectedPet = party.combatantManager.requireCombatantById(petId);
     const summonedBy = expectedPet.combatantProperties.controlledBy.summonedBy;
     if (summonedBy === undefined) {
       throw new Error("Expected a pet to have been summoned by someone");
@@ -142,7 +142,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     slotIndex: number,
     withDelay?: number
   ) {
-    const owner = party.combatantManager.getExpectedCombatant(ownerId);
+    const owner = party.combatantManager.requireCombatantById(ownerId);
 
     // figure out if the pet is owned by character or monster
     const isCharacterPet = owner.combatantProperties.controlledBy.isPlayerControlled();
@@ -195,7 +195,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
 
     petCombatant.combatantProperties.threatManager = undefined;
     party.combatantManager.updateHomePositions();
-    const newOwner = party.combatantManager.getExpectedCombatant(newOwnerId);
+    const newOwner = party.combatantManager.requireCombatantById(newOwnerId);
     party.combatantManager.setPetHomePositionNextTo(petCombatant, newOwner);
     const { controlledBy } = petCombatant.combatantProperties;
     controlledBy.controllerType = CombatantControllerType.PlayerPetAI;

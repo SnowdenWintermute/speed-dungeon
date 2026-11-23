@@ -114,3 +114,8 @@
 // - all classes start at average tier
 // - heavy armor imposes speed tier penalties
 // - agility can mitigate speed penalties
+//
+// Combatants getSpeedTier
+// IActionUser getDelayOnTurnEnded
+// Conditions getDelay
+//

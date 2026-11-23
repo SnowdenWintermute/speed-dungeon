@@ -94,14 +94,14 @@ export const AUTO_TARGETING_FUNCTIONS: Record<AutoTargetingScheme, AutoTargeting
     const { combatantManager } = party;
 
     // get all combatants within radius of combatant location
-    const mainTargetCombatant = combatantManager.getExpectedCombatant(targetId);
+    const mainTargetCombatant = combatantManager.requireCombatantById(targetId);
     const mainTargetPosition = mainTargetCombatant.combatantProperties.transformProperties.position;
     const validTargetsWithinRadius: EntityId[] = [];
 
     for (const potentialTargetId of idsFilteredByTargetCategoryFlattened) {
       if (excludePrimaryTarget && potentialTargetId === targetId) continue;
 
-      const potentialTargetCombatant = combatantManager.getExpectedCombatant(potentialTargetId);
+      const potentialTargetCombatant = combatantManager.requireCombatantById(potentialTargetId);
       const { position } = potentialTargetCombatant.combatantProperties.transformProperties;
       const distanceFromMainTarget = Vector3.Distance(mainTargetPosition, position);
 

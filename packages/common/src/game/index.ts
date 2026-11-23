@@ -295,7 +295,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     if (characterIdOption === undefined) {
       throw new Error(ERROR_MESSAGES.PLAYER.CHARACTER_NOT_OWNED);
     }
-    const character = fromUserParty.combatantManager.getExpectedCombatant(characterIdOption);
+    const character = fromUserParty.combatantManager.requireCombatantById(characterIdOption);
     character.combatantProperties.controlledBy.controllerPlayerName = toUser.username;
     toUser.characterIds.push(characterIdOption);
   }

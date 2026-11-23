@@ -36,12 +36,6 @@ export const constructGoalPerformanceChecker: GoalPerformanceCheckerConstructor 
         spec.allocatableAttributes,
         equipmentScoreAxes
       );
-    case GoalPerformanceCheckerType.TotalSpeed:
-      return new TotalAttributeGoalPerformanceChecker(
-        CombatAttribute.Speed,
-        spec.allocatableAttributes,
-        equipmentScoreAxes
-      );
     case GoalPerformanceCheckerType.TotalAgility:
       return new TotalAttributeGoalPerformanceChecker(
         CombatAttribute.Agility,

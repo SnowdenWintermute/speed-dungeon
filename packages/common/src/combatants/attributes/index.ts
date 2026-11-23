@@ -7,8 +7,6 @@ export enum CombatAttribute {
   Vitality,
 
   Agility,
-
-  Speed,
   ArmorClass,
   ArmorPenetration,
   Accuracy,
@@ -51,7 +49,6 @@ export const COMBAT_ATTRIBUTE_STRINGS: Record<CombatAttribute, string> = {
   [CombatAttribute.Agility]: "Agility",
   [CombatAttribute.Accuracy]: "Accuracy",
   [CombatAttribute.Evasion]: "Evasion",
-  [CombatAttribute.Speed]: "Speed",
   [CombatAttribute.Hp]: "HP",
   [CombatAttribute.Mp]: "MP",
   [CombatAttribute.ArmorPenetration]: "Armor Pen.",
@@ -63,7 +60,6 @@ export const COMBAT_ATTRIBUTE_DESCRIPTIONS: Record<CombatAttribute, string> = {
   [CombatAttribute.ArmorClass]: "Reduces physical damage.",
   [CombatAttribute.Evasion]: "Chance to avoid being hit.",
   [CombatAttribute.Hp]: "If reduced to zero the combatant can no longer take actions.",
-  [CombatAttribute.Speed]: "Determines turn order.",
   [CombatAttribute.Mp]: "The primary resource for using abilities.",
   [CombatAttribute.Dexterity]:
     "Increases accuracy, crit chance of melee and projectile attacks, kinetic projectile damage, block and parry chance.",

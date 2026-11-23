@@ -53,7 +53,7 @@ export async function testSaveRunOnGameLeave(testFixture: IntegrationTestFixture
   invariant(playerSingleCharacterId !== undefined, "expected player to have a character");
   const playerCharacterBeforeGameLeave = game
     .requireSingleParty()
-    .combatantManager.getExpectedCombatant(playerSingleCharacterId);
+    .combatantManager.requireCombatantById(playerSingleCharacterId);
   const strengthStatBeforeAllocation =
     playerCharacterBeforeGameLeave.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Strength
@@ -85,7 +85,7 @@ export async function testSaveRunOnGameLeave(testFixture: IntegrationTestFixture
   );
   const playerCharacterInSavedGame = game
     .requireSingleParty()
-    .combatantManager.getExpectedCombatant(playerSingleCharacterId);
+    .combatantManager.requireCombatantById(playerSingleCharacterId);
   expect(
     playerCharacterInSavedGame.combatantProperties.attributeProperties.getAttributeValue(
       CombatAttribute.Strength

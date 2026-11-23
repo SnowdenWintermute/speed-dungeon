@@ -72,7 +72,7 @@ export class DurabilityChangesByEntityId {
     onApply?: (combatant: Combatant, equipment: Equipment) => void
   ) {
     for (const [entityId, durabilitychanges] of Object.entries(durabilityChanges.records)) {
-      const combatant = party.combatantManager.getExpectedCombatant(entityId);
+      const combatant = party.combatantManager.requireCombatantById(entityId);
 
       for (const change of durabilitychanges.changes) {
         const { slotId, value } = change;

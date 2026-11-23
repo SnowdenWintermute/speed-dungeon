@@ -34,7 +34,7 @@ export class FlyingCondition extends CombatantCondition {
     targetCombatant: Combatant,
     idGenerator: IdGenerator
   ) {
-    const actionUser = actionUserContext.party.combatantManager.getExpectedCombatant(
+    const actionUser = actionUserContext.party.combatantManager.requireCombatantById(
       this.getConditionAppliedTo()
     );
 
