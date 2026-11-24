@@ -8,7 +8,7 @@ import { ITurnScheduler } from "./turn-schedulers/index.js";
 import { TaggedTurnTrackerTrackedEntityId } from "./turn-tracker-tagged-tracked-entity-ids.js";
 import { TurnTracker } from "./turn-trackers/index.js";
 import { Serializable, SerializedOf } from "../../serialization/index.js";
-import { ActionUserType } from "../../action-user-context/action-user.js";
+import { ActionUserType } from "../../action-user-context/tagged-action-user-id.js";
 import { invariant } from "../../utils/index.js";
 import { CombatantTurnTracker } from "./turn-trackers/combatant-turn-tracker.js";
 

@@ -6,7 +6,7 @@ import { ITurnScheduler } from "../turn-schedulers/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ActionUserContext } from "../../../action-user-context/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { ActionUserType } from "../../../action-user-context/tagged-action-user-id.js";
 import { TurnTracker } from "./index.js";
 
 export class ConditionTurnTracker extends TurnTracker {

@@ -5,7 +5,7 @@ import { ERROR_MESSAGES } from "../errors/index.js";
 import { EntityId } from "../aliases.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
-import { ActionUserType } from "../action-user-context/action-user.js";
+import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
 
 export class ActionEntityManager implements Serializable, ReactiveNode {
   private actionEntities = new Map<EntityId, ActionEntity>();

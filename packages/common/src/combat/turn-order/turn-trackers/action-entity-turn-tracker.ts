@@ -6,7 +6,7 @@ import { ITurnScheduler } from "../turn-schedulers/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ACTION_ENTITY_ACTION_INTENT_GETTERS } from "../../../action-entities/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { ActionUserType } from "../../../action-user-context/tagged-action-user-id.js";
 import { TurnTracker } from "./index.js";
 import { ActionIntentOptionAndUser } from "../../../action-processing/action-steps/index.js";
 

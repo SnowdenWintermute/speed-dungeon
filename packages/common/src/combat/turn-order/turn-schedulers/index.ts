@@ -1,7 +1,8 @@
 import { AdventuringParty } from "../../../adventuring-party/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { TurnTracker } from "../turn-trackers/index.js";
-import { ActionUserType, IActionUser } from "../../../action-user-context/action-user.js";
+import { IActionUser } from "../../../action-user-context/action-user.js";
+import { ActionUserType } from "../../../action-user-context/tagged-action-user-id.js";
 import { TaggedTurnTrackerTrackedEntityId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export interface ITurnScheduler {

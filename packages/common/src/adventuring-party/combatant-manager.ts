@@ -13,7 +13,7 @@ import { PartyWipes } from "../types.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { MapUtils } from "../utils/map-utils.js";
 import { invariant } from "../utils/index.js";
-import { ActionUserType } from "../action-user-context/action-user.js";
+import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
 
 export class CombatantManager
   extends AdventuringPartySubsystem

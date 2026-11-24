@@ -2,7 +2,7 @@ import { ActionResolutionStepContext, ActionResolutionStepType } from "../index.
 import { GameUpdateCommand, GameUpdateCommandType } from "../../game-update-commands.js";
 import { SpawnableEntityType } from "../../../spawnables/index.js";
 import { EntityMotionActionResolutionStep } from "./entity-motion.js";
-import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { ActionUserType } from "../../../action-user-context/tagged-action-user-id.js";
 
 export class WaitForDelayActionResolutionStep extends EntityMotionActionResolutionStep {
   constructor(context: ActionResolutionStepContext, step: ActionResolutionStepType) {

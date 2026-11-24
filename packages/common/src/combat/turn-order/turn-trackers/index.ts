@@ -4,7 +4,7 @@ import { ITurnScheduler } from "../turn-schedulers/index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { ActionIntentOptionAndUser } from "../../../action-processing/action-steps/index.js";
 import { RandomNumberGenerationPolicy } from "../../../utility-classes/random-number-generation-policy.js";
-import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { ActionUserType } from "../../../action-user-context/tagged-action-user-id.js";
 import { ResourceChangePropertiesStrategy } from "../../../index.js";
 
 export abstract class TurnTracker {

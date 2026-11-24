@@ -22,12 +22,7 @@ import { WeaponProperties } from "../items/equipment/equipment-properties/index.
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { EquipmentSlotId, HoldableSlotId } from "../combatants/combatant-equipment/types.js";
 import { CombatantAttributeRecord } from "../combatants/attributes/combatant-attribute-record.js";
-
-export enum ActionUserType {
-  Combatant,
-  Condition,
-  ActionEntity,
-}
+import { ActionUserType } from "./tagged-action-user-id.js";
 
 export type ActionUserHeldWeapons = Partial<
   Record<

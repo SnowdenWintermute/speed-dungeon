@@ -2,7 +2,8 @@ import { makeAutoObservable } from "mobx";
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
-import { ActionUserType, IActionUser } from "../action-user-context/action-user.js";
+import { IActionUser } from "../action-user-context/action-user.js";
+import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
 import {
   ActionAndRank,
   ActionUserTargetingProperties,

@@ -1,4 +1,4 @@
-import { ActionUserType } from "../../action-user-context/action-user.js";
+import { ActionUserType } from "../../action-user-context/tagged-action-user-id.js";
 import { ActionEntityTurnScheduler } from "./turn-schedulers/action-entity-turn-scheduler.js";
 import { CombatantTurnScheduler } from "./turn-schedulers/combatant-turn-scheduler.js";
 import { ConditionTurnScheduler } from "./turn-schedulers/condition-turn-scheduler.js";

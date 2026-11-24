@@ -230,6 +230,7 @@ export * from "./combatants/combatant-traits/trait-types.js";
 export * from "./items/item-utils.js";
 
 export * from "./action-user-context/action-user.js";
+export * from "./action-user-context/tagged-action-user-id.js";
 export * from "./action-user-context/action-user-targeting-properties.js";
 
 export * from "./conditions/deserialize-condition.js";

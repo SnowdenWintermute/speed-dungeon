@@ -1,4 +1,4 @@
-import { ActionUserType } from "../../action-user-context/action-user.js";
+import { ActionUserType } from "../../action-user-context/tagged-action-user-id.js";
 import { CombatantId, EntityId } from "../../aliases.js";
 
 export interface TaggedCombatantTurnTrackerCombatantId {

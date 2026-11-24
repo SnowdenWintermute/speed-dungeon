@@ -8,7 +8,8 @@ import {
   ProhibitedTargetCombatantStates,
 } from "../combat-actions/prohibited-target-combatant-states.js";
 import { EntityId } from "../../aliases.js";
-import { ActionUserType, IActionUser } from "../../action-user-context/action-user.js";
+import { IActionUser } from "../../action-user-context/action-user.js";
+import { ActionUserType } from "../../action-user-context/tagged-action-user-id.js";
 import { CombatantConditionName } from "../../conditions/condition-names.js";
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

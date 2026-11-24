@@ -3,7 +3,7 @@ import { CombatantId } from "../../../aliases.js";
 import { ITurnScheduler, TurnScheduler } from "./index.js";
 import { SpeedDungeonGame } from "../../../game/index.js";
 import { CombatantTurnTracker } from "../turn-trackers/combatant-turn-tracker.js";
-import { ActionUserType } from "../../../action-user-context/action-user.js";
+import { ActionUserType } from "../../../action-user-context/tagged-action-user-id.js";
 import { TaggedCombatantTurnTrackerCombatantId } from "../turn-tracker-tagged-tracked-entity-ids.js";
 
 export class CombatantTurnScheduler extends TurnScheduler implements ITurnScheduler {
