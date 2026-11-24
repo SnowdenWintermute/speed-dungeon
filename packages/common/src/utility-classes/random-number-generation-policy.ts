@@ -44,6 +44,7 @@ export interface RandomNumberGenerationPolicy {
   affixValue: RandomNumberGenerator;
   guaranteedAffixCategoryDraw: RandomNumberGenerator;
   // Combat
+  initiative: RandomNumberGenerator;
   hitChance: RandomNumberGenerator;
   criticalStrike: RandomNumberGenerator;
   parry: RandomNumberGenerator;
@@ -88,6 +89,7 @@ export class RandomNumberGenerationPolicyFactory {
       affixTier: generator,
       affixValue: generator,
       guaranteedAffixCategoryDraw: generator,
+      initiative: generator,
       hitChance: generator,
       criticalStrike: generator,
       parry: generator,

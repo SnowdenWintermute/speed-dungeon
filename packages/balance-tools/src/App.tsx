@@ -7,6 +7,7 @@ import { ZIndexLayers } from "./z-index-layers.ts";
 import { BALANCE_TOOLS_TAB_STRINGS, BalanceToolsTab } from "./tabs.ts";
 import { StudiesTab } from "./components/studies-tab.tsx";
 import { AttainableAttributesTab } from "./attribute-viewer/tab/index.tsx";
+import { SpeedTiersTab } from "./speed-tiers/tab/index.tsx";
 import { useBalanceToolsApplication } from "./state/context.tsx";
 
 const UI_LAYERS = { dropdown: ZIndexLayers.Dropdown, tooltip: ZIndexLayers.Tooltip };
@@ -18,6 +19,7 @@ const TAB_OPTIONS = iterateNumericEnumKeyedRecord(BALANCE_TOOLS_TAB_STRINGS).map
 const TAB_PANELS: Record<BalanceToolsTab, FunctionComponent> = {
   [BalanceToolsTab.Studies]: StudiesTab,
   [BalanceToolsTab.AttainableAttributes]: AttainableAttributesTab,
+  [BalanceToolsTab.SpeedTiers]: SpeedTiersTab,
 };
 
 export const App = observer(() => {

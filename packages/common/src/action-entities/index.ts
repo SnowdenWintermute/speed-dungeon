@@ -27,8 +27,6 @@ import { CombatActionExecutionIntent } from "../combat/combat-actions/combat-act
 import { CombatActionTargetType } from "../combat/targeting/combat-action-targets.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { ActionEntityProperties } from "./action-entity-properties.js";
-import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export enum ActionEntityName {
   Arrow,
@@ -51,7 +49,7 @@ export const ACTION_ENTITY_STRINGS: Record<ActionEntityName, string> = {
 export class ActionEntityActionOriginData {
   targetingProperties?: ActionUserTargetingProperties;
   actionLevel?: MaxAndCurrent;
-  turnOrderSpeed?: number;
+  averageTurnsBetweenTicks?: number;
   stacks?: MaxAndCurrent;
   userCombatantAttributes?: CombatantAttributeRecord;
   userEquipmentLifestealPercentage?: number;
@@ -94,7 +92,7 @@ export class ActionEntityActionOriginData {
     if (serialized.actionLevel) {
       result.actionLevel = MaxAndCurrent.fromSerialized(serialized.actionLevel);
     }
-    result.turnOrderSpeed = serialized.turnOrderSpeed;
+    result.averageTurnsBetweenTicks = serialized.averageTurnsBetweenTicks;
     if (serialized.stacks) {
       result.stacks = MaxAndCurrent.fromSerialized(serialized.stacks);
     }

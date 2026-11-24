@@ -125,11 +125,13 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
     return SpeedTier.Average;
   }
 
+  isStopped() {
+    return false;
+  }
+
+  // @TODO -delete this once new battle timeline implemented
   getDelayOnTurnEnded(delayMultiplierOption = 1) {
     const speedTier = this.getSpeedTier();
-    if (speedTier === SpeedTier.Stopped) {
-      return Infinity;
-    }
     // @TODO - get delay from speed tier
     return 0;
   }

@@ -151,6 +151,7 @@ export * from "./combat/combat-actions/combat-action-origin.js";
 // turn order
 export * from "./combat/turn-order/turn-order-manager.js";
 export * from "./combat/turn-order/consts.js";
+export * from "./combat/turn-order/speed-tiers.js";
 export * from "./combat/turn-order/turn-trackers/index.js";
 export * from "./combat/turn-order/turn-trackers/combatant-turn-tracker.js";
 export * from "./combat/turn-order/turn-trackers/condition-turn-tracker.js";

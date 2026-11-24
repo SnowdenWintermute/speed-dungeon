@@ -55,7 +55,7 @@ export class CombatantProperties implements Serializable, ReactiveNode {
   removeFromPartyOnDeath?: boolean;
   giveThreatGeneratedToId?: EntityId;
   shouldDieWhenCombatantAttachedToDies?: boolean;
-  extraTurnSchedulerCount?: number;
+  explicitBattleTimelineEntryCount?: number;
 
   constructor(
     mainClassType: CombatantClass,

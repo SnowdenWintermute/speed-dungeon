@@ -2,7 +2,7 @@ import { IActionUser } from "../../action-user-context/action-user.js";
 import { TaggedActionUserEntityId } from "../../action-user-context/tagged-action-user-id.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../aliases.js";
-import { ITurnDelayPolicy } from "../turn-delay-policy.js";
+import { ITurnDelayPolicy } from "../turn-delay-policies/index.js";
 
 export interface BattleTimelineEntryIdentifier {
   forActionUserId: EntityId;
@@ -48,7 +48,7 @@ export abstract class BattleTimelineEntry<
   }
 
   computeCurrentTurnDelayRate(party: AdventuringParty) {
-    return this.policy.computeTurnDelay(this.requireActionUser(party));
+    return this.policy.computeBaseTurnDelay(this.requireActionUser(party));
   }
 
   get timeOfNextTurn() {

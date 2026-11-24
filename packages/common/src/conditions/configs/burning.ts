@@ -8,7 +8,6 @@ import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
-import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import { MaxAndCurrent } from "../../primatives/max-and-current.js";
 import {
   CharacterModelIdentifier,
@@ -34,7 +33,7 @@ export class BurningCondition extends CombatantCondition {
   getTickProperties(): ConditionTickProperties | undefined {
     return new ConditionTickProperties(
       (condition: CombatantCondition) => {
-        return condition.rank * BASE_CONDITION_TICK_SPEED;
+        return 1 + 1 / condition.rank;
       },
       (context: ActionUserContext) => {
         const user = context.actionUser;

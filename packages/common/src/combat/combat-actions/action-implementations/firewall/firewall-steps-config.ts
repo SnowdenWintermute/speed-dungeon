@@ -10,7 +10,6 @@ import {
   ActionEntityName,
 } from "../../../../action-entities/index.js";
 import { BoxDimensions, ShapeType3D, TaggedBoxDimensions } from "../../../../utils/shape-utils.js";
-import { BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED } from "../../../turn-order/consts.js";
 import { MaxAndCurrent } from "../../../../primatives/max-and-current.js";
 import {
   BASE_PERSISTENT_ACTION_ENTITY_MAX_STACKS,
@@ -80,7 +79,7 @@ stepOverrides[ActionResolutionStepType.OnActivationSpawnEntity] = {
     actionOriginData.userElementalAffinities = actionUser
       .getCombatantProperties()
       .mitigationProperties.getElementalAffinities();
-    actionOriginData.turnOrderSpeed = BASE_PERSISTENT_ACTION_ENTITY_TICK_SPEED;
+    actionOriginData.averageTurnsBetweenTicks = 3;
     actionOriginData.stacks = lifetime;
     actionOriginData.targetingProperties = new ActionUserTargetingProperties();
     actionOriginData.spawnedBy = actionUser.getEntityProperties();

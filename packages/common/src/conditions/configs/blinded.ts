@@ -4,7 +4,6 @@ import {
   CombatActionTargetSingle,
   CombatActionTargetType,
 } from "../../combat/targeting/combat-action-targets.js";
-import { BASE_CONDITION_TICK_SPEED } from "../../combat/turn-order/consts.js";
 import { CombatAttribute } from "../../combatants/attributes/index.js";
 import { CombatantProperties } from "../../combatants/combatant-properties.js";
 import {
@@ -40,7 +39,7 @@ export class BlindedCondition extends CombatantCondition {
   getTickProperties(): ConditionTickProperties | undefined {
     return new ConditionTickProperties(
       (condition: CombatantCondition) => {
-        return BASE_CONDITION_TICK_SPEED / (condition.rank + 5);
+        return 1 + condition.rank;
       },
       (actionUserContext: ActionUserContext) => {
         const user = actionUserContext.actionUser;

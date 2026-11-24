@@ -109,6 +109,10 @@ export function formatThousandsAsK(value: number): string {
   return (value / 1000).toFixed(2).replace(/\.?0+$/, "") + "k";
 }
 
+export function computeGreatestCommonDivisor(a: number, b: number): number {
+  return b === 0 ? a : computeGreatestCommonDivisor(b, a % b);
+}
+
 // the teens are the exception a bare modulo-10 rule gets wrong: 11th, not 11st
 export function formatOrdinal(value: number): string {
   const lastTwoDigits = value % 100;

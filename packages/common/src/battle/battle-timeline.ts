@@ -1,5 +1,9 @@
 import { IActionUser } from "../action-user-context/action-user.js";
-import { TaggedActionUserEntityId } from "../action-user-context/tagged-action-user-id.js";
+import {
+  ActionUserType,
+  TaggedActionUserEntityId,
+} from "../action-user-context/tagged-action-user-id.js";
+import { AdventuringParty } from "../adventuring-party/index.js";
 import { EntityId } from "../aliases.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { invariant } from "../utils/index.js";
@@ -9,10 +13,18 @@ import {
   BattleTimelineEntryTiming,
 } from "./timeline-entries/index.js";
 
+const actionUserTypeTurnOrderTieBreakValues: Record<ActionUserType, number> = {
+  [ActionUserType.Combatant]: 0,
+  [ActionUserType.Condition]: 1,
+  [ActionUserType.ActionEntity]: 2,
+};
+
 export class BattleTimeline {
   private entries: BattleTimelineEntry<TaggedActionUserEntityId, IActionUser>[] = [];
   private entryCurrentlyTakingTurnId: BattleTimelineEntryIdentifier | undefined;
   private _now: number = 0;
+
+  constructor(private party: AdventuringParty) {}
 
   private entryCurrentlyTakingTurn(): BattleTimelineEntry<TaggedActionUserEntityId, IActionUser> {
     throw new Error("not implemented");
@@ -26,6 +38,8 @@ export class BattleTimeline {
     this.entries.sort(
       (a, b) =>
         a.timeOfNextTurn - b.timeOfNextTurn ||
+        actionUserTypeTurnOrderTieBreakValues[a.requireActionUser(this.party).getType()] -
+          actionUserTypeTurnOrderTieBreakValues[b.requireActionUser(this.party).getType()] ||
         a.turnDelayRate - b.turnDelayRate ||
         a.getActionUserId().localeCompare(b.getActionUserId()) ||
         a.index - b.index
@@ -41,6 +55,7 @@ export class BattleTimeline {
 
   startTurn() {
     // marks the appropriate BattleTimelineEntry as currently taking turn, called at the start of processCombatAction()
+    this._now = this.requireFastestTimelineEntry().timeOfNextTurn;
   }
 
   computeDelayOnTurnEnded(actionName: CombatActionName) {

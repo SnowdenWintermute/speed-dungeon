@@ -54,7 +54,7 @@ export class TurnSchedulerManager implements Serializable {
 
     for (const combatant of combatants.values()) {
       const schedulersToCreateCount =
-        1 + (combatant.combatantProperties.extraTurnSchedulerCount || 0);
+        combatant.combatantProperties.explicitBattleTimelineEntryCount || 1;
       for (
         let schedulersCreatedCount = 0;
         schedulersCreatedCount < schedulersToCreateCount;

@@ -331,7 +331,7 @@ export class CombatantManager
       const { turnSchedulerManager } = battleOption.turnOrderManager;
 
       const schedulersToCreateCount =
-        1 + (combatant.combatantProperties.extraTurnSchedulerCount || 0);
+        combatant.combatantProperties.explicitBattleTimelineEntryCount || 1;
       for (
         let schedulersCreatedCount = 0;
         schedulersCreatedCount < schedulersToCreateCount;
