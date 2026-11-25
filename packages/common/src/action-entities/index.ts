@@ -3,7 +3,10 @@ import { Quaternion, Vector3 } from "@babylonjs/core";
 import { KineticDamageType } from "../combat/kinetic-damage-types.js";
 import { MagicalElement } from "../combat/magical-elements.js";
 import { IActionUser } from "../action-user-context/action-user.js";
-import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
+import {
+  ActionUserType,
+  TaggedActionEntityActionUserEntityId,
+} from "../action-user-context/tagged-action-user-id.js";
 import {
   ActionAndRank,
   ActionUserTargetingProperties,
@@ -133,6 +136,10 @@ export class ActionEntity implements IActionUser, Serializable, ReactiveNode {
   }
 
   getType = () => ActionUserType.ActionEntity;
+
+  getTaggedId(): TaggedActionEntityActionUserEntityId {
+    return { type: ActionUserType.ActionEntity, actionEntityId: this.getEntityId() };
+  }
   getMovementSpeedOption(): null | number {
     return this.actionEntityProperties.movementSpeed || ARROW_TIME_TO_MOVE_ONE_METER;
   }

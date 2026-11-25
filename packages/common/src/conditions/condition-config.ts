@@ -1,4 +1,4 @@
-import { EntityId } from "../aliases.js";
+import { CombatantId, EntityId } from "../aliases.js";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionName } from "./condition-names.js";
 
@@ -7,6 +7,6 @@ export interface CombatantConditionInit {
   rank: number;
   id: EntityId;
   appliedBy: ConditionAppliedBy;
-  appliedTo: EntityId;
+  appliedTo: CombatantId;
   stacks: number | null;
 }

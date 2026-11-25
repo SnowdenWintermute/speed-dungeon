@@ -10,7 +10,7 @@ class CombatantConditionTurnDelayPolicy implements ITurnDelayPolicy<CombatantCon
     const tickProperties = actionUser.getTickProperties();
     invariant(tickProperties !== undefined, "expected tick properties");
     const averageTurns = tickProperties.getAverageTurnsBetweenTicks(actionUser);
-    invariant(averageTurns > 0, "negative tick speed");
+    invariant(averageTurns > 0, "expected positive delay");
     return Math.round(SPEED_TIER_BASE_DELAY_RATES[SpeedTier.Average] * averageTurns);
   }
 
@@ -27,7 +27,7 @@ class CombatantConditionTurnDelayPolicy implements ITurnDelayPolicy<CombatantCon
   }
 
   computeBattleTimelineEntryCount(actionUser: CombatantCondition) {
-    return this.computeBaseTurnDelay(actionUser);
+    return actionUser.getTickProperties() === undefined ? 0 : 1;
   }
 }
 

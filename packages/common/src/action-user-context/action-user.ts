@@ -22,7 +22,7 @@ import { WeaponProperties } from "../items/equipment/equipment-properties/index.
 import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { EquipmentSlotId, HoldableSlotId } from "../combatants/combatant-equipment/types.js";
 import { CombatantAttributeRecord } from "../combatants/attributes/combatant-attribute-record.js";
-import { ActionUserType } from "./tagged-action-user-id.js";
+import { ActionUserType, TaggedActionUserEntityId } from "./tagged-action-user-id.js";
 
 export type ActionUserHeldWeapons = Partial<
   Record<
@@ -41,6 +41,7 @@ export interface IActionUser {
   // GETTERS
   getType(): ActionUserType;
   getEntityId(): EntityId;
+  getTaggedId(): TaggedActionUserEntityId;
   getName(): string;
   getEntityProperties(): EntityProperties;
   getLevel(): number;

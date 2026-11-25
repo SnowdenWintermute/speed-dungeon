@@ -6,9 +6,12 @@ import { COMBATANT_CONDITION_NAME_STRINGS, CombatantConditionName } from "./cond
 import { Quaternion, Vector3 } from "@babylonjs/core";
 import { ConditionAppliedBy } from "./condition-applied-by.js";
 import { CombatantConditionInit } from "./condition-config.js";
-import { ConditionId, EntityId, EntityName } from "../aliases.js";
+import { CombatantId, ConditionId, EntityId, EntityName } from "../aliases.js";
 import { IActionUser } from "../action-user-context/action-user.js";
-import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
+import {
+  ActionUserType,
+  TaggedConditionActionUserConditionAndCombatantId,
+} from "../action-user-context/tagged-action-user-id.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { ActionUserTargetingProperties } from "../action-user-context/action-user-targeting-properties.js";
 import { COMBATANT_CONDITION_DESCRIPTIONS } from "./condition-descriptions.js";
@@ -27,8 +30,6 @@ import { MaxAndCurrent } from "../primatives/max-and-current.js";
 import { ReactiveNode } from "../serialization/index.js";
 import makeAutoObservable from "mobx-store-inheritance";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
-import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 
 export const MAX_CONDITION_STACKS = 99;
 
@@ -42,7 +43,7 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   public rank: number;
   public id: EntityId;
   public appliedBy: ConditionAppliedBy;
-  public appliedTo: EntityId;
+  public appliedTo: CombatantId;
   public stacksOption?: MaxAndCurrent;
 
   public abstract intent: CombatActionIntent;
@@ -124,6 +125,14 @@ export abstract class CombatantCondition implements IActionUser, ReactiveNode {
   }
 
   getType = () => ActionUserType.Condition;
+
+  getTaggedId(): TaggedConditionActionUserConditionAndCombatantId {
+    return {
+      type: ActionUserType.Condition,
+      conditionId: this.getEntityId(),
+      combatantId: this.appliedTo,
+    };
+  }
   getActionEntityProperties(): ActionEntityProperties {
     throw new Error("Conditions do not have ActionEntityProperties.");
   }

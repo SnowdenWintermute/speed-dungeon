@@ -6,12 +6,17 @@ import {
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { EntityId } from "../aliases.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
+import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { invariant } from "../utils/index.js";
+import { AnyBattleTimelineEntry } from "./timeline-entries/any-battle-timeline-entry.js";
 import {
-  BattleTimelineEntry,
   BattleTimelineEntryIdentifier,
   BattleTimelineEntryTiming,
 } from "./timeline-entries/index.js";
+import { BattleTimelineEntryFactory } from "./timeline-entries/timeline-entry-factory.js";
+import { COMBATANT_TURN_DELAY_POLICY } from "./turn-delay-policies/combatant-turn-delay-policy.js";
+import { COMBATANT_CONDITION_TURN_DELAY_POLICY } from "./turn-delay-policies/condition-turn-delay-policy.js";
+import { ITurnDelayPolicy } from "./turn-delay-policies/index.js";
 
 const actionUserTypeTurnOrderTieBreakValues: Record<ActionUserType, number> = {
   [ActionUserType.Combatant]: 0,
@@ -20,13 +25,11 @@ const actionUserTypeTurnOrderTieBreakValues: Record<ActionUserType, number> = {
 };
 
 export class BattleTimeline {
-  private entries: BattleTimelineEntry<TaggedActionUserEntityId, IActionUser>[] = [];
+  private entries: AnyBattleTimelineEntry[] = [];
   private entryCurrentlyTakingTurnId: BattleTimelineEntryIdentifier | undefined;
   private _now: number = 0;
 
-  constructor(private party: AdventuringParty) {}
-
-  private entryCurrentlyTakingTurn(): BattleTimelineEntry<TaggedActionUserEntityId, IActionUser> {
+  private entryCurrentlyTakingTurn(): AnyBattleTimelineEntry {
     throw new Error("not implemented");
   }
 
@@ -38,8 +41,8 @@ export class BattleTimeline {
     this.entries.sort(
       (a, b) =>
         a.timeOfNextTurn - b.timeOfNextTurn ||
-        actionUserTypeTurnOrderTieBreakValues[a.requireActionUser(this.party).getType()] -
-          actionUserTypeTurnOrderTieBreakValues[b.requireActionUser(this.party).getType()] ||
+        actionUserTypeTurnOrderTieBreakValues[a.getActionUserType()] -
+          actionUserTypeTurnOrderTieBreakValues[b.getActionUserType()] ||
         a.turnDelayRate - b.turnDelayRate ||
         a.getActionUserId().localeCompare(b.getActionUserId()) ||
         a.index - b.index
@@ -74,13 +77,49 @@ export class BattleTimeline {
     // - tell the client
   }
 
-  // run on server. server passes directly to register, and sends value to client to pass to client's register
-  computeTimelineEntryTimingsOnRegistered(actionUser: IActionUser): BattleTimelineEntryTiming[] {
-    throw new Error("not implemented");
+  register(
+    taggedActionUserId: TaggedActionUserEntityId,
+    timelineEntryTimings: BattleTimelineEntryTiming[]
+  ) {
+    this.entries.push(
+      ...BattleTimelineEntryFactory.create(taggedActionUserId, timelineEntryTimings)
+    );
   }
 
-  register(actionUser: IActionUser, timelineEntryDelays: BattleTimelineEntryTiming[]) {
-    //
+  private computeEntryTimingsOnRegistered<ActionUser extends IActionUser>(
+    policy: ITurnDelayPolicy<ActionUser>,
+    actionUser: ActionUser,
+    rng: RandomNumberGenerator
+  ): BattleTimelineEntryTiming[] {
+    const turnDelayRate = policy.computeBaseTurnDelay(actionUser);
+    const timings: BattleTimelineEntryTiming[] = [];
+    for (let index = 0; index < policy.computeBattleTimelineEntryCount(actionUser); index += 1) {
+      const timeOfNextTurn = this._now + policy.computeDelayOnRegistered(actionUser, index, rng);
+      timings.push({ timeOfNextTurn, turnDelayRate });
+    }
+    return timings;
+  }
+
+  registerAllMovingActionUsers(party: AdventuringParty, initiativeRng: RandomNumberGenerator) {
+    const combatants = party.combatantManager.iterateAllCombatants();
+    for (const combatant of combatants) {
+      const timings = this.computeEntryTimingsOnRegistered(
+        COMBATANT_TURN_DELAY_POLICY,
+        combatant,
+        initiativeRng
+      );
+      this.register(combatant.getTaggedId(), timings);
+    }
+
+    const conditions = party.combatantManager.getAllTickableConditions();
+    for (const condition of conditions) {
+      const timings = this.computeEntryTimingsOnRegistered(
+        COMBATANT_CONDITION_TURN_DELAY_POLICY,
+        condition,
+        initiativeRng
+      );
+      this.register(condition.getTaggedId(), timings);
+    }
   }
 
   unregister(actionUserId: EntityId) {

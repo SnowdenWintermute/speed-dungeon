@@ -34,6 +34,10 @@ export abstract class BattleTimelineEntry<
   abstract getActionUserId(): EntityId;
   abstract requireActionUser(party: AdventuringParty): ActionUser;
 
+  getActionUserType() {
+    return this.taggedActionUserId.type;
+  }
+
   computeRescaledTiming(newTurnDelayRate: number, now: number): BattleTimelineEntryTiming {
     const remaining = this._timeOfNextTurn - now;
     return {

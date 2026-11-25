@@ -10,7 +10,7 @@ class ActionEntityTurnDelayPolicy implements ITurnDelayPolicy<ActionEntity> {
     const averageTurnsBetweenTicks =
       actionUser.getActionEntityProperties().actionOriginData?.averageTurnsBetweenTicks;
     invariant(averageTurnsBetweenTicks !== undefined, "expected averageTurnsBetweenTicks");
-    invariant(averageTurnsBetweenTicks > 0, "negative tick speed");
+    invariant(averageTurnsBetweenTicks > 0, "expected positive delay");
     return Math.round(SPEED_TIER_BASE_DELAY_RATES[SpeedTier.Average] * averageTurnsBetweenTicks);
   }
 
@@ -27,7 +27,9 @@ class ActionEntityTurnDelayPolicy implements ITurnDelayPolicy<ActionEntity> {
   }
 
   computeBattleTimelineEntryCount(actionUser: ActionEntity) {
-    return this.computeBaseTurnDelay(actionUser);
+    const averageTurnsBetweenTicks =
+      actionUser.getActionEntityProperties().actionOriginData?.averageTurnsBetweenTicks;
+    return averageTurnsBetweenTicks === undefined ? 0 : 1;
   }
 }
 

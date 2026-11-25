@@ -110,7 +110,20 @@ export class CombatantManager
     return [...this.combatants.values()];
   }
 
+  getAllTickableConditions() {
+    const tickableConditions: CombatantCondition[] = [];
+    for (const combatant of this.combatants.values()) {
+      for (const condition of combatant.combatantProperties.conditionManager.getConditions()) {
+        if (condition.getTickProperties() !== undefined) {
+          tickableConditions.push(condition);
+        }
+      }
+    }
+    return tickableConditions;
+  }
+
   getAllTickableConditionsAndCombatants() {
+    throw new Error("to be deleted");
     const combatants = this.getAllCombatants();
     const tickableConditions: ConditionWithCombatantIdAppliedTo[] = [];
     for (const [_, combatant] of combatants) {

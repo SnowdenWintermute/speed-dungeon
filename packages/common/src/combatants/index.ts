@@ -4,7 +4,11 @@ import { CombatantActionState } from "./owned-actions/combatant-action-state.js"
 import { COMBAT_ACTIONS } from "../combat/combat-actions/action-implementations/index.js";
 import { COMBATANT_TIME_TO_MOVE_ONE_METER } from "../app-consts.js";
 import { IActionUser } from "../action-user-context/action-user.js";
-import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
+import {
+  ActionUserType,
+  TaggedActionUserEntityId,
+  TaggedCombatantActionUserCombatantId,
+} from "../action-user-context/tagged-action-user-id.js";
 import { ActionAndRank } from "../action-user-context/action-user-targeting-properties.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { Battle } from "../battle/index.js";
@@ -23,9 +27,6 @@ import { ArrayUtils } from "../utils/array-utils.js";
 import { getItemSellPrice } from "../items/crafting/shard-sell-prices.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { ActionEntityProperties } from "../action-entities/action-entity-properties.js";
-import { CombatAttribute } from "./attributes/index.js";
-import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
-import { BASE_ACTION_DELAY_MULTIPLIER } from "../combat/turn-order/consts.js";
 import { HoldableSlotId } from "./combatant-equipment/types.js";
 import { SpeedTier } from "../combat/turn-order/speed-tiers.js";
 
@@ -64,6 +65,9 @@ export class Combatant implements IActionUser, Serializable, ReactiveNode {
   }
 
   getType = () => ActionUserType.Combatant;
+  getTaggedId(): TaggedCombatantActionUserCombatantId {
+    return { type: ActionUserType.Combatant, combatantId: this.getEntityId() };
+  }
   getMovementSpeedOption(): null | number {
     return COMBATANT_TIME_TO_MOVE_ONE_METER;
   }

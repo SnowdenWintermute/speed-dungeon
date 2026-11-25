@@ -8,6 +8,7 @@ import {
   COMBAT_ACTIONS,
   CombatActionExecutionIntent,
   CombatActionName,
+  CombatantId,
   ERROR_MESSAGES,
   HitOutcomeMitigationCalculator,
   TargetingCalculator,
@@ -200,7 +201,7 @@ export const ActionSelectedDetails = observer(({ actionName, hideTitle }: Props)
                       const condition = CombatantConditionFactory.create({
                         ...conditionBlueprint,
                         id: `dummy-condition-${i}`,
-                        appliedTo: "applied to dummy id",
+                        appliedTo: "applied to dummy id" as CombatantId,
                       });
 
                       return (
