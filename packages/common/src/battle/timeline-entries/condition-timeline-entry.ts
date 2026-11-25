@@ -8,13 +8,32 @@ export class ConditionBattleTimelineEntry extends BattleTimelineEntry<
   CombatantCondition
 > {
   getActionUserId() {
-    return this.taggedActionUserId.conditionId;
+    return this._taggedActionUserId.conditionId;
   }
 
   requireActionUser(party: AdventuringParty) {
     return party.combatantManager.requireConditionOnCombatant(
-      this.taggedActionUserId.combatantId,
-      this.taggedActionUserId.conditionId
+      this._taggedActionUserId.combatantId,
+      this._taggedActionUserId.conditionId
     );
+  }
+
+  isStale(party: AdventuringParty) {
+    const { combatantManager } = party;
+    const { combatantId, conditionId } = this._taggedActionUserId;
+    const combatantOption = combatantManager.getCombatantOption(combatantId);
+
+    const combatantIsMissing = combatantOption === undefined;
+
+    if (combatantIsMissing || combatantOption.combatantProperties.isDead()) {
+      return true;
+    }
+
+    const conditionResult = combatantManager.getConditionOptionOnCombatant(
+      combatantId,
+      conditionId
+    );
+
+    return conditionResult === undefined;
   }
 }

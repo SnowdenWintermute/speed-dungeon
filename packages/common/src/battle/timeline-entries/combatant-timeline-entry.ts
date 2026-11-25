@@ -8,10 +8,18 @@ export class CombatantBattleTimelineEntry extends BattleTimelineEntry<
   Combatant
 > {
   getActionUserId() {
-    return this.taggedActionUserId.combatantId;
+    return this._taggedActionUserId.combatantId;
   }
 
   requireActionUser(party: AdventuringParty) {
-    return party.combatantManager.requireCombatantById(this.taggedActionUserId.combatantId);
+    return party.combatantManager.requireCombatantById(this._taggedActionUserId.combatantId);
+  }
+
+  isStale(party: AdventuringParty) {
+    const combatantOption = party.combatantManager.getCombatantOption(
+      this._taggedActionUserId.combatantId
+    );
+    const combatantMissing = combatantOption === undefined;
+    return combatantMissing || combatantOption.combatantProperties.isDead();
   }
 }

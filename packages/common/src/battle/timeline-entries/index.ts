@@ -2,6 +2,7 @@ import { IActionUser } from "../../action-user-context/action-user.js";
 import { TaggedActionUserEntityId } from "../../action-user-context/tagged-action-user-id.js";
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../aliases.js";
+import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
 import { ITurnDelayPolicy } from "../turn-delay-policies/index.js";
 
 export interface BattleTimelineEntryIdentifier {
@@ -14,6 +15,11 @@ export interface BattleTimelineEntryTiming {
   timeOfNextTurn: number;
 }
 
+export interface BattleTimelineEntryUpdate {
+  identifier: BattleTimelineEntryIdentifier;
+  timing: BattleTimelineEntryTiming;
+}
+
 export abstract class BattleTimelineEntry<
   TaggedId extends TaggedActionUserEntityId,
   ActionUser extends IActionUser,
@@ -22,7 +28,7 @@ export abstract class BattleTimelineEntry<
   private _turnDelayRate: number;
 
   constructor(
-    protected readonly taggedActionUserId: TaggedId,
+    protected readonly _taggedActionUserId: TaggedId,
     protected readonly policy: ITurnDelayPolicy<ActionUser>,
     public readonly index: number,
     timing: BattleTimelineEntryTiming
@@ -31,11 +37,23 @@ export abstract class BattleTimelineEntry<
     this._turnDelayRate = timing.turnDelayRate;
   }
 
+  get identifier(): BattleTimelineEntryIdentifier {
+    return { index: this.index, forActionUserId: this.getActionUserId() };
+  }
+
   abstract getActionUserId(): EntityId;
   abstract requireActionUser(party: AdventuringParty): ActionUser;
+  abstract isStale(party: AdventuringParty): boolean;
+
+  isIdentifiedBy(identifier: BattleTimelineEntryIdentifier) {
+    return (
+      this.identifier.index === identifier.index &&
+      this.identifier.forActionUserId === identifier.forActionUserId
+    );
+  }
 
   getActionUserType() {
-    return this.taggedActionUserId.type;
+    return this._taggedActionUserId.type;
   }
 
   computeRescaledTiming(newTurnDelayRate: number, now: number): BattleTimelineEntryTiming {
@@ -53,6 +71,10 @@ export abstract class BattleTimelineEntry<
 
   computeCurrentTurnDelayRate(party: AdventuringParty) {
     return this.policy.computeBaseTurnDelay(this.requireActionUser(party));
+  }
+
+  computeDelayAddedOnTurnEnd(party: AdventuringParty, actionName: CombatActionName) {
+    return this.policy.computeDelayOnTurnEnded(this.requireActionUser(party), actionName);
   }
 
   get timeOfNextTurn() {

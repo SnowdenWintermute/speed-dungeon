@@ -121,10 +121,18 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     result.playerJoinCount = serialized.playerJoinCount;
     result.playerCapacity = serialized.playerCapacity;
     result.playersReadied = serialized.playersReadied;
-    result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) =>
-      AdventuringParty.fromSerialized(v)
-    );
-    result.battles = MapUtils.deserialize(serialized.battles, (v) => Battle.fromSerialized(v));
+    result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) => {
+      const party = AdventuringParty.fromSerialized(v);
+      if (party.battleId) {
+        const serializedBattleOption = serialized.battles.find(
+          ([battleId, battle]) => battleId === party.battleId
+        );
+        invariant(serializedBattleOption !== undefined, "no matching battle found");
+        const deserializedBattle = Battle.fromSerialized(serializedBattleOption[1], party);
+        result.battles.set(party.battleId, deserializedBattle);
+      }
+      return party;
+    });
     result.clock = GameClock.fromSerialized(serialized.clock);
     result._isContinuedRun = serialized._isContinuedRun;
     result.timeHandedOff = serialized.timeHandedOff;

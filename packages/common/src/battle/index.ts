@@ -22,6 +22,7 @@ import { generateExperiencePoints } from "../servers/game-server/controllers/bat
 
 export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
+
   private _game: SpeedDungeonGame | null = null;
   private _party: AdventuringParty | null = null;
   constructor(public id: EntityId) {
@@ -40,7 +41,7 @@ export class Battle implements Serializable, ReactiveNode {
     };
   }
 
-  static fromSerialized(serialized: SerializedOf<Battle>) {
+  static fromSerialized(serialized: SerializedOf<Battle>, party: AdventuringParty) {
     const result = new Battle(serialized.id);
     result.turnOrderManager = TurnOrderManager.fromSerialized(serialized.turnOrderManager);
     return result;
