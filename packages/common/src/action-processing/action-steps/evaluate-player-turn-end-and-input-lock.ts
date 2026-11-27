@@ -1,10 +1,8 @@
-import { EntityId } from "../../aliases.js";
 import { ThreatChanges } from "../../combat/action-results/action-hit-outcome-calculation/resource-changes.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { TurnSchedulerIdentifier } from "../../combat/turn-order/turn-scheduler-manager.js";
 import { Combatant } from "../../combatants/index.js";
 import { ThreatCalculator } from "../../combatants/threat-manager/threat-calculator.js";
-import { invariant } from "../../utils/index.js";
 import { ActionCompletionUpdateCommand, GameUpdateCommandType } from "../game-update-commands.js";
 import {
   ActionIntentAndUser,
@@ -12,6 +10,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
+import { BattleTimelineEntryUpdate } from "../../battle/timeline-entries/index.js";
 
 const stepType = ActionResolutionStepType.EvaluatePlayerEndTurnAndInputLock;
 export class EvaluatePlayerEndTurnAndInputLockActionResolutionStep extends ActionResolutionStep {
@@ -42,17 +41,6 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
   const { sequentialActionManagerRegistry } = tracker.parentActionManager;
   const { game, party, actionUser } = context.actionUserContext;
   const battleOption = party.getBattleOption(game);
-  const userIsCombatant = actionUser instanceof Combatant;
-  const noActionPointsLeft =
-    userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
-  const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
-  const requiresTurnInThisContext = action.costProperties.requiresCombatTurnInThisContext(
-    context,
-    action
-  );
-  const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
-  const turnAlreadyEnded = sequentialActionManagerRegistry.getTurnEnded();
-  const shouldEndTurn = requiredTurn && !turnAlreadyEnded && battleOption;
 
   // FOR SERVER
   sequentialActionManagerRegistry.decrementInputLockReferenceCount();
@@ -74,13 +62,32 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
     threatCalculator.addVolatileThreatDecay();
   }
 
+  const userIsCombatant = actionUser instanceof Combatant;
+  const action = COMBAT_ACTIONS[tracker.actionExecutionIntent.actionName];
+  const noActionPointsLeft =
+    userIsCombatant && actionUser.combatantProperties.resources.getActionPoints() === 0;
+  const requiresTurnInThisContext = action.costProperties.requiresCombatTurnInThisContext(
+    context,
+    action
+  );
+  const requiredTurn = requiresTurnInThisContext || noActionPointsLeft;
+  const turnAlreadyEnded = battleOption !== null && !battleOption.timeline.turnInProgress;
+  const shouldEndTurn = requiredTurn && !turnAlreadyEnded && battleOption;
+
+  let timingUpdatesOption: BattleTimelineEntryUpdate[] = [];
   if (shouldEndTurn) {
+    // new battle timeline
+    const { timeline } = battleOption;
+    const timingUpdates = timeline.computeTurnEndUpdates(action.name);
+    timeline.endCurrentTurn(timingUpdates);
+    timingUpdatesOption = timingUpdates;
+
+    // old turn scheduler
     const delay = actionUser.getDelayOnTurnEnded();
     const schedulerTakingTurnIdentifier =
       battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerIdentifierTakingTurn();
     tellClientDelayAdded = { schedulerIdentifier: schedulerTakingTurnIdentifier, delay };
     battleOption.handleTurnEnded(schedulerTakingTurnIdentifier, delay, threatChanges);
-    sequentialActionManagerRegistry.setTurnEnded();
   }
 
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;
@@ -116,6 +123,10 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   if (!threatChanges.isEmpty()) {
     gameUpdateCommandOption.threatChanges = threatChanges;
+  }
+
+  if (timingUpdatesOption !== undefined) {
+    gameUpdateCommandOption.timingUpdates = timingUpdatesOption;
   }
 
   if (tellClientDelayAdded) {

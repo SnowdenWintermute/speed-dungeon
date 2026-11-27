@@ -24,7 +24,6 @@ export class ActionSequenceManagerRegistry {
   actionStepIdGenerator = new SequentialIdGenerator();
   completionOrderIdGenerator = new SequentialIdGenerator();
   private inputBlockingActionStepsPendingReferenceCount = 0;
-  private turnEnded = false;
   public time = new TimeKeeper();
   public durationSpentInInputLock: null | Milliseconds = null;
   public battleConcludedOption: {
@@ -125,14 +124,6 @@ export class ActionSequenceManagerRegistry {
 
   inputBlockingActionStepsArePending() {
     return this.inputBlockingActionStepsPendingReferenceCount > 0;
-  }
-
-  getTurnEnded() {
-    return this.turnEnded;
-  }
-
-  setTurnEnded() {
-    this.turnEnded = true;
   }
 
   getManager(id: EntityId) {

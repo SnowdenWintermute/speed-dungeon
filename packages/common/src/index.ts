@@ -161,6 +161,8 @@ export * from "./combat/turn-order/turn-scheduler-manager.js";
 export * from "./combat/turn-order/turn-schedulers/combatant-turn-scheduler.js";
 export * from "./combat/turn-order/turn-tracker-tagged-tracked-entity-ids.js";
 
+export * from "./battle/timeline-entries/index.js";
+
 export * from "./combat/action-results/action-hit-outcome-calculation/hit-outcome-mitigation-calculator.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/incoming-resource-change-calculator.js";
 export * from "./combat/action-results/action-hit-outcome-calculation/hp-change-calculation-strategies/index.js";

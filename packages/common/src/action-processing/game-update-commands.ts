@@ -33,6 +33,7 @@ import { BattleConclusion } from "../battle/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { TurnSchedulerIdentifier } from "../combat/turn-order/turn-scheduler-manager.js";
+import { BattleTimelineEntryUpdate } from "../battle/timeline-entries/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -210,6 +211,7 @@ export interface ActionCompletionUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.ActionCompletion;
   unlockInput?: boolean;
   addDelayToTurnScheduler?: { delay: number; schedulerIdentifier: TurnSchedulerIdentifier };
+  timingUpdates?: BattleTimelineEntryUpdate[];
   threatChanges?: SerializedOf<ThreatChanges>;
 }
 

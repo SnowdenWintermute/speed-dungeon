@@ -7,20 +7,20 @@ export class ActionEntityBattleTimelineEntry extends BattleTimelineEntry<
   TaggedActionEntityActionUserEntityId,
   ActionEntity
 > {
-  getActionUserId() {
-    return this._taggedActionUserId.actionEntityId;
+  get actionUserId() {
+    return this.taggedActionUserId.actionEntityId;
   }
 
   requireActionUser(party: AdventuringParty) {
     return party.actionEntityManager.requireActionEntityById(
-      this._taggedActionUserId.actionEntityId
+      this.taggedActionUserId.actionEntityId
     );
   }
 
   isStale(party: AdventuringParty) {
     const { actionEntityManager } = party;
     const entityOption = actionEntityManager.getActionEntityOption(
-      this._taggedActionUserId.actionEntityId
+      this.taggedActionUserId.actionEntityId
     );
     return entityOption === undefined;
   }

@@ -11,4 +11,5 @@ export interface ITurnDelayPolicy<ActionUser extends IActionUser> {
     rng: RandomNumberGenerator
   ) => number;
   computeBattleTimelineEntryCount: (actionUser: ActionUser) => number;
+  computeForecastTurnCountLimitOption: (actionUser: ActionUser) => number | null;
 }

@@ -3,6 +3,7 @@ import { TaggedActionUserEntityId } from "../../action-user-context/tagged-actio
 import { AdventuringParty } from "../../adventuring-party/index.js";
 import { EntityId } from "../../aliases.js";
 import { CombatActionName } from "../../combat/combat-actions/combat-action-names.js";
+import { Serializable } from "../../serialization/index.js";
 import { ITurnDelayPolicy } from "../turn-delay-policies/index.js";
 
 export interface BattleTimelineEntryIdentifier {
@@ -23,12 +24,12 @@ export interface BattleTimelineEntryUpdate {
 export abstract class BattleTimelineEntry<
   TaggedId extends TaggedActionUserEntityId,
   ActionUser extends IActionUser,
-> {
+> implements Serializable {
   private _timeOfNextTurn: number;
   private _turnDelayRate: number;
 
   constructor(
-    protected readonly _taggedActionUserId: TaggedId,
+    public readonly taggedActionUserId: TaggedId,
     protected readonly policy: ITurnDelayPolicy<ActionUser>,
     public readonly index: number,
     timing: BattleTimelineEntryTiming
@@ -37,11 +38,19 @@ export abstract class BattleTimelineEntry<
     this._turnDelayRate = timing.turnDelayRate;
   }
 
-  get identifier(): BattleTimelineEntryIdentifier {
-    return { index: this.index, forActionUserId: this.getActionUserId() };
+  toSerialized() {
+    return {
+      taggedActionUserId: this.taggedActionUserId,
+      index: this.index,
+      timing: { timeOfNextTurn: this._timeOfNextTurn, turnDelayRate: this._turnDelayRate },
+    };
   }
 
-  abstract getActionUserId(): EntityId;
+  get identifier(): BattleTimelineEntryIdentifier {
+    return { index: this.index, forActionUserId: this.actionUserId };
+  }
+
+  abstract actionUserId: EntityId;
   abstract requireActionUser(party: AdventuringParty): ActionUser;
   abstract isStale(party: AdventuringParty): boolean;
 
@@ -52,8 +61,8 @@ export abstract class BattleTimelineEntry<
     );
   }
 
-  getActionUserType() {
-    return this._taggedActionUserId.type;
+  get actionUserType() {
+    return this.taggedActionUserId.type;
   }
 
   computeRescaledTiming(newTurnDelayRate: number, now: number): BattleTimelineEntryTiming {
@@ -75,6 +84,10 @@ export abstract class BattleTimelineEntry<
 
   computeDelayAddedOnTurnEnd(party: AdventuringParty, actionName: CombatActionName) {
     return this.policy.computeDelayOnTurnEnded(this.requireActionUser(party), actionName);
+  }
+
+  computeForecastTurnCountLimitOption(party: AdventuringParty) {
+    return this.policy.computeForecastTurnCountLimitOption(this.requireActionUser(party));
   }
 
   get timeOfNextTurn() {

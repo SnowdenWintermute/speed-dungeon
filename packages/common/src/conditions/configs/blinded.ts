@@ -41,6 +41,7 @@ export class BlindedCondition extends CombatantCondition {
       (condition: CombatantCondition) => {
         return 1 + condition.rank;
       },
+      1,
       (actionUserContext: ActionUserContext) => {
         const user = actionUserContext.actionUser;
 
@@ -61,7 +62,6 @@ export class BlindedCondition extends CombatantCondition {
         };
 
         return {
-          numStacksRemoved: 1,
           triggeredAction,
         };
       }

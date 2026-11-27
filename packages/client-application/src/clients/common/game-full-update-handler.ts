@@ -8,7 +8,6 @@ export function gameFullUpdateHandler(
   let deserializedGame: null | SpeedDungeonGame = null;
   if (game) {
     deserializedGame = SpeedDungeonGame.fromSerialized(game);
-    deserializedGame.initializeBattlesOnDeserialization();
     deserializedGame.makeObservable();
   } else {
     clientApplication.sequentialEventProcessor.scheduleEvent({

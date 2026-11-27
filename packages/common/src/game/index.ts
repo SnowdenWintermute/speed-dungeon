@@ -121,18 +121,21 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     result.playerJoinCount = serialized.playerJoinCount;
     result.playerCapacity = serialized.playerCapacity;
     result.playersReadied = serialized.playersReadied;
-    result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) => {
-      const party = AdventuringParty.fromSerialized(v);
+    result.adventuringParties = MapUtils.deserialize(serialized.adventuringParties, (v) =>
+      AdventuringParty.fromSerialized(v)
+    );
+
+    for (const [_, party] of result.adventuringParties) {
       if (party.battleId) {
         const serializedBattleOption = serialized.battles.find(
           ([battleId, battle]) => battleId === party.battleId
         );
         invariant(serializedBattleOption !== undefined, "no matching battle found");
-        const deserializedBattle = Battle.fromSerialized(serializedBattleOption[1], party);
+        const deserializedBattle = Battle.fromSerialized(serializedBattleOption[1], result, party);
         result.battles.set(party.battleId, deserializedBattle);
       }
-      return party;
-    });
+    }
+
     result.clock = GameClock.fromSerialized(serialized.clock);
     result._isContinuedRun = serialized._isContinuedRun;
     result.timeHandedOff = serialized.timeHandedOff;
@@ -140,16 +143,6 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
     result.inputLock = ReferenceCountedLock.fromSerialized<UserId>(serialized.inputLock);
 
     return result;
-  }
-
-  initializeBattlesOnDeserialization() {
-    for (const [_, party] of this.adventuringParties) {
-      const battleOption = party.getBattleOption(this);
-      if (battleOption) {
-        battleOption.initializeAfterDeserialization(this, party);
-        console.info("initialized battle", battleOption.id);
-      }
-    }
   }
 
   // for knowing if it was an ironman run continuing

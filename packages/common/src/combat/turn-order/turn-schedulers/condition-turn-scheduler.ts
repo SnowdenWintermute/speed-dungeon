@@ -66,9 +66,7 @@ export class ConditionTurnScheduler extends TurnScheduler implements ITurnSchedu
       const tickPropertiesOption = condition.getTickProperties();
 
       if (tickPropertiesOption) {
-        const ticksPredicted = tickPropertiesOption.onTick(
-          new ActionUserContext(game, party, condition)
-        ).numStacksRemoved;
+        const ticksPredicted = tickPropertiesOption.stacksRemovedOnTickCount;
 
         this.predictedConsumedStacks += ticksPredicted;
         return new ConditionTurnTracker(combatantId, conditionId, timeOfNextMove, this.index);

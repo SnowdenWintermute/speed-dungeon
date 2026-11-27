@@ -44,6 +44,10 @@ class CombatantTurnDelayPolicy implements ITurnDelayPolicy<Combatant> {
 
     return actionUser.combatantProperties.explicitBattleTimelineEntryCount ?? 1;
   }
+
+  computeForecastTurnCountLimitOption(actionUser: Combatant) {
+    return null;
+  }
 }
 
 export const COMBATANT_TURN_DELAY_POLICY = new CombatantTurnDelayPolicy();

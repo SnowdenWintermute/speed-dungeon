@@ -39,8 +39,7 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
     const tickPropertiesOption = actionUser.getConditionTickPropertiesOption();
 
     if (tickPropertiesOption) {
-      const onTick = tickPropertiesOption.onTick(context.actionUserContext);
-      const { numStacksRemoved } = onTick;
+      const { stacksRemovedOnTickCount } = tickPropertiesOption;
       const entityConditionWasAppliedTo = condition.getConditionAppliedTo();
       const hostEntity = party.combatantManager.getCombatantOption(entityConditionWasAppliedTo);
       if (hostEntity === undefined) return; // already removed (like a web might be when killed mid battle)
@@ -51,11 +50,11 @@ export class RemoveTickedConditionStacksActionResolutionStep extends ActionResol
       }
 
       const { conditionManager } = hostEntity.combatantProperties;
-      conditionManager.removeStacks(condition.getEntityId(), numStacksRemoved);
+      conditionManager.removeStacks(condition.getEntityId(), stacksRemovedOnTickCount);
 
       addRemovedConditionStacksToUpdate(
         condition.getEntityId(),
-        numStacksRemoved,
+        stacksRemovedOnTickCount,
         gameUpdateCommand,
         hostEntity.entityProperties.id as CombatantId
       );

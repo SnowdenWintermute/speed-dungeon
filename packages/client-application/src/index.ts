@@ -224,9 +224,8 @@ export class ClientApplication {
       return;
     }
 
-    const deserializedBattle = Battle.fromSerialized(serializedBattleOption.battle);
+    const deserializedBattle = Battle.fromSerialized(serializedBattleOption.battle, game, party);
     party.setBattleId(deserializedBattle.id);
-    deserializedBattle.initializeAfterDeserialization(game, party);
     deserializedBattle.makeObservable();
     game.battles.set(deserializedBattle.id, deserializedBattle);
 

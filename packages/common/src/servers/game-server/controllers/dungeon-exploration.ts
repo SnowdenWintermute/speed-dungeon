@@ -251,7 +251,8 @@ export class DungeonExplorationController {
     const newMonsters = dungeonExplorationManager.enterNextRoom(
       game,
       this.dungeonGenerationPolicy,
-      this.idGenerator
+      this.idGenerator,
+      this.rngPolicy.initiative
     );
 
     const serializedMonsters = newMonsters.map((combatant) => combatant.toSerialized());

@@ -7,8 +7,8 @@ import {
   Consumable,
   Equipment,
   FriendOrFoe,
-  invariant,
   PartyFateType,
+  RandomNumberGenerator,
   ThreatChanges,
   TurnSchedulerIdentifier,
 } from "../index.js";
@@ -19,18 +19,23 @@ import { LootGenerator } from "../items/loot-generation/loot-generator.js";
 import { getMonsterRewardProfile } from "../monsters/monster-reward-profiles.js";
 import { PartyWipes } from "../types.js";
 import { generateExperiencePoints } from "../servers/game-server/controllers/battle-processor/generate-experience-points.js";
+import { BattleTimeline } from "./battle-timeline.js";
 
 export class Battle implements Serializable, ReactiveNode {
   turnOrderManager: TurnOrderManager;
 
-  private _game: SpeedDungeonGame | null = null;
-  private _party: AdventuringParty | null = null;
-  constructor(public id: EntityId) {
+  constructor(
+    public readonly id: EntityId,
+    public readonly game: SpeedDungeonGame,
+    public readonly party: AdventuringParty,
+    public readonly timeline: BattleTimeline
+  ) {
     this.turnOrderManager = new TurnOrderManager();
   }
 
   makeObservable(): void {
     makeAutoObservable(this);
+    this.timeline.makeObservable();
     this.turnOrderManager.makeObservable();
   }
 
@@ -38,47 +43,32 @@ export class Battle implements Serializable, ReactiveNode {
     return {
       id: this.id,
       turnOrderManager: this.turnOrderManager.toSerialized(),
+      timeline: this.timeline.toSerialized(),
     };
   }
 
-  static fromSerialized(serialized: SerializedOf<Battle>, party: AdventuringParty) {
-    const result = new Battle(serialized.id);
+  static fromSerialized(
+    serialized: SerializedOf<Battle>,
+    game: SpeedDungeonGame,
+    party: AdventuringParty
+  ) {
+    const timeline = BattleTimeline.fromSerialized(serialized.timeline, party);
+    const result = new Battle(serialized.id, game, party, timeline);
     result.turnOrderManager = TurnOrderManager.fromSerialized(serialized.turnOrderManager);
+    result.turnOrderManager.updateTrackers(game, party);
     return result;
   }
 
   // for initializing on server side creation
-  initializeOnCreation(game: SpeedDungeonGame, party: AdventuringParty) {
-    this._game = game;
-    this._party = party;
-    party.combatantManager.refillAllCombatantActionPoints();
-    game.battles.set(this.id, this);
-    this.turnOrderManager.turnSchedulerManager.createSchedulersOnBattleStart(party);
-    this.turnOrderManager.updateTrackers(game, party);
-  }
+  initializeOnCreation(initiativeRng: RandomNumberGenerator) {
+    this.party.combatantManager.refillAllCombatantActionPoints();
 
-  // for initializing after deserialization
-  initializeAfterDeserialization(game: SpeedDungeonGame, party: AdventuringParty) {
-    this._game = game;
-    this._party = party;
-    game.battles.set(this.id, this);
-    this.turnOrderManager.updateTrackers(game, party);
-  }
+    // new battle timeline
+    this.timeline.registerAllMovingActionUsers(initiativeRng);
 
-  get party() {
-    invariant(this._party !== null, "battle not initialized");
-    return this._party;
-  }
-
-  get game() {
-    invariant(this._game !== null, "battle not initialized");
-    return this._game;
-  }
-
-  static createInitialized(game: SpeedDungeonGame, party: AdventuringParty, id: EntityId) {
-    const battle = new Battle(id);
-    battle.initializeOnCreation(game, party);
-    return battle.id;
+    // old turn scheduler
+    this.turnOrderManager.turnSchedulerManager.createSchedulersOnBattleStart(this.party);
+    this.turnOrderManager.updateTrackers(this.game, this.party);
   }
 
   static invertAllyAndOpponentIds(
@@ -91,6 +81,7 @@ export class Battle implements Serializable, ReactiveNode {
     };
   }
 
+  // old turn scheduler
   handleTurnEnded(
     turnSchedulerIdentifier: TurnSchedulerIdentifier,
     delay: number,

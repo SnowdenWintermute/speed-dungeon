@@ -29,6 +29,18 @@ class CombatantConditionTurnDelayPolicy implements ITurnDelayPolicy<CombatantCon
   computeBattleTimelineEntryCount(actionUser: CombatantCondition) {
     return actionUser.getTickProperties() === undefined ? 0 : 1;
   }
+
+  computeForecastTurnCountLimitOption(actionUser: CombatantCondition) {
+    const tickProperties = actionUser.getTickProperties();
+    invariant(tickProperties !== undefined, "expected tick properties");
+
+    const { stacksOption } = actionUser;
+    if (stacksOption === undefined) {
+      return null;
+    }
+
+    return Math.ceil(stacksOption.current / tickProperties.stacksRemovedOnTickCount);
+  }
 }
 
 export const COMBATANT_CONDITION_TURN_DELAY_POLICY = new CombatantConditionTurnDelayPolicy();

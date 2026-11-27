@@ -36,12 +36,6 @@ export const GAME_CONFIG = {
   ATTRIBUTE_POINTS_AWARDED_PER_SUPPORT_CLASS_LEVEL: 2,
 };
 
-export const ACTION_USER_TYPE_TURN_ORDER_TIE_BREAK_VALUES: Record<ActionUserType, number> = {
-  [ActionUserType.Combatant]: 0,
-  [ActionUserType.Condition]: 1,
-  [ActionUserType.ActionEntity]: 2,
-};
-
 export const DUNGEON_GENERATION_CONFIG = {
   ROOM_FILL_BUDGET: 1,
   FLOOR_PALETTE_BUDGET: 4,

@@ -12,6 +12,14 @@ export async function actionCompletionGameUpdateHandler(
   const battleOption = party.getBattleOption(game);
   const { command } = update;
 
+  // new battle timeline
+  if (battleOption) {
+    if (command.timingUpdates) {
+      battleOption.timeline.applyUpdates(command.timingUpdates);
+    }
+  }
+
+  // old turn scheduler
   if (battleOption && command.addDelayToTurnScheduler) {
     const { threatChanges } = command;
     const deserializedThreatChangesOption = threatChanges

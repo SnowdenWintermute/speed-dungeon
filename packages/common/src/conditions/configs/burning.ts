@@ -35,6 +35,7 @@ export class BurningCondition extends CombatantCondition {
       (condition: CombatantCondition) => {
         return 1 + 1 / condition.rank;
       },
+      1,
       (context: ActionUserContext) => {
         const user = context.actionUser;
 
@@ -57,7 +58,6 @@ export class BurningCondition extends CombatantCondition {
         };
 
         return {
-          numStacksRemoved: 1,
           triggeredAction,
         };
       }

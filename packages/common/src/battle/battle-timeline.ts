@@ -1,11 +1,16 @@
+import { makeAutoObservable } from "mobx";
 import { IActionUser } from "../action-user-context/action-user.js";
 import { TaggedActionUserEntityId } from "../action-user-context/tagged-action-user-id.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
-import { ACTION_USER_TYPE_TURN_ORDER_TIE_BREAK_VALUES } from "../app-consts.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
-import { Serializable, SerializedOf } from "../serialization/index.js";
+import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
 import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 import { invariant } from "../utils/index.js";
+import { BattleTimelineForecaster } from "./battle-timeline-forecast.js";
+import {
+  BattleTimelineForecastEntry,
+  BattleTimelineTurnOrder,
+} from "./battle-timeline-turn-order.js";
 import { AnyBattleTimelineEntry } from "./timeline-entries/any-battle-timeline-entry.js";
 import {
   BattleTimelineEntryIdentifier,
@@ -17,17 +22,23 @@ import { COMBATANT_TURN_DELAY_POLICY } from "./turn-delay-policies/combatant-tur
 import { COMBATANT_CONDITION_TURN_DELAY_POLICY } from "./turn-delay-policies/condition-turn-delay-policy.js";
 import { ITurnDelayPolicy } from "./turn-delay-policies/index.js";
 
-export class BattleTimeline implements Serializable {
+export class BattleTimeline implements Serializable, ReactiveNode {
+  private _forecast: BattleTimelineForecastEntry[] = [];
+
   constructor(
-    private _party: AdventuringParty,
+    private party: AdventuringParty,
     private entries: AnyBattleTimelineEntry[] = [],
     private _now: number = 0,
     private _entryCurrentlyTakingTurnId?: BattleTimelineEntryIdentifier
   ) {}
 
+  makeObservable() {
+    makeAutoObservable(this);
+  }
+
   toSerialized() {
     return {
-      entries: this.entries,
+      entries: this.entries.map((value) => value.toSerialized()),
       _entryCurrentlyTakingTurnId: this._entryCurrentlyTakingTurnId,
       _now: this._now,
     };
@@ -39,15 +50,10 @@ export class BattleTimeline implements Serializable {
   ): BattleTimeline {
     return new BattleTimeline(
       party,
-      serialized.entries,
+      serialized.entries.map((v) => BattleTimelineEntryFactory.fromSerialized(v)),
       serialized._now,
       serialized._entryCurrentlyTakingTurnId
     );
-  }
-
-  private get party() {
-    invariant(this._party !== undefined, "not initialized");
-    return this._party;
   }
 
   get now() {
@@ -55,19 +61,10 @@ export class BattleTimeline implements Serializable {
   }
 
   private sort() {
-    this.entries.sort(
-      (a, b) =>
-        a.timeOfNextTurn - b.timeOfNextTurn ||
-        ACTION_USER_TYPE_TURN_ORDER_TIE_BREAK_VALUES[a.getActionUserType()] -
-          ACTION_USER_TYPE_TURN_ORDER_TIE_BREAK_VALUES[b.getActionUserType()] ||
-        a.turnDelayRate - b.turnDelayRate ||
-        a.getActionUserId().localeCompare(b.getActionUserId()) ||
-        a.index - b.index
-    );
+    this.entries.sort((a, b) => BattleTimelineTurnOrder.compare(a, b));
   }
 
   private requireFastestTimelineEntry() {
-    this.sort();
     const fastest = this.entries[0];
     invariant(fastest !== undefined, "no timeline entries");
     return fastest;
@@ -91,12 +88,14 @@ export class BattleTimeline implements Serializable {
         entryOption.setTiming(update.timing);
       }
     }
+
+    this.sort();
   }
 
-  computeStaleEntries(party: AdventuringParty) {
+  computeStaleEntries() {
     const staleEntryIds: BattleTimelineEntryIdentifier[] = [];
     for (const entry of this.entries) {
-      if (entry.isStale(party)) {
+      if (entry.isStale(this.party)) {
         staleEntryIds.push(entry.identifier);
       }
     }
@@ -108,6 +107,7 @@ export class BattleTimeline implements Serializable {
     this.entries = this.entries.filter(
       (entry) => !toRemove.some((identifier) => entry.isIdentifiedBy(identifier))
     );
+    this.sort();
   }
 
   computeTurnEndUpdates(actionName: CombatActionName) {
@@ -136,13 +136,18 @@ export class BattleTimeline implements Serializable {
     this._entryCurrentlyTakingTurnId = undefined;
   }
 
+  get turnInProgress() {
+    return this._entryCurrentlyTakingTurnId !== undefined;
+  }
+
   register(
     taggedActionUserId: TaggedActionUserEntityId,
     timelineEntryTimings: BattleTimelineEntryTiming[]
   ) {
     this.entries.push(
-      ...BattleTimelineEntryFactory.create(taggedActionUserId, timelineEntryTimings)
+      ...BattleTimelineEntryFactory.createEntries(taggedActionUserId, timelineEntryTimings)
     );
+    this.sort();
   }
 
   computeEntryTimingsOnRegistered<ActionUser extends IActionUser>(
@@ -181,7 +186,11 @@ export class BattleTimeline implements Serializable {
     }
   }
 
-  forecast() {
-    // :BattleTimelineForecast
+  refreshForecast() {
+    this._forecast = BattleTimelineForecaster.forecast(this.entries, this.party);
+  }
+
+  get forecast() {
+    return this._forecast;
   }
 }

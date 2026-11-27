@@ -10,11 +10,12 @@ import { Milliseconds } from "../aliases.js";
 import type { MonsterSpawnEntry } from "../dungeon-generation/monster-types-by-floor.js";
 import type { MonsterType } from "../monsters/monster-types.js";
 import { DungeonGenerationPolicy } from "../dungeon-generation/index.js";
-import { GameModePolicy } from "../game-modes/index.js";
 import { AdventuringPartySubsystem } from "./party-subsystem.js";
 import { SpeedDungeonGame } from "../game/index.js";
 import { Battle } from "../battle/index.js";
 import { IdGenerator } from "../utility-classes/index.js";
+import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
+import { BattleTimeline } from "../battle/battle-timeline.js";
 
 export class DungeonExplorationManager
   extends AdventuringPartySubsystem
@@ -179,7 +180,8 @@ export class DungeonExplorationManager
   enterNextRoom(
     game: SpeedDungeonGame,
     dungeonGenerationPolicy: DungeonGenerationPolicy,
-    idGenerator: IdGenerator
+    idGenerator: IdGenerator,
+    initiativeRng: RandomNumberGenerator
   ) {
     const party = this.getParty();
     const floorNumber = this.getCurrentFloor();
@@ -206,11 +208,24 @@ export class DungeonExplorationManager
     this.incrementExploredRoomsTrackers();
 
     if (party.combatantManager.monstersArePresent()) {
-      const battleIdResult = Battle.createInitialized(game, party, idGenerator.generate());
-      party.setBattleId(battleIdResult);
+      this.enterNewBattle(idGenerator, game, party, initiativeRng);
     }
 
     return monsters;
+  }
+
+  private enterNewBattle(
+    idGenerator: IdGenerator,
+    game: SpeedDungeonGame,
+    party: AdventuringParty,
+    initiativeRng: RandomNumberGenerator
+  ) {
+    const battleId = idGenerator.generate();
+    const battleTimeline = new BattleTimeline(party);
+    const battle = new Battle(battleId, game, party, battleTimeline);
+    battle.initializeOnCreation(initiativeRng);
+    party.setBattleId(battleId);
+    game.battles.set(battle.id, battle);
   }
 
   getCurrentFloorPalette() {

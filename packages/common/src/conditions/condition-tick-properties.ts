@@ -7,8 +7,8 @@ import { CombatantCondition } from "./index.js";
 export class ConditionTickProperties {
   constructor(
     public getAverageTurnsBetweenTicks: (condition: CombatantCondition) => number,
+    public stacksRemovedOnTickCount: number,
     public onTick: (context: ActionUserContext) => {
-      numStacksRemoved: number;
       triggeredAction: {
         actionIntentAndUser: ActionIntentAndUser;
         getConsumableType?: () => null;

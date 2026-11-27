@@ -15,10 +15,9 @@ export class DetermineShouldExecuteOrReleaseTurnLockActionResolutionStep extends
 
     const action = COMBAT_ACTIONS[context.tracker.actionExecutionIntent.actionName];
 
-    const turnAlreadyEnded =
-      context.tracker.parentActionManager.sequentialActionManagerRegistry.getTurnEnded();
-
-    const { actionUser, party } = context.actionUserContext;
+    const { actionUser, party, game } = context.actionUserContext;
+    const battleOption = party.getBattleOption(game);
+    const turnAlreadyEnded = battleOption !== null && !battleOption.timeline.turnInProgress;
 
     const resourceCosts = action.costProperties.getResourceCosts(
       actionUser,

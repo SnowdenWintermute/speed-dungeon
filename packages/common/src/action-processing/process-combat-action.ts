@@ -43,6 +43,10 @@ export function processCombatAction(
 
   const battleOption = party.getBattleOption(game);
   if (battleOption !== null) {
+    // new battle timeline
+    battleOption.timeline.startTurn();
+
+    // old turn scheduler
     const fastestTracker = battleOption.turnOrderManager.getFastestActorTurnOrderTracker();
     const schedulerIdentiferOfFastestActor: TurnSchedulerIdentifier = {
       turnTakerId: fastestTracker.getEntityId(),
@@ -76,7 +80,7 @@ export function processCombatAction(
     registry.processActiveActionSequences(actionUserContext);
   }
 
-  const endedTurn = registry.getTurnEnded();
+  const endedTurn = battleOption !== null && !battleOption.timeline.turnInProgress;
 
   const battleJustEnded = wasInBattle && party.battleId === null;
   const removedCombatantIds = postActionProcessedCleanup(game, party, battleJustEnded);

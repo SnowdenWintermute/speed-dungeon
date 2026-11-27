@@ -31,6 +31,10 @@ class ActionEntityTurnDelayPolicy implements ITurnDelayPolicy<ActionEntity> {
       actionUser.getActionEntityProperties().actionOriginData?.averageTurnsBetweenTicks;
     return averageTurnsBetweenTicks === undefined ? 0 : 1;
   }
+
+  computeForecastTurnCountLimitOption(actionUser: ActionEntity) {
+    return actionUser.getActionEntityProperties().actionOriginData?.stacks?.current ?? null;
+  }
 }
 
 export const ACTION_ENTITY_TURN_DELAY_POLICY = new ActionEntityTurnDelayPolicy();
