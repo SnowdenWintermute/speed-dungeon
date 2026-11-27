@@ -404,7 +404,7 @@ export class SpeedDungeonGame implements Serializable, ReactiveNode {
       charactersRemoved.push(removedCharacter);
     });
 
-    battleOption?.turnOrderManager.updateTrackers(this, partyLeaving);
+    battleOption?.timeline.refreshForecast();
 
     player.partyName = null;
 

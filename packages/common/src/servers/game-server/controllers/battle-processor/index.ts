@@ -49,8 +49,6 @@ export class BattleProcessor {
       };
     }
 
-    battle.turnOrderManager.updateTrackers(game, party);
-
     const sequentialEvents: ClientSequentialEvent[] = [];
     let ladderMessagesOutbox: MessageDispatchOutbox<GameStateUpdate> | undefined = undefined;
 

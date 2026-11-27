@@ -81,9 +81,6 @@ export class RollIncomingHitOutcomesActionResolutionStep extends ActionResolutio
       threatChangesOption.applyToGame(party);
       gameUpdateCommand.threatChanges = threatChangesOption;
     }
-
-    const battleOption = party.getBattleOption(game);
-    battleOption?.turnOrderManager.updateTrackers(game, party);
   }
 
   protected onTick = () => {};

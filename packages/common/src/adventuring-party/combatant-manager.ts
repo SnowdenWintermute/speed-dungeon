@@ -14,6 +14,7 @@ import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index
 import { MapUtils } from "../utils/map-utils.js";
 import { invariant } from "../utils/index.js";
 import { ActionUserType } from "../action-user-context/tagged-action-user-id.js";
+import { RandomNumberGenerator } from "../utility-classes/randomizers.js";
 
 export class CombatantManager
   extends AdventuringPartySubsystem
@@ -304,14 +305,10 @@ export class CombatantManager
   }
 
   /** Expects the combatant to exist. Returns the removed combatant. */
-  removeCombatant(combatantId: CombatantId, game: SpeedDungeonGame) {
+  removeExpectedCombatant(combatantId: CombatantId) {
     const combatant = this.requireCombatantById(combatantId);
     this.combatants.delete(combatantId);
     const party = this.getParty();
-    const battleOption = party.getBattleOption(game);
-    if (battleOption) {
-      battleOption.turnOrderManager.updateTrackers(game, party);
-    }
 
     for (const [_, combatant] of party.combatantManager.getAllCombatants()) {
       const { threatManager } = combatant.combatantProperties;
@@ -325,59 +322,14 @@ export class CombatantManager
     return combatant;
   }
 
-  addCombatant(combatant: Combatant, game: SpeedDungeonGame, withDelay: number = 0) {
+  addCombatant(combatant: Combatant, game: SpeedDungeonGame) {
     this.combatants.set(combatant.getEntityId(), combatant);
-
-    const party = this.getParty();
-    const battleOption = party.getBattleOption(game);
-
-    if (battleOption) {
-      const isPassive = combatant
-        .getCombatantProperties()
-        .abilityProperties.getTraitProperties()
-        .hasTraitType(CombatantTraitType.Passive);
-
-      if (isPassive) {
-        return;
-      }
-
-      const { turnSchedulerManager } = battleOption.turnOrderManager;
-
-      const schedulersToCreateCount =
-        combatant.combatantProperties.explicitBattleTimelineEntryCount || 1;
-      for (
-        let schedulersCreatedCount = 0;
-        schedulersCreatedCount < schedulersToCreateCount;
-        schedulersCreatedCount += 1
-      ) {
-        battleOption.turnOrderManager.turnSchedulerManager.addNewScheduler(
-          {
-            type: ActionUserType.Combatant,
-            combatantId: combatant.getEntityId(),
-          },
-          schedulersCreatedCount,
-          {
-            initialDelay: 0,
-            accumulatedDelay: withDelay,
-          }
-        );
-      }
-
-      combatant.combatantProperties.conditionManager
-        .getConditions()
-        .forEach((condition, conditionIndex) => {
-          const conditionStartingDelay = withDelay;
-          turnSchedulerManager.addConditionToTurnOrder(condition, conditionStartingDelay);
-        });
-
-      battleOption.turnOrderManager.updateTrackers(game, party);
-    }
   }
 
   removeDungeonControlledCombatants(game: SpeedDungeonGame) {
     const removed: Combatant[] = [];
     for (const combatant of this.getDungeonControlledCombatants()) {
-      const combatantRemoved = this.removeCombatant(combatant.getEntityId(), game);
+      const combatantRemoved = this.removeExpectedCombatant(combatant.getEntityId());
       removed.push(combatantRemoved);
     }
     return removed;
@@ -386,7 +338,7 @@ export class CombatantManager
   removeNeutralCombatants(game: SpeedDungeonGame) {
     const removed: Combatant[] = [];
     for (const combatant of this.getNeutralCombatants()) {
-      const combatantRemoved = this.removeCombatant(combatant.getEntityId(), game);
+      const combatantRemoved = this.removeExpectedCombatant(combatant.getEntityId());
       removed.push(combatantRemoved);
     }
     return removed;

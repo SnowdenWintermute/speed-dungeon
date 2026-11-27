@@ -76,18 +76,14 @@ export function evaluatePlayerEndTurnAndInputLock(context: ActionResolutionStepC
 
   let timingUpdatesOption: BattleTimelineEntryUpdate[] = [];
   if (shouldEndTurn) {
-    // new battle timeline
     const { timeline } = battleOption;
     const timingUpdates = timeline.computeTurnEndUpdates(action.name);
     timeline.endCurrentTurn(timingUpdates);
     timingUpdatesOption = timingUpdates;
 
-    // old turn scheduler
-    const delay = actionUser.getDelayOnTurnEnded();
-    const schedulerTakingTurnIdentifier =
-      battleOption.turnOrderManager.turnSchedulerManager.requireSchedulerIdentifierTakingTurn();
-    tellClientDelayAdded = { schedulerIdentifier: schedulerTakingTurnIdentifier, delay };
-    battleOption.handleTurnEnded(schedulerTakingTurnIdentifier, delay, threatChanges);
+    if (threatChanges) {
+      threatChanges.applyToGame(party);
+    }
   }
 
   const hasRemainingActions = tracker.parentActionManager.getRemainingActionsToExecute().length > 0;

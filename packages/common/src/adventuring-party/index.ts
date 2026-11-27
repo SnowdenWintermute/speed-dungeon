@@ -184,7 +184,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
     game: SpeedDungeonGame
   ): Combatant {
     ArrayUtils.removeElement(player.characterIds, characterId);
-    const character = this.combatantManager.removeCombatant(characterId, game);
+    const character = this.combatantManager.removeExpectedCombatant(characterId);
     const summonedPetOption = this.petManager.getCombatantSummonedPetOption(
       character.getEntityId()
     );

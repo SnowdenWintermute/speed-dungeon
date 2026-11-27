@@ -1,6 +1,5 @@
 import { makeAutoObservable } from "mobx";
 import { IActionUser } from "../action-user-context/action-user.js";
-import { TaggedActionUserEntityId } from "../action-user-context/tagged-action-user-id.js";
 import { AdventuringParty } from "../adventuring-party/index.js";
 import { CombatActionName } from "../combat/combat-actions/combat-action-names.js";
 import { ReactiveNode, Serializable, SerializedOf } from "../serialization/index.js";
@@ -16,11 +15,15 @@ import {
   BattleTimelineEntryIdentifier,
   BattleTimelineEntryTiming,
   BattleTimelineEntryUpdate,
+  BattleTimelineRegistration,
 } from "./timeline-entries/index.js";
 import { BattleTimelineEntryFactory } from "./timeline-entries/timeline-entry-factory.js";
 import { COMBATANT_TURN_DELAY_POLICY } from "./turn-delay-policies/combatant-turn-delay-policy.js";
 import { COMBATANT_CONDITION_TURN_DELAY_POLICY } from "./turn-delay-policies/condition-turn-delay-policy.js";
 import { ITurnDelayPolicy } from "./turn-delay-policies/index.js";
+import { CombatantCondition } from "../conditions/index.js";
+import { Combatant } from "../combatants/index.js";
+import { CombatantTraitType } from "../combatants/combatant-traits/trait-types.js";
 
 export class BattleTimeline implements Serializable, ReactiveNode {
   private _forecast: BattleTimelineForecastEntry[] = [];
@@ -64,7 +67,7 @@ export class BattleTimeline implements Serializable, ReactiveNode {
     this.entries.sort((a, b) => BattleTimelineTurnOrder.compare(a, b));
   }
 
-  private requireFastestTimelineEntry() {
+  requireFastestTimelineEntry() {
     const fastest = this.entries[0];
     invariant(fastest !== undefined, "no timeline entries");
     return fastest;
@@ -140,17 +143,19 @@ export class BattleTimeline implements Serializable, ReactiveNode {
     return this._entryCurrentlyTakingTurnId !== undefined;
   }
 
-  register(
-    taggedActionUserId: TaggedActionUserEntityId,
-    timelineEntryTimings: BattleTimelineEntryTiming[]
-  ) {
-    this.entries.push(
-      ...BattleTimelineEntryFactory.createEntries(taggedActionUserId, timelineEntryTimings)
-    );
+  registerOne(registration: BattleTimelineRegistration) {
+    const { taggedActionUserId, timings } = registration;
+    this.entries.push(...BattleTimelineEntryFactory.createEntries(taggedActionUserId, timings));
     this.sort();
   }
 
-  computeEntryTimingsOnRegistered<ActionUser extends IActionUser>(
+  registerMany(registrations: BattleTimelineRegistration[]) {
+    for (const registration of registrations) {
+      this.registerOne(registration);
+    }
+  }
+
+  private computeEntryTimingsOnRegistered<ActionUser extends IActionUser>(
     policy: ITurnDelayPolicy<ActionUser>,
     actionUser: ActionUser,
     rng: RandomNumberGenerator
@@ -164,25 +169,58 @@ export class BattleTimeline implements Serializable, ReactiveNode {
     return timings;
   }
 
-  registerAllMovingActionUsers(initiativeRng: RandomNumberGenerator) {
-    const combatants = this.party.combatantManager.iterateAllCombatants();
-    for (const combatant of combatants) {
-      const timings = this.computeEntryTimingsOnRegistered(
-        COMBATANT_TURN_DELAY_POLICY,
-        combatant,
-        initiativeRng
-      );
-      this.register(combatant.getTaggedId(), timings);
+  computeConditionTimingsOnRegistered(
+    condition: CombatantCondition,
+    initiativeRng: RandomNumberGenerator
+  ) {
+    return this.computeEntryTimingsOnRegistered(
+      COMBATANT_CONDITION_TURN_DELAY_POLICY,
+      condition,
+      initiativeRng
+    );
+  }
+
+  private computeCombatantTimingOnRegistered(
+    combatant: Combatant,
+    initiativeRng: RandomNumberGenerator
+  ) {
+    return this.computeEntryTimingsOnRegistered(
+      COMBATANT_TURN_DELAY_POLICY,
+      combatant,
+      initiativeRng
+    );
+  }
+
+  computeRegistrationsForCombatant(combatant: Combatant, initiativeRng: RandomNumberGenerator) {
+    const isPassive = combatant
+      .getCombatantProperties()
+      .abilityProperties.getTraitProperties()
+      .hasTraitType(CombatantTraitType.Passive);
+
+    const registrations: BattleTimelineRegistration[] = [];
+
+    if (!isPassive) {
+      registrations.push({
+        taggedActionUserId: combatant.getTaggedId(),
+        timings: this.computeCombatantTimingOnRegistered(combatant, initiativeRng),
+      });
     }
 
-    const conditions = this.party.combatantManager.getAllTickableConditions();
-    for (const condition of conditions) {
-      const timings = this.computeEntryTimingsOnRegistered(
-        COMBATANT_CONDITION_TURN_DELAY_POLICY,
-        condition,
-        initiativeRng
-      );
-      this.register(condition.getTaggedId(), timings);
+    combatant.combatantProperties.conditionManager.getConditions().forEach((condition) => {
+      registrations.push({
+        taggedActionUserId: condition.getTaggedId(),
+        timings: this.computeConditionTimingsOnRegistered(condition, initiativeRng),
+      });
+    });
+
+    return registrations;
+  }
+
+  registerAllCombatantsOnBattleStart(initiativeRng: RandomNumberGenerator) {
+    const combatants = this.party.combatantManager.iterateAllCombatants();
+    for (const combatant of combatants) {
+      const registrations = this.computeRegistrationsForCombatant(combatant, initiativeRng);
+      this.registerMany(registrations);
     }
   }
 

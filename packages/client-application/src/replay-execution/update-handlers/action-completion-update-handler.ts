@@ -12,28 +12,22 @@ export async function actionCompletionGameUpdateHandler(
   const battleOption = party.getBattleOption(game);
   const { command } = update;
 
-  // new battle timeline
   if (battleOption) {
     if (command.timingUpdates) {
       battleOption.timeline.applyUpdates(command.timingUpdates);
     }
-  }
-
-  // old turn scheduler
-  if (battleOption && command.addDelayToTurnScheduler) {
     const { threatChanges } = command;
     const deserializedThreatChangesOption = threatChanges
       ? ThreatChanges.fromSerialized(threatChanges)
       : undefined;
-    battleOption.handleTurnEnded(
-      command.addDelayToTurnScheduler.schedulerIdentifier,
-      command.addDelayToTurnScheduler.delay,
-      deserializedThreatChangesOption
-    );
+    if (deserializedThreatChangesOption) {
+      deserializedThreatChangesOption.applyToGame(party);
+    }
+    // @TODO - this comment uses terms from the old "turn scheduler" before the new "battle timeline"
     // a turn ended, so the tracker list must be rebuilt even when handleTurnEnded could not
     // resolve a scheduler to apply the delta to (e.g. a removed condition, or an effect-less
     // PayActionPoint from a weapon swap that emits no hit/resource updates to re-sort elsewhere)
-    battleOption.turnOrderManager.updateTrackers(game, party);
+    battleOption.timeline.refreshForecast();
   }
 
   if (battleOption) {

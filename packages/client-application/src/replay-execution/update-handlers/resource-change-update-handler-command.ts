@@ -11,8 +11,7 @@ import { ClientApplication } from "@/client-application";
 import { CombatantSceneEntity } from "@/game-world-view/scene-entities/combatants";
 
 type GameUpdateCommandWithResourceChanges =
-  | ActivatedTriggersGameUpdateCommand
-  | HitOutcomesGameUpdateCommand;
+  ActivatedTriggersGameUpdateCommand | HitOutcomesGameUpdateCommand;
 
 export class CombatantResourceChangeUpdateHandlerCommand {
   targetCombatant: Combatant;
@@ -94,7 +93,7 @@ export class CombatantResourceChangeUpdateHandlerCommand {
     const battleOption = party.getBattleOption(game);
 
     if (this.combatantDiedOnOwnTurn()) {
-      battleOption?.turnOrderManager.updateTrackers(game, party);
+      battleOption?.timeline.refreshForecast();
     }
 
     const newlyActiveTracker = battleOption?.turnOrderManager.getFastestActorTurnOrderTracker();

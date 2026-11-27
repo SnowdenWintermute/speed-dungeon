@@ -155,21 +155,6 @@ export const DebugPanel = observer(
               Toggle Input Lock
             </HotkeyButton>
           </div>
-          <HotkeyButton
-            className="underline"
-            onClick={() => {
-              if (!gameContext) {
-                return;
-              }
-              const game = gameContext.requireGame();
-
-              gameContext.partyOption
-                ?.getBattleOption(game)
-                ?.turnOrderManager.updateTrackers(game, gameContext.partyOption);
-            }}
-          >
-            Sort turn order
-          </HotkeyButton>
           <div className="">Renderer: {gpuName}</div>
 
           {/* to be populated in the babylon render loop*/}

@@ -157,8 +157,6 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
           // @TODO
           // kill attached combatants that die when their attachedTo is killed
 
-          battleOption?.turnOrderManager.updateTrackers(game, party);
-
           let { threatChanges } = gameUpdateCommand;
           if (threatChanges === undefined) threatChanges = new ThreatChanges();
 
@@ -225,7 +223,7 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         );
         this.branchingActions.push(...attachedCombatantsDeathActionIntents);
 
-        party.petManager.handlePetTamed(petId, tamerId, game);
+        party.petManager.handlePetTamed(petId, tamerId);
       }
     }
   }

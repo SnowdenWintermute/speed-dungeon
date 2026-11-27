@@ -40,15 +40,10 @@ const hitOutcomeProperties = createHitOutcomeProperties(
       const petSlot = rank - 1;
 
       const { actionUserContext } = context;
-      const { actionUser, game, party } = actionUserContext;
-
-      const battleOption = party.getBattleOption(game);
-      const withDelay = battleOption?.getSchedulerDelayForNewActionUser();
+      const { actionUser } = actionUserContext;
 
       const toReturn: Partial<ActivatedTriggersGameUpdateCommand> = {
-        petSlotsSummoned: [
-          { slot: { ownerId: actionUser.getEntityId(), slotIndex: petSlot }, withDelay },
-        ],
+        petSlotsSummoned: [{ slot: { ownerId: actionUser.getEntityId(), slotIndex: petSlot } }],
       };
 
       return toReturn;

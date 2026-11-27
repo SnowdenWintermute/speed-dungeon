@@ -2,24 +2,31 @@ import { CombatantCondition } from "../../../conditions/index.js";
 import { HitOutcome } from "../../../hit-outcome.js";
 import { EntityId } from "../../../aliases.js";
 import { ActivatedTriggersGameUpdateCommand } from "../../game-update-commands.js";
+import { BattleTimelineEntryTiming } from "../../../battle/timeline-entries/index.js";
 
 export function addConditionToUpdate(
   condition: CombatantCondition,
   update: ActivatedTriggersGameUpdateCommand,
   targetCombatantId: EntityId,
   triggeredBy: HitOutcome,
-  startingDelay?: number
+  timelineEntryTimings?: BattleTimelineEntryTiming[]
 ) {
-  if (!update.appliedConditions) update.appliedConditions = {};
+  if (!update.appliedConditions) {
+    update.appliedConditions = {};
+  }
 
   let conditionsTriggeredByOutcome = update.appliedConditions[triggeredBy];
 
-  if (!conditionsTriggeredByOutcome) conditionsTriggeredByOutcome = {};
+  if (!conditionsTriggeredByOutcome) {
+    conditionsTriggeredByOutcome = {};
+  }
 
   let thisCombatantConditions = conditionsTriggeredByOutcome[targetCombatantId];
 
-  if (!thisCombatantConditions) thisCombatantConditions = [];
-  thisCombatantConditions.push({ condition: condition.toSerialized(), startingDelay });
+  if (!thisCombatantConditions) {
+    thisCombatantConditions = [];
+  }
+  thisCombatantConditions.push({ condition: condition.toSerialized(), timelineEntryTimings });
 
   conditionsTriggeredByOutcome[targetCombatantId] = thisCombatantConditions;
 

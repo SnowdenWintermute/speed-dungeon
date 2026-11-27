@@ -21,6 +21,11 @@ export interface BattleTimelineEntryUpdate {
   timing: BattleTimelineEntryTiming;
 }
 
+export interface BattleTimelineRegistration {
+  taggedActionUserId: TaggedActionUserEntityId;
+  timings: BattleTimelineEntryTiming[];
+}
+
 export abstract class BattleTimelineEntry<
   TaggedId extends TaggedActionUserEntityId,
   ActionUser extends IActionUser,

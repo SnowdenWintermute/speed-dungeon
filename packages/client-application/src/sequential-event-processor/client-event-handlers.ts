@@ -109,7 +109,6 @@ export function createClientSequentialEventHandlers(
     [ClientSequentialEventType.PostReplayTreeCleanup]: async (data) => {
       if (data.removedCombatantIds) {
         const party = clientApplication.gameContext.requireParty();
-        const game = clientApplication.gameContext.requireGame();
         const combatantSceneEntityManager =
           clientApplication.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
         for (const id of data.removedCombatantIds) {
@@ -119,7 +118,7 @@ export function createClientSequentialEventHandlers(
           const removeModelNow =
             party.combatantManager.getCombatantOption(id)?.combatantProperties
               .removeFromPartyOnDeath ?? false;
-          party.combatantManager.removeCombatant(id, game);
+          party.combatantManager.removeExpectedCombatant(id);
           if (removeModelNow) {
             combatantSceneEntityManager?.unregister(id, CleanupMode.Immediate);
           }

@@ -4,9 +4,14 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
+import {
+  GameUpdateCommandType,
+  SerializedSpawnedEntityWithTimelineRegistrations,
+  SpawnEntitiesGameUpdateCommand,
+} from "../game-update-commands.js";
 import { SerializedSpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
+import { BattleTimelineRegistration } from "../../battle/timeline-entries/index.js";
 
 export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
   constructor(context: ActionResolutionStepContext, stepType: ActionResolutionStepType) {
@@ -23,8 +28,7 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
     let gameUpdateCommand: SpawnEntitiesGameUpdateCommand | null = null;
 
     const taggedSpawnableEntitiesOption = getSpawnableEntities(context);
-    const serializedSpawnedEntities: { entity: SerializedSpawnableEntity; withDelay?: number }[] =
-      [];
+    const serializedSpawnedEntities: SerializedSpawnedEntityWithTimelineRegistrations[] = [];
 
     if (taggedSpawnableEntitiesOption !== null) {
       const taggedSpawnableEntities = taggedSpawnableEntitiesOption;
@@ -35,11 +39,19 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant: {
-            const delay = battleOption?.getSchedulerDelayForNewActionUser();
-            party.combatantManager.addCombatant(spawnableEntity.combatant, game, delay);
+            party.combatantManager.addCombatant(spawnableEntity.combatant, game);
+            let timelineRegistrations: BattleTimelineRegistration[] | undefined;
+            if (battleOption) {
+              const { timeline } = battleOption;
+              timelineRegistrations = timeline.computeRegistrationsForCombatant(
+                spawnableEntity.combatant,
+                context.rngPolicy.initiative
+              );
+              timeline.registerMany(timelineRegistrations);
+            }
             serializedSpawnedEntities.push({
               entity: { ...spawnableEntity, combatant: spawnableEntity.combatant.toSerialized() },
-              withDelay: delay,
+              registrations: timelineRegistrations,
             });
             break;
           }

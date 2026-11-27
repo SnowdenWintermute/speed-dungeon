@@ -65,6 +65,13 @@ export class ActionEffectsApplyerCommand {
     // on an entity right before we despawn it
     this.applyDespawnedActionEntities(command.actionEntityIdsDespawned);
     this.applyActionEntitiesHidden(command.actionEntityIdsToHide);
+
+    if (this.battleOption) {
+      this.battleOption.timeline.removeEntries(
+        this.update.command.removedBattleTimelineEntryIds || []
+      );
+      this.battleOption.timeline.refreshForecast();
+    }
   }
 
   private applySupportClassLevelsGained(supportClassLevelsGained?: Record<string, CombatantClass>) {
@@ -88,7 +95,9 @@ export class ActionEffectsApplyerCommand {
           }[]
         >
   ) {
-    if (!removedConditionStacks) return;
+    if (!removedConditionStacks) {
+      return;
+    }
 
     const { gameWorldView } = this.clientApplication;
 
@@ -113,16 +122,12 @@ export class ActionEffectsApplyerCommand {
         }
       }
     }
-
-    if (this.battleOption) {
-      this.battleOption.turnOrderManager.updateTrackers(this.game, this.party);
-    }
   }
 
   private applyCombatantsRemoved(combatantIds?: CombatantId[]) {
     if (!combatantIds) return;
     for (const id of combatantIds) {
-      this.party.combatantManager.removeCombatant(id, this.game);
+      this.party.combatantManager.removeExpectedCombatant(id);
     }
   }
 
@@ -150,10 +155,6 @@ export class ActionEffectsApplyerCommand {
           );
         }
       }
-    }
-
-    if (this.battleOption) {
-      this.battleOption.turnOrderManager.updateTrackers(this.game, this.party);
     }
   }
 

@@ -121,7 +121,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
   }
 
   /** returns the dismissed pet */
-  unsummonPet(petId: EntityId, game: SpeedDungeonGame) {
+  unsummonPet(petId: EntityId) {
     const party = this.getParty();
     const expectedPet = party.combatantManager.requireCombatantById(petId);
     const summonedBy = expectedPet.combatantProperties.controlledBy.summonedBy;
@@ -129,7 +129,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
       throw new Error("Expected a pet to have been summoned by someone");
     }
     this.putPetInFirstEmptyUnsummonedSlot(summonedBy, expectedPet);
-    party.combatantManager.removeCombatant(expectedPet.getEntityId(), game);
+    party.combatantManager.removeExpectedCombatant(expectedPet.getEntityId());
     return expectedPet;
   }
 
@@ -165,7 +165,7 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
 
     // place the pet in either summonedCharacterPets or currentRoom.summonedMonsterPets
     if (isCharacterPet) {
-      party.combatantManager.addCombatant(pet, game, withDelay);
+      party.combatantManager.addCombatant(pet, game);
     } else if (isMonsterPet) {
       throw new Error("not implemented");
     }
@@ -189,9 +189,9 @@ export class PetManager extends AdventuringPartySubsystem implements Serializabl
     return pets.filter((pet) => pet.combatantProperties.controlledBy.summonedBy === combatantId)[0];
   }
 
-  handlePetTamed(petId: CombatantId, newOwnerId: CombatantId, game: SpeedDungeonGame) {
+  handlePetTamed(petId: CombatantId, newOwnerId: CombatantId) {
     const party = this.getParty();
-    const petCombatant = party.combatantManager.removeCombatant(petId, game);
+    const petCombatant = party.combatantManager.removeExpectedCombatant(petId);
 
     petCombatant.combatantProperties.threatManager = undefined;
     party.combatantManager.updateHomePositions();

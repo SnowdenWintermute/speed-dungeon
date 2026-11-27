@@ -9,8 +9,6 @@ import {
   FriendOrFoe,
   PartyFateType,
   RandomNumberGenerator,
-  ThreatChanges,
-  TurnSchedulerIdentifier,
 } from "../index.js";
 import { CombatantId, EntityId } from "../aliases.js";
 import { TurnOrderManager } from "../combat/turn-order/turn-order-manager.js";
@@ -55,20 +53,13 @@ export class Battle implements Serializable, ReactiveNode {
     const timeline = BattleTimeline.fromSerialized(serialized.timeline, party);
     const result = new Battle(serialized.id, game, party, timeline);
     result.turnOrderManager = TurnOrderManager.fromSerialized(serialized.turnOrderManager);
-    result.turnOrderManager.updateTrackers(game, party);
     return result;
   }
 
   // for initializing on server side creation
   initializeOnCreation(initiativeRng: RandomNumberGenerator) {
     this.party.combatantManager.refillAllCombatantActionPoints();
-
-    // new battle timeline
-    this.timeline.registerAllMovingActionUsers(initiativeRng);
-
-    // old turn scheduler
-    this.turnOrderManager.turnSchedulerManager.createSchedulersOnBattleStart(this.party);
-    this.turnOrderManager.updateTrackers(this.game, this.party);
+    this.timeline.registerAllCombatantsOnBattleStart(initiativeRng);
   }
 
   static invertAllyAndOpponentIds(
@@ -79,39 +70,6 @@ export class Battle implements Serializable, ReactiveNode {
       [FriendOrFoe.Friendly]: idsByDisposition[FriendOrFoe.Hostile],
       [FriendOrFoe.Neutral]: idsByDisposition[FriendOrFoe.Neutral],
     };
-  }
-
-  // old turn scheduler
-  handleTurnEnded(
-    turnSchedulerIdentifier: TurnSchedulerIdentifier,
-    delay: number,
-    threatChanges?: ThreatChanges
-  ) {
-    const { turnSchedulerManager } = this.turnOrderManager;
-
-    const turnSchedulerOption =
-      turnSchedulerManager.getTurnSchedulerOption(turnSchedulerIdentifier);
-
-    if (turnSchedulerOption) {
-      turnSchedulerOption.addDelay(delay);
-      this.turnOrderManager.updateTrackers(this.game, this.party);
-    }
-
-    const actionUserOption = this.party.getActionUserById(turnSchedulerIdentifier.turnTakerId);
-
-    actionUserOption?.handleTurnEnded();
-
-    if (threatChanges) {
-      threatChanges.applyToGame(this.party);
-    }
-  }
-
-  getSchedulerDelayForNewActionUser() {
-    this.turnOrderManager.updateTrackers(this.game, this.party);
-    const fastestTurnTracker = this.turnOrderManager.getFastestActorTurnOrderTracker();
-    const delayOfCurrentActor = fastestTurnTracker.timeOfNextMove;
-    const delayOfNewSheduler = delayOfCurrentActor;
-    return delayOfNewSheduler;
   }
 
   reviveCharactersOnPartyVictory() {

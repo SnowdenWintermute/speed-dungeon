@@ -114,7 +114,7 @@ export function postActionProcessedCleanup(
     }
     const shouldRemove = combatant.getCombatantProperties().removeFromPartyOnDeath;
     if (shouldRemove) {
-      party.combatantManager.removeCombatant(entityId as CombatantId, game);
+      party.combatantManager.removeExpectedCombatant(entityId as CombatantId);
       removedCombatantIds.push(entityId as CombatantId);
     }
   }

@@ -33,7 +33,12 @@ import { BattleConclusion } from "../battle/index.js";
 import { Equipment } from "../items/equipment/index.js";
 import { Consumable } from "../items/consumables/index.js";
 import { TurnSchedulerIdentifier } from "../combat/turn-order/turn-scheduler-manager.js";
-import { BattleTimelineEntryUpdate } from "../battle/timeline-entries/index.js";
+import {
+  BattleTimelineEntryIdentifier,
+  BattleTimelineEntryTiming,
+  BattleTimelineEntryUpdate,
+  BattleTimelineRegistration,
+} from "../battle/timeline-entries/index.js";
 
 export enum GameUpdateCommandType {
   SpawnEntities,
@@ -101,9 +106,14 @@ export interface EntityAnimation {
   smoothTransition: boolean;
 }
 
+export interface SerializedSpawnedEntityWithTimelineRegistrations {
+  entity: SerializedSpawnableEntity;
+  registrations?: BattleTimelineRegistration[];
+}
+
 export interface SpawnEntitiesGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntities;
-  entities: { entity: SerializedSpawnableEntity; withDelay?: number }[];
+  entities: { entity: SerializedSpawnableEntity; timings?: BattleTimelineEntryTiming[] }[];
 }
 
 export interface IEntityMotionUpdate {
@@ -183,12 +193,19 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   appliedConditions?: Partial<
     Record<
       HitOutcome,
-      Record<EntityId, { condition: SerializedOf<CombatantCondition>; startingDelay?: number }[]>
+      Record<
+        EntityId,
+        {
+          condition: SerializedOf<CombatantCondition>;
+          timelineEntryTimings?: BattleTimelineEntryTiming[];
+        }[]
+      >
     >
   >;
   removedConditionStacks?: Record<CombatantId, { conditionId: EntityId; numStacks: number }[]>;
   removedConditionIds?: Record<CombatantId, EntityId[]>;
   removedCombatantIds?: CombatantId[];
+  removedBattleTimelineEntryIds?: BattleTimelineEntryIdentifier[];
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
