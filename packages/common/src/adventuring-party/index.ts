@@ -189,7 +189,7 @@ export class AdventuringParty implements Serializable, ReactiveNode {
       character.getEntityId()
     );
     if (summonedPetOption) {
-      this.petManager.unsummonPet(summonedPetOption.getEntityId(), game);
+      this.petManager.unsummonPet(summonedPetOption.getEntityId());
       this.petManager.clearCombatantPets(characterId);
     }
     return character;

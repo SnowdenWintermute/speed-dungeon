@@ -4,11 +4,7 @@ import {
   ActionResolutionStepContext,
   ActionResolutionStepType,
 } from "./index.js";
-import {
-  GameUpdateCommandType,
-  SerializedSpawnedEntityWithTimelineRegistrations,
-  SpawnEntitiesGameUpdateCommand,
-} from "../game-update-commands.js";
+import { GameUpdateCommandType, SpawnEntitiesGameUpdateCommand } from "../game-update-commands.js";
 import { SerializedSpawnableEntity, SpawnableEntityType } from "../../spawnables/index.js";
 import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementations/index.js";
 import { BattleTimelineRegistration } from "../../battle/timeline-entries/index.js";
@@ -28,41 +24,41 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
     let gameUpdateCommand: SpawnEntitiesGameUpdateCommand | null = null;
 
     const taggedSpawnableEntitiesOption = getSpawnableEntities(context);
-    const serializedSpawnedEntities: SerializedSpawnedEntityWithTimelineRegistrations[] = [];
+    const serializedSpawnedEntities: SerializedSpawnableEntity[] = [];
 
     if (taggedSpawnableEntitiesOption !== null) {
       const taggedSpawnableEntities = taggedSpawnableEntitiesOption;
 
       const { game, party } = context.actionUserContext;
       const battleOption = party.getBattleOption(game);
+      const timelineRegistrationsForClient: BattleTimelineRegistration[] = [];
 
       for (const spawnableEntity of taggedSpawnableEntities) {
         switch (spawnableEntity.type) {
           case SpawnableEntityType.Combatant: {
             party.combatantManager.addCombatant(spawnableEntity.combatant, game);
-            let timelineRegistrations: BattleTimelineRegistration[] | undefined;
             if (battleOption) {
               const { timeline } = battleOption;
-              timelineRegistrations = timeline.computeRegistrationsForCombatant(
+              const timelineRegistrations = timeline.computeRegistrationsForCombatant(
                 spawnableEntity.combatant,
                 context.rngPolicy.initiative
               );
               timeline.registerMany(timelineRegistrations);
+              timelineRegistrationsForClient.push(...timelineRegistrations);
             }
             serializedSpawnedEntities.push({
-              entity: { ...spawnableEntity, combatant: spawnableEntity.combatant.toSerialized() },
-              registrations: timelineRegistrations,
+              ...spawnableEntity,
+              combatant: spawnableEntity.combatant.toSerialized(),
             });
+
             break;
           }
           case SpawnableEntityType.ActionEntity: {
             const { actionEntityManager } = party;
             actionEntityManager.registerActionEntity(spawnableEntity.actionEntity, battleOption);
             serializedSpawnedEntities.push({
-              entity: {
-                ...spawnableEntity,
-                actionEntity: spawnableEntity.actionEntity.toSerialized(),
-              },
+              ...spawnableEntity,
+              actionEntity: spawnableEntity.actionEntity.toSerialized(),
             });
             break;
           }
@@ -77,6 +73,7 @@ export class SpawnEntitiesActionResolutionStep extends ActionResolutionStep {
         actionName: context.tracker.actionExecutionIntent.actionName,
         completionOrderId: null,
         entities: serializedSpawnedEntities,
+        battleTimelineRegistrations: timelineRegistrationsForClient,
       };
     }
 

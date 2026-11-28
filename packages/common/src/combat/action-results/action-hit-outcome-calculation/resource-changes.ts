@@ -46,7 +46,9 @@ export class HitPointChanges extends ResourceChanges<ResourceChange> implements 
       const wasResurrected = !combatantWasAliveBeforeResourceChange && !combatantIsDead;
 
       const wasKilled = combatantWasAliveBeforeResourceChange && combatantIsDead;
-      if (wasKilled) combatantsKilled.push(targetId);
+      if (wasKilled) {
+        combatantsKilled.push(targetId);
+      }
 
       if (wasResurrected) {
         // - @todo - handle any ressurection by adding the affected combatant's turn tracker back into the battle

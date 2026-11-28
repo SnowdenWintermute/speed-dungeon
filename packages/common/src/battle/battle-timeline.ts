@@ -169,7 +169,7 @@ export class BattleTimeline implements Serializable, ReactiveNode {
     return timings;
   }
 
-  computeConditionTimingsOnRegistered(
+  private computeConditionTimingsOnRegistered(
     condition: CombatantCondition,
     initiativeRng: RandomNumberGenerator
   ) {
@@ -189,6 +189,16 @@ export class BattleTimeline implements Serializable, ReactiveNode {
       combatant,
       initiativeRng
     );
+  }
+
+  computeRegistrationForCondition(
+    condition: CombatantCondition,
+    initiativeRng: RandomNumberGenerator
+  ) {
+    return {
+      taggedActionUserId: condition.getTaggedId(),
+      timings: this.computeConditionTimingsOnRegistered(condition, initiativeRng),
+    };
   }
 
   computeRegistrationsForCombatant(combatant: Combatant, initiativeRng: RandomNumberGenerator) {

@@ -16,6 +16,7 @@ import { COMBAT_ACTIONS } from "../../combat/combat-actions/action-implementatio
 import { getKillAttachedCombatantsActionIntents } from "./hit-outcome-triggers/index.js";
 import { rollIsSuccess } from "../../utility-classes/random-number-generation-policy.js";
 import { DURABILITY_LOSS_CHANCE } from "../../app-consts.js";
+import { BattleTimelineEntryIdentifier } from "../../battle/timeline-entries/index.js";
 
 const stepType = ActionResolutionStepType.EvalOnUseTriggers;
 export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep {
@@ -67,13 +68,18 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       }
     }
 
+    const removedBattleTimelineEntryIds: BattleTimelineEntryIdentifier[] = [];
+
     if (petsUnsummoned) {
       for (const petId of petsUnsummoned) {
-        const pet = party.petManager.unsummonPet(petId, game);
+        const pet = party.petManager.unsummonPet(petId);
+
         const branchingActions = getKillAttachedCombatantsActionIntents(pet, party);
         this.branchingActions.push(...branchingActions);
       }
     }
+
+    gameUpdateCommand.removedBattleTimelineEntryIds = removedBattleTimelineEntryIds;
 
     if (petSlotsReleased) {
       for (const { ownerId, slotIndex } of petSlotsReleased) {
@@ -101,6 +107,13 @@ export class EvalOnUseTriggersActionResolutionStep extends ActionResolutionStep 
       gameUpdateCommand.durabilityChanges = durabilityChanges;
 
       DurabilityChangesByEntityId.ApplyToGame(party, durabilityChanges);
+    }
+
+    if (battleOption) {
+      const { timeline } = battleOption;
+      const staleEntries = timeline.computeStaleEntries();
+      timeline.removeEntries(staleEntries);
+      gameUpdateCommand.removedBattleTimelineEntryIds = staleEntries;
     }
   }
 

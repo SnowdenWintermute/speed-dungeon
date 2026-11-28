@@ -165,7 +165,7 @@ export class ActionEffectsApplyerCommand {
 
     for (const petId of petsUnsummoned) {
       const pet = combatantManager.requireCombatantById(petId);
-      petManager.unsummonPet(petId, this.game);
+      petManager.unsummonPet(petId);
 
       const combatantSceneEntityManager =
         this.gameWorldView?.sceneEntityService.combatantSceneEntityManager;
@@ -196,7 +196,7 @@ export class ActionEffectsApplyerCommand {
     if (!petsTamed) return;
 
     for (const { petId, tamerId } of petsTamed) {
-      this.party.petManager.handlePetTamed(petId, tamerId, this.game);
+      this.party.petManager.handlePetTamed(petId, tamerId);
 
       const combatantSceneEntityManager =
         this.gameWorldView?.sceneEntityService.combatantSceneEntityManager;

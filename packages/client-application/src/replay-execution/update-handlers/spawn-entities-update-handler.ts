@@ -22,12 +22,12 @@ export async function spawnEntitiesGameUpdateHandler(
   const promises: Promise<void>[] = [];
 
   const deserialized: (Combatant | ActionEntity)[] = [];
-  for (const { entity, withDelay } of command.entities) {
+  for (const entity of command.entities) {
     if (entity.type === SpawnableEntityType.Combatant) {
       const { combatant } = entity;
       const deserialized = Combatant.fromSerialized(combatant);
       deserialized.makeObservable();
-      party.combatantManager.addCombatant(deserialized, game, withDelay);
+      party.combatantManager.addCombatant(deserialized, game);
       if (clientApplication.gameWorldView) {
         promises.push(
           handleNewSpawnableCombatant(clientApplication.gameWorldView, entity, deserialized)
@@ -54,6 +54,15 @@ export async function spawnEntitiesGameUpdateHandler(
     await Promise.all(promises);
   } catch (error) {
     console.info("some error with spawn entities:", error);
+  }
+
+  const battleOption = party.getBattleOption(game);
+  const { battleTimelineRegistrations } = command;
+
+  if (battleOption && battleTimelineRegistrations) {
+    const { timeline } = battleOption;
+    timeline.registerMany(battleTimelineRegistrations);
+    timeline.refreshForecast();
   }
 }
 

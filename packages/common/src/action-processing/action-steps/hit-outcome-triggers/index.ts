@@ -226,6 +226,13 @@ export class EvalOnHitOutcomeTriggersActionResolutionStep extends ActionResoluti
         party.petManager.handlePetTamed(petId, tamerId);
       }
     }
+
+    if (battleOption) {
+      const { timeline } = battleOption;
+      const staleEntries = timeline.computeStaleEntries();
+      timeline.removeEntries(staleEntries);
+      gameUpdateCommand.removedBattleTimelineEntryIds = staleEntries;
+    }
   }
 
   protected onTick = () => {};

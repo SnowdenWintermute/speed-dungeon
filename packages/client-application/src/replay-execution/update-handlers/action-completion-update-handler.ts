@@ -13,9 +13,11 @@ export async function actionCompletionGameUpdateHandler(
   const { command } = update;
 
   if (battleOption) {
+    const { timeline } = battleOption;
     if (command.timingUpdates) {
-      battleOption.timeline.applyUpdates(command.timingUpdates);
+      timeline.applyUpdates(command.timingUpdates);
     }
+
     const { threatChanges } = command;
     const deserializedThreatChangesOption = threatChanges
       ? ThreatChanges.fromSerialized(threatChanges)
@@ -23,6 +25,7 @@ export async function actionCompletionGameUpdateHandler(
     if (deserializedThreatChangesOption) {
       deserializedThreatChangesOption.applyToGame(party);
     }
+
     // @TODO - this comment uses terms from the old "turn scheduler" before the new "battle timeline"
     // a turn ended, so the tracker list must be rebuilt even when handleTurnEnded could not
     // resolve a scheduler to apply the delta to (e.g. a removed condition, or an effect-less

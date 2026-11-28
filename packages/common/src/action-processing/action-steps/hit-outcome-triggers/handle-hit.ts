@@ -1,3 +1,4 @@
+import { BattleTimelineRegistration } from "../../../battle/timeline-entries/index.js";
 import { COMBAT_ACTIONS } from "../../../combat/combat-actions/action-implementations/index.js";
 import { Combatant } from "../../../combatants/index.js";
 import { CombatantConditionFactory } from "../../../conditions/condition-factory.js";
@@ -76,19 +77,14 @@ export function handleHit(
 
       const { conditionManager } = targetCombatant.combatantProperties;
       conditionManager.applyCondition(condition);
-      let delayForClient: undefined | number;
+
+      let timelineRegistration: undefined | BattleTimelineRegistration;
       if (battleOption !== null) {
-        // new battle timeline
-        const initialTiming = battleOption.timeline.computeConditionTimingsOnRegistered(
+        const timelineRegistration = battleOption.timeline.computeRegistrationForCondition(
           condition,
           context.rngPolicy.initiative
         );
-        battleOption.timeline.register(condition.getTaggedId(), initialTiming);
-        // old turn scheduler
-        const { turnSchedulerManager } = battleOption.turnOrderManager;
-        const startingDelay = turnSchedulerManager.computeNewConditionStartingDelay(party);
-        delayForClient = startingDelay;
-        turnSchedulerManager.addConditionToTurnOrder(condition, startingDelay);
+        battleOption.timeline.registerOne(timelineRegistration);
       }
 
       addConditionToUpdate(
@@ -96,7 +92,7 @@ export function handleHit(
         gameUpdateCommand,
         targetCombatant.entityProperties.id,
         HitOutcome.Hit,
-        delayForClient
+        timelineRegistration
       );
     }
   }

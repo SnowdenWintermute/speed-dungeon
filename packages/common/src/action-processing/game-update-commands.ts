@@ -106,14 +106,10 @@ export interface EntityAnimation {
   smoothTransition: boolean;
 }
 
-export interface SerializedSpawnedEntityWithTimelineRegistrations {
-  entity: SerializedSpawnableEntity;
-  registrations?: BattleTimelineRegistration[];
-}
-
 export interface SpawnEntitiesGameUpdateCommand extends IGameUpdateCommand {
   type: GameUpdateCommandType.SpawnEntities;
-  entities: { entity: SerializedSpawnableEntity; timings?: BattleTimelineEntryTiming[] }[];
+  entities: SerializedSpawnableEntity[];
+  battleTimelineRegistrations?: BattleTimelineRegistration[];
 }
 
 export interface IEntityMotionUpdate {
@@ -197,7 +193,6 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
         EntityId,
         {
           condition: SerializedOf<CombatantCondition>;
-          timelineEntryTimings?: BattleTimelineEntryTiming[];
         }[]
       >
     >
@@ -206,6 +201,7 @@ export interface ActivatedTriggersGameUpdateCommand extends IGameUpdateCommand {
   removedConditionIds?: Record<CombatantId, EntityId[]>;
   removedCombatantIds?: CombatantId[];
   removedBattleTimelineEntryIds?: BattleTimelineEntryIdentifier[];
+  battleTimelineRegistrations?: BattleTimelineRegistration[];
   supportClassLevelsGained?: Record<EntityId, CombatantClass>;
   actionEntityIdsDespawned?: { id: EntityId; cleanupMode: CleanupMode }[];
   actionEntityIdsToHide?: EntityId[];
